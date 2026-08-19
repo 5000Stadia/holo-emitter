@@ -143,7 +143,8 @@ Notes:
   "image_h_px": 1024,
   "horizon_y": 0.48,
   "key_dir": "UL",
-  "calibration_ref": "door frame, 2.0 m at wall plane"
+  "calibration_ref": "door frame, 2.0 m at wall plane",
+  "calibration_px": 192
 }
 ```
 
@@ -156,6 +157,16 @@ Notes:
   contract). `horizon_y` is the authored horizon at camera eye height 1.6m; acceptance asserts
   |`horizon_y` − (`floor_line_y` − 1.6·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 — the
   camera-has-feet gate, independent of the calibration it feeds.
+- [AI] Calibration is auditable against pixels, not just self-consistent: `calibration_px` is the
+  measured pixel height of `calibration_ref` in the actual image, and acceptance asserts
+  `px_per_m_at_wall` ≈ `calibration_px` / ref height in metres (±3%). A meta whose numbers cannot
+  be traced to the image fails.
+- [AI] **Viewport geometry, pinned.** Backdrops are generated at 1536×1024 (3:2, a native
+  `gpt-image-1` size) and map 1:1 onto a fixed 1536×1024 logical canvas — no crop, no letterbox
+  inside the canvas; the page scales the canvas to fit the window width. The floor runs to the
+  bottom edge of frame (the frame-bottom cut is the camera-has-feet device). Flip pairs and all
+  hash tests capture the canvas element only — never window chrome — so pairs differ in nothing
+  but the composited sprites.
 - **Ground-plane function:** for baseline screen-y between `floor_line_y` (depth = wall) and 1.0 (depth = nearest), scale = lerp(`px_per_m_at_wall`, `px_per_m_at_bottom`). `floor_against` objects sit exactly on `floor_line_y` offset by their own depth; `floor_free` objects convert `depth_m` → baseline-y by inverse lerp.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
@@ -199,6 +210,19 @@ Notes:
 
 Pure function per frame: `(world, staging, library, backdropMeta, viewstate) → canvas`. No state of its own. Canvas 2D only.
 
+[AI] Three clarifications with the standing license (change if it makes the product better, say why):
+- **The canvas never animates in M0.** No time input; part states render at their settled values
+  (mid-state interpolation exists as an explicit renderer input, used by tests); the `go` fade is
+  DOM chrome over the canvas, never canvas drawing — so §12.2's hash-per-settled-step is
+  well-defined and the renderer stays pure. Myst itself snaps between stills; the anchor licenses
+  this.
+- **Debug/test switches are renderer inputs**, not hidden state: an options argument can disable
+  tint, contact shadows, or part interpolation, and select backdrop-only — this is what §12.8
+  drives, and purity is preserved because equal inputs still hash equal.
+- **The holodeck grid is a product mode, not placeholder art**: when a facing has no backdrop
+  asset, the renderer draws the procedural holodeck grid (in-fiction unestablished space). Row 1
+  builds it as that mode; real backdrops later occlude it but never delete it.
+
 Draw order:
 1. Backdrop for `viewstate.location/facing`.
 2. Entities assigned to this facing (via staging or via host chain), **filtered by knowledge**: skip any entity not in `knowledge.player`. Skip any entity with a `held_by` relation to the player.
@@ -227,7 +251,7 @@ Loop: intent → validate against world (is it a state entity? takeable? known? 
 Rules:
 - First `toggle → open` of a container adds its unknown contents to knowledge (`knowledge_add`). This is the reveal.
 - `take` requires: takeable, known, and (if contained) host open. Effect: add `["held_by", id, "player"]`, remove `in`/`on` relation. Inventory strip re-renders from `held_by` relations — it is a projection too.
-- `go` requires the door state `open`; plays a fade, sets `viewstate` to target location + `arrive_facing`.
+- `go` requires the door state `open`; plays a fade (DOM chrome, not canvas — §7 [AI]), sets `viewstate` to target location + `arrive_facing`.
 - Invalid intents emit an envelope with no events and a refusal narration line. The picture never changes when the world doesn't.
 - The envelope format is the future websocket wire format. The harness is a stand-in for the Construct transport server (holo-emitter later ships as a Construct transport; this module boundary is that seam); keep it in its own module with no renderer internals.
 
@@ -247,7 +271,7 @@ Stages (all automatic unless noted):
 3. **Parts.** v1 takes a hand-drawn mask PNG per part; ingester cuts the part, inpaints the cavity with darkened content-aware fill (PIL blur-fill acceptable — cavity quality bar is low), records origin, writes both PNGs.
 3b. [AI] **Two-state (swap archetypes — the door leaf).** `--state open:IMG` runs the second image through stage 1 and records it as `states_images.open` beside `sprite.png` (the closed state). Alignment gate: the two images' `base` anchors must agree within 2% of sprite width — fail otherwise. Gate (d) does not apply to swap sprites; gate (e) applies to both images. Contract note: a state-variant source prompt replaces "all moving parts closed and fully seated" with the named state ("door leaf fully open"), all other blocks unchanged.
 3c. [AI] **Thumbs.** `--takeable` auto-emits `thumb.png`: square, content-bbox-centred crop, 128px. Gate: every takeable record carries a square thumb.
-4. **Gates (hard fail unless noted).** (a) halo: mean saturation of border-adjacent semi-alpha pixels must not read grey (report + fail); (b) holes: enclosed background-colored regions remaining at alpha>0 → fail; (c) min resolution: content bbox ≥ 512px tall for furniture, ≥ 128px for takeables; (d) **state diff**: composite(body+part@closed) vs original — pixel diff outside part mask must be ≈0 → fail; (e) light direction (Sobel-based bright-side estimate) vs contract `UL45` → **warn only**, record deviation.
+4. **Gates (hard fail unless noted).** [AI: gate thresholds are pinned in `contract.json` *before* the corpus runs, and the test suite carries a negative control — an image constructed to fail (grey halo on grey ground) that must demonstrably fail; a gate tuned until the corpus passes is no gate.] (a) halo: mean saturation of border-adjacent semi-alpha pixels must not read grey (report + fail); (b) holes: enclosed background-colored regions remaining at alpha>0 → fail; (c) min resolution: content bbox ≥ 512px tall for furniture, ≥ 128px for takeables; (d) **state diff**: composite(body+part@closed) vs original — pixel diff outside part mask must be ≈0 → fail; (e) light direction (Sobel-based bright-side estimate) vs contract `UL45` → **warn only**, record deviation.
 5. **Emit** `record.json` (schema §6), populated from flags + derivations; `provenance.tool = "replicator-ingest-v1"`.
 
 Test corpus: the two existing 1660s desk generations. Both must pass matting + gates; the second (teardrop pulls) becomes `desk-joined-oak-1660`.
@@ -262,29 +286,45 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
   "framing": { "background": "seamless mid-grey", "margin": "full object centered",
                "states": "all moving parts closed", "props": "none" },
   "prompt_block": "Front-three-quarter view turned 30 degrees to viewer-left, shot at 50mm, camera at 1.6m eye height, object centered and fully in frame, single soft key light from upper left at 45 degrees with even fill, plain mid-grey seamless background, sharp focus edge to edge, all moving parts closed and fully seated, panel and drawer edges clearly delineated with visible reveal gaps, nothing resting on or in front of the object, no props, no scene",
-  "negative_block": "cast shadow on background, dramatic lighting, rim light, vignette, depth of field, cropped, background scenery, props" }
+  "negative_block": "cast shadow on background, dramatic lighting, rim light, vignette, depth of field, cropped, background scenery, props",
+  "style_block": "AUTHORED AT ROW 4 PROBE — extracted from the Kabe-approved study/N backdrop and written here before any sprite generation: palette (named hexes), medium (e.g. painterly gouache vs photoreal), grain/texture character, period rendering descriptors. Every backdrop AND sprite prompt appends it; the sprite hand reads this file and nothing else for style." }
 ```
 
 Every generated sprite and backdrop prompt appends the relevant block. Ingester gate (e) checks arrivals against `light.key`.
 
 ## 11. Assets to produce (complete list)
 
-Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English interior, oak paneling, leaded windows; consistent key light; **no furniture, no props** in any backdrop; the E walls contain a door *frame/opening* only (door leaf is a sprite).
+Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English interior, oak paneling, leaded windows; consistent key light; **no furniture, no props** in any backdrop; the exit walls contain a door *frame/opening* only (door leaf is a sprite).
+
+[AI] **Wall maps** (authored so four generations depict one room; standing license applies):
+- *Study* — N: paneled wall with stone fireplace; E: the door opening to the hall; S: leaded
+  windows; W: blank oak paneling with wainscot.
+- *Hall* — N: paneled wall (shelf1 stands against it); W: the door opening to the study; E:
+  leaded window at the far end; S: tapestry on paneling.
+- **World light:** overcast diffuse daylight through the windows, no visible sun shafts, no cast
+  window-light patterns — this is what lets screen-space `key_dir: UL` on every facing stay
+  plausible when the viewer turns. Written into every backdrop prompt sheet.
+- **Cross-facing coherence** (corners continue, paneling module repeats, one room reads) is judged
+  by Kabe inside the backdrop generation loop — the human eye at generation time is the gate — and
+  re-checked on the batched eight-facing screenshot set, per room, at row 4.
+- **The door leaf is authored visually symmetric** — plain plank leaf, centred iron ring pull, no
+  visible hinge asymmetry — so the one face image is honest from both rooms (mirror is banned and
+  a two-faced leaf would need it, or four state images §11 does not authorize).
 
 Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeable) · coin (takeable) · chair · candlestick · door leaf (hinged: two-state = closed image + open image for M0, no decomposition needed — swap, don't slide). Shelf may be baked into a Hall backdrop **only if nothing interactable sits on it — but coin1 sits on it, so shelf1 is a sprite too** (8th sprite, static; id `shelf-oak` [AI]).
 
 ## 12. Acceptance (all must pass)
 
-1. **Scripted walkthrough (Playwright):** turn×4 → attempt `go` through the closed door (refusal: envelope with no events, refusal narration, canvas hash unchanged) → attempt `take key1` while unknown (refusal, same three asserts) → toggle desk open → assert key visible → take key → assert inventory has key, cavity empty → toggle desk closed → toggle door1 open → go to hall → assert door1 renders open from the hall side → take coin → go back to study (door1 still open — persistence) → toggle desk open → assert key still absent, notebook still present. Document assertions after every step. [AI: door-toggle steps and the refusal cases are completions — the v0.2 script walked through a door it never opened, and no acceptance exercised "the picture never changes when the world doesn't".]
+1. **Scripted walkthrough (Playwright):** turn×4 → attempt `go` through the closed door (refusal: envelope with no events, refusal narration, canvas hash unchanged) → attempt `take key1` while unknown (refusal, same three asserts) → toggle desk open → assert key visible → take key → assert inventory has key, cavity empty → toggle desk closed → toggle door1 open → go to hall → assert door1 renders open from the hall side → take coin → go back to study (door1 still open — persistence) → toggle desk open → assert key still absent, notebook still present. Document assertions after every step. [AI: door-toggle steps and the refusal cases are completions — the v0.2 script walked through a door it never opened, and no acceptance exercised "the picture never changes when the world doesn't". The walkthrough acts through **real pointer and keyboard events** — clicks on drawn entities' alpha hit-regions, chevron clicks, arrow keys — never by calling the harness directly, and asserts hover-highlight once; the interaction layer has no other gate.]
 2. **Determinism:** identical fixture + viewstate rendered twice → identical canvas hash. Full walkthrough replayed → identical hash sequence.
 3. **State isolation:** toggling desk changes pixels only within the drawer part + cavity bounds (diff mask check).
 4. **Knowledge:** before first open, `key1` appears in zero frames — and the filter is exercised positively [AI]: render, through the pure renderer, a doctored fixture with `desk1` open and `key1` absent from `knowledge.player`; the cavity region must hash-equal the empty-cavity reference. (A closed-drawer-only check never touches the filter — a renderer that ignores knowledge entirely would pass it.)
-5. **Geometric:** each floor entity's rendered height within ±5% of dims_m through the ground-plane fn (measured on 3 calibration entities per room). [AI] Plus the camera-has-feet gate per backdrop: the §5 horizon consistency assertion holds on all eight facings.
+5. **Geometric:** each floor entity's rendered height within ±5% of dims_m through the ground-plane fn (measured on 3 calibration entities per room — any staged entity with known `dims_m` qualifies, wall-mounted included: the hall's census is shelf1, stick1, door1 [AI]). [AI] Plus the camera-has-feet gates per backdrop: the §5 horizon consistency assertion and the §5 pixel-audit of `calibration_px` hold on all eight facings.
 6. **Flip test (human):** for each facing, composite vs backdrop-only, 3 seconds each; grader (agent rubric + Kabe) marks any object that reads as a sticker. Zero stickers to pass. [AI] The agent rubric is the intention's five decomposed qualities — one light, contact, occlusion chains, one hand, the camera has feet — applied per object; pairs are full-browser screenshots (1280×800, cold `file://` load), batched so Kabe judges on their own schedule.
 7. **Static hosting:** the demo runs from `file://` and from GitHub Pages with zero network requests after load.
-8. [AI] **Compositing mechanisms fire (placeholder-testable):** rendering with tint, contact shadows, or part interpolation disabled must produce a different canvas hash than the full pipeline (each mechanism asserted separately); a mid-state part render differs from both end states; the staged overlap pairs (`chair1`×`desk1`, `stick1`×`shelf1`) render with actually intersecting alpha bounds. This is what catches a silently absent §7 mechanism before the expensive human moment.
-9. [AI] **Narration coverage:** every (intent, entity, outcome) reachable in the walkthrough — refusals included — resolves to a non-empty, non-placeholder line in `narration.json`.
-10. [AI] **Blind comparison (at Done):** our eight facing composites interleaved blind with anchor stills (Myst, Riven, Machinarium routes in the intention); a fresh agent judges the five decomposed qualities item by item; Kabe judges "standing somewhere", running the played anchors themselves. A tie closes a quality; any loss allocates a new spec row that blocks Done.
+8. [AI] **Compositing mechanisms fire (placeholder-testable):** rendering with tint, contact shadows, or part interpolation disabled must produce a different canvas hash than the full pipeline (each mechanism asserted separately); a mid-state part render differs from both end states; the staged overlap pairs (`chair1`×`desk1`, `stick1`×`shelf1`) render with intersecting **opaque pixels** (alpha above threshold — one entity genuinely occludes part of the other; touching bounding boxes do not pass); and a viewstate whose facing has no backdrop asset renders the procedural holodeck grid, deterministically (§7 grid mode). This is what catches a silently absent §7 mechanism before the expensive human moment.
+9. [AI] **Narration coverage:** every (intent × entity × outcome) triple the harness can emit — enumerated statically from the fixture (every entity is clickable, so `take note1`, `toggle chair1`, hall-side door toggles and all refusal outcomes are in the domain), not just the walkthrough's path — resolves to a non-empty, non-placeholder line in `narration.json`.
+10. [AI] **Blind comparison (at Done):** our eight facing composites interleaved blind with anchor stills (Myst, Riven, Machinarium routes in the intention); a fresh agent judges the five decomposed qualities item by item against **per-quality observable loss criteria written before grading** (what a loss on "contact" concretely looks like, etc.); the grader is not told which verdict unblocks anything. Kabe judges "standing somewhere", running the played anchors themselves. A tie closes a quality; any loss allocates a new spec row that blocks Done.
 
 ## 13. Deliverable
 
