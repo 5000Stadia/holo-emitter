@@ -720,6 +720,40 @@ export function validate(fixtureDir, records) {
     }
   }
 
+  /* ---- 7b. every staged entity lands somewhere in the frame ------------- */
+
+  /* `u ∈ [0,1]` and a legal `depth_m` are not enough to be on screen: the
+   * u-mapping spans `wall_width_m` at the PLACEMENT's own scale, so a
+   * floor_free object at depth 1.2 m runs from x −400 to x 1936 across the
+   * legal u range. Staging chair1 at u 0.95 projected it to x 1769–1871 —
+   * entirely outside the 1536 px canvas — and the only finding raised was
+   * the overlap-pair one, which exists for two named pairs. An entity not in
+   * a named pair would vanish from a perfectly legal document. */
+  for (const [id, raw] of Object.entries(placements)) {
+    const ent = entities.get(id);
+    if (!isObj(ent)) continue;
+    const rec = isObj(records[ent.sprite]) ? records[ent.sprite] : null;
+    if (!rec) continue;
+    for (const pl of placementList(raw)) {
+      if (!isObj(pl) || isAnchorPlacement(pl) || typeof pl.facing !== "string") continue;
+      const meta = metaForFacing(pl.facing, findings);
+      let span = null;
+      try {
+        span = projectSpans(pl, rec, meta);
+      } catch {
+        span = null;
+      }
+      if (!span || Object.values(span).some((v) => !Number.isFinite(v))) continue;
+      const onScreen = span.x1 > 0 && span.x0 < CANVAS_W &&
+        span.y1 > 0 && span.y0 < meta.image_h_px;
+      if (!onScreen) {
+        findings.push(
+          `staging.json: placement "${id}" on ${pl.facing} projects to x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}] y [${span.y0.toFixed(1)}, ${span.y1.toFixed(1)}] — wholly outside the ${CANVAS_W}×${meta.image_h_px} frame`
+        );
+      }
+    }
+  }
+
   /* ---- 8. §12.9 narration coverage + plan-§5 honesty rules -------------- */
 
   let lines = null;

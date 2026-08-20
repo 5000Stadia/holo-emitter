@@ -45,7 +45,7 @@
       "facing": "hall/N",
       "attachment": "floor_free",
       "u": 0.4632,
-      "depth_m": 0.4
+      "depth_m": 0.75
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",

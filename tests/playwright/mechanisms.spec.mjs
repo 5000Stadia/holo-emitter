@@ -1263,102 +1263,104 @@ test.describe("mechanisms that were unguarded", () => {
   });
 });
 
-/* A person does not click the exact centre of a six-pixel coin, and on a
- * phone six logical pixels is one and a half CSS pixels. The sweep above
- * aims at bbox centres on desktop widths, which is the convenient viewpoint
- * in test form: it passed while the tolerance ring — added for exactly these
- * three objects — was widening nothing at all, because at every ring offset
- * the hit is the shelf or the desk underneath. These aim off-centre, at
- * phone and laptop widths. */
-test.describe("takeables survive a near-miss, at the sizes people actually use", () => {
+/* What a click means, asked of the shipped resolver at real display scales.
+ * Two directions, because the first version of this battery only had one and
+ * the fix it guarded went too far: forgiveness for a small takeable turned
+ * into a takeable outranking everything near it, and on a phone the notebook
+ * answered clicks on the drawer, on the chair and on bare wall.
+ *
+ * The rule these pin: a takeable owns its own drawn rectangle (a click on a
+ * transparent pixel inside the key still means the key, not the desk behind
+ * it), and owns nothing beyond it. */
+test.describe("what a click means, at the sizes people actually use", () => {
   const viewports = [
     { name: "phone 390×844", width: 390, height: 844 },
-    { name: "laptop 1366×768", width: 1366, height: 768 }
+    { name: "laptop 1366×768", width: 1366, height: 768 },
+    { name: "desktop 1920×1080", width: 1920, height: 1080 }
   ];
-  const targets = [
-    { id: "coin1", host: "shelf1", boot: { location: "hall", facing: "N" } },
-    { id: "note1", host: "desk1", boot: null }
-  ];
-  // How far off a person's aim can be and still mean what they meant.
-  const MISS_CSS = 8;
 
-  for (const vp of viewports) {
-    for (const t of targets) {
-      test(`${t.id} on ${vp.name}, aimed ${MISS_CSS} CSS px off centre`, async ({ page }) => {
-        await page.setViewportSize({ width: vp.width, height: vp.height });
-        let root = null;
-        try {
-          if (t.boot) {
-            root = stageTree();
-            setViewstate(root, t.boot);
-          }
-          await page.goto(appUrl(root ?? undefined));
-          const c = await page.evaluate((id) => {
-            const e = window.__T.currentLayout().find((x) => x.id === id);
-            if (!e) return null;
-            const b = window.__T.entryBBox(e);
-            return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
-          }, t.id);
-          expect(c, `${t.id} is on screen`).not.toBeNull();
-          const box = await page.locator("#scene").boundingBox();
-          const cx = box.x + (c.x * box.width) / 1536;
-          const cy = box.y + (c.y * box.height) / 1024;
-
-          // Four misses, one per compass point, each a plausible slip.
-          for (const [dx, dy] of [[MISS_CSS, 0], [-MISS_CSS, 0], [0, MISS_CSS], [0, -MISS_CSS]]) {
-            const before = await page.evaluate(() => window.HOLO_APP.harness.envelopes.length);
-            await page.mouse.click(cx + dx, cy + dy);
-            const env = await page.evaluate((n) => {
-              const h = window.HOLO_APP.harness;
-              return h.envelopes.length > n ? h.envelopes[h.envelopes.length - 1].intent : null;
-            }, before);
-            expect(env, `${t.id}: a miss by ${dx},${dy} dispatched something`).not.toBeNull();
-            expect(env.entity,
-              `${t.id}: a miss by ${dx},${dy} still means the ${t.id}, not the ${t.host} under it`)
-              .toBe(t.id);
-            expect(env.type).toBe("take");
-            // Undo, so the next miss starts from the same world.
-            await page.evaluate((id) => {
-              const h = window.HOLO_APP.harness;
-              h.world.relations = h.world.relations.filter((r) => r[1] !== id);
-              h.world.relations.push(["on", id, id === "coin1" ? "shelf1" : "desk1"]);
-              h.redraw();
-            }, t.id);
-          }
-        } finally {
-          if (root) removeTree(root);
-        }
-      });
-    }
+  async function resolveAt(page, x, y) {
+    return await page.evaluate(({ x, y }) => {
+      const r = window.HOLO_APP.resolve({ x, y });
+      return r.kind === "entity" ? r.id : r.kind;
+    }, { x, y });
   }
 
-  test("the revealed key survives a near-miss instead of being shut in again", async ({ page }) => {
-    // A miss on the key used to dispatch `toggle desk1`, closing the drawer
-    // over the reveal — the player's likeliest slip undoing the one moment
-    // the whole M0 premise is built around.
+  for (const vp of viewports) {
+    test(`${vp.name}: a takeable owns its own rectangle and nothing outside it`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto(appUrl());
+      const g = await page.evaluate(() => {
+        const L = window.__T.currentLayout();
+        const box = (id) => {
+          const e = L.find((x) => x.id === id);
+          return e ? window.__T.entryBBox(e) : null;
+        };
+        return { note: box("note1"), desk: box("desk1"), chair: box("chair1") };
+      });
+      expect(g.note).not.toBeNull();
+
+      // Inside the notebook's own rectangle — including its transparent
+      // corners — the notebook wins over the desk it stands on.
+      for (const [fx, fy] of [[0.5, 0.5], [0.05, 0.05], [0.95, 0.95], [0.05, 0.95]]) {
+        const id = await resolveAt(page, g.note.x + fx * g.note.w, g.note.y + fy * g.note.h);
+        expect(id, `${vp.name}: inside the notebook means the notebook`).toBe("note1");
+      }
+
+      // The drawer face — the one affordance the placeholder art draws, and
+      // the gateway to the whole M0 premise — means the desk.
+      const drawer = await page.evaluate(() => {
+        const e = window.__T.currentLayout().find((x) => x.id === "desk1");
+        const part = e.record.parts[0];
+        return {
+          x: e.drawX + e.f * (part.origin.x + 40),
+          y: e.drawY + e.f * (part.origin.y + 12)
+        };
+      });
+      expect(await resolveAt(page, drawer.x, drawer.y),
+        `${vp.name}: the drawer face means the desk`).toBe("desk1");
+
+      // The chair back means the chair.
+      const chairPt = await page.evaluate(() => window.__T.clickPoint("chair1"));
+      expect(await resolveAt(page, chairPt.x, chairPt.y),
+        `${vp.name}: the chair means the chair`).toBe("chair1");
+
+      // Bare wall well clear of everything means nothing at all — dead space
+      // stays dead however small the display scale makes a CSS margin.
+      expect(await resolveAt(page, g.note.x + g.note.w / 2, g.note.y - 90),
+        `${vp.name}: bare wall above the desk dispatches nothing`).toBe("none");
+      expect(await resolveAt(page, g.chair.x + g.chair.w + 70, g.chair.y + g.chair.h - 10),
+        `${vp.name}: bare floor beside the chair dispatches nothing`).toBe("none");
+    });
+  }
+
+  test("a click on a see-through pixel of the revealed key still means the key", async ({ page }) => {
+    // Children draw over their host, so a transparent pixel inside the key's
+    // rectangle is desk pixels underneath — and dispatching `toggle desk1`
+    // there shuts the drawer over the reveal the player just earned.
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(appUrl());
     await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "desk1" }));
-    const c = await page.evaluate(() => {
-      const e = window.__T.currentLayout().find((x) => x.id === "key1");
-      if (!e) return null;
-      const b = window.__T.entryBBox(e);
-      return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+    const hole = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const L = window.__T.currentLayout();
+      const key = L.find((x) => x.id === "key1");
+      const b = window.__T.entryBBox(key);
+      for (let y = Math.ceil(b.y); y < b.y + b.h; y++) {
+        for (let x = Math.ceil(b.x); x < b.x + b.w; x++) {
+          if (window.HOLO.renderer.hitTest(L, A.library, x, y) === "desk1") {
+            return { x, y };
+          }
+        }
+      }
+      return null;
     });
-    expect(c, "the key is revealed and on screen").not.toBeNull();
-    const box = await page.locator("#scene").boundingBox();
-    await page.mouse.click(
-      box.x + ((c.x + 6) * box.width) / 1536,
-      box.y + ((c.y + 4) * box.height) / 1024);
-    const res = await page.evaluate(() => {
-      const h = window.HOLO_APP.harness;
-      return {
-        intent: h.envelopes[h.envelopes.length - 1].intent,
-        desk: h.world.entities.find((e) => e.id === "desk1").state
-      };
-    });
-    expect(res.intent).toEqual({ type: "take", entity: "key1" });
-    expect(res.desk, "and the drawer is still open").toBe("open");
+    expect(hole, "the key has a see-through pixel over the desk").not.toBeNull();
+    const id = await page.evaluate(({ x, y }) => {
+      const r = window.HOLO_APP.resolve({ x, y });
+      return r.kind === "entity" ? r.id : r.kind;
+    }, hole);
+    expect(id).toBe("key1");
   });
 });
 

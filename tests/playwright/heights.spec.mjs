@@ -9,7 +9,9 @@
  * Plus (plan strengthenings): the open-door geometric gate on both facings,
  * the anchor_on child (note1), and the revealed key in the cavity.
  */
-import { test, expect, appUrl, LIT, MATH } from "./helpers.mjs";
+import { test, expect, appUrl, LIT, MATH, repoRoot } from "./helpers.mjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /* Solo alpha-bounds of one entity rendered without backdrop or shadows. */
 async function soloBounds(page, id, viewstate, doctor = null) {
@@ -303,7 +305,32 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
       .toBeCloseTo(LIT.floor_line_y * LIT.H, 6);
   });
 
-  test("the shipped GRID_META still matches the §5 literals (drift guard)", async ({ page }) => {
+  test("the implied camera and the written record cannot drift apart", async ({ page }) => {
+    /* The grid meta's numbers imply a camera, and that camera does not agree
+     * with §10's `focal_mm: 50` — 16 m of wall in a 1536 px frame at 3.5 m is
+     * a ~133° horizontal field against a 50 mm lens's ~40°. Resolving it means
+     * changing an authored y-value or the contract's focal length, which is a
+     * look decision and Kabe's; what this row owes is that the question is on
+     * the record and stays there.
+     *
+     * So this binds the code to the document: the implied field, computed
+     * here from the shipped meta, must be the figure blueprint §5 states. Move
+     * the camera without moving the record — or the record without the
+     * camera — and this goes red. */
+    await page.goto(appUrl());
+    const meta = await page.evaluate(() => window.HOLO.renderer.GRID_META);
+    const focalPx = meta.px_per_m_at_wall * LIT.camera_wall_m;
+    const fovDeg = 2 * Math.atan((LIT.W / 2) / focalPx) * 180 / Math.PI;
+    const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
+    expect(blueprint, "blueprint §5 carries the open camera question")
+      .toMatch(/horizontal field of view/i);
+    expect(blueprint, `blueprint §5 states the implied field (${fovDeg.toFixed(1)}°)`)
+      .toContain(`${Math.round(fovDeg)}°`);
+    expect(blueprint, "and names the contract it disagrees with")
+      .toMatch(/focal_mm/);
+  });
+
+  test("the shipped GRID_META is the meta this row authored (drift guard)", async ({ page }) => {
     await page.goto(appUrl());
     const meta = await page.evaluate(() => window.HOLO.renderer.GRID_META);
     expect(meta.floor_line_y).toBe(LIT.floor_line_y);

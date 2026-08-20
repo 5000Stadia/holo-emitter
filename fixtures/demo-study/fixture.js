@@ -7,7 +7,7 @@
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
 window.HOLO_FIXTURE = {
-  fp: "2c4383a4",
+  fp: "a55f1918",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -86,7 +86,7 @@ window.HOLO_FIXTURE = {
       "facing": "hall/N",
       "attachment": "floor_free",
       "u": 0.4632,
-      "depth_m": 0.4
+      "depth_m": 0.75
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",

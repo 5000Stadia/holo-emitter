@@ -12,8 +12,10 @@
  * pixel.
  */
 import {
-  test, expect, appUrl, POINTER_VIEWPORT, MATH
+  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree
 } from "./helpers.mjs";
+import { rmSync } from "node:fs";
+import { join } from "node:path";
 
 test.use({ viewport: POINTER_VIEWPORT });
 
@@ -636,32 +638,48 @@ test.describe("what the page shows when things go wrong, and where it points", (
 });
 
 test.describe("a page that cannot boot still speaks", () => {
-  // Block one module on the way in — the shape of a partial load over a
-  // public link. The page used to sit black and silent with `‹ ›` as its
-  // entire visible text. Which of the two product-voiced fault lines appears
-  // depends on how far the boot got before the missing piece was reached;
-  // both are the product speaking, and that is the whole requirement.
+  // Remove one module from a staged copy of the tree — the shape of a
+  // partial load over a public link. The page used to sit black and silent
+  // with `‹ ›` as its entire visible text. Which of the two product-voiced
+  // fault lines appears depends on how far the boot got before the missing
+  // piece was reached; both are the product speaking, and that is the whole
+  // requirement.
+  //
+  // The module is DELETED, not blocked by request routing: `page.route(...)`
+  // is a silent no-op on `file://` in Firefox, so a routing version of this
+  // guard is green while guarding nothing on any engine that does not
+  // intercept file URLs — which is the shape of check this row keeps finding.
   const FAULT_LINES = [
     "The projection will not hold. Nothing of this place can be shown.",
     "The projection wavers; the pattern will not resolve."
   ];
-  for (const mod of ["renderer.js", "harness.js", "placeholders.js", "fixture.js"]) {
-    test(`a missing ${mod} leaves a sentence, not a black rectangle`, async ({ page }) => {
-      await page.route(`**/${mod}`, (route) => route.abort());
-      const errors = [];
-      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-      await page.goto(appUrl());
-      await expect.poll(async () => await page.evaluate(() => {
-        const ps = document.querySelectorAll("#narration p");
-        return ps.length ? ps[ps.length - 1].textContent : null;
-      }), { timeout: 5000, message: `${mod}: the page says something` })
-        .not.toBeNull();
-      const line = await page.evaluate(() => {
-        const ps = document.querySelectorAll("#narration p");
-        return ps[ps.length - 1].textContent;
-      });
-      expect(FAULT_LINES, `${mod}: and it speaks as the product`).toContain(line);
-      expect(errors.length, `${mod}: developer detail on the console`).toBeGreaterThan(0);
+  const MODULES = [
+    ["src", "renderer.js"],
+    ["src", "harness.js"],
+    ["src", "placeholders.js"],
+    ["fixtures", "demo-study", "fixture.js"]
+  ];
+  for (const parts of MODULES) {
+    test(`a missing ${parts[parts.length - 1]} leaves a sentence, not a black rectangle`, async ({ page }) => {
+      const root = stageTree();
+      try {
+        rmSync(join(root, ...parts));
+        const errors = [];
+        page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+        await page.goto(appUrl(root));
+        await expect.poll(async () => await page.evaluate(() => {
+          const ps = document.querySelectorAll("#narration p");
+          return ps.length ? ps[ps.length - 1].textContent : null;
+        }), { timeout: 5000, message: "the page says something" }).not.toBeNull();
+        const line = await page.evaluate(() => {
+          const ps = document.querySelectorAll("#narration p");
+          return ps[ps.length - 1].textContent;
+        });
+        expect(FAULT_LINES, "and it speaks as the product").toContain(line);
+        expect(errors.length, "developer detail on the console").toBeGreaterThan(0);
+      } finally {
+        removeTree(root);
+      }
     });
   }
 
@@ -835,4 +853,61 @@ test.describe("the stage never disappears and never scrolls", () => {
       }
     });
   }
+});
+
+test.describe("travelling twice on purpose is not the same as travelling twice by accident", () => {
+  test("walk in, look back, walk out — the second passage is not swallowed", async ({ page }) => {
+    // The first guard against an accidental double-click was a blanket
+    // half-second lock on the only way between rooms, cleared by nothing.
+    // Walking in and straight back out is a real thing to do, and it was
+    // dropped without an envelope, without a refusal line and without a
+    // repaint — a well-formed intent discarded by chrome state.
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    await clickEntity(page, "door1");
+    await clickDoorway(page);
+    let s = await state(page);
+    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    const envelopes = s.envelopes;
+    // A turn — any intent — ends the double-click window immediately.
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    await clickDoorway(page);
+    s = await state(page);
+    expect(s.viewstate, "the way back is not locked").toEqual({ location: "study", facing: "E" });
+    expect(s.envelopes, "and every input produced an envelope")
+      .toBe(envelopes + 3);
+  });
+
+  test("a second passage after the double-click window is honoured", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    await clickEntity(page, "door1");
+    await clickDoorway(page);
+    await page.waitForTimeout(500);
+    await clickDoorway(page);
+    const s = await state(page);
+    expect(s.viewstate).toEqual({ location: "study", facing: "E" });
+  });
+});
+
+test.describe("a page that has faulted stops pretending", () => {
+  test("one apology, and the controls withdraw", async ({ page }) => {
+    // The fault line was appended per repaint attempt: six arrow presses at
+    // a broken page produced six more copies of the same sentence, with the
+    // chevrons still lit and inviting.
+    await page.goto(appUrl());
+    await page.evaluate(() => { delete window.HOLO_APP.library["chair-joined"]; });
+    for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowRight");
+    const res = await page.evaluate(() => ({
+      lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
+      leftShown: getComputedStyle(document.getElementById("chevron-left")).display,
+      rightShown: getComputedStyle(document.getElementById("chevron-right")).display
+    }));
+    const faults = res.lines.filter(
+      (l) => l === "The projection wavers; the pattern will not resolve.");
+    expect(faults.length, "said once, not once per keypress").toBe(1);
+    expect(res.leftShown, "and the controls withdraw").toBe("none");
+    expect(res.rightShown).toBe("none");
+  });
 });

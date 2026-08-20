@@ -123,6 +123,11 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
     /* Six arms that existed and were guarded by nothing — deleting each left
      * the whole suite green. Two of them are named in the row text itself
      * ("no facts in staging.json", "all refs resolve", "thumbs"). */
+    /* `u ∈ [0,1]` is not the same as "in the frame": the u-mapping spans
+     * wall_width_m at the placement's own scale, so a floor_free object at
+     * depth 1.2 m runs from x −400 to x 1936 across the legal range. */
+    ["an entity staged wholly off the frame", "staging",
+      (s) => { s.placements.chair1.u = 0.98; }, /wholly outside the 1536/],
     ["a placement naming no world entity", "staging",
       (s) => { s.placements.ghost1 = { facing: "study/N", attachment: "floor_free", u: 0.5, depth_m: 1 }; },
       /ghost1|names no world/i],
