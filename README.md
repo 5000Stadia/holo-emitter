@@ -1,5 +1,7 @@
 # holo-emitter
 
+**[▶ Open it in your browser](https://5000stadia.github.io/holo-emitter/)**
+
 A Myst-like scene client for the browser: generated backdrops, composited sprites, and a single
 world document as the only truth — the picture is a projection of it. You turn, walk between
 rooms, open a drawer, and take what you find; the world is exactly as you left it when you
@@ -11,8 +13,9 @@ after load.
 
 ## Run it
 
-Open `index.html` in a browser (double-click works — no server, no build). Unestablished space
-renders as the holodeck grid; turn with the arrow keys or the edge chevrons.
+Use the browser link above, or open `index.html` locally (double-click works — no server, no
+build). Unestablished space renders as the holodeck grid; turn with the arrow keys or the edge
+chevrons.
 
 So far: two rooms on the holodeck grid, four facings each, turning only. Entities, doors, and
 the drawer arrive in later layers.
