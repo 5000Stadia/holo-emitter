@@ -26,16 +26,47 @@
   /* Canonical grid meta (§7 grid mode / §5 shape). key_tint is deliberately
    * non-identity so §12.8's tint assertion is satisfiable on grid backdrops.
    * Tests assert against literals, never against this constant (§12.5's
-   * independence rule, applied early). */
+   * independence rule, applied early).
+   *
+   * `px_per_m_at_bottom` is 332.8, not §5's example 210. The grid is a
+   * backdrop we synthesize rather than measure, so its meta has to be
+   * self-consistent, and §5 states the same floor twice: once as the scale
+   * lerp between (floor_line_y, px_per_m_at_wall) and (bottom of frame,
+   * px_per_m_at_bottom), and once as the horizon device, y = horizon_y·H +
+   * 1.6·scale, which is what makes `horizon_y` mean "the horizon at eye
+   * height 1.6 m". Both are linear in (y, scale) and both already pass
+   * through (645.12, 96); the second fixes the other end at
+   * (1024, (1024 − 0.48·1024)/1.6) = (1024, 332.8). At 210 the two disagreed
+   * and the lerp won: every floor object's feet were drawn further down the
+   * frame than its own eye height allows — the desk 31 px low, the chair 86 —
+   * so scale said one depth while the ground said another, and §12.5 could
+   * not see it because both sides of a height check use the scale. At 332.8
+   * the lerp IS the horizon device and the two agree exactly, everywhere. The
+   * nearest floor in frame moves from 1.9 m in front of the viewer to 1.01 m:
+   * the frame bottom cuts the floor near your own feet, which is what the
+   * camera-has-feet quality asks for.
+   *
+   * [AI] amending an [AI] adoption — §7's grid-canonical list took §5's
+   * EXAMPLE values wholesale; §5's own block is Kabe's illustration of the
+   * schema and is untouched, to be measured per backdrop at row 4. The wider
+   * incoherence in those example numbers (16 m of wall in frame against
+   * `wall_width_m` 4.2, a 133° field against §10's 50 mm) is [HUMAN] and
+   * stands open in blueprint §5 as a question for Kabe.
+   *
+   * calibration_ref/_px are §5-required fields: the grid's own metre lines
+   * on the wall are its known-height feature, so its meta can be audited
+   * against its pixels like any other. */
   var GRID_META = {
     floor_line_y: 0.63,
     px_per_m_at_wall: 96,
-    px_per_m_at_bottom: 210,
+    px_per_m_at_bottom: 332.8,
     wall_width_m: 4.2,
     key_tint: "#c8b489",
     image_h_px: 1024,
     horizon_y: 0.48,
-    key_dir: "UL"
+    key_dir: "UL",
+    calibration_ref: "wall grid module, 1.0 m at the wall plane",
+    calibration_px: 96
   };
 
   /* Grid-drawing constants. The former GRID_K = 336 px·m is now derived in
@@ -46,7 +77,13 @@
    * meta — same pixels as row 1. Colours and alphas are pinned: lines stroke
    * in key_tint at 0.25 (minor) / 0.55 (major); glyph strokes at 0.9. */
   var WALL_BASE = "#10141b";
-  var FLOOR_BASE = "#0b0e13";
+  /* The floor carries enough luminance for a contact shadow to take some of
+   * it away. At the old #0b0e13 the brightest pixel on the floor was 19/255,
+   * so a pool at 0.35 alpha could darken it by at most 6 — "every grounded
+   * object darkens the ground under it" was true of the code and invisible
+   * in the picture, and grid mode is a product mode (§7), not placeholder
+   * art. Still darker than the wall: unestablished space, lit from nowhere. */
+  var FLOOR_BASE = "#1e242e";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.9;
@@ -105,7 +142,7 @@
     ctx.stroke();
   }
 
-  function drawGrid(ctx, meta, facing, W, H) {
+  function drawGrid(ctx, meta, facing, W, H, openings) {
     var gp = groundplane();
     var floorY = meta.floor_line_y * meta.image_h_px;
     var eyeY = meta.horizon_y * meta.image_h_px;
@@ -187,9 +224,27 @@
     if (glyph) {
       var gh = sWall;            // 1m tall at wall scale
       var gw = gh * (2 / 3);
+      var gx = cx - gw / 2;
+      var gy = eyeY - gh / 2;
+      /* Stand the glyph clear of any doorway. Centred on the wall it landed
+       * inside the opening (and behind the shut leaf), which is where the
+       * two door facings became the same picture: study/E and hall/W are
+       * both a wall, a door and nothing else, and the one mark that says
+       * which way you are looking was painted over. §7 gives the glyph the
+       * job of making facings visually distinct. */
+      if (openings) {
+        for (var oi = 0; oi < openings.length; oi++) {
+          var o = openings[oi];
+          if (gx < o.x + o.w && gx + gw > o.x && gy < o.y + o.h && gy + gh > o.y) {
+            var toLeft = o.x - gw - sWall * 0.5;
+            var toRight = o.x + o.w + sWall * 0.5;
+            gx = (toLeft >= sWall * 0.25) ? toLeft : toRight;
+          }
+        }
+      }
       ctx.globalAlpha = ALPHA_GLYPH;
       ctx.lineWidth = 3;
-      strokePolylines(ctx, glyph, cx - gw / 2, eyeY - gh / 2, gw, gh);
+      strokePolylines(ctx, glyph, gx, gy, gw, gh);
       ctx.lineWidth = 1;
     }
     ctx.globalAlpha = 1;
@@ -211,10 +266,20 @@
    * mode is the stand-in for unestablished space and must not show a
    * plank vanishing from unbroken wall — nor leave `go` with no target
    * but the edge-on sliver of an opened leaf.
+   *
+   * KNOWLEDGE-FILTERED, like every other read of the world: the opening is
+   * derived from the leaf's placement and its record, so a door outside
+   * `knowledge.player` must leave no opening either. "The renderer never
+   * reads unknown entities" is categorical in the intention, and an
+   * unfiltered doorway would draw the shape of a thing the player has not
+   * been told about.
    */
   function apertures(world, staging, library, meta, viewstate) {
     var gp = groundplane();
     var facingKey = viewstate.location + "/" + viewstate.facing;
+    var known = {};
+    var players = (world.knowledge && world.knowledge.player) || [];
+    for (var k = 0; k < players.length; k++) known[players[k]] = true;
     var out = [];
     for (var l = 0; l < world.locations.length; l++) {
       var loc = world.locations[l];
@@ -223,6 +288,7 @@
       for (var x = 0; x < exits.length; x++) {
         var exit = exits[x];
         if (exit.facing !== viewstate.facing) continue;
+        if (!known[exit.via]) continue;
         var placement = (staging.placements || {})[exit.via];
         if (!placement) continue;
         var list = (Object.prototype.toString.call(placement) === "[object Array]")
@@ -631,11 +697,13 @@
       if (entry && entry.image) {
         ctx.drawImage(entry.image, 0, 0, W, H);
       } else {
-        drawGrid(ctx, meta, viewstate.facing, W, H);
         // The doorway belongs to the wall, not to the entity pass: it is
         // backdrop content (§11) and so must be inside backdrop_only, or a
-        // flip pair would differ by a hole in the wall.
-        drawApertures(ctx, apertures(world, staging, library, meta, viewstate), meta);
+        // flip pair would differ by a hole in the wall. The grid takes the
+        // openings first so it can stand its facing glyph clear of them.
+        var openings = apertures(world, staging, library, meta, viewstate);
+        drawGrid(ctx, meta, viewstate.facing, W, H, openings);
+        drawApertures(ctx, openings, meta);
       }
     }
     if (options.backdrop_only) return target;

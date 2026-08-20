@@ -352,7 +352,11 @@ export const LIT = {
   floor_line_y: 0.63,
   horizon_y: 0.48,
   px_per_m_at_wall: 96,
-  px_per_m_at_bottom: 210,
+  /* 332.8, the value §5's horizon device implies for a 1536×1024 frame:
+     (H − horizon_y·H) / 1.6. At §5's example 210 the scale lerp and the
+     horizon device described two different cameras. Stated here as its own
+     arithmetic, not imported — §12.5's independence rule. */
+  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.6,
   wall_width_m: 4.2,
   camera_wall_m: 3.5, // the pinned grid-canonical camera distance (plan §2)
   k: 336 // the grid-drawing constant = px_per_m_at_wall * camera_wall_m
@@ -423,7 +427,7 @@ export function gridExpectations() {
   return {
     floorRow,
     eyeRow,
-    transverseRows, // [698, 772, 884]
+    transverseRows, // [670, 706, 760]
     clearRows: [
       Math.floor((transverseRows[0] + transverseRows[1]) / 2),
       Math.floor((transverseRows[1] + transverseRows[2]) / 2)

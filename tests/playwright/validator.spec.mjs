@@ -67,7 +67,7 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
     ["parted overlap pair (u)", "staging",
       (s) => { s.placements.chair1.u = 0.9; }, /overlap|chair1/i],
     ["parted overlap pair (depth/y-span)", "staging",
-      (s) => { s.placements.stick1.depth_m = 0.9; }, /overlap|stick1/i],
+      (s) => { s.placements.stick1.depth_m = 1.6; }, /overlap|stick1/i],
     ["missing narration key", "narration",
       (n) => { delete n.lines["toggle.chair1.refused_static"]; }, /toggle\.chair1\.refused_static/],
     ["placeholder-token line", "narration",
@@ -322,5 +322,62 @@ test.describe("fault surfaces (the product's voice, in error states)", () => {
     } finally {
       removeTree(dir);
     }
+  });
+});
+
+/* The row's own words: the static overlap check is "computed by importing
+ * the renderer's own groundplane.js — never a re-derivation". Importing the
+ * scale functions and re-deriving the placement layer above them satisfies
+ * the letter and defeats the point: the check then asserts overlaps in a
+ * world the renderer has stopped drawing. This is the direct test of the
+ * clause — move placement in groundplane and the validator has to move with
+ * it. A validator that re-derives stays green here and fails this case. */
+test.describe("the overlap check is bound to the renderer's placement", () => {
+  const groundplane = require(join(repoRoot, "src", "groundplane.js"));
+
+  test("displacing placeHost displaces the validator's verdict", () => {
+    const original = groundplane.placeHost;
+    try {
+      expect(validate(fixtureDir, records), "green to begin with").toEqual([]);
+      // Slide the floor_free half of each named pair two canvas-widths left.
+      // chair1 leaves desk1 and stick1 leaves shelf1; both pairs must be
+      // reported parted.
+      groundplane.placeHost = function (placement, record, meta, canvasW) {
+        const p = original(placement, record, meta, canvasW);
+        if (!p || placement.attachment !== "floor_free") return p;
+        return Object.assign({}, p, {
+          x0: p.x0 - 3072, x1: p.x1 - 3072,
+          baseX: p.baseX - 3072, drawX: p.drawX - 3072
+        });
+      };
+      const findings = validate(fixtureDir, records);
+      expect(findings.length,
+        "the validator reads placement from groundplane, not from its own copy")
+        .toBeGreaterThan(0);
+      expect(findings.join("\n")).toMatch(/overlap/i);
+    } finally {
+      groundplane.placeHost = original;
+    }
+    expect(validate(fixtureDir, records), "and restored").toEqual([]);
+  });
+
+  test("displacing placeHost vertically is caught too (the y-span half)", () => {
+    const original = groundplane.placeHost;
+    try {
+      groundplane.placeHost = function (placement, record, meta, canvasW) {
+        const p = original(placement, record, meta, canvasW);
+        if (!p) return p;
+        // Push floor_free entities far up the frame; the named pairs part in
+        // rows while their columns still intersect.
+        if (placement.attachment !== "floor_free") return p;
+        return Object.assign({}, p, { y0: p.y0 - 4000, y1: p.y1 - 4000 });
+      };
+      const findings = validate(fixtureDir, records);
+      expect(findings.length).toBeGreaterThan(0);
+      expect(findings.join("\n")).toMatch(/overlap/i);
+    } finally {
+      groundplane.placeHost = original;
+    }
+    expect(validate(fixtureDir, records)).toEqual([]);
   });
 });

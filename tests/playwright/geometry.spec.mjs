@@ -30,7 +30,7 @@ test.describe("camera-has-feet geometry (grid canonical meta)", () => {
     // Expected rows from literals: floor 645, eye 491, transverse 698/772/884.
     expect(exp.floorRow).toBe(645);
     expect(exp.eyeRow).toBe(491);
-    expect(exp.transverseRows).toEqual([698, 772, 884]);
+    expect(exp.transverseRows).toEqual([670, 706, 760]);
 
     // Foreshortening is asserted, not assumed: successive gaps strictly
     // decrease toward the wall (a uniformly-spaced floor fails).

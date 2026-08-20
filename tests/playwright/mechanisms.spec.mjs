@@ -1028,3 +1028,229 @@ test.describe("the renderer reads the document the harness reads", () => {
     expect(res.takeEvents).toBeGreaterThan(0);
   });
 });
+
+/* Guards for mechanisms that were present and correct but held by nothing:
+ * delete each and the suite used to stay green, which is the same failure as
+ * not having built them. Each case below is written so that removing the
+ * mechanism it names turns it red. */
+test.describe("mechanisms that were unguarded", () => {
+  test("cavity clip: contents are CUT at the region, not merely positioned by it", async ({ page }) => {
+    // The shipped key fits inside the shipped cavity, so the clip is a no-op
+    // on the fixture and deleting it changed nothing any test could see.
+    // Anchoring the key on the desk's thin surface_top band makes it overflow
+    // its region, so the cut has to do work.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const staging = window.__T.clone(fx.staging);
+      staging.placements.key1 = { anchor_on: "desk1.surface_top", t: 0.5 };
+      const world = window.__T.clone(fx.world);
+      world.entities.find((e) => e.id === "desk1").state = "open";
+      world.knowledge.player.push("key1");
+      const withKey = window.__T.renderW(world, staging, vs,
+        { no_backdrop: true, shadows: false });
+      const noKey = window.__T.renderW(
+        window.__T.worldWithout(["key1"], world), staging, vs,
+        { no_backdrop: true, shadows: false });
+      const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
+        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+      const r = desk.record.anchors.surface_top;
+      const rect = {
+        x0: desk.drawX + desk.f * r.x0, y0: desk.drawY + desk.f * r.y0,
+        x1: desk.drawX + desk.f * r.x1, y1: desk.drawY + desk.f * r.y1
+      };
+      const W = 1536, H = 1024;
+      const a = withKey.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = noKey.getContext("2d").getImageData(0, 0, W, H).data;
+      let inside = 0, outside = 0;
+      for (let p = 0; p < W * H; p++) {
+        const i = p * 4;
+        if (a[i] === b[i] && a[i + 1] === b[i + 1] &&
+            a[i + 2] === b[i + 2] && a[i + 3] === b[i + 3]) continue;
+        const x = p % W, y = (p / W) | 0;
+        if (x >= rect.x0 - 1 && x <= rect.x1 + 1 &&
+            y >= rect.y0 - 1 && y <= rect.y1 + 1) inside++;
+        else outside++;
+      }
+      return { inside, outside };
+    });
+    expect(res.inside, "the key draws inside its region").toBeGreaterThan(20);
+    expect(res.outside, "and NOTHING of it escapes the region").toBe(0);
+  });
+
+  test("hit regions are alpha regions: a transparent pixel inside the box is not a hit", async ({ page }) => {
+    // §7 pins "each drawn entity's screen-space alpha bounds". Making the
+    // alpha sampler return 255 turns hit-testing into bounding-box testing —
+    // clicks land on things through their own gaps — and nothing noticed.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const layout = window.__T.currentLayout();
+      const chair = layout.find((e) => e.id === "chair1");
+      const b = window.__T.entryBBox(chair);
+      const solo = window.__T.renderW(
+        window.__T.worldWithout(
+          fx.world.entities.filter((e) => e.id !== "chair1").map((e) => e.id)),
+        fx.staging, vs, { no_backdrop: true, shadows: false });
+      const W = 1536, H = 1024;
+      const d = solo.getContext("2d").getImageData(0, 0, W, H).data;
+      const alphaAt = (x, y) => d[((y * W + x) * 4) + 3];
+      const full = window.__T.renderW(fx.world, fx.staging, vs,
+        { no_backdrop: true, shadows: false });
+      const fd = full.getContext("2d").getImageData(0, 0, W, H).data;
+      // Nothing at all painted in a 5×5 around the point, so a hit there
+      // cannot be a one-pixel sampling difference at somebody's edge.
+      const clearAround = (x, y) => {
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            if (fd[(((y + dy) * W + (x + dx)) * 4) + 3] >= 8) return false;
+          }
+        }
+        return true;
+      };
+      // A hole: transparent, well inside the chair's own box, with solid
+      // chair pixels both left and right on the same row.
+      for (let y = Math.floor(b.y) + 4; y < b.y + b.h - 4; y++) {
+        for (let x = Math.floor(b.x) + 4; x < b.x + b.w - 4; x++) {
+          if (alphaAt(x, y) >= 8) continue;
+          let left = false, right = false;
+          for (let k = 1; k < b.w; k++) {
+            if (x - k > b.x && alphaAt(x - k, y) >= 200) left = true;
+            if (x + k < b.x + b.w && alphaAt(x + k, y) >= 200) right = true;
+          }
+          if (!left || !right) continue;
+          if (!clearAround(x, y)) continue;
+          return {
+            point: { x, y },
+            hit: window.HOLO.renderer.hitTest(layout, window.HOLO_APP.library, x, y),
+            insideBox: x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h
+          };
+        }
+      }
+      return null;
+    });
+    expect(res, "the chair has a hole inside its own box").not.toBeNull();
+    expect(res.insideBox).toBe(true);
+    expect(res.hit, "a see-through pixel answers no click").toBeNull();
+  });
+
+  test("the hover outline inks the inside of a hole — a rectangle never could", async ({ page }) => {
+    // The three earlier thresholds (ink < 0.2 × box, ink > 200, interior ink
+    // < 5%) are all satisfied by a rectangular ring, which is exactly the
+    // marquee the silhouette outline replaced. Ink deep inside the box, at
+    // the rim of the chair's own opening, is what only a silhouette produces.
+    await page.goto(appUrl());
+    const box = await page.locator("#scene").boundingBox();
+    const pt = await page.evaluate(() => window.__T.clickPoint("chair1"));
+    await page.mouse.move(
+      box.x + (pt.x * box.width) / 1536,
+      box.y + (pt.y * box.height) / 1024);
+    const deepInk = await page.evaluate(() => {
+      const o = document.getElementById("overlay");
+      const chair = window.__T.currentLayout().find((e) => e.id === "chair1");
+      const b = window.__T.entryBBox(chair);
+      const W = o.width, H = o.height;
+      const d = o.getContext("2d").getImageData(0, 0, W, H).data;
+      const pad = 8; // further inside than any frame stroke could reach
+      let deep = 0;
+      for (let y = Math.ceil(b.y) + pad; y < b.y + b.h - pad; y++) {
+        for (let x = Math.ceil(b.x) + pad; x < b.x + b.w - pad; x++) {
+          if (d[((y * W + x) * 4) + 3] > 8) deep++;
+        }
+      }
+      return deep;
+    });
+    expect(deepInk, "outline ink well inside the box, around the seat opening")
+      .toBeGreaterThan(50);
+  });
+
+  test("the open door's shadow follows the drawn sliver, not the closed leaf's footprint", async ({ page }) => {
+    // The renderer's own comment calls a full-width pool under an edge-on
+    // sliver "the lie this rule exists to prevent"; reverting the rule left
+    // every check green, because the one shadow-geometry case that names the
+    // door renders it CLOSED.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "E" };
+      const world = window.__T.worldWithout(
+        fx.world.entities.filter((e) => e.id !== "door1").map((e) => e.id));
+      world.entities.find((e) => e.id === "door1").state = "open";
+      const withS = window.__T.renderOnFill(world, fx.staging, vs,
+        { tint: false }, "#8c8c8c");
+      const noS = window.__T.renderOnFill(world, fx.staging, vs,
+        { tint: false, shadows: false }, "#8c8c8c");
+      const d = window.__T.diffBounds(withS, noS);
+      const e = window.HOLO.renderer.layout(world, fx.staging, window.__T.lib(),
+        window.HOLO.renderer.GRID_META, vs).find((x) => x.id === "door1");
+      const rec = e.record;
+      return {
+        shadowW: d.count ? d.x1 - d.x0 + 1 : 0,
+        extentW: e.f * (e.swap.extent.x1 - e.swap.extent.x0),
+        footprintW: e.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0)
+      };
+    });
+    expect(res.shadowW, "there is a shadow").toBeGreaterThan(0);
+    // The sliver is a quarter of the leaf; the pool must follow it.
+    expect(res.shadowW).toBeLessThanOrEqual(res.extentW + 6);
+    expect(res.shadowW, "and is nowhere near the closed footprint")
+      .toBeLessThan(res.footprintW * 0.6);
+  });
+
+  test("a doorway the player does not know about leaves no opening in the wall", async ({ page }) => {
+    // apertures() looked up the exit's leaf in world.entities with no
+    // knowledge filter, so an unknown door still cut its shape into the wall
+    // and still answered clicks. "The renderer never reads unknown entities"
+    // is categorical.
+    await page.goto(appUrl());
+    const res = await page.evaluate(async () => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "E" };
+      const unknown = window.__T.clone(fx.world);
+      unknown.knowledge.player = unknown.knowledge.player.filter((id) => id !== "door1");
+      const known = fx.world;
+      const list = window.HOLO.renderer.apertures(
+        unknown, fx.staging, window.__T.lib(), window.HOLO.renderer.GRID_META, vs);
+      const a = window.HOLO.renderer.apertures(
+        known, fx.staging, window.__T.lib(), window.HOLO.renderer.GRID_META, vs)[0];
+      const mid = { x: Math.round(a.x + a.w / 2), y: Math.round(a.y + a.h / 2) };
+      const unknownScene = window.__T.renderW(unknown, fx.staging, vs, {});
+      const bare = window.__T.renderW(unknown, fx.staging,
+        { location: "study", facing: "S" }, {});
+      const px = (c) => {
+        const d = c.getContext("2d").getImageData(mid.x, mid.y, 1, 1).data;
+        return d[0] + d[1] + d[2];
+      };
+      return { apertures: list.length, atMid: px(unknownScene), bareWall: px(bare) };
+    });
+    expect(res.apertures, "no opening for an unknown door").toBe(0);
+    expect(res.atMid, "and the wall there is just wall").toBe(res.bareWall);
+  });
+
+  test("the two door facings are not the same picture", async ({ page }) => {
+    // study/E and hall/W are both "a wall and a door". The facing glyph is
+    // §7's answer to that — and it was being painted over by the doorway it
+    // stood in the middle of, leaving the two rooms 99.98% identical from
+    // their connecting walls, open or shut.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const open = window.__T.clone(fx.world);
+      open.entities.find((e) => e.id === "door1").state = "open";
+      const count = (w, a, b) => {
+        const ca = window.__T.renderW(w, fx.staging, a, {});
+        const cb = window.__T.renderW(w, fx.staging, b, {});
+        return window.__T.diffBounds(ca, cb).count;
+      };
+      const E = { location: "study", facing: "E" };
+      const Wf = { location: "hall", facing: "W" };
+      return { shut: count(fx.world, E, Wf), open: count(open, E, Wf) };
+    });
+    // A whole glyph is thousands of pixels; the old sliver above the doorway
+    // was 267.
+    expect(res.shut, "shut: the facings differ by more than a sliver").toBeGreaterThan(2000);
+    expect(res.open, "open: likewise").toBeGreaterThan(2000);
+  });
+});

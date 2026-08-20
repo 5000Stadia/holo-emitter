@@ -264,6 +264,45 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
       .toBeLessThan(frontTopScreenY);
   });
 
+  test("feet land where the camera's own eye height puts them, not only at the right size", async ({ page }) => {
+    /* §12.5's height clause reads scale, and placement derives from scale, so
+     * a height check cannot see a floor that puts feet at the wrong depth:
+     * both sides use the same number. §5 states the ground twice — the scale
+     * lerp, and the horizon device that gives `horizon_y` its meaning
+     * (y = horizon_y·H + eye_height·scale at eye height 1.6 m). This clause
+     * checks the drawn baseline against the SECOND statement, so the two
+     * have to agree. They did not: at §5's example px_per_m_at_bottom of 210
+     * the desk's feet were 31 px low and the chair's 86, each object drawn at
+     * the right size for a depth its feet did not occupy. */
+    await page.goto(appUrl());
+    const EYE_M = 1.6;
+    const horizonPx = LIT.horizon_y * LIT.H;
+    const cases = [
+      { id: "desk1", sprite: "desk-joined-oak-1660", vs: { location: "study", facing: "N" } },
+      { id: "chair1", sprite: "chair-joined", vs: { location: "study", facing: "N" } },
+      { id: "shelf1", sprite: "shelf-oak", vs: { location: "hall", facing: "N" } },
+      { id: "stick1", sprite: "candlestick-brass", vs: { location: "hall", facing: "N" } }
+    ];
+    for (const c of cases) {
+      const rec = await record(page, c.sprite);
+      const pl = await placement(page, c.id);
+      const depth = pl.attachment === "floor_against" ? rec.dims_m.d : pl.depth_m;
+      // Independent arithmetic: pinhole scale at that depth, then the horizon
+      // device — never the lerp, and never an import.
+      const scale = LIT.px_per_m_at_wall * LIT.camera_wall_m / (LIT.camera_wall_m - depth);
+      const expectedBaseline = horizonPx + EYE_M * scale;
+      const b = await soloBounds(page, c.id, c.vs);
+      expect(b, `${c.id} rendered`).not.toBeNull();
+      expect(Math.abs(b.y1 + 1 - expectedBaseline),
+        `${c.id}: feet at the horizon device's baseline (${expectedBaseline.toFixed(1)})`)
+        .toBeLessThanOrEqual(2);
+    }
+    // And the wall-plane end of the same device: an object standing against
+    // the wall has its feet exactly on the floor line.
+    expect(horizonPx + EYE_M * LIT.px_per_m_at_wall)
+      .toBeCloseTo(LIT.floor_line_y * LIT.H, 6);
+  });
+
   test("the shipped GRID_META still matches the §5 literals (drift guard)", async ({ page }) => {
     await page.goto(appUrl());
     const meta = await page.evaluate(() => window.HOLO.renderer.GRID_META);

@@ -190,9 +190,13 @@ async function runScript(page, opts = {}) {
       const chairRowHi = chairRowLo + chairP.heightPx / 3;
       const chairColLo = chairP.drawX + chairP.f * recs.chair.px.w * 0.25;
       const chairColHi = chairP.drawX + chairP.f * recs.chair.px.w * 0.75;
-      // Desk contract: stretcher opaque between the legs for bottom 8% rows.
-      const deskRowLo = deskP.baselineY - 0.07 * deskP.heightPx;
-      const deskRowHi = deskP.baselineY - 1;
+      // Desk contract: the top slab is opaque across the whole footprint for
+      // the topmost 13% of the desk's rows. (It was the stretcher between the
+      // legs until the grid's foreshortening was made to agree with §5's own
+      // horizon device: the chair now stands nearer and taller, and its back
+      // panel clears the desk's feet entirely while crossing the desk top.)
+      const deskRowLo = deskP.baselineY - deskP.heightPx;
+      const deskRowHi = deskRowLo + 0.13 * deskP.heightPx;
       const deskColLo = deskP.drawX + deskP.f * (recs.desk.anchors.footprint.x0 + 0.15 * recs.desk.px.w);
       const deskColHi = deskP.drawX + deskP.f * (recs.desk.anchors.footprint.x1 - 0.15 * recs.desk.px.w);
       const x = Math.round((Math.max(chairColLo, deskColLo) + Math.min(chairColHi, deskColHi)) / 2);
@@ -524,5 +528,121 @@ test.describe("the door, from the pointer", () => {
     });
     expect(res.events).toBe(0);
     expect(Number(res.veil), "a closed door does not black the screen").toBe(0);
+  });
+});
+
+/* The page's own surfaces under stress: what it shows when it cannot show
+ * the world, and whether the doorway answers a pointer like everything else
+ * does. */
+test.describe("what the page shows when things go wrong, and where it points", () => {
+  test("the whole opening is the way through, not just the far side of it", async ({ page }) => {
+    // The leaf's 16px pointing tolerance used to reach 40px into an 86px
+    // opening: nearly half the visible gap meant "shut the door", with
+    // pointer feedback, while the way through had no room left. On a phone
+    // that made travelling between rooms close to a coin flip.
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    await clickEntity(page, "door1");
+    const res = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const a = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      // Sample the opening on a grid; every point inside it that is not the
+      // leaf's own pixels must resolve to travel.
+      let travel = 0, leaf = 0, dead = 0;
+      for (let fy = 0.15; fy <= 0.85; fy += 0.1) {
+        for (let fx = 0.05; fx <= 0.95; fx += 0.05) {
+          const x = a.x + fx * a.w, y = a.y + fy * a.h;
+          const exact = window.HOLO.renderer.hitTest(
+            window.__T.currentLayout(), A.library, x, y);
+          const ap = A.apertureAt({ x, y });
+          if (exact) leaf++;
+          else if (ap) travel++;
+          else dead++;
+        }
+      }
+      return { travel, leaf, dead, width: a.w };
+    });
+    expect(res.dead, "no dead pixels inside an open doorway").toBe(0);
+    // The leaf is a quarter of the opening at most; the rest is the way out.
+    expect(res.travel).toBeGreaterThan(res.leaf * 2);
+  });
+
+  test("the doorway answers the cursor like everything else", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    await clickEntity(page, "door1"); // open it
+    const box = await sceneBox(page);
+    const a = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      return window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+    });
+    await page.mouse.move(
+      box.x + ((a.x + a.w * 0.75) * box.width) / 1536,
+      box.y + ((a.y + a.h * 0.5) * box.height) / 1024);
+    const res = await page.evaluate(() => ({
+      blank: window.__T.isOverlayBlank(),
+      cursor: document.getElementById("scene").style.cursor
+    }));
+    expect(res.blank, "the way between rooms is highlighted on hover").toBe(false);
+    expect(res.cursor, "and carries the pointer").toBe("pointer");
+  });
+
+  test("a render fault clears the picture it can no longer vouch for", async ({ page }) => {
+    // The catch used to return with the previous frame's pixels, the previous
+    // hover outline and the pointer cursor all still in place: the world had
+    // moved and the picture had not.
+    await page.goto(appUrl());
+    const box = await sceneBox(page);
+    const pt = await page.evaluate(() => window.__T.clickPoint("desk1"));
+    await page.mouse.move(
+      box.x + (pt.x * box.width) / 1536,
+      box.y + (pt.y * box.height) / 1024);
+    expect(await page.evaluate(() => window.__T.isOverlayBlank())).toBe(false);
+
+    const res = await page.evaluate(async () => {
+      // Break the library out from under the next paint, then force one.
+      const A = window.HOLO_APP;
+      delete A.library["chair-joined"];
+      A.dispatch({ type: "turn", dir: "right" });
+      A.dispatch({ type: "turn", dir: "left" });
+      const s = document.getElementById("scene");
+      const d = s.getContext("2d").getImageData(0, 0, s.width, s.height).data;
+      let ink = 0;
+      for (let p = 0; p < d.length; p += 4) if (d[p + 3] !== 0) { ink++; break; }
+      const ps = document.querySelectorAll("#narration p");
+      return {
+        ink,
+        overlayBlank: window.__T.isOverlayBlank(),
+        cursor: s.style.cursor,
+        line: ps.length ? ps[ps.length - 1].textContent : null
+      };
+    });
+    expect(res.ink, "the stale picture is gone").toBe(0);
+    expect(res.overlayBlank, "and so is the stale highlight").toBe(true);
+    expect(res.cursor, "and the cursor stops promising").toBe("");
+    expect(res.line, "the product says so in its own voice")
+      .toBe("The projection wavers; the pattern will not resolve.");
+  });
+});
+
+test.describe("a page that cannot boot still speaks", () => {
+  test("a missing script leaves a sentence, not a black rectangle", async ({ page }) => {
+    // Block one module on the way in — the shape of a partial load over a
+    // public link. The page used to sit black and silent with `‹ ›` as its
+    // entire visible text.
+    await page.route("**/renderer.js", (route) => route.abort());
+    const errors = [];
+    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    await page.goto(appUrl());
+    await expect.poll(async () => await page.evaluate(() => {
+      const ps = document.querySelectorAll("#narration p");
+      return ps.length ? ps[ps.length - 1].textContent : null;
+    }), { timeout: 5000 })
+      .toBe("The projection will not hold. Nothing of this place can be shown.");
+    expect(await page.evaluate(() => !!window.HOLO_APP)).toBe(false);
   });
 });

@@ -15,7 +15,10 @@
      size. */
   #stage {
     position: relative;
-    width: min(100%, calc((100vh - 9.6rem) * (1536 / 1024)));
+    /* The max() is a floor, not a preference: below ~154px of viewport
+       height the contain-fit calc goes to zero and the page rendered
+       literally nothing. */
+    width: min(100%, max(320px, calc((100vh - 9.6rem) * (1536 / 1024))));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
@@ -81,9 +84,40 @@
     <button id="chevron-left" class="chevron chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
   </div>
-  <div id="narration" class="chrome"></div>
+  <div id="narration" class="chrome"><noscript><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome"></div>
   <div id="status" class="chrome"></div>
+  <script>
+  /* Registered before anything else loads, and depending on nothing that
+     could fail: if a script does not arrive or throws on the way up, the
+     page used to sit black and silent with `‹ ›` as its entire text — the
+     exact shape of a partial load over a public link. The product says so
+     itself instead, in its own voice, and the developer detail goes to the
+     console. */
+  (function () {
+    "use strict";
+    var said = false;
+    function wavers() {
+      if (said) return;
+      said = true;
+      var pane = document.getElementById("narration");
+      if (!pane) return;
+      var p = document.createElement("p");
+      p.textContent = "The projection will not hold. Nothing of this place can be shown.";
+      pane.appendChild(p);
+    }
+    window.addEventListener("error", function (e) {
+      console.error("boot fault:", e && (e.error || e.message));
+      wavers();
+    }, true);
+    window.addEventListener("DOMContentLoaded", function () {
+      // Every script ran, but the app never took: same silence, same answer.
+      if (!window.HOLO_APP) setTimeout(function () {
+        if (!window.HOLO_APP) wavers();
+      }, 0);
+    });
+  })();
+  </script>
   <script src="fixtures/demo-study/fixture.js"></script>
   <script src="src/groundplane.js"></script>
   <script src="src/placeholders.js"></script>
@@ -131,7 +165,16 @@
         currentLayout = window.HOLO.renderer.layout(
           harness.world, harness.staging, library, meta, viewstate);
       } catch (err) {
+        /* A fault used to return here with the previous frame's pixels still
+           on the canvas, the previous hover outline still inked, and the
+           pointer cursor still promising something clickable — the world had
+           moved and the picture had not, which is the same lie as the
+           picture moving when the world has not. Clear all three, so the
+           fault line is the only thing the page is claiming. */
         currentLayout = null;
+        scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
+        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+        scene.style.cursor = "";
         fault(err);
         return;
       }
@@ -225,9 +268,9 @@
       return hitAtPoint(p.x, p.y);
     }
 
-    /* The doorway opening the player is facing, if the point is inside it
-       and its leaf stands open — the `go` target. Derived from the document
-       by the renderer, so the picture and the affordance agree. */
+    /* The doorway opening the player is facing, if the point is inside it —
+       the `go` target. Derived from the document by the renderer, so the
+       picture and the affordance agree. */
     function apertureAt(p) {
       var list = window.HOLO.renderer.apertures(
         harness.world, harness.staging, library, meta, harness.viewstate);
@@ -236,6 +279,34 @@
         if (p.x >= a.x && p.x < a.x + a.w && p.y >= a.y && p.y < a.y + a.h) return a;
       }
       return null;
+    }
+
+    /* What one point means, resolved once for both hover and click, in the
+       order a player would expect:
+         1. the exact pixel of a drawn entity — the leaf you are pointing at;
+         2. an open doorway you are inside — travel;
+         3. the tolerance ring, for targets too small to hit exactly.
+       The ring has to come after the doorway or it swallows it: the leaf's
+       16 px of forgiveness reached 40 px into an 86 px opening, so nearly
+       half the visible gap answered "shut the door" while the way through
+       had no room left. Inside the opening the opening wins. */
+    function resolve(p) {
+      var exact = currentLayout
+        ? window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y) : null;
+      if (exact !== null && exact !== undefined) {
+        return { kind: "entity", id: exact };
+      }
+      var ap = apertureAt(p);
+      if (ap) {
+        var leaf = entityById(ap.via);
+        if (leaf && leaf.state === "open") return { kind: "doorway", aperture: ap };
+        // A shut leaf fills its own opening, so this only happens where the
+        // leaf's own pixels do not reach; the doorway still belongs to it.
+        if (leaf) return { kind: "entity", id: ap.via };
+      }
+      var near = hitAtPoint(p.x, p.y);
+      if (near !== null && near !== undefined) return { kind: "entity", id: near };
+      return { kind: "none" };
     }
 
     function entityById(id) {
@@ -255,22 +326,18 @@
        UI-emittable refusal). A click that hits neither a drawn entity nor an
        open doorway dispatches nothing — dead space is dead. */
     scene.addEventListener("click", function (e) {
-      var p = canvasPoint(e);
-      var id = hitAtPoint(p.x, p.y);
-      if (id === null || id === undefined) {
-        var open = apertureAt(p);
-        var leaf = open ? entityById(open.via) : null;
-        if (open && leaf && leaf.state === "open") {
-          dispatch({ type: "go", exit: open.exit });
-        }
+      var r = resolve(canvasPoint(e));
+      if (r.kind === "doorway") {
+        dispatch({ type: "go", exit: r.aperture.exit });
         return;
       }
-      var entity = entityById(id);
+      if (r.kind !== "entity") return;
+      var entity = entityById(r.id);
       if (!entity) return;
       if (entity.takeable) {
-        dispatch({ type: "take", entity: id });
+        dispatch({ type: "take", entity: r.id });
       } else {
-        dispatch({ type: "toggle", entity: id });
+        dispatch({ type: "toggle", entity: r.id });
       }
     });
 
@@ -285,6 +352,18 @@
     var OUTLINE_PX = 3;
     var haloA = null;
     var haloB = null;
+
+    /* The doorway's highlight is the opening's own edge — there is no
+       silhouette to trace, the shape IS the rectangle in the wall. */
+    function outlineRect(a) {
+      overlayCtx.save();
+      overlayCtx.strokeStyle = HILITE;
+      overlayCtx.lineWidth = OUTLINE_PX;
+      overlayCtx.strokeRect(
+        a.x + OUTLINE_PX / 2, a.y + OUTLINE_PX / 2,
+        a.w - OUTLINE_PX, a.h - OUTLINE_PX);
+      overlayCtx.restore();
+    }
 
     function outline(entry) {
       if (!haloA) {
@@ -323,14 +402,19 @@
        cursor. */
     scene.addEventListener("mousemove", function (e) {
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-      var id = hitAt(e);
-      if (id === null || id === undefined || !currentLayout) {
-        scene.style.cursor = "";
+      if (!currentLayout) { scene.style.cursor = ""; return; }
+      var r = resolve(canvasPoint(e));
+      if (r.kind === "none") { scene.style.cursor = ""; return; }
+      scene.style.cursor = "pointer";
+      if (r.kind === "doorway") {
+        /* The way between rooms answers the cursor like everything else.
+           Without this the one thing that moves you had no highlight and no
+           pointer, while every object in the room had both. */
+        outlineRect(r.aperture);
         return;
       }
-      scene.style.cursor = "pointer";
       for (var i = 0; i < currentLayout.length; i++) {
-        if (currentLayout[i].id === id) outline(currentLayout[i]);
+        if (currentLayout[i].id === r.id) outline(currentLayout[i]);
       }
     });
     scene.addEventListener("mouseleave", function () {
