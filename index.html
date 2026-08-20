@@ -454,7 +454,7 @@
       /* The page's own pointer routing, exposed so a pointer-driven test
          asks the shipped code where a click lands instead of re-deriving
          it. */
-      hitAtPoint: hitAtPoint, apertureAt: apertureAt
+      hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve
     };
     harness.subscribe(paint);
     harness.redraw();

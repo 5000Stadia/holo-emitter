@@ -550,21 +550,27 @@ test.describe("what the page shows when things go wrong, and where it points", (
         window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
       // Sample the opening on a grid; every point inside it that is not the
       // leaf's own pixels must resolve to travel.
-      let travel = 0, leaf = 0, dead = 0;
+      // Asked of the SHIPPED resolver, not of apertureAt directly: the whole
+      // defect was an ordering one — the tolerance ring running before the
+      // doorway — and a test that consults the doorway itself cannot see the
+      // order the page actually applies.
+      let travel = 0, leaf = 0, other = 0;
       for (let fy = 0.15; fy <= 0.85; fy += 0.1) {
         for (let fx = 0.05; fx <= 0.95; fx += 0.05) {
           const x = a.x + fx * a.w, y = a.y + fy * a.h;
           const exact = window.HOLO.renderer.hitTest(
             window.__T.currentLayout(), A.library, x, y);
-          const ap = A.apertureAt({ x, y });
-          if (exact) leaf++;
-          else if (ap) travel++;
-          else dead++;
+          const r = A.resolve({ x, y });
+          if (exact) { leaf++; continue; }        // the leaf's own pixels
+          if (r.kind === "doorway") travel++;
+          else other++;                            // ring stole it, or dead
         }
       }
-      return { travel, leaf, dead, width: a.w };
+      return { travel, leaf, other, width: a.w };
     });
-    expect(res.dead, "no dead pixels inside an open doorway").toBe(0);
+    expect(res.other,
+      "every point inside an open doorway that is not the leaf's own pixels means travel")
+      .toBe(0);
     // The leaf is a quarter of the opening at most; the rest is the way out.
     expect(res.travel).toBeGreaterThan(res.leaf * 2);
   });
