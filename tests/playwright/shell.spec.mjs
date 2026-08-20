@@ -92,3 +92,45 @@ test.describe("shell", () => {
     expect(shotOn1.readUInt32BE(20), "capture height is native").toBe(1024);
   });
 });
+
+test("a fault after the first frame does not print the boot apology", async ({ page }) => {
+  /* "The projection will not hold. Nothing of this place can be shown." is
+   * written for a page that never got a frame up. The boot handler fired on
+   * every uncaught error forever, so a stray throw from anywhere — a timer,
+   * an extension — printed it over a painted, working scene with every
+   * affordance live: a surface string that is false in a reachable state. */
+  await page.goto(appUrl());
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "desk1" }));
+  await page.evaluate(() => { setTimeout(() => { throw new Error("a stray throw"); }, 0); });
+  await page.waitForTimeout(120);
+  const res = await page.evaluate(() => ({
+    lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
+    painted: window.HOLO_APP.paints,
+    leftShown: getComputedStyle(document.getElementById("chevron-left")).display
+  }));
+  expect(res.painted, "the page really is working").toBeGreaterThan(0);
+  expect(res.lines, "no boot apology over a working page")
+    .not.toContain("The projection will not hold. Nothing of this place can be shown.");
+  expect(res.leftShown, "and the controls are not withdrawn").not.toBe("none");
+});
+
+test("the status line never presents half a row of type", async ({ page }) => {
+  // A fixed-height box with wrapping text slices its second row through the
+  // ascenders. Row 7 replaces the wording; the box has to hold whatever
+  // replaces it at the narrowest width.
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  const s = await page.evaluate(() => {
+    const el = document.getElementById("status");
+    const cs = getComputedStyle(el);
+    return {
+      whiteSpace: cs.whiteSpace, ellipsis: cs.textOverflow,
+      scrollHeight: el.scrollHeight, clientHeight: el.clientHeight
+    };
+  });
+  expect(s.whiteSpace, "one row, always").toBe("nowrap");
+  expect(s.ellipsis, "truncated, not sliced").toBe("ellipsis");
+  expect(s.scrollHeight, "and the content fits the box").toBeLessThanOrEqual(s.clientHeight + 1);
+});

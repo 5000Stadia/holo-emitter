@@ -138,7 +138,12 @@ test.describe("§12.8 — each mechanism fires", () => {
       const mulExpect = (c, t) => c * (1 - TINT_ALPHA) + (c * t / 255) * TINT_ALPHA;
 
       // A solid interior pixel of a canvas: walk rows to find a pixel whose
-      // 3x3 neighbourhood is uniform and opaque (no edge anti-aliasing).
+      // 3x3 neighbourhood is opaque and near-uniform. NEAR, not exact: every
+      // sprite now carries the horizontal half of UL45 as a per-pixel ramp
+      // across its own width, so no two adjacent columns are byte-identical
+      // and an exact-uniformity search finds nothing. The tolerance only has
+      // to exclude an anti-aliased edge, and the ramp's step is 1–2 levels.
+      const NEAR = 4;
       const solidPoint = (canvas, box) => {
         const W = canvas.width;
         const data = canvas.getContext("2d").getImageData(0, 0, W, canvas.height).data;
@@ -154,7 +159,8 @@ test.describe("§12.8 — each mechanism fires", () => {
             for (let dy = -1; dy <= 1 && uniform; dy++) {
               for (let dx = -1; dx <= 1 && uniform; dx++) {
                 const n = at(x + dx, y + dy);
-                if (n[0] !== c[0] || n[1] !== c[1] || n[2] !== c[2] || n[3] !== 255) uniform = false;
+                if (Math.abs(n[0] - c[0]) > NEAR || Math.abs(n[1] - c[1]) > NEAR ||
+                    Math.abs(n[2] - c[2]) > NEAR || n[3] !== 255) uniform = false;
               }
             }
             if (uniform) return { x, y };
@@ -1370,46 +1376,77 @@ test.describe("what a click means, at the sizes people actually use", () => {
  * grid mode is a product mode (§7), not a stand-in for row 4's backdrops, and
  * on its own floor the earlier build took at most 6/255 out of the ground. */
 test.describe("contact reads on the floor the product ships", () => {
+  /* Every grounded object present, which is what §7 step 6 says — the four
+   * floor-standing hosts AND the anchor_on children, whose pools are derived
+   * rather than read off a footprint and whose clause ("an on-surface object
+   * with no grounding is a sticker") had no magnitude gate at all. Row 4
+   * replaces every one of these sprites, so the population has to be the
+   * rule and not a list of the four that happened to be checked. */
   const grounded = [
     { id: "desk1", vs: { location: "study", facing: "N" } },
     { id: "chair1", vs: { location: "study", facing: "N" } },
     { id: "stick1", vs: { location: "hall", facing: "N" } },
-    { id: "shelf1", vs: { location: "hall", facing: "N" } }
+    { id: "shelf1", vs: { location: "hall", facing: "N" } },
+    { id: "note1", vs: { location: "study", facing: "N" }, host: "desk1", surface: true },
+    { id: "coin1", vs: { location: "hall", facing: "N" }, host: "shelf1", surface: true },
+    { id: "key1", vs: { location: "study", facing: "N" }, host: "desk1", surface: true, reveal: true }
   ];
 
   for (const g of grounded) {
     test(`${g.id}: the grid floor is measurably darker under it`, async ({ page }) => {
       await page.goto(appUrl());
-      const d = await page.evaluate(({ id, vs }) => {
+      const d = await page.evaluate(({ id, vs, host, reveal }) => {
         const fx = window.HOLO_FIXTURE;
+        // An anchored child reaches the scene only through its host, so the
+        // host stays — and its own pool is subtracted out, because both
+        // renders carry it.
+        const keep = host ? [id, host] : [id];
         const solo = window.__T.worldWithout(
-          fx.world.entities.filter((e) => e.id !== id).map((e) => e.id));
+          fx.world.entities.filter((e) => !keep.includes(e.id)).map((e) => e.id));
+        if (host) {
+          const h = solo.entities.find((e) => e.id === host);
+          if (h && h.states) h.state = "open";
+        }
+        if (reveal && !solo.knowledge.player.includes(id)) solo.knowledge.player.push(id);
         // The shipped grid, not a fill: renderW passes no backdrops.
         const on = window.__T.renderW(solo, fx.staging, vs, { tint: false });
         const off = window.__T.renderW(solo, fx.staging, vs, { tint: false, shadows: false });
         const W = 1536, H = 1024;
         const a = on.getContext("2d").getImageData(0, 0, W, H).data;
         const b = off.getContext("2d").getImageData(0, 0, W, H).data;
-        let count = 0, maxD = 0;
+        let count = 0, maxD = 0, maxChannel = 0;
         for (let p = 0; p < W * H; p++) {
           const i = p * 4;
           const dd = (b[i] - a[i]) + (b[i + 1] - a[i + 1]) + (b[i + 2] - a[i + 2]);
-          if (dd > 6) { count++; if (dd > maxD) maxD = dd; }
+          if (dd > 6) {
+            count++;
+            if (dd > maxD) maxD = dd;
+            for (let ch = 0; ch < 3; ch++) {
+              const c = b[i + ch] - a[i + ch];
+              if (c > maxChannel) maxChannel = c;
+            }
+          }
         }
         const meta = window.HOLO.renderer.GRID_META;
-        const ent = window.HOLO_APP.harness.world.entities.find((e) => e.id === id);
-        const rec = window.HOLO_APP.library[ent.sprite].record;
-        let pl = fx.staging.placements[id];
-        if (Array.isArray(pl)) pl = pl[0];
-        const pp = window.HOLO.groundplane.placeHost(pl, rec, meta, 1536);
-        const footW = pp.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0);
-        return { count, maxD, footW };
-      }, { id: g.id, vs: g.vs });
-      // Channel-sum darkening on a floor whose channel sum is ~120. The
-      // build this clause was written against reached 12–19 in sum; the
-      // key-direction offset and the floor's own luminance carry it above 30.
-      expect(d.maxD, `${g.id}: peak channel-sum darkening on the grid floor`)
-        .toBeGreaterThanOrEqual(30);
+        // The drawn footprint, read off the layout so it is right for an
+        // anchored child (whose scale comes from its host's baseline) as well
+        // as for a floor host.
+        const lay = window.HOLO.renderer.layout(solo, fx.staging,
+          window.__T.lib(), meta, vs);
+        const e = lay.find((x) => x.id === id);
+        const footW = e
+          ? e.f * (e.record.anchors.footprint.x1 - e.record.anchors.footprint.x0) : 0;
+        return { count, maxD, maxChannel, footW, drawn: !!e };
+      }, { id: g.id, vs: g.vs, host: g.host || null, reveal: !!g.reveal });
+      expect(d.drawn, `${g.id} is on the scene`).toBe(true);
+      /* The SAME bar the lit-fill clause sets — 20 levels on a channel — and
+       * on the floor the product actually draws. A channel-sum threshold let
+       * the shipped frame come in at 12–18 per channel while reading as a
+       * pass, and the lit-fill clause measured against a substitute floor
+       * four times brighter than the real one, so between them the named
+       * quality was certified by nothing. */
+      expect(d.maxChannel, `${g.id}: peak per-channel darkening on the grid floor`)
+        .toBeGreaterThanOrEqual(20);
       // An area, not a few pixels — scaled to the object, so a candlestick is
       // judged as a candlestick.
       expect(d.count, `${g.id}: and it is an area, not a few pixels`)
@@ -1683,5 +1720,99 @@ test.describe("the tint changes colour and nothing else", () => {
       "the probe sprite really has partial alpha").toBe(true);
     expect(res.tinted, "the tint pass leaves the alpha channel alone")
       .toEqual(res.plain);
+  });
+});
+
+test.describe("one light: the sprites carry the key's direction, not just its elevation", () => {
+  test("every sprite reads brighter on its viewer-left than on its right", async ({ page }) => {
+    /* `light: "UL45"` is a field in every §6 record, and for a while it was
+     * only a field: the painters shaded top faces lighter than vertical ones
+     * — the elevation half — while per-third mean luminance came out exactly
+     * symmetric on four of the eight sprites and brighter on the RIGHT for
+     * the desk. A key at 45° from the upper left has to leave the left of a
+     * form brighter than its right, or "every sprite shares the backdrop's
+     * key direction" is a claim about JSON and not about pixels.
+     *
+     * Measured over opaque body pixels, per third, on the library image —
+     * before the renderer's tint, which is colour temperature and not
+     * direction. Row 4's generated sprites answer to gate §9.4e's Sobel
+     * bright-side estimate; this is its V1 counterpart, on the sprites this
+     * row actually ships. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const lib = window.HOLO_APP.library;
+      const out = [];
+      for (const id of Object.keys(lib)) {
+        const c = lib[id].images.body;
+        const W = c.width, H = c.height;
+        const d = c.getContext("2d").getImageData(0, 0, W, H).data;
+        const sum = [0, 0, 0], n = [0, 0, 0];
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const i = (y * W + x) * 4;
+            if (d[i + 3] < 250) continue;
+            const third = x < W / 3 ? 0 : (x < (2 * W) / 3 ? 1 : 2);
+            sum[third] += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+            n[third]++;
+          }
+        }
+        out.push({
+          id,
+          declared: lib[id].record.light,
+          left: n[0] ? sum[0] / n[0] : null,
+          right: n[2] ? sum[2] / n[2] : null
+        });
+      }
+      return out;
+    });
+    expect(res.length).toBeGreaterThanOrEqual(8);
+    for (const r of res) {
+      expect(r.declared, `${r.id} declares a key`).toBe("UL45");
+      expect(r.left, `${r.id} has left-third pixels`).not.toBeNull();
+      expect(r.right, `${r.id} has right-third pixels`).not.toBeNull();
+      // A margin, not a tie: a 1-level difference is noise, not a key.
+      expect(r.left - r.right,
+        `${r.id}: left third ${r.left.toFixed(1)} vs right third ${r.right.toFixed(1)}`)
+        .toBeGreaterThan(2);
+    }
+  });
+
+  test("a sprite's parts and state images are lit like the body they belong to", async ({ page }) => {
+    // A drawer face lit differently from the desk it slides out of is the
+    // same divergence the whole-composite tint pass exists to prevent, one
+    // layer earlier.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const lib = window.HOLO_APP.library;
+      const tilt = (c) => {
+        const W = c.width, H = c.height;
+        const d = c.getContext("2d").getImageData(0, 0, W, H).data;
+        let ls = 0, ln = 0, rs = 0, rn = 0;
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const i = (y * W + x) * 4;
+            if (d[i + 3] < 250) continue;
+            const l = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+            if (x < W / 3) { ls += l; ln++; } else if (x >= (2 * W) / 3) { rs += l; rn++; }
+          }
+        }
+        return (ln && rn) ? (ls / ln) - (rs / rn) : null;
+      };
+      const out = [];
+      for (const id of Object.keys(lib)) {
+        const im = lib[id].images;
+        for (const pid of Object.keys(im.parts || {})) {
+          out.push({ what: `${id}.parts.${pid}`, tilt: tilt(im.parts[pid]) });
+        }
+        for (const sid of Object.keys(im.states || {})) {
+          out.push({ what: `${id}.states.${sid}`, tilt: tilt(im.states[sid].image) });
+        }
+      }
+      return out;
+    });
+    expect(res.length, "there are parts and state images to check").toBeGreaterThan(1);
+    for (const r of res) {
+      expect(r.tilt, `${r.what} is lit from the same side as its body`).toBeGreaterThan(2);
+    }
   });
 });

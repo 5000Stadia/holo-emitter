@@ -95,13 +95,17 @@
    * meta — same pixels as row 1. Colours and alphas are pinned: lines stroke
    * in key_tint at 0.25 (minor) / 0.55 (major); glyph strokes at 0.9. */
   var WALL_BASE = "#10141b";
-  /* The floor carries enough luminance for a contact shadow to take some of
-   * it away. At the old #0b0e13 the brightest pixel on the floor was 19/255,
-   * so a pool at 0.35 alpha could darken it by at most 6 — "every grounded
-   * object darkens the ground under it" was true of the code and invisible
-   * in the picture, and grid mode is a product mode (§7), not placeholder
-   * art. Still darker than the wall: unestablished space, lit from nowhere. */
-  var FLOOR_BASE = "#1e242e";
+  /* The floor carries enough luminance for a contact shadow to take a
+   * VISIBLE amount away, on this floor and not on a stand-in for row 4's.
+   * Row 1's #0b0e13 left 19/255 to take, so a pool could darken it by 6; the
+   * first correction reached 46 and ~16, still under the 20-level bar the
+   * §12.8 magnitude clause sets, which made that bar arithmetically
+   * unreachable in the mode the demo ships. At #2c3542 (66 on the brightest
+   * channel) and a 0.45 peak the pool clears it with room. "Every grounded
+   * object darkens the ground under it" is a named quality and grid mode is
+   * a product mode (§7), not placeholder art. Still darker than the wall:
+   * unestablished space, lit from nowhere. */
+  var FLOOR_BASE = "#2c3542";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.45;
@@ -109,7 +113,7 @@
   /* Entity-pass constants (§7 steps 5–6). One tint constant for M0; the
    * shadow peaks at 0.35 and fades to nothing (plan §3). */
   var TINT_ALPHA = 0.18;
-  var SHADOW_PEAK = 0.35;
+  var SHADOW_PEAK = 0.45;
   /* ry = SHADOW_RY × rx, but never thinner than SHADOW_MIN_RY. "Contact" is
    * a named quality — every grounded object darkens the ground under it, a
    * pool at the contact point — and a pure ratio gives a small object a

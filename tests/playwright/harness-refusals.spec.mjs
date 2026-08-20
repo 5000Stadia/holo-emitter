@@ -238,3 +238,39 @@ test.describe("toggle walks the entity's own declared states", () => {
     expect(res.states).not.toContain("ajar");
   });
 });
+
+test.describe("toggle walks a list it does not know in advance", () => {
+  test("a three-state entity steps through its own states, in order, and round-trips", async ({ page }) => {
+    /* The fixture validator pins M0 to exactly ["closed","open"], which makes
+     * the harness's declared-states walk and a hardcoded closed/open flip
+     * observationally identical on any document that validates — so the
+     * property blueprint §8 claims ("never a hardcoded flip") was
+     * unfalsifiable, and would have broken silently the first time a
+     * three-state entity existed. §12.1's harness-level exception licenses
+     * exactly this: a doctored world through the harness API, adding no
+     * product affordance. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const fixture = window.__T.clone({
+        world: fx.world, staging: fx.staging, narration: fx.narration, viewstate: fx.viewstate
+      });
+      const desk = fixture.world.entities.find((e) => e.id === "desk1");
+      desk.states = ["closed", "ajar", "open"];
+      desk.state = "closed";
+      const h = window.HOLO.harness.create(fixture);
+      const seen = [desk.state];
+      const events = [];
+      for (let i = 0; i < 3; i++) {
+        const env = h.dispatch({ type: "toggle", entity: "desk1" });
+        events.push(env.events.map((e) => e.to).filter(Boolean)[0] ?? null);
+        seen.push(h.world.entities.find((e) => e.id === "desk1").state);
+      }
+      return { seen, events, declared: desk.states };
+    });
+    expect(res.seen, "each step is the next declared state, wrapping at the end")
+      .toEqual(["closed", "ajar", "open", "closed"]);
+    expect(res.events).toEqual(["ajar", "open", "closed"]);
+    for (const s of res.seen) expect(res.declared).toContain(s);
+  });
+});

@@ -76,14 +76,14 @@
     font-size: 0.95rem; line-height: 1.3;
   }
   #narration p { margin: 0 0 2px 0; }
-  /* A pane's worth of room below the newest line, so it can always be
-     scrolled flush to the top. Without it the scroll clamps at the end of
-     the content and the top edge lands mid-line — the pane then permanently
-     shows a horizontally sliced row above whatever it is saying, ascenders
-     cut through, which is the whole product voice arriving broken. On the
-     content, not on the box: padding here would make the pane taller and
-     spend chrome budget §5 has already allotted. */
-  #narration p:last-child { margin-bottom: 4.2rem; }
+  /* Slack under the last message, on the CONTENT so the box does not grow
+     and the 9.6rem chrome budget is untouched. The pane can only scroll as
+     far as its content, so with no slack the only reachable position is the
+     exact bottom — which lands the top edge mid-line whatever the heights
+     are. This buys the few pixels the snap needs; it shows as blank only
+     when a line boundary demands it. */
+  #narration p:last-child { margin-bottom: 2.6rem; }
+
   #inventory {
     height: 3.4rem; padding: 0 8px; display: flex; gap: 6px;
     align-items: center;
@@ -93,7 +93,15 @@
     border: 1px solid rgba(200, 180, 137, 0.35);
     background: rgba(200, 180, 137, 0.04);
   }
-  #status { height: 1.2rem; font-size: 0.75rem; opacity: 0.6; padding: 0 8px; box-sizing: border-box; overflow: hidden; }
+  /* One row, ellipsised. A fixed-height box with wrapping text presents a
+     second row sliced through its ascenders — half a line of type, which is
+     the defect the narration pane above is careful about. Row 7 replaces the
+     wording; the box has to hold whatever replaces it. */
+  #status {
+    height: 1.2rem; line-height: 1.2rem; font-size: 0.75rem; opacity: 0.6;
+    padding: 0 8px; box-sizing: border-box;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
   /* Capture mode: §12.6 flip pairs are element screenshots of the scene
      canvas, and overlapping DOM appears in element screenshots — so all
      chrome hides under this class; capture tooling sets it. */
@@ -113,7 +121,7 @@
     <button id="chevron-left" class="chevron chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
   </div>
-  <div id="narration" class="chrome"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
+  <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome"></div>
   <div id="status" class="chrome"></div>
   <script>
@@ -128,6 +136,15 @@
     var said = false;
     function wavers() {
       if (said) return;
+      /* Only for a page that never got a frame up. This sentence says
+         "nothing of this place can be shown", and an uncaught error thrown
+         at any later moment — a stray timer, an extension, anything — used
+         to print it over a scene that was painted and working, with every
+         affordance still live. A reachable surface string that is false in a
+         reachable state is what "the picture never lies about it" rules out;
+         a fault after the first frame belongs to the render path's own
+         handler, which knows what it is talking about. */
+      if (window.HOLO_APP && window.HOLO_APP.paints > 0) return;
       said = true;
       var pane = document.getElementById("narration");
       if (!pane) return;
@@ -233,11 +250,41 @@
       if (lastPointer) showHover(lastPointer);
     }
 
+    /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
+       the top edge on a paragraph boundary. Scrolling to the pane's bottom
+       alone slices whatever line straddles the top edge — half a line of
+       type, and the narration is the only thing in this product that speaks
+       to a player. Pinning the newest line to the TOP instead avoided the
+       slice and then left two thirds of the pane blank with the transcript
+       scrolled out of reach: the same voice lost a different way. */
+    function scrollNarration() {
+      var ps = narrationEl.querySelectorAll("p");
+      if (!ps.length) return;
+      var last = ps[ps.length - 1];
+      var lastTop = last.offsetTop - narrationEl.offsetTop;
+      if (last.offsetHeight >= narrationEl.clientHeight) {
+        narrationEl.scrollTop = lastTop; // taller than the pane: start at its top
+        return;
+      }
+      var target = lastTop + last.offsetHeight - narrationEl.clientHeight;
+      for (var i = 0; i < ps.length; i++) {
+        var o = ps[i].offsetTop - narrationEl.offsetTop;
+        // The first boundary at or below the bottom-aligned position. It is
+        // never past the newest line's own top, so the newest stays whole.
+        if (o >= target) { target = o; break; }
+      }
+      narrationEl.scrollTop = target;
+      // If the content could not reach that boundary, fall back to putting
+      // the newest line at the top: a little blank below beats half a line
+      // of type above.
+      if (narrationEl.scrollTop !== target) narrationEl.scrollTop = lastTop;
+    }
+
     function appendNarration(line) {
       var p = document.createElement("p");
       p.textContent = line;
       narrationEl.appendChild(p);
-      narrationEl.scrollTop = p.offsetTop - narrationEl.offsetTop;
+      scrollNarration();
     }
 
     function updateChrome(envelope) {
@@ -435,6 +482,12 @@
        open doorway dispatches nothing — dead space is dead. */
     scene.addEventListener("click", function (e) {
       var r = resolve(canvasPoint(e));
+      // Any deliberate click ends the double-click echo window, including one
+      // that resolves to nothing: dead space dispatches no intent by design,
+      // so keying the window on dispatched intents alone left it armed after
+      // a click on nothing, and the next doorway click 250 ms later — a real
+      // gesture with a real destination — vanished.
+      if (r.kind !== "doorway") lastGo = null;
       if (r.kind === "doorway") {
         /* Swallow only the second half of a double-click: the SAME doorway,
            within the double-click window, with nothing else done in between.

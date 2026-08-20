@@ -261,15 +261,24 @@ const IN_PAGE = () => {
     /* Fraction of pixels in a horizontal band (rows y-1..y+1) whose red
      * channel exceeds the base by a threshold — the blend-tolerant line
      * predicate. Base colours are darker than any key_tint blend. */
+    /* Self-calibrating against the band's own background rather than an
+       absolute level: a grid line is a pixel brighter than the surface it is
+       drawn on, and the wall and floor bases are product colours that move. */
     lineFraction(canvas, y, x0 = 0, x1 = null) {
       const W = canvas.width;
       if (x1 === null) x1 = W;
       const data = canvas.getContext("2d").getImageData(x0, y - 1, x1 - x0, 3).data;
       const cols = x1 - x0;
+      const reds = [];
+      for (let r = 0; r < 3; r++) {
+        for (let x = 0; x < cols; x++) reds.push(data[(r * cols + x) * 4]);
+      }
+      reds.sort((a, b) => a - b);
+      const base = reds[Math.floor(reds.length / 2)];
       let hit = 0;
       for (let x = 0; x < cols; x++) {
         for (let r = 0; r < 3; r++) {
-          if (data[(r * cols + x) * 4] > 40) { hit++; break; }
+          if (data[(r * cols + x) * 4] > base + 6) { hit++; break; }
         }
       }
       return hit / cols;

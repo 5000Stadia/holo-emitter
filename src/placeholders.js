@@ -581,6 +581,49 @@
     return { x0: originX + minX, x1: originX + maxX + 1 };
   }
 
+  /* The horizontal half of UL45.
+   *
+   * The painters shade top faces lighter than vertical ones, which is the
+   * elevation half of the key and the half that was there. The direction was
+   * not: measured per-third mean luminance came out symmetric on four of the
+   * eight sprites and actually brighter on the RIGHT for the desk, while
+   * every record declared `"light": "UL45"` as truth. A key at 45° from the
+   * upper LEFT has to leave the left of a form brighter than its right, or
+   * "every sprite shares the backdrop's key direction" is a field in a JSON
+   * file and not a fact about the pixels.
+   *
+   * A per-pixel multiply across the body's own width, applied after painting
+   * to every image the sprite ships (body, parts, state images), so a part
+   * lit differently from the body it slides out of cannot happen. Deterministic
+   * — a fixed ramp, integer arithmetic, no canvas gradient object (those
+   * rasterise differently across engines, which is why the painters forbid
+   * them). Alpha is untouched.
+   *
+   * `KEY_SWING` is the full spread: +8% at the left edge, −8% at the right. */
+  var KEY_SWING = 0.08;
+
+  function applyKeyDirection(canvas) {
+    var w = canvas.width;
+    var h = canvas.height;
+    if (!(w > 0 && h > 0)) return canvas;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    var img = ctx.getImageData(0, 0, w, h);
+    var d = img.data;
+    for (var x = 0; x < w; x++) {
+      // 1 + KEY_SWING at x = 0, 1 - KEY_SWING at the right edge.
+      var f = 1 + KEY_SWING * (1 - 2 * (w === 1 ? 0.5 : x / (w - 1)));
+      for (var y = 0; y < h; y++) {
+        var i = (y * w + x) * 4;
+        if (d[i + 3] === 0) continue;
+        d[i] = Math.min(255, Math.round(d[i] * f));
+        d[i + 1] = Math.min(255, Math.round(d[i + 1] * f));
+        d[i + 2] = Math.min(255, Math.round(d[i + 2] * f));
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return canvas;
+  }
+
   /**
    * Build the placeholder library. `doc` is the DOM document, used only for
    * createElement("canvas"); Node callers use `records` and never call this.
@@ -595,12 +638,12 @@
       var id = ids[i];
       var record = records[id];
       var painters = PAINTERS[id];
-      var images = { body: painters.body(doc) };
+      var images = { body: applyKeyDirection(painters.body(doc)) };
       if (record.parts) {
         images.parts = {};
         for (var p = 0; p < record.parts.length; p++) {
           var partId = record.parts[p].id;
-          images.parts[partId] = painters.parts[partId](doc);
+          images.parts[partId] = applyKeyDirection(painters.parts[partId](doc));
         }
       }
       if (record.states_images) {
@@ -608,7 +651,7 @@
         var stateNames = Object.keys(record.states_images);
         for (var s = 0; s < stateNames.length; s++) {
           var name = stateNames[s];
-          var img = painters.states[name](doc);
+          var img = applyKeyDirection(painters.states[name](doc));
           images.states[name] = {
             image: img,
             extent: bottomOpaqueExtent(img, record.states_images[name].origin.x)

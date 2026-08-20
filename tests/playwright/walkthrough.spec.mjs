@@ -925,47 +925,77 @@ test.describe("the product's voice is legible where it speaks", () => {
     { name: "laptop 1366×768", width: 1366, height: 768 }
   ];
   for (const vp of widths) {
-    test(`${vp.name}: the newest line is whole and starts at the top of the pane`, async ({ page }) => {
-      // The pane auto-scrolled to its own bottom and was a row and a half
-      // tall, so it permanently showed one message plus a horizontally
-      // sliced fragment of the previous one, ascenders cut mid-glyph. The
-      // narration is the only thing in this product that speaks to a player.
+    test(`${vp.name}: whole lines, newest included, nothing sliced`, async ({ page }) => {
+      /* Two ways to lose the only voice this product has, both of which
+       * happened: scroll to the pane's bottom and whatever line straddles the
+       * top edge is sliced through its ascenders; pin the newest line to the
+       * top instead and two thirds of the pane goes blank with the
+       * transcript out of reach. The contract is both at once — the newest
+       * message whole, the pane filled, and every visible line a whole one. */
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(appUrl());
       await page.waitForFunction(() => !!window.HOLO_APP);
-      // The longest authored line in the fixture, whatever it is.
-      const worst = await page.evaluate(() => {
-        const lines = window.HOLO_FIXTURE.narration.lines;
-        let best = null;
-        for (const k of Object.keys(lines)) {
-          if (!best || lines[k].length > lines[best].length) best = k;
-        }
-        return { key: best, text: lines[best] };
+      // Through the shipped path: real refusals, real narration, real scroll.
+      await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        A.dispatch({ type: "take", entity: "stick1" });
+        A.dispatch({ type: "toggle", entity: "chair1" });
+        A.dispatch({ type: "take", entity: "shelf1" });
+        A.dispatch({ type: "toggle", entity: "desk1" });
       });
-      await page.evaluate((t) => {
-        const pane = document.getElementById("narration");
-        for (let i = 0; i < 4; i++) {
-          const p = document.createElement("p");
-          p.textContent = t;
-          pane.appendChild(p);
-          pane.scrollTop = p.offsetTop - pane.offsetTop;
-        }
-      }, worst.text);
       const geo = await page.evaluate(() => {
         const pane = document.getElementById("narration");
-        const ps = pane.querySelectorAll("p");
-        const p = ps[ps.length - 1];
-        return {
-          top: p.offsetTop - pane.offsetTop - pane.scrollTop,
-          height: p.offsetHeight,
-          pane: pane.clientHeight
-        };
+        const ps = [...pane.querySelectorAll("p")];
+        const rows = ps.map((p) => {
+          const top = p.offsetTop - pane.offsetTop - pane.scrollTop;
+          return { top, bottom: top + p.offsetHeight, h: p.offsetHeight };
+        });
+        return { rows, pane: pane.clientHeight, count: ps.length };
       });
-      expect(geo.top, `${vp.name}: no sliced row above the newest line`).toBe(0);
-      expect(geo.height, `${vp.name}: the newest message (${geo.height}px) fits the pane (${geo.pane}px)`)
-        .toBeLessThanOrEqual(geo.pane);
+      expect(geo.count, "there is a transcript").toBeGreaterThanOrEqual(4);
+      const last = geo.rows[geo.rows.length - 1];
+      expect(last.top, `${vp.name}: the newest message starts inside the pane`)
+        .toBeGreaterThanOrEqual(0);
+      expect(last.bottom, `${vp.name}: and ends inside it (${last.h}px in ${geo.pane}px)`)
+        .toBeLessThanOrEqual(geo.pane + 1);
+      // Nothing straddles the top edge — no half-line of type, ever.
+      for (const r of geo.rows) {
+        const straddles = r.top < 0 && r.bottom > 0;
+        expect(straddles, `${vp.name}: a line sliced across the top of the pane`).toBe(false);
+      }
+      // And the pane is used rather than reserved: it held exactly one line
+      // with two thirds blank and the transcript scrolled out of reach, which
+      // is the same voice lost by the opposite mistake.
+      const visible = geo.rows.filter((r) => r.top >= 0 && r.bottom <= geo.pane + 1);
+      expect(visible.length,
+        `${vp.name}: ${visible.length} whole lines visible in a ${geo.pane}px pane`)
+        .toBeGreaterThanOrEqual(2);
     });
   }
+
+  test("the transcript can be reached without a mouse wheel", async ({ page }) => {
+    // The pane scrolls, and on touch that is native; with a keyboard it was
+    // unreachable — no tabindex, and Arrow Left/Right are captured globally
+    // for turning. The narration is the product's only voice and §12.6 wants
+    // the whole transcript readable at the batch.
+    await page.goto(appUrl());
+    const attrs = await page.evaluate(() => {
+      const pane = document.getElementById("narration");
+      return {
+        tabindex: pane.getAttribute("tabindex"),
+        live: pane.getAttribute("aria-live"),
+        label: pane.getAttribute("aria-label"),
+        scrollable: getComputedStyle(pane).overflowY
+      };
+    });
+    expect(attrs.tabindex, "focusable").toBe("0");
+    expect(attrs.live, "and announced when it speaks").toBe("polite");
+    expect(typeof attrs.label).toBe("string");
+    expect(attrs.scrollable).toBe("auto");
+    // Focusable in fact, not only in attribute.
+    await page.locator("#narration").focus();
+    expect(await page.evaluate(() => document.activeElement.id)).toBe("narration");
+  });
 
   test("inventory tiles carry an accessible name, not only a hover title", async ({ page }) => {
     // A canvas has no text content, and on touch there is no hover, so a

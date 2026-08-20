@@ -92,6 +92,18 @@ at; the bake owns path resolution).
 must emit it for anchor-hosted takeables or the shipped validator goes red on their arrival (the
 validator requires `anchor_on` staging for exactly these).
 
+**Every sprite carries the horizontal half of `UL45`.** The painters shade top faces lighter than
+vertical ones — the elevation half, and the half that was there. The direction was not: measured
+per-third mean luminance came out exactly symmetric on four of the eight sprites and *brighter on
+the right* for the desk, while every record declared `"light": "UL45"` as truth. `build()` now
+applies a deterministic per-pixel ramp across each image's own width (+8% at the left edge, −8%
+at the right) to the body, its parts and its state images alike — a part lit differently from the
+body it slides out of is the divergence the whole-composite tint pass exists to prevent, one
+layer earlier. No canvas gradient object (those rasterise differently across engines, which is
+why the painters forbid them); alpha untouched. mechanisms.spec measures the per-third tilt on
+every shipped image — the V1 counterpart of gate §9.4e's Sobel bright-side estimate, which is
+what row 4's generated sprites answer to.
+
 **Desk body carries the cut cavity** (mirroring real §9.3 ingest): the body painter paints a
 darkened recess where the drawer front sits at closed; the drawer face exists only in the part
 image. A body with the face baked in would pass §12.3/§12.8 while showing a second immobile
@@ -271,9 +283,16 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
   back showed you 99.98% of the room you left. §7 gives the glyph the job of making facings
   visually distinct; mechanisms.spec now requires those two facings to differ by thousands of
   pixels in both door states.
-- **The floor carries luminance** (`#1e242e`, still darker than the wall). At row 1's `#0b0e13`
-  the brightest floor pixel was 19/255, so a contact pool at 0.35 alpha could take at most 6 from
-  it: *contact* was true of the code and invisible in the mode V1 actually ships.
+- **The floor carries enough luminance for the pool to clear the visibility bar** (`#2c3542`,
+  still darker than the wall; peak alpha 0.45). Row 1's `#0b0e13` left 19/255 to take, so a pool
+  could darken it by 6; the first correction reached 46 and ~16 — still under the 20-level bar
+  §12.8's magnitude clause sets, which made that bar arithmetically unreachable in the mode the
+  demo ships, while the clause that ran measured against a synthetic fill four times brighter
+  than the real floor. Between them the named quality was certified by nothing. Both clauses now
+  set the same bar, and the shipped-floor one measures **per channel**, over **every grounded
+  object present** — the `anchor_on` children included, whose pools are derived rather than read
+  off a footprint and whose §7 clause ("an on-surface object with no grounding is a sticker") had
+  no magnitude gate at all.
 - **The glyph carries real ink and not much voice** — 1.5 m tall at wall scale, stroke weight
   `gh/18`, alpha 0.45. `turn` is silent by design (§8 gives it no narration key), so on a bare
   facing the glyph is the entire response to pressing an arrow key, and at 1 m and 3 px it moved
