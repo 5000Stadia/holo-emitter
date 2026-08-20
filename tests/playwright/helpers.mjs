@@ -132,19 +132,21 @@ const IN_PAGE = () => {
 
 /* Suite-wide fixtures:
  * - every page the suite opens carries the in-page utilities;
- * - every page carries the no-network guard (§12.7 first half): any http(s)
- *   request in any test fails the run. */
+ * - every page carries the no-network guard (§12.7 first half): any request
+ *   to a non-local scheme, and any WebSocket (which emits no request event),
+ *   in any test fails the run. */
 export const test = base.extend({
   context: async ({ context }, use) => {
     await context.addInitScript(IN_PAGE);
-    const httpRequests = [];
+    const offenders = [];
     context.on("page", (p) => {
       p.on("request", (req) => {
-        if (/^https?:\/\//.test(req.url())) httpRequests.push(req.url());
+        if (!/^(file|data|about|blob):/.test(req.url())) offenders.push(req.url());
       });
+      p.on("websocket", (ws) => offenders.push("websocket: " + ws.url()));
     });
     await use(context);
-    expect(httpRequests, "zero network requests (§12.7)").toEqual([]);
+    expect(offenders, "zero network requests (§12.7)").toEqual([]);
   }
 });
 

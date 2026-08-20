@@ -30,10 +30,25 @@ const outFile = argOf("--out", join(fixtureDir, "fixture.js"));
 
 const FILES = ["world", "staging", "narration", "viewstate"];
 const texts = {};
+const parsed = {};
 for (const name of FILES) {
   const raw = readFileSync(join(fixtureDir, name + ".json"), "utf8");
-  JSON.parse(raw); // refuse to bake malformed truth
+  parsed[name] = JSON.parse(raw); // refuse to bake malformed truth
   texts[name] = raw.trim();
+}
+
+// Refuse to bake a boot viewstate the world cannot honour — a typo'd
+// location or facing would otherwise boot a normal-looking grid whose every
+// input is silently refused.
+{
+  const vs = parsed.viewstate;
+  const loc = (parsed.world.locations || []).find((l) => l.id === vs.location);
+  if (!loc || !(loc.facings || []).includes(vs.facing)) {
+    console.error(
+      `bake refused: viewstate ${JSON.stringify(vs)} names no location/facing in world.json`
+    );
+    process.exit(1);
+  }
 }
 
 function fnv1a32(str) {

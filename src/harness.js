@@ -49,7 +49,9 @@
       if (!loc) return null;
       var step = dir === "right" ? 1 : -1;
       var idx = RING.indexOf(viewstate.facing);
-      for (var n = 1; n <= RING.length; n++) {
+      // n stops before a full loop: a turn that would resolve to the current
+      // facing (a one-facing location) is a refusal, not a no-op view event.
+      for (var n = 1; n < RING.length; n++) {
         var candidate = RING[(idx + step * n + RING.length * n) % RING.length];
         if (loc.facings.indexOf(candidate) !== -1) return candidate;
       }

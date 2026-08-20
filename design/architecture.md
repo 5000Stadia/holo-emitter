@@ -31,7 +31,9 @@ requires running from `file://`. So:
   expression into the committed sibling `fixture.js` (`window.HOLO_FIXTURE`). Edit the JSON →
   `node tools/bake-fixtures.mjs` → reload. The bake is **byte-deterministic** (no timestamps; a
   content fingerprint instead) because the staleness test re-bakes to scratch and byte-compares
-  against the committed file.
+  against the committed file. The bake **refuses** a boot viewstate naming no location/facing in
+  `world.json`, and the bootstrap re-checks at boot (hand-edited bakes) — a bad boot viewstate
+  fails loudly in the status line and console instead of booting a turn-dead grid.
 - **Accepted deviation** against "the picture never lies about it": a person who edits the JSON
   and reloads without re-baking sees the old document. Mitigations — the staleness test, the
   GENERATED header, the README note, and the page's chrome status line showing the bake
@@ -83,7 +85,9 @@ maps `"location/facing" → {image, meta}` (empty until row 4 — every facing t
 `HOLO.harness.create(fixture)` deep-copies world/staging/narration/viewstate; the harness owns
 viewstate at runtime (`fixtures/*/viewstate.json` is boot-only — exactly `{location, facing}`).
 `dispatch(intent)` carries **only `turn`**. The turn ring: fixed compass N→E→S→W; `right` steps
-forward, `left` backward; a facing absent from the location's `facings` list is skipped. Inputs:
+forward, `left` backward; a facing absent from the location's `facings` list is skipped, and a
+turn that would resolve to the current facing (a one-facing location) is a refusal, never a
+no-op view event. Inputs:
 ArrowLeft / left chevron ‹ → `turn left`; ArrowRight / right chevron › → `turn right`.
 
 Envelope for a valid turn — `turn` is silent, no narration field (§8):
@@ -102,8 +106,11 @@ envelope format is the future websocket wire format; `harness.js` holds no rende
 
 ## index.html chrome
 
-The stage scales the 1536×1024 canvas stack to the window width (§5). Chrome — chevrons and the
-bake-fingerprint status line — carries class `chrome` and hides under `body.capture`
+The stage **contain-fits** the 1536×1024 canvas stack within the window (§5, amended at row 1
+[AI]: width-only scaling put the frame-bottom floor cut — the camera-has-feet device — below the
+fold on 16:9 screens; 3rem reserved for the status line). Arrow keys with Alt/Ctrl/Meta held are
+ignored — browser gestures (Alt+Left is history-back) stay the browser's. Chrome — chevrons and
+the bake-fingerprint status line — carries class `chrome` and hides under `body.capture`
 (`display: none`): §12.6's capture spec is a Playwright *element screenshot* of the scene canvas,
 and overlapping DOM appears in element screenshots, so capture tooling sets that class. Tested
 now (capture spec test), not first in a row-4 human batch. **Constraint for row 2**: chevron
@@ -113,14 +120,19 @@ edge would lose clicks to a DOM button; §12.1's real-pointer walkthrough will m
 ## Tests
 
 `npx playwright test -c tests/playwright` (or `npm test`) — Chromium, headless, all pages loaded
-from `file://`. Suite-wide fixtures: every page carries a no-network guard (§12.7 first half) and
-in-page helpers (`window.__T`). Hashes are SHA-256 via WebCrypto over `getImageData` bytes of the
-scene canvas — in-page, pixel-exact, immune to PNG encoders and CSS scaling (`file://` is a
-secure context in Chromium). Geometry tests derive expected rows from §5 literals by independent
-arithmetic (never from `GRID_META` or the renderer's math) and scan pixels with blend-tolerant
-predicates. §12.8's grid clause is defined as determinism **plus** the structural scans — "not
-blank" can never satisfy it. Tests that edit fixtures stage a scratch copy of the tree and
-re-bake there; the repo tree is never mutated. No stored golden images anywhere.
+from `file://`. Suite-wide fixtures: every page carries a no-network guard (§12.7 first half —
+any non-`file:`/`data:`/`about:`/`blob:` request, and any WebSocket, fails the run) and in-page
+helpers (`window.__T`). Hashes are SHA-256 via WebCrypto over `getImageData` bytes of the scene
+canvas — in-page, pixel-exact, immune to PNG encoders and CSS scaling (`file://` is a secure
+context in Chromium). Geometry tests derive expected rows from §5 literals by independent
+arithmetic and scan pixels with blend-tolerant predicates; the one licensed read of `GRID_META`
+compares the shipped constant *to* those literals (expected from literals, actual from the code —
+never the reverse). §12.8's grid clause is defined as determinism **plus** the structural scans —
+"not blank" can never satisfy it. The capture-class test asserts the captured element is native
+1536×1024 (§12.6: downscaled captures soften halo tells). Tests that edit fixtures stage a
+scratch copy of the tree and re-bake there; the repo tree is never mutated. No stored golden
+images anywhere. Witnessed engines: Chromium (the suite) and one manual Firefox `file://` smoke;
+WebKit is unwitnessed on this machine (Playwright WebKit lacks system libs here).
 
 Scaffolds shipped ahead of need, untested until their row: overlay canvas drawing (row 2 hover),
 the `backdrops` map parameter (row 4), the UMD guards (row 2 validator import).

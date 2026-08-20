@@ -7,9 +7,17 @@
 <style>
   html, body { margin: 0; padding: 0; background: #05070a; color: #c8b489; }
   body { font-family: Georgia, serif; }
-  /* The stage scales the fixed 1536x1024 logical canvas to the window width
-     (§5 viewport); the canvases keep their internal size. */
-  #stage { position: relative; width: 100%; aspect-ratio: 1536 / 1024; }
+  /* The stage contain-fits the fixed 1536x1024 logical canvas within the
+     window (§5 viewport, amended at row 1): width-only scaling pushed the
+     frame-bottom floor cut — the camera-has-feet device — below the fold on
+     16:9 screens. 3rem is reserved for the status line. The canvases keep
+     their internal size. */
+  #stage {
+    position: relative;
+    width: min(100%, calc((100vh - 3rem) * (1536 / 1024)));
+    margin: 0 auto;
+    aspect-ratio: 1536 / 1024;
+  }
   #scene, #overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: block;
@@ -63,12 +71,25 @@
       harness.dispatch({ type: "turn", dir: "right" });
     });
     window.addEventListener("keydown", function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) return; // browser gestures stay the browser's
       if (e.key === "ArrowLeft") harness.dispatch({ type: "turn", dir: "left" });
       else if (e.key === "ArrowRight") harness.dispatch({ type: "turn", dir: "right" });
     });
-    document.getElementById("status").textContent =
-      "fixture bake fp " + fixture.fp +
-      " — truth lives in fixtures/demo-study/*.json; after editing, run: node tools/bake-fixtures.mjs";
+    var boot = harness.viewstate;
+    var bootLoc = fixture.world.locations.filter(function (l) {
+      return l.id === boot.location;
+    })[0];
+    if (!bootLoc || bootLoc.facings.indexOf(boot.facing) === -1) {
+      var msg = "BOOT ERROR: viewstate " + JSON.stringify(boot) +
+        " names no location/facing in world.json — every turn will be refused. " +
+        "Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs";
+      document.getElementById("status").textContent = msg;
+      console.error(msg);
+    } else {
+      document.getElementById("status").textContent =
+        "fixture bake fp " + fixture.fp +
+        " — truth lives in fixtures/demo-study/*.json; after editing, run: node tools/bake-fixtures.mjs";
+    }
     window.HOLO_APP = { harness: harness };
     harness.redraw();
   })();

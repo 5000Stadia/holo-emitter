@@ -26,10 +26,9 @@ test.describe("determinism and purity", () => {
     // (the glyph carries facing, not location; licensed by the done clause).
     for (const f of ["N", "E", "S", "W"]) {
       const equal = results["study/" + f].h1 === results["hall/" + f].h1;
-      testInfo.annotations.push({
-        type: "recorded",
-        description: `study/${f} vs hall/${f}: ${equal ? "hash-equal" : "distinct"}`
-      });
+      const line = `recorded: study/${f} vs hall/${f}: ${equal ? "hash-equal" : "distinct"}`;
+      testInfo.annotations.push({ type: "recorded", description: line });
+      console.log(line); // annotations never reach the list reporter's output
     }
   });
 

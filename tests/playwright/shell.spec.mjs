@@ -21,14 +21,22 @@ test.describe("shell", () => {
     });
     expect(distinct, "canvas is non-blank").toBeGreaterThan(1);
 
-    // §5's display half: the page scales the canvas stack to the window
-    // width, aspect preserved — invisible to every pixel hash, so asserted
-    // on the displayed bounding box at two window sizes.
-    for (const vp of [{ width: 1280, height: 900 }, { width: 800, height: 600 }]) {
+    // §5's display half (contain-fit, amended at row 1): the whole frame —
+    // including the frame-bottom floor cut, the camera-has-feet device — is
+    // visible without scrolling at common window shapes; aspect preserved.
+    // Invisible to every pixel hash, so asserted on the displayed bounding
+    // box. 3rem = 48px is the status-line reserve.
+    for (const vp of [
+      { width: 1280, height: 900 },
+      { width: 1920, height: 1080 }, // 16:9 — width-only scaling failed here
+      { width: 800, height: 600 }
+    ]) {
       await page.setViewportSize(vp);
       const box = await page.locator("#scene").boundingBox();
-      expect(Math.abs(box.width - vp.width)).toBeLessThanOrEqual(2);
+      const expected = Math.min(vp.width, (vp.height - 48) * (1536 / 1024));
+      expect(Math.abs(box.width - expected)).toBeLessThanOrEqual(2);
       expect(Math.abs(box.height - box.width * (1024 / 1536))).toBeLessThanOrEqual(2);
+      expect(box.y + box.height, "frame bottom on screen").toBeLessThanOrEqual(vp.height);
     }
   });
 
@@ -41,7 +49,13 @@ test.describe("shell", () => {
   });
 
   test("capture class hides all chrome overlapping the scene canvas (§12.6 seam)", async ({ page }) => {
+    // §12.6 pins native-size captures: downscaling softens exactly the halo
+    // tells the flip test exists to catch. 1536×1100 displays the canvas at
+    // native 1536 CSS px under contain-fit.
+    await page.setViewportSize({ width: 1536, height: 1100 });
     await page.goto(appUrl());
+    const nativeBox = await page.locator("#scene").boundingBox();
+    expect(Math.abs(nativeBox.width - 1536)).toBeLessThanOrEqual(1);
 
     // The chevrons genuinely overlap the canvas — the case capture exists for.
     const canvasBox = await page.locator("#scene").boundingBox();
@@ -70,5 +84,9 @@ test.describe("shell", () => {
 
     expect(shotOn1.equals(shotOn2), "capture-on screenshot stable across toggle").toBe(true);
     expect(shotOn1.equals(shotOff), "capture-on differs from capture-off (chrome was in frame)").toBe(false);
+
+    // The captured element is native-size (PNG IHDR dimensions).
+    expect(shotOn1.readUInt32BE(16), "capture width is native").toBe(1536);
+    expect(shotOn1.readUInt32BE(20), "capture height is native").toBe(1024);
   });
 });

@@ -1,6 +1,8 @@
 import {
   test, expect, appUrl, stageTree, setViewstate, removeTree
 } from "./helpers.mjs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 /** Boot the app and cycle four facings with ArrowRight, returning the four
  * scene hashes plus the hash after a fifth state (the closed cycle). */
@@ -74,6 +76,36 @@ test.describe("turning", () => {
     expect(journal.every((e) => e.events === 1)).toBe(true);
     expect(journal.map((e) => e.facing)).toEqual(["E", "S", "E", "S", "E"]);
     expect(hashChanges.length).toBe(5);
+  });
+
+  test("modifier'd arrows are the browser's, not turns", async ({ page }) => {
+    await page.goto(appUrl());
+    for (const combo of ["Alt+ArrowLeft", "Control+ArrowRight", "Meta+ArrowLeft"]) {
+      await page.keyboard.press(combo);
+    }
+    const journal = await page.evaluate(() => window.HOLO_APP.harness.envelopes.length);
+    expect(journal, "modifier'd arrows dispatch nothing").toBe(0);
+  });
+
+  test("a hand-edited stale/broken boot viewstate fails loudly at boot, not silently", async ({ page }) => {
+    // The bake refuses bad viewstates, so simulate the hand-editor who
+    // bypasses it: rewrite the baked viewstate directly.
+    const dir = stageTree();
+    try {
+      const bakedPath = join(dir, "fixtures", "demo-study", "fixture.js");
+      const baked = readFileSync(bakedPath, "utf8");
+      writeFileSync(bakedPath, baked.replace(
+        /viewstate: \{[^}]*\}/,
+        'viewstate: { "location": "atrium", "facing": "N" }'
+      ));
+      const errors = [];
+      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+      await page.goto(appUrl(dir));
+      await expect(page.locator("#status")).toContainText("BOOT ERROR");
+      expect(errors.some((e) => e.includes("BOOT ERROR"))).toBe(true);
+    } finally {
+      removeTree(dir);
+    }
   });
 
   test("hall: boot viewstate is fixture-editable; the cycling check boots into the other room that way", async ({ page }) => {

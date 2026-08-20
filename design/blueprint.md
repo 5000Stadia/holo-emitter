@@ -177,7 +177,9 @@ Notes:
   be traced to the image fails.
 - [AI] **Viewport geometry, pinned.** Backdrops are generated at 1536×1024 (3:2, a native
   `gpt-image-1` size) and map 1:1 onto a fixed 1536×1024 logical canvas — no crop, no letterbox
-  inside the canvas; the page scales the canvas to fit the window width. The floor runs to the
+  inside the canvas; the page contain-fits the canvas within the window (amended at row 1 from
+  "fit the window width" [AI, standing license]: width-only scaling put the frame-bottom floor
+  cut — the camera-has-feet device — below the fold on 16:9 screens). The floor runs to the
   bottom edge of frame (the frame-bottom cut is the camera-has-feet device). Flip pairs and all
   hash tests capture the canvas element only — never window chrome — so pairs differ in nothing
   but the composited sprites.

@@ -37,4 +37,21 @@ test.describe("harness and envelope discipline (§8)", () => {
       window.HOLO_APP.harness.envelopes.map((e) => e.turn_id));
     expect(ids).toEqual(ids.map((_, i) => i + 1));
   });
+
+  test("a turn that resolves to the current facing is a refusal, not a no-op view event", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const fixture = JSON.parse(JSON.stringify({
+        world: fx.world, staging: fx.staging, narration: fx.narration,
+        viewstate: { location: "cell", facing: "N" }
+      }));
+      fixture.world.locations.push({ id: "cell", facings: ["N"], exits: [] });
+      const h = window.HOLO.harness.create(fixture);
+      const env = h.dispatch({ type: "turn", dir: "right" });
+      return { events: env.events.length, facing: h.viewstate.facing };
+    });
+    expect(res.events).toBe(0);
+    expect(res.facing).toBe("N");
+  });
 });

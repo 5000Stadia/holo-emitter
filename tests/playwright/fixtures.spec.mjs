@@ -1,5 +1,5 @@
 import { test, expect, repoRoot, bake } from "./helpers.mjs";
-import { readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, cpSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -17,6 +17,21 @@ test.describe("fixtures", () => {
         fresh.equals(committed),
         "stale bake — run: node tools/bake-fixtures.mjs"
       ).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  test("bake refuses a boot viewstate the world cannot honour", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "holo-badvs-"));
+    try {
+      cpSync(fixtureDir, join(scratch, "fx"), { recursive: true });
+      writeFileSync(
+        join(scratch, "fx", "viewstate.json"),
+        JSON.stringify({ location: "Study", facing: "N" }) + "\n" // capitalization typo
+      );
+      expect(() => bake(repoRoot, ["--fixture-dir", join(scratch, "fx")]))
+        .toThrow(/refused|Command failed|status/i);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }
