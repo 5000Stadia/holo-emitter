@@ -6,7 +6,15 @@
 <title>holo-emitter</title>
 <style>
   html, body { margin: 0; padding: 0; background: #05070a; color: #c8b489; }
-  body { font-family: Georgia, serif; }
+  /* Centred vertically: the stage is a fixed 3:2 and the chrome is a fixed
+     9.6rem, so on any screen taller than the two of them the remainder is
+     dead space — and top-aligned it all pooled below, 38% of a phone screen
+     under a small picture and a line of prose. Nothing is cropped and no
+     hash moves; this is where the letterbox goes. */
+  body {
+    font-family: Georgia, serif;
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  }
   /* The stage contain-fits the fixed 1536x1024 logical canvas within the
      window (§5 viewport, amended at row 1): width-only scaling pushed the
      frame-bottom floor cut — the camera-has-feet device — below the fold on
@@ -77,6 +85,11 @@
      canvas, and overlapping DOM appears in element screenshots — so all
      chrome hides under this class; capture tooling sets it. */
   body.capture .chrome { display: none; }
+  /* Capture mode also drops the vertical centring: §12.6 wants the scene
+     element captured at exactly 1536×1024, and a flex-centred stage lands on
+     a fractional y, which rounds the element screenshot to 1025 px tall. All
+     chrome is hidden here anyway, so block layout puts the stage at 0. */
+  body.capture { display: block; }
 </style>
 </head>
 <body>
@@ -535,16 +548,29 @@
       scene.style.cursor = "";
     }
 
+    /* Touch never sends `mouseleave`, and a refused tap does not repaint, so
+       without help every refused tap leaves a glowing halo around the thing it
+       refused until the next tap somewhere else. Clearing on `pointerup` is
+       not enough: the real event order on a touch device is
+       pointerdown → pointerup → mousemove → mousedown → mouseup → click, so
+       the compatibility `mousemove` arrives AFTER the clear and re-inks it.
+       (A hand-built sequence in the other order made a test green over this
+       for a while — synthetic events can always be arranged into the order
+       the code happens to handle.) So a non-mouse pointer sets a flag, and
+       the next mousemove spends it instead of drawing. */
+    var swallowNextMove = false;
+
     scene.addEventListener("mousemove", function (e) {
+      if (swallowNextMove) { swallowNextMove = false; clearHover(); return; }
       lastPointer = canvasPoint(e);
       showHover(lastPointer);
     });
     scene.addEventListener("mouseleave", clearHover);
-    /* Touch synthesises a mousemove and never sends mouseleave, and a refused
-       tap does not repaint — so without this every refused tap left a glowing
-       halo around the thing it refused, until the next tap somewhere else. */
+    scene.addEventListener("pointerdown", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") swallowNextMove = true;
+    });
     scene.addEventListener("pointerup", function (e) {
-      if (e.pointerType && e.pointerType !== "mouse") clearHover();
+      if (e.pointerType && e.pointerType !== "mouse") { swallowNextMove = true; clearHover(); }
     });
 
     document.getElementById("chevron-left").addEventListener("click", function () {

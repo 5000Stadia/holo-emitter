@@ -104,7 +104,7 @@
   var FLOOR_BASE = "#1e242e";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
-  var ALPHA_GLYPH = 0.9;
+  var ALPHA_GLYPH = 0.45;
 
   /* Entity-pass constants (§7 steps 5–6). One tint constant for M0; the
    * shadow peaks at 0.35 and fades to nothing (plan §3). */
@@ -274,6 +274,10 @@
         }
       }
       ctx.globalAlpha = ALPHA_GLYPH;
+      // Weight, not shout: the glyph has to answer an arrow key on a bare
+      // wall, and it must not be the most legible object in a room. Alpha
+      // carries the second half — the pixel count that makes a turn visible
+      // does not depend on how loud they are.
       // Stroke weight scales with the glyph so the mark carries real ink:
       // at 3 px on a 1 m letterform, turning between two bare facings
       // changed 426 pixels of 1.5 M — no visible response to an arrow key.
@@ -353,15 +357,52 @@
     return out;
   }
 
-  /* The opening reads as unlit space beyond, with a thin jamb in key_tint —
-   * grid mode only; a real backdrop paints its own. */
-  var APERTURE_FILL = "#05070a";
+  /* The opening shows the space beyond, not a panel painted on the wall.
+   * A flat fill with a jamb read as a framed dark picture hung where the
+   * doorway is — the flattest thing in the frame, and the one place the
+   * two-room premise most needs depth. So the far room's own ground plane
+   * continues through it: its wall darkens with distance, its floor line
+   * sits a little above this room's (the far wall is further away), and the
+   * grid's transverse lines carry on across the gap. All of it is derived
+   * from the same meta the grid is drawn from — grid mode only; a real
+   * backdrop paints its own opening (blueprint §11 requires the painted one
+   * to coincide with the leaf's placement rectangle, which is what the page
+   * uses as the way-through target). */
+  var BEYOND_WALL = "#080b10";
+  var BEYOND_FLOOR = "#141922";
 
   function drawApertures(ctx, list, meta) {
+    var floorY = meta.floor_line_y * meta.image_h_px;
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
-      ctx.fillStyle = APERTURE_FILL;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(a.x, a.y, a.w, a.h);
+      ctx.clip();
+      // The far room, one room deeper: its floor line rides higher.
+      var beyondFloorY = floorY - (floorY - meta.horizon_y * meta.image_h_px) * 0.45;
+      ctx.fillStyle = BEYOND_WALL;
       ctx.fillRect(a.x, a.y, a.w, a.h);
+      ctx.fillStyle = BEYOND_FLOOR;
+      ctx.fillRect(a.x, beyondFloorY, a.w, a.y + a.h - beyondFloorY);
+      // Its floor picked out by the same transverse device the grid uses.
+      ctx.globalAlpha = ALPHA_MINOR;
+      ctx.strokeStyle = meta.key_tint;
+      ctx.lineWidth = 1;
+      for (var k = 1; k <= 3; k++) {
+        var ty = snap(beyondFloorY + (a.y + a.h - beyondFloorY) * (k / 4) * (k / 4));
+        ctx.beginPath();
+        ctx.moveTo(a.x, ty);
+        ctx.lineTo(a.x + a.w, ty);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = ALPHA_MAJOR;
+      ctx.beginPath();
+      ctx.moveTo(a.x, snap(beyondFloorY));
+      ctx.lineTo(a.x + a.w, snap(beyondFloorY));
+      ctx.stroke();
+      ctx.restore();
+      // The jamb.
       ctx.save();
       ctx.globalAlpha = ALPHA_MAJOR;
       ctx.strokeStyle = meta.key_tint;

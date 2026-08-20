@@ -123,6 +123,20 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
     /* Six arms that existed and were guarded by nothing — deleting each left
      * the whole suite green. Two of them are named in the row text itself
      * ("no facts in staging.json", "all refs resolve", "thumbs"). */
+    /* Four holes a document can fall through while every ref resolves. */
+    ["a duplicate entity id", "world",
+      (w) => { w.entities.push(JSON.parse(JSON.stringify(w.entities[0]))); },
+      /appears more than once/],
+    ["contents of a host that cannot open", "world",
+      (w) => {
+        w.relations = w.relations.filter((r) => r[1] !== "coin1");
+        w.relations.push(["in", "coin1", "shelf1"]);
+      }, /declares no "open" state/],
+    ["v on a floor placement", "staging",
+      (s) => { s.placements.desk1.v = 3.0; }, /carries "v" but is floor_against/],
+    ["an attachment token that is not one", "staging",
+      (s) => { s.placements.desk1.attachment = "ceiling_hung"; },
+      /attachment "ceiling_hung" is not one of/],
     /* `u ∈ [0,1]` is not the same as "in the frame": the u-mapping spans
      * wall_width_m at the placement's own scale, so a floor_free object at
      * depth 1.2 m runs from x −400 to x 1936 across the legal range. */

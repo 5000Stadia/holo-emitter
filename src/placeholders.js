@@ -242,7 +242,8 @@
       "airborne": false,
       "thumb": "thumb.png",
       "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
-        "dims_deviation": "dims_m.h 0.12 m is a V1 legibility cheat; a wrought iron door key of this period is ~0.075 m. Row 4 ships the honest size and the asset scale probe is where it is settled." }
+        "dims_deviation": "dims_m.h 0.12 m is a V1 legibility cheat; a wrought iron door key of this period is ~0.075 m. Row 4 ships the honest size and the asset scale probe is where it is settled.",
+        "v1_apparent_size": "at V1 this draws ~5.8 CSS px across on a 390 px phone — below any tap target. See dims_deviation and blueprint §5." }
     },
 
     "notebook-vellum": {
@@ -263,7 +264,8 @@
       "takeable": true,
       "airborne": false,
       "thumb": "thumb.png",
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "at V1 this draws ~4.6 CSS px across on a 390 px phone — below any tap target. Apparent size follows the open camera question in blueprint §5, not this record's dims_m, which are honest." }
     },
 
     "coin-silver": {
@@ -285,7 +287,8 @@
       "airborne": false,
       "thumb": "thumb.png",
       "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
-        "dims_deviation": "dims_m.h 0.06 m is a V1 legibility cheat; an English silver shilling is ~0.028 m. Even cheated it draws ~6 px, so the fix is asset scale at row 4, not a bigger number here." }
+        "dims_deviation": "dims_m.h 0.06 m is a V1 legibility cheat; an English silver shilling is ~0.028 m. Even cheated it draws ~6 px, so the fix is asset scale at row 4, not a bigger number here.",
+        "v1_apparent_size": "at V1 this draws ~1.7 CSS px across on a 390 px phone — a finger cannot hit it. See dims_deviation and blueprint §5." }
     }
   };
 

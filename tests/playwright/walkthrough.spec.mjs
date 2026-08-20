@@ -12,7 +12,7 @@
  * pixel.
  */
 import {
-  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree
+  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree, equipContext
 } from "./helpers.mjs";
 import { rmSync } from "node:fs";
 import { join } from "node:path";
@@ -760,25 +760,31 @@ test.describe("the page under ordinary clumsiness", () => {
     expect(after.cursor).toBe("pointer");
   });
 
-  test("a tap leaves no halo behind it", async ({ page }) => {
-    // Touch synthesises a mousemove and never sends mouseleave, and a refused
-    // tap does not repaint, so every refused tap used to leave a permanent
-    // glow around the thing it refused.
-    await page.goto(appUrl());
-    const box = await sceneBox(page);
-    const pt = await page.evaluate(() => window.__T.clickPoint("chair1"));
-    await page.evaluate(({ x, y, box }) => {
-      const el = document.getElementById("scene");
-      const cx = box.x + (x * box.width) / 1536;
-      const cy = box.y + (y * box.height) / 1024;
-      const opts = { clientX: cx, clientY: cy, bubbles: true, pointerType: "touch" };
-      el.dispatchEvent(new MouseEvent("mousemove", opts));
-      el.dispatchEvent(new PointerEvent("pointerdown", opts));
-      el.dispatchEvent(new MouseEvent("click", opts));
-      el.dispatchEvent(new PointerEvent("pointerup", opts));
-    }, { x: pt.x, y: pt.y, box });
-    expect(await page.evaluate(() => window.__T.isOverlayBlank()),
-      "no halo left standing after a tap").toBe(true);
+  test("a tap leaves no halo behind it", async ({ browser }) => {
+    // Driven by REAL touch input, not hand-built events: the browser's own
+    // order on a touch device is pointerdown → pointerup → mousemove →
+    // mousedown → mouseup → click, and the compatibility mousemove arrives
+    // after any clear done on pointerup. A synthetic sequence in a
+    // convenient order made this green while every tap on a real phone left
+    // a permanent glowing outline around the last thing touched.
+    const ctx = await equipContext(await browser.newContext({
+      hasTouch: true, viewport: { width: 390, height: 844 }
+    }));
+    const p = await ctx.newPage();
+    await p.goto(appUrl());
+    await p.waitForFunction(() => !!window.HOLO_APP);
+    const box = await p.locator("#scene").boundingBox();
+    const pt = await p.evaluate(() => window.__T.clickPoint("chair1"));
+    await p.touchscreen.tap(
+      box.x + (pt.x * box.width) / 1536,
+      box.y + (pt.y * box.height) / 1024);
+    await p.waitForTimeout(150);
+    expect(await p.evaluate(() => window.__T.isOverlayBlank()),
+      "no halo immediately after a tap").toBe(true);
+    await p.waitForTimeout(1200);
+    expect(await p.evaluate(() => window.__T.isOverlayBlank()),
+      "and none a second later either").toBe(true);
+    await ctx.close();
   });
 
   test("drawing the highlight does not stall the page", async ({ page }) => {

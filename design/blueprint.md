@@ -142,7 +142,16 @@ Notes:
   one truth, one state). `mirror: true` is forbidden in M0 — mirroring flips the baked key light
   to upper-right and breaks one-light; the staging validator rejects it. Each room stages at least
   one object-object overlap, named: study `chair1`×`desk1`, hall `stick1`×`shelf1` — exact u/depth
-  values carry the license: change them if it makes the product better, and say why.
+  values carry the license: change them if it makes the product better, and say why. Exercised at
+  row 2: `stick1`'s `depth_m` is 0.75 in the shipped staging (the example above says 0.9, where
+  the projected spans stand clear of each other and §12.8's opaque-overlap check cannot pass; at
+  0.4 they overlap but the candlestick's base sits *inside* the bookcase plinth, which shows the
+  mechanism and not the quality — at 0.75 it stands in front of the case with its upper body
+  crossing it. Row 4's real asset needs only h ≥ ~0.11 m). The `u` values move with grid canonical
+  `wall_width_m` (below), each keeping its metre offset from the wall centre. `v` on wall-mounted placements is **metres above the wall
+  floor line** (`u`, `t` are normalized; `v` is not), and a wall-mounted placement takes wall
+  scale at any `v` — the ground-plane lerp describes the floor, so reading it at a raised
+  baseline shrinks a hung object by the amount it was raised [AI, row 2].
 - Objects placed `anchor_on` derive position, scale, and draw order from their host — they have no independent u/v.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
@@ -162,6 +171,14 @@ Notes:
 }
 ```
 
+- [AI, row 2] **`camera_wall_m`** is a §5 field: the camera-to-wall distance the depth model
+  divides by (`scaleAtDepth(d) = px_per_m_at_wall × cam / (cam − d)`). Grid canonical meta carries
+  3.5; a facing meta that omits it inherits that constant, which is why it is named here rather
+  than left implicit in code — row 4 measures it per backdrop alongside the rest, and a silent
+  fallback would mean every real facing quietly assumed 3.5 whatever the backdrop was generated
+  at. Its measurement procedure is row 4's to write with the others.
+- [AI, row 2] The optional **`wall_x0_px`** extension point (a measured wall origin for an
+  uncentred wall) is named the same way; grid mode centres by default.
 - Values normalized to image height where marked; calibrate by hand per backdrop against
   `calibration_ref` — every facing names one known-height feature (door facings use the door,
   2.0m at the wall plane; the others name a paneling module, window sill, or similar) [AI].
@@ -184,6 +201,50 @@ Notes:
   hash tests capture the canvas element only — never window chrome — so pairs differ in nothing
   but the composited sprites.
 - **Ground-plane function:** for baseline screen-y between `floor_line_y` (depth = wall) and 1.0 (depth = nearest), scale = lerp(`px_per_m_at_wall`, `px_per_m_at_bottom`). `floor_against` objects sit exactly on `floor_line_y` offset by their own depth; `floor_free` objects convert `depth_m` → baseline-y by inverse lerp.
+- [AI, row 2 — **a completion of the sentence above, flagged to Kabe as a blocking question,
+  answerable before row 4's meta authoring**] "Inverse lerp" admits two readings: (a) depth→scale
+  is itself a lerp in depth; (b) "inverse lerp" names only the final scale→y inversion, fed by a
+  depth model the sentence does not fix. Reading (b) was built, with a pinhole model:
+  `scaleAtDepth(d) = px_per_m_at_wall × camera_wall_m / (camera_wall_m − d)`, where
+  `camera_wall_m` = 3.5 joins grid canonical meta (per-facing values arrive with measured
+  backdrops, alongside the `wall_x0_px` extension point for uncentred walls). Known incoherence,
+  with numbers: a single pinhole through the wall endpoint implies ≈333 px/m at frame bottom
+  where this section pins 210, and the scale lerp's implied vanishing line sits at y ≈ 0.32, not
+  the authored `horizon_y` 0.48 — entity foreshortening and the authored horizon follow two
+  different cameras. The composite is an approximation no real camera produces; reconciliation
+  is row 4's meta-authoring work, and §12.5's row-2 green witnesses implementation-against-model,
+  never model-against-intent. Reversal cost: groundplane, heights.spec, and the grid transverse
+  math rework in a new row.
+- [AI, row 2 — **the fork above, stated in full after a second artifact critique; this is the
+  blocking question for Kabe, and it is about the numbers in this section, not about the code
+  that implements them**] The example values above cannot all be true of one camera, and the
+  arithmetic says so at V1, in the grid the demo ships today:
+  - **The wall in frame is not `wall_width_m` wide.** 1536 px at `px_per_m_at_wall` 96 is
+    **16.0 m** of wall across the frame; `wall_width_m` says 4.2. Since `u ∈ [0,1]` spans
+    `wall_width_m`, staging can only address the **central 26%** of every facing — everything
+    stands huddled in the middle of a hall-sized wall.
+  - **It is not a 50 mm lens.** 96 px/m at 3.5 m implies a 336 px focal length on a 1536 px
+    frame: a **133° horizontal field of view**, against §10's `focal_mm: 50` (≈40°).
+  - **The floor line and the horizon fix `px_per_m_at_wall` at 96.** `floor_line_y` 0.63 minus
+    `horizon_y` 0.48 is 0.15 × 1024 = 153.6 px, and that gap *is* the 1.6 m eye height — so
+    96 px/m is exactly what the two authored y-values force. The three numbers are mutually
+    consistent; it is `wall_width_m` and `focal_mm` that they contradict.
+  - **The consequence for a named quality.** At `camera_wall_m` 3.5 with
+    `px_per_m_at_bottom` 210, the nearest visible floor is 1.9 m in front of the viewer: the
+    frame bottom cuts the floor two paces away, not at your feet, so *the camera has feet*
+    is not delivered by these numbers however correctly they are implemented.
+  - **The general result**, worth having before row 4's prompt sheets are written: with a level
+    camera at 1.6 m in a 3:2 frame, the wall–floor line is only in frame when the wall in view
+    is wider than ~4.8 m. A c.1660 study wall of 4.2 m and a visible floor cannot both happen
+    with a level camera — one of *tilt the camera down*, *stand further back*, or *accept a very
+    wide view* has to give, and which one is a look decision.
+
+  **Nothing was changed here.** These are [HUMAN] values in this section and in §10, and an
+  agent does not overrule a human-tagged decision — so rows 1–3 implement them faithfully and the
+  V1 picture inherits the incoherence. The answer is needed **before row 4 authors real backdrop
+  meta**, because the §5 horizon assertion will reject any honestly-measured backdrop that does
+  not satisfy it, and the backdrop prompt sheets encode whichever camera is chosen. Rows 7 and 3
+  consume nothing from this.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
 ## 6. Sprite record — `record.json`
@@ -221,6 +282,15 @@ Notes:
 - `slide` values are fractions of sprite width/height; state interpolates 0→1 along them, with `scale` lerped to `scale_open` (parallax cheat for a drawer coming toward camera).
 - `view_side: left` = object turned 30° with its left side toward viewer. Renderer mirrors the sprite (and negates slide dx) when staging says `mirror: true`.
 - Takeables additionally carry `"thumb": "thumb.png"` (square, for the inventory strip).
+- [AI, row 2] Each record carries **`px: { w, h }`** — the body image's own pixel dimensions.
+  A real `record.json` has `sprite.png` beside it to measure; the Node-side validator has no
+  image to open, and the anchor-bounds arm has to know the canvas an anchor is supposed to lie
+  inside. Row 3's ingester writes it from the matted image; row 4's bake must reproduce it.
+- [AI, row 2] `attachment` gains a third token, **`"anchored"`**, for anchor-hosted takeables
+  (key, notebook, coin): a total `attachment` function over records keeps the validator and the
+  ingester's `--attachment` flag total, and omission would be a second, silent convention. The
+  shipped validator requires `anchor_on` staging for exactly these — row 3's ingester and row 4's
+  records must emit it for anchor-hosted takeables or they go red on arrival.
 
 ## 7. Renderer behavior (`renderer.js`)
 
@@ -238,11 +308,30 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
 - **The holodeck grid is a product mode, not placeholder art**: when a facing has no backdrop
   asset, the renderer draws the procedural holodeck grid (in-fiction unestablished space). Row 1
   builds it as that mode; real backdrops later occlude it but never delete it. Grid mode supplies
-  **canonical meta** (the §5 example values: floor_line_y 0.63, px_per_m_at_wall 96,
-  px_per_m_at_bottom 210, wall_width_m 4.2, key_tint `#c8b489` — deliberately non-identity so the
-  §12.8 tint assertion is satisfiable on grid backdrops — at 1536×1024) so the ground-plane
-  function is defined without backdrop assets, and it draws a small in-fiction **facing glyph**
-  (N/E/S/W on the grid wall) so facings are visually distinct and `turn` is observable.
+  **canonical meta** (floor_line_y 0.63, px_per_m_at_wall 96, wall_width_m 4.2, horizon_y 0.48,
+  key_tint `#c8b489` — deliberately non-identity so the §12.8 tint assertion is satisfiable on
+  grid backdrops — at 1536×1024) so the ground-plane function is defined without backdrop assets,
+  and it draws a small in-fiction **facing glyph** (N/E/S/W on the grid wall) so facings are
+  visually distinct and `turn` is observable.
+  [AI, amended at row 2 — three completions of this bullet, all [AI]-on-[AI]; §5's own example
+  block is untouched:]
+  - **`px_per_m_at_bottom` is 332.8 in grid canonical meta, not §5's example 210.** The grid is
+    synthesized rather than measured, so its meta has to be self-consistent, and §5 states the
+    floor twice: as the scale lerp, and as the horizon device that gives `horizon_y` its meaning.
+    Both are linear in (y, scale) and both pass through (floor line, `px_per_m_at_wall`); the
+    horizon device fixes the other end at `(image_h − horizon_y·image_h) / 1.6` = 332.8. At 210
+    they disagreed and the lerp won: every floor object was drawn at the right size for a depth
+    its feet did not occupy. §12.5 gains a clause checking **feet against the horizon device**,
+    since a height check reads scale on both sides and cannot see this.
+  - **The grid draws the doorway.** Openings for the exits on the facing are derived from
+    `locations[].exits` and the leaf's own §4 wall placement — never from coordinates in truth,
+    and knowledge-filtered like every other read — and drawn in the backdrop layer, where §11
+    puts them. A doorway exists whether or not its leaf is shut; the shut leaf occludes it
+    exactly. The facing glyph stands clear of any opening, because centred it landed inside the
+    doorway and the two door facings became the same picture.
+  - **The grid floor carries enough luminance for a contact shadow to take some of it away.** At
+    a near-black floor the *contact* quality is true of the code and invisible in the picture,
+    and this is a product mode, not placeholder art.
 - **Swap-archetype draw rule**: for sprites carrying `states_images`, draw step 4's body image is
   `states_images[state]` — whole-image swap, no parts, all other steps unchanged.
 - **Hover highlight lives on a separate overlay canvas** (chrome, like the fade): the scene
@@ -255,8 +344,24 @@ Draw order:
 4. For each entity: resolve position (§5 math), scale = dims_m.h × groundplane(baseline_y) → px, draw body, then parts at state-interpolated offsets.
 5. Container contents (`in` relation) draw only when host `state == "open"` **and** content is known — positioned in the host's `drawer_cavity` region, clipped to it.
 6. Per-sprite tint: multiply toward `key_tint` at fixed low alpha (single constant for M0). Contact shadow: soft ellipse at `base`, width = footprint span × ground scale, skipped when `airborne`. [AI] `anchor_on` children receive the same contact treatment scaled to their footprint, drawn on the host surface — an on-surface object with no grounding is a sticker.
+   [AI, row 2] The ellipse's *depth* carries a floor as well as a ratio: a pure ratio gives a
+   small footprint (the 0.16 m candlestick) a two-pixel hairline whose upper half hides behind
+   its own feet, which is not a pool at a contact point. Width stays exactly this section's.
+   And the check on it is quantitative — measured darkening and spread per object against its own
+   footprint, on a floor with luminance to lose — because "the shadow changed some pixel" is
+   satisfied by a shadow nobody can see.
 
 Interaction regions = each drawn entity's screen-space alpha bounds (parts included). Cursor over region → highlight (subtle outline). Click → emit intent to harness. Edge chevrons / arrow keys → `turn`. Clicking an open exit door → `go`.
+
+[AI, row 2 — a completion of the sentence above] **The doorway and its leaf are two targets.**
+"Clicking an open exit door → `go`" read as one target sends every click on an open leaf to
+`go`, and then no pointer path can ever close a door again — `toggle → closed` stays authored,
+narrated, in the §12.9 domain, and unreachable by any player. So: a point resolves to the exact
+pixel of a drawn entity first, then to an open doorway it falls inside, then to a widening
+tolerance ring for targets too small to hit exactly. Clicking *through* the opening is `go`;
+clicking the leaf is `toggle`. The tolerance ring is chrome — the alpha regions above are
+unchanged — and it comes last so it cannot eat the opening; it exists because a hand cannot hit
+an exact-pixel region a few pixels across.
 
 ## 8. Harness + envelope (`harness.js`)
 
@@ -278,6 +383,17 @@ Rules:
 - `take` requires: takeable, known, and (if contained) host open. Effect: add `["held_by", id, "player"]`, remove `in`/`on` relation. Inventory strip re-renders from `held_by` relations — it is a projection too.
 - `go` requires the door state `open`; plays a fade (DOM chrome, not canvas — §7 [AI]), sets `viewstate` to target location + `arrive_facing`.
 - Invalid intents emit an envelope with no events and a refusal narration line. The picture never changes when the world doesn't.
+- [AI, row 2] That rule has two halves and the second is the easy one to drop: a frame this
+  transport cannot read *at all* — an unknown `type`, a missing `entity`/`exit`, a malformed
+  `turn` — must still answer. The wire failed, not the world, so the line is the product-voiced
+  fault line rather than a fixture-authored refusal, and it is outside §12.9's domain (nothing in
+  a fixture emits it). Unreachable from the shipped UI; it matters because this envelope format
+  is the future websocket wire format and a malformed frame from Construct must not vanish.
+- [AI, row 2] `toggle` steps along the entity's **own declared `states`**, never a hardcoded
+  open/closed flip — which would write an entity a state absent from its own list, silently and
+  with a success envelope. M0 pins exactly `["closed","open"]` (the §7 swap rule reads "closed"
+  as the body image; the outcome vocabulary and narration keys are named for them) and the
+  fixture validator enforces the pin, so the assumption is checkable rather than implicit.
 - The envelope format is the future websocket wire format. The harness is a stand-in for the Construct transport server (holo-emitter later ships as a Construct transport; this module boundary is that seam); keep it in its own module with no renderer internals.
 
 ## 9. Ingester v1 (`replicator/ingest.py`)
@@ -294,7 +410,39 @@ Stages (all automatic unless noted):
 1. **Matte.** Background = border-sampled grey (median of 1-px border). Flood-fill from all borders on ±tolerance → outer background. Then find enclosed regions matching background color inside the silhouette → punch as holes (leg gaps). Feather 1px. Trim to content bbox. Output premultiplied-safe RGBA.
 2. **Anchors.** `base` = midpoint of bottom-extreme opaque pixels (bottom 2 rows). `footprint` = x-extent of those pixels. `surface_top` / cavity regions: **manual for v1** — flags `--anchor surface_top:x0,y0,x1,y1` (VLM auto-detect is v2, stubbed behind an injected `(prompt, schema) -> json` callable, same convention as pattern-buffer). The v2 shape, in Kabe's words [HUMAN, 2026-08-19]: "on ingest an llm looks at it and identifies the rear points that touch the ground, or the appropriate zones it exist in in relation to the background or anchor locations in relation to other objects (envelope anchor to desk top for example)" — the callable receives the matted sprite and returns the §6 anchor regions as schema-validated JSON; v1's geometric `base`/`footprint` stays as the deterministic cross-check on whatever the model claims.
 3. **Parts.** v1 takes a hand-drawn mask PNG per part; ingester cuts the part, inpaints the cavity with darkened content-aware fill (PIL blur-fill acceptable — cavity quality bar is low), records origin, writes both PNGs.
-3b. [AI] **Two-state (swap archetypes — the door leaf).** `--state open:IMG` runs the second image through stage 1 and records it as `states_images.open` beside `sprite.png` (the closed state). Alignment gate: the two images' `base` anchors must agree within 2% of sprite width — fail otherwise. Gate (d) does not apply to swap sprites; gate (e) applies to both images. Contract note: a state-variant source prompt replaces "all moving parts closed and fully seated" with the named state ("door leaf fully open"), all other blocks unchanged.
+3b. [AI] **Two-state (swap archetypes — the door leaf).** `--state open:IMG` runs the second image through stage 1 and records it as `states_images.open` beside `sprite.png` (the closed state). Gate (d) does not apply to swap sprites; gate (e) applies to both images. Contract note: a state-variant source prompt replaces "all moving parts closed and fully seated" with the named state ("door leaf fully open"), all other blocks unchanged.
+   [AI, amended at row 2 — the contract as built, reversible by Kabe as a new-row decision, never
+   a proposal gating row 3's boarding:]
+   - **`states_images` entries are objects**, `{ "open": { "image": "states/open.png", "origin":
+     { "x": …, "y": … } } }`, where `origin` is the state image's top-left in **closed-sprite
+     (body) pixel space** — the `parts[].origin` precedent applied to states. Each state image is
+     trimmed per image, exactly as stage 1 says (no [HUMAN] text touched); the single `anchors`
+     block stays the closed state's. The rejected alternative — one shared union-trim canvas for
+     both states — would have deviated from stage-1 trim and hidden the registration problem
+     inside authored pixels; it is named here so both routes are visible. `origin` **is** the
+     registration between two independently generated state images: row 3 must solve the
+     determination step for real pairs (keep the door frame in frame as the registration datum,
+     or a manual `--state-origin x,y` flag beside the v1 anchor flags) — the problem is stated,
+     not solved.
+   - **The alignment gate, redefined in the closed frame**: the original clause here — per-image
+     `base` midpoints agreeing within 2% of width — is unsatisfiable by the very open state §11
+     mandates (a leaf swung near-flat moves its bottom-pixel midpoint to the hinge side by ~a
+     third of the sprite width). The gate is now, judged in closed-sprite pixel space:
+     (i) `origin.y` + state image height agrees with the body's bottom edge within 2% of body
+     height; (ii) the state's rect lies within the body canvas bounds. These clauses ARE the swap
+     gate — the base-midpoint clause is deleted for swap sprites. Clause (ii) is true of M0's
+     door and **not general**: an open state whose silhouette exceeds the closed bbox (a raised
+     chest lid) needs a licensed exception. Row 2's green witnesses consistency of the
+     placeholder with its own record, never validation against real generated pairs.
+   - **Swap-state contact shadow** (a completion of §7 step 6's [HUMAN] ellipse-at-base formula,
+     flag class informative-with-reason: its letter paints a full-width shadow under a near
+     edge-on sliver): for a non-closed state the shadow derives from the drawn state's
+     bottom-opaque x-extent, computed from the state image at library build time and carried as
+     `images.states[state].extent = { x0, x1 }` in body pixel space — never the closed
+     `base`/`footprint`. Row 4's library bake reproduces these derived extents.
+   - **`drawer_cavity` semantics**: contents sit where they are visible when *open*, in body
+     pixel space — v1 manual anchor flagging and row 4's key-in-cavity probe inherit this one
+     convention.
 3c. [AI] **Thumbs.** `--takeable` auto-emits `thumb.png`: square, content-bbox-centred crop, 128px. Gate: every takeable record carries a square thumb.
 4. **Gates (hard fail unless noted).** [AI: gate thresholds are pinned in `contract.json` *before* the corpus runs, and the test suite carries a negative control — an image constructed to fail (grey halo on grey ground) that must demonstrably fail; a gate tuned until the corpus passes is no gate.] (a) halo: mean saturation of border-adjacent semi-alpha pixels must not read grey (report + fail); (b) holes: enclosed background-colored regions remaining at alpha>0 → fail; (c) min resolution: content bbox ≥ 512px tall for furniture, ≥ 128px for takeables; (d) **state diff**: composite(body+part@closed) vs original — pixel diff outside part mask must be ≈0 → fail; (e) light direction (Sobel-based bright-side estimate) vs contract `UL45` → **warn only**, record deviation.
 5. **Emit** `record.json` (schema §6), populated from flags + derivations; `provenance.tool = "replicator-ingest-v1"`.
@@ -338,7 +486,16 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
   a two-faced leaf would need it, or four state images §11 does not authorize). The **open**-state
   source is prompted with the leaf swung near-flat to the wall, close to edge-on, so hinge side
   stays unreadable; the §12.6 batch names this known asymmetry risk so a fail there is a prompt
-  fix, not a surprise.
+  fix, not a surprise. [AI, row 2] The *gap* beside the open leaf is on the same screen side from
+  both rooms too, which §11's symmetry device does not cover: the leaf's origin is fixed in the
+  record. Making it per-facing needs somewhere in §4 to say which side the leaf swings — a
+  schema addition, so Kabe's call, carried into row 4's batch note with the leaf question.
+- [AI, row 2] **The painted door opening must coincide with the door leaf's §4 placement
+  rectangle.** The page's "walk through" target is that rectangle, computed from the leaf's
+  placement; grid mode draws its own opening there, and a real backdrop paints one. If the two
+  diverge, the picture shows a doorway in one place and accepts the click in another. This is a
+  constraint on row 4's per-facing prompt sheets and on the wall-map measurement, not a renderer
+  setting.
 
 Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeable) · coin (takeable) · chair · candlestick · door leaf (hinged: two-state = closed image + open image for M0, no decomposition needed — swap, don't slide). Shelf may be baked into a Hall backdrop **only if nothing interactable sits on it — but coin1 sits on it, so shelf1 is a sprite too** (8th sprite, static; id `shelf-oak` [AI]).
 

@@ -1501,3 +1501,113 @@ test.describe("harness invariants the Construct-transport seam rests on", () => 
       .toEqual({ location: "study", facing: "N" });
   });
 });
+
+test.describe("contact on the placement classes nothing was measuring", () => {
+  /* Both earlier contact batteries enumerate the same four floor-standing
+   * hosts. The swung door's pool and every `anchor_on` child's pool — the
+   * two classes whose geometry is derived rather than read straight off the
+   * footprint — were in neither list, so the one placement class whose pool
+   * is a smear was the one nothing looked at. */
+  async function poolOf(page, id, viewstate, doctorOpen) {
+    return await page.evaluate(({ id, viewstate, doctorOpen }) => {
+      const fx = window.HOLO_FIXTURE;
+      const keep = id === "note1" ? ["desk1", "note1"]
+        : id === "coin1" ? ["shelf1", "coin1"] : [id];
+      const world = window.__T.worldWithout(
+        fx.world.entities.filter((e) => !keep.includes(e.id)).map((e) => e.id));
+      if (doctorOpen) world.entities.find((e) => e.id === doctorOpen).state = "open";
+      const on = window.__T.renderW(world, fx.staging, viewstate, { tint: false });
+      const off = window.__T.renderW(world, fx.staging, viewstate,
+        { tint: false, shadows: false });
+      const W = 1536, H = 1024;
+      const a = on.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = off.getContext("2d").getImageData(0, 0, W, H).data;
+      let count = 0, maxD = 0, x0 = W, x1 = -1;
+      for (let p = 0; p < W * H; p++) {
+        const i = p * 4;
+        const d = (b[i] - a[i]) + (b[i + 1] - a[i + 1]) + (b[i + 2] - a[i + 2]);
+        if (d > 6) {
+          count++;
+          if (d > maxD) maxD = d;
+          const x = p % W;
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+        }
+      }
+      return { count, maxD, w: x1 - x0 + 1 };
+    }, { id, viewstate, doctorOpen });
+  }
+
+  test("the swung door gets a pool under the sliver it actually draws", async ({ page }) => {
+    await page.goto(appUrl());
+    const closed = await poolOf(page, "door1", { location: "study", facing: "E" }, null);
+    const open = await poolOf(page, "door1", { location: "study", facing: "E" }, "door1");
+    expect(closed.count, "shut leaf has a pool").toBeGreaterThan(0);
+    expect(open.count, "and so does the swung one").toBeGreaterThan(0);
+    expect(open.maxD, "at a strength that reads").toBeGreaterThanOrEqual(30);
+    // Following the sliver, not the closed footprint: much narrower.
+    expect(open.w, "and it follows the drawn sliver").toBeLessThan(closed.w * 0.6);
+  });
+
+  for (const c of [
+    { id: "note1", vs: { location: "study", facing: "N" }, host: "the desk top" },
+    { id: "coin1", vs: { location: "hall", facing: "N" }, host: "the shelf board" }
+  ]) {
+    test(`${c.id} darkens ${c.host} it rests on`, async ({ page }) => {
+      // §7's [AI] clause: an on-surface object with no grounding is a sticker.
+      await page.goto(appUrl());
+      const d = await poolOf(page, c.id, c.vs, null);
+      expect(d.count, `${c.id} has a pool at all`).toBeGreaterThan(8);
+      expect(d.maxD, `${c.id} pool strength`).toBeGreaterThanOrEqual(15);
+    });
+  }
+});
+
+test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
+  test("anything under the tap floor at phone scale carries its deviation on the record", async ({ page }) => {
+    /* The coin draws under two CSS pixels on a phone and no pointing rule can
+     * fix that — it is apparent size, downstream of the open camera question
+     * in blueprint §5. What this row can hold is that such an object is never
+     * silent about it: if a takeable is below the platform tap floor at a
+     * named phone width, its record must say so in `provenance`. Row 4 ships
+     * real art through the same gate — and `dims_m` being honest is not a
+     * defence, because what a hand can hit is apparent size, not metres. */
+    const PHONE = { width: 390, height: 844 };
+    const TAP_FLOOR_CSS = 44;
+    await page.setViewportSize(PHONE);
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const box = document.getElementById("scene").getBoundingClientRect();
+      const k = box.width / 1536;
+      const out = [];
+      // Every takeable, drawn wherever it stands (the key needs the drawer).
+      const world = window.__T.clone(A.harness.world);
+      world.entities.find((e) => e.id === "desk1").state = "open";
+      world.knowledge.player.push("key1");
+      for (const vs of [{ location: "study", facing: "N" }, { location: "hall", facing: "N" }]) {
+        const lay = window.HOLO.renderer.layout(world, A.harness.staging, A.library,
+          window.HOLO.renderer.GRID_META, vs);
+        for (const e of lay) {
+          const ent = world.entities.find((x) => x.id === e.id);
+          if (!ent || !ent.takeable) continue;
+          const w = e.f * e.record.px.w * k;
+          const h = e.f * e.record.px.h * k;
+          out.push({
+            id: e.id, cssW: w, cssH: h,
+            declared: !!(e.record.provenance && e.record.provenance.v1_apparent_size)
+          });
+        }
+      }
+      return out;
+    });
+    expect(res.length, "takeables were laid out").toBeGreaterThan(2);
+    for (const t of res) {
+      if (Math.min(t.cssW, t.cssH) < TAP_FLOOR_CSS) {
+        expect(t.declared,
+          `${t.id} draws ${t.cssW.toFixed(1)}×${t.cssH.toFixed(1)} CSS px on a phone — under the ${TAP_FLOOR_CSS}px tap floor, so its record must carry provenance.v1_apparent_size`)
+          .toBe(true);
+      }
+    }
+  });
+});

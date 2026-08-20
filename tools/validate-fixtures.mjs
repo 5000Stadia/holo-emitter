@@ -72,6 +72,8 @@ const ANCHOR_PLACEMENT_KEYS = ["anchor_on", "t"];
  * whose sub-keys are open — so it has to catch the shapes a coordinate
  * actually arrives wearing, not just the bare letters. `x`/`y` alone missed
  * `screen_x`, `wall_x`, `origin_y`, `left`, `top`, `width`, `height`. */
+/* The complete §4 attachment vocabulary for a facing placement. */
+const ATTACHMENTS = ["floor_against", "floor_free", "wall_mounted"];
 const COORD_KEY_RE =
   /(^|_)(u|v|x|y|cx|cy|dx|dy|x0|x1|y0|y1|left|right|top|bottom|width|height|scale|anchor|anchors|origin|offset|bbox|rect|extent|footprint|baseline)($|_)|^(px|depth|coord|screen|pixel|canvas)/i;
 const WORLD_FACT_KEYS = new Set(["state", "states", "takeable", "relations", "knowledge", "location", "sprite"]);
@@ -720,6 +722,43 @@ export function validate(fixtureDir, records) {
     }
   }
 
+  /* ---- 7a. ids are unique, containers can contain ---------------------- */
+
+  /* Duplicate ids resolve — twice. Every `find`-by-id downstream (the
+   * harness's mutation, the renderer's entity table, the narration domain)
+   * silently picks one, so a world with two `desk1`s drew the desk twice, one
+   * closed and one open, both clickable, with toggles moving only the first.
+   * "All refs resolve" cannot see it, because they do. */
+  {
+    const seen = new Set();
+    for (const ent of Array.isArray(world && world.entities) ? world.entities : []) {
+      if (!isObj(ent) || typeof ent.id !== "string") continue;
+      if (seen.has(ent.id)) {
+        findings.push(`world.json: entity id "${ent.id}" appears more than once — every lookup by id downstream picks one of them`);
+      }
+      seen.add(ent.id);
+    }
+  }
+
+  /* An `in` relation whose host declares no states is a hole with no bottom:
+   * §7 step 5 draws contents only when the host is open, and a host that
+   * cannot open is never open, so the entity is permanently invisible; the
+   * harness refuses `take` as `refused_contained`; and the §12.9 enumerator
+   * omits that triple *because* the host has no states — so the missing
+   * narration line is invisible to the coverage arm too, and the player is
+   * shown the transport's fault line for an ordinary authoring mistake. The
+   * enumerator cannot be the check here: it is built from the same predicate
+   * that makes the triple disappear. */
+  for (const rel of Array.isArray(world && world.relations) ? world.relations : []) {
+    if (!Array.isArray(rel) || rel[0] !== "in") continue;
+    const host = entities.get(rel[2]);
+    if (!isObj(host)) continue; // dangling refs are the ref arm's business
+    const states = Array.isArray(host.states) ? host.states : [];
+    if (!states.includes("open")) {
+      findings.push(`world.json: ["in", "${rel[1]}", "${rel[2]}"] — host "${rel[2]}" declares no "open" state, so its contents can never be drawn or taken`);
+    }
+  }
+
   /* ---- 7b. every staged entity lands somewhere in the frame ------------- */
 
   /* `u ∈ [0,1]` and a legal `depth_m` are not enough to be on screen: the
@@ -736,6 +775,16 @@ export function validate(fixtureDir, records) {
     if (!rec) continue;
     for (const pl of placementList(raw)) {
       if (!isObj(pl) || isAnchorPlacement(pl) || typeof pl.facing !== "string") continue;
+      if (!ATTACHMENTS.includes(pl.attachment)) {
+        // Named directly: without this the failure surfaced as "the span
+        // formulas do not support these values", which sends the reader to
+        // the record instead of to the typo in front of them.
+        findings.push(`staging.json: placement "${id}" attachment "${pl.attachment}" is not one of ${JSON.stringify(ATTACHMENTS)}`);
+        continue;
+      }
+      if ("v" in pl && pl.attachment !== "wall_mounted") {
+        findings.push(`staging.json: placement "${id}" carries "v" but is ${pl.attachment} — v is metres above the wall floor line and only wall_mounted reads it`);
+      }
       const meta = metaForFacing(pl.facing, findings);
       let span = null;
       try {

@@ -17,8 +17,10 @@ Use the browser link above, or open `index.html` locally (double-click works —
 build). Unestablished space renders as the holodeck grid; turn with the arrow keys or the edge
 chevrons.
 
-So far: two rooms on the holodeck grid, four facings each, turning only. Entities, doors, and
-the drawer arrive in later layers.
+So far: two rooms on the holodeck grid, four facings each, furnished with stand-in shapes while
+the real art is fabricated. Click things — the desk drawer opens (something waits inside), the
+door between the rooms opens and takes you through, and what you pick up rides in the strip at
+the bottom of the page. The words of the room appear beneath the picture as you act.
 
 ## Tests
 
@@ -26,8 +28,8 @@ the drawer arrive in later layers.
 npx playwright test -c tests/playwright
 ```
 
-Headless Chromium; requires `npm install` once (and `npx playwright install chromium` if no
-browser is cached).
+Headless Chromium, plus Firefox for the behaviour tests. Requires `npm install` once (and
+`npx playwright install chromium firefox` if no browser is cached).
 
 ## Editing the world
 
@@ -40,5 +42,7 @@ fixture JSON, run:
 node tools/bake-fixtures.mjs
 ```
 
-The page footer shows the bake's fingerprint; if it did not change after your edit, the bake did
-not run.
+The bake checks the fixtures first and refuses to bake an invalid world (a coordinate in
+`world.json`, a world fact in `staging.json`, a reference that resolves nowhere, a missing
+narration line) — it prints numbered findings instead. The page footer shows the bake's
+fingerprint; if it did not change after your edit, the bake did not run.

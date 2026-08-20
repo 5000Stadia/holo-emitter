@@ -325,6 +325,14 @@ const IN_PAGE = () => {
  * - every page carries the no-network guard (§12.7 first half): any request
  *   to a non-local scheme, and any WebSocket (which emits no request event),
  *   in any test fails the run. */
+/* The in-page utilities, for a spec that needs a context option the shared
+ * fixture cannot carry (touch emulation, scripts disabled): make one with
+ * `browser.newContext(...)` and hand it here before the first navigation. */
+export async function equipContext(context) {
+  await context.addInitScript(IN_PAGE);
+  return context;
+}
+
 export const test = base.extend({
   context: async ({ context }, use) => {
     await context.addInitScript(IN_PAGE);
