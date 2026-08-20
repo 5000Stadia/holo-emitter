@@ -136,3 +136,19 @@ WebKit is unwitnessed on this machine (Playwright WebKit lacks system libs here)
 
 Scaffolds shipped ahead of need, untested until their row: overlay canvas drawing (row 2 hover),
 the `backdrops` map parameter (row 4), the UMD guards (row 2 validator import).
+
+Known limits of the current guards, from row 1's second critique — true today, for whichever row
+next touches these seams:
+- The network guard's WebSocket half fires only on a **successful handshake** — Playwright emits
+  no event for a socket attempt that never connects, so a shipped `new WebSocket(...)` passes the
+  suite on an offline machine while violating §12.7 for a user online. Hardening constraint:
+  detect construction, not connection (the suite's `addInitScript` can shim `window.WebSocket`
+  into the offenders list). The http side has no such hole (request events fire on refused
+  fetches — verified).
+- The BOOT ERROR state (hand-edited bad bake) is labeled but not loud: the message shares the
+  routine status line's small, low-opacity styling. Constraint if revisited: the failure state
+  distinguishable at a glance, in DOM chrome, never on the scene canvas.
+- The harness "refusal triggers no redraw" assert compares scene hashes, which cannot tell *no
+  redraw* from *a redraw of unchanged viewstate*; counting subscriber invocations would tighten
+  it. The user-visible §8 guarantee (the picture never changes) is genuinely tested.
+- One shell test title still says "scaled to window width"; it asserts contain-fit.
