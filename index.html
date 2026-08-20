@@ -15,10 +15,13 @@
      size. */
   #stage {
     position: relative;
-    /* The max() is a floor, not a preference: below ~154px of viewport
-       height the contain-fit calc goes to zero and the page rendered
-       literally nothing. */
-    width: min(100%, max(320px, calc((100vh - 9.6rem) * (1536 / 1024))));
+    /* The max() is a floor for the degenerate case only: below ~154px of
+       viewport height the contain-fit calc goes to zero and the page
+       rendered literally nothing. It has to sit low enough not to bind on a
+       real device — at 320px it kicked in for any viewport under 367px tall,
+       which is every phone in landscape, and added 20px of scroll where the
+       plain calc fitted exactly. 120px binds below ~234px. */
+    width: min(100%, max(120px, calc((100vh - 9.6rem) * (1536 / 1024))));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
@@ -84,7 +87,7 @@
     <button id="chevron-left" class="chevron chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
   </div>
-  <div id="narration" class="chrome"><noscript><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
+  <div id="narration" class="chrome"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome"></div>
   <div id="status" class="chrome"></div>
   <script>
@@ -143,10 +146,17 @@
     var inventoryEl = document.getElementById("inventory");
     var veil = document.getElementById("veil");
     var library = window.HOLO.placeholders.build(document);
-    var meta = window.HOLO.renderer.GRID_META;
+    var backdrops = {}; // row 4 fills this; the resolution rule is the renderer's
+    function metaFor(vs) {
+      var e = backdrops[vs.location + "/" + vs.facing];
+      return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
+    }
     var paints = 0;
     var currentLayout = null;
     var veilTimer = null;
+    var travelTimer = null;
+    var traveling = false;
+    var lastPointer = null;
 
     /* Render-path faults surface in the product's voice (the intention's
        standing rule: every reachable surface string, errors included, is
@@ -157,13 +167,11 @@
     }
 
     function paint(viewstate) {
-      paints += 1;
-      window.HOLO_APP.paints = paints;
       try {
         window.HOLO.renderer.render(
-          scene, harness.world, harness.staging, library, {}, viewstate, {});
+          scene, harness.world, harness.staging, library, backdrops, viewstate, {});
         currentLayout = window.HOLO.renderer.layout(
-          harness.world, harness.staging, library, meta, viewstate);
+          harness.world, harness.staging, library, metaFor(viewstate), viewstate);
       } catch (err) {
         /* A fault used to return here with the previous frame's pixels still
            on the canvas, the previous hover outline still inked, and the
@@ -179,16 +187,22 @@
         return;
       }
       /* The overlay clears on every scene paint: a stale outline is the
-         overlay lying about the scene. */
+         overlay lying about the scene. Then it is re-drawn for wherever the
+         cursor actually is — clearing alone made an entity's only affordance
+         vanish at the moment it was clicked, and stay gone until the mouse
+         moved again. */
+      paints += 1;
+      window.HOLO_APP.paints = paints;
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       scene.style.cursor = "";
+      if (lastPointer) showHover(lastPointer);
     }
 
     function appendNarration(line) {
       var p = document.createElement("p");
       p.textContent = line;
       narrationEl.appendChild(p);
-      narrationEl.scrollTop = narrationEl.scrollHeight;
+      narrationEl.scrollTop = p.offsetTop - narrationEl.offsetTop;
     }
 
     function updateChrome(envelope) {
@@ -215,6 +229,8 @@
          shut door does not flash. */
       if (intent && intent.type === "go" && envelope.events.length > 0) {
         if (veilTimer) clearTimeout(veilTimer);
+        if (travelTimer) clearTimeout(travelTimer);
+        traveling = true;
         veil.classList.add("instant", "on");
         veil.getBoundingClientRect(); // commit the black before the frame
         veilTimer = setTimeout(function () {
@@ -222,6 +238,11 @@
           veil.classList.remove("on");
           veilTimer = null;
         }, 140);
+        // Clears when the arrival has fully faded up: 140 hold + 380 fade.
+        travelTimer = setTimeout(function () {
+          traveling = false;
+          travelTimer = null;
+        }, 520);
       }
       return envelope;
     }
@@ -235,26 +256,76 @@
       };
     }
 
-    /* Pointing tolerance (chrome, never the renderer): the exact-pixel hit
-       is tried first, then a widening ring of offsets. Small takeables —
-       the iron key, the silver coin — are a handful of logical pixels at V1
-       scale and an exact-pixel-only region is not something a hand can
-       hit. The renderer's alpha regions are unchanged; this is the cursor
-       being forgiving, and the topmost-at-the-exact-pixel entity still
-       wins whenever there is one. */
-    var HIT_RINGS = [0, 5, 10, 16];
+    /* Pointing tolerance (chrome, never the renderer; the alpha regions are
+       untouched). Two things it has to get right, both learned the hard way:
+
+       — It is measured in CSS pixels, converted to logical canvas pixels at
+         the current display scale. A tolerance in canvas pixels shrinks with
+         the window: on a phone the whole scene is a quarter scale, so 16
+         canvas px is 4 px of finger.
+       — Inside the ring, a TAKEABLE beats whatever it is sitting on. The
+         first version returned the first non-null hit at each radius, which
+         for the key and the coin is always the desk or the shelf underneath
+         them — so the mechanism written for exactly those three objects
+         widened nothing at all, and a click 6 px off the key shut the drawer
+         over it. What a player aims at is the small thing; the host is the
+         background of that aim. */
+    var HIT_RING_CSS = [6, 12, 22];
+
+    function cssToCanvas() {
+      var rect = scene.getBoundingClientRect();
+      return rect.width > 0 ? scene.width / rect.width : 1;
+    }
+
+    function isTakeable(id) {
+      var e = entityById(id);
+      return !!(e && e.takeable);
+    }
+
+    /* Nearest takeable whose drawn rectangle comes within `tol` logical px of
+       the point. Measured as a distance to the rectangle, not by sampling a
+       ring of offsets: a six-pixel coin slips between discrete ring radii,
+       which is how the first version of this managed to widen nothing. */
+    function entryRect(e) {
+      var b = e.swap
+        ? { x: e.drawX + e.f * e.swap.origin.x, y: e.drawY + e.f * e.swap.origin.y,
+            w: e.f * e.swap.image.width, h: e.f * e.swap.image.height }
+        : { x: e.drawX, y: e.drawY, w: e.f * e.record.px.w, h: e.f * e.record.px.h };
+      if (e.clip) {
+        var x0 = Math.max(b.x, e.clip.x), y0 = Math.max(b.y, e.clip.y);
+        var x1 = Math.min(b.x + b.w, e.clip.x + e.clip.w);
+        var y1 = Math.min(b.y + b.h, e.clip.y + e.clip.h);
+        b = { x: x0, y: y0, w: Math.max(0, x1 - x0), h: Math.max(0, y1 - y0) };
+      }
+      return b;
+    }
+
+    function takeableNear(x, y, tol) {
+      if (!currentLayout) return null;
+      var best = null;
+      var bestD = Infinity;
+      for (var i = 0; i < currentLayout.length; i++) {
+        var e = currentLayout[i];
+        if (!isTakeable(e.id)) continue;
+        var b = entryRect(e);
+        if (b.w <= 0 || b.h <= 0) continue;
+        var dx = Math.max(b.x - x, 0, x - (b.x + b.w));
+        var dy = Math.max(b.y - y, 0, y - (b.y + b.h));
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d <= tol && d < bestD) { bestD = d; best = e.id; }
+      }
+      return best;
+    }
 
     function hitAtPoint(x, y) {
       if (!currentLayout) return null;
-      for (var r = 0; r < HIT_RINGS.length; r++) {
-        var d = HIT_RINGS[r];
-        if (d === 0) {
-          var here = window.HOLO.renderer.hitTest(currentLayout, library, x, y);
-          if (here !== null && here !== undefined) return here;
-          continue;
-        }
-        for (var a = 0; a < 8; a++) {
-          var ang = a * Math.PI / 4;
+      var here = window.HOLO.renderer.hitTest(currentLayout, library, x, y);
+      if (here !== null && here !== undefined) return here;
+      var k = cssToCanvas();
+      for (var r = 0; r < HIT_RING_CSS.length; r++) {
+        var d = HIT_RING_CSS[r] * k;
+        for (var a = 0; a < 12; a++) {
+          var ang = a * Math.PI / 6;
           var id = window.HOLO.renderer.hitTest(currentLayout, library,
             x + d * Math.cos(ang), y + d * Math.sin(ang));
           if (id !== null && id !== undefined) return id;
@@ -273,7 +344,7 @@
        picture and the affordance agree. */
     function apertureAt(p) {
       var list = window.HOLO.renderer.apertures(
-        harness.world, harness.staging, library, meta, harness.viewstate);
+        harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
       for (var i = 0; i < list.length; i++) {
         var a = list[i];
         if (p.x >= a.x && p.x < a.x + a.w && p.y >= a.y && p.y < a.y + a.h) return a;
@@ -293,6 +364,16 @@
     function resolve(p) {
       var exact = currentLayout
         ? window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y) : null;
+      /* A takeable within tolerance outranks even an exact hit on the thing
+         it rests on — the desk under the key, the shelf under the coin. A
+         near-miss on a takeable used to dispatch a state change on its host,
+         which for the key means shutting the drawer over the reveal you just
+         earned: the player's most likely error undoing the one moment the
+         whole demo is built around. */
+      var near = takeableNear(p.x, p.y, HIT_RING_CSS[HIT_RING_CSS.length - 1] * cssToCanvas());
+      if (near && (exact === null || exact === undefined || !isTakeable(exact))) {
+        return { kind: "entity", id: near };
+      }
       if (exact !== null && exact !== undefined) {
         return { kind: "entity", id: exact };
       }
@@ -328,7 +409,12 @@
     scene.addEventListener("click", function (e) {
       var r = resolve(canvasPoint(e));
       if (r.kind === "doorway") {
-        dispatch({ type: "go", exit: r.aperture.exit });
+        /* One passage per transition. `arrive_facing` puts the doorway you
+           came through under the very pixel you just clicked, so a
+           double-click — the most ordinary accidental input there is — walked
+           you through and straight back, behind a veil you never saw past,
+           leaving you where you started with two arrival lines in the log. */
+        if (!traveling) dispatch({ type: "go", exit: r.aperture.exit });
         return;
       }
       if (r.kind !== "entity") return;
@@ -365,18 +451,36 @@
       overlayCtx.restore();
     }
 
+    /* The scratch canvases are sized to the hovered entity's own rectangle,
+       not to the frame. At full size this ran ~93 ms per mousemove on an
+       unthrottled desktop — sixteen 1536×1024 blits and two full-frame
+       composite passes for every pointer sample — which dropped the page to
+       ~10 fps while the cursor was over anything. It is chrome, outside the
+       scene hash, so bounding it costs nothing that is guaranteed. */
     function outline(entry) {
+      var r = entryRect(entry);
+      var pad = OUTLINE_PX + 2;
+      var ox = Math.floor(r.x) - pad;
+      var oy = Math.floor(r.y) - pad;
+      var ow = Math.ceil(r.w) + pad * 2;
+      var oh = Math.ceil(r.h) + pad * 2;
+      if (ow <= 0 || oh <= 0) return;
       if (!haloA) {
         haloA = document.createElement("canvas");
         haloB = document.createElement("canvas");
-        haloA.width = haloB.width = overlay.width;
-        haloA.height = haloB.height = overlay.height;
+      }
+      if (haloA.width < ow || haloA.height < oh) {
+        haloA.width = haloB.width = ow;
+        haloA.height = haloB.height = oh;
       }
       var ac = haloA.getContext("2d");
       var bc = haloB.getContext("2d");
       ac.clearRect(0, 0, haloA.width, haloA.height);
       bc.clearRect(0, 0, haloB.width, haloB.height);
+      ac.save();
+      ac.translate(-ox, -oy);
       window.HOLO.renderer.stamp(ac, entry, {});
+      ac.restore();
       for (var a = 0; a < 8; a++) {
         var ang = a * Math.PI / 4;
         bc.drawImage(haloA, OUTLINE_PX * Math.cos(ang), OUTLINE_PX * Math.sin(ang));
@@ -393,17 +497,17 @@
         overlayCtx.rect(entry.clip.x, entry.clip.y, entry.clip.w, entry.clip.h);
         overlayCtx.clip();
       }
-      overlayCtx.drawImage(haloB, 0, 0);
+      overlayCtx.drawImage(haloB, 0, 0, ow, oh, ox, oy, ow, oh);
       overlayCtx.restore();
     }
 
     /* Hover: silhouette outline on the overlay canvas (chrome — the scene
        hash stays cursor-independent); cleared when nothing is under the
        cursor. */
-    scene.addEventListener("mousemove", function (e) {
+    function showHover(p) {
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       if (!currentLayout) { scene.style.cursor = ""; return; }
-      var r = resolve(canvasPoint(e));
+      var r = resolve(p);
       if (r.kind === "none") { scene.style.cursor = ""; return; }
       scene.style.cursor = "pointer";
       if (r.kind === "doorway") {
@@ -416,10 +520,24 @@
       for (var i = 0; i < currentLayout.length; i++) {
         if (currentLayout[i].id === r.id) outline(currentLayout[i]);
       }
-    });
-    scene.addEventListener("mouseleave", function () {
+    }
+
+    function clearHover() {
+      lastPointer = null;
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       scene.style.cursor = "";
+    }
+
+    scene.addEventListener("mousemove", function (e) {
+      lastPointer = canvasPoint(e);
+      showHover(lastPointer);
+    });
+    scene.addEventListener("mouseleave", clearHover);
+    /* Touch synthesises a mousemove and never sends mouseleave, and a refused
+       tap does not repaint — so without this every refused tap left a glowing
+       halo around the thing it refused, until the next tap somewhere else. */
+    scene.addEventListener("pointerup", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") clearHover();
     });
 
     document.getElementById("chevron-left").addEventListener("click", function () {

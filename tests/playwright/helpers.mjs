@@ -357,7 +357,10 @@ export const LIT = {
      horizon device described two different cameras. Stated here as its own
      arithmetic, not imported — §12.5's independence rule. */
   px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.6,
-  wall_width_m: 4.2,
+  /* 16.0 = canvas width / px_per_m_at_wall — the wall the grid actually
+     draws. At §5's example 4.2, u ∈ [0,1] reached only the central 26% of
+     the frame. */
+  wall_width_m: 1536 / 96,
   camera_wall_m: 3.5, // the pinned grid-canonical camera distance (plan §2)
   k: 336 // the grid-drawing constant = px_per_m_at_wall * camera_wall_m
 };

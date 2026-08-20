@@ -402,15 +402,23 @@ test.describe("§12.8 — each mechanism fires", () => {
       expect(d.count, `${c.id}: shadow pixels exist`).toBeGreaterThan(0);
       const centre = (d.x0 + d.x1) / 2;
       const footW = P.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0);
-      expect(Math.abs(centre - P.baseX), `${c.id}: shadow centred at base`).toBeLessThanOrEqual(3);
+      // The pool is thrown down-and-right by the UL45 key, by fractions of
+      // its own rx — the test states both fractions itself rather than
+      // importing them. A pool centred exactly on the base is the one-light
+      // tell this offset exists to avoid.
+      const rx = footW / 2;
+      const ryF = Math.min(1, Math.max(0.3, 4 / rx));
+      expect(Math.abs(centre - (P.baseX + 0.22 * rx)),
+        `${c.id}: shadow offset with the key, not centred on the base`)
+        .toBeLessThanOrEqual(3);
       expect(d.x1 - d.x0 + 1, `${c.id}: shadow no wider than footprint+pad`)
         .toBeLessThanOrEqual(footW + 6);
-      // Vertical half-extent: the ratio, floored at the minimum pool depth
-      // (small footprints would otherwise get a hairline) — the test states
-      // both numbers itself rather than importing them.
-      const halfRy = Math.max(0.3 * (footW / 2), 4);
-      expect(Math.abs((d.y0 + d.y1) / 2 - P.baselineY), `${c.id}: shadow at the baseline`)
-        .toBeLessThanOrEqual(halfRy + 4);
+      // ry is the ratio, floored so a small footprint still gets a pool and
+      // capped at rx so a tiny one is not a vertical smear.
+      expect(ryF, `${c.id}: pool is never taller than it is wide`).toBeLessThanOrEqual(1);
+      expect(Math.abs((d.y0 + d.y1) / 2 - (P.baselineY + 0.35 * rx * ryF)),
+        `${c.id}: shadow at the baseline`)
+        .toBeLessThanOrEqual(rx * ryF + 4);
     }
 
     // anchor_on child: note1's shadow on the desk surface.
@@ -1252,5 +1260,242 @@ test.describe("mechanisms that were unguarded", () => {
     // was 267.
     expect(res.shut, "shut: the facings differ by more than a sliver").toBeGreaterThan(2000);
     expect(res.open, "open: likewise").toBeGreaterThan(2000);
+  });
+});
+
+/* A person does not click the exact centre of a six-pixel coin, and on a
+ * phone six logical pixels is one and a half CSS pixels. The sweep above
+ * aims at bbox centres on desktop widths, which is the convenient viewpoint
+ * in test form: it passed while the tolerance ring — added for exactly these
+ * three objects — was widening nothing at all, because at every ring offset
+ * the hit is the shelf or the desk underneath. These aim off-centre, at
+ * phone and laptop widths. */
+test.describe("takeables survive a near-miss, at the sizes people actually use", () => {
+  const viewports = [
+    { name: "phone 390×844", width: 390, height: 844 },
+    { name: "laptop 1366×768", width: 1366, height: 768 }
+  ];
+  const targets = [
+    { id: "coin1", host: "shelf1", boot: { location: "hall", facing: "N" } },
+    { id: "note1", host: "desk1", boot: null }
+  ];
+  // How far off a person's aim can be and still mean what they meant.
+  const MISS_CSS = 8;
+
+  for (const vp of viewports) {
+    for (const t of targets) {
+      test(`${t.id} on ${vp.name}, aimed ${MISS_CSS} CSS px off centre`, async ({ page }) => {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+        let root = null;
+        try {
+          if (t.boot) {
+            root = stageTree();
+            setViewstate(root, t.boot);
+          }
+          await page.goto(appUrl(root ?? undefined));
+          const c = await page.evaluate((id) => {
+            const e = window.__T.currentLayout().find((x) => x.id === id);
+            if (!e) return null;
+            const b = window.__T.entryBBox(e);
+            return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+          }, t.id);
+          expect(c, `${t.id} is on screen`).not.toBeNull();
+          const box = await page.locator("#scene").boundingBox();
+          const cx = box.x + (c.x * box.width) / 1536;
+          const cy = box.y + (c.y * box.height) / 1024;
+
+          // Four misses, one per compass point, each a plausible slip.
+          for (const [dx, dy] of [[MISS_CSS, 0], [-MISS_CSS, 0], [0, MISS_CSS], [0, -MISS_CSS]]) {
+            const before = await page.evaluate(() => window.HOLO_APP.harness.envelopes.length);
+            await page.mouse.click(cx + dx, cy + dy);
+            const env = await page.evaluate((n) => {
+              const h = window.HOLO_APP.harness;
+              return h.envelopes.length > n ? h.envelopes[h.envelopes.length - 1].intent : null;
+            }, before);
+            expect(env, `${t.id}: a miss by ${dx},${dy} dispatched something`).not.toBeNull();
+            expect(env.entity,
+              `${t.id}: a miss by ${dx},${dy} still means the ${t.id}, not the ${t.host} under it`)
+              .toBe(t.id);
+            expect(env.type).toBe("take");
+            // Undo, so the next miss starts from the same world.
+            await page.evaluate((id) => {
+              const h = window.HOLO_APP.harness;
+              h.world.relations = h.world.relations.filter((r) => r[1] !== id);
+              h.world.relations.push(["on", id, id === "coin1" ? "shelf1" : "desk1"]);
+              h.redraw();
+            }, t.id);
+          }
+        } finally {
+          if (root) removeTree(root);
+        }
+      });
+    }
+  }
+
+  test("the revealed key survives a near-miss instead of being shut in again", async ({ page }) => {
+    // A miss on the key used to dispatch `toggle desk1`, closing the drawer
+    // over the reveal — the player's likeliest slip undoing the one moment
+    // the whole M0 premise is built around.
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto(appUrl());
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "desk1" }));
+    const c = await page.evaluate(() => {
+      const e = window.__T.currentLayout().find((x) => x.id === "key1");
+      if (!e) return null;
+      const b = window.__T.entryBBox(e);
+      return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+    });
+    expect(c, "the key is revealed and on screen").not.toBeNull();
+    const box = await page.locator("#scene").boundingBox();
+    await page.mouse.click(
+      box.x + ((c.x + 6) * box.width) / 1536,
+      box.y + ((c.y + 4) * box.height) / 1024);
+    const res = await page.evaluate(() => {
+      const h = window.HOLO_APP.harness;
+      return {
+        intent: h.envelopes[h.envelopes.length - 1].intent,
+        desk: h.world.entities.find((e) => e.id === "desk1").state
+      };
+    });
+    expect(res.intent).toEqual({ type: "take", entity: "key1" });
+    expect(res.desk, "and the drawer is still open").toBe("open");
+  });
+});
+
+/* Contact, measured on the floor the product actually draws. The clause
+ * above renders onto a synthetic lit fill, which is right for the strength of
+ * the mechanism and wrong as evidence about the picture a V1 visitor sees:
+ * grid mode is a product mode (§7), not a stand-in for row 4's backdrops, and
+ * on its own floor the earlier build took at most 6/255 out of the ground. */
+test.describe("contact reads on the floor the product ships", () => {
+  const grounded = [
+    { id: "desk1", vs: { location: "study", facing: "N" } },
+    { id: "chair1", vs: { location: "study", facing: "N" } },
+    { id: "stick1", vs: { location: "hall", facing: "N" } },
+    { id: "shelf1", vs: { location: "hall", facing: "N" } }
+  ];
+
+  for (const g of grounded) {
+    test(`${g.id}: the grid floor is measurably darker under it`, async ({ page }) => {
+      await page.goto(appUrl());
+      const d = await page.evaluate(({ id, vs }) => {
+        const fx = window.HOLO_FIXTURE;
+        const solo = window.__T.worldWithout(
+          fx.world.entities.filter((e) => e.id !== id).map((e) => e.id));
+        // The shipped grid, not a fill: renderW passes no backdrops.
+        const on = window.__T.renderW(solo, fx.staging, vs, { tint: false });
+        const off = window.__T.renderW(solo, fx.staging, vs, { tint: false, shadows: false });
+        const W = 1536, H = 1024;
+        const a = on.getContext("2d").getImageData(0, 0, W, H).data;
+        const b = off.getContext("2d").getImageData(0, 0, W, H).data;
+        let count = 0, maxD = 0;
+        for (let p = 0; p < W * H; p++) {
+          const i = p * 4;
+          const dd = (b[i] - a[i]) + (b[i + 1] - a[i + 1]) + (b[i + 2] - a[i + 2]);
+          if (dd > 6) { count++; if (dd > maxD) maxD = dd; }
+        }
+        const meta = window.HOLO.renderer.GRID_META;
+        const ent = window.HOLO_APP.harness.world.entities.find((e) => e.id === id);
+        const rec = window.HOLO_APP.library[ent.sprite].record;
+        let pl = fx.staging.placements[id];
+        if (Array.isArray(pl)) pl = pl[0];
+        const pp = window.HOLO.groundplane.placeHost(pl, rec, meta, 1536);
+        const footW = pp.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0);
+        return { count, maxD, footW };
+      }, { id: g.id, vs: g.vs });
+      // Channel-sum darkening on a floor whose channel sum is ~120. The
+      // build this clause was written against reached 12–19 in sum; the
+      // key-direction offset and the floor's own luminance carry it above 30.
+      expect(d.maxD, `${g.id}: peak channel-sum darkening on the grid floor`)
+        .toBeGreaterThanOrEqual(30);
+      // An area, not a few pixels — scaled to the object, so a candlestick is
+      // judged as a candlestick.
+      expect(d.count, `${g.id}: and it is an area, not a few pixels`)
+        .toBeGreaterThanOrEqual(2 * d.footW);
+    });
+  }
+});
+
+test.describe("a cavity content's shadow is cut at the cavity too", () => {
+  test("the pool under an oversized content does not spill out of the region", async ({ page }) => {
+    // The renderer's own comment says the clip is applied to the shadow
+    // "either", but the shipped key's pool sits well inside the shipped
+    // cavity, so removing that clip changed nothing any check could see.
+    // Anchoring the key on the desk's thin surface_top band makes the pool
+    // reach past the region, so the cut has to do work.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const staging = window.__T.clone(fx.staging);
+      staging.placements.key1 = { anchor_on: "desk1.surface_top", t: 0.5 };
+      const world = window.__T.clone(fx.world);
+      world.entities.find((e) => e.id === "desk1").state = "open";
+      world.knowledge.player.push("key1");
+      // Shadows on vs off, with the key present in both, isolates the pool.
+      const on = window.__T.renderW(world, staging, vs, { no_backdrop: true, tint: false });
+      const off = window.__T.renderW(world, staging, vs,
+        { no_backdrop: true, tint: false, shadows: false });
+      const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
+        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+      const r = desk.record.anchors.surface_top;
+      const rect = {
+        x0: desk.drawX + desk.f * r.x0, y0: desk.drawY + desk.f * r.y0,
+        x1: desk.drawX + desk.f * r.x1, y1: desk.drawY + desk.f * r.y1
+      };
+      const W = 1536, H = 1024;
+      const a = on.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = off.getContext("2d").getImageData(0, 0, W, H).data;
+      // Only the key's own pool differs; the desk's own shadow is outside
+      // the region and identical in both, so restrict to the region's
+      // neighbourhood in y.
+      let inside = 0, below = 0;
+      for (let p = 0; p < W * H; p++) {
+        const i = p * 4;
+        if (a[i] === b[i] && a[i + 1] === b[i + 1] &&
+            a[i + 2] === b[i + 2] && a[i + 3] === b[i + 3]) continue;
+        const x = p % W, y = (p / W) | 0;
+        if (y > rect.y1 + 1 && y < rect.y1 + 40 && x > rect.x0 - 40 && x < rect.x1 + 40) below++;
+        else if (y >= rect.y0 - 1 && y <= rect.y1 + 1) inside++;
+      }
+      return { inside, below };
+    });
+    expect(res.inside, "the pool draws inside the region").toBeGreaterThan(0);
+    expect(res.below, "and none of it spills below the region's edge").toBe(0);
+  });
+});
+
+test.describe("harness invariants the Construct-transport seam rests on", () => {
+  test("create() copies the fixture instead of writing through it", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const beforeWorld = JSON.stringify(fx.world);
+      const beforeStaging = JSON.stringify(fx.staging);
+      const h = window.HOLO.harness.create(fx);
+      h.dispatch({ type: "toggle", entity: "desk1" });
+      h.dispatch({ type: "take", entity: "note1" });
+      return {
+        worldUntouched: JSON.stringify(fx.world) === beforeWorld,
+        stagingUntouched: JSON.stringify(fx.staging) === beforeStaging,
+        harnessMoved: h.world.entities.find((e) => e.id === "desk1").state === "open"
+      };
+    });
+    expect(res.harnessMoved, "the harness's own copy moved").toBe(true);
+    expect(res.worldUntouched, "the baked fixture is not written through").toBe(true);
+    expect(res.stagingUntouched).toBe(true);
+  });
+
+  test("viewstate is handed out as a copy, not as the live object", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const h = window.HOLO.harness.create(window.__T.clone(window.HOLO_FIXTURE));
+      const vs = h.viewstate;
+      vs.location = "atrium";
+      vs.facing = "Z";
+      return h.viewstate;
+    });
+    expect(res, "scribbling on the returned viewstate does not move the world")
+      .toEqual({ location: "study", facing: "N" });
   });
 });

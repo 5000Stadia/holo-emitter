@@ -241,7 +241,8 @@
       "takeable": true,
       "airborne": false,
       "thumb": "thumb.png",
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "dims_deviation": "dims_m.h 0.12 m is a V1 legibility cheat; a wrought iron door key of this period is ~0.075 m. Row 4 ships the honest size and the asset scale probe is where it is settled." }
     },
 
     "notebook-vellum": {
@@ -283,7 +284,8 @@
       "takeable": true,
       "airborne": false,
       "thumb": "thumb.png",
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "dims_deviation": "dims_m.h 0.06 m is a V1 legibility cheat; an English silver shilling is ~0.028 m. Even cheated it draws ~6 px, so the fix is asset scale at row 4, not a bigger number here." }
     }
   };
 

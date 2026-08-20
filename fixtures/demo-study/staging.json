@@ -1,14 +1,55 @@
 {
   "schema": "holo-emitter-staging/0.1",
   "placements": {
-    "desk1":  { "facing": "study/N", "attachment": "floor_against", "u": 0.42, "mirror": false },
-    "chair1": { "facing": "study/N", "attachment": "floor_free",    "u": 0.52, "depth_m": 1.2 },
-    "door1":  [ { "facing": "study/E", "attachment": "wall_mounted", "u": 0.50, "v": 0.0 },
-                { "facing": "hall/W",  "attachment": "wall_mounted", "u": 0.50, "v": 0.0 } ],
-    "note1":  { "anchor_on": "desk1.surface_top", "t": 0.35 },
-    "key1":   { "anchor_on": "desk1.drawer_cavity", "t": 0.5 },
-    "shelf1": { "facing": "hall/N",  "attachment": "floor_against", "u": 0.30, "mirror": false },
-    "stick1": { "facing": "hall/N",  "attachment": "floor_free", "u": 0.36, "depth_m": 0.4 },
-    "coin1":  { "anchor_on": "shelf1.surface_top", "t": 0.6 }
+    "desk1": {
+      "facing": "study/N",
+      "attachment": "floor_against",
+      "u": 0.479,
+      "mirror": false
+    },
+    "chair1": {
+      "facing": "study/N",
+      "attachment": "floor_free",
+      "u": 0.5052,
+      "depth_m": 1.2
+    },
+    "door1": [
+      {
+        "facing": "study/E",
+        "attachment": "wall_mounted",
+        "u": 0.5,
+        "v": 0.0
+      },
+      {
+        "facing": "hall/W",
+        "attachment": "wall_mounted",
+        "u": 0.5,
+        "v": 0.0
+      }
+    ],
+    "note1": {
+      "anchor_on": "desk1.surface_top",
+      "t": 0.35
+    },
+    "key1": {
+      "anchor_on": "desk1.drawer_cavity",
+      "t": 0.5
+    },
+    "shelf1": {
+      "facing": "hall/N",
+      "attachment": "floor_against",
+      "u": 0.4475,
+      "mirror": false
+    },
+    "stick1": {
+      "facing": "hall/N",
+      "attachment": "floor_free",
+      "u": 0.4632,
+      "depth_m": 0.4
+    },
+    "coin1": {
+      "anchor_on": "shelf1.surface_top",
+      "t": 0.6
+    }
   }
 }

@@ -636,19 +636,203 @@ test.describe("what the page shows when things go wrong, and where it points", (
 });
 
 test.describe("a page that cannot boot still speaks", () => {
-  test("a missing script leaves a sentence, not a black rectangle", async ({ page }) => {
-    // Block one module on the way in — the shape of a partial load over a
-    // public link. The page used to sit black and silent with `‹ ›` as its
-    // entire visible text.
-    await page.route("**/renderer.js", (route) => route.abort());
-    const errors = [];
-    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-    await page.goto(appUrl());
-    await expect.poll(async () => await page.evaluate(() => {
-      const ps = document.querySelectorAll("#narration p");
-      return ps.length ? ps[ps.length - 1].textContent : null;
-    }), { timeout: 5000 })
-      .toBe("The projection will not hold. Nothing of this place can be shown.");
-    expect(await page.evaluate(() => !!window.HOLO_APP)).toBe(false);
+  // Block one module on the way in — the shape of a partial load over a
+  // public link. The page used to sit black and silent with `‹ ›` as its
+  // entire visible text. Which of the two product-voiced fault lines appears
+  // depends on how far the boot got before the missing piece was reached;
+  // both are the product speaking, and that is the whole requirement.
+  const FAULT_LINES = [
+    "The projection will not hold. Nothing of this place can be shown.",
+    "The projection wavers; the pattern will not resolve."
+  ];
+  for (const mod of ["renderer.js", "harness.js", "placeholders.js", "fixture.js"]) {
+    test(`a missing ${mod} leaves a sentence, not a black rectangle`, async ({ page }) => {
+      await page.route(`**/${mod}`, (route) => route.abort());
+      const errors = [];
+      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+      await page.goto(appUrl());
+      await expect.poll(async () => await page.evaluate(() => {
+        const ps = document.querySelectorAll("#narration p");
+        return ps.length ? ps[ps.length - 1].textContent : null;
+      }), { timeout: 5000, message: `${mod}: the page says something` })
+        .not.toBeNull();
+      const line = await page.evaluate(() => {
+        const ps = document.querySelectorAll("#narration p");
+        return ps[ps.length - 1].textContent;
+      });
+      expect(FAULT_LINES, `${mod}: and it speaks as the product`).toContain(line);
+      expect(errors.length, `${mod}: developer detail on the console`).toBeGreaterThan(0);
+    });
+  }
+
+  test("with scripts disabled the page still says something, and offers nothing that does not work", async ({ browser }) => {
+    // The noscript surface was added and guarded by nothing: deleting it left
+    // the suite green while the page became a black rectangle with two inert
+    // chevrons.
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const p = await ctx.newPage();
+    await p.goto(appUrl());
+    const text = await p.locator("#narration").innerText();
+    expect(text.trim()).toBe(
+      "This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.");
+    // Chevrons look live and are not; they must not be offered.
+    expect(await p.locator("#chevron-left").isVisible()).toBe(false);
+    expect(await p.locator("#chevron-right").isVisible()).toBe(false);
+    await ctx.close();
   });
+
+  test("a healthy page never shows the boot error", async ({ page }) => {
+    // turning.spec checks the error appears when it should; nothing checked
+    // that it stays away when it should, so forcing the branch always-true
+    // put a `node tools/bake-fixtures.mjs` instruction in front of every
+    // visitor with the whole suite still green.
+    await page.goto(appUrl());
+    await page.waitForFunction(() => !!window.HOLO_APP);
+    const status = await page.locator("#status").textContent();
+    expect(status).not.toMatch(/BOOT ERROR/);
+    const narration = await page.locator("#narration").innerText();
+    for (const line of FAULT_LINES) expect(narration).not.toContain(line);
+  });
+});
+
+test.describe("the page under ordinary clumsiness", () => {
+  test("a double-click on a doorway walks you through once, not there and back", async ({ page }) => {
+    // `arrive_facing` puts the doorway you came through under the very pixel
+    // you just clicked, so the second click of a double-click landed in it
+    // and returned you — behind a veil you never saw past, with two arrival
+    // lines in the log and no sign anything had happened.
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    await clickEntity(page, "door1");
+    const a = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      return window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+    });
+    const box = await sceneBox(page);
+    const x = box.x + ((a.x + a.w / 2) * box.width) / 1536;
+    const y = box.y + ((a.y + a.h / 2) * box.height) / 1024;
+    await page.mouse.click(x, y, { clickCount: 2, delay: 15 });
+    const s = await state(page);
+    expect(s.viewstate, "one click through, one door").toEqual({ location: "hall", facing: "W" });
+    const arrivals = await page.evaluate(() =>
+      [...document.querySelectorAll("#narration p")]
+        .filter((p) => /step through|pass back/.test(p.textContent)).length);
+    expect(arrivals, "and one arrival line").toBe(1);
+  });
+
+  test("an entity keeps its highlight while you are still pointing at it", async ({ page }) => {
+    // paint() cleared the overlay and the cursor unconditionally, so the only
+    // thing on screen telling a player anything is touchable vanished at the
+    // moment they touched it, and stayed gone until the mouse moved again.
+    await page.goto(appUrl());
+    const box = await sceneBox(page);
+    const pt = await page.evaluate(() => window.__T.clickPoint("desk1"));
+    const x = box.x + (pt.x * box.width) / 1536;
+    const y = box.y + (pt.y * box.height) / 1024;
+    await page.mouse.move(x, y);
+    expect(await page.evaluate(() => window.__T.isOverlayBlank())).toBe(false);
+    await page.mouse.click(x, y); // opens the drawer — a real repaint
+    const after = await page.evaluate(() => ({
+      blank: window.__T.isOverlayBlank(),
+      cursor: document.getElementById("scene").style.cursor
+    }));
+    expect(after.blank, "still highlighted, because the cursor has not moved").toBe(false);
+    expect(after.cursor).toBe("pointer");
+  });
+
+  test("a tap leaves no halo behind it", async ({ page }) => {
+    // Touch synthesises a mousemove and never sends mouseleave, and a refused
+    // tap does not repaint, so every refused tap used to leave a permanent
+    // glow around the thing it refused.
+    await page.goto(appUrl());
+    const box = await sceneBox(page);
+    const pt = await page.evaluate(() => window.__T.clickPoint("chair1"));
+    await page.evaluate(({ x, y, box }) => {
+      const el = document.getElementById("scene");
+      const cx = box.x + (x * box.width) / 1536;
+      const cy = box.y + (y * box.height) / 1024;
+      const opts = { clientX: cx, clientY: cy, bubbles: true, pointerType: "touch" };
+      el.dispatchEvent(new MouseEvent("mousemove", opts));
+      el.dispatchEvent(new PointerEvent("pointerdown", opts));
+      el.dispatchEvent(new MouseEvent("click", opts));
+      el.dispatchEvent(new PointerEvent("pointerup", opts));
+    }, { x: pt.x, y: pt.y, box });
+    expect(await page.evaluate(() => window.__T.isOverlayBlank()),
+      "no halo left standing after a tap").toBe(true);
+  });
+
+  test("drawing the highlight does not stall the page", async ({ page }) => {
+    // Full-frame scratch canvases put this at ~93 ms per pointer sample —
+    // the page dropped to ~10 fps whenever the cursor was over anything.
+    await page.goto(appUrl());
+    const box = await sceneBox(page);
+    const pt = await page.evaluate(() => window.__T.clickPoint("desk1"));
+    const x = box.x + (pt.x * box.width) / 1536;
+    const y = box.y + (pt.y * box.height) / 1024;
+    const worst = await page.evaluate(({ x, y }) => {
+      const el = document.getElementById("scene");
+      let worst = 0;
+      for (let i = 0; i < 12; i++) {
+        const t0 = performance.now();
+        el.dispatchEvent(new MouseEvent("mousemove",
+          { clientX: x + (i % 2), clientY: y, bubbles: true }));
+        const dt = performance.now() - t0;
+        if (dt > worst) worst = dt;
+      }
+      return worst;
+    }, { x, y });
+    // Generous: the bounded version measures ~1–3 ms, the full-frame one 90+.
+    expect(worst, `worst mousemove ${worst.toFixed(1)}ms`).toBeLessThan(40);
+  });
+
+  test("the newest line of prose is readable from its first word", async ({ page }) => {
+    // The pane auto-scrolled to its own bottom, which shears the top off any
+    // message taller than the box — and the narration IS the product voice.
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto(appUrl());
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "take", entity: "stick1" }));
+    const res = await page.evaluate(() => {
+      const pane = document.getElementById("narration");
+      const ps = pane.querySelectorAll("p");
+      const p = ps[ps.length - 1];
+      return {
+        top: p.offsetTop - pane.offsetTop - pane.scrollTop,
+        text: p.textContent
+      };
+    });
+    expect(res.text.length, "a long line, the case that clips").toBeGreaterThan(40);
+    expect(res.top, "the first line of the newest message is inside the pane")
+      .toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe("the stage never disappears and never scrolls", () => {
+  const sizes = [
+    { name: "phone portrait 390×844", width: 390, height: 844, scroll: false },
+    { name: "phone landscape 750×342", width: 750, height: 342, scroll: false },
+    { name: "tablet 820×1180", width: 820, height: 1180, scroll: false },
+    { name: "desktop 1920×1080", width: 1920, height: 1080, scroll: false },
+    // Degenerate: the contain-fit calc goes to zero here. Something must
+    // still be on screen, even if the page has to scroll for it.
+    { name: "sliver 900×140", width: 900, height: 140, scroll: true }
+  ];
+  for (const s of sizes) {
+    test(s.name, async ({ page }) => {
+      await page.setViewportSize({ width: s.width, height: s.height });
+      await page.goto(appUrl());
+      await page.waitForFunction(() => !!window.HOLO_APP);
+      const box = await page.locator("#scene").boundingBox();
+      expect(box.width, "the scene has a size").toBeGreaterThan(0);
+      expect(box.height).toBeGreaterThan(0);
+      const overflow = await page.evaluate(() =>
+        document.documentElement.scrollHeight - window.innerHeight);
+      if (s.scroll) {
+        expect(box.width, "and something is visible").toBeGreaterThanOrEqual(100);
+      } else {
+        expect(overflow, `${s.name}: the page must not scroll`).toBeLessThanOrEqual(1);
+      }
+    });
+  }
 });

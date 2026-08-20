@@ -53,6 +53,24 @@
    * `wall_width_m` 4.2, a 133° field against §10's 50 mm) is [HUMAN] and
    * stands open in blueprint §5 as a question for Kabe.
    *
+   * `wall_width_m` is 16.0, not §5's example 4.2, for the same reason: the
+   * grid draws 1536 px of wall at 96 px/m, so the wall in frame IS 16 m and
+   * saying 4.2 made the meta contradict its own picture. Staging reads
+   * `u ∈ [0,1]` as "across the facing's wall width" (§4), so at 4.2 the whole
+   * document could only address the central 403 px of a 1536 px frame — 26%
+   * of every facing was unreachable, and no check could see it because both
+   * sides of every §12.5 assertion read the same meta. `px_per_m_at_wall ×
+   * wall_width_m ≈ canvas width` is now asserted independently, so a meta
+   * that is self-consistent and still wrong about the frame fails; row 4's
+   * eight measured metas inherit that gate. The staged `u` values move with
+   * it (§4's own license), each keeping its metre offset from the wall
+   * centre, so the room is composed exactly as before.
+   *
+   * What this does NOT settle, and is Kabe's: 16 m of wall at 3.5 m is a
+   * ~133° view, against §10's `focal_mm: 50` (≈40°). Blueprint §5 carries the
+   * question in full — it needs answering before row 4 authors real meta,
+   * because the answer decides every backdrop prompt.
+   *
    * calibration_ref/_px are §5-required fields: the grid's own metre lines
    * on the wall are its known-height feature, so its meta can be audited
    * against its pixels like any other. */
@@ -60,7 +78,7 @@
     floor_line_y: 0.63,
     px_per_m_at_wall: 96,
     px_per_m_at_bottom: 332.8,
-    wall_width_m: 4.2,
+    wall_width_m: 16,
     key_tint: "#c8b489",
     image_h_px: 1024,
     horizon_y: 0.48,
@@ -100,6 +118,14 @@
    * shadow was 3 px tall. Width stays exactly §7's footprint span. */
   var SHADOW_RY = 0.3;
   var SHADOW_MIN_RY = 4;
+  /* A contact pool thrown by a key light from upper-left (contract UL45)
+   * falls down and to the right. A pool centred exactly under the base is a
+   * one-light tell that reads as a sticker the moment row 4's lit backdrops
+   * arrive — and, at V1, centring it hides its darkest part behind the
+   * object's own feet, which is most of why contact is hard to see on the
+   * grid. Fractions of rx, so it scales with the object. */
+  var SHADOW_DX = 0.22;
+  var SHADOW_DY = 0.35;
 
   /* The pinned §5 viewport width. layout takes no canvas (it is placement,
    * not paint), so the u-mapping's canvasW is this constant — the same
@@ -222,7 +248,12 @@
     // render identical until entities arrive.
     var glyph = GLYPHS[facing];
     if (glyph) {
-      var gh = sWall;            // 1m tall at wall scale
+      // 1.5 m tall at wall scale. On a bare facing the glyph is the ONLY
+      // thing that changes when you turn, and at 1 m it was one small
+      // letterform — 0.03% of the frame, which on a phone is no response at
+      // all to pressing an arrow key. Larger than this and it crowds the
+      // furniture standing in front of it.
+      var gh = sWall * 1.5;
       var gw = gh * (2 / 3);
       var gx = cx - gw / 2;
       var gy = eyeY - gh / 2;
@@ -243,7 +274,10 @@
         }
       }
       ctx.globalAlpha = ALPHA_GLYPH;
-      ctx.lineWidth = 3;
+      // Stroke weight scales with the glyph so the mark carries real ink:
+      // at 3 px on a 1 m letterform, turning between two bare facings
+      // changed 426 pixels of 1.5 M — no visible response to an arrow key.
+      ctx.lineWidth = Math.max(3, Math.round(gh / 18));
       strokePolylines(ctx, glyph, gx, gy, gw, gh);
       ctx.lineWidth = 1;
     }
@@ -611,9 +645,12 @@
    * on the scene — the shadow is never tinted. */
   function drawShadow(ctx, cx, cy, rx) {
     if (!(rx > 0)) return;
+    // ry: the ratio, floored so a small footprint still gets a pool, and
+    // capped at rx so a tiny one does not become a vertical smear.
+    var ryF = Math.min(1, Math.max(SHADOW_RY, SHADOW_MIN_RY / rx));
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.scale(1, Math.max(SHADOW_RY, SHADOW_MIN_RY / rx));
+    ctx.translate(cx + SHADOW_DX * rx, cy + SHADOW_DY * rx * ryF);
+    ctx.scale(1, ryF);
     var g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
     g.addColorStop(0, "rgba(0,0,0," + SHADOW_PEAK + ")");
     g.addColorStop(1, "rgba(0,0,0,0)");

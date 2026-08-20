@@ -20,14 +20,22 @@ const fixtureDir = join(repoRoot, "fixtures", "demo-study");
 const readJson = (dir, name) =>
   JSON.parse(readFileSync(join(dir, "fixtures", "demo-study", name + ".json"), "utf8"));
 
-/* Stage a scratch tree, mutate one fixture file, validate, clean up. */
+/* Stage a scratch tree, mutate one or more fixture files, validate, clean up.
+ * `name` may be a single file or an array — some arms can only be reached by
+ * a world and a staging edit together (an anchor host that is a real entity
+ * and is staged nowhere), and reaching them with one edit lands on a
+ * different arm instead, which is how two guards came to look bound to arms
+ * they were not testing. */
 function mutated(name, fn) {
+  const names = Array.isArray(name) ? name : [name];
   const dir = stageTree();
   try {
     const fdir = join(dir, "fixtures", "demo-study");
-    const obj = JSON.parse(readFileSync(join(fdir, name + ".json"), "utf8"));
-    fn(obj);
-    writeFileSync(join(fdir, name + ".json"), JSON.stringify(obj, null, 2) + "\n");
+    const objs = names.map((n) =>
+      JSON.parse(readFileSync(join(fdir, n + ".json"), "utf8")));
+    fn(...objs);
+    names.forEach((n, i) =>
+      writeFileSync(join(fdir, n + ".json"), JSON.stringify(objs[i], null, 2) + "\n"));
     return validate(fdir, records);
   } finally {
     removeTree(dir);
@@ -111,12 +119,67 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
       }, /closed.*open|states/i],
     ["a third state", "world",
       (w) => { w.entities.find((e) => e.id === "desk1").states = ["closed", "open", "ajar"]; },
-      /closed.*open|states/i]
+      /closed.*open|states/i],
+    /* Six arms that existed and were guarded by nothing — deleting each left
+     * the whole suite green. Two of them are named in the row text itself
+     * ("no facts in staging.json", "all refs resolve", "thumbs"). */
+    ["a placement naming no world entity", "staging",
+      (s) => { s.placements.ghost1 = { facing: "study/N", attachment: "floor_free", u: 0.5, depth_m: 1 }; },
+      /ghost1|names no world/i],
+    ["an anchor_on host that is a real entity staged nowhere", ["world", "staging"],
+      (w, s) => {
+        // Both entities unknown, so the "every known entity is staged" arm
+        // does not fire instead: what is left is a placement anchored on a
+        // real entity that no facing carries.
+        w.entities.push({ id: "shelf3", sprite: "shelf-oak", location: "study" });
+        w.entities.push({ id: "stick3", sprite: "candlestick-brass", location: "study" });
+        s.placements.stick3 = { anchor_on: "shelf3.surface_top", t: 0.5 };
+      }, /host "shelf3" is not staged/],
+    ["a takeable whose record carries no thumb", "world",
+      (w) => { w.entities.find((e) => e.id === "chair1").takeable = true; }, /thumb/i],
   ];
 
   for (const [name, file, fn, pattern] of redCases) {
     test(`red: ${name}`, () => {
       const findings = mutated(file, fn);
+      expect(findings.length, `${name} yields findings`).toBeGreaterThan(0);
+      expect(findings.join("\n")).toMatch(pattern);
+    });
+  }
+
+  /* Record-side arms cannot be reached by editing a fixture file — the
+   * records are a module. validate() takes them as an argument, so these
+   * hand it a doctored copy. The bounds arm is the one that would catch a
+   * cavity whose region falls off its own body, which is exactly how row 4's
+   * real contents could end up clipped to nothing. */
+  const recordCases = [
+    ["anchor region outside the body bounds", (r) => {
+      r["desk-joined-oak-1660"].anchors.drawer_cavity.x1 = 9999;
+    }, /lies outside the .* body bounds/],
+    ["anchor region with x1 before x0", (r) => {
+      r["desk-joined-oak-1660"].anchors.surface_top.x1 = 0;
+    }, /x0 must be < x1/],
+    ["records that are not JSON-clean", (r) => {
+      r["key-iron"].noun = { toJSON: () => "iron key" };
+    }, /JSON-clean/]
+  ];
+
+  for (const [name, fn, pattern] of recordCases) {
+    test(`red: ${name}`, () => {
+      const doctored = JSON.parse(JSON.stringify(records));
+      fn(doctored);
+      if (name.includes("JSON-clean")) {
+        // JSON.parse(JSON.stringify(...)) would launder it; mutate a live copy.
+        const live = Object.assign({}, records, {
+          "key-iron": Object.assign({}, records["key-iron"], {
+            noun: { toJSON: () => "iron key" }
+          })
+        });
+        const findings = validate(fixtureDir, live);
+        expect(findings.join("\n")).toMatch(pattern);
+        return;
+      }
+      const findings = validate(fixtureDir, doctored);
       expect(findings.length, `${name} yields findings`).toBeGreaterThan(0);
       expect(findings.join("\n")).toMatch(pattern);
     });

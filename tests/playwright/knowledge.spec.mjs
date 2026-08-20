@@ -79,3 +79,69 @@ test.describe("§12.4 — knowledge-frame honesty", () => {
       .not.toBe("key1");
   });
 });
+
+/* The reveal is undone by closing the drawer, and the player can do that
+ * without taking the key — a sequence the walkthrough never performs,
+ * because it always takes the key first. §7 step 5's "contents draw only
+ * when the host stands open" was therefore held by nothing: delete the
+ * clause and the revealed key draws on the face of a shut drawer. */
+test("a revealed key goes back out of sight when the drawer is shut over it", async ({ page }) => {
+  await page.goto(appUrl());
+  const res = await page.evaluate(async () => {
+    const A = window.HOLO_APP;
+    const h = A.harness;
+    const vs = { location: "study", facing: "N" };
+    A.dispatch({ type: "toggle", entity: "desk1" });   // open -> reveal
+    const known = h.world.knowledge.player.includes("key1");
+    const openHash = await window.__T.hashScene();
+    A.dispatch({ type: "toggle", entity: "desk1" });   // shut, key untaken
+    const shutHash = await window.__T.hashScene();
+    // Still known, still in the drawer, and not on screen: the scene equals
+    // a same-run render of the same world with key1 deleted outright.
+    const withoutKey = await window.__T.hashCanvas(
+      window.__T.renderW(window.__T.worldWithout(["key1"], h.world), h.staging, vs, {}));
+    const held = h.world.relations.some((r) => r[0] === "held_by" && r[1] === "key1");
+    const inDrawer = h.world.relations.some((r) => r[0] === "in" && r[1] === "key1");
+    return {
+      known, held, inDrawer, openHash, shutHash, withoutKey,
+      stillKnown: h.world.knowledge.player.includes("key1")
+    };
+  });
+  expect(res.known, "the open reveals it").toBe(true);
+  expect(res.stillKnown, "and shutting the drawer does not unlearn it").toBe(true);
+  expect(res.held).toBe(false);
+  expect(res.inDrawer, "it is still in the drawer").toBe(true);
+  expect(res.shutHash).not.toBe(res.openHash);
+  expect(res.shutHash, "a shut drawer shows nothing of what is inside it")
+    .toBe(res.withoutKey);
+});
+
+/* "Leave a room and return and the world is exactly as you left it" — the
+ * walkthrough witnesses it for the door and for the taken key, but always
+ * shuts the drawer before travelling, so a container left OPEN across a room
+ * change is exactly blueprint §1's phrasing and exactly what was untested. */
+test("a drawer left open is still open, with its contents, after a round trip", async ({ page }) => {
+  await page.goto(appUrl());
+  const res = await page.evaluate(async () => {
+    const A = window.HOLO_APP;
+    const h = A.harness;
+    A.dispatch({ type: "toggle", entity: "desk1" });   // open, key revealed
+    const before = await window.__T.hashScene();
+    A.dispatch({ type: "turn", dir: "right" });        // study/E
+    A.dispatch({ type: "toggle", entity: "door1" });
+    A.dispatch({ type: "go", exit: "door_study_hall" });
+    A.dispatch({ type: "go", exit: "door_hall_study" });
+    A.dispatch({ type: "turn", dir: "left" });         // back to study/N
+    const after = await window.__T.hashScene();
+    return {
+      before, after,
+      desk: h.world.entities.find((e) => e.id === "desk1").state,
+      key: h.world.relations.filter((r) => r[1] === "key1"),
+      viewstate: h.viewstate
+    };
+  });
+  expect(res.viewstate).toEqual({ location: "study", facing: "N" });
+  expect(res.desk, "the drawer is as you left it").toBe("open");
+  expect(res.key, "and the key is still in it").toEqual([["in", "key1", "desk1"]]);
+  expect(res.after, "and the picture is the picture you left").toBe(res.before);
+});
