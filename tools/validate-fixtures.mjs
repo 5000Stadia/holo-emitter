@@ -67,7 +67,13 @@ const STAGING_TOP_KEYS = ["schema", "placements"];
 const FACING_PLACEMENT_KEYS = ["facing", "attachment", "u", "v", "depth_m", "mirror"];
 const FACING_PLACEMENT_REQ = ["facing", "attachment", "u"];
 const ANCHOR_PLACEMENT_KEYS = ["anchor_on", "t"];
-const COORD_KEY_RE = /^(u|v|x|y|px.*|depth.*)$/i;
+/* Coordinate-shaped keys anywhere in truth. The key whitelists above cover
+ * the structures §3 names; this walk is the only net under `knowledge`,
+ * whose sub-keys are open — so it has to catch the shapes a coordinate
+ * actually arrives wearing, not just the bare letters. `x`/`y` alone missed
+ * `screen_x`, `wall_x`, `origin_y`, `left`, `top`, `width`, `height`. */
+const COORD_KEY_RE =
+  /(^|_)(u|v|x|y|cx|cy|dx|dy|x0|x1|y0|y1|left|right|top|bottom|width|height|scale|anchor|anchors|origin|offset|bbox|rect|extent|footprint|baseline)($|_)|^(px|depth|coord|screen|pixel|canvas)/i;
 const WORLD_FACT_KEYS = new Set(["state", "states", "takeable", "relations", "knowledge", "location", "sprite"]);
 
 function isObj(x) {
@@ -127,15 +133,21 @@ function loadJson(fixtureDir, name, findings) {
 /* Meta resolution, pinned (plan §6.5): the staged facing's backdrop meta
  * when one exists, grid canonical otherwise — the same resolution the
  * renderer applies. */
-function metaForFacing(facingStr) {
+function metaForFacing(facingStr, findings) {
   const parts = String(facingStr).split("/");
   if (parts.length === 2) {
     const p = join(ROOT, "backdrops", parts[0], parts[1] + ".meta.json");
     if (existsSync(p)) {
       try {
         return JSON.parse(readFileSync(p, "utf8"));
-      } catch {
-        /* unreadable meta falls back to grid canonical */
+      } catch (e) {
+        /* A meta that exists but cannot be read is a finding, never a quiet
+         * fall back to grid canonical: falling back would check the fixture
+         * against a wall that is not the one the renderer will draw, and
+         * report success. */
+        findings.push(
+          `backdrops/${parts[0]}/${parts[1]}.meta.json: unreadable (${e.message}) — cannot check placements on ${facingStr}`
+        );
       }
     }
   }
@@ -169,27 +181,16 @@ function checkKeys(obj, allowed, required, label, findings, worldNote) {
   }
 }
 
-/* Span formulas, exact (plan §6.5 / task §7): projected screen x-span and
- * y-span of a floor placement, through the imported groundplane functions. */
+/* Projected screen x-span and y-span of a staged placement. This calls
+ * groundplane.placeHost — the SAME function renderer.layout places every
+ * entity with — so the static overlap guarantee is bound to the pixels the
+ * renderer draws. Re-deriving the placement layer here (importing only the
+ * scale functions under it) left this check asserting overlaps in a world
+ * the renderer had stopped drawing: break placement in the renderer and the
+ * validator stayed green. Every attachment class placeHost knows is covered,
+ * wall_mounted included. */
 function projectSpans(pl, rec, meta) {
-  let baselineY;
-  if (pl.attachment === "floor_against") {
-    baselineY = groundplane.yAtDepth(rec.dims_m.d, meta);
-  } else if (pl.attachment === "floor_free") {
-    baselineY = groundplane.yAtDepth(pl.depth_m, meta);
-  } else {
-    return null;
-  }
-  const s = groundplane.scaleAtY(baselineY, meta);
-  const f = (rec.dims_m.h * s) / rec.px.h;
-  const baseX = groundplane.xAtU(pl.u, baselineY, meta, CANVAS_W);
-  const drawX = baseX - f * rec.anchors.base.x;
-  return {
-    x0: drawX + f * rec.anchors.footprint.x0,
-    x1: drawX + f * rec.anchors.footprint.x1,
-    y0: baselineY - rec.dims_m.h * s,
-    y1: baselineY,
-  };
+  return groundplane.placeHost(pl, rec, meta, CANVAS_W);
 }
 
 function lineProblem(line, key) {
@@ -417,6 +418,20 @@ export function validate(fixtureDir, records) {
       if ("state" in ent && !ent.states.includes(ent.state)) {
         findings.push(`world.json: entity "${id}" state "${ent.state}" is not in its states ${JSON.stringify(ent.states)}`);
       }
+      /* M0 pins two-state closed/open for every state entity, and three
+       * layers already assume it by name: §7's swap rule reads "closed" as
+       * the body image, the §12.9 outcome vocabulary is `open`/`closed`, and
+       * the narration keys are written against those outcomes. A fixture
+       * declaring other state names used to be accepted here and then
+       * silently written a state outside its own list by the toggle. Pinning
+       * it makes the assumption checkable instead of implicit; widening M0
+       * past two states is a new row, and this finding is where it starts. */
+      if (ent.states.length !== 2 ||
+          ent.states[0] !== "closed" || ent.states[1] !== "open") {
+        findings.push(
+          `world.json: entity "${id}" declares states ${JSON.stringify(ent.states)} — M0 pins exactly ["closed","open"] (§7's swap rule, the §12.9 outcome vocabulary and the narration keys are all named for them)`
+        );
+      }
       /* World states covered by the record. */
       if (Array.isArray(rec.parts) && rec.parts.length > 0) {
         for (const part of rec.parts) {
@@ -572,7 +587,7 @@ export function validate(fixtureDir, records) {
         findings.push(`staging.json: ${label} attachment floor_free requires depth_m`);
       }
       if ("depth_m" in pl) {
-        const meta = metaForFacing(pl.facing);
+        const meta = metaForFacing(pl.facing, findings);
         const cam = meta.camera_wall_m != null ? meta.camera_wall_m : groundplane.CAMERA_WALL_M;
         if (typeof pl.depth_m !== "number" || pl.depth_m < 0) {
           findings.push(`staging.json: ${label} depth_m must be a number ≥ 0 (got ${JSON.stringify(pl.depth_m)})`);
@@ -683,7 +698,7 @@ export function validate(fixtureDir, records) {
       findings.push(`staging.json: overlap pair ${pairName} cannot be projected — a sprite record is missing`);
       continue;
     }
-    const meta = metaForFacing(common[0].facing);
+    const meta = metaForFacing(common[0].facing, findings);
     let spanA, spanB;
     try {
       spanA = projectSpans(common[0], recA, meta);

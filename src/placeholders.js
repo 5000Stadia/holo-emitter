@@ -93,7 +93,15 @@
      * the OPEN drawer interior sits (contents draw only when open) and is
      * tall enough (54 px; screen ≈ 31 px at f ≈ 0.569) to contain the key
      * unclipped at t = 0.5: key needs 24 desk-px above its base, base lands
-     * at the cavity diagonal midpoint y = 51, top at 27 ≥ y0 = 24. */
+     * at the cavity diagonal midpoint y = 51, top at 27 ≥ y0 = 24.
+     *
+     * slide.dy is 0.24, not the smaller travel a drawer needs to merely look
+     * open: children draw AFTER their host's parts (§7 step 3), so the open
+     * drawer front must clear the cavity entirely or the revealed key draws
+     * on top of the face and reads as lying on the drawer's edge rather than
+     * inside it. Front top when open = origin.y + dy·h = 61.4 > the key's
+     * base at 51. A heights.spec case holds this: the revealed key's drawn
+     * rect sits wholly above the open drawer front. */
     "desk-joined-oak-1660": {
       "schema": "sprite/0.1",
       "id": "desk-joined-oak-1660",
@@ -114,7 +122,7 @@
       "parts": [
         { "id": "drawer_front", "image": "parts/drawer_front.png",
           "origin": { "x": 60, "y": 24 },
-          "slide": { "dx": -0.1, "dy": 0.14, "scale_open": 1.06 },
+          "slide": { "dx": -0.1, "dy": 0.24, "scale_open": 1.06 },
           "states": { "closed": 0, "open": 1 } }
       ],
       "takeable": false,

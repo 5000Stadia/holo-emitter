@@ -72,8 +72,75 @@
    * Screen x for staging u at baseline y: u in [0,1] spans the central
    * wall_width_m metres, centre-by-default.
    */
+  function xAtScale(u, s, meta, canvasW) {
+    return canvasW / 2 + (u - 0.5) * meta.wall_width_m * s;
+  }
+
   function xAtU(u, y, meta, canvasW) {
-    return canvasW / 2 + (u - 0.5) * meta.wall_width_m * scaleAtY(y, meta);
+    return xAtScale(u, scaleAtY(y, meta), meta, canvasW);
+  }
+
+  /**
+   * placeHost — the ONE home of §4/§5 placement for a directly-staged
+   * entity. The renderer's layout and the fixture validator's static overlap
+   * check both call this, so the static guarantee is bound to the pixels the
+   * renderer actually draws: change placement here and both move together
+   * (row 2's finding — importing scaleAtY while re-deriving the placement
+   * layer above it left the validator asserting overlaps in a world the
+   * renderer no longer drew).
+   *
+   * @param {object} placement §4 facing-placement (attachment, u, v, depth_m)
+   * @param {object} record    §6 sprite record (dims_m, px, anchors)
+   * @param {object} meta      §5 backdrop meta
+   * @param {number} canvasW   logical canvas width (the §5 pinned 1536)
+   * @returns {object|null} { baselineY, s, heightPx, f, baseX, drawX, drawY,
+   *                          x0, x1, y0, y1 } — the last four the footprint
+   *                          x-span and the vertical span, in scene px; null
+   *                          for an unknown attachment token.
+   *
+   * Scale by attachment class: floor placements take the ground-plane scale
+   * at their baseline; a wall_mounted placement hangs ON the wall plane, so
+   * it takes px_per_m_at_wall whatever its height above the floor line — the
+   * ground-plane lerp describes the FLOOR, and reading it at a raised
+   * baseline shrinks a hung object by the amount it was raised.
+   */
+  function placeHost(placement, record, meta, canvasW) {
+    var baselineY, s;
+    if (placement.attachment === "floor_against") {
+      baselineY = yAtDepth(record.dims_m.d, meta);
+      s = scaleAtY(baselineY, meta);
+    } else if (placement.attachment === "floor_free") {
+      baselineY = yAtDepth(placement.depth_m, meta);
+      s = scaleAtY(baselineY, meta);
+    } else if (placement.attachment === "wall_mounted") {
+      // v is METRES above the wall floor line (u and t are normalized, v is
+      // not — a §4 completion); the wall plane fixes the scale.
+      baselineY = meta.floor_line_y * meta.image_h_px -
+        (placement.v || 0) * meta.px_per_m_at_wall;
+      s = meta.px_per_m_at_wall;
+    } else {
+      return null;
+    }
+    var heightPx = record.dims_m.h * s;
+    var f = heightPx / record.px.h;
+    // The u-mapping spans wall_width_m at the placement's own scale, so a
+    // hung object's x is fixed on the wall too.
+    var baseX = xAtScale(placement.u, s, meta, canvasW);
+    var drawX = baseX - f * record.anchors.base.x;
+    var drawY = baselineY - f * record.anchors.base.y;
+    return {
+      baselineY: baselineY,
+      s: s,
+      heightPx: heightPx,
+      f: f,
+      baseX: baseX,
+      drawX: drawX,
+      drawY: drawY,
+      x0: drawX + f * record.anchors.footprint.x0,
+      x1: drawX + f * record.anchors.footprint.x1,
+      y0: baselineY - heightPx,
+      y1: baselineY
+    };
   }
 
   var api = {
@@ -82,6 +149,8 @@
     scaleAtDepth: scaleAtDepth,
     yAtDepth: yAtDepth,
     xAtU: xAtU,
+    xAtScale: xAtScale,
+    placeHost: placeHost,
     CAMERA_WALL_M: CAMERA_WALL_M
   };
 

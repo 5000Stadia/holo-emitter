@@ -225,8 +225,23 @@
       envelope.narration = narrationLine(narration, type, target, outcome);
     }
 
+    /* A frame this transport cannot read at all — an unknown intent type, a
+     * missing field, a malformed `turn`. §8's rule is that an invalid intent
+     * emits no events AND a refusal line, so it never returns a silent
+     * envelope; the line is the product-voiced fault line (the wire, not the
+     * world, is what failed, so it is not a fixture-authored refusal and it
+     * is outside the §12.9 domain) and the detail goes to the console.
+     * Reached over the wire from Construct later; reached from the shipped
+     * UI never — every affordance builds a well-formed intent. */
+    function malformed(envelope, detail) {
+      console.error("unreadable intent: " + detail);
+      envelope.narration = FAULT_LINE;
+    }
+
     function handleTurn(intent, envelope) {
-      if (intent.dir !== "left" && intent.dir !== "right") return;
+      if (intent.dir !== "left" && intent.dir !== "right") {
+        return malformed(envelope, "turn dir \"" + intent.dir + "\"");
+      }
       var facing = nextFacing(intent.dir);
       if (facing !== null) {
         viewstate.facing = facing;
@@ -252,7 +267,18 @@
       if (!reachable(id)) {
         return refuse(envelope, "toggle", id, OUTCOME.REFUSED_UNREACHABLE);
       }
-      var to = entity.state === "open" ? "closed" : "open";
+      /* Step along the entity's OWN declared `states` (§3), never a
+       * hardcoded closed/open flip: an entity declaring other state names
+       * was previously written a state absent from its own list, silently.
+       * M0 pins two-state closed/open everywhere (the §7 swap rule reads
+       * "closed" as the body image and the outcome vocabulary is named for
+       * them) and the fixture validator enforces that pin — this walk is
+       * what keeps truth and the declaration in step regardless. */
+      var idx = entity.states.indexOf(entity.state);
+      if (idx === -1) {
+        return refuse(envelope, "toggle", id, OUTCOME.REFUSED_STATIC);
+      }
+      var to = entity.states[(idx + 1) % entity.states.length];
       entity.state = to;
       envelope.events.push({ type: "state", entity: id, to: to });
       var outcome = to === "open" ? OUTCOME.OPEN : OUTCOME.CLOSED;
@@ -329,11 +355,21 @@
     function dispatch(intent) {
       turnId += 1;
       var envelope = { turn_id: turnId, intent: clone(intent), events: [] };
-      if (intent) {
-        if (intent.type === "turn") handleTurn(intent, envelope);
-        else if (intent.type === "toggle") handleToggle(intent, envelope);
-        else if (intent.type === "take") handleTake(intent, envelope);
-        else if (intent.type === "go") handleGo(intent, envelope);
+      if (!intent || typeof intent !== "object") {
+        malformed(envelope, "not an intent object");
+      } else if (intent.type === "turn") {
+        handleTurn(intent, envelope);
+      } else if (intent.type === "toggle") {
+        if (typeof intent.entity !== "string") malformed(envelope, "toggle without an entity");
+        else handleToggle(intent, envelope);
+      } else if (intent.type === "take") {
+        if (typeof intent.entity !== "string") malformed(envelope, "take without an entity");
+        else handleTake(intent, envelope);
+      } else if (intent.type === "go") {
+        if (typeof intent.exit !== "string") malformed(envelope, "go without an exit");
+        else handleGo(intent, envelope);
+      } else {
+        malformed(envelope, "unknown intent type \"" + intent.type + "\"");
       }
       envelopes.push(envelope);
       if (envelope.events.length > 0 && subscriber) subscriber(clone(viewstate));

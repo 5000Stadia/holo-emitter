@@ -405,8 +405,12 @@ test.describe("§12.8 — each mechanism fires", () => {
       expect(Math.abs(centre - P.baseX), `${c.id}: shadow centred at base`).toBeLessThanOrEqual(3);
       expect(d.x1 - d.x0 + 1, `${c.id}: shadow no wider than footprint+pad`)
         .toBeLessThanOrEqual(footW + 6);
+      // Vertical half-extent: the ratio, floored at the minimum pool depth
+      // (small footprints would otherwise get a hairline) — the test states
+      // both numbers itself rather than importing them.
+      const halfRy = Math.max(0.3 * (footW / 2), 4);
       expect(Math.abs((d.y0 + d.y1) / 2 - P.baselineY), `${c.id}: shadow at the baseline`)
-        .toBeLessThanOrEqual(P.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0) * 0.18 + 4);
+        .toBeLessThanOrEqual(halfRy + 4);
     }
 
     // anchor_on child: note1's shadow on the desk surface.
@@ -632,4 +636,395 @@ test.describe("clickability sweep — every staged entity answers a real click (
       });
     }
   }
+});
+
+/* "Contact" is one of the named qualities, and §12.8's contact clause only
+ * asks that the shadow change SOME pixel — which a shadow at 3/100 alpha,
+ * invisible on any floor, satisfies. These cases put a floor under it: a
+ * measured darkening, on a floor light enough to be darkened, plus the
+ * spread that makes it read as pooled occlusion rather than a hairline. */
+test.describe("contact shadows are strong enough to be seen", () => {
+  const FLOOR = "#8c8c8c"; // mid-grey: a lit floor, as row 4's backdrops will be
+
+  async function shadowDelta(page, id, viewstate) {
+    return await page.evaluate(({ id, viewstate }) => {
+      const fx = window.HOLO_FIXTURE;
+      const solo = window.__T.worldWithout(
+        fx.world.entities.filter((e) => e.id !== id).map((e) => e.id));
+      const on = window.__T.renderOnFill(solo, fx.staging, viewstate,
+        { tint: false }, "#8c8c8c");
+      const off = window.__T.renderOnFill(solo, fx.staging, viewstate,
+        { tint: false, shadows: false }, "#8c8c8c");
+      const W = 1536, H = 1024;
+      const a = on.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = off.getContext("2d").getImageData(0, 0, W, H).data;
+      let count = 0, maxD = 0, y0 = H, y1 = -1, x0 = W, x1 = -1;
+      for (let p = 0; p < W * H; p++) {
+        const i = p * 4;
+        const d = b[i] - a[i]; // shadow only ever darkens
+        if (d > 4) {
+          count++;
+          if (d > maxD) maxD = d;
+          const y = (p / W) | 0, x = p % W;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+        }
+      }
+      return { count, maxD, h: y1 - y0 + 1, w: x1 - x0 + 1 };
+    }, { id, viewstate });
+  }
+
+  const grounded = [
+    { id: "desk1", vs: { location: "study", facing: "N" } },
+    { id: "chair1", vs: { location: "study", facing: "N" } },
+    { id: "stick1", vs: { location: "hall", facing: "N" } },
+    { id: "shelf1", vs: { location: "hall", facing: "N" } }
+  ];
+
+  for (const g of grounded) {
+    test(`${g.id}: darkens the ground under it by a visible amount`, async ({ page }) => {
+      await page.goto(appUrl());
+      const d = await shadowDelta(page, g.id, g.vs);
+      const footW = await page.evaluate((id) => {
+        const A = window.HOLO_APP;
+        const meta = window.HOLO.renderer.GRID_META;
+        const ent = A.harness.world.entities.find((e) => e.id === id);
+        const rec = A.library[ent.sprite].record;
+        let pl = A.harness.staging.placements[id];
+        if (Array.isArray(pl)) pl = pl[0];
+        const p = window.HOLO.groundplane.placeHost(pl, rec, meta, 1536);
+        return p.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0);
+      }, g.id);
+
+      // Strength: 0.35 peak on a 140-ish floor is ≈ 49 levels. This is the
+      // clause that a shadow at 0.03 alpha — invisible on any floor, and
+      // green under every other check in this file — lands at ≈ 4 and fails.
+      expect(d.maxD, `${g.id} peak darkening`).toBeGreaterThanOrEqual(20);
+      // Shape: a pool spanning the contact, not a hairline. Both thresholds
+      // scale with the object's own footprint, so a candlestick is judged as
+      // a candlestick and a desk as a desk.
+      expect(d.h, `${g.id} visible shadow height in px`).toBeGreaterThanOrEqual(3);
+      expect(d.w, `${g.id} shadow spans the footprint`)
+        .toBeGreaterThanOrEqual(0.8 * footW);
+      expect(d.count, `${g.id} shadowed pixel count`)
+        .toBeGreaterThanOrEqual(2 * footW);
+    });
+  }
+});
+
+/* The doorway. A document that says an exit stands here and a picture that
+ * shows unbroken wall are the same defect as an entity drawn where truth
+ * does not put it — and it left `go` with no target but the edge-on sliver
+ * of the opened leaf. The opening belongs to the wall (§11 gives real
+ * backdrops a painted frame), so it is drawn in the backdrop layer and is
+ * inside backdrop_only. */
+test.describe("doorways are in the picture, from the document", () => {
+  test("apertures come from exits, one per facing that has one, none on bare walls", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const at = (location, facing) => window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, { location, facing });
+      return {
+        studyE: at("study", "E").map((a) => a.exit),
+        hallW: at("hall", "W").map((a) => a.exit),
+        studyN: at("study", "N").length,
+        studyS: at("study", "S").length,
+        hallN: at("hall", "N").length
+      };
+    });
+    expect(res.studyE).toEqual(["door_study_hall"]);
+    expect(res.hallW).toEqual(["door_hall_study"]);
+    expect(res.studyN).toBe(0);
+    expect(res.studyS).toBe(0);
+    expect(res.hallN).toBe(0);
+  });
+
+  test("the opening is drawn on the wall, inside backdrop_only, and the closed leaf covers it", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(async () => {
+      const fx = window.HOLO_FIXTURE;
+      const A = window.HOLO_APP;
+      const vs = { location: "study", facing: "E" };
+      const bare = { location: "study", facing: "S" };
+      const a = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, vs)[0];
+      const backdropE = window.__T.renderW(fx.world, fx.staging, vs, { backdrop_only: true });
+      const backdropS = window.__T.renderW(fx.world, fx.staging, bare, { backdrop_only: true });
+      // Wall pixels inside the opening are darker than the same rows on a
+      // bare facing: the wall really is broken through.
+      const mid = { x: Math.round(a.x + a.w / 2), y: Math.round(a.y + a.h / 2) };
+      const px = (c) => c.getContext("2d").getImageData(mid.x, mid.y, 1, 1).data;
+      const inside = px(backdropE);
+      const bareWall = px(backdropS);
+      // The closed leaf covers the opening: the full composite at that pixel
+      // is neither the opening nor the bare wall.
+      const closed = window.__T.renderW(fx.world, fx.staging, vs, {});
+      const openWorld = window.__T.clone(fx.world);
+      openWorld.entities.find((e) => e.id === "door1").state = "open";
+      const opened = window.__T.renderW(openWorld, fx.staging, vs, {});
+      return {
+        insideSum: inside[0] + inside[1] + inside[2],
+        bareSum: bareWall[0] + bareWall[1] + bareWall[2],
+        closedHash: await window.__T.hashRegion(closed, a.x | 0, a.y | 0, a.w | 0, a.h | 0),
+        openedHash: await window.__T.hashRegion(opened, a.x | 0, a.y | 0, a.w | 0, a.h | 0),
+        backdropHash: await window.__T.hashRegion(backdropE, a.x | 0, a.y | 0, a.w | 0, a.h | 0)
+      };
+    });
+    expect(res.insideSum, "the opening is darker than unbroken wall")
+      .toBeLessThan(res.bareSum);
+    expect(res.closedHash, "the shut leaf covers the opening").not.toBe(res.backdropHash);
+    expect(res.openedHash, "the swung leaf leaves the opening showing")
+      .not.toBe(res.closedHash);
+  });
+});
+
+/* The static overlap check's whole value is that it is bound to what the
+ * renderer draws. It imports groundplane.js — but for a while it re-derived
+ * the placement layer above it, so a renderer whose placement had been
+ * broken still validated clean. Both sides now call placeHost, and this is
+ * the witness that they agree pixel for pixel. */
+test.describe("the validator's placement is the renderer's placement", () => {
+  const staged = [
+    { id: "desk1", vs: { location: "study", facing: "N" } },
+    { id: "chair1", vs: { location: "study", facing: "N" } },
+    { id: "shelf1", vs: { location: "hall", facing: "N" } },
+    { id: "stick1", vs: { location: "hall", facing: "N" } },
+    { id: "door1", vs: { location: "study", facing: "E" } }
+  ];
+
+  for (const s of staged) {
+    test(`${s.id}: placeHost agrees with the layout entry exactly`, async ({ page }) => {
+      await page.goto(appUrl());
+      const res = await page.evaluate(({ id, vs }) => {
+        const fx = window.HOLO_FIXTURE;
+        const A = window.HOLO_APP;
+        const meta = window.HOLO.renderer.GRID_META;
+        const layout = window.HOLO.renderer.layout(
+          fx.world, fx.staging, A.library, meta, vs);
+        const e = layout.find((x) => x.id === id);
+        if (!e) return null;
+        const key = vs.location + "/" + vs.facing;
+        let pl = fx.staging.placements[id];
+        if (Array.isArray(pl)) pl = pl.find((p) => p.facing === key);
+        const p = window.HOLO.groundplane.placeHost(pl, e.record, meta, 1536);
+        return {
+          layout: { drawX: e.drawX, drawY: e.drawY, baseX: e.baseX, baselineY: e.baselineY, f: e.f },
+          placed: { drawX: p.drawX, drawY: p.drawY, baseX: p.baseX, baselineY: p.baselineY, f: p.f }
+        };
+      }, { id: s.id, vs: s.vs });
+      expect(res, `${s.id} laid out`).not.toBeNull();
+      expect(res.placed).toEqual(res.layout);
+    });
+  }
+});
+
+/* The whole suite's pointer work runs at 1536×1200, where the canvas
+ * displays at scale 1 and one logical pixel is one CSS pixel. That is the
+ * viewport where small targets are easiest to hit, and checking only there
+ * is the convenient-viewpoint failure: on an ordinary laptop the canvas is
+ * scaled down, a logical point maps to a fraction of a CSS pixel, and the
+ * coin — six logical pixels across — was not reachable by a hand at all.
+ * These run the smallest targets on a common laptop and a common desktop,
+ * clicking the middle of the object as a person would. */
+test.describe("small takeables answer a real click at ordinary window sizes", () => {
+  const viewports = [
+    { name: "laptop 1366×768", width: 1366, height: 768 },
+    { name: "desktop 1920×1080", width: 1920, height: 1080 }
+  ];
+  const targets = [
+    { id: "coin1", boot: { location: "hall", facing: "N" } },
+    { id: "note1", boot: null }
+  ];
+
+  for (const vp of viewports) {
+    for (const t of targets) {
+      test(`${t.id} on ${vp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+        let root = null;
+        try {
+          if (t.boot) {
+            root = stageTree();
+            setViewstate(root, t.boot);
+          }
+          await page.goto(appUrl(root ?? undefined));
+          // The centre of the entity's own drawn bbox — where a person aims.
+          const c = await page.evaluate((id) => {
+            const e = window.__T.currentLayout().find((x) => x.id === id);
+            if (!e) return null;
+            const b = window.__T.entryBBox(e);
+            return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+          }, t.id);
+          expect(c, `${t.id} is on screen`).not.toBeNull();
+
+          const box = await page.locator("#scene").boundingBox();
+          const cssX = box.x + (c.x * box.width) / 1536;
+          const cssY = box.y + (c.y * box.height) / 1024;
+          const owner = await page.evaluate(({ x, y }) => {
+            const el = document.elementFromPoint(x, y);
+            return el ? el.id || el.tagName : null;
+          }, { x: cssX, y: cssY });
+          expect(owner, `${t.id}: the scene canvas owns the point`).toBe("scene");
+
+          const before = await page.evaluate(() => window.HOLO_APP.harness.envelopes.length);
+          await page.mouse.click(cssX, cssY);
+          const env = await page.evaluate((n) => {
+            const h = window.HOLO_APP.harness;
+            return h.envelopes.length > n ? h.envelopes[h.envelopes.length - 1].intent : null;
+          }, before);
+          expect(env, `${t.id}: an aimed click dispatched something`).not.toBeNull();
+          expect(env.entity, `${t.id}: and it named the thing aimed at`).toBe(t.id);
+        } finally {
+          if (root) removeTree(root);
+        }
+      });
+    }
+  }
+});
+
+/* The hover highlight is the only thing on screen telling a player that
+ * anything can be touched, and it used to be a rectangle around the sprite's
+ * full frame — an editor's selection marquee, taking in empty space and
+ * crossing whatever stood behind. It traces the silhouette now, and these
+ * are the two facts that distinguish the one from the other. */
+test.describe("the hover highlight traces the shape, not a box", () => {
+  test("the outline follows the silhouette and leaves the interior alone", async ({ page }) => {
+    await page.goto(appUrl());
+    const box = await page.locator("#scene").boundingBox();
+    const pt = await page.evaluate(() => window.__T.clickPoint("chair1"));
+    await page.mouse.move(
+      box.x + (pt.x * box.width) / 1536,
+      box.y + (pt.y * box.height) / 1024);
+
+    const res = await page.evaluate(() => {
+      const o = document.getElementById("overlay");
+      const b = window.__T.alphaBounds(o, 1);
+      const e = window.__T.currentLayout().find((x) => x.id === "chair1");
+      const bb = window.__T.entryBBox(e);
+      const W = o.width, H = o.height;
+      const data = o.getContext("2d").getImageData(0, 0, W, H).data;
+      let inked = 0;
+      for (let p = 0; p < W * H; p++) if (data[p * 4 + 3] > 8) inked++;
+      // The silhouette itself, from a solo render of the same entity.
+      const fx = window.HOLO_FIXTURE;
+      const solo = window.__T.worldWithout(
+        fx.world.entities.filter((x) => x.id !== "chair1").map((x) => x.id));
+      const s = window.__T.renderW(solo, fx.staging, { location: "study", facing: "N" },
+        { no_backdrop: true, shadows: false, tint: false });
+      const sd = s.getContext("2d").getImageData(0, 0, W, H).data;
+      let interiorInk = 0, solid = 0;
+      for (let p = 0; p < W * H; p++) {
+        if (sd[p * 4 + 3] >= 250) {
+          solid++;
+          if (data[p * 4 + 3] > 8) interiorInk++;
+        }
+      }
+      return { inked, bboxArea: bb.w * bb.h, solid, interiorInk };
+    });
+
+    // A filled or stroked rectangle would ink the whole frame border; an
+    // outline of a shape inks a thin band. Well under a fifth of the box.
+    expect(res.inked, "outline ink is a band, not a frame")
+      .toBeLessThan(res.bboxArea * 0.2);
+    expect(res.inked, "but there is an outline").toBeGreaterThan(200);
+    // It does not paint over the object it is outlining.
+    expect(res.interiorInk / res.solid, "the interior stays clear")
+      .toBeLessThan(0.05);
+  });
+});
+
+/* Two places where the renderer and the rest of the system had quietly
+ * different ideas about the document. Neither was reachable from the shipped
+ * fixture, and both would have arrived as a mystery at row 4. */
+test.describe("the renderer reads the document the harness reads", () => {
+  test("contents clip to the anchor region the staging NAMES, not to a fixed drawer_cavity", async ({ page }) => {
+    // Position came from the named region and the clip from a hardcoded
+    // `drawer_cavity`, so a fixture anchoring contents anywhere else got a
+    // silently empty scene — validator green, truth saying the thing is
+    // there, picture showing nothing — or a throw into the fault state on a
+    // host record with no cavity at all.
+    await page.goto(appUrl());
+    const res = await page.evaluate(async () => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const staging = window.__T.clone(fx.staging);
+      staging.placements.key1 = { anchor_on: "desk1.surface_top", t: 0.5 };
+      const world = window.__T.clone(fx.world);
+      world.entities.find((e) => e.id === "desk1").state = "open";
+      world.knowledge.player.push("key1");
+      const withKey = window.__T.renderW(world, staging, vs,
+        { no_backdrop: true, shadows: false });
+      const noKey = window.__T.renderW(
+        window.__T.worldWithout(["key1"], world), staging, vs,
+        { no_backdrop: true, shadows: false });
+      const d = window.__T.diffBounds(withKey, noKey);
+      const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
+        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+      const top = desk.record.anchors.surface_top;
+      return {
+        count: d.count,
+        y0: d.y0,
+        surfaceY0: desk.drawY + desk.f * top.y0,
+        surfaceY1: desk.drawY + desk.f * top.y1,
+        cavityY0: desk.drawY + desk.f * desk.record.anchors.drawer_cavity.y0
+      };
+    });
+    // Clipped to surface_top — a thin band, so a modest count; the old code
+    // clipped to drawer_cavity instead and drew nothing at all here.
+    expect(res.count, "the key drawn where the staging puts it").toBeGreaterThan(20);
+    // And it is up on the desk top, not down where the cavity clip used to be.
+    expect(res.y0).toBeLessThan(res.cavityY0);
+  });
+
+  test("a two-hop anchor chain draws — nothing is takeable that was never on screen", async ({ page }) => {
+    // The harness resolves anchor_on chains when deciding what is reachable;
+    // the renderer only matched children against directly-staged hosts. A
+    // two-hop child was therefore absent from the picture while `take`
+    // succeeded on it and it landed in the inventory.
+    await page.goto(appUrl());
+    const res = await page.evaluate(async () => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const world = window.__T.clone(fx.world);
+      const staging = window.__T.clone(fx.staging);
+      // A shelf standing on the desk, and a coin on the shelf: coin2 is two
+      // anchor hops from anything staged on a facing. (Only the desk and the
+      // shelf carry surface regions, so this is the shortest real chain the
+      // M0 records can make.)
+      world.entities.push({ id: "shelf2", sprite: "shelf-oak", location: "study" });
+      world.entities.push({ id: "coin2", sprite: "coin-silver", takeable: true });
+      world.relations.push(["on", "coin2", "shelf2"]);
+      world.knowledge.player.push("shelf2", "coin2");
+      staging.placements.shelf2 = { anchor_on: "desk1.surface_top", t: 0.5 };
+      staging.placements.coin2 = { anchor_on: "shelf2.surface_top", t: 0.5 };
+      const layout = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
+        window.HOLO.renderer.GRID_META, vs);
+      const entry = layout.find((e) => e.id === "coin2");
+      const withIt = window.__T.renderW(world, staging, vs,
+        { no_backdrop: true, shadows: false });
+      const without = window.__T.renderW(
+        window.__T.worldWithout(["coin2"], world), staging, vs,
+        { no_backdrop: true, shadows: false });
+      // The harness's own view: is it reachable to `take`?
+      const h = window.HOLO.harness.create({
+        world: world, staging: staging, narration: fx.narration, viewstate: vs
+      });
+      const env = h.dispatch({ type: "take", entity: "coin2" });
+      return {
+        laidOut: !!entry,
+        hostId: entry ? entry.hostId : null,
+        drawn: window.__T.diffBounds(withIt, without).count,
+        takeEvents: env.events.length
+      };
+    });
+    expect(res.laidOut, "the two-hop child is in the draw list").toBe(true);
+    expect(res.hostId).toBe("shelf2");
+    expect(res.drawn, "and its pixels are on the scene").toBeGreaterThan(0);
+    // The harness could always take it; the point is that the picture agrees.
+    expect(res.takeEvents).toBeGreaterThan(0);
+  });
 });

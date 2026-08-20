@@ -25,14 +25,21 @@
   }
   #overlay { pointer-events: none; } /* hover overlay: chrome, never hashed */
   /* The go fade: DOM chrome over the canvas, never canvas drawing (§8).
+     Order matters and was wrong once: the veil covers the room you are
+     LEAVING before the viewstate moves, then fades off the room you have
+     arrived in. So `.instant` (no transition) snaps it black at the moment
+     of the click, and removing `.on` fades the arrival up over 0.38s. A
+     veil that fades in after the destination is already painted blacks out
+     the room you just walked into.
      pointer-events: none — input stays live through the fade (accepted V1
      consequence, recorded in the design documents). */
   #veil {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; opacity: 0; transition: opacity 0.18s ease;
+    background: #000; opacity: 0; transition: opacity 0.38s ease;
     pointer-events: none;
   }
   #veil.on { opacity: 1; }
+  #veil.instant { transition: none; }
   .chevron {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 4%; min-width: 40px; height: 20%;
@@ -146,17 +153,33 @@
         appendNarration(envelope.narration);
       }
       window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
-      if (envelope && envelope.intent && envelope.intent.type === "go" &&
-          envelope.events.length > 0) {
-        veil.classList.add("on");
-        if (veilTimer) clearTimeout(veilTimer);
-        veilTimer = setTimeout(function () { veil.classList.remove("on"); }, 380);
-      }
     }
 
+    /* dispatch owns the go veil because the veil has to be black BEFORE the
+       harness moves the viewstate — the room you leave goes dark, then the
+       room you arrive in fades up. `.instant` suppresses the transition for
+       the black; a refused go (no events) lifts it in the same tick, so a
+       closed door never flashes. */
     function dispatch(intent) {
       var envelope = harness.dispatch(intent);
       updateChrome(envelope);
+      /* The veil goes black in the SAME task as the repaint, so no frame is
+         ever painted showing the arrival at full brightness — then it holds,
+         then it fades the new room up. Raising it after the repaint (a
+         `transition: opacity` added on the way in) did the opposite: the
+         destination cut in instantly and the player was blacked out for half
+         a second afterwards. A refused `go` never reaches this branch, so a
+         shut door does not flash. */
+      if (intent && intent.type === "go" && envelope.events.length > 0) {
+        if (veilTimer) clearTimeout(veilTimer);
+        veil.classList.add("instant", "on");
+        veil.getBoundingClientRect(); // commit the black before the frame
+        veilTimer = setTimeout(function () {
+          veil.classList.remove("instant");
+          veil.classList.remove("on");
+          veilTimer = null;
+        }, 140);
+      }
       return envelope;
     }
 
@@ -169,23 +192,48 @@
       };
     }
 
-    function hitAt(e) {
+    /* Pointing tolerance (chrome, never the renderer): the exact-pixel hit
+       is tried first, then a widening ring of offsets. Small takeables —
+       the iron key, the silver coin — are a handful of logical pixels at V1
+       scale and an exact-pixel-only region is not something a hand can
+       hit. The renderer's alpha regions are unchanged; this is the cursor
+       being forgiving, and the topmost-at-the-exact-pixel entity still
+       wins whenever there is one. */
+    var HIT_RINGS = [0, 5, 10, 16];
+
+    function hitAtPoint(x, y) {
       if (!currentLayout) return null;
-      var p = canvasPoint(e);
-      return window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y);
+      for (var r = 0; r < HIT_RINGS.length; r++) {
+        var d = HIT_RINGS[r];
+        if (d === 0) {
+          var here = window.HOLO.renderer.hitTest(currentLayout, library, x, y);
+          if (here !== null && here !== undefined) return here;
+          continue;
+        }
+        for (var a = 0; a < 8; a++) {
+          var ang = a * Math.PI / 4;
+          var id = window.HOLO.renderer.hitTest(currentLayout, library,
+            x + d * Math.cos(ang), y + d * Math.sin(ang));
+          if (id !== null && id !== undefined) return id;
+        }
+      }
+      return null;
     }
 
-    function exitFor(entityId) {
-      var loc = null;
-      var vs = harness.viewstate;
-      for (var i = 0; i < harness.world.locations.length; i++) {
-        if (harness.world.locations[i].id === vs.location) loc = harness.world.locations[i];
-      }
-      if (!loc || !loc.exits) return null;
-      for (var j = 0; j < loc.exits.length; j++) {
-        if (loc.exits[j].via === entityId && loc.exits[j].facing === vs.facing) {
-          return loc.exits[j];
-        }
+    function hitAt(e) {
+      var p = canvasPoint(e);
+      return hitAtPoint(p.x, p.y);
+    }
+
+    /* The doorway opening the player is facing, if the point is inside it
+       and its leaf stands open — the `go` target. Derived from the document
+       by the renderer, so the picture and the affordance agree. */
+    function apertureAt(p) {
+      var list = window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, meta, harness.viewstate);
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        if (p.x >= a.x && p.x < a.x + a.w && p.y >= a.y && p.y < a.y + a.h) return a;
       }
       return null;
     }
@@ -197,27 +245,82 @@
       return null;
     }
 
-    /* Click -> intent: open exit door -> go; takeable -> take; else toggle
-       (a closed door click is a toggle; a chair click is the UI-emittable
-       refusal). A click that hits nothing dispatches nothing — dead space
-       is dead. */
+    /* Click -> intent. The doorway and its leaf are two different targets,
+       which is what gives the door a way back: click through the OPENING to
+       `go`, click the LEAF to toggle it (open it when shut, pull it to when
+       it stands open). Before this split an opened exit door answered every
+       click with `go` and no pointer path could ever close it again, while
+       `go` itself had no target but the edge-on sliver of the swung leaf.
+       Takeable -> take; anything else -> toggle (a chair click is the
+       UI-emittable refusal). A click that hits neither a drawn entity nor an
+       open doorway dispatches nothing — dead space is dead. */
     scene.addEventListener("click", function (e) {
-      var id = hitAt(e);
-      if (id === null || id === undefined) return;
+      var p = canvasPoint(e);
+      var id = hitAtPoint(p.x, p.y);
+      if (id === null || id === undefined) {
+        var open = apertureAt(p);
+        var leaf = open ? entityById(open.via) : null;
+        if (open && leaf && leaf.state === "open") {
+          dispatch({ type: "go", exit: open.exit });
+        }
+        return;
+      }
       var entity = entityById(id);
       if (!entity) return;
-      var exit = exitFor(id);
-      if (exit && entity.state === "open") {
-        dispatch({ type: "go", exit: exit.id });
-      } else if (entity.takeable) {
+      if (entity.takeable) {
         dispatch({ type: "take", entity: id });
       } else {
         dispatch({ type: "toggle", entity: id });
       }
     });
 
-    /* Hover: subtle outline on the overlay canvas (chrome — the scene hash
-       stays cursor-independent); cleared when nothing is under the cursor. */
+    /* The hover highlight traces the SILHOUETTE, not a bounding box: the
+       entity's own drawn pixels are stamped into a scratch canvas, smeared
+       one ring outward, tinted, and the interior punched back out, leaving a
+       thin halo along the real edge. A rectangle around the sprite reads as
+       an editor selecting an asset — it includes empty space and crosses
+       whatever stands behind — and this highlight is the only thing on
+       screen that tells a player anything here can be touched. */
+    var HILITE = "rgba(226, 208, 160, 0.9)";
+    var OUTLINE_PX = 3;
+    var haloA = null;
+    var haloB = null;
+
+    function outline(entry) {
+      if (!haloA) {
+        haloA = document.createElement("canvas");
+        haloB = document.createElement("canvas");
+        haloA.width = haloB.width = overlay.width;
+        haloA.height = haloB.height = overlay.height;
+      }
+      var ac = haloA.getContext("2d");
+      var bc = haloB.getContext("2d");
+      ac.clearRect(0, 0, haloA.width, haloA.height);
+      bc.clearRect(0, 0, haloB.width, haloB.height);
+      window.HOLO.renderer.stamp(ac, entry, {});
+      for (var a = 0; a < 8; a++) {
+        var ang = a * Math.PI / 4;
+        bc.drawImage(haloA, OUTLINE_PX * Math.cos(ang), OUTLINE_PX * Math.sin(ang));
+      }
+      bc.globalCompositeOperation = "source-in";
+      bc.fillStyle = HILITE;
+      bc.fillRect(0, 0, haloB.width, haloB.height);
+      bc.globalCompositeOperation = "destination-out";
+      bc.drawImage(haloA, 0, 0);
+      bc.globalCompositeOperation = "source-over";
+      overlayCtx.save();
+      if (entry.clip) {
+        overlayCtx.beginPath();
+        overlayCtx.rect(entry.clip.x, entry.clip.y, entry.clip.w, entry.clip.h);
+        overlayCtx.clip();
+      }
+      overlayCtx.drawImage(haloB, 0, 0);
+      overlayCtx.restore();
+    }
+
+    /* Hover: silhouette outline on the overlay canvas (chrome — the scene
+       hash stays cursor-independent); cleared when nothing is under the
+       cursor. */
     scene.addEventListener("mousemove", function (e) {
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       var id = hitAt(e);
@@ -227,29 +330,7 @@
       }
       scene.style.cursor = "pointer";
       for (var i = 0; i < currentLayout.length; i++) {
-        var entry = currentLayout[i];
-        if (entry.id !== id) continue;
-        var b;
-        if (entry.swap) {
-          b = { x: entry.drawX + entry.f * entry.swap.origin.x,
-                y: entry.drawY + entry.f * entry.swap.origin.y,
-                w: entry.f * entry.swap.image.width,
-                h: entry.f * entry.swap.image.height };
-        } else {
-          b = { x: entry.drawX, y: entry.drawY,
-                w: entry.f * entry.record.px.w,
-                h: entry.f * entry.record.px.h };
-        }
-        overlayCtx.save();
-        if (entry.clip) {
-          overlayCtx.beginPath();
-          overlayCtx.rect(entry.clip.x, entry.clip.y, entry.clip.w, entry.clip.h);
-          overlayCtx.clip();
-        }
-        overlayCtx.strokeStyle = "rgba(200, 180, 137, 0.85)";
-        overlayCtx.lineWidth = 2;
-        overlayCtx.strokeRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
-        overlayCtx.restore();
+        if (currentLayout[i].id === id) outline(currentLayout[i]);
       }
     });
     scene.addEventListener("mouseleave", function () {
@@ -284,7 +365,13 @@
         "fixture bake fp " + fixture.fp +
         " — truth lives in fixtures/demo-study/*.json; after editing, run: node tools/bake-fixtures.mjs";
     }
-    window.HOLO_APP = { harness: harness, paints: 0, library: library, dispatch: dispatch };
+    window.HOLO_APP = {
+      harness: harness, paints: 0, library: library, dispatch: dispatch,
+      /* The page's own pointer routing, exposed so a pointer-driven test
+         asks the shipped code where a click lands instead of re-deriving
+         it. */
+      hitAtPoint: hitAtPoint, apertureAt: apertureAt
+    };
     harness.subscribe(paint);
     harness.redraw();
     updateChrome(null);

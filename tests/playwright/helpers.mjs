@@ -84,6 +84,28 @@ const IN_PAGE = () => {
         c, world, staging, window.__T.lib(), {}, viewstate, options || {});
       return c;
     },
+    /* Render onto a FLAT-FILL backdrop image at grid canonical meta. The
+     * grid's own floor is near-black, where a black contact shadow has
+     * almost nothing left to darken; a lit floor is where the shadow's
+     * strength can actually be measured — and this is also the only path
+     * that exercises the renderer's real-backdrop branch before row 4. */
+    renderOnFill(world, staging, viewstate, options, fill) {
+      const bd = document.createElement("canvas");
+      bd.width = 1536;
+      bd.height = 1024;
+      const g = bd.getContext("2d");
+      g.fillStyle = fill;
+      g.fillRect(0, 0, 1536, 1024);
+      const c = document.createElement("canvas");
+      c.width = 1536;
+      c.height = 1024;
+      const backdrops = {};
+      backdrops[viewstate.location + "/" + viewstate.facing] =
+        { image: bd, meta: window.HOLO.renderer.GRID_META };
+      window.HOLO.renderer.render(
+        c, world, staging, window.__T.lib(), backdrops, viewstate, options || {});
+      return c;
+    },
     clone(o) { return JSON.parse(JSON.stringify(o)); },
     /* A doctored copy of the baked world with named entities deleted
      * (relations and knowledge entries scrubbed with them). */
@@ -215,6 +237,27 @@ const IN_PAGE = () => {
       }
       return null;
     },
+    /* A point inside the doorway the player is facing that the page's own
+     * routing sends to `go` — i.e. one that hits no drawn entity, including
+     * the tolerance ring. This is where a person clicks to walk through: the
+     * opening, not the edge-on sliver of the swung leaf. Returns null when
+     * the facing has no exit. */
+    aperturePoint() {
+      const A = window.HOLO_APP;
+      const list = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate);
+      if (!list.length) return null;
+      const a = list[0];
+      for (let fy = 0.5; fy <= 0.9; fy += 0.04) {
+        for (let fx = 0.95; fx >= 0.05; fx -= 0.02) {
+          const x = Math.round(a.x + fx * a.w);
+          const y = Math.round(a.y + fy * a.h);
+          if (A.hitAtPoint(x, y) === null) return { x, y, exit: a.exit };
+        }
+      }
+      return null;
+    },
     /* Fraction of pixels in a horizontal band (rows y-1..y+1) whose red
      * channel exceeds the base by a threshold — the blend-tolerant line
      * predicate. Base colours are darker than any key_tint blend. */
@@ -333,21 +376,30 @@ export const MATH = {
     return LIT.px_per_m_at_wall * LIT.camera_wall_m / (LIT.camera_wall_m - d);
   },
   yAtDepth(d) { return MATH.yAtS(MATH.sAtDepth(d)); },
-  xAtU(u, y) { return LIT.W / 2 + (u - 0.5) * LIT.wall_width_m * MATH.sAtY(y); },
-  /* Full placement of a floor/wall entity from staging + record data. */
+  xAtU(u, y) { return MATH.xAtScale(u, MATH.sAtY(y)); },
+  xAtScale(u, s) { return LIT.W / 2 + (u - 0.5) * LIT.wall_width_m * s; },
+  /* Full placement of a floor/wall entity from staging + record data.
+   * A wall_mounted placement hangs ON the wall plane, so its scale is
+   * px_per_m_at_wall at any v — the ground-plane lerp describes the floor,
+   * and reading it at a raised baseline shrinks the hung object by exactly
+   * the amount it was raised. (Both shipped door placements sit at v = 0,
+   * where the two readings coincide, so only a v ≠ 0 case can tell them
+   * apart — heights.spec carries one.) */
   place(placement, record) {
-    let baselineY;
+    let baselineY, s;
     if (placement.attachment === "floor_against") {
       baselineY = MATH.yAtDepth(record.dims_m.d);
+      s = MATH.sAtY(baselineY);
     } else if (placement.attachment === "floor_free") {
       baselineY = MATH.yAtDepth(placement.depth_m);
+      s = MATH.sAtY(baselineY);
     } else { // wall_mounted
       baselineY = MATH.floorY - (placement.v || 0) * LIT.px_per_m_at_wall;
+      s = LIT.px_per_m_at_wall;
     }
-    const s = MATH.sAtY(baselineY);
     const heightPx = record.dims_m.h * s;
     const f = heightPx / record.px.h;
-    const baseX = MATH.xAtU(placement.u, baselineY);
+    const baseX = MATH.xAtScale(placement.u, s);
     return {
       baselineY, s, heightPx, f, baseX,
       drawX: baseX - f * record.anchors.base.x,

@@ -89,7 +89,29 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
       (n) => { n.lines["toggle.ghost.open"] = "The ghost drawer slides out of nothing."; },
       /ghost|outside|domain|stray/i],
     ["missing wildcard", "narration",
-      (n) => { delete n.lines["turn.*.refused"]; }, /turn\.\*\.refused|wildcard/i]
+      (n) => { delete n.lines["turn.*.refused"]; }, /turn\.\*\.refused|wildcard/i],
+    /* The key whitelists cover the structures §3 names; `knowledge`'s
+     * sub-keys are open, so the coordinate walk is the only net there — and
+     * a bare /x|y/ let every dressed-up coordinate through. */
+    ["dressed-up coordinate under knowledge", "world",
+      (w) => { w.knowledge.screen_x = 512; }, /coordinate|screen_x/i],
+    ["wall-space coordinate under knowledge", "world",
+      (w) => { w.knowledge.wall_x = 3; }, /coordinate|wall_x/i],
+    ["pixel rect under knowledge", "world",
+      (w) => { w.knowledge.bbox = { x0: 0, y0: 0, x1: 10, y1: 10 }; }, /coordinate|bbox/i],
+    /* M0 pins two-state closed/open: §7's swap rule reads "closed" as the
+     * body image, the outcome vocabulary and the narration keys are named
+     * for them, and the toggle walks the declared list. A fixture declaring
+     * other names used to validate clean and then behave incoherently. */
+    ["state names outside M0's closed/open pin", "world",
+      (w) => {
+        const d = w.entities.find((e) => e.id === "desk1");
+        d.states = ["shut", "ajar"];
+        d.state = "shut";
+      }, /closed.*open|states/i],
+    ["a third state", "world",
+      (w) => { w.entities.find((e) => e.id === "desk1").states = ["closed", "open", "ajar"]; },
+      /closed.*open|states/i]
   ];
 
   for (const [name, file, fn, pattern] of redCases) {

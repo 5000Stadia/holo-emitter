@@ -158,3 +158,83 @@ test.describe("harness-level refusals (§8: the picture never changes when the w
     expect(valid.hasNarration, "valid turn is silent").toBe(false);
   });
 });
+
+/* The wire, not the world. The envelope format is the future websocket wire
+ * format (§8) and the harness is the stand-in for the Construct transport,
+ * so a frame this transport cannot read is a case with a real future: §8's
+ * rule is "no events AND a refusal narration line", and a silent envelope
+ * breaks the second half. These are not reachable from the shipped UI —
+ * every affordance builds a well-formed intent — so they live here beside
+ * the other API-level cases, and they are outside the §12.9 fixture domain
+ * (nothing in the fixture emits them). */
+test.describe("unreadable intents (the transport seam)", () => {
+  const FAULT = "The pattern falters; the words do not come.";
+  const cases = [
+    ["an unknown intent type", { type: "nonsense" }],
+    ["a turn with no direction", { type: "turn" }],
+    ["a turn in a direction that is not one", { type: "turn", dir: "up" }],
+    ["a toggle naming no entity", { type: "toggle" }],
+    ["a take naming no entity", { type: "take", entity: 7 }],
+    ["a go naming no exit", { type: "go" }],
+    ["null", null]
+  ];
+
+  for (const [label, intent] of cases) {
+    test(`${label}: no events, a product-voiced line, nothing moves`, async ({ page }) => {
+      const errors = [];
+      page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+      await page.goto(appUrl());
+      const res = await dispatchLive(page, intent);
+      expect(res.env.events).toEqual([]);
+      expect(res.env.narration, "an unreadable frame still answers").toBe(FAULT);
+      expect(res.pane).toBe(FAULT);
+      expect(res.after.hash).toBe(res.before.hash);
+      expect(res.after.paints).toBe(res.before.paints);
+      expect(res.after.world).toBe(res.before.world);
+      // Developer detail goes to the console, never to the surface.
+      expect(errors.some((e) => /unreadable intent/.test(e)),
+        "console carries the developer detail").toBe(true);
+    });
+  }
+});
+
+test.describe("toggle walks the entity's own declared states", () => {
+  test("a two-state entity round-trips through exactly its declared names", async ({ page }) => {
+    await page.goto(appUrl());
+    const seq = await page.evaluate(() => {
+      const h = window.HOLO_APP.harness;
+      const door = () => h.world.entities.find((e) => e.id === "door1");
+      const declared = [...door().states];
+      const seen = [door().state];
+      // Stand where the door is.
+      window.HOLO_APP.dispatch({ type: "turn", dir: "right" });
+      window.HOLO_APP.dispatch({ type: "toggle", entity: "door1" });
+      seen.push(door().state);
+      window.HOLO_APP.dispatch({ type: "toggle", entity: "door1" });
+      seen.push(door().state);
+      return { declared, seen };
+    });
+    expect(seq.seen).toEqual(["closed", "open", "closed"]);
+    for (const s of seq.seen) expect(seq.declared).toContain(s);
+  });
+
+  test("an entity whose state is outside its own declared list refuses instead of inventing one", async ({ page }) => {
+    // The flip used to be a hardcoded open/closed swap, so an entity in any
+    // other state was written a state absent from its `states` — silently,
+    // with a success envelope and a narration line for a state it was not in.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const h = window.HOLO.harness.create(window.__T.clone(window.HOLO_FIXTURE));
+      h.world.entities.find((e) => e.id === "desk1").state = "ajar";
+      const env = h.dispatch({ type: "toggle", entity: "desk1" });
+      return {
+        events: env.events,
+        state: h.world.entities.find((e) => e.id === "desk1").state,
+        states: h.world.entities.find((e) => e.id === "desk1").states
+      };
+    });
+    expect(res.events).toEqual([]);
+    expect(res.state, "no state outside the declared list is ever written").toBe("ajar");
+    expect(res.states).not.toContain("ajar");
+  });
+});

@@ -35,6 +35,16 @@ async function clickEntity(page, id) {
   await clickCanvasPoint(page, pt);
 }
 
+/* Walk through the opening, not through the leaf. The doorway and the leaf
+ * are two targets: clicking the opening is `go`, clicking the leaf is
+ * `toggle`. Clicking the leaf to travel was the old affordance and it left
+ * an opened door with no way to be closed. */
+async function clickDoorway(page) {
+  const pt = await page.evaluate(() => window.__T.aperturePoint());
+  expect(pt, "clear point inside the doorway").not.toBeNull();
+  await clickCanvasPoint(page, pt);
+}
+
 async function state(page) {
   return await page.evaluate(async () => {
     const h = window.HOLO_APP.harness;
@@ -292,7 +302,7 @@ async function runScript(page, opts = {}) {
     expect(s.world.door).toBe("open");
     expect(s.lastNarrationLine).toBe(s.lastEnvelope.narration); // toggle-success class
   }
-  await clickEntity(page, "door1"); // open exit door click is a go
+  await clickDoorway(page); // the opening is the `go` target
   await note();
   if (opts.assertions) {
     const s = await state(page);
@@ -334,7 +344,7 @@ async function runScript(page, opts = {}) {
   // back to W; go through the still-open door
   await page.keyboard.press("ArrowLeft");
   await note();
-  await clickEntity(page, "door1");
+  await clickDoorway(page);
   await note();
   if (opts.assertions) {
     const s = await state(page);
@@ -396,5 +406,123 @@ test.describe("§12.1 walkthrough (real events) + §12.2 clause 2 (replay)", () 
     const run2 = await runScript(page2, { assertions: false });
     await page2.close();
     expect(run2).toEqual(run1);
+  });
+});
+
+/* The door as a player meets it. §12.1's script walks through it once each
+ * way; these are the affordances around that — the ones a person finds by
+ * clicking, and the ones whose absence a hash-equality assert cannot see. */
+test.describe("the door, from the pointer", () => {
+  async function openTheDoor(page) {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight"); // study/E
+    await clickEntity(page, "door1");        // shut leaf: toggle -> open
+    const s = await state(page);
+    expect(s.world.door).toBe("open");
+  }
+
+  test("an opened door can be shut again by clicking the leaf", async ({ page }) => {
+    // Every click on an open exit door used to dispatch `go`, so once a door
+    // stood open no pointer path could ever close it: the drawer opened and
+    // closed, the door only opened. `toggle.door1.closed` was authored, was
+    // a member of the §12.9 domain, and was unreachable by any player.
+    await openTheDoor(page);
+    await clickEntity(page, "door1");
+    const s = await state(page);
+    expect(s.world.door, "the leaf toggles shut").toBe("closed");
+    expect(s.viewstate, "and shutting it does not walk you through")
+      .toEqual({ location: "study", facing: "E" });
+    expect(s.lastEnvelope.events).toEqual([{ type: "state", entity: "door1", to: "closed" }]);
+    expect(s.lastEnvelope.intent).toEqual({ type: "toggle", entity: "door1" });
+  });
+
+  test("the doorway is a real target: the middle of the opening walks you through", async ({ page }) => {
+    // The `go` target used to be the swung leaf alone — a sliver a few CSS
+    // pixels wide. A person clicks the opening.
+    await openTheDoor(page);
+    const a = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      return window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+    });
+    expect(a, "the facing has a doorway").toBeTruthy();
+    // Dead centre of the opening — no searching, no help.
+    await clickCanvasPoint(page, { x: a.x + a.w / 2, y: a.y + a.h / 2 });
+    const s = await state(page);
+    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    expect(s.lastEnvelope.intent).toEqual({ type: "go", exit: "door_study_hall" });
+  });
+
+  test("clicking the opening of a SHUT door toggles it, and never travels", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    const a = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      return window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+    });
+    await clickCanvasPoint(page, { x: a.x + a.w / 2, y: a.y + a.h / 2 });
+    const s = await state(page);
+    expect(s.world.door, "the shut leaf covers its own doorway").toBe("open");
+    expect(s.viewstate).toEqual({ location: "study", facing: "E" });
+  });
+
+  test("the go veil covers the room you leave, and lifts on the one you arrive in", async ({ page }) => {
+    // The veil used to be added AFTER the harness had already moved and
+    // repainted, so the player saw the destination cut in at full brightness
+    // and then get blacked out for half a second. The word "veil" appeared
+    // in no test at all.
+    await openTheDoor(page);
+    const a = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      return window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+    });
+    const box = await sceneBox(page);
+    const opacity = () => page.evaluate(
+      () => getComputedStyle(document.getElementById("veil")).opacity);
+
+    expect(Number(await opacity()), "no veil before the move").toBe(0);
+    // Dispatch synchronously and read the veil in the same task, before any
+    // frame can be painted: the black must already be up.
+    const atMove = await page.evaluate(({ x, y }) => {
+      const A = window.HOLO_APP;
+      const before = A.harness.viewstate.location;
+      const a = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      A.dispatch({ type: "go", exit: a.exit });
+      return {
+        before,
+        after: A.harness.viewstate.location,
+        veil: getComputedStyle(document.getElementById("veil")).opacity
+      };
+    }, { x: box.x, y: box.y });
+    expect(atMove.before).toBe("study");
+    expect(atMove.after).toBe("hall");
+    expect(Number(atMove.veil), "the veil is black at the instant the view moves").toBe(1);
+
+    await expect.poll(async () => Number(await opacity()), {
+      message: "the veil lifts on the arrival",
+      timeout: 3000
+    }).toBe(0);
+  });
+
+  test("a refused go never flashes the veil", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight"); // study/E, door shut
+    const res = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const env = A.dispatch({ type: "go", exit: "door_study_hall" });
+      return {
+        events: env.events.length,
+        veil: getComputedStyle(document.getElementById("veil")).opacity
+      };
+    });
+    expect(res.events).toBe(0);
+    expect(Number(res.veil), "a closed door does not black the screen").toBe(0);
   });
 });

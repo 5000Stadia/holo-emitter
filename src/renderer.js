@@ -55,7 +55,14 @@
    * shadow peaks at 0.35 and fades to nothing (plan §3). */
   var TINT_ALPHA = 0.18;
   var SHADOW_PEAK = 0.35;
-  var SHADOW_RY = 0.18; // ry = 0.18 × rx
+  /* ry = SHADOW_RY × rx, but never thinner than SHADOW_MIN_RY. "Contact" is
+   * a named quality — every grounded object darkens the ground under it, a
+   * pool at the contact point — and a pure ratio gives a small object a
+   * two-pixel hairline whose upper half hides behind its own feet. The
+   * candlestick's footprint is 0.16 m: at the old 0.18 ratio its whole
+   * shadow was 3 px tall. Width stays exactly §7's footprint span. */
+  var SHADOW_RY = 0.3;
+  var SHADOW_MIN_RY = 4;
 
   /* The pinned §5 viewport width. layout takes no canvas (it is placement,
    * not paint), so the u-mapping's canvasW is this constant — the same
@@ -189,6 +196,82 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Doorways                                                            */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * apertures(world, staging, library, meta, viewstate) -> [ { exit, via,
+   * x, y, w, h } ] — the wall opening of every exit the player is facing,
+   * in scene px, derived from the document (`locations[].exits`) and the
+   * leaf's own §4 wall placement. Never from coordinates in truth.
+   *
+   * A doorway exists whether or not its leaf is shut, so the opening is
+   * drawn for every exit on the facing and the closed leaf occludes it
+   * exactly. §11 gives real backdrops a painted door frame/opening; grid
+   * mode is the stand-in for unestablished space and must not show a
+   * plank vanishing from unbroken wall — nor leave `go` with no target
+   * but the edge-on sliver of an opened leaf.
+   */
+  function apertures(world, staging, library, meta, viewstate) {
+    var gp = groundplane();
+    var facingKey = viewstate.location + "/" + viewstate.facing;
+    var out = [];
+    for (var l = 0; l < world.locations.length; l++) {
+      var loc = world.locations[l];
+      if (loc.id !== viewstate.location) continue;
+      var exits = loc.exits || [];
+      for (var x = 0; x < exits.length; x++) {
+        var exit = exits[x];
+        if (exit.facing !== viewstate.facing) continue;
+        var placement = (staging.placements || {})[exit.via];
+        if (!placement) continue;
+        var list = (Object.prototype.toString.call(placement) === "[object Array]")
+          ? placement : [placement];
+        var fp = null;
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].facing === facingKey) { fp = list[i]; break; }
+        }
+        if (!fp) continue;
+        var entity = null;
+        for (var e = 0; e < world.entities.length; e++) {
+          if (world.entities[e].id === exit.via) { entity = world.entities[e]; break; }
+        }
+        var lib = entity ? library[entity.sprite] : null;
+        if (!lib) continue;
+        var place = gp.placeHost(fp, lib.record, meta, CANVAS_W);
+        if (!place) continue;
+        out.push({
+          exit: exit.id,
+          via: exit.via,
+          x: place.x0,
+          y: place.y0,
+          w: place.x1 - place.x0,
+          h: place.y1 - place.y0
+        });
+      }
+    }
+    return out;
+  }
+
+  /* The opening reads as unlit space beyond, with a thin jamb in key_tint —
+   * grid mode only; a real backdrop paints its own. */
+  var APERTURE_FILL = "#05070a";
+
+  function drawApertures(ctx, list, meta) {
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      ctx.fillStyle = APERTURE_FILL;
+      ctx.fillRect(a.x, a.y, a.w, a.h);
+      ctx.save();
+      ctx.globalAlpha = ALPHA_MAJOR;
+      ctx.strokeStyle = meta.key_tint;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(snap(a.x), snap(a.y), Math.round(a.w), Math.round(a.h));
+      ctx.restore();
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Layout (§7 steps 2–3 + §2 placement math) — pure, no options: what   */
   /* stands where can never branch on a debug switch.                     */
   /* ------------------------------------------------------------------ */
@@ -301,19 +384,17 @@
       var lib = libFor(entity);
       var record = lib.record;
 
-      var baselineY;
-      if (facingPlacement.attachment === "floor_against") {
-        baselineY = gp.yAtDepth(record.dims_m.d, meta);
-      } else if (facingPlacement.attachment === "floor_free") {
-        baselineY = gp.yAtDepth(facingPlacement.depth_m, meta);
-      } else { // wall_mounted: v metres above the wall floor line, wall scale
-        baselineY = meta.floor_line_y * meta.image_h_px -
-          (facingPlacement.v || 0) * meta.px_per_m_at_wall;
+      /* Placement through groundplane.placeHost — the one home shared with
+       * the fixture validator's static overlap check (never re-derived on
+       * either side). */
+      var place = gp.placeHost(facingPlacement, record, meta, CANVAS_W);
+      if (!place) {
+        throw new Error("unknown attachment \"" + facingPlacement.attachment +
+          "\" staging entity " + entity.id);
       }
-      var s = gp.scaleAtY(baselineY, meta);
-      var heightPx = record.dims_m.h * s;
-      var f = heightPx / record.px.h;
-      var baseX = gp.xAtU(facingPlacement.u, baselineY, meta, CANVAS_W);
+      var baselineY = place.baselineY;
+      var f = place.f;
+      var baseX = place.baseX;
       var state = (entity.state != null) ? entity.state : null;
 
       var swap = null;
@@ -336,8 +417,8 @@
         record: record,
         images: lib.images,
         f: f,
-        drawX: baseX - f * record.anchors.base.x,
-        drawY: baselineY - f * record.anchors.base.y,
+        drawX: place.drawX,
+        drawY: place.drawY,
         baseX: baseX,
         baselineY: baselineY,
         state: state,
@@ -359,25 +440,46 @@
       return a.entity.id < b.entity.id ? -1 : (a.entity.id > b.entity.id ? 1 : 0);
     });
 
+    /* Children ride their host's facing — and a child may itself host a
+     * child (`anchor_on` chains). The harness's reachability walk already
+     * recurses through the chain, so the renderer must too: a two-hop child
+     * the renderer dropped while the harness let you take it is the picture
+     * lying about the document. Chains are walked depth-first from each
+     * directly-staged host; a cycle cannot repeat because every entity is
+     * emitted at most once. */
     var out = [];
     for (i = 0; i < hosts.length; i++) {
-      var host = hosts[i];
+      appendWithChildren(hosts[i]);
+    }
+    return out;
+
+    function appendWithChildren(host) {
       out.push(host);
+      var placed = {};
+      for (var q = 0; q < out.length; q++) placed[out[q].id] = true;
       for (var c = 0; c < childPlacements.length; c++) {
         var cp = childPlacements[c];
         if (cp.hostId !== host.id) continue;
+        if (placed[cp.entity.id]) continue;
         var hostEntity = entities[host.id];
 
         // "in"-contained children draw only when the host stands open (the
         // knowledge half of the reveal is already filtered above); they are
-        // clipped to the host's transformed drawer_cavity. "on"-related
-        // children always draw when known and not held.
+        // clipped to the host's transformed anchor region — the SAME region
+        // the placement names, never a hardcoded `drawer_cavity` (a fixture
+        // may anchor contents in any region the record declares; clipping to
+        // a different one silently erased the child, or threw, on any host
+        // without that exact anchor).
         var contained = inHost[cp.entity.id] != null;
         if (contained && hostEntity.state !== "open") continue;
 
         var childLib = libFor(cp.entity);
         var childRecord = childLib.record;
         var region = host.record.anchors[cp.regionName];
+        if (!region) {
+          throw new Error("no anchor region \"" + cp.regionName + "\" on " +
+            host.record.id + " (staging " + cp.entity.id + ")");
+        }
         var t = cp.t;
         // Diagonal lerp along the host anchor region, in host body px.
         var ax = region.x0 + t * (region.x1 - region.x0);
@@ -390,17 +492,16 @@
 
         var clip = null;
         if (contained) {
-          var cav = host.record.anchors.drawer_cavity;
           clip = {
-            x: host.drawX + host.f * cav.x0,
-            y: host.drawY + host.f * cav.y0,
-            w: host.f * (cav.x1 - cav.x0),
-            h: host.f * (cav.y1 - cav.y0)
+            x: host.drawX + host.f * region.x0,
+            y: host.drawY + host.f * region.y0,
+            w: host.f * (region.x1 - region.x0),
+            h: host.f * (region.y1 - region.y0)
           };
         }
 
         var childState = (cp.entity.state != null) ? cp.entity.state : null;
-        out.push({
+        var childEntry = {
           id: cp.entity.id,
           kind: "child",
           hostId: host.id,
@@ -415,10 +516,11 @@
           swap: null, // no swap archetype anchors on a host in M0; closed-body rule holds
           parts: stateParts(childRecord, childState),
           clip: clip
-        });
+        };
+        // Recurse: this child may itself host anchored children.
+        appendWithChildren(childEntry);
       }
     }
-    return out;
   }
 
   /* ------------------------------------------------------------------ */
@@ -445,7 +547,7 @@
     if (!(rx > 0)) return;
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.scale(1, SHADOW_RY);
+    ctx.scale(1, Math.max(SHADOW_RY, SHADOW_MIN_RY / rx));
     var g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
     g.addColorStop(0, "rgba(0,0,0," + SHADOW_PEAK + ")");
     g.addColorStop(1, "rgba(0,0,0,0)");
@@ -467,6 +569,39 @@
       y: entry.drawY + entry.f * (part.origin.y + t * part.slide.dy * entry.record.px.h),
       k: entry.f * (1 + t * (part.slide.scale_open - 1))
     };
+  }
+
+  /**
+   * stamp(ctx, entry, options) — draw one layout entry's own pixels (body or
+   * swap-state image, then parts at their interpolated offsets) with no
+   * tint, no shadow and no clip. The render's composite step and the page's
+   * hover outline both go through it, so the highlight traces exactly the
+   * shape that was drawn: a bounding rectangle around the sprite is an
+   * editor's selection marquee, not a place you are standing in.
+   */
+  function stamp(ctx, e, options) {
+    options = options || {};
+    if (e.swap) {
+      ctx.drawImage(e.swap.image,
+        e.drawX + e.f * e.swap.origin.x,
+        e.drawY + e.f * e.swap.origin.y,
+        e.swap.image.width * e.f,
+        e.swap.image.height * e.f);
+    } else {
+      ctx.drawImage(e.images.body,
+        e.drawX, e.drawY,
+        e.images.body.width * e.f,
+        e.images.body.height * e.f);
+    }
+    for (var p = 0; p < e.parts.length; p++) {
+      var part = e.parts[p];
+      var t = (options.parts === false) ? 0
+        : (options.part_t && options.part_t[e.id] != null)
+          ? options.part_t[e.id] : part.t;
+      var pp = partPlacement(e, part, t);
+      ctx.drawImage(pp.image, pp.x, pp.y,
+        pp.image.width * pp.k, pp.image.height * pp.k);
+    }
   }
 
   /**
@@ -497,6 +632,10 @@
         ctx.drawImage(entry.image, 0, 0, W, H);
       } else {
         drawGrid(ctx, meta, viewstate.facing, W, H);
+        // The doorway belongs to the wall, not to the entity pass: it is
+        // backdrop content (§11) and so must be inside backdrop_only, or a
+        // flip pair would differ by a hole in the wall.
+        drawApertures(ctx, apertures(world, staging, library, meta, viewstate), meta);
       }
     }
     if (options.backdrop_only) return target;
@@ -536,27 +675,7 @@
       // image at its origin offset) plus parts at interpolated offsets.
       var comp = makeCanvas(doc, W, H);
       var cctx = comp.getContext("2d");
-      if (e.swap) {
-        cctx.drawImage(e.swap.image,
-          e.drawX + e.f * e.swap.origin.x,
-          e.drawY + e.f * e.swap.origin.y,
-          e.swap.image.width * e.f,
-          e.swap.image.height * e.f);
-      } else {
-        cctx.drawImage(e.images.body,
-          e.drawX, e.drawY,
-          e.images.body.width * e.f,
-          e.images.body.height * e.f);
-      }
-      for (var p = 0; p < e.parts.length; p++) {
-        var part = e.parts[p];
-        var t = (options.parts === false) ? 0
-          : (options.part_t && options.part_t[e.id] != null)
-            ? options.part_t[e.id] : part.t;
-        var pp = partPlacement(e, part, t);
-        cctx.drawImage(pp.image, pp.x, pp.y,
-          pp.image.width * pp.k, pp.image.height * pp.k);
-      }
+      stamp(cctx, e, options);
 
       // (c) Tint pass on the WHOLE composite (§7 step 6): multiply key_tint
       // at TINT_ALPHA over the drawn pixels, restore the composite's own
@@ -655,6 +774,8 @@
   var api = {
     render: render,
     layout: layout,
+    apertures: apertures,
+    stamp: stamp,
     hitTest: hitTest,
     GRID_META: GRID_META
   };

@@ -195,6 +195,75 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     expect(Math.abs(res.x0 - expectedX0)).toBeLessThanOrEqual(2);
   });
 
+  test("wall_mounted at v ≠ 0 keeps wall scale — a hung object does not shrink as it rises", async ({ page }) => {
+    // Both shipped door placements sit at v = 0, where "scale at the wall
+    // plane" and "scale at the baseline" are the same number, so only a
+    // raised placement can tell a wall-plane reading from a floor-lerp one.
+    // Reading the ground-plane lerp above the floor line shrank the door by
+    // 30% at v = 1.0 and nothing on the shipped fixture could see it.
+    await page.goto(appUrl());
+    const rec = await record(page, "door-plank");
+    const V = 1.0;
+    const b = await page.evaluate((v) => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "E" };
+      const staging = window.__T.clone(fx.staging);
+      staging.placements.door1.find((p) => p.facing === "study/E").v = v;
+      const solo = window.__T.worldWithout(
+        fx.world.entities.filter((e) => e.id !== "door1").map((e) => e.id));
+      const c = window.__T.renderW(solo, staging, vs, { no_backdrop: true, shadows: false });
+      return window.__T.alphaBounds(c, 1);
+    }, V);
+    expect(b, "raised door rendered").not.toBeNull();
+
+    // Expected by the test's own arithmetic: full height at WALL scale, base
+    // V metres above the floor line.
+    const P = MATH.place(
+      { attachment: "wall_mounted", u: 0.5, v: V }, rec);
+    const expectedH = rec.dims_m.h * LIT.px_per_m_at_wall;
+    expect(P.s).toBe(LIT.px_per_m_at_wall);
+    expect(Math.abs(b.h - expectedH) / expectedH,
+      `raised height ${b.h} vs wall-scale ${expectedH}`).toBeLessThanOrEqual(0.05);
+    expect(Math.abs(b.y1 + 1 - P.baselineY)).toBeLessThanOrEqual(2);
+    expect(Math.abs(b.x0 - P.drawX)).toBeLessThanOrEqual(2);
+  });
+
+  test("the revealed key sits inside the drawer, not on the face of it", async ({ page }) => {
+    // Children draw after their host's parts (§7 step 3), so a drawer front
+    // that does not clear the cavity when open puts the key ON the drawer
+    // face. The gate: every key pixel lies above the open front's top edge.
+    await page.goto(appUrl());
+    const deskRec = await record(page, "desk-joined-oak-1660");
+    const deskPl = await placement(page, "desk1");
+    const P = MATH.place(deskPl, deskRec);
+    const part = deskRec.parts.find((p) => p.id === "drawer_front");
+
+    const keyBox = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "N" };
+      const mk = (ids, knowKey) => {
+        const w = window.__T.worldWithout(
+          fx.world.entities.filter((e) => !ids.includes(e.id)).map((e) => e.id));
+        w.entities.find((e) => e.id === "desk1").state = "open";
+        if (knowKey && !w.knowledge.player.includes("key1")) w.knowledge.player.push("key1");
+        return w;
+      };
+      const withKey = window.__T.renderW(mk(["desk1", "key1"], true), fx.staging, vs,
+        { no_backdrop: true, shadows: false });
+      const deskOnly = window.__T.renderW(mk(["desk1"], false), fx.staging, vs,
+        { no_backdrop: true, shadows: false });
+      return window.__T.diffBounds(withKey, deskOnly);
+    });
+    expect(keyBox.count, "key drawn").toBeGreaterThan(0);
+
+    // Open drawer front's top edge, by the test's own arithmetic from the
+    // record (origin + slide travel), through the host transform.
+    const frontTopBodyPx = part.origin.y + part.slide.dy * deskRec.px.h;
+    const frontTopScreenY = P.drawY + P.f * frontTopBodyPx;
+    expect(keyBox.y1, "key bottom above the open drawer front's top edge")
+      .toBeLessThan(frontTopScreenY);
+  });
+
   test("the shipped GRID_META still matches the §5 literals (drift guard)", async ({ page }) => {
     await page.goto(appUrl());
     const meta = await page.evaluate(() => window.HOLO.renderer.GRID_META);
