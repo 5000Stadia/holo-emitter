@@ -1,0 +1,31 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    { "id": "study", "facings": ["N","E","S","W"],
+      "exits": [ { "id": "door_study_hall", "from": "study", "facing": "E",
+                   "to": "hall", "arrive_facing": "W", "via": "door1" } ] },
+    { "id": "hall", "facings": ["N","E","S","W"],
+      "exits": [ { "id": "door_hall_study", "from": "hall", "facing": "W",
+                   "to": "study", "arrive_facing": "E", "via": "door1" } ] }
+  ],
+  "entities": [
+    { "id": "desk1",    "sprite": "desk-joined-oak-1660", "location": "study",
+      "states": ["closed","open"], "state": "closed" },
+    { "id": "key1",     "sprite": "key-iron",      "takeable": true },
+    { "id": "note1",    "sprite": "notebook-vellum", "takeable": true },
+    { "id": "chair1",   "sprite": "chair-joined",  "location": "study" },
+    { "id": "door1",    "sprite": "door-plank",    "location": "study",
+      "states": ["closed","open"], "state": "closed", "transition": true },
+    { "id": "stick1",   "sprite": "candlestick-brass", "location": "hall" },
+    { "id": "shelf1",   "sprite": "shelf-oak",     "location": "hall" },
+    { "id": "coin1",    "sprite": "coin-silver",   "takeable": true }
+  ],
+  "relations": [
+    ["in",  "key1",  "desk1"],
+    ["on",  "note1", "desk1"],
+    ["on",  "coin1", "shelf1"]
+  ],
+  "knowledge": {
+    "player": ["desk1","note1","chair1","door1","stick1","shelf1","coin1"]
+  }
+}

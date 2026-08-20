@@ -43,6 +43,13 @@ holo-emitter/
       viewstate.json   # [AI] BOOT VIEWSTATE only ({location, facing}) — the harness owns
                        # viewstate at runtime; this is neither truth nor staging, and the
                        # row-2 validator checks it holds nothing but those two keys
+      fixture.js       # [AI] GENERATED from the sibling .json files by tools/bake-fixtures.mjs
+                       # and committed — file:// pages cannot fetch JSON (§12.7), so truth is
+                       # baked in; the .json files stay the sole truth and a staleness test
+                       # byte-compares a fresh bake
+  tools/
+    bake-fixtures.mjs  # [AI] the fixture bake (byte-deterministic); package.json, lockfile
+                       # and .gitignore are ambient tooling, not layout
   library/
     <sprite-id>/
       sprite.png       # RGBA, trimmed

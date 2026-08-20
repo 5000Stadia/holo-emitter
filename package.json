@@ -1,0 +1,17 @@
+{
+  "name": "holo-emitter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Myst-like holographic scene client: generated backdrops, composited sprites, one world document as the only truth.",
+  "scripts": {
+    "test": "playwright test -c tests/playwright"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/5000Stadia/holo-emitter.git"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}
