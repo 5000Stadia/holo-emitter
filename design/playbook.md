@@ -40,6 +40,7 @@ verified 2026-08-18 by the drafting pass; the u/RUSuper route spot-checked live 
   routes live in the intention.
 - **§2 org chart** maps to the solo route: Navigator holds the Manager function, the builder's
   fan-out subagents are the domain workers.
+- [felt — earned on this run, 2026-08-19; travels home at close] **§3.4's consumption camera includes reading every surface string as its intended audience.** The row-1 artifact critique (F1–F9) examined geometry and behaviour from the player's viewpoint but never read the visible strings as a stranger; the human caught the project's internal ideology printed on the product face within seconds of opening the alpha link.
 - Does not fit here (say so at close): Blender/engine MCPs (the replicator replaces them; but
   §2.4's tool-session *shape* does fit — the standing Codex asset seat is one), §7's
   desktop-multi-session deployment shape, audio services.
