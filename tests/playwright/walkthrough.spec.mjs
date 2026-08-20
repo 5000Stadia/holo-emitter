@@ -917,3 +917,80 @@ test.describe("a page that has faulted stops pretending", () => {
     expect(res.rightShown).toBe("none");
   });
 });
+
+test.describe("the product's voice is legible where it speaks", () => {
+  const widths = [
+    { name: "phone 390×844", width: 390, height: 844 },
+    { name: "phone landscape 750×342", width: 750, height: 342 },
+    { name: "laptop 1366×768", width: 1366, height: 768 }
+  ];
+  for (const vp of widths) {
+    test(`${vp.name}: the newest line is whole and starts at the top of the pane`, async ({ page }) => {
+      // The pane auto-scrolled to its own bottom and was a row and a half
+      // tall, so it permanently showed one message plus a horizontally
+      // sliced fragment of the previous one, ascenders cut mid-glyph. The
+      // narration is the only thing in this product that speaks to a player.
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto(appUrl());
+      await page.waitForFunction(() => !!window.HOLO_APP);
+      // The longest authored line in the fixture, whatever it is.
+      const worst = await page.evaluate(() => {
+        const lines = window.HOLO_FIXTURE.narration.lines;
+        let best = null;
+        for (const k of Object.keys(lines)) {
+          if (!best || lines[k].length > lines[best].length) best = k;
+        }
+        return { key: best, text: lines[best] };
+      });
+      await page.evaluate((t) => {
+        const pane = document.getElementById("narration");
+        for (let i = 0; i < 4; i++) {
+          const p = document.createElement("p");
+          p.textContent = t;
+          pane.appendChild(p);
+          pane.scrollTop = p.offsetTop - pane.offsetTop;
+        }
+      }, worst.text);
+      const geo = await page.evaluate(() => {
+        const pane = document.getElementById("narration");
+        const ps = pane.querySelectorAll("p");
+        const p = ps[ps.length - 1];
+        return {
+          top: p.offsetTop - pane.offsetTop - pane.scrollTop,
+          height: p.offsetHeight,
+          pane: pane.clientHeight
+        };
+      });
+      expect(geo.top, `${vp.name}: no sliced row above the newest line`).toBe(0);
+      expect(geo.height, `${vp.name}: the newest message (${geo.height}px) fits the pane (${geo.pane}px)`)
+        .toBeLessThanOrEqual(geo.pane);
+    });
+  }
+
+  test("inventory tiles carry an accessible name, not only a hover title", async ({ page }) => {
+    // A canvas has no text content, and on touch there is no hover, so a
+    // `title` attribute names the tile to nobody who is not using a mouse.
+    await page.goto(appUrl());
+    await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      A.dispatch({ type: "toggle", entity: "desk1" });
+      A.dispatch({ type: "take", entity: "key1" });
+      A.dispatch({ type: "take", entity: "note1" });
+    });
+    const tiles = await page.evaluate(() =>
+      [...document.querySelectorAll("#inventory canvas.inv-tile")].map((t) => ({
+        entity: t.getAttribute("data-entity"),
+        label: t.getAttribute("aria-label"),
+        role: t.getAttribute("role")
+      })));
+    expect(tiles.length).toBe(2);
+    for (const t of tiles) {
+      expect(t.role).toBe("img");
+      expect(typeof t.label).toBe("string");
+      expect(t.label.length, `${t.entity} is named`).toBeGreaterThan(3);
+      // Product speech: the record's noun, never the entity id.
+      expect(t.label).not.toBe(t.entity);
+      expect(t.label).not.toMatch(/\d/);
+    }
+  });
+});

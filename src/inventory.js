@@ -38,7 +38,12 @@
       tile.className = "inv-tile";
       tile.setAttribute("data-entity", id);
       if (sprite) {
+        // The record's noun, as an accessible name and not only as a
+        // hover title: a canvas has no text content, and on touch there is
+        // no hover at all, so `title` alone names the tile to nobody.
         tile.title = sprite.record.noun;
+        tile.setAttribute("role", "img");
+        tile.setAttribute("aria-label", sprite.record.noun);
         if (sprite.images.thumb) {
           tile.getContext("2d").drawImage(sprite.images.thumb, 0, 0);
         }

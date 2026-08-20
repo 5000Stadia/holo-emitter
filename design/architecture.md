@@ -220,7 +220,16 @@ where **closed resolves to the body image itself** — the record carries only `
 state-interpolated offsets → tint → `anchor_on` children. Tint is per-entity on an offscreen
 canvas holding the **whole composite** (body + parts at offsets): `multiply` toward `key_tint`
 at `TINT_ALPHA = 0.18`, alpha restored with `destination-in` — an untinted drawer face on a
-tinted desk is the divergence this prevents. Contact shadow: radial-gradient ellipse under
+tinted desk is the divergence this prevents. **The alpha channel is then copied back byte for
+byte** from the untinted composite, bounded to the entity's drawn rect. Re-clipping with
+`destination-in` — the obvious way — multiplies the two alphas and so *squares* every partial
+alpha: a 128 edge pixel came back at 76, and at zero tint at 64. Placeholder art is hard-edged
+and showed nothing, but §9.1's matting feathers 1 px, so every matted edge arriving at rows 3–4
+would have lost half its alpha and hardened into exactly the cut-out silhouette the flip test
+exists to catch. It also made §12.8's tint clause — cited by name in the row's done text — pass
+with the tint switched off, because the squaring alone changed the pixels. mechanisms.spec
+renders a deliberately feathered probe sprite through the real renderer and compares the alpha
+profile tinted against untinted; hash inequality cannot see this. Contact shadow: radial-gradient ellipse under
 `base`, rx = footprint span × f / 2 (§7's width, unchanged), **ry = max(0.3·rx, 4 px)**, peak
 alpha 0.35, skipped when `airborne`; swap states use the drawn extent (above). The ry floor is
 why the candlestick has a pool at all — a pure ratio gave a 0.16 m footprint a three-pixel
@@ -285,7 +294,12 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
 viewstate at runtime (`viewstate.json` is boot-only — exactly `{location, facing}`).
 `dispatch(intent)` carries `turn`, `toggle`, `take`, `go`. Validation precedence is
 load-bearing — **the unknown check runs first, so no refusal ever leaks the existence of an
-unknown entity**. Outcome vocabulary: `open`, `open_reveal` (first open of a container adds its
+unknown entity** — and reachability requires **every host in an entity's `anchor_on` chain to be
+known too**. The renderer reaches an anchored child only through its host, so an unknown host
+means the child was never drawn; without the same filter here the harness took a notebook off a
+desk the player had never been shown, with a success envelope and an inventory tile for something
+that had never been on screen. `stagedKeys` itself stays knowledge-blind, because the §12.9
+enumeration is about what a fixture can emit, not what one player currently knows. Outcome vocabulary: `open`, `open_reveal` (first open of a container adds its
 unknown `in`-contents to knowledge — the reveal — one `knowledge_add` event per content),
 `closed`, `taken`, `arrive`, and refusals `refused_unknown` / `refused_static` /
 `refused_fixed` / `refused_held` / `refused_unreachable` / `refused_contained` /
@@ -363,7 +377,11 @@ placement's own scale, so a floor_free object at 1.2 m runs from x −400 to 193
 named overlap pairs would have noticed); and a meta file that exists but cannot be read is a
 finding rather than a silent fall back to grid canonical (falling back would check the fixture against a wall the
 renderer will not draw, and report success); M0's two-state `["closed","open"]` pin; and §12.9
-coverage over the imported enumeration with the four honesty clauses. The truth-side
+coverage over the imported enumeration with the four honesty clauses; and **the record's §6
+`attachment` agreeing with its §4 placement's** — row 3's ingester writes the record token from a
+CLI flag and row 4 authors the staging, different hands, and the renderer silently obeys the
+staging one, so a desk whose record says `floor_against` could be staged `floor_free` and drawn
+at a depth its own record contradicts. The truth-side
 coordinate-key walk is the only net under `knowledge`, whose sub-keys are open, so it matches the
 shapes a coordinate actually wears (`screen_x`, `wall_x`, `origin_y`, `bbox`, `extent`, `width`…)
 rather than the bare letters `x`/`y`.
@@ -476,6 +494,16 @@ the shipped witness.
   367 px tall — every phone in landscape — and added 20 px of scroll where the plain contain-fit
   fitted exactly. Guarded at five sizes, portrait and landscape, including one below the
   degenerate threshold where the page is allowed to scroll but not to be empty.
+- **The narration pane is 4.2rem and its newest line always starts flush at the top.** At 3.2rem
+  an arrival line wrapped to two rows at phone width and the pane permanently showed one message
+  plus a horizontally sliced fragment of the previous one, ascenders cut mid-glyph — the whole
+  product voice arriving broken. The room came from the inventory strip's and status line's
+  padding, not from §5's 9.6rem chrome budget. A pane's worth of scroll room hangs below the last
+  paragraph (on the content, so the box does not grow), because otherwise the scroll clamps at
+  the end of the content and the top edge lands mid-line whatever the pane's height.
+- **Inventory tiles carry the record's `noun` as an `aria-label`**, not only as a hover `title`:
+  a canvas has no text content and touch has no hover, so `title` alone names the tile to nobody
+  who is not using a mouse.
 - **The page is vertically centred.** Stage and chrome are both fixed heights, so on anything
   taller the remainder is dead space, and top-aligned it all pooled below — 38% of a phone screen
   empty under a small picture. `body.capture` drops the centring, because §12.6 wants the scene

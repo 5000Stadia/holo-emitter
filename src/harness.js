@@ -215,9 +215,33 @@
       return null;
     }
 
-    /* Staged on the current location/facing, directly or via host chain. */
+    /* Staged on the current location/facing, directly or via host chain —
+     * and every host in that chain KNOWN. The renderer reaches an anchored
+     * child only through its host, so an unknown host means the child was
+     * never drawn; without the same filter here the harness happily took a
+     * notebook off a desk the player had never been shown, emitting a
+     * success envelope and an inventory tile for something that had never
+     * been on screen. `stagedKeys` itself stays knowledge-blind because the
+     * §12.9 enumeration is about what a fixture can emit, not about what one
+     * player currently knows. */
+    function chainKnown(id, seen) {
+      seen = seen || {};
+      if (seen[id]) return true;
+      seen[id] = true;
+      if (!isKnown(world, id)) return false;
+      var placement = staging.placements[id];
+      if (!placement) return true;
+      var list = Array.isArray(placement) ? placement : [placement];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].anchor_on &&
+            !chainKnown(list[i].anchor_on.split(".")[0], seen)) return false;
+      }
+      return true;
+    }
+
     function reachable(id) {
       var key = viewstate.location + "/" + viewstate.facing;
+      if (!chainKnown(id)) return false;
       return stagedKeys(id, staging).indexOf(key) !== -1;
     }
 

@@ -123,6 +123,9 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
     /* Six arms that existed and were guarded by nothing — deleting each left
      * the whole suite green. Two of them are named in the row text itself
      * ("no facts in staging.json", "all refs resolve", "thumbs"). */
+    ["a placement whose attachment contradicts its record", "staging",
+      (s) => { s.placements.desk1.attachment = "floor_free"; s.placements.desk1.depth_m = 1; },
+      /record "desk-joined-oak-1660" declares attachment "floor_against"/],
     /* Four holes a document can fall through while every ref resolves. */
     ["a duplicate entity id", "world",
       (w) => { w.entities.push(JSON.parse(JSON.stringify(w.entities[0]))); },

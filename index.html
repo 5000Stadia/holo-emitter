@@ -66,13 +66,26 @@
   /* Bottom chrome: narration log + inventory strip + status = 9.6rem.
      Bare surfaces — no labels, no empty-state text (the product's voice
      rule: method speech goes nowhere). */
+  /* 4.2rem, not 3.2: at 390 px an arrival line wraps to two rows and the
+     pane held one and a sliced half of another, permanently, with ascenders
+     cut mid-glyph. The narration is the only thing in this product that
+     speaks to a player. The 9.6rem chrome budget is unchanged — the room
+     comes out of the inventory strip and the status line. */
   #narration {
-    height: 3.2rem; overflow-y: auto; padding: 2px 8px;
+    height: 4.2rem; overflow-y: auto; padding: 2px 8px;
     font-size: 0.95rem; line-height: 1.3;
   }
   #narration p { margin: 0 0 2px 0; }
+  /* A pane's worth of room below the newest line, so it can always be
+     scrolled flush to the top. Without it the scroll clamps at the end of
+     the content and the top edge lands mid-line — the pane then permanently
+     shows a horizontally sliced row above whatever it is saying, ascenders
+     cut through, which is the whole product voice arriving broken. On the
+     content, not on the box: padding here would make the pane taller and
+     spend chrome budget §5 has already allotted. */
+  #narration p:last-child { margin-bottom: 4.2rem; }
   #inventory {
-    height: 3.4rem; padding: 2px 8px; display: flex; gap: 6px;
+    height: 3.4rem; padding: 0 8px; display: flex; gap: 6px;
     align-items: center;
   }
   #inventory canvas.inv-tile {
@@ -80,7 +93,7 @@
     border: 1px solid rgba(200, 180, 137, 0.35);
     background: rgba(200, 180, 137, 0.04);
   }
-  #status { height: 2.2rem; font-size: 0.75rem; opacity: 0.6; padding: 4px 8px; box-sizing: border-box; }
+  #status { height: 1.2rem; font-size: 0.75rem; opacity: 0.6; padding: 0 8px; box-sizing: border-box; overflow: hidden; }
   /* Capture mode: §12.6 flip pairs are element screenshots of the scene
      canvas, and overlapping DOM appears in element screenshots — so all
      chrome hides under this class; capture tooling sets it. */
@@ -379,11 +392,13 @@
     function resolve(p) {
       var exact = currentLayout
         ? window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y) : null;
-      /* Inside its own rectangle a takeable outranks the thing it rests on:
+      /* Within its own drawn rectangle — plus TAKEABLE_MARGIN_CSS, a hand's
+         slop and no more — a takeable outranks the thing it rests on:
          children draw over their host, so a see-through pixel of the key is
          desk pixels underneath, and dispatching `toggle desk1` there shuts
-         the drawer over the reveal the player just earned. Outside that
-         rectangle it outranks nothing. */
+         the drawer over the reveal the player just earned. Past that margin
+         it outranks nothing, which is what keeps a small object from
+         answering for the furniture it stands on. */
       var near = takeableAt(p.x, p.y, TAKEABLE_MARGIN_CSS * cssToCanvas());
       if (near && (exact === null || exact === undefined || !isTakeable(exact))) {
         return { kind: "entity", id: near };

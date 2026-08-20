@@ -145,3 +145,40 @@ test("a drawer left open is still open, with its contents, after a round trip", 
   expect(res.key, "and the key is still in it").toEqual([["in", "key1", "desk1"]]);
   expect(res.after, "and the picture is the picture you left").toBe(res.before);
 });
+
+test("nothing can be taken whose host the player has never been shown", async ({ page }) => {
+  /* An anchored child reaches the draw list only through its host, so an
+   * unknown host means the child was never drawn — but the harness's
+   * reachability walk carried no knowledge filter, so `take note1` returned a
+   * success envelope, removed the `on` relation and added an inventory tile
+   * for a notebook that had never been on screen. That is "the picture never
+   * lies about the document" failing in the direction nothing was watching:
+   * the world moved for a thing the picture never showed. */
+  await page.goto(appUrl());
+  const res = await page.evaluate(async () => {
+    const A = window.HOLO_APP;
+    const fx = window.HOLO_FIXTURE;
+    const fixture = window.__T.clone({
+      world: fx.world, staging: fx.staging, narration: fx.narration, viewstate: fx.viewstate
+    });
+    // The desk is unknown; the notebook resting on it is still "known".
+    fixture.world.knowledge.player =
+      fixture.world.knowledge.player.filter((id) => id !== "desk1");
+    const h = window.HOLO.harness.create(fixture);
+    const vs = { location: "study", facing: "N" };
+    const drawn = window.HOLO.renderer.layout(h.world, h.staging, A.library,
+      window.HOLO.renderer.GRID_META, vs).map((e) => e.id);
+    const env = h.dispatch({ type: "take", entity: "note1" });
+    return {
+      drawn,
+      events: env.events,
+      narration: env.narration,
+      held: h.world.relations.some((r) => r[0] === "held_by" && r[1] === "note1")
+    };
+  });
+  expect(res.drawn, "the notebook is not on screen").not.toContain("note1");
+  expect(res.drawn).not.toContain("desk1");
+  expect(res.events, "and taking it moves nothing").toEqual([]);
+  expect(res.held).toBe(false);
+  expect(typeof res.narration, "the refusal still speaks").toBe("string");
+});

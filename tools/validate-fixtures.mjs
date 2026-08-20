@@ -782,6 +782,16 @@ export function validate(fixtureDir, records) {
         findings.push(`staging.json: placement "${id}" attachment "${pl.attachment}" is not one of ${JSON.stringify(ATTACHMENTS)}`);
         continue;
       }
+      /* §6's `attachment` and §4's must be the same word. Row 3's ingester
+       * writes the record token from a CLI flag and row 4 authors the
+       * staging: different hands, no check between them, and the renderer
+       * silently obeys the staging one — so a desk whose record says
+       * floor_against can be staged floor_free and drawn at a depth its own
+       * record contradicts. Only `anchored` was bound, which is three of the
+       * four tokens unenforced in both directions. */
+      if (typeof rec.attachment === "string" && rec.attachment !== pl.attachment) {
+        findings.push(`staging.json: placement "${id}" is ${pl.attachment} but record "${ent.sprite}" declares attachment "${rec.attachment}"`);
+      }
       if ("v" in pl && pl.attachment !== "wall_mounted") {
         findings.push(`staging.json: placement "${id}" carries "v" but is ${pl.attachment} — v is metres above the wall floor line and only wall_mounted reads it`);
       }

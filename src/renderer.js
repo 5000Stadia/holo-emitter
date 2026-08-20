@@ -368,8 +368,13 @@
    * backdrop paints its own opening (blueprint §11 requires the painted one
    * to coincide with the leaf's placement rectangle, which is what the page
    * uses as the way-through target). */
-  var BEYOND_WALL = "#080b10";
-  var BEYOND_FLOOR = "#141922";
+  /* Read at the size the opening actually draws — 86 scene px, 22 CSS px on a
+   * phone. At near-black against near-black the beyond-room device was there
+   * and invisible, and the doorway read as a framed dark picture hung on the
+   * wall. Darker than this room's wall (it is further off and unlit) but far
+   * enough apart from each other to carry depth at a thumbnail's size. */
+  var BEYOND_WALL = "#0a0e14";
+  var BEYOND_FLOOR = "#222a36";
 
   function drawApertures(ctx, list, meta) {
     var floorY = meta.floor_line_y * meta.image_h_px;
@@ -386,7 +391,7 @@
       ctx.fillStyle = BEYOND_FLOOR;
       ctx.fillRect(a.x, beyondFloorY, a.w, a.y + a.h - beyondFloorY);
       // Its floor picked out by the same transverse device the grid uses.
-      ctx.globalAlpha = ALPHA_MINOR;
+      ctx.globalAlpha = ALPHA_MAJOR;
       ctx.strokeStyle = meta.key_tint;
       ctx.lineWidth = 1;
       for (var k = 1; k <= 3; k++) {
@@ -702,6 +707,38 @@
     ctx.restore();
   }
 
+  /* Integer canvas rect covering everything a layout entry draws — the body
+   * or swap-state image plus every part at both ends of its travel — clamped
+   * to the canvas. Used to bound the tint pass's per-pixel work. */
+  function drawnRect(e, W, H) {
+    var x0, y0, x1, y1;
+    if (e.swap) {
+      x0 = e.drawX + e.f * e.swap.origin.x;
+      y0 = e.drawY + e.f * e.swap.origin.y;
+      x1 = x0 + e.swap.image.width * e.f;
+      y1 = y0 + e.swap.image.height * e.f;
+    } else {
+      x0 = e.drawX; y0 = e.drawY;
+      x1 = x0 + e.images.body.width * e.f;
+      y1 = y0 + e.images.body.height * e.f;
+    }
+    for (var p = 0; p < e.parts.length; p++) {
+      for (var t = 0; t <= 1; t++) {
+        var pp = partPlacement(e, e.parts[p], t);
+        x0 = Math.min(x0, pp.x); y0 = Math.min(y0, pp.y);
+        x1 = Math.max(x1, pp.x + pp.image.width * pp.k);
+        y1 = Math.max(y1, pp.y + pp.image.height * pp.k);
+      }
+    }
+    var ix = Math.max(0, Math.floor(x0) - 2);
+    var iy = Math.max(0, Math.floor(y0) - 2);
+    return {
+      x: ix, y: iy,
+      w: Math.min(W, Math.ceil(x1) + 2) - ix,
+      h: Math.min(H, Math.ceil(y1) + 2) - iy
+    };
+  }
+
   /* Effective part transform for a given t: draw position offsets by slide
    * fractions of the BODY's pixel dims; size lerps to scale_open. Shared by
    * render (options-resolved t) and hitTest (state-derived t). */
@@ -824,21 +861,44 @@
       stamp(cctx, e, options);
 
       // (c) Tint pass on the WHOLE composite (§7 step 6): multiply key_tint
-      // at TINT_ALPHA over the drawn pixels, restore the composite's own
-      // alpha with destination-in — an untinted drawer face on a tinted
-      // desk is exactly the divergence one composite prevents.
+      // at TINT_ALPHA over the drawn pixels — an untinted drawer face on a
+      // tinted desk is exactly the divergence one composite prevents.
+      //
+      // The alpha channel is then copied back BYTE FOR BYTE from the
+      // untinted composite. The obvious way to re-clip — `destination-in`
+      // with the composite as source — multiplies the two alphas, so a
+      // half-transparent pixel comes out at a quarter: it squares every
+      // partial alpha in the sprite. Placeholder art is hard-edged and shows
+      // nothing, but §9.1's matting feathers 1 px, so every matted edge
+      // arriving at rows 3–4 would lose half its alpha and harden into
+      // exactly the cut-out silhouette the flip test exists to catch. It
+      // also made §12.8's tint clause pass with the tint switched off,
+      // because the squaring alone changed the pixels.
+      //
+      // Bounded to the entity's own drawn rect: this is a per-pixel pass and
+      // the frame is 1.5 M pixels.
       var out = comp;
       if (options.tint !== false) {
         var tinted = makeCanvas(doc, W, H);
-        var tctx = tinted.getContext("2d");
+        var tctx = tinted.getContext("2d", { willReadFrequently: true });
         tctx.drawImage(comp, 0, 0);
+        var r = drawnRect(e, W, H);
         tctx.globalCompositeOperation = "multiply";
         tctx.globalAlpha = TINT_ALPHA;
         tctx.fillStyle = meta.key_tint;
-        tctx.fillRect(0, 0, W, H);
-        tctx.globalCompositeOperation = "destination-in";
+        // Only over the entity's own rect: `multiply` composites source-over,
+        // so a full-canvas fill leaves TINT_ALPHA of the tint colour lying
+        // across the whole frame once the alpha is no longer re-clipped.
+        tctx.fillRect(r.x, r.y, r.w, r.h);
+        tctx.globalCompositeOperation = "source-over";
         tctx.globalAlpha = 1;
-        tctx.drawImage(comp, 0, 0); // shape alpha from the untinted copy
+        if (r.w > 0 && r.h > 0) {
+          var srcA = comp.getContext("2d", { willReadFrequently: true })
+            .getImageData(r.x, r.y, r.w, r.h);
+          var dstA = tctx.getImageData(r.x, r.y, r.w, r.h);
+          for (var q = 3; q < dstA.data.length; q += 4) dstA.data[q] = srcA.data[q];
+          tctx.putImageData(dstA, r.x, r.y);
+        }
         out = tinted;
       }
 

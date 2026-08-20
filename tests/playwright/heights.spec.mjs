@@ -230,10 +230,14 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     expect(Math.abs(b.x0 - P.drawX)).toBeLessThanOrEqual(2);
   });
 
-  test("the revealed key sits inside the drawer, not on the face of it", async ({ page }) => {
+  test("the revealed key's drawn rect clears the open drawer front", async ({ page }) => {
     // Children draw after their host's parts (§7 step 3), so a drawer front
     // that does not clear the cavity when open puts the key ON the drawer
-    // face. The gate: every key pixel lies above the open front's top edge.
+    // face. The gate is rectangles, and says so in its name: every key pixel
+    // lies above the open front's top edge. Whether the result READS as
+    // enclosure is a picture question the placeholder art cannot settle —
+    // §12.6 names "drawer open with key revealed" as one of two risky
+    // compositing surfaces, and that judgement is Kabe's at row 4.
     await page.goto(appUrl());
     const deskRec = await record(page, "desk-joined-oak-1660");
     const deskPl = await placement(page, "desk1");

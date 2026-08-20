@@ -1611,3 +1611,77 @@ test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
     }
   });
 });
+
+test.describe("the tint changes colour and nothing else", () => {
+  test("a half-transparent edge pixel keeps its alpha exactly", async ({ page }) => {
+    /* Every placeholder sprite is hard-edged, so nothing this row draws can
+     * show this — but §9.1's matting feathers 1 px, and the obvious way to
+     * re-clip the tinted composite (`destination-in` with the untinted copy)
+     * MULTIPLIES the two alphas: a 128 edge pixel came back at 76, and at
+     * zero tint at 64. Every matted edge arriving at rows 3–4 would lose half
+     * its alpha and harden into the cut-out silhouette the flip test exists
+     * to catch. Hash inequality cannot see it; this reads the channel.
+     *
+     * The library is a renderer input, so the test hands it a sprite with a
+     * deliberate alpha ramp rather than waiting for row 4 to have one. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(async () => {
+      const RAMP = [0, 64, 128, 192, 255];
+      // A 5×8 sprite: column i has alpha RAMP[i], all columns mid-grey.
+      const body = document.createElement("canvas");
+      body.width = RAMP.length; body.height = 8;
+      const bx = body.getContext("2d");
+      for (let i = 0; i < RAMP.length; i++) {
+        bx.fillStyle = `rgba(128,128,128,${RAMP[i] / 255})`;
+        bx.fillRect(i, 0, 1, 8);
+      }
+      const record = {
+        schema: "sprite/0.1", id: "ramp", noun: "a ramp", archetype: "static",
+        attachment: "floor_against", dims_m: { h: 1, w: 1, d: 0.5 },
+        px: { w: RAMP.length, h: 8 }, view_side: "left", light: "UL45",
+        anchors: { base: { x: 2, y: 8 }, footprint: { x0: 0, x1: RAMP.length } },
+        takeable: false, airborne: false,
+        provenance: { source: "test", tool: "test" }
+      };
+      const library = { ramp: { record, images: { body, parts: {} } } };
+      const world = {
+        schema: "holo-emitter/0.1",
+        locations: [{ id: "study", facings: ["N"] }],
+        entities: [{ id: "ramp1", sprite: "ramp", location: "study" }],
+        relations: [], knowledge: { player: ["ramp1"] }
+      };
+      const staging = {
+        schema: "holo-emitter-staging/0.1",
+        placements: { ramp1: { facing: "study/N", attachment: "floor_against", u: 0.5 } }
+      };
+      const vs = { location: "study", facing: "N" };
+      const draw = (opts) => {
+        const c = document.createElement("canvas");
+        c.width = 1536; c.height = 1024;
+        window.HOLO.renderer.render(c, world, staging, library, {}, vs,
+          Object.assign({ no_backdrop: true, shadows: false }, opts));
+        return c;
+      };
+      const tinted = draw({});
+      const plain = draw({ tint: false });
+      // Sample the alpha profile down the middle of the drawn sprite.
+      const lay = window.HOLO.renderer.layout(world, staging, library,
+        window.HOLO.renderer.GRID_META, vs)[0];
+      const y = Math.round(lay.drawY + lay.f * 4);
+      const prof = (c) => {
+        const d = c.getContext("2d").getImageData(0, y, 1536, 1).data;
+        const out = [];
+        for (let i = 0; i < RAMP.length; i++) {
+          const x = Math.round(lay.drawX + lay.f * (i + 0.5));
+          out.push(d[x * 4 + 3]);
+        }
+        return out;
+      };
+      return { tinted: prof(tinted), plain: prof(plain) };
+    });
+    expect(res.plain.some((a) => a > 0 && a < 255),
+      "the probe sprite really has partial alpha").toBe(true);
+    expect(res.tinted, "the tint pass leaves the alpha channel alone")
+      .toEqual(res.plain);
+  });
+});
