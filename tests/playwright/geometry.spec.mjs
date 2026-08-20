@@ -1,5 +1,6 @@
 import { test, expect, appUrl, LIT, repoRoot, gridExpectations } from "./helpers.mjs";
 import { createRequire } from "node:module";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const require = createRequire(import.meta.url);
@@ -108,5 +109,35 @@ test("turning is visible even on a bare wall", async ({ page }) => {
    * backdrops, where turning changes the entire wall. */
   for (const n of res) {
     expect(n, `bare-facing turn changes ${n} pixels`).toBeGreaterThan(1200);
+  }
+});
+
+test("the design documents state the shipped grid meta, not a different one", () => {
+  /* Grid-canonical meta has one written home — blueprint §7's row-2
+   * amendment — and the code is the other statement of the same thing. For a
+   * commit they disagreed: three documents printed `wall_width_m 4.2` while
+   * the renderer shipped 16.0, and §5's note escalated a [HUMAN] question
+   * describing consequences ("staging can address only the central 26%",
+   * "the nearest floor is 1.9 m away") that were true of the example block
+   * and not of the grid the demo ships. A question put to a human against
+   * numbers that are not shipping is worse than no question.
+   *
+   * So: every number the shipped GRID_META carries must appear in the
+   * blueprint, and no document may still print the superseded values as
+   * canonical. */
+  const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
+  const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
+  const architecture = readFileSync(join(repoRoot, "design", "architecture.md"), "utf8");
+
+  for (const [key, value] of Object.entries(GRID_META)) {
+    if (typeof value === "number") {
+      expect(blueprint, `blueprint states grid ${key} = ${value}`)
+        .toContain(String(value));
+    }
+  }
+  // The superseded example values must not stand as canonical anywhere.
+  for (const doc of [["blueprint", blueprint], ["architecture", architecture]]) {
+    expect(doc[1], `${doc[0]} no longer calls 4.2 the grid's wall width`)
+      .not.toMatch(/wall_width_m[` ]*(is |= |)4\.2/);
   }
 });

@@ -670,9 +670,13 @@
     }
     window.HOLO_APP = {
       harness: harness, paints: 0, library: library, dispatch: dispatch,
-      /* The page's own pointer routing, exposed so a pointer-driven test
-         asks the shipped code where a click lands instead of re-deriving
-         it. */
+      /* `resolve` is where a click's meaning is decided — entity, doorway or
+         nothing — and it is what a pointer-driven test should ask.
+         `hitAtPoint` is only its entity half and returns null inside an open
+         doorway; `apertureAt` is only the doorway half. Both are exposed
+         because helpers use the difference between them to find a point that
+         means travel, but a test that reaches for `hitAtPoint` expecting the
+         page's routing will assert the wrong thing. */
       hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve
     };
     harness.subscribe(paint);

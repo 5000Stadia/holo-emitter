@@ -92,6 +92,20 @@ at; the bake owns path resolution).
 must emit it for anchor-hosted takeables or the shipped validator goes red on their arrival (the
 validator requires `anchor_on` staging for exactly these).
 
+**A record cannot lie about its own image.** §9.2 defines `px`, `anchors.base` and
+`anchors.footprint` by derivation from the matted pixels — the image's own size, the midpoint of
+the bottom-extreme opaque pixels, and their x-extent — and nothing witnessed any of them: the
+validator bounds-checked anchors against the *declared* `px`, and every shadow-geometry assertion
+took its expected width from `anchors.footprint`, the field the renderer reads. The binding ran
+one way. mechanisms.spec derives all three from the built body image and asserts them against the
+record, for every record. What it caught immediately: the coin declared a footprint across its
+whole width, where a disc touches the ground on a band, so its contact pool drew twice as wide as
+its contact. What it would have caught: an inflated `px.w` makes a band of the shelf answer "take
+the coin" (the page sizes a takeable's tolerance rectangle from `record.px`), and a narrowed
+footprint draws a chair's pool at a third of the width of its painted feet — both with the whole
+suite green. §12.5's independence rule had been applied to scale and not to these. **Row 4's bake
+inherits the clause** when the images arrive as PNGs.
+
 **Every sprite carries the horizontal half of `UL45`.** The painters shade top faces lighter than
 vertical ones — the elevation half, and the half that was there. The direction was not: measured
 per-third mean luminance came out exactly symmetric on four of the eight sprites and *brighter on
@@ -202,10 +216,14 @@ Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for 
   Changing an [AI] adoption, not a [HUMAN] value: §7's grid-canonical list took §5's *example*
   numbers wholesale, and §5's block itself is untouched — it illustrates the schema for meta that
   row 4 measures per backdrop.
-- **Still open, and it is Kabe's**: the horizontal half of the same incoherence — 1536 px at
-  96 px/m is 16 m of wall in frame against `wall_width_m` 4.2 and §10's `focal_mm: 50`, so
-  `u ∈ [0,1]` addresses the central 26% of every facing. Blueprint §5 carries the full statement
-  with its arithmetic and its consequence for row 4's prompt sheets. Rows 3 and 7 consume nothing
+- **Still open, and it is Kabe's**: 16 m of wall in frame at 3.5 m is a ~133° view against §10's
+  `focal_mm: 50` (≈40°). Blueprint **§7's row-2 amendment is the one place grid-canonical meta is
+  stated**, and §5's row-2 note carries the question with its arithmetic, saying per bullet which
+  of §5's example numbers the shipped grid still uses — the two documents disagreed about
+  `wall_width_m` for a while, and a [HUMAN] question stated against numbers that were not
+  shipping is worse than no question. The answer gates a **named quality**, not only row 4's meta
+  authoring: at 96 px/m a 1.3 m desk draws 125 px in a 1536 px frame whatever art row 4 produces,
+  so *standing somewhere, not looking at a diagram* rides on it. Rows 3 and 7 consume nothing
   from it.
 
 ## Renderer
@@ -300,6 +318,9 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
   to move more than 1200. The alpha is the other half of the same problem — at 0.9 the letter was
   the most legible object in every frame, and a room with a label on the wall is a diagram. Pixel
   count is what makes a turn visible; loudness is not.
+- **The jamb stands proud of the leaf**, because a doorway is wider than the door in it. Drawn
+  flush the leaf covered it exactly, and a shut door was a plank on unbroken wall — "a doorway
+  exists whether or not its leaf is shut" true of the code and invisible in the picture.
 - **The opening shows the space beyond**, not a panel painted on the wall: the far room's ground
   plane continues through it — a darker wall, its floor line riding higher (it is one room
   further off), and the grid's own transverse device carrying on across the gap, all derived from

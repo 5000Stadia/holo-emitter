@@ -175,7 +175,8 @@
       },
       "takeable": false,
       "airborne": false,
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "the doorway this leaf stands in draws ~22 CSS px wide on a 390 px phone, and the leaf itself takes about a quarter of that when it is open — so the way between the two rooms is under any platform tap floor. Apparent size follows the open camera question in blueprint §5. The takeables declare the same residue." }
     },
 
     /* surface_top rides the board whose top sits at y = 112:
@@ -281,7 +282,13 @@
       "period": { "earliest": 1640, "latest": 1700, "region": "England" },
       "anchors": {
         "base": { "x": 12, "y": 24 },
-        "footprint": { "x0": 0, "x1": 24 }
+        // Narrower than the sprite: §9.2 defines the footprint as the
+        // x-extent of the BOTTOM-extreme opaque pixels, and a disc touches
+        // the ground on a band, not across its whole width. Declared 0–24
+        // it drew a contact pool twice the width of the actual contact, and
+        // nothing measured it — the shadow assertions all took their
+        // expected width from this same field.
+        "footprint": { "x0": 6, "x1": 18 }
       },
       "takeable": true,
       "airborne": false,

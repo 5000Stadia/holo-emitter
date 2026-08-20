@@ -1622,12 +1622,17 @@ test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
       const world = window.__T.clone(A.harness.world);
       world.entities.find((e) => e.id === "desk1").state = "open";
       world.knowledge.player.push("key1");
-      for (const vs of [{ location: "study", facing: "N" }, { location: "hall", facing: "N" }]) {
+      for (const vs of [{ location: "study", facing: "N" }, { location: "hall", facing: "N" },
+                        { location: "study", facing: "E" }]) {
         const lay = window.HOLO.renderer.layout(world, A.harness.staging, A.library,
           window.HOLO.renderer.GRID_META, vs);
         for (const e of lay) {
           const ent = world.entities.find((x) => x.id === e.id);
-          if (!ent || !ent.takeable) continue;
+          // Every pointer target a player has to hit, not only takeables:
+          // the doorway is the one the two-room premise depends on, and it
+          // was the one target whose residue nothing declared.
+          const isTarget = ent && (ent.takeable || ent.transition);
+          if (!isTarget) continue;
           const w = e.f * e.record.px.w * k;
           const h = e.f * e.record.px.h * k;
           out.push({
@@ -1638,7 +1643,7 @@ test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
       }
       return out;
     });
-    expect(res.length, "takeables were laid out").toBeGreaterThan(2);
+    expect(res.length, "targets were laid out").toBeGreaterThan(2);
     for (const t of res) {
       if (Math.min(t.cssW, t.cssH) < TAP_FLOOR_CSS) {
         expect(t.declared,
@@ -1813,6 +1818,85 @@ test.describe("one light: the sprites carry the key's direction, not just its el
     expect(res.length, "there are parts and state images to check").toBeGreaterThan(1);
     for (const r of res) {
       expect(r.tilt, `${r.what} is lit from the same side as its body`).toBeGreaterThan(2);
+    }
+  });
+});
+
+test.describe("a record cannot lie about its own image", () => {
+  test("px, base and footprint are what the pixels say they are", async ({ page }) => {
+    /* §9.2 defines these three by derivation: `px` is the body image's own
+     * size, `base` the midpoint of the bottom-extreme opaque pixels, and
+     * `footprint` their x-extent. Nothing witnessed any of them. The
+     * validator bounds-checks anchors against the DECLARED `px` — against the
+     * same fiction — and every shadow-geometry assertion takes its expected
+     * width from `anchors.footprint`, the field the renderer reads, so the
+     * binding ran one way only.
+     *
+     * Two demonstrations of what that hid, both with the whole suite green:
+     * inflating `coin-silver.px.w` from 24 to 160 made a band of the bookcase
+     * answer "take the coin", because the page sizes a takeable's tolerance
+     * rectangle from `record.px`; narrowing `chair-joined`'s footprint to
+     * [40,90] drew its contact pool at 36% of the width of its painted feet.
+     *
+     * §12.5's independence rule — never measure the code against its own
+     * computed value — was applied to scale and not to these. Row 4's bake
+     * inherits the same clause when the images arrive as PNGs. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const lib = window.HOLO_APP.library;
+      const out = [];
+      for (const id of Object.keys(lib)) {
+        const rec = lib[id].record;
+        const c = lib[id].images.body;
+        const W = c.width, H = c.height;
+        const d = c.getContext("2d").getImageData(0, 0, W, H).data;
+        // The bottom-extreme opaque row, then its x-extent across the two
+        // rows §9.2 names.
+        let bottom = -1;
+        for (let y = H - 1; y >= 0 && bottom < 0; y--) {
+          for (let x = 0; x < W; x++) {
+            if (d[((y * W + x) * 4) + 3] >= 128) { bottom = y; break; }
+          }
+        }
+        let x0 = W, x1 = -1;
+        for (let y = Math.max(0, bottom - 1); y <= bottom; y++) {
+          for (let x = 0; x < W; x++) {
+            if (d[((y * W + x) * 4) + 3] >= 128) {
+              if (x < x0) x0 = x;
+              if (x > x1) x1 = x;
+            }
+          }
+        }
+        out.push({
+          id,
+          declared: {
+            px: rec.px, base: rec.anchors.base, footprint: rec.anchors.footprint
+          },
+          derived: {
+            px: { w: W, h: H },
+            base: { x: (x0 + x1 + 1) / 2, y: bottom + 1 },
+            footprint: { x0: x0, x1: x1 + 1 }
+          }
+        });
+      }
+      return out;
+    });
+    expect(res.length).toBeGreaterThanOrEqual(8);
+    for (const r of res) {
+      const D = r.declared, X = r.derived;
+      expect(D.px, `${r.id}: px is the body image's own size`).toEqual(X.px);
+      // The trim contract: opaque content touches the bottom row, so the
+      // base sits on the image's own bottom edge.
+      expect(D.base.y, `${r.id}: base.y is the bottom edge`).toBe(X.px.h);
+      expect(Math.abs(D.base.x - X.base.x),
+        `${r.id}: base.x ${D.base.x} vs the bottom-pixel midpoint ${X.base.x}`)
+        .toBeLessThanOrEqual(1.5);
+      expect(Math.abs(D.footprint.x0 - X.footprint.x0),
+        `${r.id}: footprint.x0 ${D.footprint.x0} vs bottom-pixel extent ${X.footprint.x0}`)
+        .toBeLessThanOrEqual(1);
+      expect(Math.abs(D.footprint.x1 - X.footprint.x1),
+        `${r.id}: footprint.x1 ${D.footprint.x1} vs bottom-pixel extent ${X.footprint.x1}`)
+        .toBeLessThanOrEqual(1);
     }
   });
 });

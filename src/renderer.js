@@ -380,6 +380,15 @@
   var BEYOND_WALL = "#0a0e14";
   var BEYOND_FLOOR = "#222a36";
 
+  /* The frame stands proud of the leaf, because a doorway is wider than the
+   * door in it. Drawn flush, the leaf covered the jamb exactly and a shut
+   * door was a plank on unbroken wall: "a doorway exists whether or not its
+   * leaf is shut" was true of the code and invisible in the picture. */
+  function jambOf(a) {
+    var j = Math.max(3, Math.round(a.w * 0.05));
+    return { x: a.x - j, y: a.y - j, w: a.w + 2 * j, h: a.h + j };
+  }
+
   function drawApertures(ctx, list, meta) {
     var floorY = meta.floor_line_y * meta.image_h_px;
     for (var i = 0; i < list.length; i++) {
@@ -411,12 +420,13 @@
       ctx.lineTo(a.x + a.w, snap(beyondFloorY));
       ctx.stroke();
       ctx.restore();
-      // The jamb.
+      // The jamb, standing proud of the leaf.
+      var j = jambOf(a);
       ctx.save();
       ctx.globalAlpha = ALPHA_MAJOR;
       ctx.strokeStyle = meta.key_tint;
       ctx.lineWidth = 2;
-      ctx.strokeRect(snap(a.x), snap(a.y), Math.round(a.w), Math.round(a.h));
+      ctx.strokeRect(snap(j.x), snap(j.y), Math.round(j.w), Math.round(j.h));
       ctx.restore();
     }
   }
@@ -861,7 +871,10 @@
       // (b) Body composite on a full-size offscreen: body (or swap-state
       // image at its origin offset) plus parts at interpolated offsets.
       var comp = makeCanvas(doc, W, H);
-      var cctx = comp.getContext("2d");
+      // Requested with the read hint up front: asking for the same context
+      // again with different options is ignored AND warns, once per entity
+      // per frame, in the console row 7 is about to make load-bearing.
+      var cctx = comp.getContext("2d", { willReadFrequently: true });
       stamp(cctx, e, options);
 
       // (c) Tint pass on the WHOLE composite (§7 step 6): multiply key_tint
@@ -897,8 +910,7 @@
         tctx.globalCompositeOperation = "source-over";
         tctx.globalAlpha = 1;
         if (r.w > 0 && r.h > 0) {
-          var srcA = comp.getContext("2d", { willReadFrequently: true })
-            .getImageData(r.x, r.y, r.w, r.h);
+          var srcA = cctx.getImageData(r.x, r.y, r.w, r.h);
           var dstA = tctx.getImageData(r.x, r.y, r.w, r.h);
           for (var q = 3; q < dstA.data.length; q += 4) dstA.data[q] = srcA.data[q];
           tctx.putImageData(dstA, r.x, r.y);

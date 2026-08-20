@@ -215,33 +215,43 @@ Notes:
   is row 4's meta-authoring work, and §12.5's row-2 green witnesses implementation-against-model,
   never model-against-intent. Reversal cost: groundplane, heights.spec, and the grid transverse
   math rework in a new row.
-- [AI, row 2 — **the fork above, stated in full after a second artifact critique; this is the
-  blocking question for Kabe, and it is about the numbers in this section, not about the code
-  that implements them**] The example values above cannot all be true of one camera, and the
-  arithmetic says so at V1, in the grid the demo ships today:
+- [AI, row 2 — **the fork above, stated in full; this is the blocking question for Kabe, and it
+  is about the numbers in this section, not about the code that implements them.** Read it as
+  being about §5's EXAMPLE block: the grid the demo ships has since been given a self-consistent
+  meta of its own, described in §7's row-2 amendment, and where the two differ that is said
+  below.] The example values above cannot all be true of one camera:
   - **The wall in frame is not `wall_width_m` wide.** 1536 px at `px_per_m_at_wall` 96 is
-    **16.0 m** of wall across the frame; `wall_width_m` says 4.2. Since `u ∈ [0,1]` spans
-    `wall_width_m`, staging can only address the **central 26%** of every facing — everything
-    stands huddled in the middle of a hall-sized wall.
+    **16.0 m** of wall across the frame; this section's example says 4.2. Since `u ∈ [0,1]` spans
+    `wall_width_m`, staging could only address the **central 26%** of every facing.
+    *Not true of the shipped grid*: §7's amendment sets grid-canonical `wall_width_m` to 16.0,
+    the wall the grid actually draws, and §12.5 asserts `px_per_m_at_wall × wall_width_m ≈ canvas
+    width` on any meta — the gate row 4's eight measured metas inherit. What that fixes is a meta
+    contradicting its own frame; what it does not touch is the question below.
   - **It is not a 50 mm lens.** 96 px/m at 3.5 m implies a 336 px focal length on a 1536 px
     frame: a **133° horizontal field of view**, against §10's `focal_mm: 50` (≈40°).
   - **The floor line and the horizon fix `px_per_m_at_wall` at 96.** `floor_line_y` 0.63 minus
     `horizon_y` 0.48 is 0.15 × 1024 = 153.6 px, and that gap *is* the 1.6 m eye height — so
     96 px/m is exactly what the two authored y-values force. The three numbers are mutually
     consistent; it is `wall_width_m` and `focal_mm` that they contradict.
-  - **The consequence for a named quality.** At `camera_wall_m` 3.5 with
-    `px_per_m_at_bottom` 210, the nearest visible floor is 1.9 m in front of the viewer: the
-    frame bottom cuts the floor two paces away, not at your feet, so *the camera has feet*
-    is not delivered by these numbers however correctly they are implemented.
+  - **The consequence for a named quality.** At `camera_wall_m` 3.5 with this section's example
+    `px_per_m_at_bottom` of 210, the nearest visible floor is 1.9 m in front of the viewer: the
+    frame bottom would cut the floor two paces away, not at your feet. *Not true of the shipped
+    grid*: §7's amendment sets 332.8, the value §5's own horizon device implies, and the nearest
+    floor is 1.01 m. What remains is the field of view below, and its consequence for apparent
+    size: at 96 px/m a 1.3 m desk draws 125 px in a 1536 px frame whatever art row 4 produces,
+    so *standing somewhere, not looking at a diagram* rides on the answer to this question and
+    not only on row 4's meta authoring.
   - **The general result**, worth having before row 4's prompt sheets are written: with a level
     camera at 1.6 m in a 3:2 frame, the wall–floor line is only in frame when the wall in view
     is wider than ~4.8 m. A c.1660 study wall of 4.2 m and a visible floor cannot both happen
     with a level camera — one of *tilt the camera down*, *stand further back*, or *accept a very
     wide view* has to give, and which one is a look decision.
 
-  **Nothing was changed here.** These are [HUMAN] values in this section and in §10, and an
-  agent does not overrule a human-tagged decision — so rows 1–3 implement them faithfully and the
-  V1 picture inherits the incoherence. The answer is needed **before row 4 authors real backdrop
+  **Nothing in this section was changed.** These are [HUMAN] values here and in §10, and an agent
+  does not overrule a human-tagged decision. What §7's row-2 amendment changes is §7's own [AI]
+  adoption of them as *grid-canonical* meta — a synthesized backdrop whose meta must at least be
+  consistent with the picture it draws — and it is enumerated there. The field of view stays as
+  it is until Kabe rules. The answer is needed **before row 4 authors real backdrop
   meta**, because the §5 horizon assertion will reject any honestly-measured backdrop that does
   not satisfy it, and the backdrop prompt sheets encode whichever camera is chosen. Rows 7 and 3
   consume nothing from this.
@@ -308,13 +318,22 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
 - **The holodeck grid is a product mode, not placeholder art**: when a facing has no backdrop
   asset, the renderer draws the procedural holodeck grid (in-fiction unestablished space). Row 1
   builds it as that mode; real backdrops later occlude it but never delete it. Grid mode supplies
-  **canonical meta** (floor_line_y 0.63, px_per_m_at_wall 96, wall_width_m 4.2, horizon_y 0.48,
-  key_tint `#c8b489` — deliberately non-identity so the §12.8 tint assertion is satisfiable on
-  grid backdrops — at 1536×1024) so the ground-plane function is defined without backdrop assets,
-  and it draws a small in-fiction **facing glyph** (N/E/S/W on the grid wall) so facings are
-  visually distinct and `turn` is observable.
-  [AI, amended at row 2 — three completions of this bullet, all [AI]-on-[AI]; §5's own example
-  block is untouched:]
+  **canonical meta** — enumerated in the row-2 amendment below, which is its one home — so the
+  ground-plane function is defined without backdrop assets, and it draws a small in-fiction
+  **facing glyph** (N/E/S/W on the grid wall) so facings are visually distinct and `turn` is
+  observable.
+  [AI, amended at row 2 — completions of this bullet, all [AI]-on-[AI]; §5's own example block is
+  untouched:]
+  - **Grid-canonical meta, in full, and stated nowhere else:** `floor_line_y` 0.63,
+    `px_per_m_at_wall` 96, **`px_per_m_at_bottom` 332.8**, **`wall_width_m` 16.0**, `horizon_y`
+    0.48, `key_dir` "UL", `key_tint` `#c8b489` (deliberately non-identity so the §12.8 tint
+    assertion is satisfiable on grid backdrops), `image_h_px` 1024, `calibration_ref` "wall grid
+    module, 1.0 m at the wall plane", `calibration_px` 96, at 1536×1024; `camera_wall_m` 3.5 by
+    the §5 fallback. The two bold values are the corrections to §5's example block, each with its
+    reason below; §5's own block stays as Kabe's illustration of the schema, to be measured per
+    backdrop at row 4, and §5's row-2 note says per bullet which of its numbers the shipped grid
+    still uses. Both documents said different things about `wall_width_m` for a commit, which is
+    how a [HUMAN] question came to be stated against numbers that were not shipping.
   - **`px_per_m_at_bottom` is 332.8 in grid canonical meta, not §5's example 210.** The grid is
     synthesized rather than measured, so its meta has to be self-consistent, and §5 states the
     floor twice: as the scale lerp, and as the horizon device that gives `horizon_y` its meaning.
@@ -323,6 +342,16 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     they disagreed and the lerp won: every floor object was drawn at the right size for a depth
     its feet did not occupy. §12.5 gains a clause checking **feet against the horizon device**,
     since a height check reads scale on both sides and cannot see this.
+  - **`wall_width_m` is 16.0 in grid canonical meta, not §5's example 4.2.** The grid draws
+    1536 px of wall at 96 px/m, so the wall in frame IS 16 m, and 4.2 made the meta contradict
+    its own picture: `u ∈ [0,1]` spans `wall_width_m` (§4), so the document could address only
+    the central 403 px of the frame and nothing could see it, because both sides of every §12.5
+    assertion read the same meta. §12.5 gains the one clause that reaches outside a meta —
+    `px_per_m_at_wall × wall_width_m ≈ canvas width`, plus §5's own calibration audit — which
+    row 4's eight measured metas inherit. The staged `u` values moved with it under §4's own
+    license, each keeping its metre offset from the wall centre, so the composition is unchanged.
+    This settles nothing about the field of view: 16 m of wall at 3.5 m is a ~133° view against
+    §10's 50 mm, and that stays §5's open question for Kabe.
   - **The grid draws the doorway.** Openings for the exits on the facing are derived from
     `locations[].exits` and the leaf's own §4 wall placement — never from coordinates in truth,
     and knowledge-filtered like every other read — and drawn in the backdrop layer, where §11
