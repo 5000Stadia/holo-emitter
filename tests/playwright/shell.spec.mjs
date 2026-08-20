@@ -1,7 +1,7 @@
 import { test, expect, appUrl } from "./helpers.mjs";
 
 test.describe("shell", () => {
-  test("cold file:// load: 1536x1024 scene canvas, non-blank, scaled to window width", async ({ page }) => {
+  test("cold file:// load: 1536x1024 scene canvas, non-blank, contain-fit within the window", async ({ page }) => {
     await page.goto(appUrl());
     const dims = await page.evaluate(() => {
       const c = document.getElementById("scene");
@@ -25,7 +25,8 @@ test.describe("shell", () => {
     // including the frame-bottom floor cut, the camera-has-feet device — is
     // visible without scrolling at common window shapes; aspect preserved.
     // Invisible to every pixel hash, so asserted on the displayed bounding
-    // box. 3rem = 48px is the status-line reserve.
+    // box. 9.6rem = 153.6px is row 2's bottom-chrome reserve (narration log,
+    // inventory strip, status line).
     for (const vp of [
       { width: 1280, height: 900 },
       { width: 1920, height: 1080 }, // 16:9 — width-only scaling failed here
@@ -33,7 +34,7 @@ test.describe("shell", () => {
     ]) {
       await page.setViewportSize(vp);
       const box = await page.locator("#scene").boundingBox();
-      const expected = Math.min(vp.width, (vp.height - 48) * (1536 / 1024));
+      const expected = Math.min(vp.width, (vp.height - 153.6) * (1536 / 1024));
       expect(Math.abs(box.width - expected)).toBeLessThanOrEqual(2);
       expect(Math.abs(box.height - box.width * (1024 / 1536))).toBeLessThanOrEqual(2);
       expect(box.y + box.height, "frame bottom on screen").toBeLessThanOrEqual(vp.height);
@@ -50,9 +51,10 @@ test.describe("shell", () => {
 
   test("capture class hides all chrome overlapping the scene canvas (§12.6 seam)", async ({ page }) => {
     // §12.6 pins native-size captures: downscaling softens exactly the halo
-    // tells the flip test exists to catch. 1536×1100 displays the canvas at
-    // native 1536 CSS px under contain-fit.
-    await page.setViewportSize({ width: 1536, height: 1100 });
+    // tells the flip test exists to catch. 1536×1200 displays the canvas at
+    // native 1536 CSS px under contain-fit (row 2's 9.6rem reserve needs the
+    // taller window).
+    await page.setViewportSize({ width: 1536, height: 1200 });
     await page.goto(appUrl());
     const nativeBox = await page.locator("#scene").boundingBox();
     expect(Math.abs(nativeBox.width - 1536)).toBeLessThanOrEqual(1);

@@ -42,6 +42,32 @@ test.describe("determinism and purity", () => {
     expect(h2).toBe(h1);
   });
 
+  test("§12.2 first clause, extended (row 2): swap and mid-part states hash equal across two fresh loads", async ({ page, context }) => {
+    // Fresh loads also witness placeholder build-order determinism, on the
+    // states clause 2's settled walkthrough path never covers: an open-door
+    // swap render and a part_t = 0.5 mid-state render.
+    const capture = async (p) => await p.evaluate(async () => {
+      const fx = window.HOLO_FIXTURE;
+      const openDoor = window.__T.clone(fx.world);
+      openDoor.entities.find((e) => e.id === "door1").state = "open";
+      return {
+        boot: await window.__T.hashScene(),
+        openDoorE: await window.__T.hashCanvas(window.__T.renderW(
+          openDoor, fx.staging, { location: "study", facing: "E" }, {})),
+        midPart: await window.__T.hashCanvas(window.__T.renderW(
+          fx.world, fx.staging, { location: "study", facing: "N" },
+          { part_t: { desk1: 0.5 } }))
+      };
+    });
+    await page.goto(appUrl());
+    const a = await capture(page);
+    const page2 = await context.newPage();
+    await page2.goto(appUrl());
+    const b = await capture(page2);
+    await page2.close();
+    expect(b).toEqual(a);
+  });
+
   test("§12.8 grid clause: a facing with no backdrop asset renders the grid deterministically and structurally", async ({ page }) => {
     await page.goto(appUrl());
     const exp = gridExpectations();
@@ -62,7 +88,7 @@ test.describe("determinism and purity", () => {
     await page.goto(appUrl());
     const res = await page.evaluate(async () => {
       const fx = window.HOLO_FIXTURE;
-      const args = [fx.world, fx.staging, {}, {}, { location: "hall", facing: "S" }, {}];
+      const args = [fx.world, fx.staging, window.__T.lib(), {}, { location: "hall", facing: "S" }, {}];
       const snapBefore = JSON.stringify(args);
       const mk = () => {
         const c = document.createElement("canvas");

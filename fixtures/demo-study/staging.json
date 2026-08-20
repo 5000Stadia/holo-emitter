@@ -8,7 +8,7 @@
     "note1":  { "anchor_on": "desk1.surface_top", "t": 0.35 },
     "key1":   { "anchor_on": "desk1.drawer_cavity", "t": 0.5 },
     "shelf1": { "facing": "hall/N",  "attachment": "floor_against", "u": 0.30, "mirror": false },
-    "stick1": { "facing": "hall/N",  "attachment": "floor_free", "u": 0.36, "depth_m": 0.9 },
+    "stick1": { "facing": "hall/N",  "attachment": "floor_free", "u": 0.36, "depth_m": 0.4 },
     "coin1":  { "anchor_on": "shelf1.surface_top", "t": 0.6 }
   }
 }

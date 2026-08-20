@@ -37,24 +37,27 @@ test.describe("camera-has-feet geometry (grid canonical meta)", () => {
     const [r1, r2, r3] = exp.transverseRows;
     expect(r2 - r1).toBeLessThan(r3 - r2);
 
+    // Row 2 re-points the pure-grid scans at the licensed-bare facings
+    // (study S/W carry no entities); entity-laden facings are covered by the
+    // entity suites.
     const res = await page.evaluate(async (exp) => {
       const T = window.__T;
-      const n = T.renderDirect({ location: "study", facing: "N" });
-      const e = T.renderDirect({ location: "study", facing: "E" });
+      const s = T.renderDirect({ location: "study", facing: "S" });
+      const w = T.renderDirect({ location: "study", facing: "W" });
       const floorTop = 660; // below the floor line and its stroke
       return {
-        structure: T.gridStructure(n, exp),
+        structure: T.gridStructure(s, exp),
         // The glyph is really on the wall: the wall band differs between
         // facings while the floor band hash-matches (only the glyph moved).
-        wallN: await T.hashRegion(n, 0, 400, 1536, 160),
-        wallE: await T.hashRegion(e, 0, 400, 1536, 160),
-        floorN: await T.hashRegion(n, 0, floorTop, 1536, 1024 - floorTop),
-        floorE: await T.hashRegion(e, 0, floorTop, 1536, 1024 - floorTop)
+        wallS: await T.hashRegion(s, 0, 400, 1536, 160),
+        wallW: await T.hashRegion(w, 0, 400, 1536, 160),
+        floorS: await T.hashRegion(s, 0, floorTop, 1536, 1024 - floorTop),
+        floorW: await T.hashRegion(w, 0, floorTop, 1536, 1024 - floorTop)
       };
     }, exp);
 
     expect(res.structure.failures).toEqual([]);
-    expect(res.wallN, "wall region differs between facings (glyph)").not.toBe(res.wallE);
-    expect(res.floorN, "floor region identical across facings").toBe(res.floorE);
+    expect(res.wallS, "wall region differs between facings (glyph)").not.toBe(res.wallW);
+    expect(res.floorS, "floor region identical across facings").toBe(res.floorW);
   });
 });

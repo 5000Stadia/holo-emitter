@@ -18,6 +18,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+import { validate } from "./validate-fixtures.mjs";
+
+const require = createRequire(import.meta.url);
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -47,6 +51,25 @@ for (const name of FILES) {
     console.error(
       `bake refused: viewstate ${JSON.stringify(vs)} names no location/facing in world.json`
     );
+    process.exit(1);
+  }
+}
+
+// Refuse to bake an invalid fixture (row 2, plan §6's enforcement locus):
+// the validator gates the bake, so a hand-edited fixture cannot ship
+// between suite runs.
+{
+  let records;
+  try {
+    records = require("../src/placeholders.js").records;
+  } catch (e) {
+    console.error(`bake refused: cannot load records from src/placeholders.js (${e.message})`);
+    process.exit(1);
+  }
+  const findings = validate(fixtureDir, records);
+  if (findings.length > 0) {
+    findings.forEach((f, i) => console.error(`${i + 1}. ${f}`));
+    console.error(`bake refused: ${findings.length} validator finding(s)`);
     process.exit(1);
   }
 }

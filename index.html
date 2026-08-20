@@ -10,11 +10,12 @@
   /* The stage contain-fits the fixed 1536x1024 logical canvas within the
      window (§5 viewport, amended at row 1): width-only scaling pushed the
      frame-bottom floor cut — the camera-has-feet device — below the fold on
-     16:9 screens. 3rem is reserved for the status line. The canvases keep
-     their internal size. */
+     16:9 screens. 9.6rem is reserved for the bottom chrome (narration log,
+     inventory strip, status line — row 2). The canvases keep their internal
+     size. */
   #stage {
     position: relative;
-    width: min(100%, calc((100vh - 3rem) * (1536 / 1024)));
+    width: min(100%, calc((100vh - 9.6rem) * (1536 / 1024)));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
@@ -22,7 +23,16 @@
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: block;
   }
-  #overlay { pointer-events: none; } /* hover overlay: chrome, row 2 draws on it */
+  #overlay { pointer-events: none; } /* hover overlay: chrome, never hashed */
+  /* The go fade: DOM chrome over the canvas, never canvas drawing (§8).
+     pointer-events: none — input stays live through the fade (accepted V1
+     consequence, recorded in the design documents). */
+  #veil {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; opacity: 0; transition: opacity 0.18s ease;
+    pointer-events: none;
+  }
+  #veil.on { opacity: 1; }
   .chevron {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 4%; min-width: 40px; height: 20%;
@@ -32,7 +42,24 @@
   }
   #chevron-left { left: 0; border-left: none; }
   #chevron-right { right: 0; border-right: none; }
-  #status { font-size: 0.75rem; opacity: 0.6; padding: 4px 8px; }
+  /* Bottom chrome: narration log + inventory strip + status = 9.6rem.
+     Bare surfaces — no labels, no empty-state text (the product's voice
+     rule: method speech goes nowhere). */
+  #narration {
+    height: 3.2rem; overflow-y: auto; padding: 2px 8px;
+    font-size: 0.95rem; line-height: 1.3;
+  }
+  #narration p { margin: 0 0 2px 0; }
+  #inventory {
+    height: 3.4rem; padding: 2px 8px; display: flex; gap: 6px;
+    align-items: center;
+  }
+  #inventory canvas.inv-tile {
+    width: 48px; height: 48px;
+    border: 1px solid rgba(200, 180, 137, 0.35);
+    background: rgba(200, 180, 137, 0.04);
+  }
+  #status { height: 2.2rem; font-size: 0.75rem; opacity: 0.6; padding: 4px 8px; box-sizing: border-box; }
   /* Capture mode: §12.6 flip pairs are element screenshots of the scene
      canvas, and overlapping DOM appears in element screenshots — so all
      chrome hides under this class; capture tooling sets it. */
@@ -43,38 +70,205 @@
   <div id="stage">
     <canvas id="scene" width="1536" height="1024"></canvas>
     <canvas id="overlay" width="1536" height="1024"></canvas>
+    <div id="veil" class="chrome"></div>
     <button id="chevron-left" class="chevron chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
   </div>
+  <div id="narration" class="chrome"></div>
+  <div id="inventory" class="chrome"></div>
   <div id="status" class="chrome"></div>
   <script src="fixtures/demo-study/fixture.js"></script>
   <script src="src/groundplane.js"></script>
+  <script src="src/placeholders.js"></script>
   <script src="src/renderer.js"></script>
   <script src="src/harness.js"></script>
+  <script src="src/inventory.js"></script>
   <script>
   /* Bootstrap: wiring only. The harness owns viewstate; every view change
      flows intent -> envelope -> redraw, and the boot paint is the harness
-     invoking its own subscriber once. */
+     invoking its own subscriber once. The harness keeps ONE subscriber (the
+     scene painter, invoked only on non-empty events) and HOLO_APP.paints
+     counts exactly those invocations; narration and inventory are not
+     subscribers — every input handler passes the returned envelope to one
+     synchronous updateChrome. */
   (function () {
     "use strict";
     var fixture = window.HOLO_FIXTURE;
     var harness = window.HOLO.harness.create(fixture);
     var scene = document.getElementById("scene");
-    harness.subscribe(function (viewstate) {
-      window.HOLO.renderer.render(
-        scene, harness.world, harness.staging, {}, {}, viewstate, {});
+    var overlay = document.getElementById("overlay");
+    var overlayCtx = overlay.getContext("2d");
+    var narrationEl = document.getElementById("narration");
+    var inventoryEl = document.getElementById("inventory");
+    var veil = document.getElementById("veil");
+    var library = window.HOLO.placeholders.build(document);
+    var meta = window.HOLO.renderer.GRID_META;
+    var paints = 0;
+    var currentLayout = null;
+    var veilTimer = null;
+
+    /* Render-path faults surface in the product's voice (the intention's
+       standing rule: every reachable surface string, errors included, is
+       product speech; developer detail goes to the console). */
+    function fault(err) {
+      appendNarration("The projection wavers; the pattern will not resolve.");
+      console.error("render fault:", err);
+    }
+
+    function paint(viewstate) {
+      paints += 1;
+      window.HOLO_APP.paints = paints;
+      try {
+        window.HOLO.renderer.render(
+          scene, harness.world, harness.staging, library, {}, viewstate, {});
+        currentLayout = window.HOLO.renderer.layout(
+          harness.world, harness.staging, library, meta, viewstate);
+      } catch (err) {
+        currentLayout = null;
+        fault(err);
+        return;
+      }
+      /* The overlay clears on every scene paint: a stale outline is the
+         overlay lying about the scene. */
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      scene.style.cursor = "";
+    }
+
+    function appendNarration(line) {
+      var p = document.createElement("p");
+      p.textContent = line;
+      narrationEl.appendChild(p);
+      narrationEl.scrollTop = narrationEl.scrollHeight;
+    }
+
+    function updateChrome(envelope) {
+      if (envelope && typeof envelope.narration === "string") {
+        appendNarration(envelope.narration);
+      }
+      window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
+      if (envelope && envelope.intent && envelope.intent.type === "go" &&
+          envelope.events.length > 0) {
+        veil.classList.add("on");
+        if (veilTimer) clearTimeout(veilTimer);
+        veilTimer = setTimeout(function () { veil.classList.remove("on"); }, 380);
+      }
+    }
+
+    function dispatch(intent) {
+      var envelope = harness.dispatch(intent);
+      updateChrome(envelope);
+      return envelope;
+    }
+
+    /* Canvas coords from a mouse event: CSS box -> 1536x1024 logical. */
+    function canvasPoint(e) {
+      var rect = scene.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (scene.width / rect.width),
+        y: (e.clientY - rect.top) * (scene.height / rect.height)
+      };
+    }
+
+    function hitAt(e) {
+      if (!currentLayout) return null;
+      var p = canvasPoint(e);
+      return window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y);
+    }
+
+    function exitFor(entityId) {
+      var loc = null;
+      var vs = harness.viewstate;
+      for (var i = 0; i < harness.world.locations.length; i++) {
+        if (harness.world.locations[i].id === vs.location) loc = harness.world.locations[i];
+      }
+      if (!loc || !loc.exits) return null;
+      for (var j = 0; j < loc.exits.length; j++) {
+        if (loc.exits[j].via === entityId && loc.exits[j].facing === vs.facing) {
+          return loc.exits[j];
+        }
+      }
+      return null;
+    }
+
+    function entityById(id) {
+      for (var i = 0; i < harness.world.entities.length; i++) {
+        if (harness.world.entities[i].id === id) return harness.world.entities[i];
+      }
+      return null;
+    }
+
+    /* Click -> intent: open exit door -> go; takeable -> take; else toggle
+       (a closed door click is a toggle; a chair click is the UI-emittable
+       refusal). A click that hits nothing dispatches nothing — dead space
+       is dead. */
+    scene.addEventListener("click", function (e) {
+      var id = hitAt(e);
+      if (id === null || id === undefined) return;
+      var entity = entityById(id);
+      if (!entity) return;
+      var exit = exitFor(id);
+      if (exit && entity.state === "open") {
+        dispatch({ type: "go", exit: exit.id });
+      } else if (entity.takeable) {
+        dispatch({ type: "take", entity: id });
+      } else {
+        dispatch({ type: "toggle", entity: id });
+      }
     });
+
+    /* Hover: subtle outline on the overlay canvas (chrome — the scene hash
+       stays cursor-independent); cleared when nothing is under the cursor. */
+    scene.addEventListener("mousemove", function (e) {
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      var id = hitAt(e);
+      if (id === null || id === undefined || !currentLayout) {
+        scene.style.cursor = "";
+        return;
+      }
+      scene.style.cursor = "pointer";
+      for (var i = 0; i < currentLayout.length; i++) {
+        var entry = currentLayout[i];
+        if (entry.id !== id) continue;
+        var b;
+        if (entry.swap) {
+          b = { x: entry.drawX + entry.f * entry.swap.origin.x,
+                y: entry.drawY + entry.f * entry.swap.origin.y,
+                w: entry.f * entry.swap.image.width,
+                h: entry.f * entry.swap.image.height };
+        } else {
+          b = { x: entry.drawX, y: entry.drawY,
+                w: entry.f * entry.record.px.w,
+                h: entry.f * entry.record.px.h };
+        }
+        overlayCtx.save();
+        if (entry.clip) {
+          overlayCtx.beginPath();
+          overlayCtx.rect(entry.clip.x, entry.clip.y, entry.clip.w, entry.clip.h);
+          overlayCtx.clip();
+        }
+        overlayCtx.strokeStyle = "rgba(200, 180, 137, 0.85)";
+        overlayCtx.lineWidth = 2;
+        overlayCtx.strokeRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
+        overlayCtx.restore();
+      }
+    });
+    scene.addEventListener("mouseleave", function () {
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      scene.style.cursor = "";
+    });
+
     document.getElementById("chevron-left").addEventListener("click", function () {
-      harness.dispatch({ type: "turn", dir: "left" });
+      dispatch({ type: "turn", dir: "left" });
     });
     document.getElementById("chevron-right").addEventListener("click", function () {
-      harness.dispatch({ type: "turn", dir: "right" });
+      dispatch({ type: "turn", dir: "right" });
     });
     window.addEventListener("keydown", function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey) return; // browser gestures stay the browser's
-      if (e.key === "ArrowLeft") harness.dispatch({ type: "turn", dir: "left" });
-      else if (e.key === "ArrowRight") harness.dispatch({ type: "turn", dir: "right" });
+      if (e.key === "ArrowLeft") dispatch({ type: "turn", dir: "left" });
+      else if (e.key === "ArrowRight") dispatch({ type: "turn", dir: "right" });
     });
+
     var boot = harness.viewstate;
     var bootLoc = fixture.world.locations.filter(function (l) {
       return l.id === boot.location;
@@ -90,8 +284,10 @@
         "fixture bake fp " + fixture.fp +
         " — truth lives in fixtures/demo-study/*.json; after editing, run: node tools/bake-fixtures.mjs";
     }
-    window.HOLO_APP = { harness: harness };
+    window.HOLO_APP = { harness: harness, paints: 0, library: library, dispatch: dispatch };
+    harness.subscribe(paint);
     harness.redraw();
+    updateChrome(null);
   })();
   </script>
 </body>

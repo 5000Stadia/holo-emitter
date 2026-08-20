@@ -4,16 +4,21 @@
  *
  * Pure: inputs only, no module state, no Date/Math.random/global reads; draws
  * onto the passed canvas and returns it. Equal inputs paint equal pixels.
+ * (One licensed exception: hitTest's 1x1 sample scratch — hit reads are not
+ * rendering and carry no determinism duty; see sampleAlpha.)
  *
- * Row 1 draws §7 step 1 only — the backdrop layer. `backdrops` maps
+ * Row 1 drew §7 step 1 only — the backdrop layer. `backdrops` maps
  * "location/facing" -> { image, meta }; a facing with no backdrop entry takes
  * the procedural holodeck grid, the §7 product mode for unestablished space
  * (in-fiction and literal; real backdrops later occlude it, never delete it).
- * Steps 2–6 (entities, parts, tint, contact shadows) arrive at row 2.
+ * Row 2 adds steps 2–6: entities, parts at state-interpolated offsets,
+ * swap-state bodies, per-entity tint, contact shadows, cavity clipping —
+ * placement math flowing exclusively through groundplane.js (never
+ * re-derived), plus the pure `layout` and the `hitTest` walk.
  *
  * Meta flows as data: the render resolves meta = backdrops[key]?.meta ??
- * GRID_META and the grid draws from that resolved object, never from inline
- * literals — one home feeds grid now and entity math at row 2.
+ * GRID_META and both the grid and entity math draw from that resolved
+ * object, never from inline literals.
  */
 (function () {
   "use strict";
@@ -33,21 +38,40 @@
     key_dir: "UL"
   };
 
-  /* Grid-drawing constants. GRID_K renders the meta, it does not extend it:
-   * any k satisfies the meta's two lerp endpoints; 336 px·m is chosen only
-   * because it yields a legible transverse line count (three). Colours and
-   * alphas are pinned: lines stroke in key_tint at 0.25 (minor) / 0.55
-   * (major); glyph strokes at 0.9. */
-  var GRID_K = 336;
+  /* Grid-drawing constants. The former GRID_K = 336 px·m is now derived in
+   * drawGrid — meta.px_per_m_at_wall × camera_wall_m (the plan-§2 amendment:
+   * GRID_K was always px_per_m_at_wall × 3.5 implicitly; deriving it keeps
+   * grid transverse lines and entity depth math agreeing from one home,
+   * groundplane.js). Identical value (96 × 3.5 = 336) on grid canonical
+   * meta — same pixels as row 1. Colours and alphas are pinned: lines stroke
+   * in key_tint at 0.25 (minor) / 0.55 (major); glyph strokes at 0.9. */
   var WALL_BASE = "#10141b";
   var FLOOR_BASE = "#0b0e13";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.9;
 
+  /* Entity-pass constants (§7 steps 5–6). One tint constant for M0; the
+   * shadow peaks at 0.35 and fades to nothing (plan §3). */
+  var TINT_ALPHA = 0.18;
+  var SHADOW_PEAK = 0.35;
+  var SHADOW_RY = 0.18; // ry = 0.18 × rx
+
+  /* The pinned §5 viewport width. layout takes no canvas (it is placement,
+   * not paint), so the u-mapping's canvasW is this constant — the same
+   * 1536×1024 logical canvas everything else pins. */
+  var CANVAS_W = 1536;
+
+  /* Resolve the ground-plane module (browser classic script or Node). All
+   * placement math flows through it — never re-derived here (§12.8). */
+  function groundplane() {
+    return (typeof window !== "undefined" && window.HOLO && window.HOLO.groundplane)
+      ? window.HOLO.groundplane : require("./groundplane.js");
+  }
+
   /* Snap a coordinate to the half-integer centre of the pixel row/column
    * containing it, so 1px strokes fill exact pixel rows — crisp and
-   * rasteriser-independent. */
+   * rasteriser-independent. Grid strokes only; entity math never snaps. */
   function snap(v) { return Math.floor(v) + 0.5; }
 
   /* Facing glyph letterforms: stroked polylines in a unit box (x right,
@@ -75,13 +99,17 @@
   }
 
   function drawGrid(ctx, meta, facing, W, H) {
-    var gp = (typeof window !== "undefined" && window.HOLO)
-      ? window.HOLO.groundplane : require("./groundplane.js");
+    var gp = groundplane();
     var floorY = meta.floor_line_y * meta.image_h_px;
     var eyeY = meta.horizon_y * meta.image_h_px;
     var sWall = meta.px_per_m_at_wall;
     var sBottom = meta.px_per_m_at_bottom;
     var cx = W / 2; // centre-by-default; a measured wall origin arrives with real meta
+    /* Derived grid constant (was the literal 336): px_per_m_at_wall × the
+     * camera-to-wall distance, the same number scaleAtDepth divides by —
+     * grid canonical meta yields exactly 336, so row 1's pixels stand. */
+    var gridK = meta.px_per_m_at_wall *
+      (meta.camera_wall_m != null ? meta.camera_wall_m : gp.CAMERA_WALL_M);
 
     // Bases.
     ctx.fillStyle = WALL_BASE;
@@ -121,12 +149,12 @@
       ctx.stroke();
     }
     // Floor transverse lines at 0.5m depth steps, depth -> scale = K/d ->
-    // screen-y through the same ground-plane function entities will use.
-    var dWall = GRID_K / sWall;
-    var dBottom = GRID_K / sBottom;
+    // screen-y through the same ground-plane function entities use.
+    var dWall = gridK / sWall;
+    var dBottom = gridK / sBottom;
     for (var d = Math.ceil(dBottom / 0.5) * 0.5; d < dWall; d += 0.5) {
       if (d <= dBottom) continue;
-      var ty = snap(gp.yAtScale(GRID_K / d, meta));
+      var ty = snap(gp.yAtScale(gridK / d, meta));
       ctx.beginPath();
       ctx.moveTo(0, ty);
       ctx.lineTo(W, ty);
@@ -160,13 +188,301 @@
     ctx.globalAlpha = 1;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Layout (§7 steps 2–3 + §2 placement math) — pure, no options: what   */
+  /* stands where can never branch on a debug switch.                     */
+  /* ------------------------------------------------------------------ */
+
+  /* LAYOUT ENTRY SHAPE — the one structure render, hitTest, and the
+   * index.html bootstrap (hover/click) all consume. layout() returns a flat
+   * ARRAY of these, in draw order (back-to-front: hosts sorted by baselineY
+   * ascending, ties by id; each host's anchor_on children follow it
+   * immediately — after the host's parts, which draw inside the host's own
+   * composite — sorted by child id):
+   *
+   * {
+   *   id:        entity id (string)
+   *   kind:      "host" | "child"
+   *   hostId:    hosting entity id for children, null for hosts
+   *   record:    the §6 sprite record (reference, never copied)
+   *   images:    library[record-sprite].images (body/parts/states/thumb)
+   *   f:         sprite-px -> scene-px factor (heightPx / record.px.h)
+   *   drawX/Y:   scene coords of the BODY image's top-left (the body frame;
+   *              swap-state images and parts offset from it via record data)
+   *   baseX:     scene x where anchors.base lands (closed shadow centre)
+   *   baselineY: scene y of the base contact line (hosts: ground-plane
+   *              baseline, the sort key; children: the host-surface point)
+   *   state:     the entity's current state, or null when stateless
+   *   swap:      null, or — for swap archetypes in a non-closed state —
+   *              { state, image, origin: {x,y}, extent: {x0,x1} }
+   *              (origin/extent in body pixel space, per the plan-§1 swap
+   *              contract; the closed state IS the body image and never
+   *              appears here)
+   *   parts:     [ { id, image, origin, slide, t } ] — one per record part,
+   *              t already state-derived (part.states[state], else 0);
+   *              render may override t via options, hitTest never does
+   *   clip:      null, or { x, y, w, h } scene-coords rect — the host's
+   *              transformed drawer_cavity, applied to the child's shadow,
+   *              body and tint blits alike, and honoured by hitTest
+   * }
+   */
+  function layout(world, staging, library, meta, viewstate) {
+    var gp = groundplane();
+    var facingKey = viewstate.location + "/" + viewstate.facing;
+
+    var known = {};
+    var players = (world.knowledge && world.knowledge.player) || [];
+    for (var i = 0; i < players.length; i++) known[players[i]] = true;
+
+    var held = {};   // entity id -> true when held by the player
+    var inHost = {}; // child id -> host id for ["in", child, host]
+    var rels = world.relations || [];
+    for (i = 0; i < rels.length; i++) {
+      var rel = rels[i];
+      if (rel[0] === "held_by" && rel[2] === "player") held[rel[1]] = true;
+      if (rel[0] === "in") inHost[rel[1]] = rel[2];
+    }
+
+    var entities = {};
+    for (i = 0; i < world.entities.length; i++) entities[world.entities[i].id] = world.entities[i];
+
+    function libFor(entity) {
+      var lib = library[entity.sprite];
+      if (!lib) {
+        throw new Error("no library record for sprite \"" + entity.sprite +
+          "\" (entity " + entity.id + ")");
+      }
+      return lib;
+    }
+
+    function stateParts(record, state) {
+      var out = [];
+      var parts = record.parts || [];
+      for (var p = 0; p < parts.length; p++) {
+        var part = parts[p];
+        var t = (state != null && part.states && part.states[state] != null)
+          ? part.states[state] : 0;
+        out.push({ id: part.id, origin: part.origin, slide: part.slide, t: t });
+      }
+      return out;
+    }
+
+    /* Collect direct (host) placements on this facing and anchor_on
+     * placements (children ride their host's facing). */
+    var hosts = [];
+    var childPlacements = []; // { entity, hostId, regionName, t }
+    var placements = staging.placements || {};
+    for (i = 0; i < world.entities.length; i++) {
+      var entity = world.entities[i];
+      if (!known[entity.id]) continue;      // knowledge filter — unknown is absent
+      if (held[entity.id]) continue;        // held by the player — off the scene
+      var placement = placements[entity.id];
+      if (!placement) continue;
+      if (placement.anchor_on) {
+        var dot = placement.anchor_on.indexOf(".");
+        childPlacements.push({
+          entity: entity,
+          hostId: placement.anchor_on.slice(0, dot),
+          regionName: placement.anchor_on.slice(dot + 1),
+          t: placement.t
+        });
+        continue;
+      }
+      var facingPlacement = null;
+      if (Object.prototype.toString.call(placement) === "[object Array]") {
+        for (var a = 0; a < placement.length; a++) {
+          if (placement[a].facing === facingKey) { facingPlacement = placement[a]; break; }
+        }
+      } else if (placement.facing === facingKey) {
+        facingPlacement = placement;
+      }
+      if (!facingPlacement) continue;
+
+      var lib = libFor(entity);
+      var record = lib.record;
+
+      var baselineY;
+      if (facingPlacement.attachment === "floor_against") {
+        baselineY = gp.yAtDepth(record.dims_m.d, meta);
+      } else if (facingPlacement.attachment === "floor_free") {
+        baselineY = gp.yAtDepth(facingPlacement.depth_m, meta);
+      } else { // wall_mounted: v metres above the wall floor line, wall scale
+        baselineY = meta.floor_line_y * meta.image_h_px -
+          (facingPlacement.v || 0) * meta.px_per_m_at_wall;
+      }
+      var s = gp.scaleAtY(baselineY, meta);
+      var heightPx = record.dims_m.h * s;
+      var f = heightPx / record.px.h;
+      var baseX = gp.xAtU(facingPlacement.u, baselineY, meta, CANVAS_W);
+      var state = (entity.state != null) ? entity.state : null;
+
+      var swap = null;
+      if (state != null && state !== "closed" &&
+          record.states_images && record.states_images[state]) {
+        // Whole-image swap (§7): the closed state IS the body image — the
+        // record carries only non-closed states; never index states["closed"].
+        swap = {
+          state: state,
+          image: lib.images.states[state].image,
+          origin: record.states_images[state].origin,
+          extent: lib.images.states[state].extent
+        };
+      }
+
+      hosts.push({
+        id: entity.id,
+        kind: "host",
+        hostId: null,
+        record: record,
+        images: lib.images,
+        f: f,
+        drawX: baseX - f * record.anchors.base.x,
+        drawY: baselineY - f * record.anchors.base.y,
+        baseX: baseX,
+        baselineY: baselineY,
+        state: state,
+        swap: swap,
+        parts: stateParts(record, state),
+        clip: null
+      });
+    }
+
+    // Farther first; ties break by entity id (determinism).
+    hosts.sort(function (a, b) {
+      if (a.baselineY !== b.baselineY) return a.baselineY - b.baselineY;
+      return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
+    });
+
+    // Children draw immediately after their host (after the host's parts,
+    // which live inside the host's composite), sorted by id.
+    childPlacements.sort(function (a, b) {
+      return a.entity.id < b.entity.id ? -1 : (a.entity.id > b.entity.id ? 1 : 0);
+    });
+
+    var out = [];
+    for (i = 0; i < hosts.length; i++) {
+      var host = hosts[i];
+      out.push(host);
+      for (var c = 0; c < childPlacements.length; c++) {
+        var cp = childPlacements[c];
+        if (cp.hostId !== host.id) continue;
+        var hostEntity = entities[host.id];
+
+        // "in"-contained children draw only when the host stands open (the
+        // knowledge half of the reveal is already filtered above); they are
+        // clipped to the host's transformed drawer_cavity. "on"-related
+        // children always draw when known and not held.
+        var contained = inHost[cp.entity.id] != null;
+        if (contained && hostEntity.state !== "open") continue;
+
+        var childLib = libFor(cp.entity);
+        var childRecord = childLib.record;
+        var region = host.record.anchors[cp.regionName];
+        var t = cp.t;
+        // Diagonal lerp along the host anchor region, in host body px.
+        var ax = region.x0 + t * (region.x1 - region.x0);
+        var ay = region.y0 + t * (region.y1 - region.y0);
+        var bx = host.drawX + host.f * ax;
+        var by = host.drawY + host.f * ay;
+        // Child scale derives from the HOST's baseline ground scale.
+        var childHeightPx = childRecord.dims_m.h * gp.scaleAtY(host.baselineY, meta);
+        var childF = childHeightPx / childRecord.px.h;
+
+        var clip = null;
+        if (contained) {
+          var cav = host.record.anchors.drawer_cavity;
+          clip = {
+            x: host.drawX + host.f * cav.x0,
+            y: host.drawY + host.f * cav.y0,
+            w: host.f * (cav.x1 - cav.x0),
+            h: host.f * (cav.y1 - cav.y0)
+          };
+        }
+
+        var childState = (cp.entity.state != null) ? cp.entity.state : null;
+        out.push({
+          id: cp.entity.id,
+          kind: "child",
+          hostId: host.id,
+          record: childRecord,
+          images: childLib.images,
+          f: childF,
+          drawX: bx - childF * childRecord.anchors.base.x,
+          drawY: by - childF * childRecord.anchors.base.y,
+          baseX: bx,
+          baselineY: by,
+          state: childState,
+          swap: null, // no swap archetype anchors on a host in M0; closed-body rule holds
+          parts: stateParts(childRecord, childState),
+          clip: clip
+        });
+      }
+    }
+    return out;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Render (§7 steps 1–6)                                               */
+  /* ------------------------------------------------------------------ */
+
+  function makeCanvas(doc, w, h) {
+    var c = doc.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    return c;
+  }
+
+  function applyClip(ctx, clip) {
+    ctx.beginPath();
+    ctx.rect(clip.x, clip.y, clip.w, clip.h);
+    ctx.clip();
+  }
+
+  /* Contact shadow (§7 step 6 / plan §3): radial-gradient ellipse, peak
+   * SHADOW_PEAK at centre fading to 0, ry = SHADOW_RY × rx. Drawn directly
+   * on the scene — the shadow is never tinted. */
+  function drawShadow(ctx, cx, cy, rx) {
+    if (!(rx > 0)) return;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(1, SHADOW_RY);
+    var g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    g.addColorStop(0, "rgba(0,0,0," + SHADOW_PEAK + ")");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, rx, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* Effective part transform for a given t: draw position offsets by slide
+   * fractions of the BODY's pixel dims; size lerps to scale_open. Shared by
+   * render (options-resolved t) and hitTest (state-derived t). */
+  function partPlacement(entry, part, t) {
+    var image = entry.images.parts[part.id];
+    return {
+      image: image,
+      x: entry.drawX + entry.f * (part.origin.x + t * part.slide.dx * entry.record.px.w),
+      y: entry.drawY + entry.f * (part.origin.y + t * part.slide.dy * entry.record.px.h),
+      k: entry.f * (1 + t * (part.slide.scale_open - 1))
+    };
+  }
+
   /**
    * Pure draw: (world, staging, library, backdropMeta, viewstate) -> canvas,
    * §7's tuple completed with a target canvas (a pure function still needs
-   * somewhere to draw) and the §7-licensed options argument (debug/test
-   * switches — unused at row 1).
+   * somewhere to draw) and the §7-licensed options argument — every switch a
+   * renderer input, so equal inputs still hash equal:
+   *   backdrop_only: true — stop after step 1
+   *   no_backdrop:   true — skip step 1 (entities composite onto transparency)
+   *   shadows: false — skip contact shadows
+   *   tint:    false — skip the tint pass
+   *   parts:   false — force every part to t = 0
+   *   part_t:  { entityId: t } — per-entity part mid-states
    */
   function render(target, world, staging, library, backdrops, viewstate, options) {
+    options = options || {};
     var W = target.width;
     var H = target.height;
     var key = viewstate.location + "/" + viewstate.facing;
@@ -174,15 +490,174 @@
     var meta = (entry && entry.meta) ? entry.meta : GRID_META;
     var ctx = target.getContext("2d");
     ctx.clearRect(0, 0, W, H);
-    if (entry && entry.image) {
-      ctx.drawImage(entry.image, 0, 0, W, H);
-    } else {
-      drawGrid(ctx, meta, viewstate.facing, W, H);
+
+    // Step 1: backdrop or grid (row 1, unchanged).
+    if (!options.no_backdrop) {
+      if (entry && entry.image) {
+        ctx.drawImage(entry.image, 0, 0, W, H);
+      } else {
+        drawGrid(ctx, meta, viewstate.facing, W, H);
+      }
+    }
+    if (options.backdrop_only) return target;
+
+    // Steps 2–3: the draw list (placement never branches on options).
+    var list = layout(world, staging, library, meta, viewstate);
+    if (list.length === 0) return target;
+
+    var doc = target.ownerDocument ||
+      (typeof document !== "undefined" ? document : null);
+
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i];
+
+      // (a) Contact shadow — on the scene, before (so under) the composite,
+      // never tinted; clipped when the entry is (a cavity content's shadow
+      // must not escape the cavity either).
+      if (options.shadows !== false && !e.record.airborne) {
+        var cx, rx;
+        if (e.swap) {
+          // Non-closed swap state: shadow under the DRAWN extent, not the
+          // closed footprint (a full-width shadow under an edge-on sliver
+          // is the lie this rule exists to prevent).
+          cx = e.drawX + e.f * (e.swap.extent.x0 + e.swap.extent.x1) / 2;
+          rx = e.f * (e.swap.extent.x1 - e.swap.extent.x0) / 2;
+        } else {
+          cx = e.baseX;
+          rx = e.f * (e.record.anchors.footprint.x1 - e.record.anchors.footprint.x0) / 2;
+        }
+        ctx.save();
+        if (e.clip) applyClip(ctx, e.clip);
+        drawShadow(ctx, cx, e.baselineY, rx);
+        ctx.restore();
+      }
+
+      // (b) Body composite on a full-size offscreen: body (or swap-state
+      // image at its origin offset) plus parts at interpolated offsets.
+      var comp = makeCanvas(doc, W, H);
+      var cctx = comp.getContext("2d");
+      if (e.swap) {
+        cctx.drawImage(e.swap.image,
+          e.drawX + e.f * e.swap.origin.x,
+          e.drawY + e.f * e.swap.origin.y,
+          e.swap.image.width * e.f,
+          e.swap.image.height * e.f);
+      } else {
+        cctx.drawImage(e.images.body,
+          e.drawX, e.drawY,
+          e.images.body.width * e.f,
+          e.images.body.height * e.f);
+      }
+      for (var p = 0; p < e.parts.length; p++) {
+        var part = e.parts[p];
+        var t = (options.parts === false) ? 0
+          : (options.part_t && options.part_t[e.id] != null)
+            ? options.part_t[e.id] : part.t;
+        var pp = partPlacement(e, part, t);
+        cctx.drawImage(pp.image, pp.x, pp.y,
+          pp.image.width * pp.k, pp.image.height * pp.k);
+      }
+
+      // (c) Tint pass on the WHOLE composite (§7 step 6): multiply key_tint
+      // at TINT_ALPHA over the drawn pixels, restore the composite's own
+      // alpha with destination-in — an untinted drawer face on a tinted
+      // desk is exactly the divergence one composite prevents.
+      var out = comp;
+      if (options.tint !== false) {
+        var tinted = makeCanvas(doc, W, H);
+        var tctx = tinted.getContext("2d");
+        tctx.drawImage(comp, 0, 0);
+        tctx.globalCompositeOperation = "multiply";
+        tctx.globalAlpha = TINT_ALPHA;
+        tctx.fillStyle = meta.key_tint;
+        tctx.fillRect(0, 0, W, H);
+        tctx.globalCompositeOperation = "destination-in";
+        tctx.globalAlpha = 1;
+        tctx.drawImage(comp, 0, 0); // shape alpha from the untinted copy
+        out = tinted;
+      }
+
+      // Single blit to the scene, clip honoured.
+      ctx.save();
+      if (e.clip) applyClip(ctx, e.clip);
+      ctx.drawImage(out, 0, 0);
+      ctx.restore();
     }
     return target;
   }
 
-  var api = { render: render, GRID_META: GRID_META };
+  /* ------------------------------------------------------------------ */
+  /* Hit testing                                                         */
+  /* ------------------------------------------------------------------ */
+
+  /* Shared 1x1 sample scratch — hitTest only, never render: hit reads carry
+   * no determinism duty (task-licensed cache; keeps sampling allocation-
+   * light without reading back whole sprite canvases). */
+  var hitScratch = null;
+
+  function sampleAlpha(image, sx, sy) {
+    sx = Math.floor(sx);
+    sy = Math.floor(sy);
+    if (sx < 0 || sy < 0 || sx >= image.width || sy >= image.height) return 0;
+    if (!hitScratch) {
+      var doc = image.ownerDocument ||
+        (typeof document !== "undefined" ? document : null);
+      hitScratch = doc.createElement("canvas");
+      hitScratch.width = 1;
+      hitScratch.height = 1;
+    }
+    var sctx = hitScratch.getContext("2d", { willReadFrequently: true });
+    sctx.clearRect(0, 0, 1, 1);
+    sctx.drawImage(image, sx, sy, 1, 1, 0, 0, 1, 1);
+    return sctx.getImageData(0, 0, 1, 1).data[3];
+  }
+
+  /**
+   * hitTest(layoutResult, library, px, py) -> entity id | null.
+   *
+   * Walks the draw list back-to-front (topmost first) and returns the first
+   * entity whose DRAWN pixels have alpha >= 16 at (px, py) — body or swap-
+   * state image plus parts at their state-derived offsets; clip rects
+   * applied (a clipped-away pixel never hits); contact shadows are NEVER
+   * hit regions (the floor in front of the desk is floor, not desk).
+   * Bounding boxes alone never decide — every candidate is settled by a
+   * pixel read at the inverse transform. `library` is accepted for
+   * signature stability; entries carry their image refs already.
+   */
+  function hitTest(layoutResult, library, px, py) {
+    for (var i = layoutResult.length - 1; i >= 0; i--) {
+      var e = layoutResult[i];
+      if (e.clip && (px < e.clip.x || px >= e.clip.x + e.clip.w ||
+                     py < e.clip.y || py >= e.clip.y + e.clip.h)) continue;
+
+      // Parts draw over the body — sample them first, at state-derived t
+      // (hitTest takes no options; the settled scene is what is clickable).
+      var hit = false;
+      for (var p = e.parts.length - 1; p >= 0 && !hit; p--) {
+        var pp = partPlacement(e, e.parts[p], e.parts[p].t);
+        if (sampleAlpha(pp.image, (px - pp.x) / pp.k, (py - pp.y) / pp.k) >= 16) hit = true;
+      }
+      if (!hit) {
+        if (e.swap) {
+          var sx0 = e.drawX + e.f * e.swap.origin.x;
+          var sy0 = e.drawY + e.f * e.swap.origin.y;
+          if (sampleAlpha(e.swap.image, (px - sx0) / e.f, (py - sy0) / e.f) >= 16) hit = true;
+        } else if (sampleAlpha(e.images.body,
+            (px - e.drawX) / e.f, (py - e.drawY) / e.f) >= 16) {
+          hit = true;
+        }
+      }
+      if (hit) return e.id;
+    }
+    return null;
+  }
+
+  var api = {
+    render: render,
+    layout: layout,
+    hitTest: hitTest,
+    GRID_META: GRID_META
+  };
 
   if (typeof window !== "undefined") {
     window.HOLO = window.HOLO || {};
