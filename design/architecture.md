@@ -424,11 +424,16 @@ account.
    stored — conflating the two would either forbid storing near draw scale or hollow out the gate.
    The remaining lever, if row 4 wants a closer camera, is `imageSmoothingQuality` on the bake's
    draw path.
-7. **The edge survives the renderer.** Row 2 found that the `destination-in` re-clip squared partial
-   alpha and would have hardened every matted edge into a cut-out. The emitted sprite — the first
-   genuinely feathered edge in this project — was bound into the running page and drawn through
-   `src/renderer.js` unmodified: no rim, no hardened silhouette. That check is not automated; it was
-   done by hand and looked at, and row 4's bake is where it becomes a test.
+7. **The edge survives the renderer, and the drawer opens.** Row 2 found that the `destination-in`
+   re-clip squared partial alpha and would have hardened every matted edge into a cut-out. The
+   emitted sprite — the first genuinely feathered edge in this project — was bound into the running
+   page and drawn through `src/renderer.js` unmodified, closed and open: no rim, no hardened
+   silhouette, and the drawer reads as sliding out of its recess. That check is not automated; it
+   was done by hand and looked at, and row 4's bake is where it becomes a test. **Residual, measured
+   through that same path:** the sprite still carries about 2.3× the placeholder's high-frequency
+   energy in the same region (4.87 against 2.15) — down from 6.6× before the storage policy
+   changed. The remaining lever is `imageSmoothingQuality` on the bake's draw path, and it is
+   row 4's.
 8. **The id is double-homed** until the bake: `src/placeholders.js` carries a procedural
    `desk-joined-oak-1660` whose footprint is the bottom-two-rows extent and whose proportions differ
    from the ingested desk's pixels. The **procedural one is authoritative** for rows 3–4; the bake is
