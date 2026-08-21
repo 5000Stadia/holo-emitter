@@ -126,6 +126,30 @@ tapestry. Either row 4 prompts a door opening into them, or the manor's extra ex
 for a later row and the two doors are drawn but not built. Kabe's call, and live before
 the prompt sheets.
 
+**And the viewed wall is not always one plane.** A chimney breast stands proud of it, so
+`camera_wall_m` — which law (a) measures to the wall LINE, and which the drawing prints —
+is not the depth of everything you see straight ahead. On the eleven facings below, part
+of the view is nearer than that number says. `study/N` is the one that matters first: it
+is §11's fireplace wall and row 4's probe backdrop.
+
+| facing | relief | across the view | at | wall line at | on the sight line |
+|---|---|---|---|---|---|
+| GREAT HALL/N | fireplace | 2.50–5.50 m (u 0.274) | 6.38 m | 6.98 m | no |
+| STUDY/N | fireplace | 1.65–3.85 m (u 0.505) | 3.10 m | 3.60 m | **yes** |
+| KITCHEN/S | fireplace | 2.50–5.50 m (u 0.500) | 5.69 m | 6.49 m | **yes** |
+| SERVANTS' HALL/E | fireplace | 2.90–4.90 m (u 0.553) | 5.40 m | 6.00 m | **yes** |
+| DINING PARLOUR/N | fireplace | 0.90–2.90 m (u 0.216) | 5.10 m | 5.70 m | no |
+| LIBRARY/S | fireplace | 1.40–3.40 m (u 0.273) | 4.24 m | 4.84 m | no |
+| SOLAR (GREAT CHAMBER)/N | fireplace | 2.50–5.50 m (u 0.274) | 6.38 m | 6.98 m | no |
+| MUNIMENT ROOM/N | fireplace | 1.65–3.85 m (u 0.505) | 3.10 m | 3.60 m | **yes** |
+| LONG GALLERY/E | fireplace | 2.90–4.90 m (u 0.160) | 5.40 m | 6.00 m | no |
+| MASTER BEDCHAMBER/N | fireplace | 0.90–2.90 m (u 0.216) | 5.10 m | 5.70 m | no |
+| GUEST CHAMBER/S | fireplace | 1.40–3.40 m (u 0.273) | 4.24 m | 4.84 m | no |
+
+The number is not moved: the drawing is what it is and law (a) names the wall line. What
+row 4 needs is this table beside it, so a backdrop is authored to a wall with a hearth in
+front of it rather than to a flat plane at 3.60 m.
+
 ## 4. Meta geometry, per facing
 
 `camera_wall_m` / `camera_far_m` and `wall_width_m` are read off the approved drawing (law

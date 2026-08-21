@@ -36,8 +36,9 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import {
-  RIGHT, NORMAL, FACINGS, BUILT_KINDS, ALL_WALL_KINDS,
-  validatePlan, planWarnings, builtOnWallLine, viewSpan
+  RIGHT, NORMAL, FACINGS, BUILT_KINDS, ALL_WALL_KINDS, drawn,
+  validatePlan, planWarnings, builtOnWallLine, viewSpan,
+  facingGeometry, ruleStandpoint, measuredDistance
 } from "./validate-plan.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -155,6 +156,70 @@ export function wallSegments(plan, roomId, facing) {
 }
 
 /**
+ * Where the wall a facing views is not flat.
+ *
+ * Law (a) measures `camera_wall_m` to *the wall line the facing views*, which
+ * is what the drawing prints and what the plan stores. But a chimney breast
+ * projects into the room, so the wall in view is a plane with something
+ * standing proud of it: on `study/N` the plane is 3.60 m away and 2.20 m of
+ * the 5.45 m in view — the hearth — is at 3.10 m. §11 puts the fireplace on
+ * exactly that facing, and it is the one row 4 generates first, so a backdrop
+ * authored to a single 3.60 m plane has its centre half a metre too far back.
+ *
+ * This does not move `camera_wall_m`: law (a) names the wall line and the
+ * drawing is what it is. It reports the relief, in the same view-relative
+ * terms as `wall_segments`, so a prompt sheet has the number instead of
+ * discovering it in a picture. `on_axis` says whether the relief sits on the
+ * standpoint's own straight-ahead ray.
+ */
+export function wallRelief(plan, roomId, facing) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const [axis, sign] = NORMAL[facing];
+  const span = viewSpan(room.rect, facing);
+  const [rx, ry] = RIGHT[facing];
+  const alongRight = span.axis === "x" ? rx : ry;
+  const toView = (v) => alongRight > 0 ? v - span.lo : span.hi - v;
+  const width = span.hi - span.lo;
+  const eye = fc.standpoint[span.axis];
+  const stand = fc.standpoint[axis];
+  const out = [];
+  for (const fp of plan.fireplaces || []) {
+    if (fp.floor !== room.floor || fp.room !== room.id) continue;
+    /* Relief on the VIEWED wall: the breast's far edge is the wall line, its
+     * near face stands proud into the room. A hearth on another of the room's
+     * walls is an object in the view, not relief on the plane, and belongs to
+     * `facingCarriers` for that wall's own facing. */
+    const far = sign > 0 ? fp.rect[axis + "1"] : fp.rect[axis + "0"];
+    if (Math.abs(far - fc.wall_line) > EPS) continue;
+    const face = sign > 0 ? fp.rect[axis + "0"] : fp.rect[axis + "1"];
+    const toFace = (face - stand) * sign, toWall = (fc.wall_line - stand) * sign;
+    if (!(toFace > EPS && toFace < toWall - EPS)) continue;
+    const a = toView(fp.rect[span.axis + "0"]), b = toView(fp.rect[span.axis + "1"]);
+    const [lo, hi] = a <= b ? [a, b] : [b, a];
+    out.push({
+      kind: "fireplace",
+      from_m: round6(lo), to_m: round6(hi), u: round6((lo + hi) / 2 / width),
+      depth_m: round6(toFace), proud_by_m: round6(toWall - toFace),
+      on_axis: fp.rect[span.axis + "0"] <= eye + EPS && eye <= fp.rect[span.axis + "1"] + EPS
+    });
+  }
+  return out.sort((a, b) => a.from_m - b.from_m);
+}
+
+/** Every facing whose wall in view is not one flat plane. */
+export function wallReliefReport(plan) {
+  const out = [];
+  for (const room of plan.rooms) {
+    for (const f of FACINGS) {
+      const r = wallRelief(plan, room.id, f);
+      if (r.length) out.push({ room: room.name, id: room.id, facing: f, relief: r });
+    }
+  }
+  return out;
+}
+
+/**
  * Does this facing need the wider camera?
  *
  * Kabe's ruling (3), blueprint §4b: "wide-view camera license granted
@@ -230,6 +295,7 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
   const canvasW = opts.canvasW || CANVAS_W;
   const policy = opts.wideViewPolicy || DEFAULT_WIDE_VIEW_POLICY;
   const wide = needsWideView(plan, roomId, facing, camera, canvasW, policy);
+  const drawnDistance = fc.camera_wall_m ?? fc.camera_far_m;
   const pxAtWall = wide ? canvasW / fc.wall_width_m : camera.px_per_m_at_wall;
   const imageH = camera.image_h_px;
   const horizonY = camera.horizon_y;
@@ -266,7 +332,7 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
      * court's flanks. Emitted so the consequence is a number a reader can see
      * rather than an implication buried in the arithmetic — it is §5's open
      * field-of-view question, and Kabe's. */
-    focal_px: pxAtWall * fc.camera_wall_m,
+    focal_px: pxAtWall * drawnDistance,
     /* Where the floor first appears in front of the viewer. The intention's
      * fifth decomposed quality is "the camera has feet" — Riven's rails cut by
      * the frame bottom at your own feet — and this is the number that either
@@ -274,15 +340,22 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     nearest_floor_m: null
   };
   if (fc.type === "open") {
-    meta.camera_far_m = fc.camera_wall_m;
+    meta.camera_far_m = fc.camera_far_m;
     meta.far_line = fc.far_line;
   } else {
     meta.camera_wall_m = fc.camera_wall_m;
   }
   meta.nearest_floor_m = nearestFloorM(meta);
   if (walls.continuous) {
-    meta.corner_x0_px = canvasW / 2 - (fc.wall_width_m / 2) * pxAtWall;
-    meta.corner_x1_px = canvasW / 2 + (fc.wall_width_m / 2) * pxAtWall;
+    /* The corners are the ends of the u-domain at the wall plane, so they are
+     * `xAtScale(0)` and `xAtScale(1)` — the renderer's own u-mapping, called,
+     * not copied. A private `canvasW/2 ± wall_width_m/2 × pxAtWall` gives the
+     * same two numbers today and would keep giving them after someone taught
+     * xAtScale about `wall_x0_px` (§5's named extension point for an uncentred
+     * wall), leaving row 11's corner verticals in one place and the staging
+     * u-domain in another. Row 2 paid for this exact shape twice. */
+    meta.corner_x0_px = groundplane.xAtScale(0, pxAtWall, meta, canvasW);
+    meta.corner_x1_px = groundplane.xAtScale(1, pxAtWall, meta, canvasW);
   }
   return meta;
 }
@@ -364,7 +437,7 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
    * subtends from the facing's standpoint, zero dead-centre, signed
    * left/right. The §6 record carries it as `view_angle_deg`, and §10 says it
    * is "computable once row 12's plan exists". */
-  const standToObject = fc.camera_wall_m - depth_m;
+  const standToObject = (fc.camera_wall_m ?? fc.camera_far_m) - depth_m;
   const view_angle_deg = standToObject > EPS
     ? Math.atan2(offset_m, standToObject) * 180 / Math.PI
     : null;
@@ -548,6 +621,21 @@ export const STAGING_TOLERANCE = 1e-9;
 export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance = STAGING_TOLERANCE) {
   const rows = [];
   const unplanned = [];
+  const unexpectedMissing = [];
+  const planRooms = new Set((plan.rooms || []).map((r) => r.id));
+  /* An entity ANY of whose placements stands in a room the plan has not drawn
+   * belongs to a part of the world the plan has not reached — a door between a
+   * planned room and an unplanned one is the shape of it. Those warn. An
+   * entity every placement of which is in a room the plan DOES hold, with no
+   * position for it, is a gap in the document, and that refuses: a warning
+   * there let an emptied `objects[]` bake green. */
+  const straddlesUnplanned = new Set();
+  for (const [id, placement] of Object.entries(staging.placements || {})) {
+    const list = Array.isArray(placement) ? placement : [placement];
+    for (const pl of list) {
+      if (pl.facing && !planRooms.has(pl.facing.split("/")[0])) straddlesUnplanned.add(id);
+    }
+  }
   for (const [id, placement] of Object.entries(staging.placements || {})) {
     const list = Array.isArray(placement) ? placement : [placement];
     for (const pl of list) {
@@ -565,7 +653,10 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
       const hasPosition = (plan.objects || []).some((o) => o.id === id) ||
         (plan.openings || []).some((o) => o.entity === id);
       if (!hasPosition) {
-        unplanned.push({ id, facing: pl.facing, why: "the plan holds no position for it" });
+        const where = straddlesUnplanned.has(id) ? unplanned : unexpectedMissing;
+        where.push({ id, facing: pl.facing, why: straddlesUnplanned.has(id)
+          ? `it also stands in a room the plan has not drawn`
+          : `the plan holds "${roomId}" but no position for "${id}"` });
         continue;
       }
       const p = projectPlacement(plan, id, roomId, facing, meta);
@@ -582,7 +673,8 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
   }
   const diverging = rows.filter((r) => !r.agrees);
   const allowed = new Set(KNOWN_DIVERGENCES.map((k) => `${k.id}@${k.facing}`));
-  const unexpected = diverging.filter((r) => !allowed.has(`${r.id}@${r.facing}`));
+  const unexpected = diverging.filter((r) => !allowed.has(`${r.id}@${r.facing}`))
+    .concat(unexpectedMissing);
   const missing = KNOWN_DIVERGENCES.filter(
     (k) => !diverging.some((r) => r.id === k.id && r.facing === k.facing));
   return { rows, diverging, unexpected, missing, unplanned };
@@ -629,6 +721,41 @@ export const WALL_MAP_11 = [
   ["hall", "S", { kinds: [], text: "tapestry on paneling" }],
   ["hall", "W", { kinds: ["door"], text: "the door opening to the study" }]
 ];
+
+/**
+ * Recompute every facing block from the room rects and the stand-back rule.
+ *
+ * The per-facing values — standpoint, wall line, camera distance, wall width —
+ * are a pure function of `rect` and `standpoint_stand_back` wherever
+ * `standpoint_source` is `rule`, which on this plan is everywhere. Storing
+ * them is right (law (a): the document holds the number the drawing prints),
+ * but it means moving one wall by hand means restating four facings by hand,
+ * and the README prints a four-command redline recipe that was not one.
+ *
+ * This is that recipe's missing step. A `drawn` standpoint is left where it
+ * is and only its measured distance is refreshed, so §4b item 9's
+ * deliberately-placed standpoints survive a rebuild.
+ */
+export function rebuildFacings(plan) {
+  const out = JSON.parse(JSON.stringify(plan));
+  const K = out.standpoint_stand_back;
+  for (const r of out.rooms) {
+    for (const f of FACINGS) {
+      const fc = r.facings[f];
+      const open = fc.type === "open";
+      if (!open) delete fc.far_line;
+      const geo = facingGeometry(r.rect, f, open ? fc.far_line : undefined);
+      if ((fc.standpoint_source || "rule") === "rule") fc.standpoint = ruleStandpoint(r.rect, f, K);
+      fc.wall_line = geo.wallLine;
+      fc.wall_width_m = drawn(geo.width);
+      delete fc.camera_wall_m;
+      delete fc.camera_far_m;
+      fc[open ? "camera_far_m" : "camera_wall_m"] =
+        drawn(measuredDistance(fc.standpoint, f, geo.wallLine));
+    }
+  }
+  return out;
+}
 
 /* ---- the report --------------------------------------------------------- */
 
@@ -773,7 +900,7 @@ export function report(plan, staging, records) {
     const [roomId, facing] = r.facing.split("/");
     const p = projectPlacement(plan, r.id, roomId, facing);
     const fc = roomOf(plan, roomId).facings[facing];
-    P(`| \`${r.id}\` | ${r.facing} | ${fixed(p.offset_m, 3)} m | ${fixed(fc.camera_wall_m - p.depth_m, 2)} m | ${fixed(p.view_angle_deg, 2)} |`);
+    P(`| \`${r.id}\` | ${r.facing} | ${fixed(p.offset_m, 3)} m | ${fixed((fc.camera_wall_m ?? fc.camera_far_m) - p.depth_m, 2)} m | ${fixed(p.view_angle_deg, 2)} |`);
   }
   P();
 
@@ -803,6 +930,27 @@ export function report(plan, staging, records) {
   P("for a later row and the two doors are drawn but not built. Kabe's call, and live before");
   P("the prompt sheets.");
   P();
+  {
+    const relief = wallReliefReport(plan);
+    P("**And the viewed wall is not always one plane.** A chimney breast stands proud of it, so");
+    P("`camera_wall_m` — which law (a) measures to the wall LINE, and which the drawing prints —");
+    P("is not the depth of everything you see straight ahead. On the eleven facings below, part");
+    P("of the view is nearer than that number says. `study/N` is the one that matters first: it");
+    P("is §11's fireplace wall and row 4's probe backdrop.");
+    P("");
+    P("| facing | relief | across the view | at | wall line at | on the sight line |");
+    P("|---|---|---|---|---|---|");
+    for (const r of relief) {
+      for (const v of r.relief) {
+        P(`| ${r.room}/${r.facing} | ${v.kind} | ${fixed(v.from_m, 2)}–${fixed(v.to_m, 2)} m (u ${fixed(v.u, 3)}) | ${fixed(v.depth_m, 2)} m | ${fixed(v.depth_m + v.proud_by_m, 2)} m | ${v.on_axis ? "**yes**" : "no"} |`);
+      }
+    }
+    P("");
+    P("The number is not moved: the drawing is what it is and law (a) names the wall line. What");
+    P("row 4 needs is this table beside it, so a backdrop is authored to a wall with a hearth in");
+    P("front of it rather than to a flat plane at 3.60 m.");
+    P("");
+  }
   P("## 4. Meta geometry, per facing");
   P();
   P("`camera_wall_m` / `camera_far_m` and `wall_width_m` are read off the approved drawing (law");
@@ -1072,7 +1220,12 @@ if (import.meta.url === invokedPath) {
     console.error(`plan-projection: no plan.json in ${fixtureDir}`);
     process.exit(1);
   }
-  const plan = JSON.parse(readFileSync(planPath, "utf8"));
+  let plan = JSON.parse(readFileSync(planPath, "utf8"));
+  if (args.includes("--rebuild-facings")) {
+    writeFileSync(planPath, JSON.stringify(rebuildFacings(plan), null, 2) + "\n");
+    plan = JSON.parse(readFileSync(planPath, "utf8"));
+    console.log(`rebuilt every facing block in ${planPath} from the room rects`);
+  }
   const world = JSON.parse(readFileSync(join(fixtureDir, "world.json"), "utf8"));
   let records;
   try {

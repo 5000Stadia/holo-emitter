@@ -16,7 +16,12 @@ two.
 To take a redline in: edit `fixtures/demo-study/plan.json`, run
 `python3 design/plan-draft/draw_plan.py`, then `./design/plan-draft/render.sh`.
 
-Run:  python3 design/plan-draft/draw_plan.py [--plan PATH]
+Run:  python3 design/plan-draft/draw_plan.py [--plan PATH] [--skip-validate]
+
+--skip-validate draws without calling tools/validate-plan.mjs. It exists for
+the case where node is unavailable and the plan has already been checked by
+hand; using it means the sheet is drawn from an unchecked document, which is
+what the validator exists to prevent.
 """
 import json, os, subprocess, sys
 
@@ -75,7 +80,7 @@ def load(path):
     gw = [b for b in plan["wall_bands"] if b["kind"] == "garden"]
     d["GW"] = _rect(gw[0]) if gw else None
     d["EXT"] = plan["wall_thickness"]["exterior"]
-    d["INT"] = plan["wall_thickness"]["interior"]
+    d["INT"] = plan["wall_thickness"]["partition"]
     d["GWT"] = plan["wall_thickness"]["garden"]
     d["K"] = plan["standpoint_stand_back"]
     for floor in ("ground", "upper"):
@@ -104,7 +109,8 @@ def _room(r):
     for f in ("N", "E", "S", "W"):
         fc = r["facings"][f]
         sp.append(dict(f=f, p=(fc["standpoint"]["x"], fc["standpoint"]["y"]),
-                       dist=fc["camera_wall_m"], ftype=fc["type"],
+                       dist=fc.get("camera_wall_m", fc.get("camera_far_m")),
+                       ftype=fc["type"],
                        wall_w=fc["wall_width_m"], line=fc["wall_line"],
                        note=fc.get("note", "")))
     lab = LABEL.get(r["id"], {})
@@ -411,11 +417,14 @@ def build(name, title, sub, rooms, parts, doors, wins, fires, stairs,
     northarrow(b, 40 + 10 * S + 90, ph + 72)
     legend(b, 40 + 10 * S + 190, ph + 50, [
         ("h", "SYMBOLS"),
-        ({"fill": C_EXT}, "exterior / structural wall, 0.60 m"),
+        # The three measurements come from the plan, not from this file: they
+        # are dimensions of the building, and a legend that types them can
+        # disagree with the walls it describes.
+        ({"fill": C_EXT}, "exterior / structural wall, %.2f m" % EXT),
         ({"fill": C_INT, "stroke": "#3a352e", "stroke-width": "0.8"},
-         "interior partition, 0.35 m"),
+         "interior partition, %.2f m" % INT),
         ({"fill": C_GW, "stroke": "#2b2620", "stroke-width": "2"},
-         "garden wall (built structure), 0.45 m"),
+         "garden wall (built structure), %.2f m" % GWT),
         ({"fill": "url(#hatch)", "stroke": "#3a352e", "stroke-width": "1"},
          "fireplace / chimney breast"),
     ])

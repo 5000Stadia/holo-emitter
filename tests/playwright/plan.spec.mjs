@@ -24,7 +24,8 @@ import {
 } from "../../tools/validate-plan.mjs";
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
-  inverseProjectPlacement, shippedMeta, facingsContaining, report,
+  inverseProjectPlacement, shippedMeta, facingsContaining, report, rebuildFacings,
+  wallRelief, wallReliefReport,
   assertCameraConsistent, needsWideView, pinnedWallInFrame, horizonGate,
   GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
   facingCarriers, cameraFeetReport, WALL_MAP_11, WIDE_VIEW_POLICIES, CANVAS_W
@@ -73,6 +74,41 @@ test.describe("plan.json", () => {
     expect(validatePlan(PLAN, WORLD, BY_ENTITY)).toEqual([]);
   });
 
+  /* The per-facing block is a pure function of the room rects and the
+   * stand-back rule, so a redline that moves a wall can regenerate it instead
+   * of restating four facings by hand. On the committed plan the rebuild is a
+   * byte no-op, which is what makes the README's redline recipe true. */
+  test("rebuilding every facing from the room rects is a byte no-op", () => {
+    const rebuilt = JSON.stringify(rebuildFacings(PLAN), null, 2) + "\n";
+    expect(rebuilt).toBe(readFileSync(join(fixtureDir, "plan.json"), "utf8"));
+  });
+
+  test("and the rebuild repairs a hand-moved wall", () => {
+    const p = clone(PLAN);
+    p.rooms.find((r) => r.id === "library").rect.y1 = 21.4;
+    p.rooms.find((r) => r.id === "garden_room").rect.y0 = 21.75;
+    const band = p.wall_bands.find((b) => b.kind === "partition" && Math.abs(b.rect.y0 - 21.0) < 1e-9);
+    band.rect.y0 = 21.4; band.rect.y1 = 21.75;
+    const door = p.openings.find((o) => o.joins.includes("library") && o.joins.includes("garden_room"));
+    door.rect.y0 = 21.4; door.rect.y1 = 21.75;
+    // stale facing values: the validator says so
+    expect(validatePlan(p, WORLD, BY_ENTITY).length).toBeGreaterThan(0);
+    // and the rebuild fixes exactly them
+    expect(validatePlan(rebuildFacings(p), WORLD, BY_ENTITY)).toEqual([]);
+  });
+
+  test("a drawn standpoint survives a rebuild; only its measurement is refreshed", () => {
+    const p = clone(PLAN);
+    const fc = p.rooms.find((r) => r.id === "great_hall").facings.N;
+    fc.standpoint_source = "drawn";
+    fc.standpoint = { x: 12.0, y: 10.5 };
+    fc.camera_wall_m = 1.0;                                  // stale
+    const out = rebuildFacings(p);
+    const back = out.rooms.find((r) => r.id === "great_hall").facings.N;
+    expect(back.standpoint).toEqual({ x: 12.0, y: 10.5 });   // not moved
+    expect(back.camera_wall_m).toBe(drawn(18.9 - 10.5));     // measured afresh
+  });
+
   test("the CLI agrees with the imported function", () => {
     const out = execFileSync("node", [join(repoRoot, "tools", "validate-plan.mjs")], { encoding: "utf8" });
     expect(out).toMatch(/valid/);
@@ -108,7 +144,11 @@ test.describe("plan.json", () => {
  * guards is deleted is a finding — this row's version of the rule row 2 paid
  * for twice. */
 const MUTATIONS = [
-  ["overlap", /overlap/i, (p) => { room(p, "study").rect.y1 = 16.0; }],
+  /* Anchored to the room–room message and produced by a mutation that touches
+   * no wall band: growing a room into a partition trips the tiling check too,
+   * and a `/overlap/i` pattern then passed with the room–room check deleted. */
+  ["overlap", /^overlap: /m,
+    (p) => { room(p, "muniment_room").rect = { ...room(p, "back_stair_head").rect }; }],
   ["tiling", /tiling/i, (p) => { room(p, "library").rect.x1 = 9.0; }],
   ["a room standing inside a wall", /overlaps wall band/i, (p) => { room(p, "kitchen").rect.x0 = 30.5; }],
   ["door joins the rooms it names", /geometrically lies between/i,
@@ -247,6 +287,29 @@ test.describe("what each facing carries", () => {
     expect(disagree).toEqual(["hall/N", "hall/S"]);
   });
 
+  /* The viewed wall is not always one flat plane: a chimney breast stands
+   * proud of it, and on study/N — §11's fireplace facing, and the first
+   * backdrop row 4 generates — 2.20 m of the 5.45 m in view is half a metre
+   * nearer than `camera_wall_m` says. Law (a) measures to the wall line and
+   * the drawing prints that, so the number does not move; the relief is
+   * reported beside it so a prompt sheet has it. */
+  test("the relief on a viewed wall is reported, on the eleven facings that have it", () => {
+    const report_ = wallReliefReport(PLAN);
+    expect(report_.length).toBe(11);
+    const studyN = wallRelief(PLAN, "study", "N");
+    expect(studyN.length).toBe(1);
+    expect(studyN[0].kind).toBe("fireplace");
+    expect(studyN[0].depth_m).toBeCloseTo(3.1, 6);
+    expect(studyN[0].proud_by_m).toBeCloseTo(0.5, 6);
+    expect(studyN[0].on_axis).toBe(true);
+    expect(room(PLAN, "study").facings.N.camera_wall_m).toBe(3.6);   // unmoved
+    // a hearth on another wall is an object in the view, not relief on the
+    // plane — study/E's viewed wall is flat
+    expect(wallRelief(PLAN, "study", "E")).toEqual([]);
+    // and a hearth behind the standpoint is not relief either
+    expect(wallRelief(PLAN, "study", "S")).toEqual([]);
+  });
+
   test("study/N carries the fireplace, study/E the door, study/S two windows, study/W nothing", () => {
     expect(facingCarriers(PLAN, "study", "N").map((c) => c.kind)).toEqual(["fireplace"]);
     const door = facingCarriers(PLAN, "study", "E");
@@ -296,7 +359,7 @@ test.describe("plan ↔ world: the orientation law is geometry now, not prose", 
   test("an exit whose via names no plan opening is caught", () => {
     const w = clone(WORLD);
     w.locations[0].exits[0].via = "trapdoor";
-    expect(validatePlan(PLAN, w, BY_ENTITY).join("\n")).toMatch(/which no plan opening carries/);
+    expect(validatePlan(PLAN, w, BY_ENTITY).join("\n")).toMatch(/neither a plan opening's entity nor a stair/);
   });
 
   /* A location the plan has not drawn is a warning, not a finding: world.json
@@ -505,6 +568,34 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     }
   });
 
+  /* Blueprint §12.5's clause as row 12 amended it: the wall in view fits the
+   * frame, and where corners exist their span is wall_width_m × the scale. Row
+   * 11's done requires §12.5 green, so it is asserted across every facing here
+   * rather than on two samples. */
+  test("every derived meta satisfies the amended frame-filling clause", () => {
+    let withCorners = 0, edge = 0;
+    for (const r of PLAN.rooms) {
+      for (const f of FACINGS) {
+        const m = deriveMeta(PLAN, r.id, f);
+        if (m.corner_x0_px === null) { expect(m.corner_x1_px).toBeNull(); continue; }
+        withCorners++;
+        expect(m.corner_x0_px, `${r.id}/${f} left corner off frame`).toBeGreaterThanOrEqual(-1e-9);
+        expect(m.corner_x1_px, `${r.id}/${f} right corner off frame`).toBeLessThanOrEqual(CANVAS_W + 1e-9);
+        expect(m.corner_x1_px - m.corner_x0_px, `${r.id}/${f} span`)
+          .toBeCloseTo(m.wall_width_m * m.px_per_m_at_wall, 6);
+        if (m.corner_x0_px < 1e-9 || m.corner_x1_px > CANVAS_W - 1e-9) edge++;
+      }
+    }
+    // 88 less the four open facings and the one segmented one (entrance
+    // approach/N, whose view is part wing front and part open court mouth)
+    expect(withCorners).toBe(83);
+    /* The wide-view facings put their corners exactly ON the frame edge — the
+     * wall fills the view by construction — which reads as "not visible"
+     * against row 11's "two visible corners". Named in the blueprint as a look
+     * decision; pinned here so the count cannot drift unnoticed. */
+    expect(edge).toBe(5);   // the wide facings that have corners at all
+  });
+
   test("the wide camera is taken by exactly the facings the pinned frame cannot hold", () => {
     expect(pinnedWallInFrame()).toBeCloseTo(16.0, 9);
     const wide = [];
@@ -557,8 +648,12 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
         const want = ruleStandpoint(r.rect, f, PLAN.standpoint_stand_back);
         expect(fc.standpoint.x, `${r.id}/${f} x`).toBeCloseTo(want.x, 9);
         expect(fc.standpoint.y, `${r.id}/${f} y`).toBeCloseTo(want.y, 9);
-        expect(fc.camera_wall_m, `${r.id}/${f} camera_wall_m`)
+        const field = fc.type === "open" ? "camera_far_m" : "camera_wall_m";
+        expect(fc[field], `${r.id}/${f} ${field}`)
           .toBe(drawn(measuredDistance(fc.standpoint, f, fc.wall_line)));
+        // and the other name is absent, so a consumer cannot read a horizon
+        // as a wall through groundplane's camera_wall_m fallback
+        expect(fc[fc.type === "open" ? "camera_wall_m" : "camera_far_m"]).toBeUndefined();
       }
     }
   });
@@ -626,12 +721,38 @@ test.describe("the projection against the shipped staging", () => {
     expect(div.unexpected.map((r) => `${r.id}@${r.facing}`)).toEqual(["door1@hall/W"]);
   });
 
-  test("a staged entity the plan holds no position for is reported, not silently skipped", () => {
+  /* The room is on the plan and the thing standing in it is not: a gap in the
+   * document, so it refuses. Only a placement in a room the plan has not
+   * reached at all is a warning. */
+  test("a staged entity the plan holds no position for refuses, and does not merely warn", () => {
     const p = clone(PLAN);
     p.objects = p.objects.filter((o) => o.id !== "desk1");
     const div = stagingDivergence(p, STAGING);
     expect(div.rows.length).toBe(5);
-    expect(div.unplanned.map((u) => u.id)).toEqual(["desk1"]);
+    expect(div.unplanned).toEqual([]);
+    expect(div.unexpected.map((u) => u.id)).toEqual(["desk1"]);
+  });
+
+  test("a placement in a room the plan has not drawn is a warning, not a refusal", () => {
+    const st = clone(STAGING);
+    st.placements.lamp1 = { facing: "scullery/N", attachment: "floor_free", u: 0.5, depth_m: 1 };
+    const div = stagingDivergence(PLAN, st);
+    expect(div.unexpected).toEqual([]);
+    expect(div.unplanned.map((u) => u.id)).toEqual(["lamp1"]);
+  });
+
+  /* A door between a planned room and an unplanned one is staged on both, and
+   * it belongs to the part of the world the plan has not reached — so it warns
+   * from both sides rather than refusing from the planned one. */
+  test("a door straddling a planned and an unplanned room warns from both sides", () => {
+    const st = clone(STAGING);
+    st.placements.door2 = [
+      { facing: "hall/E", attachment: "wall_mounted", u: 0.5, v: 0 },
+      { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0 }
+    ];
+    const div = stagingDivergence(PLAN, st);
+    expect(div.unexpected).toEqual([]);
+    expect(div.unplanned.map((u) => u.facing).sort()).toEqual(["gallery/W", "hall/E"]);
   });
 
   /* The tolerance is stated, derived, and driven from both sides. */
@@ -710,6 +831,26 @@ test.describe("the projection imports the placement math rather than owning a co
     expect(projectPlacement(PLAN, "desk1", "study", "N", shippedMeta()).u).toBeCloseTo(before, 12);
   });
 
+  /* The corners are what row 11 consumes, so a private copy of the u-mapping
+   * would put its corner verticals and the staging u-domain in two places
+   * that agree only by luck. */
+  test("displacing xAtScale displaces the derived corners", () => {
+    const original = groundplane.xAtScale;
+    const before = deriveMeta(PLAN, "study", "N");
+    try {
+      groundplane.xAtScale = function (u, s, meta, w) {
+        return original(u, s, { ...meta, wall_width_m: meta.wall_width_m / 2 }, w);
+      };
+      const after = deriveMeta(PLAN, "study", "N");
+      expect(after.corner_x0_px).not.toBeCloseTo(before.corner_x0_px, 6);
+      expect(after.corner_x1_px - after.corner_x0_px)
+        .toBeCloseTo((before.corner_x1_px - before.corner_x0_px) / 2, 6);
+    } finally {
+      groundplane.xAtScale = original;
+    }
+    expect(deriveMeta(PLAN, "study", "N").corner_x0_px).toBeCloseTo(before.corner_x0_px, 12);
+  });
+
   test("displacing scaleAtDepth displaces the projected scale", () => {
     const original = groundplane.scaleAtDepth;
     const before = projectPlacement(PLAN, "chair1", "study", "N", shippedMeta()).scale_px_per_m;
@@ -776,7 +917,11 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
     try {
       const fx = join(dir, "fixtures", "demo-study");
       rmSync(join(fx, "plan.json"));
-      expect(() => bake(dir, ["--fixture-dir", fx, "--out", join(dir, "fresh.js")])).toThrow();
+      let msg = "";
+      try { bake(dir, ["--fixture-dir", fx, "--out", join(dir, "fresh.js")]); }
+      catch (e) { msg = String(e.stderr || e.message); }
+      // the NAMED refusal, not an incidental ENOENT from readFileSync
+      expect(msg).toMatch(/bake refused: no plan\.json/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -970,12 +1115,31 @@ test.describe("the schematic is a derived render of the plan", () => {
     }
   });
 
-  /* The PNGs are the SVG rasterised by the system browser at 2×, so their
-   * bytes are environment-dependent and are deliberately NOT byte-compared —
-   * they were byte-stable across a re-render on the machine that produced
-   * them, and that is recorded in design/architecture.md rather than
-   * asserted. What IS asserted is that each PNG is the right artboard at the
-   * right scale, which is what a stale one from a resized sheet would fail. */
+  /* The PNG is the artifact a human actually looks at, and it is the one this
+   * row's gate runs on. Its bytes come from this machine's browser, so they
+   * cannot be regenerated for comparison — but `render.lock`, written by
+   * render.sh, records which SVG each PNG was rasterised from and what the PNG
+   * hashed to. A redline that runs draw_plan.py and forgets render.sh leaves a
+   * PNG whose recorded source no longer matches the committed SVG; a swapped
+   * or hand-edited PNG no longer matches its recorded hash. Both go red here.
+   * (Before this lock existed, dropping the pre-row-12 PNG in its place passed
+   * the whole suite.) */
+  test("render.lock ties each committed PNG to the SVG it was rasterised from", () => {
+    const lock = readFileSync(join(draftDir, "render.lock"), "utf8").trim().split("\n");
+    expect(lock.length).toBe(2);
+    for (const line of lock) {
+      const m = /^(\S+)\s+svg=([0-9a-f]{64})\s+png=([0-9a-f]{64})$/.exec(line);
+      expect(m, `render.lock line not parseable: ${line}`).toBeTruthy();
+      const [, name, svgHash, pngHash] = m;
+      expect(sha256(readFileSync(join(draftDir, name + ".svg"))),
+        `${name}.png was rasterised from a different ${name}.svg — run ./design/plan-draft/render.sh`)
+        .toBe(svgHash);
+      expect(sha256(readFileSync(join(draftDir, name + ".png"))),
+        `${name}.png is not the file render.sh produced`)
+        .toBe(pngHash);
+    }
+  });
+
   test("each PNG is its SVG artboard at 2×", () => {
     for (const name of ["manor-ground", "manor-upper"]) {
       const svg = readFileSync(join(draftDir, name + ".svg"), "utf8");

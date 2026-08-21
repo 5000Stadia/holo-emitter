@@ -100,7 +100,7 @@ const PLAN_TOP_KEYS = ["schema", "version", "units", "north", "entrance",
   "rooms", "openings", "windows", "fireplaces", "stairs", "objects"];
 const ROOM_KEYS = ["id", "floor", "name", "type", "archetype", "rect", "facings"];
 const FACING_KEYS = ["type", "standpoint_source", "standpoint", "wall_line",
-  "camera_wall_m", "wall_width_m", "far_line", "note"];
+  "camera_wall_m", "camera_far_m", "wall_width_m", "far_line", "note"];
 const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
 const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source"];
 const BAND_KEYS = ["id", "kind", "floors", "rect"];
@@ -295,6 +295,10 @@ export function validatePlan(plan, world, records) {
     push(`plan.json: version must be a positive integer (shape item 11's version stamp), got ${JSON.stringify(plan.version)}`);
   }
   if (plan.units !== "m") push(`plan.json: units must be "m" — every number in this document is metres of real building`);
+  /* Every facing derivation, RIGHT and NORMAL assume north is +y. A document
+   * declaring anything else would be silently mirrored end to end. */
+  if (plan.north !== "+y") push(`plan.json: north must be "+y" — RIGHT, NORMAL and every facing derivation assume it, and a plan declaring otherwise would be mirrored end to end with no other symptom`);
+  if (!isObj(plan.wall_thickness)) push("plan.json: wall_thickness must be an object keyed by band kind");
   if (!isNum(plan.standpoint_stand_back) || plan.standpoint_stand_back <= 0 || plan.standpoint_stand_back >= 0.5) {
     push(`plan.json: standpoint_stand_back must be in (0, 0.5) — law (a)'s stand-back fraction; got ${JSON.stringify(plan.standpoint_stand_back)}`);
   }
@@ -352,6 +356,17 @@ export function validatePlan(plan, world, records) {
       push(`wall band "${b.id}": floors must be declared floor ids`);
     }
     if (!rectOk(b.rect)) push(`wall band "${b.id}": rect is malformed`);
+    /* The legend on the sheet prints these three numbers, and the drawing
+     * renders them from here — so they must be the thickness of the bands they
+     * describe, or the sheet states a measurement the walls contradict. */
+    else if (isObj(plan.wall_thickness)) {
+      const want = plan.wall_thickness[b.kind];
+      const got = Math.min(b.rect.x1 - b.rect.x0, b.rect.y1 - b.rect.y0);
+      if (!isNum(want)) push(`plan.json: wall_thickness has no "${b.kind}" — band "${b.id}" is one`);
+      else if (Math.abs(got - want) > 1e-9) {
+        push(`wall band "${b.id}": is ${fmt(got)} m thick, but wall_thickness.${b.kind} says ${want} m — the sheet's legend prints that number`);
+      }
+    }
   }
   const bandsOn = (floor) =>
     plan.wall_bands.filter((b) => Array.isArray(b.floors) && b.floors.includes(floor) && rectOk(b.rect));
@@ -461,10 +476,22 @@ export function validatePlan(plan, world, records) {
         }
       }
       /* Law (a), always: the printed number IS the measured distance from the
-       * drawn standpoint to the line it views, at the drawn precision. */
+       * drawn standpoint to the line it views, at the drawn precision.
+       *
+       * An OPEN facing measures to drawn ground with no surface on it, and it
+       * carries `camera_far_m` — a different field, not a differently-valued
+       * one, because §4b item 2 makes this document the interchange format a
+       * future host emits and `groundplane.scaleAtDepth` silently falls back
+       * to 3.5 m for a missing `camera_wall_m`. A name a consumer has to
+       * handle beats a number it will misread. */
       const measured = measuredDistance(fc.standpoint, f, fc.wall_line);
-      if (fc.camera_wall_m !== drawn(measured)) {
-        push(`room "${r.id}" facing ${f}: camera_wall_m ${fc.camera_wall_m} is not the measured standpoint-to-wall distance (${drawn(measured)}, from ${measured}) — law (a): it is read off the drawing, never invented`);
+      const distField = fc.type === "open" ? "camera_far_m" : "camera_wall_m";
+      const otherField = fc.type === "open" ? "camera_wall_m" : "camera_far_m";
+      if (fc[otherField] != null) {
+        push(`room "${r.id}" facing ${f}: a ${fc.type} facing must carry ${distField}, never ${otherField}`);
+      }
+      if (fc[distField] !== drawn(measured)) {
+        push(`room "${r.id}" facing ${f}: ${distField} ${fc[distField]} is not the measured standpoint-to-${fc.type === "open" ? "far-line" : "wall"} distance (${drawn(measured)}, from ${measured}) — law (a): it is read off the drawing, never invented`);
       }
       if (measured <= 0) {
         push(`room "${r.id}" facing ${f}: the standpoint is on or past the line it views (${measured} m)`);
@@ -559,7 +586,13 @@ export function validatePlan(plan, world, records) {
     if (s.kind !== "straight") {
       push(`stair "${s.id}": kind ${JSON.stringify(s.kind)} — only "straight" obeys blueprint §3's orientation law without the fiction-demands-a-turn exception, which ruling (4) left unspent`);
     }
-    if (!Number.isInteger(s.treads) || s.treads < 2) push(`stair "${s.id}": treads must be an integer ≥ 2`);
+    /* A flight of two treads is not a storey. The plan carries no vertical
+     * datum yet (named in design/architecture.md as row 4's and row 11's), so
+     * this is a sanity band rather than a rise check: a c.1660 domestic storey
+     * takes roughly 12–24 treads. */
+    if (!Number.isInteger(s.treads) || s.treads < 10 || s.treads > 30) {
+      push(`stair "${s.id}": treads is ${JSON.stringify(s.treads)} — a flight between two storeys is 10–30; the plan carries no storey height to check a rise against`);
+    }
     for (const room of [a, b]) {
       if (rectOk(s.rect) && !contains(room.rect, s.rect)) push(`stair "${s.id}": its flight is not inside "${room.id}"`);
     }
@@ -768,6 +801,12 @@ function crossCheckWorld(plan, world, byId) {
   if (!isObj(world) || !Array.isArray(world.locations)) return ["world.json: no locations to cross-check against the plan"];
   const openingsByEntity = new Map();
   for (const o of plan.openings) if (o && o.entity) openingsByEntity.set(o.entity, o);
+  /* Row 12's own row text: "stairs as exits". A stair is addressed by its own
+   * id — it carries no leaf entity — and its travel directions ARE the
+   * orientation law's, so the check is the stair's `up`/`down` rather than a
+   * wall normal. */
+  const stairsById = new Map();
+  for (const st of plan.stairs || []) if (st && st.id) stairsById.set(st.id, st);
   for (const loc of world.locations) {
     const room = byId.get(loc.id);
     /* A location the plan has not drawn is not an error: `world.json` is the
@@ -783,9 +822,25 @@ function crossCheckWorld(plan, world, byId) {
     }
     for (const exit of loc.exits || []) {
       if (!byId.has(exit.from) || !byId.has(exit.to)) continue;   // not the plan's to judge
+      const stair = stairsById.get(exit.via);
+      if (stair) {
+        const joins = [...stair.joins].sort().join("|");
+        if (joins !== [exit.from, exit.to].sort().join("|")) {
+          out.push(`plan/world: exit "${exit.id}" goes ${exit.from} → ${exit.to}, but stair "${stair.id}" joins ${stair.joins.join(" ↔ ")}`);
+        } else {
+          const want = stair.joins[0] === exit.from ? stair.up : stair.down;
+          if (exit.facing !== want) {
+            out.push(`plan/world: exit "${exit.id}" is staged on facing ${exit.facing}, but the "${stair.id}" flight travels ${want} out of "${exit.from}"`);
+          }
+        }
+        if (exit.arrive_facing !== exit.facing) {
+          out.push(`plan/world: exit "${exit.id}" leaves facing ${exit.facing} and arrives facing ${exit.arrive_facing} — blueprint §3: you arrive facing the way you went`);
+        }
+        continue;
+      }
       const op = openingsByEntity.get(exit.via);
       if (!op) {
-        out.push(`plan/world: exit "${exit.id}" travels via "${exit.via}", which no plan opening carries`);
+        out.push(`plan/world: exit "${exit.id}" travels via "${exit.via}", which is neither a plan opening's entity nor a stair`);
         continue;
       }
       const joins = [...op.joins].sort().join("|");

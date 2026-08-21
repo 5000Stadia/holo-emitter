@@ -24,11 +24,17 @@ moved into.
 **To take a redline in:** edit `fixtures/demo-study/plan.json`, then
 
 ```
-python3 design/plan-draft/draw_plan.py     # refuses to draw a plan the validator rejects
-./design/plan-draft/render.sh              # SVG -> PNG at 2x
-node tools/plan-projection.mjs --write     # regenerate projection.md
-node tools/bake-fixtures.mjs               # the bake refuses an invalid plan too
+node tools/plan-projection.mjs --rebuild-facings   # standpoints and distances, from the rects
+python3 design/plan-draft/draw_plan.py             # refuses to draw a plan the validator rejects
+./design/plan-draft/render.sh                      # SVG -> PNG at 2x, and writes render.lock
+node tools/plan-projection.mjs --write             # regenerate projection.md
+node tools/bake-fixtures.mjs                       # the bake refuses an invalid plan too
 ```
+
+Move a room's `rect` and the first command restates its four facings — the standpoint, the wall
+line it views, the wall width, and the measured distance are a pure function of the rect and
+`standpoint_stand_back`. A standpoint marked `"standpoint_source": "drawn"` stays where it was
+put; only its measurement is refreshed.
 
 `tools/validate-plan.mjs` is the standing validator: rooms tile the interior gross area, no two
 spaces overlap, every opening lies in a wall and joins the two spaces it names, every space is
@@ -166,7 +172,7 @@ number, and `tools/validate-plan.mjs` asserts it is the measured standpoint-to-w
 so a typed number that the geometry does not produce cannot survive.
 
 The rule the drawing uses, stated once so a redline can change it in one place
-(`K = 0.25` in `draw_plan.py`): *the standpoint for a facing stands on the room's own axis,
+(`standpoint_stand_back`, 0.25, in `plan.json`): *the standpoint for a facing stands on the room's own axis,
 displaced from the room centre away from the viewed wall by 25% of the room's dimension along
 that axis.* So `camera_wall_m = 0.75 × (room dimension normal to that wall)`, and
 `wall_width_m` is the full width of the wall in view. Nobody stands closer than a quarter of the

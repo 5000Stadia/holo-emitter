@@ -976,12 +976,55 @@ validator asserts the stored one is the correct rounding of the exact one, so th
 answer rather than two that nearly agree. `stagingDivergence` runs at `STAGING_TOLERANCE` 1e-9,
 derived in the module and driven from both sides by a test.
 
+**Still missing from the document, with owners.** There is **no vertical datum**: `stairs[].treads`
+is checked against a sanity band (10–30) and not against a storey rise, because the plan carries
+no storey height — and row 11's corner verticals, §4's `v`, and row 4's ceiling/sill/head prompts
+all need one. Row 4 owns it, with the measured backdrop. The plan also carries **no style seed**,
+so §4b item 6's backdrop-template tier has an archetype to key on and nothing to key it *to*;
+that is row 4's `style_block`. And two things on the approved sheet are worth knowing before
+anyone measures off it: each axis's two opposite facings **share one dashed leader** with an
+arrowhead at either end, so which printed distance belongs to which arrow is resolved only by the
+legend; and the ★ marking `door1` is hand-placed 0.72 m north of the opening it marks, to clear
+the travel arrows.
+
 **Practicalities a fresh session needs.** The plan is a **required** bake input, so any path that
 stages a fixture tree must carry a `plan.json`; the suite's `stageTree` copies `fixtures/`
 wholesale, which is why every existing staging path already does. And `plan.spec` shells out to
 `python3` for the derived-render cases and **fails rather than skips** when it is missing — the
 byte-identity of the derived render against the approved drawing is this row's acceptance, and an
 acceptance that opts out on some machines is not one.
+
+**What the artifact critic's mutations changed, and what they proved.** Four defects it found by
+breaking things, each now guarded: `corner_x0_px`/`corner_x1_px` were a private copy of the
+u-mapping rather than a call to `groundplane.xAtScale` (displacing the function moved `u` and
+left the corners where they were — the exact shape row 2 paid for twice); the committed PNGs were
+verified by nothing, so dropping in the pre-row-12 sheet passed the whole suite (`render.sh` now
+writes `design/plan-draft/render.lock`, recording which SVG each PNG was rasterised from and what
+it hashed to, and a test reads it); the sheet's legend typed its three wall thicknesses while
+`plan.wall_thickness` sat unread (the legend renders from the document now, keyed by band kind,
+and every band's thickness is checked against it); and an emptied `objects[]` baked green, because
+a staged entity with no plan position warned instead of refusing — it refuses now when the plan
+holds the room, and warns only when it does not.
+
+**The viewed wall is not always one plane.** A chimney breast stands proud of it, so on eleven
+facings — `study/N` among them, which is §11's fireplace wall and row 4's probe backdrop — part
+of the view is nearer than `camera_wall_m`. `wallRelief` reports it in the same view-relative
+terms as `wall_segments`. The number itself does not move: law (a) measures to the wall *line*
+and the drawing prints that. What changes is that a prompt sheet has the relief beside it instead
+of finding it in a picture. A hearth on another of the room's walls is an object in the view, not
+relief on the plane, and belongs to that wall's own `facingCarriers`.
+
+**Stairs are exits, and the cross-check knows it.** `exit.via` resolves against openings by
+`entity` *and* against stairs by id; a stair exit's facing is checked against the flight's own
+`up`/`down` rather than a wall normal. Without that, row 15's first stair exit would have been
+refused by the row that was supposed to enable it.
+
+**A redline has a regeneration step.** `node tools/plan-projection.mjs --rebuild-facings` recomputes
+every facing block from the room rects and `standpoint_stand_back` — a pure function of them
+wherever `standpoint_source` is `rule`. On the committed plan it is a byte no-op, which a test
+asserts; a `drawn` standpoint stays where it was put and only its measurement is refreshed.
+Without it, moving one wall meant restating four facings by hand and the README printed a recipe
+that was not one.
 
 **What later rows take.** Row 11: `corner_x0_px`/`corner_x1_px`, `facing_type`, `wall_segments`,
 and §12.5's amended clause (below). Row 4: `camera_wall_m` per facing, the wide-camera
