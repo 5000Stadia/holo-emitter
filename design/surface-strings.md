@@ -237,12 +237,12 @@ id | surface | state | verdict | observed | adjudicator | string
 60 | #narration | toggle.*.refused_unknown | PASS | yes | row7-artifact-critic | Nothing of that description offers itself to your hand.
 61 | #narration | take.*.refused_unknown | PASS | yes | row7-artifact-critic | You reach, and your hand closes on nothing of the sort.
 62 | #narration | go.*.refused_unknown | PASS | yes | row7-artifact-critic | No such passage is to be found; the walls keep their counsel.
-63 | #narration | turn.*.refused — reached whenever `nextFacing` finds none: an unknown boot location (the broken-boot state) or a one-facing world | PASS | yes | row7-artifact-critic | The room offers no other aspect; you face all there is to face.
+63 | #narration | turn.*.refused — a room that really has one facing (a doctored one-facing world). NOT the broken-boot state: a viewstate naming a location the world lacks is a broken document, not a one-aspect room, and saying "you face all there is to face" there put a false sentence directly under a true one. That branch now takes the transport fault line, #6. | PASS | yes | row7-artifact-critic | The room offers no other aspect; you face all there is to face.
 ```
 
 ```COUNT
 STRINGS 61
-STATES 30
+STATES 32
 ```
 
 **Enumerated is not swept.** 61 rows are enumerated; 5 of them (#17–21) reach no surface on the
@@ -278,6 +278,8 @@ broken-boot-facing
 module-missing-renderer
 module-missing-harness
 module-missing-placeholders
+module-missing-inventory
+module-missing-groundplane
 module-missing-fixture
 render-fault
 missing-narration-key
@@ -316,17 +318,16 @@ pattern over **all** such calls and asserts the set equals this block, so a new 
 suite red until it is entered here with its branches and degenerate values.
 
 ```SINKS
-index.html | <title> literal | literal
-index.html | aria-label attribute literal | literal
-index.html | noscript body | literal
-index.html | p.textContent = (boot handler) | literal
-index.html | appendNarration(literal) (render fault) | literal
-index.html | appendNarration(literal) (boot viewstate fault) | literal
-index.html | p.textContent = line (appendNarration) | composed
-src/inventory.js | tile.title = | composed
+index.html | textContent | composed
+src/inventory.js | title | composed
 src/inventory.js | setAttribute aria-label | composed
-src/renderer.js | GLYPHS polyline table | literal
 ```
+
+Sites are named by the identity the census detects — `file :: write`, matched in **both**
+directions, so a new sink and a deleted row are each red. Three more surfaces are literals in
+`index.html` rather than write sites and are enumerated in `STRINGS` instead: the `<title>`, the
+five `aria-label` attributes, and the `<noscript>` body. `src/renderer.js`'s `GLYPHS` table is
+guarded by its own equality check against #22–25.
 
 **Degenerate values, disposed per composed site:**
 
@@ -345,7 +346,10 @@ need. Unsafe HTML sinks and modal text sinks qualify, because each puts text on 
 every sink the census knows. `createTextNode`, `.alt =`, `.placeholder =`, `aria-roledescription`,
 `aria-valuetext`, `aria-placeholder`, `<a href>`, inline `<svg>` and `document.title =` are
 deliberately **not** listed: they are ordinary techniques rows 8–10 may need, and a string arriving
-through any of them is caught by the runtime sweep, which is the primary net. Listing them would be
+through any of them is caught by the runtime sweep, which reads all nine naming attributes. (It
+read six until an artifact critic put a spec-row reference and a repo path into
+`aria-roledescription` and watched the whole suite stay green — the justification named a net that
+did not cover them.) Listing them would be
 a capability decision binding three later rows.
 
 ```UNUSED_SINKS

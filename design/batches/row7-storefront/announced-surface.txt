@@ -1,5 +1,7 @@
 Every string an assistive reader meets, in order, per state.
 Screenshots carry only the sighted surface; these are the rest.
+Elements removed from the accessibility tree in a state are omitted here:
+an earlier version listed the chevrons in three states that hide them.
 
 == 01-cold-load-desktop ==
 holo-emitter
@@ -44,17 +46,12 @@ narration: The projection was set to a view this pattern does not hold.
 
 == 06-no-frame-ever-painted ==
 holo-emitter
-button#chevron-left [aria-label] turn left
-button#chevron-right [aria-label] turn right
 div#narration [aria-label] what the room says
 div#inventory [aria-label] what you are carrying
-narration: The projection will not hold. Nothing of this place can be shown.
 narration: The projection wavers; the pattern will not resolve.
 
 == 07-render-fault ==
 holo-emitter
-button#chevron-left [aria-label] turn left
-button#chevron-right [aria-label] turn right
 div#narration [aria-label] what the room says
 div#inventory [aria-label] what you are carrying
 narration: The projection wavers; the pattern will not resolve.
@@ -72,8 +69,6 @@ narration: You take the iron key. It is cold, and lighter than it looks.
 
 == scripts-off ==
 holo-emitter
-button#chevron-left [aria-label] turn left
-button#chevron-right [aria-label] turn right
 div#narration [aria-label] what the room says
 div#inventory [aria-label] what you are carrying
 narration: This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.

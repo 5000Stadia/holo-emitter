@@ -266,6 +266,16 @@
       if (intent.dir !== "left" && intent.dir !== "right") {
         return malformed(envelope, "turn dir \"" + intent.dir + "\"");
       }
+      /* A viewstate naming a location the world does not hold is a broken
+       * document, not a room with one aspect. Refusing it with
+       * `turn.*.refused` — "The room offers no other aspect; you face all
+       * there is to face" — put a false sentence on the surface directly
+       * under the true one, because the room in question does not exist.
+       * The document failed, so it is the transport's fault line. */
+      if (!location()) {
+        return malformed(envelope,
+          "viewstate location \"" + viewstate.location + "\" is not in the world");
+      }
       var facing = nextFacing(intent.dir);
       if (facing !== null) {
         viewstate.facing = facing;

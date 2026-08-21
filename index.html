@@ -159,8 +159,14 @@
   (function () {
     "use strict";
     var said = false;
+    window.HOLO_SPOKE = window.HOLO_SPOKE || {};
     function wavers() {
       if (said) return;
+      /* One fault, one voice. The render path's own handler also speaks, and
+         when both fired the pane stacked two lines that contradict each
+         other — "nothing of this place can be shown" above "a shown thing
+         wavered". Whichever speaks first owns the fault. */
+      if (window.HOLO_SPOKE.fault) return;
       /* Only for a page that never got a frame up. This sentence says
          "nothing of this place can be shown", and an uncaught error thrown
          at any later moment — a stray timer, an extension, anything — used
@@ -171,15 +177,28 @@
          handler, which knows what it is talking about. */
       if (window.HOLO_APP && window.HOLO_APP.paints > 0) return;
       said = true;
+      window.HOLO_SPOKE.boot = true;
       var pane = document.getElementById("narration");
       if (!pane) return;
       var p = document.createElement("p");
       p.textContent = "The projection will not hold. Nothing of this place can be shown.";
       pane.appendChild(p);
+      /* And stop offering controls that were never wired. A missing script
+         means no handler was ever attached, so the chevrons stay named,
+         focusable and dead — the same defect the render-path handler already
+         withdraws them for, on the other fault path. */
+      var chevrons = document.querySelectorAll(".chevron");
+      for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
     }
     window.addEventListener("error", function (e) {
       console.error("boot fault:", e && (e.error || e.message));
-      wavers();
+      /* DEFERRED, not immediate. A missing `<script src>` fires its error
+         BEFORE the page paints, and some of this page's scripts are not on
+         the boot path at all — remove `src/inventory.js` and the room draws,
+         the chevrons work, the view turns, and the apology "Nothing of this
+         place can be shown" prints over a working picture. Deciding one task
+         later lets the paint that is about to happen answer for itself. */
+      setTimeout(wavers, 0);
     }, true);
     window.addEventListener("DOMContentLoaded", function () {
       // Every script ran, but the app never took: same silence, same answer.
@@ -237,7 +256,16 @@
       console.error("render fault:", err);
       if (halted) return;
       halted = true;
-      appendNarration("The projection wavers; the pattern will not resolve.");
+      window.HOLO_SPOKE = window.HOLO_SPOKE || {};
+      window.HOLO_SPOKE.fault = true;
+      /* Symmetric with the boot handler's own latch, because the order the
+         two fire in depends on which script is missing: whichever speaks
+         first owns the fault, and the second stays quiet rather than
+         stacking a contradiction ("nothing of this place can be shown"
+         above "a shown thing wavered"). */
+      if (!window.HOLO_SPOKE.boot) {
+        appendNarration("The projection wavers; the pattern will not resolve.");
+      }
       var chevrons = document.querySelectorAll(".chevron");
       for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
       scene.style.cursor = "";
@@ -336,7 +364,15 @@
       if (envelope && typeof envelope.narration === "string") {
         appendNarration(envelope.narration);
       }
-      window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
+      /* The strip is a projection of the same truth the prose reports, so a
+         throw here is not cosmetic: the pane said "You take the iron key"
+         and the strip stayed empty, the two halves of the surface
+         contradicting each other, silently. A fault is a fault. */
+      try {
+        window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
+      } catch (err) {
+        fault(err);
+      }
     }
 
     /* dispatch owns the go veil because the veil has to be black BEFORE the
@@ -346,7 +382,18 @@
        closed door never flashes. */
     function dispatch(intent) {
       if (halted) return { turn_id: 0, intent: intent, events: [] };
-      var envelope = harness.dispatch(intent);
+      var envelope;
+      try {
+        envelope = harness.dispatch(intent);
+      } catch (err) {
+        /* §8's amendment — "a frame this transport cannot read must still
+           answer" — was implemented for intents the harness can PARSE. An
+           exception inside it answered nothing at all: the page took the
+           click, said no word, changed no pixel, and did the same for every
+           click after it. The wire failed, so the page says so. */
+        fault(err);
+        return { turn_id: 0, intent: intent, events: [] };
+      }
       updateChrome(envelope);
       /* The veil goes black in the SAME task as the repaint, so no frame is
          ever painted showing the arrival at full brightness — then it holds,

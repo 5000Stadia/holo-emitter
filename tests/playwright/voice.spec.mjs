@@ -195,18 +195,31 @@ test.describe("the sink census", () => {
     const seen = new Set();
     for (const rel of sources) {
       const text = code(rel);
-      const re = /\.(textContent|innerText|title)\s*=|setAttribute\(\s*"(aria-label|title|alt|placeholder|aria-labelledby|aria-describedby)"/g;
+      const re = /\.(textContent|innerText|title)\s*=|setAttribute\(\s*"([\w-]+)"/g;
       let m;
-      while ((m = re.exec(text)) !== null) seen.add(rel + " :: " + m[0]);
+      while ((m = re.exec(text)) !== null) {
+        const attr = m[2];
+        if (attr && !/^(aria-label|title|alt|placeholder|aria-labelledby|aria-describedby|aria-roledescription|aria-valuetext|aria-placeholder)$/.test(attr)) continue;
+        seen.add(rel + " :: " + (attr ? "setAttribute " + attr : m[1]));
+      }
     }
-    // Each observed write site must be accounted for by a SINKS entry naming
-    // its file. (The block names sites in prose; the file half is checkable.)
-    const files = new Set(SINKS.map((s) => s.split(" | ")[0]));
+    /* Site-level identity, in BOTH directions. Comparing file names only
+       meant a brand-new unenumerated sink in an already-audited file passed,
+       and deleting a SINKS row passed too — the block was decorative. */
+    const enumerated = new Set(SINKS
+      .filter((l) => /\| (literal|composed)$/.test(l))
+      .map((l) => {
+        const [file, site] = l.split(" | ");
+        return file.trim() + " :: " + site.trim();
+      }));
+    expect([...seen].sort(), "every write site in the source is enumerated")
+      .toEqual([...enumerated].filter((e) => seen.has(e)).sort());
     for (const site of seen) {
-      const f = site.split(" :: ")[0];
-      expect(files.has(f), `${site} — no SINKS entry for ${f}`).toBe(true);
+      expect(enumerated.has(site), `unenumerated surface write site: ${site}`).toBe(true);
     }
-    expect(seen.size, "the census found the sites it claims").toBeGreaterThanOrEqual(3);
+    for (const e of enumerated) {
+      expect(seen.has(e), `SINKS names a site that is not in the source: ${e}`).toBe(true);
+    }
   });
 
   test("the stylesheet declares no generated content", () => {
@@ -251,7 +264,11 @@ const COLLECT = () => {
   }
   for (const el of document.querySelectorAll("*")) {
     for (const a of ["aria-label", "title", "alt", "placeholder",
-      "aria-labelledby", "aria-describedby"]) {
+      "aria-labelledby", "aria-describedby",
+      /* announced by screen readers, and previously read by neither net —
+         a section sign and a repo path in aria-roledescription reached the
+         product face with the whole suite green. */
+      "aria-roledescription", "aria-valuetext", "aria-placeholder"]) {
       const v = el.getAttribute && el.getAttribute(a);
       if (v) out.push(v);
     }
@@ -286,6 +303,7 @@ test.describe("the runtime sweep", () => {
       "three-tiles-held", "refusal", "refusal-repeated", "all-narration-triples",
       "broken-boot-location", "broken-boot-facing", "module-missing-renderer",
       "module-missing-harness", "module-missing-placeholders",
+      "module-missing-inventory", "module-missing-groundplane",
       "module-missing-fixture", "render-fault", "missing-narration-key",
       "unreadable-intent", "noun-missing", "scripts-disabled", "capture-mode",
       "width-320", "width-1366", "zoom-200"
@@ -296,7 +314,19 @@ test.describe("the runtime sweep", () => {
   test("healthy states show nothing outside the audit", async ({ page }) => {
     await page.goto(appUrl());
     await page.waitForFunction(() => !!window.HOLO_APP);
-    checkCollected(await page.evaluate(COLLECT), "cold-boot");
+    const cold = await page.evaluate(COLLECT);
+    checkCollected(cold, "cold-boot");
+
+    /* The net was one-directional: it caught a string that should not be
+       there and never noticed one that should. Deleting `aria-label` from a
+       chevron — the product's primary control losing its accessible name —
+       left the whole suite green. Every row the audit declares `always` must
+       actually be there. */
+    const present = new Set(cold.map((x) => x.trim()));
+    for (const r of STRINGS.filter((x) => x.state === "always")) {
+      expect(present.has(r.text), `#${r.id} is declared always, and is absent: ${r.text}`)
+        .toBe(true);
+    }
 
     // Every facing of both rooms.
     for (const [loc, facings] of [["study", 3], ["hall", 4]]) {
@@ -419,11 +449,16 @@ test("no method speech reaches the console either — 'nowhere' means nowhere", 
   for (const rel of ["index.html", "src/harness.js", "src/inventory.js",
     "src/renderer.js", "src/placeholders.js", "src/groundplane.js"]) {
     const text = readFileSync(join(repoRoot, rel), "utf8");
-    const re = /console\.(log|info|warn|error)\(\s*("(?:[^"\\]|\\.)*")/g;
+    /* EVERY literal in the call, not the first: the boot witness is a
+       three-literal concatenation, and method speech in its second literal
+       sailed through a first-literal-only scan. */
+    const re = /console\.(log|info|warn|error)\(([\s\S]*?)\);/g;
     let m;
     while ((m = re.exec(text)) !== null) {
-      const s = JSON.parse(m[2]);
-      expect(offends(s, METHOD), `${rel} console: ${s}`).toEqual([]);
+      for (const lit of m[2].match(/"(?:[^"\\]|\\.)*"/g) || []) {
+        const v = JSON.parse(lit);
+        expect(offends(v, METHOD), `${rel} console: ${v}`).toEqual([]);
+      }
     }
   }
 });
@@ -467,8 +502,12 @@ test("a broken boot viewstate speaks as the product, on both branches", async ({
       await page.keyboard.press("ArrowRight");
       const after = await page.locator("#narration p").last().textContent();
       if (label === "broken-boot-location") {
-        expect(after, `${label}: the turn is refused, aloud`)
-          .toBe("The room offers no other aspect; you face all there is to face.");
+        /* NOT "the room offers no other aspect" — that room does not exist,
+           and the sentence would be false directly under the true one. A
+           viewstate naming no location is a broken document, so the page
+           answers with the transport's fault line. */
+        expect(after, `${label}: the document fault is what answers`)
+          .toBe("The pattern falters; the words do not come.");
       } else {
         const facing = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
         expect(["N", "E", "S", "W"], `${label}: the view recovers to a real facing`)
@@ -535,18 +574,39 @@ test("a render fault, a missing narration key and an unreadable intent all speak
   checkCollected(await page.evaluate(COLLECT), "render-fault");
 });
 
+/* EVERY script the page loads, not the four on the boot path: removing
+ * src/inventory.js left the room drawn and working while the pane apologised
+ * that nothing could be shown, and a developer string in that state was
+ * invisible to the whole apparatus. */
 for (const mod of [["src", "renderer.js"], ["src", "harness.js"],
-  ["src", "placeholders.js"], ["fixtures", "demo-study", "fixture.js"]]) {
+  ["src", "placeholders.js"], ["src", "inventory.js"], ["src", "groundplane.js"],
+  ["fixtures", "demo-study", "fixture.js"]]) {
   test(`a missing ${mod[mod.length - 1]} shows nothing but product speech`, async ({ page }) => {
     const dir = stageTree();
     try {
       rmSync(join(dir, ...mod));
       await page.goto(appUrl(dir));
-      await expect.poll(async () => await page.evaluate(() => {
-        const ps = document.querySelectorAll("#narration p");
-        return ps.length ? ps[ps.length - 1].textContent : null;
-      }), { timeout: 5000 }).not.toBeNull();
+      await page.waitForTimeout(600);
+      const st = await page.evaluate(() => ({
+        lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
+        painted: (window.HOLO_APP && window.HOLO_APP.paints) || 0,
+        chevron: getComputedStyle(document.getElementById("chevron-left")).display
+      }));
       checkCollected(await page.evaluate(COLLECT), `module-missing-${mod[mod.length - 1]}`);
+      // The page says SOMETHING — silence is the defect the boot handler exists for.
+      expect(st.lines.length, "the page speaks").toBeGreaterThan(0);
+      // One fault, one voice: the two fault lines contradict each other.
+      const both = st.lines.includes("The projection will not hold. Nothing of this place can be shown.")
+        && st.lines.includes("The projection wavers; the pattern will not resolve.");
+      expect(both, "two contradictory fault lines must not stack").toBe(false);
+      // And the apology is only true when nothing was ever shown.
+      if (st.painted > 0) {
+        expect(st.lines, "no 'nothing can be shown' over a painted room")
+          .not.toContain("The projection will not hold. Nothing of this place can be shown.");
+      } else {
+        expect(st.chevron, "dead controls are withdrawn, not left named and live")
+          .toBe("none");
+      }
     } finally {
       removeTree(dir);
     }
@@ -589,4 +649,15 @@ test("at 200% zoom the pane still shows whole rows of type", async ({ page }) =>
     `newest line starts on a row boundary (top ${m.top}, line ${m.lineH})`).toBe(true);
   // And the whole message is reachable: the pane scrolls rather than clipping.
   expect(m.scrollable).toBeGreaterThanOrEqual(m.clientH);
+});
+
+/* The done clause names the README witness, and nothing held it: deleting the
+ * sentence that points a fixture editor at the fingerprint left the suite
+ * green. The witness is half of "README unchanged in force". */
+test("the README still points at the bake fingerprint", () => {
+  const readme = readFileSync(join(repoRoot, "README.md"), "utf8");
+  expect(readme, "the witness names the fingerprint").toMatch(/bake's fingerprint/);
+  expect(readme, "and says where it is now").toMatch(/console/);
+  expect(readme, "and what it means if it did not change").toMatch(/did not run/);
+  expect(readme, "and the one command still works").toContain("node tools/bake-fixtures.mjs");
 });
