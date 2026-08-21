@@ -254,6 +254,20 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    → fresh generation. Records form families — one identity, many `view_angle_deg` variants,
    each variant's provenance naming its source, each passing full gates with re-derived anchors
    and its own parts. Identity drift across derivation is a regeneration, never accepted.
+9. *Rooms are standpoint graphs; arrival is at the threshold* (brainstormed 2026-08-21, [HUMAN]:
+   "when we go through the door first we should be standing IN the door right?" — yes, "Same
+   with coffee shop. You arrive IN the door"): a room may hold several standpoints connected by
+   step-exits (same exit machinery, orientation law included); facings per standpoint number
+   what the standpoint deserves, not always four. Arrival never teleports to mid-room — the
+   standpoint convention *you view a wall from across the room* means walking east through a
+   west door lands you at the west standpoint of the east facing: in the doorway, looking in,
+   by geometry rather than special logic. The plan's drawn standpoint markers carry this
+   convention; every live-materialized location arrives the same way — threshold first. The
+   narration strip is the peripheral sense: arrival prose carries the room's encompassing
+   presence while the eye gets one honest direction. The angle cost is bounded: standpoints are
+   few and drawn, ±8° buckets quantize, and families mean 2–3 derived variants per asset, not
+   fresh generations. M0's small rooms stay single-standpoint; the great hall and long gallery
+   are multi-standpoint's first honest use.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
