@@ -274,3 +274,41 @@ test.describe("toggle walks a list it does not know in advance", () => {
     for (const s of res.seen) expect(res.declared).toContain(s);
   });
 });
+
+test.describe("go sets viewstate from arrive_facing, not from facing", () => {
+  /* Row 13's own mechanism, isolated. The shipped fixture's arrive_facing
+   * always equals facing now (blueprint §3, validator-enforced), so on the
+   * shipped fixture alone `viewstate.facing = exit.arrive_facing` and
+   * `viewstate.facing = exit.facing` are indistinguishable — deleting the
+   * former in favour of the latter leaves the whole suite green, because
+   * every value the harness could read agrees with the value it would have
+   * read from the wrong field. A doctored world, built directly against the
+   * harness API (never through the file-based validator, which would refuse
+   * an arrive_facing that does not continue travel), is the only way left to
+   * prove the harness reads the field row 13's whole point is about. */
+  test("arrive_facing, not facing, sets the post-go viewstate (harness-level, bypasses the validator)", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const fixture = window.__T.clone({
+        world: fx.world, staging: fx.staging, narration: fx.narration,
+        viewstate: fx.viewstate
+      });
+      const exit = fixture.world.locations
+        .find((l) => l.id === "study").exits
+        .find((e) => e.id === "door_study_hall");
+      // Deliberately NOT the direction of travel — a value the validator
+      // would refuse, chosen so it cannot be confused with `facing` ("E").
+      exit.arrive_facing = "N";
+      fixture.world.entities.find((e) => e.id === "door1").state = "open";
+      fixture.viewstate = { location: "study", facing: "E" };
+      const h = window.HOLO.harness.create(fixture);
+      const env = h.dispatch({ type: "go", exit: "door_study_hall" });
+      return { events: env.events, facing: h.viewstate.facing, location: h.viewstate.location };
+    });
+    expect(res.location).toBe("hall");
+    expect(res.facing, "the doctored arrive_facing, not the departure facing").toBe("N");
+    expect(res.events.some((e) => e.type === "view" && e.facing === "N"),
+      "the view event itself carries arrive_facing too").toBe(true);
+  });
+});

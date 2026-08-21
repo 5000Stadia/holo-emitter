@@ -12,9 +12,9 @@
  * pixel.
  */
 import {
-  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree, equipContext
+  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree, equipContext, bake
 } from "./helpers.mjs";
-import { rmSync } from "node:fs";
+import { rmSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 test.use({ viewport: POINTER_VIEWPORT });
@@ -790,16 +790,20 @@ test.describe("the page under ordinary clumsiness", () => {
   test("a double-click on a doorway walks you through once, not there and back", async ({ page }) => {
     // Before row 13, `arrive_facing` turned the player to face back at the
     // very doorway they had just come through, so the second click of a
-    // real double-click landed on it too and returned you — behind a veil
-    // you never saw past, with two arrival lines in the log and no sign
-    // anything had happened; a 400ms echo window in index.html guarded it.
-    // Passage now maintains orientation (blueprint §3): the player arrives
-    // facing the direction of travel, away from the door, so the second
-    // click's screen coordinates fall on bare wall in the room just entered
-    // and dispatch nothing on their own — the coincidence the echo window
-    // guarded against cannot arise in this fixture any more. What this test
-    // still protects, by outcome rather than by mechanism, is unchanged:
-    // one click through a doorway is one passage, never two.
+    // real double-click landed on that SAME doorway and returned you —
+    // behind a veil you never saw past, with two arrival lines in the log
+    // and no sign anything had happened; the 400ms echo window in
+    // index.html guards it. Passage now maintains orientation (blueprint
+    // §3): the player arrives facing the direction of travel, away from the
+    // door, so on THIS two-room fixture the second click's screen
+    // coordinates fall on bare wall — that specific same-doorway coincidence
+    // cannot arise here any more, and this test still protects the outcome
+    // (one click through a doorway is one passage, never two) whether it is
+    // the window or dead space doing the protecting. The window's broader
+    // job — a DIFFERENT doorway landing under that second click, which a
+    // corridor makes possible — is a separate risk this two-room fixture
+    // cannot construct; see "the double-click guard against a corridor's
+    // aligned doorway" below for that case, driven against a doctored world.
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");
     await clickEntity(page, "door1");
@@ -827,6 +831,96 @@ test.describe("the page under ordinary clumsiness", () => {
         .filter((p) => lines.has(p.textContent)).length;
     });
     expect(arrivals, "and one arrival line").toBe(1);
+  });
+
+  /* The double-click guard's real, still-current job: a corridor whose next
+   * room's own door sits on the facing you arrive with — exactly what
+   * "continues the direction of travel" produces one hop later — puts a
+   * DIFFERENT doorway under a real double-click's second click. M0's own
+   * two-room fixture cannot construct this (neither room has a second exit),
+   * so this is a doctored third room, chained off the shipped hall, built
+   * directly against the real page through a real double-click — never the
+   * harness API, since the defect this proves against is in index.html's
+   * pointer resolution, not in the harness. */
+  test("the double-click guard against a corridor's aligned doorway", async ({ page }) => {
+    const root = stageTree();
+    try {
+      const fdir = join(root, "fixtures", "demo-study");
+      const world = JSON.parse(readFileSync(join(fdir, "world.json"), "utf8"));
+      const staging = JSON.parse(readFileSync(join(fdir, "staging.json"), "utf8"));
+      const narration = JSON.parse(readFileSync(join(fdir, "narration.json"), "utf8"));
+
+      const hall = world.locations.find((l) => l.id === "hall");
+      hall.exits.push({ id: "door_hall_gallery", from: "hall", facing: "E",
+        to: "gallery", arrive_facing: "E", via: "door2" });
+      world.locations.push({ id: "gallery", facings: ["N", "E", "S", "W"],
+        exits: [{ id: "door_gallery_hall", from: "gallery", facing: "W",
+          to: "hall", arrive_facing: "W", via: "door2" }] });
+      world.entities.push({ id: "door2", sprite: "door-plank", location: "hall",
+        states: ["closed", "open"], state: "open", transition: true });
+      world.knowledge.player.push("door2");
+      // door1 must already be open too: a shut leaf covers its own opening
+      // exactly (§7), so a click there resolves to the LEAF (toggle), not
+      // the doorway (go) — the very first click of the double-click would
+      // silently open it instead of walking through, and the second click's
+      // "go" would then have nothing to do with the guard at all.
+      world.entities.find((e) => e.id === "door1").state = "open";
+
+      staging.placements.door2 = [
+        { facing: "hall/E", attachment: "wall_mounted", u: 0.5, v: 0.0 },
+        { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
+      ];
+
+      Object.assign(narration.lines, {
+        "toggle.door2.open": "The second door swings wide.",
+        "toggle.door2.closed": "The second door falls shut.",
+        "toggle.door2.refused_unreachable": "The second door will not answer from here.",
+        "take.door2.refused_fixed": "The second door hangs on its hinges, and there it stays.",
+        "go.door_hall_gallery.arrive": "You cross into the gallery beyond.",
+        "go.door_hall_gallery.refused_closed": "The gallery door is shut against you.",
+        "go.door_hall_gallery.refused_unreachable": "The way to the gallery does not open from here.",
+        "go.door_gallery_hall.arrive": "You come back into the hall.",
+        "go.door_gallery_hall.refused_closed": "The way back to the hall is shut.",
+        "go.door_gallery_hall.refused_unreachable": "The way to the hall is not before you."
+      });
+
+      writeFileSync(join(fdir, "world.json"), JSON.stringify(world, null, 2) + "\n");
+      writeFileSync(join(fdir, "staging.json"), JSON.stringify(staging, null, 2) + "\n");
+      writeFileSync(join(fdir, "narration.json"), JSON.stringify(narration, null, 2) + "\n");
+      bake(root, ["--fixture-dir", fdir]);
+
+      await page.goto(appUrl(root));
+      await page.waitForFunction(() => !!window.HOLO_APP);
+      await page.keyboard.press("ArrowRight"); // study/E, door1 already open
+      const a = await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        return window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library,
+          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      });
+      const box = await sceneBox(page);
+      const x = box.x + ((a.x + a.w / 2) * box.width) / 1536;
+      const y = box.y + ((a.y + a.h / 2) * box.height) / 1024;
+
+      // The real gesture: one double-click at one screen point. Without the
+      // guard, this walks study -> hall -> gallery in a single click pair,
+      // the hall never seen, behind a veil never lifted on it.
+      await page.mouse.click(x, y, { clickCount: 2, delay: 15 });
+      let s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
+      expect(s, "the second click is swallowed: one door, one room")
+        .toEqual({ location: "hall", facing: "E" });
+
+      // Past the window, the SAME screen point now genuinely means "the
+      // gallery's own door" (door2, aligned by the corridor's own geometry),
+      // and a fresh click there must be honoured, not eaten forever.
+      await page.waitForTimeout(500);
+      await page.mouse.click(x, y);
+      s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
+      expect(s, "a deliberate later click on the next door is not swallowed")
+        .toEqual({ location: "gallery", facing: "E" });
+    } finally {
+      removeTree(root);
+    }
   });
 
   test("an entity keeps its highlight while you are still pointing at it", async ({ page }) => {

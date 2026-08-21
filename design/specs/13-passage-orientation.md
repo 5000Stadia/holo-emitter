@@ -1,106 +1,118 @@
 # Row 13 — passage maintains orientation
 
-## Plan (revised after plan-critic pass 1 and artifact-critic pass 1)
+## Plan (after plan-critic pass 1, artifact-critic pass 1, artifact-critic pass 2)
 
-1. **Fixture.** `fixtures/demo-study/world.json`'s two exits' `arrive_facing` continue the
-   direction of travel: `door_study_hall` (study, facing E) arrives **E**; `door_hall_study` (hall,
-   facing W) arrives **W**. Rebaked.
+1. **Fixture, narration, blueprint** — unchanged since pass 1. `arrive_facing` continues travel
+   both ways; the arrival narration line describes continuing motion (rewritten again at pass 2 to
+   fix a doubled preposition an artifact critic flagged as reading like a draft — "You step through
+   into the hall. The air is wider here, and cooler."); blueprint §3's JSON block reads verbatim as
+   `world.json` does.
 
-2. **Narration.** `go.door_study_hall.arrive` no longer claims the player "comes about to face the
-   doorway" — rewritten to describe continuing motion, mirrored byte-for-byte into
-   `design/surface-strings.md`'s `go.door_study_hall.arrive` row (identified by string key, not
-   position). `go.door_hall_study.arrive` makes no facing claim and is left as authored.
+2. **Blueprint/fixture agreement, closed for real this time (pass-2 artifact-critic F5).** Pass 1's
+   check compared only exit fields; the pass-2 critic showed `knowledge.player` and `door1`'s
+   default state could both drift in the blueprint's block — direct hits on named qualities — with
+   the whole suite green. `tests/playwright/fixtures.spec.mjs` now asserts the **entire** parsed §3
+   block structurally equals `world.json` (`toEqual`, not a field allowlist). Verified to catch both
+   of the critic's exact repros before being reverted.
 
-3. **Blueprint.** §3's JSON block is edited to the values above (not merely footnoted); §12.1's
-   acceptance script names the two turn-back steps and why each checks a pre-passage reference.
-   **Artifact-critic F2**: this agreement was previously enforced by nothing — a builder could edit
-   either file out of step and the whole suite stayed green. `tests/playwright/fixtures.spec.mjs`
-   now parses §3's fenced JSON block (hard-failing if the heading or fence cannot be found — the
-   same discipline `surface-strings.md`'s own parser states) and asserts its exits' `from`/`facing`
-   /`to`/`arrive_facing`/`via` equal `world.json`'s, by id. Verified to actually catch the critic's
-   own repro (mutating the block to `"S"`/`"N"` turns it red) before being reverted.
+3. **`arrive_facing` driving the harness, given a test that cannot be defeated by the validator
+   rule above (pass-2 artifact-critic F1).** Point 4 below (the validator hard-enforcing
+   `arrive_facing === facing`) has a consequence nobody had until the second critic: on any fixture
+   this project can now ship, the two fields are always equal, so `viewstate.facing =
+   exit.arrive_facing` and `viewstate.facing = exit.facing` are indistinguishable — deleting the
+   former leaves the whole suite green, and row 13's own mechanism had zero coverage. Fixed the only
+   way that remains possible: `tests/playwright/harness-refusals.spec.mjs` gains a harness-level
+   test, built directly against the harness API on a doctored world (bypassing the file-based
+   validator by construction, the same "licensed exception" pattern every other harness-level test
+   in that file already uses), with `arrive_facing` deliberately set to a value the validator would
+   refuse. Verified red when the assignment is deleted or swapped for `exit.facing`.
 
-4. **The [HUMAN] ruling itself, enforced (artifact-critic F3).** The critic built a fixture whose
-   exits arrived 90° off the direction of travel in both directions and the validator said `valid`
-   — `tools/validate-fixtures.mjs` checked only that `arrive_facing` names *a* facing of the target,
-   never that it continues travel. Added: `arrive_facing === facing` is now a hard validator finding
-   (blueprint §3's rule, enforced unconditionally, since no exit anywhere in this schema declares
-   the "unless the world's own fiction demands a turn" exception blueprint's own text names — the
-   comment at the check says explicitly that this is the exception's future insertion point, not a
-   rewrite, when one is ever authored). Two new red cases in `validator.spec.mjs`, one per exit
-   direction (a swap bug that fixed one direction and not the other would otherwise pass).
+4. **The [HUMAN] ruling itself, enforced (pass-1 artifact-critic F3, unchanged at pass 2).**
+   `tools/validate-fixtures.mjs` requires `arrive_facing === facing` as a hard finding, with a
+   comment marking where a future schema exception would attach. Two red cases in
+   `validator.spec.mjs`, one per direction.
 
-5. **The double-click echo guard: deleted, not documented as residue (artifact-critic F4).** Pass 1
-   kept the guard (`lastGo`, `DOUBLE_CLICK_MS`, both call sites in `index.html`) as "shipped
-   defense, unexercised by any test." The critic showed this is worse than it sounds: deleting
-   *either* the swallow or its clearing independently leaves the full suite green, and the two
-   tests named for the mechanism ("travelling twice on purpose is not the same as travelling twice
-   by accident") don't discriminate it either — one passes only because two keypresses plus a click
-   happen to exceed 400ms of wall-clock on the test machine, the other via an explicit
-   `waitForTimeout` that never touches the window. A doctored fixture that actually exercises the
-   branch was attempted and abandoned: `tools/validate-fixtures.mjs`'s named-overlap-pair check
-   (`OVERLAP_PAIRS = [["chair1","desk1"],["stick1","shelf1"]]`) is hardcoded to those four M0
-   entity ids, so any fully independent fixture must also carry dummy versions of them staged and
-   overlapping just to validate — disproportionate scaffolding for testing an input-timing guard,
-   and itself a code smell (a validator finding masking the wrong thing). Combined with point 4
-   above closing the only route ("a future world's geometry") the guard was being kept open for,
-   the code, the constant and both call sites are deleted from `index.html`. The two tests that
-   existed only to describe the guard are rewritten to test what remains genuinely true — repeated
-   real passages, back-to-back, with no timing window between them, all succeed and every input
-   produces an envelope — under an honest describe-block name ("crossing a door more than once in a
-   row"), one test extended to a third consecutive passage rather than kept as a near-duplicate
-   `waitForTimeout` case. `design/architecture.md`'s veil/echo paragraph and Known-limits list are
-   rewritten to describe a removal, with the reasoning, not a kept-but-untested mechanism.
+5. **The double-click echo guard: restored, not deleted (pass-2 artifact-critic F2, reversing pass
+   1's point 5).** Pass 1 deleted the guard on the claim that "no fixture this project can ship
+   reintroduces the coincidence" it protects against. The pass-2 critic proved that claim false in
+   one double-click: the guard was never scoped to "the SAME doorway reappearing" — it swallows the
+   second click of a double-click whenever that click resolves to *any* doorway within the window —
+   and a corridor whose next room's own door sits on the facing you arrive with (exactly what
+   "continues the direction of travel" produces one hop later) puts a *different* doorway under
+   that second click. Continuing-direction-of-travel makes this coincidence *more* likely in a
+   corridor, not less. Since rows 11 and 12 build toward corridor-typed facings, this is a real,
+   near-term risk, not a hypothetical. The guard (`lastGo`, `DOUBLE_CLICK_MS`, both call sites) is
+   restored in `index.html` with the reasoning corrected in its own comment and in
+   `design/architecture.md`; the two "crossing a door more than once in a row" tests from pass 1
+   stand (they test something true regardless of the guard). A new test, "the double-click guard
+   against a corridor's aligned doorway," proves the guard against a doctored third room chained off
+   the shipped hall (reusing demo-study's own fixture as a base via `stageTree()`, sidestepping
+   `validate-fixtures.mjs`'s hardcoded M0 overlap-pair check that made pass 1's attempt at this
+   impractical) — driven with a real double-click, verified red when the guard is deleted. Building
+   this test surfaced and fixed a bug in the test itself: the doctored `door1` was never actually
+   opened before the double-click, so the first click silently toggled it open instead of walking
+   through, making the test pass "successfully" for the wrong reason on the first attempt — caught
+   only by deliberately deleting the guard and watching the test still pass.
 
-6. **Arrival and persistence, made non-tautological (plan-critic F3/F4, still true after pass 2).**
-   Both look-backs compare against references captured **before** the passage — a live-captured
-   frame of the departure room for the return trip, a frozen world snapshot rendered independently
-   for the outbound one — never a same-run re-render of the live post-arrival world, which a
-   silent state reset during `go` would still agree with. Each arrival frame (before any look-back)
-   is independently checked against a literal-viewstate solo render, so `viewstate` and the actual
-   pixels cannot silently diverge.
+6. **Arrival and persistence, non-tautological (plan-critic F3/F4, stands through both critic
+   passes).** Both look-backs compare against references captured **before** the passage; each
+   arrival frame is independently checked against a literal-viewstate solo render.
 
-7. **Narration-line assertions decoupled from prose wording (plan-critic F7).** The double-click
-   test counts arrival lines against the fixture's own two `go.*.arrive` strings
-   (`window.HOLO_FIXTURE.narration.lines[...]`), not a guessed substring.
+7. **Narration-line assertions decoupled from prose wording (plan-critic F7, stands).**
 
-8. **Findings carried forward rather than fixed here, each with why:**
-   - **F1 (observation, artifact-critic):** measured on the shipped grid, an arrival's *only*
-     visible change from its own departure frame is the door leaving the frame (1.5% of pixels,
-     study/E→hall/E and hall/W→study/W alike) — actively misleading, not merely uninformative, at
-     V1. Named with numbers in `design/architecture.md`'s Known limits for row 5's §12.6 batch;
-     not this row's to fix (no scene-canvas change is licensed here, and real backdrops at row 4
-     make the frames wholly different pictures regardless).
-   - **F8 (artifact-critic):** the row's fork over whether it needs a human visual gate (per
-     intention.md's "resumes at row 4" exemption boundary) lived only in this spec file, which is
-     deleted at close and reaches no surviving register. Moved into `design/architecture.md`'s
-     Known limits, named as undecided rather than silently resolved either way.
-   - **F9 (artifact-critic, pre-existing, not row 13's):** `voice.spec.mjs`'s runtime sweep never
-     actually leaves the study (its facing-cycling loop ends on a facing neither door is staged on,
-     so every `go`/`toggle` it dispatches downstream is refused) and every `STATE:` label past that
-     point is fiction the test cannot see is fiction, because the sweep only checks that collected
-     strings are legal, never that the claimed state is the real one. Independent of `arrive_facing`
-     (the broken sequence never depended on it) — allocated as row 14 rather than folded into this
-     row's close.
-   - **F5, F6, F7, F10, F11, F12 (artifact-critic, observations):** the intermediate look-back
-     facing is asserted now in the persistence blocks above (closes F5, which found it previously
-     unasserted and — worse — indistinguishable by hash between the two rooms at that facing);
-     F6 (a keypress under the veil can skip the promised arrival facing entirely), F7 (dead space
-     answers nothing after arrival, compounding F1), F10 (narration taste note on the replacement
-     arrival line), F11 (the adjudicator name on surface-strings row 54 was forward-dated at commit
-     time — licensed by that file's own stated convention) and F12 (WebKit unwitnessed) are named
-     here and left for row 5's batch / row 6's close, not acted on inside this row.
+8. **The human visual gate (pass-2 artifact-critic F3) — not resolved by this row, surfaced
+   instead.** `design/playbook.md` (read in full only at this pass — a gap in what this row was
+   handed, named for whoever hands off the next one) states plainly, under AgentBridge: "any row
+   that changes what the player sees carries in its done 'the human has approved consumption-camera
+   screenshots' … the human's yes closes it." `design/architecture.md`'s own measurement (F1 below)
+   is exactly such a change. Pass 1 treated the row as exempt "by analogy to row 11"; the pass-2
+   critic correctly called that an agent resolving a human-scoped question by analogy, which the
+   method does not license. Resolved by **not resolving it**: a consumption-camera screenshot batch
+   is captured and published (both directions, full sequence: departure with the door open, the
+   arrival frame, the look-back turn, the door confirmed open) rather than the row's own closing
+   commit removing it from the spec list. The row's work is done and green; its *close* — leaving
+   the spec list — waits on the yes the playbook reserves for the human.
+
+9. **Findings carried forward, not fixed here, each with why:**
+   - **F1 (both critic passes):** measured precisely at pass 2 — study/E→hall/E changes 23,946 of
+     1,572,864 px (1.52%), hall/W→study/W changes 23,587 (1.50%), and hall/E is 99.91% identical to
+     plain hall/S — every changed pixel in both cases is the door leaving frame. This is what makes
+     point 8's gate non-rhetorical: the row does change what the player sees, measurably. Named in
+     `design/architecture.md` for row 5's §12.6 batch, not fixed here (no scene-canvas change is
+     licensed by this row, and row 4's real backdrops resolve it structurally).
+   - **F4/F7 (pass-2 artifact-critic):** the arrival narration line the pass-1 critic adjudicated
+     PASS read like a draft on closer reading (a doubled preposition, a stranded clause) — fixed at
+     point 1 above, re-adjudicated under a `-pass2` adjudicator name in `surface-strings.md` rather
+     than silently keeping the original critic's name on text that critic didn't actually see.
+   - **F6 (pass-2 artifact-critic, declined with reason):** a concurrent Navigator session's commit
+     (`1d05819`, landed mid-row, message: "amendment queued behind row 13") rules the tab title
+     should read "Holo Emitter Static Demo"; the shipped page still says "holo-emitter." Real, but
+     explicitly sequenced as separate work by the process that ruled it — its own commit message
+     says *behind* row 13, not *in* it — and touching `index.html`'s title plus
+     `design/surface-strings.md`'s audited title row for an unrelated reason would blur this row's
+     own diff with that one. Left alone; flagged here and in the closing report so it is not lost.
+   - **F8/F9/F10, F11–F12 from pass 1:** unchanged — a keypress under the veil can skip the promised
+     arrival facing; dead space answers nothing after arrival; a double-click on a *closed* door
+     opens and shuts it net zero (pre-existing, outside this row); the turn-back frame that proves
+     persistence looks nearly identical to the departure frame to a *player*, not only to a hash
+     (verified true, not tautological); WebKit remains unwitnessed. All named in
+     `design/architecture.md`'s Known limits, none fixed here.
+   - **Row 14 allocated** (pass-1 artifact-critic F9, unchanged at pass 2): `voice.spec.mjs`'s
+     runtime sweep never actually leaves the study and its `STATE:` labels are asserted by comment,
+     not checked against the world — pre-existing, independent of `arrive_facing`, its own row.
 
 ## Edges
 
 - Touches (final): `fixtures/demo-study/{world,narration,fixture}.{json,js}`,
   `design/surface-strings.md` (one row), `design/blueprint.md` (§3's block, §12.1's script),
-  `design/architecture.md` (veil/echo paragraph rewritten as a removal; Known-limits list gains,
-  loses and gains bullets), `design/intention.md` (row 13's own text stands; row 14 allocated),
-  `tools/validate-fixtures.mjs` (one new hard check), `index.html` (the echo guard deleted, not
-  merely re-commented), `tests/playwright/{walkthrough,knowledge,fixtures,validator}.spec.mjs`.
+  `design/architecture.md` (veil/echo paragraph, Known-limits list), `design/intention.md` (row 13
+  stands; row 14 allocated), `tools/validate-fixtures.mjs` (one hard check),
+  `index.html` (the echo guard, restored with corrected reasoning — comment and logic both),
+  `tests/playwright/{walkthrough,knowledge,fixtures,validator,harness-refusals}.spec.mjs`.
 - Does not touch: `src/harness.js`'s `nextFacing`/`RING`, `groundplane.js`, the renderer, the
   door's own staged placement (`staging.json`), any narration line besides the one that became
-  false, any new schema field for the orientation exception (declined, with reason, at point 4).
-- Closing commit (state-only, per *How we work*): row 13 deleted from `design/intention.md`'s spec
-  list, this file deleted, no code changes in that commit.
+  false, any new schema field for the orientation exception, the tab-title ruling (F6, declined).
+- **Close:** per *How we work*, a state-only closing commit removes row 13 from
+  `design/intention.md`'s spec list and deletes this file — but per point 8, that commit does not
+  land as part of this row's own work; it waits on the human visual gate. Until then the row stays
+  in the spec list, built and green, with the review batch published for that gate.

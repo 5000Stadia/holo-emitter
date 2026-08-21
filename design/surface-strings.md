@@ -262,7 +262,7 @@ id | surface | state | verdict | observed | adjudicator | string
 51 | #narration | take.door1.refused_fixed | PASS | yes | row7-artifact-critic | The door hangs on its iron hinges, and there it will hang.
 52 | #narration | take.stick1.refused_fixed | PASS | yes | row7-artifact-critic | The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.
 53 | #narration | take.shelf1.refused_fixed | PASS | yes | row7-artifact-critic | The bookshelf is a full press of oak against the wall; no strength of yours will shift it.
-54 | #narration | go.door_study_hall.arrive | PASS | yes | row13-artifact-critic | You step through into the hall, on into wider air, and cooler.
+54 | #narration | go.door_study_hall.arrive | PASS | yes | row13-artifact-critic-pass2 | You step through into the hall. The air is wider here, and cooler.
 55 | #narration | go.door_hall_study.arrive | PASS | yes | row7-artifact-critic | You pass back into the study, where ink and oak dust close about you again.
 56 | #narration | go.door_study_hall.refused_closed | PASS | yes | row7-artifact-critic | The door is shut against you; the latch has not been lifted.
 57 | #narration | go.door_hall_study.refused_closed | PASS | yes | row7-artifact-critic | The way back stands barred; the door wants opening first.

@@ -553,21 +553,32 @@ the shipped witness.
   `go` never reaches the veil, so a shut door does not flash. A blanket 520 ms lock on the only way
   between rooms, cleared by nothing, once dropped a well-formed intent with no envelope and no
   refusal line and made *walk in, look back, walk out* impossible; it was also why §12.2's replay
-  clause was red on Firefox while Chromium, being slower on that path, stayed green. **[Row 13] The
-  double-click echo guard this section used to describe here is deleted, not merely undocumented.**
-  Before row 13, `arrive_facing` turned the player to face back at the doorway they had just come
-  through, putting it under the very pixel they just clicked, so an accidental double-click walked
-  them through and straight back behind a veil they never saw past — a 400 ms window (`lastGo`,
-  `DOUBLE_CLICK_MS` in `index.html`) swallowed the second half of exactly that gesture. Passage now
-  maintains orientation (blueprint §3): arrival faces the direction of travel, away from the door,
-  and that rule is validator-enforced (`tools/validate-fixtures.mjs`) with no schema field yet for
-  an exception — so no fixture this project can ship reintroduces the coincidence, and no committed
-  test could exercise either half of the guard (deleting the swallow, or deleting the window it
-  swallowed inside, both left the whole suite green under the row-13 artifact critic's own probe).
-  Shipping it anyway was speculative code with a claimed future purpose nothing could check; the
-  code, the window constant and both call sites are removed. A later row that genuinely needs the
-  same protection (a world whose geometry licenses an orientation exception) writes its own guard
-  against its own test, rather than un-deleting this one on faith.
+  clause was red on Firefox while Chromium, being slower on that path, stayed green. **A double-click
+  echo is swallowed, travel is not**: a 400 ms window (`lastGo`, `DOUBLE_CLICK_MS` in `index.html`)
+  swallows the second click of a real double-click when — and only when — that click also resolves
+  to `r.kind === "doorway"` within the window; every other click clears it. **[Row 13, corrected at
+  the second artifact-critic pass]** Before row 13, `arrive_facing` turned the player to face back
+  at the doorway they had just come through, putting it under the very pixel they just clicked, so
+  an accidental double-click walked them through and straight back behind a veil they never saw
+  past — the guard was written for that. Passage now maintaining orientation (blueprint §3) does
+  retire that *specific* coincidence on M0's two single-exit rooms (arrival faces away from the
+  door just used), and the first cut of this row read that as the guard's whole justification and
+  deleted it, reasoning "no fixture this project can ship reintroduces the coincidence." **That
+  reasoning was false, and the second-pass artifact critic proved it in one double-click**: the
+  guard was never scoped to "the same doorway" (`r.kind === "doorway"` matches *any* doorway the
+  second click resolves to), and a corridor whose next room's own door sits on the facing you
+  arrive with — exactly what "continues the direction of travel" produces one hop later — puts a
+  *different* doorway under that second click. Continuing-direction-of-travel makes this *more*
+  likely in a corridor, not less, since every arrival now faces forward into whatever the next room
+  offers on that same facing. The guard is restored (not re-deleted), the reasoning in `index.html`
+  and here is corrected, and `tests/playwright/walkthrough.spec.mjs` gains "the double-click guard
+  against a corridor's aligned doorway" — a doctored third room chained off the shipped hall,
+  driven with a real double-click — proving both halves (the swallow, and that it releases once the
+  window passes) against a deletion of either. M0 itself has no corridor to build this against
+  without doctoring, but **rows 11 and 12 build toward corridor-typed facings** (blueprint §5's
+  `enclosed`/`open`/`corridor` field), so the risk this guard covers stops being hypothetical the
+  day either lands; whoever builds them should read this paragraph before touching `index.html`'s
+  click resolver.
 - **Boot and fault surfaces.** A handler registered before any module loads — depending on
   nothing that could fail — answers a script that never arrives, and `<noscript>` answers a
   browser that will not run them; both speak as the product, with the detail on `console.error`,
@@ -869,6 +880,12 @@ Known limits, still open (row 1's list, updated):
   gradient), so cross-engine geometry is sound where it could be tested.
 - Closed by row 2: the refusal-vs-identical-redraw ambiguity (paint counter) and the stale
   shell-test title.
-- Closed by row 13: the double-click echo guard (`lastGo`, `DOUBLE_CLICK_MS` in `index.html`) is
-  deleted rather than kept as unexercised residue — see *Harness and envelope*'s `go` veil bullet
-  above for why keeping shipped-but-untestable code was rejected in favour of removing it.
+- Closed by row 13 (second pass): the double-click echo guard's coverage gap. A first pass deleted
+  it as untestable residue on a false claim that no fixture could re-trigger it; the second pass
+  restored it, corrected the claim, and gave it a real test against a doctored corridor — see
+  *Harness and envelope*'s `go` veil bullet above.
+- Closed by row 13: `arrive_facing` driving the post-`go` viewstate had no test of its own once the
+  validator began enforcing `arrive_facing === facing` (the two fields became indistinguishable on
+  any fixture the project can ship) — `tests/playwright/harness-refusals.spec.mjs` now proves it at
+  the harness level, against a doctored world built directly against the API, bypassing the
+  validator by construction.

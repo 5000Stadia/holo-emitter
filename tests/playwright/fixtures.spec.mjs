@@ -87,36 +87,19 @@ test.describe("fixtures", () => {
    * next to a true one, and nothing before this test could catch it: the
    * validator only reads fixtures/, and blueprint.md's §3 JSON block is prose
    * as far as every other check is concerned. Row 13's done clause is
-   * literally "blueprint section 3 examples agree with the fixture" — this is
-   * that agreement, checked by machine rather than by a builder's eye. */
-  test("blueprint §3's JSON block agrees with world.json's exits", () => {
+   * literally "blueprint section 3 examples agree with the fixture" —
+   * examples, not "examples' exits": a first cut of this check compared only
+   * the exit fields and a row-13 artifact critic showed it silently passed
+   * `knowledge.player` gaining an entity it must not have at boot, and
+   * `door1`'s default state flipping — both direct hits on named qualities
+   * ("the key does not exist in the player's world"; "leave a room and
+   * return exactly as you left it" starts from the boot state). The whole
+   * parsed block is compared now, structurally, against the whole world. */
+  test("blueprint §3's JSON block agrees with world.json, in full", () => {
     const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
     const example = extractBlueprintJsonBlock(blueprint, "3. Snapshot document");
     const world = JSON.parse(readFileSync(join(fixtureDir, "world.json"), "utf8"));
-
-    expect(Array.isArray(example.locations), "blueprint §3 block has locations[]").toBe(true);
-    const exampleExits = [];
-    for (const loc of example.locations) {
-      for (const ex of loc.exits || []) exampleExits.push(ex);
-    }
-    const worldExits = [];
-    for (const loc of world.locations) {
-      for (const ex of loc.exits || []) worldExits.push(ex);
-    }
-    expect(exampleExits.length, "blueprint §3 names as many exits as the fixture")
-      .toBe(worldExits.length);
-
-    const byId = (list) => Object.fromEntries(list.map((e) => [e.id, e]));
-    const exampleById = byId(exampleExits);
-    const worldById = byId(worldExits);
-    expect(Object.keys(exampleById).sort()).toEqual(Object.keys(worldById).sort());
-
-    const FIELDS = ["from", "facing", "to", "arrive_facing", "via"];
-    for (const id of Object.keys(worldById)) {
-      for (const field of FIELDS) {
-        expect(exampleById[id][field], `blueprint §3's "${id}".${field}`)
-          .toBe(worldById[id][field]);
-      }
-    }
+    expect(example, "blueprint §3's JSON block, structurally, equals world.json")
+      .toEqual(world);
   });
 });
