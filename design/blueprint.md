@@ -706,6 +706,20 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
 
 Every generated sprite and backdrop prompt appends the relevant block. Ingester gate (e) checks arrivals against `light.key`.
 
+**Per-placement view angle [HUMAN, 2026-08-21]:** "Due to perspective some things will be angles
+to various angles, so when generated the request should include its location horizontally across
+the screen with a flat wall facing background to maintain angle persecutive. The saved element
+index should account for it too." So the contract's fixed `turn_deg: 30` becomes the *default*,
+not the law: a sprite's generation request derives its **view angle from the plan** — the
+horizontal angle its footprint position subtends from the facing's standpoint (computable once
+row 12's plan exists; zero for dead-center, signed left/right otherwise) — and prompts it
+against a flat wall-facing background at that angle, so the object's perspective agrees with
+where it will stand in frame. The §6 record gains `view_angle_deg` (signed, generalizing
+`view_side`); the library matcher adds an angle-tolerance criterion (reuse only where the
+derived angle for the new placement falls within tolerance of the recorded one, ±8° as the
+starting license) — a period-, size-, and style-correct asset at the wrong angle is still a
+sticker. Mirror stays banned; an out-of-tolerance placement regenerates rather than flips.
+
 [AI, row 3] **The authored file at `replicator/contract.json` is the home; the JSON above shows its
 shape.** Three differences in the file, each with its reason recorded there: `prompt_block` and
 `backdrop_block` say **1.83 m** (Kabe's 2026-08-20 six-foot ruling, which `camera.eye_height_m`
