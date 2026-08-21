@@ -239,6 +239,21 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    compatibility) and generates only on a miss; no separate index to drift — the records are the
    catalog.
 5. The replicator's injected VLM callable (§9.2 v2) is the live anchor-detection hook.
+6. *Backdrop template tier* (brainstormed 2026-08-21): room-type shell backdrops, pre-generated
+   and library-indexed like sprites (type × style × size) — a described location matching a
+   shell's criteria gets instant walls, and only its unique props generate. The manor's
+   room-type templates are this tier's first population.
+7. *Salience-ordered generation:* the drama engine knows what a scene is about; assets
+   materialize in narrative-salience order (the counter before the background clutter), with the
+   gazed-at facing's backdrop first — turning early shows grid, in-fiction.
+8. *Angle derivation and asset families* [HUMAN, 2026-08-21: "If a generation sees the right
+   asset in the library at the wrong angle can it grab that asset - pass it to the image
+   generator and just ask for it at a different angle"]: the reuse ladder is family-hit at
+   compatible angle → instant; family-hit at wrong angle → pass the existing asset image to the
+   generator requesting the new angle (identity-preserving, style-inheriting, cheap); true miss
+   → fresh generation. Records form families — one identity, many `view_angle_deg` variants,
+   each variant's provenance naming its source, each passing full gates with re-derived anchors
+   and its own parts. Identity drift across derivation is a regeneration, never accepted.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
