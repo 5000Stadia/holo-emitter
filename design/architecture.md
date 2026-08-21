@@ -550,18 +550,24 @@ the shipped witness.
   the repaint**, holds ~140 ms, then fades the arrival up over 0.38 s. Order is the whole point
   and it was backwards: adding a fade-in class after the harness had already moved and repainted
   showed the player the destination at full brightness and *then* blacked them out. A refused
-  `go` never reaches the veil, so a shut door does not flash. **A double-click echo is swallowed,
-  travel is not**: before row 13, `arrive_facing` turned the player to face back at the doorway
-  they had just come through, putting it under the very pixel they just clicked, so an accidental
-  double-click walked them through and straight back behind a veil they never saw past. The guard
-  is a 400 ms window ended by **any** other intent — the first version was a blanket 520 ms lock on
-  the only way between rooms, cleared by nothing, which dropped a well-formed intent with no
-  envelope and no refusal line and made *walk in, look back, walk out* impossible. It was also why
-  §12.2's replay clause was red on Firefox while Chromium, being slower on that path, stayed green.
-  [Row 13] Passage now maintains orientation (blueprint §3): arrival faces the direction of travel,
-  away from the door, so on M0's two single-exit rooms the doorway never lands under the repeated
-  click again and the echo window is not exercised by any committed test — it remains shipped as a
-  general guard against the same coincidence in a future world's geometry, named as residue below.
+  `go` never reaches the veil, so a shut door does not flash. A blanket 520 ms lock on the only way
+  between rooms, cleared by nothing, once dropped a well-formed intent with no envelope and no
+  refusal line and made *walk in, look back, walk out* impossible; it was also why §12.2's replay
+  clause was red on Firefox while Chromium, being slower on that path, stayed green. **[Row 13] The
+  double-click echo guard this section used to describe here is deleted, not merely undocumented.**
+  Before row 13, `arrive_facing` turned the player to face back at the doorway they had just come
+  through, putting it under the very pixel they just clicked, so an accidental double-click walked
+  them through and straight back behind a veil they never saw past — a 400 ms window (`lastGo`,
+  `DOUBLE_CLICK_MS` in `index.html`) swallowed the second half of exactly that gesture. Passage now
+  maintains orientation (blueprint §3): arrival faces the direction of travel, away from the door,
+  and that rule is validator-enforced (`tools/validate-fixtures.mjs`) with no schema field yet for
+  an exception — so no fixture this project can ship reintroduces the coincidence, and no committed
+  test could exercise either half of the guard (deleting the swallow, or deleting the window it
+  swallowed inside, both left the whole suite green under the row-13 artifact critic's own probe).
+  Shipping it anyway was speculative code with a claimed future purpose nothing could check; the
+  code, the window constant and both call sites are removed. A later row that genuinely needs the
+  same protection (a world whose geometry licenses an orientation exception) writes its own guard
+  against its own test, rather than un-deleting this one on faith.
 - **Boot and fault surfaces.** A handler registered before any module loads — depending on
   nothing that could fail — answers a script that never arrives, and `<noscript>` answers a
   browser that will not run them; both speak as the product, with the detail on `console.error`,
@@ -744,24 +750,36 @@ fractional-scale `drawImage`) are deterministic within the witnessed engine — 
 letter requires; cross-platform hash stability is accepted residue.
 
 Known limits, still open (row 1's list, updated):
-- **The double-click echo window is shipped but unexercised by any committed test.** Passage
-  maintaining orientation (row 13) means arrival always faces away from the door just used, so on
-  M0's two single-exit rooms a real double-click's second click never lands on a doorway again —
-  the coincidence the window guards against cannot be constructed with this fixture. Deleting the
-  `lastGo`/echo logic in `index.html` would not turn the walkthrough's double-click tests red; they
-  now assert the outcome (one click through is one passage) by the orientation fix itself, not by
-  the guard. The guard remains shipped defensively, for a future world whose geometry could
-  reintroduce the coincidence (an `open` or `corridor` facing whose return exit faces back, e.g.);
-  it has no test of its own because M0 has no such world to construct one against.
-- **Every passage now arrives on a bare facing, and reversing one costs two turns.** Row 13's
-  orientation fix means both arrival facings (study/W, hall/E) are among §12.6's four deliberately
-  bare facings — nothing composited, no door in frame — so the moment right after any door crossing
-  shows an empty room, and walking back the way you came is turn, turn, click (§7 has `turn` but no
-  turn-around). Both are direct, accepted consequences of the ruling rather than defects; the first
-  is a look consequence worth a line in row 5's §12.6 batch rather than something this row can
-  judge. Also open: "direction of travel" is prose today — nothing yet checks that the hall
-  actually lies east of the study in any geometric sense — which row 12's overhead plan is the
-  first artifact positioned to verify against every exit's facing and `arrive_facing`.
+- **Every passage now arrives on a bare facing, and — at V1, measured — the only thing that visibly
+  changes is the door leaving the frame.** Row 13's orientation fix means both arrival facings
+  (study/W, hall/E) are among §12.6's four deliberately bare facings — nothing composited, no door
+  in frame. Measured on the shipped grid: `study/E` (door open, about to leave) to `hall/E`
+  (arrival) differs by 23,946 of 1,572,864 pixels (1.52%), and `hall/W`→`study/W` differs by 23,587
+  — in both cases every changed pixel is the door itself leaving frame; `hall/E` is 99.91% identical
+  to plain `hall/S` (the 1,348-pixel difference is the facing glyph alone). Pre-row-13 arrival was
+  not better in magnitude (`study/E`→`hall/W` changed only 6,951 px, the glyph alone) but it was at
+  least *uninformative* rather than *actively misleading* — a player who clicks a door and watches
+  it vanish, with the veil as the only other signal something happened, reads "the door I clicked
+  disappeared," not "I am in another room." This is a V1-only property (real backdrops at row 4
+  make the two facings wholly different pictures) but V1 is what the public link serves today, and
+  it is worth a specific line — not just "the room is emptier" — in row 5's §12.6 batch to Kabe:
+  the sharper claim is that the passage currently reads as the door vanishing, not as a room
+  change, and no non-scene signal exists to say otherwise (the scene canvas may not carry one —
+  §12.6's hash/capture spec — so any fix is chrome, narration, or Kabe accepting it as V1 residue
+  that real backdrops resolve). Reversing a passage also costs two turns with no turn-around
+  affordance (§7 has `turn` but no 180°) — accepted as the ruling's direct consequence. Also open:
+  "direction of travel" is prose today — nothing yet checks that the hall actually lies east of the
+  study in any geometric sense — which row 12's overhead plan is the first artifact positioned to
+  verify against every exit's facing and `arrive_facing`.
+- **Whether row 13 needs a human visual gate is undecided, and the deciding is not this document's
+  to do.** `design/intention.md` exempts only rows 1–3 from the playbook's per-row screenshot
+  approval ("which resumes at row 4"), on the grounds those rows "change nothing Kabe judges as
+  look." Row 13 ships no new asset and its own done clause names no gate — closer in shape to row
+  11 (mechanical/V1, no gate) than to row 5/9/12 (each names one) — but it does change what a player
+  sees on arrival (the bullet above), which is squarely "look." Treated here as gate-exempt, by
+  analogy to row 11, for the purpose of closing this row without blocking on it — but that is a
+  judgment call standing in for a decision, not a settled reading, and it is named here because the
+  row's own plan file is deleted at close and this question would otherwise vanish with it.
 - **`entryRect` — the chrome's idea of an entity's rectangle — ignores parts, and `drawnRect` in
   the renderer does not.** The hover halo sizes its scratch from `entryRect` and then stamps body
   *and* parts into it, and the pointing tolerance measures from the same rect, so a part that
@@ -851,3 +869,6 @@ Known limits, still open (row 1's list, updated):
   gradient), so cross-engine geometry is sound where it could be tested.
 - Closed by row 2: the refusal-vs-identical-redraw ambiguity (paint counter) and the stale
   shell-test title.
+- Closed by row 13: the double-click echo guard (`lastGo`, `DOUBLE_CLICK_MS` in `index.html`) is
+  deleted rather than kept as unexercised residue — see *Harness and envelope*'s `go` veil bullet
+  above for why keeping shipped-but-untestable code was rejected in favour of removing it.

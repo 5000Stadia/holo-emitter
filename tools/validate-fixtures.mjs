@@ -488,6 +488,18 @@ export function validate(fixtureDir, records) {
     if (fromLoc && !(fromLoc.facings || []).includes(ex.facing)) {
       findings.push(`world.json: exit "${exId}" facing "${ex.facing}" is not a facing of "${ex.from}"`);
     }
+    /* Passage maintains orientation [HUMAN, 2026-08-20, blueprint §3]: "The
+     * rule governs all future exits unless the world's own fiction demands a
+     * turn." No exit in this schema names that exception yet (row 13 declined
+     * to build one — nothing needs it), so the rule is enforced unconditionally
+     * for now: arrive_facing continues the direction of travel, i.e. equals
+     * the departure facing. The day a real exception is authored, this clause
+     * is the escape hatch's insertion point, not a rewrite — an `orientation`
+     * or similar field on the exit would gate it, checked here by name rather
+     * than left for a builder's eye. */
+    if (ex.arrive_facing !== ex.facing) {
+      findings.push(`world.json: exit "${exId}" arrive_facing "${ex.arrive_facing}" does not continue the direction of travel (facing "${ex.facing}") — blueprint §3`);
+    }
   }
 
   /* Relations and knowledge ids resolve. */

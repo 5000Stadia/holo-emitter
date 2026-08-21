@@ -159,6 +159,17 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
       }, /host "shelf3" is not staged/],
     ["a takeable whose record carries no thumb", "world",
       (w) => { w.entities.find((e) => e.id === "chair1").takeable = true; }, /thumb/i],
+    /* Passage maintains orientation (blueprint §3, row 13): arrive_facing
+     * must continue the direction of travel until a real exception exists in
+     * the schema. Both directions get their own case, since each exit's
+     * `facing` differs (E vs W) and a bug that swapped the two constants
+     * would leave one direction accidentally correct. */
+    ["arrive_facing turned 90° off the direction of travel (study→hall)", "world",
+      (w) => { w.locations.find((l) => l.id === "study").exits[0].arrive_facing = "N"; },
+      /door_study_hall.*does not continue the direction of travel/],
+    ["arrive_facing reversed, facing back at the door (hall→study)", "world",
+      (w) => { w.locations.find((l) => l.id === "hall").exits[0].arrive_facing = "E"; },
+      /door_hall_study.*does not continue the direction of travel/],
   ];
 
   for (const [name, file, fn, pattern] of redCases) {

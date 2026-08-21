@@ -249,8 +249,6 @@
     var paints = 0;
     var currentLayout = null;
     var veilTimer = null;
-    var lastGo = null;          // { exit, at } — the double-click echo guard
-    var DOUBLE_CLICK_MS = 400;
     var lastPointer = null;
     var halted = false;         // a fault the page cannot come back from
     var stripFaulted = false;   // the strip alone; the picture is unharmed
@@ -455,10 +453,6 @@
          destination cut in instantly and the player was blacked out for half
          a second afterwards. A refused `go` never reaches this branch, so a
          shut door does not flash. */
-      // Any other intent ends the echo window: it is a double-click guard,
-      // not a lock on travel.
-      lastGo = (intent && intent.type === "go" && envelope.events.length > 0)
-        ? { exit: intent.exit, at: Date.now() } : null;
       if (intent && intent.type === "go" && envelope.events.length > 0) {
         if (veilTimer) clearTimeout(veilTimer);
         veil.classList.add("instant", "on");
@@ -696,32 +690,27 @@
         fault(err);
         return;
       }
-      // Any deliberate click ends the double-click echo window, including one
-      // that resolves to nothing: dead space dispatches no intent by design,
-      // so keying the window on dispatched intents alone left it armed after
-      // a click on nothing, and the next doorway click 250 ms later — a real
-      // gesture with a real destination — vanished.
-      if (r.kind !== "doorway") lastGo = null;
       if (r.kind === "doorway") {
-        /* Swallow only the second half of a double-click: the SAME doorway,
-           within the double-click window, with nothing else done in between.
-           Before row 13, `arrive_facing` turned the player to face back at
-           the very doorway they had just come through, so the second click
-           of a real double-click landed on it too and walked them through
-           and straight back behind a veil they never saw past. Passage now
-           maintains orientation (blueprint §3) — arrival faces the
-           direction of travel, away from the door — so that coincidence no
-           longer arises on M0's two single-exit rooms; the window stays as
-           the general guard against a doorway landing under a repeated
-           click by any future world's geometry. A blanket half-second lock
-           on the only way between rooms is the opposite error — walk in,
-           look back, walk out is a real thing to do, and it was silently
-           dropped. So: the window is a double-click window, and ANY other
-           intent ends it. The exit ids differ across the two halves of an
-           echo (the two rooms' exits), so the window is what identifies it,
-           not the target. */
-        var echo = lastGo && (Date.now() - lastGo.at) < DOUBLE_CLICK_MS;
-        if (!echo) dispatch({ type: "go", exit: r.aperture.exit });
+        /* Row 13 removed the double-click echo guard that used to live here.
+           It swallowed the second click of a real double-click when — and
+           only when — that click also resolved to a doorway within 400ms of
+           a `go`: before row 13, `arrive_facing` turned the player to face
+           back at the very doorway they had just come through, so the
+           second click of a real double-click landed on it too and walked
+           them through and straight back, behind a veil they never saw
+           past. Passage now maintains orientation (blueprint §3) — arrival
+           faces the direction of travel, away from the door — and the
+           orientation rule is validator-enforced (tools/validate-fixtures.mjs)
+           with no schema field yet for an exception, so no fixture this
+           project can ship puts a doorway under that second click; the
+           guard had no shipped scenario left to protect and no committed
+           test could exercise either half of it (deleting the swallow, or
+           deleting the window it swallowed inside, both left the whole
+           suite green). Kept, it was speculative code with a claimed
+           purpose nothing could check. Reintroducing it — if a later row's
+           world genuinely needs it — is a decision with its own test, not a
+           default to restore. */
+        dispatch({ type: "go", exit: r.aperture.exit });
         return;
       }
       if (r.kind !== "entity") return;

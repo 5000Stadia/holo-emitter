@@ -950,13 +950,17 @@ test.describe("the stage never disappears and never scrolls", () => {
   }
 });
 
-test.describe("travelling twice on purpose is not the same as travelling twice by accident", () => {
-  test("walk in, look back, walk out — the second passage is not swallowed", async ({ page }) => {
-    // The first guard against an accidental double-click was a blanket
-    // half-second lock on the only way between rooms, cleared by nothing.
-    // Walking in and straight back out is a real thing to do, and it was
-    // dropped without an envelope, without a refusal line and without a
-    // repaint — a well-formed intent discarded by chrome state.
+test.describe("crossing a door more than once in a row", () => {
+  test("walk in, look back, walk out", async ({ page }) => {
+    // No timing guard sits between one passage and the next (row 13 deleted
+    // the last one — a double-click echo window that pre-row-13 arrival
+    // facing had made necessary and that this orientation fix made
+    // permanently unreachable; see the double-click test above). Every
+    // input here must still produce an envelope: an earlier defect was a
+    // blanket half-second lock on the only way between rooms, cleared by
+    // nothing, that silently dropped the return passage — no envelope, no
+    // refusal line, no repaint. Walking in and straight back out is a real
+    // thing to do, and nothing may eat it.
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");
     await clickEntity(page, "door1");
@@ -965,9 +969,7 @@ test.describe("travelling twice on purpose is not the same as travelling twice b
     // Arrives facing the direction of travel, away from the door.
     expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     const envelopes = s.envelopes;
-    // Look back (any intent also ends the double-click window, though the
-    // orientation change alone already keeps the second click of a real
-    // double-click off the doorway — see the double-click test above).
+    // Look back and walk out.
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
     await clickDoorway(page);
@@ -977,17 +979,22 @@ test.describe("travelling twice on purpose is not the same as travelling twice b
       .toBe(envelopes + 3);
   });
 
-  test("a second passage after the double-click window is honoured", async ({ page }) => {
+  test("a third passage right after the second succeeds too", async ({ page }) => {
+    // Crossing back and forth repeatedly, back-to-back with no pause, must
+    // keep working — there is nothing left that could accumulate state
+    // across passages and start refusing or misrouting the next one.
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");
     await clickEntity(page, "door1");
     await clickDoorway(page); // study/E -> hall, arrives facing E
     await page.keyboard.press("ArrowRight"); // look back: E -> S -> W
     await page.keyboard.press("ArrowRight");
-    await page.waitForTimeout(500);
     await clickDoorway(page); // hall/W -> study, arrives facing W
+    await page.keyboard.press("ArrowRight"); // look back: W -> N -> E
+    await page.keyboard.press("ArrowRight");
+    await clickDoorway(page); // study/E -> hall, arrives facing E
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "study", facing: "W" });
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
   });
 });
 

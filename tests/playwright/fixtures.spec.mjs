@@ -5,6 +5,34 @@ import { join } from "node:path";
 
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
 
+/* Extract the first fenced ```json block under a given "## N. Heading" in
+ * blueprint.md, up to the next "## " heading. Throws (never returns null or
+ * an empty match) on anything it cannot find or parse — a guard that goes
+ * quiet when its input breaks is the failure mode this project has already
+ * paid for twice (design/surface-strings.md's parser states the same rule
+ * for its own fenced blocks). */
+function extractBlueprintJsonBlock(md, headingPrefix) {
+  const headingRe = new RegExp("^## " + headingPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "m");
+  const headingMatch = headingRe.exec(md);
+  if (!headingMatch) {
+    throw new Error(`blueprint.md: no heading found matching /^## ${headingPrefix}/m`);
+  }
+  const rest = md.slice(headingMatch.index + headingMatch[0].length);
+  const nextHeadingIdx = rest.search(/^## /m);
+  const section = nextHeadingIdx === -1 ? rest : rest.slice(0, nextHeadingIdx);
+  const fenceMatch = /```json\n([\s\S]*?)\n```/.exec(section);
+  if (!fenceMatch) {
+    throw new Error(`blueprint.md: no \`\`\`json fence found under "## ${headingPrefix}"`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(fenceMatch[1]);
+  } catch (err) {
+    throw new Error(`blueprint.md: the \`\`\`json block under "## ${headingPrefix}" does not parse: ${err.message}`);
+  }
+  return parsed;
+}
+
 test.describe("fixtures", () => {
   test("bake staleness: the committed fixture.js byte-equals a fresh bake of the .json truth", () => {
     const scratch = mkdtempSync(join(tmpdir(), "holo-bake-"));
@@ -51,5 +79,44 @@ test.describe("fixtures", () => {
     expect(typeof viewstate.location).toBe("string");
     expect(typeof viewstate.facing).toBe("string");
     // (The full coordinate/fact split check is row 2's validator.)
+  });
+
+  /* "The document is the sole truth" has to be true of the design documents
+   * too, not only of the fixture the renderer reads — a blueprint whose own
+   * illustration disagrees with the shipped world is a false sentence sitting
+   * next to a true one, and nothing before this test could catch it: the
+   * validator only reads fixtures/, and blueprint.md's §3 JSON block is prose
+   * as far as every other check is concerned. Row 13's done clause is
+   * literally "blueprint section 3 examples agree with the fixture" — this is
+   * that agreement, checked by machine rather than by a builder's eye. */
+  test("blueprint §3's JSON block agrees with world.json's exits", () => {
+    const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
+    const example = extractBlueprintJsonBlock(blueprint, "3. Snapshot document");
+    const world = JSON.parse(readFileSync(join(fixtureDir, "world.json"), "utf8"));
+
+    expect(Array.isArray(example.locations), "blueprint §3 block has locations[]").toBe(true);
+    const exampleExits = [];
+    for (const loc of example.locations) {
+      for (const ex of loc.exits || []) exampleExits.push(ex);
+    }
+    const worldExits = [];
+    for (const loc of world.locations) {
+      for (const ex of loc.exits || []) worldExits.push(ex);
+    }
+    expect(exampleExits.length, "blueprint §3 names as many exits as the fixture")
+      .toBe(worldExits.length);
+
+    const byId = (list) => Object.fromEntries(list.map((e) => [e.id, e]));
+    const exampleById = byId(exampleExits);
+    const worldById = byId(worldExits);
+    expect(Object.keys(exampleById).sort()).toEqual(Object.keys(worldById).sort());
+
+    const FIELDS = ["from", "facing", "to", "arrive_facing", "via"];
+    for (const id of Object.keys(worldById)) {
+      for (const field of FIELDS) {
+        expect(exampleById[id][field], `blueprint §3's "${id}".${field}`)
+          .toBe(worldById[id][field]);
+      }
+    }
   });
 });
