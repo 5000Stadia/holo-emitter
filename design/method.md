@@ -601,6 +601,10 @@ rows:**
    Navigator's own plain verdict on whether the result was worth its cost in passes and hours;
    his take on that verdict is direction for the next stretch. Rides presentations that already
    happen; creates none.
+4. *Round flags — the tripwire is pulled by the flow, not by vigilance* (proposed from this run,
+   adopted upstream at main 025b524): a handoff may name how many examination rounds a row is
+   expected to buy; a builder opening a round past that count (past the third, where none was
+   named) says so in one line — round number and finding families so far — before proceeding.
 3. *Checkpoints inform, gates hold:* a checkpoint is "how does this look," never "may I
    continue" — work keeps moving while the answer is pending. Only visual/taste direction and
    named milestones (phase exit, first public appearance) hold for the human. The interrupt rule
