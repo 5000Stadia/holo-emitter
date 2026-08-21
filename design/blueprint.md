@@ -210,6 +210,16 @@ spaces contain no invented enclosures: a wall seen from the courtyard or grounds
 where the manor's exterior wall actually stands in the plan; where no building stands, the
 ground runs open to its far line. The building's one exterior outline is the single source of
 every outdoor wall.
+**Redline returned, 2026-08-21 [HUMAN] — THE SCHEMATIC IS APPROVED** ("aproval on the
+schematic"), with four rulings: (1) the built privy-garden wall stands — "the garden wall is
+fine" — and an extension: "if we are looking out into the indefinite distance, we just have no
+wall and a nice looking backdrop" — an open facing with no structure gets a scenic vista
+backdrop to its far line, generated like any backdrop; (2) the three-sided entrance court is
+accepted ("whatever conceptually works and moves things along"); (3) wide-view camera license
+granted ("sure") — open and corridor deep-views take their own wider camera, enclosed flat
+views keep the pinned frame; (4) stairs stay straight single flights ("let's keep it simple
+for now") — the fiction-demands-a-turn exception stays unspent. `design/plan-draft/` is ground
+truth for row 12; the drawing you approved is the solver's first fixture.
 
 **Live-ingestion shape [HUMAN, 2026-08-21]:** "the methodology for going from a many location
 description via something like pattern buffer / construct projector to overhead map to rooms
