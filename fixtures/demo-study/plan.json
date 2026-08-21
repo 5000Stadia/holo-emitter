@@ -2758,11 +2758,12 @@
       "footprint": {
         "x0": 34.3312,
         "x1": 34.4912,
-        "y0": 11.45,
-        "y1": 11.61
+        "y0": 11.7,
+        "y1": 11.86
       },
       "attachment": "floor_free",
-      "source": "inverse-projected"
+      "source": "composed",
+      "note": "Row 11, under blueprint §4's standing licence (change the value if it makes the product better, and say why), ruled by the Navigator. Moved 0.25 m toward the wall: depth 0.75 -> 0.50 m. The cross passage's honest camera stands 1.95 m off its north wall where the demo previously drew every facing at the 3.5 m fallback, and the stronger perspective dropped the candlestick almost clear of the bookcase - the authored occlusion chain (intention quality 3, stick1 x shelf1) fell to 48 intersecting opaque pixels against blueprint §12.8's floor of 50. At 0.50 m it measures 332. The floor was not moved; the composition was. The drawing draws no furniture, so no sheet changes and the approval stamp is untouched."
     }
   ]
 }

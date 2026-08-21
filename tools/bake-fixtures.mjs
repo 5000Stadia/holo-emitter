@@ -21,7 +21,9 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { validate } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
-import { stagingDivergence, assertCameraConsistent } from "./plan-projection.mjs";
+import {
+  stagingDivergence, assertCameraConsistent, assertRuledEye, metaForFacing
+} from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -35,6 +37,11 @@ const fixtureDir = argOf("--fixture-dir", join(root, "fixtures", "demo-study"));
 const outFile = argOf("--out", join(fixtureDir, "fixture.js"));
 
 const FILES = ["world", "staging", "narration", "viewstate"];
+/* Derived, not authored: the §5 meta per facing, computed from plan.json
+ * below. It rides fixture.js because the page cannot fetch, exactly like the
+ * authored files, and it is in the fingerprint because a plan edit that moves
+ * a room's geometry must move the bake. */
+let metas = null;
 const texts = {};
 const parsed = {};
 for (const name of FILES) {
@@ -53,6 +60,24 @@ for (const name of FILES) {
     console.error(
       `bake refused: viewstate ${JSON.stringify(vs)} names no location/facing in world.json`
     );
+    process.exit(1);
+  }
+}
+
+// The plan is REQUIRED and it is read FIRST, before any other refusal: a
+// missing plan.json must produce its own named refusal rather than surfacing
+// as a validator finding about geometry that could not be resolved.
+let plan;
+{
+  const planFile = join(fixtureDir, "plan.json");
+  if (!existsSync(planFile)) {
+    console.error(`bake refused: no plan.json in ${fixtureDir} — the plan is the fixture's spatial source (blueprint §4b)`);
+    process.exit(1);
+  }
+  try {
+    plan = JSON.parse(readFileSync(planFile, "utf8"));
+  } catch (e) {
+    console.error(`bake refused: plan.json does not parse (${e.message})`);
     process.exit(1);
   }
 }
@@ -77,24 +102,10 @@ for (const name of FILES) {
 }
 
 // Refuse to bake a fixture whose spatial source does not hold up (row 12).
-// The plan is REQUIRED, not optional: a deleted or mis-pathed plan.json would
-// otherwise make the bake green and silent, and the bake is this project's
-// enforcement locus precisely so a fixture cannot ship unchecked. plan.json is
-// deliberately NOT among the baked FILES — the page does not read the plan, so
-// baking it would move fixture.js's bytes and its fingerprint for nothing.
+// plan.json is deliberately NOT among the baked FILES — the page does not read
+// the plan, so baking it would move fixture.js's bytes for nothing; what IS
+// baked is the derived per-facing meta, below.
 {
-  const planFile = join(fixtureDir, "plan.json");
-  if (!existsSync(planFile)) {
-    console.error(`bake refused: no plan.json in ${fixtureDir} — the plan is the fixture's spatial source (blueprint §4b)`);
-    process.exit(1);
-  }
-  let plan;
-  try {
-    plan = JSON.parse(readFileSync(planFile, "utf8"));
-  } catch (e) {
-    console.error(`bake refused: plan.json does not parse (${e.message})`);
-    process.exit(1);
-  }
   let records;
   try {
     records = require("../src/placeholders.js").records;
@@ -105,9 +116,17 @@ for (const name of FILES) {
   const byEntity = {};
   for (const e of parsed.world.entities || []) if (records[e.sprite]) byEntity[e.id] = records[e.sprite];
 
-  // The projection reads its camera out of grid-canonical meta; if that meta
-  // stops satisfying §5's own horizon device, the camera is not a camera and
-  // every derived floor line is nonsense.
+  // The ruled eye height is blueprint §10's, whose authored home is
+  // replicator/contract.json. The projection derives every meta from it, so a
+  // drift between the two would silently re-camera the project.
+  const eyeProblems = assertRuledEye();
+  if (eyeProblems.length) {
+    eyeProblems.forEach((c) => console.error(`bake refused: camera — ${c}`));
+    process.exit(1);
+  }
+  // And the unplanned-facing fallback meta must still satisfy §5's own horizon
+  // device at that eye height: if it does not, the camera is not a camera and
+  // every floor line derived beside it is nonsense.
   const cameraProblems = assertCameraConsistent();
   if (cameraProblems.length) {
     cameraProblems.forEach((c) => console.error(`bake refused: camera — ${c}`));
@@ -132,6 +151,31 @@ for (const name of FILES) {
   }
   if (div.unexpected.length || div.missing.length) process.exit(1);
   for (const w of planWarnings(plan, byEntity, parsed.world)) console.error(`plan warning: ${w}`);
+
+  /* Row 11: the §5 meta of every facing the world names, derived from the
+   * plan and baked beside the fixture. The page hands these to the renderer as
+   * backdrop entries with no image, so the grid draws each room's real wall
+   * instead of the 16 m one the fallback meta describes. `plan.json` itself
+   * stays unbaked — the page does not read it, and baking it would move
+   * fixture.js's bytes for nothing.
+   *
+   * Refused, not silently accepted: a facing whose derived meta takes the
+   * WIDE camera. `design/plan-draft/projection.md` §5 carries two live
+   * readings of Kabe's wide-view licence that disagree on ten facings, and
+   * says the default stands "only because nothing consumes a derived meta
+   * yet". This bake is something consuming them, so a wide facing cannot ship
+   * until that reading is ruled. None of M0's eight is wide. */
+  metas = {};
+  for (const loc of parsed.world.locations || []) {
+    for (const f of loc.facings || []) {
+      const m = metaForFacing(plan, loc.id, f);
+      if (m.camera === "wide") {
+        console.error(`bake refused: ${loc.id}/${f} derives the WIDE camera (wall_width_m ${m.wall_width_m} m); projection.md §5's two readings of the wide-view licence are unruled, so a wide facing may not ship`);
+        process.exit(1);
+      }
+      metas[`${loc.id}/${f}`] = m;
+    }
+  }
 }
 
 function fnv1a32(str) {
@@ -142,7 +186,8 @@ function fnv1a32(str) {
   }
   return h.toString(16).padStart(8, "0");
 }
-const fp = fnv1a32(FILES.map((n) => texts[n]).join("\n"));
+const metasText = JSON.stringify(metas, null, 2);
+const fp = fnv1a32(FILES.map((n) => texts[n]).concat([metasText]).join("\n"));
 
 const out = `// GENERATED FILE — DO NOT EDIT.
 // The one truth lives in the sibling .json files (world.json, staging.json,
@@ -152,12 +197,19 @@ const out = `// GENERATED FILE — DO NOT EDIT.
 //
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
+//
+// \`metas\` is DERIVED, not authored: the §5 backdrop meta of every facing the
+// world names, projected from fixtures/demo-study/plan.json through
+// tools/plan-projection.mjs (blueprint §4b). Its one home is the plan; edit
+// the plan, re-bake. The page hands these to the renderer as backdrop entries
+// carrying a meta and no image.
 window.HOLO_FIXTURE = {
   fp: "${fp}",
   world: ${texts.world},
   staging: ${texts.staging},
   narration: ${texts.narration},
-  viewstate: ${texts.viewstate}
+  viewstate: ${texts.viewstate},
+  metas: ${metasText}
 };
 `;
 

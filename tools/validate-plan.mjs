@@ -72,7 +72,14 @@ const BAND_KINDS = ["exterior", "partition", "garden"];
  * outdoor space ever sees one. */
 export const BUILT_KINDS = ["exterior", "garden"];
 export const ALL_WALL_KINDS = ["exterior", "garden", "partition"];
-const OBJECT_SOURCES = ["drawing", "inverse-projected"];
+/* Where an object footprint came from, because a later re-derivation has to
+ * know which values it may regenerate. "drawing" is measured off the sheet;
+ * "inverse-projected" was computed back out of staging.json by
+ * plan-projection.inverseProjectPlacement and may be recomputed; "composed"
+ * (row 11) means a human-licensed composition choice was made ON TOP of that
+ * — blueprint §4's standing licence — so re-deriving it from staging would
+ * silently undo the choice. A "composed" object carries its `note`. */
+const OBJECT_SOURCES = ["drawing", "inverse-projected", "composed"];
 /* Blueprint §4b's room TYPE TEMPLATE — "rooms carry a type template
  * (chamber/hall/corridor/open) so every room is the same modular recipe … per
  * room modular consistent design so creation is snappy" [HUMAN]. This is the
@@ -104,7 +111,7 @@ const ROOM_KEYS = ["id", "floor", "name", "type", "archetype", "rect", "facings"
 const FACING_KEYS = ["type", "standpoint_source", "standpoint", "wall_line",
   "camera_wall_m", "camera_far_m", "wall_width_m", "far_line", "note"];
 const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
-const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source"];
+const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source", "note"];
 const BAND_KEYS = ["id", "kind", "floors", "rect"];
 const STAIR_KEYS = ["id", "kind", "treads", "rect", "joins", "up", "down"];
 const FLOOR_KEYS = ["id", "level"];
@@ -773,6 +780,15 @@ export function validatePlan(plan, world, records) {
     if (room.floor !== o.floor) push(`object "${o.id}": floor "${o.floor}" is not the floor of room "${o.room}"`);
     if (!OBJECT_SOURCES.includes(o.source)) {
       push(`object "${o.id}": source ${JSON.stringify(o.source)} is not one of ${OBJECT_SOURCES.join(" | ")} — a later re-derivation has to know which values it may regenerate`);
+    }
+    /* A composed footprint is one a human licence moved off its derived
+     * value; without the reason beside it the next re-derivation cannot tell
+     * a decision from a stale number, which is the whole point of the token. */
+    if (o.source === "composed" && !(typeof o.note === "string" && o.note.trim().length > 20)) {
+      push(`object "${o.id}": source "composed" without a note saying why — blueprint §4's licence is "change it if it makes the product better, and say why", and the why lives where the value does`);
+    }
+    if (o.note != null && o.source !== "composed") {
+      push(`object "${o.id}": carries a note but its source is "${o.source}" — a note records a composition choice, and a derived value has none`);
     }
     if (!ATTACHMENTS.includes(o.attachment)) {
       push(`object "${o.id}": attachment ${JSON.stringify(o.attachment)} is not a §4 attachment token`);

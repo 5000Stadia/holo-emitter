@@ -70,10 +70,14 @@ test.describe("determinism and purity", () => {
 
   test("§12.8 grid clause: a facing with no backdrop asset renders the grid deterministically and structurally", async ({ page }) => {
     await page.goto(appUrl());
-    const exp = gridExpectations();
+    /* study/N carries the desk and the chair, so the grid's own structure is
+       read under `backdrop_only` — the layer §7 puts the doorway in, and the
+       one row 11's corners belong to. */
+    const exp = gridExpectations("study", "N");
     const res = await page.evaluate(async (exp) => {
-      const c1 = window.__T.renderDirect({ location: "study", facing: "N" });
-      const c2 = window.__T.renderDirect({ location: "study", facing: "N" });
+      const opt = { backdrop_only: true };
+      const c1 = window.__T.renderDirect({ location: "study", facing: "N" }, null, opt);
+      const c2 = window.__T.renderDirect({ location: "study", facing: "N" }, null, opt);
       return {
         h1: await window.__T.hashCanvas(c1),
         h2: await window.__T.hashCanvas(c2),

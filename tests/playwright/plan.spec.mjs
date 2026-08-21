@@ -24,7 +24,8 @@ import {
 } from "../../tools/validate-plan.mjs";
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
-  inverseProjectPlacement, shippedMeta, facingsContaining, report, rebuildFacings,
+  inverseProjectPlacement, metaForFacing, facingsContaining, report, rebuildFacings,
+  RULED_EYE_M, assertRuledEye,
   wallRelief, wallReliefReport,
   assertCameraConsistent, needsWideView, pinnedWallInFrame, horizonGate,
   GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
@@ -129,6 +130,10 @@ function stagePlanTree() {
   mkdirSync(join(dir, "design"));
   for (const p of ["src", "tools", "fixtures"]) cpSync(join(repoRoot, p), join(dir, p), { recursive: true });
   cpSync(draftDir, join(dir, "design", "plan-draft"), { recursive: true });
+  /* Row 11: the bake reads blueprint §10's ruled eye height out of the
+     orientation contract, so it is a bake input. */
+  mkdirSync(join(dir, "replicator"), { recursive: true });
+  cpSync(join(repoRoot, "replicator", "contract.json"), join(dir, "replicator", "contract.json"));
   return dir;
 }
 
@@ -779,16 +784,36 @@ test.describe("plan ↔ world: the orientation law is geometry now, not prose", 
 /* ------------------------------------------------------------- the camera */
 
 test.describe("the camera the projection runs on", () => {
-  test("is the shipped grid camera, and it is imported rather than typed", () => {
-    expect(GRID_CAMERA.eye_m).toBeCloseTo(1.6, 9);
-    expect(GRID_CAMERA.pitch_deg).toBe(0);
-    expect(GRID_CAMERA.source).toMatch(/GRID_META/);
+  test("is the RULED camera, read from the contract rather than out of the picture", () => {
+    /* Row 12 derived the grid camera's eye height back out of GRID_META and
+     * said in its own comment that this made deriveMeta's agreement with
+     * GRID_META "an identity, not evidence". Row 11 turns the arrow round:
+     * the eye height is §10's [HUMAN] six-foot ruling, whose authored home is
+     * replicator/contract.json, and the metas are derived FROM it. */
+    expect(GRID_CAMERA.eye_m).toBe(1.83);
+    expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled — see §7
+    expect(RULED_EYE_M).toBe(1.83);
+    expect(assertRuledEye()).toEqual([]);
+    expect(GRID_CAMERA.source).toMatch(/§10/);
   });
 
-  /* deriveMeta reproducing GRID_META is an identity, not evidence — the eye
-   * height is derived back out of GRID_META. This is the check that CAN fail:
-   * §5 states the floor twice and the two statements agree only for one
-   * px_per_m_at_bottom. */
+  test("and the contract cross-check goes red when the two statements drift apart", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "holo-eye-"));
+    try {
+      const c = JSON.parse(readFileSync(join(repoRoot, "replicator", "contract.json"), "utf8"));
+      c.camera.eye_height_m = 1.6;
+      mkdirSync(join(tmp, "replicator"), { recursive: true });
+      writeFileSync(join(tmp, "replicator", "contract.json"), JSON.stringify(c));
+      expect(assertRuledEye(join(tmp, "replicator", "contract.json")).length).toBeGreaterThan(0);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  /* §5 states the floor twice and the two statements agree only for one
+   * (floor_line_y, px_per_m_at_bottom) pair at a given eye height. Since row
+   * 11 the eye height comes from OUTSIDE the meta, so this compares a meta
+   * against a number it did not supply. */
   test("§5's horizon device and §5's scale lerp still agree in grid canonical meta", () => {
     expect(assertCameraConsistent()).toEqual([]);
   });
@@ -797,22 +822,32 @@ test.describe("the camera the projection runs on", () => {
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
     expect(assertCameraConsistent({ ...GRID_META, px_per_m_at_bottom: 210 }).length).toBeGreaterThan(0);
     expect(assertCameraConsistent({ ...GRID_META, horizon_y: 0.30 }).length).toBeGreaterThan(0);
+    expect(assertCameraConsistent({ ...GRID_META, floor_line_y: 0.63 }).length).toBeGreaterThan(0);
+    // and at the eye height grid canonical used to carry, it fails too —
+    // which is what it means for the check to read a term from outside.
+    expect(assertCameraConsistent(GRID_META, 1.6).length).toBeGreaterThan(0);
   });
 
   /* Blueprint §5's camera-has-feet gate carried 1.6 m until row 3 propagated
    * Kabe's six-foot ruling into it. Grid canonical was authored against 1.6
-   * and has not moved, so the gate now fails on it by 0.0016. Row 12 neither
-   * created that nor can fix it — moving grid canonical moves every shipped
-   * pixel — and this case pins the number so it cannot drift unnoticed. */
-  test("§5's horizon gate passes grid canonical at 1.6 m and fails it at the ruled 1.83 m", () => {
+   * and, for row 12's whole life, failed the gate by 0.0016 while
+   * heights.spec still implemented 1.6 and the suite stayed green. Row 11
+   * closed it by deriving every meta at the ruled height, and this case is
+   * the inverse of the one it replaces: the gate passes at 1.83 and it is the
+   * OLD camera that now fails. */
+  test("§5's horizon gate passes at the ruled 1.83 m, and the 1.6 m camera it replaced now fails", () => {
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
-    const at16 = horizonGate(GRID_META, 1.6);
-    expect(at16.passes).toBe(true);
-    expect(at16.residual).toBeCloseTo(0, 9);
     const at183 = horizonGate(GRID_META, 1.83);
-    expect(at183.passes).toBe(false);
-    expect(at183.residual).toBeCloseTo(Math.abs(0.48 - (0.63 - 1.83 * 96 / 1024)), 9);
-    expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/residual 0\.0216 — FAILS/);
+    expect(at183.passes).toBe(true);
+    expect(at183.residual).toBeCloseTo(0, 12);
+    const at16 = horizonGate(GRID_META, 1.6);
+    expect(at16.passes).toBe(false);
+    expect(at16.residual).toBeCloseTo(Math.abs(0.48 - (0.6515625 - 1.6 * 96 / 1024)), 9);
+    for (const key of ["study/N", "study/E", "hall/N", "hall/E"]) {
+      const [loc, f] = key.split("/");
+      const g = horizonGate(deriveMeta(PLAN, loc, f), 1.83);
+      expect(g.passes, `${key} at the ruled eye height`).toBe(true);
+    }
   });
 
   /* F1/F2's arithmetic, pinned. Pinning the SCALE across standpoint distances
@@ -836,23 +871,31 @@ test.describe("the camera the projection runs on", () => {
     // The SHIPPED grid meta's cut — groundplane's 3.5 m fallback, not the
     // plan's measured 3.60 m standpoint. What a human has judged is what the
     // browser draws; the round-4 critic caught the substitution.
-    expect(feet.reference).toBeCloseTo(3.5 * 96 / 332.8, 9);
-    expect(feet.reference).toBeLessThan(1.1);
+    expect(feet.reference).toBeCloseTo(3.6 * 96 / ((1024 - 0.48 * 1024) / 1.83), 9);
+    expect(feet.reference).toBeLessThan(1.2);
     // measured from the VIEWER, not from the wall — the complement is the bug
     // this assertion exists to prevent recurring
-    expect(deriveMeta(PLAN, "great_hall", "E").nearest_floor_m).toBeCloseTo(10.95 * 96 / 332.8, 9);
+    expect(deriveMeta(PLAN, "great_hall", "E").nearest_floor_m)
+      .toBeCloseTo(10.95 * 96 / ((1024 - 0.48 * 1024) / 1.83), 9);
     expect(feet.over.length).toBe(15);
     expect(feet.over[0].nearest_floor_m).toBeGreaterThan(5);
     expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/The camera has feet, and the lens is not one lens/);
   });
 
-  test("the contract camera is carried for comparison and drives nothing", () => {
-    expect(CONTRACT_CAMERA.eye_m).toBe(1.83);
+  test("the two cameras now differ only in the pitch nothing models", () => {
+    /* Before row 11 the grid camera and §10's contract camera differed in eye
+     * height AND pitch; adopting the ruled height leaves exactly one
+     * difference, and it is the one `groundplane.js` has no term for. Naming
+     * it here keeps the omission a measured quantity rather than a silence:
+     * §10's −8° would move the horizon down 49 px at the study's implied
+     * focal length, which is the direction that would pull the frame-bottom
+     * floor cut back toward the viewer's feet. */
+    expect(CONTRACT_CAMERA.eye_m).toBe(GRID_CAMERA.eye_m);
     expect(CONTRACT_CAMERA.pitch_deg).toBe(-8);
+    expect(GRID_CAMERA.pitch_deg).toBe(0);
     const a = deriveMeta(PLAN, "study", "N", { camera: GRID_CAMERA });
     const b = deriveMeta(PLAN, "study", "N", { camera: CONTRACT_CAMERA });
-    expect(b.floor_line_y).not.toBeCloseTo(a.floor_line_y, 4);
-    // the default is the grid camera, so nothing in the row runs on §10's
+    expect(b.floor_line_y).toBeCloseTo(a.floor_line_y, 12); // pitch is unmodelled
     expect(deriveMeta(PLAN, "study", "N").camera_id).toBe("grid");
   });
 });
@@ -862,7 +905,7 @@ test.describe("the camera the projection runs on", () => {
 test.describe("derived meta geometry, by independent arithmetic", () => {
   /* Expected values written out here from the §5 literals, never imported —
    * §12.5's independence rule. 1536 px canvas, 1024 px image, horizon 0.48,
-   * eye 1.6 m, pinned 96 px/m. */
+   * the ruled eye 1.83 m, pinned 96 px/m. */
   const CANVAS = 1536;
 
   test("study/N — the M0 room, pinned", () => {
@@ -871,8 +914,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(5.45);
     expect(m.px_per_m_at_wall).toBe(96);
     expect(m.camera).toBe("pinned");
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * 96 / 1024, 12);   // 0.63
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.6, 9); // 332.8
+    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.83 * 96 / 1024, 12);   // 0.6515625
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.83, 9); // 290.97
     expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * 96, 9); // 506.4
     expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * 96, 9); // 1029.6
     expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * 96, 9);
@@ -893,8 +936,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(20.4);
     expect(m.camera).toBe("wide");
     expect(m.px_per_m_at_wall).toBeCloseTo(1536 / 20.4, 9);
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * (1536 / 20.4) / 1024, 12);
-    expect(m.px_per_m_at_bottom).toBeCloseTo(332.8, 9); // the horizon device is scale-independent
+    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.83 * (1536 / 20.4) / 1024, 12);
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.83, 9); // scale-independent
     expect(m.corner_x0_px).toBeCloseTo(0, 9);
     expect(m.corner_x1_px).toBeCloseTo(1536, 9);
   });
@@ -1059,53 +1102,81 @@ test.describe("the projection against the shipped staging", () => {
     expect(div.unplanned, "a shipped placement the plan cannot judge").toEqual([]);
     expect(div.unexpected, "an unnamed divergence").toEqual([]);
     expect(div.missing, "a named divergence that has quietly gone away").toEqual([]);
-    expect(div.diverging.map((r) => `${r.id}@${r.facing}`)).toEqual(["door1@study/E"]);
+    /* NOTHING diverges since row 11: the staging was moved to the drawing, so
+     * the allowlist is empty and every row agrees. What that agreement is
+     * worth is the next two cases' subject — five of the six agree
+     * definitionally, and the sixth (door1 on study/E) agrees because the
+     * fixture moved to the plan rather than because the plan moved. */
+    expect(div.diverging).toEqual([]);
+    expect(KNOWN_DIVERGENCES).toEqual([]);
   });
 
-  /* The number, pinned, so the disagreement cannot drift silently. door1's
-   * plan position comes from the approved drawing: 1.1 m south of the study's
-   * east-wall centre, where the shipped staging centres it. */
-  test("door1 on study/E disagrees by exactly the drawing's 1.1 m", () => {
-    const p = projectPlacement(PLAN, "door1", "study", "E", shippedMeta());
+  /* The number, pinned. door1's plan position comes from the approved
+   * drawing: 1.1 m south of the study's east-wall centre. Row 12 recorded the
+   * shipped staging centring it as the one divergence that carried
+   * information; row 11 moved the staging to the drawing, so the same 1.1 m
+   * is now what the fixture says. */
+  test("door1 on study/E stands where the approved drawing puts it: 1.1 m off centre", () => {
+    const m = metaForFacing(PLAN, "study", "E");
+    const p = projectPlacement(PLAN, "door1", "study", "E", m);
     expect(p.offset_m).toBeCloseTo(1.1, 9);
-    expect(p.u).toBeCloseTo(0.5 + 1.1 / 16.0, 9);   // 0.56875 against a 16 m wall
+    expect(p.u).toBeCloseTo(0.5 + 1.1 / 4.8, 9);   // 0.72917 across the study's east wall
     expect(STAGING.placements.door1[0].facing).toBe("study/E");
-    expect(STAGING.placements.door1[0].u).toBe(0.5);
+    expect(STAGING.placements.door1[0].u).toBeCloseTo(p.u, 9);
     expect(p.in_wall, "the opening straddles the wall it is a hole in").toBe(true);
-    expect(KNOWN_DIVERGENCES.map((k) => `${k.id}@${k.facing}`)).toEqual(["door1@study/E"]);
+    /* And it is inside the room: a doorway past a corner is a doorway in the
+     * side wall, which is not what the drawing holds. */
+    expect(p.screen_x).toBeGreaterThan(m.corner_x0_px);
+    expect(p.screen_x).toBeLessThan(m.corner_x1_px);
   });
 
   /* Honesty about what the agreements are worth. Four of the six are
    * definitional (their plan positions came out of this staging), and the
    * fifth is at offset 0 where u is 0.5 under any wall width at all. */
-  test("the four free-standing objects agree because they were derived from this staging", () => {
+  test("the four free-standing objects round-trip, and three of them agree definitionally", () => {
+    /* Honesty about what the agreements are worth: three of these footprints
+     * were inverse-projected out of an earlier staging, so their agreement is
+     * definitional and says nothing about the plan. `stick1` is the one that
+     * is not — row 11 moved it under blueprint §4's standing licence, so its
+     * source is "composed" and it carries the reason. */
+    const sources = {};
     for (const [id, pl] of Object.entries(STAGING.placements)) {
       if (Array.isArray(pl) || !pl.facing) continue;
       const obj = PLAN.objects.find((o) => o.id === id);
       expect(obj, id).toBeTruthy();
-      expect(obj.source).toBe("inverse-projected");
-      const back = inverseProjectPlacement(PLAN, pl, BY_ENTITY[id], shippedMeta());
+      sources[id] = obj.source;
+      const [loc, f] = pl.facing.split("/");
+      const back = inverseProjectPlacement(PLAN, pl, BY_ENTITY[id], metaForFacing(PLAN, loc, f));
       for (const k of ["x0", "x1", "y0", "y1"]) {
         expect(back[k], `${id}.${k}`).toBeCloseTo(obj.footprint[k], 9);
       }
     }
+    expect(sources).toEqual({
+      desk1: "inverse-projected",
+      chair1: "inverse-projected",
+      shelf1: "inverse-projected",
+      stick1: "composed"
+    });
+    const stick = PLAN.objects.find((o) => o.id === "stick1");
+    expect(stick.note, "a composed value carries its why").toMatch(/§4/);
+    expect(stick.note).toMatch(/occlusion chain/);
   });
 
   /* The allowlist has to have teeth in both directions: a divergence that
    * quietly starts agreeing must be noticed too, or the list rots into a
    * comment. */
-  test("a named divergence that starts agreeing is reported as missing", () => {
+  test("moving the drawing under the staging is caught from both sides at once", () => {
+    /* The allowlist is empty, so every disagreement is unexpected — and the
+     * door is one entity in two rooms, so re-siting its opening moves it away
+     * from the staging in the study AND decentres it in the cross passage.
+     * Both are reported. */
     const p = clone(PLAN);
-    // Re-site door1's opening on the study's east-wall centre, where the
-    // staging puts it — the divergence disappears.
     const op = p.openings.find((o) => o.entity === "door1");
     op.rect.y0 = 11.5; op.rect.y1 = 12.5;
     const div = stagingDivergence(p, STAGING);
-    expect(div.missing.map((k) => `${k.id}@${k.facing}`)).toEqual(["door1@study/E"]);
-    // and the door is one entity in two rooms: centring it in the study
-    // decentres it in the cross passage, which the same check catches from
-    // the other side.
-    expect(div.unexpected.map((r) => `${r.id}@${r.facing}`)).toEqual(["door1@hall/W"]);
+    expect(div.missing).toEqual([]);
+    expect(div.unexpected.map((r) => `${r.id}@${r.facing}`).sort())
+      .toEqual(["door1@hall/W", "door1@study/E"]);
   });
 
   /* The room is on the plan and the thing standing in it is not: a gap in the
@@ -1146,9 +1217,10 @@ test.describe("the projection against the shipped staging", () => {
   test("a divergence just over the tolerance refuses, just under it passes", () => {
     expect(STAGING_TOLERANCE).toBe(1e-9);
     const st = clone(STAGING);
-    st.placements.desk1.u = 0.479 + STAGING_TOLERANCE * 0.4;
+    const u0 = STAGING.placements.desk1.u;
+    st.placements.desk1.u = u0 + STAGING_TOLERANCE * 0.4;
     expect(stagingDivergence(PLAN, st).unexpected).toEqual([]);
-    st.placements.desk1.u = 0.479 + STAGING_TOLERANCE * 4;
+    st.placements.desk1.u = u0 + STAGING_TOLERANCE * 4;
     expect(stagingDivergence(PLAN, st).unexpected.map((r) => r.id)).toEqual(["desk1"]);
   });
 
@@ -1184,12 +1256,17 @@ test.describe("the projection against the shipped staging", () => {
     expect(facingsContaining(PLAN, "shelf1")).toContain("N");
   });
 
-  test("the plan's own meta moves both u and drawn size, and the report says so", () => {
+  test("the room's own meta moves both u and drawn size against the unplanned fallback", () => {
+    /* What row 11 shipped, stated as a difference: the 16 m fallback wall
+     * against the cross passage's real 8.00 m at 1.95 m. Both u and the drawn
+     * size move, and the second is the one a reader of the u column alone
+     * would not expect. */
+    const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
     const planMeta = deriveMeta(PLAN, "hall", "N");
-    const a = projectEntity(PLAN, "stick1", "hall", "N", BY_ENTITY, shippedMeta());
+    const a = projectEntity(PLAN, "stick1", "hall", "N", BY_ENTITY, { ...GRID_META });
     const b = projectEntity(PLAN, "stick1", "hall", "N", BY_ENTITY, planMeta);
     expect(b.u).not.toBeCloseTo(a.u, 4);
-    expect(b.placement.heightPx / a.placement.heightPx).toBeGreaterThan(1.2);
+    expect(b.placement.heightPx / a.placement.heightPx).toBeGreaterThan(1.1);
     expect(readFileSync(join(draftDir, "projection.md"), "utf8"))
       .toMatch(/drawn height px today/);
   });
@@ -1202,20 +1279,20 @@ test.describe("the projection imports the placement math rather than owning a co
 
   test("displacing xAtScale displaces the projected u", () => {
     const original = groundplane.xAtScale;
-    const before = projectPlacement(PLAN, "desk1", "study", "N", shippedMeta()).u;
+    const before = projectPlacement(PLAN, "desk1", "study", "N", metaForFacing(PLAN, "study", "N")).u;
     try {
       // Halve the wall the u-domain spans. A projection that re-derived
       // u = 0.5 + offset/wall_width_m in its own code would not notice.
       groundplane.xAtScale = function (u, s, meta, w) {
         return original(u, s, { ...meta, wall_width_m: meta.wall_width_m / 2 }, w);
       };
-      const after = projectPlacement(PLAN, "desk1", "study", "N", shippedMeta()).u;
+      const after = projectPlacement(PLAN, "desk1", "study", "N", metaForFacing(PLAN, "study", "N")).u;
       expect(after).not.toBeCloseTo(before, 6);
       expect(after - 0.5).toBeCloseTo((before - 0.5) * 2, 6);
     } finally {
       groundplane.xAtScale = original;
     }
-    expect(projectPlacement(PLAN, "desk1", "study", "N", shippedMeta()).u).toBeCloseTo(before, 12);
+    expect(projectPlacement(PLAN, "desk1", "study", "N", metaForFacing(PLAN, "study", "N")).u).toBeCloseTo(before, 12);
   });
 
   /* The corners are what row 11 consumes, so a private copy of the u-mapping
@@ -1240,10 +1317,10 @@ test.describe("the projection imports the placement math rather than owning a co
 
   test("displacing scaleAtDepth displaces the projected scale", () => {
     const original = groundplane.scaleAtDepth;
-    const before = projectPlacement(PLAN, "chair1", "study", "N", shippedMeta()).scale_px_per_m;
+    const before = projectPlacement(PLAN, "chair1", "study", "N", metaForFacing(PLAN, "study", "N")).scale_px_per_m;
     try {
       groundplane.scaleAtDepth = (d, meta) => original(d, meta) * 2;
-      expect(projectPlacement(PLAN, "chair1", "study", "N", shippedMeta()).scale_px_per_m)
+      expect(projectPlacement(PLAN, "chair1", "study", "N", metaForFacing(PLAN, "study", "N")).scale_px_per_m)
         .toBeCloseTo(before * 2, 6);
     } finally {
       groundplane.scaleAtDepth = original;
@@ -1252,13 +1329,13 @@ test.describe("the projection imports the placement math rather than owning a co
 
   test("displacing placeHost displaces the projected pixels", () => {
     const original = groundplane.placeHost;
-    const before = projectEntity(PLAN, "desk1", "study", "N", BY_ENTITY, shippedMeta());
+    const before = projectEntity(PLAN, "desk1", "study", "N", BY_ENTITY, metaForFacing(PLAN, "study", "N"));
     try {
       groundplane.placeHost = (pl, rec, meta, w) => {
         const p = original(pl, rec, meta, w);
         return p && { ...p, heightPx: p.heightPx + 1000 };
       };
-      const after = projectEntity(PLAN, "desk1", "study", "N", BY_ENTITY, shippedMeta());
+      const after = projectEntity(PLAN, "desk1", "study", "N", BY_ENTITY, metaForFacing(PLAN, "study", "N"));
       expect(after.placement.heightPx).toBeCloseTo(before.placement.heightPx + 1000, 6);
     } finally {
       groundplane.placeHost = original;
@@ -1268,12 +1345,12 @@ test.describe("the projection imports the placement math rather than owning a co
   test("and the inverse goes through xAtScale too", () => {
     const original = groundplane.xAtScale;
     const pl = STAGING.placements.desk1;
-    const before = inverseProjectPlacement(PLAN, pl, BY_ENTITY.desk1, shippedMeta());
+    const before = inverseProjectPlacement(PLAN, pl, BY_ENTITY.desk1, metaForFacing(PLAN, "study", "N"));
     try {
       groundplane.xAtScale = function (u, s, meta, w) {
         return original(u, s, { ...meta, wall_width_m: meta.wall_width_m / 2 }, w);
       };
-      const after = inverseProjectPlacement(PLAN, pl, BY_ENTITY.desk1, shippedMeta());
+      const after = inverseProjectPlacement(PLAN, pl, BY_ENTITY.desk1, metaForFacing(PLAN, "study", "N"));
       expect(after.x0).not.toBeCloseTo(before.x0, 6);
     } finally {
       groundplane.xAtScale = original;
@@ -1350,7 +1427,7 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
     try {
       const rp = join(dir, "src", "renderer.js");
       const src = readFileSync(rp, "utf8");
-      writeFileSync(rp, src.replace("px_per_m_at_bottom: 332.8", "px_per_m_at_bottom: 210"));
+      writeFileSync(rp, src.replace("px_per_m_at_bottom: 290.9726775956284", "px_per_m_at_bottom: 210"));
       let msg = "";
       try { bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study"), "--out", join(dir, "fresh.js")]); }
       catch (e) { msg = String(e.stderr || e.message); }

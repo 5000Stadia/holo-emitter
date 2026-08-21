@@ -35,6 +35,39 @@ DEFAULT_PLAN = os.path.join(REPO, "fixtures", "demo-study", "plan.json")
 APPROVAL = os.path.join(OUT, "approval.lock")
 
 
+# What the SHEET actually draws. The approval stamp is an assertion about what
+# Kabe saw, and he saw walls, the exterior outline, openings, windows,
+# fireplaces, stairs, standpoints with their distances, and room
+# geometry/labels/types. He did not see the furniture - the sheet draws none -
+# and `plan.objects` was inverse-projected out of staging.json by an agent
+# after the approval, which `design/architecture.md` records.
+#
+# Row 11 narrowed the stamp's INPUT to exactly that drawn content, on the
+# Navigator's ruling, so that a composition value blueprint §4's standing
+# licence lets an agent move does not falsely read as "a human must re-approve
+# this drawing". The lock still fires on ANY change to a drawn field.
+#
+# The un-drawn remainder is NOT thrown away: `undrawn_digest` covers it and the
+# lock records it too, so a change there is VISIBLE on the sheet even though it
+# is non-blocking. Narrowing the input without keeping that second record would
+# delete the only trace that unapproved fields had moved.
+DRAWN_KEYS = ("schema", "version", "units", "north", "standpoint_stand_back",
+              "entrance", "wall_thickness", "outline", "floors", "wall_bands",
+              "rooms", "openings", "windows", "fireplaces", "stairs")
+
+
+def _canonical(obj):
+    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def plan_digests(plan):
+    """(drawn, undrawn) sha256 over the plan, split by what the sheet draws."""
+    drawn = {k: plan[k] for k in DRAWN_KEYS if k in plan}
+    undrawn = {k: v for k, v in plan.items() if k not in DRAWN_KEYS}
+    return (hashlib.sha256(_canonical(drawn)).hexdigest(),
+            hashlib.sha256(_canonical(undrawn)).hexdigest())
+
+
 def approval_line(plan_path, validated):
     """The provenance line printed under the title.
 
@@ -44,15 +77,17 @@ def approval_line(plan_path, validated):
     a fact about specific bytes - approval.lock records the sha256 Kabe
     approved - and about whether anything checked them.
     """
-    with open(plan_path, "rb") as fh:
-        digest = hashlib.sha256(fh.read()).hexdigest()
-    approved_sha, approved_on = "", ""
+    with open(plan_path) as fh:
+        plan_doc = json.load(fh)
+    digest, undrawn = plan_digests(plan_doc)
+    approved_sha, approved_on, approved_undrawn = "", "", ""
     try:
         with open(APPROVAL) as fh:
             for line in fh:
-                if line.startswith("plan"):
+                if line.startswith("plan "):
                     _, approved_sha, approved_on = line.split()
-                    break
+                elif line.startswith("undrawn "):
+                    _, approved_undrawn = line.split()
     except OSError:
         pass
     rel = os.path.relpath(plan_path, REPO)
@@ -62,9 +97,12 @@ def approval_line(plan_path, validated):
                 "Drawn at 26 px per metre; use the scale bar. All room "
                 "dimensions are clear internal metres." % (rel, digest[:8]))
     if digest == approved_sha:
-        return ("holo-emitter - overhead plan. APPROVED %s; DERIVED from %s. "
+        drift = ("" if undrawn == approved_undrawn else
+                 " Content the sheet does not draw has changed since then "
+                 "(sha %s); the drawing is unaffected." % undrawn[:8])
+        return ("holo-emitter - overhead plan. APPROVED %s; DERIVED from %s.%s "
                 "Drawn at 26 px per metre; use the scale bar. All room "
-                "dimensions are clear internal metres." % (approved_on, rel))
+                "dimensions are clear internal metres." % (approved_on, rel, drift))
     return ("holo-emitter - overhead plan. UNAPPROVED REVISION of %s (sha %s; "
             "the sheet Kabe approved on %s was drawn from sha %s) - this sheet "
             "goes back to Kabe. Drawn at 26 px per metre; use the scale bar. "

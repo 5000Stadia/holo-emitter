@@ -7,11 +7,25 @@
  * determinism, the clickability sweep, and the door round-trip.
  */
 import {
-  test, expect, appUrl, POINTER_VIEWPORT, MATH, LIT,
-  stageTree, setViewstate, removeTree, equipContext
+  test, expect, appUrl, POINTER_VIEWPORT, MF, LIT, repoRoot,
+  stageTree, setViewstate, removeTree, equipContext, bake
 } from "./helpers.mjs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { deriveMeta } from "../../tools/plan-projection.mjs";
 
 test.use({ viewport: POINTER_VIEWPORT });
+
+/* Two metas the plan really produces and M0 does not ship, for the typed-
+ * geometry clause: an `open` facing (ground to a far line, law (b)'s "where no
+ * building stands the ground runs open") and a SEGMENTED one (part building,
+ * part the entrance court's 20.4 m open mouth). Built by `deriveMeta` — the
+ * production function — rather than hand-assembled, so the clause exercises
+ * what the pipeline would emit. */
+const MANOR_PLAN = JSON.parse(
+  readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
+const OPEN_META = deriveMeta(MANOR_PLAN, "entrance_court", "S");
+const SEG_META = deriveMeta(MANOR_PLAN, "entrance_approach", "N");
 
 /* Render the fixture world (optionally doctored in-page) at a viewstate with
  * options; returns the canvas hash. */
@@ -72,7 +86,7 @@ test.describe("§12.8 — each mechanism fires", () => {
       },
       placement: window.__T.clone(window.HOLO_APP.harness.staging.placements.desk1)
     }));
-    const P = MATH.place(rec.placement, rec.desk);
+    const P = MF("study", "N").place(rec.placement, rec.desk);
     const part = rec.desk.parts[0];
     const partRect = (t) => {
       const scale = 1 + (part.slide.scale_open - 1) * t;
@@ -190,7 +204,7 @@ test.describe("§12.8 — each mechanism fires", () => {
       // part rect at t=1 in scene coords, via the app's record data + literals
       // (this is a sampling box, not a geometric assert).
       const layout = window.HOLO.renderer.layout(openWorld, fx.staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vsN);
+        window.__T.metaOf(vsN), vsN);
       const desk = layout.find((e) => e.id === "desk1");
       const pw = window.__T.lib()["desk-joined-oak-1660"].images.parts.drawer_front.width;
       const ph = window.__T.lib()["desk-joined-oak-1660"].images.parts.drawer_front.height;
@@ -402,7 +416,7 @@ test.describe("§12.8 — each mechanism fires", () => {
       const rec = await page.evaluate((s) => window.__T.clone(window.HOLO_APP.library[s].record), c.sprite);
       let pl = await page.evaluate((e) => window.__T.clone(window.HOLO_APP.harness.staging.placements[e]), c.id);
       if (Array.isArray(pl)) pl = pl[c.pIdx];
-      const P = MATH.place(pl, rec);
+      const P = MF(c.vs.location, c.vs.facing).place(pl, rec);
       const d = await page.evaluate(({ id, vs }) => {
         const fx = window.HOLO_FIXTURE;
         const solo = window.__T.worldWithout(
@@ -438,7 +452,7 @@ test.describe("§12.8 — each mechanism fires", () => {
     const noteRec = await page.evaluate(() => window.__T.clone(window.HOLO_APP.library["notebook-vellum"].record));
     const deskPl = await page.evaluate(() => window.__T.clone(window.HOLO_APP.harness.staging.placements.desk1));
     const notePl = await page.evaluate(() => window.__T.clone(window.HOLO_APP.harness.staging.placements.note1));
-    const P = MATH.place(deskPl, deskRec);
+    const P = MF("study", "N").place(deskPl, deskRec);
     const region = deskRec.anchors.surface_top;
     const baseX = P.drawX + P.f * (region.x0 + (region.x1 - region.x0) * notePl.t);
     const noteShadow = await page.evaluate(() => {
@@ -707,16 +721,16 @@ test.describe("contact shadows are strong enough to be seen", () => {
     test(`${g.id}: darkens the ground under it by a visible amount`, async ({ page }) => {
       await page.goto(appUrl());
       const d = await shadowDelta(page, g.id, g.vs);
-      const footW = await page.evaluate((id) => {
+      const footW = await page.evaluate(({ id, vs }) => {
         const A = window.HOLO_APP;
-        const meta = window.HOLO.renderer.GRID_META;
+        const meta = window.__T.metaOf(vs);
         const ent = A.harness.world.entities.find((e) => e.id === id);
         const rec = A.library[ent.sprite].record;
         let pl = A.harness.staging.placements[id];
         if (Array.isArray(pl)) pl = pl[0];
         const p = window.HOLO.groundplane.placeHost(pl, rec, meta, 1536);
         return p.f * (rec.anchors.footprint.x1 - rec.anchors.footprint.x0);
-      }, g.id);
+      }, { id: g.id, vs: g.vs });
 
       // Strength: 0.35 peak on a 140-ish floor is ≈ 49 levels. This is the
       // clause that a shadow at 0.03 alpha — invisible on any floor, and
@@ -747,7 +761,7 @@ test.describe("doorways are in the picture, from the document", () => {
       const A = window.HOLO_APP;
       const at = (location, facing) => window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, { location, facing });
+        window.__T.metaOf({ location, facing }), { location, facing });
       return {
         studyE: at("study", "E").map((a) => a.exit),
         hallW: at("hall", "W").map((a) => a.exit),
@@ -772,7 +786,7 @@ test.describe("doorways are in the picture, from the document", () => {
       const bare = { location: "study", facing: "S" };
       const a = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, vs)[0];
+        window.__T.metaOf(vs), vs)[0];
       const backdropE = window.__T.renderW(fx.world, fx.staging, vs, { backdrop_only: true });
       const backdropS = window.__T.renderW(fx.world, fx.staging, bare, { backdrop_only: true });
       // Wall pixels inside the opening are darker than the same rows on a
@@ -823,7 +837,7 @@ test.describe("the validator's placement is the renderer's placement", () => {
       const res = await page.evaluate(({ id, vs }) => {
         const fx = window.HOLO_FIXTURE;
         const A = window.HOLO_APP;
-        const meta = window.HOLO.renderer.GRID_META;
+        const meta = window.__T.metaOf(vs);
         const layout = window.HOLO.renderer.layout(
           fx.world, fx.staging, A.library, meta, vs);
         const e = layout.find((x) => x.id === id);
@@ -983,7 +997,7 @@ test.describe("the renderer reads the document the harness reads", () => {
         { no_backdrop: true, shadows: false });
       const d = window.__T.diffBounds(withKey, noKey);
       const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+        window.__T.metaOf(vs), vs).find((e) => e.id === "desk1");
       const top = desk.record.anchors.surface_top;
       return {
         count: d.count,
@@ -1022,7 +1036,7 @@ test.describe("the renderer reads the document the harness reads", () => {
       staging.placements.shelf2 = { anchor_on: "desk1.surface_top", t: 0.5 };
       staging.placements.coin2 = { anchor_on: "shelf2.surface_top", t: 0.5 };
       const layout = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vs);
+        window.__T.metaOf(vs), vs);
       const entry = layout.find((e) => e.id === "coin2");
       const withIt = window.__T.renderW(world, staging, vs,
         { no_backdrop: true, shadows: false });
@@ -1074,7 +1088,7 @@ test.describe("mechanisms that were unguarded", () => {
         window.__T.worldWithout(["key1"], world), staging, vs,
         { no_backdrop: true, shadows: false });
       const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+        window.__T.metaOf(vs), vs).find((e) => e.id === "desk1");
       const r = desk.record.anchors.surface_top;
       const rect = {
         x0: desk.drawX + desk.f * r.x0, y0: desk.drawY + desk.f * r.y0,
@@ -1204,7 +1218,7 @@ test.describe("mechanisms that were unguarded", () => {
         { tint: false, shadows: false }, "#8c8c8c");
       const d = window.__T.diffBounds(withS, noS);
       const e = window.HOLO.renderer.layout(world, fx.staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vs).find((x) => x.id === "door1");
+        window.__T.metaOf(vs), vs).find((x) => x.id === "door1");
       const rec = e.record;
       return {
         shadowW: d.count ? d.x1 - d.x0 + 1 : 0,
@@ -1232,9 +1246,9 @@ test.describe("mechanisms that were unguarded", () => {
       unknown.knowledge.player = unknown.knowledge.player.filter((id) => id !== "door1");
       const known = fx.world;
       const list = window.HOLO.renderer.apertures(
-        unknown, fx.staging, window.__T.lib(), window.HOLO.renderer.GRID_META, vs);
+        unknown, fx.staging, window.__T.lib(), window.__T.metaOf(vs), vs);
       const a = window.HOLO.renderer.apertures(
-        known, fx.staging, window.__T.lib(), window.HOLO.renderer.GRID_META, vs)[0];
+        known, fx.staging, window.__T.lib(), window.__T.metaOf(vs), vs)[0];
       const mid = { x: Math.round(a.x + a.w / 2), y: Math.round(a.y + a.h / 2) };
       const unknownScene = window.__T.renderW(unknown, fx.staging, vs, {});
       const bare = window.__T.renderW(unknown, fx.staging,
@@ -1433,7 +1447,7 @@ test.describe("contact reads on the floor the product ships", () => {
             }
           }
         }
-        const meta = window.HOLO.renderer.GRID_META;
+        const meta = window.__T.metaOf(vs);
         // The drawn footprint, read off the layout so it is right for an
         // anchored child (whose scale comes from its host's baseline) as well
         // as for a floor host.
@@ -1488,7 +1502,7 @@ test.describe("a cavity content's shadow is cut at the cavity too", () => {
       const off = window.__T.renderW(world, staging, vs,
         { no_backdrop: true, tint: false, shadows: false });
       const desk = window.HOLO.renderer.layout(world, staging, window.__T.lib(),
-        window.HOLO.renderer.GRID_META, vs).find((e) => e.id === "desk1");
+        window.__T.metaOf(vs), vs).find((e) => e.id === "desk1");
       const r = desk.record.anchors.surface_top;
       const rect = {
         x0: desk.drawX + desk.f * r.x0, y0: desk.drawY + desk.f * r.y0,
@@ -1637,7 +1651,7 @@ test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
       for (const vs of [{ location: "study", facing: "N" }, { location: "hall", facing: "N" },
                         { location: "study", facing: "E" }]) {
         const lay = window.HOLO.renderer.layout(world, A.harness.staging, A.library,
-          window.HOLO.renderer.GRID_META, vs);
+          window.__T.metaOf(vs), vs);
         for (const e of lay) {
           const ent = world.entities.find((x) => x.id === e.id);
           // EVERY pointer target, because every drawn entity is one: the
@@ -1721,7 +1735,7 @@ test.describe("the tint changes colour and nothing else", () => {
       const plain = draw({ tint: false });
       // Sample the alpha profile down the middle of the drawn sprite.
       const lay = window.HOLO.renderer.layout(world, staging, library,
-        window.HOLO.renderer.GRID_META, vs)[0];
+        window.__T.metaOf(vs), vs)[0];
       const y = Math.round(lay.drawY + lay.f * 4);
       const prof = (c) => {
         const d = c.getContext("2d").getImageData(0, y, 1536, 1).data;
@@ -1915,46 +1929,245 @@ test.describe("a record cannot lie about its own image", () => {
 });
 
 test.describe("the ground the sprites stand on carries the same key they do", () => {
-  test("the grid's wall and floor fall off from the upper left", async ({ page }) => {
+  test("one lighting model: the falloff runs from the upper left on every plane, and the returns face the key", async ({ page }) => {
     /* Every sprite is UL45-shaded and every contact pool is thrown
      * down-right, and for a while they stood on a wall and floor of exactly
      * uniform luminance at every x — shaded objects on an unshaded ground,
      * which is the flip test's failure in miniature. §7 calls grid mode a
      * product mode, not placeholder art, and its meta declares
-     * `key_dir: "UL"`; the ground has to answer for it. */
+     * `key_dir: "UL"`; the ground has to answer for it.
+     *
+     * Row 11 gave the room two more planes and ONE model for all of them: a
+     * per-plane facing tone first, the frame-wide falloff over it. Both halves
+     * are checked, because either alone can be satisfied while the picture
+     * contradicts itself —
+     *   WITHIN a plane, the falloff still reads left-brighter (this sampled
+     *   x 40–340 against x 1196–1496 before the corners, which after them are
+     *   the two RETURNS rather than the wall, so it is re-pointed inside the
+     *   facing wall);
+     *   ACROSS planes, the viewer-RIGHT return reads brighter than the
+     *   viewer-left one, because with a key at upper-left the right return's
+     *   face turns toward it and the left return's turns away. Getting that
+     *   backwards would be a one-light defect in the mode the demo ships. */
     await page.goto(appUrl());
     const res = await page.evaluate(() => {
       const fx = window.HOLO_FIXTURE;
-      // A bare facing: nothing but the grid itself.
-      const c = window.__T.renderW(fx.world, fx.staging,
-        { location: "study", facing: "S" }, { backdrop_only: true });
+      const vs = { location: "study", facing: "S" };  // a bare facing: the grid alone
+      const meta = window.__T.metaOf(vs);
+      const c = window.__T.renderW(fx.world, fx.staging, vs, { backdrop_only: true });
       const W = 1536, H = 1024;
       const d = c.getContext("2d").getImageData(0, 0, W, H).data;
       const lum = (x, y) => {
         const i = ((y * W + x) * 4);
         return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
       };
-      // Sample away from the grid lines and the glyph: quarter and
-      // three-quarter columns, on a wall row and a floor row.
-      const band = (y) => {
-        let l = 0, r = 0, n = 0;
-        for (let x = 40; x < 340; x += 7) { l += lum(x, y); n++; }
-        for (let x = 1196; x < 1496; x += 7) { r += lum(x, y); }
-        return { left: l / n, right: r / n };
+      const mean = (x0, x1, y) => {
+        let t = 0, n = 0;
+        for (let x = x0; x < x1; x += 3) { t += lum(x, y); n++; }
+        return t / n;
       };
-      const wall = band(300);
-      const floor = band(900);
-      // And top-to-bottom on the wall, away from the eye line.
-      const topL = lum(120, 120), lowL = lum(120, 560);
-      return { wall, floor, topL, lowL };
+      const cL = Math.round(meta.corner_x0_px), cR = Math.round(meta.corner_x1_px);
+      const wallRow = 300;
+      const floorRow = 900;
+      /* Inside the facing wall, away from its metre lines and the glyph. */
+      const wall = { left: mean(cL + 6, cL + 110, wallRow), right: mean(cR - 110, cR - 6, wallRow) };
+      /* The floor between the junctions at that row. */
+      const s = meta.px_per_m_at_wall +
+        ((floorRow - meta.floor_line_y * meta.image_h_px) /
+         (meta.image_h_px - meta.floor_line_y * meta.image_h_px)) *
+        (meta.px_per_m_at_bottom - meta.px_per_m_at_wall);
+      const half = (meta.corner_x1_px - meta.corner_x0_px) / 2 * (s / meta.px_per_m_at_wall);
+      const fL = Math.max(4, Math.round(768 - half)), fR = Math.min(W - 4, Math.round(768 + half));
+      const floor = { left: mean(fL, fL + 200, floorRow), right: mean(fR - 200, fR, floorRow) };
+      /* The two returns, sampled at the same row and the same distance in
+         from their own frame edge, so only the plane differs. */
+      const returns = { left: mean(20, 200, wallRow), right: mean(W - 200, W - 20, wallRow) };
+      return { wall, floor, returns, topL: lum(cL + 20, 120), lowL: lum(cL + 20, 560) };
     });
     expect(res.wall.left - res.wall.right,
-      `wall: left ${res.wall.left.toFixed(1)} vs right ${res.wall.right.toFixed(1)}`)
+      `facing wall: left ${res.wall.left.toFixed(1)} vs right ${res.wall.right.toFixed(1)}`)
       .toBeGreaterThan(2);
     expect(res.floor.left - res.floor.right,
       `floor: left ${res.floor.left.toFixed(1)} vs right ${res.floor.right.toFixed(1)}`)
       .toBeGreaterThan(2);
     expect(res.topL - res.lowL, "and brighter above than below").toBeGreaterThan(1);
+    expect(res.returns.right - res.returns.left,
+      `the return facing the key is brighter: left ${res.returns.left.toFixed(1)} vs right ${res.returns.right.toFixed(1)}`)
+      .toBeGreaterThan(2);
+  });
+});
+
+test.describe("the room has corners, and they are where the plan says", () => {
+  /* Row 11's own clause, and the committed replacement for the hand-run
+   * cross-commit canvas check: on a row where every frame moves, "every
+   * changed pixel changed on purpose" discriminates nothing, and a per-frame
+   * prediction does. Corner columns, the wall-floor line's ends and the side
+   * returns are predicted from the facing's own literals (typed from the
+   * approved standpoints table) and measured off the rendered grid. */
+  for (const key of ["study/N", "study/E", "study/S", "study/W",
+    "hall/N", "hall/E", "hall/S", "hall/W"]) {
+    const [loc, f] = key.split("/");
+    test(`${key}: two corners, at the ends of the u-domain`, async ({ page }) => {
+      await page.goto(appUrl());
+      const m = LIT.facing(loc, f);
+      const cols = await page.evaluate(({ loc, f, c0, c1 }) => {
+        const T = window.__T;
+        const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
+        /* Find the vertical near each predicted corner and measure WHERE it
+           is by its own brightness centroid — a 2 px stroke on a fractional
+           coordinate lights three columns, so "the first column above a
+           threshold" is systematically a pixel or two to the left of the line
+           it found. The centroid is the line. */
+        const ctx = c.getContext("2d");
+        const bright = (x) => {
+          const d = ctx.getImageData(x, 60, 1, 500).data;
+          let t = 0;
+          for (let i = 0; i < 500; i++) t += d[i * 4];
+          return t / 500;
+        };
+        const locate = (centre) => {
+          const lo = Math.round(centre) - 8, hi = Math.round(centre) + 8;
+          let base = Infinity;
+          const vals = [];
+          for (let x = lo; x <= hi; x++) { const v = bright(x); vals.push(v); if (v < base) base = v; }
+          let num = 0, den = 0, peak = 0;
+          for (let x = lo; x <= hi; x++) {
+            const w = Math.max(0, vals[x - lo] - base);
+            num += w * (x + 0.5); den += w;
+            if (w > peak) peak = w;
+          }
+          return { x: den > 0 ? num / den : -1, v: T.colFraction(c, Math.round(centre), 40, 600), peak };
+        };
+        return { left: locate(c0), right: locate(c1) };
+      }, { loc, f, c0: m.corner_x0_px, c1: m.corner_x1_px });
+      expect(cols.left.v, `${key}: a left corner is drawn`).toBeGreaterThan(0.9);
+      expect(cols.right.v, `${key}: a right corner is drawn`).toBeGreaterThan(0.9);
+      expect(Math.abs(cols.left.x - m.corner_x0_px),
+        `${key}: left corner at ${m.corner_x0_px}`).toBeLessThanOrEqual(2);
+      expect(Math.abs(cols.right.x - m.corner_x1_px),
+        `${key}: right corner at ${m.corner_x1_px}`).toBeLessThanOrEqual(2);
+      /* And they are BOTH in frame — §12.5 (i), from the picture. */
+      expect(cols.left.x).toBeGreaterThanOrEqual(0);
+      expect(cols.right.x).toBeLessThanOrEqual(1536);
+    });
+  }
+
+  test("the corners are data: a wall width no room in the manor has puts them where it says", async ({ page }) => {
+    /* The guard against the eight cases above being literals that happen to
+       match. The eight already carry four DISTINCT corner pairs, which no
+       hard-coded pair could satisfy; this closes it by handing the shipped
+       renderer a meta with a wall width the plan does not contain anywhere,
+       through the same backdrops map the page uses, and requiring the drawn
+       corners to follow it. The other half of the loop — that the META
+       follows the plan — is plan.spec's `deriveMeta` arithmetic. */
+    await page.goto(appUrl());
+    const WIDTH = 3.1;                       // in no room of the manor
+    const c0 = 768 - WIDTH / 2 * 96, c1 = 768 + WIDTH / 2 * 96;   // 619.2, 916.8
+    const found = await page.evaluate(({ width }) => {
+      const T = window.__T;
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "S" };
+      const meta = { ...T.metaOf(vs), wall_width_m: width,
+        corner_x0_px: 768 - width / 2 * 96, corner_x1_px: 768 + width / 2 * 96 };
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      const bd = {}; bd["study/S"] = { meta };
+      window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
+        { backdrop_only: true });
+      const cols = [];
+      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 600) > 0.9) cols.push(x);
+      return cols;
+    }, { width: WIDTH });
+    expect(found.some((x) => Math.abs(x - c0) <= 2), `left corner at ${c0}`).toBe(true);
+    expect(found.some((x) => Math.abs(x - c1) <= 2), `right corner at ${c1}`).toBe(true);
+    // and NOT where the study's real 5.45 m wall puts them
+    expect(found.some((x) => Math.abs(x - 506.4) <= 2), "not the real study corner").toBe(false);
+    expect(found.some((x) => Math.abs(x - 1029.6) <= 2), "not the real study corner").toBe(false);
+  });
+
+  test("under the pinned scale a corner does NOT move with the standpoint distance, and that is Kabe's open question", async ({ page }) => {
+    /* Blueprint §5 [HUMAN, 2026-08-20]: "the horizontal corner of the room
+       needs to be determined in location based on the distance expected
+       between the player and that wall." Under §7's pinned SCALE the corner's
+       x is `768 ± wall_width_m × 96 / 2` and `camera_wall_m` cancels: two
+       rooms with the same wall at different distances get pixel-identical
+       corners. What the distance DOES drive is the returns' convergence, the
+       floor's depth spacing and the frame-bottom cut.
+       This is not asserted because it is right — it is asserted because it is
+       the shape of §5's unresolved scale-vs-lens question, and a silent
+       change of model should go red here rather than pass unnoticed. Pinning
+       the LENS instead would move the corner with distance and cost visible
+       corners on wide walls; that is a look decision and it is Kabe's. */
+    await page.goto(appUrl());
+    const a = LIT.facing("study", "N");      // 5.45 m at 3.60 m
+    const moved = await page.evaluate(({ width }) => {
+      const T = window.__T;
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "S" };
+      const base = T.metaOf(vs);
+      // The same wall, viewed from half as far away.
+      const meta = { ...base, camera_wall_m: base.camera_wall_m / 2 };
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      const bd = {}; bd["study/S"] = { meta };
+      window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
+        { backdrop_only: true });
+      const cols = [];
+      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 600) > 0.9) cols.push(x);
+      return cols;
+    }, { width: a.wall_width_m });
+    expect(moved.some((x) => Math.abs(x - a.corner_x0_px) <= 2),
+      "the corner is where it was at twice the distance").toBe(true);
+  });
+
+  test("typed geometry is data, not a branch: open and segmented facings draw no wall", async ({ page }) => {
+    /* Row 11's promise that open and corridor are "a meta entry later, not a
+       renderer rewrite", made checkable. Two metas the plan really produces —
+       an `open` facing (the entrance court's south view, ground to a far line)
+       and a SEGMENTED one (the entrance approach's north view, part building
+       and part open court mouth) — are rendered through the SHIPPED renderer.
+       Neither may grow a facing wall, and neither may invent corners. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(({ open, seg }) => {
+      const T = window.__T;
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "study", facing: "S" };
+      const draw = (meta) => {
+        const c = document.createElement("canvas");
+        c.width = 1536; c.height = 1024;
+        const bd = {}; bd["study/S"] = { meta };
+        window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
+          { backdrop_only: true });
+        return c;
+      };
+      const verticals = (c) => {
+        let n = 0;
+        for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 400) > 0.9) n++;
+        return n;
+      };
+      const o = draw(open), g = draw(seg);
+      return {
+        openVerticals: verticals(o), segVerticals: verticals(g),
+        openCorners: [open.corner_x0_px, open.corner_x1_px],
+        segCorners: [seg.corner_x0_px, seg.corner_x1_px],
+        openBackdrop: open.backdrop,
+        // the wall band above the far line is the void, not the wall base
+        openWallPx: T.px(o, 400, 200), segWallPx: T.px(g, 60, 200)
+      };
+    }, {
+      open: OPEN_META,
+      seg: SEG_META
+    });
+    // No corners claimed anywhere law (b) forbids them.
+    expect(res.openCorners).toEqual([null, null]);
+    expect(res.segCorners).toEqual([null, null]);
+    expect(res.openBackdrop).toBe("vista");
+    // And no wall grid drawn on a facing that has no wall.
+    expect(res.openVerticals, "an open facing draws no wall verticals").toBe(0);
+    // The segmented one draws the bands it HAS and nothing across the gap:
+    // some verticals, but not the unbroken run an enclosed facing shows.
+    expect(res.segVerticals, "a segmented facing draws only its built bands")
+      .toBeLessThan(res.openVerticals + 40);
   });
 });
 
@@ -1972,9 +2185,9 @@ test.describe("the doorway reads as an opening, not a picture on the wall", () =
     await page.goto(appUrl());
     const res = await page.evaluate(() => {
       const fx = window.HOLO_FIXTURE;
-      const meta = window.HOLO.renderer.GRID_META;
       const A = window.HOLO_APP;
       const vs = { location: "study", facing: "E" };
+      const meta = window.__T.metaOf(vs);
       const a = window.HOLO.renderer.apertures(
         fx.world, fx.staging, A.library, meta, vs)[0];
       const c = window.__T.renderW(fx.world, fx.staging, vs, { backdrop_only: true });
@@ -2162,7 +2375,7 @@ test.describe("the way back through a door is reachable by a finger", () => {
         for (const f of loc.facings) {
           const vs = { location: loc.id, facing: f };
           const lay = window.HOLO.renderer.layout(world, fx.staging,
-            window.__T.lib(), window.HOLO.renderer.GRID_META, vs);
+            window.__T.lib(), window.__T.metaOf(vs), vs);
           for (const e of lay) {
             const b = window.__T.entryBBox(e);
             for (const z of zones) {
@@ -2218,7 +2431,7 @@ test.describe("what a finger means, where the demo actually happens", () => {
         const A = window.HOLO_APP;
         return window.HOLO.renderer.apertures(
           A.harness.world, A.harness.staging, A.library,
-          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+          window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       });
       // Every column of the opening that is not the leaf's own pixels.
       const verdicts = await page.evaluate(({ a }) => {
@@ -2318,7 +2531,7 @@ test.describe("the image that lands is the image the record names", () => {
       const drawn = window.__T.renderW(solo, fx.staging, vs,
         { no_backdrop: true, shadows: false, tint: false });
       const e = window.HOLO.renderer.layout(solo, fx.staging, lib,
-        window.HOLO.renderer.GRID_META, vs).find((x) => x.id === id);
+        window.__T.metaOf(vs), vs).find((x) => x.id === id);
       // Where the named image should have landed, and which one it is.
       const spec = pick === "swap"
         ? { img: e.images.states[e.state].image,

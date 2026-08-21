@@ -331,7 +331,21 @@
     var entityControlsEl = document.getElementById("entity-controls");
     var fullscreenBtn = document.getElementById("fullscreen-toggle");
     var library = window.HOLO.placeholders.build(document);
-    var backdrops = {}; // row 4 fills this; the resolution rule is the renderer's
+    /* The renderer's backdrop map: "location/facing" -> { image, meta }.
+       Row 11 fills the META half from the bake — every facing the overhead
+       plan holds carries its own §5 geometry, derived from plan.json by
+       tools/plan-projection.mjs and baked beside the fixture (a file:// page
+       cannot fetch the plan). Row 4 fills the IMAGE half; the resolution rule
+       is the renderer's and does not change when it does. A facing the plan
+       does not hold has no entry and falls to GRID_META, the
+       unplanned-facing meta — one unbounded wall, no corners. */
+    var backdrops = {};
+    var bakedMetas = fixture.metas || {};
+    for (var mk in bakedMetas) {
+      if (Object.prototype.hasOwnProperty.call(bakedMetas, mk)) {
+        backdrops[mk] = { meta: bakedMetas[mk] };
+      }
+    }
     function metaFor(vs) {
       var e = backdrops[vs.location + "/" + vs.facing];
       return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
@@ -1276,7 +1290,12 @@
          because helpers use the difference between them to find a point that
          means travel, but a test that reaches for `hitAtPoint` expecting the
          page's routing will assert the wrong thing. */
-      hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve
+      hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve,
+      /* The page's own meta resolution, exposed because a test that reaches
+         for GRID_META on a facing the plan holds is asking about geometry the
+         picture is not drawn with. Since row 11 that is every shipped
+         facing. */
+      backdrops: backdrops, metaFor: metaFor
     };
     harness.subscribe(paint);
     harness.redraw();

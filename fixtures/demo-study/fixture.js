@@ -6,8 +6,14 @@
 //
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
+//
+// `metas` is DERIVED, not authored: the §5 backdrop meta of every facing the
+// world names, projected from fixtures/demo-study/plan.json through
+// tools/plan-projection.mjs (blueprint §4b). Its one home is the plan; edit
+// the plan, re-bake. The page hands these to the renderer as backdrop entries
+// carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "719c6ff6",
+  fp: "4c34eea4",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -45,20 +51,20 @@ window.HOLO_FIXTURE = {
     "desk1": {
       "facing": "study/N",
       "attachment": "floor_against",
-      "u": 0.479,
+      "u": 0.438348623853,
       "mirror": false
     },
     "chair1": {
       "facing": "study/N",
       "attachment": "floor_free",
-      "u": 0.5052,
+      "u": 0.515266055046,
       "depth_m": 1.2
     },
     "door1": [
       {
         "facing": "study/E",
         "attachment": "wall_mounted",
-        "u": 0.5,
+        "u": 0.729166666667,
         "v": 0.0
       },
       {
@@ -79,14 +85,14 @@ window.HOLO_FIXTURE = {
     "shelf1": {
       "facing": "hall/N",
       "attachment": "floor_against",
-      "u": 0.4475,
+      "u": 0.395,
       "mirror": false
     },
     "stick1": {
       "facing": "hall/N",
       "attachment": "floor_free",
-      "u": 0.4632,
-      "depth_m": 0.75
+      "u": 0.4264,
+      "depth_m": 0.5
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",
@@ -137,5 +143,255 @@ window.HOLO_FIXTURE = {
     "turn.*.refused": "The room offers no other aspect; you face all there is to face."
   }
 },
-  viewstate: { "location": "study", "facing": "N" }
+  viewstate: { "location": "study", "facing": "N" },
+  metas: {
+  "study/N": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 5.45,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 5.45,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 506.4,
+    "corner_x1_px": 1029.6,
+    "focal_px": 345.6,
+    "nearest_floor_m": 1.1877403846153847,
+    "camera_wall_m": 3.6
+  },
+  "study/E": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 4.8,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 4.8,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 537.6,
+    "corner_x1_px": 998.4,
+    "focal_px": 392.64,
+    "nearest_floor_m": 1.349405048076923,
+    "camera_wall_m": 4.09
+  },
+  "study/S": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 5.45,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 5.45,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 506.4,
+    "corner_x1_px": 1029.6,
+    "focal_px": 345.6,
+    "nearest_floor_m": 1.1877403846153847,
+    "camera_wall_m": 3.6
+  },
+  "study/W": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 4.8,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 4.8,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 537.6,
+    "corner_x1_px": 998.4,
+    "focal_px": 392.64,
+    "nearest_floor_m": 1.349405048076923,
+    "camera_wall_m": 4.09
+  },
+  "hall/N": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 8,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 8,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 384,
+    "corner_x1_px": 1152,
+    "focal_px": 187.2,
+    "nearest_floor_m": 0.643359375,
+    "camera_wall_m": 1.95
+  },
+  "hall/E": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 2.6,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "corridor",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 2.6,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 643.2,
+    "corner_x1_px": 892.8,
+    "focal_px": 576,
+    "nearest_floor_m": 1.9795673076923077,
+    "camera_wall_m": 6
+  },
+  "hall/S": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 8,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "enclosed",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 8,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 384,
+    "corner_x1_px": 1152,
+    "focal_px": 187.2,
+    "nearest_floor_m": 0.643359375,
+    "camera_wall_m": 1.95
+  },
+  "hall/W": {
+    "floor_line_y": 0.6515625,
+    "px_per_m_at_wall": 96,
+    "px_per_m_at_bottom": 290.9726775956284,
+    "wall_width_m": 2.6,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.48,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 96,
+    "facing_type": "corridor",
+    "camera": "pinned",
+    "camera_id": "grid",
+    "wide_view_policy": "fits",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 2.6,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 643.2,
+    "corner_x1_px": 892.8,
+    "focal_px": 576,
+    "nearest_floor_m": 1.9795673076923077,
+    "camera_wall_m": 6
+  }
+}
 };

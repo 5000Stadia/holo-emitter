@@ -1,5 +1,5 @@
 import { test as base, expect } from "@playwright/test";
-import { mkdtempSync, cpSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, cpSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -23,6 +23,14 @@ export function stageTree() {
   for (const p of ["index.html", "src", "fixtures", "tools"]) {
     cpSync(join(repoRoot, p), join(dir, p), { recursive: true });
   }
+  /* Row 11: the bake asserts its ruled eye height against blueprint §10's
+     authored home, `replicator/contract.json`, so that file is a bake input
+     now and a staged tree without it refuses for a reason that has nothing to
+     do with the fixture under test. Only the contract is copied — the rest of
+     the replicator is another row's lane and nothing here runs it. */
+  mkdirSync(join(dir, "replicator"), { recursive: true });
+  cpSync(join(repoRoot, "replicator", "contract.json"),
+    join(dir, "replicator", "contract.json"));
   return dir;
 }
 
@@ -75,13 +83,25 @@ const IN_PAGE = () => {
       const fx = window.HOLO_FIXTURE;
       return window.__T.renderW(fx.world, fx.staging, viewstate, options, canvas);
     },
+    /* The backdrop map the PAGE renders with. Since row 11 it carries a
+       derived §5 meta per facing, so a test that passes `{}` here renders a
+       different room from the one on screen — every shipped facing resolves
+       to the plan's geometry, not to the unplanned-facing fallback. */
+    bd() {
+      return (window.HOLO_APP && window.HOLO_APP.backdrops) || {};
+    },
+    /* The meta a facing resolves to, exactly as the page resolves it. */
+    metaOf(viewstate) {
+      const e = window.__T.bd()[viewstate.location + "/" + viewstate.facing];
+      return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
+    },
     /* Direct pure render of an arbitrary (possibly doctored) world/staging. */
     renderW(world, staging, viewstate, options, canvas) {
       const c = canvas || document.createElement("canvas");
       c.width = 1536;
       c.height = 1024;
       window.HOLO.renderer.render(
-        c, world, staging, window.__T.lib(), {}, viewstate, options || {});
+        c, world, staging, window.__T.lib(), window.__T.bd(), viewstate, options || {});
       return c;
     },
     /* Render onto a FLAT-FILL backdrop image at grid canonical meta. The
@@ -101,7 +121,7 @@ const IN_PAGE = () => {
       c.height = 1024;
       const backdrops = {};
       backdrops[viewstate.location + "/" + viewstate.facing] =
-        { image: bd, meta: window.HOLO.renderer.GRID_META };
+        { image: bd, meta: window.__T.metaOf(viewstate) };
       window.HOLO.renderer.render(
         c, world, staging, window.__T.lib(), backdrops, viewstate, options || {});
       return c;
@@ -215,7 +235,7 @@ const IN_PAGE = () => {
     currentLayout() {
       return window.HOLO.renderer.layout(
         window.HOLO_APP.harness.world, window.HOLO_APP.harness.staging,
-        window.HOLO_APP.library, window.HOLO.renderer.GRID_META,
+        window.HOLO_APP.library, window.__T.metaOf(window.HOLO_APP.harness.viewstate),
         window.HOLO_APP.harness.viewstate);
     },
     /* Canvas coords of an opaque, hitTest-confirmed point of an entity in
@@ -246,7 +266,7 @@ const IN_PAGE = () => {
       const A = window.HOLO_APP;
       const list = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate);
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate);
       if (!list.length) return null;
       const a = list[0];
       for (let fy = 0.5; fy <= 0.9; fy += 0.04) {
@@ -312,18 +332,37 @@ const IN_PAGE = () => {
       const need = (cond, name) => {
         if (!cond) { out.ok = false; out.failures.push(name); }
       };
-      need(T.lineFraction(canvas, exp.floorRow) > 0.9, "floor line row");
-      need(T.lineFraction(canvas, exp.eyeRow) > 0.9, "eye line row");
-      for (const r of exp.transverseRows) {
-        need(T.lineFraction(canvas, r) > 0.9, "transverse row " + r);
-      }
-      for (const r of exp.clearRows) {
-        need(T.lineFraction(canvas, r) < 0.1, "clear row " + r);
-      }
-      need(T.rowMean(canvas, exp.eyeRow) > T.rowMean(canvas, exp.plainWallRow) + 30,
+      /* Row 11: every floor predicate is measured over the x-range the room
+         actually has at that row. Before the corners, the floor ran the width
+         of the frame and a full-width fraction was the right question; now a
+         transverse line that spanned the frame would be drawing floor the
+         room does not own. */
+      const [fx0, fx1] = exp.floorSpan;
+      need(T.lineFraction(canvas, exp.floorRow, Math.ceil(fx0) + 2, Math.floor(fx1) - 2) > 0.9,
+        "wall-floor line, corner to corner");
+      /* And it must STOP at the corners: just outside them the wall-floor
+         line is not there (the side wall's junction has left it by then). */
+      need(T.lineFraction(canvas, exp.eyeRow) > 0.9, "eye line (full width, a level camera's horizon)");
+      exp.transverseRows.forEach((r, i) => {
+        const [x0, x1] = exp.transverseSpans[i];
+        need(T.lineFraction(canvas, r, Math.ceil(x0) + 3, Math.floor(x1) - 3) > 0.9,
+          "transverse row " + r);
+      });
+      exp.clearRows.forEach((r, i) => {
+        const [x0, x1] = exp.clearSpans[i];
+        need(T.lineFraction(canvas, r, Math.ceil(x0) + 3, Math.floor(x1) - 3) < 0.1,
+          "clear row " + r);
+      });
+      need(T.rowMean(canvas, exp.eyeRow) > T.rowMean(canvas, exp.plainWallRow) + 20,
         "eye line brighter than plain wall row");
       need(T.colFraction(canvas, exp.wallCentreCol, 0, exp.eyeRow - 60) > 0.9,
         "vertical metre line at wall centre");
+      /* THE CORNERS. Two verticals, at the ends of the u-domain the staging
+         addresses, running from the top of frame to the floor line. */
+      exp.cornerCols.forEach((c) => {
+        need(T.colFraction(canvas, Math.round(c), 0, exp.eyeRow - 60) > 0.9,
+          "corner vertical at x " + Math.round(c));
+      });
       return out;
     }
   };
@@ -363,96 +402,204 @@ export { expect };
  * the shipped code (§12.5's independence rule: tests assert literals and
  * re-implement the math, never importing groundplane.js — the validator does
  * the importing; the tests do the re-deriving). */
+/* THE TEST SIDE'S OWN NUMBERS (§12.5's independence rule).
+ *
+ * Literals, never an import — and since row 11 literals of TWO documents:
+ *
+ *   - the camera, from blueprint §7's grid-canonical amendment and §10's
+ *     [HUMAN] six-foot ruling: horizon 0.48, 96 px/m at the wall, 1536×1024,
+ *     eye 1.83 m. `floor_line_y` and `px_per_m_at_bottom` are then §5's own
+ *     horizon device, written out here as arithmetic rather than copied.
+ *   - the two per-facing numbers, TYPED BY HAND from the approved
+ *     `design/plan-draft/standpoints.tsv` — the sheet Kabe signed, which
+ *     plan.spec byte-compares against the approval commit. NOT from
+ *     `projection.md`, which is GENERATED by the very `deriveMeta` these
+ *     tests exist to check: literals laundered through a generated markdown
+ *     file are still the code's own answer, and a shared bug self-agrees
+ *     everywhere a test asks the code where things are.
+ *
+ * So `LIT.facing(loc, f)` can disagree with `deriveMeta`, which is the point.
+ */
 export const LIT = {
   H: 1024,
   W: 1536,
-  floor_line_y: 0.63,
   horizon_y: 0.48,
   px_per_m_at_wall: 96,
-  /* 332.8, the value §5's horizon device implies for a 1536×1024 frame:
-     (H − horizon_y·H) / 1.6. At §5's example 210 the scale lerp and the
-     horizon device described two different cameras. Stated here as its own
-     arithmetic, not imported — §12.5's independence rule. */
-  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.6,
-  /* 16.0 = canvas width / px_per_m_at_wall — the wall the grid actually
-     draws. At §5's example 4.2, u ∈ [0,1] reached only the central 26% of
-     the frame. */
+  /* [HUMAN, 2026-08-20] "about a 6ft height" — blueprint §10
+     camera.eye_height_m. §10's −8° pitch is modelled by NOTHING in this
+     project; row 11 adopted the height alone and printed the residue. */
+  eye_m: 1.83,
+  /* §5 states the floor twice and both statements must describe one camera:
+     the wall-floor line sits eye-height below the horizon at wall scale, and
+     the frame bottom is where the same ray meets the ground. */
+  floor_line_y: 0.48 + 1.83 * 96 / 1024,
+  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.83,
+  /* The UNPLANNED-FACING fallback's own wall: 1536 px at 96 px/m is 16.0 m,
+     and 3.5 m is the camera distance row 1 drew with. Meaningful only there —
+     every facing the plan holds now carries the plan's own numbers. */
   wall_width_m: 1536 / 96,
-  camera_wall_m: 3.5, // the pinned grid-canonical camera distance (plan §2)
-  k: 336 // the grid-drawing constant = px_per_m_at_wall * camera_wall_m
-};
+  camera_wall_m: 3.5,
+  k: 336, // the fallback's grid constant = px_per_m_at_wall × camera_wall_m
 
-/* Test-side re-implementation of the ground-plane math from the literals —
- * never an import of src/groundplane.js. */
-export const MATH = {
-  floorY: LIT.floor_line_y * LIT.H,
-  sAtY(y) {
-    return LIT.px_per_m_at_wall +
-      ((y - MATH.floorY) / (LIT.H - MATH.floorY)) *
-      (LIT.px_per_m_at_bottom - LIT.px_per_m_at_wall);
+  /* [wall_width_m, camera_wall_m, facing_type], typed from the approved
+     standpoints table. */
+  FACINGS: {
+    "study/N": [5.45, 3.60, "enclosed"],
+    "study/E": [4.80, 4.09, "enclosed"],
+    "study/S": [5.45, 3.60, "enclosed"],
+    "study/W": [4.80, 4.09, "enclosed"],
+    "hall/N": [8.00, 1.95, "enclosed"],
+    "hall/E": [2.60, 6.00, "corridor"],
+    "hall/S": [8.00, 1.95, "enclosed"],
+    "hall/W": [2.60, 6.00, "corridor"]
   },
-  yAtS(s) {
-    return MATH.floorY +
-      ((s - LIT.px_per_m_at_wall) / (LIT.px_per_m_at_bottom - LIT.px_per_m_at_wall)) *
-      (LIT.H - MATH.floorY);
-  },
-  sAtDepth(d) {
-    return LIT.px_per_m_at_wall * LIT.camera_wall_m / (LIT.camera_wall_m - d);
-  },
-  yAtDepth(d) { return MATH.yAtS(MATH.sAtDepth(d)); },
-  xAtU(u, y) { return MATH.xAtScale(u, MATH.sAtY(y)); },
-  xAtScale(u, s) { return LIT.W / 2 + (u - 0.5) * LIT.wall_width_m * s; },
-  /* Full placement of a floor/wall entity from staging + record data.
-   * A wall_mounted placement hangs ON the wall plane, so its scale is
-   * px_per_m_at_wall at any v — the ground-plane lerp describes the floor,
-   * and reading it at a raised baseline shrinks the hung object by exactly
-   * the amount it was raised. (Both shipped door placements sit at v = 0,
-   * where the two readings coincide, so only a v ≠ 0 case can tell them
-   * apart — heights.spec carries one.) */
-  place(placement, record) {
-    let baselineY, s;
-    if (placement.attachment === "floor_against") {
-      baselineY = MATH.yAtDepth(record.dims_m.d);
-      s = MATH.sAtY(baselineY);
-    } else if (placement.attachment === "floor_free") {
-      baselineY = MATH.yAtDepth(placement.depth_m);
-      s = MATH.sAtY(baselineY);
-    } else { // wall_mounted
-      baselineY = MATH.floorY - (placement.v || 0) * LIT.px_per_m_at_wall;
-      s = LIT.px_per_m_at_wall;
-    }
-    const heightPx = record.dims_m.h * s;
-    const f = heightPx / record.px.h;
-    const baseX = MATH.xAtScale(placement.u, s);
+  facingKeys() { return Object.keys(LIT.FACINGS); },
+
+  /** The meta a shipped facing must have, computed here from the two typed
+   *  numbers and the camera — never read off the code. */
+  facing(loc, f) {
+    const key = typeof f === "string" ? loc + "/" + f : loc;
+    const row = LIT.FACINGS[key];
+    if (!row) throw new Error("no test-side literals for " + key);
+    const [wall_width_m, camera_wall_m, facing_type] = row;
+    const px = LIT.px_per_m_at_wall;
+    const half = (wall_width_m / 2) * px;
     return {
-      baselineY, s, heightPx, f, baseX,
-      drawX: baseX - f * record.anchors.base.x,
-      drawY: baselineY - f * record.anchors.base.y
+      key, wall_width_m, camera_wall_m, facing_type,
+      px_per_m_at_wall: px,
+      floor_line_y: LIT.floor_line_y,
+      px_per_m_at_bottom: LIT.px_per_m_at_bottom,
+      horizon_y: LIT.horizon_y,
+      image_h_px: LIT.H,
+      corner_x0_px: LIT.W / 2 - half,
+      corner_x1_px: LIT.W / 2 + half,
+      /* The intention's "camera has feet" number: where the floor first
+         appears in front of the viewer. */
+      nearest_floor_m: camera_wall_m * px / LIT.px_per_m_at_bottom
     };
   }
 };
 
-export function gridExpectations() {
-  const floorY = LIT.floor_line_y * LIT.H; // 645.12
-  const eyeY = LIT.horizon_y * LIT.H; // 491.52
-  const floorRow = Math.floor(floorY); // 645
-  const eyeRow = Math.floor(eyeY); // 491
-  const transverseRows = [];
-  for (const d of [3.0, 2.5, 2.0]) {
-    const scale = LIT.k / d;
-    const t = (scale - LIT.px_per_m_at_wall) /
-      (LIT.px_per_m_at_bottom - LIT.px_per_m_at_wall);
-    transverseRows.push(Math.floor(floorY + t * (LIT.H - floorY)));
+/* Test-side re-implementation of the ground-plane math from a meta's own
+ * literals — never an import of src/groundplane.js. */
+export function mathFor(m) {
+  const floorY = m.floor_line_y * m.image_h_px;
+  const centre = (m.corner_x0_px + m.corner_x1_px) / 2;
+  const span = m.corner_x1_px - m.corner_x0_px;
+  const M = {
+    meta: m,
+    floorY,
+    sAtY(y) {
+      return m.px_per_m_at_wall +
+        ((y - floorY) / (m.image_h_px - floorY)) *
+        (m.px_per_m_at_bottom - m.px_per_m_at_wall);
+    },
+    yAtS(s) {
+      return floorY +
+        ((s - m.px_per_m_at_wall) / (m.px_per_m_at_bottom - m.px_per_m_at_wall)) *
+        (m.image_h_px - floorY);
+    },
+    sAtDepth(d) {
+      return m.px_per_m_at_wall * m.camera_wall_m / (m.camera_wall_m - d);
+    },
+    yAtDepth(d) { return M.yAtS(M.sAtDepth(d)); },
+    xAtScale(u, s) { return centre + (u - 0.5) * span * (s / m.px_per_m_at_wall); },
+    xAtU(u, y) { return M.xAtScale(u, M.sAtY(y)); },
+    /* Full placement of a floor/wall entity from staging + record data.
+     * A wall_mounted placement hangs ON the wall plane, so its scale is
+     * px_per_m_at_wall at any v — the ground-plane lerp describes the floor,
+     * and reading it at a raised baseline shrinks the hung object by exactly
+     * the amount it was raised. */
+    place(placement, record) {
+      let baselineY, s;
+      if (placement.attachment === "floor_against") {
+        baselineY = M.yAtDepth(record.dims_m.d);
+        s = M.sAtY(baselineY);
+      } else if (placement.attachment === "floor_free") {
+        baselineY = M.yAtDepth(placement.depth_m);
+        s = M.sAtY(baselineY);
+      } else { // wall_mounted
+        baselineY = floorY - (placement.v || 0) * m.px_per_m_at_wall;
+        s = m.px_per_m_at_wall;
+      }
+      const heightPx = record.dims_m.h * s;
+      const f = heightPx / record.px.h;
+      const baseX = M.xAtScale(placement.u, s);
+      return {
+        baselineY, s, heightPx, f, baseX,
+        drawX: baseX - f * record.anchors.base.x,
+        drawY: baselineY - f * record.anchors.base.y
+      };
+    }
+  };
+  return M;
+}
+
+/* The unplanned-facing fallback's own arithmetic, for callers that mean that
+ * meta specifically (its corners are null in the code; the fallback draws an
+ * unbounded wall, and the centred pair below is what its u-domain spans). */
+export const MATH = mathFor({
+  floor_line_y: LIT.floor_line_y,
+  px_per_m_at_wall: LIT.px_per_m_at_wall,
+  px_per_m_at_bottom: LIT.px_per_m_at_bottom,
+  image_h_px: LIT.H,
+  horizon_y: LIT.horizon_y,
+  wall_width_m: LIT.wall_width_m,
+  camera_wall_m: LIT.camera_wall_m,
+  corner_x0_px: LIT.W / 2 - (LIT.wall_width_m / 2) * LIT.px_per_m_at_wall,
+  corner_x1_px: LIT.W / 2 + (LIT.wall_width_m / 2) * LIT.px_per_m_at_wall
+});
+
+/** The arithmetic for one shipped facing. */
+export const MF = (loc, f) => mathFor(LIT.facing(loc, f));
+
+/**
+ * What the grid must draw on ONE facing, computed test-side from that
+ * facing's own literals. Row 11 made this per-facing: the wall-floor line
+ * runs corner to corner rather than across the frame, and every floor line is
+ * clipped to the floor the room actually has — so each row predicate carries
+ * the x-range it must be measured over.
+ */
+export function gridExpectations(loc = "study", f = "S") {
+  const m = LIT.facing(loc, f);
+  const M = mathFor(m);
+  const floorY = M.floorY;
+  const eyeY = m.horizon_y * m.image_h_px;
+  const gridK = m.px_per_m_at_wall * m.camera_wall_m;
+  const dBottom = gridK / m.px_per_m_at_bottom;
+  const dWall = m.camera_wall_m;
+  const depths = [];
+  for (let d = Math.ceil(dBottom / 0.5) * 0.5; d < dWall - 1e-9; d += 0.5) {
+    if (d <= dBottom) continue;
+    depths.push(d);
+  }
+  const rowAt = (d) => Math.floor(M.yAtS(gridK / d));
+  /* The three farthest (nearest the wall): they have the most floor around
+     them, where a near row in a narrow room can be a sliver. Descending
+     depth, so the rows ascend down the frame like the old triple did. */
+  const chosen = depths.slice(-3).reverse();
+  const transverseRows = chosen.map(rowAt);
+  const spanAt = (y) => {
+    const s = M.sAtY(y);
+    return [Math.max(0, M.xAtScale(0, s)), Math.min(LIT.W, M.xAtScale(1, s))];
+  };
+  const clearRows = [];
+  for (let i = 0; i + 1 < transverseRows.length; i++) {
+    clearRows.push(Math.floor((transverseRows[i] + transverseRows[i + 1]) / 2));
   }
   return {
-    floorRow,
-    eyeRow,
-    transverseRows, // [670, 706, 760]
-    clearRows: [
-      Math.floor((transverseRows[0] + transverseRows[1]) / 2),
-      Math.floor((transverseRows[1] + transverseRows[2]) / 2)
-    ],
-    plainWallRow: 500, // no wall metre-line (549, 453) and no eye line here
-    wallCentreCol: 768
+    meta: m,
+    depths: chosen,
+    floorRow: Math.floor(floorY),
+    eyeRow: Math.floor(eyeY),
+    transverseRows,
+    transverseSpans: transverseRows.map(spanAt),
+    clearRows,
+    clearSpans: clearRows.map(spanAt),
+    /* The wall-floor line runs corner to corner, not across the frame. */
+    floorSpan: [m.corner_x0_px, m.corner_x1_px],
+    cornerCols: [m.corner_x0_px, m.corner_x1_px],
+    plainWallRow: 500, // no wall metre-line and not the eye line
+    wallCentreCol: 768 // the m = 0 wall vertical, inside every shipped band
   };
 }

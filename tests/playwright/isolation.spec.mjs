@@ -6,10 +6,11 @@
  * would ride a frozen drawer — the part must provably move).
  *
  * The allowed region is computed from record values + the plan-§2 placement
- * math re-implemented test-side (helpers MATH), never from the renderer's
+ * math re-implemented test-side (helpers MF — the facing's own literals),
+ * never from the renderer's
  * own numbers.
  */
-import { test, expect, appUrl, MATH } from "./helpers.mjs";
+import { test, expect, appUrl, MF } from "./helpers.mjs";
 
 test.describe("§12.3 — state isolation (desk toggle)", () => {
   test("both directions: diff confined to part travel + cavity, and the part moves", async ({ page }) => {
@@ -24,7 +25,7 @@ test.describe("§12.3 — state isolation (desk toggle)", () => {
       },
       placement: window.__T.clone(window.HOLO_APP.harness.staging.placements.desk1)
     }));
-    const P = MATH.place(rec.placement, rec.desk);
+    const P = MF("study", "N").place(rec.placement, rec.desk);
     const part = rec.desk.parts[0];
     const pad = 2;
 

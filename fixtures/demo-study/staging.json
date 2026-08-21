@@ -4,20 +4,20 @@
     "desk1": {
       "facing": "study/N",
       "attachment": "floor_against",
-      "u": 0.479,
+      "u": 0.438348623853,
       "mirror": false
     },
     "chair1": {
       "facing": "study/N",
       "attachment": "floor_free",
-      "u": 0.5052,
+      "u": 0.515266055046,
       "depth_m": 1.2
     },
     "door1": [
       {
         "facing": "study/E",
         "attachment": "wall_mounted",
-        "u": 0.5,
+        "u": 0.729166666667,
         "v": 0.0
       },
       {
@@ -38,14 +38,14 @@
     "shelf1": {
       "facing": "hall/N",
       "attachment": "floor_against",
-      "u": 0.4475,
+      "u": 0.395,
       "mirror": false
     },
     "stick1": {
       "facing": "hall/N",
       "attachment": "floor_free",
-      "u": 0.4632,
-      "depth_m": 0.75
+      "u": 0.4264,
+      "depth_m": 0.5
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",

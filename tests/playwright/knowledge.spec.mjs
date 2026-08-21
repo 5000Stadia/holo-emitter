@@ -58,8 +58,8 @@ test.describe("§12.4 — knowledge-frame honesty", () => {
       const world = window.__T.clone(fx.world);
       world.entities.find((e) => e.id === "desk1").state = "open";
       const lib = window.__T.lib();
-      const meta = window.HOLO.renderer.GRID_META;
       const vs = { location: "study", facing: "N" };
+      const meta = window.__T.metaOf(vs);
       const layout = window.HOLO.renderer.layout(world, fx.staging, lib, meta, vs);
       const ids = layout.map((e) => e.id);
 
@@ -169,7 +169,7 @@ test("nothing can be taken whose host the player has never been shown", async ({
     const h = window.HOLO.harness.create(fixture);
     const vs = { location: "study", facing: "N" };
     const drawn = window.HOLO.renderer.layout(h.world, h.staging, A.library,
-      window.HOLO.renderer.GRID_META, vs).map((e) => e.id);
+      window.__T.metaOf(vs), vs).map((e) => e.id);
     const env = h.dispatch({ type: "take", entity: "note1" });
     return {
       drawn,

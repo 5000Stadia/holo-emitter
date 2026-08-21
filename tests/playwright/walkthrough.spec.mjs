@@ -6,13 +6,14 @@
  *
  * Click coords come from the app's own layout/hitTest (in-page clickPoint),
  * EXCEPT the chair-refusal click, whose point is derived by test-side
- * independent arithmetic (helpers MATH from §5 literals + record data) and
+ * independent arithmetic (helpers MF — the facing's own §5 literals — plus
+ * record data) and
  * verified against both solo-render alpha masks — one real click that
  * witnesses front-to-back hit resolution at a deliberately staged overlap
  * pixel.
  */
 import {
-  test, expect, appUrl, POINTER_VIEWPORT, MATH, stageTree, removeTree, equipContext, bake
+  test, expect, appUrl, POINTER_VIEWPORT, MF, stageTree, removeTree, equipContext, bake
 } from "./helpers.mjs";
 import { rmSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -185,8 +186,9 @@ async function runScript(page, opts = {}) {
         desk: window.__T.clone(window.HOLO_APP.library["desk-joined-oak-1660"].record),
         staging: window.__T.clone(window.HOLO_APP.harness.staging.placements)
       }));
-      const chairP = MATH.place(recs.staging.chair1, recs.chair);
-      const deskP = MATH.place(recs.staging.desk1, recs.desk);
+      const M = MF("study", "N");
+      const chairP = M.place(recs.staging.chair1, recs.chair);
+      const deskP = M.place(recs.staging.desk1, recs.desk);
       // Chair contract: back panel opaque over middle 60% width, top-third rows.
       const chairRowLo = chairP.baselineY - chairP.heightPx;
       const chairRowHi = chairRowLo + chairP.heightPx / 3;
@@ -520,7 +522,7 @@ test.describe("the door, from the pointer", () => {
       const A = window.HOLO_APP;
       return window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
     });
     expect(a, "the facing has a doorway").toBeTruthy();
     // Dead centre of the opening — no searching, no help.
@@ -537,7 +539,7 @@ test.describe("the door, from the pointer", () => {
       const A = window.HOLO_APP;
       return window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
     });
     await clickCanvasPoint(page, { x: a.x + a.w / 2, y: a.y + a.h / 2 });
     const s = await state(page);
@@ -555,7 +557,7 @@ test.describe("the door, from the pointer", () => {
       const A = window.HOLO_APP;
       return window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
     });
     const box = await sceneBox(page);
     const opacity = () => page.evaluate(
@@ -569,7 +571,7 @@ test.describe("the door, from the pointer", () => {
       const before = A.harness.viewstate.location;
       const a = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       A.dispatch({ type: "go", exit: a.exit });
       return {
         before,
@@ -619,7 +621,7 @@ test.describe("what the page shows when things go wrong, and where it points", (
       const A = window.HOLO_APP;
       const a = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       // Sample the opening on a grid; every point inside it that is not the
       // leaf's own pixels must resolve to travel.
       // Asked of the SHIPPED resolver, not of apertureAt directly: the whole
@@ -656,7 +658,7 @@ test.describe("what the page shows when things go wrong, and where it points", (
       const A = window.HOLO_APP;
       return window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
     });
     await page.mouse.move(
       box.x + ((a.x + a.w * 0.75) * box.width) / 1536,
@@ -811,7 +813,7 @@ test.describe("the page under ordinary clumsiness", () => {
       const A = window.HOLO_APP;
       return window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
-        window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+        window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
     });
     const box = await sceneBox(page);
     const x = box.x + ((a.x + a.w / 2) * box.width) / 1536;
@@ -866,8 +868,19 @@ test.describe("the page under ordinary clumsiness", () => {
     world.knowledge.player.push("door2");
     world.entities.find((e) => e.id === "door1").state = "open";
 
+    /* ALIGNED, deliberately, which is the whole point of the fixture: the
+       gallery door has to sit under the same screen x as the study door, so
+       that the second click of a double-click resolves to a DIFFERENT
+       doorway. Row 11 made that alignment something to compute rather than
+       something to get for free — the study's door stands 1.1 m off its wall
+       centre (the approved drawing) and the cross passage's east wall is only
+       2.60 m wide, so u 0.5 on both no longer puts them at the same x. At
+       u 0.80 the gallery door spans 799.7–886.1 and contains the study door's
+       centre at 873.6, with its own right edge inside the corner at 892.8.
+       If either room's geometry moves, the click lands on bare wall and this
+       test fails loudly rather than passing for the wrong reason. */
     staging.placements.door2 = [
-      { facing: "hall/E", attachment: "wall_mounted", u: 0.5, v: 0.0 },
+      { facing: "hall/E", attachment: "wall_mounted", u: 0.8, v: 0.0 },
       { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
     ];
 
@@ -902,7 +915,7 @@ test.describe("the page under ordinary clumsiness", () => {
         const A = window.HOLO_APP;
         return window.HOLO.renderer.apertures(
           A.harness.world, A.harness.staging, A.library,
-          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+          window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       });
       const box = await sceneBox(page);
       const x = box.x + ((a.x + a.w / 2) * box.width) / 1536;
@@ -911,6 +924,18 @@ test.describe("the page under ordinary clumsiness", () => {
       // The real gesture: one double-click at one screen point. Without the
       // guard, this walks study -> hall -> gallery in a single click pair,
       // the hall never seen, behind a veil never lifted on it.
+      /* The point must be a doorway in BOTH rooms, or the test would pass on
+         a click that means nothing rather than on the guard. */
+      const insideBoth = await page.evaluate((px) => {
+        const A = window.HOLO_APP;
+        const here = window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library,
+          window.__T.metaOf({ location: "hall", facing: "E" }),
+          { location: "hall", facing: "E" })[0];
+        return here && px >= here.x && px <= here.x + here.w;
+      }, a.x + a.w / 2);
+      expect(insideBoth, "the same screen point is a doorway in the next room too").toBe(true);
+
       await page.mouse.click(x, y, { clickCount: 2, delay: 15 });
       let s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
       expect(s, "the second click is swallowed: one door, one room")
@@ -949,7 +974,7 @@ test.describe("the page under ordinary clumsiness", () => {
         const A = window.HOLO_APP;
         return window.HOLO.renderer.apertures(
           A.harness.world, A.harness.staging, A.library,
-          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+          window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       });
       await page.mouse.click(
         box.x + ((a1.x + a1.w / 2) * box.width) / 1536,
@@ -970,7 +995,7 @@ test.describe("the page under ordinary clumsiness", () => {
         const A = window.HOLO_APP;
         return window.HOLO.renderer.apertures(
           A.harness.world, A.harness.staging, A.library,
-          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+          window.__T.metaOf(A.harness.viewstate), A.harness.viewstate)[0];
       });
       await page.mouse.click(
         box.x + ((a2.x + a2.w / 2) * box.width) / 1536,

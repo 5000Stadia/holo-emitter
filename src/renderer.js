@@ -23,68 +23,81 @@
 (function () {
   "use strict";
 
-  /* Canonical grid meta (§7 grid mode / §5 shape). key_tint is deliberately
-   * non-identity so §12.8's tint assertion is satisfiable on grid backdrops.
-   * Tests assert against literals, never against this constant (§12.5's
-   * independence rule, applied early).
+  /* THE UNPLANNED-FACING FALLBACK META (§7 grid mode / §5 shape).
    *
-   * `px_per_m_at_bottom` is 332.8, not §5's example 210. The grid is a
-   * backdrop we synthesize rather than measure, so its meta has to be
-   * self-consistent, and §5 states the same floor twice: once as the scale
-   * lerp between (floor_line_y, px_per_m_at_wall) and (bottom of frame,
-   * px_per_m_at_bottom), and once as the horizon device, y = horizon_y·H +
-   * 1.6·scale, which is what makes `horizon_y` mean "the horizon at eye
-   * height 1.6 m". Both are linear in (y, scale) and both already pass
-   * through (645.12, 96); the second fixes the other end at
-   * (1024, (1024 − 0.48·1024)/1.6) = (1024, 332.8). At 210 the two disagreed
-   * and the lerp won: every floor object's feet were drawn further down the
-   * frame than its own eye height allows — the desk 31 px low, the chair 86 —
-   * so scale said one depth while the ground said another, and §12.5 could
-   * not see it because both sides of a height check use the scale. At 332.8
-   * the lerp IS the horizon device and the two agree exactly, everywhere. The
-   * nearest floor in frame moves from 1.9 m in front of the viewer to 1.01 m:
-   * the frame bottom cuts the floor near your own feet, which is what the
-   * camera-has-feet quality asks for.
+   * Row 11 changed what this constant IS. Until row 11 it was the geometry of
+   * every facing the demo drew. Now every facing the overhead plan holds
+   * carries its own derived meta (tools/plan-projection.mjs `deriveMeta`,
+   * baked into fixture.js and handed to the renderer as a backdrop entry with
+   * no image), and this is what is left: the meta for a facing NO PLAN HOLDS —
+   * unestablished space whose extent nobody has drawn.
    *
-   * [AI] amending an [AI] adoption — §7's grid-canonical list took §5's
-   * EXAMPLE values wholesale; §5's own block is Kabe's illustration of the
-   * schema and is untouched, to be measured per backdrop at row 4. The wider
-   * incoherence in those example numbers (16 m of wall in frame against
-   * `wall_width_m` 4.2, a 133° field against §10's 50 mm) is [HUMAN] and
-   * stands open in blueprint §5 as a question for Kabe.
+   * That is why it carries `facing_type: null` and null corners rather than
+   * borrowing one of §5's three tokens. A room whose extent is unknown must
+   * not claim two corners, so this draws what it has always drawn: one
+   * unbounded wall, no corners, no side-wall returns. `wall_width_m` 16.0 is
+   * the wall the frame holds at 96 px/m and is meaningful only here.
    *
-   * `wall_width_m` is 16.0, not §5's example 4.2, for the same reason: the
-   * grid draws 1536 px of wall at 96 px/m, so the wall in frame IS 16 m and
-   * saying 4.2 made the meta contradict its own picture. Staging reads
-   * `u ∈ [0,1]` as "across the facing's wall width" (§4), so at 4.2 the whole
-   * document could only address the central 403 px of a 1536 px frame — 26%
-   * of every facing was unreachable, and no check could see it because both
-   * sides of every §12.5 assertion read the same meta. `px_per_m_at_wall ×
-   * wall_width_m ≈ canvas width` is now asserted independently, so a meta
-   * that is self-consistent and still wrong about the frame fails; row 4's
-   * eight measured metas inherit that gate. The staged `u` values move with
-   * it (§4's own license), each keeping its metre offset from the wall
-   * centre, so the room is composed exactly as before.
+   * key_tint is deliberately non-identity so §12.8's tint assertion is
+   * satisfiable on grid backdrops. Tests assert against literals, never
+   * against this constant (§12.5's independence rule).
    *
-   * What this does NOT settle, and is Kabe's: 16 m of wall at 3.5 m is a
-   * ~133° view, against §10's `focal_mm: 50` (≈40°). Blueprint §5 carries the
-   * question in full — it needs answering before row 4 authors real meta,
-   * because the answer decides every backdrop prompt.
+   * `px_per_m_at_bottom` is (image_h − horizon_y·image_h)/eye, not §5's
+   * example 210. The grid is a backdrop we synthesize rather than measure, so
+   * its meta has to be self-consistent, and §5 states the same floor twice:
+   * once as the scale lerp between (floor_line_y, px_per_m_at_wall) and
+   * (bottom of frame, px_per_m_at_bottom), and once as the horizon device,
+   * which is what makes `horizon_y` mean "the horizon at eye height". Both are
+   * linear in (y, scale) and both pass through (floor line, 96); the second
+   * fixes the other end. At §5's 210 the two disagreed and the lerp won: every
+   * floor object's feet were drawn further down the frame than its own eye
+   * height allows, and §12.5 could not see it because both sides of a height
+   * check use the scale.
+   *
+   * THE EYE HEIGHT IS 1.83 m SINCE ROW 11, and that is the whole of what row
+   * 11 moved about the camera. Kabe ruled six feet on 2026-08-20 ("we should
+   * be a bit higher as a view angle looking down at about a 6ft height");
+   * blueprint §10 carries it as `camera.eye_height_m`; row 3 propagated it
+   * into §5's camera-has-feet assertion; grid canonical was authored at 1.6 m
+   * and never moved, so the shipped meta FAILED §5's own gate by 0.0016 while
+   * the suite stayed green on a test that still said 1.6. Deriving at 1.83
+   * closes it: floor_line_y = horizon_y + 1.83·96/1024 = 0.6515625 and
+   * px_per_m_at_bottom = (1024 − 0.48·1024)/1.83 = 290.9726775956284.
+   *
+   * What row 11 did NOT adopt is §10's −8° pitch, the other half of the same
+   * ruling: `groundplane.js` has no pitch term, adding one moves every pixel
+   * in the project, and §5 rules that the real camera is measured off row 4's
+   * approved backdrop. The magnitude is on the record rather than left silent
+   * — at the study's implied focal length an −8° pitch moves the horizon down
+   * 49 px, 0.047 of frame height (design/plan-draft/projection.md §7) — and
+   * the direction matters: pitch would pull the frame-bottom floor cut IN,
+   * and taking the height alone pushes it OUT (this fallback: 1.01 m → 1.15 m).
+   *
+   * `px_per_m_at_wall` and `horizon_y` did NOT move. The field of view stays
+   * §5's open question for Kabe: 16 m of wall at 3.5 m is a ~133° view against
+   * §10's `focal_mm: 50` (≈40°). Row 11 makes that visible for the first time
+   * — corners are what show you how much of the frame is side wall — and
+   * answers it with nothing, because a 50 mm lens puts no corner in frame at
+   * these room sizes and the row's own done requires two visible ones.
    *
    * calibration_ref/_px are §5-required fields: the grid's own metre lines
    * on the wall are its known-height feature, so its meta can be audited
    * against its pixels like any other. */
   var GRID_META = {
-    floor_line_y: 0.63,
+    floor_line_y: 0.6515625,
     px_per_m_at_wall: 96,
-    px_per_m_at_bottom: 332.8,
+    px_per_m_at_bottom: 290.9726775956284,
     wall_width_m: 16,
     key_tint: "#c8b489",
     image_h_px: 1024,
     horizon_y: 0.48,
     key_dir: "UL",
     calibration_ref: "wall grid module, 1.0 m at the wall plane",
-    calibration_px: 96
+    calibration_px: 96,
+    camera_wall_m: 3.5,
+    facing_type: null,
+    corner_x0_px: null,
+    corner_x1_px: null
   };
 
   /* Grid-drawing constants. The former GRID_K = 336 px·m is now derived in
@@ -106,6 +119,17 @@
    * a product mode (§7), not placeholder art. Still darker than the wall:
    * unestablished space, lit from nowhere. */
   var FLOOR_BASE = "#2c3542";
+  /* The two side-wall returns (row 11). One lighting model with the rest of
+   * the frame: a per-plane facing tone, then the frame-wide key falloff over
+   * it. With the key at upper-left (`key_dir: "UL"`, and every sprite shaded
+   * to match) the LEFT return's visible face turns away from the light and
+   * the RIGHT return's turns toward it — so left is darker than the facing
+   * wall and right is lighter. Getting this backwards would be a one-light
+   * defect in the mode the demo ships, and it is checked rather than trusted:
+   * mechanisms.spec asserts the ordering across the three planes and the
+   * falloff's own direction WITHIN each of them. */
+  var RETURN_LEFT = "#0a0d12";
+  var RETURN_RIGHT = "#1a202b";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.45;
@@ -180,24 +204,130 @@
     ctx.stroke();
   }
 
+  /**
+   * The wall in view, as a list of bands in the §4 u-domain. Row 11's whole
+   * typed-geometry model is this one function: `enclosed`, `corridor` and
+   * `open` are not three drawings, they are three band lists.
+   *
+   *   open                    -> no bands at all (no facing wall exists)
+   *   wall_continuous: false  -> the bands `wall_segments` names (part
+   *                              building, part open ground — law (b))
+   *   otherwise               -> one band spanning the view
+   *
+   * Corner verticals stand at every band edge; side-wall returns are drawn
+   * only where ONE continuous band spans the view AND the meta knows its
+   * corners, because that is what having two corners means.
+   */
+  function wallBands(meta) {
+    if (meta.facing_type === "open") return [];
+    if (meta.wall_continuous === false && meta.wall_segments) {
+      var out = [];
+      for (var i = 0; i < meta.wall_segments.length; i++) {
+        var seg = meta.wall_segments[i];
+        out.push({ u0: seg.from_m / meta.wall_width_m, u1: seg.to_m / meta.wall_width_m });
+      }
+      return out;
+    }
+    return [{ u0: 0, u1: 1 }];
+  }
+
   function drawGrid(ctx, meta, facing, W, H, openings) {
     var gp = groundplane();
     var floorY = meta.floor_line_y * meta.image_h_px;
     var eyeY = meta.horizon_y * meta.image_h_px;
     var sWall = meta.px_per_m_at_wall;
     var sBottom = meta.px_per_m_at_bottom;
-    var cx = W / 2; // centre-by-default; a measured wall origin arrives with real meta
     /* Derived grid constant (was the literal 336): px_per_m_at_wall × the
      * camera-to-wall distance, the same number scaleAtDepth divides by —
-     * grid canonical meta yields exactly 336, so row 1's pixels stand. */
-    var gridK = meta.px_per_m_at_wall *
-      (meta.camera_wall_m != null ? meta.camera_wall_m : gp.CAMERA_WALL_M);
+     * one home, groundplane.cameraDistance, which is typed since row 11 (an
+     * open facing's anchor is `camera_far_m` and there is no silent 3.5 m). */
+    var gridK = sWall * gp.cameraDistance(meta);
+    var bands = wallBands(meta);
+    /* The room is bounded — two corners and two side-wall returns — exactly
+     * when the meta knows where its wall ends. A facing no plan holds carries
+     * null corners and draws the unbounded wall it always drew: a room whose
+     * extent nobody has drawn must not claim two corners. */
+    var bounded = gp.hasCorners(meta) && bands.length === 1 &&
+      bands[0].u0 === 0 && bands[0].u1 === 1;
+    var X = function (u, s) { return gp.xAtScale(u, s, meta, W); };
+    var cL = bounded ? meta.corner_x0_px : null;
+    var cR = bounded ? meta.corner_x1_px : null;
+    /* Where the wall-floor line of each return leaves the frame: through the
+     * bottom edge on a narrow room (hall/E: x 390 at y 1024), through the
+     * side edge on a wide one (study/N: x 0 at y ≈ 1007). Same polygon. */
+    var xb0 = bounded ? X(0, sBottom) : 0;
+    var xb1 = bounded ? X(1, sBottom) : W;
+
+    /* The left return's region: left of the corner above the floor line, left
+     * of the junction below it, clipped to the frame. Traced rather than
+     * assembled from a self-intersecting polygon, because the junction may
+     * leave through either edge. */
+    function leftReturn() {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(cL, 0);
+      ctx.lineTo(cL, floorY);
+      if (xb0 >= 0) { ctx.lineTo(xb0, H); ctx.lineTo(0, H); }
+      else { ctx.lineTo(0, floorY + (cL / (cL - xb0)) * (H - floorY)); }
+      ctx.closePath();
+    }
+    function rightReturn() {
+      ctx.beginPath();
+      ctx.moveTo(W, 0);
+      ctx.lineTo(cR, 0);
+      ctx.lineTo(cR, floorY);
+      if (xb1 <= W) { ctx.lineTo(xb1, H); ctx.lineTo(W, H); }
+      else { ctx.lineTo(W, floorY + ((W - cR) / (xb1 - cR)) * (H - floorY)); }
+      ctx.closePath();
+    }
+    /* The floor the room actually has: between the two junctions. Outside
+     * them is not floor at all — it is the return continuing toward you. */
+    function roomFloor() {
+      ctx.beginPath();
+      if (!bounded) { ctx.rect(0, floorY, W, H - floorY); return; }
+      ctx.moveTo(cL, floorY);
+      ctx.lineTo(cR, floorY);
+      if (xb1 <= W) { ctx.lineTo(xb1, H); }
+      else { ctx.lineTo(W, floorY + ((W - cR) / (xb1 - cR)) * (H - floorY)); ctx.lineTo(W, H); }
+      if (xb0 >= 0) { ctx.lineTo(xb0, H); }
+      else { ctx.lineTo(0, H); ctx.lineTo(0, floorY + (cL / (cL - xb0)) * (H - floorY)); }
+      ctx.closePath();
+    }
+    /* One band's own rectangle on the wall plane. */
+    function bandRect(b) {
+      var x0 = X(b.u0, sWall), x1 = X(b.u1, sWall);
+      return { x: x0, w: x1 - x0 };
+    }
 
     // Bases.
-    ctx.fillStyle = WALL_BASE;
+    /* Above the floor line: the facing wall where a band stands, and the
+     * unestablished void where none does. An `open` facing has no band at
+     * all, so nothing here paints a wall it does not have — that is the whole
+     * of what "open" renders, and what its far line looks like belongs to
+     * row 4's scenic-vista backdrop, not to an [AI] band invented here. */
+    ctx.fillStyle = BEYOND_WALL;
     ctx.fillRect(0, 0, W, Math.ceil(floorY));
+    ctx.fillStyle = WALL_BASE;
+    for (var bi = 0; bi < bands.length; bi++) {
+      var br = bandRect(bands[bi]);
+      ctx.fillRect(br.x, 0, br.w, Math.ceil(floorY));
+    }
     ctx.fillStyle = FLOOR_BASE;
     ctx.fillRect(0, Math.ceil(floorY), W, H - Math.ceil(floorY));
+    /* The returns, in ONE lighting model with everything else: a per-plane
+     * facing tone first, the frame-wide key falloff over it second. With the
+     * key at upper-left the left return's face turns away from it and the
+     * right return's turns toward it — the same statement the sprite painters
+     * make with their across-width ramp, applied to the room's own geometry,
+     * and the reason a corner reads even where no line falls on it. */
+    if (bounded) {
+      ctx.fillStyle = RETURN_LEFT;
+      leftReturn();
+      ctx.fill();
+      ctx.fillStyle = RETURN_RIGHT;
+      rightReturn();
+      ctx.fill();
+    }
 
     /* The key falls on the ground too. Every sprite carries UL45 and every
      * contact pool is thrown down-right, and they stood on a wall and floor
@@ -231,32 +361,94 @@
     ctx.lineWidth = 1;
     ctx.strokeStyle = meta.key_tint;
 
-    // Wall verticals: every metre at wall scale, centred on cx, full width.
+    var m, bandI, band, bx0, bx1;
+    var centreX = gp.wallCentrePx(meta, W);
+    var halfM = gp.wallSpanPxAtWall(meta) / sWall / 2; // half the wall, in metres
+
+    /* The facing wall's own grid, clipped to each band. Before row 11 these
+     * ran the width of the frame, which drew wall where the room has none. */
     ctx.globalAlpha = ALPHA_MINOR;
-    var m;
-    for (m = Math.ceil(-cx / sWall); cx + m * sWall <= W; m++) {
-      var vx = snap(cx + m * sWall);
+    for (bandI = 0; bandI < bands.length; bandI++) {
+      band = bands[bandI];
+      bx0 = X(band.u0, sWall);
+      bx1 = X(band.u1, sWall);
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(vx, 0);
-      ctx.lineTo(vx, snap(floorY));
-      ctx.stroke();
-    }
-    // Wall horizontals: every metre up from the floor line.
-    for (m = 1; floorY - m * sWall >= 0; m++) {
-      var hy = snap(floorY - m * sWall);
-      ctx.beginPath();
-      ctx.moveTo(0, hy);
-      ctx.lineTo(W, hy);
-      ctx.stroke();
+      ctx.rect(bx0, 0, bx1 - bx0, floorY);
+      ctx.clip();
+      for (m = Math.ceil((bx0 - centreX) / sWall); centreX + m * sWall <= bx1; m++) {
+        var vx = snap(centreX + m * sWall);
+        ctx.beginPath();
+        ctx.moveTo(vx, 0);
+        ctx.lineTo(vx, snap(floorY));
+        ctx.stroke();
+      }
+      for (m = 1; floorY - m * sWall >= 0; m++) {
+        var hy = snap(floorY - m * sWall);
+        ctx.beginPath();
+        ctx.moveTo(bx0, hy);
+        ctx.lineTo(bx1, hy);
+        ctx.stroke();
+      }
+      ctx.restore();
     }
 
-    // Floor longitudinals: fan from wall x = cx + m*sWall to bottom
-    // x = cx + m*sBottom, for every metre line that can intersect the frame.
-    var span = Math.ceil(Math.max(cx, W - cx) / sWall) + 1;
-    for (m = -span; m <= span; m++) {
+    /* The returns' own grid: verticals at each half-metre of depth, rising
+     * from the wall-floor junction; horizontals fanning from the corner, one
+     * per metre of height. Both are the same plane the facing wall's grid
+     * describes, seen edge-on — which is what makes the corner read as a
+     * corner rather than as a change of paint. */
+    if (bounded) {
+      var camM = gp.cameraDistance(meta);
+      var spanPx = gp.wallSpanPxAtWall(meta);
+      for (var side = 0; side < 2; side++) {
+        var u = side === 0 ? 0 : 1;
+        /* How far along the return to keep drawing. The FLOOR's lerp is
+         * exhausted at px_per_m_at_bottom — that is where the floor leaves the
+         * frame — but the wall beside you does not stop there: it runs on past
+         * your own feet. Stopping at the floor's last depth left a corridor's
+         * lower corners as flat unlined slabs, which read as void rather than
+         * as the wall you are standing between. So the return is drawn on to
+         * the scale at which it leaves the frame edge. */
+        var sEdge = spanPx > 0
+          ? 2 * (side === 0 ? centreX : (W - centreX)) * sWall / spanPx
+          : sBottom;
+        var sMax = Math.max(sBottom, sEdge);
+        ctx.save();
+        if (side === 0) leftReturn(); else rightReturn();
+        ctx.clip();
+        ctx.globalAlpha = ALPHA_MINOR;
+        for (var dd = 0.5; dd < camM; dd += 0.5) {
+          var ss = gp.scaleAtDepth(dd, meta);
+          if (!(ss <= sMax)) break;
+          var rx = snap(X(u, ss));
+          ctx.beginPath();
+          ctx.moveTo(rx, 0);
+          ctx.lineTo(rx, snap(gp.yAtScale(ss, meta)));
+          ctx.stroke();
+        }
+        for (m = 1; floorY - m * sWall >= 0; m++) {
+          ctx.beginPath();
+          ctx.moveTo(X(u, sWall), floorY - m * sWall);
+          ctx.lineTo(X(u, sMax), gp.yAtScale(sMax, meta) - m * sMax);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    /* The floor, clipped to the floor the room actually has. Longitudinals
+     * are the metre lines inside the room — the two extremes ARE the
+     * wall-floor junctions of the returns, and they are drawn as majors
+     * below. */
+    ctx.save();
+    roomFloor();
+    ctx.clip();
+    ctx.globalAlpha = ALPHA_MINOR;
+    for (m = Math.ceil(-halfM); m <= Math.floor(halfM); m++) {
       ctx.beginPath();
-      ctx.moveTo(snap(cx + m * sWall), snap(floorY));
-      ctx.lineTo(snap(cx + m * sBottom), H);
+      ctx.moveTo(snap(centreX + m * sWall), snap(floorY));
+      ctx.lineTo(snap(centreX + m * sBottom), H);
       ctx.stroke();
     }
     // Floor transverse lines at 0.5m depth steps, depth -> scale = K/d ->
@@ -271,18 +463,56 @@
       ctx.lineTo(W, ty);
       ctx.stroke();
     }
+    ctx.restore();
 
-    // Majors: the floor line and the eye line (horizon_y — 1.6m above the
-    // floor line at wall scale: the camera-has-feet statement, in-fiction).
+    /* Majors: the room's own continuous wall-floor line — the band's foot
+     * plus the two junctions — and the eye line. The eye line runs the full
+     * width whatever the geometry: a level camera's horizon is one line
+     * across every surface in the frame, wall, return and floor alike. */
     ctx.globalAlpha = ALPHA_MAJOR;
-    ctx.beginPath();
-    ctx.moveTo(0, snap(floorY));
-    ctx.lineTo(W, snap(floorY));
-    ctx.stroke();
+    if (bounded) {
+      ctx.beginPath();
+      ctx.moveTo(cL, snap(floorY));
+      ctx.lineTo(cR, snap(floorY));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cL, snap(floorY));
+      ctx.lineTo(xb0, H);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cR, snap(floorY));
+      ctx.lineTo(xb1, H);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(0, snap(floorY));
+      ctx.lineTo(W, snap(floorY));
+      ctx.stroke();
+    }
     ctx.beginPath();
     ctx.moveTo(0, snap(eyeY));
     ctx.lineTo(W, snap(eyeY));
     ctx.stroke();
+
+    /* THE CORNERS. Two of them, at the ends of the u-domain the staging
+     * addresses — `xAtScale(0)` and `xAtScale(1)` at wall scale, which is
+     * what `corner_x0_px`/`corner_x1_px` are — running from the floor line
+     * off the top of frame. There is no ceiling to stop at: the plan carries
+     * no vertical datum (row 4 owns it, with the measured backdrop), and a
+     * corner running out of frame is also what standing in a room looks
+     * like. */
+    if (bounded) {
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(snap(cL), 0);
+      ctx.lineTo(snap(cL), snap(floorY));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(snap(cR), 0);
+      ctx.lineTo(snap(cR), snap(floorY));
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
 
     // Facing glyph: in-fiction signage, 1m tall at wall scale, centred on
     // the wall at the eye line. Carries facing only — rooms may legitimately
@@ -296,22 +526,61 @@
       // furniture standing in front of it.
       var gh = sWall * 1.5;
       var gw = gh * (2 / 3);
-      var gx = cx - gw / 2;
+      /* The glyph stands on the largest band in view, and must lie INSIDE it
+       * — a mark painted past a corner is signage floating in the side wall.
+       * Where there is no band at all (an `open` facing) it is centred on the
+       * view: `turn` is silent by design (§8 gives it no narration key), so
+       * on a bare facing the glyph is the entire response to an arrow key and
+       * no facing type may lose it.
+       *
+       * Candidates in order — left of an opening, right of it, ABOVE it —
+       * and the third is why the list has three. Centred, the glyph landed
+       * inside the doorway (and behind the shut leaf), which is where study/E
+       * and hall/W became the same picture. But `hall/W` is a 1.0 m door in
+       * the middle of a 2.60 m corridor end wall: both sideways dodges land
+       * outside a corner, and only the space above the lintel is left. */
+      var gBand = null;
+      for (bandI = 0; bandI < bands.length; bandI++) {
+        var cand = { x0: X(bands[bandI].u0, sWall), x1: X(bands[bandI].u1, sWall) };
+        if (!gBand || (cand.x1 - cand.x0) > (gBand.x1 - gBand.x0)) gBand = cand;
+      }
+      var bandLo = gBand ? gBand.x0 : 0;
+      var bandHi = gBand ? gBand.x1 : W;
+      var gcx = gBand ? (gBand.x0 + gBand.x1) / 2 : W / 2;
+      var gx = gcx - gw / 2;
       var gy = eyeY - gh / 2;
-      /* Stand the glyph clear of any doorway. Centred on the wall it landed
-       * inside the opening (and behind the shut leaf), which is where the
-       * two door facings became the same picture: study/E and hall/W are
-       * both a wall, a door and nothing else, and the one mark that says
-       * which way you are looking was painted over. §7 gives the glyph the
-       * job of making facings visually distinct. */
-      if (openings) {
+
+      function hitsOpening(x, y) {
+        if (!openings) return false;
         for (var oi = 0; oi < openings.length; oi++) {
           var o = openings[oi];
-          if (gx < o.x + o.w && gx + gw > o.x && gy < o.y + o.h && gy + gh > o.y) {
-            var toLeft = o.x - gw - sWall * 0.5;
-            var toRight = o.x + o.w + sWall * 0.5;
-            gx = (toLeft >= sWall * 0.25) ? toLeft : toRight;
+          if (x < o.x + o.w && x + gw > o.x && y < o.y + o.h && y + gh > o.y) return true;
+        }
+        return false;
+      }
+      function fitsBand(x) { return x >= bandLo && x + gw <= bandHi; }
+
+      if (hitsOpening(gx, gy)) {
+        // The opening the glyph collides with drives the dodge.
+        var hit = null;
+        for (var oj = 0; oj < openings.length; oj++) {
+          var oo = openings[oj];
+          if (gx < oo.x + oo.w && gx + gw > oo.x && gy < oo.y + oo.h && gy + gh > oo.y) {
+            hit = oo;
+            break;
           }
+        }
+        var toLeft = hit.x - gw - sWall * 0.5;
+        var toRight = hit.x + hit.w + sWall * 0.5;
+        var above = hit.y - gh - sWall * 0.25;
+        if (fitsBand(toLeft) && !hitsOpening(toLeft, gy)) {
+          gx = toLeft;
+        } else if (fitsBand(toRight) && !hitsOpening(toRight, gy)) {
+          gx = toRight;
+        } else if (above >= 0) {
+          gy = above;
+        } else {
+          gx = fitsBand(toLeft) ? toLeft : toRight;
         }
       }
       ctx.globalAlpha = ALPHA_GLYPH;

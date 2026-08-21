@@ -72,15 +72,52 @@ export function cameraFrom({ id, eye_m, pitch_deg, horizon_y, px_per_m_at_wall, 
   });
 }
 
-/** The camera the shipped demo draws with. */
+/**
+ * The ruled eye height, and it is an INPUT rather than something read back
+ * out of the picture.
+ *
+ * [HUMAN, 2026-08-20]: "we should be a bit higher as a view angle looking down
+ * at about a 6ft height." Blueprint §10 encodes it as `camera.eye_height_m`,
+ * whose authored home is `replicator/contract.json`; blueprint §5's
+ * camera-has-feet assertion was propagated to it at row 3.
+ *
+ * Row 12 derived the grid camera's eye height back OUT of GRID_META, which it
+ * said in its own comment was "an identity, not evidence": deriveMeta then
+ * reproduced GRID_META because it could not do anything else. Row 11 turns the
+ * arrow round. The eye height comes from the contract, the meta is derived
+ * from it, and `assertCameraConsistent` — which now compares a meta against a
+ * number it did not supply — is a check that can actually go red.
+ *
+ * `assertRuledEye` is the other half: the constant here is asserted equal to
+ * the contract file's, so a drift in either goes red rather than silently
+ * re-cameraing the project.
+ */
+export const RULED_EYE_M = 1.83;
+
+export function assertRuledEye(contractPath = join(ROOT, "replicator", "contract.json")) {
+  const problems = [];
+  let contract;
+  try {
+    contract = JSON.parse(readFileSync(contractPath, "utf8"));
+  } catch (e) {
+    return [`cannot read the orientation contract at ${contractPath} (${e.message}) — it is where blueprint §10's ruled eye height lives`];
+  }
+  const eye = contract && contract.camera && contract.camera.eye_height_m;
+  if (eye !== RULED_EYE_M) {
+    problems.push(`RULED_EYE_M is ${RULED_EYE_M} but replicator/contract.json camera.eye_height_m is ${JSON.stringify(eye)} — blueprint §10 is the [HUMAN] home of that number`);
+  }
+  return problems;
+}
+
+/** The camera the shipped demo draws with: §10's ruled eye height, level. */
 export const GRID_CAMERA = cameraFrom({
   id: "grid",
-  eye_m: (GRID_META.floor_line_y - GRID_META.horizon_y) * GRID_META.image_h_px / GRID_META.px_per_m_at_wall,
+  eye_m: RULED_EYE_M,
   pitch_deg: 0,
   horizon_y: GRID_META.horizon_y,
   px_per_m_at_wall: GRID_META.px_per_m_at_wall,
   image_h_px: GRID_META.image_h_px,
-  source: "src/renderer.js GRID_META (blueprint §7's row-2 amendment)"
+  source: "blueprint §10 camera.eye_height_m [HUMAN 2026-08-20], level (§10's −8° pitch is unmodelled — see §7 of the report)"
 });
 
 /** Blueprint §10's generation camera, for comparison only. Its home is
@@ -89,7 +126,7 @@ export const GRID_CAMERA = cameraFrom({
  * derived render or the shipped fixture depends on this object. */
 export const CONTRACT_CAMERA = cameraFrom({
   id: "contract",
-  eye_m: 1.83,
+  eye_m: RULED_EYE_M,
   pitch_deg: -8,
   horizon_y: GRID_META.horizon_y,
   px_per_m_at_wall: GRID_META.px_per_m_at_wall,
@@ -98,19 +135,28 @@ export const CONTRACT_CAMERA = cameraFrom({
 });
 
 /**
- * The one check on the imported camera that can go red. §5 states the floor
- * twice — as the scale lerp and as the horizon device — and they agree only
- * when px_per_m_at_bottom = (image_h − horizon_y·image_h)/eye. Edit any one
- * of GRID_META's four numbers alone and this fails.
+ * The check on a meta's camera that can go red — and since row 11 it really
+ * can, because the eye height it judges against comes from outside the meta.
+ *
+ * §5 states the floor twice, as the scale lerp and as the horizon device, and
+ * they agree only when
+ *   floor_line_y       = horizon_y + eye·px_per_m_at_wall/image_h_px   and
+ *   px_per_m_at_bottom = (image_h − horizon_y·image_h)/eye.
+ * Both are §5's own equations, and the second is the camera-has-feet gate
+ * blueprint §5 asserts at ≤ 0.02. Edit any one of GRID_META's numbers alone —
+ * or run a meta authored at a different eye height past this — and it fails.
  */
-export function assertCameraConsistent(meta = GRID_META) {
+export function assertCameraConsistent(meta = GRID_META, eye = RULED_EYE_M) {
   const problems = [];
-  const eye = (meta.floor_line_y - meta.horizon_y) * meta.image_h_px / meta.px_per_m_at_wall;
+  const impliedFloor = meta.horizon_y + eye * meta.px_per_m_at_wall / meta.image_h_px;
+  if (Math.abs(impliedFloor - meta.floor_line_y) > 1e-9) {
+    problems.push(`floor_line_y is ${meta.floor_line_y}, but §5's horizon device at the ruled eye ${eye} m puts the wall-floor line at ${impliedFloor} (residual ${Math.abs(impliedFloor - meta.floor_line_y)} against §5's 0.02 gate)`);
+  }
   const bottom = (meta.image_h_px - meta.horizon_y * meta.image_h_px) / eye;
   if (Math.abs(bottom - meta.px_per_m_at_bottom) > 1e-6) {
     problems.push(`px_per_m_at_bottom is ${meta.px_per_m_at_bottom}, but §5's horizon device at eye ${eye} m gives ${bottom}`);
   }
-  if (!(eye > 0.5 && eye < 3)) problems.push(`the implied eye height is ${eye} m, which is not a person`);
+  if (!(eye > 0.5 && eye < 3)) problems.push(`the eye height is ${eye} m, which is not a person`);
   return problems;
 }
 
@@ -309,6 +355,16 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     image_h_px: imageH,
     horizon_y: horizonY,
     key_dir: GRID_META.key_dir,
+    /* §5's calibration pair. A synthesized facing's known-height feature is
+     * the grid's own metre module, exactly as the fallback meta declares, so
+     * its numbers can be audited against its pixels like any measured
+     * backdrop's. These are here because a meta handed to the renderer must be
+     * a COMPLETE §5 record: the render resolves `entry.meta ?? GRID_META`, so
+     * the moment a facing carries a partial meta the fallback is never
+     * consulted and an `undefined` reaches the paint. Row 4's measured metas
+     * replace both values with what its own calibration_ref measures. */
+    calibration_ref: GRID_META.calibration_ref,
+    calibration_px: pxAtWall,
     facing_type: fc.type,
     camera: wide ? "wide" : "pinned",
     camera_id: camera.id,
@@ -360,11 +416,25 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
   return meta;
 }
 
-/** The meta the RENDERER resolves for a facing today: grid canonical, because
- * no backdrop asset exists. The only meta in which the shipped staging could
- * reproduce at all, and what stagingDivergence compares against. */
-export function shippedMeta() {
-  return { ...GRID_META, camera_wall_m: groundplane.CAMERA_WALL_M };
+/**
+ * The meta the RENDERER resolves for a facing — the one home of the
+ * resolution rule, used identically by the bake (which emits these into
+ * fixture.js), by the page, by the fixture validator and by
+ * stagingDivergence. Three tiers, in order:
+ *
+ *   1. a MEASURED backdrop meta, `backdrops/<loc>/<facing>.meta.json`
+ *      (row 4's; none exists yet, and reading it is the fixture validator's
+ *      job because it is the seat that owns that file's findings);
+ *   2. the PLAN's derived meta, where the plan holds the room (row 11);
+ *   3. the unplanned-facing fallback, `GRID_META`.
+ *
+ * Row 11 inserted tier 2. Before it, every shipped facing fell to tier 3 and
+ * drew a 16 m wall no room has.
+ */
+export function metaForFacing(plan, roomId, facing, opts = {}) {
+  const room = (plan && plan.rooms || []).find((r) => r.id === roomId);
+  if (!room || !room.facings || !room.facings[facing]) return { ...GRID_META };
+  return deriveMeta(plan, roomId, facing, opts);
 }
 
 /** The depth of an object's baseline — its ground-contact edge nearest the
@@ -597,12 +667,21 @@ export function inverseProjectPlacement(plan, placement, record, meta) {
  * were inverse-projected from that same staging and therefore agree by
  * construction.
  */
-export const KNOWN_DIVERGENCES = [
-  {
-    id: "door1", facing: "study/E",
-    why: "the approved drawing sites door1 1.1 m south of the study's east-wall centre; the shipped staging centres it. Moving the plan would contradict the drawing Kabe approved; moving the staging would move the shipped demo's pixels. Row 4's study/E prompt sheet and row 15 are where it is resolved."
-  }
-];
+/**
+ * EMPTY since row 11, and that is the point rather than an omission.
+ *
+ * Row 12 carried exactly one entry — `door1` on `study/E`, where the approved
+ * drawing sites the door 1.1 m south of the study's east-wall centre and the
+ * shipped staging centred it — and named it `projection.md` §0's question 2.
+ * Row 11's handoff answered it from the Navigator's seat: the staging moves to
+ * the drawing (blueprint §4b's "THE SCHEMATIC IS APPROVED"), so the divergence
+ * is gone because the fixture agrees with the plan, not because the plan
+ * moved.
+ *
+ * The bake refuses a listed divergence that has started to agree, which is
+ * what forced this list to empty in the same commit as the staging edit.
+ */
+export const KNOWN_DIVERGENCES = [];
 
 /**
  * The tolerance the staging↔projection assertion runs at, and why this number.
@@ -618,7 +697,16 @@ export const KNOWN_DIVERGENCES = [
  */
 export const STAGING_TOLERANCE = 1e-9;
 
-export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance = STAGING_TOLERANCE) {
+/**
+ * `meta` is now a FUNCTION of the facing, not one meta for the whole world —
+ * row 11 gave every planned facing its own. Passing a plain object still
+ * works (the tests that displace `xAtScale` and want one fixed meta rely on
+ * it) and is treated as that meta for every facing.
+ */
+export function stagingDivergence(plan, staging, meta = null, tolerance = STAGING_TOLERANCE) {
+  const metaAt = typeof meta === "function" ? meta
+    : meta ? () => meta
+      : (roomId, facing) => metaForFacing(plan, roomId, facing);
   const rows = [];
   const unplanned = [];
   const unexpectedMissing = [];
@@ -659,7 +747,7 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
           : `the plan holds "${roomId}" but no position for "${id}"` });
         continue;
       }
-      const p = projectPlacement(plan, id, roomId, facing, meta);
+      const p = projectPlacement(plan, id, roomId, facing, metaAt(roomId, facing));
       const duOk = Math.abs(p.u - pl.u) <= tolerance;
       const shippedDepth = pl.depth_m == null ? null : pl.depth_m;
       const ddOk = shippedDepth == null || Math.abs(p.depth_m - shippedDepth) <= tolerance;
@@ -704,15 +792,14 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
  * the drawing Kabe approved, and changing it changes the drawing.
  */
 export function cameraFeetReport(plan, opts = {}) {
-  /* The reference is the SHIPPED grid meta's cut, not the study's derived one.
-   * They are different numbers — 1.0096 m against 1.0385 m — because the demo
-   * runs on `groundplane.CAMERA_WALL_M` (3.5, the fallback) while the plan
-   * measures the study's standpoint at 3.60 m. The sentence this number
-   * anchors is "the only frame-bottom cut any human has judged", and what a
-   * human has judged is what the browser draws. The round-4 critic caught the
-   * substitution: against the shipped reference the over-limit set is four
-   * facings larger, and the four it gains are two whole rooms. */
-  const reference = nearestFloorM(shippedMeta());
+  /* The reference is the cut the BROWSER DRAWS on the facing a human looks at
+   * first — the study's north view — because the sentence this number anchors
+   * is "the only frame-bottom cut any human has judged". Row 12 had to take
+   * the fallback meta's cut instead, since the demo drew every facing at
+   * `groundplane.CAMERA_WALL_M`; row 11 gave the study its own derived meta,
+   * so the shipped cut and the derived one are now the same number and the
+   * substitution the round-4 critic caught cannot recur. */
+  const reference = deriveMeta(plan, "study", "N", opts).nearest_floor_m;
   const rows = [];
   for (const room of plan.rooms) {
     for (const f of FACINGS) {
@@ -901,7 +988,7 @@ export function report(plan, staging, records) {
   for (const r of div.rows) {
     const [roomId, facing] = r.facing.split("/");
     const planMeta = deriveMeta(plan, roomId, facing);
-    const a = projectEntity(plan, r.id, roomId, facing, records, shippedMeta());
+    const a = projectEntity(plan, r.id, roomId, facing, records, { ...GRID_META });
     const b = projectEntity(plan, r.id, roomId, facing, records, planMeta);
     P(`| \`${r.id}\` | ${r.facing} | ${fixed(a.u, 4)} | ${fixed(b.u, 4)} | ${a.placement ? fixed(a.placement.heightPx, 1) : "—"} | ${b.placement ? fixed(b.placement.heightPx, 1) : "—"} |`);
   }

@@ -34,6 +34,8 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
+import { metaForFacing as planMetaForFacing } from "./plan-projection.mjs";
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 const { GRID_META } = require_("../src/renderer.js");
@@ -135,7 +137,29 @@ function loadJson(fixtureDir, name, findings) {
 /* Meta resolution, pinned (plan §6.5): the staged facing's backdrop meta
  * when one exists, grid canonical otherwise — the same resolution the
  * renderer applies. */
-function metaForFacing(facingStr, findings) {
+/* The §5 fields a meta must carry before the renderer may be handed it. The
+ * render resolves `backdrops[key].meta ?? GRID_META`, so the moment a facing
+ * carries a PARTIAL meta the fallback is never consulted and an `undefined`
+ * reaches the paint: `key_tint` drives the per-sprite tint AND the grid's own
+ * key falloff (and is deliberately non-identity so §12.8's tint clause is
+ * satisfiable), `image_h_px` is in every ground-plane call, `horizon_y` is the
+ * left-hand side of §5's camera-has-feet gate. Row 11's derived metas and
+ * row 4's measured ones answer to the same list. */
+const META_REQUIRED = [
+  "floor_line_y", "px_per_m_at_wall", "px_per_m_at_bottom", "wall_width_m",
+  "key_tint", "image_h_px", "horizon_y", "key_dir",
+  "calibration_ref", "calibration_px"
+];
+const FACING_TYPES = ["enclosed", "open", "corridor"];
+
+/**
+ * The meta the renderer resolves for a facing, in three tiers — a MEASURED
+ * backdrop meta (row 4's), then the PLAN's derived one (row 11's), then the
+ * unplanned-facing fallback. `derived` is the map the caller loaded from the
+ * plan; keeping the plan read out of this function is what lets the CLI, the
+ * bake and the tests hand in the same map the page was baked with.
+ */
+function metaForFacing(facingStr, findings, derived) {
   const parts = String(facingStr).split("/");
   if (parts.length === 2) {
     const p = join(ROOT, "backdrops", parts[0], parts[1] + ".meta.json");
@@ -153,7 +177,107 @@ function metaForFacing(facingStr, findings) {
       }
     }
   }
+  if (derived && derived[facingStr]) return derived[facingStr];
   return GRID_META;
+}
+
+/**
+ * Tier 2 of the meta resolution: every facing the world names, projected from
+ * the fixture's own plan. The bake writes exactly this map into fixture.js,
+ * so the validator, the page and the renderer all read one geometry.
+ */
+function derivedMetasFor(fixtureDir, world, findings) {
+  const planFile = join(fixtureDir, "plan.json");
+  if (!existsSync(planFile)) {
+    findings.push("plan.json: missing — the plan is the fixture's spatial source (blueprint §4b), and without it every facing falls back to the unplanned-facing meta");
+    return {};
+  }
+  let plan;
+  try {
+    plan = JSON.parse(readFileSync(planFile, "utf8"));
+  } catch (e) {
+    findings.push(`plan.json: does not parse (${e.message}) — cannot resolve any facing's geometry`);
+    return {};
+  }
+  const out = {};
+  for (const loc of (isObj(world) && Array.isArray(world.locations) ? world.locations : [])) {
+    if (!isObj(loc) || !Array.isArray(loc.facings)) continue;
+    for (const f of loc.facings) {
+      try {
+        out[`${loc.id}/${f}`] = planMetaForFacing(plan, loc.id, f);
+      } catch (e) {
+        findings.push(`plan.json: ${loc.id}/${f} cannot be projected (${e.message})`);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The §5 meta schema, row 11's arm. Every clause names one thing so a break
+ * goes red on that clause alone.
+ *
+ * The type field partitions the cases it names, and `null` is one of them:
+ * a facing NO PLAN HOLDS has no typed geometry, and borrowing `enclosed` for
+ * it would make `enclosed` mean two things. §12.5's frame clause is here
+ * because it is the one clause that reaches OUTSIDE a meta — the canvas is
+ * the term no meta supplies — and after row 11 it has to reach every meta the
+ * fixture can resolve, cornered or not.
+ */
+function checkMeta(label, meta, findings, canvasW, canvasH) {
+  if (!isObj(meta)) { findings.push(`${label}: not a meta object`); return; }
+  for (const k of META_REQUIRED) {
+    if (meta[k] == null) {
+      findings.push(`${label}: §5 field "${k}" is missing — the renderer resolves one meta or the fallback, never a blend, so a partial meta reaches the paint as undefined`);
+    }
+  }
+  const type = meta.facing_type === undefined ? null : meta.facing_type;
+  if (type !== null && !FACING_TYPES.includes(type)) {
+    findings.push(`${label}: facing_type ${JSON.stringify(type)} is not one of ${FACING_TYPES.join(" | ")} or null (blueprint §5)`);
+  }
+  const hasWall = meta.camera_wall_m != null;
+  const hasFar = meta.camera_far_m != null;
+  if (type === "open") {
+    if (!hasFar) findings.push(`${label}: an open facing must carry camera_far_m — it views a drawn ground line, not a surface`);
+    if (hasWall) findings.push(`${label}: an open facing carries camera_wall_m — the field name is the mechanism (§5): a depth model handed a far line as a wall distance puts a horizon where a wall goes`);
+  } else {
+    if (!hasWall) findings.push(`${label}: facing_type ${JSON.stringify(type)} must carry camera_wall_m`);
+    if (hasFar) findings.push(`${label}: facing_type ${JSON.stringify(type)} carries camera_far_m — only an open facing has a far line instead of a wall plane`);
+  }
+  const c0 = meta.corner_x0_px, c1 = meta.corner_x1_px;
+  const cornered = typeof c0 === "number" && typeof c1 === "number";
+  if (!cornered && (typeof c0 === "number" || typeof c1 === "number")) {
+    findings.push(`${label}: one corner without the other — a wall has two ends or none`);
+  }
+  if (cornered && !(c0 < c1)) {
+    findings.push(`${label}: corner_x0_px ${c0} is not left of corner_x1_px ${c1}`);
+  }
+  if (type === "open" && cornered) {
+    findings.push(`${label}: an open facing carries corners — law (b): where no building stands the ground runs open to its far line, and a corner there would be an invented enclosure`);
+  }
+  if (meta.wall_continuous === false && cornered) {
+    findings.push(`${label}: a discontinuous wall carries corners — a view that is part building and part open ground has segments, not two corners`);
+  }
+  if (meta.wall_continuous === false &&
+      !(Array.isArray(meta.wall_segments) && meta.wall_segments.length > 0)) {
+    findings.push(`${label}: wall_continuous is false but wall_segments says nothing is built — law (b) needs the bands, or nothing can say where the building is`);
+  }
+  if (type === null && cornered) {
+    findings.push(`${label}: a facing no plan holds carries corners — a room whose extent nobody has drawn must not claim two`);
+  }
+  /* §12.5's frame clause, the one that reaches outside the meta. */
+  if (cornered) {
+    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i))`);
+    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i))`);
+  } else if (typeof meta.wall_width_m === "number" && typeof meta.px_per_m_at_wall === "number") {
+    const spanned = meta.wall_width_m * meta.px_per_m_at_wall;
+    if (spanned > canvasW + 1e-6) {
+      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits`);
+    }
+  }
+  if (meta.image_h_px != null && meta.image_h_px !== canvasH) {
+    findings.push(`${label}: image_h_px ${meta.image_h_px} is not the ${canvasH}px canvas it is a meta for (§12.5 (iv))`);
+  }
 }
 
 function placementList(v) {
@@ -211,13 +335,33 @@ function parseNarrationKey(k) {
   return { intent: m[1], target: m[2], outcome: m[3] };
 }
 
-export function validate(fixtureDir, records) {
+export function validate(fixtureDir, records, derivedMetas) {
   const findings = [];
 
   const world = loadJson(fixtureDir, "world.json", findings);
   const staging = loadJson(fixtureDir, "staging.json", findings);
   const viewstate = loadJson(fixtureDir, "viewstate.json", findings);
   const narration = loadJson(fixtureDir, "narration.json", findings);
+
+  /* Row 11: the plan's derived metas, tier 2 of the resolution. Loaded here
+   * rather than inside metaForFacing so a caller can hand in the very map the
+   * page was baked with — the check and the picture then read one object. The
+   * default reads the fixture's own plan, which is what the CLI does. */
+  const derived = derivedMetas || derivedMetasFor(fixtureDir, world, findings);
+
+  /* Every facing the world names resolves to a meta, and every one of them is
+   * checked — not only the ones something happens to be staged on. A bare
+   * facing with a broken meta still draws a room. */
+  if (isObj(world) && Array.isArray(world.locations)) {
+    for (const loc of world.locations) {
+      if (!isObj(loc) || !Array.isArray(loc.facings)) continue;
+      for (const f of loc.facings) {
+        const key = `${loc.id}/${f}`;
+        checkMeta(`meta ${key}`, metaForFacing(key, findings, derived), findings,
+          CANVAS_W, GRID_META.image_h_px);
+      }
+    }
+  }
 
   if (!isObj(records)) {
     findings.push("records: not an object — src/placeholders.js records expected");
@@ -601,8 +745,8 @@ export function validate(fixtureDir, records) {
         findings.push(`staging.json: ${label} attachment floor_free requires depth_m`);
       }
       if ("depth_m" in pl) {
-        const meta = metaForFacing(pl.facing, findings);
-        const cam = meta.camera_wall_m != null ? meta.camera_wall_m : groundplane.CAMERA_WALL_M;
+        const meta = metaForFacing(pl.facing, findings, derived);
+        const cam = groundplane.cameraDistance(meta);
         if (typeof pl.depth_m !== "number" || pl.depth_m < 0) {
           findings.push(`staging.json: ${label} depth_m must be a number ≥ 0 (got ${JSON.stringify(pl.depth_m)})`);
         } else if (pl.depth_m >= cam || groundplane.scaleAtDepth(pl.depth_m, meta) > meta.px_per_m_at_bottom) {
@@ -712,7 +856,7 @@ export function validate(fixtureDir, records) {
       findings.push(`staging.json: overlap pair ${pairName} cannot be projected — a sprite record is missing`);
       continue;
     }
-    const meta = metaForFacing(common[0].facing, findings);
+    const meta = metaForFacing(common[0].facing, findings, derived);
     let spanA, spanB;
     try {
       spanA = projectSpans(common[0], recA, meta);
@@ -807,7 +951,7 @@ export function validate(fixtureDir, records) {
       if ("v" in pl && pl.attachment !== "wall_mounted") {
         findings.push(`staging.json: placement "${id}" carries "v" but is ${pl.attachment} — v is metres above the wall floor line and only wall_mounted reads it`);
       }
-      const meta = metaForFacing(pl.facing, findings);
+      const meta = metaForFacing(pl.facing, findings, derived);
       let span = null;
       try {
         span = projectSpans(pl, rec, meta);
@@ -821,6 +965,40 @@ export function validate(fixtureDir, records) {
         findings.push(
           `staging.json: placement "${id}" on ${pl.facing} projects to x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}] y [${span.y0.toFixed(1)}, ${span.y1.toFixed(1)}] — wholly outside the ${CANVAS_W}×${meta.image_h_px} frame`
         );
+      }
+
+      /* ---- 7c. staging never addresses wall that does not exist --------- */
+
+      /* Being inside the frame and being inside the ROOM are different
+       * things, and until row 11 nothing could tell them apart: `u ∈ [0,1]`
+       * plus "the rect intersects the canvas" was the whole net, and both
+       * were satisfied by a 16 m wall no room has. An object standing past
+       * the side wall is outside the room. */
+      const dom = groundplane.uDomain(meta, span.s, CANVAS_W);
+      if (span.x0 < dom.x0 - 0.5 || span.x1 > dom.x1 + 0.5) {
+        findings.push(
+          `staging.json: placement "${id}" on ${pl.facing} projects to x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}] but the room's own wall at that scale runs [${dom.x0.toFixed(1)}, ${dom.x1.toFixed(1)}] — it stands past a corner, outside the room`
+        );
+      }
+
+      if (pl.attachment === "wall_mounted") {
+        /* A door cannot hang on a horizon. Blueprint §5: an `open` facing has
+         * no facing wall at all, and law (b) forbids inventing one. */
+        if (meta.facing_type === "open") {
+          findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing}, whose facing_type is "open" — there is no wall there to mount it on (blueprint §5, law (b))`);
+        } else if (Array.isArray(meta.wall_segments) && meta.wall_continuous === false) {
+          /* Part building, part open ground: the thing must hang on a band
+           * that is actually built, not across the gap between two. */
+          const sWall = meta.px_per_m_at_wall;
+          const inBand = meta.wall_segments.some((seg) => {
+            const b0 = groundplane.xAtScale(seg.from_m / meta.wall_width_m, sWall, meta, CANVAS_W);
+            const b1 = groundplane.xAtScale(seg.to_m / meta.wall_width_m, sWall, meta, CANVAS_W);
+            return span.x0 >= Math.min(b0, b1) - 0.5 && span.x1 <= Math.max(b0, b1) + 0.5;
+          });
+          if (!inBand) {
+            findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing} at x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}], where the wall in view is built only in ${JSON.stringify(meta.wall_segments.map((s) => [s.from_m, s.to_m]))} m — law (b): a wall exists only where the building stands`);
+          }
+        }
       }
     }
   }
