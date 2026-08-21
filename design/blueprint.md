@@ -181,6 +181,22 @@ disagree about where a thing stands, row 11's corners and §5's geometry fields 
 hand-measured guesses, and an overhead minimap later is a render of an artifact that already
 exists.)
 
+**The plan is a manor [HUMAN, 2026-08-21]:** "we should map a 2 story building with many rooms,
+basically design a nice manor with appropriate rooms, courtyard, outdoor etc. and have per room
+modular consistent design so creation is snappy." The overhead plan describes the full c.1660
+English manor — Navigator's proposed roster, Kabe's to redline at the row-12 drawing: ground
+floor great hall, study (the existing room, sited here), library, dining parlour, kitchen,
+screens passage (the existing "hall"); upper floor long gallery (corridor type), master
+bedchamber, guest chamber, solar; grounds: central courtyard (open type), walled garden (open),
+entrance approach; stairs as exits between floors, the orientation law governing them.
+`plan.json` gains floors; rooms carry a **type template** (chamber/hall/corridor/open) so every
+room is the same modular recipe — plan polygon + wall carriers + the one style seed → four
+prompt sheets → Kabe's pick loop → measured meta → sprite set — "per room modular consistent
+design so creation is snappy." Unestablished rooms ship as holodeck grid with their typed
+geometry, so the whole manor walks before it is painted (row 15); establishing a room is
+production, not architecture. M0's §12 acceptance is unchanged — two furnished rooms prove the
+engine; the manor proves it scales.
+
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
 ```json
