@@ -362,8 +362,8 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
 - [AI] `key_dir` is the authored screen-space key direction — "UL" on every M0 facing: backdrops
   are generated so the key reads from upper-left everywhere, matching sprite contract UL45 (gate
   §9.4e covers sprites only; backdrops never pass the ingester, so this field is their light
-  contract). `horizon_y` is the authored horizon at camera eye height 1.6m; acceptance asserts
-  |`horizon_y` − (`floor_line_y` − 1.6·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 — the
+  contract). `horizon_y` is the authored horizon at the ruled camera eye height 1.83m (6 ft, [HUMAN] 2026-08-20 — supersedes this note's original 1.6); acceptance asserts
+  |`horizon_y` − (`floor_line_y` − 1.83·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 — the
   camera-has-feet gate, independent of the calibration it feeds.
 - [AI] Calibration is auditable against pixels, not just self-consistent: `calibration_px` is the
   measured pixel height of `calibration_ref` in the actual image, and acceptance asserts
@@ -792,7 +792,7 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
   "prompt_block": "Front-three-quarter view turned 30 degrees to viewer-left, shot at 50mm, camera at 1.6m eye height, object centered and fully in frame, single soft key light from upper left at 45 degrees with even fill, plain mid-grey seamless background, sharp focus edge to edge, all moving parts closed and fully seated, panel and drawer edges clearly delineated with visible reveal gaps, nothing resting on or in front of the object, no props, no scene",
   "negative_block": "cast shadow on background, dramatic lighting, rim light, vignette, depth of field, cropped, background scenery, props",
   "style_block": "AUTHORED AT ROW 4 PROBE — extracted from the Kabe-approved study/N backdrop and written here before any sprite generation: palette (named hexes), medium (e.g. painterly gouache vs photoreal), grain/texture character, period rendering descriptors. Every backdrop AND sprite prompt appends it; the sprite hand reads this file and nothing else for style.",
-  "backdrop_block": "AUTHORED AT ROW 3 with this file [AI]: the room-scale counterpart of prompt_block — interior view at 1.6m eye height, 50mm, 1536x1024, single soft key reading from upper-left of frame, overcast diffuse daylight through any window, no visible sun shafts, floor running to the bottom edge of frame, no furniture, no props, door frame/opening only where the section 11 wall map places one. Per-facing wall-map specifics live in the row 4 prompt sheets; this block is what every backdrop prompt appends." }
+  "backdrop_block": "AUTHORED AT ROW 3 with this file [AI]: the room-scale counterpart of prompt_block — interior view at 1.6m eye height, 50mm, 1536x1024, single soft key reading from upper-left of frame, overcast diffuse daylight through any window, no visible sun shafts, floor running to the bottom edge of frame, no furniture, no props, door frame/opening only where the section 11 wall map places one. Per-facing wall-map specifics live in the row 4 prompt sheets; this block is what every backdrop prompt appends. [Fork raised at row 3, answered from the standing ruling: light is PER-FACING — Kabe's 2026-08-20 reference ruling made each approved backdrop's measured key_dir/key_tint authoritative for its facing, with sprites tinted and lit to match the facing they stand in; the block's single-key wording is the prompt's starting point, not a cross-facing constraint.]" }
 ```
 
 Every generated sprite and backdrop prompt appends the relevant block. Ingester gate (e) checks arrivals against `light.key`.
