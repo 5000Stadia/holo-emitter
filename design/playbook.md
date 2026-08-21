@@ -67,6 +67,14 @@ verified 2026-08-18 by the drafting pass; the u/RUSuper route spot-checked live 
   consults, invoked only where the expected yield beats the cost, dropped without ceremony where
   it stops earning.
 - **§7 models, ruled for this project** [HUMAN, 2026-08-20: "I will appeal to your judgment on when the task requires the higher intelligence you're free to load fable but if we are just code crunching, please stick with opus"]: Opus for all building, plan critique, and routine artifact critique; the strongest model reserved, at the Navigator's judgment, for the single-pass judgment gates — the row-5 agent rubric, the §12.10 criterion-anchored comparison, and the empty-brief critic. This is §7's "strongest model at max effort for heavy/convergence passes" mapped onto metered reality. Extended downward same day [HUMAN]: "if you have basic code tasks that can be sub-opus lv intelligence feel free to use sonnett or hiku even just be smart on complexity to model comparisons" — the Navigator matches model to task complexity across the whole ladder: Haiku/Sonnet for mechanical pieces (value flips, rebakes, capture scripts, simple chrome), Opus for real building and all examination, Fable for the named judgment gates. The counterweight, same ruling thread [HUMAN, 2026-08-21]: "important elements certainly take as long as they take" — gears and round flags govern the small stuff; load-bearing work (the replicator's gates, the plan, the look rows, the flip test) buys as many rounds as it needs, and the flags exist to *surface* a long loop to its owner, never to truncate one that is earning. The chain's last link [HUMAN, 2026-08-21]: "if it gets too long you just report to the captain about its status" — a builder's flag reaches the Navigator; when the loop keeps running past that, the Navigator sends Kabe a status note (what row, what round, what family, still earning or not) — informing, never asking permission to continue.
+- [felt — earned 2026-08-21 (row 11, fourth project bite of the gates-that-cannot-fail family);
+  travels home at close] **A guard's teeth are proven by a critic failing to break it, never by
+  its author watching one mutation go red.** The row-11 clause ledger was built, spot-verified
+  by its author (ten cases red under one disable), reported done — and the recheck dismantled it
+  four ways (hand-typed completeness lists, tokens coarser than clauses, membership without
+  exclusivity, six unnamed mechanisms). Architecture that survived: completeness derived from
+  the artifacts that exist, one token per arm, exclusivity asserted — and no closure claim on a
+  verification mechanism until an adversary has failed against it.
 - [felt — earned 2026-08-21; travels home at close] **A round flag routed into the builder's own
   transcript is no flag.** Row 3 went two rounds over budget flagging correctly — into its own
   output, where nobody lives. The flag's transport must be named in the brief: a message to the
