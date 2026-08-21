@@ -14,7 +14,9 @@ after load.
 
 Use the browser link above, or open `index.html` locally (double-click works — no server, no
 build). Unestablished space renders as the holodeck grid; turn with the arrow keys or the edge
-chevrons.
+chevrons. Everything clickable is reachable by keyboard alone too — Tab to it, Enter or Space to
+act — and the button in the corner fills the screen with the picture (a plain in-page fallback
+takes over wherever the browser withholds real fullscreen).
 
 So far: two rooms on the holodeck grid, four facings each, furnished with stand-in shapes while
 the real art is fabricated. Click things — the desk drawer opens (something waits inside), the

@@ -874,16 +874,22 @@ Known limits, still open (row 1's list, updated):
 - **No committed cross-commit canvas guard.** Row 7 proved the canvas did not move by capturing the
   hash sequence at the parent commit and again after, with a harness deliberately not committed
   (the suite carries no goldens by design). Nothing in the committed suite can detect a canvas
-  change caused by chrome work — and rows 8, 9 and 10 all promise the scene canvas is untouched.
+  change caused by chrome work. Rows 8 and 10 kept the promise — checked by hand the same way at
+  each of their closes, both times byte-identical across a ten-point script spanning both rooms —
+  and row 9 still owes it.
 - **Per-turn repaint cost.** `render` allocates two full 1536×1024 offscreen canvases per entity
   per frame (composite, then tint), which measures ≈270 ms at 4× CPU throttling and ≈410 ms at
   6× on the furnished study facing. Bounding the scratch to each entity's drawn rect is the fix
   and it must not move a hash; left alone at V1 deliberately, since every §12.2 guarantee is
   pinned to the current pixel output.
-- **On a phone the stage is top-aligned** and 40–60% of the viewport is empty below the chrome;
-  at 3840×2160 the fixed 1536×1024 backing store upscales and softens (no `devicePixelRatio`
-  handling — adding it would move every hash, which is worth naming before row 4's
-  halo-sensitive flip test). Row 8 owns the presentation.
+- **Corrected: the stage was never actually top-aligned on a phone** by the time this bullet was
+  last touched — the page is vertically centred (see "index.html chrome" above,
+  `justify-content: center`), measured directly at 390×844: 231 px above the stage, 231 px below
+  it once the 121.6 px chrome reserve is accounted for. This sentence used to claim otherwise and
+  attributed the fix to row 8; row 8 closed without needing to touch it, because there was nothing
+  live left to fix. What is still true and still open: at 3840×2160 the fixed 1536×1024 backing
+  store upscales and softens (no `devicePixelRatio` handling — adding it would move every hash,
+  worth naming before row 4's halo-sensitive flip test). No row owns this yet.
 - **WebKit is unverified by anyone** — it will not launch on this machine, and Safari/iOS is the
   likeliest engine for a phone visitor at the public link. Firefox was checked by hand and
   diverges only in anti-aliasing (max channel delta ~36 on grid strokes and the shadow
