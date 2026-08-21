@@ -638,7 +638,7 @@ test("a render fault, a missing narration key and an unreadable intent all speak
     .toBe("The pattern falters; the words do not come.");
   checkCollected(await page.evaluate(COLLECT), "unreadable-intent");
 
-  // Missing narration key. STATE:missing-narration-key
+  // Missing narration key.
   await page.evaluate(() => {
     delete window.HOLO_APP.harness.narration.lines["toggle.chair1.refused_static"];
     window.HOLO_APP.dispatch({ type: "toggle", entity: "chair1" });
@@ -646,6 +646,7 @@ test("a render fault, a missing narration key and an unreadable intent all speak
   const missing = await page.locator("#narration p").last().textContent();
   expect(["The pattern falters; the words do not come.",
     "Nothing of that description offers itself to your hand."]).toContain(missing);
+  checkCollected(await page.evaluate(COLLECT), "missing-narration-key");
 
   // Render fault.
   await page.evaluate(() => {
@@ -808,7 +809,6 @@ test("a halted page withdraws every affordance, not only its buttons", async ({ 
   expect(st.overlayBlank, "and no highlight is left inked").toBe(true);
 });
 
-// STATE:viewport-changed-after-load
 test("the newest line stays readable when the box changes after load", async ({ page }) => {
   /* viewport-changed-after-load. Every legibility guard set its viewport
    * BEFORE goto, so none of them could see a phone being rotated — the most
@@ -834,4 +834,5 @@ test("the newest line stays readable when the box changes after load", async ({ 
   });
   expect(vis.top, "the newest line has not scrolled off the top").toBeGreaterThanOrEqual(-1);
   expect(vis.top, "and it is inside the pane").toBeLessThan(vis.h);
+  checkCollected(await page.evaluate(COLLECT), "viewport-changed-after-load");
 });

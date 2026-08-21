@@ -55,7 +55,7 @@ test.describe("shell", () => {
   test("capture class hides all chrome overlapping the scene canvas (§12.6 seam)", async ({ page }) => {
     // §12.6 pins native-size captures: downscaling softens exactly the halo
     // tells the flip test exists to catch. 1536×1200 displays the canvas at
-    // native 1536 CSS px under contain-fit (row 2's 8.8rem reserve needs the
+    // native 1536 CSS px under contain-fit (row 7's 7.6rem reserve needs the
     // taller window).
     await page.setViewportSize({ width: 1536, height: 1200 });
     await page.goto(appUrl());

@@ -275,6 +275,17 @@
       if (!window.HOLO_SPOKE.boot) {
         appendNarration("The projection wavers; the pattern will not resolve.");
       }
+      /* And the picture goes with the sentence. fault() is reached from four
+         places and only paint()'s catch cleared the frame, so a throw on the
+         click, hover or dispatch path printed "the pattern will not resolve"
+         over a room that was on screen and correct — the same lie the strip
+         path was given its own true sentence to avoid. Whatever the caller,
+         the page now disowns the frame it has just said it cannot hold. */
+      try {
+        currentLayout = null;
+        scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
+        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      } catch (ignored) { /* the canvas is already beyond reach */ }
       var chevrons = document.querySelectorAll(".chevron");
       for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
       scene.style.cursor = "";
