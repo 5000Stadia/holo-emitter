@@ -63,8 +63,13 @@ holo-emitter/
                                    # prompt.txt — committed, so every sprite's generating prompt
                                    # is on file and a wrong sprite is a prompt fix + regeneration
 replicator/
-  ingest.py            # CLI, python 3.11+, PIL + numpy only
-  contract.json        # the orientation contract (versioned)
+  ingest.py            # CLI, python 3.11+, PIL + numpy only — a THIN wrapper
+  contract.json        # the orientation contract + pinned gate thresholds (versioned)
+  imaging.py matte.py anchors.py parts.py states.py thumbs.py gates.py
+  preview.py record.py pipeline.py contract.py maskgen.py synth.py
+                       # [AI, row 3] every stage an importable pure function (§4b rule 1);
+                       # pipeline.ingest_sprite is the one entry point the CLI calls
+  masks/<id>/<part>.png + .json   # [AI, row 3] committed part masks and their fitted recipe
   tests/
 tests/
   playwright/          # render-hash + scripted-walkthrough tests
@@ -558,9 +563,41 @@ python ingest.py IMAGE --id desk-joined-oak-1660 --noun "joined oak writing desk
   [--state open:PATH_TO_OPEN_STATE_IMAGE.png] [--takeable] [--out library/]
 ```
 
+[AI, row 3 — the CLI as built, so this block does not describe one that does not exist:]
+```
+python3 -m replicator.ingest IMAGE --id … --noun … --archetype … --attachment … \
+  --height-m H --width-m W --depth-m D [--view-side left] \
+  [--part ID:MASK.png --slide=dx,dy,scale_open] \
+  [--anchor NAME:x0,y0,x1,y1] [--footprint x0,x1] \
+  [--state NAME:IMG --state-datum x0,y0,x1,y1 | --state-origin NAME:x,y] \
+  [--takeable] [--airborne] [--source S] [--object-class C] \
+  [--out library/] [--preview-dir DIR] [--report R.json] [--check] [--json]
+```
+`--width-m` and `--depth-m` are required and come from period reference: §5 says the project camera
+is unsettled, so deriving a persisted world dimension through it would put an unsupported number in
+the record; the pixel arithmetic survives as a warn-only cross-check in `measured.dims_cross_check`.
+`--anchor` and `--footprint` are given in **source image** coordinates and translated by the trim
+offset. `--check` runs everything, writes nothing, and exits the code it would have exited. Exit
+codes partition by who must act: 0 pass (warnings allowed), 2 regenerate the source, 3 fix the
+invocation, 4 the contract file itself is wrong.
+
 Stages (all automatic unless noted):
 1. **Matte.** Background = border-sampled grey (median of 1-px border). Flood-fill from all borders on ±tolerance → outer background. Then find enclosed regions matching background color inside the silhouette → punch as holes (leg gaps). Feather 1px. Trim to content bbox. Output premultiplied-safe RGBA.
-2. **Anchors.** `base` = midpoint of bottom-extreme opaque pixels (bottom 2 rows). `footprint` = x-extent of those pixels. `surface_top` / cavity regions: **manual for v1** — flags `--anchor surface_top:x0,y0,x1,y1` (VLM auto-detect is v2, stubbed behind an injected `(prompt, schema) -> json` callable, same convention as pattern-buffer). The v2 shape, in Kabe's words [HUMAN, 2026-08-19]: "on ingest an llm looks at it and identifies the rear points that touch the ground, or the appropriate zones it exist in in relation to the background or anchor locations in relation to other objects (envelope anchor to desk top for example)" — the callable receives the matted sprite and returns the §6 anchor regions as schema-validated JSON; v1's geometric `base`/`footprint` stays as the deterministic cross-check on whatever the model claims.
+2. **Anchors.** `base` = midpoint of bottom-extreme opaque pixels (bottom 2 rows). `footprint` = x-extent of those pixels.
+   [AI, amended at row 3 — the contract as built, reversible by Kabe as a new-row decision, in the
+   same form as §9.3b's row-2 amendments:] **`footprint` and `base.x` are ground-contact facts, not
+   bottom-row facts.** Measured on the corpus desk, the bottom-two-rows extent is **27 px of 1144**
+   — the nearest ball foot in a three-quarter view — while the desk's real ground contact spans
+   **24 → 1106**. `footprint` is what the renderer draws every grounded object's contact pool from,
+   against a quality that reads "nothing sits on a floor without it", so taking this sentence
+   literally on generated art gives a desk a pool 2% of the width of its own feet. The ingester
+   derives both from the **contact band** (columns whose lowest opaque pixel lies within
+   `band_fraction` of the content height of the bottom), carries the bottom-two-rows value beside
+   it in `measured.contact`, and accepts a `--footprint x0,x1` override. `px` and `base.y` are
+   unchanged and stay pixel-identical. Row 4's bake inherits the clause re-expressed: `footprint`
+   *contains* the bottom-two-rows extent and lies inside the canvas, rather than equalling it.
+   This section's own v2 sentence — Kabe's, below — names exactly this problem, which is why the
+   amendment reads as its v1 form rather than as a departure. `surface_top` / cavity regions: **manual for v1** — flags `--anchor surface_top:x0,y0,x1,y1` (VLM auto-detect is v2, stubbed behind an injected `(prompt, schema) -> json` callable, same convention as pattern-buffer). The v2 shape, in Kabe's words [HUMAN, 2026-08-19]: "on ingest an llm looks at it and identifies the rear points that touch the ground, or the appropriate zones it exist in in relation to the background or anchor locations in relation to other objects (envelope anchor to desk top for example)" — the callable receives the matted sprite and returns the §6 anchor regions as schema-validated JSON; v1's geometric `base`/`footprint` stays as the deterministic cross-check on whatever the model claims.
 3. **Parts.** v1 takes a hand-drawn mask PNG per part; ingester cuts the part, inpaints the cavity with darkened content-aware fill (PIL blur-fill acceptable — cavity quality bar is low), records origin, writes both PNGs.
 3b. [AI] **Two-state (swap archetypes — the door leaf).** `--state open:IMG` runs the second image through stage 1 and records it as `states_images.open` beside `sprite.png` (the closed state). Gate (d) does not apply to swap sprites; gate (e) applies to both images. Contract note: a state-variant source prompt replaces "all moving parts closed and fully seated" with the named state ("door leaf fully open"), all other blocks unchanged.
    [AI, amended at row 2 — the contract as built, reversible by Kabe as a new-row decision, never
@@ -597,6 +634,32 @@ Stages (all automatic unless noted):
      convention.
 3c. [AI] **Thumbs.** `--takeable` auto-emits `thumb.png`: square, content-bbox-centred crop, 128px. Gate: every takeable record carries a square thumb.
 4. **Gates (hard fail unless noted).** [AI: gate thresholds are pinned in `contract.json` *before* the corpus runs, and the test suite carries a negative control — an image constructed to fail (grey halo on grey ground) that must demonstrably fail; a gate tuned until the corpus passes is no gate.] (a) halo: mean saturation of border-adjacent semi-alpha pixels must not read grey (report + fail); (b) holes: enclosed background-colored regions remaining at alpha>0 → fail; (c) min resolution: content bbox ≥ 512px tall for furniture, ≥ 128px for takeables; (d) **state diff**: composite(body+part@closed) vs original — pixel diff outside part mask must be ≈0 → fail; (e) light direction (Sobel-based bright-side estimate) vs contract `UL45` → **warn only**, record deviation.
+
+   [AI, amended at row 3 — the gate set as built, reversible by Kabe as a new-row decision:]
+   **The ingester runs twelve gates, not five**, and "passes gates" everywhere downstream means all
+   twelve. Beyond (a)–(e): **(f) contact** — the footprint the contact pool is drawn from is a sound
+   derivation, hard, floor-attached only; **(g) over-matte** — the matte is not eating the object,
+   measured as the silhouette's sensitivity to a ±25% tolerance sweep, hard (nothing in the original
+   five hunts a *bitten* silhouette, and a key with its shaft matted away exits zero while reading
+   as broken); **(h) shadow** — no cast shadow welded into the silhouette, hard (`negative_block`
+   forbids one and generators produce them anyway; the matte keeps a soft ground shadow as opaque
+   object pixels and every other gate accepts it); **alignment** and **registration** for two-state
+   sprites; **slide** and **open_state** for parts (nothing in the original five ever looks at the
+   open state, so a part cut perfectly and travelling to the wrong place passes everything);
+   **thumb**; and **part_mask**, warn-level.
+
+   **Clause (a) as built.** Its letter — "mean saturation of border-adjacent semi-alpha pixels must
+   not read grey" — taken as an absolute saturation floor **false-fails an honestly grey object**,
+   and M0's takeables are an iron key and a silver coin. As built it is three ratio clauses plus a
+   composited-rim clause judged over a dark ground and a light one at real draw scale, which is the
+   only one that can see a halo that appears in the room rather than on the studio grey. The rim
+   clause needs no fitted number: straight-alpha compositing fixes what a correct edge pixel must
+   composite to, so the normalized residual is zero for a correct edge whatever the colours are.
+
+   **Calibration authority.** No hard threshold is calibrated on the corpus it judges: every block
+   in `contract.json` declares `contract`, `control` or `observed` authority with a `basis`, and an
+   `observed` threshold is refused at load time. `design/architecture.md`'s replicator section holds
+   the whole scheme.
 5. **Emit** `record.json` (schema §6), populated from flags + derivations; `provenance.tool = "replicator-ingest-v1"`.
 
 Test corpus: the two existing 1660s desk generations. Both must pass matting + gates; the second (teardrop pulls) becomes `desk-joined-oak-1660`.
@@ -617,6 +680,20 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
 ```
 
 Every generated sprite and backdrop prompt appends the relevant block. Ingester gate (e) checks arrivals against `light.key`.
+
+[AI, row 3] **The authored file at `replicator/contract.json` is the home; the JSON above shows its
+shape.** Three differences in the file, each with its reason recorded there: `prompt_block` and
+`backdrop_block` say **1.83 m** (Kabe's 2026-08-20 six-foot ruling, which `camera.eye_height_m`
+already carried while the prose did not) and name the **−8° pitch** (a sprite generated level will
+not foreshorten its top surface like the floor it stands on); and `backdrop_block` does **not**
+carry §10's placeholder light clause, because §11 marks that phrasing superseded by Kabe's look
+reference and says the real light design lands in his probe loop — so the block states the
+constraint that matters (one dominant key per frame, its direction and colour recorded in that
+facing's own meta) and is marked `status: "provisional"` in the file. It carries an open fork for
+Kabe: **if `key_dir` varies per facing, one sprite set cannot match every room**, since a sprite
+bakes one light and §1's non-goals forbid relighting beyond tint. That must be answered before row
+4's prompt sheets are written. The file also carries the gate thresholds §9.4 pins, each with its
+authority and basis. `style_block` is untouched.
 
 ## 11. Assets to produce (complete list)
 
@@ -666,7 +743,7 @@ Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeab
 7. **Static hosting:** the demo runs from `file://` and from GitHub Pages with zero network requests after load.
 8. [AI] **Compositing mechanisms fire (placeholder-testable):** rendering with tint, contact shadows, or part interpolation disabled must produce a different canvas hash than the full pipeline (each mechanism asserted separately); a mid-state part render differs from both end states; the staged overlap pairs (`chair1`×`desk1`, `stick1`×`shelf1`) render with intersecting **opaque pixels** (alpha above threshold — one entity genuinely occludes part of the other; touching bounding boxes do not pass); and a viewstate whose facing has no backdrop asset renders the procedural holodeck grid, deterministically (§7 grid mode). This is what catches a silently absent §7 mechanism before the expensive human moment.
 9. [AI] **Narration coverage:** every (intent × entity × outcome) triple the harness can emit — enumerated statically from the fixture (every entity is clickable, so `take note1`, `toggle chair1`, hall-side door toggles and all refusal outcomes are in the domain), not just the walkthrough's path — resolves to a non-empty, non-placeholder line in `narration.json`.
-10. [AI] **Criterion-anchored comparison (at Done):** our eight facing composites set beside anchor stills (Myst, Riven, Machinarium routes in the intention), all captures normalized to a common size and format first — honesty note: a grader can usually still identify which is which (era, medium), so this is *criterion-anchored*, not truly blind; the anchor-randomized A/B labels and the grader not being told which verdict unblocks anything are the mitigations. A fresh agent judges the five decomposed qualities item by item against **per-quality observable loss criteria authored at row 3's close — before any backdrop or composite exists — and frozen thereafter**, so they cannot be tuned to the produced composites. Kabe judges "standing somewhere", running the played anchors themselves. A tie closes a quality; any loss allocates a new spec row that blocks Done. Beside it runs the playbook's escape hatch for criteria blindness: **one fresh critic with a deliberately empty brief** — "use this; say everything wrong", no intention, no qualities — on the running demo. Disposition rule: an empty-brief finding that impeaches a §12 gate or a named quality allocates a row that **blocks Done**; all other findings file as non-blocking rows.
+10. [AI] **Criterion-anchored comparison (at Done):** our eight facing composites set beside anchor stills (Myst, Riven, Machinarium routes in the intention), all captures normalized to a common size and format first — honesty note: a grader can usually still identify which is which (era, medium), so this is *criterion-anchored*, not truly blind; the anchor-randomized A/B labels and the grader not being told which verdict unblocks anything are the mitigations. A fresh agent judges the five decomposed qualities item by item against **per-quality observable loss criteria authored at row 3's close — before any backdrop or composite exists — and frozen thereafter**, which live at **`design/comparison-criteria.md`** [AI, row 3: written in frame-only vocabulary so the same criterion applies to an anchor still and to ours; dry-run once against the Riven and Machinarium stills and one of our own frames before freezing, and the three errors that dry run found are recorded in it], so they cannot be tuned to the produced composites. Kabe judges "standing somewhere", running the played anchors themselves. A tie closes a quality; any loss allocates a new spec row that blocks Done. Beside it runs the playbook's escape hatch for criteria blindness: **one fresh critic with a deliberately empty brief** — "use this; say everything wrong", no intention, no qualities — on the running demo. Disposition rule: an empty-brief finding that impeaches a §12 gate or a named quality allocates a row that **blocks Done**; all other findings file as non-blocking rows.
 
 ## 13. Deliverable
 

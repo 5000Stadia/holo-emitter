@@ -181,6 +181,228 @@ untouched — with the rejected union-canvas alternative named there so Kabe see
   **new-row decision with real blast radius** (open-state art direction, drawn-extent shadow,
   row 4's prompt sheet).
 
+## The replicator (`replicator/`), and what row 4 inherits
+
+Row 3 built the ingester. `python3 -m replicator.ingest IMAGE …` turns one generated image into
+`library/<id>/{sprite.png, record.json, parts/*.png, states/*.png, thumb.png}`.
+
+**Install and run:**
+
+```
+sudo apt-get install -y python3-numpy python3-pil     # pip is PEP-668 blocked here
+python3 -m unittest discover -s replicator/tests -t . -v
+```
+
+88 tests, ~4½ minutes. `-t .` puts the repo root on `sys.path`; `replicator/tests/__init__.py`
+must exist or discovery refuses the directory, and it raises a message naming the apt line if
+either dependency is missing.
+
+### The shape (blueprint §4b rule 1)
+
+Every stage is an importable pure function — no file I/O, no clock, no RNG, no mutation of
+arguments. `pipeline.ingest_sprite(...)` runs all of them in memory and returns every artifact
+plus the gate report; `ingest.py` decodes, calls it **once**, and writes. A test byte-compares the
+pure pipeline's output against the CLI's files, so the thinness is witnessed rather than asserted.
+A live host imports `pipeline` and feeds it decoded frames; nothing needs rewriting.
+
+`imaging` (primitives) · `matte` · `anchors` · `parts` · `states` · `thumbs` · `gates` · `preview`
+· `record` · `pipeline` · `contract` · `maskgen` · `synth` · `ingest`.
+
+### Calibration authority — the rule that governs every threshold
+
+**No hard gate is calibrated on the corpus it judges.** Every block in `contract.json` declares an
+`authority`:
+
+- `contract` — it follows from something the orientation contract asserts, or from the algebra of
+  compositing;
+- `control` — it is measured on **constructed** images in `synth.py` whose ground truth is known by
+  construction;
+- `observed` — a corpus measurement. **`contract.py` refuses to load a contract where an
+  `observed` threshold gates.** Observed numbers are reported and nothing else.
+
+Each block also carries a `basis` string naming the construction or derivation. `contract.py`
+refuses a block without one. `_freeze` says which blocks are frozen, against what, and who may
+amend each; `classes` is the amendment path — a threshold may be extended for an object class no
+control covered, when a control of that class lands in the same commit, and may **never** move
+because a real arriving image failed. That fork is the Navigator's.
+
+`contract.identity()` hashes the gate and ingest blocks into `provenance.contract.thresholds_sha256`,
+so a record is traceable to the exact threshold set that admitted it — a version string alone does
+not move when `classes` does.
+
+### Per-image rules, not pixel counts
+
+The contract admits sources from 128 px of content (a takeable at gate (c)'s floor) to well over
+1000. So the matte's tolerance is **computed from each image's own ground** — the contract asserts a
+seamless uniform mid-grey, so its noise is measurable on the border — and erosion depth, hole
+minimum area and bleed width scale with the content bbox. The frozen things are the rule
+coefficients.
+
+### The twelve gates
+
+| id | severity | guards |
+|---|---|---|
+| a | hard | the edge does not read as the ground — three clauses (see below) |
+| b | hard | enclosed ground-coloured regions remaining |
+| c | hard | content bbox ≥ 512 px (≥ 128 px takeable) — §9.4(c) verbatim |
+| d | hard | cutting a part and putting it back changes nothing else |
+| e | **warn** | light direction — §9.4(e)'s [HUMAN] "warn only" |
+| f | hard | the contact-band derivation is sound (+ warn on disagreement) |
+| g | hard | the matte is not eating the object |
+| h | hard | no baked studio shadow welded to the silhouette |
+| alignment | hard | two-state closed-frame registration |
+| registration | hard | the typed `--state-origin` agrees with a datum in both images |
+| slide · open_state | hard | the declared travel opens the recess |
+| thumb | hard | thumb present exactly when takeable, square |
+| part_mask | warn | the mask boundary sits on the reveal gaps, per edge |
+
+Blueprint §9.4 carries the `[AI, row 3]` amendment note listing all twelve — after this row
+"passes gates" means twelve things, and §9.4 has to be the document that says so.
+
+**Gate (a).** §9.4's letter is "mean saturation of border-adjacent semi-alpha pixels must not read
+grey". As an absolute saturation floor that false-fails an honestly grey object, and M0's takeables
+are an iron key and a silver coin. The clauses are ratios of a depth-2..4 px band to the deep
+interior, plus **a4**: the composited **coverage residual** over a dark ground and a light one at
+real draw scale. a4 needs no fitted number — straight-alpha compositing says a rim pixel of coverage
+`a` over ground `G` against local interior `L` lands at `a·L + (1−a)·G`, so the normalized residual
+is zero for a correct edge whatever the colours are. Known limit, stated: a ~2 px generator
+antialias band scores about 0.10 and passes, which is why the **matte erodes it** rather than this
+gate catching it.
+
+**Gate (h)** keys on *position*, not tone: the share of opaque pixels that are ground-toned **and
+sit below the lowest non-ground-toned pixel in their own column**. A uniformly grey object scores
+zero by construction. An earlier tone-fraction draft would have hard-failed the key, the coin and
+the candlestick by material.
+
+**Gate (g)** measures tolerance sensitivity — `|A(0.75t) − A(1.25t)| / A(t)` — rather than
+comparing against a fixed conservative tolerance. At tolerance 5 the corpus's own ground noise
+stopped the flood fill and the "conservative" silhouette swallowed the frame.
+
+### `footprint` and `base.x` are ground-contact facts — an amendment to §9.2
+
+Measured on the corpus desk: §9.2's bottom-two-rows derivation gives **27 px of 1144** — the nearest
+ball foot — while the real ground contact spans **24 → 1106**. `footprint` is what the renderer draws
+every grounded object's contact pool from, against a quality that reads "nothing sits on a floor
+without it". So:
+
+- `px` and `base.y` stay **pixel-identical** to what `mechanisms.spec.mjs` derives.
+- `footprint` and `base.x` come from the **contact band** — the x-extent of columns whose lowest
+  opaque pixel lies within `band_fraction` of the content height of the bottom. `--footprint x0,x1`
+  overrides. Both derivations are carried in `measured.contact` so the judgement is visible.
+- **Row 4 inherits a re-expressed clause:** for real art, `footprint` *contains* the bottom-two-rows
+  extent and lies inside the canvas — it does not equal it. Row 2's green witnesses a placeholder
+  desk deliberately painted with a stretcher rail opaque across the leg span for its bottom 8 % of
+  rows; generated art makes no such authoring choice.
+
+Blueprint §9.2 carries the `[AI, row 3]` note. §9.2's own v2 clause is Kabe's and names this exact
+problem: *"an llm looks at it and identifies the rear points that touch the ground"*.
+
+### `drawer_cavity`, and a tautology that was removed
+
+`drawer_cavity` is the **part's own closed rect** — the region the cut removed and the inpaint
+filled. An earlier draft derived it as "the closed rect minus the travelled front", which reads
+well and is a tautology: the clearance check then computed its own threshold from the very `slide`
+it was checking and could not fail for any value. The clearance bound is now
+`ingest.cavity.clearance_fraction` (0.5) of the recess, independent of `slide`. A flagged
+`--anchor drawer_cavity:` is written when it agrees with the derived rect within
+`agreement_tolerance_fraction`, and a disagreement beyond it is a hard error naming both.
+
+### Two-state registration
+
+`--state-datum x0,y0,x1,y1` names a feature present in **both** source images (the door frame's
+inner jamb). The ingester locates it in the open image by normalized cross-correlation and derives
+`origin` from it; `--state-origin` overrides and is then checked against the derived value **in both
+axes**. This is what gives the alignment gate content: its clause (i) has exactly one satisfying
+`origin.y`, so an operator who never opens the images and simply subtracts passes it every time.
+
+**Measurement procedure for row 4's door**, at the same resolution as the mask fit: pick a rect
+containing an edge — a flat patch has no variance to correlate on and is refused by name — that is
+visible in both generated images, and pass it as `--state-datum` in the **closed** source's
+coordinates. Nothing else is needed; the origin is derived.
+
+Requiring registration means row 4 will generally set `states_images.open.origin.x ≠ 0`, which
+changes the consequence recorded above (the open leaf and its gap reading on the same screen side
+from both rooms). That is a [HUMAN] call and is in row 3's closing report.
+
+### Masks
+
+`replicator/masks/<id>/<part>.png` with a `.json` sidecar holding the fitted vertices, the hint they
+came from, and the per-edge residuals. The only human input is a **coarse hint** — four numbers for
+a rectangle or eight for a quadrilateral; the four edges are then fitted to the dark reveal gaps the
+contract's `prompt_block` requires the image to contain. A test re-runs the fit from the hint and
+compares, so the mask and its recipe cannot drift apart.
+
+The corpus desk's invocation, re-runnable:
+
+```
+python3 -m replicator.maskgen --size 1254x1254 \
+  --fit-hint 356 660 756 650 756 769 356 784 \
+  --fit-source library-src/corpus/desk-corpus-2.png \
+  --out replicator/masks/desk-joined-oak-1660/drawer_front.png \
+  --sidecar replicator/masks/desk-joined-oak-1660/drawer_front.json \
+  --overlay library-src/corpus/desk-corpus-2.png --overlay-out /tmp/overlay.png
+```
+
+Known sensitivity: on the corpus desk, moving the hint's top-right corner by 10 px moves the fitted
+top edge by about 12 px. The fit is reproducible from a recorded hint; it is not insensitive to one.
+The `--overlay` image is the evidence, and it is what was looked at.
+
+### The corpus run
+
+```
+python3 -m replicator.ingest library-src/corpus/desk-corpus-2.png \
+  --id desk-joined-oak-1660 --noun "joined oak writing desk" \
+  --archetype sliding --attachment floor_against \
+  --height-m 0.78 --width-m 1.30 --depth-m 0.55 --view-side left \
+  --part drawer_front:replicator/masks/desk-joined-oak-1660/drawer_front.png \
+  --slide=-0.10,0.24,1.06 --anchor surface_top:350,235,900,275 \
+  --preview-dir /tmp/prev --report /tmp/desk2.json
+```
+
+`desk-corpus-1` runs the same way with `--check` and its own mask. `replicator/tests/test_corpus.py`
+runs both through the same twelve gates as a committed check, so the row's headline claim is not an
+account.
+
+### What row 4 inherits — the list
+
+1. **The probe desk supersedes this one.** Re-ingest and overwrite `desk-joined-oak-1660` through
+   the same gates. The current desk is a corpus-only source generated before `style_block` existed.
+2. **`mechanisms.spec.mjs`'s light clause will go red** the day a real sprite replaces a
+   placeholder. Both corpus desks measure a left-third-minus-right-third luminance of **+0.14 and
+   −1.77** against the shipped clause's **> 2**, and the Sobel bright-side estimate is 22–35° off
+   the constructed UL45 control's response. Row 2's placeholders only satisfy that clause because
+   `build()` paints a synthetic ±8 % ramp; a real PNG gets no ramp. Gate (e) is warn-only by §9.4's
+   [HUMAN] text, so **no automated check of the intention's "one light" quality survives row 3 on
+   real art.** The fork is in the closing report.
+3. **Quality 1's temperature half has no mechanism at all**, not merely no gate: `measured.chroma`
+   records the sprite's white balance, §7's tint is one constant pull toward the facing's
+   `key_tint`, and §1's non-goals forbid relighting beyond it. A sprite arriving warm of contract
+   stays warm of every facing it stands in.
+4. **Contact is one hull ellipse per object.** The renderer draws one ellipse across `footprint`;
+   the intention says "Machinarium pools occlusion at **every contact point**". Carrying per-foot
+   contact spans is a §6 schema change and therefore Kabe's. Named residue, not a certified quality.
+5. **The bake reproduces `extent` and `px`.** `extent` is deliberately *not* in the record —
+   build-time presentation data, derived from the state image's own bottom-two-rows alpha ≥ 128 scan
+   offset by `origin.x`.
+6. **Stored resolution and the runtime downscale.** `ingest.output.max_content_height_px` is 1024.
+   The desk ships at 1144×914 and the renderer draws it at ~89 px — about a 10× downscale by the
+   browser's own resampler. Rendered through the real draw path and measured, the ingested sprite
+   carries **2.7× the high-frequency energy** of the placeholder in the same region (mean |dx| 5.90
+   against 2.15): it aliases. Two levers, both row 4's: `imageSmoothingQuality` on the bake's draw
+   path, or a tighter stored resolution. The cap cannot simply drop to gate (c)'s 512 floor without
+   making that gate meaningless.
+7. **The edge survives the renderer.** Row 2 found that the `destination-in` re-clip squared partial
+   alpha and would have hardened every matted edge into a cut-out. The emitted sprite — the first
+   genuinely feathered edge in this project — was bound into the running page and drawn through
+   `src/renderer.js` unmodified: no rim, no hardened silhouette. That check is not automated; it was
+   done by hand and looked at, and row 4's bake is where it becomes a test.
+8. **The id is double-homed** until the bake: `src/placeholders.js` carries a procedural
+   `desk-joined-oak-1660` whose footprint is the bottom-two-rows extent and whose proportions differ
+   from the ingested desk's pixels. The **procedural one is authoritative** for rows 3–4; the bake is
+   what switches.
+9. **`backdrop_block` is provisional** and carries the open fork for Kabe: one screen-space key
+   across the eight facings, or per-facing keys and per-facing sprite variants.
+
 ## Ground plane (`src/groundplane.js`)
 
 Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for placement**:

@@ -32,6 +32,30 @@ npx playwright test -c tests/playwright
 Headless Chromium and Firefox, both running every test. Requires `npm install` once (and
 `npx playwright install chromium firefox` if no browser is cached).
 
+## The replicator
+
+The furniture, the doors and the things you pick up start life as flat generated pictures on a grey
+studio ground. The replicator is what turns one of those into something the world can hold: it cuts
+the object away from its ground, works out where it stands on the floor and what parts of it move,
+and writes it into `library/` with a small document describing what it is and how big it really is.
+
+```
+sudo apt-get install -y python3-numpy python3-pil
+python3 -m unittest discover -s replicator/tests -t . -v
+```
+
+Nothing else is needed — Python, numpy and Pillow. To put a picture through it:
+
+```
+python3 -m replicator.ingest picture.png --id oak-chair --noun "joined chair" \
+  --archetype static --attachment floor_against --height-m 1.05 --width-m 0.6 --depth-m 0.55
+```
+
+It refuses more often than it accepts, and says why: a halo left around the cut, a gap it missed
+between the legs, a shadow baked into the picture, a light coming from the wrong side. Add
+`--check` to hear the verdict without writing anything, and `--preview-dir` to see the object
+composited small against a dark room and a light one, which is where a bad cut shows.
+
 ## Editing the world
 
 The world lives in `fixtures/demo-study/*.json` (`world.json` is truth, `staging.json` is
