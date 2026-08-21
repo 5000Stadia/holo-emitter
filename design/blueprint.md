@@ -229,10 +229,10 @@ gained a mechanism instead of an eye: an open facing may have no built structure
 standpoint and its far line, a facing of an outdoor space that claims a wall must have one, and
 the outline must agree with the wall bands. The projection is `tools/plan-projection.mjs`, through
 `groundplane.js`. What it could not settle is written where it survives — `design/plan-draft/
-projection.md` §0 lists the seven questions that need Kabe, D4 among them, each with its numbers;
+projection.md` §0 lists the ten questions that need Kabe, D4 among them, each with its numbers;
 `design/architecture.md` holds the machinery. The one thing an agent changed about the approved
 drawing is a door's non-drawn label, corrected from *Solar ↔ Long Gallery* to the rooms it
-geometrically joins, and it is recorded in `projection.md` §7.
+geometrically joins, and it is recorded in `projection.md` §9.
 
 **Live-ingestion shape [HUMAN, 2026-08-21]:** "the methodology for going from a many location
 description via something like pattern buffer / construct projector to overhead map to rooms

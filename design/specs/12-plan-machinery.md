@@ -544,6 +544,78 @@ Answering these is not optional: a decline nobody wrote down is a miss.
 - **"The row's close condition is unstated"** (r2 F20). Not the builder's to set — the row text
   is the Navigator's. Named in the handoff.
 
+### Round 4 (artifact critic, second pass) — what was taken and what was not
+
+**Taken and fixed**, each verified by breaking it:
+
+- **F1** law (b) gated on the ROOM's type, leaving every interior facing unguarded in both
+  directions. The gate now runs per FACING on all 88, with `ALL_WALL_KINDS`, plus a new clause
+  that an `open` facing's far line must fall outside the outline. Three red cases added, one per
+  direction the critic demonstrated.
+- **F2** `windows[]`, `fireplaces[]` and `floors[]` had no key whitelist. They do now; five red
+  cases, including the critic's own `sprite` / `knowledge` / `takeable` / `u_px` payloads.
+- **F3** about a quarter of the validator had no red case. Every one now does: **113 `push(`
+  sites neutralised one at a time, 0 survivors**, verified twice (before, to reproduce the
+  critic's finding; after, to prove the fix). That added ~40 mutations and a world-side table —
+  the whole stairs-as-exits branch, all three arms, plus the three object warnings.
+- **F4** the report's sections ran 0–7, 10, 8, 9 and almost every pointer resolved wrong. §10 is
+  moved to the end so the headings are in order; every pointer corrected in `projection.md`,
+  `blueprint.md`, `architecture.md` and the draft README. Two tests now hold it: `(§N)`
+  self-references must resolve, and the three outliving documents' `projection.md §N` citations
+  must exist, with §0's question count computed rather than typed.
+- **F5** `architecture.md` stated §12.5's amendment as the single-equality draft §7 had rejected.
+  Rewritten to the three clauses the blueprint carries, with the reason the equality was dropped.
+- **F6** the sheet hard-coded "APPROVED 2026-08-21". The stamp is now computed from
+  `design/plan-draft/approval.lock`; a sheet drawn from any other document prints UNAPPROVED
+  REVISION with its hash, and `--skip-validate` prints that nothing checked it. Byte-identical
+  on the approved plan, so the committed SVGs did not move.
+- **F7** the top-level README's three-command recipe failed on first use. It has the
+  `--rebuild-facings` step now, and says why it is not optional.
+- **F8** the documented redline left the suite red with nothing saying so. The draft README now
+  names the re-approval gate as a sixth, human step, in order, including how `APPROVAL_COMMIT`
+  and the lock are re-anchored. The two colliding tests now derive their target from the
+  document (`shiftPartyWall` finds the first party wall two rooms exactly span), and `python()`
+  surfaces the script's stderr instead of "Command failed".
+- **F9** a valid plan could crash the render. `STAIR_LABEL_POS` has a fallback, and artboard
+  extents refuse by name (`fit_check`) instead of drawing off-canvas in silence.
+- **F10** `attachment` had two homes and nothing bound them. `stagingDivergence` refuses on
+  disagreement.
+- **F11** degenerate geometry validated. Positive extent is required for rooms, bands, stairs,
+  windows, fireplaces, footprints and doors; an `open_edge` may be flat across its own axis only.
+- **F12** (half) `cameraFeetReport`'s reference was `deriveMeta("study","N")` (1.0385 m) where
+  the sentence it anchors is about the shipped pixels (1.0096 m, `groundplane`'s 3.5 m fallback).
+  Corrected, and the report now says which camera the number comes from.
+- **F17, F18, F19** each a statement that was wrong or missing rather than a mechanism: the one
+  facing where `wall_width_m` means "view" and not "wall" is now named in §4 with what it drives;
+  `architecture.md` describes `rooms[].type` as what it IS (is this space outdoors) rather than
+  as the facing vocabulary, and names all three vocabularies; `view_angle_deg`'s sign is stated
+  in §2 against §10's `view_side`, which is its opposite by construction.
+- **F20** `--no-world` called the approved plan invalid. Plan-only validation now passes and
+  `planWarnings` says which check did not run; a world WITH objects and no records still refuses.
+
+**Declined, with reasons:**
+
+- **F12's count.** The finding's arithmetic is wrong and the numbers say so: a *smaller*
+  reference gives a *smaller* limit, so the over-limit set can only grow. GREAT HALL and SOLAR
+  N/S sit at 2.0106 m, below **both** limits (2×1.0096 = 2.0192; 2×1.0385 = 2.0770). The set is
+  15 against either reference, and 15 is what the report and the test say. The reference number
+  itself was wrong and is fixed.
+- **F13's contradiction.** "`door1` is seen at 15.05° from the study and 0.00° from the hall"
+  does not contradict §11 — §11 bans a MIRROR and asks for one image; two viewing angles on one
+  object seen from two rooms is what a plan is for, and §2 tabulates both. The half of F13 that
+  was real — the question list was prose checked against itself — is taken: the pointers are now
+  mechanically checked and §0's count is computed.
+- **F14** (the inversion is half-built; no meta is written anywhere). True, stated, and outside
+  the fence: the row text forbids moving the shipped demo's pixels, and adopting derived meta
+  moves them. This is r2 F5's decline restated with more evidence, and the unallocated adoption
+  row is already named in `architecture.md` for the Navigator.
+- **F15** (the gate ran on a drawing with no furniture). True. Drawing furniture changes the
+  sheet Kabe approved, which needs a new gate — the thing this row is not allowed to fake. The
+  one consequence a human would have caught is computed and printed instead: `planWarnings` says
+  the desk stands 0.65 m² inside the study's chimney breast, and §0 carries it as question 6.
+- **F16** (collinear standpoint leaders read as double-headed). A drawing change to the sheet a
+  human approved, for legibility rather than truth. Recorded for the next redline.
+
 ## 10. Edges
 
 **Must not touch:** `src/renderer.js`, `src/harness.js`, `index.html`,

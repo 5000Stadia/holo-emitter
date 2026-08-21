@@ -1,0 +1,20 @@
+# The human gate, tied to the document it was given to.
+#
+# Kabe approved the schematic on 2026-08-21 (blueprint §4b's four rulings). What
+# he approved was a picture of ONE plan document, and the sheet is now a derived
+# render — so the approval stamp printed on it has to be a fact about that
+# document's bytes, not a date typed into the drawing script that survives any
+# edit.
+#
+# draw_plan.py hashes the plan it is drawing and compares it here. Equal: the
+# sheet prints "APPROVED <date>". Not equal, or drawn with --skip-validate: the
+# sheet prints that it is an unapproved revision, with the short hash of the
+# document it was actually drawn from, and it goes back to Kabe.
+#
+# Re-anchoring after a redline is a HUMAN step, and deliberately not automated:
+# put the new sha256 and the new date here only once Kabe has approved the new
+# sheet. design/plan-draft/README.md's redline recipe says where in the order it
+# goes.
+#
+# Format: one "plan  <sha256>  <YYYY-MM-DD>" line. Everything else is comment.
+plan  09f3c18e74d976698946c0d9c4bc15e591366ad3cd09856a67b11b0e3b97554a  2026-08-21

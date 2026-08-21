@@ -13,8 +13,11 @@ script calls that validator and refuses to draw an invalid plan, so a redline
 still cannot silently break the plan, and each check has one home instead of
 two.
 
-To take a redline in: edit `fixtures/demo-study/plan.json`, run
-`python3 design/plan-draft/draw_plan.py`, then `./design/plan-draft/render.sh`.
+To take a redline in: see the recipe in `design/plan-draft/README.md`. It has
+five steps, not two, and the last of them is a human one - the sheet's approval
+stamp is tied to the sha256 in `design/plan-draft/approval.lock`, so a redrawn
+sheet says UNAPPROVED REVISION until Kabe approves it and that hash is
+re-anchored.
 
 Run:  python3 design/plan-draft/draw_plan.py [--plan PATH] [--skip-validate]
 
@@ -23,12 +26,51 @@ the case where node is unavailable and the plan has already been checked by
 hand; using it means the sheet is drawn from an unchecked document, which is
 what the validator exists to prevent.
 """
-import json, os, subprocess, sys
+import hashlib, json, os, subprocess, sys
 
 S = 26.0          # px per metre (both artboards, same scale)
 OUT = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(OUT))
 DEFAULT_PLAN = os.path.join(REPO, "fixtures", "demo-study", "plan.json")
+APPROVAL = os.path.join(OUT, "approval.lock")
+
+
+def approval_line(plan_path, validated):
+    """The provenance line printed under the title.
+
+    The sheet is a DERIVED render, so "APPROVED 2026-08-21" cannot be a
+    constant in this file: every re-render from an edited plan would keep
+    asserting a human gate that was given to a different document. The stamp is
+    a fact about specific bytes - approval.lock records the sha256 Kabe
+    approved - and about whether anything checked them.
+    """
+    with open(plan_path, "rb") as fh:
+        digest = hashlib.sha256(fh.read()).hexdigest()
+    approved_sha, approved_on = "", ""
+    try:
+        with open(APPROVAL) as fh:
+            for line in fh:
+                if line.startswith("plan"):
+                    _, approved_sha, approved_on = line.split()
+                    break
+    except OSError:
+        pass
+    rel = os.path.relpath(plan_path, REPO)
+    if not validated:
+        return ("holo-emitter - overhead plan. DRAWN WITHOUT VALIDATION from %s "
+                "(sha %s) - no approval stamp: nothing checked this document. "
+                "Drawn at 26 px per metre; use the scale bar. All room "
+                "dimensions are clear internal metres." % (rel, digest[:8]))
+    if digest == approved_sha:
+        return ("holo-emitter - overhead plan. APPROVED %s; DERIVED from %s. "
+                "Drawn at 26 px per metre; use the scale bar. All room "
+                "dimensions are clear internal metres." % (approved_on, rel))
+    return ("holo-emitter - overhead plan. UNAPPROVED REVISION of %s (sha %s; "
+            "the sheet Kabe approved on %s was drawn from sha %s) - this sheet "
+            "goes back to Kabe. Drawn at 26 px per metre; use the scale bar. "
+            "All room dimensions are clear internal metres."
+            % (rel, digest[:8], approved_on or "an unrecorded date",
+               (approved_sha or "unrecorded")[:8]))
 
 # ---------------------------------------------------------------- the picture
 # Presentation only. A number here moves a LABEL, never a room. Keyed by the
@@ -125,7 +167,17 @@ def _stair(s, plan, sense):
     are the plan's travel directions - blueprint 3's orientation law."""
     x0, x1, y0, y1 = _rect(s)
     d = s[sense]
-    lbx, lby = STAIR_LABEL_POS[s["id"]]
+    # Picture data keyed by a document id needs a fallback, or renaming a stair
+    # in a perfectly valid plan kills the render with a raw KeyError. The
+    # fallback puts the label 2 m west of the flight's own centre - not as nice
+    # as the hand-placed positions, and it says so on stderr.
+    if s["id"] in STAIR_LABEL_POS:
+        lbx, lby = STAIR_LABEL_POS[s["id"]]
+    else:
+        lbx, lby = (x0 + x1) / 2.0 - 2.0, (y0 + y1) / 2.0
+        sys.stderr.write("draw_plan: no hand-placed label position for stair "
+                         "%r; using the flight's centre. Add it to "
+                         "STAIR_LABEL_POS to place it properly.\n" % s["id"])
     lab = ("UP \u2192 " if sense == "up" else "DN \u2192 ") + d
     return (x0, x1, y0, y1, d, s["treads"], lab, lbx, lby)
 
@@ -397,17 +449,38 @@ NOTE_B = ("LAW (b) - outdoor walls exist ONLY where the manor's exterior wall "
           "structure and is drawn as one.")
 
 
+def fit_check(name, b, rooms, parts, stars):
+    """The artboard extents are picture literals, and a building that outgrows
+    them draws off-canvas in silence. This turns that into a refusal that names
+    what fell off which edge."""
+    bad = []
+    def look(what, x0, x1, y0, y1):
+        if x0 < b.x0 - 1e-9 or x1 > b.x0 + (b.w - b.mx * 2) / S + 1e-9 \
+           or y1 > b.y1 + 1e-9 or y0 < b.y1 - (b.h - b.my - 120) / S - 1e-9:
+            bad.append("%s (%.2f..%.2f, %.2f..%.2f)" % (what, x0, x1, y0, y1))
+    for r in rooms:
+        look(r["id"], r["x0"], r["x1"], r["y0"], r["y1"])
+    for (x0, x1, y0, y1) in parts:
+        look("wall band", x0, x1, y0, y1)
+    for (sx, sy) in stars:
+        look("star", sx, sx, sy, sy)
+    if bad:
+        sys.exit("draw_plan: %s - the plan does not fit this artboard's extents "
+                 "(x %.2f.., y ..%.2f, %dx%d px at %g px/m). Off the sheet: %s. "
+                 "The extents are picture literals in build(); widen them, or "
+                 "the sheet silently loses building."
+                 % (name, b.x0, b.y1, b.w, b.h, S, "; ".join(bad)))
+
+
 def build(name, title, sub, rooms, parts, doors, wins, fires, stairs,
           gw, y0, y1, W, H, stars=(), extra_notes=()):
     b = Board(-1.0, 40.6, y0, y1, 40, 104, W, H)
     b.o.append('<rect x="0" y="0" width="%d" height="%d" fill="#ffffff"/>' % (W, H))
     b.ptext(40, 40, title, 25, weight="bold")
     b.ptext(40, 62, sub, 11.5, fill="#4a443c")
-    b.ptext(40, 80, "holo-emitter - overhead plan. APPROVED 2026-08-21; DERIVED "
-            "from fixtures/demo-study/plan.json. Drawn at 26 px per metre; use "
-            "the scale bar. All room dimensions are clear internal metres.",
-            10, fill="#6b6257")
+    b.ptext(40, 80, PROVENANCE, 10, fill="#6b6257")
     b.pline(40, 90, W - 40, 90, stroke="#2b2620", stroke_width="1.6")
+    fit_check(name, b, rooms, parts, stars)
     rows = draw_floor(b, rooms, parts, doors, wins, fires, stairs, gw)
     for (sx, sy) in stars:
         b.text(sx, sy, "\u2605", size=15, fill=C_DOOR, weight="bold", dy=5)
@@ -456,8 +529,10 @@ def main():
     plan_path = DEFAULT_PLAN
     if "--plan" in argv:
         plan_path = os.path.abspath(argv[argv.index("--plan") + 1])
-    if "--skip-validate" not in argv:
+    validated = "--skip-validate" not in argv
+    if validated:
         check_plan(plan_path)
+    globals()["PROVENANCE"] = approval_line(plan_path, validated)
     D = load(plan_path)
     g = globals()
     for k in ("OUTLINE", "EXT_BANDS", "GW", "EXT", "INT", "GWT", "K"):

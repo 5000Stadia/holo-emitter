@@ -40,8 +40,10 @@
  *   5. standpoint derivability — law (a): the printed distance IS the measured
  *                              distance from the drawn standpoint to the wall
  *                              line it views
- *   6. law (b)               — outdoor walls exist only where the manor's
- *                              exterior wall actually stands
+ *   6. law (b)               — a facing's TYPE is checked against what the
+ *                              bands actually build, in both directions, for
+ *                              every room: outdoor walls exist only where the
+ *                              manor's wall stands, and open ground is open
  *   7. carriers in walls, stacks, the facing-type vocabulary, unique ids,
  *      object footprints — licensed strengthenings, each with its reason at
  *      the check
@@ -105,6 +107,9 @@ const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
 const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source"];
 const BAND_KEYS = ["id", "kind", "floors", "rect"];
 const STAIR_KEYS = ["id", "kind", "treads", "rect", "joins", "up", "down"];
+const FLOOR_KEYS = ["id", "level"];
+const WINDOW_KEYS = ["floor", "rect"];
+const FIREPLACE_KEYS = ["floor", "room", "rect"];
 /* World facts, by name. A plan that grows one of these has become a second
  * truth document. */
 const TRUTH_KEYS = new Set(["state", "states", "knowledge", "relations",
@@ -134,6 +139,28 @@ export const drawn = (v) => Number(v.toFixed(DRAWN_DP));
 function rectOk(r) {
   return isObj(r) && ["x0", "x1", "y0", "y1"].every((k) => isNum(r[k])) &&
     r.x1 >= r.x0 - EPS && r.y1 >= r.y0 - EPS;
+}
+/* Well-formed is not the same as real. A zero-extent rect is not a thing in a
+ * building: a door with `y1 === y0` has no clear width, yet reachability would
+ * still count it as a way through and the render would draw a knock-out of
+ * nothing. §4b item 2 makes this document something a solver emits, and a
+ * degenerate rect is exactly what a solver produces when a span it divided by
+ * collapsed. The one shape allowed to be flat is an `open_edge`, which is a
+ * boundary line rather than a hole in a wall — and even that must have a
+ * positive clear width ALONG the boundary, which `degenerate` still catches.
+ * Returns the offending axes, or null. */
+function degenerate(r, allowFlatAxis) {
+  if (!isObj(r)) return null;
+  const bad = [];
+  if (r.x1 - r.x0 <= EPS && allowFlatAxis !== "x") bad.push("x");
+  if (r.y1 - r.y0 <= EPS && allowFlatAxis !== "y") bad.push("y");
+  /* Flat in BOTH axes is a point, whatever it is allowed to be flat in. */
+  if (r.x1 - r.x0 <= EPS && r.y1 - r.y0 <= EPS && !bad.length) bad.push(allowFlatAxis === "x" ? "y" : "x");
+  return bad.length ? bad : null;
+}
+function needsExtent(label, r, push, allowFlatAxis) {
+  const bad = degenerate(r, allowFlatAxis);
+  if (bad) push(`${label}: zero extent in ${bad.join(" and ")} — a rect with no width is not a thing in a building, and every check downstream (reachability, containment, area) treats it as one`);
 }
 const area = (r) => (r.x1 - r.x0) * (r.y1 - r.y0);
 const contains = (outer, inner) =>
@@ -237,16 +264,34 @@ export function gapsOnWallLine(plan, room, facing, line, kinds) {
 /** Built structure standing anywhere in the strip a facing looks across —
  * between the standpoint and the line it views. An `open` facing must find
  * none: "where no building stands, the ground runs open to its far line." */
-export function structureInView(plan, room, facing, standpoint, line) {
+export function structureInView(plan, room, facing, standpoint, line, kinds) {
   const span = viewSpan(room.rect, facing);
   const [axis] = NORMAL[facing];
+  const want = kinds || ALL_WALL_KINDS;
   const lo = Math.min(standpoint[axis], line), hi = Math.max(standpoint[axis], line);
   const strip = span.axis === "x"
     ? { x0: span.lo, x1: span.hi, y0: lo, y1: hi }
     : { x0: lo, x1: hi, y0: span.lo, y1: span.hi };
   return (plan.wall_bands || []).filter((b) =>
-    BUILT_KINDS.includes(b.kind) && Array.isArray(b.floors) &&
+    want.includes(b.kind) && Array.isArray(b.floors) &&
     b.floors.includes(room.floor) && rectOk(b.rect) && overlapArea(b.rect, strip) > 0);
+}
+
+/**
+ * Is a point inside the manor's outline? Even-odd crossing on the outline
+ * polygon — the same polygon law (b) already treats as the single source of
+ * every outdoor wall. An `open` facing's far line has to be OUT here: ground
+ * that runs open to a line drawn inside the building is a fabricated horizon,
+ * and it is the one thing a strip test cannot catch when the strip happens to
+ * miss every band (a far line stopping mid-room).
+ */
+export function pointInOutline(outline, x, y) {
+  let inside = false;
+  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
+    const [xi, yi] = outline[i], [xj, yj] = outline[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 }
 
 /** The rooms whose wall lies on one side of an opening and whose span covers
@@ -314,6 +359,7 @@ export function validatePlan(plan, world, records) {
     if (!isObj(f) || typeof f.id !== "string" || !Number.isInteger(f.level)) {
       push(`plan.json: floors entry is not {id, level}`); continue;
     }
+    keyCheck(`floor "${f.id}"`, f, FLOOR_KEYS, push);
     if (floorIds.has(f.id)) push(`plan.json: duplicate floor id "${f.id}"`);
     floorIds.add(f.id);
   }
@@ -341,6 +387,7 @@ export function validatePlan(plan, world, records) {
       push(`room "${r.id}": type ${JSON.stringify(r.type)} is not one of ${ROOM_TYPES.join(" | ")} — the typed geometry blueprint §5 requires`);
     }
     if (!rectOk(r.rect)) { push(`room "${r.id}": rect is malformed`); continue; }
+    needsExtent(`room "${r.id}"`, r.rect, push);
     if (typeof r.name !== "string" || !r.name) push(`room "${r.id}": no name`);
     rooms.push(r);
   }
@@ -356,10 +403,11 @@ export function validatePlan(plan, world, records) {
       push(`wall band "${b.id}": floors must be declared floor ids`);
     }
     if (!rectOk(b.rect)) push(`wall band "${b.id}": rect is malformed`);
+    else needsExtent(`wall band "${b.id}"`, b.rect, push);
     /* The legend on the sheet prints these three numbers, and the drawing
      * renders them from here — so they must be the thickness of the bands they
      * describe, or the sheet states a measurement the walls contradict. */
-    else if (isObj(plan.wall_thickness)) {
+    if (rectOk(b.rect) && isObj(plan.wall_thickness)) {
       const want = plan.wall_thickness[b.kind];
       const got = Math.min(b.rect.x1 - b.rect.x0, b.rect.y1 - b.rect.y0);
       if (!isNum(want)) push(`plan.json: wall_thickness has no "${b.kind}" — band "${b.id}" is one`);
@@ -499,32 +547,53 @@ export function validatePlan(plan, world, records) {
       if (fc.wall_width_m !== drawn(geo.width)) {
         push(`room "${r.id}" facing ${f}: wall_width_m ${fc.wall_width_m} is not the drawn width of the wall in view (${drawn(geo.width)}, from ${geo.width})`);
       }
-      /* Law (b) — the blocking half. An outdoor space that claims open ground
-       * where the manor actually stands is as false as an invented wall, and
-       * it is the one direction a derived render cannot show you. */
-      if (r.type === "open" && fc.type === "open") {
-        const hits = structureInView(plan, r, f, fc.standpoint, fc.wall_line);
+      /* ---- Law (b), for EVERY facing of EVERY room ----------------------
+       *
+       * The law is about the facing's TYPE against what the bands actually
+       * build, and nothing about it is particular to an outdoor space. Gating
+       * it on `room.type === "open"` — which is what this check did until the
+       * round-4 critic broke it — leaves the whole interior unguarded in both
+       * directions: an interior facing could be typed `open` with a far line
+       * driven straight through the manor's north range (a vista prompt for a
+       * stone fireplace wall, at row 4, with nothing left to catch it), and a
+       * partition could be deleted with the two rooms grown to meet and both
+       * facings still typed `enclosed` (an invented wall, which is the exact
+       * thing law (b) is named for).
+       *
+       * `ALL_WALL_KINDS` throughout, not `BUILT_KINDS`: an interior facing
+       * sees partitions, and for an outdoor space the stronger set costs
+       * nothing, since no partition stands outdoors. */
+      if (fc.type === "open") {
+        const hits = structureInView(plan, r, f, fc.standpoint, fc.wall_line, ALL_WALL_KINDS);
         if (hits.length) {
           push(`law (b): "${r.id}" facing ${f} is typed open, but built structure stands in that view — ${hits.map((b) => b.id).join(", ")}`);
         }
         /* And nothing may stand ON the far line either: a facing whose ground
          * runs open to a line the manor's wall is built along is a wall you
          * would see, described as sky. */
-        const onLine = builtOnWallLine(plan, r, f, fc.wall_line);
+        const onLine = builtOnWallLine(plan, r, f, fc.wall_line, ALL_WALL_KINDS);
         if (onLine.length) {
           push(`law (b): "${r.id}" facing ${f} is typed open, but built structure stands on the very line its ground runs to (${fc.wall_line})`);
         }
-      }
-      /* Law (b) — the other blocking half. A facing of an outdoor space that
-       * claims a wall must have one: some exterior or garden band standing on
-       * the line it views. Whether that wall spans the WHOLE view is a
-       * warning, not a finding (the entrance approach's north view is a wall
-       * with the court mouth open in the middle of it, and the drawing says
-       * so). */
-      if (r.type === "open" && fc.type !== "open") {
-        const built = builtOnWallLine(plan, r, f, fc.wall_line);
+        /* The far line itself must be outdoors. A strip test misses a far line
+         * that stops mid-room without crossing a band; the outline does not. */
+        if (Array.isArray(plan.outline)) {
+          const [axis] = NORMAL[f];
+          const px = axis === "y" ? fc.standpoint.x : fc.wall_line;
+          const py = axis === "y" ? fc.wall_line : fc.standpoint.y;
+          if (pointInOutline(plan.outline, px, py)) {
+            push(`law (b): "${r.id}" facing ${f} is typed open, but its far line (${fc.wall_line}) falls INSIDE the manor outline at (${fmt(px)}, ${fmt(py)}) — open ground cannot run to a line drawn through the building`);
+          }
+        }
+      } else {
+        /* The other direction. A facing that claims a wall must have one:
+         * some band standing on the line it views. Whether that wall spans the
+         * WHOLE view is a warning, not a finding (the entrance approach's
+         * north view is a wall with the court mouth open in the middle of it,
+         * and the drawing says so). */
+        const built = builtOnWallLine(plan, r, f, fc.wall_line, ALL_WALL_KINDS);
         if (!built.length) {
-          push(`law (b): "${r.id}" facing ${f} is typed ${fc.type}, but no exterior or garden wall stands on the line it views (${fc.wall_line}) — an outdoor space sees a wall only where the manor's own wall stands`);
+          push(`law (b): "${r.id}" facing ${f} is typed ${fc.type}, but no wall band stands on the line it views (${fc.wall_line}) — a facing sees a wall only where the plan actually builds one`);
         }
       }
     }
@@ -543,6 +612,11 @@ export function validatePlan(plan, world, records) {
     if (!floorIds.has(o.floor)) { push(`opening "${o.id}": floor "${o.floor}" is not a declared floor`); continue; }
     if (o.axis !== "EW" && o.axis !== "NS") { push(`opening "${o.id}": axis must be "EW" or "NS"`); continue; }
     if (!rectOk(o.rect)) { push(`opening "${o.id}": rect is malformed`); continue; }
+    /* An open_edge is a boundary LINE and is flat across its own axis; a door
+     * is a hole in a wall and must be solid in both. Either way the clear
+     * width along the boundary has to be positive or nothing walks through. */
+    needsExtent(`opening "${o.id}"`, o.rect, push,
+      o.kind === "open_edge" ? (o.axis === "NS" ? "y" : "x") : undefined);
     if (!Array.isArray(o.joins) || o.joins.length !== 2) {
       push(`opening "${o.id}": joins must name exactly two spaces`); continue;
     }
@@ -573,6 +647,7 @@ export function validatePlan(plan, world, records) {
     claim("stair", s.id);
     keyCheck(`stair "${s.id}"`, s, STAIR_KEYS, push);
     if (!rectOk(s.rect)) push(`stair "${s.id}": rect is malformed`);
+    else needsExtent(`stair "${s.id}"`, s.rect, push);
     if (!Array.isArray(s.joins) || s.joins.length !== 2 || s.joins.some((id) => !byId.has(id))) {
       push(`stair "${s.id}": joins must name two rooms`); continue;
     }
@@ -629,6 +704,8 @@ export function validatePlan(plan, world, records) {
   plan.windows.forEach((w, i) => {
     const label = `window ${i} (${w && w.floor})`;
     if (!isObj(w) || !floorIds.has(w.floor) || !rectOk(w.rect)) { push(`${label}: malformed`); return; }
+    keyCheck(label, w, WINDOW_KEYS, push);
+    needsExtent(label, w.rect, push);
     if (!bandsOn(w.floor).some((b) => contains(b.rect, w.rect))) {
       push(`${label}: is not inside any wall band — a window is a hole in a wall`);
     }
@@ -646,6 +723,8 @@ export function validatePlan(plan, world, records) {
   plan.fireplaces.forEach((f, i) => {
     const label = `fireplace ${i} (${f && f.floor})`;
     if (!isObj(f) || !floorIds.has(f.floor) || !rectOk(f.rect)) { push(`${label}: malformed`); return; }
+    keyCheck(label, f, FIREPLACE_KEYS, push);
+    needsExtent(label, f.rect, push);
     const hosts = roomsOn(f.floor).filter((r) => contains(r.rect, f.rect));
     if (hosts.length !== 1) {
       push(`${label}: lies inside ${hosts.length} rooms (${hosts.map((h) => h.id).join(", ") || "none"}) — a chimney breast projects into exactly one`);
@@ -671,8 +750,16 @@ export function validatePlan(plan, world, records) {
   /* ---- 7c. objects ------------------------------------------------------ */
   const worldLocation = new Map();
   if (isObj(world)) for (const e of world.entities || []) if (e.location) worldLocation.set(e.id, e.location);
-  if (plan.objects.length && !records) {
-    push("plan.json: objects are present but no §6 records were supplied — the footprint↔dims cross-check is the only thing binding a plan footprint to the object it claims to be, and it must not be optional");
+  /* The footprint↔dims cross-check is the only thing binding a plan footprint
+   * to the object it claims to be, and where it CAN run it must not be
+   * optional (round-3 finding). It resolves through world.json's entity→sprite
+   * map, so a caller that supplied a world and withheld the records has
+   * skipped a check that was available; a caller with no world at all is the
+   * plan-only case §4b item 2 describes — a host emitting geometry with no
+   * truth document beside it — and that is not an invalid plan. planWarnings
+   * says so out loud, so the skip is never silent. */
+  if (plan.objects.length && isObj(world) && !records) {
+    push("plan.json: objects are present and a world was supplied, but no §6 records were — the footprint↔dims cross-check is the only thing binding a plan footprint to the object it claims to be, and where it can run it must not be optional");
   }
   for (const o of plan.objects) {
     if (!isObj(o) || typeof o.id !== "string") { push("plan.json: objects entry is not an object with an id"); continue; }
@@ -691,6 +778,7 @@ export function validatePlan(plan, world, records) {
       push(`object "${o.id}": attachment ${JSON.stringify(o.attachment)} is not a §4 attachment token`);
     }
     if (!rectOk(o.footprint)) { push(`object "${o.id}": footprint is malformed — the plan holds the rect the object stands on, not a point`); continue; }
+    needsExtent(`object "${o.id}" footprint`, o.footprint, push);
     if (!contains(room.rect, o.footprint)) {
       push(`object "${o.id}": its footprint is not inside room "${o.room}"`);
     }
@@ -734,18 +822,28 @@ export function planWarnings(plan, records, world) {
     }
   }
 
-  /* Law (b), the half that cannot block: an outdoor space whose facing claims
-   * a wall, where the manor's wall covers only part of the view. */
+  /* Law (b), the half that cannot block: a facing claims a wall, and the
+   * plan's bands cover only part of the view. Every room, not only the
+   * outdoor ones — the blocking check asks for at least one band on the line,
+   * so a wall covering a tenth of the view passes it, and that is as true of
+   * an interior facing as of a garden one. */
   for (const r of plan.rooms) {
-    if (r.type !== "open" || !isObj(r.facings)) continue;
+    if (!isObj(r.facings)) continue;
     for (const f of FACINGS) {
       const fc = r.facings[f];
       if (!isObj(fc) || fc.type === "open" || !isNum(fc.wall_line)) continue;
-      const gaps = gapsOnWallLine(plan, r, f, fc.wall_line);
+      const gaps = gapsOnWallLine(plan, r, f, fc.wall_line, ALL_WALL_KINDS);
       if (gaps.length) {
         out.push(`law (b): "${r.id}" facing ${f} is typed ${fc.type}, but ${gaps.map(([a, b]) => `${fmt(b - a)} m`).join(" + ")} of its ${fc.wall_width_m} m view has no wall across it (gap${gaps.length > 1 ? "s" : ""} at ${gaps.map(([a, b]) => `${fmt(a)}–${fmt(b)}`).join(", ")}). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.`);
       }
     }
+  }
+
+  /* The check that did not run. Plan-only validation is legitimate (§4b item
+   * 2's host emits geometry with no world beside it) but it is weaker, and the
+   * weakening has to be visible rather than inferred from a shorter list. */
+  if ((plan.objects || []).length && !records) {
+    out.push(`${plan.objects.length} object footprint(s) were NOT cross-checked against their §6 dims — no records were supplied, which is the plan-only case; run with a world beside the plan for the full check`);
   }
 
   /* Objects standing in things. The plan is the first artifact that can see
@@ -928,8 +1026,15 @@ if (import.meta.url === invokedPath) {
   try {
     const { createRequire } = await import("node:module");
     const bySprite = createRequire(import.meta.url)("../src/placeholders.js").records;
-    records = {};
-    for (const e of (world && world.entities) || []) if (bySprite[e.sprite]) records[e.id] = bySprite[e.sprite];
+    /* No world means no entity→sprite map, so there are no records to resolve
+     * — and `records` stays undefined rather than becoming an empty object
+     * that every lookup misses. An empty map is "I looked and found nothing",
+     * which would report four missing records; undefined is "the check cannot
+     * run here", which is the truth of the plan-only case. */
+    if (world) {
+      records = {};
+      for (const e of world.entities || []) if (bySprite[e.sprite]) records[e.id] = bySprite[e.sprite];
+    }
   } catch (e) {
     console.error(`validate-plan: cannot load records from src/placeholders.js (${e.message})`);
     process.exit(1);

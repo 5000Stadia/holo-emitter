@@ -51,7 +51,75 @@ const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 const geometryOnly = (svgText) => svgText.replace(/<text[^>]*>[\s\S]*?<\/text>/g, "");
 
 function python(args, cwd) {
-  return execFileSync("python3", args, { encoding: "utf8", cwd });
+  try {
+    return execFileSync("python3", args, { encoding: "utf8", cwd });
+  } catch (e) {
+    /* execFileSync's message is "Command failed: python3 …" and nothing else;
+     * the reason the script refused is on ITS stderr, which is exactly what a
+     * reader of a red test needs. */
+    const err = new Error(`python3 ${args.join(" ")} failed (status ${e.status}):\n` +
+      `${e.stderr ? e.stderr.toString() : "(no stderr)"}\n--- stdout ---\n` +
+      `${e.stdout ? e.stdout.toString() : "(no stdout)"}`);
+    err.cause = e;
+    throw err;
+  }
+}
+
+/**
+ * ONE redline, read out of the document rather than typed.
+ *
+ * Both the rebuild test and the geometry-hash test need "a plausible hand
+ * redline that still tiles". Naming rooms and coordinates made those tests
+ * collide with any real redline touching the same wall — the round-4 critic
+ * drove a library/garden-room redline through the suite and two tests failed
+ * for that reason rather than for their own. This finds the FIRST interior
+ * party wall whose two rooms exactly span it (deterministic over the committed
+ * array order, and nothing about it is a literal), and slides that wall by
+ * `delta`, carrying the two rooms, the band, and anything sitting in the band.
+ *
+ * Facing blocks are left stale on purpose: making them true again is
+ * `rebuildFacings`, which is what one of the callers is testing.
+ */
+function shiftPartyWall(p, delta) {
+  const EPSm = 1e-9;
+  const inside = (r, b) => r.x0 >= b.x0 - EPSm && r.x1 <= b.x1 + EPSm &&
+    r.y0 >= b.y0 - EPSm && r.y1 <= b.y1 + EPSm;
+  for (const band of p.wall_bands) {
+    if (band.kind !== "partition" || band.floors.length !== 1) continue;
+    const floor = band.floors[0];
+    const flat = band.rect.x1 - band.rect.x0 > band.rect.y1 - band.rect.y0 ? "y" : "x";
+    const span = flat === "y" ? "x" : "y";
+    const rooms = p.rooms.filter((r) => r.floor === floor);
+    const spans = (r) => Math.abs(r.rect[span + "0"] - band.rect[span + "0"]) < EPSm &&
+      Math.abs(r.rect[span + "1"] - band.rect[span + "1"]) < EPSm;
+    const lo = rooms.find((r) => spans(r) && Math.abs(r.rect[flat + "1"] - band.rect[flat + "0"]) < EPSm);
+    const hi = rooms.find((r) => spans(r) && Math.abs(r.rect[flat + "0"] - band.rect[flat + "1"]) < EPSm);
+    if (!lo || !hi) continue;
+    /* Do not shrink a room past anything standing in it. */
+    const shrinking = delta > 0 ? hi : lo;
+    const occupants = [
+      ...p.stairs.filter((x) => inside(x.rect, shrinking.rect)),
+      ...(p.objects || []).filter((x) => inside(x.footprint, shrinking.rect)),
+      ...(p.fireplaces || []).filter((x) => x.floor === floor && inside(x.rect, shrinking.rect))
+    ];
+    if (occupants.length) continue;
+    const carried = [
+      ...p.openings.filter((o) => o.floor === floor && inside(o.rect, band.rect)),
+      ...(p.windows || []).filter((w) => w.floor === floor && inside(w.rect, band.rect)),
+      ...(p.fireplaces || []).filter((f) => f.floor === floor && inside(f.rect, band.rect))
+    ];
+    lo.rect[flat + "1"] += delta;
+    hi.rect[flat + "0"] += delta;
+    band.rect[flat + "0"] += delta;
+    band.rect[flat + "1"] += delta;
+    for (const c of carried) {
+      const r = c.rect || c.footprint;
+      r[flat + "0"] += delta;
+      r[flat + "1"] += delta;
+    }
+    return { band: band.id, grew: lo.id, shrank: hi.id, axis: flat, delta };
+  }
+  throw new Error("shiftPartyWall: the plan has no interior party wall two rooms exactly span");
 }
 
 /* A scratch copy of everything the derived render touches, so a test can run
@@ -85,16 +153,12 @@ test.describe("plan.json", () => {
 
   test("and the rebuild repairs a hand-moved wall", () => {
     const p = clone(PLAN);
-    p.rooms.find((r) => r.id === "library").rect.y1 = 21.4;
-    p.rooms.find((r) => r.id === "garden_room").rect.y0 = 21.75;
-    const band = p.wall_bands.find((b) => b.kind === "partition" && Math.abs(b.rect.y0 - 21.0) < 1e-9);
-    band.rect.y0 = 21.4; band.rect.y1 = 21.75;
-    const door = p.openings.find((o) => o.joins.includes("library") && o.joins.includes("garden_room"));
-    door.rect.y0 = 21.4; door.rect.y1 = 21.75;
+    const moved = shiftPartyWall(p, 0.4);
+    expect(moved.axis).toMatch(/^[xy]$/);
     // stale facing values: the validator says so
-    expect(validatePlan(p, WORLD, BY_ENTITY).length).toBeGreaterThan(0);
+    expect(validatePlan(p, WORLD, BY_ENTITY).length, `moved ${moved.band}`).toBeGreaterThan(0);
     // and the rebuild fixes exactly them
-    expect(validatePlan(rebuildFacings(p), WORLD, BY_ENTITY)).toEqual([]);
+    expect(validatePlan(rebuildFacings(p), WORLD, BY_ENTITY), `moved ${moved.band}`).toEqual([]);
   });
 
   test("a drawn standpoint survives a rebuild; only its measurement is refreshed", () => {
@@ -174,8 +238,54 @@ const MUTATIONS = [
     (p) => { const f = room(p, "privy_garden").facings.N; f.type = "open"; f.far_line = 26.0; f.wall_line = 26.0; }],
   ["law (b): an open facing whose far line IS a built wall", /law \(b\).*stands on the very line/i,
     (p) => { const f = room(p, "privy_garden").facings.N; f.type = "open"; f.far_line = f.wall_line; }],
-  ["law (b): a claimed wall must actually stand", /law \(b\).*no exterior or garden wall stands/i,
+  ["law (b): a claimed wall must actually stand", /law \(b\).*no wall band stands on the line it views/i,
     (p) => { p.wall_bands = p.wall_bands.filter((b) => b.kind !== "garden"); }],
+  /* The round-4 critic's two demonstrations, now that law (b) runs on every
+   * facing rather than only on outdoor rooms. Before the fix both of these
+   * returned NO findings: an interior facing could claim a vista straight
+   * through the manor's north range, and two rooms could meet with no wall
+   * between them and both still claim one. */
+  ["law (b): an INTERIOR facing may not claim open ground through the building",
+    /law \(b\).*built structure stands in that view/i,
+    (p) => {
+      const f = room(p, "study").facings.N;
+      f.type = "open";
+      f.far_line = 30.0;
+      f.wall_line = 30.0;
+      delete f.camera_wall_m;
+      f.camera_far_m = drawn(measuredDistance(f.standpoint, "N", 30.0));
+    }],
+  ["law (b): two interior rooms may not meet with no wall between them",
+    /law \(b\).*no wall band stands on the line it views/i,
+    (p) => {
+      /* Delete a party wall and grow both rooms to meet in the middle of it,
+       * so the floor still tiles by area and only the wall is missing. */
+      const band = p.wall_bands.find((b) => b.kind === "partition" && b.floors.length === 1);
+      const flat = band.rect.x1 - band.rect.x0 > band.rect.y1 - band.rect.y0 ? "y" : "x";
+      const mid = (band.rect[flat + "0"] + band.rect[flat + "1"]) / 2;
+      for (const r of p.rooms.filter((r) => r.floor === band.floors[0])) {
+        if (Math.abs(r.rect[flat + "1"] - band.rect[flat + "0"]) < 1e-9) r.rect[flat + "1"] = mid;
+        if (Math.abs(r.rect[flat + "0"] - band.rect[flat + "1"]) < 1e-9) r.rect[flat + "0"] = mid;
+      }
+      p.wall_bands = p.wall_bands.filter((b) => b !== band);
+      /* Restate the facings the two grown rooms now have, so the ONLY thing
+       * left wrong with this plan is the wall that is not there. Without it
+       * the stale standpoints bury the finding under thirty of their own. */
+      Object.assign(p, rebuildFacings(p));
+    }],
+  ["law (b): an open facing's far line may not fall inside the manor outline",
+    /law \(b\).*falls INSIDE the manor outline/i,
+    (p) => {
+      /* A far line that stops INSIDE the study without crossing a band: the
+       * strip test finds nothing to complain about, and only the outline can
+       * say this ground is not open. */
+      const f = room(p, "study").facings.S;
+      f.type = "open";
+      f.far_line = 11.0;
+      f.wall_line = 11.0;
+      delete f.camera_wall_m;
+      f.camera_far_m = drawn(measuredDistance(f.standpoint, "S", 11.0));
+    }],
   ["the outline and the wall bands agree", /outline: the edge/i,
     (p) => { p.outline[5][0] = 41.0; p.outline[6][0] = 41.0; }],
   ["a window is a hole in a wall", /not inside any wall band/i,
@@ -204,7 +314,228 @@ const MUTATIONS = [
   ["an object the plan and the world put in different rooms", /world.json puts it in/i,
     (p) => { p.objects.find((o) => o.id === "desk1").room = "hall"; }],
   ["a standpoint_source outside the vocabulary", /standpoint_source .* is not/i,
-    (p) => { room(p, "study").facings.N.standpoint_source = "measured"; }]
+    (p) => { room(p, "study").facings.N.standpoint_source = "measured"; }],
+
+  /* ------------------------------------------------------------------
+   * The round-4 critic neutralised every `push(` site in the validator one
+   * at a time and found roughly a quarter of them survived the whole suite —
+   * including two fixes installed by the previous round and the entire
+   * stairs-as-exits branch. The spec's own written rule is "every check,
+   * broken one at a time; a check that stays green when what it guards is
+   * deleted is a finding", so each of those now has a red case here.
+   * ------------------------------------------------------------------ */
+
+  ["the legend's wall thicknesses are the walls' own", /is .* m thick, but wall_thickness/i,
+    (p) => { p.wall_thickness.partition = 0.4; }],
+  ["a band kind the legend has no thickness for", /wall_thickness has no/i,
+    (p) => { delete p.wall_thickness.garden; }],
+  ["a walled facing must carry camera_wall_m, never camera_far_m",
+    /must carry camera_wall_m, never camera_far_m/i,
+    (p) => {
+      const f = room(p, "study").facings.N;
+      f.camera_far_m = f.camera_wall_m;
+    }],
+  ["an open facing must carry camera_far_m, never camera_wall_m",
+    /must carry camera_far_m, never camera_wall_m/i,
+    (p) => {
+      const f = room(p, "entrance_court").facings.S;
+      f.camera_wall_m = f.camera_far_m;
+    }],
+  ["the outline is a closed axis-aligned polygon", /outline is not a closed axis-aligned polygon/i,
+    (p) => { p.outline = p.outline.map(([x, y], i) => (i === 3 ? [x + 0.7, y + 0.7] : [x, y])); }],
+  ["the facing-type vocabulary", /type .* is not one of enclosed \| open \| corridor/i,
+    (p) => { room(p, "study").facings.N.type = "walled"; }],
+  ["wall_line is the line the facing actually views", /wall_line .* is not the line this facing views/i,
+    (p) => { room(p, "study").facings.N.wall_line += 0.5; }],
+  ["a facing with no standpoint at all", /no standpoint — law \(a\) marks every facing/i,
+    (p) => { delete room(p, "study").facings.N.standpoint; }],
+  ["a standpoint on or past the line it views", /is on or past the line it views/i,
+    (p) => {
+      const r = room(p, "study"), f = r.facings.N;
+      f.standpoint_source = "drawn";
+      f.standpoint = { x: f.standpoint.x, y: f.wall_line + 0.5 };
+      f.camera_wall_m = drawn(measuredDistance(f.standpoint, "N", f.wall_line));
+    }],
+  ["an opening that abuts nothing", /does not lie between exactly two rooms/i,
+    (p) => {
+      const o = p.openings.find((x) => x.kind === "door");
+      o.rect = { x0: o.rect.x0 + 0.03, x1: o.rect.x1 + 0.03, y0: o.rect.y0 + 0.03, y1: o.rect.y1 + 0.03 };
+    }],
+  ["a stair that is not a straight flight", /only "straight" obeys/i,
+    (p) => { p.stairs[0].kind = "dog-leg"; }],
+  ["a flight of an impossible number of treads", /a flight between two storeys is 10–30/i,
+    (p) => { p.stairs[0].treads = 3; }],
+  ["a flight that is not inside the rooms it joins", /its flight is not inside/i,
+    (p) => { p.stairs[0].rect.x0 -= 1.5; }],
+  ["a window nobody looks through", /no room on .* looks through it/i,
+    (p) => {
+      /* Still inside a wall band — the north exterior wall — but with no room
+       * on either side of it, so it is a hole in a wall onto nothing. */
+      const band = p.wall_bands.find((b) => b.kind === "exterior" && b.rect.y1 - b.rect.y0 < 1 && b.rect.y0 > 24);
+      p.windows[0].rect = { x0: band.rect.x0 + 0.2, x1: band.rect.x0 + 1.2, y0: band.rect.y0, y1: band.rect.y1 };
+    }],
+  ["a fireplace whose named room is not the room it stands in", /says room .* but stands in/i,
+    (p) => { p.fireplaces[0].room = "hall"; }],
+  ["an attachment outside §4's vocabulary", /is not a §4 attachment token/i,
+    (p) => { p.objects[0].attachment = "hovering"; }],
+  ["an object footprint running into a wall", /footprint runs into wall band/i,
+    (p) => { const o = p.objects.find((x) => x.id === "desk1"); o.footprint.y1 += 0.4; o.footprint.y0 += 0.4; }],
+  ["an object floor that is not its room's floor", /is not the floor of room/i,
+    (p) => { p.objects[0].floor = "upper"; }],
+  ["an object whose room is not a room", /room .* is not a room/i,
+    (p) => { p.objects[0].room = "the_cellar"; }],
+  ["a duplicate floor id", /duplicate floor id/i,
+    (p) => { p.floors.push({ id: "ground", level: 2 }); }],
+  ["north is +y, because every facing derivation assumes it", /north must be "\+y"/i,
+    (p) => { p.north = "-y"; }],
+  ["the stand-back fraction stays inside (0, 0.5)", /standpoint_stand_back must be in/i,
+    (p) => { p.standpoint_stand_back = 0.6; }],
+  ["a units declaration that is not metres", /units must be "m"/i,
+    (p) => { p.units = "px"; }],
+  /* The three arrays the whitelist did not cover until the round-4 critic
+   * pushed a sprite, a knowledge block and a `takeable` through them. */
+  ["a world fact smuggled into a window", /is a world fact/i,
+    (p) => { p.windows[0].states = ["shut", "open"]; }],
+  ["a pixel smuggled into a window", /unknown key "u_px"/i,
+    (p) => { p.windows[0].u_px = 512; }],
+  ["a world fact smuggled into a fireplace", /is a world fact/i,
+    (p) => { p.fireplaces[0].knowledge = { lit: false }; }],
+  ["a world fact smuggled into a floor", /is a world fact/i,
+    (p) => { p.floors[0].takeable = true; }],
+  ["an unknown key on a fireplace", /unknown key "corner_x0_px"/i,
+    (p) => { p.fireplaces[0].corner_x0_px = 3; }],
+  /* Degenerate geometry. §4b item 2 makes this a document a solver emits, and
+   * a zero-extent rect is what a solver produces when a span collapses. */
+  ["a door with no clear width", /zero extent/i,
+    (p) => { const o = p.openings.find((x) => x.kind === "door"); o.rect.y1 = o.rect.y0; }],
+  ["a room with no extent", /zero extent/i,
+    (p) => { room(p, "study").rect.x1 = room(p, "study").rect.x0; }],
+  ["an open_edge collapsed to a point", /zero extent/i,
+    (p) => { const o = p.openings.find((x) => x.kind === "open_edge"); o.rect.x1 = o.rect.x0; }],
+
+  /* ------------------------------------------------------------------
+   * Shape and vocabulary. These are the defensive branches — "not an
+   * object", "not a declared floor", "not one of" — and they were the rest
+   * of the round-4 survivor list. They matter more here than in most
+   * validators, because §4b item 2 makes this a document a HOST emits: a
+   * solver that gets a field wrong produces exactly these, and a guard with
+   * no red case is a guard that can be deleted by a refactor and never
+   * noticed. Verified by re-running the same neutralise-every-push battery
+   * the critic used: 113 sites, 0 survivors.
+   * ------------------------------------------------------------------ */
+  ["the schema stamp", /schema is .* expected/i, (p) => { p.schema = "some-other-plan/9"; }],
+  ["wall_thickness is an object keyed by band kind", /wall_thickness must be an object/i,
+    (p) => { p.wall_thickness = 0.6; }],
+  ["every named array is an array", /"windows" must be an array/i, (p) => { p.windows = {}; }],
+  ["a floors entry that is not {id, level}", /floors entry is not/i, (p) => { p.floors.push("attic"); }],
+  ["a named thing with no id", /has no id/i, (p) => { delete p.stairs[0].id; }],
+  ["a rooms entry that is not an object", /rooms entry is not an object/i, (p) => { p.rooms.push("study"); }],
+  ["a room on an undeclared floor", /floor "attic" is not a declared floor/i,
+    (p) => { room(p, "study").floor = "attic"; }],
+  ["the room-type vocabulary", /type "roofed" is not one of/i, (p) => { room(p, "study").type = "roofed"; }],
+  ["a malformed room rect", /room "study": rect is malformed/i, (p) => { room(p, "study").rect = { x0: 1 }; }],
+  ["a room with no name", /room "study": no name/i, (p) => { delete room(p, "study").name; }],
+  ["a wall_bands entry that is not an object", /wall_bands entry is not an object/i,
+    (p) => { p.wall_bands.push(3); }],
+  ["the band-kind vocabulary", /kind "hedge" is not one of/i, (p) => { p.wall_bands[0].kind = "hedge"; }],
+  ["a band on an undeclared floor", /floors must be declared floor ids/i,
+    (p) => { p.wall_bands[0].floors = ["attic"]; }],
+  ["a malformed band rect", /wall band .*: rect is malformed/i, (p) => { p.wall_bands[0].rect = {}; }],
+  ["a room with no facings at all", /no facings/i, (p) => { delete room(p, "study").facings; }],
+  ["a room missing one of its four facings", /facings must be exactly N, E, S, W/i,
+    (p) => { delete room(p, "study").facings.N; }],
+  ["a facing that is not an object", /facing N: not an object/i, (p) => { room(p, "study").facings.N = 3; }],
+  ["an openings entry that is not an object", /openings entry is not an object/i, (p) => { p.openings.push(7); }],
+  ["the opening-kind vocabulary", /kind "arch" is not one of/i, (p) => { p.openings[0].kind = "arch"; }],
+  ["an opening on an undeclared floor", /opening .*: floor "attic"/i, (p) => { p.openings[0].floor = "attic"; }],
+  ["an opening with no axis", /axis must be "EW" or "NS"/i, (p) => { p.openings[0].axis = "diagonal"; }],
+  ["a malformed opening rect", /opening .*: rect is malformed/i, (p) => { p.openings[0].rect = { x0: 1, x1: 2 }; }],
+  ["an opening that names one space", /joins must name exactly two spaces/i,
+    (p) => { p.openings[0].joins = [p.openings[0].joins[0]]; }],
+  ["an opening that joins a room to itself", /joins a room to itself/i,
+    (p) => { p.openings[0].joins = [p.openings[0].joins[0], p.openings[0].joins[0]]; }],
+  ["an opening whose entity is not a name", /entity must be a string/i, (p) => { p.openings[0].entity = 7; }],
+  ["a stairs entry that is not an object", /stairs entry is not an object/i, (p) => { p.stairs.push("up"); }],
+  ["a malformed stair rect", /stair .*: rect is malformed/i, (p) => { p.stairs[0].rect = { x0: 1 }; }],
+  ["a stair that names one room", /joins must name two rooms/i, (p) => { p.stairs[0].joins = ["library"]; }],
+  ["a stair travelling somewhere that is not a facing", /up and down must each be one of/i,
+    (p) => { p.stairs[0].up = "NE"; }],
+  ["a malformed window", /window 0 .*: malformed/i, (p) => { p.windows[0].rect = null; }],
+  ["a malformed fireplace", /fireplace 0 .*: malformed/i, (p) => { p.fireplaces[0].floor = "attic"; }],
+  ["an objects entry with no id", /objects entry is not an object with an id/i, (p) => { p.objects.push({}); }],
+  ["a malformed object footprint", /footprint is malformed/i, (p) => { p.objects[0].footprint = { x0: 1 }; }],
+  ["an object with no §6 record of its own", /no §6 record/i, (p) => { p.objects[0].id = "lectern1"; }]
+];
+
+/* World-side mutations. `crossCheckWorld` is the branch `design/architecture.md`
+ * says row 15 would otherwise have been refused by, and until now nothing
+ * broke a single arm of it. The demo world has no stair exit — the manor's
+ * stairs are not walkable yet — so the stair arms are exercised against a
+ * world that declares one, which is exactly the document row 15 will write. */
+function withStairExit(over = {}) {
+  const w = clone(WORLD);
+  w.locations.push({
+    id: "great_stair_hall",
+    facings: ["N", "E", "S", "W"],
+    exits: [{
+      id: "up_the_great_stair", from: "great_stair_hall", to: "stair_landing",
+      facing: "N", arrive_facing: "N", via: "great_stair", ...over
+    }]
+  });
+  return w;
+}
+
+const WORLD_MUTATIONS = [
+  ["a stair exit between two rooms the flight does not join",
+    /but stair "great_stair" joins/i,
+    () => withStairExit({ to: "library" })],
+  ["a stair exit staged on a facing the flight does not travel",
+    /but the "great_stair" flight travels N out of/i,
+    () => withStairExit({ facing: "E", arrive_facing: "E" })],
+  ["a stair exit that turns you round on the way up",
+    /arrives facing S — blueprint §3/i,
+    () => withStairExit({ arrive_facing: "S" })],
+  ["an exit that travels via nothing the plan knows",
+    /travels via "trapdoor", which is neither a plan opening's entity nor a stair/i,
+    () => withStairExit({ via: "trapdoor" })],
+  ["a door exit between two rooms the opening does not join",
+    /but opening "op13" joins/i,
+    () => {
+      const w = clone(WORLD);
+      w.locations.find((l) => l.id === "study").exits[0].to = "library";
+      return w;
+    }],
+  ["a door exit that leaves a room the opening does not abut",
+    /leaves "library", which does not abut opening/i,
+    () => {
+      const w = clone(WORLD);
+      const e = w.locations.find((l) => l.id === "study").exits[0];
+      e.from = "library"; e.to = "hall";
+      return w;
+    }],
+  ["a door exit staged on the wrong wall", /sees "op13" on its E wall/i,
+    () => {
+      const w = clone(WORLD);
+      const e = w.locations.find((l) => l.id === "study").exits[0];
+      e.facing = "N"; e.arrive_facing = "N";
+      return w;
+    }],
+  ["a door exit that turns you round on the way through",
+    /arrives facing W — blueprint §3/i,
+    () => {
+      const w = clone(WORLD);
+      w.locations.find((l) => l.id === "study").exits[0].arrive_facing = "W";
+      return w;
+    }],
+  ["a location declaring a facing the plan room does not carry",
+    /declares facing NE, which the plan room does not carry/i,
+    () => {
+      const w = clone(WORLD);
+      w.locations.find((l) => l.id === "study").facings.push("NE");
+      return w;
+    }],
+  ["a world with no locations at all", /no locations to cross-check/i,
+    () => ({ schema: "holo-emitter-world/0.1" })]
 ];
 
 test.describe("the plan validator goes red on every check it claims", () => {
@@ -217,6 +548,59 @@ test.describe("the plan validator goes red on every check it claims", () => {
       expect(findings.join("\n"), `${name}: found something else`).toMatch(pattern);
     });
   }
+
+  for (const [name, pattern, mutate] of WORLD_MUTATIONS) {
+    test(`world cross-check — ${name}`, () => {
+      const findings = validatePlan(clone(PLAN), mutate(), BY_ENTITY);
+      expect(findings.length, `${name}: nothing found`).toBeGreaterThan(0);
+      expect(findings.join("\n"), `${name}: found something else`).toMatch(pattern);
+    });
+  }
+
+  /* The two object warnings, and the one that says a check did not run. A
+   * warning nothing exercises is a warning that can stop being computed. */
+  test("planWarnings names an object standing in a hearth and a stack that stops", () => {
+    const w = planWarnings(PLAN, BY_ENTITY, WORLD);
+    expect(w.join("\n")).toMatch(/stands in the chimney breast of "study"/);
+    expect(w.join("\n")).toMatch(/has no stack rising through "upper"/);
+  });
+
+  test("planWarnings names two objects standing in each other", () => {
+    const p = clone(PLAN);
+    const [a, b] = [p.objects.find((o) => o.id === "desk1"), p.objects.find((o) => o.id === "chair1")];
+    b.footprint = { ...a.footprint };
+    expect(planWarnings(p, BY_ENTITY, WORLD).join("\n")).toMatch(/occupy the same floor/i);
+  });
+
+  test("planWarnings names an object standing in a stair flight", () => {
+    const p = clone(PLAN);
+    const st = p.stairs[0];
+    p.objects.push({
+      id: "chest1", floor: "ground", room: st.joins[0], source: "drawing",
+      attachment: "floor_against",
+      footprint: { x0: st.rect.x0 + 0.1, x1: st.rect.x0 + 0.7, y0: st.rect.y0 + 0.1, y1: st.rect.y0 + 0.5 }
+    });
+    expect(planWarnings(p, BY_ENTITY, WORLD).join("\n")).toMatch(/stair/i);
+  });
+
+  test("planWarnings says out loud when the footprint cross-check could not run", () => {
+    // The plan-only case §4b item 2 describes: geometry with no world beside
+    // it. That is valid, and weaker, and the weakening must be visible.
+    expect(validatePlan(PLAN)).toEqual([]);
+    expect(planWarnings(PLAN).join("\n")).toMatch(/were NOT cross-checked against their §6 dims/);
+  });
+
+  test("but a world WITH objects and no records is refused, not warned", () => {
+    const findings = validatePlan(PLAN, WORLD, undefined);
+    expect(findings.join("\n")).toMatch(/no §6 records were — the footprint↔dims cross-check/);
+  });
+
+  test("planWarnings names a world location the plan has not drawn", () => {
+    const w = clone(WORLD);
+    w.locations.push({ id: "gallery", facings: ["N"], exits: [] });
+    expect(planWarnings(PLAN, BY_ENTITY, w).join("\n"))
+      .toMatch(/world location "gallery" has no room in the plan/);
+  });
 
   /* §4b item 9 rules several standpoints into the great hall and the long
    * gallery, so the schema keeps a standpoint the K rule did not place
@@ -449,7 +833,10 @@ test.describe("the camera the projection runs on", () => {
   test("the frame-bottom floor cut is at the viewer's feet in the study and metres out elsewhere", () => {
     const feet = cameraFeetReport(PLAN);
     // the shipped study, the only frame-bottom cut a human has judged
-    expect(feet.reference).toBeCloseTo(3.6 * 96 / 332.8, 9);
+    // The SHIPPED grid meta's cut — groundplane's 3.5 m fallback, not the
+    // plan's measured 3.60 m standpoint. What a human has judged is what the
+    // browser draws; the round-4 critic caught the substitution.
+    expect(feet.reference).toBeCloseTo(3.5 * 96 / 332.8, 9);
     expect(feet.reference).toBeLessThan(1.1);
     // measured from the VIEWER, not from the wall — the complement is the bug
     // this assertion exists to prevent recurring
@@ -1082,29 +1469,14 @@ test.describe("the schematic is a derived render of the plan", () => {
     const dir = stagePlanTree();
     try {
       const fx = join(dir, "fixtures", "demo-study");
-      const p = readJson(join(fx, "plan.json"));
-      // Widen the library and narrow the garden room by the same amount, so
+      // One party wall slides; the two rooms either side take up the slack, so
       // the floor still tiles and the plan still validates — only the picture
-      // moves.
-      p.rooms.find((r) => r.id === "library").rect.y1 = 21.4;
-      p.rooms.find((r) => r.id === "garden_room").rect.y0 = 21.75;
-      for (const id of ["library", "garden_room"]) {
-        const r = p.rooms.find((x) => x.id === id);
-        for (const f of FACINGS) {
-          const fc = r.facings[f];
-          const want = ruleStandpoint(r.rect, f, p.standpoint_stand_back);
-          fc.standpoint = want;
-          const geoLine = { N: r.rect.y1, S: r.rect.y0, E: r.rect.x1, W: r.rect.x0 }[f];
-          fc.wall_line = geoLine;
-          fc.camera_wall_m = drawn(measuredDistance(want, f, geoLine));
-          fc.wall_width_m = drawn(f === "N" || f === "S" ? r.rect.x1 - r.rect.x0 : r.rect.y1 - r.rect.y0);
-        }
-      }
-      // the door between them sits in the partition, which moved with them
-      const door = p.openings.find((o) => o.joins.includes("library") && o.joins.includes("garden_room"));
-      door.rect.y0 = 21.4; door.rect.y1 = 21.75;
-      const band = p.wall_bands.find((b) => b.kind === "partition" && Math.abs(b.rect.y0 - 21.0) < 1e-9);
-      band.rect.y0 = 21.4; band.rect.y1 = 21.75;
+      // moves. Which wall is read out of the document (see shiftPartyWall), so
+      // a real redline cannot collide with this test's coordinates.
+      const staged = readJson(join(fx, "plan.json"));
+      shiftPartyWall(staged, 0.4);
+      const p = rebuildFacings(staged);
+      expect(validatePlan(p, WORLD, BY_ENTITY)).toEqual([]);
       writeFileSync(join(fx, "plan.json"), JSON.stringify(p));
       python([join(dir, "design", "plan-draft", "draw_plan.py")], dir);
       const svg = readFileSync(join(dir, "design", "plan-draft", "manor-ground.svg"), "utf8");
@@ -1162,6 +1534,51 @@ test.describe("the projection report", () => {
     const committed = readFileSync(join(draftDir, "projection.md"), "utf8");
     expect(fresh === committed,
       "stale report — run: node tools/plan-projection.mjs --write").toBe(true);
+  });
+
+  /* Round-4 finding F4: almost every pointer into this report resolved to the
+   * wrong section, in the report itself and in the two documents that outlive
+   * the row. Prose about prose is not a check, so this is one. */
+  test("every §N pointer in the report resolves to a section the report has", () => {
+    const md = readFileSync(join(draftDir, "projection.md"), "utf8");
+    const headings = new Set([...md.matchAll(/^## (\d+)\. /gm)].map((m) => m[1]));
+    expect(headings.size).toBeGreaterThan(5);
+    // and they are emitted IN ORDER, so a reader scrolling finds §8 after §7
+    const order = [...md.matchAll(/^## (\d+)\. /gm)].map((m) => Number(m[1]));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    /* A parenthesised "(§N)" is the report pointing at ITSELF — the form §0's
+     * ten questions use, and the exact form that was wrong in every case the
+     * round-4 critic checked. A bare §N in running prose may be the
+     * blueprint's (§5, §10, §11, §12.5 all appear here by name), so those are
+     * out of scope for a mechanical check and stay a reader's job. */
+    const bad = [];
+    for (const m of md.matchAll(/\(§(\d+)\)/g)) {
+      if (!headings.has(m[1])) {
+        bad.push(`(§${m[1]}) near "${md.slice(Math.max(0, m.index - 60), m.index).slice(-50)}"`);
+      }
+    }
+    expect(bad).toEqual([]);
+    expect([...md.matchAll(/\(§(\d+)\)/g)].length).toBeGreaterThan(4);
+  });
+
+  /* And the two documents that outlive the row point at the right sections. */
+  test("architecture.md, blueprint §4b and the draft README cite sections that exist", () => {
+    const md = readFileSync(join(draftDir, "projection.md"), "utf8");
+    const headings = new Set([...md.matchAll(/^## (\d+)\. /gm)].map((m) => m[1]));
+    const bad = [];
+    for (const f of [join(repoRoot, "design", "architecture.md"),
+      join(repoRoot, "design", "blueprint.md"), join(draftDir, "README.md")]) {
+      const text = readFileSync(f, "utf8");
+      for (const m of text.matchAll(/projection\.md`? §(\d+)/g)) {
+        if (!headings.has(m[1])) bad.push(`${f.split("/").pop()}: projection.md §${m[1]}`);
+      }
+    }
+    expect(bad).toEqual([]);
+    // §0's question count, quoted in the blueprint, is computed not typed
+    const n = (md.match(/^## 0\. What needs Kabe$[\s\S]*?^## 1\./m)[0]
+      .match(/^\d+\. \*\*/gm) || []).length;
+    expect(readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8"))
+      .toMatch(new RegExp(`§0 lists the ${["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][n]} questions`));
   });
 
   test("carries the questions this row cannot answer, so they outlive the spec file", () => {

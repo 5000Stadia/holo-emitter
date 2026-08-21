@@ -663,11 +663,24 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
       const duOk = Math.abs(p.u - pl.u) <= tolerance;
       const shippedDepth = pl.depth_m == null ? null : pl.depth_m;
       const ddOk = shippedDepth == null || Math.abs(p.depth_m - shippedDepth) <= tolerance;
+      /* `attachment` is the ONE field both documents hold, and until the
+       * round-4 critic set them to different tokens nothing compared them.
+       * The consequence was worse than a stale duplicate: the projection had
+       * used the PLAN's token to pick its scale while the report printed
+       * STAGING's, and the depth comparison — the only other thing that could
+       * have noticed — is skipped whenever the shipped placement carries no
+       * `depth_m`, which is exactly the wall-mounted case. */
+      const planObj = (plan.objects || []).find((o) => o.id === id);
+      const planAttachment = planObj ? planObj.attachment : null;
+      const aOk = planAttachment == null || pl.attachment == null ||
+        planAttachment === pl.attachment;
       rows.push({
         id, facing: pl.facing, attachment: pl.attachment,
+        plan_attachment: planAttachment,
         shipped_u: pl.u, projected_u: p.u, du: p.u - pl.u,
         shipped_depth_m: shippedDepth, projected_depth_m: p.depth_m,
-        offset_m: p.offset_m, agrees: duOk && ddOk
+        offset_m: p.offset_m, agrees: duOk && ddOk && aOk,
+        attachment_disagrees: !aOk
       });
     }
   }
@@ -691,7 +704,15 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
  * the drawing Kabe approved, and changing it changes the drawing.
  */
 export function cameraFeetReport(plan, opts = {}) {
-  const reference = deriveMeta(plan, "study", "N", opts).nearest_floor_m;
+  /* The reference is the SHIPPED grid meta's cut, not the study's derived one.
+   * They are different numbers — 1.0096 m against 1.0385 m — because the demo
+   * runs on `groundplane.CAMERA_WALL_M` (3.5, the fallback) while the plan
+   * measures the study's standpoint at 3.60 m. The sentence this number
+   * anchors is "the only frame-bottom cut any human has judged", and what a
+   * human has judged is what the browser draws. The round-4 critic caught the
+   * substitution: against the shipped reference the over-limit set is four
+   * facings larger, and the four it gains are two whole rooms. */
+  const reference = nearestFloorM(shippedMeta());
   const rows = [];
   for (const room of plan.rooms) {
     for (const f of FACINGS) {
@@ -826,11 +847,11 @@ export function report(plan, staging, records) {
   P("3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open");
   P("   court mouth and not a wall (§3).");
   P("4. **The wide-view trigger's reading**, and the implied focal length, which under a pinned");
-  P("   scale is not constant across facings (§4).");
+  P("   scale is not constant across facings (§5).");
   P("5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted");
   P("   into them at row 4, or do the manor's extra exits wait for a later row? The four rulings");
   P("   of 2026-08-21 did not reach this one.");
-  P("6. **The desk stands in the study's chimney breast** (§6) — visible for the first time now");
+  P("6. **The desk stands in the study's chimney breast** (§10) — visible for the first time now");
   P("   that the room has real metres.");
   P("7. **An [AI] correction was made to a datum on the approved drawing** (§9).");
   P("8. **The floor cut is not at your feet on most facings** — the intention's fifth quality");
@@ -893,6 +914,15 @@ export function report(plan, staging, records) {
   P("dead-centre, signed left/right — and the §6 record carries it as `view_angle_deg`. §10 says");
   P("it is \"computable once row 12's plan exists\"; this is that computation. The contract's");
   P("reuse tolerance is ±8°.");
+  P();
+  P("**The sign, stated, because two consumers would read it opposite ways.** `view_angle_deg` is");
+  P("**where the thing IS**, not which way it faces: negative means the footprint sits to the");
+  P("viewer's LEFT of centre, positive to the right. §10's `view_side` token is the other one —");
+  P("it says which way a generated sprite is TURNED. An object left of centre is seen turned");
+  P("toward the viewer's right, so the two are opposite by construction, and a generator handed");
+  P("both without this sentence would mirror every sprite it made. Nothing in the row consumes");
+  P("`view_angle_deg` yet; row 4's prompt sheets are the first, and this is the contract they");
+  P("board from.");
   P();
   P("| entity | facing | offset from centre | standpoint distance | view_angle_deg |");
   P("|---|---|---|---|---|");
@@ -958,6 +988,15 @@ export function report(plan, staging, records) {
   P("`camera_wall_m` at all — that number is a distance to drawn ground, not to a surface, and a");
   P("depth model handed one as the other puts a horizon where a wall goes. Corners are emitted");
   P("only where **one continuous wall spans the view**.");
+  P();
+  P("**One row means something different from the other 87, and it drives two numbers.**");
+  P("`wall_width_m` is \"the width of the wall in view\" everywhere except `entrance_approach/N`,");
+  P("where it is 32.00 m of which 20.40 m is the open court mouth — a VIEW width, not a wall.");
+  P("Corners are correctly null there (nothing continuous spans it), but the same number still");
+  P("sets `px_per_m_at_wall = 1536 / 32 = 48` and still defines the §4 `u` domain, so both are");
+  P("scaled to a span that is two thirds sky. Whether that facing is one wide view, two walls");
+  P("with a gap, or an `open` facing with a far line is §0's question 3, and it is Kabe's; the");
+  P("number is not moved here because it is read off the approved drawing.");
   P();
   P("| floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |");
   P("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
@@ -1069,8 +1108,10 @@ export function report(plan, staging, records) {
     const feet = cameraFeetReport(plan);
     P("**Where the floor starts, in front of the viewer.** The intention's fifth decomposed");
     P("quality: *\"The camera has feet … Riven's rails are cut by the frame bottom at your own");
-    P(`feet\"*. The shipped study cuts its floor at ${fixed(feet.reference, 2)} m — the only frame-bottom cut any`);
-    P(`human has judged. ${feet.over.length} of ${feet.rows.length} facings start their floor more than twice that far out:`);
+    P(`feet\"*. The shipped study cuts its floor at ${fixed(feet.reference, 2)} m — computed from the grid`);
+    P(`meta the browser actually draws (\`camera_wall_m\` ${groundplane.CAMERA_WALL_M}, groundplane's fallback, not the`);
+    P(`plan's measured ${fixed(deriveMeta(plan, "study", "N").camera_wall_m, 2)} m), because the only frame-bottom cut any human has judged is the`);
+    P(`one on screen. ${feet.over.length} of ${feet.rows.length} facings start their floor more than twice that far out:`);
     P("");
     P("| facing | standpoint distance | floor starts at |");
     P("|---|---|---|");
@@ -1160,15 +1201,6 @@ export function report(plan, staging, records) {
   P("camera comes from; until then no agent should pick one.");
   P();
 
-  P("## 10. What the plan makes visible that nothing could see before");
-  P();
-  P("Computed by `planWarnings` over the committed plan, not written by hand. None of them blocks");
-  P("the plan — each would have to be fixed by moving something a human approved — and each is a");
-  P("question for Kabe:");
-  P();
-  for (const w of planWarnings(plan, records)) P(`- ${w}`);
-  P();
-
   P("## 8. Which document owns which meta field — a proposal, not a ruling");
   P();
   P("Blueprint §5 [HUMAN, 2026-08-20]: *\"The geometry elements should be determined by the");
@@ -1203,6 +1235,16 @@ export function report(plan, staging, records) {
   P("approved. The promoted validator found it on its first run. It is recorded here, and not only");
   P("in a hand-off message, because an agent changed what an approved artifact says.");
   P();
+
+  P("## 10. What the plan makes visible that nothing could see before");
+  P();
+  P("Computed by `planWarnings` over the committed plan, not written by hand. None of them blocks");
+  P("the plan — each would have to be fixed by moving something a human approved — and each is a");
+  P("question for Kabe:");
+  P();
+  for (const w of planWarnings(plan, records)) P(`- ${w}`);
+  P();
+
   return L.join("\n") + "\n";
 }
 

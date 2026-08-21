@@ -95,10 +95,20 @@ says where every wall, door, window, hearth and stair stands, and where you are 
 look at each one. The drawings in `design/plan-draft/` are made from it, not the other way round:
 
 ```
-python3 design/plan-draft/draw_plan.py     # the two floor plans, from the document
-./design/plan-draft/render.sh              # and as pictures, at twice the size
+node tools/plan-projection.mjs --rebuild-facings   # where you stand in each room, from the rooms
+python3 design/plan-draft/draw_plan.py             # the two floor plans, from the document
+./design/plan-draft/render.sh                      # and as pictures, at twice the size
 ```
 
-Change a room in the plan and re-run those, and the drawing changes with it. The bake will not
-accept a building whose rooms overlap, whose doors lead nowhere, whose rooms cannot be walked to
-from the front of the house, or that puts a wall outdoors where the house does not have one.
+Change a room in the plan and re-run all three, and the drawing changes with it. The first
+command is not optional after a room moves: the plan stores where you stand in each room and how
+far the wall is, and moving a wall makes those stale — the drawing script refuses a plan whose
+stored standpoints no longer match its rooms rather than drawing a lie.
+
+A redrawn sheet says **UNAPPROVED REVISION** on its face until a human approves it and the new
+hash is written into `design/plan-draft/approval.lock`; the full recipe, including that step and
+the tests that hold the approved drawing, is in `design/plan-draft/README.md`.
+
+The bake will not accept a building whose rooms overlap, whose doors lead nowhere, whose rooms
+cannot be walked to from the front of the house, or that puts a wall where the house does not
+build one.

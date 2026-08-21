@@ -23,11 +23,11 @@ Each of these is live before row 4's prompt sheets:
 3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open
    court mouth and not a wall (§3).
 4. **The wide-view trigger's reading**, and the implied focal length, which under a pinned
-   scale is not constant across facings (§4).
+   scale is not constant across facings (§5).
 5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted
    into them at row 4, or do the manor's extra exits wait for a later row? The four rulings
    of 2026-08-21 did not reach this one.
-6. **The desk stands in the study's chimney breast** (§6) — visible for the first time now
+6. **The desk stands in the study's chimney breast** (§10) — visible for the first time now
    that the room has real metres.
 7. **An [AI] correction was made to a datum on the approved drawing** (§9).
 8. **The floor cut is not at your feet on most facings** — the intention's fifth quality
@@ -89,6 +89,15 @@ the plan — the horizontal angle its footprint subtends from the facing's stand
 dead-centre, signed left/right — and the §6 record carries it as `view_angle_deg`. §10 says
 it is "computable once row 12's plan exists"; this is that computation. The contract's
 reuse tolerance is ±8°.
+
+**The sign, stated, because two consumers would read it opposite ways.** `view_angle_deg` is
+**where the thing IS**, not which way it faces: negative means the footprint sits to the
+viewer's LEFT of centre, positive to the right. §10's `view_side` token is the other one —
+it says which way a generated sprite is TURNED. An object left of centre is seen turned
+toward the viewer's right, so the two are opposite by construction, and a generator handed
+both without this sentence would mirror every sprite it made. Nothing in the row consumes
+`view_angle_deg` yet; row 4's prompt sheets are the first, and this is the contract they
+board from.
 
 | entity | facing | offset from centre | standpoint distance | view_angle_deg |
 |---|---|---|---|---|
@@ -157,6 +166,15 @@ front of it rather than to a flat plane at 3.60 m.
 `camera_wall_m` at all — that number is a distance to drawn ground, not to a surface, and a
 depth model handed one as the other puts a horizon where a wall goes. Corners are emitted
 only where **one continuous wall spans the view**.
+
+**One row means something different from the other 87, and it drives two numbers.**
+`wall_width_m` is "the width of the wall in view" everywhere except `entrance_approach/N`,
+where it is 32.00 m of which 20.40 m is the open court mouth — a VIEW width, not a wall.
+Corners are correctly null there (nothing continuous spans it), but the same number still
+sets `px_per_m_at_wall = 1536 / 32 = 48` and still defines the §4 `u` domain, so both are
+scaled to a span that is two thirds sky. Whether that facing is one wide view, two walls
+with a gap, or an `open` facing with a far line is §0's question 3, and it is Kabe's; the
+number is not moved here because it is read off the approved drawing.
 
 | floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -328,8 +346,10 @@ them across eighty-eight facings, so here they are as numbers.
 
 **Where the floor starts, in front of the viewer.** The intention's fifth decomposed
 quality: *"The camera has feet … Riven's rails are cut by the frame bottom at your own
-feet"*. The shipped study cuts its floor at 1.04 m — the only frame-bottom cut any
-human has judged. 15 of 88 facings start their floor more than twice that far out:
+feet"*. The shipped study cuts its floor at 1.01 m — computed from the grid
+meta the browser actually draws (`camera_wall_m` 3.5, groundplane's fallback, not the
+plan's measured 3.60 m), because the only frame-bottom cut any human has judged is the
+one on screen. 15 of 88 facings start their floor more than twice that far out:
 
 | facing | standpoint distance | floor starts at |
 |---|---|---|
@@ -413,16 +433,6 @@ quantity rather than a silence — at the study's implied focal length of
 against an authored `horizon_y` of 0.48. Row 4's approved backdrop is where §5 says the real
 camera comes from; until then no agent should pick one.
 
-## 10. What the plan makes visible that nothing could see before
-
-Computed by `planWarnings` over the committed plan, not written by hand. None of them blocks
-the plan — each would have to be fixed by moving something a human approved — and each is a
-question for Kabe:
-
-- law (b): "entrance_approach" facing N is typed enclosed, but 20.4 m of its 32 m view has no wall across it (gap at 10–30.4). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.
-- object "desk1" stands in the chimney breast of "study" — 0.65 m² of overlap
-- the hearth in "kitchen" has no stack rising through "upper" above it
-
 ## 8. Which document owns which meta field — a proposal, not a ruling
 
 Blueprint §5 [HUMAN, 2026-08-20]: *"The geometry elements should be determined by the
@@ -456,4 +466,14 @@ two names are never drawn — the drawing used them only in its own reachability
 derived render is byte-identical either way and the correction changes no pixel of what Kabe
 approved. The promoted validator found it on its first run. It is recorded here, and not only
 in a hand-off message, because an agent changed what an approved artifact says.
+
+## 10. What the plan makes visible that nothing could see before
+
+Computed by `planWarnings` over the committed plan, not written by hand. None of them blocks
+the plan — each would have to be fixed by moving something a human approved — and each is a
+question for Kabe:
+
+- law (b): "entrance_approach" facing N is typed enclosed, but 20.4 m of its 32 m view has no wall across it (gap at 10–30.4). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.
+- object "desk1" stands in the chimney breast of "study" — 0.65 m² of overlap
+- the hearth in "kitchen" has no stack rising through "upper" above it
 

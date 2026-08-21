@@ -36,6 +36,28 @@ line it views, the wall width, and the measured distance are a pure function of 
 `standpoint_stand_back`. A standpoint marked `"standpoint_source": "drawn"` stays where it was
 put; only its measurement is refreshed.
 
+**Then the sixth step, which is a human's.** All five commands will succeed and the test suite
+will still be RED, on purpose. `tests/playwright/plan.spec.mjs` holds the derived render against
+the sheet Kabe approved on 2026-08-21 — it byte-compares the SVG geometry and `standpoints.tsv`
+against the git blobs at the approval commit, named in the spec as `APPROVAL_COMMIT`. A redline
+is supposed to break that: the drawing a human signed no longer describes the building. The
+redrawn sheet says so on its own face, printing **UNAPPROVED REVISION** with the short hash of
+the document it was drawn from, because the stamp comes from `approval.lock` rather than from a
+date typed into the script.
+
+To close a redline, in order:
+
+1. show Kabe the new PNGs and get an approval;
+2. write the new `sha256` of `fixtures/demo-study/plan.json` and the approval date into
+   `design/plan-draft/approval.lock`;
+3. re-run `python3 design/plan-draft/draw_plan.py` and `./design/plan-draft/render.sh` — the
+   sheet now stamps APPROVED with the new date;
+4. move `APPROVAL_COMMIT` in `tests/playwright/plan.spec.mjs` to the commit carrying the newly
+   approved SVGs and TSV.
+
+Steps 2 and 4 are deliberately manual. They are the two places a human gate is recorded, and an
+agent that could move them by itself could approve its own drawing.
+
 `tools/validate-plan.mjs` is the standing validator: rooms tile the interior gross area, no two
 spaces overlap, every opening lies in a wall and joins the two spaces it names, every space is
 walkable from the entrance approach, every standpoint distance is the measured one (law (a)),
@@ -187,7 +209,7 @@ Two things this makes visible that were not visible before:
   garden (20.40 m), the long gallery's long views (24.30 m) and the entrance approach (32.00 and
   20.00 m) all exceed it. Kabe's ruling (3) licensed the wider camera rather than clipping:
   those ten take `px_per_m_at_wall = 1536 / wall_width_m`, so the wall exactly fills the frame.
-  `projection.md` §4 lists them and says where a redline on the reading would land. The related
+  `projection.md` §5 lists them and says where a redline on the reading would land. The related
   §5 field-of-view question — the implied focal length is not constant under a pinned scale — is
   still open and still Kabe's.
 
@@ -336,7 +358,7 @@ exception is the cost** — flagged rather than decided here.
 2. **D1** — the three-sided entrance court is accepted: *"whatever conceptually works and moves
    things along."*
 3. The over-wide facings — **wide-view camera licensed** (*"sure"*). Ten facings take it; which
-   ten, and where a redline on the reading would land, is in `projection.md` §4.
+   ten, and where a redline on the reading would land, is in `projection.md` §5.
 4. The great stair stays a **straight single flight**: *"let's keep it simple for now."* The
    orientation law's fiction-demands-a-turn exception stays unspent, and the validator refuses a
    stair whose up and down are not opposite.
@@ -346,8 +368,11 @@ exception is the cost** — flagged rather than decided here.
 - **D4** — do `hall/N` and `hall/S` get door openings prompted into them at row 4, or do the
   manor's extra exits wait for a later row? The two doors are drawn; nothing has been built
   against them. Live before row 4's prompt sheets.
-- The other six questions row 12's projection raised — the camera (1.60 m level versus §10's
-  1.83 m at −8°), `door1`'s position, what the entrance approach's north view is, the wide-view
-  reading and the implied focal length, the desk standing in the study's chimney breast, and the
-  one [AI] correction made to a datum on this drawing. All of them are in `projection.md` §0 with
-  their numbers.
+- The other nine questions row 12's projection raised, in `projection.md` §0's own order and
+  each there with its numbers: (1) which camera the projection runs on — 1.60 m level versus
+  §10's 1.83 m at −8°; (2) `door1`'s position; (3) what the entrance approach's north view is;
+  (4) the wide-view trigger's reading; (6) the desk standing in the study's chimney breast;
+  (7) the one [AI] correction made to a datum on this drawing; (8) the floor cut that is not at
+  your feet on fifteen facings; (9) the implied lens, which is not constant under a pinned
+  scale; and (10) which document owns which meta field once row 4 measures a backdrop.
+  D4 is §0's question 5.
