@@ -655,9 +655,9 @@ export function report(plan, staging, records) {
   P("**Where a redline would land [flagged for Kabe].** The trigger reads one quantity and not the");
   P(`ruling's vocabulary, and the two do not line up cleanly. ${encl.length} of the ${wide.length} are \`enclosed\` FACINGS —`);
   P("real walls, simply wider than the frame holds. Meanwhile the long gallery's two `corridor`");
-  P("facings, at 18.22 m the deepest views in the manor, do **not** take the wider camera, because");
-  P("their 8.00 m end wall fits the pinned frame perfectly well. If \"deep view\" was meant to");
-  P("select on depth rather than on width, that set changes; if \"enclosed flat views keep the");
+  P("facings, at 18.22 m the deepest views inside the house, do **not** take the wider camera,");
+  P("because their 8.00 m end wall fits the pinned frame perfectly well. If \"deep view\" was meant");
+  P("to select on depth rather than on width, that set changes; if \"enclosed flat views keep the");
   P("pinned frame\" was meant per facing, six of these clip instead, and the drawing's");
   P("clipped-`wall_width_m` question comes back for them.");
   P();

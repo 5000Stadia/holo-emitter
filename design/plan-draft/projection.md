@@ -223,9 +223,9 @@ The 10 facings it selects:
 **Where a redline would land [flagged for Kabe].** The trigger reads one quantity and not the
 ruling's vocabulary, and the two do not line up cleanly. 6 of the 10 are `enclosed` FACINGS —
 real walls, simply wider than the frame holds. Meanwhile the long gallery's two `corridor`
-facings, at 18.22 m the deepest views in the manor, do **not** take the wider camera, because
-their 8.00 m end wall fits the pinned frame perfectly well. If "deep view" was meant to
-select on depth rather than on width, that set changes; if "enclosed flat views keep the
+facings, at 18.22 m the deepest views inside the house, do **not** take the wider camera,
+because their 8.00 m end wall fits the pinned frame perfectly well. If "deep view" was meant
+to select on depth rather than on width, that set changes; if "enclosed flat views keep the
 pinned frame" was meant per facing, six of these clip instead, and the drawing's
 clipped-`wall_width_m` question comes back for them.
 
