@@ -198,11 +198,16 @@ def registration_gate(declared, derived, peak, body_shape, cfg):
     previously admitted x was unverifiable.
     """
     if derived is None:
-        return {"id": "registration", "severity": "warn", "passed": True,
-                "measured": {"derived": None},
+        # passed=False deliberately. Absent a datum this gate measured nothing,
+        # and an [ok] line is indistinguishable on the board from one that did.
+        return {"id": "registration", "severity": "warn", "passed": False,
+                "measured": {"derived": None, "verified": False},
                 "threshold": dict(cfg),
-                "message": "no --state-datum given, so x and y registration rest entirely on "
-                           "the typed --state-origin and the human eye at the flip batch"}
+                "message": "NOT VERIFIED — no --state-datum was given, so nothing checked the "
+                           "typed --state-origin against the images. x and y registration rest "
+                           "entirely on the operator and on the human eye at the flip batch. "
+                           "Give --state-datum x0,y0,x1,y1 naming a feature visible in BOTH "
+                           "state sources and this gate derives the origin itself."}
     bh, bw = body_shape[0], body_shape[1]
     ex = abs(declared["x"] - derived["x"]) / float(bw)
     ey = abs(declared["y"] - derived["y"]) / float(bh)

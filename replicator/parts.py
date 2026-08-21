@@ -258,19 +258,67 @@ def derived_cavity(closed_rect):
             "x1": float(closed_rect["x1"]), "y1": float(closed_rect["y1"])}
 
 
-def min_dy_clearance(closed_rect, cavity, px, clearance_fraction=0.5):
-    """The smallest `slide.dy` that opens enough of the recess to show contents.
+def dy_bounds(closed_rect, cavity, px, clearance_fraction=0.5, overshoot_fraction=0.25):
+    """The band of `slide.dy` values that read as an open drawer.
 
-    An open drawer front must travel far enough that a revealed child draws
-    *inside* the recess rather than on the face of the front — children draw
-    after their host's parts (§7 step 3), which is the lesson architecture.md
-    records for the placeholder desk's `slide.dy` 0.24. The bound: the open
+    **Lower bound.** The open front must travel far enough that a revealed child
+    draws *inside* the recess rather than on the face of the front — children
+    draw after their host's parts (§7 step 3), which is the lesson
+    architecture.md records for the placeholder desk's `slide.dy` 0.24. The open
     front's top edge must fall at or below `clearance_fraction` of the way down
     the recess, which is where an anchored child's base lands.
+
+    **Upper bound**, and this is the one the row's own desk needed: a drawer
+    slides out of its opening and stays at it. With only a lower bound, `dy`
+    0.24 on the corpus desk put the open front 79 body px BELOW the recess it
+    came out of — at the real 89 px draw height, eight pixels clear of the
+    cavity and straddling the stretchers, reading as a plank lying on the floor
+    rather than as an open drawer. Nothing in the picture said "drawer" and
+    twelve green gates said nothing about it. So the open front's top edge must
+    also stay within `overshoot_fraction` of the recess's own height below the
+    recess's bottom.
     """
     height = float(cavity["y1"]) - float(cavity["y0"])
-    target = float(cavity["y0"]) + clearance_fraction * height
-    return (target - float(closed_rect["y0"])) / float(px["h"])
+    low = float(cavity["y0"]) + clearance_fraction * height
+    high = float(cavity["y1"]) + overshoot_fraction * height
+    y0 = float(closed_rect["y0"])
+    return ((low - y0) / float(px["h"]), (high - y0) / float(px["h"]))
+
+
+def min_dy_clearance(closed_rect, cavity, px, clearance_fraction=0.5):
+    """Backwards-compatible accessor for the lower bound alone."""
+    return dy_bounds(closed_rect, cavity, px, clearance_fraction)[0]
+
+
+def carcass_backing(body_rgba, part_rgba, origin, slide, px, t=1.0, alpha_opaque=128):
+    """How much of the travelled part still lies against the object's own body.
+
+    The bound the corpus desk actually needed. A drawer slides out of a carcass
+    and stays against it; travel that carries the front past the carcass leaves
+    it hanging over the leg gaps, and at the real 89 px draw height it reads as
+    a plank lying on the floor rather than as an open drawer. Neither the
+    clearance bound (which only asks that the recess be uncovered) nor the
+    canvas bound (which only asks that the part stay on the sprite) can see
+    that: the region between the legs IS on the canvas.
+
+    Returns the fraction of the travelled part's own opaque pixels that land on
+    opaque body pixels. Pure.
+    """
+    dx = float(slide["dx"]) * px["w"] * t
+    dy = float(slide["dy"]) * px["h"] * t
+    ph, pw = part_rgba.shape[:2]
+    ox = int(round(origin["x"] + dx))
+    oy = int(round(origin["y"] + dy))
+    H, W = body_rgba.shape[:2]
+    x0, y0 = max(0, ox), max(0, oy)
+    x1, y1 = min(W, ox + pw), min(H, oy + ph)
+    part_op = part_rgba[..., 3] >= alpha_opaque
+    total = int(part_op.sum())
+    if total == 0 or x0 >= x1 or y0 >= y1:
+        return 0.0
+    sub = part_op[y0 - oy:y1 - oy, x0 - ox:x1 - ox]
+    body_op = body_rgba[y0:y1, x0:x1, 3] >= alpha_opaque
+    return float((sub & body_op).sum()) / float(total)
 
 
 def open_state_composite(body_rgba, part_rgba, origin, slide, px, t=1.0):

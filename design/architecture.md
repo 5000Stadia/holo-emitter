@@ -238,11 +238,12 @@ seamless uniform mid-grey, so its noise is measurable on the border — and eros
 minimum area and bleed width scale with the content bbox. The frozen things are the rule
 coefficients.
 
-### The twelve gates
+### The fifteen checks (nine on a static sprite, thirteen on a sliding one, twelve on a swap)
 
 | id | severity | guards |
 |---|---|---|
 | a | hard | the edge does not read as the ground — three clauses (see below) |
+| dims | warn | the declared width agrees with the drawn one |
 | b | hard | enclosed ground-coloured regions remaining |
 | c | hard | content bbox ≥ 512 px (≥ 128 px takeable) — §9.4(c) verbatim |
 | d | hard | cutting a part and putting it back changes nothing else |
@@ -252,12 +253,31 @@ coefficients.
 | h | hard | no baked studio shadow welded to the silhouette |
 | alignment | hard | two-state closed-frame registration |
 | registration | hard | the typed `--state-origin` agrees with a datum in both images |
-| slide · open_state | hard | the declared travel opens the recess |
+| slide · open_state | hard | the travel opens the recess **and stays on the carcass** |
 | thumb | hard | thumb present exactly when takeable, square |
-| part_mask | warn | the mask boundary sits on the reveal gaps, per edge |
+| part_mask | **report, no verdict** | mask-boundary adherence per edge — see below |
 
-Blueprint §9.4 carries the `[AI, row 3]` amendment note listing all twelve — after this row
-"passes gates" means twelve things, and §9.4 has to be the document that says so.
+Blueprint §9.4 carries the `[AI, row 3]` amendment note listing all fifteen — after this row
+"passes gates" means every hard check the sprite's own archetype invokes, and §9.4 has to be the
+document that says so.
+
+**`slide`'s carcass bound is the check the row's own asset needed**, and it is the one finding
+worth carrying forward whole. A drawer must clear its recess *and* stay against its carcass. With
+only the clearance bound, the corpus desk shipped with its open drawer 79 body px below the recess:
+at the real 89 px draw height that is clear of the cavity, straddling the stretchers, reading as a
+plank lying on the floor — and twelve green gates said nothing, because the recess *was* uncovered
+and the part *was* on the canvas. The bound comes from the body's own pixels: the fraction of the
+travelled part that still lands on opaque carcass, floor 0.80.
+
+**Two consequences for row 4, both found by looking:**
+- On `desk-corpus-2` exactly one travel satisfies both bounds (`dy` 0.08). At that travel the
+  exposed strip of recess is ~5 px at draw scale — **too small to reveal the key row 4's probe
+  must show inside it**. The probe's prompt sheet needs a desk with deeper drawers, or the key
+  revealed on a pulled-out drawer's floor rather than through the gap above it.
+- `desk-corpus-1`'s lower drawer satisfies **neither** bound at any travel — its front is too tall
+  for the space beneath it — so its part is the top-middle drawer, which has carcass under it all
+  the way. Which drawer a desk can open is a property of the generation, and the prompt sheet is
+  where it is decided.
 
 **Gate (a).** §9.4's letter is "mean saturation of border-adjacent semi-alpha pixels must not read
 grey". As an absolute saturation floor that false-fails an honestly grey object, and M0's takeables
@@ -280,8 +300,11 @@ stopped the flood fill and the "conservative" silhouette swallowed the frame.
 
 ### `footprint` and `base.x` are ground-contact facts — an amendment to §9.2
 
-Measured on the corpus desk: §9.2's bottom-two-rows derivation gives **27 px of 1144** — the nearest
-ball foot — while the real ground contact spans **24 → 1106**. `footprint` is what the renderer draws
+Measured on the corpus desk, and these are the numbers the emitted record carries — the one home
+for them is `library/desk-joined-oak-1660/record.json`'s `measured.contact`, and any figure quoted
+elsewhere is a copy that can go stale: §9.2's bottom-two-rows derivation gives a span of a few dozen
+pixels — the nearest ball foot alone — where the real ground contact spans nearly the whole sprite
+width. `footprint` is what the renderer draws
 every grounded object's contact pool from, against a quality that reads "nothing sits on a floor
 without it". So:
 
@@ -289,8 +312,15 @@ without it". So:
 - `footprint` and `base.x` come from the **contact band** — the x-extent of columns whose lowest
   opaque pixel lies within `band_fraction` of the content height of the bottom. `--footprint x0,x1`
   overrides. Both derivations are carried in `measured.contact` so the judgement is visible.
-- **Row 4 inherits a re-expressed clause:** for real art, `footprint` *contains* the bottom-two-rows
-  extent and lies inside the canvas — it does not equal it. Row 2's green witnesses a placeholder
+- **Row 4 inherits a re-expressed clause, and it covers `base.x` too:** for real art, `footprint`
+  *contains* the bottom-two-rows extent and lies inside the canvas — it does not equal it — and
+  `base.x` is the footprint's midpoint, lying inside the object's own alpha bounds. Both are
+  asserted by `replicator/tests/test_gates.py::BaseXIsAGroundContactFact`, not only written here.
+  **`base.x` is a placement change, not only a shadow one:** `groundplane.placeHost` computes
+  `drawX = baseX − f·base.x`, so a desk whose `base.x` moves from the nearest foot (258) to the
+  stance midpoint (565) is drawn ~30 px further along a 1536 canvas than staging authored against
+  the old convention expects. Row 4's bake either moves the staged `u` values with it or accepts
+  the shift knowingly. Row 2's green witnesses a placeholder
   desk deliberately painted with a stretcher rail opaque across the leg span for its bottom 8 % of
   rows; generated art makes no such authoring choice.
 
@@ -360,7 +390,7 @@ python3 -m replicator.ingest library-src/corpus/desk-corpus-2.png \
 ```
 
 `desk-corpus-1` runs the same way with `--check` and its own mask. `replicator/tests/test_corpus.py`
-runs both through the same twelve gates as a committed check, so the row's headline claim is not an
+runs both through the same check set as a committed test, so the row's headline claim is not an
 account.
 
 ### What row 4 inherits — the list
@@ -384,13 +414,16 @@ account.
 5. **The bake reproduces `extent` and `px`.** `extent` is deliberately *not* in the record —
    build-time presentation data, derived from the state image's own bottom-two-rows alpha ≥ 128 scan
    offset by `origin.x`.
-6. **Stored resolution and the runtime downscale.** `ingest.output.max_content_height_px` is 1024.
-   The desk ships at 1144×914 and the renderer draws it at ~89 px — about a 10× downscale by the
-   browser's own resampler. Rendered through the real draw path and measured, the ingested sprite
-   carries **2.7× the high-frequency energy** of the placeholder in the same region (mean |dx| 5.90
-   against 2.15): it aliases. Two levers, both row 4's: `imageSmoothingQuality` on the bake's draw
-   path, or a tighter stored resolution. The cap cannot simply drop to gate (c)'s 512 floor without
-   making that gate meaningless.
+6. **Stored resolution and the runtime downscale.** `ingest.output.max_content_height_px` is
+   **384**, a little over 4× the ~89 px the desk is actually drawn at. It was 1024, which left the
+   desk stored at 914 px and downscaled ~10× by the browser's own resampler at draw time: measured
+   through the real draw path, that carried **6.6× the placeholder's high-frequency energy** in the
+   same region — reveal gaps became dashed lines and the brass pulls became specks. Storing near
+   draw scale moves the filtering into the ingest, where LANCZOS does it once and well. Gate (c)'s
+   512 floor is untouched because it judges the **arriving** source, per §9.4(c), not what is
+   stored — conflating the two would either forbid storing near draw scale or hollow out the gate.
+   The remaining lever, if row 4 wants a closer camera, is `imageSmoothingQuality` on the bake's
+   draw path.
 7. **The edge survives the renderer.** Row 2 found that the `destination-in` re-clip squared partial
    alpha and would have hardened every matted edge into a cut-out. The emitted sprite — the first
    genuinely feathered edge in this project — was bound into the running page and drawn through

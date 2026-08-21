@@ -168,6 +168,7 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     body = m.rgba
     pre_inpaint = body.copy()
 
+    arrived_content_h = int(m.rgba.shape[0])
     body, resized = _limit_resolution(
         body, contract_mod.for_class(contract, "ingest.output", object_class)
         ["max_content_height_px"])
@@ -202,6 +203,10 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
             anch, name, tuple(v * scale_back for v in region),
             (trim[0] * scale_back, trim[1] * scale_back), px)
 
+    prev_cfg = contract_mod.for_class(contract, "ingest.preview", object_class)
+    halo_cfg = dict(contract_mod.for_class(contract, "gates.halo", object_class))
+    halo_cfg["_draw_height_px"] = prev_cfg["draw_height_px"]
+
     # ---- stage 3: parts -------------------------------------------------
     part_records = []
     for spec in part_specs:
@@ -223,19 +228,22 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
 
         slide = spec["slide"]
         cavity = parts_mod.derived_cavity(cut.closed_rect)
-        min_dy = parts_mod.min_dy_clearance(
-            cut.closed_rect, cavity, px,
-            contract_mod.for_class(contract, "ingest.cavity", object_class)
-            ["clearance_fraction"])
+        cav_cfg2 = contract_mod.for_class(contract, "ingest.cavity", object_class)
+        min_dy, opening_max_dy = parts_mod.dy_bounds(
+            cut.closed_rect, cavity, px, cav_cfg2["clearance_fraction"],
+            cav_cfg2["overshoot_fraction"])
         # The upper bound: the open front's TOP edge must still be inside the
         # body. Without it a drawer can travel clean off the canvas, satisfy the
         # minimum, and pass the open-state check because its rectangle no longer
         # overlaps the cavity it was supposed to open.
         max_dy = (px["h"] - cut.closed_rect["y0"]) / float(px["h"])
-        gates.append(gates_mod.slide_gate(float(slide["dy"]), min_dy,
-                                          float(slide["dx"]), view_side or "left",
-                                          max_dy=max_dy,
-                                          scale_open=float(slide.get("scale_open", 1.0))))
+        backing = parts_mod.carcass_backing(body, cut.part_rgba, cut.origin, slide, px,
+                                            t=1.0, alpha_opaque=alpha_opaque)
+        gates.append(gates_mod.slide_gate(
+            float(slide["dy"]), min_dy, float(slide["dx"]), view_side or "left",
+            max_dy=max_dy, scale_open=float(slide.get("scale_open", 1.0)),
+            opening_max_dy=opening_max_dy, max_dx=cav_cfg2["max_dx_fraction"],
+            backing=backing, min_backing=cav_cfg2["min_carcass_backing"]))
 
         flagged = (anchor_regions or {}).get("drawer_cavity")
         if flagged is not None:
@@ -285,14 +293,14 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
             "closed_rect": cut.closed_rect,
             "cavity": cavity,
             "min_dy_clearance": round(float(min_dy), 4),
+            "max_dy_at_opening": round(float(opening_max_dy), 4),
+            "cavity_drawn_px": round(float(cavity["y1"] - cavity["y0"]) *
+                                     prev_cfg["draw_height_px"] / float(px["h"]), 2),
             "mask_adherence": adherence,
             **cut.stats,
         }
 
     # ---- stage 3b: two-state -------------------------------------------
-    prev_cfg = contract_mod.for_class(contract, "ingest.preview", object_class)
-    halo_cfg = dict(contract_mod.for_class(contract, "gates.halo", object_class))
-    halo_cfg["_draw_height_px"] = prev_cfg["draw_height_px"]
     states_images = {}
     for spec in state_specs:
         sm, sinfo = _matte_one(spec["source_rgb"], contract, object_class)
@@ -343,29 +351,50 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
                                       content_px=thumb_cfg["content_px"],
                                       filter=thumb_cfg["filter"])
         result.thumb = thumb
-    gates.append(thumbs_mod.thumb_gate(thumb, takeable, thumb_cfg["size_px"]))
+    gates.append(thumbs_mod.thumb_gate(thumb, takeable, thumb_cfg["size_px"],
+                                       thumb_cfg["content_px"]))
 
     # ---- stage 4: the rest of the gates ---------------------------------
-    gates.append(gates_mod.gate_halo(body, m.bg_color, halo_cfg))
+    # The matte clauses judge the MATTE -- the full-resolution silhouette stage 1
+    # produced -- and not the stored sprite. The stored-resolution policy is a
+    # separate decision, and letting its LANCZOS downscale blur an edge before
+    # gate (a) looks at it would let the policy launder a halo: on the grey-halo
+    # control the cap alone lifted the inner-band ratio from 0.05 to 0.78.
+    gates.append(gates_mod.gate_halo(m.rgba, m.bg_color, halo_cfg, drawn=body))
     gates.append(gates_mod.gate_holes(
-        body, m.bg_color,
+        m.rgba, m.bg_color,
         {"tolerance": minfo["tolerance"] *
                       contract["gates"]["holes"]["tolerance_multiplier"],
          "min_area_px": minfo["spatial"]["hole_min_area_px"]}))
+    # Gate (c) judges the SOURCE's resolution, per §9.4(c) -- "min resolution:
+    # content bbox >= 512px tall" is a statement about what arrived. What is
+    # stored is a separate policy (ingest.output), and conflating them would
+    # either forbid storing near draw scale or hollow out the gate.
     gates.append(gates_mod.gate_resolution(
-        body, takeable, contract_mod.for_class(contract, "gates.resolution", object_class)))
+        arrived_content_h, takeable,
+        contract_mod.for_class(contract, "gates.resolution", object_class)))
     gates.append(gates_mod.gate_shadow(
-        body, m.bg_color, contract_mod.for_class(contract, "gates.shadow", object_class)))
+        m.rgba, m.bg_color, contract_mod.for_class(contract, "gates.shadow", object_class)))
     gates.append(gates_mod.gate_contact(anch, px, attachment, contact_cfg, anch_prov))
     light_gate = gates_mod.gate_light(
         body, contract_mod.for_class(contract, "gates.light", object_class))
     gates.append(light_gate)
+    cross = record_mod.dims_cross_check(
+        {"h": float(dims_m["h"]), "w": float(dims_m["w"]), "d": float(dims_m["d"])},
+        px, contract["camera"]["turn_deg"])
+    gates.append(gates_mod.gate_dims(cross))
 
     # ---- previews (looked at, not only measured) ------------------------
     for name, ground in prev_cfg["grounds"].items():
-        canvas, _ = preview_mod.composite_preview(body, ground, prev_cfg["draw_height_px"])
-        result.previews[name] = preview_mod.annotate_contact(
-            canvas, body, anch, px, prev_cfg["draw_height_px"])
+        for state, t in (("closed", 0.0), ("open", 1.0)):
+            shown = preview_mod.with_parts(body, result.parts, part_records, t=t) \
+                if part_records else body
+            canvas, _ = preview_mod.composite_preview(
+                shown, ground, prev_cfg["draw_height_px"])
+            result.previews["%s-%s" % (name, state)] = preview_mod.annotate_contact(
+                canvas, shown, anch, px, prev_cfg["draw_height_px"])
+            if not part_records:
+                break
 
     # ---- stage 5: the record -------------------------------------------
     measured = {

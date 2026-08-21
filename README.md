@@ -51,10 +51,13 @@ python3 -m replicator.ingest picture.png --id oak-chair --noun "joined chair" \
   --archetype static --attachment floor_against --height-m 1.05 --width-m 0.6 --depth-m 0.55
 ```
 
-It refuses more often than it accepts, and says why: a halo left around the cut, a gap it missed
-between the legs, a shadow baked into the picture, a light coming from the wrong side. Add
-`--check` to hear the verdict without writing anything, and `--preview-dir` to see the object
-composited small against a dark room and a light one, which is where a bad cut shows.
+It is hard to satisfy, and it says why: a halo left around the cut, a gap it missed between the
+legs, a shadow baked into the picture, a drawer that slides off the front of the thing it belongs
+to. Some things it only warns about — a light coming from the wrong side is one, because that is a
+judgement for the eye rather than for a number — and it says those out loud too, without refusing.
+Add `--check` to hear the verdict without writing anything, and `--preview-dir` to see the object
+composited small against a dark room and a light one, closed and open, which is where a bad cut
+shows.
 
 ## Editing the world
 

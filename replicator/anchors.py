@@ -11,10 +11,10 @@ because they answer different questions:
 
 * **Ground-contact facts.** `anchors.footprint` and `base.x` are what the
   renderer draws an object's contact pool from. On generated three-quarter art
-  the bottom two rows are the *nearest foot*, not the stance: measured on the
-  corpus desk, the bottom-two-rows extent is 27 px of a 1148 px sprite while the
-  desk's real ground contact spans 33..1098. Taking §9.2's derivation literally
-  there gives a desk a contact pool 3% of the width of its own feet, against a
+  the bottom two rows are the *nearest foot*, not the stance. Taking §9.2's
+  derivation literally there gives a desk a contact pool a few percent of the
+  width of its own feet — the measured values for the corpus desk live in the
+  emitted record's `measured.contact`, which is their one home — against a
   named quality that reads "nothing sits on a floor without it". So these are
   operator-flagged at v1 (`--footprint`), with the geometric value kept as a
   reported cross-check and gate (f) refusing an implausible one. §9.2's own v2
@@ -100,7 +100,9 @@ def derive_anchors(rgba, band_fraction):
     mechanisms.spec define them. `footprint` and `base.x` are **ground-contact**
     facts and come from the contact band, because on generated three-quarter art
     the bottom two rows are the nearest foot rather than the stance: measured on
-    the corpus desk, 27 px of 1148 against a real contact span of 33..1098.
+    the corpus desk, a few dozen pixels against a stance spanning nearly the
+    whole sprite width (the measured values live in the record's
+    `measured.contact`, which is their one home).
 
     Both derivations are returned so the record can carry the disagreement and a
     reader can see that a judgement was made.

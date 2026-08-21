@@ -143,6 +143,25 @@ def _check_margin(src_rgb, bg, tolerance):
     return off
 
 
+def _check_ground_plausible(src_rgb, bg):
+    """The contract's ground is "perfectly plain seamless uniform mid-grey".
+
+    The tolerance rule cites that clause as its whole authority, so the clause
+    is checked rather than assumed. What this catches: an already-matted PNG
+    handed back to the ingester -- a plausible mistake for a seat re-running an
+    earlier output. Its alpha is discarded on decode, the frame flattens onto
+    black, the border median is black and perfectly uniform, and the WHOLE
+    IMAGE becomes object: twelve gates green and an opaque rectangle shipped.
+    """
+    lum = float(im.luminance(np.asarray(bg, np.float64)[None, None, :])[0, 0])
+    if not (40.0 <= lum <= 215.0):
+        raise MatteError(
+            "the sampled ground is luminance %.0f, which is not the 'plain mid-grey seamless "
+            "background' the orientation contract requires (and which the matte's tolerance "
+            "rule cites as its authority). If this image already has an alpha channel, it has "
+            "been matted once already: ingest the original generation instead." % lum)
+
+
 def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
           rgb_bleed_px, max_erode_excess_ratio=None):
     """Matte one source image. See the module docstring for the stage order."""
@@ -151,6 +170,7 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
 
     bg = sample_background(src_rgb)
     border_off = _check_margin(src_rgb, bg, tolerance)
+    _check_ground_plausible(src_rgb, bg)
 
     # 2. similarity, 3. outer background
     dist = im.rgb_distance(src_rgb, bg)
@@ -195,12 +215,31 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
         # Count only pieces big enough to be a feature. A soft edge leaves
         # single-pixel specks outside the tolerance, and erosion removes them:
         # counting those as "a piece vanished" failed a control for its noise.
+        # A ground-toned piece is not a feature of the object -- it is a cast
+        # shadow's fringe, and gate (h) is what should speak to it. Counting it
+        # here made a faint studio shadow abort the whole ingest with "the
+        # object has features thinner than the edge treatment", non-monotonically
+        # in the shadow's depth, pointing the operator at the `classes`
+        # amendment path for a problem that is the image's and not the object's.
+        lum_ = im.luminance(src_rgb)
+        sat_ = im.saturation(src_rgb)
+        bg_lum_ = float(im.luminance(np.asarray(bg, np.float64)[None, None, :])[0, 0])
+        ground_toned = (sat_ <= 0.16) & (lum_ <= bg_lum_ * 0.99) & (lum_ >= bg_lum_ * 0.35)
+
         def _pieces(mask):
             labels_, count = im.label_components(mask)
             if count == 0:
                 return 0
             sizes = np.bincount(labels_.ravel(), minlength=count + 1)[1:]
-            return int((sizes >= hole_min_area_px).sum())
+            keep = 0
+            for i in range(1, count + 1):
+                if sizes[i - 1] < hole_min_area_px:
+                    continue
+                piece = labels_ == i
+                if float(ground_toned[piece].mean()) > 0.75:
+                    continue      # a shadow fringe, not a feature
+                keep += 1
+            return keep
         before = _pieces(obj)
         after = _pieces(eroded)
         lost_components = max(0, before - after)

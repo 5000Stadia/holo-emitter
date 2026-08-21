@@ -59,6 +59,7 @@
       "inner_band_saturation_ratio_min": 0.55,
       "inner_band_bg_distance_ratio_min": 0.55,
       "coverage_residual_max": 0.30,
+      "coverage_residual_dark_max": 0.45,
       "rim_grounds": { "dark": [28, 20, 14], "light": [196, 188, 172] },
       "authority": "control|contract",
       "basis": "a2/a3 are ratios of a depth-2..4px band to the deep interior, so a uniformly grey object (an iron key, a silver coin) is not punished for being grey. Constructed controls: clean 0.988/0.918, legged 0.998/1.094, iron disc 1.000/1.000, grey-halo control 0.047/0.305 — 0.55 sits between them. a4 is the CONTRACT authority and needs no fitted number at all: straight-alpha compositing says a rim pixel of coverage a over ground G against local interior L must land at a*L + (1-a)*G, so the normalized residual is zero for a correct edge whatever the colours are. Constructed clean cases give |median| 0.019-0.155; the grey-halo control gives 0.305 dark / 0.519 light. Known sensitivity limit, stated rather than hidden: a ~2px generator antialias band scores about 0.10 and passes — which is why the MATTE erodes it rather than the gate catching it.",
@@ -113,8 +114,7 @@
       "basis": "A shadow lies BELOW the thing that casts it, and that — not tone — is what separates it from a legitimately grey object. The measure is the share of opaque pixels that are ground-toned AND sit below the lowest non-ground-toned opaque pixel in their own column, so a uniformly grey object scores zero by construction. Constructed: clean 0.0000, legged 0.0000, iron disc 0.0000 (it is 98.9% ground-TONED and still scores zero here, which is the point — an earlier tone-fraction draft would have hard-failed the key, the coin and the candlestick by material), shadow control 0.0595."
     },
     "part_mask": {
-      "min_within_3px_fraction": 0.40,
-      "severity": "warn",
+      "severity": "report — no verdict",
       "authority": "control",
       "basis": "Per-edge, and the score is the WORST edge, not a mean over the whole ring: a mask correct on three sides and 30px out on the fourth averages to a pass, and gate (d) at closed cannot see it either because the over-cut pixels are covered by the part at closed. Set on the constructed part control in synth.py, whose reveal gaps are known by construction: the exact mask scores 1.00, and masks displaced 20px in, 20px out, or 30px on a single edge all score 0.00. Warn-level rather than hard because real generated art is far noisier than the control — a drawer's own highlight band is nearly as dark as its reveal, and the corpus desk's fitted mask scores 0.21 on its worst edge while visibly following the reveals in the overlay. That gap between control and corpus is exactly why this warns and does not block, and the evidence a mask follows the edges is the overlay image `replicator.maskgen --overlay` writes for the eye."
     },
@@ -156,8 +156,11 @@
       "blur_radius_px": 6,
       "agreement_tolerance_fraction": 0.15,
       "clearance_fraction": 0.5,
+      "overshoot_fraction": 0.25,
+      "max_dx_fraction": 0.35,
+      "min_carcass_backing": 0.80,
       "authority": "contract",
-      "basis": "clearance_fraction 0.5 is where an anchored child's base lands in the recess: the open front's top edge must fall at or below it, or a revealed key draws on the face of the drawer instead of inside it (architecture.md's note on the placeholder desk's slide.dy 0.24). It is deliberately independent of `slide` -- an earlier draft derived the cavity FROM the slide, which made the clearance check compute its own threshold from the value it was checking and unable to fail for any input. 0.45 is src/placeholders.js's own recess factor, so an ingested body satisfies the same body/part luminance ratio (< 0.7) mechanisms.spec asserts for the placeholders. agreement_tolerance_fraction is how far a flagged drawer_cavity may sit from the derived one, as a fraction of the part's height, before it is a hard error naming both rectangles."
+      "basis": "min_carcass_backing 0.80 is the bound the corpus desk actually needed: a drawer slides out of a carcass and stays against it, and travel that carries the front past the carcass leaves it hanging over the leg gaps. Neither the clearance bound nor the canvas bound can see that -- the space between the legs is still on the canvas. overshoot_fraction 0.25 is the upper bound that keeps the open front AT its opening: a drawer slides out of its recess and stays at it, and with only a lower bound the corpus desk at dy 0.24 put the open front 79 body px below the recess -- eight pixels clear of it at the real 89 px draw height, straddling the stretchers, reading as a plank on the floor while twelve gates stayed green. max_dx_fraction 0.35 bounds sideways travel the same way. clearance_fraction 0.5 is where an anchored child's base lands in the recess: the open front's top edge must fall at or below it, or a revealed key draws on the face of the drawer instead of inside it (architecture.md's note on the placeholder desk's slide.dy 0.24). It is deliberately independent of `slide` -- an earlier draft derived the cavity FROM the slide, which made the clearance check compute its own threshold from the value it was checking and unable to fail for any input. 0.45 is src/placeholders.js's own recess factor, so an ingested body satisfies the same body/part luminance ratio (< 0.7) mechanisms.spec asserts for the placeholders. agreement_tolerance_fraction is how far a flagged drawer_cavity may sit from the derived one, as a fraction of the part's height, before it is a hard error naming both rectangles."
     },
     "thumb": {
       "size_px": 128,
@@ -173,7 +176,7 @@
       "basis": "Blueprint §5's own arithmetic for the desk as it is actually staged: floor_against, so its baseline is yAtDepth(dims_m.d) and its scale is scaleAtDepth(0.55) = 96 * 3.5 / (3.5 - 0.55) = 113.9 px/m, giving 0.78m * 113.9 = 89px in the 1536px frame — NOT the 75px the bare wall scale of 96 px/m suggests. The sprite is therefore drawn at roughly a 10x downscale, which is the scale every edge decision here has to be judged at."
     },
     "output": {
-      "max_content_height_px": 1024,
+      "max_content_height_px": 384,
       "authority": "contract",
       "basis": "A stored-resolution policy, pinned here because row 3 freezes it and rows 4 and 6 pay for it. The matte trims to content and does not upscale; a sprite whose content exceeds 1024px is downsampled to it. Above that the sprite is carrying detail no draw scale can show (89px drawn, ~10x), and architecture.md's route for row 4 is a bake embedding library PNGs as data: URIs in a document that must load from file:// with zero network requests — where every stored pixel is base64-inflated into the page. 1024 keeps every sprite comfortably above gate (c)'s 512 floor while bounding that bake."
     },

@@ -26,8 +26,9 @@ once, then flag"), and exit 0 covers pass-with-warnings:
     2  content failure — regenerate the source
     3  invocation failure — fix the command
     4  contract failure — replicator/contract.json itself is wrong
-    5  class failure — the object is outside what the frozen thresholds cover;
-       the Navigator decides, via the contract's `classes` amendment path
+    5  class failure — the object is outside what the frozen thresholds cover
+       (the erosion guard's thin-feature refusal); the Navigator decides, via
+       the contract's `classes` amendment path, not the generator
 """
 
 import argparse
@@ -68,9 +69,23 @@ def environment():
 def _read_rgb(path):
     from PIL import Image
     try:
-        return np.array(Image.open(path).convert("RGB"))
+        img = Image.open(path)
+        img.load()
     except OSError as e:
         raise pipeline_mod.IngestError("cannot read image %s: %s" % (path, e))
+    # An already-matted PNG handed back to the ingester is a plausible mistake
+    # for a seat re-running an earlier output, and `.convert("RGB")` would
+    # silently flatten it onto black -- whereupon the border median is black,
+    # the whole frame reads as object, and an opaque rectangle ships with every
+    # gate green.
+    if img.mode in ("RGBA", "LA", "PA") or "transparency" in img.info:
+        alpha = img.convert("RGBA").getchannel("A")
+        if alpha.getextrema()[0] < 255:
+            raise pipeline_mod.IngestError(
+                "%s carries transparency, so it has been matted once already. The ingester "
+                "reads generated sources on a plain mid-grey seamless ground; give it the "
+                "original generation." % path)
+    return np.array(img.convert("RGB"))
 
 
 def _write_rgba(arr, path):
@@ -261,10 +276,13 @@ def run(args):
         written.append(rec_path)
         _prune(target, {"%s.png" % p for p in result.parts}, "parts")
         _prune(target, {"%s.png" % s for s in result.states}, "states")
+        stale_thumb = os.path.join(target, "thumb.png")
+        if result.thumb is None and os.path.exists(stale_thumb):
+            os.remove(stale_thumb)      # the record no longer declares one
 
     # Previews live OUTSIDE the library: blueprint §2 defines library/<id>/ as
     # the sprite's shipped contents and row 4's bake reads it.
-    if args.preview_dir and not args.check:
+    if args.preview_dir:
         for name, arr in sorted(result.previews.items()):
             path = os.path.join(args.preview_dir, "%s-preview-%s.png" % (args.id, name))
             _write_rgb(arr, path)
@@ -336,21 +354,44 @@ def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(normalize_argv(
         list(sys.argv[1:] if argv is None else argv)))
+    def _abort(kind, exc, code):
+        """A failure report is the artifact the autonomous lane most needs, and
+        a stage exception is exactly the case it cannot otherwise see: before
+        this, --report and --json produced no file and no output at all on any
+        path except a gate failure."""
+        message = "%s: %s" % (kind, exc)
+        print(message, file=sys.stderr)
+        rep = {"tool": "replicator-ingest-v1", "id": args.id, "source": args.image,
+               "written": [], "ok": False, "exit_code": code, "gates": [],
+               "warnings": [], "failures": [kind], "error": {"kind": kind, "message": str(exc)},
+               "environment": environment(), "contract": {}, "derived": {}, "measured": {}}
+        if args.report:
+            d = os.path.dirname(os.path.abspath(args.report))
+            if d:
+                os.makedirs(d, exist_ok=True)
+            with open(args.report, "w", encoding="utf-8") as fh:
+                json.dump(rep, fh, sort_keys=True, indent=2)
+                fh.write("\n")
+        if args.json:
+            json.dump(rep, sys.stdout, sort_keys=True, indent=2)
+            sys.stdout.write("\n")
+        return code
+
     try:
         result, written = run(args)
     except contract_mod.ContractError as e:
-        print("contract: %s" % e, file=sys.stderr)
-        return EXIT_CONTRACT
+        return _abort("contract", e, EXIT_CONTRACT)
     except matte_mod.MatteError as e:
-        print("content: %s" % e, file=sys.stderr)
-        return EXIT_CONTENT
+        # A thin-feature refusal is not "regenerate the source" -- regenerating
+        # produces another thin object. It is the contract's `classes`
+        # amendment path, which is the Navigator's, so it gets its own code.
+        kind = "class" if "thinner" in str(e) else "content"
+        return _abort(kind, e, EXIT_CLASS if kind == "class" else EXIT_CONTENT)
     except (pipeline_mod.IngestError, parts_mod.PartError, states_mod.StateError,
             anchors_mod.AnchorError) as e:
-        print("usage: %s" % e, file=sys.stderr)
-        return EXIT_USAGE
+        return _abort("usage", e, EXIT_USAGE)
     except ValueError as e:
-        print("usage: %s" % e, file=sys.stderr)
-        return EXIT_USAGE
+        return _abort("usage", e, EXIT_USAGE)
 
     exit_code = EXIT_OK if result.ok else EXIT_CONTENT
     rep = report_of(result, args, written, exit_code)

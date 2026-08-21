@@ -636,8 +636,12 @@ Stages (all automatic unless noted):
 4. **Gates (hard fail unless noted).** [AI: gate thresholds are pinned in `contract.json` *before* the corpus runs, and the test suite carries a negative control — an image constructed to fail (grey halo on grey ground) that must demonstrably fail; a gate tuned until the corpus passes is no gate.] (a) halo: mean saturation of border-adjacent semi-alpha pixels must not read grey (report + fail); (b) holes: enclosed background-colored regions remaining at alpha>0 → fail; (c) min resolution: content bbox ≥ 512px tall for furniture, ≥ 128px for takeables; (d) **state diff**: composite(body+part@closed) vs original — pixel diff outside part mask must be ≈0 → fail; (e) light direction (Sobel-based bright-side estimate) vs contract `UL45` → **warn only**, record deviation.
 
    [AI, amended at row 3 — the gate set as built, reversible by Kabe as a new-row decision:]
-   **The ingester runs twelve gates, not five**, and "passes gates" everywhere downstream means all
-   twelve. Beyond (a)–(e): **(f) contact** — the footprint the contact pool is drawn from is a sound
+   **The ingester runs fifteen checks, not five**, and what a single run emits depends on the
+   sprite: **nine** for a static one, **thirteen** for a sliding one, **twelve** for a swap. The
+   full set is (a)-(h), `alignment`, `registration`, `slide`, `open_state`, `thumb`, `dims`, and
+   `part_mask` — of which `part_mask` carries no verdict (see below) and (e) and `dims` warn.
+   "Passes gates" downstream means every **hard** check in the set the sprite's own archetype
+   invokes. Beyond (a)–(e): **(f) contact** — the footprint the contact pool is drawn from is a sound
    derivation, hard, floor-attached only; **(g) over-matte** — the matte is not eating the object,
    measured as the silhouette's sensitivity to a ±25% tolerance sweep, hard (nothing in the original
    five hunts a *bitten* silhouette, and a key with its shaft matted away exits zero while reading
@@ -646,7 +650,17 @@ Stages (all automatic unless noted):
    object pixels and every other gate accepts it); **alignment** and **registration** for two-state
    sprites; **slide** and **open_state** for parts (nothing in the original five ever looks at the
    open state, so a part cut perfectly and travelling to the wrong place passes everything);
-   **thumb**; and **part_mask**, warn-level.
+   **thumb**; **dims**, warn-level, comparing the declared width against the drawn one; and
+   **part_mask**, which is **reported with no verdict** — on constructed art it separates a correct
+   mask from a displaced one perfectly, and on the corpus desk the ordering inverts, so it cannot
+   carry one.
+
+   **`slide` is the check the row's own asset needed.** A drawer must clear its recess *and* stay
+   against its carcass. With only the clearance bound in force the corpus desk shipped with its
+   open drawer 79 body px below the recess — at the real 89 px draw height, clear of the cavity and
+   straddling the stretchers, reading as a plank lying on the floor while every other gate stayed
+   green. The bound that catches it is measured from the body's own pixels: the fraction of the
+   travelled part that still lands on opaque carcass.
 
    **Clause (a) as built.** Its letter — "mean saturation of border-adjacent semi-alpha pixels must
    not read grey" — taken as an absolute saturation floor **false-fails an honestly grey object**,

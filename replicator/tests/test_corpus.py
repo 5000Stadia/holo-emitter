@@ -47,10 +47,18 @@ DESKS = {
         anchors={"surface_top": (350, 235, 900, 275)}),
     "desk-corpus-1.png": dict(
         sprite_id="desk-corpus-1-check", mask="desk-corpus-1",
-        anchors={"surface_top": (400, 320, 850, 360)}),
+        anchors={"surface_top": (400, 320, 850, 360)}, slide={"dx": -0.03, "dy": 0.075,
+                                                                  "scale_open": 1.04}),
 }
 DIMS = {"h": 0.78, "w": 1.30, "d": 0.55}
-SLIDE = {"dx": -0.10, "dy": 0.24, "scale_open": 1.06}
+
+# The travel each desk can actually carry, found by looking at the composite and
+# then bounded by the carcass-backing rule. Neither is a free parameter: on
+# desk-corpus-2 exactly one value (0.08) satisfies both the clearance bound and
+# the backing bound, and desk-corpus-1's LOWER drawer satisfies neither — its
+# front is too tall for the space beneath it, so its part is the top-middle
+# drawer, which has carcass under it all the way.
+SLIDE = {"dx": -0.03, "dy": 0.08, "scale_open": 1.04}
 
 
 def ingest_desk(name, source=None):
@@ -61,8 +69,8 @@ def ingest_desk(name, source=None):
         source_rgb=src, contract=support.contract(), sprite_id=spec["sprite_id"],
         noun="joined oak writing desk", archetype="sliding", attachment="floor_against",
         dims_m=DIMS, view_side="left", anchor_regions=spec["anchors"],
-        part_specs=[{"id": "drawer_front", "mask": mask, "slide": SLIDE,
-                     "source_rgb": src}])
+        part_specs=[{"id": "drawer_front", "mask": mask,
+                     "slide": spec.get("slide", SLIDE), "source_rgb": src}])
 
 
 @support.requires_corpus

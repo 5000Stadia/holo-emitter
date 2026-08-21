@@ -134,7 +134,7 @@ architecture is the reference, not a member. **Empty set: out of scope.**
 **A build that loses this.** Eight frames, eleven objects, rooms lit warmly from a fireplace. Every
 object is a studio render dropped in: the chair, the desk and the candlestick each read cooler than
 the panelling they stand against (T1.3 ×3) and the key in the drawer has no shadow side (T1.2).
-Anchor: 1 of 10. `4/11 − 1/10 = 0.264 > 1/11 = 0.091` — lost. Or a single sprite mirrored for the
+Anchor: 1 of 10. `4/11 − 1/10 = 0.264 > 1/12 = 0.083` — lost. Or a single sprite mirrored for the
 far wall so its highlights land on the wrong side — one T1.1 — lost outright.
 
 ## Quality 2 — Contact

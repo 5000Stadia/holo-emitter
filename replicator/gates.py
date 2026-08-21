@@ -28,7 +28,7 @@ def _result(gid, severity, passed, measured, threshold, message):
 
 # --------------------------------------------------------------------------- a
 
-def gate_halo(rgba, bg_color, cfg):
+def gate_halo(rgba, bg_color, cfg, drawn=None):
     """(a) The edge must not read as the ground it was cut from.
 
     §9.4's letter is "mean saturation of border-adjacent semi-alpha pixels must
@@ -97,24 +97,49 @@ def gate_halo(rgba, bg_color, cfg):
         measured["inner_band_px"] = int(inner.sum())
         measured["deep_px"] = int(deep.sum())
 
-    rims = pv.rim_lift_ratios(rgba, cfg["rim_grounds"], cfg["_draw_height_px"])
+    # a4 alone judges the sprite AS STORED, because it asks what the renderer
+    # will draw; a2/a3 judge the matte that produced it.
+    rims = pv.rim_lift_ratios(rgba if drawn is None else drawn,
+                              cfg["rim_grounds"], cfg["_draw_height_px"])
     measured["composited_rim"] = rims
+    unmeasured = []
     for name, rim in sorted(rims.items()):
         if rim is None or rim["lift_ratio"] is None:
+            # Silence here would be the worst outcome: a hard-edged silhouette --
+            # the sticker tell itself -- leaves no measurable rim at draw scale,
+            # so the one clause that can see a halo in the room drops out and
+            # the report used to say "all halo clauses hold".
+            unmeasured.append(name)
             continue
         # A correctly antialiased edge composites to a coverage-weighted blend,
         # so its lift over the ground is about the mean coverage of the ring --
         # `rim_lift_expected`. Bounded in BOTH directions: too high is a grey
         # halo, too low is a dark fringe, and both read as a cut-out.
-        err = abs(rim["coverage_residual"])
-        clauses.append(("a4 composited rim over the %s ground" % name,
-                        err <= cfg["coverage_residual_max"],
-                        round(err, 4), cfg["coverage_residual_max"]))
+        # Signed, not absolute. The residual runs POSITIVE for a grey halo
+        # (light the coverage does not account for) and NEGATIVE for a downscale
+        # dark fringe, and the negative side grows as the sprite gets smaller: a
+        # clean 128 px takeable -- gate (c)'s own floor, and the size class of
+        # M0's key and coin -- sits at -0.25, closer to a symmetric 0.30 bound
+        # than the grey-halo control's +0.33. One bound for both directions made
+        # the clean small case nearly indistinguishable from the defect.
+        res = rim["coverage_residual"]
+        clauses.append(("a4 composited rim over the %s ground (halo side)" % name,
+                        res <= cfg["coverage_residual_max"],
+                        round(res, 4), cfg["coverage_residual_max"]))
+        clauses.append(("a4 composited rim over the %s ground (dark-fringe side)" % name,
+                        res >= -cfg["coverage_residual_dark_max"],
+                        round(res, 4), -cfg["coverage_residual_dark_max"]))
 
+    measured["a4_unmeasured_grounds"] = unmeasured
     failed = [c for c in clauses if not c[1]]
-    msg = ("all halo clauses hold (%s)" % ", ".join("%s %g" % (c[0], c[2]) for c in clauses)
+    note = ("" if not unmeasured else
+            " — NOTE: the composited-rim clause could not be measured over the %s ground "
+            "(too few rim pixels at draw scale, which is what a hard-edged silhouette looks "
+            "like), so that clause did not run" % ", ".join(unmeasured))
+    msg = (("all halo clauses that could run hold (%s)"
+            % ", ".join("%s %g" % (c[0], c[2]) for c in clauses)) + note
            if not failed else
-           "; ".join("%s: measured %g against %g" % (c[0], c[2], c[3]) for c in failed))
+           "; ".join("%s: measured %g against %g" % (c[0], c[2], c[3]) for c in failed) + note)
     return _result("a", "hard", not failed, measured,
                    {k: v for k, v in cfg.items() if not k.startswith("_")}, msg)
 
@@ -163,10 +188,12 @@ def gate_holes(rgba, bg_color, cfg):
 
 # --------------------------------------------------------------------------- c
 
-def gate_resolution(rgba, takeable, cfg):
-    """(c) Content bbox height: >= 512 px for furniture, >= 128 px for takeables."""
-    box = im.alpha_bbox(rgba[..., 3], 1)
-    height = 0 if box is None else box[3] - box[1]
+def gate_resolution(content_height_px, takeable, cfg):
+    """(c) Content bbox height: >= 512 px for furniture, >= 128 px for takeables.
+
+    Measured on the matted SOURCE, before the stored-resolution policy applies.
+    """
+    height = int(content_height_px)
     floor = (cfg["min_content_height_px_takeable"] if takeable
              else cfg["min_content_height_px"])
     ok = height >= floor
@@ -429,6 +456,31 @@ def gate_over_matte(sensitivity, erode_excess, cfg, detail=None):
 
 # --------------------------------------------------------------------------- misc
 
+def gate_dims(cross):
+    """The declared dimensions against the drawn ones. Warn.
+
+    It was computed and written into the record with no severity at all, so a
+    `--width-m` off by a third emitted no line and did not touch the exit code.
+    The corpus desk measures 0.70: the world calls it 1.30 m wide and it draws
+    0.98 m wide in the room. The renderer scales by height, so §12.5 cannot see
+    it, and it is comparison-criteria's own T5.3 (scale disagreement).
+
+    Warn, not hard: `dims_m` is the operator's, sourced from period reference,
+    and blueprint §5 says the project camera is unsettled — so a disagreement is
+    real information and not a proof of error.
+    """
+    return _result("dims", "warn", bool(cross.get("agrees")),
+                   {k: cross[k] for k in ("drawn_width_m", "implied_width_m", "ratio")},
+                   {"ratio_band": [0.85, 1.15]},
+                   "declared dimensions agree with the drawn width (ratio %s)"
+                   % cross.get("ratio") if cross.get("agrees") else
+                   "the object draws %.3f m wide where dims_m implies %.3f m (ratio %s): the "
+                   "record's width and its own pixels disagree, and the renderer scales by "
+                   "height so nothing downstream will notice"
+                   % (cross.get("drawn_width_m") or 0.0, cross.get("implied_width_m") or 0.0,
+                      cross.get("ratio")))
+
+
 def part_mask_adherence_gate(adherence, cfg):
     """Warn when a part mask's boundary does not sit on the reveal gaps.
 
@@ -441,17 +493,23 @@ def part_mask_adherence_gate(adherence, cfg):
     if adherence is None:
         return _result("part_mask", "warn", True, {}, dict(cfg),
                        "no mask boundary to measure")
-    ok = adherence["within_3px_fraction"] >= cfg["min_within_3px_fraction"]
-    return _result("part_mask", "warn", ok, dict(adherence), dict(cfg),
-                   "%.0f%% of mask-boundary samples find their darkest crossing within 3 px "
-                   "(floor %.0f%%)%s"
-                   % (adherence["within_3px_fraction"] * 100,
-                      cfg["min_within_3px_fraction"] * 100,
-                      "" if ok else " — check the maskgen overlay: the mask may not be "
-                                    "following the part's reveal gaps"))
+    # Reported, with no verdict. On constructed art this separates perfectly
+    # (exact mask 1.00; displaced 20px in, 20px out or 30px on one edge all
+    # 0.00), and on the corpus desk the ordering INVERTS: the fitted mask scores
+    # 0.21 while the same mask displaced 25 and 30 px scores 0.31 and 0.33. A
+    # statistic that ranks a wrong mask above a right one cannot carry a
+    # verdict, and dressing it as a warning would have it read as evidence. The
+    # evidence a mask follows the reveals is the overlay `replicator.maskgen
+    # --overlay` writes, and that is what was looked at.
+    return _result("part_mask", "report", True, dict(adherence), dict(cfg),
+                   "mask-boundary adherence %.2f on its worst edge (%s) — REPORTED, NOT GATED: "
+                   "this statistic separates cleanly on constructed art and inverts on the "
+                   "corpus, so it carries no verdict. Check the maskgen overlay."
+                   % (adherence["within_3px_fraction"], adherence.get("worst_edge")))
 
 
-def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None):
+def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None,
+               opening_max_dy=None, max_dx=None, backing=None, min_backing=None):
     """The declared travel must clear the cavity it slides out of.
 
     Row 2's lesson turned into a check: `slide.dy` 0.24 was chosen for the
@@ -461,6 +519,22 @@ def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None)
     """
     ok = supplied_dy >= min_dy
     msgs = []
+    if backing is not None and min_backing is not None and backing < min_backing:
+        ok = False
+        msgs.append("at full travel only %.0f%% of the open part still lies against the body's "
+                    "own carcass (floor %.0f%%): the rest hangs over the gaps between the legs, "
+                    "which at draw scale reads as a plank on the floor rather than as an open "
+                    "drawer" % (backing * 100, min_backing * 100))
+    if opening_max_dy is not None and supplied_dy > opening_max_dy:
+        ok = False
+        msgs.append("slide.dy %g carries the open front past its own opening (limit %.4f). A "
+                    "drawer slides OUT of its recess and stays at it; travel beyond this reads "
+                    "as a plank lying on the floor, which is what the corpus desk did at dy "
+                    "0.24 with only a lower bound in force" % (supplied_dy, opening_max_dy))
+    if max_dx is not None and abs(dx) > max_dx:
+        ok = False
+        msgs.append("slide.dx %g moves the part more than %.2f of the body width sideways; a "
+                    "drawer pulls toward the viewer, not across the carcass" % (dx, max_dx))
     if max_dy is not None and supplied_dy > max_dy:
         ok = False
         msgs.append("slide.dy %g travels past the body's own bottom edge (limit %.4f): a part "
@@ -483,8 +557,14 @@ def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None)
     if warn:
         msgs.append(warn)
     return _result("slide", "hard", ok,
-                   {"dy": supplied_dy, "min_dy_clearance": round(float(min_dy), 4), "dx": dx},
-                   {"min_dy_clearance": round(float(min_dy), 4)},
+                   {"dy": supplied_dy, "min_dy_clearance": round(float(min_dy), 4), "dx": dx,
+                    "max_dy_at_opening": (None if opening_max_dy is None
+                                          else round(float(opening_max_dy), 4)),
+                    "scale_open": scale_open,
+                    "carcass_backing": (None if backing is None else round(float(backing), 4))},
+                   {"min_dy_clearance": round(float(min_dy), 4),
+                    "max_dy_at_opening": (None if opening_max_dy is None
+                                          else round(float(opening_max_dy), 4))},
                    "; ".join(msgs) if msgs else
                    "travel clears the cavity (dy %g >= %.4f)" % (supplied_dy, min_dy))
 

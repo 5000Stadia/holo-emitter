@@ -51,8 +51,14 @@ def make_thumb(rgba, *, size_px, content_px, filter="LANCZOS"):
     return np.array(canvas)
 
 
-def thumb_gate(thumb, takeable, size_px):
-    """Every takeable record carries a square thumb, and only takeables do."""
+def thumb_gate(thumb, takeable, size_px, content_px=None):
+    """Every takeable record carries a square thumb, and only takeables do.
+
+    The presence half is a tautology inside the pipeline -- it makes the thumb
+    iff takeable and then asks whether it did -- so the gate also checks the
+    thumb's own pixels: a blank or clipped tile is a real defect a real ingest
+    can produce, and it is what the inventory strip actually shows.
+    """
     have = thumb is not None
     ok = True
     msgs = []
@@ -63,17 +69,35 @@ def thumb_gate(thumb, takeable, size_px):
         ok = False
         msgs.append("a non-takeable record carries a thumb — the record lies the other way")
     shape = None
+    coverage = None
+    fills = None
     if have:
         shape = [int(thumb.shape[1]), int(thumb.shape[0])]
         if thumb.shape[0] != size_px or thumb.shape[1] != size_px:
             ok = False
             msgs.append("the thumb is %dx%d, not the pinned %dx%d square"
                         % (shape[0], shape[1], size_px, size_px))
+        alpha = thumb[..., 3]
+        coverage = float((alpha > 0).mean())
+        if coverage < 0.01:
+            ok = False
+            msgs.append("the thumb is blank (%.2f%% of it carries any content): the inventory "
+                        "strip would show an empty tile" % (coverage * 100))
+        box = im.alpha_bbox(alpha, 1)
+        if box is not None and content_px:
+            longest = max(box[2] - box[0], box[3] - box[1])
+            fills = round(longest / float(content_px), 3)
+            if longest > size_px - 2:
+                ok = False
+                msgs.append("the thumb's content touches its own edge (%d px of %d): it has been "
+                            "clipped rather than fitted" % (longest, size_px))
     return {
         "id": "thumb",
         "severity": "hard",
         "passed": ok,
-        "measured": {"takeable": bool(takeable), "thumb_px": shape},
-        "threshold": {"square_px": size_px},
+        "measured": {"takeable": bool(takeable), "thumb_px": shape,
+                     "coverage": None if coverage is None else round(coverage, 4),
+                     "content_fill": fills},
+        "threshold": {"square_px": size_px, "min_coverage": 0.01},
         "message": "; ".join(msgs) if msgs else "thumb present exactly when takeable, square",
     }

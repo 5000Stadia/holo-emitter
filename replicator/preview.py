@@ -44,6 +44,25 @@ def composite_preview(rgba, ground_rgb, draw_height_px, pad=20):
     return canvas, alpha_map
 
 
+def with_parts(body_rgba, parts, records, t=1.0):
+    """Composite every part back at travel `t`, the way §7 draws it.
+
+    The preview showed the BODY only, so a sprite with a drawer cut out of it
+    appeared with a hole where the drawer is -- and the operator's one look
+    never saw the thing the renderer will actually draw. That is how a drawer
+    travelling to the wrong place survived a look.
+    """
+    from . import parts as parts_mod
+    out = body_rgba
+    px = {"w": int(body_rgba.shape[1]), "h": int(body_rgba.shape[0])}
+    for rec in records:
+        arr = parts.get(rec["id"])
+        if arr is None:
+            continue
+        out, _ = parts_mod.open_state_composite(out, arr, rec["origin"], rec["slide"], px, t=t)
+    return out
+
+
 def annotate_contact(canvas, rgba, anchors, px, draw_height_px, pad=20):
     """Draw the contact pool the renderer would draw, and the footprint span.
 

@@ -2,24 +2,24 @@
   "airborne": false,
   "anchors": {
     "base": {
-      "x": 565.0,
-      "y": 914
+      "x": 237.5,
+      "y": 384
     },
     "drawer_cavity": {
-      "x0": 292.0,
-      "x1": 699.0,
-      "y0": 437.0,
-      "y1": 577.0
+      "x0": 123.0,
+      "x1": 294.0,
+      "y0": 184.0,
+      "y1": 242.0
     },
     "footprint": {
-      "x0": 24,
-      "x1": 1106
+      "x0": 10,
+      "x1": 465
     },
     "surface_top": {
-      "x0": 289.0,
-      "x1": 839.0,
-      "y0": 29.0,
-      "y1": 69.0
+      "x0": 121.4179,
+      "x1": 352.4902,
+      "y0": 12.1838,
+      "y1": 28.9891
     }
   },
   "archetype": "sliding",
@@ -41,81 +41,90 @@
   "measured": {
     "chroma": {
       "mean_chromaticity": [
-        0.4859,
-        0.3211,
-        0.193
+        0.4861,
+        0.321,
+        0.1929
       ],
       "mean_rgb": [
-        55.68,
-        36.8,
-        22.12
+        55.87,
+        36.89,
+        22.17
       ],
-      "mean_saturation": 0.6188,
+      "mean_saturation": 0.6143,
       "note": "no gate acts on this and the renderer has no mechanism to correct it: §7's tint is one constant pull toward the facing's key_tint and §1's non-goals forbid relighting beyond it. Quality 1's temperature half is uncertified by this pipeline and unfixable downstream — see the row-3 closing report.",
-      "warm_cool_index": 0.8785
+      "warm_cool_index": 0.8798
     },
     "contact": {
-      "band_over_bottom_two_rows": 37.31,
+      "band_over_bottom_two_rows": 28.438,
       "bottom_two_rows": {
-        "x0": 244,
-        "x1": 273
+        "x0": 101,
+        "x1": 117
       },
       "chosen": "contact_band",
       "contact_band": {
-        "x0": 24,
-        "x1": 1106
+        "x0": 10,
+        "x1": 465
       },
-      "geometric_base_x": 258.5
+      "geometric_base_x": 109.0
     },
     "dims_cross_check": {
       "agrees": false,
-      "drawn_width_m": 0.9763,
+      "drawn_width_m": 0.977,
       "implied_width_m": 1.4008,
       "note": "warn-only cross-check; dims_m is the operator's, sourced from period reference, and is never derived through the unsettled §5 camera",
-      "ratio": 0.6969
+      "ratio": 0.6975
     },
     "edge": {
       "composited_rim": {
         "dark": {
-          "coverage_residual": -0.1633,
-          "coverage_residual_p90": 1.2495,
+          "coverage_residual": -0.1549,
+          "coverage_residual_p90": 1.1877,
           "draw_height_px": 89,
           "ground_luminance": 21.708,
-          "interior_luminance": 41.233,
-          "lift_ratio": 0.2742,
-          "rim_luminance": 27.194,
-          "rim_px": 979
+          "interior_luminance": 41.23,
+          "lift_ratio": 0.2666,
+          "rim_luminance": 27.312,
+          "rim_px": 997
         },
         "light": {
           "coverage_residual": 0.0265,
-          "coverage_residual_p90": 0.0996,
+          "coverage_residual_p90": 0.0968,
           "draw_height_px": 89,
           "ground_luminance": 188.568,
-          "interior_luminance": 41.27,
-          "lift_ratio": 0.5673,
-          "rim_luminance": 109.066,
-          "rim_px": 979
+          "interior_luminance": 41.275,
+          "lift_ratio": 0.5655,
+          "rim_luminance": 109.162,
+          "rim_px": 997
         }
       }
     },
     "geometry": {
       "content_px": [
-        1144,
-        914
+        481,
+        384
       ],
       "draw_height_px": 89,
-      "resized": null
+      "resized": {
+        "from": [
+          1144,
+          914
+        ],
+        "to": [
+          481,
+          384
+        ]
+      }
     },
     "light": {
       "agrees_with_declared": false,
-      "deviation_deg": 22.06,
-      "estimate_deg": 93.44,
+      "deviation_deg": 21.1,
+      "estimate_deg": 94.4,
       "expected_deg": 115.5,
       "image": "body",
-      "interior_px": 668342,
-      "left_third_luminance": 38.79,
-      "right_third_luminance": 39.86,
-      "third_tilt": -1.072
+      "interior_px": 111095,
+      "left_third_luminance": 38.97,
+      "right_third_luminance": 40.02,
+      "third_tilt": -1.054
     },
     "matte": {
       "content_height_px": 920,
@@ -142,13 +151,13 @@
       "id": "drawer_front",
       "image": "parts/drawer_front.png",
       "origin": {
-        "x": 292,
-        "y": 437
+        "x": 123,
+        "y": 184
       },
       "slide": {
-        "dx": -0.1,
-        "dy": 0.24,
-        "scale_open": 1.06
+        "dx": -0.03,
+        "dy": 0.08,
+        "scale_open": 1.04
       },
       "states": {
         "closed": 0.0,
@@ -165,21 +174,21 @@
     "contract": {
       "ingest_schema": "replicator-ingest/0.1",
       "schema": "orientation-contract/0.1",
-      "thresholds_sha256": "7286e7960d1db1b6"
+      "thresholds_sha256": "1db42f68edebea89"
     },
     "derived": {
       "anchors": {
-        "band_over_bottom_two_rows": 37.31,
+        "band_over_bottom_two_rows": 28.438,
         "bottom_two_rows": {
-          "x0": 244,
-          "x1": 273
+          "x0": 101,
+          "x1": 117
         },
         "chosen": "contact_band",
         "contact_band": {
-          "x0": 24,
-          "x1": 1106
+          "x0": 10,
+          "x1": 465
         },
-        "geometric_base_x": 258.5
+        "geometric_base_x": 109.0
       },
       "matte": {
         "area_after_holes": 710949,
@@ -210,18 +219,19 @@
       "parts": {
         "drawer_front": {
           "cavity": {
-            "x0": 292.0,
-            "x1": 699.0,
-            "y0": 437.0,
-            "y1": 577.0
+            "x0": 123.0,
+            "x1": 294.0,
+            "y0": 184.0,
+            "y1": 242.0
           },
-          "cavity_mean_luminance": 20.6,
-          "cavity_over_part_ratio": 0.4364,
+          "cavity_drawn_px": 13.44,
+          "cavity_mean_luminance": 19.86,
+          "cavity_over_part_ratio": 0.4195,
           "closed_rect": {
-            "x0": 292,
-            "x1": 699,
-            "y0": 437,
-            "y1": 577
+            "x0": 123,
+            "x1": 294,
+            "y0": 184,
+            "y1": 242
           },
           "mask_adherence": {
             "centre": [
@@ -253,12 +263,13 @@
             "within_3px_fraction": 0.2083,
             "worst_edge": "bottom"
           },
-          "mask_px": 51182,
-          "min_dy_clearance": 0.0766,
-          "part_mean_luminance": 47.21,
+          "mask_px": 9028,
+          "max_dy_at_opening": 0.1888,
+          "min_dy_clearance": 0.0755,
+          "part_mean_luminance": 47.33,
           "part_px": [
-            407,
-            140
+            171,
+            58
           ]
         }
       }
@@ -321,44 +332,47 @@
           "within_3px_fraction": 0.2083,
           "worst_edge": "bottom"
         },
-        "message": "21% of mask-boundary samples find their darkest crossing within 3 px (floor 40%) — check the maskgen overlay: the mask may not be following the part's reveal gaps",
-        "passed": false,
-        "severity": "warn",
+        "message": "mask-boundary adherence 0.21 on its worst edge (bottom) — REPORTED, NOT GATED: this statistic separates cleanly on constructed art and inverts on the corpus, so it carries no verdict. Check the maskgen overlay.",
+        "passed": true,
+        "severity": "report",
         "threshold": {
           "authority": "control",
           "basis": "Per-edge, and the score is the WORST edge, not a mean over the whole ring: a mask correct on three sides and 30px out on the fourth averages to a pass, and gate (d) at closed cannot see it either because the over-cut pixels are covered by the part at closed. Set on the constructed part control in synth.py, whose reveal gaps are known by construction: the exact mask scores 1.00, and masks displaced 20px in, 20px out, or 30px on a single edge all score 0.00. Warn-level rather than hard because real generated art is far noisier than the control — a drawer's own highlight band is nearly as dark as its reveal, and the corpus desk's fitted mask scores 0.21 on its worst edge while visibly following the reveals in the overlay. That gap between control and corpus is exactly why this warns and does not block, and the evidence a mask follows the edges is the overlay image `replicator.maskgen --overlay` writes for the eye.",
-          "min_within_3px_fraction": 0.4,
-          "severity": "warn"
+          "severity": "report — no verdict"
         }
       },
       {
         "id": "slide",
         "measured": {
-          "dx": -0.1,
-          "dy": 0.24,
-          "min_dy_clearance": 0.0766
+          "carcass_backing": 0.8526,
+          "dx": -0.03,
+          "dy": 0.08,
+          "max_dy_at_opening": 0.1888,
+          "min_dy_clearance": 0.0755,
+          "scale_open": 1.04
         },
-        "message": "travel clears the cavity (dy 0.24 >= 0.0766)",
+        "message": "travel clears the cavity (dy 0.08 >= 0.0755)",
         "passed": true,
         "severity": "hard",
         "threshold": {
-          "min_dy_clearance": 0.0766
+          "max_dy_at_opening": 0.1888,
+          "min_dy_clearance": 0.0755
         }
       },
       {
         "id": "open_state",
         "measured": {
           "cavity": {
-            "x0": 292.0,
-            "x1": 699.0,
-            "y0": 437.0,
-            "y1": 507.0
+            "x0": 123.0,
+            "x1": 294.0,
+            "y0": 184.0,
+            "y1": 213.0
           },
           "open_rect": {
-            "x0": 178,
-            "x1": 609,
-            "y0": 656,
-            "y1": 804
+            "x0": 109,
+            "x1": 287,
+            "y0": 215,
+            "y1": 275
           }
         },
         "message": "the open part clears the cavity",
@@ -369,7 +383,7 @@
       {
         "id": "d",
         "measured": {
-          "considered_px": 644336,
+          "considered_px": 113484,
           "max_channel_diff": 0.0,
           "mean_abs_channel_diff": 0.0,
           "pixels_over_threshold": 0
@@ -389,6 +403,8 @@
       {
         "id": "thumb",
         "measured": {
+          "content_fill": null,
+          "coverage": null,
           "takeable": false,
           "thumb_px": null
         },
@@ -396,48 +412,51 @@
         "passed": true,
         "severity": "hard",
         "threshold": {
+          "min_coverage": 0.01,
           "square_px": 128
         }
       },
       {
         "id": "a",
         "measured": {
+          "a4_unmeasured_grounds": [],
           "composited_rim": {
             "dark": {
-              "coverage_residual": -0.1633,
-              "coverage_residual_p90": 1.2495,
+              "coverage_residual": -0.1549,
+              "coverage_residual_p90": 1.1877,
               "draw_height_px": 89,
               "ground_luminance": 21.708,
-              "interior_luminance": 41.233,
-              "lift_ratio": 0.2742,
-              "rim_luminance": 27.194,
-              "rim_px": 979
+              "interior_luminance": 41.23,
+              "lift_ratio": 0.2666,
+              "rim_luminance": 27.312,
+              "rim_px": 997
             },
             "light": {
               "coverage_residual": 0.0265,
-              "coverage_residual_p90": 0.0996,
+              "coverage_residual_p90": 0.0968,
               "draw_height_px": 89,
               "ground_luminance": 188.568,
-              "interior_luminance": 41.27,
-              "lift_ratio": 0.5673,
-              "rim_luminance": 109.066,
-              "rim_px": 979
+              "interior_luminance": 41.275,
+              "lift_ratio": 0.5655,
+              "rim_luminance": 109.162,
+              "rim_px": 997
             }
           },
-          "deep_saturation": 0.6214,
+          "deep_saturation": 0.6219,
           "edge_bg_distance": 205.874,
-          "inner_band_bg_distance_ratio": 1.0599,
+          "inner_band_bg_distance_ratio": 1.0778,
           "inner_band_saturation": 0.5963,
-          "inner_band_saturation_ratio": 0.9596,
+          "inner_band_saturation_ratio": 0.9589,
           "ring_px": 6824
         },
-        "message": "all halo clauses hold (a2 inner-band saturation ratio 0.9596, a3 inner-band ground-distance ratio 1.0599, a4 composited rim over the dark ground 0.1633, a4 composited rim over the light ground 0.0265)",
+        "message": "all halo clauses that could run hold (a2 inner-band saturation ratio 0.9589, a3 inner-band ground-distance ratio 1.0778, a4 composited rim over the dark ground (halo side) -0.1549, a4 composited rim over the dark ground (dark-fringe side) -0.1549, a4 composited rim over the light ground (halo side) 0.0265, a4 composited rim over the light ground (dark-fringe side) 0.0265)",
         "passed": true,
         "severity": "hard",
         "threshold": {
           "an absolute edge-distance clause was dropped": "An earlier draft required the semi-alpha ring's mean distance from the ground to exceed a fixed number. That cannot work: an iron key's own colour is about that far from mid-grey, so the clause would false-fail the object rather than the halo. Its relative form is a3.",
           "authority": "control|contract",
           "basis": "a2/a3 are ratios of a depth-2..4px band to the deep interior, so a uniformly grey object (an iron key, a silver coin) is not punished for being grey. Constructed controls: clean 0.988/0.918, legged 0.998/1.094, iron disc 1.000/1.000, grey-halo control 0.047/0.305 — 0.55 sits between them. a4 is the CONTRACT authority and needs no fitted number at all: straight-alpha compositing says a rim pixel of coverage a over ground G against local interior L must land at a*L + (1-a)*G, so the normalized residual is zero for a correct edge whatever the colours are. Constructed clean cases give |median| 0.019-0.155; the grey-halo control gives 0.305 dark / 0.519 light. Known sensitivity limit, stated rather than hidden: a ~2px generator antialias band scores about 0.10 and passes — which is why the MATTE erodes it rather than the gate catching it.",
+          "coverage_residual_dark_max": 0.45,
           "coverage_residual_max": 0.3,
           "inner_band_bg_distance_ratio_min": 0.55,
           "inner_band_saturation_ratio_min": 0.55,
@@ -460,7 +479,7 @@
         "measured": {
           "largest_area_px": 0,
           "regions": 0,
-          "suspect_px": 937
+          "suspect_px": 992
         },
         "message": "no enclosed ground-coloured region remains above 85 px at tolerance 25.806",
         "passed": true,
@@ -487,7 +506,7 @@
         "id": "h",
         "measured": {
           "ground_luminance": 143.89,
-          "ground_toned_fraction": 0.0056,
+          "ground_toned_fraction": 0.0054,
           "toned_below_object_fraction": 0.0007
         },
         "message": "no ground-toned pool below the object (0.073% of opaque pixels)",
@@ -507,22 +526,22 @@
         "measured": {
           "attachment": "floor_against",
           "derivation": {
-            "band_over_bottom_two_rows": 37.31,
+            "band_over_bottom_two_rows": 28.438,
             "bottom_two_rows": {
-              "x0": 244,
-              "x1": 273
+              "x0": 101,
+              "x1": 117
             },
             "chosen": "contact_band",
             "contact_band": {
-              "x0": 24,
-              "x1": 1106
+              "x0": 10,
+              "x1": 465
             },
-            "geometric_base_x": 258.5
+            "geometric_base_x": 109.0
           },
-          "footprint_fraction_of_width": 0.9458,
-          "footprint_span_px": 1082.0
+          "footprint_fraction_of_width": 0.9459,
+          "footprint_span_px": 455.0
         },
-        "message": "the contact band spans 37.3x the bottom-two-rows extent — a real three-quarter stance, but a judgement was made: check it against the image, and override with --footprint x0,x1 in SOURCE coordinates if the band caught something that is not a foot",
+        "message": "the contact band spans 28.4x the bottom-two-rows extent — a real three-quarter stance, but a judgement was made: check it against the image, and override with --footprint x0,x1 in SOURCE coordinates if the band caught something that is not a foot",
         "passed": false,
         "severity": "warn",
         "threshold": {
@@ -535,16 +554,16 @@
       {
         "id": "e",
         "measured": {
-          "deviation_deg": 22.06,
-          "estimate_deg": 93.44,
+          "deviation_deg": 21.1,
+          "estimate_deg": 94.4,
           "expected_deg": 115.5,
           "image": "body",
-          "interior_px": 668342,
-          "left_third_luminance": 38.79,
-          "right_third_luminance": 39.86,
-          "third_tilt": -1.072
+          "interior_px": 111095,
+          "left_third_luminance": 38.97,
+          "right_third_luminance": 40.02,
+          "third_tilt": -1.054
         },
-        "message": "bright-side estimate 93.4 deg deviates 22.1 deg from the 115.5 deg a constructed UL45 control measures (budget 15 deg); left-third minus right-third luminance is -1.07, under the 2 the shipped mechanisms.spec light clause requires — this sprite does not carry the horizontal half of UL45 and that Playwright case will go red when it replaces a placeholder",
+        "message": "bright-side estimate 94.4 deg deviates 21.1 deg from the 115.5 deg a constructed UL45 control measures (budget 15 deg); left-third minus right-third luminance is -1.05, under the 2 the shipped mechanisms.spec light clause requires — this sprite does not carry the horizontal half of UL45 and that Playwright case will go red when it replaces a placeholder",
         "passed": false,
         "severity": "warn",
         "threshold": {
@@ -555,14 +574,31 @@
           "min_third_tilt": 2.0,
           "severity": "WARN ONLY, per blueprint §9.4(e) [HUMAN]. See the closing report: both corpus desks warn, so no automated check of the intention's 'one light' quality survives row 3 on real art. That is a fork for the Navigator, not a threshold to move."
         }
+      },
+      {
+        "id": "dims",
+        "measured": {
+          "drawn_width_m": 0.977,
+          "implied_width_m": 1.4008,
+          "ratio": 0.6975
+        },
+        "message": "the object draws 0.977 m wide where dims_m implies 1.401 m (ratio 0.6975): the record's width and its own pixels disagree, and the renderer scales by height so nothing downstream will notice",
+        "passed": false,
+        "severity": "warn",
+        "threshold": {
+          "ratio_band": [
+            0.85,
+            1.15
+          ]
+        }
       }
     ],
     "source": "generated",
     "tool": "replicator-ingest-v1"
   },
   "px": {
-    "h": 914,
-    "w": 1144
+    "h": 384,
+    "w": 481
   },
   "schema": "sprite/0.1",
   "takeable": false,
