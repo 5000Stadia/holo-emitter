@@ -1,228 +1,296 @@
 # Rows 8 and 10 — fullscreen, and keyboard/assistive access + reduced motion
 
-Both are chrome rows touching `index.html` and its tests, built in one batch because they land in
-the same files and the same commit shape (extend `design/surface-strings.md`, extend the test
-suite, leave the scene canvas and its hashes untouched).
+Both are chrome rows touching `index.html` and its tests, built in one batch per this run's own
+dispatch, which closes both in the single state-only closing commit the run specifies — row 8 does
+not get an independent close/push; that is the shape this run was handed, not a builder's choice.
+
+Revised after a plan-critic pass (31 findings, 23 blocking). This version's design decisions are
+the fixes; each subsection below states which finding it closes.
 
 ## Shared ground
 
 Neither row touches `src/renderer.js`, `src/harness.js`, `src/groundplane.js`,
-`src/placeholders.js`, or any fixture. Everything lives in `index.html` (markup, CSS, the
-bootstrap `<script>`) plus new/extended Playwright specs and `design/surface-strings.md`. The
-scene canvas's internal size (1536×1024), its draw algorithm, and every existing hash assertion
-are untouched by construction — nothing in either row's design writes to `#scene`'s 2D context or
-changes `window.HOLO.renderer`'s inputs.
+`src/placeholders.js`, or any fixture. Nothing writes to `#scene`'s 2D context or changes
+`window.HOLO.renderer`'s inputs — verified at the end by capturing the scene-hash sequence at the
+parent commit and again after (row 7's own method for this exact promise; `design/architecture.md`
+already names the lack of a committed guard for it), not merely asserted.
 
-Both rows extend the voice audit in the same commit as the code, per the maintenance rule in
-`design/surface-strings.md`.
+**Row 8's own done clause says "all existing tests stay green unmodified."** Read literally: zero
+existing test files are edited. This plan honors that literally — `tests/playwright/voice.spec.mjs`,
+`walkthrough.spec.mjs` and `shell.spec.mjs` are read for pattern only and never touched. (F13)
+Row 10's clause has no "unmodified" qualifier, but this plan holds the same discipline for both,
+since touching `voice.spec.mjs`'s self-referential STATES-derivation (it scans only its own file
+for what it drove) is a real hazard for no real gain — see "Observing the new strings" below.
+
+**Withdrawal selector generalized.** Today `.chevron` is both a style class and the literal
+selector three separate withdrawal paths query (the `<noscript>` injected style, the boot handler,
+`fault()`) — a hand-kept list of one class a second live control silently escapes (finding F14).
+Both new static controls (the fullscreen button; see row 8) carry a second class, `affordance`,
+alongside their own styling class; the chevrons gain it too. All three withdrawal sites are changed
+from `.chevron` to `.affordance`. Row 10's entity-controls need no such handling — they are created
+entirely by the bootstrap script itself and simply do not exist if that script never runs, so there
+is nothing to withdraw on those paths; `fault()` additionally clears `#entity-controls`'s children
+and blurs focus out of it when a render fault happens *after* boot.
 
 ## Row 8 — fullscreen
 
-**Control.** One visible, mouse/touch/keyboard-clickable `<button id="fullscreen-toggle"
-class="chrome">` positioned in the top-right corner of `#stage` (absolute, small bordered box,
-styled like the chevrons — no glyph, no `content:` CSS, name carried entirely by `aria-label` so
-no new "mark" enters the audit). It is real chrome: unlike row 10's entity controls, mouse clicks
-land on it directly (no `pointer-events: none`), and it hides under `body.capture` like every
-other chrome element already does via the existing `.chrome` rule.
+**The fallback must be real, not a relabelled no-op (closes F1, F2).** The plan-critic's central
+finding: the original design toggled a `position:fixed;inset:0` class that changed nothing
+observable on iOS Safari (the case row 8 names), while flipping the button's label to "leave the
+full screen" — a reachable, false surface string, and it also broke the sliver-viewport scroll
+contract `walkthrough.spec.mjs` already pins (900×140 has to remain reachable by scroll).
 
-**Mechanism.** Feature-detect `document.documentElement.requestFullscreen` (and the
-`webkit`-prefixed variant, for older desktop Safari — iOS Safari has neither for arbitrary
-elements, which is the case the intention names as the licensed-fallback trigger). On click:
-- If a real API exists, call it (with a `.catch()` — a rejected promise, e.g. from a policy
-  denial, falls through to the same fallback branch as "no API").
-- If it does not exist, or the promise rejects, toggle a `maximized` class on `<html>` instead —
-  the in-page fallback. Its CSS makes `html`/`body` consume the full viewport and disables scroll
-  bounce (`position: fixed; inset: 0`); it does **not** attempt to hide browser chrome (that is
-  not achievable from CSS/JS), and does not change the stage's existing contain-fit/letterbox
-  math at all — the letterboxed presentation already *is* the fallback, per the row's own text.
-  Neither branch changes `#stage`'s width/aspect-ratio calc; both simply give the calc more
-  viewport height to work with when the browser grants it.
-- A `fullscreenchange` listener (both spellings) re-syncs the button's label/state whenever the
-  browser enters/exits fullscreen by any means (button, Esc key, browser UI) — real fullscreen is
-  the source of truth when the API exists; the fallback branch has no external event, so the class
-  toggle is the state.
+Fix: **the fallback drops the bottom chrome reserve, in both branches.** A single boolean state —
+`fsActive`, true when either `document.fullscreenElement` is truthy (webkit-prefixed too) or the
+manual fallback flag is set — drives one class, `html.fs-active`. Under it:
+- `#narration` and `#inventory` are hidden (`display:none`), same mechanism `body.capture .chrome`
+  already uses.
+- `#stage`'s width calc reserve drops from `7.6rem` to `0` (a second CSS rule scoped to
+  `html.fs-active #stage`, not a rewrite of the existing rule).
+- No `position:fixed`/`inset:0` anywhere — this closes F2 outright, since nothing about the
+  degenerate-sliver scroll contract changes; the fix that caused it is deleted, not patched.
 
-**Control name, and the fork it closes.** `design/surface-strings.md`'s `QUESTIONS` has an open
-line: *"is `fullscreen` the shortest true name of what the button does, or is it a property of the
-visitor's window... two competent builders will otherwise ship different chrome."* This plan
-resolves it, citing two existing precedents rather than inventing a new rule: (1) the chevrons are
-already named by plain function ("turn left"/"turn right"), not by narrative dress, establishing
-that control names in this product are functional, not fictional; (2) "speech about the visitor's
-own device is not developer speech" is already the licensed ground for the no-JS message, and a
-fullscreen toggle is exactly that class of speech — about the visitor's own window, not this
-project's construction. So: plain functional labels, `PASS` (not `LICENSED:device` — nothing here
-is naming a system *condition*, e.g. no "Loading…"-shaped sentence; it is naming what the button
-*does*, same as the chevrons). Two strings, state-dependent: **"fill the screen"** /
-**"leave the full screen"**. The `QUESTIONS` line is deleted in the same commit (resolved, not
-left stale) with a one-line note of the resolution and citation left where the line was, matching
-how prior rows have closed forks in place rather than silently dropping them.
+This makes "fullscreen" mean the same thing on every engine: a distraction-free, maximized scene
+view. It is real (the stage's rendered CSS box genuinely grows — testable via `boundingBox()`),
+it is true (the label only changes when the DOM genuinely changed), and it works identically
+whether the OS grants real fullscreen or not, which is what "the letterboxed presentation IS the
+licensed fallback" already licenses. One function, `syncFullscreenUI()`, computes `fsActive` and
+applies the class + label together, called from the click handler, from `fullscreenchange` (both
+spellings), and once at boot — closing F10 (one state model, not two that can disagree).
 
-**Tests** (new: `tests/playwright/fullscreen.spec.mjs`). Deterministic, not dependent on a sandboxed
-CI runner actually granting OS-level fullscreen (the artifact critic's appended instruction — "try
-fullscreen... yourself" — is the real-world check for that; the automated suite verifies the code
-is correct, not that a headless runner's fullscreen permission happens to be granted):
-- Button exists, initial `aria-label` is "fill the screen", initial `aria-expanded` absent (this
-  control is a toggle-state button but not a disclosure; no `aria-expanded` needed — its own label
-  already changes, unlike desk/door in row 10 where the label is deliberately state-invariant).
-- Click with `requestFullscreen` present (spied/wrapped, not required to actually succeed under
-  CI): the spy is called on the button element.
-- Click with `requestFullscreen` (and the webkit variant) deleted via `addInitScript` before
-  `goto`: `<html>` gains `maximized`; label flips to "leave the full screen"; second click removes
-  it and flips back.
-- A rejected `requestFullscreen()` promise (stubbed to reject) falls through to the same class
-  toggle.
-- `fullscreenchange` (dispatched synthetically with `document.fullscreenElement` stubbed via
-  `Object.defineProperty`) re-syncs the label without a click — this is also the vehicle that
-  makes "leave the full screen" genuinely reachable for the voice audit, registered as a new
-  `STATE:fullscreen-active` in `design/surface-strings.md` and driven in
-  `tests/playwright/voice.spec.mjs` by one small new test block (additive; the existing sweep test
-  is not touched).
-- Canvas dims stay 1536×1024 and the scene hash is unchanged across both branches, at a 16:9
-  desktop viewport and a phone ratio (390×844), portrait and landscape — reusing `shell.spec.mjs`'s
-  contain-fit arithmetic pattern (not editing that file — a new assertion in the new spec) to
-  confirm the stage box still contain-fits/letterboxes correctly with the fallback class applied.
-- `body.capture` still hides the button (extends the existing invariant, asserted fresh here since
-  `shell.spec.mjs`'s own capture test enumerates a fixed id list it isn't safe to touch — a
-  duplicate-but-independent assertion in the new file, not an edit to the existing one).
+**The control (closes F7, F14, F15).** A visible `<button id="fullscreen-toggle" class="affordance
+chrome">`, top-right of `#stage`, `pointer-events` normal (this is real mouse/touch chrome, not a
+row-10 keyboard-only helper). It carries a small inline `<svg aria-hidden="true">` — two open
+corner-brackets, plain vector paths, no `<text>`, no `content:` CSS — so a sighted player sees a
+real icon rather than a blank box; the SVG contributes no string (no text node, `aria-hidden`
+belt-and-suspenders, and `<svg>` is already named in `surface-strings.md` as a technique rows 8–10
+may use). DOM order: chevron-left, chevron-right, fullscreen-toggle — stated here so the tab order
+is a specification, not an accident (closes F15's chevron/fullscreen-order half; row 10 states the
+rest).
+
+**Click handler.** Feature-detect `requestFullscreen`/`webkitRequestFullscreen` on
+`document.documentElement`. If present: call it (real, unstubbed, on a genuine `page.click()` —
+see Tests) with a `.catch()` that falls through to the manual-flag branch on rejection. If absent:
+flip the manual flag directly. Either way, `syncFullscreenUI()` runs after.
+
+**Labels, and the naming fork (closes F4, partially).** Two strings: **"fill the screen"** /
+**"leave the full screen"**. `design/surface-strings.md`'s `QUESTIONS` line on control-name
+world-vs-machine naming is **not deleted** — only the Navigator can close a line filed there for
+Kabe. This plan appends a proposed resolution to it, argued from precedent already ratified in
+this document (the chevrons are already plain functional names, not fiction; "speech about the
+visitor's own device is not developer speech" already licenses naming a fact about the visitor's
+own window) — and ships `PASS`, not a new `LICENSED` class member (the closed class is untouched;
+this cites an existing precedent, it does not add to it). The two strings deliberately avoid the
+literal word "fullscreen" so the practical question is sidestepped even before Kabe rules on the
+formal one.
+
+**Tests** (new file: `tests/playwright/fullscreen.spec.mjs`, `shell.spec.mjs` untouched):
+- Button exists; initial label "fill the screen"; `.affordance` class present.
+- **A real attempt, on a genuine click** (closes F16): `page.click('#fullscreen-toggle')`, then
+  check `document.fullscreenElement`. If the engine granted it, assert the box/label changed and
+  exit fullscreen via the button again. If it did not (sandboxed CI denying a gesture-based grant
+  is a real, environment-level possibility, not a code defect), the test does not hard-fail on that
+  alone — it asserts `requestFullscreen` was genuinely *called* (spied, not stubbed-away) and that
+  `fsActive`/the label still reflect *something* consistent, and records which branch it took.
+  This is deliberately not mocked into meaninglessness — a real gesture-driven call happens.
+- **Deterministic no-API branch**: `requestFullscreen`/`webkitRequestFullscreen` deleted via
+  `addInitScript` before `goto`. Click: `html.fs-active` appears, chrome hides, `#stage`'s box
+  grows (measured), label flips. Second click reverses all four.
+- **Rejection branch**: `requestFullscreen` stubbed to return a rejected promise. Same assertions
+  as the no-API branch.
+- **`fullscreenchange` sync**: `document.fullscreenElement` stubbed via `Object.defineProperty`,
+  event dispatched without any click — label/class follow, proving Esc-driven exits resync.
+- Canvas stays 1536×1024 and its hash is unchanged across every branch above, at a 16:9 desktop
+  viewport and 390×844 (portrait and landscape).
+- **A derived capture check** (closes F30, an observation, cheaply): `document.querySelectorAll
+  ('.chrome')` under `body.capture` are all `display:none` — reads the DOM's own class membership
+  rather than a second hand-kept id list, strictly stronger than duplicating `shell.spec.mjs`'s own
+  fixed list, and does not edit that file.
+- Own-string vocabulary/audit-membership check (see "Observing the new strings" below).
+
+**Engine-conditional claims (closes F28).** Every claim about iOS Safari specifically (the
+fallback's real effect, whether `requestFullscreen` is truly absent there) is recorded as
+unverified on this machine, appended to `design/surface-strings.md`'s existing
+*Engine-conditional claims* section — this repo cannot launch WebKit at all. The artifact critic's
+appended instruction ("try fullscreen... yourself on both engines and a 390×844 viewport") is the
+real-world check this plan cannot run.
+
+**CSS hygiene picked up while this block is open (closes half of F29):** a `vh` line before the
+`svh` line in `#stage`'s width calc — a one-line, zero-cost, non-hash-moving addition that closes
+`design/architecture.md`'s named "no `vh` fallback beneath `svh`" limit for engines that don't
+support `svh` at all. The bottom-chrome alignment question in the same `QUESTIONS` entry is
+explicitly **declined** here, not silently buried again: its own tradeoff (a full line of prose
+lost at phone landscape) is a taste call, not a presentation-mechanics fix, and this row does not
+fold it in. The `QUESTIONS` entry is edited to record that it was re-examined and re-declined at
+row 8, not left to look unread.
 
 ## Row 10 — keyboard/assistive access + reduced motion
 
-**The gap, exactly.** Only the chevrons are focusable today. The scene canvas has no `tabindex`,
-role, or way to reach the drawer, the door, or any takeable without a pointer. Every intent a
-pointer can emit (`toggle`, `take`, `go`) has to become reachable by keyboard alone.
+**Architecture, unchanged from the original plan in shape:** a DOM overlay of invisible, focusable
+`<button>` elements, one per entity in `currentLayout` plus one per open-facing doorway, rebuilt
+inside `paint()` (the same moment `currentLayout` itself is recomputed). Mouse behavior is
+completely unaffected — every such button is `pointer-events:none`, so a mouse click passes through
+to the canvas beneath and the existing `resolve()`/`hitTest()` path is untouched by construction.
+Keyboard/AT activation of a focused button fires its `click` handler regardless of `pointer-events`
+(that property only gates hit-testing, not synthetic activation of a focused element — this is the
+same mechanism visually-hidden "skip to content" links rely on across the web).
 
-**Architecture: a parallel, invisible, focusable control per drawn entity + per open doorway.**
-The canvas itself cannot host sub-focusable regions, so this is a DOM overlay of real `<button>`
-elements, built and rebuilt from `currentLayout` exactly when it changes (i.e., at the end of
-`paint()`, which already only runs on a non-empty envelope — the same moment the layout itself is
-recomputed). This mirrors how the hover halo already reads `currentLayout`/`entryRect` — no new
-data source, just a new consumer of the one that exists.
+**Names: state-invariant text, no `aria-expanded` (closes F6).** The original plan put open/closed
+state on `aria-expanded` and argued the runtime sweep's collector drops boolean tokens, so it needs
+no audit entry — backwards as an argument, because a screen reader still speaks "expanded"/
+"collapsed" over a plank door and an oak drawer: machine register laid over the fiction's own
+objects, exactly the class of thing the audit exists to catch, just outside where the collector
+happens to look. Fix: **the state lives in the name itself**, authored and audited like every other
+string:
+- `desk1`: **"open the joined oak writing desk"** (closed) / **"close the joined oak writing desk"**
+  (open).
+- `door1`: **"open the plank door"** / **"close the plank door"**.
+- Static entities (no `states`): the plain noun — **"the joined wainscot chair"**,
+  **"the brass candlestick"**, **"the back-panelled oak bookcase"** — activating one dispatches
+  `toggle` exactly as a pointer click would, which is refused and narrated; the control names the
+  object, matching how a player who does not yet know what will happen names it too.
+- Takeables: **"take the iron key"**, **"take the vellum notebook"**, **"take the silver coin"**.
+- The go-control: derived from the leaf's own `record.noun`, not a per-exit-id lookup table
+  (closes F3 and, as a side effect, F12's ambiguity in favor of naming what is visible rather than
+  a destination the player has not yet reached, which is the reading closer to
+  knowledge-honesty in spirit even though locations are not themselves knowledge-filtered) —
+  **"walk through the plank door"**. Present only when the on-facing exit's leaf is open (mirrors
+  `resolve()`'s own doorway branch exactly: a shut leaf has no separate opening-target, and neither
+  does this). Since M0's one door entity is shared by both exits, this is a single string, not two.
+- **Degenerate case (closes F25):** if a bound entity's record is missing or its `noun` is absent/
+  non-string, the label falls back to **"something here"**, with a `console.error` naming the
+  entity id — the exact pattern `src/inventory.js` already uses for its own missing-noun and
+  no-record branches, applied to this new composed site. One new `SINKS` row:
+  `index.html | setAttribute aria-label | composed`, and this fallback branch is enumerated under
+  its "Degenerate values, disposed per composed site" prose the same way `inventory.js`'s is.
 
-- **Container.** `<div id="entity-controls">` appended to `#stage`, right after the chevrons.
-  Rebuilt (cleared and repopulated) on every `paint()`, in `currentLayout` order (baseline
-  ascending — the same order the renderer already draws in), so tab order tracks draw order.
-- **Per-entity button.** For every id in `currentLayout`: a `<button>` styled
-  `position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none` — invisible,
-  keyboard-only, and (this is the load-bearing property) `pointer-events:none` means a mouse click
-  passes straight through to the canvas beneath it; the existing `resolve()`/`hitTest()` pointer
-  path is completely untouched by this row. Keyboard activation of a focused button fires its
-  `click` handler regardless of `pointer-events` (that CSS property only gates hit-testing, not a
-  synthetic keyboard-triggered click) — this is the mechanism that makes the split safe.
-  - `aria-label`: `(entity.takeable ? "take the " : "the ") + record.noun` — **state-invariant by
-    design**. A toggleable entity's open/closed *action* differs by state, but its *name* does
-    not; state is instead carried on `aria-expanded` (see below), which is the correct ARIA
-    pattern for a disclosure control and — practically — keeps the voice audit to one string per
-    entity instead of one per entity per state.
-  - `aria-expanded`: set to `"true"`/`"false"` only when `entity.states` is truthy (desk1, door1);
-    omitted for static entities (chair1, stick1, shelf1) and for takeables. Boolean ARIA tokens are
-    already excluded from `voice.spec.mjs`'s runtime sweep (its collector drops pure
-    `true`/`false` values), so this needs no audit entry.
-  - `onclick`: dispatches exactly what the pointer path would dispatch for that entity —
-    `{type:"take", entity:id}` if takeable, else `{type:"toggle", entity:id}`. Same function the
-    scene's own click handler already calls; no new dispatch logic, just a second caller.
-  - On `focus`: draw this entity's outline on `#overlay` via the existing `stamp`-based halo
-    routine (the same one hover already uses) — the visible witness the batch needs. On `blur`:
-    the overlay repaints (see below) to whatever the mouse's current hover state is, or clears.
-- **Doorway "go" control.** Only present when the on-facing exit's leaf is open (this precisely
-  mirrors `resolve()`'s own doorway branch — the leaf covers its own opening when shut, so there is
-  no separate `go` target then either, and the pointer resolves a shut leaf's click to `toggle`). A
-  fixed, tiny lookup by exit id (M0 has exactly two): `"walk to the hall"` /
-  `"walk to the study"` — the same pattern narration.json already uses (exit-id-keyed strings), not
-  a general noun-derivation machine, since M0's exit set is fixed and enumerable. Activating it
-  dispatches `{type:"go", exit:id}`. On focus, draws the aperture's own rectangle outline
-  (`outlineRect`, already used for doorway hover) instead of an entity silhouette.
-- **Overlay composition.** Today `showHover(p)`/`clearHover()` unconditionally clear-and-redraw the
-  overlay from mouse state alone. This is refactored into one `paintOverlay()` that clears once,
-  then draws the focused control's outline (if any) and then the mouse-hover outline (if any) —
-  order doesn't matter when they coincide, and when they don't both remain simultaneously visible,
-  which is correct (a sighted keyboard user tabbing while a mouse still rests somewhere should see
-  both, not have one silently overwrite the other). Every existing call site of `showHover`/
-  `clearHover` (mousemove, mouseleave, pointerup, and `paint()`'s post-render hover restore) routes
-  through `paintOverlay()` instead; behaviour for mouse-only sessions is identical to today (there
-  is never a focused control in a pointer-only session), so this refactor changes no existing
-  test's outcome. This is the one place existing code is *restructured* rather than purely added
-  to, and it is small (a rename plus one extra draw call, no logic removed).
-- **Withdrawal on fault.** `fault()` already withdraws chevrons, cursor, and the overlay together
-  ("every affordance withdrawn as one, not left half-true"). It gains one more line: clear
-  `#entity-controls`' children (and blur `document.activeElement` if it was inside that container),
-  so a faulted page does not leave a keyboard user tabbing into buttons that dispatch into a world
-  the page has already disowned.
+**The canvas gets an accessible name (closes F23).** `design/architecture.md` already assigns this
+to row 10 by name. `<canvas id="scene" role="img" aria-label="what you see">` — literal HTML,
+parallel in form to the two existing "what X" region names (`#narration` = "what the room says",
+`#inventory` = "what you are carrying"), so it reads as one voice rather than a bolted-on label.
+This is a sixth literal `aria-label`, and `surface-strings.md`'s prose naming "the five `aria-label`
+attributes" is corrected to six in the same commit. `<canvas>` fallback *content* (extra child
+nodes for browsers with no 2D canvas at all) stays undecided exactly as already recorded — a
+narrower, now-explicit residue, not silently dropped.
 
-**`prefers-reduced-motion` — pure CSS, no JS.** One rule:
-```css
-@media (prefers-reduced-motion: reduce) { #veil { transition: none; } }
-```
-The veil's black-in phase is already instant (the `.instant` class); this rule makes the fade-*out*
-(removing `.on`) instant too, under the media query only — a normal browser session is completely
-unaffected (Playwright's default emulated media is "no preference"), so every existing veil-timing
-test in `walkthrough.spec.mjs` is untouched. No JS timer logic changes; the 140 ms hold before the
-class removal stays (a brief hold before an instant cut is still a cut, not a fade).
+**Focus survives a repaint (closes F17).** The original plan cleared and rebuilt `#entity-controls`
+on every `paint()` with no memory, so the focused control vanished under the user on every single
+action — turn, open, take, all of them — dropping focus to `<body>` and forcing a full re-Tab after
+every intent. Fix: before clearing, if `document.activeElement` is inside `#entity-controls`, its
+`data-target-id` is captured; after rebuilding, a button carrying that same id (if any still exists
+— e.g. it was a static entity, or a toggle whose state changed but whose id persists) is
+`.focus()`ed. A control whose *referent is gone* (a taken item) legitimately loses focus — that is
+correct, not a bug, since there is nothing left to point at.
 
-**Strings entering the audit.** Ten new `STRINGS` rows: the eight entity names above, plus the two
-go-controls. All `verdict: PASS`, `observed: yes`, `adjudicator: row8-10-artifact-critic` (matching
-the convention every prior row's fresh strings use — the critic this run spawns is the examination
-of record). Honesty check on `observed: yes`: seven of the eight entity names (desk1, chair1,
-note1 — visible at cold-boot's study/N; door1 — visible turning to study/E; shelf1, stick1, coin1
-— visible turning to hall/N) are collected for free by `voice.spec.mjs`'s *existing, unmodified*
-runtime sweep, since it already turns through every facing and `COLLECT()` reads every `aria-*`
-attribute generically — no sweep code changes needed for those seven. The eighth (`key1`, "take the
-iron key") and both go-controls are **not** reachable by that existing sweep as shipped
-(`design/intention.md` row 14, not in this run's scope, already records that the sweep's own
-facing-cycling never lands on a facing where `toggle door1`/`go` actually succeed, so the drawer
-never truly opens there) — this plan does not touch row 14's territory or its loop. Instead, row
-10's own required keyboard-walkthrough test (below) is what genuinely opens the desk while facing
-study/N and opens/crosses the door while facing study/E, so it is the true, honest witness for
-those three strings — `observed: yes` is correct because *some* test in the suite really produces
-them, which is what the column means; it does not require `voice.spec.mjs`'s particular sweep to
-be the one that does it.
+**Rough positioning, not purely `{0,0}` (mitigates F19).** `pointer-events:none` plus keyboard/AT
+activation is the standard, correct pattern for this — activation of a focused element fires
+regardless of the CSS property, and does not depend on hit-testing at a screen coordinate the way a
+raw synthetic touch would. But leaving every button stacked at one undefined point is needless
+residual risk for a platform this repo cannot even launch to check (WebKit). Each button is
+positioned (in percentage units, so it scales with the stage's own CSS box) at the centre of its
+entity's `entryRect()` — cheap, since that geometry is already computed for the hover halo — even
+though the button stays visually `opacity:0`. Belt, not just suspenders.
 
-**SINKS additions:** two new rows, both `index.html`, both `composed`: `setAttribute aria-label`
-and `setAttribute aria-expanded` (the site-identity the census computes is the same whether the
-code uses `.setAttribute(...)` or the `.ariaLabel =`/`.ariaExpanded =` IDL form, so either style is
-fine; plan uses `setAttribute` for clarity next to the existing `inventory.js` precedent).
+**Reduced motion is a true instant cut, not a shortened fade (closes F9, F18).** The original design
+kept the veil's 140 ms full-black hold and only removed the *fade-out* transition, which is a flash-
+cut, not the "instant cut" the row's own text asks for, and it created a timing window where the
+reduced-motion assertion and the normal-mode assertion could both read `0s` depending on when the
+test happened to sample. Fix: `dispatch()`'s go-veil block checks
+`matchMedia('(prefers-reduced-motion: reduce)').matches` once, synchronously, before touching the
+veil's classes at all. Under reduced motion, the veil sequence is skipped entirely — no `.instant`,
+no `.on`, no 140 ms hold, no CSS transition — the repaint simply happens, exactly as a `turn` or
+`toggle` already does without any veil. The existing `@media (prefers-reduced-motion: reduce)
+{ #veil { transition: none } }` CSS rule is kept as defense in depth (harmless since the JS path
+never adds `.on` there at all), not as the sole mechanism.
 
-**Tests** (new: `tests/playwright/keyboard.spec.mjs`; `walkthrough.spec.mjs` is not edited — it is
-the delicately-pinned §12.1 script and this plan does not risk it):
-1. **Keyboard-only journey**, no `page.mouse.*` call anywhere in the test: `Tab`-navigate and
-   `Enter`/`Space`-activate through the same beats §12.1's pointer script covers — chair refusal,
-   open desk (reveal), take key, take note, close desk, turn (`ArrowRight`/`ArrowLeft`, already
-   keyboard) to face the door, open door, walk through via the go-control, look back, turn back,
-   reach the hall's shelf/candlestick/coin, take the coin, return to the study via the door's
-   go-control. Assertions are **behavioural parity** (world state, narration lines, inventory
-   contents) against the same outcomes §12.1 pins — not a hash-sequence replay, since row 10 does
-   not require hash identity with the mouse path, only that the same intents become reachable.
-2. **Accessible names**, read directly off `aria-label` for the full control set at study/N,
-   study/E (both door states), and hall/N, checked against the exact strings above.
-3. **`aria-expanded` toggles** on desk1 and door1's controls across open/close.
-4. **Focus order**: the tab sequence at a given facing matches `currentLayout`'s baseline order
-   (chevrons first, then entities in draw order, then any go-control last).
+**Observing the new strings, honestly (closes F5, F21).** The plan-critic's sharpest finding: the
+original plan claimed seven of eight entity strings were "collected for free" by
+`voice.spec.mjs`'s existing sweep while citing, in the very next sentence, `design/intention.md`
+row 14's own description that the sweep never actually leaves the study — a self-contradiction.
+Traced properly: the existing sweep's facing loop (`study` N→E→S→W, ending at W, *then*
+`toggle door1`/`go` — both refused there since door1 is staged on E) only ever visits study/N
+(desk1, chair1, note1) and study/E (door1) with the world in its untouched initial state. Nothing
+about the hall, nothing about the door open, nothing about the drawer open, is ever reached by that
+sweep as shipped. This plan does not touch that loop or row 14's territory at all. Instead:
+- The four strings the existing sweep genuinely does reach ("open the joined oak writing desk",
+  "the joined wainscot chair", "take the vellum notebook", "open the plank door") get
+  `observed: yes` honestly, for free, with zero test-file edits.
+- Everything else (both close-state labels, the three hall statics, "take the iron key", the
+  go-control, the fallback string, the canvas name, and both fullscreen strings) is observed by
+  this row's *own* new tests, which read `design/surface-strings.md`'s fenced blocks directly
+  (the same parsing `voice.spec.mjs` does, reimplemented standalone so as to touch nothing in that
+  file) and assert every `aria-label`/`role="img"` name the new keyboard journey actually produces
+  is (a) developer/method-vocabulary-clean and (b) a member of `STRINGS`. `observed: yes` on these
+  rows is true because this row's own suite, not `voice.spec.mjs`'s, is the witness — and it
+  genuinely visits study/N with the drawer open, study/E with the door open, and hall/N, which the
+  existing sweep never does.
+- No new entries are added to `surface-strings.md`'s `STATES` block, and `voice.spec.mjs` is not
+  touched — `STATES` is specifically the vehicle for that file's own self-referential sweep
+  machinery (it scans only its own source for what it drove), and misusing it for a different
+  file's coverage would be exactly the "claims the builder made, unverified" pattern the audit's
+  own "What this apparatus does NOT hold" section warns the next critic to hunt for.
+
+**Tests** (new file: `tests/playwright/keyboard.spec.mjs`; `walkthrough.spec.mjs` untouched):
+1. **Keyboard-only journey**, zero `page.mouse.*` calls anywhere in the file: Tab/Enter through the
+   same beats §12.1's pointer script covers — chair refusal, open desk (reveal), take key, take
+   note, close desk, turn (`ArrowRight`/`ArrowLeft`, already keyboard) to face the door, open door,
+   walk through via the go-control, look back, turn back, reach the hall, take the coin, return via
+   the door's go-control. Assertions are behavioural parity (world state, narration, inventory) —
+   not a hash-sequence replay, which row 10 does not require.
+2. **Accessible names**, read directly off `aria-label`/`role="img"` for the full control set at
+   study/N, study/E (both door states), and hall/N — checked against the exact strings above.
+3. **Focus order**: the tab sequence at a facing matches `currentLayout`'s own order (chevrons,
+   fullscreen button, then entities in draw/baseline order, then any go-control last) — the
+   ambiguity row 8/10 jointly left open (F15) is closed here by assertion.
+4. **Focus survives a repaint**: focus a control, activate it, assert focus lands back on "the same
+   id" when that id still exists (desk1 after opening) and is not left dangling when it does not
+   (key1 after taking it — focus should not point at a `<button>` no longer in the DOM).
 5. **Reduced motion**: `page.emulateMedia({ reducedMotion: "reduce" })`, dispatch a `go`, assert
-   `getComputedStyle('#veil').transitionDuration === "0s"`; a second page without the emulation
-   asserts `"0.38s"` — deterministic, no timing-based flake.
-6. **Fault withdrawal**: force a render fault (same technique `shell.spec.mjs`/`voice.spec.mjs`
-   already use) and assert `#entity-controls` is empty and nothing in it is focusable.
-7. **Mouse path unaffected**: one smoke test clicking through the canvas exactly as before (reusing
-   `clickPoint`/`clickCanvasPoint`-style helpers, not importing `walkthrough.spec.mjs` itself)
-   confirming a mouse session never sees a focus outline and the entity-control buttons never
-   intercept a click — guards the `pointer-events:none` invariant going forward.
+   `#veil` never gains the `on` class at any point during the dispatch; a second, unemulated page
+   asserts it does, synchronously, immediately after `dispatch()` returns (before the 140 ms timer
+   fires) — deterministic, no timing race, since the reduced-motion path never touches the class at
+   all rather than racing a transition duration.
+6. **Fault withdrawal**: force a render fault (the technique `shell.spec.mjs`/`voice.spec.mjs`
+   already use, reimplemented locally) and assert `#entity-controls` is empty and
+   `document.activeElement` is not inside it.
+7. **Mouse path unaffected**: one smoke test clicking through the canvas exactly as the pointer
+   model already works, confirming a mouse session never sees a focus outline and the new buttons
+   never intercept a click — a standing guard on the `pointer-events:none` invariant.
+8. **Degenerate noun fallback**: corrupt a bound record's `noun` (mirroring
+   `voice.spec.mjs`'s own existing "a record with no usable noun" test, but against this new sink),
+   assert the control falls back to "something here" and the console carries the fault.
+9. Own-string vocabulary/audit-membership check, as described above.
 
-## `design/architecture.md`
+**`design/surface-strings.md` table corrections (closes F24, part of F26, F28).** The
+`forced-colors, user stylesheet` row's `Owner: row 10` disposition is filled in rather than left
+hanging: canvas-painted affordances (the focus halo, like the pre-existing hover halo) are pixels,
+not styled DOM, so forced-colors mode neither helps nor breaks them — true before this row and
+unchanged by it; the accessible names themselves (plain DOM text) are read by assistive tech
+independent of any forced-colors restyling and are unaffected. Recorded as `Out — reason`, not left
+open. `COUNT` (`STRINGS` and `STATES`) and the "five `aria-label` attributes"/three-literal-surfaces
+prose are updated for the actual final numbers once the strings are written (closes F26).
 
-Updated in the same commit: the "Known limits" bullets that become false are removed/superseded —
-"nothing in the spec list owns keyboard or assistive access... rows 8 and 9 are fullscreen and the
-intro; neither covers either" and "no keyboard or assistive path to entities... row 10 owns this"
-are replaced with a short description of what actually shipped (the DOM-overlay-of-invisible-
-buttons mechanism, the state-invariant-name + `aria-expanded` decision, and the `paintOverlay()`
-refactor), in the same style as how row 13's closed bullets were annotated in place. The stale
-"on a phone the stage is top-aligned... row 8 owns the presentation" bullet is checked against the
-shipped CSS (the stage is already vertically centred, per the `justify-content:center` rule already
-in `index.html` and its own architecture note) and corrected/removed if it is pre-existing
-staleness rather than something this row's work leaves open — verified during the build, not
-asserted here in advance.
+## Known, accepted residue (not fixed by this plan, and why)
+
+- **F19's deeper form** — genuine VoiceOver-on-iOS activation behaviour — is unverifiable on this
+  machine (WebKit will not launch here, already an accepted project-wide limit) and is mitigated,
+  not eliminated, by rough positioning; recorded as residue for whoever next has a real device.
+- **F20 — the coin's focus halo is as hard to see as its hover halo already is** (≈6 logical px at
+  phone scale). This is not new to row 10: the identical apparent-size problem already applies to
+  the existing mouse/hover affordance and is already owned by row 4's asset-scale probe in
+  `design/architecture.md`. Row 10 inherits, not introduces, this; it is not re-solved here.
+- **Human visual gate (F22).** `design/playbook.md` calls for chrome-look pre-approval before it is
+  locked and for the human's screenshot approval as part of "done" for any row that changes what a
+  player sees. This run is dispatched to build both rows autonomously, deliver the batch as delivery
+  rather than a gate, and not wait on anyone — consistent with this method's own "checkpoints
+  inform, gates hold" law (a checkpoint is "how does this look," never "may I continue"). Nothing
+  is pushed by this run, so the playbook's separate proactive-push-note obligation does not yet
+  apply. What remains genuinely owed — Kabe's chrome-look sign-off on the fullscreen control's
+  visual design and the row's screenshot approval — is named plainly in this run's final report as
+  outstanding, not silently assumed satisfied.
 
 ## Explicitly out of scope
 
-No change to `src/renderer.js`, any fixture, `world.json`/`staging.json`/`narration.json`, row 9
-(the speaker layer), row 11/12 (geometry), row 14 (the sweep's facing-cycling bug), `backdrops/`,
-`library-src/`, or any AgentPost mailbox. No hash in any existing test changes. `walkthrough.spec.mjs`
-is read for pattern only, never edited.
+`src/renderer.js`, any fixture, `world.json`/`staging.json`/`narration.json`, row 9, rows 11/12, row
+14's sweep-loop defect, `backdrops/`, `library-src/`, any AgentPost mailbox, and every existing test
+file (`walkthrough.spec.mjs`, `voice.spec.mjs`, `shell.spec.mjs`) — read for pattern, never edited.
