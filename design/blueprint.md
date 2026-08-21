@@ -251,12 +251,32 @@ Notes:
   **Nothing in this section was changed.** These are [HUMAN] values here and in §10, and an agent
   does not overrule a human-tagged decision. What §7's row-2 amendment changes is §7's own [AI]
   adoption of them as *grid-canonical* meta — a synthesized backdrop whose meta must at least be
-  consistent with the picture it draws — and it is enumerated there. The field of view stays as
-  it is until Kabe rules. The answer is needed **before row 4 authors real backdrop
-  meta**, because the §5 horizon assertion will reject any honestly-measured backdrop that does
-  not satisfy it, and the backdrop prompt sheets encode whichever camera is chosen. Rows 7 and 3
+  consistent with the picture it draws — and it is enumerated there. **Ruled in direction, 2026-08-20 [HUMAN]:** "The geometry
+  elements should be determined by the orientation of the approved initial image generation."
+  The approved image is the geometric authority: the probe backdrop Kabe approves is measured
+  (horizon, floor line, scale, corners), its implied camera becomes the project camera — written
+  here, into the other seven prompt sheets, and back into grid-canonical meta so grid rooms and
+  generated rooms agree — and the horizon assertion checks each backdrop's self-consistency and
+  its agreement with the *approved* camera, never a pre-authored one. §10's `focal_mm: 50` is
+  the prompt sheet's starting point, not a gate. What remains open until the probe: nothing an
+  agent decides — the camera is whatever the room Kabe loves turns out to have. Rows 7 and 3
   consume nothing from this.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
+
+**The room has corners — and a facing may have no wall at all [HUMAN, 2026-08-20]:** "the
+horizontal corner of the room needs to be determined in location based on the distance expected
+between the player and that wall" — and "the system account for no wall, if we are for example,
+outside. Or wall like vertical geometry, like you would see in looking down an alley between two
+buildings." So facing geometry is typed, not assumed: **enclosed** (facing wall, two corners),
+**open** (no facing wall — ground runs to a far line/horizon), **corridor** (side planes
+converging, open centre — the alley). The meta schema gains `camera_wall_m` (player-to-far-plane
+distance) and corner positions (`corner_x0_px`, `corner_x1_px` — measured from the image for
+generated backdrops; computed from `camera_wall_m` + `wall_width_m` + the ruled camera for the
+grid), meaningful per type. The staging u-domain spans corner to corner where corners exist —
+supersedes the centre-by-default 16 m wall. M0's two rooms are all-enclosed; the schema and
+`groundplane.js` must simply not hard-wire a facing wall's existence, so open and corridor
+facings are a meta entry later, not a renderer rewrite. Row 11 owns the grid half; row 4's meta
+authoring owns the measured half.
 
 ## 6. Sprite record — `record.json`
 
