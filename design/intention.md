@@ -75,4 +75,6 @@ Rows package Kabe's blueprint [HUMAN]; row text and done clauses are Navigator-a
 
 | 15 | The manor walkable [HUMAN direction above, AI packaging]: world.json grows the manor's full topology from the OK'd plan - every room, corridor, courtyard, stair as locations and exits, all unestablished rooms rendering as holodeck grid with their typed geometry (enclosed/corridor/open) - so the whole building is walkable before any room beyond the first two is painted. M0's blueprint section 12 acceptance is unchanged (two furnished rooms prove the engine); this row proves the world scales. Sequenced after row 12's plan is OK'd and row 11's corner/type machinery lands. | Every plan room reachable by walking; orientation law holds on every exit incl. stairs; grid renders per facing type; validator green on the full manor fixture; all tests green. |
 
-**Next ID:** 16
+| 16 | iOS fullscreen, parked [HUMAN, 2026-08-21]: "Full screen os fine for now even though it doesnt really work on mobile ios from my check." Investigate what the in-page maximize fallback actually does on real iOS Safari (the API is withheld there) and make it earn the name - likely: hide page chrome, lock viewport, maybe orientation hint. Low priority by the quote; sequence after the look rows unless it blocks a flip batch on phone. | On a real iOS device the control produces a visibly maximized, letterboxed stage worth calling fullscreen; no regression elsewhere; Kabe's phone check passes. |
+
+**Next ID:** 17
