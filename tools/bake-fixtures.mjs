@@ -15,11 +15,13 @@
  * Usage: node tools/bake-fixtures.mjs [--fixture-dir DIR] [--out FILE]
  * Defaults: fixtures/demo-study -> fixtures/demo-study/fixture.js
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { validate } from "./validate-fixtures.mjs";
+import { validatePlan, planWarnings } from "./validate-plan.mjs";
+import { stagingDivergence } from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -72,6 +74,56 @@ for (const name of FILES) {
     console.error(`bake refused: ${findings.length} validator finding(s)`);
     process.exit(1);
   }
+}
+
+// Refuse to bake a fixture whose spatial source does not hold up (row 12).
+// The plan is REQUIRED, not optional: a deleted or mis-pathed plan.json would
+// otherwise make the bake green and silent, and the bake is this project's
+// enforcement locus precisely so a fixture cannot ship unchecked. plan.json is
+// deliberately NOT among the baked FILES — the page does not read the plan, so
+// baking it would move fixture.js's bytes and its fingerprint for nothing.
+{
+  const planFile = join(fixtureDir, "plan.json");
+  if (!existsSync(planFile)) {
+    console.error(`bake refused: no plan.json in ${fixtureDir} — the plan is the fixture's spatial source (blueprint §4b)`);
+    process.exit(1);
+  }
+  let plan;
+  try {
+    plan = JSON.parse(readFileSync(planFile, "utf8"));
+  } catch (e) {
+    console.error(`bake refused: plan.json does not parse (${e.message})`);
+    process.exit(1);
+  }
+  let records;
+  try {
+    records = require("../src/placeholders.js").records;
+  } catch (e) {
+    console.error(`bake refused: cannot load records from src/placeholders.js (${e.message})`);
+    process.exit(1);
+  }
+  const byEntity = {};
+  for (const e of parsed.world.entities || []) if (records[e.sprite]) byEntity[e.id] = records[e.sprite];
+
+  const planFindings = validatePlan(plan, parsed.world, byEntity);
+  if (planFindings.length > 0) {
+    planFindings.forEach((f, i) => console.error(`${i + 1}. ${f}`));
+    console.error(`bake refused: ${planFindings.length} plan finding(s)`);
+    process.exit(1);
+  }
+  // Blueprint §4b: the validator asserts staging ≡ plan projection. One
+  // divergence is named in tools/plan-projection.mjs with its reason; a new
+  // one, or the disappearance of a named one, refuses the bake.
+  const div = stagingDivergence(plan, parsed.staging);
+  for (const u of div.unplanned) console.error(`plan warning: staged "${u.id}" on ${u.facing} is not judged — ${u.why}`);
+  for (const r of div.unexpected) {
+    console.error(`bake refused: staging ≠ plan projection — ${r.id} @ ${r.facing}: staging u ${r.shipped_u}, plan projects ${r.projected_u}`);
+  }
+  for (const k of div.missing) {
+    console.error(`bake refused: ${k.id} @ ${k.facing} is listed as a known staging divergence but now agrees — delete the entry in tools/plan-projection.mjs`);
+  }
+  if (div.unexpected.length || div.missing.length) process.exit(1);
+  for (const w of planWarnings(plan, byEntity, parsed.world)) console.error(`plan warning: ${w}`);
 }
 
 function fnv1a32(str) {

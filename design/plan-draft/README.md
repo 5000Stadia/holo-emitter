@@ -1,22 +1,40 @@
-# Row 12 — the manor plan, drawn for redline
+# The manor plan — the drawing, derived
 
-**This is a drawing, not a row.** Nothing derives from it until Kabe has OK'd it
-(blueprint §4b: *"The plan drawing itself is visual direction: it goes to Kabe as an image for
-OK before anything derives from it."*). No `plan.json`, no projection code, no meta field is
-written from these numbers yet.
+**The plan document is the source; this drawing is a projection of it.** Blueprint §4b shape
+item 10: *"the schematic is a byte-deterministic derived render existing only for human gates
+and semantic sanity."*
+
+Kabe approved this schematic on 2026-08-21 with four rulings (blueprint §4b's approval note).
+Row 12 then inverted the artifact order: every metre now lives in
+`fixtures/demo-study/plan.json`, and re-rendering it reproduces the geometry of the approved
+sheets exactly — every drawn rect, line, path and circle, and `standpoints.tsv` byte for byte.
+Two caption strings on the sheets changed at that point and only those: the subtitle no longer
+calls an approved drawing a draft, and a footnote credits the checks to the validator they
+moved into.
 
 | file | what it is |
 |---|---|
 | `manor-ground.png` / `.svg` | artboard 1 — ground floor **and grounds** |
 | `manor-upper.png` / `.svg` | artboard 2 — upper floor, same footprint and scale |
-| `standpoints.tsv` | the standpoint table, machine-readable |
-| `draw_plan.py` | the drawing's source. Every metre is a literal here; the SVG is a projection of it |
+| `standpoints.tsv` | the standpoint table, machine-readable — pure geometry, no prose |
+| `projection.md` | what the plan projects to, what agrees with the shipped demo and what does not, and the questions still open |
+| `draw_plan.py` | the drawing's source — the PICTURE only: colours, label nudges, artboard extents |
 | `render.sh` | SVG → PNG at 2× through headless Chrome |
 
-Redline the PNGs. To take a redline in: edit the metre literals at the top of `draw_plan.py`,
-`python3 draw_plan.py`, `./render.sh`. The script refuses to finish if rooms overlap, if rooms
-and partitions do not tile the interior gross area exactly, or if any room is unreachable on
-foot from the entrance approach — so a redline cannot silently break the plan.
+**To take a redline in:** edit `fixtures/demo-study/plan.json`, then
+
+```
+python3 design/plan-draft/draw_plan.py     # refuses to draw a plan the validator rejects
+./design/plan-draft/render.sh              # SVG -> PNG at 2x
+node tools/plan-projection.mjs --write     # regenerate projection.md
+node tools/bake-fixtures.mjs               # the bake refuses an invalid plan too
+```
+
+`tools/validate-plan.mjs` is the standing validator: rooms tile the interior gross area, no two
+spaces overlap, every opening lies in a wall and joins the two spaces it names, every space is
+walkable from the entrance approach, every standpoint distance is the measured one (law (a)),
+and no outdoor space sees a wall the manor does not build (law (b)). It runs from the bake, from
+the CLI, and from the drawing script.
 
 ---
 
@@ -143,7 +161,9 @@ Both sit inside the 4.5–5.5 m the study's existing readings want.
 Every facing on both artboards carries a standpoint marker (a circle), a dashed leader running
 to the wall line that facing views, and the measured distance printed beside it. **That printed
 number is `camera_wall_m`.** Nothing downstream may invent one; it is read off this drawing, and
-corner positions derive from it.
+corner positions derive from it. Since row 12 the plan document stores that same two-decimal
+number, and `tools/validate-plan.mjs` asserts it is the measured standpoint-to-wall distance —
+so a typed number that the geometry does not produce cannot survive.
 
 The rule the drawing uses, stated once so a redline can change it in one place
 (`K = 0.25` in `draw_plan.py`): *the standpoint for a facing stands on the room's own axis,
@@ -156,13 +176,14 @@ Two things this makes visible that were not visible before:
 
 - **The study lands at 3.60 / 4.09 m** — close to the grid-canonical `camera_wall_m` of 3.5
   (blueprint §7), so the existing room needs no camera surprise.
-- **Five spaces have facings wider than the frame can hold.** §7 pins grid canonical at
-  96 px/m on a 1536 px canvas, which is exactly **16.0 m of wall in frame**. The entrance court
-  and privy garden (20.40 m), the long gallery's long views (24.30 m) and the entrance approach
-  (32.00 m, against a 39.60 m house front) all exceed it. Those facings cannot show their whole
-  wall at the pinned scale — either they get their own camera, or their `wall_width_m` is
-  clipped to what is actually in frame and the staging u-domain clips with it. This is §5's open
-  field-of-view question arriving with numbers attached, and it wants an answer before the bake.
+- **Ten facings are wider than the frame can hold.** §7 pins grid canonical at 96 px/m on a
+  1536 px canvas, which is exactly **16.0 m of wall in frame**. The entrance court and privy
+  garden (20.40 m), the long gallery's long views (24.30 m) and the entrance approach (32.00 and
+  20.00 m) all exceed it. Kabe's ruling (3) licensed the wider camera rather than clipping:
+  those ten take `px_per_m_at_wall = 1536 / wall_width_m`, so the wall exactly fills the frame.
+  `projection.md` §4 lists them and says where a redline on the reading would land. The related
+  §5 field-of-view question — the implied focal length is not constant under a pinned scale — is
+  still open and still Kabe's.
 
 ### The table
 
@@ -299,10 +320,28 @@ exception is the cost** — flagged rather than decided here.
 
 ---
 
-## What the drawing does not yet answer
+## Kabe's rulings, 2026-08-21 — and what is still open
 
-1. **D2** — is a built garden wall inside law (b), or does the privy garden lose its wall?
-2. **D4** — do hall/N and hall/S get door openings prompted into them at row 4?
-3. The five over-wide outdoor/gallery facings above: own camera, or clipped `wall_width_m`?
-4. Whether the great stair may become an open-well stair at the cost of the orientation law's
-   straight-flight simplicity.
+**Answered** (blueprint §4b's approval note):
+
+1. **D2** — the built garden wall stands: *"the garden wall is fine."* And the extension: an open
+   facing with no structure gets a scenic-vista backdrop to its far line, generated like any
+   backdrop. The plan carries that as `backdrop: "vista"` on every open facing.
+2. **D1** — the three-sided entrance court is accepted: *"whatever conceptually works and moves
+   things along."*
+3. The over-wide facings — **wide-view camera licensed** (*"sure"*). Ten facings take it; which
+   ten, and where a redline on the reading would land, is in `projection.md` §4.
+4. The great stair stays a **straight single flight**: *"let's keep it simple for now."* The
+   orientation law's fiction-demands-a-turn exception stays unspent, and the validator refuses a
+   stair whose up and down are not opposite.
+
+**Still open, and Kabe's:**
+
+- **D4** — do `hall/N` and `hall/S` get door openings prompted into them at row 4, or do the
+  manor's extra exits wait for a later row? The two doors are drawn; nothing has been built
+  against them. Live before row 4's prompt sheets.
+- The other six questions row 12's projection raised — the camera (1.60 m level versus §10's
+  1.83 m at −8°), `door1`'s position, what the entrance approach's north view is, the wide-view
+  reading and the implied focal length, the desk standing in the study's chimney breast, and the
+  one [AI] correction made to a datum on this drawing. All of them are in `projection.md` §0 with
+  their numbers.

@@ -220,6 +220,19 @@ granted ("sure") — open and corridor deep-views take their own wider camera, e
 views keep the pinned frame; (4) stairs stay straight single flights ("let's keep it simple
 for now") — the fiction-demands-a-turn exception stays unspent. `design/plan-draft/` is ground
 truth for row 12; the drawing you approved is the solver's first fixture.
+**Built at row 12 [AI].** `fixtures/demo-study/plan.json` is the source now and
+`design/plan-draft/` is its derived render: re-rendering the document reproduces the approved
+sheets' drawn geometry exactly (every rect, line, path and circle; `standpoints.tsv` byte for
+byte), and two caption strings that had become false were corrected. The five checks the drawing
+ran itself are `tools/validate-plan.mjs`, promoted to law and called from the bake, and law (b)
+gained a mechanism instead of an eye: an open facing may have no built structure between its
+standpoint and its far line, a facing of an outdoor space that claims a wall must have one, and
+the outline must agree with the wall bands. The projection is `tools/plan-projection.mjs`, through
+`groundplane.js`. What it could not settle is written where it survives — `design/plan-draft/
+projection.md` §0 lists the seven questions that need Kabe, D4 among them, each with its numbers;
+`design/architecture.md` holds the machinery. The one thing an agent changed about the approved
+drawing is a door's non-drawn label, corrected from *Solar ↔ Long Gallery* to the rooms it
+geometrically joins, and it is recorded in `projection.md` §7.
 
 **Live-ingestion shape [HUMAN, 2026-08-21]:** "the methodology for going from a many location
 description via something like pattern buffer / construct projector to overhead map to rooms
@@ -576,7 +589,15 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     the central 403 px of the frame and nothing could see it, because both sides of every §12.5
     assertion read the same meta. §12.5 gains the one clause that reaches outside a meta —
     `px_per_m_at_wall × wall_width_m ≈ canvas width`, plus §5's own calibration audit — which
-    row 4's eight measured metas inherit. The staged `u` values moved with it under §4's own
+    row 4's eight measured metas inherit. **[AI, amended at row 12 — an [AI] clause on [AI]
+    grounds.]** That equality was written when grid-canonical `wall_width_m` *was* the wall in
+    frame, and the corner ruling below supersedes the centre-by-default 16 m wall: a real 5.45 m
+    study wall at 96 px/m is 523 px in a 1536 px frame, so the clause is false by design for every
+    room the plan holds. It generalizes to **`corner_x1_px − corner_x0_px = wall_width_m ×
+    px_per_m_at_wall`, with both corners inside the canvas** — the same statement wherever the
+    wall does fill the frame, and the right one where it does not. Row 11 builds the corners and
+    inherits this reading; a facing whose view is part building and part open ground has no two
+    corners at all and carries wall segments instead (row 12's `deriveMeta`). The staged `u` values moved with it under §4's own
     license, each keeping its metre offset from the wall centre, so the composition is unchanged.
     This settles nothing about the field of view: 16 m of wall at 3.5 m is a ~133° view against
     §10's 50 mm, and that stays §5's open question for Kabe.

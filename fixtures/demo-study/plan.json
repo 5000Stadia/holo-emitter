@@ -1,0 +1,2747 @@
+{
+  "schema": "holo-emitter-plan/0.1",
+  "version": 1,
+  "units": "m",
+  "north": "+y",
+  "canvas_w_px": 1536,
+  "standpoint_stand_back": 0.25,
+  "entrance": "entrance_approach",
+  "wall_thickness": {
+    "exterior": 0.6,
+    "interior": 0.35,
+    "garden": 0.45
+  },
+  "outline": [
+    [
+      0,
+      0
+    ],
+    [
+      10,
+      0
+    ],
+    [
+      10,
+      9
+    ],
+    [
+      30.4,
+      9
+    ],
+    [
+      30.4,
+      0
+    ],
+    [
+      39.6,
+      0
+    ],
+    [
+      39.6,
+      25.5
+    ],
+    [
+      30.4,
+      25.5
+    ],
+    [
+      30.4,
+      19.5
+    ],
+    [
+      10,
+      19.5
+    ],
+    [
+      10,
+      25.5
+    ],
+    [
+      0,
+      25.5
+    ]
+  ],
+  "floors": [
+    {
+      "id": "ground",
+      "level": 0
+    },
+    {
+      "id": "upper",
+      "level": 1
+    }
+  ],
+  "wall_bands": [
+    {
+      "id": "W0",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 0.0,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "W1",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 0.0,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "W2",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 0.0,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "W3",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 0.0,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "H0a",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.0,
+        "x1": 10.0,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "id": "H0b",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 30.4,
+        "x1": 39.6,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "id": "H1",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 9.4,
+        "x1": 31.0,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "id": "H2",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 9.4,
+        "x1": 31.0,
+        "y0": 18.9,
+        "y1": 19.5
+      }
+    },
+    {
+      "id": "H3a",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.0,
+        "x1": 10.0,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "H3b",
+      "kind": "exterior",
+      "floors": [
+        "ground",
+        "upper"
+      ],
+      "rect": {
+        "x0": 30.4,
+        "x1": 39.6,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "GW",
+      "kind": "garden",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 10.0,
+        "x1": 30.4,
+        "y0": 25.05,
+        "y1": 25.5
+      }
+    },
+    {
+      "id": "PG0",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 8.2,
+        "y1": 8.55
+      }
+    },
+    {
+      "id": "PG1",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 14.2,
+        "y1": 14.55
+      }
+    },
+    {
+      "id": "PG2",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 21.0,
+        "y1": 21.35
+      }
+    },
+    {
+      "id": "PG3",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 9.25,
+        "y1": 9.6
+      }
+    },
+    {
+      "id": "PG4",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 12.2,
+        "y1": 12.55
+      }
+    },
+    {
+      "id": "PG5",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 17.5,
+        "y1": 17.85
+      }
+    },
+    {
+      "id": "PG6",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 24.6,
+        "x1": 24.95,
+        "y0": 9.6,
+        "y1": 18.9
+      }
+    },
+    {
+      "id": "PG7",
+      "kind": "partition",
+      "floors": [
+        "ground"
+      ],
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 14.4,
+        "y1": 14.75
+      }
+    },
+    {
+      "id": "PU0",
+      "kind": "partition",
+      "floors": [
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 8.2,
+        "y1": 8.55
+      }
+    },
+    {
+      "id": "PU1",
+      "kind": "partition",
+      "floors": [
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 14.2,
+        "y1": 14.55
+      }
+    },
+    {
+      "id": "PU2",
+      "kind": "partition",
+      "floors": [
+        "upper"
+      ],
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 21.0,
+        "y1": 21.35
+      }
+    },
+    {
+      "id": "PU3",
+      "kind": "partition",
+      "floors": [
+        "upper"
+      ],
+      "rect": {
+        "x0": 24.6,
+        "x1": 24.95,
+        "y0": 9.6,
+        "y1": 18.9
+      }
+    },
+    {
+      "id": "PU4",
+      "kind": "partition",
+      "floors": [
+        "upper"
+      ],
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 14.4,
+        "y1": 14.75
+      }
+    }
+  ],
+  "rooms": [
+    {
+      "id": "great_hall",
+      "floor": "ground",
+      "name": "GREAT HALL",
+      "type": "enclosed",
+      "rect": {
+        "x0": 10.0,
+        "x1": 24.6,
+        "y0": 9.6,
+        "y1": 18.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 17.3,
+            "y": 11.925
+          },
+          "wall_line": 18.9,
+          "camera_wall_m": 6.97,
+          "wall_width_m": 14.6
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 13.65,
+            "y": 14.25
+          },
+          "wall_line": 24.6,
+          "camera_wall_m": 10.95,
+          "wall_width_m": 9.3
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 17.3,
+            "y": 16.575
+          },
+          "wall_line": 9.6,
+          "camera_wall_m": 6.97,
+          "wall_width_m": 14.6
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.950000000000003,
+            "y": 14.25
+          },
+          "wall_line": 10.0,
+          "camera_wall_m": 10.95,
+          "wall_width_m": 9.3
+        }
+      }
+    },
+    {
+      "id": "study",
+      "floor": "ground",
+      "name": "STUDY",
+      "type": "enclosed",
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 9.6,
+        "y1": 14.4
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 10.8
+          },
+          "wall_line": 14.4,
+          "camera_wall_m": 3.6,
+          "wall_width_m": 5.45
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 26.312499999999996,
+            "y": 12.0
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.8
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 13.2
+          },
+          "wall_line": 9.6,
+          "camera_wall_m": 3.6,
+          "wall_width_m": 5.45
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 29.037499999999998,
+            "y": 12.0
+          },
+          "wall_line": 24.95,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.8
+        }
+      }
+    },
+    {
+      "id": "back_stair",
+      "floor": "ground",
+      "name": "BACK STAIR",
+      "type": "corridor",
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 14.75,
+        "y1": 18.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 15.7875
+          },
+          "wall_line": 18.9,
+          "camera_wall_m": 3.11,
+          "wall_width_m": 5.45
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 26.312499999999996,
+            "y": 16.825
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.15
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 17.862499999999997
+          },
+          "wall_line": 14.75,
+          "camera_wall_m": 3.11,
+          "wall_width_m": 5.45
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 29.037499999999998,
+            "y": 16.825
+          },
+          "wall_line": 24.95,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.15
+        }
+      }
+    },
+    {
+      "id": "hall",
+      "floor": "ground",
+      "name": "CROSS PASSAGE",
+      "type": "corridor",
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 9.6,
+        "y1": 12.2
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 10.249999999999998
+          },
+          "wall_line": 12.2,
+          "camera_wall_m": 1.95,
+          "wall_width_m": 8.0
+        },
+        "E": {
+          "type": "corridor",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 33.0,
+            "y": 10.899999999999999
+          },
+          "wall_line": 39.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 2.6
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 11.549999999999999
+          },
+          "wall_line": 9.6,
+          "camera_wall_m": 1.95,
+          "wall_width_m": 8.0
+        },
+        "W": {
+          "type": "corridor",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 37.0,
+            "y": 10.899999999999999
+          },
+          "wall_line": 31.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 2.6
+        }
+      }
+    },
+    {
+      "id": "kitchen",
+      "floor": "ground",
+      "name": "KITCHEN",
+      "type": "enclosed",
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 0.6,
+        "y1": 9.25
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 2.7624999999999997
+          },
+          "wall_line": 9.25,
+          "camera_wall_m": 6.49,
+          "wall_width_m": 8.0
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 33.0,
+            "y": 4.925
+          },
+          "wall_line": 39.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 8.65
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 7.0875
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.49,
+          "wall_width_m": 8.0
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 37.0,
+            "y": 4.925
+          },
+          "wall_line": 31.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 8.65
+        }
+      }
+    },
+    {
+      "id": "buttery_pantry",
+      "floor": "ground",
+      "name": "BUTTERY & PANTRY",
+      "type": "enclosed",
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 12.55,
+        "y1": 17.5
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 13.787500000000001
+          },
+          "wall_line": 17.5,
+          "camera_wall_m": 3.71,
+          "wall_width_m": 8.0
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 33.0,
+            "y": 15.025
+          },
+          "wall_line": 39.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 4.95
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 16.2625
+          },
+          "wall_line": 12.55,
+          "camera_wall_m": 3.71,
+          "wall_width_m": 8.0
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 37.0,
+            "y": 15.025
+          },
+          "wall_line": 31.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 4.95
+        }
+      }
+    },
+    {
+      "id": "servants_hall",
+      "floor": "ground",
+      "name": "SERVANTS' HALL",
+      "type": "enclosed",
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 17.85,
+        "y1": 24.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 19.6125
+          },
+          "wall_line": 24.9,
+          "camera_wall_m": 5.29,
+          "wall_width_m": 8.0
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 33.0,
+            "y": 21.375
+          },
+          "wall_line": 39.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 7.05
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 23.1375
+          },
+          "wall_line": 17.85,
+          "camera_wall_m": 5.29,
+          "wall_width_m": 8.0
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 37.0,
+            "y": 21.375
+          },
+          "wall_line": 31.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 7.05
+        }
+      }
+    },
+    {
+      "id": "dining_parlour",
+      "floor": "ground",
+      "name": "DINING PARLOUR",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 0.6,
+        "y1": 8.2
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 2.4999999999999996
+          },
+          "wall_line": 8.2,
+          "camera_wall_m": 5.7,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 4.3999999999999995
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 7.6
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 6.299999999999999
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 5.7,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 4.3999999999999995
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 7.6
+        }
+      }
+    },
+    {
+      "id": "great_stair_hall",
+      "floor": "ground",
+      "name": "GREAT STAIR HALL",
+      "type": "corridor",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 8.55,
+        "y1": 14.2
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 9.9625
+          },
+          "wall_line": 14.2,
+          "camera_wall_m": 4.24,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 11.375
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 5.65
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 12.7875
+          },
+          "wall_line": 8.55,
+          "camera_wall_m": 4.24,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 11.375
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 5.65
+        }
+      }
+    },
+    {
+      "id": "library",
+      "floor": "ground",
+      "name": "LIBRARY",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 14.55,
+        "y1": 21.0
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 16.162499999999998
+          },
+          "wall_line": 21.0,
+          "camera_wall_m": 4.84,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 17.775
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 6.45
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 19.3875
+          },
+          "wall_line": 14.55,
+          "camera_wall_m": 4.84,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 17.775
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 6.45
+        }
+      }
+    },
+    {
+      "id": "garden_room",
+      "floor": "ground",
+      "name": "GARDEN ROOM",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 21.35,
+        "y1": 24.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 22.2375
+          },
+          "wall_line": 24.9,
+          "camera_wall_m": 2.66,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 23.125
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 3.55
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 24.0125
+          },
+          "wall_line": 21.35,
+          "camera_wall_m": 2.66,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 23.125
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 3.55
+        }
+      }
+    },
+    {
+      "id": "entrance_court",
+      "floor": "ground",
+      "name": "ENTRANCE COURT",
+      "type": "open",
+      "rect": {
+        "x0": 10.0,
+        "x1": 30.4,
+        "y0": 0.0,
+        "y1": 9.0
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.2,
+            "y": 2.25
+          },
+          "wall_line": 9.0,
+          "camera_wall_m": 6.75,
+          "wall_width_m": 20.4,
+          "note": "hall range front"
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 15.1,
+            "y": 4.5
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 15.3,
+          "wall_width_m": 9.0,
+          "note": "east wing front"
+        },
+        "S": {
+          "type": "open",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.2,
+            "y": 6.75
+          },
+          "wall_line": -20.0,
+          "camera_wall_m": 26.75,
+          "wall_width_m": 20.4,
+          "far_line": -20.0,
+          "note": "no wall - ground to far line"
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 25.299999999999997,
+            "y": 4.5
+          },
+          "wall_line": 10.0,
+          "camera_wall_m": 15.3,
+          "wall_width_m": 9.0,
+          "note": "west wing front"
+        }
+      }
+    },
+    {
+      "id": "privy_garden",
+      "floor": "ground",
+      "name": "PRIVY GARDEN",
+      "type": "open",
+      "rect": {
+        "x0": 10.0,
+        "x1": 30.4,
+        "y0": 19.5,
+        "y1": 25.05
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.2,
+            "y": 20.8875
+          },
+          "wall_line": 25.05,
+          "camera_wall_m": 4.16,
+          "wall_width_m": 20.4,
+          "note": "garden wall (built)"
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 15.1,
+            "y": 22.275
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 15.3,
+          "wall_width_m": 5.55,
+          "note": "east wing flank"
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.2,
+            "y": 23.662499999999998
+          },
+          "wall_line": 19.5,
+          "camera_wall_m": 4.16,
+          "wall_width_m": 20.4,
+          "note": "hall range back"
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 25.299999999999997,
+            "y": 22.275
+          },
+          "wall_line": 10.0,
+          "camera_wall_m": 15.3,
+          "wall_width_m": 5.55,
+          "note": "west wing flank"
+        }
+      }
+    },
+    {
+      "id": "entrance_approach",
+      "floor": "ground",
+      "name": "ENTRANCE APPROACH",
+      "type": "open",
+      "rect": {
+        "x0": 3.8,
+        "x1": 35.8,
+        "y0": -20.0,
+        "y1": 0.0
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 19.799999999999997,
+            "y": -15.0
+          },
+          "wall_line": 0.0,
+          "camera_wall_m": 15.0,
+          "wall_width_m": 32.0,
+          "note": "wing fronts; court mouth open at centre (hall front 24.0 m)"
+        },
+        "E": {
+          "type": "open",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 11.799999999999997,
+            "y": -10.0
+          },
+          "wall_line": 35.8,
+          "camera_wall_m": 24.0,
+          "wall_width_m": 20.0,
+          "far_line": 35.8,
+          "note": "no wall"
+        },
+        "S": {
+          "type": "open",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 19.799999999999997,
+            "y": -5.0
+          },
+          "wall_line": -20.0,
+          "camera_wall_m": 15.0,
+          "wall_width_m": 32.0,
+          "far_line": -20.0,
+          "note": "no wall"
+        },
+        "W": {
+          "type": "open",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.799999999999997,
+            "y": -10.0
+          },
+          "wall_line": 3.8,
+          "camera_wall_m": 24.0,
+          "wall_width_m": 20.0,
+          "far_line": 3.8,
+          "note": "no wall"
+        }
+      }
+    },
+    {
+      "id": "solar",
+      "floor": "upper",
+      "name": "SOLAR (GREAT CHAMBER)",
+      "type": "enclosed",
+      "rect": {
+        "x0": 10.0,
+        "x1": 24.6,
+        "y0": 9.6,
+        "y1": 18.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 17.3,
+            "y": 11.925
+          },
+          "wall_line": 18.9,
+          "camera_wall_m": 6.97,
+          "wall_width_m": 14.6
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 13.65,
+            "y": 14.25
+          },
+          "wall_line": 24.6,
+          "camera_wall_m": 10.95,
+          "wall_width_m": 9.3
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 17.3,
+            "y": 16.575
+          },
+          "wall_line": 9.6,
+          "camera_wall_m": 6.97,
+          "wall_width_m": 14.6
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 20.950000000000003,
+            "y": 14.25
+          },
+          "wall_line": 10.0,
+          "camera_wall_m": 10.95,
+          "wall_width_m": 9.3
+        }
+      }
+    },
+    {
+      "id": "muniment_room",
+      "floor": "upper",
+      "name": "MUNIMENT ROOM",
+      "type": "enclosed",
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 9.6,
+        "y1": 14.4
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 10.8
+          },
+          "wall_line": 14.4,
+          "camera_wall_m": 3.6,
+          "wall_width_m": 5.45
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 26.312499999999996,
+            "y": 12.0
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.8
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 13.2
+          },
+          "wall_line": 9.6,
+          "camera_wall_m": 3.6,
+          "wall_width_m": 5.45
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 29.037499999999998,
+            "y": 12.0
+          },
+          "wall_line": 24.95,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.8
+        }
+      }
+    },
+    {
+      "id": "back_stair_head",
+      "floor": "upper",
+      "name": "BACK STAIR HEAD",
+      "type": "corridor",
+      "rect": {
+        "x0": 24.95,
+        "x1": 30.4,
+        "y0": 14.75,
+        "y1": 18.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 15.7875
+          },
+          "wall_line": 18.9,
+          "camera_wall_m": 3.11,
+          "wall_width_m": 5.45
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 26.312499999999996,
+            "y": 16.825
+          },
+          "wall_line": 30.4,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.15
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 27.674999999999997,
+            "y": 17.862499999999997
+          },
+          "wall_line": 14.75,
+          "camera_wall_m": 3.11,
+          "wall_width_m": 5.45
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 29.037499999999998,
+            "y": 16.825
+          },
+          "wall_line": 24.95,
+          "camera_wall_m": 4.09,
+          "wall_width_m": 4.15
+        }
+      }
+    },
+    {
+      "id": "long_gallery",
+      "floor": "upper",
+      "name": "LONG GALLERY",
+      "type": "corridor",
+      "rect": {
+        "x0": 31.0,
+        "x1": 39.0,
+        "y0": 0.6,
+        "y1": 24.9
+      },
+      "facings": {
+        "N": {
+          "type": "corridor",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 6.675000000000001
+          },
+          "wall_line": 24.9,
+          "camera_wall_m": 18.22,
+          "wall_width_m": 8.0
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 33.0,
+            "y": 12.75
+          },
+          "wall_line": 39.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 24.3
+        },
+        "S": {
+          "type": "corridor",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 35.0,
+            "y": 18.825
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 18.22,
+          "wall_width_m": 8.0
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 37.0,
+            "y": 12.75
+          },
+          "wall_line": 31.0,
+          "camera_wall_m": 6.0,
+          "wall_width_m": 24.3
+        }
+      }
+    },
+    {
+      "id": "master_bedchamber",
+      "floor": "upper",
+      "name": "MASTER BEDCHAMBER",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 0.6,
+        "y1": 8.2
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 2.4999999999999996
+          },
+          "wall_line": 8.2,
+          "camera_wall_m": 5.7,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 4.3999999999999995
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 7.6
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 6.299999999999999
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 5.7,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 4.3999999999999995
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 7.6
+        }
+      }
+    },
+    {
+      "id": "stair_landing",
+      "floor": "upper",
+      "name": "STAIR LANDING",
+      "type": "corridor",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 8.55,
+        "y1": 14.2
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 9.9625
+          },
+          "wall_line": 14.2,
+          "camera_wall_m": 4.24,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 11.375
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 5.65
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 12.7875
+          },
+          "wall_line": 8.55,
+          "camera_wall_m": 4.24,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 11.375
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 5.65
+        }
+      }
+    },
+    {
+      "id": "guest_chamber",
+      "floor": "upper",
+      "name": "GUEST CHAMBER",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 14.55,
+        "y1": 21.0
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 16.162499999999998
+          },
+          "wall_line": 21.0,
+          "camera_wall_m": 4.84,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 17.775
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 6.45
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 19.3875
+          },
+          "wall_line": 14.55,
+          "camera_wall_m": 4.84,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 17.775
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 6.45
+        }
+      }
+    },
+    {
+      "id": "closet_chamber",
+      "floor": "upper",
+      "name": "CLOSET CHAMBER",
+      "type": "enclosed",
+      "rect": {
+        "x0": 0.6,
+        "x1": 9.4,
+        "y0": 21.35,
+        "y1": 24.9
+      },
+      "facings": {
+        "N": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 22.2375
+          },
+          "wall_line": 24.9,
+          "camera_wall_m": 2.66,
+          "wall_width_m": 8.8
+        },
+        "E": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 2.8,
+            "y": 23.125
+          },
+          "wall_line": 9.4,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 3.55
+        },
+        "S": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 5.0,
+            "y": 24.0125
+          },
+          "wall_line": 21.35,
+          "camera_wall_m": 2.66,
+          "wall_width_m": 8.8
+        },
+        "W": {
+          "type": "enclosed",
+          "standpoint_source": "rule",
+          "standpoint": {
+            "x": 7.2,
+            "y": 23.125
+          },
+          "wall_line": 0.6,
+          "camera_wall_m": 6.6,
+          "wall_width_m": 3.55
+        }
+      }
+    }
+  ],
+  "openings": [
+    {
+      "id": "op01",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 16.5,
+        "x1": 18.1,
+        "y0": 9.0,
+        "y1": 9.6
+      },
+      "joins": [
+        "entrance_court",
+        "great_hall"
+      ]
+    },
+    {
+      "id": "op02",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 4.0,
+        "y1": 5.0
+      },
+      "joins": [
+        "entrance_court",
+        "kitchen"
+      ]
+    },
+    {
+      "id": "op03",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 4.0,
+        "y1": 5.0
+      },
+      "joins": [
+        "dining_parlour",
+        "entrance_court"
+      ]
+    },
+    {
+      "id": "op04",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 11.0,
+        "y1": 12.0
+      },
+      "joins": [
+        "great_stair_hall",
+        "great_hall"
+      ]
+    },
+    {
+      "id": "op05",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 16.0,
+        "y1": 17.0
+      },
+      "joins": [
+        "library",
+        "great_hall"
+      ]
+    },
+    {
+      "id": "op06",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 8.2,
+        "y1": 8.55
+      },
+      "joins": [
+        "dining_parlour",
+        "great_stair_hall"
+      ]
+    },
+    {
+      "id": "op07",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 14.2,
+        "y1": 14.55
+      },
+      "joins": [
+        "great_stair_hall",
+        "library"
+      ]
+    },
+    {
+      "id": "op08",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 21.0,
+        "y1": 21.35
+      },
+      "joins": [
+        "library",
+        "garden_room"
+      ]
+    },
+    {
+      "id": "op09",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 22.5,
+        "y1": 23.5
+      },
+      "joins": [
+        "garden_room",
+        "privy_garden"
+      ]
+    },
+    {
+      "id": "op10",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 21.5,
+        "x1": 23.1,
+        "y0": 18.9,
+        "y1": 19.5
+      },
+      "joins": [
+        "great_hall",
+        "privy_garden"
+      ]
+    },
+    {
+      "id": "op11",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 24.6,
+        "x1": 24.95,
+        "y0": 16.0,
+        "y1": 17.0
+      },
+      "joins": [
+        "great_hall",
+        "back_stair"
+      ]
+    },
+    {
+      "id": "op12",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 18.0,
+        "y1": 18.8
+      },
+      "joins": [
+        "back_stair",
+        "servants_hall"
+      ]
+    },
+    {
+      "id": "op13",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 10.4,
+        "y1": 11.4
+      },
+      "joins": [
+        "study",
+        "hall"
+      ],
+      "entity": "door1"
+    },
+    {
+      "id": "op14",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 32.0,
+        "x1": 33.0,
+        "y0": 9.25,
+        "y1": 9.6
+      },
+      "joins": [
+        "kitchen",
+        "hall"
+      ]
+    },
+    {
+      "id": "op15",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 36.5,
+        "x1": 37.5,
+        "y0": 12.2,
+        "y1": 12.55
+      },
+      "joins": [
+        "hall",
+        "buttery_pantry"
+      ]
+    },
+    {
+      "id": "op16",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 34.5,
+        "x1": 35.5,
+        "y0": 17.5,
+        "y1": 17.85
+      },
+      "joins": [
+        "buttery_pantry",
+        "servants_hall"
+      ]
+    },
+    {
+      "id": "op17",
+      "kind": "door",
+      "floor": "ground",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 21.0,
+        "y1": 22.0
+      },
+      "joins": [
+        "privy_garden",
+        "servants_hall"
+      ]
+    },
+    {
+      "id": "op18",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 8.2,
+        "y1": 8.55
+      },
+      "joins": [
+        "master_bedchamber",
+        "stair_landing"
+      ]
+    },
+    {
+      "id": "op19",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 14.2,
+        "y1": 14.55
+      },
+      "joins": [
+        "stair_landing",
+        "guest_chamber"
+      ]
+    },
+    {
+      "id": "op20",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "NS",
+      "rect": {
+        "x0": 4.0,
+        "x1": 5.0,
+        "y0": 21.0,
+        "y1": 21.35
+      },
+      "joins": [
+        "guest_chamber",
+        "closet_chamber"
+      ]
+    },
+    {
+      "id": "op21",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "EW",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 11.0,
+        "y1": 12.0
+      },
+      "joins": [
+        "stair_landing",
+        "solar"
+      ]
+    },
+    {
+      "id": "op22",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "EW",
+      "rect": {
+        "x0": 24.6,
+        "x1": 24.95,
+        "y0": 11.0,
+        "y1": 12.0
+      },
+      "joins": [
+        "solar",
+        "muniment_room"
+      ]
+    },
+    {
+      "id": "op23",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "EW",
+      "rect": {
+        "x0": 24.6,
+        "x1": 24.95,
+        "y0": 16.0,
+        "y1": 17.0
+      },
+      "joins": [
+        "solar",
+        "back_stair_head"
+      ]
+    },
+    {
+      "id": "op24",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 16.0,
+        "y1": 17.0
+      },
+      "joins": [
+        "back_stair_head",
+        "long_gallery"
+      ]
+    },
+    {
+      "id": "op25",
+      "kind": "door",
+      "floor": "upper",
+      "axis": "EW",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 11.0,
+        "y1": 12.0
+      },
+      "joins": [
+        "muniment_room",
+        "long_gallery"
+      ]
+    },
+    {
+      "id": "op_court_mouth",
+      "kind": "open_edge",
+      "floor": "ground",
+      "axis": "NS",
+      "rect": {
+        "x0": 10.0,
+        "x1": 30.4,
+        "y0": 0.0,
+        "y1": 0.0
+      },
+      "joins": [
+        "entrance_approach",
+        "entrance_court"
+      ]
+    }
+  ],
+  "windows": [
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 25.8,
+        "x1": 27.2,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 28.1,
+        "x1": 29.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 11.5,
+        "x1": 13.0,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 14.0,
+        "x1": 15.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 20.0,
+        "x1": 21.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 22.5,
+        "x1": 24.0,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 17.5,
+        "x1": 19.0,
+        "y0": 18.9,
+        "y1": 19.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 10.4,
+        "y1": 11.4
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 33.5,
+        "x1": 35.0,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 3.0,
+        "y1": 4.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 2.0,
+        "x1": 3.5,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 5.5,
+        "x1": 7.0,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 3.0,
+        "y1": 4.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 16.0,
+        "y1": 17.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 18.5,
+        "y1": 20.0
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 10.0,
+        "y1": 12.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 2.0,
+        "x1": 3.5,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 14.0,
+        "y1": 15.5
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 22.5,
+        "y1": 24.0
+      }
+    },
+    {
+      "floor": "ground",
+      "rect": {
+        "x0": 33.0,
+        "x1": 34.5,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 25.8,
+        "x1": 27.2,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 28.1,
+        "x1": 29.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 11.5,
+        "x1": 13.0,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 14.0,
+        "x1": 15.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 20.0,
+        "x1": 21.5,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 22.5,
+        "x1": 24.0,
+        "y0": 9.0,
+        "y1": 9.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 17.5,
+        "x1": 19.0,
+        "y0": 18.9,
+        "y1": 19.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 21.5,
+        "x1": 23.0,
+        "y0": 18.9,
+        "y1": 19.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 2.0,
+        "x1": 3.5,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 5.5,
+        "x1": 7.0,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 3.0,
+        "y1": 4.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 10.0,
+        "y1": 12.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 16.0,
+        "y1": 17.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 0.0,
+        "x1": 0.6,
+        "y0": 18.5,
+        "y1": 20.0
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 2.0,
+        "x1": 3.5,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 3.0,
+        "y1": 4.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 8.0,
+        "y1": 9.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 14.0,
+        "y1": 15.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 39.0,
+        "x1": 39.6,
+        "y0": 22.5,
+        "y1": 24.0
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 33.0,
+        "x1": 34.5,
+        "y0": 24.9,
+        "y1": 25.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 33.5,
+        "x1": 35.0,
+        "y0": 0.0,
+        "y1": 0.6
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 4.0,
+        "y1": 5.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 6.5,
+        "y1": 8.0
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 21.0,
+        "y1": 22.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 30.4,
+        "x1": 31.0,
+        "y0": 23.0,
+        "y1": 24.5
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 2.0,
+        "y1": 3.2
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 5.5,
+        "y1": 6.7
+      }
+    },
+    {
+      "floor": "upper",
+      "rect": {
+        "x0": 9.4,
+        "x1": 10.0,
+        "y0": 22.0,
+        "y1": 23.5
+      }
+    }
+  ],
+  "fireplaces": [
+    {
+      "floor": "ground",
+      "room": "study",
+      "rect": {
+        "x0": 26.6,
+        "x1": 28.8,
+        "y0": 13.9,
+        "y1": 14.4
+      }
+    },
+    {
+      "floor": "ground",
+      "room": "great_hall",
+      "rect": {
+        "x0": 12.5,
+        "x1": 15.5,
+        "y0": 18.3,
+        "y1": 18.9
+      }
+    },
+    {
+      "floor": "ground",
+      "room": "kitchen",
+      "rect": {
+        "x0": 33.5,
+        "x1": 36.5,
+        "y0": 0.6,
+        "y1": 1.4
+      }
+    },
+    {
+      "floor": "ground",
+      "room": "dining_parlour",
+      "rect": {
+        "x0": 1.5,
+        "x1": 3.5,
+        "y0": 7.6,
+        "y1": 8.2
+      }
+    },
+    {
+      "floor": "ground",
+      "room": "library",
+      "rect": {
+        "x0": 6.0,
+        "x1": 8.0,
+        "y0": 14.55,
+        "y1": 15.15
+      }
+    },
+    {
+      "floor": "ground",
+      "room": "servants_hall",
+      "rect": {
+        "x0": 38.4,
+        "x1": 39.0,
+        "y0": 20.0,
+        "y1": 22.0
+      }
+    },
+    {
+      "floor": "upper",
+      "room": "muniment_room",
+      "rect": {
+        "x0": 26.6,
+        "x1": 28.8,
+        "y0": 13.9,
+        "y1": 14.4
+      }
+    },
+    {
+      "floor": "upper",
+      "room": "solar",
+      "rect": {
+        "x0": 12.5,
+        "x1": 15.5,
+        "y0": 18.3,
+        "y1": 18.9
+      }
+    },
+    {
+      "floor": "upper",
+      "room": "master_bedchamber",
+      "rect": {
+        "x0": 1.5,
+        "x1": 3.5,
+        "y0": 7.6,
+        "y1": 8.2
+      }
+    },
+    {
+      "floor": "upper",
+      "room": "guest_chamber",
+      "rect": {
+        "x0": 6.0,
+        "x1": 8.0,
+        "y0": 14.55,
+        "y1": 15.15
+      }
+    },
+    {
+      "floor": "upper",
+      "room": "long_gallery",
+      "rect": {
+        "x0": 38.4,
+        "x1": 39.0,
+        "y0": 20.0,
+        "y1": 22.0
+      }
+    }
+  ],
+  "stairs": [
+    {
+      "id": "great_stair",
+      "kind": "straight",
+      "treads": 17,
+      "rect": {
+        "x0": 1.2,
+        "x1": 2.8,
+        "y0": 9.2,
+        "y1": 14.0
+      },
+      "joins": [
+        "great_stair_hall",
+        "stair_landing"
+      ],
+      "up": "N",
+      "down": "S"
+    },
+    {
+      "id": "back_stair_flight",
+      "kind": "straight",
+      "treads": 17,
+      "rect": {
+        "x0": 25.4,
+        "x1": 30.0,
+        "y0": 15.0,
+        "y1": 16.1
+      },
+      "joins": [
+        "back_stair",
+        "back_stair_head"
+      ],
+      "up": "E",
+      "down": "W"
+    }
+  ],
+  "objects": [
+    {
+      "id": "desk1",
+      "floor": "ground",
+      "room": "study",
+      "footprint": {
+        "x0": 26.689,
+        "x1": 27.989,
+        "y0": 13.85,
+        "y1": 14.4
+      },
+      "attachment": "floor_against",
+      "source": "inverse-projected"
+    },
+    {
+      "id": "chair1",
+      "floor": "ground",
+      "room": "study",
+      "footprint": {
+        "x0": 27.4582,
+        "x1": 28.0582,
+        "y0": 13.2,
+        "y1": 13.75
+      },
+      "attachment": "floor_free",
+      "source": "inverse-projected"
+    },
+    {
+      "id": "shelf1",
+      "floor": "ground",
+      "room": "hall",
+      "footprint": {
+        "x0": 33.66,
+        "x1": 34.66,
+        "y0": 11.9,
+        "y1": 12.2
+      },
+      "attachment": "floor_against",
+      "source": "inverse-projected"
+    },
+    {
+      "id": "stick1",
+      "floor": "ground",
+      "room": "hall",
+      "footprint": {
+        "x0": 34.3312,
+        "x1": 34.4912,
+        "y0": 11.45,
+        "y1": 11.61
+      },
+      "attachment": "floor_free",
+      "source": "inverse-projected"
+    }
+  ]
+}

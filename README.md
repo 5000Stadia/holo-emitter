@@ -85,3 +85,19 @@ The bake checks the fixtures first and refuses to bake an invalid world (a coord
 `world.json`, a world fact in `staging.json`, a reference that resolves nowhere, a missing
 narration line) — it prints numbered findings instead. The page prints the bake's fingerprint to
 the browser console when it loads; if it did not change after your edit, the bake did not run.
+
+## The map
+
+`fixtures/demo-study/plan.json` is the building itself, in metres: a two-storey manor of
+twenty-two rooms, courts and gardens, with the two rooms you can walk today sited inside it. It
+says where every wall, door, window, hearth and stair stands, and where you are standing when you
+look at each one. The drawings in `design/plan-draft/` are made from it, not the other way round:
+
+```
+python3 design/plan-draft/draw_plan.py     # the two floor plans, from the document
+./design/plan-draft/render.sh              # and as pictures, at twice the size
+```
+
+Change a room in the plan and re-run those, and the drawing changes with it. The bake will not
+accept a building whose rooms overlap, whose doors lead nowhere, whose rooms cannot be walked to
+from the front of the house, or that puts a wall outdoors where the house does not have one.
