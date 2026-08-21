@@ -314,6 +314,10 @@ exists.)
   enclosed — one style across all three geometries. The reference images are other artists'
   works: they live in the conversation record and are **never committed** to this public
   repository; the style_block's written descriptors are their carrier here.
+  **Seed picked, 2026-08-21 [HUMAN]: "Warm"** — of the seat's three generated candidates, ref 1
+  (warm practicals, intimate wall, desk-edge anchor) is the approved style seed, installed at
+  `design/references/style-seed-warm.png` (ours, committable). The probe's style_block
+  extraction starts from it; warmth is the ruled temperament.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
 **The room has corners — and a facing may have no wall at all [HUMAN, 2026-08-20]:** "the
