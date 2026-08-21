@@ -27,8 +27,38 @@ class MatteResult:
     stats: dict = field(default_factory=dict)
 
 
+def as_rgb(src):
+    """Every public entry point normalises its input here.
+
+    Callers of the pure API can hand in RGBA, a float array, uint16, or an empty
+    frame. Reshaping a four-channel border ring to triples scrambles the
+    channels silently, and a float image in [0, 1] reads as nearly black to an
+    8-bit tolerance. Both are refused or corrected here rather than producing a
+    confident wrong silhouette.
+    """
+    a = np.asarray(src)
+    if a.ndim != 3 or a.shape[2] < 3:
+        raise MatteError("source must be an (H, W, 3+) array, got shape %r" % (a.shape,))
+    if a.shape[0] < 3 or a.shape[1] < 3:
+        raise MatteError("source is %dx%d — too small to sample a border ring from"
+                         % (a.shape[1], a.shape[0]))
+    a = a[..., :3]
+    if a.dtype == np.uint8:
+        return a
+    if np.issubdtype(a.dtype, np.floating):
+        if not np.isfinite(a).all():
+            raise MatteError("source contains NaN or infinite values")
+        hi = float(a.max())
+        scaled = a * 255.0 if hi <= 1.0 else a
+        return np.clip(scaled, 0, 255).astype(np.uint8)
+    if np.issubdtype(a.dtype, np.integer):
+        return np.clip(a, 0, 255).astype(np.uint8)
+    raise MatteError("source dtype %r is not an image" % (a.dtype,))
+
+
 def sample_background(src_rgb):
     """Per-channel median of the 1-px border ring (§9.1)."""
+    src_rgb = as_rgb(src_rgb)
     ring = np.concatenate([src_rgb[0], src_rgb[-1], src_rgb[:, 0], src_rgb[:, -1]])
     return tuple(float(v) for v in np.median(ring.reshape(-1, 3), axis=0))
 
@@ -42,6 +72,7 @@ def ground_statistics(src_rgb):
     is the spread of the four corner medians, which is what a slight vignette or
     gradient costs the single border median.
     """
+    src_rgb = as_rgb(src_rgb)
     bg = sample_background(src_rgb)
     ring = np.concatenate([src_rgb[0], src_rgb[-1], src_rgb[:, 0], src_rgb[:, -1]])
     sigma = float(ring.reshape(-1, 3).astype(np.float64).std(axis=0).max())
@@ -84,6 +115,7 @@ def spatial_params(content_height_px, rule):
 
 def content_height(src_rgb, bg, tolerance):
     """The content bbox height before matting, for the scale rules above."""
+    src_rgb = as_rgb(src_rgb)
     h, w = src_rgb.shape[:2]
     similar = im.rgb_distance(src_rgb, bg) <= tolerance
     outer = im.span_fill(similar, im.border_seeds(h, w))
@@ -114,10 +146,7 @@ def _check_margin(src_rgb, bg, tolerance):
 def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
           rgb_bleed_px, max_erode_excess_ratio=None):
     """Matte one source image. See the module docstring for the stage order."""
-    src_rgb = np.asarray(src_rgb)
-    if src_rgb.ndim != 3 or src_rgb.shape[2] < 3:
-        raise MatteError("source must be an (H, W, 3+) array, got shape %r" % (src_rgb.shape,))
-    src_rgb = src_rgb[..., :3]
+    src_rgb = as_rgb(src_rgb)
     h, w = src_rgb.shape[:2]
 
     bg = sample_background(src_rgb)
@@ -246,7 +275,7 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
 
 def silhouette_area(src_rgb, bg, tolerance):
     """The raw silhouette area at one tolerance, before holes or erosion."""
-    src_rgb = np.asarray(src_rgb)[..., :3]
+    src_rgb = as_rgb(src_rgb)
     h, w = src_rgb.shape[:2]
     similar = im.rgb_distance(src_rgb, bg) <= tolerance
     return int((~im.span_fill(similar, im.border_seeds(h, w))).sum())

@@ -165,7 +165,7 @@
     "contract": {
       "ingest_schema": "replicator-ingest/0.1",
       "schema": "orientation-contract/0.1",
-      "thresholds_sha256": "b7bfa0c739bdc8f1"
+      "thresholds_sha256": "7286e7960d1db1b6"
     },
     "derived": {
       "anchors": {
@@ -326,7 +326,7 @@
         "severity": "warn",
         "threshold": {
           "authority": "control",
-          "basis": "Per-edge, not a mean over the whole ring: a mask correct on three sides and 15px out on the fourth averages to a pass, and gate (d) at closed cannot see it either because the over-cut pixels are covered by the part. Warn-level because the discrimination is real but not sharp — a fitted mask scores 0.51 of boundary samples finding their darkest crossing within 3px against 0.24-0.27 for masks displaced 20-30px, and a drawer's own highlight band is nearly as dark as a reveal. The evidence that a mask follows the edges is the overlay image `replicator.maskgen --overlay` writes for the eye.",
+          "basis": "Per-edge, and the score is the WORST edge, not a mean over the whole ring: a mask correct on three sides and 30px out on the fourth averages to a pass, and gate (d) at closed cannot see it either because the over-cut pixels are covered by the part at closed. Set on the constructed part control in synth.py, whose reveal gaps are known by construction: the exact mask scores 1.00, and masks displaced 20px in, 20px out, or 30px on a single edge all score 0.00. Warn-level rather than hard because real generated art is far noisier than the control — a drawer's own highlight band is nearly as dark as its reveal, and the corpus desk's fitted mask scores 0.21 on its worst edge while visibly following the reveals in the overlay. That gap between control and corpus is exactly why this warns and does not block, and the evidence a mask follows the edges is the overlay image `replicator.maskgen --overlay` writes for the eye.",
           "min_within_3px_fraction": 0.4,
           "severity": "warn"
         }

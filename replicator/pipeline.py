@@ -110,6 +110,23 @@ def _chroma(rgba, alpha_opaque):
     }
 
 
+SAFE_NAME = __import__("re").compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+
+
+def _check_names(names, flag):
+    """Part and state names become path segments and record keys."""
+    seen = set()
+    for name in names:
+        if not SAFE_NAME.match(name or ""):
+            raise IngestError(
+                "%s name %r is not usable: it becomes a file path segment and a record key, so "
+                "it must be lowercase letters, digits, hyphen or underscore, 1-64 characters, "
+                "starting with a letter or digit" % (flag, name))
+        if name in seen:
+            raise IngestError("%s name %r is given twice; each must be unique" % (flag, name))
+        seen.add(name)
+
+
 def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachment,
                   dims_m, view_side=None, period=None, takeable=False, airborne=False,
                   source="generated", object_class=None, environment=None,
@@ -132,6 +149,8 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
                           % (archetype, ", ".join(vocab["archetype"])))
     part_specs = list(part_specs or [])
     state_specs = list(state_specs or [])
+    _check_names([s["id"] for s in part_specs], "--part")
+    _check_names([s["name"] for s in state_specs], "--state")
     if part_specs and archetype != "sliding":
         raise IngestError("--part given but --archetype is %r; a part-bearing sprite is "
                           "`sliding` (the record would disagree with its own artifacts)"
@@ -203,18 +222,20 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
             adherence, contract_mod.for_class(contract, "gates.part_mask", object_class)))
 
         slide = spec["slide"]
-        cavity = parts_mod.derived_cavity(cut.closed_rect, slide, px)
-        if cavity is None:
-            raise IngestError(
-                "the declared slide leaves no visible cavity for part %r: at dx=%g dy=%g the "
-                "open front covers the whole rect it slid out of, so anything revealed inside "
-                "would draw on its face" % (spec["id"], slide["dx"], slide["dy"]))
+        cavity = parts_mod.derived_cavity(cut.closed_rect)
         min_dy = parts_mod.min_dy_clearance(
             cut.closed_rect, cavity, px,
             contract_mod.for_class(contract, "ingest.cavity", object_class)
             ["clearance_fraction"])
+        # The upper bound: the open front's TOP edge must still be inside the
+        # body. Without it a drawer can travel clean off the canvas, satisfy the
+        # minimum, and pass the open-state check because its rectangle no longer
+        # overlaps the cavity it was supposed to open.
+        max_dy = (px["h"] - cut.closed_rect["y0"]) / float(px["h"])
         gates.append(gates_mod.slide_gate(float(slide["dy"]), min_dy,
-                                          float(slide["dx"]), view_side or "left"))
+                                          float(slide["dx"]), view_side or "left",
+                                          max_dy=max_dy,
+                                          scale_open=float(slide.get("scale_open", 1.0))))
 
         flagged = (anchor_regions or {}).get("drawer_cavity")
         if flagged is not None:
@@ -269,9 +290,23 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
         }
 
     # ---- stage 3b: two-state -------------------------------------------
+    prev_cfg = contract_mod.for_class(contract, "ingest.preview", object_class)
+    halo_cfg = dict(contract_mod.for_class(contract, "gates.halo", object_class))
+    halo_cfg["_draw_height_px"] = prev_cfg["draw_height_px"]
     states_images = {}
     for spec in state_specs:
         sm, sinfo = _matte_one(spec["source_rgb"], contract, object_class)
+        # The state image obeys the same stored-resolution cap as the body, and
+        # by the same factor: a body downscaled to 1024 beside a full-resolution
+        # state image registers at the wrong scale, and every origin below is in
+        # BODY pixel space.
+        state_rgba = sm.rgba
+        if scale_back != 1.0:
+            from PIL import Image as _Image
+            sh = max(1, int(round(state_rgba.shape[0] * scale_back)))
+            sw = max(1, int(round(state_rgba.shape[1] * scale_back)))
+            state_rgba = np.array(_Image.fromarray(state_rgba, "RGBA")
+                                  .resize((sw, sh), _Image.LANCZOS))
         derived_origin = None
         peak = None
         if spec.get("datum") is not None:
@@ -279,18 +314,23 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
                                                    spec["datum"])
             derived_origin = states_mod.origin_from_datum((dx, dy), m.trim_offset,
                                                           sm.trim_offset)
+            derived_origin = {"x": derived_origin["x"] * scale_back,
+                              "y": derived_origin["y"] * scale_back}
             result.derived.setdefault("states", {})[spec["name"]] = {
                 "datum_offset": [dx, dy], "correlation_peak": round(float(peak), 4),
-                "derived_origin": derived_origin}
+                "derived_origin": derived_origin, "matte": sinfo}
         st = states_mod.prepare_state(
-            spec["name"], sm.rgba, body, spec.get("origin"), derived_origin, peak,
+            spec["name"], state_rgba, body, spec.get("origin"), derived_origin, peak,
             contract_mod.for_class(contract, "gates.registration", object_class))
         gates.append(st.gate)
         if st.registration:
             gates.append(st.registration)
         gates.append(gates_mod.gate_light(
-            sm.rgba, contract_mod.for_class(contract, "gates.light", object_class),
+            state_rgba, contract_mod.for_class(contract, "gates.light", object_class),
             label="states.%s" % spec["name"]))
+        # §9.3b says gate (e) applies to both images; a haloed open leaf would
+        # otherwise reach the room with nothing having looked at its edge.
+        gates.append(gates_mod.gate_halo(state_rgba, sm.bg_color, halo_cfg))
         result.states[spec["name"]] = st.rgba
         states_images[spec["name"]] = {"image": "states/%s.png" % spec["name"],
                                        "origin": dict(st.origin)}
@@ -306,9 +346,6 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     gates.append(thumbs_mod.thumb_gate(thumb, takeable, thumb_cfg["size_px"]))
 
     # ---- stage 4: the rest of the gates ---------------------------------
-    prev_cfg = contract_mod.for_class(contract, "ingest.preview", object_class)
-    halo_cfg = dict(contract_mod.for_class(contract, "gates.halo", object_class))
-    halo_cfg["_draw_height_px"] = prev_cfg["draw_height_px"]
     gates.append(gates_mod.gate_halo(body, m.bg_color, halo_cfg))
     gates.append(gates_mod.gate_holes(
         body, m.bg_color,

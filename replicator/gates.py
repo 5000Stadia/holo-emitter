@@ -137,8 +137,16 @@ def gate_holes(rgba, bg_color, cfg):
     h, w = a.shape
     similar = im.rgb_distance(rgb, bg_color) <= cfg["tolerance"]
     transparent = a == 0
-    seeds = im.border_seeds(h, w) + [(int(y), int(x)) for y, x in zip(*np.nonzero(transparent))]
-    reached = im.span_fill(similar | transparent, seeds)
+    # Every transparent pixel is background by definition, so the flood only has
+    # to start where a similar OPAQUE pixel touches transparency -- a thin
+    # frontier -- rather than from every transparent pixel. Seeding from all of
+    # them built hundreds of thousands of Python tuples on a legged sprite for
+    # exactly the same result.
+    tu, td, tl, tr = im.neighbours4(transparent)
+    frontier = similar & ~transparent & (tu | td | tl | tr)
+    seeds = im.border_seeds(h, w) + [(int(y), int(x))
+                                     for y, x in zip(*np.nonzero(frontier))]
+    reached = im.span_fill(similar | transparent, seeds) | transparent
     suspect = similar & (a > 0) & ~reached
     labels, n = im.label_components(suspect)
     areas = np.bincount(labels.ravel(), minlength=n + 1)[1:]
@@ -248,7 +256,7 @@ def light_estimate(rgba, expected_deg=115.5):
 
     solid = a >= im.ALPHA_SOLID
     w = rgba.shape[1]
-    xs = np.arange(w)[None, :].repeat(rgba.shape[0], axis=0)
+    xs = np.arange(w)[None, :]
     left = solid & (xs < w / 3.0)
     right = solid & (xs >= 2.0 * w / 3.0)
     if left.sum() and right.sum():
@@ -443,7 +451,7 @@ def part_mask_adherence_gate(adherence, cfg):
                                     "following the part's reveal gaps"))
 
 
-def slide_gate(supplied_dy, min_dy, dx, view_side):
+def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None):
     """The declared travel must clear the cavity it slides out of.
 
     Row 2's lesson turned into a check: `slide.dy` 0.24 was chosen for the
@@ -453,7 +461,15 @@ def slide_gate(supplied_dy, min_dy, dx, view_side):
     """
     ok = supplied_dy >= min_dy
     msgs = []
-    if not ok:
+    if max_dy is not None and supplied_dy > max_dy:
+        ok = False
+        msgs.append("slide.dy %g travels past the body's own bottom edge (limit %.4f): a part "
+                    "that leaves the canvas satisfies a minimum-travel bound while being "
+                    "nowhere the player can see it" % (supplied_dy, max_dy))
+    if scale_open is not None and not (0.2 <= scale_open <= 3.0):
+        ok = False
+        msgs.append("slide.scale_open %g is outside 0.2..3.0" % scale_open)
+    if not ok and supplied_dy < min_dy:
         msgs.append("slide.dy %g does not clear the cavity: the open front's top edge must "
                     "reach it, which needs dy >= %.4f. A revealed child would draw on the "
                     "face of the drawer instead of inside it." % (supplied_dy, min_dy))

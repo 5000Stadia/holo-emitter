@@ -34,7 +34,7 @@ def translate_mask(mask_src, trim_offset, body_shape):
     """Crop a source-space mask to the trimmed body's own frame."""
     ox, oy = trim_offset
     h, w = body_shape[:2]
-    out = mask_src[oy:oy + h, ox:ox + w]
+    out = np.array(mask_src[oy:oy + h, ox:ox + w], dtype=bool, copy=True)
     if out.shape != (h, w):
         raise PartError(
             "the mask does not cover the body's trim window: body is %dx%d at source "
@@ -241,7 +241,7 @@ def cut_part(body_rgba, mask_body, *, darken, blur_radius):
                       closed_rect={"x0": x0, "y0": y0, "x1": x1, "y1": y1}, stats=stats)
 
 
-def derived_cavity(closed_rect, slide, px):
+def derived_cavity(closed_rect):
     """The recess a part came out of, in body pixel space.
 
     It is **the part's own closed rect** — the region the cut removed and the
@@ -295,9 +295,16 @@ def open_state_composite(body_rgba, part_rgba, origin, slide, px, t=1.0):
     if x0 >= x1 or y0 >= y1:
         return out.astype(np.uint8), {"x0": ox, "y0": oy, "x1": ox + sw, "y1": oy + sh}
     sub = part[y0 - oy:y1 - oy, x0 - ox:x1 - ox].astype(np.float64)
-    a = (sub[..., 3] / 255.0)[..., None]
     dst = out[y0:y1, x0:x1]
-    dst[..., :3] = sub[..., :3] * a + dst[..., :3] * (1 - a)
-    dst[..., 3] = np.maximum(dst[..., 3], sub[..., 3])
+    sa = (sub[..., 3] / 255.0)[..., None]
+    da = (dst[..., 3] / 255.0)[..., None]
+    # Straight-alpha source-over, in full: out_a = sa + da*(1-sa), and the RGB is
+    # weighted by each layer's own contribution rather than by source coverage
+    # alone. The short form ignored destination alpha, so a part drawn over
+    # transparency pulled in the destination's bled RGB at full strength.
+    oa = sa + da * (1.0 - sa)
+    safe = np.maximum(oa, 1e-6)
+    dst[..., :3] = (sub[..., :3] * sa + dst[..., :3] * da * (1.0 - sa)) / safe
+    dst[..., 3] = np.clip(oa[..., 0] * 255.0, 0, 255)
     out[y0:y1, x0:x1] = dst
     return out.astype(np.uint8), {"x0": ox, "y0": oy, "x1": ox + sw, "y1": oy + sh}

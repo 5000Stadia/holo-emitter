@@ -69,7 +69,7 @@ def mean3x3(a):
     return s / 9.0
 
 
-def span_fill(mask, seeds):
+def span_fill(mask, seeds, out=None):
     """4-connected flood over a bool `mask` from `seeds` [(y, x), ...].
 
     A scanline span fill: each pop extends a horizontal run as far as the mask
@@ -84,7 +84,11 @@ def span_fill(mask, seeds):
     rather than of this pipeline.
     """
     h, w = mask.shape
-    filled = np.zeros((h, w), dtype=bool)
+    if out is None:
+        filled = np.zeros((h, w), dtype=bool)
+    else:
+        filled = out
+        filled[:] = False
     stack = [(int(y), int(x)) for (y, x) in seeds if mask[y, x]]
     while stack:
         y, x = stack.pop()
@@ -122,10 +126,16 @@ def label_components(mask):
     """Label the 4-connected components of a bool mask.
 
     Returns (labels int32 array, count). Label 0 is "not in the mask".
+
+    One scratch buffer is allocated and reused across components. A matted sprite
+    routinely carries hundreds of one- and two-pixel specks -- the corpus desk has
+    577 -- and allocating a full-frame boolean per speck was the dominant cost of
+    the whole pipeline.
     """
     h, w = mask.shape
     labels = np.zeros((h, w), dtype=np.int32)
     remaining = mask.copy()
+    scratch = np.zeros((h, w), dtype=bool)
     cur = 0
     ys, xs = np.nonzero(mask)
     for i in range(len(ys)):
@@ -133,7 +143,7 @@ def label_components(mask):
         if labels[y, x]:
             continue
         cur += 1
-        comp = span_fill(remaining, [(y, x)])
+        comp = span_fill(remaining, [(y, x)], out=scratch)
         labels[comp] = cur
         remaining &= ~comp
     return labels, cur

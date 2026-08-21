@@ -64,8 +64,12 @@ def _check_authority(block, where):
 
 def parse(text):
     """Validate contract JSON text and return the dict. Pure."""
+    def _reject(token):
+        raise ContractError("contract.json contains the non-standard JSON token %r; a threshold "
+                            "file may not carry NaN or Infinity" % token)
+
     try:
-        data = json.loads(text)
+        data = json.loads(text, parse_constant=_reject)
     except ValueError as e:
         raise ContractError("contract.json is not valid JSON: %s" % e)
     if not isinstance(data, dict):
@@ -101,6 +105,23 @@ def parse(text):
         if not (isinstance(vals, list) and vals and all(isinstance(v, str) for v in vals)):
             raise ContractError("contract.json ingest.vocabularies.%s must be a list of "
                                 "strings" % name)
+
+    classes = data["classes"]
+    if not isinstance(classes, dict):
+        raise ContractError("contract.json classes must be an object")
+    for cname, override in classes.items():
+        if not isinstance(override, dict):
+            raise ContractError("contract.json classes.%s must be an object" % cname)
+        # A per-class override reaches gates and ingest through `for_class`, so
+        # it is validated the same way the base blocks are: an override could
+        # otherwise smuggle in a threshold with no authority and no basis.
+        for section in ("gates", "ingest"):
+            for block, body in (override.get(section) or {}).items():
+                if isinstance(body, dict) and any(
+                        isinstance(v, (int, float)) and not isinstance(v, bool)
+                        for v in body.values()):
+                    _check_authority(body, "contract.json classes.%s.%s.%s"
+                                     % (cname, section, block))
 
     freeze = data["_freeze"]
     _need(freeze, "blocks", "contract.json _freeze")

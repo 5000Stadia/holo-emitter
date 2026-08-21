@@ -88,7 +88,8 @@ def build(*, sprite_id, noun, archetype, attachment, dims_m, px, view_side, ligh
         raise RecordError("--id %r is not a usable directory name" % sprite_id)
     for k in ("h", "w", "d"):
         v = dims_m.get(k)
-        if not isinstance(v, (int, float)) or not v > 0:
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or \
+                not math.isfinite(float(v)) or not v > 0:
             raise RecordError(
                 "dims_m.%s must be a number > 0 (got %r). All three of height, width and depth "
                 "come from the operator, sourced from period reference: blueprint §5 says the "
@@ -115,7 +116,7 @@ def build(*, sprite_id, noun, archetype, attachment, dims_m, px, view_side, ligh
         rec["parts"] = _clean(parts)
     if states_images:
         rec["states_images"] = _clean(states_images)
-    if thumb:
+    if thumb is not None:
         rec["thumb"] = thumb
 
     rec["measured"] = _clean(measured or {})
