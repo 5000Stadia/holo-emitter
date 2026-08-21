@@ -294,6 +294,19 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    merges into the library as it lands — wall-clock is the slowest object, not the sum.
    Concurrency is paced by what the generation path honestly sustains; the orchestrator (row
    4's bulk step, and the live host after it) owns the queue.
+10. *Grammar → solver → validators → render* [HUMAN, 2026-08-21, on LLM map-making]: the map's
+    primary form is the structured document, never the picture. An LLM authors a constraint
+    grammar (rooms, types, dimension ranges, adjacencies and shared walls, carriers, exits,
+    standpoint intents) — semantics, its competence; a deterministic solver computes the
+    coordinates — geometry, its competence, incoherence impossible by construction; the plan
+    validators gate the result (tiling, overlap, door-joins-two-spaces, reachability, derivable
+    standpoints — the checks the first drawing already ran, promoted to law); and the schematic
+    is a byte-deterministic derived render existing only for human gates and semantic sanity.
+    Landmark maps keep the render and the human redline; live guardrail-free maps skip the
+    picture entirely and are exactly as reliable, because reliability lives in the solver and
+    validators, not the drawing. Row 12 inverts accordingly: plan.json is the source, the
+    schematic derives from it — the first manor drawing anchored the human bar and becomes the
+    solver's first fixture.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
