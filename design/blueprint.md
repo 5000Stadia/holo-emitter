@@ -116,6 +116,11 @@ Notes:
 - [AI] The hall exit and `shelf1` above are Navigator completions of the v0.2 sketch ("...mirror
   of above..."): `door1` is one entity joining both rooms — the study's E-facing exit and the
   hall's W-facing exit share it `via`, and its state is one fact seen from two sides.
+- **Passage maintains orientation [HUMAN, 2026-08-20]:** "when you walk through the door you
+  should maintain your directional orientation." Every exit's `arrive_facing` continues the
+  direction of travel — walk east, arrive facing east — so the example values above are
+  superseded: `door_study_hall` arrives facing **E**, `door_hall_study` arrives facing **W**.
+  The rule governs all future exits unless the world's own fiction demands a turn.
 - Static-demo caveat: the full document ships to the client, so "hidden" is honesty-by-convention here. In integrated mode (later), knowledge filtering happens host-side before emission; the client never receives unknown entities. Nothing in the renderer may depend on reading unknown entities — treat them as absent.
 
 ## 4. Staging — `staging.json`
