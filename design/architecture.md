@@ -26,9 +26,9 @@ tools/validate-fixtures.mjs     fixture validator (§12.9 + truth/presentation s
 tests/playwright/               config + helpers + specs; run: npx playwright test -c tests/playwright
 ```
 
-Not built yet: the replicator (row 3), real backdrops and sprites (row 4+). Nothing exists under
-`backdrops/`, `library/`, or `library-src/`. Rows 8–10 (fullscreen, speaker layer, access) are
-chrome work; row 7 (the storefront sweep) is done.
+Not built yet: the replicator (row 3), real backdrops and sprites (row 4+), row 9 (the speaker
+layer). Nothing exists under `backdrops/`, `library/`, or `library-src/`. Rows 7, 8 and 10 (the
+storefront sweep, fullscreen, keyboard/assistive access + reduced motion) are done.
 
 ## The file:// constraint and the bake
 
@@ -461,10 +461,24 @@ chrome (narration log + inventory strip + status line) grew the vertical reserve
 **9.6rem**; the capture/pointer viewport is **1536×1200** so the canvas displays at native scale
 (canvas px = CSS px). That is the *convenient* viewport, and saying so is the point: it is where
 small targets are easiest to hit, so the pointer specs that pin it are not evidence about any
-other window size, and the clickability sweep runs at 1366×768 and 1920×1080 as well. All chrome
-carries class `chrome` and hides under `body.capture` (§12.6's element-screenshot seam, tested).
+other window size, and the clickability sweep runs at 1366×768 and 1920×1080 as well. All
+*visible* chrome carries class `chrome` and hides under `body.capture` (§12.6's element-screenshot
+seam, tested) — rows 8 and 10 add three exceptions, each with its own reason: `#fullscreen-toggle`
+and `#entity-controls`'s buttons carry `chrome` too (so they hide under capture like everything
+else), but `#overlay` itself has never carried the class (true since row 1) and stays visible under
+capture regardless. That was harmless while only the mouse could paint into it (capture tooling
+does not hover), but row 10's keyboard focus halo paints there without a mouse at all — a §12.6
+capture taken while a control is focused is measurably not identical to the parent-commit capture
+(an artifact critic measured a byte-different, larger-alpha `#scene` screenshot). Not fixed here:
+either capture mode must clear `focusTarget` and repaint, or `#overlay` must gain `class="chrome"`
+too. Whoever automates a batch capture should blur before shooting until one of those lands.
 Chevron geometry eclipses no entity hit region — the clickability sweep's `elementFromPoint` is
-the shipped witness.
+the shipped witness, and that guard is scoped to `.chevron` by name with a pinned zone count of
+two. Row 8's fullscreen button is a second `pointer-events`-enabled control over the stage (empty
+on every shipped facing, swept by hand) that the same guard does not see; row 10's own entity/go
+controls are pointer-events:none and cannot occlude a click by construction, unlike the button. A
+later row generalizing this guard should enumerate every stage-overlaying control with
+`pointer-events` enabled, not `.chevron` by name.
 
 - **One resolver decides what a point means**: a **takeable whose own drawn rectangle (plus a
   4 CSS px margin) contains the point**, then the exact drawn pixel, then an open doorway the
@@ -819,17 +833,9 @@ Known limits, still open (row 1's list, updated):
   reaches it — but this module is the stand-in for the Construct transport and the envelope is
   the future wire format, and a world arriving over the wire is not validated. The enumeration's
   predicate should read the condition `handleTake` reads.
-- **No `vh` declaration beneath the `svh` layout.** An engine without `svh` (Chrome <108,
-  Firefox <110, Safari <15.4) drops the whole declaration, and `#stage` goes full-width with only
-  its aspect ratio — which puts the frame-bottom floor cut below the fold on a 16:9 laptop, the
-  row-1 defect §5's amendment exists to prevent. A preceding `vh` line costs nothing.
 - **No favicon**, so the public link's tab carries a generic globe and the browser asks for
   `/favicon.ico`. Zero requests after load on `file://` is intact and measured; this is the one
   request row 6's Pages check will see.
-- **Nothing in the spec list owns keyboard or assistive access to scene entities**, or
-  `prefers-reduced-motion` (the `go` veil is an unconditional 0.38 s fade). Rows 8 and 9 are
-  fullscreen and the intro; neither covers either. Both are Navigator calls, raised at this
-  row's close.
 - The network guard's WebSocket half fires only on a successful handshake (construction-vs-
   handshake hole; row 2 added no network seam). Hardening constraint unchanged: detect
   construction via an `addInitScript` shim.
@@ -837,13 +843,9 @@ Known limits, still open (row 1's list, updated):
   highlight, which touch devices do not have; and the V1 legibility cheats leave the coin at
   ≈6 logical px. Row 9 allocates the intro that would say so; row 4's asset scale probe is the
   real fix for the second half.
-- **No keyboard or assistive path to entities.** Only the chevrons are focusable; the canvas has
-  no `tabindex`, role or accessible name. (`#narration` *is* announced — it carries
-  `aria-live="polite"`, `tabindex="0"` and a name, asserted by walkthrough.spec; an earlier
-  version of this sentence claimed it was not a live region and was simply false.) A keyboard-only
-  player can turn forever and never open the drawer. **Row 10** owns this, including the canvas's
-  accessible name — named here because row 7 swept the assistive attributes and would otherwise
-  look as if it had cleared a surface it never reached.
+- Closed by row 8: **the `vh` fallback beneath `svh`** (a preceding `vh` declaration in `#stage`'s
+  width calc, so an engine with neither `svh` nor `dvh` support degrades to the row-1-safe
+  behaviour instead of dropping the whole rule).
 - **The favicon, sharpened** (was: "no favicon, the one request row 6's Pages check will see"). A
   browser requests `/favicon.ico` regardless, so on Pages the *absence* is itself a post-load
   request, and row 6's done clause requires zero. **Owner: row 6**, which must ship an icon or

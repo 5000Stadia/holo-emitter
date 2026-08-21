@@ -147,17 +147,54 @@ test.describe("the fullscreen control", () => {
     await page.click("#fullscreen-toggle");
     await page.waitForTimeout(50);
 
+    // Prove the narration line itself survives: dispatch one before toggling
+    // fullscreen on, and confirm it is still rendered, on screen, and
+    // legible afterwards — not merely "not display:none".
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "chair1" }));
+    const lineBefore = await page.evaluate(() => {
+      const ps = document.querySelectorAll("#narration p");
+      return ps.length ? ps[ps.length - 1].textContent : null;
+    });
+    expect(lineBefore).toBeTruthy();
+
     const afterOn = await page.evaluate(() => ({
       fsActive: document.documentElement.classList.contains("fs-active"),
       label: document.getElementById("fullscreen-toggle").getAttribute("aria-label"),
-      narration: getComputedStyle(document.getElementById("narration")).display,
-      inventory: getComputedStyle(document.getElementById("inventory")).display
+      narrationDisplay: getComputedStyle(document.getElementById("narration")).display,
+      narrationPosition: getComputedStyle(document.getElementById("narration")).position,
+      inventoryPosition: getComputedStyle(document.getElementById("inventory")).position,
+      line: (() => {
+        const ps = document.querySelectorAll("#narration p");
+        return ps.length ? ps[ps.length - 1].textContent : null;
+      })()
     }));
     expect(afterOn.fsActive, "a real, observable state change").toBe(true);
     expect(afterOn.label).toBe("leave the full screen");
-    expect(afterOn.narration).toBe("none");
-    expect(afterOn.inventory).toBe("none");
+    // Never hidden: an earlier shape of this used display:none and an
+    // artifact critic broke it in one click (a reveal line landed in a
+    // zero-height pane with the aria-live region pulled from the tree). The
+    // fixed-overlay shape keeps the narration genuinely on screen instead.
+    expect(afterOn.narrationDisplay).not.toBe("none");
+    expect(afterOn.narrationPosition).toBe("fixed");
+    expect(afterOn.inventoryPosition).toBe("fixed");
+    expect(afterOn.line, "the same line, still legible, still in the tree").toBe(lineBefore);
+    const narrBox = await page.locator("#narration").boundingBox();
+    expect(narrBox.width, "genuinely on screen, not collapsed").toBeGreaterThan(0);
+    expect(narrBox.height).toBeGreaterThan(0);
     auditClean(afterOn.label);
+
+    // The icon changes with the state, not only the aria-label — a sighted
+    // mouse user never reads the label.
+    const iconState = await page.evaluate(() => ({
+      active: document.getElementById("fullscreen-toggle").classList.contains("active"),
+      exitVisible: getComputedStyle(
+        document.querySelector("#fullscreen-toggle .icon-exit")).display !== "none",
+      enterVisible: getComputedStyle(
+        document.querySelector("#fullscreen-toggle .icon-enter")).display !== "none"
+    }));
+    expect(iconState.active).toBe(true);
+    expect(iconState.exitVisible).toBe(true);
+    expect(iconState.enterVisible).toBe(false);
 
     // The stage genuinely grows (the reserve dropped to zero) — this is what
     // makes the label true rather than a relabelled no-op.
@@ -169,11 +206,13 @@ test.describe("the fullscreen control", () => {
     const afterOff = await page.evaluate(() => ({
       fsActive: document.documentElement.classList.contains("fs-active"),
       label: document.getElementById("fullscreen-toggle").getAttribute("aria-label"),
-      narration: getComputedStyle(document.getElementById("narration")).display
+      narrationPosition: getComputedStyle(document.getElementById("narration")).position,
+      active: document.getElementById("fullscreen-toggle").classList.contains("active")
     }));
     expect(afterOff.fsActive).toBe(false);
     expect(afterOff.label).toBe("fill the screen");
-    expect(afterOff.narration).not.toBe("none");
+    expect(afterOff.narrationPosition).not.toBe("fixed");
+    expect(afterOff.active).toBe(false);
   });
 
   test("a rejected requestFullscreen() falls through to the same fallback", async ({ page }) => {
@@ -194,10 +233,12 @@ test.describe("the fullscreen control", () => {
     );
     const state = await page.evaluate(() => ({
       fsActive: document.documentElement.classList.contains("fs-active"),
-      narration: getComputedStyle(document.getElementById("narration")).display
+      narrationDisplay: getComputedStyle(document.getElementById("narration")).display,
+      narrationPosition: getComputedStyle(document.getElementById("narration")).position
     }));
     expect(state.fsActive).toBe(true);
-    expect(state.narration).toBe("none");
+    expect(state.narrationDisplay).not.toBe("none");
+    expect(state.narrationPosition).toBe("fixed");
   });
 
   test("fullscreenchange re-syncs the label without a click (an Esc-driven exit)", async ({ page }) => {

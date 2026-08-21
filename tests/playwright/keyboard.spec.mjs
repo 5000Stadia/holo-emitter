@@ -388,6 +388,39 @@ test.describe("the mouse path is unaffected", () => {
     expect(st.desk, "the click still worked exactly as before").toBe("open");
     expect(st.activeIsBody, "no invisible control intercepted the click").toBe(true);
   });
+
+  /* The single-sample click above names the property ("mouse behaviour is
+   * unaffected") but does not measure it: an artifact critic deleted
+   * `pointer-events: none` from `.entity-control` and this exact suite
+   * stayed green, because desk1's own clickPoint almost never lands inside
+   * one of these 1x1 px controls. This asserts the property directly, at
+   * every facing that has any controls at all, so the guard cannot be
+   * satisfied by a coincidence of sampling. */
+  test("every entity/go-control genuinely has pointer-events: none, on every facing that has one", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.waitForFunction(() => !!window.HOLO_APP);
+
+    const checkHere = async (where) => {
+      const styles = await page.evaluate(() =>
+        [...document.querySelectorAll("#entity-controls button")]
+          .map((b) => getComputedStyle(b).pointerEvents));
+      expect(styles.length, `${where}: at least one control to check`).toBeGreaterThan(0);
+      for (const pe of styles) expect(pe, `${where}: a control's pointer-events`).toBe("none");
+    };
+
+    await checkHere("study/N (boot)"); // desk1, chair1, note1
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" })); // study/E
+    await checkHere("study/E, door closed"); // door1
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "door1" }));
+    await checkHere("study/E, door open"); // door1 + go-control
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "go", exit: "door_study_hall" }));
+    // hall/E (arrival) is bare — door1's hall-side leaf is staged on W, not
+    // E — so nothing to check there; go straight to the furnished facing.
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "left" })); // hall/N
+    await checkHere("hall/N"); // shelf1, stick1, coin1
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "left" })); // hall/W
+    await checkHere("hall/W"); // door1 + go-control back to the study
+  });
 });
 
 test.describe("degenerate noun fallback", () => {

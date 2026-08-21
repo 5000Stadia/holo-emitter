@@ -51,19 +51,35 @@
   }
   /* Row 8, fullscreen. One state — real OS fullscreen OR the in-page
      maximize fallback — drives one class, so a player never sees the two
-     mechanisms disagree (an earlier draft let them: a rejected
-     requestFullscreen() could leave the label claiming a state neither
-     mechanism had reached). Under it the bottom chrome is dropped entirely
-     and the stage's own reserve goes to zero, so "fullscreen" means the same
-     maximized, distraction-free picture whether or not the OS actually grants
-     real fullscreen — which is what licenses the fallback at all: a class
-     toggle that changed nothing observable would leave the button's own
-     label lying about what happened. */
-  html.fs-active #narration, html.fs-active #inventory { display: none; }
+     mechanisms disagree.
+     `display: none` on #narration/#inventory was the first shape of this and
+     an artifact critic broke it in one click: tab to the desk, open it,
+     and the reveal line — "The drawer resists, then gives. Inside, an iron
+     key." — landed in a pane with zero height, the aria-live region removed
+     from the tree, every subsequent take silently vanishing an object with
+     no tile and no sentence. The narration is the only thing in this
+     product that speaks to a player (stated three times over already in
+     this file); a presentation mode may not turn it off. So: the stage's
+     own reserve still drops to zero (there IS real value in it — a phone in
+     landscape measurably grows from 403×268 to 585×390), but narration and
+     inventory are never hidden or removed from flow — they become a fixed
+     overlay anchored to the viewport bottom instead, still fully live,
+     still fully readable, still announced. Where the picture cannot
+     actually grow (phone portrait is already width-bound, so the reserve
+     was never the limiting dimension there — physically unavoidable, not a
+     bug), the visible change is that the chrome moves from pushing the
+     picture up to floating over its own foot instead of nothing changing
+     at all, so the button's claim stays true even there. */
   html.fs-active #stage {
     width: min(100%, max(120px, calc(100vh * (1536 / 1024))));
     width: min(100%, max(120px, calc(100svh * (1536 / 1024))));
   }
+  html.fs-active #narration, html.fs-active #inventory {
+    position: fixed; left: 0; right: 0; z-index: 4;
+    background: rgba(5, 7, 10, 0.82);
+  }
+  html.fs-active #inventory { bottom: 0; }
+  html.fs-active #narration { bottom: 3.4rem; } /* stacks directly above the inventory strip */
   #fullscreen-toggle {
     position: absolute; top: 6px; right: 6px; z-index: 3;
     width: 2rem; height: 2rem; padding: 0;
@@ -71,6 +87,14 @@
     border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
   }
   #fullscreen-toggle svg { width: 100%; height: 100%; display: block; }
+  /* The icon itself must change with the state it names, or a sighted mouse
+     user — the majority case, who never reads the aria-label — sees a mark
+     that contradicts the picture: an artifact critic found the glyph frozen
+     on "expand" while fs-active was true. Two path sets, toggled by the
+     SAME class the label reads from. */
+  #fullscreen-toggle .icon-exit { display: none; }
+  #fullscreen-toggle.active .icon-enter { display: none; }
+  #fullscreen-toggle.active .icon-exit { display: block; }
   /* Row 10, entity/doorway keyboard controls: invisible, pointer-events:none
      so a mouse click passes straight through to the canvas beneath — the
      existing resolve()/hitTest() pointer path is untouched by construction.
@@ -212,7 +236,7 @@
     <div id="veil" class="chrome"></div>
     <button id="chevron-left" class="chevron affordance chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
-    <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="icon-enter" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g><g class="icon-exit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></g></svg></button>
     <div id="entity-controls"></div>
   </div>
   <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.affordance{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
@@ -870,7 +894,7 @@
           if (!entity) continue;
           var btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "entity-control";
+          btn.className = "entity-control chrome";
           btn.setAttribute("data-target-id", entity.id);
           btn.setAttribute("aria-label", controlLabel(entity));
           positionControl(btn, entryRect(entry));
@@ -897,7 +921,7 @@
         if (!leaf || leaf.state !== "open") continue;
         var goBtn = document.createElement("button");
         goBtn.type = "button";
-        goBtn.className = "entity-control";
+        goBtn.className = "entity-control chrome";
         goBtn.setAttribute("data-target-id", ap.exit);
         goBtn.setAttribute("data-go", "1");
         goBtn.setAttribute("aria-label", goLabel(leaf));
@@ -1164,6 +1188,11 @@
     function syncFullscreenUI() {
       var active = isFullscreenActive();
       document.documentElement.classList.toggle("fs-active", active);
+      /* The visible icon has to move with the same one state the label
+         reads from, or the picture and the string contradict each other —
+         an artifact critic caught the icon frozen on "expand" while the
+         label already said "leave the full screen". */
+      fullscreenBtn.classList.toggle("active", active);
       fullscreenBtn.setAttribute("aria-label", active ? "leave the full screen" : "fill the screen");
     }
     fullscreenBtn.addEventListener("click", function () {
