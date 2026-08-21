@@ -321,9 +321,10 @@ def gate_contact(anchors, px, attachment, cfg, provenance=None):
 
     Nothing in §9.4 looks at `anchors.footprint`, and it is what the renderer
     draws every grounded object's contact shadow from. Measured on the corpus
-    desk, §9.2's bottom-two-rows derivation gives 27 px of a 1148 px sprite —
-    one ball foot — against a quality that reads "nothing sits on a floor
-    without it". So the footprint is *derived from the contact band* and this
+    desk, §9.2's bottom-two-rows derivation finds one ball foot and nothing else
+    — the measured values live in the emitted record's `measured.contact`, their
+    one home — against a quality that reads "nothing sits on a floor without
+    it". So the footprint is *derived from the contact band* and this
     gate judges the derivation, not an operator's typing: an absolute-fraction
     floor would hard-fail every three-quarter sprite unless a human measured it
     first, which would make the autonomous sprite lane the intention promises
