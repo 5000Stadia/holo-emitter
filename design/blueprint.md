@@ -227,8 +227,17 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    placeholder and retries; play never blocks. Latency is absorbed by the fiction: an
    unestablished room IS the holodeck grid, and establishing around the player is the product
    working, not loading.
-4. *The library is the pattern buffer's material store:* content-addressed records keyed by
-   noun/archetype/period/style; a coherent world mostly reuses, and only the novel generates.
+4. *The library is the pattern buffer's material store* [HUMAN, 2026-08-21: "on successful
+   creation does an asset get indexed into a library by short description (period, style, size,
+   etc) so that on future map creations elements can be pulled from the library instead of
+   recreated if it meets the criteria?" — yes, by design]: every gate-passed record IS its index
+   entry — noun, archetype, period range/region, dims_m, light, attachment are §6 fields already;
+   from row 4's emission the record also carries `style` (the fingerprint of the style_block
+   generation that produced it), because a period- and size-correct asset from a different style
+   seed would pass every other criterion and still break "one hand" on composite. Future map
+   creation queries the library first (noun/archetype + period overlap + dims tolerance + style
+   compatibility) and generates only on a miss; no separate index to drift — the records are the
+   catalog.
 5. The replicator's injected VLM callable (§9.2 v2) is the live anchor-detection hook.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
@@ -637,7 +646,9 @@ Stages (all automatic unless noted):
 
    [AI, amended at row 3 — the gate set as built, reversible by Kabe as a new-row decision:]
    **The ingester runs fifteen checks, not five**, and what a single run emits depends on the
-   sprite: **nine** for a static one, **thirteen** for a sliding one, **twelve** for a swap. The
+   sprite: **nine** for a static one, **thirteen** for a sliding one, **thirteen** for a swap (a
+   swap runs (a) and (e) twice — once on the body, once on the open-state image — and each
+   verdict names its image in its own id, as `a[states.NAME]`). The
    full set is (a)-(h), `alignment`, `registration`, `slide`, `open_state`, `thumb`, `dims`, and
    `part_mask` — of which `part_mask` carries no verdict (see below) and (e) and `dims` warn.
    "Passes gates" downstream means every **hard** check in the set the sprite's own archetype
