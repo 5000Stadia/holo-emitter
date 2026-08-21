@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { validate } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
-import { stagingDivergence } from "./plan-projection.mjs";
+import { stagingDivergence, assertCameraConsistent } from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -105,6 +105,14 @@ for (const name of FILES) {
   const byEntity = {};
   for (const e of parsed.world.entities || []) if (records[e.sprite]) byEntity[e.id] = records[e.sprite];
 
+  // The projection reads its camera out of grid-canonical meta; if that meta
+  // stops satisfying §5's own horizon device, the camera is not a camera and
+  // every derived floor line is nonsense.
+  const cameraProblems = assertCameraConsistent();
+  if (cameraProblems.length) {
+    cameraProblems.forEach((c) => console.error(`bake refused: camera — ${c}`));
+    process.exit(1);
+  }
   const planFindings = validatePlan(plan, parsed.world, byEntity);
   if (planFindings.length > 0) {
     planFindings.forEach((f, i) => console.error(`${i + 1}. ${f}`));

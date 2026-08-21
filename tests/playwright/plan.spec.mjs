@@ -456,6 +456,31 @@ test.describe("the projection against the shipped staging", () => {
     }
   });
 
+  /* The allowlist has to have teeth in both directions: a divergence that
+   * quietly starts agreeing must be noticed too, or the list rots into a
+   * comment. */
+  test("a named divergence that starts agreeing is reported as missing", () => {
+    const p = clone(PLAN);
+    // Re-site door1's opening on the study's east-wall centre, where the
+    // staging puts it — the divergence disappears.
+    const op = p.openings.find((o) => o.entity === "door1");
+    op.rect.y0 = 11.5; op.rect.y1 = 12.5;
+    const div = stagingDivergence(p, STAGING);
+    expect(div.missing.map((k) => `${k.id}@${k.facing}`)).toEqual(["door1@study/E"]);
+    // and the door is one entity in two rooms: centring it in the study
+    // decentres it in the cross passage, which the same check catches from
+    // the other side.
+    expect(div.unexpected.map((r) => `${r.id}@${r.facing}`)).toEqual(["door1@hall/W"]);
+  });
+
+  test("a staged entity the plan holds no position for is reported, not silently skipped", () => {
+    const p = clone(PLAN);
+    p.objects = p.objects.filter((o) => o.id !== "desk1");
+    const div = stagingDivergence(p, STAGING);
+    expect(div.rows.length).toBe(5);
+    expect(div.unplanned.map((u) => u.id)).toEqual(["desk1"]);
+  });
+
   test("door1's plan position is NOT derived from staging — it is the drawing's opening", () => {
     const op = PLAN.openings.find((o) => o.entity === "door1");
     expect(op.rect).toEqual({ x0: 30.4, x1: 31.0, y0: 10.4, y1: 11.4 });
@@ -618,6 +643,23 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
       w.locations[0].exits[0].arrive_facing = "W";
       writeFileSync(join(fx, "world.json"), JSON.stringify(w, null, 2) + "\n");
       expect(() => bake(dir, ["--fixture-dir", fx, "--out", join(dir, "fresh.js")])).toThrow();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  /* The camera the projection reads out of grid-canonical meta has to still be
+   * a camera. This is the guard on the imported constant, in the real path. */
+  test("a grid-canonical meta that stops satisfying §5's horizon device refuses the bake", () => {
+    const dir = stagePlanTree();
+    try {
+      const rp = join(dir, "src", "renderer.js");
+      const src = readFileSync(rp, "utf8");
+      writeFileSync(rp, src.replace("px_per_m_at_bottom: 332.8", "px_per_m_at_bottom: 210"));
+      let msg = "";
+      try { bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study"), "--out", join(dir, "fresh.js")]); }
+      catch (e) { msg = String(e.stderr || e.message); }
+      expect(msg).toMatch(/camera/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

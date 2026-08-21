@@ -768,6 +768,12 @@ if (import.meta.url === invokedPath) {
   const byEntity = {};
   for (const e of world.entities || []) if (records[e.sprite]) byEntity[e.id] = records[e.sprite];
 
+  const cam = assertCameraConsistent();
+  if (cam.length) {
+    cam.forEach((c) => console.error(`camera: ${c}`));
+    console.error("plan-projection: grid-canonical meta no longer satisfies §5's horizon device, so the camera this projection reads out of it is not a camera");
+    process.exit(1);
+  }
   const findings = validatePlan(plan, world, byEntity);
   if (findings.length) {
     findings.forEach((f, n) => console.error(`${n + 1}. ${f}`));
