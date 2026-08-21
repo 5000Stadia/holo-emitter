@@ -276,6 +276,13 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    own derived position and angle, each appearance a family variant. M0's single-facing staging
    is a licensed simplification for two sparse rooms; the plan projection (row 12 onward)
    derives multi-facing presence properly.
+   Operationalized [HUMAN, 2026-08-21]: "on map and object declaration each object will need to
+   identify the number of different angles it will be in frame and retrieve/create the missing
+   versions" — **the plan bake emits each object's variant manifest**: enumerate its appearances
+   across every containing facing/standpoint, bucket the derived angles by tolerance, diff
+   against the library's family index, and the remainder is the worklist — retrieve what exists,
+   angle-derive what has a family, freshly generate only new identities. The bill of materials
+   is known the moment the map is drawn, never discovered mid-production or mid-play.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
