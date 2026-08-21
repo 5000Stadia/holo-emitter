@@ -28,7 +28,10 @@ verified 2026-08-18 by the drafting pass; the u/RUSuper route spot-checked live 
   direction and eye review", and "better to get my ok on the visual directions as they form then
   after the fact." So: any direction-setting artifact (style_block draft, prompt sheets, wall
   maps, edge/corner treatment, chrome look) is surfaced to Kabe as images in-conversation for OK
-  *before* it is locked or built against — pre-approval forms direction; batches verify results.
+  *before* it is locked or built against — pre-approval forms direction; batches verify results. And [HUMAN, 2026-08-20]: "as visuals
+  update or new live developments go up to test on the girhub pages area let me know" — every
+  push that changes what a player sees or can do at the live link gets a proactive note to Kabe
+  naming what is new and testable there, with screenshots when the change is visual.
   Standing consequence: the [AI]-drafted §11 wall maps go to Kabe with images for OK before row
   4's prompt sheets are written. And [HUMAN, 2026-08-20]: "If we benefit from better reference
   images make them based off of the styling were going for" — the asset seat may generate
