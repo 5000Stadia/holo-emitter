@@ -278,6 +278,16 @@ Notes:
   adjacent walls* at the frame edges (wall returns at the corners), the same device row 11 gives
   the grid; how much return looks best is settled by Kabe's eye in the probe loop, then written
   into the prompt sheets and the measured `corner_x*_px` fields.
+  **Style ruled, 2026-08-20 [HUMAN]: "fine oil realism,"** approved on two supplied references —
+  a realist river landscape (signed Petriv, 2013) and a high-finish painted Parisian arcade.
+  What the pair pins for the style_block: realist oil painting at high finish — crisp detail,
+  smooth blended brushwork, true perspective, believable light and reflections, painterly warmth
+  with **no visible impasto and no stylized distortion**. This supersedes "moderate stylization"
+  as the finish target; the study reference still rules mood and light. The two references also
+  happen to exemplify the open (landscape) and corridor (arcade) facing types beside the study's
+  enclosed — one style across all three geometries. The reference images are other artists'
+  works: they live in the conversation record and are **never committed** to this public
+  repository; the style_block's written descriptors are their carrier here.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
 **The room has corners — and a facing may have no wall at all [HUMAN, 2026-08-20]:** "the
