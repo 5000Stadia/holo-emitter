@@ -37,11 +37,69 @@
        part of the inventory under the toolbar — and in phone landscape this
        one has 9 px of slack. Safari is the one engine this build has never
        been run on, so it gets the unit that cannot be wrong rather than a
-       measurement nobody here can take. */
+       measurement nobody here can take.
+       A `vh` line precedes it (row 8) as a fallback beneath `svh` itself: an
+       engine with neither `svh` nor `dvh` support (Chrome <108, Firefox
+       <110, Safari <15.4) drops the whole declaration and `#stage` goes
+       full-width with only its aspect-ratio, reproducing the row-1 defect
+       this file's own history already paid for once. The `svh` line still
+       wins wherever it is understood, cascade order alone decides it. */
+    width: min(100%, max(120px, calc((100vh - 7.6rem) * (1536 / 1024))));
     width: min(100%, max(120px, calc((100svh - 7.6rem) * (1536 / 1024))));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
+  /* Row 8, fullscreen. One state — real OS fullscreen OR the in-page
+     maximize fallback — drives one class, so a player never sees the two
+     mechanisms disagree (an earlier draft let them: a rejected
+     requestFullscreen() could leave the label claiming a state neither
+     mechanism had reached). Under it the bottom chrome is dropped entirely
+     and the stage's own reserve goes to zero, so "fullscreen" means the same
+     maximized, distraction-free picture whether or not the OS actually grants
+     real fullscreen — which is what licenses the fallback at all: a class
+     toggle that changed nothing observable would leave the button's own
+     label lying about what happened. */
+  html.fs-active #narration, html.fs-active #inventory { display: none; }
+  html.fs-active #stage {
+    width: min(100%, max(120px, calc(100vh * (1536 / 1024))));
+    width: min(100%, max(120px, calc(100svh * (1536 / 1024))));
+  }
+  #fullscreen-toggle {
+    position: absolute; top: 6px; right: 6px; z-index: 3;
+    width: 2rem; height: 2rem; padding: 0;
+    background: rgba(200, 180, 137, 0.06); color: #c8b489;
+    border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
+  }
+  #fullscreen-toggle svg { width: 100%; height: 100%; display: block; }
+  /* Row 10, entity/doorway keyboard controls: invisible, pointer-events:none
+     so a mouse click passes straight through to the canvas beneath — the
+     existing resolve()/hitTest() pointer path is untouched by construction.
+     Keyboard/AT activation of a focused button fires its click handler
+     regardless of pointer-events (that property only gates hit-testing, not
+     synthetic activation of a focused element) — the same pattern a
+     visually-hidden "skip to content" link relies on. Position is in percent
+     of #stage so it tracks the entity roughly even though it stays invisible
+     — belt, not just the suspenders pointer-events:none already is. */
+  /* `opacity: 0`, tried first, made these buttons genuinely unreachable by
+     Tab on Firefox: Playwright's own accessibility snapshot showed no `ref`
+     for any of them there — Firefox excludes near-zero-opacity elements from
+     the keyboard focus order in a way Chromium does not, the exact opposite
+     of what a keyboard-access row exists to fix. The standard
+     `clip`/`clip-path` visually-hidden technique (used site-wide for skip
+     links, with no such exclusion on any engine) replaces it; pointer-events
+     stays none, which is a genuinely different, spec-guaranteed property —
+     it is what lets a mouse click pass through, unrelated to focusability. */
+  .entity-control {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%);
+    white-space: nowrap; pointer-events: none; border: 0; padding: 0;
+  }
+  /* Row 10, reduced motion. The go veil's black-in phase is already instant
+     (.instant); this makes the fade-OUT (removing .on) instant too, under
+     the media query only — harmless in a normal session, since the JS path
+     (below) skips adding .on at all when the preference is set, so this rule
+     is defense in depth rather than the sole mechanism. */
+  @media (prefers-reduced-motion: reduce) { #veil { transition: none; } }
   #scene, #overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: block;
@@ -149,13 +207,15 @@
 </head>
 <body>
   <div id="stage">
-    <canvas id="scene" width="1536" height="1024"></canvas>
+    <canvas id="scene" width="1536" height="1024" role="img" aria-label="what you see"></canvas>
     <canvas id="overlay" width="1536" height="1024"></canvas>
     <div id="veil" class="chrome"></div>
-    <button id="chevron-left" class="chevron chrome" aria-label="turn left">&lsaquo;</button>
-    <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
+    <button id="chevron-left" class="chevron affordance chrome" aria-label="turn left">&lsaquo;</button>
+    <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
+    <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div id="entity-controls"></div>
   </div>
-  <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
+  <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.affordance{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
   <script>
   /* Registered before anything else loads, and depending on nothing that
@@ -192,11 +252,15 @@
       p.textContent = "The projection will not hold. Nothing of this place can be shown.";
       pane.appendChild(p);
       /* And stop offering controls that were never wired. A missing script
-         means no handler was ever attached, so the chevrons stay named,
-         focusable and dead — the same defect the render-path handler already
-         withdraws them for, on the other fault path. */
-      var chevrons = document.querySelectorAll(".chevron");
-      for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
+         means no handler was ever attached, so the chevrons (and, since row
+         8, the fullscreen button) stay named, focusable and dead — the same
+         defect the render-path handler already withdraws them for, on the
+         other fault path. Selector is `.affordance`, not `.chevron`: a
+         second live control carrying only `.chevron` would silently escape
+         this exact withdrawal (row 10 gave both a shared marker class for
+         exactly this). */
+      var affordances = document.querySelectorAll(".affordance");
+      for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
     }
     window.addEventListener("error", function (e) {
       console.error("boot fault:", e && (e.error || e.message));
@@ -240,6 +304,8 @@
     var narrationEl = document.getElementById("narration");
     var inventoryEl = document.getElementById("inventory");
     var veil = document.getElementById("veil");
+    var entityControlsEl = document.getElementById("entity-controls");
+    var fullscreenBtn = document.getElementById("fullscreen-toggle");
     var library = window.HOLO.placeholders.build(document);
     var backdrops = {}; // row 4 fills this; the resolution rule is the renderer's
     function metaFor(vs) {
@@ -252,6 +318,7 @@
     var lastGo = null;          // timestamp of the last successful `go` — the double-click echo guard
     var DOUBLE_CLICK_MS = 400;
     var lastPointer = null;
+    var focusTarget = null;     // row 10: the keyboard-focused resolve()-shaped target, or null
     var halted = false;         // a fault the page cannot come back from
     var stripFaulted = false;   // the strip alone; the picture is unharmed
 
@@ -286,17 +353,28 @@
         scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
         overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       } catch (ignored) { /* the canvas is already beyond reach */ }
-      var chevrons = document.querySelectorAll(".chevron");
-      for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
+      var affordances = document.querySelectorAll(".affordance");
+      for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
       scene.style.cursor = "";
       /* Every affordance withdrawn together. Withdrawing the buttons while
          the hover silhouette still lights up under the cursor claims two
          different things about the same page: a player was left stroking a
          lit, highlighted, dead room. `showHover` returns early on a null
-         layout, so this takes the highlight and the pointer with it. */
+         layout, so this takes the highlight and the pointer with it.
+         Row 10: the keyboard controls go with them — cleared, not merely
+         hidden, since a stale button in the DOM would still dispatch into a
+         world the page has already disowned — and focus is not left
+         pointing at one that no longer exists. */
       currentLayout = null;
       lastPointer = null;
+      focusTarget = null;
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      if (entityControlsEl) {
+        if (entityControlsEl.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        while (entityControlsEl.firstChild) entityControlsEl.removeChild(entityControlsEl.firstChild);
+      }
     }
 
     function paint(viewstate) {
@@ -323,12 +401,25 @@
          overlay lying about the scene. Then it is re-drawn for wherever the
          cursor actually is — clearing alone made an entity's only affordance
          vanish at the moment it was clicked, and stay gone until the mouse
-         moved again. */
+         moved again. Row 10's focus outline goes through the same
+         paintOverlay(), so a keyboard user's outline survives a repaint the
+         same way the mouse's already did. */
       paints += 1;
       window.HOLO_APP.paints = paints;
-      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       scene.style.cursor = "";
-      if (lastPointer) showHover(lastPointer);
+      /* Guarded on its own: syncControls()/paintOverlay() are a supplementary
+         layer over an already-successful render — the picture is correct and
+         on screen by this point — so a bug here degrades keyboard/AT
+         reachability for one paint rather than taking down the whole page or
+         (worse, at boot) escaping this function entirely and reaching the
+         boot handler's uncaught-error listener, which would print "nothing
+         of this place can be shown" over a room that painted fine. */
+      try {
+        syncControls();
+        paintOverlay();
+      } catch (err) {
+        console.error("entity-controls fault:", err);
+      }
     }
 
     /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
@@ -461,7 +552,20 @@
       // travel generally.
       lastGo = (intent && intent.type === "go" && envelope.events.length > 0)
         ? Date.now() : null;
-      if (intent && intent.type === "go" && envelope.events.length > 0) {
+      /* Row 10, reduced motion: an instant CUT, not a shortened fade. Under
+         the preference the whole veil sequence is skipped — no black, no
+         hold, no transition — and the repaint simply happens, exactly as a
+         `turn` or `toggle` already does with no veil at all. Checked once,
+         synchronously, before any class is touched: a version that kept the
+         140ms black hold and only dropped the fade-out was still a flash-cut,
+         not the instant cut the row's own text asks for, and it left a
+         narrow timing window where a test could not tell the two modes
+         apart. The CSS `transition: none` rule under the same media query
+         stays as defense in depth — harmless here, since this branch never
+         adds `.on` for it to apply to. */
+      var reducedMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (intent && intent.type === "go" && envelope.events.length > 0 && !reducedMotion) {
         if (veilTimer) clearTimeout(veilTimer);
         veil.classList.add("instant", "on");
         veil.getBoundingClientRect(); // commit the black before the frame
@@ -677,6 +781,138 @@
       return null;
     }
 
+    /* Row 10: one focusable control per drawn entity, plus one per open-facing
+       doorway, so every intent a pointer can emit is also reachable by
+       keyboard alone. Names are state-invariant TEXT, not aria-expanded: a
+       screen reader announcing "expanded"/"collapsed" over a plank door and
+       an oak drawer would be machine register laid over the fiction's own
+       objects, so the open/closed distinction is authored into the name
+       itself instead, exactly like every other product-voiced string. */
+    var NOUN_FALLBACK = "something here";
+
+    function recordOf(entity) {
+      var bound = library[entity.sprite];
+      return bound && bound.record;
+    }
+
+    function nounOf(entity) {
+      var record = recordOf(entity);
+      var noun = record && record.noun;
+      if (typeof noun !== "string" || !noun) {
+        console.error("entity control: record has no usable noun:",
+          entity.sprite, "(entity " + entity.id + ")");
+        return null;
+      }
+      return noun;
+    }
+
+    function controlLabel(entity) {
+      var noun = nounOf(entity);
+      if (!noun) return NOUN_FALLBACK;
+      if (entity.takeable) return "take the " + noun;
+      if (entity.states && entity.states.length) {
+        return (entity.state === "open" ? "close the " : "open the ") + noun;
+      }
+      return "the " + noun;
+    }
+
+    /* Named from the LEAF's own noun, not a per-exit-id lookup table: the
+       document is the one home of what things are called, and a string
+       baked into this bootstrap keyed by exit id would have no name at all
+       the day a world arrives over the future wire carrying exits this page
+       has never heard of. M0's one door entity is shared by both exits, so
+       this yields one string, not two. */
+    function goLabel(leafEntity) {
+      var noun = nounOf(leafEntity);
+      return noun ? "walk through the " + noun : NOUN_FALLBACK;
+    }
+
+    /* Percent-of-stage position so the (invisible) control roughly tracks
+       its entity even though nothing about its own box is ever seen — belt,
+       not just the pointer-events:none suspenders, against a synthesized
+       activation that might resolve by screen position rather than by the
+       accessibility tree's own idea of what has focus. */
+    function positionControl(btn, rect) {
+      var cx = (rect.x + rect.w / 2) / scene.width * 100;
+      var cy = (rect.y + rect.h / 2) / scene.height * 100;
+      btn.style.left = cx + "%";
+      btn.style.top = cy + "%";
+    }
+
+    /* Rebuilt every repaint, from the same currentLayout the hover halo
+       already reads — no second data source. Mouse behaviour is completely
+       unaffected: every button here is pointer-events:none, so a click
+       always passes through to the canvas and the existing resolve()/
+       hitTest() path never sees these elements at all. Focus identity is
+       preserved across the rebuild (the id last focused, if it still has a
+       control, gets it back) — without this a keyboard user's focus was
+       dropped to <body> on every single turn/open/take, forcing a full
+       re-Tab after every intent. */
+    function syncControls() {
+      if (!entityControlsEl) return;
+      var focusedId = null, focusedWasGo = false;
+      if (entityControlsEl.contains(document.activeElement)) {
+        focusedId = document.activeElement.getAttribute("data-target-id");
+        focusedWasGo = document.activeElement.getAttribute("data-go") === "1";
+      }
+      while (entityControlsEl.firstChild) entityControlsEl.removeChild(entityControlsEl.firstChild);
+      var refocus = null;
+
+      function wireFocus(btn, target) {
+        btn.addEventListener("focus", function () { focusTarget = target; paintOverlay(); });
+        btn.addEventListener("blur", function () { focusTarget = null; paintOverlay(); });
+      }
+
+      if (currentLayout) {
+        for (var i = 0; i < currentLayout.length; i++) {
+          var entry = currentLayout[i];
+          var entity = entityById(entry.id);
+          if (!entity) continue;
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "entity-control";
+          btn.setAttribute("data-target-id", entity.id);
+          btn.setAttribute("aria-label", controlLabel(entity));
+          positionControl(btn, entryRect(entry));
+          (function (id, takeable) {
+            btn.addEventListener("click", function () {
+              dispatch(takeable ? { type: "take", entity: id } : { type: "toggle", entity: id });
+            });
+          })(entity.id, !!entity.takeable);
+          wireFocus(btn, { kind: "entity", id: entity.id });
+          entityControlsEl.appendChild(btn);
+          if (!focusedWasGo && focusedId === entity.id) refocus = btn;
+        }
+      }
+
+      /* The go-control: present only when the on-facing exit's leaf is
+         open, mirroring resolve()'s own doorway branch exactly — a shut
+         leaf has no separate opening-target there either, and neither does
+         this. */
+      var apList = window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
+      for (var j = 0; j < apList.length; j++) {
+        var ap = apList[j];
+        var leaf = entityById(ap.via);
+        if (!leaf || leaf.state !== "open") continue;
+        var goBtn = document.createElement("button");
+        goBtn.type = "button";
+        goBtn.className = "entity-control";
+        goBtn.setAttribute("data-target-id", ap.exit);
+        goBtn.setAttribute("data-go", "1");
+        goBtn.setAttribute("aria-label", goLabel(leaf));
+        positionControl(goBtn, ap);
+        (function (exitId) {
+          goBtn.addEventListener("click", function () { dispatch({ type: "go", exit: exitId }); });
+        })(ap.exit);
+        wireFocus(goBtn, { kind: "doorway", aperture: ap });
+        entityControlsEl.appendChild(goBtn);
+        if (focusedWasGo && focusedId === ap.exit) refocus = goBtn;
+      }
+
+      if (refocus) refocus.focus();
+    }
+
     /* Click -> intent. The doorway and its leaf are two different targets,
        which is what gives the door a way back: click through the OPENING to
        `go`, click the LEAF to toggle it (open it when shut, pull it to when
@@ -828,15 +1064,17 @@
       overlayCtx.restore();
     }
 
-    /* Hover: silhouette outline on the overlay canvas (chrome — the scene
-       hash stays cursor-independent); cleared when nothing is under the
-       cursor. */
-    function showHover(p) {
-      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-      if (!currentLayout) { scene.style.cursor = ""; return; }
-      var r = resolve(p);
-      if (r.kind === "none") { scene.style.cursor = ""; return; }
-      scene.style.cursor = "pointer";
+    /* Hover AND keyboard focus, one overlay (row 10). Originally two
+       independent clear-and-redraw paths — showHover(p)/clearHover() — that
+       would have raced against each other the moment a second, focus-driven
+       source of the same outline existed: a mouse hover clearing the canvas
+       would have erased a keyboard user's focus ring, and the reverse. Both
+       now draw through this one function, which clears once and then draws
+       whichever of the two (or both, if they coincide) currently apply — a
+       sighted keyboard user tabbing while the mouse still rests somewhere
+       sees both outlines, not one silently overwriting the other. */
+    function drawResolved(r) {
+      if (!r || r.kind === "none") return;
       if (r.kind === "doorway") {
         /* The way between rooms answers the cursor like everything else.
            Without this the one thing that moves you had no highlight and no
@@ -844,15 +1082,17 @@
         outlineRect(r.aperture);
         return;
       }
-      for (var i = 0; i < currentLayout.length; i++) {
-        if (currentLayout[i].id === r.id) outline(currentLayout[i]);
-      }
+      var entry = entryOf(r.id);
+      if (entry) outline(entry);
     }
 
-    function clearHover() {
-      lastPointer = null;
+    function paintOverlay() {
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-      scene.style.cursor = "";
+      if (!currentLayout) { scene.style.cursor = ""; return; }
+      var hoverR = lastPointer ? resolve(lastPointer) : null;
+      if (focusTarget) drawResolved(focusTarget);
+      if (hoverR) drawResolved(hoverR);
+      scene.style.cursor = (hoverR && hoverR.kind !== "none") ? "pointer" : "";
     }
 
     /* Touch never sends `mouseleave`, and a refused tap does not repaint, so
@@ -868,10 +1108,10 @@
     var swallowNextMove = false;
 
     scene.addEventListener("mousemove", function (e) {
-      if (swallowNextMove) { swallowNextMove = false; clearHover(); return; }
+      if (swallowNextMove) { swallowNextMove = false; lastPointer = null; paintOverlay(); return; }
       try {
         lastPointer = canvasPoint(e);
-        showHover(lastPointer);
+        paintOverlay();
       } catch (err) {
         fault(err);
       }
@@ -884,12 +1124,14 @@
     window.addEventListener("resize", scrollNarration);
     window.addEventListener("orientationchange", scrollNarration);
 
-    scene.addEventListener("mouseleave", clearHover);
+    scene.addEventListener("mouseleave", function () { lastPointer = null; paintOverlay(); });
     scene.addEventListener("pointerdown", function (e) {
       if (e.pointerType && e.pointerType !== "mouse") swallowNextMove = true;
     });
     scene.addEventListener("pointerup", function (e) {
-      if (e.pointerType && e.pointerType !== "mouse") { swallowNextMove = true; clearHover(); }
+      if (e.pointerType && e.pointerType !== "mouse") {
+        swallowNextMove = true; lastPointer = null; paintOverlay();
+      }
     });
 
     document.getElementById("chevron-left").addEventListener("click", function () {
@@ -898,6 +1140,56 @@
     document.getElementById("chevron-right").addEventListener("click", function () {
       dispatch({ type: "turn", dir: "right" });
     });
+
+    /* Row 8: fullscreen. One state (real OS fullscreen OR the in-page
+       maximize fallback) drives html.fs-active and the button's label
+       together, so the two mechanisms can never disagree (an earlier draft
+       let them). Real API preferred; a rejection falls through to the same
+       fallback flag a missing API uses. */
+    var manualMaximize = false;
+    function requestFS() {
+      var el = document.documentElement;
+      if (el.requestFullscreen) return el.requestFullscreen();
+      if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+      return null;
+    }
+    function exitFS() {
+      if (document.exitFullscreen) return document.exitFullscreen();
+      if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+      return null;
+    }
+    function isFullscreenActive() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement || manualMaximize);
+    }
+    function syncFullscreenUI() {
+      var active = isFullscreenActive();
+      document.documentElement.classList.toggle("fs-active", active);
+      fullscreenBtn.setAttribute("aria-label", active ? "leave the full screen" : "fill the screen");
+    }
+    fullscreenBtn.addEventListener("click", function () {
+      var real = document.fullscreenElement || document.webkitFullscreenElement;
+      if (real) {
+        manualMaximize = false;
+        var p = exitFS();
+        if (p && p.catch) p.catch(function () { manualMaximize = false; syncFullscreenUI(); });
+        return;
+      }
+      if (manualMaximize) {
+        manualMaximize = false;
+        syncFullscreenUI();
+        return;
+      }
+      var req = requestFS();
+      if (req && req.catch) {
+        req.catch(function () { manualMaximize = true; syncFullscreenUI(); });
+      } else if (!req) {
+        manualMaximize = true;
+      }
+      syncFullscreenUI();
+    });
+    document.addEventListener("fullscreenchange", syncFullscreenUI);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenUI);
+    syncFullscreenUI();
     window.addEventListener("keydown", function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey) return; // browser gestures stay the browser's
       /* The transcript is a focusable scrollable region, so while it holds
