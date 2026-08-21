@@ -27,7 +27,7 @@ the bottom of the page. The words of the room appear beneath the picture as you 
 npx playwright test -c tests/playwright
 ```
 
-Headless Chromium, plus Firefox for the behaviour tests. Requires `npm install` once (and
+Headless Chromium and Firefox, both running every test. Requires `npm install` once (and
 `npx playwright install chromium firefox` if no browser is cached).
 
 ## Editing the world

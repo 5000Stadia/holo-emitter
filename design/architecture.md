@@ -696,6 +696,39 @@ fractional-scale `drawImage`) are deterministic within the witnessed engine — 
 letter requires; cross-platform hash stability is accepted residue.
 
 Known limits, still open (row 1's list, updated):
+- **`entryRect` — the chrome's idea of an entity's rectangle — ignores parts, and `drawnRect` in
+  the renderer does not.** The hover halo sizes its scratch from `entryRect` and then stamps body
+  *and* parts into it, and the pointing tolerance measures from the same rect, so a part that
+  travels outside the body rect loses its halo and its forgiveness. Not reachable with the
+  shipped record — the drawer stays inside the desk's canvas — and nothing goes red if it
+  becomes reachable: widening `slide.dx` to −0.55 leaves the whole suite green. **Row 3's
+  ingester and row 4's records set `slide` from real art, so this is the row where it stops
+  being latent.** The fix is one home for the union (part travel at both ends, swap origin,
+  clip), with a check that binds a protruding part to a halo that still traces it.
+- **On touch there is no affordance signal at all.** The hover silhouette is the only thing that
+  says anything can be touched, and the compatibility hover after a tap is deliberately
+  suppressed (otherwise every tap left a permanent halo). This is discoverability, not size, so
+  row 8's chrome work and the [HUMAN] apparent-size question do not answer it; whatever does must
+  live on the overlay canvas or in DOM chrome, because the scene hash and §12.6's capture rule
+  are untouchable.
+- **`enumerateNarrationDomain` omits `take.<id>.refused_contained` when the `in`-host declares no
+  states, and `handleTake` can emit it.** The fixture validator fences that world, so no fixture
+  reaches it — but this module is the stand-in for the Construct transport and the envelope is
+  the future wire format, and a world arriving over the wire is not validated. The enumeration's
+  predicate should read the condition `handleTake` reads.
+- **No `vh` declaration beneath the `svh` layout.** An engine without `svh` (Chrome <108,
+  Firefox <110, Safari <15.4) drops the whole declaration, and `#stage` goes full-width with only
+  its aspect ratio — which puts the frame-bottom floor cut below the fold on a 16:9 laptop, the
+  row-1 defect §5's amendment exists to prevent. A preceding `vh` line costs nothing.
+- **No favicon**, so the public link's tab carries a generic globe and the browser asks for
+  `/favicon.ico`. Zero requests after load on `file://` is intact and measured; this is the one
+  request row 6's Pages check will see.
+- **`#status` is ≈4.0:1 against its background at 0.75rem**, under WCAG AA's 4.5:1 for text that
+  small. Row 7 replaces the string; the box has to hold whatever replaces it.
+- **Nothing in the spec list owns keyboard or assistive access to scene entities**, or
+  `prefers-reduced-motion` (the `go` veil is an unconditional 0.38 s fade). Rows 8 and 9 are
+  fullscreen and the intro; neither covers either. Both are Navigator calls, raised at this
+  row's close.
 - The network guard's WebSocket half fires only on a successful handshake (construction-vs-
   handshake hole; row 2 added no network seam). Hardening constraint unchanged: detect
   construction via an `addInitScript` shim.
