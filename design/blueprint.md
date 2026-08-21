@@ -268,6 +268,16 @@ Notes:
   *surface* (the reference's paper-strewn desk), not only floor — the camera-has-feet device
   through furniture. The reference image is Kabe's; it belongs in `design/references/` when Kabe
   places the file (pending, non-blocking).
+  **Reference read with limits, 2026-08-20 [HUMAN notes, verbatim]:** "its oil painting style
+  though and our final should be a finer resolution, stylization ok but thats a bit much" — the
+  reference rules *feel* (light, depth, density, elevation), never finish: the style_block
+  extracted at the probe aims for finer-resolution rendering with moderate stylization, not
+  heavy oil impasto. And "the back wall isnt strait on it had a look at the corner of the
+  room…. Which we should consider what looks best at the edges in a room to show the beginning
+  of the next wall kind of thing" — each enclosed facing's backdrop shows the *beginnings of the
+  adjacent walls* at the frame edges (wall returns at the corners), the same device row 11 gives
+  the grid; how much return looks best is settled by Kabe's eye in the probe loop, then written
+  into the prompt sheets and the measured `corner_x*_px` fields.
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
 **The room has corners — and a facing may have no wall at all [HUMAN, 2026-08-20]:** "the
