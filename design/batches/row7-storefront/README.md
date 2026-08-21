@@ -5,7 +5,7 @@ belong in `design/references/`, which the playbook reserves for approved work. *
 directory when his verdict lands**; anything he approves graduates to `design/references/` with its
 V-stage, by the hand that receives the verdict.
 
-Nine captures and one transcript, from a cold `file://` load, Chromium, no throttling, no
+Ten captures and one transcript, from a cold `file://` load, Chromium, no throttling, no
 downscaling, device pixel ratio 1, chrome visible. (These are chrome captures — §12.6's canvas-only
 rule governs flip pairs, not these.) Two widths: 1536×1200 and 390×844.
 
@@ -16,9 +16,10 @@ rule governs flip pairs, not these.) Two widths: 1536×1200 and 390×844.
 | `03-a-refusal.png` | a click on the chair |
 | `04-an-item-taken.png` | the key, taken |
 | `05-broken-boot.png` | a boot viewstate the world does not hold |
-| `06-no-frame-ever-painted.png` | a script that never arrived |
+| `06-no-frame-ever-painted.png` | a script that never arrived — the boot apology, the one fault line an earlier version of this batch never showed you |
 | `07-render-fault.png` | a throw on the render path |
-| `08-noun-missing.png` | a record with no usable noun (the tile is still named) |
+| `08-noun-missing.png` | a record with no usable noun — pixel-identical to 04 by design, since the difference is the tile's accessible *name*; read it in `announced-surface.txt` |
+| `09-strip-cannot-show-itself.png` | the inventory strip throws while the picture is intact |
 | `scripts-off.png` | scripts disabled |
 | `announced-surface.txt` | every string an **assistive** reader meets, in order, per state — the half no screenshot carries |
 

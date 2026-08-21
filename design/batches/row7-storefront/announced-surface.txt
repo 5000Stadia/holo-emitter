@@ -48,7 +48,17 @@ narration: The projection was set to a view this pattern does not hold.
 holo-emitter
 div#narration [aria-label] what the room says
 div#inventory [aria-label] what you are carrying
-narration: The projection wavers; the pattern will not resolve.
+narration: The projection will not hold. Nothing of this place can be shown.
+
+== 09-strip-cannot-show-itself ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: What you carry is with you still, though it will not show itself here.
+narration: The drawer resists, then gives. Inside, an iron key.
+narration: You take the iron key. It is cold, and lighter than it looks.
 
 == 07-render-fault ==
 holo-emitter

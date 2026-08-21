@@ -195,11 +195,17 @@ test.describe("the sink census", () => {
     const seen = new Set();
     for (const rel of sources) {
       const text = code(rel);
-      const re = /\.(textContent|innerText|title)\s*=|setAttribute\(\s*"([\w-]+)"/g;
+      /* Both quote styles: a single-quoted setAttribute was invisible to a
+         double-quote-only detector, and "every site in the shipped source"
+         cannot be a claim a quote character defeats. */
+      const re = /\.(textContent|innerText|title)\s*=|setAttribute\(\s*["']([\w-]+)["']/g;
       let m;
       while ((m = re.exec(text)) !== null) {
         const attr = m[2];
-        if (attr && !/^(aria-label|title|alt|placeholder|aria-labelledby|aria-describedby|aria-roledescription|aria-valuetext|aria-placeholder)$/.test(attr)) continue;
+        // Derived, matching COLLECT: any aria-* naming attribute, plus the
+        // three plain ones. Not a list that has to be remembered.
+        if (attr && !(/^aria-/.test(attr) || /^(title|alt|placeholder)$/.test(attr))) continue;
+        if (attr && /^aria-(labelledby|describedby|details|controls|owns|flowto|activedescendant|hidden|live|atomic|relevant|busy)$/.test(attr)) continue;
         seen.add(rel + " :: " + (attr ? "setAttribute " + attr : m[1]));
       }
     }
@@ -263,14 +269,20 @@ const COLLECT = () => {
     if (t) out.push(t);
   }
   for (const el of document.querySelectorAll("*")) {
-    for (const a of ["aria-label", "title", "alt", "placeholder",
-      "aria-labelledby", "aria-describedby",
-      /* announced by screen readers, and previously read by neither net —
-         a section sign and a repo path in aria-roledescription reached the
-         product face with the whole suite green. */
-      "aria-roledescription", "aria-valuetext", "aria-placeholder"]) {
-      const v = el.getAttribute && el.getAttribute(a);
-      if (v) out.push(v);
+    /* DERIVED, not a hand-kept list. Twice now a naming attribute outside
+       the list reached the accessible surface with the suite green
+       (aria-roledescription, then aria-description), and each time the fix
+       was a longer list — which leaves aria-braillelabel next. Every
+       aria-* attribute plus the three plain naming attributes: a newly
+       shipped ARIA naming attribute cannot silently widen the hole. */
+    for (const at of el.attributes || []) {
+      const n = at.name;
+      if (!/^aria-/.test(n) && n !== "title" && n !== "alt" && n !== "placeholder") continue;
+      /* aria-hidden / aria-live etc. are tokens, not prose; keep only values
+         that are not pure ARIA keywords or id references. */
+      if (/^(true|false|polite|assertive|off|none|inherit|page|step|other|mixed|undefined|\d+)$/i.test(at.value.trim())) continue;
+      if (/^aria-(labelledby|describedby|details|controls|owns|flowto|activedescendant)$/.test(n)) continue;
+      if (at.value.trim()) out.push(at.value);
     }
     for (const p of ["::before", "::after"]) {
       const c = getComputedStyle(el, p).content;
@@ -304,7 +316,8 @@ test.describe("the runtime sweep", () => {
       "broken-boot-location", "broken-boot-facing", "module-missing-renderer",
       "module-missing-harness", "module-missing-placeholders",
       "module-missing-inventory", "module-missing-groundplane",
-      "module-missing-fixture", "render-fault", "missing-narration-key",
+      "module-missing-fixture", "render-fault", "halted-but-painted",
+      "viewport-changed-after-load", "missing-narration-key",
       "unreadable-intent", "noun-missing", "scripts-disabled", "capture-mode",
       "width-320", "width-1366", "zoom-200"
     ];
@@ -660,4 +673,82 @@ test("the README still points at the bake fingerprint", () => {
   expect(readme, "and says where it is now").toMatch(/console/);
   expect(readme, "and what it means if it did not change").toMatch(/did not run/);
   expect(readme, "and the one command still works").toContain("node tools/bake-fixtures.mjs");
+});
+
+test("a chrome projection failing does not make the picture lie", async ({ page }) => {
+  /* halted-but-painted. The first fix for a throwing inventory strip called
+   * fault(), which prints "the pattern will not resolve" over a room that is
+   * on screen and correct — the same false-in-a-reachable-state defect one
+   * path further along. The picture resolved; the tally of what you carry did
+   * not, and that is what the surface now says. */
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  const res = await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    A.dispatch({ type: "toggle", entity: "desk1" });
+    window.HOLO.inventory.render = () => { throw new Error("strip"); };
+    A.dispatch({ type: "take", entity: "key1" });
+    return {
+      lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
+      painted: A.paints,
+      tiles: document.querySelectorAll("#inventory canvas.inv-tile").length,
+      chevron: getComputedStyle(document.getElementById("chevron-left")).display
+    };
+  });
+  expect(res.painted, "the picture is up").toBeGreaterThan(0);
+  expect(res.lines, "and the page does not claim it failed")
+    .not.toContain("The projection wavers; the pattern will not resolve.");
+  expect(res.lines).toContain(
+    "What you carry is with you still, though it will not show itself here.");
+  expect(res.tiles, "the strip is cleared, not left half-true").toBe(0);
+  expect(res.chevron, "and the room is still yours to walk").not.toBe("none");
+  checkCollected(await page.evaluate(COLLECT), "halted-but-painted");
+});
+
+test("a halted page withdraws every affordance, not only its buttons", async ({ page }) => {
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  await page.evaluate(() => {
+    window.HOLO.renderer.render = () => { throw new Error("forced"); };
+    window.HOLO_APP.dispatch({ type: "turn", dir: "right" });
+  });
+  const st = await page.evaluate(() => ({
+    layout: window.HOLO_APP.resolve({ x: 760, y: 700 }).kind,
+    chevron: getComputedStyle(document.getElementById("chevron-left")).display,
+    cursor: document.getElementById("scene").style.cursor,
+    overlayBlank: window.__T.isOverlayBlank()
+  }));
+  // Withdrawing the buttons while the hover silhouette still lights under the
+  // cursor claims two different things about the same page.
+  expect(st.chevron).toBe("none");
+  expect(st.layout, "nothing resolves to a live target").toBe("none");
+  expect(st.cursor, "and nothing promises a click").toBe("");
+  expect(st.overlayBlank, "and no highlight is left inked").toBe(true);
+});
+
+test("the newest line stays readable when the box changes after load", async ({ page }) => {
+  /* viewport-changed-after-load. Every legibility guard set its viewport
+   * BEFORE goto, so none of them could see a phone being rotated — the most
+   * ordinary thing a stranger does. The scroll position computed for the old
+   * box left the newest line out of view until the next message arrived. */
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    for (const e of ["chair1", "stick1", "shelf1", "note1", "coin1", "key1"]) {
+      A.dispatch({ type: "toggle", entity: e });
+    }
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(150);
+  const vis = await page.evaluate(() => {
+    const pane = document.getElementById("narration");
+    const ps = [...pane.querySelectorAll("p")];
+    const last = ps[ps.length - 1];
+    const top = last.offsetTop - pane.offsetTop - pane.scrollTop;
+    return { top, bottom: top + last.offsetHeight, h: pane.clientHeight };
+  });
+  expect(vis.top, "the newest line has not scrolled off the top").toBeGreaterThanOrEqual(-1);
+  expect(vis.top, "and it is inside the pane").toBeLessThan(vis.h);
 });

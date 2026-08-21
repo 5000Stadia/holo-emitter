@@ -94,11 +94,14 @@ members with `PASS` and `observed: no`, and why that column is computed from the
 than written by hand.
 
 **What "the rendered surface" covers.** What `index.html` renders, in any state, through any sink
-below. **Not** the repository's own documents, which Pages also serves from `main` root because
-`design/` travels with the code — this file included, and it is dense with `§`, spec-row references
-and the re-bake command. Nothing on the page links to them and a stranger would have to guess a
-path; but the complaint this file exists to answer was framed as *what a stranger at the alpha link
-can read*, so the boundary is stated rather than assumed, and it is in `QUESTIONS`.
+below. **Not** anything a reader reaches by leaving the rendered page: neither the repository's own
+documents (Pages serves `main` root, so `design/` travels with the code — this file included, dense
+with `§` and spec-row references), **nor `index.html` and `src/*.js` themselves, whose comments
+carry far more method vocabulary than the documents do and need no guessing at all — View Source
+is one keystroke.** An earlier version of this paragraph argued carefully about the harder case and
+never mentioned the easier one sitting beside it. The line drawn here is *rendered surface*, not
+*served bytes*; whether that is the right line, given the complaint was framed as what a stranger
+at the alpha link can read, is in `QUESTIONS`.
 
 **Text painted into art** — a book spine, a tapestry motto, lettering a generator puts in a
 backdrop — is a string the surface shows a player, in nobody's authored voice. None exists at V1
@@ -187,7 +190,8 @@ id | surface | state | verdict | observed | adjudicator | string
 10 | #chevron-right aria-label | always | PASS | yes | row7-artifact-critic | turn right
 11 | #narration aria-label | always | PASS | yes | row7-artifact-critic | what the room says
 12 | #inventory aria-label | always | PASS | yes | row7-artifact-critic | what you are carrying
-13 | inventory tile name | held entity whose record has no usable noun | PASS | yes | row7-artifact-critic | something you carry
+13 | inventory tile name | held entity whose record has no usable noun, OR whose sprite binds to no record at all | PASS | yes | row7-artifact-critic | something you carry
+64 | #narration | the inventory strip throws while the picture is intact | PASS | yes | row7-artifact-critic | What you carry is with you still, though it will not show itself here.
 14 | inventory tile name | key1 held | PASS | yes | row7-artifact-critic | iron key
 15 | inventory tile name | note1 held | PASS | yes | row7-artifact-critic | vellum notebook
 16 | inventory tile name | coin1 held | PASS | yes | row7-artifact-critic | silver coin
@@ -241,8 +245,8 @@ id | surface | state | verdict | observed | adjudicator | string
 ```
 
 ```COUNT
-STRINGS 61
-STATES 32
+STRINGS 62
+STATES 34
 ```
 
 **Enumerated is not swept.** 61 rows are enumerated; 5 of them (#17–21) reach no surface on the
@@ -282,6 +286,8 @@ module-missing-inventory
 module-missing-groundplane
 module-missing-fixture
 render-fault
+halted-but-painted
+viewport-changed-after-load
 missing-narration-key
 unreadable-intent
 noun-missing
@@ -335,8 +341,11 @@ guarded by its own equality check against #22–25.
   `typeof envelope.narration === "string"`, and the harness substitutes its own product-voiced
   fault line when a narration key resolves to nothing. Over-long: the pane wraps and scrolls.
 - `tile.title` / `aria-label` — absent, empty or non-string `noun` falls back to `something you
-  carry` (#13) with the record id on `console.error`. Over-long: the tile's name is not rendered as
-  text, so length is not a surface concern.
+  carry` (#13) with the record id on `console.error`. **A sprite that binds to no record at all**
+  is the branch one line above, and it had no disposal: the tile was appended with no name, no
+  role and nothing on the console — a nameless empty box beside prose saying you had just picked
+  something up. It takes the same fallback and its own console fault. Over-long: the tile's name
+  is not rendered as text, so length is not a surface concern.
 
 ## UNUSED_SINKS
 
@@ -441,7 +450,7 @@ mechanism in a document creates that message.
 - | the voice specification | The positively-stated register above binds later chrome rows and is [AI] derived from [AI] prose. Advisory until ratified.
 - | the facing glyph | Kept, and argued from the product. But on a bare facing in grid mode the product's entire answer to `turn` is a changed letter on a wall — the diagram quality in its purest form, and what a stranger meets today. Row 4's assets are the fix; recorded so it is not mistaken for a decision nobody looked at.
 - | the pane's log form | The narration pane accumulates, so a player who has acted five times reads a transcript stacked under the picture. That is a readout, and it touches the second quality. Chrome form rather than a string, so outside this row's domain — recorded with an owner rather than deferred to a call after the close.
-- | what the deploy serves | Pages serves `main` root, so this file and every other design document are fetchable at the public link, dense with method vocabulary. Nothing on the page links to them. The intention's "`design/` travels with the code" is [AI-predicted, marked "correct me"], so whether the boundary above is the right one is Kabe's.
+- | what the deploy serves | Pages serves `main` root, so the design documents AND `index.html`/`src/*.js` — whose comments carry the most method vocabulary of anything published — are readable at the public link, the source with a single keystroke. Nothing on the page links to the documents; the source needs no link. The intention's "`design/` travels with the code" is [AI-predicted, marked "correct me"], so whether the boundary above is the right one is Kabe's.
 - | control names, world vs machine | The inherited boundary does not decide row 8's first string: is `fullscreen` the shortest true name of what the button does, or is it a property of the visitor's window rather than of the world — the ground on which `Loading…` fails? Named here because two competent builders will otherwise ship different chrome.
 ```
 

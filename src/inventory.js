@@ -63,6 +63,17 @@
           tile.getContext("2d").drawImage(sprite.images.thumb, 0, 0);
         }
       }
+      if (!sprite) {
+        /* The branch one line above the noun fallback, and it had no
+           disposal at all: with no record bound, the tile was appended with
+           no name, no role and nothing on the console — a nameless empty box
+           beside prose saying you had just picked something up. */
+        console.error("no library record for sprite: " + entity.sprite +
+          " (entity " + id + ")");
+        tile.setAttribute("role", "img");
+        tile.setAttribute("aria-label", "something you carry");
+        tile.title = "something you carry";
+      }
       container.appendChild(tile);
     }
   }

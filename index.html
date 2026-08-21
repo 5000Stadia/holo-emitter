@@ -88,6 +88,14 @@
      pane held one and a sliced half of another, permanently, with ascenders
      cut mid-glyph. The narration is the only thing in this product that
      speaks to a player. */
+  /* The bottom chrome is deliberately NOT narrowed to the stage's width.
+     Aligning it to the picture is tidier — at 1440x900 the prose begins at
+     x=8 while the frame begins at x=136, so the words hang off the frame
+     into the letterbox — but it costs a whole line of prose at phone
+     landscape (750x342: two visible lines become one in a 67px pane), and
+     the narration is the only thing in this product that speaks to a
+     player. Legibility beats alignment; the tidier version belongs with
+     row 8's presentation work, where the reserve can move with it. */
   #narration {
     /* border-box, so the 2px of padding lives inside the 4.2rem rather than
        adding to it: the stage's reserve is stated in rem and the chrome has
@@ -245,6 +253,7 @@
     var DOUBLE_CLICK_MS = 400;
     var lastPointer = null;
     var halted = false;         // a fault the page cannot come back from
+    var stripFaulted = false;   // the strip alone; the picture is unharmed
 
     /* Render-path faults surface in the product's voice (the intention's
        standing rule: every reachable surface string, errors included, is
@@ -269,6 +278,14 @@
       var chevrons = document.querySelectorAll(".chevron");
       for (var i = 0; i < chevrons.length; i++) chevrons[i].style.display = "none";
       scene.style.cursor = "";
+      /* Every affordance withdrawn together. Withdrawing the buttons while
+         the hover silhouette still lights up under the cursor claims two
+         different things about the same page: a player was left stroking a
+         lit, highlighted, dead room. `showHover` returns early on a null
+         layout, so this takes the highlight and the pointer with it. */
+      currentLayout = null;
+      lastPointer = null;
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
     }
 
     function paint(viewstate) {
@@ -367,11 +384,21 @@
       /* The strip is a projection of the same truth the prose reports, so a
          throw here is not cosmetic: the pane said "You take the iron key"
          and the strip stayed empty, the two halves of the surface
-         contradicting each other, silently. A fault is a fault. */
+         contradicting each other, silently.
+         But it is NOT the render fault either. Saying "the pattern will not
+         resolve" over a room that is on screen and correct is the same lie
+         one path further along — the picture resolved perfectly; what failed
+         is the tally of what you carry. So this state gets its own true
+         sentence, said once, and the picture is left alone. */
       try {
         window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
       } catch (err) {
-        fault(err);
+        console.error("inventory fault:", err);
+        if (!stripFaulted) {
+          stripFaulted = true;
+          while (inventoryEl.firstChild) inventoryEl.removeChild(inventoryEl.firstChild);
+          appendNarration("What you carry is with you still, though it will not show itself here.");
+        }
       }
     }
 
@@ -784,6 +811,14 @@
       lastPointer = canvasPoint(e);
       showHover(lastPointer);
     });
+    /* The pane's promise is about what a reader can SEE, and the box changes
+       size after load: rotate a phone, or bump the browser's text size, and
+       the scroll position computed for the old box leaves the newest line
+       out of view until the next message arrives. Rotating a phone is the
+       most ordinary thing a stranger does. */
+    window.addEventListener("resize", scrollNarration);
+    window.addEventListener("orientationchange", scrollNarration);
+
     scene.addEventListener("mouseleave", clearHover);
     scene.addEventListener("pointerdown", function (e) {
       if (e.pointerType && e.pointerType !== "mouse") swallowNextMove = true;
