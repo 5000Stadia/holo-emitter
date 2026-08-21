@@ -268,6 +268,14 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    few and drawn, ±8° buckets quantize, and families mean 2–3 derived variants per asset, not
    fresh generations. M0's small rooms stay single-standpoint; the great hall and long gallery
    are multi-standpoint's first honest use.
+   Extension [HUMAN, 2026-08-21]: "across the room I can view the side walls and their assets
+   certainly arnt the same angle" — the derived-angle law already yields this (geometry, not a
+   new rule): side-wall assets seen from a threshold are the **steep-angle regime**,
+   near-profile family variants. And the layer beneath: **an object belongs to every facing
+   whose view contains it** — one drawn plan position projects into each facing's frame at its
+   own derived position and angle, each appearance a family variant. M0's single-facing staging
+   is a licensed simplification for two sparse rooms; the plan projection (row 12 onward)
+   derives multi-facing presence properly.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
