@@ -309,9 +309,33 @@ def human(result, args, written, exit_code):
     return "\n".join(lines)
 
 
+# Flags whose value can legitimately begin with a minus sign. argparse reads
+# `--slide -0.10,0.24,1.06` as a missing argument followed by an unknown option,
+# which is a trap for a caller writing a leftward drawer travel -- and the asset
+# seat at row 4 is exactly that caller. The values are joined onto their flag
+# before parsing rather than left as a documented gotcha.
+NEGATIVE_VALUE_FLAGS = ("--slide", "--footprint", "--anchor", "--state-origin",
+                        "--state-datum")
+
+
+def normalize_argv(argv):
+    out = []
+    i = 0
+    while i < len(argv):
+        tok = argv[i]
+        if tok in NEGATIVE_VALUE_FLAGS and i + 1 < len(argv):
+            out.append("%s=%s" % (tok, argv[i + 1]))
+            i += 2
+            continue
+        out.append(tok)
+        i += 1
+    return out
+
+
 def main(argv=None):
     parser = build_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args(normalize_argv(
+        list(sys.argv[1:] if argv is None else argv)))
     try:
         result, written = run(args)
     except contract_mod.ContractError as e:
