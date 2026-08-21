@@ -206,6 +206,26 @@ where the manor's exterior wall actually stands in the plan; where no building s
 ground runs open to its far line. The building's one exterior outline is the single source of
 every outdoor wall.
 
+**Live-ingestion shape [HUMAN, 2026-08-21]:** "the methodology for going from a many location
+description via something like pattern buffer / construct projector to overhead map to rooms
+with elements should be structured for future live ingestion... consider the most efficient way
+to make the sprites live during play even if we dont build for this here preferably live." The
+considered shape [AI], binding as structure only — M0 builds none of it live:
+1. *Every derivation is an importable pure function; every CLI a thin wrapper* — plan→staging
+   projection, the bake, each replicator stage. Live mode is then a transport change (documents
+   over the envelope wire instead of files), never a rewrite. Row 3 builds ingest.py to this rule.
+2. *plan.json is the interchange document* a future host emits — its schema stays
+   derivable-complete (types, wall carriers, drawn distances all in-document; no hand-only step).
+3. *Materialization ladder:* grid silhouette → instant procedural archetype placeholder (the §6
+   record renders before any art exists) → gate-passed generated sprite swapping in by library
+   update — the renderer's purity makes the swap a frame's new input. Gate failure keeps the
+   placeholder and retries; play never blocks. Latency is absorbed by the fiction: an
+   unestablished room IS the holodeck grid, and establishing around the player is the product
+   working, not loading.
+4. *The library is the pattern buffer's material store:* content-addressed records keyed by
+   noun/archetype/period/style; a coherent world mostly reuses, and only the novel generates.
+5. The replicator's injected VLM callable (§9.2 v2) is the live anchor-detection hook.
+
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
 ```json
