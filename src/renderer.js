@@ -109,6 +109,8 @@
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.45;
+  /* Peak alpha of the grid's own key falloff, at the upper-left corner. */
+  var KEY_FALLOFF = 0.13;
 
   /* Entity-pass constants (§7 steps 5–6). One tint constant for M0; the
    * shadow peaks at 0.35 and fades to nothing (plan §3). */
@@ -122,6 +124,12 @@
    * shadow was 3 px tall. Width stays exactly §7's footprint span. */
   var SHADOW_RY = 0.3;
   var SHADOW_MIN_RY = 4;
+  /* rx has a floor for the same reason ry does. The coin's footprint is a
+   * 12-px band on a 24-px sprite, which at its drawn scale is under a pixel
+   * wide: its whole pool came to FIVE darkened pixels — the hairline the
+   * quantitative contact check exists to rule out, passing because nothing
+   * floored the width or the area. */
+  var SHADOW_MIN_RX = 4;
   /* A contact pool thrown by a key light from upper-left (contract UL45)
    * falls down and to the right. A pool centred exactly under the base is a
    * one-light tell that reads as a sticker the moment row 4's lit backdrops
@@ -190,6 +198,35 @@
     ctx.fillRect(0, 0, W, Math.ceil(floorY));
     ctx.fillStyle = FLOOR_BASE;
     ctx.fillRect(0, Math.ceil(floorY), W, H - Math.ceil(floorY));
+
+    /* The key falls on the ground too. Every sprite carries UL45 and every
+     * contact pool is thrown down-right, and they stood on a wall and floor
+     * of exactly uniform luminance at every x — shaded objects on an
+     * unshaded ground, which is the flip test's failure in miniature. §7
+     * calls grid mode a product mode, not placeholder art, and this meta
+     * declares `key_dir: "UL"`. A stepped falloff in `key_tint` from the
+     * upper left, in flat rect fills rather than a canvas gradient object
+     * (those rasterise differently across engines, which is why the sprite
+     * painters forbid them). It leaves every GRID_META number alone: this is
+     * paint, not geometry. */
+    var cellsX = 96;
+    var cellsY = 64;
+    ctx.fillStyle = meta.key_tint;
+    for (var gx = 0; gx < cellsX; gx++) {
+      // Exact integer tiling: cells that overlap by a pixel paint that pixel
+      // twice, and a stepped falloff turns into a corduroy of alternating
+      // bands 17 luminance levels apart.
+      var px0 = Math.round((gx * W) / cellsX);
+      var px1 = Math.round(((gx + 1) * W) / cellsX);
+      for (var gy = 0; gy < cellsY; gy++) {
+        var py0 = Math.round((gy * H) / cellsY);
+        var py1 = Math.round(((gy + 1) * H) / cellsY);
+        var tf = (gx / (cellsX - 1) + gy / (cellsY - 1)) / 2; // 0 at upper-left
+        ctx.globalAlpha = KEY_FALLOFF * (1 - tf);
+        ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
+      }
+    }
+    ctx.globalAlpha = 1;
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = meta.key_tint;
@@ -397,18 +434,29 @@
       ctx.beginPath();
       ctx.rect(a.x, a.y, a.w, a.h);
       ctx.clip();
-      // The far room, one room deeper: its floor line rides higher.
-      var beyondFloorY = floorY - (floorY - meta.horizon_y * meta.image_h_px) * 0.45;
+      /* The far room is another grid room at the same meta, so its floor
+       * line is at the same height and continues through the opening. Drawn
+       * higher it promised a room one step deeper than the `go` delivers:
+       * the one place the picture said something the document does not, on
+       * the row whose first bar is that it never does. It still reads as
+       * space — the floor runs through the gap and the wall beyond is
+       * unlit — and it now reads as the truth. */
+      var beyondFloorY = floorY;
       ctx.fillStyle = BEYOND_WALL;
       ctx.fillRect(a.x, a.y, a.w, a.h);
       ctx.fillStyle = BEYOND_FLOOR;
       ctx.fillRect(a.x, beyondFloorY, a.w, a.y + a.h - beyondFloorY);
-      // Its floor picked out by the same transverse device the grid uses.
-      ctx.globalAlpha = ALPHA_MAJOR;
+      // Its floor picked out by the same transverse device, at the same
+      // depths this room's floor uses.
+      ctx.globalAlpha = ALPHA_MINOR;
       ctx.strokeStyle = meta.key_tint;
       ctx.lineWidth = 1;
-      for (var k = 1; k <= 3; k++) {
-        var ty = snap(beyondFloorY + (a.y + a.h - beyondFloorY) * (k / 4) * (k / 4));
+      var gp2 = groundplane();
+      var gk2 = meta.px_per_m_at_wall *
+        (meta.camera_wall_m != null ? meta.camera_wall_m : gp2.CAMERA_WALL_M);
+      for (var dd = 3.0; dd >= 1.5; dd -= 0.5) {
+        var ty = snap(gp2.yAtScale(gk2 / dd, meta));
+        if (ty <= a.y || ty >= a.y + a.h) continue;
         ctx.beginPath();
         ctx.moveTo(a.x, ty);
         ctx.lineTo(a.x + a.w, ty);
@@ -705,6 +753,7 @@
    * on the scene — the shadow is never tinted. */
   function drawShadow(ctx, cx, cy, rx) {
     if (!(rx > 0)) return;
+    rx = Math.max(rx, SHADOW_MIN_RX);
     // ry: the ratio, floored so a small footprint still gets a pool, and
     // capped at rx so a tiny one does not become a vertical smear.
     var ryF = Math.min(1, Math.max(SHADOW_RY, SHADOW_MIN_RY / rx));

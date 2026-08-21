@@ -295,7 +295,7 @@
       "thumb": "thumb.png",
       "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
         "dims_deviation": "dims_m.h 0.06 m is a V1 legibility cheat; an English silver shilling is ~0.028 m. Even cheated it draws ~6 px, so the fix is asset scale at row 4, not a bigger number here.",
-        "v1_apparent_size": "at V1 this draws ~1.7 CSS px across on a 390 px phone — a finger cannot hit it. See dims_deviation and blueprint §5." }
+        "v1_apparent_size": "at V1 this draws ~1.7 CSS px across on a 390 px phone — far under any tap target, and reachable only because the page carries a pointing tolerance around a takeable's own rectangle. See dims_deviation and blueprint §5." }
     }
   };
 

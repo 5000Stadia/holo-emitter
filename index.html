@@ -89,6 +89,13 @@
     align-items: center;
   }
   #inventory canvas.inv-tile {
+    /* One sampling policy for all three. The thumbs are built nearest-
+       neighbour from sources of very different size (key 80×48, coin 24×24),
+       and letting the browser smooth the CSS downscale on top of that left
+       the coin a soft grey blob beside two crisp tiles — a visible tell that
+       one object was made differently, which is exactly what "one hand" is
+       about. */
+    image-rendering: pixelated;
     width: 48px; height: 48px;
     border: 1px solid rgba(200, 180, 137, 0.35);
     background: rgba(200, 180, 137, 0.04);
@@ -122,7 +129,7 @@
     <button id="chevron-right" class="chevron chrome" aria-label="turn right">&rsaquo;</button>
   </div>
   <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
-  <div id="inventory" class="chrome"></div>
+  <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
   <div id="status" class="chrome"></div>
   <script>
   /* Registered before anything else loads, and depending on nothing that
@@ -281,7 +288,22 @@
     }
 
     function appendNarration(line) {
+      /* The same refusal said twice in a row is the same refusal. §8 requires
+         every refusal to narrate and this still does — the envelope stream
+         and the §12.9 domain are untouched — but ten clicks on the chair used
+         to fill a two-line pane with one sentence ten times, which is the
+         product's whole visible voice spent saying nothing new. */
+      var ps = narrationEl.querySelectorAll("p");
+      var prev = ps.length ? ps[ps.length - 1] : null;
+      if (prev && prev.getAttribute("data-line") === line) {
+        var n = (parseInt(prev.getAttribute("data-count"), 10) || 1) + 1;
+        prev.setAttribute("data-count", String(n));
+        prev.textContent = line + "  (×" + n + ")";
+        scrollNarration();
+        return;
+      }
       var p = document.createElement("p");
+      p.setAttribute("data-line", line);
       p.textContent = line;
       narrationEl.appendChild(p);
       scrollNarration();
@@ -649,6 +671,11 @@
     });
     window.addEventListener("keydown", function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey) return; // browser gestures stay the browser's
+      /* The transcript is a focusable scrollable region, so while it holds
+         focus the arrows are its own — otherwise two keyboard affordances
+         claim the same key and the room turns while a reader is trying to
+         move through the prose. */
+      if (document.activeElement === narrationEl) return;
       if (e.key === "ArrowLeft") dispatch({ type: "turn", dir: "left" });
       else if (e.key === "ArrowRight") dispatch({ type: "turn", dir: "right" });
     });

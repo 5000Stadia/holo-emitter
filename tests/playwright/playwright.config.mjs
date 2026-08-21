@@ -13,22 +13,25 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1280, height: 900 }
   },
-  /* Chromium runs everything. A second engine runs the specs whose claims are
-     about behaviour rather than about this renderer's exact pixels — §12.2's
-     replay clause, the pinned walkthrough, the harness, the boot and fault
-     surfaces. It is not decoration: §12.2 clause 2 was red on Firefox for a
-     real product reason (a travel guard that swallowed the replay's second
-     passage) while the Chromium-only suite stayed green, and four boot guards
-     were inert there because `page.route` does not intercept `file://` off
-     Chromium. Hash VALUES are never compared across engines — clause 1 is a
-     within-run identity and stays so; sub-pixel rasterisation differs and
-     that is accepted residue, recorded in design/architecture.md. */
+  /* Both engines run everything. Not decoration: §12.2's replay clause was
+     red on Firefox for a real product reason — a travel guard that swallowed
+     the replay's second passage — while a Chromium-pinned suite stayed green,
+     and four boot guards were inert there because `page.route` does not
+     intercept `file://` off Chromium.
+     It is safe to run all of it because **no test compares a hash to a
+     literal**: every hash assertion is a within-run identity (the same page,
+     the same run), and everything else is an alpha-bounds or luminance
+     measurement. Sub-pixel rasterisation does differ between engines — that
+     is accepted residue, recorded in design/architecture.md — and it is
+     never what a test reads. Restricting the second engine to "behaviour"
+     specs left §12.3, §12.4, §12.5 and §12.8 on one renderer, including the
+     clause the intention singles out: the key not existing on screen until
+     it is revealed. */
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     {
-      name: "firefox-behaviour",
-      use: { browserName: "firefox" },
-      testMatch: /(walkthrough|determinism|harness|harness-refusals|turning)\.spec\.mjs$/
+      name: "firefox",
+      use: { browserName: "firefox" }
     }
   ]
 });

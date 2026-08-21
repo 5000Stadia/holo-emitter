@@ -1024,3 +1024,66 @@ test.describe("the product's voice is legible where it speaks", () => {
     }
   });
 });
+
+test.describe("two keyboard affordances, one set of keys", () => {
+  test("arrows scroll the transcript when it holds focus, and turn the room otherwise", async ({ page }) => {
+    // The transcript became a Tab stop and a keyboard-scrollable region, and
+    // Left/Right were captured globally for turning — so a reader moving
+    // through the prose turned the room instead.
+    await page.goto(appUrl());
+    await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      for (const e of ["chair1", "stick1", "shelf1", "note1"]) {
+        A.dispatch({ type: "toggle", entity: e });
+      }
+    });
+    await page.locator("#narration").focus();
+    const before = await page.evaluate(() => ({
+      facing: window.HOLO_APP.harness.viewstate.facing,
+      scroll: document.getElementById("narration").scrollTop
+    }));
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowRight");
+    const focused = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+    expect(focused, "the room stays put while the transcript has focus").toBe(before.facing);
+
+    // Focus elsewhere and the arrows turn again.
+    await page.locator("#scene").click({ position: { x: 5, y: 5 } });
+    await page.evaluate(() => document.getElementById("narration").blur());
+    await page.keyboard.press("ArrowRight");
+    const after = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+    expect(after, "and turn it when the transcript does not").not.toBe(before.facing);
+  });
+
+  test("a refusal said twice in a row does not fill the pane twice", async ({ page }) => {
+    // §8 requires every refusal to narrate, and every one still does — but a
+    // two-line pane filled with one sentence ten times is the product's whole
+    // visible voice spent saying nothing new.
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const envelopes0 = A.harness.envelopes.length;
+      for (let i = 0; i < 6; i++) A.dispatch({ type: "toggle", entity: "chair1" });
+      const ps = [...document.querySelectorAll("#narration p")];
+      return {
+        paragraphs: ps.length,
+        text: ps[ps.length - 1].textContent,
+        envelopes: A.harness.envelopes.length - envelopes0
+      };
+    });
+    expect(res.envelopes, "every refusal still produced its envelope").toBe(6);
+    expect(res.paragraphs, "and one line, not six").toBe(1);
+    expect(res.text, "which says how many times").toMatch(/×6\)$/);
+  });
+
+  test("the inventory strip is a named thing", async ({ page }) => {
+    await page.goto(appUrl());
+    const a = await page.evaluate(() => {
+      const el = document.getElementById("inventory");
+      return { role: el.getAttribute("role"), label: el.getAttribute("aria-label") };
+    });
+    expect(a.role).toBe("group");
+    expect(typeof a.label).toBe("string");
+    expect(a.label.length).toBeGreaterThan(3);
+  });
+});

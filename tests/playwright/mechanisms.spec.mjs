@@ -8,7 +8,7 @@
  */
 import {
   test, expect, appUrl, POINTER_VIEWPORT, MATH, LIT,
-  stageTree, setViewstate, removeTree
+  stageTree, setViewstate, removeTree, equipContext
 } from "./helpers.mjs";
 
 test.use({ viewport: POINTER_VIEWPORT });
@@ -1447,10 +1447,16 @@ test.describe("contact reads on the floor the product ships", () => {
        * quality was certified by nothing. */
       expect(d.maxChannel, `${g.id}: peak per-channel darkening on the grid floor`)
         .toBeGreaterThanOrEqual(20);
-      // An area, not a few pixels — scaled to the object, so a candlestick is
-      // judged as a candlestick.
-      expect(d.count, `${g.id}: and it is an area, not a few pixels`)
+      /* An area, not a few pixels. Two floors, because either alone let a
+       * hairline through: one scaled to the object (a candlestick is judged
+       * as a candlestick) and one absolute, because the coin's footprint is
+       * under a pixel wide at its drawn scale and its whole pool came to
+       * FIVE darkened pixels while a footprint-scaled threshold called that
+       * a pass. */
+      expect(d.count, `${g.id}: an area scaled to the object`)
         .toBeGreaterThanOrEqual(2 * d.footW);
+      expect(d.count, `${g.id}: and an area at all — ${d.count} darkened pixels`)
+        .toBeGreaterThanOrEqual(24);
     });
   }
 });
@@ -1899,4 +1905,138 @@ test.describe("a record cannot lie about its own image", () => {
         .toBeLessThanOrEqual(1);
     }
   });
+});
+
+test.describe("the ground the sprites stand on carries the same key they do", () => {
+  test("the grid's wall and floor fall off from the upper left", async ({ page }) => {
+    /* Every sprite is UL45-shaded and every contact pool is thrown
+     * down-right, and for a while they stood on a wall and floor of exactly
+     * uniform luminance at every x — shaded objects on an unshaded ground,
+     * which is the flip test's failure in miniature. §7 calls grid mode a
+     * product mode, not placeholder art, and its meta declares
+     * `key_dir: "UL"`; the ground has to answer for it. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      // A bare facing: nothing but the grid itself.
+      const c = window.__T.renderW(fx.world, fx.staging,
+        { location: "study", facing: "S" }, { backdrop_only: true });
+      const W = 1536, H = 1024;
+      const d = c.getContext("2d").getImageData(0, 0, W, H).data;
+      const lum = (x, y) => {
+        const i = ((y * W + x) * 4);
+        return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      };
+      // Sample away from the grid lines and the glyph: quarter and
+      // three-quarter columns, on a wall row and a floor row.
+      const band = (y) => {
+        let l = 0, r = 0, n = 0;
+        for (let x = 40; x < 340; x += 7) { l += lum(x, y); n++; }
+        for (let x = 1196; x < 1496; x += 7) { r += lum(x, y); }
+        return { left: l / n, right: r / n };
+      };
+      const wall = band(300);
+      const floor = band(900);
+      // And top-to-bottom on the wall, away from the eye line.
+      const topL = lum(120, 120), lowL = lum(120, 560);
+      return { wall, floor, topL, lowL };
+    });
+    expect(res.wall.left - res.wall.right,
+      `wall: left ${res.wall.left.toFixed(1)} vs right ${res.wall.right.toFixed(1)}`)
+      .toBeGreaterThan(2);
+    expect(res.floor.left - res.floor.right,
+      `floor: left ${res.floor.left.toFixed(1)} vs right ${res.floor.right.toFixed(1)}`)
+      .toBeGreaterThan(2);
+    expect(res.topL - res.lowL, "and brighter above than below").toBeGreaterThan(1);
+  });
+});
+
+test.describe("the doorway does not promise a room the go does not deliver", () => {
+  test("the floor beyond continues at this room's own floor line", async ({ page }) => {
+    /* The far room is another grid room at the same meta. Drawn with its
+     * floor line raised it showed a room one step deeper than walking
+     * through actually reaches — the one place the picture said something
+     * the document does not. */
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const meta = window.HOLO.renderer.GRID_META;
+      const A = window.HOLO_APP;
+      const vs = { location: "study", facing: "E" };
+      const a = window.HOLO.renderer.apertures(
+        fx.world, fx.staging, A.library, meta, vs)[0];
+      const c = window.__T.renderW(fx.world, fx.staging, vs, { backdrop_only: true });
+      const W = 1536;
+      const d = c.getContext("2d").getImageData(0, 0, W, 1024).data;
+      const lum = (x, y) => {
+        const i = ((y * W + x) * 4);
+        return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      };
+      const floorY = Math.round(meta.floor_line_y * meta.image_h_px);
+      const x = Math.round(a.x + a.w / 2);
+      // Immediately above the floor line inside the opening: wall beyond.
+      // Immediately below: floor beyond. The step has to be AT this room's
+      // own floor line, so scan for where it happens.
+      let step = -1;
+      for (let y = Math.ceil(a.y) + 4; y < a.y + a.h - 2; y++) {
+        if (lum(x, y + 1) - lum(x, y) > 3) { step = y + 1; break; }
+      }
+      return { step, floorY, apertureBottom: a.y + a.h };
+    });
+    expect(res.step, "there is a floor line inside the opening").toBeGreaterThan(0);
+    expect(Math.abs(res.step - res.floorY),
+      `the floor beyond steps at ${res.step}, this room's floor line is ${res.floorY}`)
+      .toBeLessThanOrEqual(2);
+  });
+});
+
+test.describe("real touch, at a real phone size", () => {
+  /* §12.1's clause is "real pointer/keyboard events", and every real-event
+   * sweep ran at desktop-sized windows: the phone cases asked `resolve()` in
+   * canvas coordinates instead of touching the screen. A finger on a 390 px
+   * phone is the hardest case the product has and the one it was never
+   * driven with. */
+  const targets = [
+    { id: "note1", boot: null, intent: "take" },
+    { id: "desk1", boot: null, intent: "toggle" },
+    { id: "coin1", boot: { location: "hall", facing: "N" }, intent: "take" },
+    { id: "stick1", boot: { location: "hall", facing: "N" }, intent: "toggle" }
+  ];
+  for (const t of targets) {
+    test(`${t.id}: a finger on a 390×844 phone reaches it`, async ({ browser }) => {
+      const ctx = await equipContext(await browser.newContext({
+        // `isMobile` and a deviceScaleFactor are Chromium-only options and
+        // this runs on both engines; touch and the viewport are what matter.
+        hasTouch: true, viewport: { width: 390, height: 844 }
+      }));
+      const page = await ctx.newPage();
+      let root = null;
+      try {
+        if (t.boot) { root = stageTree(); setViewstate(root, t.boot); }
+        await page.goto(appUrl(root ?? undefined));
+        await page.waitForFunction(() => !!window.HOLO_APP);
+        const pt = await page.evaluate((id) => {
+          const e = window.__T.currentLayout().find((x) => x.id === id);
+          if (!e) return null;
+          const b = window.__T.entryBBox(e);
+          return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+        }, t.id);
+        expect(pt, `${t.id} is on screen`).not.toBeNull();
+        const box = await page.locator("#scene").boundingBox();
+        await page.touchscreen.tap(
+          box.x + (pt.x * box.width) / 1536,
+          box.y + (pt.y * box.height) / 1024);
+        const env = await page.evaluate(() => {
+          const h = window.HOLO_APP.harness;
+          return h.envelopes.length ? h.envelopes[h.envelopes.length - 1].intent : null;
+        });
+        expect(env, `${t.id}: the tap dispatched something`).not.toBeNull();
+        expect(env.entity, `${t.id}: and it named the thing tapped`).toBe(t.id);
+        expect(env.type).toBe(t.intent);
+      } finally {
+        await ctx.close();
+        if (root) removeTree(root);
+      }
+    });
+  }
 });

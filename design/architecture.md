@@ -301,6 +301,14 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
   back showed you 99.98% of the room you left. §7 gives the glyph the job of making facings
   visually distinct; mechanisms.spec now requires those two facings to differ by thousands of
   pixels in both door states.
+- **The ground carries the same key the sprites do.** Every sprite is UL45-shaded and every pool
+  is thrown down-right, and for a while they stood on a wall and floor of *exactly* uniform
+  luminance at every x — shaded objects on an unshaded ground, the flip test's failure in
+  miniature, in a mode §7 calls product and not placeholder art, whose meta declares
+  `key_dir: "UL"`. A stepped falloff in `key_tint` from the upper left, in flat rect fills rather
+  than a canvas gradient object (engine rasterisation), tiled on exact integer boundaries —
+  overlapping cells paint a pixel twice and turn a smooth falloff into a corduroy 17 levels deep.
+  It touches no `GRID_META` number: this is paint, not geometry.
 - **The floor carries enough luminance for the pool to clear the visibility bar** (`#2c3542`,
   still darker than the wall; peak alpha 0.45). Row 1's `#0b0e13` left 19/255 to take, so a pool
   could darken it by 6; the first correction reached 46 and ~16 — still under the 20-level bar
@@ -321,12 +329,13 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
 - **The jamb stands proud of the leaf**, because a doorway is wider than the door in it. Drawn
   flush the leaf covered it exactly, and a shut door was a plank on unbroken wall — "a doorway
   exists whether or not its leaf is shut" true of the code and invisible in the picture.
-- **The opening shows the space beyond**, not a panel painted on the wall: the far room's ground
-  plane continues through it — a darker wall, its floor line riding higher (it is one room
-  further off), and the grid's own transverse device carrying on across the gap, all derived from
-  the same meta the grid is drawn from. A flat fill with a jamb read as a framed dark picture
-  hung where the doorway is: the flattest thing in the frame, in the one place the two-room
-  premise most needs depth.
+- **The opening shows the space beyond**, not a panel painted on the wall: an unlit wall, and the
+  floor continuing through the gap at **this room's own floor line**, picked out by the same
+  transverse device at the same depths. A flat fill with a jamb read as a framed dark picture
+  hung where the doorway is; a floor line raised to suggest depth read as a room one step deeper
+  than the `go` actually delivers — the far room is another grid room at the same meta, so the
+  honest picture and the deep-looking one are not the same, and this row's first bar is that the
+  picture never says what the document does not.
 
 ## Harness and envelope
 
@@ -567,14 +576,17 @@ the shipped witness.
 suite-wide no-network guard and in-page SHA-256 canvas hashing as at row 1; no stored goldens;
 tests that edit fixtures stage a scratch tree and re-bake there.
 
-**Two engines.** Chromium runs everything; **Firefox runs the behaviour specs** (walkthrough,
-determinism, harness, refusals, turning). That is not decoration: §12.2's replay clause was red
-on Firefox for a real product reason — a travel guard swallowing the replay's second passage —
-while the Chromium-pinned suite stayed green, and four boot-fallback guards were inert there
-because `page.route` does not intercept `file://` off Chromium (they delete the module from a
-staged tree now). Hash **values** are never compared across engines; clause 1 is a within-run
-identity and stays one. WebKit will not launch on this machine and is unverified by anyone —
-the likeliest engine for a phone visitor at the public link.
+**Two engines, both running everything.** Not decoration: §12.2's replay clause was red on Firefox
+for a real product reason — a travel guard swallowing the replay's second passage — while a
+Chromium-pinned suite stayed green, and four boot-fallback guards were inert there because
+`page.route` does not intercept `file://` off Chromium (they delete the module from a staged tree
+now). Running all of it is safe because **no test compares a hash to a literal**: every hash
+assertion is a within-run identity, and everything else is an alpha-bounds or luminance
+measurement. Sub-pixel rasterisation does differ between engines — accepted residue — and no test
+reads it. Restricting the second engine to "behaviour" specs left §12.3, §12.4, §12.5 and §12.8
+on one renderer, including the clause the intention singles out. WebKit will not launch on this
+machine and is unverified by anyone — the likeliest engine for a phone visitor at the public
+link.
 
 Pointer-driven specs pin viewport 1536×1200, which is the **convenient** viewport — the canvas
 displays at scale 1 there, so a CSS margin equals a canvas pixel and small targets are easiest to
