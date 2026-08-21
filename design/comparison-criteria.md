@@ -1,9 +1,15 @@
 # holo-emitter — per-quality loss criteria
 
+*[AI], row 3. These decompose five qualities that are Kabe's, and they are an agent's reading of
+how to judge them — so **Kabe may amend any of them at any time**, and doing so is not a breach of
+the freeze below.*
+
 **Frozen at row 3's close, before any backdrop or composite exists.** Blueprint §12.10 requires
 these to be written ahead of the art so they cannot be shaped by what the art turns out to be.
-Changing a criterion after a composite exists is a visible, dated, reasoned edit to this file, made
-outside a grading pass and never during one.
+**What the freeze forbids is precisely one thing: tuning a criterion to the composites it will
+judge.** It does not forbid Kabe correcting it, and it does not forbid fixing an error found by
+running it. Any change after this row is a visible, dated, reasoned edit to this file, made outside
+a grading pass and never during one.
 
 ## What this is for
 
@@ -36,21 +42,25 @@ never lost on an unattributed impression.
 
 ## Vocabulary, defined from the picture
 
-- **Object** — a thing in the space that a person could pick up or carry out of the room without
-  tools. A chair, a chest, a candlestick, a book, a coin are objects. **Architecture** is everything
-  else: walls, floor, ceiling, a fireplace, a window, a door leaf hanging in its frame, a
-  built-in shelf. The test is applied identically to both sides, so our door leaf and a Myst door
-  are both architecture even though ours happens to be drawn as a sprite.
-- **Grounded object** — an object whose lowest visible part meets the floor, or which rests on the
-  top surface of another object.
-- **Overlapping pair** — two objects whose painted areas cross, so one hides part of the other. Two
-  objects standing near each other, or whose bounding rectangles touch while no paint crosses, are
-  not a pair.
-- **The frame's key** — the direction the dominant light comes from, read off the architecture:
-  which side of a doorway reveal is bright, which way the cast shadows lie, where the window or the
-  fire is.
+- **Object** — a discrete thing depicted as standing in, on, or against the space, separable by eye
+  from the ground plane and the wall behind it. A chair, a chest, a candlestick, a coin, a door leaf
+  hanging in its frame, a handrail running across a rock, a boat on water. **Not** objects: the
+  ground plane itself, the walls, the ceiling, the sky, the water, and anything drawn as part of the
+  surface it lies on (a painted panel, a rug pattern, a wall sconce painted into the plaster).
+  *An earlier draft defined this as "a thing a person could pick up", which is symmetric and wrong:
+  run against the Riven anchor it made the population zero, because a rail and a rock spire are not
+  portable. The test above is the one the dry run below produced.*
+- **Grounded object** — an object whose lowest visible part meets the ground plane, or which rests
+  on the top surface of another object.
+- **Crossing pair** — **any** two distinct depicted things whose painted areas cross, so that one
+  hides part of the other. Deliberately not restricted to objects: the intention's own examples of
+  this quality are "column-before-building, ship-hull-behind-waterline", which are architecture and
+  landscape.
+- **The frame's key** — the direction the dominant light comes from, read off the frame itself:
+  which side of a doorway reveal is bright, which way the cast shadows lie, where the window, the
+  fire or the sun is.
 
-## The two rules every criterion uses
+## The three rules every criterion uses
 
 **The contradiction rule.** Some tells are not a matter of degree. Where a criterion names a
 contradiction, **one instance in one frame loses the quality outright**, provided the grader cannot
@@ -58,22 +68,34 @@ find an equivalent instance anywhere on the anchor side. These are the tells tha
 rather than as weak, and they are how a document like this stays faithful to a bar that reads
 "NOTHING may read as a sticker".
 
-**The rate rule.** Otherwise, compare rates, with a tie band of one member of the larger population:
+**The rate rule.** Otherwise, compare rates:
 
 ```
     rate = marked ÷ population
-    ours loses  ⟺  rate_ours − rate_anchor  >  1 ÷ max(pop_ours, pop_anchor)
+    ours loses  ⟺  rate_ours − rate_anchor  >  1 ÷ (max(pop_ours, pop_anchor) + 1)
 ```
 
-*Worked, three ways.*
-- One object in our frame, and it is marked; the anchor has 10 objects and 1 marked.
-  `1.000 − 0.100 = 0.900 > 1/10 = 0.100` — **ours loses.** A small population cannot hide a sticker.
-- Forty objects of ours, 6 marked; anchor 10 objects, 1 marked.
-  `0.150 − 0.100 = 0.050 > 1/40 = 0.025` — **ours loses.**
-- Same, 5 marked. `0.125 − 0.100 = 0.025`, not greater than `0.025` — **tie.**
+*Worked, four ways.*
+- Eleven objects of ours, 4 marked; anchor 10 objects, 1 marked.
+  `0.364 − 0.100 = 0.264 > 1/12 = 0.083` — **ours loses.**
+- Ten of ours, 1 marked; anchor 10, 1 marked. `0.000 > 1/11` is false — **tie.**
+- Forty of ours, 5 marked; anchor 10, 1 marked. `0.125 − 0.100 = 0.025 > 1/41 = 0.024` — **ours
+  loses.** Being marked at a quarter more than the anchor's rate is a loss however large the set is.
+- **One** of ours and it is marked; anchor 1, 0 marked. `1.000 − 0.000 = 1.000 > 1/2 = 0.5` —
+  **ours loses.** The `+ 1` in the denominator is there for exactly this: with a bare `1 ÷ max(pop)`
+  a population of one could never lose, whatever the grader marked, and any criterion judged over a
+  single member — a whole-set population included — would have certified itself green by arithmetic.
 
 It is a comparison of *rates*, deliberately: a build must not become safer by deleting objects,
 which is the exact incentive quality 3 needs reversed.
+
+**The empty-anchor rule.** If a quality's population is empty **on the anchor side** — the Riven
+still has no crossing pair of *objects* at all, and a landscape frame may have no grounded
+furniture — then `rate_anchor` is undefined and that frame cannot judge that quality. The grader
+moves to another of the three anchors; §12.10 names three precisely so this is possible. If none of
+them has a non-empty population for that quality, the quality is judged **against our own set
+alone, by the contradiction rules only** — and the grading record says so, because a quality graded
+without an anchor is a weaker verdict and must not be reported as if it had one.
 
 ## Populations, and the bare-facing license
 
@@ -146,13 +168,18 @@ the coin.
 > "Objects overlap objects, not just the backdrop (draw order by baseline). Myst's frame sells depth
 > with column-before-building, ship-hull-behind-waterline — not with scale."
 
-**Population.** Every overlapping pair, counted **across the whole set of frames** rather than per
-frame — depth built by overlap is a property of a set of views, and one frame may honestly contain
-none.
+**Population.** Every **crossing pair**, counted **across the whole set of eight frames** rather
+than per frame — depth built by overlap is a property of a set of views, and one frame may honestly
+contain none. The grader is handed our eight frames as a labelled group for this quality and this
+one only; every other population is counted inside a single frame.
 
-**Empty set: LOST.** If no two objects overlap anywhere in the set, the quality is not met: it has
-been avoided, not achieved. This is the one place where a licensed-empty frame must not be allowed
-to launder an absence into a tie.
+**A frame with no objects contributes no pairs and is never marked.** That is the bare-facing
+license operating exactly as §12.6 intends: a licensed-empty facing cannot lose this quality, and
+cannot lose contact either. No facing ever auto-loses anything.
+
+**An empty population over the whole set is a LOSS, not a tie.** If no two things cross anywhere in
+all eight frames, the quality has been avoided rather than achieved. This is a statement about the
+set and never about a facing, which is what keeps it consistent with the license above.
 
 **Tells.**
 - **T3.1 Wrong order.** The nearer object is hidden by the farther one — a chair standing in front
@@ -224,37 +251,55 @@ the study's four views put the horizon at three different heights (T5.2) — los
 
 A criterion set that has never been executed cannot be known to discriminate, and the first time it
 runs must not be the pass where it may no longer change. So it was run once, on 2026-08-21, before
-this file was frozen, against two frames:
+this file was frozen, against three frames — two of them from the anchor routes the intention names,
+opened for this purpose and not committed (this repository is public and those frames are not ours).
 
-- **Not ours:** `design/references/style-seed-warm.png` — a real c.1660 interior with objects in it,
-  and the image the sprite corpus was generated against. It stands in for the anchor side. This seat
-  cannot open the commercial anchors (the intention routes them through public stills and Kabe's own
-  play), so this dry run proves the criteria *discriminate*; it does not stand in for the §12.10
-  grading pass, and the anchor side of that pass is still Myst, Riven and Machinarium.
-- **Ours:** the study's north view as the demo renders it today — V1 placeholder sprites on the
-  holodeck grid, captured to the §12.6 spec.
+- **Riven** — `upload.wikimedia.org/wikipedia/en/0/00/Riven-prison.png`, 400×258. The prison island:
+  a handrail bridge running from the frame bottom across water to a rock spire with a structure on
+  it.
+- **Machinarium** — `upload.wikimedia.org/wikipedia/en/d/db/Machinarium-ss.png`, 397×251. A dense
+  courtyard of pipes, towers and small figures.
+- **Ours** — the study's north view as the demo renders it today, captured to the §12.6 spec
+  (1536×1024, cold `file://`, no chrome). **V-stage V1**: procedural placeholder sprites on the
+  holodeck grid, which §12.10 never grades.
 
-| | style seed (not ours) | ours, study/N today |
-|---|---|---|
-| objects | ~12 (chair, chest, jug, lamp, candlesticks, books, notebook, inkwell, fire irons) | 3 (desk, chair, notebook) |
-| Q1 marked | 0 — everything sits in one firelit key | **3** — T1.3 on all three: warm brown objects against a cold blue-grey ground |
-| Q2 marked | 0 — the chair, the chest and the books all darken what they stand on | **2** — the chair's pool is detached, sitting below and right of its feet (T2.2); no darkening is visible under the desk at all (T2.1) |
-| Q3 pairs / marked | many pairs, 0 marked | 1 pair (chair × desk), 0 marked — the chair correctly covers the desk |
-| Q4 marked | 0 | **1 frame** — T4.1 succeeds instantly: flat shapes on a wireframe grid |
-| Q5 marked | 0 — the near table surface is cut by the frame bottom | 0 — the grid floor runs to the bottom edge and the horizon reads at standing height |
+| | Riven | Machinarium | ours (V1) |
+|---|---|---|---|
+| objects | 3 — the rail, the spire structure, the far stack | ~9 — the two figures, the well, the bench, lamps, the barrel | 3 — desk, chair, notebook |
+| Q1 marked | 0 | 0 | **3** — T1.3 on all three: warm brown objects on a cold blue-grey ground |
+| Q2 grounded / marked | 2 / 0 | 6 / 0 | 3 / **2** — the chair's pool sits below and right of its feet (T2.2); no darkening is visible under the desk (T2.1) |
+| Q3 crossing pairs / marked | many / 0 | many / 0 | 1 (chair × desk) / 0 — the chair correctly covers the desk |
+| Q4 marked (per frame) | 0 | 0 | **1** — T4.1 succeeds instantly: flat shapes on a wireframe grid |
+| Q5 marked | 0 — the rail is cut by the frame bottom at your feet | 0 | 0 — the grid floor runs to the bottom edge, horizon at standing height |
 
-**What the dry run establishes.** Every criterion produced a different verdict on the two frames,
-and three of them produced *marks with named tells* on a real artifact rather than an impression —
-so the set discriminates and is losable, which is what freezing it required. It also shows the
-criteria are not vacuous in the other direction: Q3 and Q5 marked nothing on our own placeholder
-frame, so they are not simply firing on everything V1.
+**Three things the dry run changed before the freeze, which is what it was for.**
 
-**What it does not establish.** Ours is a V1 placeholder frame on the holodeck grid, which §12.10
-never grades; a warm object on a cold grid is exactly what V1 is supposed to look like. None of
-these marks is a verdict on the product. Two are worth carrying forward as observations and are in
-the row's closing report rather than here, because this file is criteria and not findings.
+1. **The object definition was wrong.** It read "a thing a person could pick up or carry out without
+   tools" — symmetric, and it made Riven's population **zero**, because a handrail and a rock spire
+   are not portable. A quality cannot be compared against an anchor it cannot be counted on. The
+   definition above is the corrected one.
+2. **Occlusion's population had to widen past objects.** Under the portable test, Riven and
+   Machinarium both had zero *object* pairs while being full of crossing masses — and the
+   intention's own examples for this quality are "column-before-building,
+   ship-hull-behind-waterline", which are architecture. Hence **crossing pair**: any two distinct
+   depicted things.
+3. **An empty anchor population needed a rule.** Even corrected, a landscape frame can have no
+   grounded furniture, leaving `rate_anchor` undefined. Hence the empty-anchor rule above.
 
----
+**What the dry run establishes.** Every criterion returned a different verdict across the three
+frames; three produced marks with named tells on a real artifact rather than an impression; and two
+(Q3, Q5) marked nothing on any of the three, so the set is not simply firing on everything. It
+discriminates, and it is losable.
+
+**What it does not establish, said plainly.** The anchor stills are 400×258 — a sixth of the §12.6
+capture spec's linear resolution. At that size the coarse tells are legible (T1.1, T2.1, T3.1,
+T5.1) and the fine ones are **not**: T4.2 grain, T4.4 a visible rim, T4.5 a resolution break cannot
+honestly be judged there. The row-6 pass must normalize all frames to a common size *and* record
+which tells that size can carry; if the only obtainable anchor still is small, the fine tells are
+judged on our side against the contradiction rules alone and the grading record says so. And ours
+is a V1 placeholder frame: **marks against it are expected and are not evidence against a
+criterion** — a warm object on a cold grid is exactly what V1 looks like, and no criterion was
+softened because V1 failed it.
 
 ## What this document does not decide
 
