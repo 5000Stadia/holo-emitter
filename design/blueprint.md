@@ -283,6 +283,17 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
    against the library's family index, and the remainder is the worklist — retrieve what exists,
    angle-derive what has a family, freshly generate only new identities. The bill of materials
    is known the moment the map is drawn, never discovered mid-production or mid-play.
+   And the worklist executes as a **parallel fan-out** [HUMAN, 2026-08-21]: "a seperate agent in
+   parallel addresses each object individually... So a building of 50 objects gets made in
+   parallel instead of taking forever." One worker per object, each dispatched with its task
+   type: (a) first creation from noun + style block; (b) creation against a supplied reference
+   image; (c) angle derivation from one family member; (d) derivation from two or more family
+   members ("receiving 2 angles already created to make the 3rd") — the richest identity
+   constraint, preferred whenever a family holds two. Workers are hands-not-minds (asset-seat
+   instances or one-shot generation calls); every output passes the gates independently and
+   merges into the library as it lands — wall-clock is the slowest object, not the sum.
+   Concurrency is paced by what the generation path honestly sustains; the orchestrator (row
+   4's bulk step, and the live host after it) owns the queue.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
