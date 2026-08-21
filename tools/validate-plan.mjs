@@ -71,6 +71,12 @@ const BAND_KINDS = ["exterior", "partition", "garden"];
 export const BUILT_KINDS = ["exterior", "garden"];
 export const ALL_WALL_KINDS = ["exterior", "garden", "partition"];
 const OBJECT_SOURCES = ["drawing", "inverse-projected"];
+/* Blueprint §4b's room TYPE TEMPLATE — "rooms carry a type template
+ * (chamber/hall/corridor/open) so every room is the same modular recipe … per
+ * room modular consistent design so creation is snappy" [HUMAN]. This is the
+ * ROOM's production recipe and is a different vocabulary from the facing
+ * geometry type; §4b item 6's backdrop-template tier keys on it. */
+const ARCHETYPES = ["chamber", "hall", "corridor", "service", "stair", "open"];
 const ATTACHMENTS = ["floor_against", "floor_free", "wall_mounted"];
 
 /* Screen-right, per facing: standing facing N your right hand points east, so
@@ -82,6 +88,38 @@ export const NORMAL = { N: ["y", +1], E: ["x", +1], S: ["y", -1], W: ["x", -1] }
 
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+
+/* The truth/presentation split reaches the plan too. `world.json` never holds
+ * pixels; `plan.json` never holds world FACTS — no state, no knowledge, no
+ * relations, no takeable, no sprite. It names entities (an opening's `entity`,
+ * an object's `id`) and rooms, which are references into truth, never copies
+ * of it. Enforced by whitelist, the way tools/validate-fixtures.mjs enforces
+ * the other two documents. */
+const PLAN_TOP_KEYS = ["schema", "version", "units", "north", "entrance",
+  "standpoint_stand_back", "wall_thickness", "outline", "floors", "wall_bands",
+  "rooms", "openings", "windows", "fireplaces", "stairs", "objects"];
+const ROOM_KEYS = ["id", "floor", "name", "type", "archetype", "rect", "facings"];
+const FACING_KEYS = ["type", "standpoint_source", "standpoint", "wall_line",
+  "camera_wall_m", "wall_width_m", "far_line", "note"];
+const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
+const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source"];
+const BAND_KEYS = ["id", "kind", "floors", "rect"];
+const STAIR_KEYS = ["id", "kind", "treads", "rect", "joins", "up", "down"];
+/* World facts, by name. A plan that grows one of these has become a second
+ * truth document. */
+const TRUTH_KEYS = new Set(["state", "states", "knowledge", "relations",
+  "takeable", "sprite", "transition", "held_by", "narration"]);
+
+function keyCheck(where, obj, allowed, push) {
+  if (!isObj(obj)) return;
+  for (const k of Object.keys(obj)) {
+    if (TRUTH_KEYS.has(k)) {
+      push(`${where}: key "${k}" is a world fact — the plan is presentation-side and holds geometry, never truth`);
+    } else if (!allowed.includes(k)) {
+      push(`${where}: unknown key "${k}" (allowed: ${allowed.join(", ")})`);
+    }
+  }
+}
 
 /** The drawn precision. The schematic prints every measured distance with two
  * decimals and the plan stores *that* number — law (a): the number printed
@@ -260,10 +298,8 @@ export function validatePlan(plan, world, records) {
   if (!isNum(plan.standpoint_stand_back) || plan.standpoint_stand_back <= 0 || plan.standpoint_stand_back >= 0.5) {
     push(`plan.json: standpoint_stand_back must be in (0, 0.5) — law (a)'s stand-back fraction; got ${JSON.stringify(plan.standpoint_stand_back)}`);
   }
-  if (!isNum(plan.canvas_w_px) || plan.canvas_w_px <= 0) {
-    push(`plan.json: canvas_w_px must be a positive number (§5's pinned logical canvas width)`);
-  }
 
+  keyCheck("plan.json", plan, PLAN_TOP_KEYS, push);
   const arrays = ["floors", "wall_bands", "rooms", "openings", "windows", "fireplaces", "stairs", "objects"];
   for (const k of arrays) if (!Array.isArray(plan[k])) push(`plan.json: "${k}" must be an array`);
   if (findings.length) return findings; // nothing below can run on a broken shape
@@ -292,6 +328,10 @@ export function validatePlan(plan, world, records) {
   for (const r of plan.rooms) {
     if (!isObj(r)) { push("plan.json: rooms entry is not an object"); continue; }
     claim("room", r.id);
+    keyCheck(`room "${r.id}"`, r, ROOM_KEYS, push);
+    if (!ARCHETYPES.includes(r.archetype)) {
+      push(`room "${r.id}": archetype ${JSON.stringify(r.archetype)} is not one of ${ARCHETYPES.join(" | ")} — §4b's room type template, the recipe a room is produced by; it is NOT the facing geometry type`);
+    }
     if (!floorIds.has(r.floor)) push(`room "${r.id}": floor "${r.floor}" is not a declared floor`);
     if (!ROOM_TYPES.includes(r.type)) {
       push(`room "${r.id}": type ${JSON.stringify(r.type)} is not one of ${ROOM_TYPES.join(" | ")} — the typed geometry blueprint §5 requires`);
@@ -306,6 +346,7 @@ export function validatePlan(plan, world, records) {
   for (const b of plan.wall_bands) {
     if (!isObj(b)) { push("plan.json: wall_bands entry is not an object"); continue; }
     claim("wall band", b.id);
+    keyCheck(`wall band "${b.id}"`, b, BAND_KEYS, push);
     if (!BAND_KINDS.includes(b.kind)) push(`wall band "${b.id}": kind ${JSON.stringify(b.kind)} is not one of ${BAND_KINDS.join(" | ")}`);
     if (!Array.isArray(b.floors) || !b.floors.length || b.floors.some((f) => !floorIds.has(f))) {
       push(`wall band "${b.id}": floors must be declared floor ids`);
@@ -386,6 +427,7 @@ export function validatePlan(plan, world, records) {
     for (const f of FACINGS) {
       const fc = r.facings[f];
       if (!isObj(fc)) { push(`room "${r.id}" facing ${f}: not an object`); continue; }
+      keyCheck(`room "${r.id}" facing ${f}`, fc, FACING_KEYS, push);
       if (!FACING_TYPES.includes(fc.type)) {
         push(`room "${r.id}" facing ${f}: type ${JSON.stringify(fc.type)} is not one of ${FACING_TYPES.join(" | ")}`);
         continue;
@@ -466,6 +508,7 @@ export function validatePlan(plan, world, records) {
   for (const o of plan.openings) {
     if (!isObj(o)) { push("plan.json: openings entry is not an object"); continue; }
     claim("opening", o.id);
+    keyCheck(`opening "${o.id}"`, o, OPENING_KEYS, push);
     if (!OPENING_KINDS.includes(o.kind)) {
       push(`opening "${o.id}": kind ${JSON.stringify(o.kind)} is not one of ${OPENING_KINDS.join(" | ")}`);
       continue;
@@ -501,6 +544,7 @@ export function validatePlan(plan, world, records) {
   for (const s of plan.stairs) {
     if (!isObj(s)) { push("plan.json: stairs entry is not an object"); continue; }
     claim("stair", s.id);
+    keyCheck(`stair "${s.id}"`, s, STAIR_KEYS, push);
     if (!rectOk(s.rect)) push(`stair "${s.id}": rect is malformed`);
     if (!Array.isArray(s.joins) || s.joins.length !== 2 || s.joins.some((id) => !byId.has(id))) {
       push(`stair "${s.id}": joins must name two rooms`); continue;
@@ -592,9 +636,18 @@ export function validatePlan(plan, world, records) {
   }
 
   /* ---- 7c. objects ------------------------------------------------------ */
+  const worldLocation = new Map();
+  if (isObj(world)) for (const e of world.entities || []) if (e.location) worldLocation.set(e.id, e.location);
+  if (plan.objects.length && !records) {
+    push("plan.json: objects are present but no §6 records were supplied — the footprint↔dims cross-check is the only thing binding a plan footprint to the object it claims to be, and it must not be optional");
+  }
   for (const o of plan.objects) {
     if (!isObj(o) || typeof o.id !== "string") { push("plan.json: objects entry is not an object with an id"); continue; }
     claim("object", o.id);
+    keyCheck(`object "${o.id}"`, o, OBJECT_KEYS, push);
+    if (worldLocation.has(o.id) && worldLocation.get(o.id) !== o.room) {
+      push(`object "${o.id}": the plan puts it in "${o.room}", world.json puts it in "${worldLocation.get(o.id)}"`);
+    }
     const room = byId.get(o.room);
     if (!room) { push(`object "${o.id}": room "${o.room}" is not a room`); continue; }
     if (room.floor !== o.floor) push(`object "${o.id}": floor "${o.floor}" is not the floor of room "${o.room}"`);
@@ -611,8 +664,9 @@ export function validatePlan(plan, world, records) {
     for (const b of bandsOn(o.floor)) {
       if (overlapArea(b.rect, o.footprint) > 0) push(`object "${o.id}": its footprint runs into wall band "${b.id}"`);
     }
-    if (records) {
-      const rec = records[o.id];
+    {
+      const rec = records && records[o.id];
+      if (!rec && records) push(`object "${o.id}": no §6 record — nothing binds this footprint to an object of a known size`);
       if (rec && rec.dims_m) {
         const w = o.footprint.x1 - o.footprint.x0, d = o.footprint.y1 - o.footprint.y0;
         const ok = (Math.abs(w - rec.dims_m.w) < 1e-6 && Math.abs(d - rec.dims_m.d) < 1e-6) ||
@@ -811,12 +865,19 @@ if (import.meta.url === invokedPath) {
       process.exit(1);
     }
   }
+  /* §6 records, keyed by ENTITY id the way the renderer resolves them — the
+   * plan names entities, the library names sprites, and world.json is the map
+   * between them. Without records the footprint↔dims cross-check cannot run,
+   * and validatePlan says so rather than passing quietly. */
   let records;
-  if (!args.includes("--no-records")) {
-    try {
-      const { createRequire } = await import("node:module");
-      records = createRequire(import.meta.url)("../src/placeholders.js").records;
-    } catch { /* records are optional: the footprint↔dims check simply does not run */ }
+  try {
+    const { createRequire } = await import("node:module");
+    const bySprite = createRequire(import.meta.url)("../src/placeholders.js").records;
+    records = {};
+    for (const e of (world && world.entities) || []) if (bySprite[e.sprite]) records[e.id] = bySprite[e.sprite];
+  } catch (e) {
+    console.error(`validate-plan: cannot load records from src/placeholders.js (${e.message})`);
+    process.exit(1);
   }
   const findings = validatePlan(plan, world, records);
   for (const w of planWarnings(plan, records, world)) console.error(`warning: ${w}`);

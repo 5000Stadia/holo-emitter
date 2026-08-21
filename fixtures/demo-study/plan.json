@@ -3,7 +3,6 @@
   "version": 1,
   "units": "m",
   "north": "+y",
-  "canvas_w_px": 1536,
   "standpoint_stand_back": 0.25,
   "entrance": "entrance_approach",
   "wall_thickness": {
@@ -401,6 +400,7 @@
       "floor": "ground",
       "name": "GREAT HALL",
       "type": "enclosed",
+      "archetype": "hall",
       "rect": {
         "x0": 10.0,
         "x1": 24.6,
@@ -459,6 +459,7 @@
       "floor": "ground",
       "name": "STUDY",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 24.95,
         "x1": 30.4,
@@ -517,6 +518,7 @@
       "floor": "ground",
       "name": "BACK STAIR",
       "type": "corridor",
+      "archetype": "stair",
       "rect": {
         "x0": 24.95,
         "x1": 30.4,
@@ -575,6 +577,7 @@
       "floor": "ground",
       "name": "CROSS PASSAGE",
       "type": "corridor",
+      "archetype": "corridor",
       "rect": {
         "x0": 31.0,
         "x1": 39.0,
@@ -633,6 +636,7 @@
       "floor": "ground",
       "name": "KITCHEN",
       "type": "enclosed",
+      "archetype": "service",
       "rect": {
         "x0": 31.0,
         "x1": 39.0,
@@ -691,6 +695,7 @@
       "floor": "ground",
       "name": "BUTTERY & PANTRY",
       "type": "enclosed",
+      "archetype": "service",
       "rect": {
         "x0": 31.0,
         "x1": 39.0,
@@ -749,6 +754,7 @@
       "floor": "ground",
       "name": "SERVANTS' HALL",
       "type": "enclosed",
+      "archetype": "service",
       "rect": {
         "x0": 31.0,
         "x1": 39.0,
@@ -807,6 +813,7 @@
       "floor": "ground",
       "name": "DINING PARLOUR",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -865,6 +872,7 @@
       "floor": "ground",
       "name": "GREAT STAIR HALL",
       "type": "corridor",
+      "archetype": "stair",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -923,6 +931,7 @@
       "floor": "ground",
       "name": "LIBRARY",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -981,6 +990,7 @@
       "floor": "ground",
       "name": "GARDEN ROOM",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -1039,6 +1049,7 @@
       "floor": "ground",
       "name": "ENTRANCE COURT",
       "type": "open",
+      "archetype": "open",
       "rect": {
         "x0": 10.0,
         "x1": 30.4,
@@ -1102,6 +1113,7 @@
       "floor": "ground",
       "name": "PRIVY GARDEN",
       "type": "open",
+      "archetype": "open",
       "rect": {
         "x0": 10.0,
         "x1": 30.4,
@@ -1164,6 +1176,7 @@
       "floor": "ground",
       "name": "ENTRANCE APPROACH",
       "type": "open",
+      "archetype": "open",
       "rect": {
         "x0": 3.8,
         "x1": 35.8,
@@ -1229,6 +1242,7 @@
       "floor": "upper",
       "name": "SOLAR (GREAT CHAMBER)",
       "type": "enclosed",
+      "archetype": "hall",
       "rect": {
         "x0": 10.0,
         "x1": 24.6,
@@ -1287,6 +1301,7 @@
       "floor": "upper",
       "name": "MUNIMENT ROOM",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 24.95,
         "x1": 30.4,
@@ -1345,6 +1360,7 @@
       "floor": "upper",
       "name": "BACK STAIR HEAD",
       "type": "corridor",
+      "archetype": "stair",
       "rect": {
         "x0": 24.95,
         "x1": 30.4,
@@ -1403,6 +1419,7 @@
       "floor": "upper",
       "name": "LONG GALLERY",
       "type": "corridor",
+      "archetype": "corridor",
       "rect": {
         "x0": 31.0,
         "x1": 39.0,
@@ -1461,6 +1478,7 @@
       "floor": "upper",
       "name": "MASTER BEDCHAMBER",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -1519,6 +1537,7 @@
       "floor": "upper",
       "name": "STAIR LANDING",
       "type": "corridor",
+      "archetype": "stair",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -1577,6 +1596,7 @@
       "floor": "upper",
       "name": "GUEST CHAMBER",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,
@@ -1635,6 +1655,7 @@
       "floor": "upper",
       "name": "CLOSET CHAMBER",
       "type": "enclosed",
+      "archetype": "chamber",
       "rect": {
         "x0": 0.6,
         "x1": 9.4,

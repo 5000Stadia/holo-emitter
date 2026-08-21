@@ -26,7 +26,8 @@ import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
   inverseProjectPlacement, shippedMeta, facingsContaining, report,
   assertCameraConsistent, needsWideView, pinnedWallInFrame, horizonGate,
-  GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES
+  GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
+  facingCarriers, cameraFeetReport, WALL_MAP_11, WIDE_VIEW_POLICIES, CANVAS_W
 } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -153,7 +154,17 @@ const MUTATIONS = [
   ["an object's provenance is machine-readable", /source .* is not one of/i,
     (p) => { p.objects[0].source = "somewhere"; }],
   ["the entrance exists", /"entrance" must name/i, (p) => { p.entrance = "the_moon"; }],
-  ["the version stamp", /version must be a positive integer/i, (p) => { delete p.version; }]
+  ["the version stamp", /version must be a positive integer/i, (p) => { delete p.version; }],
+  ["the room archetype vocabulary", /archetype .* is not one of/i,
+    (p) => { room(p, "study").archetype = "snug"; }],
+  ["a world fact smuggled into the plan", /is a world fact/i,
+    (p) => { room(p, "study").states = ["closed", "open"]; }],
+  ["an unknown key at the top level", /unknown key/i, (p) => { p.pixels = 1536; }],
+  ["an unknown key on a facing", /unknown key/i, (p) => { room(p, "study").facings.N.corner_x0_px = 506.4; }],
+  ["an object the plan and the world put in different rooms", /world.json puts it in/i,
+    (p) => { p.objects.find((o) => o.id === "desk1").room = "hall"; }],
+  ["a standpoint_source outside the vocabulary", /standpoint_source .* is not/i,
+    (p) => { room(p, "study").facings.N.standpoint_source = "measured"; }]
 ];
 
 test.describe("the plan validator goes red on every check it claims", () => {
@@ -167,8 +178,91 @@ test.describe("the plan validator goes red on every check it claims", () => {
     });
   }
 
+  /* §4b item 9 rules several standpoints into the great hall and the long
+   * gallery, so the schema keeps a standpoint the K rule did not place
+   * expressible. The branch has no instance on this plan — every standpoint is
+   * `rule` — so it is exercised here rather than left as a promise row 15
+   * discovers is empty. */
+  test("a `drawn` standpoint is accepted where the rule's would not be, and law (a) still binds it", () => {
+    const p = clone(PLAN);
+    const fc = room(p, "great_hall").facings.N;
+    fc.standpoint_source = "drawn";
+    fc.standpoint = { x: 12.0, y: 10.5 };            // near the hall's west end
+    fc.camera_wall_m = drawn(measuredDistance(fc.standpoint, "N", fc.wall_line));
+    expect(validatePlan(p, WORLD, BY_ENTITY)).toEqual([]);
+    // and the measurement is still law: a typed distance is still refused
+    fc.camera_wall_m = 6.97;
+    expect(validatePlan(p, WORLD, BY_ENTITY).join("\n")).toMatch(/is not the measured/);
+  });
+
   test("and the unmutated plan is green, so the battery above is not a tautology", () => {
     expect(validatePlan(clone(PLAN), WORLD, BY_ENTITY)).toEqual([]);
+  });
+});
+
+test.describe("the plan is presentation-side, and says so by schema", () => {
+  test("it holds no world fact and no pixel", () => {
+    const text = readFileSync(join(fixtureDir, "plan.json"), "utf8");
+    for (const k of ["\"states\"", "\"state\"", "\"knowledge\"", "\"relations\"", "\"takeable\"", "\"sprite\"", "canvas_w_px", "\"px\""]) {
+      expect(text, `plan.json carries ${k}`).not.toContain(k);
+    }
+    // it names entities and rooms — references into truth, never copies of it
+    expect(PLAN.openings.some((o) => o.entity === "door1")).toBe(true);
+  });
+
+  test("the canvas width is the consumer's parameter, not the document's", () => {
+    expect(PLAN.canvas_w_px).toBeUndefined();
+    expect(CANVAS_W).toBe(1536);
+    const wide = deriveMeta(PLAN, "study", "N", { canvasW: 3072 });
+    expect(wide.corner_x1_px - wide.corner_x0_px).toBeCloseTo(5.45 * 96, 9);
+    expect(wide.corner_x0_px).toBeCloseTo(3072 / 2 - 5.45 / 2 * 96, 9);
+  });
+
+  test("every room carries §4b's production archetype, distinct from its facing geometry", () => {
+    const pairs = PLAN.rooms.map((r) => `${r.type}/${r.archetype}`);
+    // the two vocabularies are not the same vocabulary: a corridor-type room
+    // may be a stair, and an enclosed room may be a hall
+    expect(new Set(pairs).size).toBeGreaterThan(3);
+    expect(room(PLAN, "back_stair").type).toBe("corridor");
+    expect(room(PLAN, "back_stair").archetype).toBe("stair");
+    expect(room(PLAN, "great_hall").type).toBe("enclosed");
+    expect(room(PLAN, "great_hall").archetype).toBe("hall");
+    expect(new Set(PLAN.rooms.map((r) => r.archetype)))
+      .toEqual(new Set(["chamber", "hall", "corridor", "service", "stair", "open"]));
+  });
+});
+
+/* --------------------------------------------------- the wall a facing carries */
+
+test.describe("what each facing carries", () => {
+  /* Blueprint §11's wall maps were prose until this row. They are checked
+   * against the plan now, and the two that disagree are D4 — the drawing's own
+   * open question — rather than a defect. */
+  test("the two existing rooms agree with blueprint §11, except at D4", () => {
+    const disagree = [];
+    for (const [rid, f, expect_] of WALL_MAP_11) {
+      const kinds = facingCarriers(PLAN, rid, f).map((c) => c.kind).sort().join(",");
+      if (kinds !== [...expect_.kinds].sort().join(",")) disagree.push(`${rid}/${f}`);
+    }
+    expect(disagree).toEqual(["hall/N", "hall/S"]);
+  });
+
+  test("study/N carries the fireplace, study/E the door, study/S two windows, study/W nothing", () => {
+    expect(facingCarriers(PLAN, "study", "N").map((c) => c.kind)).toEqual(["fireplace"]);
+    const door = facingCarriers(PLAN, "study", "E");
+    expect(door.map((c) => c.kind)).toEqual(["door"]);
+    expect(door[0].entity).toBe("door1");
+    expect(door[0].u).toBeCloseTo(0.5 + 1.1 / 4.8, 6);   // the drawing's own position
+    expect(facingCarriers(PLAN, "study", "S").map((c) => c.kind)).toEqual(["window", "window"]);
+    expect(facingCarriers(PLAN, "study", "W")).toEqual([]);
+  });
+
+  test("a carrier's u is the same domain §4 staging uses", () => {
+    const shelfU = projectPlacement(PLAN, "shelf1", "hall", "N", deriveMeta(PLAN, "hall", "N")).u;
+    const butteryDoor = facingCarriers(PLAN, "hall", "N")[0];
+    // §11's note: "The shelf sits at u = 0.30; the drawn buttery door is at the
+    // far end of the same wall, so they do not fight."
+    expect(butteryDoor.u - shelfU).toBeGreaterThan(0.3);
   });
 });
 
@@ -274,6 +368,34 @@ test.describe("the camera the projection runs on", () => {
     expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/residual 0\.0216 — FAILS/);
   });
 
+  /* F1/F2's arithmetic, pinned. Pinning the SCALE across standpoint distances
+   * means the lens varies and the floor cut walks away from the viewer's feet.
+   * Both are consequences of documents older than this row, and both are
+   * asserted here so they cannot become invisible. */
+  test("pinning the scale makes the lens vary by a factor of ten across the manor", () => {
+    const feet = cameraFeetReport(PLAN);
+    const focals = feet.rows.map((r) => r.focal_px);
+    expect(Math.min(...focals)).toBeCloseTo(96 * 1.95, 6);    // cross passage N
+    expect(Math.max(...focals)).toBeCloseTo(1536 / 20.4 * 26.75, 6); // entrance court S, wide
+    expect(Math.max(...focals) / Math.min(...focals)).toBeGreaterThan(8);
+    // and the visible consequence: floor_line_y is the same on every pinned facing
+    expect(deriveMeta(PLAN, "great_hall", "E").floor_line_y)
+      .toBeCloseTo(deriveMeta(PLAN, "study", "N").floor_line_y, 12);
+  });
+
+  test("the frame-bottom floor cut is at the viewer's feet in the study and metres out elsewhere", () => {
+    const feet = cameraFeetReport(PLAN);
+    // the shipped study, the only frame-bottom cut a human has judged
+    expect(feet.reference).toBeCloseTo(3.6 * 96 / 332.8, 9);
+    expect(feet.reference).toBeLessThan(1.1);
+    // measured from the VIEWER, not from the wall — the complement is the bug
+    // this assertion exists to prevent recurring
+    expect(deriveMeta(PLAN, "great_hall", "E").nearest_floor_m).toBeCloseTo(10.95 * 96 / 332.8, 9);
+    expect(feet.over.length).toBe(15);
+    expect(feet.over[0].nearest_floor_m).toBeGreaterThan(5);
+    expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/The camera has feet, and the lens is not one lens/);
+  });
+
   test("the contract camera is carried for comparison and drives nothing", () => {
     expect(CONTRACT_CAMERA.eye_m).toBe(1.83);
     expect(CONTRACT_CAMERA.pitch_deg).toBe(-8);
@@ -350,6 +472,37 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
       .toEqual([[0, 6.2], [26.6, 32]]);
     const gap = 32 - 6.2 - 5.4;
     expect(gap).toBeCloseTo(20.4, 9);   // the court mouth, exactly the court's width
+  });
+
+  /* Kabe's ruling (3) and the arithmetic select different sets, and neither is
+   * an agent's to pick. Both policies exist; the report prints the difference;
+   * every derived meta says which one produced it. */
+  test("both wide-view readings are computable and they disagree on ten facings", () => {
+    const disagree = [];
+    for (const r of PLAN.rooms) {
+      for (const f of FACINGS) {
+        const a = needsWideView(PLAN, r.id, f, GRID_CAMERA, CANVAS_W, "fits");
+        const b = needsWideView(PLAN, r.id, f, GRID_CAMERA, CANVAS_W, "ruling");
+        if (a !== b) disagree.push(`${r.id}/${f}`);
+      }
+    }
+    expect(disagree.length).toBe(10);
+    expect(disagree).toContain("long_gallery/N");   // corridor, deep, fits the frame
+    expect(disagree).toContain("privy_garden/N");   // enclosed, flat, does not fit
+    expect(Object.keys(WIDE_VIEW_POLICIES).sort()).toEqual(["fits", "ruling"]);
+    expect(deriveMeta(PLAN, "privy_garden", "N", { wideViewPolicy: "ruling" }).camera).toBe("pinned");
+    expect(deriveMeta(PLAN, "privy_garden", "N").camera).toBe("wide");
+  });
+
+  test("every derived meta says it is provisional and names the camera and policy that made it", () => {
+    for (const r of PLAN.rooms) {
+      for (const f of FACINGS) {
+        const m = deriveMeta(PLAN, r.id, f);
+        expect(m.provisional, `${r.id}/${f}`).toBe(true);
+        expect(m.camera_id).toBe("grid");
+        expect(m.wide_view_policy).toBe("fits");
+      }
+    }
   });
 
   test("the wide camera is taken by exactly the facings the pinned frame cannot hold", () => {
@@ -479,6 +632,16 @@ test.describe("the projection against the shipped staging", () => {
     const div = stagingDivergence(p, STAGING);
     expect(div.rows.length).toBe(5);
     expect(div.unplanned.map((u) => u.id)).toEqual(["desk1"]);
+  });
+
+  /* The tolerance is stated, derived, and driven from both sides. */
+  test("a divergence just over the tolerance refuses, just under it passes", () => {
+    expect(STAGING_TOLERANCE).toBe(1e-9);
+    const st = clone(STAGING);
+    st.placements.desk1.u = 0.479 + STAGING_TOLERANCE * 0.4;
+    expect(stagingDivergence(PLAN, st).unexpected).toEqual([]);
+    st.placements.desk1.u = 0.479 + STAGING_TOLERANCE * 4;
+    expect(stagingDivergence(PLAN, st).unexpected.map((r) => r.id)).toEqual(["desk1"]);
   });
 
   test("door1's plan position is NOT derived from staging — it is the drawing's opening", () => {
@@ -715,33 +878,59 @@ test.describe("the schematic is a derived render of the plan", () => {
     }
   });
 
-  /* The tie back to the artifact a human actually looked at. Kabe approved
-   * `design/plan-draft/` at commit 02754d1 (carried into 9059605 with his four
-   * rulings). Row 12 inverted the source and corrected two caption strings that
-   * had become false — "DRAFT for redline" on an approved sheet, and a note
-   * crediting checks that moved to tools/validate-plan.mjs — so the whole-file
-   * bytes moved. The DRAWN GEOMETRY did not, and this is the assertion that
-   * says so: every <rect>, <line>, <path> and <circle> on both sheets, with
-   * the text elements stripped, hashes to what the approved file hashed to.
+  /* The tie back to the artifact a human actually looked at, taken from git
+   * rather than from a literal.
+   *
+   * Kabe approved `design/plan-draft/` on 2026-08-21; the sheets landed at
+   * commit 02754d1 and the approval with its four rulings is recorded at
+   * 9059605, where the blobs are byte-identical to 02754d1's. Row 12 inverted
+   * the source and corrected two caption strings that had become false —
+   * "DRAFT for redline" on an approved sheet, and a footnote crediting checks
+   * that moved into tools/validate-plan.mjs — so the whole-file bytes moved.
+   * The DRAWN GEOMETRY did not, and that is what these cases assert, against
+   * the approved blob itself. A literal hash would have been severable in one
+   * edit; this cannot be changed without rewriting history.
    *
    * The suite's "no hash literals" rule is about CANVAS hashes across browser
-   * engines; an SVG file on disk has no engine, and this is the one assertion
-   * whose whole value is the tie to a human's approval. */
-  const APPROVED_GEOMETRY = {
-    "manor-ground.svg": "de64733a5061ae7f1bad624b375fe1e22822e603eb09bd324a23d97b574900a3",
-    "manor-upper.svg": "07e7895abe752f398758cd5ab35fd0a59ab7fffbb446f722d4231889c7e29ca1"
-  };
-  const APPROVED_TSV = "2d88ffc88dfbab0efbc56e3ac3f057179358e6c2bdfa3d57bf0328fb4b7d0056";
+   * engines. There is no engine here, and nothing else in the row ties the
+   * derived render to a human's yes. */
+  const APPROVAL_COMMIT = "9059605";
+
+  function approvedBlob(path) {
+    return execFileSync("git", ["show", `${APPROVAL_COMMIT}:${path}`],
+      { cwd: repoRoot, encoding: "buffer", maxBuffer: 32 * 1024 * 1024 });
+  }
+
+  test("git is available — the approved artifact is read from history, not from a literal", () => {
+    expect(execFileSync("git", ["rev-parse", "--short", APPROVAL_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(APPROVAL_COMMIT);
+  });
 
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {
-    for (const [f, want] of Object.entries(APPROVED_GEOMETRY)) {
-      const svg = readFileSync(join(draftDir, f), "utf8");
-      expect(sha256(geometryOnly(svg)), `${f} geometry`).toBe(want);
+    for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
+      const approved = geometryOnly(approvedBlob(`design/plan-draft/${f}`).toString("utf8"));
+      const now = geometryOnly(readFileSync(join(draftDir, f), "utf8"));
+      expect(sha256(now), `${f}: the derived render's geometry left the approved drawing`)
+        .toBe(sha256(approved));
     }
   });
 
   test("the standpoint table — pure geometry, no prose — byte-equals the approved one", () => {
-    expect(sha256(readFileSync(join(draftDir, "standpoints.tsv")))).toBe(APPROVED_TSV);
+    expect(readFileSync(join(draftDir, "standpoints.tsv"))
+      .equals(approvedBlob("design/plan-draft/standpoints.tsv"))).toBe(true);
+  });
+
+  test("and only the two caption strings differ from the approved sheets", () => {
+    for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
+      const approved = approvedBlob(`design/plan-draft/${f}`).toString("utf8");
+      const now = readFileSync(join(draftDir, f), "utf8");
+      const texts = (t) => t.match(/<text[^>]*>[\s\S]*?<\/text>/g) || [];
+      const a = texts(approved), b = texts(now);
+      expect(b.length).toBe(a.length);
+      const moved = a.map((x, i) => [x, b[i]]).filter(([x, y]) => x !== y);
+      expect(moved.length, `${f}: more than the caption strings moved`).toBeLessThanOrEqual(2);
+      for (const [x] of moved) expect(x).toMatch(/DRAFT for redline|checked by the drawing/);
+    }
   });
 
   test("the geometry hash moves when a room moves, so it is not a decoration", () => {
@@ -774,7 +963,8 @@ test.describe("the schematic is a derived render of the plan", () => {
       writeFileSync(join(fx, "plan.json"), JSON.stringify(p));
       python([join(dir, "design", "plan-draft", "draw_plan.py")], dir);
       const svg = readFileSync(join(dir, "design", "plan-draft", "manor-ground.svg"), "utf8");
-      expect(sha256(geometryOnly(svg))).not.toBe(APPROVED_GEOMETRY["manor-ground.svg"]);
+      const approved = geometryOnly(approvedBlob("design/plan-draft/manor-ground.svg").toString("utf8"));
+      expect(sha256(geometryOnly(svg))).not.toBe(sha256(approved));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

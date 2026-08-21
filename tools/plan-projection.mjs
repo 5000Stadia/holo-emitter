@@ -48,9 +48,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /* §5's pinned logical canvas is 1536×1024. GRID_META carries the height as
  * image_h_px; the width is the same pinned viewport tools/validate-
- * fixtures.mjs already names, and a plan may override it (canvas_w_px) so the
- * document stays derivable-complete for a host with another frame. */
-const CANVAS_W = 1536;
+ * fixtures.mjs already names. It is the CONSUMER's parameter, not the plan's:
+ * a canvas width is a pixel, and a pixel does not belong in a document whose
+ * every number is metres of real building. Pass `canvasW` to override. */
+export const CANVAS_W = 1536;
 const EPS = 1e-9;
 
 /**
@@ -169,9 +170,38 @@ export function wallSegments(plan, roomId, facing) {
  * directions. This reads one quantity; the report says which facings it
  * selects and exactly where a redline would land.
  */
-export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvasW = CANVAS_W) {
-  const fc = facingOf(roomOf(plan, roomId), facing);
-  return fc.wall_width_m > pinnedWallInFrame(camera, canvasW) + EPS;
+export const WIDE_VIEW_POLICIES = {
+  /* What the license was granted ABOUT: a wall wider than the frame holds
+   * cannot use the pinned frame, and clipping was the alternative the ruling
+   * declined. */
+  fits: (plan, room, fc, camera, canvasW) =>
+    fc.wall_width_m > pinnedWallInFrame(camera, canvasW) + EPS,
+  /* The ruling's own vocabulary, literally: "open and corridor deep-views take
+   * their own wider camera, enclosed flat views keep the pinned frame." */
+  ruling: (plan, room, fc) => fc.type === "open" || fc.type === "corridor"
+};
+export const DEFAULT_WIDE_VIEW_POLICY = "fits";
+
+/**
+ * Does this facing need the wider camera?
+ *
+ * Kabe's ruling (3), blueprint §4b: "wide-view camera license granted
+ * ('sure') — open and corridor deep-views take their own wider camera,
+ * enclosed flat views keep the pinned frame."
+ *
+ * The two readings above do not select the same facings on this manor and
+ * neither is an agent's to pick, so BOTH are computable and the report prints
+ * the difference facing by facing. `fits` is the default because it is the one
+ * that leaves no wall clipped, and because nothing downstream consumes a
+ * derived meta yet — every one of them is marked `provisional`. When Kabe
+ * rules, the loser is deleted rather than argued.
+ */
+export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvasW = CANVAS_W, policy = DEFAULT_WIDE_VIEW_POLICY) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const fn = WIDE_VIEW_POLICIES[policy];
+  if (!fn) throw new Error(`plan-projection: no wide-view policy "${policy}"`);
+  return fn(plan, room, fc, camera, canvasW);
 }
 
 /**
@@ -197,8 +227,9 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
   const camera = opts.camera || GRID_CAMERA;
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
-  const canvasW = plan.canvas_w_px || CANVAS_W;
-  const wide = needsWideView(plan, roomId, facing, camera, canvasW);
+  const canvasW = opts.canvasW || CANVAS_W;
+  const policy = opts.wideViewPolicy || DEFAULT_WIDE_VIEW_POLICY;
+  const wide = needsWideView(plan, roomId, facing, camera, canvasW, policy);
   const pxAtWall = wide ? canvasW / fc.wall_width_m : camera.px_per_m_at_wall;
   const imageH = camera.image_h_px;
   const horizonY = camera.horizon_y;
@@ -215,11 +246,32 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     facing_type: fc.type,
     camera: wide ? "wide" : "pinned",
     camera_id: camera.id,
+    wide_view_policy: policy,
+    /* PROVISIONAL, always, and machine-readably. Blueprint §5 rules that the
+     * geometry elements are determined by the orientation of the approved
+     * image generation, which does not exist until row 4; §10's ruled camera
+     * is 1.83 m at −8° and this is derived at the shipped grid camera; and the
+     * wide-view reading is unsettled. Nothing in the repo consumes a derived
+     * meta, and a consumer that starts to must refuse one whose `camera_id`
+     * or `wide_view_policy` is not the one it expects. */
+    provisional: true,
     backdrop: fc.type === "open" ? "vista" : "wall",
     wall_segments: walls.segments,
     wall_continuous: walls.continuous,
     corner_x0_px: null,
-    corner_x1_px: null
+    corner_x1_px: null,
+    /* The lens this facing implies. Pinning the SCALE across facings at
+     * different standpoint distances means the focal length is not constant:
+     * 187 px on the cross passage's north view, 1469 px on the entrance
+     * court's flanks. Emitted so the consequence is a number a reader can see
+     * rather than an implication buried in the arithmetic — it is §5's open
+     * field-of-view question, and Kabe's. */
+    focal_px: pxAtWall * fc.camera_wall_m,
+    /* Where the floor first appears in front of the viewer. The intention's
+     * fifth decomposed quality is "the camera has feet" — Riven's rails cut by
+     * the frame bottom at your own feet — and this is the number that either
+     * is or is not that. Emitted per facing, and warned on above the bound. */
+    nearest_floor_m: null
   };
   if (fc.type === "open") {
     meta.camera_far_m = fc.camera_wall_m;
@@ -227,6 +279,7 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
   } else {
     meta.camera_wall_m = fc.camera_wall_m;
   }
+  meta.nearest_floor_m = nearestFloorM(meta);
   if (walls.continuous) {
     meta.corner_x0_px = canvasW / 2 - (fc.wall_width_m / 2) * pxAtWall;
     meta.corner_x1_px = canvasW / 2 + (fc.wall_width_m / 2) * pxAtWall;
@@ -279,7 +332,7 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
   const rect = obj ? obj.footprint : opening.rect;
   const attachment = obj ? obj.attachment : "wall_mounted";
   const m = meta || deriveMeta(plan, roomId, facing);
-  const canvasW = plan.canvas_w_px || CANVAS_W;
+  const canvasW = CANVAS_W;
 
   /* A wall-mounted carrier hangs ON the wall plane: depth zero by definition,
    * §4 gives it `v` and never `depth_m`. Its rect straddles the wall (a 0.6 m
@@ -332,12 +385,70 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
 export function projectEntity(plan, objectId, roomId, facing, records, meta) {
   const p = projectPlacement(plan, objectId, roomId, facing, meta);
   const m = meta || deriveMeta(plan, roomId, facing);
-  const canvasW = plan.canvas_w_px || CANVAS_W;
+  const canvasW = CANVAS_W;
   const rec = records && records[objectId];
   if (!rec) return { ...p, placement: null };
   const staged = { attachment: p.attachment, u: p.u, depth_m: p.depth_m, v: 0 };
   return { ...p, placement: groundplane.placeHost(staged, rec, m, canvasW) };
 }
+
+/**
+ * What a facing's wall carries, in view-relative terms — blueprint §4b's
+ * "wall segments with what each carries (door openings, windows, fireplace)".
+ * This is the list row 4's prompt sheets and §11's wall maps are made of, and
+ * without it "per room modular consistent design so creation is snappy" has
+ * nothing to be snappy from.
+ *
+ * A carrier is on this facing when it stands on (a door or window: inside the
+ * wall band whose face is the wall line) or against (a fireplace: its breast
+ * projecting into the room from that wall) the line the facing views. Position
+ * is given as `u` — the same domain §4 staging uses — and as metres from the
+ * left-hand end of the view as the standpoint sees it.
+ */
+export function facingCarriers(plan, roomId, facing) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const span = viewSpan(room.rect, facing);
+  const [normalAxis, sign] = NORMAL[facing];
+  const [rx, ry] = RIGHT[facing];
+  const alongRight = span.axis === "x" ? rx : ry;
+  const width = span.hi - span.lo;
+  const toView = (v) => alongRight > 0 ? v - span.lo : span.hi - v;
+  const out = [];
+  const add = (kind, id, rect, extra) => {
+    const a = toView(rect[span.axis + "0"]), b = toView(rect[span.axis + "1"]);
+    const [lo, hi] = a <= b ? [a, b] : [b, a];
+    out.push({
+      kind, id, from_m: round6(lo), to_m: round6(hi),
+      width_m: round6(hi - lo), u: round6((lo + hi) / 2 / width), ...extra
+    });
+  };
+  for (const o of plan.openings || []) {
+    if (o.floor !== room.floor || o.kind !== "door") continue;
+    if (!(o.rect[span.axis + "0"] >= span.lo - EPS && o.rect[span.axis + "1"] <= span.hi + EPS)) continue;
+    const near = sign > 0 ? o.rect[normalAxis + "0"] : o.rect[normalAxis + "1"];
+    if (Math.abs(near - fc.wall_line) > EPS) continue;
+    add("door", o.id, o.rect, o.entity ? { entity: o.entity } : {});
+  }
+  for (const w of plan.windows || []) {
+    if (w.floor !== room.floor) continue;
+    if (!(w.rect[span.axis + "0"] >= span.lo - EPS && w.rect[span.axis + "1"] <= span.hi + EPS)) continue;
+    const near = sign > 0 ? w.rect[normalAxis + "0"] : w.rect[normalAxis + "1"];
+    if (Math.abs(near - fc.wall_line) > EPS) continue;
+    add("window", null, w.rect, {});
+  }
+  for (const fp of plan.fireplaces || []) {
+    if (fp.floor !== room.floor || fp.room !== room.id) continue;
+    if (!(fp.rect[span.axis + "0"] >= span.lo - EPS && fp.rect[span.axis + "1"] <= span.hi + EPS)) continue;
+    /* A breast projects INTO the room, so its far edge is the wall line. */
+    const far = sign > 0 ? fp.rect[normalAxis + "1"] : fp.rect[normalAxis + "0"];
+    if (Math.abs(far - fc.wall_line) > EPS) continue;
+    add("fireplace", null, fp.rect, {});
+  }
+  out.sort((a, b) => a.from_m - b.from_m);
+  return out;
+}
+const round6 = (n) => Number(n.toFixed(6));
 
 /**
  * Every facing whose view contains an object's footprint — the primitive
@@ -382,7 +493,7 @@ export function inverseProjectPlacement(plan, placement, record, meta) {
   const rr = room.rect;
   const centre = { x: (rr.x0 + rr.x1) / 2, y: (rr.y0 + rr.y1) / 2 };
   const [rx, ry] = RIGHT[facing];
-  const canvasW = plan.canvas_w_px || CANVAS_W;
+  const canvasW = CANVAS_W;
   /* offset_m from u, through xAtScale, so this is the exact inverse of the
    * forward direction rather than a second formula. The scale cancels, and
    * the wall scale is always a legal one to read it at. */
@@ -420,7 +531,21 @@ export const KNOWN_DIVERGENCES = [
   }
 ];
 
-export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance = 1e-9) {
+/**
+ * The tolerance the staging↔projection assertion runs at, and why this number.
+ *
+ * The shipped `u` values are 4-decimal literals; plan footprints are stored at
+ * 9 dp; `camera_wall_m` and `wall_width_m` at the drawn 2 dp. Round-tripping a
+ * 9 dp metre value back through `xAtScale` moves `u` by at most
+ * `5e-10 / wall_width_m`, which on the narrowest wall in the manor (2.60 m)
+ * is 2e-10. TOLERANCE is 1e-9 — five times that headroom, and still six orders
+ * of magnitude below the smallest real disagreement the row found (door1's
+ * 0.0688). A divergence just over it refuses the bake; just under it passes,
+ * and a test drives both sides.
+ */
+export const STAGING_TOLERANCE = 1e-9;
+
+export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance = STAGING_TOLERANCE) {
   const rows = [];
   const unplanned = [];
   for (const [id, placement] of Object.entries(staging.placements || {})) {
@@ -463,6 +588,48 @@ export function stagingDivergence(plan, staging, meta = shippedMeta(), tolerance
   return { rows, diverging, unexpected, missing, unplanned };
 }
 
+/**
+ * What the derived metas say about the intention's fifth decomposed quality —
+ * "The camera has feet … Riven's rails are cut by the frame bottom at your own
+ * feet". The reference is not invented: it is the shipped study's own frame-
+ * bottom cut, the only one any human has ever judged. A facing whose floor
+ * starts more than twice that far out is reported.
+ *
+ * This is not a validator finding. The standpoint rule that produces it is on
+ * the drawing Kabe approved, and changing it changes the drawing.
+ */
+export function cameraFeetReport(plan, opts = {}) {
+  const reference = deriveMeta(plan, "study", "N", opts).nearest_floor_m;
+  const rows = [];
+  for (const room of plan.rooms) {
+    for (const f of FACINGS) {
+      const m = deriveMeta(plan, room.id, f, opts);
+      rows.push({ room: room.name, facing: f, id: room.id,
+        nearest_floor_m: m.nearest_floor_m, focal_px: m.focal_px,
+        camera_wall_m: m.camera_wall_m ?? m.camera_far_m });
+    }
+  }
+  rows.sort((a, b) => b.nearest_floor_m - a.nearest_floor_m);
+  return { reference, limit: 2 * reference, rows, over: rows.filter((r) => r.nearest_floor_m > 2 * reference) };
+}
+
+/**
+ * Blueprint §11's authored wall maps for the two rooms that already exist,
+ * transcribed so the plan can be checked against them mechanically instead of
+ * argued against them in prose. `kinds` is what §11's sentence implies the
+ * facing carries; the plan's own carriers are compared to it.
+ */
+export const WALL_MAP_11 = [
+  ["study", "N", { kinds: ["fireplace"], text: "paneled wall with stone fireplace" }],
+  ["study", "E", { kinds: ["door"], text: "the door opening to the hall" }],
+  ["study", "S", { kinds: ["window", "window"], text: "leaded windows" }],
+  ["study", "W", { kinds: [], text: "blank oak paneling with wainscot" }],
+  ["hall", "N", { kinds: [], text: "paneled wall (shelf1 stands against it)" }],
+  ["hall", "E", { kinds: ["window"], text: "leaded window at the far end" }],
+  ["hall", "S", { kinds: [], text: "tapestry on paneling" }],
+  ["hall", "W", { kinds: ["door"], text: "the door opening to the study" }]
+];
+
 /* ---- the report --------------------------------------------------------- */
 
 function fixed(n, d) {
@@ -483,10 +650,19 @@ export function horizonGate(meta, eye) {
   return { eye, residual, tolerance: 0.02, passes: residual <= 0.02 };
 }
 
-/** Where the floor first appears in frame, in metres in front of the wall. */
+/**
+ * Where the floor first appears, in metres IN FRONT OF THE VIEWER — not in
+ * front of the wall. The bottom of frame is the depth at which the ground
+ * scale reaches `px_per_m_at_bottom`; solving
+ * `px_per_m_at_wall · cam / (cam − d) = px_per_m_at_bottom` for the distance
+ * from the standpoint, `cam − d`, gives `cam · px_per_m_at_wall /
+ * px_per_m_at_bottom`. (A first cut of this function returned `d`, the depth
+ * from the wall, which is the complement and is the wrong number: it made the
+ * study read 2.56 m where the shipped grid cuts the floor at 1.04 m.)
+ */
 function nearestFloorM(meta) {
   const cam = meta.camera_wall_m ?? meta.camera_far_m;
-  return cam * (1 - meta.px_per_m_at_wall / meta.px_per_m_at_bottom);
+  return cam * meta.px_per_m_at_wall / meta.px_per_m_at_bottom;
 }
 
 /**
@@ -529,7 +705,16 @@ export function report(plan, staging, records) {
   P("   of 2026-08-21 did not reach this one.");
   P("6. **The desk stands in the study's chimney breast** (§6) — visible for the first time now");
   P("   that the room has real metres.");
-  P("7. **An [AI] correction was made to a datum on the approved drawing** (§7).");
+  P("7. **An [AI] correction was made to a datum on the approved drawing** (§9).");
+  P("8. **The floor cut is not at your feet on most facings** — the intention's fifth quality");
+  P("   is *\"the camera has feet … Riven's rails are cut by the frame bottom at your own");
+  P("   feet\"*, and under the standpoint rule on the approved drawing the floor starts more");
+  P("   than twice as far out as the shipped study's on fifteen facings (§6).");
+  P("9. **The implied lens is not constant** — pinning the SCALE across standpoint distances");
+  P("   from 1.95 m to 15.30 m means a different focal length per facing (§6).");
+  P("10. **What row 4 measures and what it takes from the plan** — §5 rules the approved image");
+  P("    the geometric authority, and this row makes the plan one. The per-field table in §8 is");
+  P("    a proposal, not a ruling.");
   P();
 
   P("## 1. Staging against the plan projection");
@@ -592,7 +777,33 @@ export function report(plan, staging, records) {
   }
   P();
 
-  P("## 3. Meta geometry, per facing");
+  P("## 3. What each facing's wall carries");
+  P();
+  P("Blueprint §4b: *\"wall segments with what each carries (door openings, windows,");
+  P("fireplace)\"*. This is the list row 4's prompt sheets are made of, and the thing Kabe's");
+  P("*\"per room modular consistent design so creation is snappy\"* has to be snappy from.");
+  P("`u` is the §4 staging domain across the wall in view.");
+  P();
+  P("The two rooms that already exist, against blueprint §11's authored wall maps:");
+  P();
+  P("| facing | the plan's carriers | §11's wall map | agree |");
+  P("|---|---|---|---|");
+  for (const [rid, f, expect] of WALL_MAP_11) {
+    const cs = facingCarriers(plan, rid, f);
+    const got = cs.length ? cs.map((c) => `${c.kind}${c.entity ? ` (\`${c.entity}\`)` : ""} at u ${fixed(c.u, 3)}, ${fixed(c.width_m, 2)} m`).join("; ") : "nothing";
+    const kinds = cs.map((c) => c.kind).sort().join(",");
+    const ok = kinds === [...expect.kinds].sort().join(",");
+    P(`| ${rid}/${f} | ${got} | ${expect.text} | ${ok ? "yes" : "**no**"} |`);
+  }
+  P();
+  P("The two disagreements are **D4**, the drawing's own open question, arriving with numbers:");
+  P("the manor gives the cross passage a door north to the buttery and a door south to the");
+  P("kitchen, and §11's wall map gives those two facings a paneled wall with the shelf and a");
+  P("tapestry. Either row 4 prompts a door opening into them, or the manor's extra exits wait");
+  P("for a later row and the two doors are drawn but not built. Kabe's call, and live before");
+  P("the prompt sheets.");
+  P();
+  P("## 4. Meta geometry, per facing");
   P();
   P("`camera_wall_m` / `camera_far_m` and `wall_width_m` are read off the approved drawing (law");
   P("(a)); everything else derives. An **open** facing carries `camera_far_m` and no");
@@ -600,12 +811,12 @@ export function report(plan, staging, records) {
   P("depth model handed one as the other puts a horizon where a wall goes. Corners are emitted");
   P("only where **one continuous wall spans the view**.");
   P();
-  P("| floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | floor_line_y | corner_x0_px | corner_x1_px | backdrop |");
-  P("|---|---|---|---|---|---|---|---|---|---|---|---|");
+  P("| floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |");
+  P("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const room of plan.rooms) {
     for (const f of FACINGS) {
       const m = deriveMeta(plan, room.id, f);
-      P(`| ${room.floor} | ${room.name} | ${f} | ${m.facing_type} | ${m.camera} | ${fixed(m.camera_wall_m ?? m.camera_far_m, 2)} | ${fixed(m.wall_width_m, 2)} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(m.floor_line_y, 4)} | ${fixed(m.corner_x0_px, 1)} | ${fixed(m.corner_x1_px, 1)} | ${m.backdrop} |`);
+      P(`| ${room.floor} | ${room.name} | ${f} | ${m.facing_type} | ${m.camera} | ${fixed(m.camera_wall_m ?? m.camera_far_m, 2)} | ${fixed(m.wall_width_m, 2)} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(m.focal_px, 0)} | ${fixed(m.floor_line_y, 4)} | ${fixed(m.nearest_floor_m, 2)} | ${fixed(m.corner_x0_px, 1)} | ${fixed(m.corner_x1_px, 1)} | ${m.backdrop} |`);
     }
   }
   P();
@@ -629,11 +840,11 @@ export function report(plan, staging, records) {
   P("is Kabe's to rule — the drawing's own note says the court mouth is open at its centre.");
   P();
 
-  P("## 4. The wide-view camera [AI, under Kabe's standing license]");
+  P("## 5. The wide-view camera [AI, under Kabe's standing license]");
   P();
   P("Ruling (3), blueprint §4b: *open and corridor deep-views take their own wider camera,");
   P(`enclosed flat views keep the pinned frame.* The pinned frame holds ${fixed(pinnedWallInFrame(), 1)} m of wall`);
-  P(`(${plan.canvas_w_px} px at ${GRID_META.px_per_m_at_wall} px/m). The trigger built is the arithmetic the license was`);
+  P(`(${CANVAS_W} px at ${GRID_META.px_per_m_at_wall} px/m). The trigger built is the arithmetic the license was`);
   P("granted about: **a facing whose wall in view is wider than the frame holds takes the wider");
   P("camera**, its `px_per_m_at_wall` becoming `canvas / wall_width_m` so the wall exactly fills");
   P("the frame instead of being clipped. Everything else follows from §5's horizon device.");
@@ -652,6 +863,33 @@ export function report(plan, staging, records) {
   }
   P();
   const encl = wide.filter((w) => w.m.facing_type === "enclosed");
+  {
+    const other = [];
+    for (const room of plan.rooms) {
+      for (const f of FACINGS) {
+        const a = needsWideView(plan, room.id, f, GRID_CAMERA, CANVAS_W, "fits");
+        const b = needsWideView(plan, room.id, f, GRID_CAMERA, CANVAS_W, "ruling");
+        if (a !== b) other.push({ room, f, fits: a, ruling: b, fc: room.facings[f] });
+      }
+    }
+    P("**Both readings are computable, and neither is an agent's to pick.** `WIDE_VIEW_POLICIES`");
+    P("carries two: `fits` (above) and `ruling` — the sentence's own vocabulary, *facing type is");
+    P(`\`open\` or \`corridor\`*. They disagree on ${other.length} facings:`);
+    P("");
+    P("| facing | wall in view | facing type | `fits` | `ruling` |");
+    P("|---|---|---|---|---|");
+    for (const o of other) {
+      P(`| ${o.room.name}/${o.f} | ${fixed(o.fc.wall_width_m, 2)} m | \`${o.fc.type}\` | ${o.fits ? "wide" : "pinned"} | ${o.ruling ? "wide" : "pinned"} |`);
+    }
+    P("");
+    P("Under `ruling`, six real walls wider than the frame go back to being clipped — which is");
+    P("the outcome the license was granted to avoid — and four narrow views that fit perfectly");
+    P("well take a wider camera they do not need. Under `fits`, the ruling's own words select a");
+    P("different set than the code does. `fits` is the default only because nothing consumes a");
+    P("derived meta yet and every one of them carries `provisional: true` and its");
+    P("`wide_view_policy`. When Kabe rules, the loser is deleted.");
+    P("");
+  }
   P("**Where a redline would land [flagged for Kabe].** The trigger reads one quantity and not the");
   P(`ruling's vocabulary, and the two do not line up cleanly. ${encl.length} of the ${wide.length} are \`enclosed\` FACINGS —`);
   P("real walls, simply wider than the frame holds. Meanwhile the long gallery's two `corridor`");
@@ -672,7 +910,45 @@ export function report(plan, staging, records) {
   P("is a pinned scale, not a pinned lens.");
   P();
 
-  P("## 5. What the contract camera would give instead");
+  P("## 6. The camera has feet, and the lens is not one lens");
+  P();
+  P("Two consequences of pinning the SCALE at " + GRID_META.px_per_m_at_wall + " px/m while the drawn standpoint distance");
+  P("runs from 1.95 m to 15.30 m. Neither is this row's invention — the standpoint rule is on");
+  P("the drawing and the pinned scale is blueprint §7's — but this is the row that computes");
+  P("them across eighty-eight facings, so here they are as numbers.");
+  P();
+  {
+    const feet = cameraFeetReport(plan);
+    P("**Where the floor starts, in front of the viewer.** The intention's fifth decomposed");
+    P("quality: *\"The camera has feet … Riven's rails are cut by the frame bottom at your own");
+    P(`feet\"*. The shipped study cuts its floor at ${fixed(feet.reference, 2)} m — the only frame-bottom cut any`);
+    P(`human has judged. ${feet.over.length} of ${feet.rows.length} facings start their floor more than twice that far out:`);
+    P("");
+    P("| facing | standpoint distance | floor starts at |");
+    P("|---|---|---|");
+    for (const r of feet.over) {
+      P(`| ${r.room}/${r.facing} | ${fixed(r.camera_wall_m, 2)} m | ${fixed(r.nearest_floor_m, 2)} m |`);
+    }
+    P("");
+    P("A backdrop authored to a meta whose floor begins six metres out is a diagram, not a");
+    P("place. The fix is not an agent's: it is either a cap on the standpoint rule (which is on");
+    P("the approved drawing), a per-type camera, or accepting that a courtyard is looked at");
+    P("rather than stood in. Row 4's prompt sheets read `camera_wall_m` from here.");
+    P("");
+    const focals = feet.rows.map((r) => r.focal_px);
+    P("**The lens.** `px_per_m_at_wall × camera_wall_m` is the implied focal length. Pinned at");
+    P(`${GRID_META.px_per_m_at_wall} px/m it runs from ${fixed(Math.min(...focals), 0)} px to ${fixed(Math.max(...focals), 0)} px across the manor — a factor of`);
+    P(`${fixed(Math.max(...focals) / Math.min(...focals), 0)}. The visible consequence: \`floor_line_y\` comes out identical on every pinned`);
+    P("facing whatever the room's size, because it depends only on the scale and the eye");
+    P("height, so the great hall and the study are the same picture with different corner");
+    P("positions. The alternative is to pin the LENS instead and let the scale vary");
+    P("(`px_per_m_at_wall = f / camera_wall_m`), which is what a real camera does and what");
+    P("§10's `focal_mm: 50` implies. Blueprint §5 has carried this as an open question since");
+    P("row 2 and it is still Kabe's; this row does not answer it, and every derived meta is");
+    P("marked `provisional` because of it.");
+  }
+  P();
+  P("## 7. What the contract camera would give instead");
   P();
   P("Blueprint §10 rules the generation camera at eye **1.83 m** with **−8° pitch** [HUMAN,");
   P("2026-08-20: *\"we should be a bit higher as a view angle looking down at about a 6ft");
@@ -700,6 +976,23 @@ export function report(plan, staging, records) {
     P(`- at ${fixed(g16.eye_m ?? g16.eye, 2)} m (what grid canonical implies): residual ${fixed(g16.residual, 4)} — ${g16.passes ? "passes" : "FAILS"}`);
     P(`- at ${fixed(g18.eye, 2)} m (the ruled camera, and what §5 now says): residual ${fixed(g18.residual, 4)} — ${g18.passes ? "passes" : "FAILS"}`);
     P("");
+    P("");
+    P("**And the verdict depends on how wide the wall is**, which is the part that would bite");
+    P("silently. The residual is `(1.83 − 1.60) × px_per_m_at_wall / image_h_px`, so it scales");
+    P("with the scale:");
+    P("");
+    P("| facing | px/m at wall | residual against the 1.83 m gate | verdict |");
+    P("|---|---|---|---|");
+    for (const [rid, f] of [["study", "N"], ["long_gallery", "E"], ["entrance_approach", "N"]]) {
+      const m = deriveMeta(plan, rid, f);
+      const g = horizonGate(m, CONTRACT_CAMERA.eye_m);
+      P(`| ${rid}/${f} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(g.residual, 4)} | ${g.passes ? "passes" : "**fails**"} |`);
+    }
+    P("");
+    P("So the same derivation emits metas that pass or fail one acceptance clause according to");
+    P("the size of the room. That is not a tolerance being tight; it is two eye heights in one");
+    P("project.");
+    P("");
     P("Row 12 did not create that and cannot fix it: grid canonical is what the demo draws, and");
     P("every way of satisfying the gate at 1.83 m moves shipped pixels (`horizon_y` to 0.4584,");
     P(`\`floor_line_y\` to 0.6516, or \`px_per_m_at_wall\` to ${fixed((0.63 - 0.48) * 1024 / 1.83, 2)}). It is named here because this`);
@@ -719,7 +1012,7 @@ export function report(plan, staging, records) {
   P("camera comes from; until then no agent should pick one.");
   P();
 
-  P("## 6. What the plan makes visible that nothing could see before");
+  P("## 10. What the plan makes visible that nothing could see before");
   P();
   P("Computed by `planWarnings` over the committed plan, not written by hand. None of them blocks");
   P("the plan — each would have to be fixed by moving something a human approved — and each is a");
@@ -728,7 +1021,31 @@ export function report(plan, staging, records) {
   for (const w of planWarnings(plan, records)) P(`- ${w}`);
   P();
 
-  P("## 7. The one [AI] correction to the approved drawing");
+  P("## 8. Which document owns which meta field — a proposal, not a ruling");
+  P();
+  P("Blueprint §5 [HUMAN, 2026-08-20]: *\"The geometry elements should be determined by the");
+  P("orientation of the approved initial image generation\"* — the approved image is the");
+  P("geometric authority. Row 12 makes the plan an authority too. They are not the same");
+  P("authority, and row 4 needs to know per field which one it obeys. This table is what this");
+  P("row proposes; it is Kabe's and row 4's to settle:");
+  P();
+  P("| field | proposed owner | why |");
+  P("|---|---|---|");
+  P("| `camera_wall_m` / `camera_far_m` | **the plan** | law (a): the number printed on the drawing IS this field |");
+  P("| `wall_width_m` | **the plan** | the wall is a building fact, drawn and measured |");
+  P("| `facing_type`, `backdrop`, `wall_segments` | **the plan** | law (b): what is built, and where |");
+  P("| `px_per_m_at_wall` | **the approved image** | §5's ruling; the plan's value is a proposal for the prompt sheet to hit |");
+  P("| `floor_line_y`, `horizon_y` | **the approved image** | measured off the backdrop; §12.5 audits them against it |");
+  P("| `px_per_m_at_bottom` | **the approved image** | it is the floor the picture actually draws |");
+  P("| `corner_x0_px` / `corner_x1_px` | **the approved image**, cross-checked against the plan | §5: \"measured from the image for generated backdrops; computed … for the grid\" |");
+  P("| `key_dir`, `key_tint`, `calibration_ref`, `calibration_px` | **the approved image** | light and calibration are measured, never derived — this row emits none of them |");
+  P();
+  P("Two consequences worth stating. The plan's `px_per_m_at_wall`, `floor_line_y` and");
+  P("`px_per_m_at_bottom` are therefore **proposals**, which is why every derived meta carries");
+  P("`provisional: true`. And a meta that ends up carrying both a measured and a derived value");
+  P("for one field needs a rule for which loses; that rule does not exist yet and row 4 owns it.");
+  P();
+  P("## 9. The one [AI] correction to the approved drawing");
   P();
   P("The upper-floor opening in the W2 band at y 11.0–12.0 was labelled *Solar ↔ Long Gallery* in");
   P("the drawing's source. The Solar's east wall is at x 24.6 and that opening is at x 30.4, so it");

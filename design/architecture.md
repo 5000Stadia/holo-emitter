@@ -897,6 +897,92 @@ at 2×, so their bytes are environment-dependent. They were byte-stable across a
 machine (same Chrome), which is recorded here rather than asserted; what is asserted is that each
 PNG is its own artboard at exactly 2×.
 
+**What this row derives and what it deliberately does not.** §4b asks that "hand-authored
+staging spatial values become generated ones". Row 12 builds the projection, the assertion and
+the diff; it does **not** adopt the projected values into `staging.json`, because adopting them
+moves the shipped demo's pixels (`stick1` grows 28%, every `u` shifts) and this row's fence is
+that the demo does not change. Adoption is owned by the row that can absorb a pixel move — row
+15, when the manor becomes walkable and every room needs plan-derived staging anyway, or row 4
+when the measured camera arrives. Whoever takes it also takes §12.6's capture set, the hash
+tests and `heights.spec`'s literals, which all move with it. The same paragraph applies to §4b
+item 10's **solver**: this row builds the document, the validators and the derived render — the
+grammar and the solver that would author a plan from a description are not built here and have
+no owner yet.
+
+**The lens, and the floor at your feet.** Two consequences of blueprint §7's pinned *scale*
+(96 px/m) meeting law (a)'s drawn standpoint distances (1.95 m to 15.30 m), computed here for
+the first time. The implied focal length — `px_per_m_at_wall × camera_wall_m` — runs 187 px to
+2014 px across the manor, so it is a different lens per facing and `floor_line_y` comes out
+identical on every pinned facing whatever the room's size. And the frame-bottom floor cut, which
+the intention's fifth quality calls *the camera has feet*, sits 1.04 m out in the study and more
+than twice that on fifteen facings, up to 6.05 m in the entrance court. Neither is this row's
+invention and neither is an agent's to fix — a cap on the standpoint rule would change the
+drawing Kabe approved, and pinning the lens instead of the scale is §5's open field-of-view
+question. `cameraFeetReport` computes both, `projection.md` §6 carries them, and `plan.spec`
+pins the numbers.
+
+**Open facings have no wall plane, and `groundplane` has a trap.** `scaleAtDepth` reads
+`meta.camera_wall_m ?? CAMERA_WALL_M`, so a meta without that field silently gets 3.5 m — which
+in a 20.4 m courtyard is nonsense. That is why an `open` facing's derived meta carries
+`camera_far_m` and **no `camera_wall_m` at all**, and why the field name is different rather
+than merely differently-valued: the fallback makes a missing wall distance invisible, and a
+different name makes it a `undefined` a consumer has to handle. What an open facing's
+`px_per_m_at_wall`, `floor_line_y` and u-domain mean against a vista with no surface is **not
+settled by this row** — it is row 4's, with the vista backdrop.
+
+**What forces a consumer to branch.** A facing whose view is part building and part open ground
+carries `wall_continuous: false` and **null corners**. Nothing can compute a corner-to-corner
+u-domain from a null, so row 11's clamp has to branch; where corners are null the u-domain spans
+`wall_width_m` with no clamp, and `wall_segments` says where the building actually is. That is
+the mechanism standing between law (b) and a prompt sheet that invents the manor's front
+elevation across the entrance court's 20.4 m mouth.
+
+**What the approval covers, and what it does not.** Kabe approved the *drawing*. `plan.json`
+carries content no image has shown him: the four object footprints (the drawing draws no
+furniture), the ten-facing wide-camera assignment, the `camera_far_m` split, the room
+archetypes, and the corrected door label. The drawn geometry is anchored to the approval commit
+by test; the semantic fields are not, and each is anchored differently — `joins` is re-derived
+geometrically from the rects, `facing_type`/`camera_wall_m`/`wall_width_m` are checked against
+the approved `standpoints.tsv`, and room ids, `entrance`, opening `kind` and stair `up`/`down`
+have only the code's own mutation tests. Naming that is the honest state; re-showing the plan is
+the Navigator's to arrange.
+
+**Two vocabularies, kept apart.** `rooms[].type` is the *facing geometry* type §5 defines
+(enclosed / open / corridor). `rooms[].archetype` is §4b's *room type template* — the production
+recipe, "per room modular consistent design so creation is snappy" — chamber / hall / corridor /
+service / stair / open. A corridor-type room may be a stair; an enclosed room may be a hall. §4b
+item 6's backdrop-template tier keys on the archetype, and merging the two would have left it
+nothing to key on. The archetypes are [AI] packaging of the drawn roster and are redlineable.
+
+**`corridor` is nominal for now.** §5 defines it as *"side planes converging, open centre"*, and
+the derived meta emits no side-plane fields — a corridor facing gets the same
+`camera_wall_m`/`wall_width_m` pair an enclosed one does. Row 11's promise that open and corridor
+are "a meta entry later, not a renderer rewrite" is not discharged for corridor by this row.
+
+**What the schema cannot express, deliberately.** Rooms are axis-aligned rects, so no L-shaped
+room exists (the building's outline is a polygon; rooms are not). Facings are exactly four per
+room, keyed inside the room, so §4b item 9's multi-standpoint rooms — which name the great hall
+and the long gallery specifically — need a re-keying that row 15 owns. `standpoint_source:
+"drawn"` exists so a deliberately-placed standpoint stays expressible in the meantime, and
+`plan.spec` exercises that branch rather than leaving it a promise. The K = 0.25 stand-back has
+no cap, which is what produces the 15.30 m and 18.22 m distances above; a cap would be a rule for
+the document, with one home like `standpoint_stand_back`, and it is Kabe's to set. And §4b item
+9's *"you arrive IN the door"* is not what K places: a viewing standpoint a quarter of the room
+in is not a threshold, and separating arrival from viewing is row 15's.
+
+**Which number the projection consumes.** `camera_wall_m` at its stored two decimals — the drawn
+number — not the exact standpoint-to-line distance. The two differ by at most 5 mm and the
+validator asserts the stored one is the correct rounding of the exact one, so there is one
+answer rather than two that nearly agree. `stagingDivergence` runs at `STAGING_TOLERANCE` 1e-9,
+derived in the module and driven from both sides by a test.
+
+**Practicalities a fresh session needs.** The plan is a **required** bake input, so any path that
+stages a fixture tree must carry a `plan.json`; the suite's `stageTree` copies `fixtures/`
+wholesale, which is why every existing staging path already does. And `plan.spec` shells out to
+`python3` for the derived-render cases and **fails rather than skips** when it is missing — the
+byte-identity of the derived render against the approved drawing is this row's acceptance, and an
+acceptance that opts out on some machines is not one.
+
 **What later rows take.** Row 11: `corner_x0_px`/`corner_x1_px`, `facing_type`, `wall_segments`,
 and §12.5's amended clause (below). Row 4: `camera_wall_m` per facing, the wide-camera
 parameters, `backdrop: "vista"` on open facings (ruling (1)'s scenic vista), and `view_angle_deg`

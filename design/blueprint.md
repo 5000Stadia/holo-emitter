@@ -593,11 +593,23 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     grounds.]** That equality was written when grid-canonical `wall_width_m` *was* the wall in
     frame, and the corner ruling below supersedes the centre-by-default 16 m wall: a real 5.45 m
     study wall at 96 px/m is 523 px in a 1536 px frame, so the clause is false by design for every
-    room the plan holds. It generalizes to **`corner_x1_px − corner_x0_px = wall_width_m ×
-    px_per_m_at_wall`, with both corners inside the canvas** — the same statement wherever the
-    wall does fill the frame, and the right one where it does not. Row 11 builds the corners and
-    inherits this reading; a facing whose view is part building and part open ground has no two
-    corners at all and carries wall segments instead (row 12's `deriveMeta`). The staged `u` values moved with it under §4's own
+    room the plan holds. It generalizes to three clauses, and the first
+    two are what keep it reaching outside the meta the way the original did:
+    **(i)** the wall in view fits the frame — `0 ≤ corner_x0_px` and `corner_x1_px ≤ canvas
+    width`, the canvas being the thing outside every meta;
+    **(ii)** on a *measured* backdrop the corners are measured off the image, and
+    `corner_x1_px − corner_x0_px` must equal `wall_width_m × px_per_m_at_wall` within the
+    calibration audit's tolerance — pixels against arithmetic, which is where the original
+    clause's force lived and which a self-consistency check would throw away;
+    **(iii)** on a synthesized (grid) backdrop the corners are computed, so (ii) holds by
+    construction and only (i) has content.
+    Two consequences to settle when row 11 builds the corners rather than to assume: a facing
+    under the wide-view license has its corners exactly ON the frame edge (the wall fills the
+    view by construction), which reads as *not visible* against row 11's "two visible corners" —
+    either the wide camera takes a margin or edge corners count, and it is a look decision; and a
+    facing whose view is part building and part open ground has no two corners at all, carrying
+    `wall_segments` instead (row 12's `deriveMeta`), so the u-domain there spans `wall_width_m`
+    with no corner clamp. The staged `u` values moved with it under §4's own
     license, each keeping its metre offset from the wall centre, so the composition is unchanged.
     This settles nothing about the field of view: 16 m of wall at 3.5 m is a ~133° view against
     §10's 50 mm, and that stays §5's open question for Kabe.

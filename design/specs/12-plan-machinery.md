@@ -6,8 +6,9 @@ copied here.
 Ground truth is `design/plan-draft/` as approved by Kabe on 2026-08-21 (blueprint §4b's approval
 note and its four rulings). Every metre comes from `draw_plan.py`'s literals; none is re-invented.
 
-*Revision 2 — the first plan critic returned 43 findings, 27 blocking. What changed is named
-where it changed.*
+*Revision 3. Two plan-critic rounds: 43 findings then 39. What changed is named where it
+changed; what was declined is answered in §9, because a decline that is not written down is
+indistinguishable from a miss.*
 
 ---
 
@@ -57,7 +58,7 @@ approved, and the disagreement is reported rather than smoothed over (§4.4).
 {
   "schema": "holo-emitter-plan/0.1",
   "version": 1,                     // shape item 11's version stamp
-  "units": "m", "north": "+y", "canvas_w_px": 1536,
+  "units": "m", "north": "+y",
   "standpoint_stand_back": 0.25,    // law (a)'s one rule, one home
   "entrance": "entrance_approach",  // what reachability is measured from
   "wall_thickness": { "exterior": 0.6, "interior": 0.35, "garden": 0.45 },
@@ -68,6 +69,8 @@ approved, and the disagreement is reported rather than smoothed over (§4.4).
   "rooms": [
     { "id": "study", "floor": "ground", "name": "STUDY", "type": "enclosed",
       "rect": { "x0": 24.95, "x1": 30.4, "y0": 9.6, "y1": 14.4 },
+      "archetype": "chamber",          // §4b's ROOM TYPE TEMPLATE — a different
+                                       // vocabulary from the facing geometry type
       "facings": { "N": { "type": "enclosed", "standpoint_source": "rule",
                           "standpoint": { "x": 27.674999999999997, "y": 10.8 },
                           "wall_line": 14.4, "camera_wall_m": 3.6,
@@ -86,11 +89,13 @@ approved, and the disagreement is reported rather than smoothed over (§4.4).
 }
 ```
 
-Four shape decisions the first critic forced:
+Six shape decisions the critics forced:
 
 - **An object is a footprint rect, not a point** (F22). The plan holds the metres the object
   occupies, so a collision is checkable from the plan alone without the sprite library; the
-  validator cross-checks the rect against the record's `dims_m` when records are supplied.
+  validator cross-checks the rect against the record's `dims_m`, and refuses when records are
+  *not* supplied (r2 F22): the only thing binding a plan footprint to the object it claims to be
+  must not be optional.
 - **`source` is a closed vocabulary**, `drawing | inverse-projected` (F24), so a later
   re-derivation knows machine-readably which values it may regenerate.
 - **`standpoint_source` is `rule` or `drawn`** (F30). Law (a)'s K rule is checked where the plan
@@ -99,6 +104,15 @@ Four shape decisions the first critic forced:
   be reopened by the row that builds them. What is checked *always* is the measurement:
   `camera_wall_m` equals the distance from the stored standpoint to the line it views.
 - **Precision is deliberate and mixed, with a reason** (below).
+- **`archetype` is a separate field from `type`** (r2 F13). `type` is §5's facing geometry
+  (enclosed / open / corridor); `archetype` is §4b's room *type template* — the production
+  recipe Kabe's "per room modular consistent design so creation is snappy" asks for, and what
+  §4b item 6's backdrop-template tier keys on. Merging them left that tier nothing to key on.
+  Chamber / hall / corridor / service / stair / open, [AI] packaging of the drawn roster.
+- **No pixel lives in the plan** (r2 F23, F24). A key whitelist refuses any world fact
+  (`states`, `knowledge`, `relations`, `takeable`, `sprite`) and any unknown key, the same shape
+  `validate-fixtures.mjs` uses on the other two documents; and `canvas_w_px` is gone — a canvas
+  width is a pixel, and it is the consumer's parameter now.
 
 ### 2.3 Precision, because the drawing is a projection of these numbers
 
@@ -322,9 +336,34 @@ size, because `camera_wall_m` moves with it (`stick1` grows 28%) (F40).
 
 **Nothing in `fixtures/demo-study/staging.json` changes.** The shipped demo's pixels are pinned.
 
-### 4.5 What row 4 gets from this row
+### 4.5 What the pinned scale costs, computed (r2 F1, F2)
 
-`view_angle_deg` per placement (F31) — blueprint §10 [HUMAN, 2026-08-21] says a sprite's
+Blueprint §7 pins `px_per_m_at_wall` at 96 and law (a) supplies standpoint distances from 1.95 m
+to 15.30 m. This is the row that runs those two together across 88 facings, so it is the row that
+has to say what comes out:
+
+- **The lens is not one lens.** `px_per_m_at_wall × camera_wall_m` runs 187 px to 2014 px. The
+  visible consequence is that `floor_line_y` is identical on every pinned facing whatever the
+  room's size — the great hall and the study are the same picture with different corners.
+- **The floor cut is not at your feet.** The intention's fifth quality is *"the camera has feet …
+  Riven's rails are cut by the frame bottom at your own feet"*. The shipped study cuts at 1.04 m;
+  fifteen facings cut at more than twice that, up to 6.05 m in the entrance court.
+
+Both are emitted per facing (`focal_px`, `nearest_floor_m`), tabulated in `projection.md` §6, and
+pinned by tests. Neither is fixed here: a cap on the standpoint rule changes the drawing Kabe
+approved, and pinning the lens instead of the scale is §5's open field-of-view question. *(A
+first cut of `nearest_floor_m` returned the depth from the wall rather than the distance from the
+viewer — the complement — and read 2.56 m where the shipped grid cuts at 1.04 m. The critic's own
+arithmetic is what exposed it; the fix carries an assertion against recurrence.)*
+
+### 4.6 What row 4 gets from this row
+
+**Per-facing carriers** (r2 F14, F38) — `facingCarriers` returns what each facing's wall holds,
+in view-relative metres and in §4's own `u` domain. This is what a prompt sheet is made of, and
+it is what makes blueprint §11's wall maps checkable instead of arguable: all eight facings of
+the two existing rooms are compared against §11 mechanically, and the two that disagree are
+**D4** — the cross passage's buttery and kitchen doors — arriving with numbers rather than as a
+paragraph. Then `view_angle_deg` per placement (F31) — blueprint §10 [HUMAN, 2026-08-21] says a sprite's
 generation request derives its view angle from the plan, "computable once row 12's plan exists".
 `projectPlacement` computes it and `projection.md` §2 tabulates it. And `facingsContaining` (F32),
 the primitive §4b item 9's variant manifest enumerates; the manifest itself belongs to row 4's bulk
@@ -374,7 +413,7 @@ every unanswered question somewhere that outlives the spec file, and name them i
 
 ---
 
-## 7. §12.5's frame-filling clause, amended here (F16)
+## 7. §12.5's frame-filling clause, amended here (F16, r2 F8, F9)
 
 Blueprint §7's row-2 amendment gave §12.5 the clause `px_per_m_at_wall × wall_width_m ≈ canvas
 width`, written when grid-canonical `wall_width_m` **was** the wall in frame. This row produces
@@ -382,21 +421,32 @@ metas where it is false by design — `study/N` is 96 × 5.45 = 523 px against a
 row 11's done clause requires §12.5 green, so leaving it as an inherited tension would hand row 11
 a done it cannot reach.
 
-The amendment, [AI] on an [AI] clause, with its reason: the clause generalizes to
-**`corner_x1_px − corner_x0_px = wall_width_m × px_per_m_at_wall`, with both corners inside the
-canvas** — which is the same statement wherever the wall does fill the frame, and the right one
-where blueprint §5's corner ruling says it no longer does. It is written into the blueprint beside
-the clause it replaces, not left in a file that gets deleted.
+The first draft of the amendment replaced it with `corner_x1_px − corner_x0_px = wall_width_m ×
+px_per_m_at_wall`, which reads both sides out of the same meta wherever corners are computed —
+turning "the one clause that reaches outside a meta" into a self-consistency check that a meta
+claiming a 5.45 m wall over a 16 m backdrop would pass. The amendment as written keeps the
+outside anchor: **(i)** the wall fits the frame, `0 ≤ corner_x0_px` and `corner_x1_px ≤ canvas
+width` — the canvas being the thing outside every meta; **(ii)** on a *measured* backdrop the
+corners are measured off the image and their span must equal `wall_width_m × px_per_m_at_wall`
+within the calibration audit's tolerance — pixels against arithmetic, which is where the
+original clause's force lived; **(iii)** on the synthesized grid, (ii) holds by construction.
+
+Two consequences are named for row 11 rather than assumed: a wide-view facing's corners sit
+exactly **on** the frame edge, which reads as *not visible* against row 11's "two visible
+corners" — either the wide camera takes a margin or edge corners count, and it is a look
+decision; and a facing with null corners has a u-domain spanning `wall_width_m` with no clamp.
+It is written into the blueprint beside the clause it replaces, not left in a file that gets
+deleted.
 
 ---
 
 ## 8. Tests — `tests/playwright/plan.spec.mjs`
 
-Pure-Node specs in the Playwright runner, like `fixtures.spec` and `validator.spec`. 78 cases per
-engine.
+Pure-Node specs in the Playwright runner, like `fixtures.spec` and `validator.spec`. 105 cases
+per engine.
 
 1. **Shape** — schema, version, the 22 spaces, the two M0 rooms sited, validator green, CLI green.
-2. **Twenty-seven mutations, one per check**, each required to go red with a matching message —
+2. **Thirty-three mutations, one per check**, each required to go red with a matching message —
    overlap, tiling, room-in-wall, door mis-joined, door joining a room that does not exist, door
    outside a wall, reachability through a door and through the stairs, `camera_wall_m` typed, a
    moved standpoint, a wrong `wall_width_m`, `far_line` missing and `far_line` where it must not
@@ -409,28 +459,74 @@ engine.
    centre-to-centre bearing gets wrong.
 4. **The camera**: the grid camera is imported not typed; `assertCameraConsistent` green, and red
    on a doctored `GRID_META`; the contract camera drives nothing.
-5. **Meta geometry by independent arithmetic** — test-side literals for `study/N`, `hall/E`,
+5. **The plan holds no world fact and no pixel**; the canvas is the consumer's parameter; the
+   two vocabularies (`type`, `archetype`) stay apart.
+6. **What each facing carries**, against blueprint §11's wall maps — all eight facings of the two
+   existing rooms, with exactly `hall/N` and `hall/S` disagreeing, which is D4.
+7. **The pinned scale's two costs**: the lens spread, `floor_line_y` identical across pinned
+   facings, and the frame-bottom floor cut measured from the viewer (with the wall-relative
+   complement asserted against, since that was the bug).
+8. **Both wide-view readings** computable and disagreeing on ten facings; every derived meta
+   `provisional` and naming its camera and policy.
+9. **Meta geometry by independent arithmetic** — test-side literals for `study/N`, `hall/E`,
    `entrance_court/N` and `/S`, `entrance_approach/N`; the wide-camera set enumerated; and the one
    genuinely independent check (F29): **all 88 facings against the approved `standpoints.tsv`**,
    a separate artifact rather than this code's own arithmetic.
-6. **The projection**: exactly one named divergence and no unplanned placement; `door1`'s
+10. **The projection**: the tolerance driven from both sides; exactly one named divergence and no unplanned placement; `door1`'s
    disagreement pinned at the drawing's 1.1 m; the four inverse-projections re-derived; anchored
    entities throw rather than get invented positions; view angles; `facingsContaining`.
-7. **Import binding**: displace `xAtScale`, `scaleAtDepth` and `placeHost` at runtime and require
+11. **Import binding**: displace `xAtScale`, `scaleAtDepth` and `placeHost` at runtime and require
    the projection and the inverse to move with them. A projection that re-derived the math stays
    green and fails these.
-8. **The bake path**: an invalid plan refuses and writes nothing; a **missing** plan refuses; a
+12. **The bake path**: plus a `GRID_META` that stops satisfying §5's horizon device;: an invalid plan refuses and writes nothing; a **missing** plan refuses; a
    staging value that walks away from the plan refuses; a world that contradicts the plan's
    geometry refuses; and the shipped `fixture.js` is byte-identical after a fresh bake.
-9. **The derived render**: `python3` present (fail, never skip — F37); a re-render in a scratch
-   tree byte-equals the committed SVGs and TSV; the render refuses an invalid plan; the approved
-   **geometry hashes** and the approved TSV hash; the geometry hash moves when a room moves; each
-   PNG is its artboard at 2×.
-10. **The report** is byte-fresh and still carries the seven questions.
+13. **The derived render**: `python3` present (fail, never skip — F37); a re-render in a scratch
+    tree byte-equals the committed SVGs and TSV; the render refuses an invalid plan; the geometry
+    and the TSV compared **against the approved blobs read out of git at the approval commit**,
+    not against literals a builder could edit in the same commit (r2 F21); only the two caption
+    strings differ from those blobs; the geometry hash moves when a room moves; each PNG is its
+    artboard at 2×.
+14. **The report** is byte-fresh and still carries every question it raises.
 
 ---
 
-## 9. Edges
+## 9. What the second critic found that this row declines, and why
+
+Answering these is not optional: a decline nobody wrote down is a miss.
+
+- **"The derivation runs backwards from what the row asks"** (r2 F5). Correct, and deliberate.
+  §4b wants hand-authored staging values to become generated ones; adopting them moves the
+  shipped demo's pixels, which this row's fence forbids. Row 12 builds the projection, the
+  assertion and the diff; **adoption is row 15's or row 4's**, and whoever takes it also takes
+  §12.6's captures, the hash tests and `heights.spec`'s literals. Named in `architecture.md` so
+  it survives this file. The same paragraph names §4b item 10's **solver** as unbuilt and
+  unowned.
+- **"The camera is the unruled one"** (r2 F3). The projection takes the camera as an argument,
+  defaults to the only one this project has drawn a pixel with, marks every derived meta
+  `provisional: true` with its `camera_id`, and prints the ruled camera's numbers beside it.
+  Deriving on §10's 1.83 m would emit metas that no shipped pixel agrees with and would still be
+  wrong, because §5 rules that the real camera is measured off row 4's approved backdrop.
+- **"A [HUMAN] ruling is not an agent's to contradict"** (r2 F10). Agreed, which is why the
+  wide-view trigger is no longer a single reading: both `fits` and `ruling` are computable,
+  `projection.md` §5 prints the ten facings they disagree on, and every meta says which produced
+  it. `fits` is the default because nothing consumes a derived meta and it leaves no wall
+  clipped. When Kabe rules, the loser is deleted.
+- **"The approval covers a subset"** (r2 F18, F19). True and unresolvable by a builder. What the
+  approval anchors and what it does not is enumerated in `architecture.md`, field by field, and
+  carried up.
+- **"`python3` becomes a hard suite dependency"** (r2 F26) and **"a required plan affects every
+  staging path"** (r2 F25). Both accepted and declared — in the README, in `architecture.md`, and
+  in the test's own first case. `stageTree` copies `fixtures/` wholesale, which is why every
+  existing path already carries a plan.
+- **"`corridor` is nominal"** (r2 F29), **"rooms are rects"** (r2 F30), **"K has no cap"**
+  (r2 F28), **"K is not the threshold"** (r2 F27). All true; all named in `architecture.md` with
+  the row that owns each. None is fixable without changing the approved drawing or a schema §4b
+  hands to row 15.
+- **"The row's close condition is unstated"** (r2 F20). Not the builder's to set — the row text
+  is the Navigator's. Named in the handoff.
+
+## 10. Edges
 
 **Must not touch:** `src/renderer.js`, `src/harness.js`, `index.html`,
 `tests/playwright/walkthrough.spec.mjs`, `replicator/` (another row's builder is live in that

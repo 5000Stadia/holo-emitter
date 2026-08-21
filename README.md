@@ -30,7 +30,8 @@ npx playwright test -c tests/playwright
 ```
 
 Headless Chromium and Firefox, both running every test. Requires `npm install` once (and
-`npx playwright install chromium firefox` if no browser is cached).
+`npx playwright install chromium firefox` if no browser is cached), plus `python3`, which a few
+of the tests use to redraw the floor plans and check they still come out the same.
 
 ## The replicator
 
