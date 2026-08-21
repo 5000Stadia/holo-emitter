@@ -196,6 +196,15 @@ design so creation is snappy." Unestablished rooms ship as holodeck grid with th
 geometry, so the whole manor walks before it is painted (row 15); establishing a room is
 production, not architecture. M0's §12 acceptance is unchanged — two furnished rooms prove the
 engine; the manor proves it scales.
+Two schematic laws [HUMAN, 2026-08-21]: **(a)** "Make sure the schematic of the space reflect
+the distance from user to wall line" — the drawn plan marks every facing's standpoint and its
+measured distance to the wall line it views; `camera_wall_m` is read off the drawing, never
+invented at meta-authoring time, and corner positions derive from those drawn distances.
+**(b)** "outdoor walls are only present as represented by exterior building walls" — open-type
+spaces contain no invented enclosures: a wall seen from the courtyard or grounds exists only
+where the manor's exterior wall actually stands in the plan; where no building stands, the
+ground runs open to its far line. The building's one exterior outline is the single source of
+every outdoor wall.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
