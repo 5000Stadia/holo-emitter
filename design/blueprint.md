@@ -155,6 +155,22 @@ Notes:
   baseline shrinks a hung object by the amount it was raised [AI, row 2].
 - Objects placed `anchor_on` derive position, scale, and draw order from their host — they have no independent u/v.
 
+## 4b. The overhead plan — spatial source [HUMAN, 2026-08-20]
+
+"2d overhead map geometry should be made first, then translated to the 3d holo-emitter." The
+spatial source of a location is a 2D overhead plan — `fixtures/<fixture>/plan.json`: room
+outline in metres, wall segments with what each carries (door openings, windows, fireplace),
+object footprint positions, and the per-facing camera standpoint. The bake **derives** from it,
+by projection through the ruled camera: staging's `u` and `depth_m`, and the meta geometry
+fields (`camera_wall_m`, `wall_width_m`, corner positions). Hand-authored staging spatial values
+become generated ones; the validator asserts staging ≡ plan projection. The truth/presentation
+split stands exactly as written: the plan is presentation-side — `world.json` still never holds
+a coordinate. The plan drawing itself is visual direction: it goes to Kabe as an image for OK
+before anything derives from it. (What this buys beyond authoring sanity: facings can never
+disagree about where a thing stands, row 11's corners and §5's geometry fields stop being
+hand-measured guesses, and an overhead minimap later is a render of an artifact that already
+exists.)
+
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
 ```json
