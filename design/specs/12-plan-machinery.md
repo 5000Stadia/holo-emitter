@@ -6,9 +6,17 @@ copied here.
 Ground truth is `design/plan-draft/` as approved by Kabe on 2026-08-21 (blueprint §4b's approval
 note and its four rulings). Every metre comes from `draw_plan.py`'s literals; none is re-invented.
 
-*Revision 3. Two plan-critic rounds: 43 findings then 39. What changed is named where it
-changed; what was declined is answered in §9, because a decline that is not written down is
-indistinguishable from a miss.*
+*Revision 4. Three examination rounds: 43 plan findings, then 39, then 25 artifact findings from
+a critic that measured the plan against the approved sheets pixel by pixel and neutralised all 68
+`push(` sites in the validator one at a time. What changed is named where it changed; what was
+declined is answered in §9, because a decline that is not written down is indistinguishable from
+a miss.*
+
+**The four the artifact critic found by breaking things**, each now guarded: the corners were a
+private copy of the u-mapping rather than a call to `groundplane.xAtScale`; the committed PNGs
+were verified by nothing, so the pre-row-12 sheet could be dropped in and pass the whole suite;
+the sheet's legend typed its three wall thicknesses while `plan.wall_thickness` sat unread; and an
+emptied `objects[]` baked green. §5 and §3 say what each became.
 
 ---
 
@@ -388,10 +396,20 @@ element with text stripped — equals the approved sheets', and `standpoints.tsv
 geometry and no prose, byte-equals the approved file. A further test moves a room and requires the
 geometry hash to move with it, so the guard is not a decoration (F35, F36).
 
-The PNGs are regenerated and committed. They are the SVG rasterised by the system browser at 2×,
-so their bytes are environment-dependent and are deliberately **not** byte-compared; they were
-byte-stable across a re-render on this machine, which `design/architecture.md` records rather than
-asserts. What is asserted is that each PNG is its own artboard at exactly 2×.
+The PNGs are regenerated and committed, and they are the artifact the human gate actually runs on
+— so "not byte-comparable" is not the same as "unverified", which is what a first cut of this row
+made them. They are the SVG rasterised by the system browser at 2×, so their bytes cannot be
+regenerated for comparison; but the SVG they came from can be. `render.sh` writes
+`design/plan-draft/render.lock` recording, per artboard, the SHA-256 of the SVG it rasterised and
+of the PNG it produced, and a test reads it: a redline that runs `draw_plan.py` and forgets
+`render.sh` leaves a PNG whose recorded source no longer matches the committed SVG, and a swapped
+or hand-edited PNG no longer matches its own hash. Before that lock existed, dropping the
+pre-row-12 PNG in place passed all seventy-nine plan tests.
+
+The sheet's legend prints three measurements — 0.60 m, 0.35 m, 0.45 m — and they were typed into
+`draw_plan.py` while the plan's own `wall_thickness` was loaded and never read. They render from
+the document now, keyed by wall-band kind so the legend and the validator share one vocabulary,
+and every band's thickness is checked against the number the sheet prints.
 
 `design/plan-draft/README.md` is brought true — derived render, redline route, the four rulings —
 and **keeps D4 open** (F33): whether `hall/N` and `hall/S` get door openings prompted into them is
