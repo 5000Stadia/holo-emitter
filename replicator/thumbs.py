@@ -51,14 +51,19 @@ def make_thumb(rgba, *, size_px, content_px, filter="LANCZOS"):
     return np.array(canvas)
 
 
-def thumb_gate(thumb, takeable, size_px, content_px=None):
+def thumb_gate(thumb, takeable, size_px, content_px=None, cfg=None):
     """Every takeable record carries a square thumb, and only takeables do.
 
     The presence half is a tautology inside the pipeline -- it makes the thumb
     iff takeable and then asks whether it did -- so the gate also checks the
     thumb's own pixels: a blank or clipped tile is a real defect a real ingest
     can produce, and it is what the inventory strip actually shows.
+
+    `cfg` is `contract.json` gates.thumb. Both pixel clauses were literals here,
+    which put a HARD gate's thresholds outside the freeze and outside the hash a
+    record's provenance claims traceability to.
     """
+    cfg = cfg or {"min_coverage": 0.01, "edge_margin_px": 2}
     have = thumb is not None
     ok = True
     msgs = []
@@ -79,7 +84,7 @@ def thumb_gate(thumb, takeable, size_px, content_px=None):
                         % (shape[0], shape[1], size_px, size_px))
         alpha = thumb[..., 3]
         coverage = float((alpha > 0).mean())
-        if coverage < 0.01:
+        if coverage < cfg["min_coverage"]:
             ok = False
             msgs.append("the thumb is blank (%.2f%% of it carries any content): the inventory "
                         "strip would show an empty tile" % (coverage * 100))
@@ -87,7 +92,7 @@ def thumb_gate(thumb, takeable, size_px, content_px=None):
         if box is not None and content_px:
             longest = max(box[2] - box[0], box[3] - box[1])
             fills = round(longest / float(content_px), 3)
-            if longest > size_px - 2:
+            if longest > size_px - cfg["edge_margin_px"]:
                 ok = False
                 msgs.append("the thumb's content touches its own edge (%d px of %d): it has been "
                             "clipped rather than fitted" % (longest, size_px))
@@ -98,6 +103,7 @@ def thumb_gate(thumb, takeable, size_px, content_px=None):
         "measured": {"takeable": bool(takeable), "thumb_px": shape,
                      "coverage": None if coverage is None else round(coverage, 4),
                      "content_fill": fills},
-        "threshold": {"square_px": size_px, "min_coverage": 0.01},
+        "threshold": {"square_px": size_px, "min_coverage": cfg["min_coverage"],
+                      "edge_margin_px": cfg["edge_margin_px"]},
         "message": "; ".join(msgs) if msgs else "thumb present exactly when takeable, square",
     }

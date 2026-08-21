@@ -23,8 +23,16 @@ REQUIRED_TOP = ("schema", "ingest_schema", "camera", "light", "framing",
                 "prompt_block", "negative_block", "style_block", "backdrop_block",
                 "gates", "ingest", "classes", "_freeze")
 
+# Every gate that carries a verdict names its block here. The recheck found four
+# HARD gates — alignment, thumb, dims, and the slide gate's scale_open rails —
+# reading bare literals from their own modules, outside this list, outside the
+# freeze, and outside `identity()`. A record's provenance.contract.thresholds_sha256
+# therefore did not move when any of them changed, which made "traceable to the
+# exact threshold set that admitted it" false. Adding a hard gate now means
+# adding it here, and an absent block is a ContractError rather than an absence.
 REQUIRED_GATES = ("alpha_opaque", "halo", "holes", "resolution", "state_diff",
-                  "light", "contact", "over_matte", "shadow", "part_mask", "registration")
+                  "light", "contact", "over_matte", "shadow", "part_mask",
+                  "registration", "alignment", "thumb", "dims")
 
 REQUIRED_INGEST = ("matte", "cavity", "thumb", "preview", "output", "period", "vocabularies")
 
@@ -115,13 +123,24 @@ def parse(text):
         # A per-class override reaches gates and ingest through `for_class`, so
         # it is validated the same way the base blocks are: an override could
         # otherwise smuggle in a threshold with no authority and no basis.
+        # RECURSIVELY: `ingest.matte.tolerance_rule` is a block one level deeper
+        # than `ingest.matte`, and the flat check saw only a dict of dicts and
+        # passed it. `for_class` applies those nested numbers, so a per-class
+        # tolerance rule with no authority and no basis reached the matte while
+        # inheriting the base block's justification for numbers it had replaced.
+        def _walk(body, where):
+            if not isinstance(body, dict):
+                return
+            if any(isinstance(v, (int, float)) and not isinstance(v, bool)
+                   for v in body.values()):
+                _check_authority(body, where)
+            for key, sub in body.items():
+                if isinstance(sub, dict):
+                    _walk(sub, "%s.%s" % (where, key))
+
         for section in ("gates", "ingest"):
             for block, body in (override.get(section) or {}).items():
-                if isinstance(body, dict) and any(
-                        isinstance(v, (int, float)) and not isinstance(v, bool)
-                        for v in body.values()):
-                    _check_authority(body, "contract.json classes.%s.%s.%s"
-                                     % (cname, section, block))
+                _walk(body, "contract.json classes.%s.%s.%s" % (cname, section, block))
 
     freeze = data["_freeze"]
     _need(freeze, "blocks", "contract.json _freeze")
@@ -150,10 +169,16 @@ def identity(contract):
     amendment would go on claiming conformance to a contract that has changed.
     So the identity carries a digest of the blocks that actually decide
     pass/fail, and a record can be traced to the exact threshold set.
+
+    `camera` is in the digest because `camera.turn_deg` is an input to the
+    `dims` verdict — a box footprint w x d projects to `w*cos + d*sin`, and the
+    angle changes which records agree with their own pixels. It is not frozen
+    (row 4 amends it after the probe), and that is exactly why a record needs to
+    say which value judged it.
     """
     import hashlib
     payload = json.dumps({"gates": contract["gates"], "ingest": contract["ingest"],
-                          "classes": contract["classes"]},
+                          "classes": contract["classes"], "camera": contract["camera"]},
                          sort_keys=True, separators=(",", ":")).encode("utf-8")
     return {
         "schema": contract["schema"],

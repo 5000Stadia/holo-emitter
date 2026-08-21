@@ -51,13 +51,13 @@ def bottom_extreme(rgba, threshold=im.ALPHA_OPAQUE):
     return bottom, int(cols.min()), int(cols.max())
 
 
-def geometric_anchors(rgba):
+def geometric_anchors(rgba, threshold=im.ALPHA_OPAQUE):
     """`base` and `footprint` exactly as §9.2 and mechanisms.spec derive them.
 
     `footprint.x1` is **exclusive** (x1_inclusive + 1) and `base.y` is the
     image's own bottom edge (bottom_row + 1), matching the shipped test.
     """
-    bottom, x0, x1 = bottom_extreme(rgba)
+    bottom, x0, x1 = bottom_extreme(rgba, threshold=threshold)
     return {
         "base": {"x": (x0 + x1 + 1) / 2.0, "y": bottom + 1},
         "footprint": {"x0": x0, "x1": x1 + 1},
@@ -93,8 +93,14 @@ def contact_band_estimate(rgba, band_fraction, threshold=im.ALPHA_OPAQUE):
     return {"x0": int(cols.min()), "x1": int(cols.max()) + 1}
 
 
-def derive_anchors(rgba, band_fraction):
+def derive_anchors(rgba, band_fraction, alpha_opaque=im.ALPHA_OPAQUE):
     """The anchors as this ingester writes them.
+
+    `alpha_opaque` comes from `contract.json` gates.alpha_opaque, whose basis
+    names exactly these two derivations — `base.y` and the footprint's contact
+    columns. It defaulted to the module constant everywhere, so the contract
+    could be changed and nothing moved: a threshold the record's provenance hash
+    covers but the code never reads is a threshold the record lies about.
 
     `px` and `base.y` are pixel facts and stay exactly as §9.2 and
     mechanisms.spec define them. `footprint` and `base.x` are **ground-contact**
@@ -107,8 +113,8 @@ def derive_anchors(rgba, band_fraction):
     Both derivations are returned so the record can carry the disagreement and a
     reader can see that a judgement was made.
     """
-    geometric = geometric_anchors(rgba)
-    band = contact_band_estimate(rgba, band_fraction)
+    geometric = geometric_anchors(rgba, threshold=alpha_opaque)
+    band = contact_band_estimate(rgba, band_fraction, threshold=alpha_opaque)
     if band is None:
         return geometric, {"bottom_two_rows": geometric["footprint"],
                            "contact_band": None, "chosen": "bottom_two_rows"}

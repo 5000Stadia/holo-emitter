@@ -6,10 +6,15 @@ what it looks like **in the room** — composited small over a dark oil-painted
 interior — and a halo gate calibrated against mid-grey cannot see the tell that
 only appears against a dark ground.
 
-Blueprint §5's own arithmetic gives the scale: a 0.78 m desk at
-`px_per_m_at_wall` 96 draws 75 px tall in the 1536 px frame (164 px at
-`px_per_m_at_bottom` 210). So the sprite is downscaled roughly 6-12x at draw
-time, and this module reproduces that before measuring anything.
+Blueprint §5's own arithmetic gives the scale for the desk **as it is actually
+staged** — `floor_against`, so its baseline is `yAtDepth(dims_m.d)` and its
+scale is `scaleAtDepth(0.55)` = 96 * 3.5 / (3.5 - 0.55) = 113.9 px/m: a 0.78 m
+desk draws **89 px** tall in the 1536 px frame. Not the 75 px the bare wall
+scale of 96 px/m suggests, and not the 164 px a `px_per_m_at_bottom` of 210
+suggests — 210 is not a number this project's grid carries (§7's canonical meta
+gives 332.8 at the bottom edge). The contract's `ingest.preview.draw_height_px`
+is the one home for the figure; this module reproduces that downscale, roughly
+4x from the stored sprite, before measuring anything.
 
 Pure: returns arrays and numbers, writes nothing.
 """
@@ -63,7 +68,28 @@ def with_parts(body_rgba, parts, records, t=1.0):
     return out
 
 
-def annotate_contact(canvas, rgba, anchors, px, draw_height_px, pad=20):
+# src/renderer.js `drawShadow`, verbatim. The preview exists to show the pool
+# the RENDERER draws, and it drew a different one: ry = 0.18*rx against the
+# renderer's 0.3, a linear-clip falloff against a radial gradient, peak 0.55
+# against 0.45, no minimum radii, and — the one that matters — no offset at all
+# where the renderer pushes the pool 0.22*rx right and 0.35*rx*ryF down.
+#
+# That offset is exactly what design/comparison-criteria.md's tells T2.2
+# (detached pool) and T2.4 (shadow toward the light) hunt for. A preview whose
+# whole purpose is to put quality 2 in front of an eye was erasing the two tells
+# an eye is looking for. These constants are duplicated rather than imported
+# because Python cannot read the JS; `test_clause_guards.py` parses
+# src/renderer.js and asserts they still agree, so a drift in either goes red.
+SHADOW_PEAK = 0.45
+SHADOW_RY = 0.3
+SHADOW_MIN_RY = 4.0
+SHADOW_MIN_RX = 4.0
+SHADOW_DX = 0.22
+SHADOW_DY = 0.35
+
+
+def annotate_contact(canvas, rgba, anchors, px, draw_height_px, pad=20, attachment=None,
+                     airborne=False):
     """Draw the contact pool the renderer would draw, and the footprint span.
 
     Quality 2 is "every grounded object darkens the ground under it", and the
@@ -72,11 +98,14 @@ def annotate_contact(canvas, rgba, anchors, px, draw_height_px, pad=20):
     scale the sprite is actually drawn, so the judgement is available to an
     examining seat and not only to a width check.
 
-    The ellipse follows blueprint §7 step 6's shape: centred on `base`, spanning
-    `footprint`. It is drawn multiplicatively so it reads as darkening rather
-    than as ink.
+    Every constant and every step is `src/renderer.js`'s `drawShadow`: the
+    minimum radii of blueprint §7's row-2 amendment, the ratio, the radial
+    falloff, and the offset. A wall-mounted or airborne sprite gets no pool,
+    because the renderer draws it none.
     """
     out = canvas.copy()
+    if attachment == "wall_mounted" or airborne:
+        return out
     scale = draw_height_px / float(rgba.shape[0])
     fp = anchors.get("footprint") or {}
     base = anchors.get("base") or {}
@@ -84,14 +113,21 @@ def annotate_contact(canvas, rgba, anchors, px, draw_height_px, pad=20):
     x1 = pad + float(fp.get("x1", 0)) * scale
     cx = pad + float(base.get("x", 0)) * scale
     cy = pad + float(base.get("y", rgba.shape[0])) * scale
-    rx = max(1.0, (x1 - x0) / 2.0)
-    ry = max(1.0, rx * 0.18)
+    rx = max((x1 - x0) / 2.0, SHADOW_MIN_RX)
+    ry_f = min(1.0, max(SHADOW_RY, SHADOW_MIN_RY / rx))
+    ry = max(1e-6, rx * ry_f)
+    # The renderer translates the pool before scaling y, so dy is in the
+    # already-squashed space: cy + SHADOW_DY * rx * ryF.
+    px_c = cx + SHADOW_DX * rx
+    py_c = cy + SHADOW_DY * rx * ry_f
     h, w = out.shape[:2]
     yy = np.arange(h)[:, None].astype(np.float64)
     xx = np.arange(w)[None, :].astype(np.float64)
-    r = ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2
+    # A canvas radial gradient from rgba(0,0,0,PEAK) at r=0 to alpha 0 at r=rx,
+    # linear in the radius (not in r^2), over the ellipse rx by rx*ryF.
+    r = np.sqrt(((xx - px_c) / rx) ** 2 + ((yy - py_c) / ry) ** 2)
     pool = np.clip(1.0 - r, 0.0, 1.0)
-    shade = 1.0 - 0.55 * pool
+    shade = 1.0 - SHADOW_PEAK * pool
     out[..., :3] = np.clip(out[..., :3].astype(np.float64) * shade[..., None],
                            0, 255).astype(np.uint8)
     # A one-pixel tick at each end of the footprint span, so the width is legible.
@@ -125,8 +161,9 @@ def rim_lift_ratio(rgba, ground_rgb, draw_height_px):
     generator's own antialias against the studio ground, opaque in any matte and
     a light outline over a dark room — pushes it far above that.
 
-    Measured on the corpus desk at draw height 75: **0.836 with no edge erosion
-    (a rim visible by eye), 0.245 with the pinned 2 px erosion.**
+    Measured on the corpus desk at the contract's own draw height: **0.836 with
+    no edge erosion (a rim visible by eye), 0.245 with the pinned 2 px
+    erosion.**
     """
     canvas, alpha_map = composite_preview(rgba, ground_rgb, draw_height_px)
     lum = im.luminance(canvas[..., :3])

@@ -41,7 +41,7 @@ def _clean(obj, n=4):
     return _round(obj, n)
 
 
-def dims_cross_check(dims_m, px, turn_deg):
+def dims_cross_check(dims_m, px, turn_deg, cfg=None):
     """Warn-only: does the declared footprint match the drawn width?
 
     Deliberately never written into `dims_m`. Blueprint §5 says in terms that
@@ -54,7 +54,12 @@ def dims_cross_check(dims_m, px, turn_deg):
     What this does support: at `turn_deg`, a box footprint w x d projects to a
     drawn width of `w*cos + d*sin`. The scale comes from the declared height and
     the pixel height. Disagreement is reported, not corrected.
+
+    The agreement band comes from `contract.json` gates.dims. It was a literal
+    here, which put the only automated check for comparison-criteria's T5.3
+    outside the threshold set `provenance.contract.thresholds_sha256` covers.
     """
+    cfg = cfg or {"ratio_min": 0.85, "ratio_max": 1.15}
     t = math.radians(float(turn_deg))
     scale_px_per_m = px["h"] / float(dims_m["h"])
     drawn_m = px["w"] / scale_px_per_m
@@ -64,7 +69,9 @@ def dims_cross_check(dims_m, px, turn_deg):
         "drawn_width_m": _round(drawn_m),
         "implied_width_m": _round(implied_m),
         "ratio": _round(ratio),
-        "agrees": bool(ratio is not None and 0.85 <= ratio <= 1.15),
+        "agrees": bool(ratio is not None and
+                       cfg["ratio_min"] <= ratio <= cfg["ratio_max"]),
+        "ratio_band": [cfg["ratio_min"], cfg["ratio_max"]],
         "note": "warn-only cross-check; dims_m is the operator's, sourced from period "
                 "reference, and is never derived through the unsettled §5 camera",
     }
@@ -76,13 +83,22 @@ UNWITNESSED = {
     "camera.pitch_deg": "no stage measures the camera's pitch from the arriving image",
     "framing.states": "no stage checks that every moving part arrived closed and seated",
     "framing.props": "no stage checks that nothing is resting on or in front of the object",
+    "dims_m": "height, width and depth are the operator's, sourced from period reference; no "
+              "stage can measure a world dimension through blueprint §5's unsettled camera. "
+              "`measured.dims_cross_check` compares the DECLARED trio against the pixels and is "
+              "self-consistent by construction: an operator who solves for a width that matches "
+              "the pixels satisfies it without having measured any furniture",
+    "period": "no stage dates the object; `period` is the flag, or the contract's default",
+    "takeable": "no stage judges whether a thing is small enough to pick up; the thumb gate "
+                "checks only that the record and its own files agree about the claim",
+    "noun": "no stage recognises what the object is",
 }
 
 
 def build(*, sprite_id, noun, archetype, attachment, dims_m, px, view_side, light,
           period, anchors, takeable, airborne, parts=None, states_images=None,
           thumb=None, source="generated", contract_identity=None, environment=None,
-          gates=None, derived=None, measured=None, turn_deg=30):
+          gates=None, derived=None, measured=None, turn_deg=30, dims_cfg=None):
     """The §6 record dict. Every field is either a flag or a derivation."""
     if not sprite_id or "/" in sprite_id or sprite_id.startswith("."):
         raise RecordError("--id %r is not a usable directory name" % sprite_id)
@@ -129,7 +145,8 @@ def build(*, sprite_id, noun, archetype, attachment, dims_m, px, view_side, ligh
         "gates": gates or [],
         "derived": derived or {},
     })
-    rec["measured"]["dims_cross_check"] = dims_cross_check(rec["dims_m"], rec["px"], turn_deg)
+    rec["measured"]["dims_cross_check"] = dims_cross_check(rec["dims_m"], rec["px"],
+                                                           turn_deg, dims_cfg)
     return rec
 
 

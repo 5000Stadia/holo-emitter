@@ -193,9 +193,38 @@ sudo apt-get install -y python3-numpy python3-pil     # pip is PEP-668 blocked h
 python3 -m unittest discover -s replicator/tests -t . -v
 ```
 
-88 tests, ~4½ minutes. `-t .` puts the repo root on `sys.path`; `replicator/tests/__init__.py`
+151 tests, ~5½ minutes. `-t .` puts the repo root on `sys.path`; `replicator/tests/__init__.py`
 must exist or discovery refuses the directory, and it raises a message naming the apt line if
 either dependency is missing.
+
+### The clause ledger (`replicator/tests/test_clause_guards.py`)
+
+Row 3's last examination round found one family behind five separate blocking findings: **every fix
+for a previous blocker landed in the artifact and none of them landed as a check.** The
+carcass-backing floor, the overshoot bound, the stored-resolution cap, the already-matted-source
+guard and the drawer-cavity disagreement error could each be replaced by `if False:` with the whole
+suite green. The fixes were real; nothing held them there.
+
+The ledger is that family's architecture, and its rule is:
+
+> A fix for a named finding arrives with a case that fails on **that clause alone**, and asserts
+> the clause **by name** — not the gate id it shares with five other clauses, and not "some hard
+> gate went red".
+
+Two things make it structural rather than a habit. Gates with several clauses now report
+`measured["clauses_failed"]`, so a case can name what fired; and `SlideClauseLedger` declares the
+six clauses the slide gate carries, trips each one in isolation, and asserts that the set it
+managed to trip is exactly the declared set — so a seventh clause added without a case shows up as
+an absence rather than as silence. Every case in the module was written by breaking the code it
+guards and watching it go red, and the five mutations above were re-run afterwards: all five are
+now caught.
+
+The same round moved four hard gates' thresholds — `alignment`, `thumb`, `dims`, and the slide
+gate's `scale_open` rails — out of module literals and into `contract.json`, because
+`contract.identity()` hashes only `gates` + `ingest` + `classes`: a record's
+`provenance.contract.thresholds_sha256` did not move when any of them changed, so "traceable to the
+exact threshold set that admitted it" was false. `REQUIRED_GATES` now lists them, and a contract
+missing one is a `ContractError`.
 
 ### The shape (blueprint §4b rule 1)
 
@@ -238,7 +267,14 @@ seamless uniform mid-grey, so its noise is measurable on the border — and eros
 minimum area and bleed width scale with the content bbox. The frozen things are the rule
 coefficients.
 
-### The fifteen checks (nine on a static sprite, thirteen on a sliding one, twelve on a swap)
+### The fifteen checks (nine on a static sprite, thirteen on a sliding one, thirteen on a swap)
+
+A swap sprite runs thirteen *lines* over thirteen *ids*: (a) and (e) each run twice, once on the
+body and once on the open-state image, and the state-image runs carry it in the id —
+`a[states.open]`, `e[states.open]`. They printed as bare `a` and `e`, so the board could not say
+which verdict was about which picture and the record's edge evidence described the state image
+while claiming to describe the sprite. `test_clause_guards.py::GateTally` asserts each archetype's
+tally against a real run, so this heading cannot drift from the code again.
 
 | id | severity | guards |
 |---|---|---|
@@ -383,15 +419,24 @@ The `--overlay` image is the evidence, and it is what was looked at.
 python3 -m replicator.ingest library-src/corpus/desk-corpus-2.png \
   --id desk-joined-oak-1660 --noun "joined oak writing desk" \
   --archetype sliding --attachment floor_against \
-  --height-m 0.78 --width-m 1.30 --depth-m 0.55 --view-side left \
+  --height-m 0.78 --width-m 0.81 --depth-m 0.55 --view-side left \
   --part drawer_front:replicator/masks/desk-joined-oak-1660/drawer_front.png \
-  --slide=-0.10,0.24,1.06 --anchor surface_top:350,235,900,275 \
+  --slide=-0.03,0.08,1.04 --anchor surface_top:350,235,900,275 \
   --preview-dir /tmp/prev --report /tmp/desk2.json
 ```
 
 `desk-corpus-1` runs the same way with `--check` and its own mask. `replicator/tests/test_corpus.py`
 runs both through the same check set as a committed test, so the row's headline claim is not an
 account.
+
+**This block has one home and it is not this document.** The values live in
+`replicator/tests/test_corpus.py` (`DIMS`, `SLIDE`, `DESKS`), and
+`test_corpus.py::DocumentedInvocation` parses the fenced block above and asserts every flag in it
+matches. A stale copy here was how the row's one re-runnable instruction came to name
+`--slide=-0.10,0.24,1.06` and `--width-m 1.30` — a travel that hard-fails on two clauses and a width
+30% from the desk's own pixels — while the shipped record carried different numbers entirely. A
+fresh session boards from this block, so a drift in it is a drift in the only route back to the
+asset.
 
 ### What row 4 inherits — the list
 
@@ -440,6 +485,26 @@ account.
    what switches.
 9. **`backdrop_block` is provisional** and carries the open fork for Kabe: one screen-space key
    across the eight facings, or per-facing keys and per-facing sprite variants.
+10. **The corpus desk is a small desk, and the record now says so.** It shipped once at
+    `--width-m 1.30` — blueprint §6's *example* value — while drawing 0.977 m wide, a ratio of 0.70
+    and comparison-criteria's own tell T5.3. It is re-declared at **0.81 × 0.55 × 0.78**, read off
+    the picture, and `dims` is green at ratio 1.001. The consequence to expect and not be surprised
+    by: the renderer scales by height, so this desk draws **111 px wide beside the 160 px
+    placeholder it replaces**. That is a fact about the source art, not about the record, and the
+    probe desk of point 1 is where it is fixed — by generating a desk of the size the room wants.
+11. **A part's carcass backing is measured at native size.** `parts.carcass_backing` places the
+    travelled part without applying `slide.scale_open`, while `open_state_composite` and the
+    renderer both scale it. At the corpus desk's 1.04 the difference is under a pixel, so the bound
+    holds; at a larger `scale_open` the bound would be measuring a rectangle the picture does not
+    draw. Named residue.
+12. **The open drawer's exposed recess is ~30 body px — about 7 px at the 89 px draw height.**
+    Row 4 must reveal a key inside it. It cannot, at this size, on this desk. The probe desk needs
+    a drawer whose recess survives the draw scale, and choosing it is a generation-time decision,
+    not an ingest-time one.
+13. **Two flags are still under-checked.** With two `--part`s, one `--anchor drawer_cavity` is
+    compared against *each* part's derived cavity and the last part wins the anchor; and a
+    `--state-origin` naming a state that does not exist is silently discarded. Both are
+    single-part/single-state-safe today and both are real traps for row 4's batch.
 
 ## Ground plane (`src/groundplane.js`)
 

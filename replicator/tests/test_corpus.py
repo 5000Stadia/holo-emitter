@@ -25,6 +25,7 @@ Three things live here that nothing else covers:
 
 import json
 import os
+import re
 import subprocess
 import tempfile
 import unittest
@@ -50,7 +51,17 @@ DESKS = {
         anchors={"surface_top": (400, 320, 850, 360)}, slide={"dx": -0.03, "dy": 0.075,
                                                                   "scale_open": 1.04}),
 }
-DIMS = {"h": 0.78, "w": 1.30, "d": 0.55}
+# Read off the object in front of the ingester, not off blueprint §6's example
+# record. The desk shipped once at w 1.30 with the `dims` gate warning: it draws
+# 0.977 m wide in the room where 1.30 x 0.55 at 30 degrees implies 1.401, a ratio
+# of 0.70 — comparison-criteria's own tell T5.3, on this row's only real asset.
+# 1.30/0.55/0.78 are §6's EXAMPLE values, copied into a real record; that is the
+# defect `slide_gate`'s docstring warns about, in another field.
+#
+# 0.81 x 0.55 x 0.78 is what the picture shows: a small joined writing desk, and
+# the ratio is 1.001. The desk being smaller than it was declared is a fact about
+# the source art, and it is now in the record instead of contradicting it.
+DIMS = {"h": 0.78, "w": 0.81, "d": 0.55}
 
 # The travel each desk can actually carry, found by looking at the composite and
 # then bounded by the carcass-backing rule. Neither is a free parameter: on
@@ -284,6 +295,85 @@ class DeserializationEquivalence(unittest.TestCase):
         self.assertEqual(record_findings, [],
                          "the shipped validator's record-level clauses must accept the "
                          "record this row mints:\n  " + "\n  ".join(record_findings))
+
+
+class DocumentedInvocation(unittest.TestCase):
+    """`design/architecture.md`'s corpus block is the one re-runnable instruction
+    a fresh session boards from, and it drifted: it named a travel that hard-fails
+    on two clauses and a width 30% from the desk's own pixels, while the shipped
+    record carried different numbers. The values above are the one home; this
+    parses the document and holds it to them.
+    """
+
+    ARCH = os.path.join(support.REPO_ROOT, "design", "architecture.md")
+
+    @classmethod
+    def setUpClass(cls):
+        with open(cls.ARCH, encoding="utf-8") as fh:
+            text = fh.read()
+        m = re.search(r"### The corpus run\s*\n+```\n(.*?)\n```", text, re.S)
+        assert m, "design/architecture.md no longer carries a fenced corpus-run block"
+        cls.block = m.group(1).replace("\\\n", " ")
+
+    def _flag(self, name):
+        m = re.search(r"%s[= ]([^\s\\]+)" % re.escape(name), self.block)
+        self.assertIsNotNone(m, "the documented invocation has no %s" % name)
+        return m.group(1)
+
+    def test_the_documented_dimensions_are_the_ones_the_corpus_test_uses(self):
+        self.assertEqual(float(self._flag("--height-m")), DIMS["h"])
+        self.assertEqual(float(self._flag("--width-m")), DIMS["w"])
+        self.assertEqual(float(self._flag("--depth-m")), DIMS["d"])
+
+    def test_the_documented_travel_is_the_one_the_corpus_test_uses(self):
+        dx, dy, sc = (float(v) for v in self._flag("--slide").split(","))
+        self.assertEqual({"dx": dx, "dy": dy, "scale_open": sc}, SLIDE)
+
+    def test_the_documented_anchor_is_the_one_the_corpus_test_uses(self):
+        got = tuple(int(v) for v in self._flag("--anchor").split(":")[1].split(","))
+        self.assertEqual(got, DESKS["desk-corpus-2.png"]["anchors"]["surface_top"])
+
+    def test_the_documented_id_and_source_are_the_ones_the_corpus_test_uses(self):
+        self.assertEqual(self._flag("--id"), DESKS["desk-corpus-2.png"]["sprite_id"])
+        self.assertIn("desk-corpus-2.png", self.block)
+
+
+@support.requires_corpus
+class ShippedArtifactIsWhatThePipelineProducesToday(unittest.TestCase):
+    """Nothing compared the committed sprite against what the ingester now emits.
+
+    `DeserializationEquivalence` rebuilds into a temp directory, so the artifact
+    in `library/` could desynchronise from the code that made it — silently,
+    because a contract change moves the record and nothing looks.
+    """
+
+    SHIPPED = os.path.join(support.REPO_ROOT, "library", "desk-joined-oak-1660")
+
+    @unittest.skipUnless(os.path.isdir(SHIPPED), "the shipped desk is not present")
+    def test_the_committed_record_matches_a_fresh_ingest(self):
+        from replicator import record as record_mod
+        fresh = ingest_desk("desk-corpus-2.png")
+        self.assertTrue(fresh.ok, [support.gate(fresh, g)["message"] for g in fresh.failures])
+        with open(os.path.join(self.SHIPPED, "record.json"), encoding="utf-8") as fh:
+            shipped = json.load(fh)
+        emitted = json.loads(record_mod.to_json(fresh.record))
+        # `provenance.environment` is the machine, not the artifact.
+        for r in (shipped, emitted):
+            r["provenance"].pop("environment", None)
+        self.assertEqual(shipped, emitted,
+                         "library/desk-joined-oak-1660/record.json is not what the ingester "
+                         "produces today — re-run the documented corpus invocation")
+
+    @unittest.skipUnless(os.path.isdir(SHIPPED), "the shipped desk is not present")
+    def test_the_committed_sprite_png_matches_a_fresh_ingest(self):
+        import io
+        from PIL import Image as _Image
+        fresh = ingest_desk("desk-corpus-2.png")
+        buf = io.BytesIO()
+        _Image.fromarray(fresh.body, "RGBA").save(buf, format="PNG")
+        with open(os.path.join(self.SHIPPED, "sprite.png"), "rb") as fh:
+            self.assertEqual(fh.read(), buf.getvalue(),
+                             "the shipped sprite.png is not the pipeline's current output")
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ def parse_datum(text):
     return v
 
 
-def locate_datum(closed_src, open_src, datum, search_px=None):
+def locate_datum(closed_src, open_src, datum, search_px=None, search_fraction=0.25):
     """Find the closed image's datum patch in the open image. Pure.
 
     Normalized cross-correlation of the luminance patch over a search window.
@@ -49,8 +49,27 @@ def locate_datum(closed_src, open_src, datum, search_px=None):
     clause (i) below has exactly one satisfying `origin.y`, so an operator who
     never opens the images and simply subtracts passes it every time.
 
-    Returns `(dx, dy, peak)` — the offset from closed-source coordinates to
-    open-source coordinates, and the correlation peak in [-1, 1].
+    Returns `(dx, dy, evidence)` where `evidence` carries the three numbers the
+    registration gate judges:
+
+      `peak`     the correlation at the winning offset, in [-1, 1]
+      `contrast` the datum patch's own luminance standard deviation, 0..255
+      `margin`   how far the winning peak stands above the best peak outside a
+                 one-patch exclusion zone around it
+
+    `contrast` and `margin` exist because **NCC divides contrast out**. A patch
+    of near-uniform studio grey with a level of dither correlates at 1.000
+    against any other patch of the same grey: `--state-datum 20,20,90,90` on the
+    corpus desk — blank ground — returned correlation 1.000 at a wrong origin
+    and the gate reported it green. The only guard was a zero-variance refusal
+    at 1e-6, which no real image with dither ever trips, and the docstring's
+    promise that "a flat patch has no variance to correlate on and is refused by
+    name" was false. `margin` covers the second half of the same problem: a
+    repeated moulding correlates equally well at several offsets, and the argmax
+    among equals is arbitrary.
+
+    Both are returned rather than raised on, so the failure lands as a named
+    hard gate line in the report the autonomous lane reads, not as a traceback.
     """
     a = im.luminance(np.asarray(closed_src)[..., :3])
     b = im.luminance(np.asarray(open_src)[..., :3])
@@ -64,11 +83,13 @@ def locate_datum(closed_src, open_src, datum, search_px=None):
         raise StateError("--state-datum is %dx%d — too small to correlate" % (pw, ph))
     pc = patch - patch.mean()
     pn = float(np.sqrt((pc * pc).sum()))
+    contrast = float(patch.std())
     if pn < 1e-6:
         raise StateError("--state-datum names a featureless patch (zero variance): pick a "
                          "region with an edge in it, such as the door frame's inner jamb")
-    reach = search_px if search_px is not None else max(a.shape) // 4
-    best = (0, 0, -2.0)
+    reach = search_px if search_px is not None else int(max(a.shape) * search_fraction)
+    span = 2 * reach + 1
+    scores = np.full((span, span), -2.0)
     for dy in range(-reach, reach + 1):
         yy0, yy1 = y0 + dy, y1 + dy
         if yy0 < 0 or yy1 > b.shape[0]:
@@ -82,10 +103,28 @@ def locate_datum(closed_src, open_src, datum, search_px=None):
             wn = float(np.sqrt((wc * wc).sum()))
             if wn < 1e-6:
                 continue
-            score = float((pc * wc).sum() / (pn * wn))
-            if score > best[2]:
-                best = (dx, dy, score)
-    return best
+            scores[dy + reach, dx + reach] = float((pc * wc).sum() / (pn * wn))
+    flat = int(np.argmax(scores))
+    by, bx = flat // span, flat % span
+    peak = float(scores[by, bx])
+    # The runner-up, outside a one-patch exclusion zone. Inside that zone the
+    # correlation surface is the patch's own autocorrelation shoulder, which is
+    # high by construction and says nothing about uniqueness; a genuine rival is
+    # a second place the patch fits, at least a patch away.
+    ex_y, ex_x = max(1, ph // 2), max(1, pw // 2)
+    rivals = scores.copy()
+    rivals[max(0, by - ex_y):by + ex_y + 1, max(0, bx - ex_x):bx + ex_x + 1] = -2.0
+    runner = float(rivals.max())
+    margin = peak - runner if runner > -2.0 else float(peak + 2.0)
+    # A winner ON the edge of the search window is not evidence that the feature
+    # was found; it is evidence that the window was too small and the true
+    # displacement lies outside it. The correlation surface is still climbing.
+    on_boundary = bool(bx in (0, span - 1) or by in (0, span - 1))
+    return (bx - reach, by - reach,
+            {"peak": peak, "contrast": round(contrast, 3),
+             "runner_up": round(runner, 4) if runner > -2.0 else None,
+             "margin": round(float(margin), 4),
+             "search_reach_px": int(reach), "peak_on_search_boundary": on_boundary})
 
 
 def origin_from_datum(offset, closed_trim, open_trim):
@@ -124,7 +163,7 @@ def parse_state_origin(text):
         raise StateError("--state-origin %s: %r is not two numbers" % (name, nums))
 
 
-def alignment_gate(origin, state_shape, body_shape):
+def alignment_gate(origin, state_shape, body_shape, cfg=None):
     """The closed-frame alignment gate, per §9.3b as row 2 amended it.
 
     The original base-midpoint clause is deleted for swap sprites: a leaf swung
@@ -142,12 +181,13 @@ def alignment_gate(origin, state_shape, body_shape):
     bounds it, clause (iii) surfaces a gross displacement, and correctness rides
     on the operator's datum and the human eye at row 4's batch.
     """
+    cfg = cfg or {"bottom_edge_tolerance_fraction": 0.02}
     sh, sw = state_shape[0], state_shape[1]
     bh, bw = body_shape[0], body_shape[1]
     ox, oy = float(origin["x"]), float(origin["y"])
 
     bottom_err = abs(oy + sh - bh)
-    bottom_tol = 0.02 * bh
+    bottom_tol = cfg["bottom_edge_tolerance_fraction"] * bh
     clause_i = bottom_err <= bottom_tol
 
     inside = (ox >= 0 and oy >= 0 and ox + sw <= bw and oy + sh <= bh)
@@ -158,7 +198,10 @@ def alignment_gate(origin, state_shape, body_shape):
     if not clause_i:
         messages.append(
             "(i) origin.y + state height = %g vs the body's bottom edge %d — off by %g px, "
-            "over the 2%% of body height budget (%g px)" % (oy + sh, bh, bottom_err, bottom_tol))
+            "over the %.1f%% of body height budget (%g px): the two state images are standing "
+            "on different floors"
+            % (oy + sh, bh, bottom_err,
+               cfg["bottom_edge_tolerance_fraction"] * 100, bottom_tol))
     if not inside:
         messages.append(
             "(ii) the state rect (%g, %g)-(%g, %g) is not inside the %dx%d body canvas. "
@@ -179,6 +222,7 @@ def alignment_gate(origin, state_shape, body_shape):
             "horizontal_centre_deviation_fraction": round(float(centre_dev), 4),
         },
         "threshold": {"bottom_edge_error_px": round(float(bottom_tol), 3),
+                      "bottom_edge_tolerance_fraction": cfg["bottom_edge_tolerance_fraction"],
                       "inside_body_canvas": True},
         "message": ("; ".join(messages) if messages else
                     "closed-frame alignment holds on clauses (i) and (ii); horizontal centre "
@@ -188,51 +232,100 @@ def alignment_gate(origin, state_shape, body_shape):
     }
 
 
-def registration_gate(declared, derived, peak, body_shape, cfg):
-    """Does the operator's `--state-origin` agree with the datum the images show?
+def registration_gate(declared, derived, evidence, body_shape, cfg, typed=True):
+    """Is the open state's placement supported by something the operator did not
+    also supply?
 
-    This is the clause that gives the alignment gate content. Clause (i) of
-    `alignment_gate` has exactly one satisfying `origin.y`, so it is passed by
-    arithmetic; this one compares a typed number against one derived from the
-    two images by correlation, **in both axes**, which is where the plan
-    previously admitted x was unverifiable.
+    HARD, and in two modes, neither of them a tautology:
+
+    * **cross-check** (`typed`) — a typed `--state-origin` against an origin
+      derived from the two source images by correlation, in BOTH axes. This is
+      the clause that gives the alignment gate content: `alignment_gate`'s
+      clause (i) has exactly one satisfying `origin.y`, so it is passed by
+      arithmetic.
+    * **datum evidence** (not `typed`) — when nothing was typed, the derived
+      origin stands on its own and there is nothing to compare it to. The
+      earlier code compared it to *itself* and printed "the declared origin
+      agrees within 0.000% of width and 0.000% of height" for a declaration that
+      was never made. What is judged instead is the quality of the evidence:
+      the datum's contrast, the correlation peak, and the peak's margin over its
+      best rival. Those are facts about the two images.
+
+    Absent a datum entirely the gate is hard and fails. It was warn-only, so a
+    swap sprite with a typed, unverified origin exited 0 — the gate could be
+    walked past, which is the family this row keeps finding.
     """
     if derived is None:
-        # passed=False deliberately. Absent a datum this gate measured nothing,
-        # and an [ok] line is indistinguishable on the board from one that did.
-        return {"id": "registration", "severity": "warn", "passed": False,
-                "measured": {"derived": None, "verified": False},
+        return {"id": "registration", "severity": "hard", "passed": False,
+                "measured": {"derived": None, "verified": False, "mode": "none"},
                 "threshold": dict(cfg),
-                "message": "NOT VERIFIED — no --state-datum was given, so nothing checked the "
-                           "typed --state-origin against the images. x and y registration rest "
-                           "entirely on the operator and on the human eye at the flip batch. "
+                "message": "NOT VERIFIED — no --state-datum was given, so nothing checked where "
+                           "the open state stands. A swap sprite's whole geometry is its "
+                           "registration, and an unverified one is not a sprite that ships. "
                            "Give --state-datum x0,y0,x1,y1 naming a feature visible in BOTH "
-                           "state sources and this gate derives the origin itself."}
+                           "state sources (the door frame's inner jamb) and this gate derives "
+                           "the origin and judges the evidence for it."}
     bh, bw = body_shape[0], body_shape[1]
-    ex = abs(declared["x"] - derived["x"]) / float(bw)
-    ey = abs(declared["y"] - derived["y"]) / float(bh)
-    ok = (peak >= cfg["min_correlation"] and
-          ex <= cfg["max_offset_fraction"] and ey <= cfg["max_offset_fraction"])
-    return {
-        "id": "registration", "severity": "hard", "passed": bool(ok),
-        "measured": {"declared": declared, "derived": derived,
-                     "correlation_peak": round(float(peak), 4),
-                     "dx_fraction_of_width": round(float(ex), 5),
-                     "dy_fraction_of_height": round(float(ey), 5)},
-        "threshold": dict(cfg),
-        "message": ("the datum places the open state at (%.1f, %.1f); the declared origin agrees "
-                    "within %.3f%% of width and %.3f%% of height (correlation %.3f)"
-                    % (derived["x"], derived["y"], ex * 100, ey * 100, peak)) if ok else
-                   ("the datum places the open state at (%.1f, %.1f) but --state-origin declares "
-                    "(%.1f, %.1f) — off by %.2f%% of width and %.2f%% of height (correlation "
-                    "%.3f). Either the origin was computed rather than measured, or the datum is "
-                    "not the same feature in both images."
-                    % (derived["x"], derived["y"], declared["x"], declared["y"],
-                       ex * 100, ey * 100, peak)),
-    }
+    peak = float(evidence["peak"])
+    contrast = float(evidence["contrast"])
+    margin = float(evidence["margin"])
+    clauses = []
+    clauses.append(("datum contrast", contrast >= cfg["min_datum_contrast"],
+                    contrast, cfg["min_datum_contrast"]))
+    clauses.append(("correlation peak", peak >= cfg["min_correlation"],
+                    round(peak, 4), cfg["min_correlation"]))
+    clauses.append(("peak margin over its best rival", margin >= cfg["min_peak_margin"],
+                    margin, cfg["min_peak_margin"]))
+    clauses.append(("peak inside the search window (not on its edge)",
+                    not evidence.get("peak_on_search_boundary"), 0, 1))
+    measured = {"declared": declared if typed else None, "derived": derived,
+                "correlation_peak": round(peak, 4),
+                "datum_contrast": round(contrast, 3),
+                "peak_margin": round(margin, 4),
+                "runner_up": evidence.get("runner_up"),
+                "mode": "cross_check" if typed else "datum_evidence"}
+    if typed:
+        ex = abs(declared["x"] - derived["x"]) / float(bw)
+        ey = abs(declared["y"] - derived["y"]) / float(bh)
+        measured["dx_fraction_of_width"] = round(float(ex), 5)
+        measured["dy_fraction_of_height"] = round(float(ey), 5)
+        clauses.append(("declared-vs-derived x", ex <= cfg["max_offset_fraction"],
+                        round(ex, 5), cfg["max_offset_fraction"]))
+        clauses.append(("declared-vs-derived y", ey <= cfg["max_offset_fraction"],
+                        round(ey, 5), cfg["max_offset_fraction"]))
+    failed = [c for c in clauses if not c[1]]
+    if failed:
+        msg = "; ".join("%s: measured %g against %g" % (c[0], c[2], c[3]) for c in failed)
+        if any(c[0] == "datum contrast" for c in failed):
+            msg += (" — normalized cross-correlation divides contrast out, so a patch this "
+                    "flat matches any other patch of the same tone at a near-perfect peak. "
+                    "Name a region with a real edge in it.")
+        if any(c[0].startswith("peak inside") for c in failed):
+            msg += (" — the correlation peak sits ON the edge of the %d px search window, so the "
+                    "true displacement is probably outside it and this is not the feature. "
+                    "Widen the search or pick a datum nearer where the object actually moved."
+                    % evidence.get("search_reach_px", 0))
+        if any(c[0].startswith("declared-vs-derived") for c in failed):
+            msg += (" — either the origin was computed rather than measured, or the datum is "
+                    "not the same feature in both images.")
+    elif typed:
+        msg = ("the datum places the open state at (%.1f, %.1f) and the declared origin agrees "
+               "within %.3f%% of width and %.3f%% of height (correlation %.3f, contrast %.1f, "
+               "margin %.3f)"
+               % (derived["x"], derived["y"], measured["dx_fraction_of_width"] * 100,
+                  measured["dy_fraction_of_height"] * 100, peak, contrast, margin))
+    else:
+        msg = ("no --state-origin was typed, so there is nothing to cross-check and this gate "
+               "does not pretend otherwise: the origin (%.1f, %.1f) IS the datum's, and what is "
+               "certified is the evidence for it — contrast %.1f, correlation %.3f, margin %.3f "
+               "over its best rival. Placement in the room is still the eye's at the flip batch."
+               % (derived["x"], derived["y"], contrast, peak, margin))
+    return {"id": "registration", "severity": "hard", "passed": not failed,
+            "measured": measured, "threshold": dict(cfg), "message": msg}
 
 
-def prepare_state(name, state_rgba, body_rgba, origin_xy, derived=None, peak=None, cfg=None):
+def prepare_state(name, state_rgba, body_rgba, origin_xy, derived=None, evidence=None,
+                  cfg=None, alignment_cfg=None):
     """Register one matted state image against the closed body.
 
     `origin_xy` may be None when a datum supplied one — in which case the derived
@@ -248,7 +341,7 @@ def prepare_state(name, state_rgba, body_rgba, origin_xy, derived=None, peak=Non
             "give --state-origin %s:X,Y in closed-sprite pixel space." % (name, name))
     origin = ({"x": float(origin_xy[0]), "y": float(origin_xy[1])} if origin_xy is not None
               else dict(derived))
-    gate = alignment_gate(origin, state_rgba.shape, body_rgba.shape)
-    reg = (registration_gate(origin, derived, peak, body_rgba.shape, cfg or {})
-           if origin_xy is not None or derived is not None else None)
+    gate = alignment_gate(origin, state_rgba.shape, body_rgba.shape, cfg=alignment_cfg)
+    reg = registration_gate(origin, derived, evidence, body_rgba.shape, cfg or {},
+                            typed=origin_xy is not None)
     return StateResult(name=name, rgba=state_rgba, origin=origin, gate=gate, registration=reg)

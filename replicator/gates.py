@@ -3,13 +3,29 @@
 Every gate returns its **measured value whether it passes or fails**, so a green
 gate is auditable and a threshold nowhere near being exercised is visible.
 
-  (a) halo          hard, four clauses
+The full set is fifteen checks, not the seven §9.4 names — the eight additions
+are marked. A static sprite runs nine of them, a sliding sprite thirteen, a swap
+sprite thirteen; `design/architecture.md` carries the per-archetype tally and
+`test_clause_guards.py` asserts it against a real run rather than a document.
+
+  (a) halo          hard, three clauses (a2, a3, a4) — a2 skipped when achromatic
   (b) holes         hard
-  (c) resolution    hard
+  (c) resolution    hard, judges the SOURCE that arrived
   (d) state diff    hard, parts only
-  (e) light         WARN ONLY, per §9.4
+  (e) light         WARN ONLY, per §9.4 [HUMAN]
   (f) contact       hard, floor-attached only        [AI, row 3 — added]
   (g) over-matte    hard                             [AI, row 3 — added]
+  (h) shadow        hard                             [AI, row 3 — added]
+  slide             hard, six named clauses          [AI, row 3 — added]
+  open_state        hard, parts only                 [AI, row 3 — added]
+  alignment         hard, swap only                  [AI, row 3 — added]
+  registration      hard, swap only                  [AI, row 3 — added]
+  thumb             hard                             [AI, row 3 — added]
+  dims              warn                             [AI, row 3 — added]
+  part_mask         REPORT, no verdict               [AI, row 3 — added]
+
+On a swap sprite (a) and (e) each run twice — once on the body, once on the
+open-state image — and carry the image in their id as `a[states.NAME]`.
 
 Pure: reads in-memory artifacts and the contract dict, returns findings, prints
 nothing.
@@ -28,7 +44,7 @@ def _result(gid, severity, passed, measured, threshold, message):
 
 # --------------------------------------------------------------------------- a
 
-def gate_halo(rgba, bg_color, cfg, drawn=None):
+def gate_halo(rgba, bg_color, cfg, drawn=None, label="body"):
     """(a) The edge must not read as the ground it was cut from.
 
     §9.4's letter is "mean saturation of border-adjacent semi-alpha pixels must
@@ -78,18 +94,36 @@ def gate_halo(rgba, bg_color, cfg, drawn=None):
 
     inner = im.erode(opaque, 1) & ~im.erode(opaque, 4)
     deep = im.erode(opaque, 10)
+    measured["a2_unmeasured"] = None
     if inner.sum() > 0 and deep.sum() > 0:
         sat = im.saturation(rgb)
         dist = im.rgb_distance(rgb, bg_color)
-        sat_ratio = float(sat[inner].mean() / max(float(sat[deep].mean()), 1e-9))
+        deep_sat = float(sat[deep].mean())
+        sat_ratio = float(sat[inner].mean() / max(deep_sat, 1e-9))
         dist_ratio = float(dist[inner].mean() / max(float(dist[deep].mean()), 1e-9))
         measured["inner_band_saturation"] = round(float(sat[inner].mean()), 4)
-        measured["deep_saturation"] = round(float(sat[deep].mean()), 4)
+        measured["deep_saturation"] = round(deep_sat, 4)
         measured["inner_band_saturation_ratio"] = round(sat_ratio, 4)
         measured["inner_band_bg_distance_ratio"] = round(dist_ratio, 4)
-        clauses.append(("a2 inner-band saturation ratio",
-                        sat_ratio >= cfg["inner_band_saturation_ratio_min"],
-                        round(sat_ratio, 4), cfg["inner_band_saturation_ratio_min"]))
+        # A ratio is undefined when its denominator is zero, and on a genuinely
+        # achromatic object -- R=G=B, which is what a neutrally rendered iron key
+        # or silver coin IS -- the deep interior's saturation is exactly that.
+        # The clamp then evaluated the ratio to 0 and gate (a) hard-failed the
+        # object for having no colour: the very false-fail the ratio form was
+        # adopted to prevent, reappearing at the limit, with no regeneration able
+        # to fix it. Below the floor a2 is declared UNMEASURED by name and a3 --
+        # written for exactly the case where the object has no saturation at all
+        # -- carries the verdict alone.
+        if deep_sat < cfg["min_deep_saturation"]:
+            measured["a2_unmeasured"] = (
+                "the object is achromatic (deep-interior saturation %.4f, floor %g): a "
+                "saturation RATIO has no meaning against a zero denominator, so a2 did not "
+                "run and a3 carries the edge verdict alone"
+                % (deep_sat, cfg["min_deep_saturation"]))
+        else:
+            clauses.append(("a2 inner-band saturation ratio",
+                            sat_ratio >= cfg["inner_band_saturation_ratio_min"],
+                            round(sat_ratio, 4), cfg["inner_band_saturation_ratio_min"]))
         clauses.append(("a3 inner-band ground-distance ratio",
                         dist_ratio >= cfg["inner_band_bg_distance_ratio_min"],
                         round(dist_ratio, 4), cfg["inner_band_bg_distance_ratio_min"]))
@@ -131,22 +165,52 @@ def gate_halo(rgba, bg_color, cfg, drawn=None):
                         round(res, 4), -cfg["coverage_residual_dark_max"]))
 
     measured["a4_unmeasured_grounds"] = unmeasured
+    measured["image"] = label
+    # a4 is the ONLY clause that looks at the edge as the room will see it, and
+    # when it could not run over any ground the gate was still returning green.
+    # A hard-edged silhouette -- the sticker tell itself -- is exactly what leaves
+    # no measurable rim at draw scale, so the one case a4 exists for was the case
+    # that switched it off.
+    #
+    # But an unmeasurable rim is not proof of a hard edge: an axis-aligned
+    # silhouette (the constructed clean control is a rectangle filling its own
+    # bbox) survives a bilinear downscale with no partial coverage at all while
+    # being perfectly feathered natively. So when a4 cannot run, the question is
+    # answered where it CAN be: on the stored sprite's own boundary. The feather
+    # is one pixel wide by construction, so a real matte has at least one
+    # partial-alpha pixel per boundary pixel -- measured, every control is
+    # 1.00-1.92 and a hard-cut silhouette is exactly 0.00. Absence of a rim now
+    # produces a verdict either way, and never silence.
+    if len(unmeasured) == len(rims):
+        boundary = int(im.boundary_ring(opaque).sum())
+        softness = ring.sum() / float(max(boundary, 1))
+        measured["edge_softness_ratio"] = round(float(softness), 3)
+        clauses.append(("a4 substitute — native edge softness (no ground could be measured "
+                        "at draw scale)", softness >= cfg["min_edge_softness_ratio"],
+                        round(float(softness), 3), cfg["min_edge_softness_ratio"]))
     failed = [c for c in clauses if not c[1]]
     note = ("" if not unmeasured else
             " — NOTE: the composited-rim clause could not be measured over the %s ground "
             "(too few rim pixels at draw scale, which is what a hard-edged silhouette looks "
             "like), so that clause did not run" % ", ".join(unmeasured))
+    if measured["a2_unmeasured"]:
+        note += " — NOTE: " + measured["a2_unmeasured"]
     msg = (("all halo clauses that could run hold (%s)"
             % ", ".join("%s %g" % (c[0], c[2]) for c in clauses)) + note
            if not failed else
            "; ".join("%s: measured %g against %g" % (c[0], c[2], c[3]) for c in failed) + note)
-    return _result("a", "hard", not failed, measured,
+    # The gate id carries the image it judged. A swap sprite runs (a) twice --
+    # once on the body, once on the open-state image -- and both printed a bare
+    # `a`, so the board could not say which verdict was about which picture and
+    # `measured.edge.composited_rim` picked whichever came first, describing the
+    # state image while claiming to describe the sprite.
+    return _result("a" if label == "body" else "a[%s]" % label, "hard", not failed, measured,
                    {k: v for k, v in cfg.items() if not k.startswith("_")}, msg)
 
 
 # --------------------------------------------------------------------------- b
 
-def gate_holes(rgba, bg_color, cfg):
+def gate_holes(rgba, bg_color, cfg, label="body"):
     """(b) Enclosed ground-coloured regions still at alpha > 0.
 
     Two things make this able to fail without failing on every real image:
@@ -183,7 +247,8 @@ def gate_holes(rgba, bg_color, cfg):
            "%d enclosed ground-coloured region(s) remain at alpha > 0, largest %d px "
            "(tolerance %g, min area %d) — the matte missed a gap"
            % (len(big), max(big), cfg["tolerance"], cfg["min_area_px"]))
-    return _result("b", "hard", not big, measured, dict(cfg), msg)
+    return _result("b" if label == "body" else "b[%s]" % label,
+                   "hard", not big, dict(measured, image=label), dict(cfg), msg)
 
 
 # --------------------------------------------------------------------------- c
@@ -298,6 +363,19 @@ def gate_light(rgba, cfg, label="body"):
     est = light_estimate(rgba, cfg["expected_deg"])
     ok = True
     msgs = []
+    # Neither clause runs when the estimator had nothing to sample — a narrow
+    # object leaves too few eroded interior pixels, and one with nothing in an
+    # outer third has no tilt. Both used to be silent, and the gate then printed
+    # "light reads as UL45 on both measures", which is simply untrue: a pass
+    # carrying less information than its message claims is the defect this row
+    # keeps finding, and this is its cleanest instance.
+    unmeasured = [name for name, key in (("bright-side estimate", "deviation_deg"),
+                                         ("third tilt", "third_tilt"))
+                  if key not in est]
+    if unmeasured:
+        msgs.append("NOT MEASURED — %s could not be computed from this sprite (too little "
+                    "interior to sample, or an empty outer third), so nothing about its light "
+                    "was checked" % " and ".join(unmeasured))
     if "deviation_deg" in est and est["deviation_deg"] > cfg["max_deviation_deg"]:
         ok = False
         msgs.append("bright-side estimate %.1f deg deviates %.1f deg from the %.1f deg a "
@@ -310,7 +388,10 @@ def gate_light(rgba, cfg, label="body"):
                     "mechanisms.spec light clause requires — this sprite does not carry the "
                     "horizontal half of UL45 and that Playwright case will go red when it "
                     "replaces a placeholder" % (est["third_tilt"], cfg["min_third_tilt"]))
-    return _result("e", "warn", ok, dict(est, image=label), dict(cfg),
+    if unmeasured:
+        ok = False                      # warn-only, so this surfaces rather than blocks
+    return _result("e" if label == "body" else "e[%s]" % label, "warn", ok,
+                   dict(est, image=label, unmeasured=unmeasured), dict(cfg),
                    "; ".join(msgs) if msgs else "light reads as UL45 on both measures")
 
 
@@ -363,7 +444,7 @@ def gate_contact(anchors, px, attachment, cfg, provenance=None):
                    % (frac * 100))
 
 
-def gate_shadow(rgba, bg_color, cfg):
+def gate_shadow(rgba, bg_color, cfg, label="body"):
     """(h) No baked studio shadow welded to the silhouette. [AI, row 3]
 
     `negative_block` forbids "cast shadow on the background" and generators
@@ -381,7 +462,8 @@ def gate_shadow(rgba, bg_color, cfg):
     rgb = rgba[..., :3]
     opaque = a >= im.ALPHA_OPAQUE
     if opaque.sum() == 0:
-        return _result("h", "hard", True, {}, dict(cfg), "nothing opaque to check")
+        return _result("h" if label == "body" else "h[%s]" % label,
+                       "hard", True, {"image": label}, dict(cfg), "nothing opaque to check")
     lum = im.luminance(rgb)
     sat = im.saturation(rgb)
     bg_lum = float(im.luminance(np.asarray(bg_color, np.float64)[None, None, :])[0, 0])
@@ -402,14 +484,59 @@ def gate_shadow(rgba, bg_color, cfg):
     rows = np.arange(h)[:, None]
     solid_rows = np.where(solid, rows, -1)
     lowest_solid = solid_rows.max(axis=0)            # -1 where a column has none
-    below = toned & (rows > lowest_solid[None, :]) & (lowest_solid[None, :] >= 0)
+    has_solid = lowest_solid[None, :] >= 0
+    below = toned & (rows > lowest_solid[None, :]) & has_solid
+    # A column with NO non-toned pixel at all was discarded entirely, and that is
+    # the most natural cast-shadow geometry there is: a UL45 key throws its
+    # shadow down and to the RIGHT, into columns beside the furniture, where
+    # `lowest_solid` is -1. Between the legs is the same case.
+    #
+    # Two guards keep this from swallowing the object it was written to protect.
+    # An image with NO non-toned pixel anywhere is a uniformly ground-toned
+    # object — the iron key, the silver coin — and this measure has no reference
+    # at all on it: it reports that rather than calling the whole object a
+    # shadow. And a shadow lies BELOW the thing that casts it globally, not only
+    # per column, so a toned region above everything solid is not one.
+    #
+    # The discriminator is CONNECTED COMPONENTS, not per-pixel columns. A first
+    # attempt counted every toned pixel in a column with no solid pixel, and the
+    # constructed iron disc — 99.7% ground-toned, with a few tenths of a percent
+    # of non-toned noise scattered through it — had most of its own columns
+    # counted as shadow: 65769 px against zero before. What separates the two is
+    # that the disc's toned region SPANS the columns its solid pixels occupy,
+    # while a pool cast to the side is horizontally disjoint from the object
+    # altogether. So a toned component counts as a shadow only when no column it
+    # occupies contains any solid pixel, and it does not sit above everything
+    # solid — because a shadow lies below the thing that casts it.
+    beside = np.zeros_like(toned)
+    no_reference = bool(solid.sum() == 0)
+    if not no_reference:
+        solid_cols = solid.any(axis=0)
+        solid_top = int(np.argmax(solid.any(axis=1)))
+        # Label the WHOLE toned mask, not `toned & ~has_solid`: restricting the
+        # search to no-solid columns first and then asking whether a component
+        # touches a solid column makes the question unanswerable by construction,
+        # and every component came back "beside".
+        labels, n = im.label_components(toned)
+        for lid in range(1, n + 1):
+            comp = labels == lid
+            cols = comp.any(axis=0)
+            if (cols & solid_cols).any():
+                continue                       # part of the object's own body
+            if int(np.argmax(comp.any(axis=1))) < solid_top:
+                continue                       # above everything solid: not a shadow
+            beside |= comp
     frac = float(toned.sum()) / float(opaque.sum())
-    below_frac = float(below.sum()) / float(opaque.sum())
+    below_frac = float((below | beside).sum()) / float(opaque.sum())
     measured = {"ground_toned_fraction": round(frac, 5),
                 "toned_below_object_fraction": round(below_frac, 5),
+                "toned_below_px": int(below.sum()),
+                "toned_beside_object_px": int(beside.sum()),
+                "no_reference": no_reference,
                 "ground_luminance": round(bg_lum, 2)}
     ok = below_frac <= cfg["max_toned_below_object_fraction"]
-    return _result("h", "hard", ok, measured, dict(cfg),
+    return _result("h" if label == "body" else "h[%s]" % label,
+                   "hard", ok, dict(measured, image=label), dict(cfg),
                    "no ground-toned pool below the object (%.3f%% of opaque pixels)"
                    % (below_frac * 100) if ok else
                    "%.2f%% of opaque pixels are ground-toned and sit below the object's own "
@@ -421,7 +548,7 @@ def gate_shadow(rgba, bg_color, cfg):
 
 # --------------------------------------------------------------------------- g
 
-def gate_over_matte(sensitivity, erode_excess, cfg, detail=None):
+def gate_over_matte(sensitivity, erode_excess, cfg, detail=None, label="body"):
     """(g) The matte must not be eating the object. [AI, row 3]
 
     §9.4 hunts leftover holes and never hunts a bitten silhouette; a key with
@@ -446,7 +573,8 @@ def gate_over_matte(sensitivity, erode_excess, cfg, detail=None):
                 "erode_excess_ratio": round(float(erode_excess), 5)}
     if detail:
         measured.update(detail)
-    return _result("g", "hard", ok, measured, dict(cfg),
+    return _result("g" if label == "body" else "g[%s]" % label,
+                   "hard", ok, dict(measured, image=label), dict(cfg),
                    "silhouette moves %.2f%% of its area across a +/-25%% tolerance sweep "
                    "(limit %.2f%%), erosion cost %.2fx what its perimeter predicts (limit %.2fx)"
                    % (sensitivity * 100, cfg["max_tolerance_sensitivity"] * 100,
@@ -457,22 +585,29 @@ def gate_over_matte(sensitivity, erode_excess, cfg, detail=None):
 
 # --------------------------------------------------------------------------- misc
 
-def gate_dims(cross):
+def gate_dims(cross, cfg=None):
     """The declared dimensions against the drawn ones. Warn.
 
     It was computed and written into the record with no severity at all, so a
     `--width-m` off by a third emitted no line and did not touch the exit code.
-    The corpus desk measures 0.70: the world calls it 1.30 m wide and it draws
+    The corpus desk measured 0.70: the world called it 1.30 m wide and it drew
     0.98 m wide in the room. The renderer scales by height, so §12.5 cannot see
     it, and it is comparison-criteria's own T5.3 (scale disagreement).
 
     Warn, not hard: `dims_m` is the operator's, sourced from period reference,
     and blueprint §5 says the project camera is unsettled — so a disagreement is
-    real information and not a proof of error.
+    real information and not a proof of error. What a warn does NOT license is
+    shipping through it: the corpus desk was re-declared from its own pixels at
+    the close of row 3, because a warn nobody acts on is a warn nobody has.
+
+    The band lives in `contract.json` gates.dims. It was a literal inside
+    `record.dims_cross_check`, which put the only check for T5.3 outside the
+    frozen threshold set the record's provenance hash covers.
     """
+    cfg = cfg or {"ratio_min": 0.85, "ratio_max": 1.15}
     return _result("dims", "warn", bool(cross.get("agrees")),
                    {k: cross[k] for k in ("drawn_width_m", "implied_width_m", "ratio")},
-                   {"ratio_band": [0.85, 1.15]},
+                   {"ratio_band": [cfg["ratio_min"], cfg["ratio_max"]]},
                    "declared dimensions agree with the drawn width (ratio %s)"
                    % cross.get("ratio") if cross.get("agrees") else
                    "the object draws %.3f m wide where dims_m implies %.3f m (ratio %s): the "
@@ -483,13 +618,22 @@ def gate_dims(cross):
 
 
 def part_mask_adherence_gate(adherence, cfg):
-    """Warn when a part mask's boundary does not sit on the reveal gaps.
+    """Report a part mask's boundary adherence to the reveal gaps. No verdict.
 
-    Warn, not hard: measured on the corpus desk the fitted mask scores 0.51 and
-    masks displaced 20-30 px score 0.24-0.27, which discriminates but not
-    sharply enough to block on — the drawer's own highlight band is nearly as
-    dark as a reveal. The real evidence is the overlay image
-    `replicator.maskgen --overlay` writes for the eye.
+    On constructed art this separates perfectly (exact mask 1.00; displaced
+    20px in, 20px out or 30px on one edge all 0.00). On the corpus desk the
+    ordering **inverts**: the fitted mask scores 0.21 while the same mask
+    displaced 25 and 30 px scores 0.31 and 0.33. A statistic that ranks a wrong
+    mask above a right one cannot carry a verdict, and dressing it as a warning
+    would have it read as evidence — so it is reported and nothing else.
+
+    The evidence that a mask follows the reveals is the overlay image
+    `replicator.maskgen --overlay` writes, and that is what was looked at.
+
+    (This docstring said the opposite — 0.51 fitted against 0.24-0.27 displaced,
+    "warn, not hard" — while the code below and `contract.json` both carried the
+    inverted numbers and the "report" severity. The stale half inverted the
+    finding, which is worse than omitting it.)
     """
     if adherence is None:
         return _result("part_mask", "warn", True, {}, dict(cfg),
@@ -510,41 +654,57 @@ def part_mask_adherence_gate(adherence, cfg):
 
 
 def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None,
-               opening_max_dy=None, max_dx=None, backing=None, min_backing=None):
+               opening_max_dy=None, max_dx=None, backing=None, min_backing=None,
+               scale_open_min=0.2, scale_open_max=3.0):
     """The declared travel must clear the cavity it slides out of.
 
     Row 2's lesson turned into a check: `slide.dy` 0.24 was chosen for the
     placeholder desk so the revealed key draws *inside* the cavity rather than
     on the drawer's face, because children draw after their host's parts. A
     `dy` copied from a document example reproduces that defect invisibly.
+
+    Six independent clauses share the one gate id. `measured["clauses_failed"]`
+    names which of them fired, because the recheck deleted the two that matter
+    most — `carcass_backing` and `max_dy_at_opening` — and the whole suite stayed
+    green: the only case that named the gate at all used a travel that tripped
+    three clauses at once and asserted `"slide" in failures`. A clause that no
+    case can distinguish from its neighbours is a clause nothing guards.
     """
     ok = supplied_dy >= min_dy
     msgs = []
+    fired = []
     if backing is not None and min_backing is not None and backing < min_backing:
         ok = False
+        fired.append("carcass_backing")
         msgs.append("at full travel only %.0f%% of the open part still lies against the body's "
                     "own carcass (floor %.0f%%): the rest hangs over the gaps between the legs, "
                     "which at draw scale reads as a plank on the floor rather than as an open "
                     "drawer" % (backing * 100, min_backing * 100))
     if opening_max_dy is not None and supplied_dy > opening_max_dy:
         ok = False
+        fired.append("max_dy_at_opening")
         msgs.append("slide.dy %g carries the open front past its own opening (limit %.4f). A "
                     "drawer slides OUT of its recess and stays at it; travel beyond this reads "
                     "as a plank lying on the floor, which is what the corpus desk did at dy "
                     "0.24 with only a lower bound in force" % (supplied_dy, opening_max_dy))
     if max_dx is not None and abs(dx) > max_dx:
         ok = False
+        fired.append("max_dx_fraction")
         msgs.append("slide.dx %g moves the part more than %.2f of the body width sideways; a "
                     "drawer pulls toward the viewer, not across the carcass" % (dx, max_dx))
     if max_dy is not None and supplied_dy > max_dy:
         ok = False
+        fired.append("max_dy_on_canvas")
         msgs.append("slide.dy %g travels past the body's own bottom edge (limit %.4f): a part "
                     "that leaves the canvas satisfies a minimum-travel bound while being "
                     "nowhere the player can see it" % (supplied_dy, max_dy))
-    if scale_open is not None and not (0.2 <= scale_open <= 3.0):
+    if scale_open is not None and not (scale_open_min <= scale_open <= scale_open_max):
         ok = False
-        msgs.append("slide.scale_open %g is outside 0.2..3.0" % scale_open)
+        fired.append("scale_open_range")
+        msgs.append("slide.scale_open %g is outside %g..%g"
+                    % (scale_open, scale_open_min, scale_open_max))
     if not ok and supplied_dy < min_dy:
+        fired.append("min_dy_clearance")
         msgs.append("slide.dy %g does not clear the cavity: the open front's top edge must "
                     "reach it, which needs dy >= %.4f. A revealed child would draw on the "
                     "face of the drawer instead of inside it." % (supplied_dy, min_dy))
@@ -562,10 +722,15 @@ def slide_gate(supplied_dy, min_dy, dx, view_side, max_dy=None, scale_open=None,
                     "max_dy_at_opening": (None if opening_max_dy is None
                                           else round(float(opening_max_dy), 4)),
                     "scale_open": scale_open,
-                    "carcass_backing": (None if backing is None else round(float(backing), 4))},
+                    "carcass_backing": (None if backing is None else round(float(backing), 4)),
+                    "clauses_failed": fired},
                    {"min_dy_clearance": round(float(min_dy), 4),
                     "max_dy_at_opening": (None if opening_max_dy is None
-                                          else round(float(opening_max_dy), 4))},
+                                          else round(float(opening_max_dy), 4)),
+                    "min_carcass_backing": min_backing,
+                    "max_dx_fraction": max_dx,
+                    "max_dy_on_canvas": (None if max_dy is None else round(float(max_dy), 4)),
+                    "scale_open_range": [scale_open_min, scale_open_max]},
                    "; ".join(msgs) if msgs else
                    "travel clears the cavity (dy %g >= %.4f)" % (supplied_dy, min_dy))
 

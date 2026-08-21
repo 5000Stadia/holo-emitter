@@ -107,6 +107,33 @@ def squat_sprite(size=700, radius=300):
     return _u8(a)
 
 
+def neutral_disc(size=700, radius=300, tone=118):
+    """A **genuinely achromatic** object: R = G = B at every pixel.
+
+    The control set had no such member. `IRON` is (86, 88, 92) — tinted grey,
+    saturation 0.065 — and every other control carries colour, so nothing in the
+    set could reach the case where gate (a)'s a2 ratio has a zero denominator.
+    A neutrally rendered iron key or silver coin IS this object, both of them
+    M0 takeables, and before the fix gate (a) hard-failed it for having no
+    colour, at exit 2, "regenerate the source", which no regeneration could fix.
+
+    Deliberately NOT the ground's own tone: it must be a real object the matte
+    can cut, so it sits well clear of the mid-grey seamless while staying on the
+    achromatic axis.
+    """
+    a = _canvas(size)
+    cy, cx = size // 2, size // 2
+    y = np.arange(size)[:, None]
+    x = np.arange(size)[None, :]
+    disc = ((y - cy) / float(radius)) ** 2 + ((x - cx) / float(radius)) ** 2 <= 1.0
+    # A gentle top-left falloff so the object is not a flat plate, still R=G=B.
+    shade = 1.0 - 0.18 * ((y - cy) / float(radius) + (x - cx) / float(radius)) / 2.0
+    v = np.clip(tone * shade, 0, 255)
+    for c in range(3):
+        a[..., c] = np.where(disc, v, a[..., c])
+    return _u8(a)
+
+
 def lit_solid(size=900, direction="UL"):
     """A box lit from a named direction — the reference input for gate (e).
 
@@ -260,16 +287,30 @@ def state_pair(size=800, leaf_w=260, leaf_h=600, jamb=(169, 136, 54)):
     jx0, jy0 = left - 34, m + leaf_h // 2 - 30
     jx1, jy1 = left - 8, m + leaf_h // 2 + 30
 
+    def _jamb(a):
+        """The jamb mark, identical in both images — and NOT a plain bar.
+
+        A featureless vertical rectangle is translationally ambiguous along its
+        own axis and matches any other vertical bar in the frame (the open
+        image's edge-on sliver is one). Normalized cross-correlation scored a
+        rival within 0.012 of the true peak on the original control, so the
+        peak-margin clause refused the project's own datum — correctly. The
+        control is a *good* datum now: a peg crossing the jamb gives it
+        structure on both axes and one place it fits.
+        """
+        _rect(a, jx0, jy0, jx1, jy1, jamb)
+        _rect(a, jx0 - 9, jy0 + 18, jx1 + 9, jy0 + 30, OAK_DARK)   # the peg
+
     closed = _canvas(size)
     _rect(closed, left, m, left + leaf_w, m + leaf_h, OAK)
     _rect(closed, left + leaf_w // 2 - 10, m + leaf_h // 2 - 10,
           left + leaf_w // 2 + 10, m + leaf_h // 2 + 10, OAK_LIGHT)
-    _rect(closed, jx0, jy0, jx1, jy1, jamb)
+    _jamb(closed)
 
     opened = _canvas(size)
     sliver = 46
     _rect(opened, left, m, left + sliver, m + leaf_h, OAK_DARK)
-    _rect(opened, jx0, jy0, jx1, jy1, jamb)
+    _jamb(opened)
 
     return _u8(closed), _u8(opened), {
         "leaf_w": leaf_w, "leaf_h": leaf_h, "top": m, "left": left,
@@ -285,6 +326,7 @@ CASES = {
     "clean": lambda: clean_sprite(),
     "legged": lambda: legged_sprite(),
     "squat": lambda: squat_sprite(),
+    "neutral": lambda: neutral_disc(),
     "lit-ul": lambda: lit_solid(direction="UL"),
     "lit-ur": lambda: lit_solid(direction="UR"),
     "lit-top": lambda: lit_solid(direction="TOP"),

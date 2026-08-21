@@ -41,10 +41,23 @@ class IngestResult:
     gates: list = field(default_factory=list)
     derived: dict = field(default_factory=dict)
     measured: dict = field(default_factory=dict)
+    operator_gates: set = field(default_factory=set)
 
     @property
     def failures(self):
         return [g["id"] for g in self.gates if g["severity"] == "hard" and not g["passed"]]
+
+    @property
+    def operator_failures(self):
+        """The hard failures whose only inputs are the operator's own flags.
+
+        The CLI's exit codes partition by WHO MUST ACT, and the asset seat's
+        autonomous lane branches on them — exit 2 means "regenerate the source".
+        But `slide`, `open_state`, `registration`, `alignment` and an overridden
+        `f` fail on flag values, not on the image, and all of them exited 2: the
+        lane would regenerate a picture that was never the problem.
+        """
+        return [g for g in self.failures if g in self.operator_gates]
 
     @property
     def warnings(self):
@@ -70,7 +83,9 @@ def _matte_one(src_rgb, contract, object_class=None):
         edge_erode_px=spatial["edge_erode_px"],
         feather_px=contract["ingest"]["matte"]["feather_px"],
         rgb_bleed_px=spatial["rgb_bleed_px"],
-        max_erode_excess_ratio=contract["gates"]["over_matte"]["max_erode_excess_ratio"])
+        max_erode_excess_ratio=contract["gates"]["over_matte"]["max_erode_excess_ratio"],
+        framing_rule=contract_mod.for_class(contract, "ingest.matte.framing_rule",
+                                            object_class))
     return result, {"tolerance": round(tolerance, 3), "ground": stats,
                     "spatial": spatial, "content_height_px": content_h}
 
@@ -86,11 +101,11 @@ def _limit_resolution(rgba, max_h):
     return out, {"from": [int(rgba.shape[1]), int(h)], "to": [w, int(max_h)]}
 
 
-def _chroma(rgba, alpha_opaque):
+def _chroma(rgba, alpha_opaque, alpha_solid):
     """Quality 1's temperature half, measured. Nothing gates it — see §B."""
     a = rgba[..., 3]
     rgb = rgba[..., :3].astype(np.float64)
-    solid = a >= im.ALPHA_SOLID
+    solid = a >= alpha_solid
     if solid.sum() == 0:
         solid = a >= alpha_opaque
     if solid.sum() == 0:
@@ -131,7 +146,7 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
                   dims_m, view_side=None, period=None, takeable=False, airborne=False,
                   source="generated", object_class=None, environment=None,
                   anchor_regions=None, footprint_src=None,
-                  part_specs=None, state_specs=None):
+                  part_specs=None, state_specs=None, previews=True):
     """Run every stage in memory and return the artifacts plus the gate report.
 
     `part_specs`  — [{"id", "mask": bool array in SOURCE coords, "slide": {dx,dy,scale_open},
@@ -158,8 +173,27 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     if state_specs and archetype != "swap":
         raise IngestError("--state given but --archetype is %r; a two-state sprite is `swap`"
                           % archetype)
+    # ...and the converse, which was missing. `--archetype sliding` with no
+    # --part emitted a green record for a sprite that declares a moving part and
+    # carries none: the world reads the archetype and offers an interaction that
+    # does nothing. An archetype is a promise about the artifacts beside it.
+    if archetype == "sliding" and not part_specs:
+        raise IngestError(
+            "--archetype sliding needs at least one --part: the record would declare a moving "
+            "part and ship no part image, and the world offers an interaction from the archetype")
+    if archetype == "swap" and not state_specs:
+        raise IngestError(
+            "--archetype swap needs at least one --state: the record would declare a second "
+            "state and ship no image for it")
+    if airborne and attachment in ("floor_against", "floor_free"):
+        raise IngestError(
+            "--airborne with --attachment %r is a contradiction: airborne says nothing touches "
+            "the floor and the attachment says where on the floor it stands. The renderer draws "
+            "no contact pool for an airborne sprite while gate (f) goes on certifying the "
+            "footprint one would be drawn from." % attachment)
 
     alpha_opaque = contract["gates"]["alpha_opaque"]["value"]
+    alpha_solid = contract["gates"]["alpha_opaque"]["solid_value"]
     result = IngestResult()
     gates = []
 
@@ -189,7 +223,12 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
 
     # ---- stage 2: anchors ----------------------------------------------
     contact_cfg = contract_mod.for_class(contract, "gates.contact", object_class)
-    anch, anch_prov = anchors_mod.derive_anchors(body, contact_cfg["band_fraction"])
+    # `alpha_opaque` is threaded in rather than read from the module constant:
+    # its contract basis names base.y and the footprint's contact columns, and a
+    # threshold the contract states but the code does not consult is a threshold
+    # the record's provenance hash lies about.
+    anch, anch_prov = anchors_mod.derive_anchors(body, contact_cfg["band_fraction"],
+                                                 alpha_opaque=alpha_opaque)
     if footprint_src is not None:
         scaled = (footprint_src[0] * scale_back, footprint_src[1] * scale_back)
         anch = anchors_mod.apply_footprint_override(
@@ -243,7 +282,9 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
             float(slide["dy"]), min_dy, float(slide["dx"]), view_side or "left",
             max_dy=max_dy, scale_open=float(slide.get("scale_open", 1.0)),
             opening_max_dy=opening_max_dy, max_dx=cav_cfg2["max_dx_fraction"],
-            backing=backing, min_backing=cav_cfg2["min_carcass_backing"]))
+            backing=backing, min_backing=cav_cfg2["min_carcass_backing"],
+            scale_open_min=cav_cfg2["scale_open_min"],
+            scale_open_max=cav_cfg2["scale_open_max"]))
 
         flagged = (anchor_regions or {}).get("drawer_cavity")
         if flagged is not None:
@@ -316,29 +357,59 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
             state_rgba = np.array(_Image.fromarray(state_rgba, "RGBA")
                                   .resize((sw, sh), _Image.LANCZOS))
         derived_origin = None
-        peak = None
+        evidence = None
         if spec.get("datum") is not None:
-            dx, dy, peak = states_mod.locate_datum(source_rgb, spec["source_rgb"],
-                                                   spec["datum"])
+            reg_cfg = contract_mod.for_class(contract, "gates.registration", object_class)
+            dx, dy, evidence = states_mod.locate_datum(
+                source_rgb, spec["source_rgb"], spec["datum"],
+                search_fraction=reg_cfg["search_fraction"])
             derived_origin = states_mod.origin_from_datum((dx, dy), m.trim_offset,
                                                           sm.trim_offset)
             derived_origin = {"x": derived_origin["x"] * scale_back,
                               "y": derived_origin["y"] * scale_back}
             result.derived.setdefault("states", {})[spec["name"]] = {
-                "datum_offset": [dx, dy], "correlation_peak": round(float(peak), 4),
+                "datum_offset": [dx, dy], "datum_evidence": dict(evidence),
                 "derived_origin": derived_origin, "matte": sinfo}
         st = states_mod.prepare_state(
-            spec["name"], state_rgba, body, spec.get("origin"), derived_origin, peak,
-            contract_mod.for_class(contract, "gates.registration", object_class))
+            spec["name"], state_rgba, body, spec.get("origin"), derived_origin, evidence,
+            contract_mod.for_class(contract, "gates.registration", object_class),
+            alignment_cfg=contract_mod.for_class(contract, "gates.alignment", object_class))
         gates.append(st.gate)
-        if st.registration:
-            gates.append(st.registration)
+        gates.append(st.registration)
         gates.append(gates_mod.gate_light(
             state_rgba, contract_mod.for_class(contract, "gates.light", object_class),
             label="states.%s" % spec["name"]))
         # §9.3b says gate (e) applies to both images; a haloed open leaf would
         # otherwise reach the room with nothing having looked at its edge.
-        gates.append(gates_mod.gate_halo(state_rgba, sm.bg_color, halo_cfg))
+        #
+        # And the rest of the image-quality set with it. The open state is an
+        # INDEPENDENTLY GENERATED picture that goes through its own matte, so it
+        # can carry its own baked studio shadow, its own unpunched gap between a
+        # door's muntins, and its own over-eaten silhouette — none of which the
+        # closed body's gates can see, because they never look at it. A clean
+        # closed cupboard beside an open state with a shadow welded on shipped
+        # green. `label` puts the image in each id so the board says which
+        # picture each verdict is about.
+        state_label = "states.%s" % spec["name"]
+        gates.append(gates_mod.gate_halo(state_rgba, sm.bg_color, halo_cfg,
+                                         label=state_label))
+        gates.append(gates_mod.gate_holes(
+            state_rgba, sm.bg_color,
+            {"tolerance": sinfo["tolerance"] *
+                          contract["gates"]["holes"]["tolerance_multiplier"],
+             "min_area_px": sinfo["spatial"]["hole_min_area_px"]},
+            label=state_label))
+        gates.append(gates_mod.gate_shadow(
+            state_rgba, sm.bg_color,
+            contract_mod.for_class(contract, "gates.shadow", object_class),
+            label=state_label))
+        s_sens, s_detail = matte_mod.tolerance_sensitivity(
+            spec["source_rgb"], sm.bg_color, sinfo["tolerance"],
+            sweep=contract["gates"]["over_matte"]["sweep"])
+        gates.append(gates_mod.gate_over_matte(
+            s_sens, sm.stats["erode_excess_ratio"],
+            contract_mod.for_class(contract, "gates.over_matte", object_class),
+            s_detail, label=state_label))
         result.states[spec["name"]] = st.rgba
         states_images[spec["name"]] = {"image": "states/%s.png" % spec["name"],
                                        "origin": dict(st.origin)}
@@ -351,8 +422,9 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
                                       content_px=thumb_cfg["content_px"],
                                       filter=thumb_cfg["filter"])
         result.thumb = thumb
-    gates.append(thumbs_mod.thumb_gate(thumb, takeable, thumb_cfg["size_px"],
-                                       thumb_cfg["content_px"]))
+    gates.append(thumbs_mod.thumb_gate(
+        thumb, takeable, thumb_cfg["size_px"], thumb_cfg["content_px"],
+        cfg=contract_mod.for_class(contract, "gates.thumb", object_class)))
 
     # ---- stage 4: the rest of the gates ---------------------------------
     # The matte clauses judge the MATTE -- the full-resolution silhouette stage 1
@@ -379,20 +451,25 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     light_gate = gates_mod.gate_light(
         body, contract_mod.for_class(contract, "gates.light", object_class))
     gates.append(light_gate)
+    dims_cfg = contract_mod.for_class(contract, "gates.dims", object_class)
     cross = record_mod.dims_cross_check(
         {"h": float(dims_m["h"]), "w": float(dims_m["w"]), "d": float(dims_m["d"])},
-        px, contract["camera"]["turn_deg"])
-    gates.append(gates_mod.gate_dims(cross))
+        px, contract["camera"]["turn_deg"], dims_cfg)
+    gates.append(gates_mod.gate_dims(cross, dims_cfg))
 
     # ---- previews (looked at, not only measured) ------------------------
-    for name, ground in prev_cfg["grounds"].items():
+    # Four full composites at draw scale are not free, and blueprint §4b rule 1's
+    # whole point is that a live host imports this per frame. They are computed
+    # when someone is going to look at them and not otherwise.
+    for name, ground in (prev_cfg["grounds"].items() if previews else ()):
         for state, t in (("closed", 0.0), ("open", 1.0)):
             shown = preview_mod.with_parts(body, result.parts, part_records, t=t) \
                 if part_records else body
             canvas, _ = preview_mod.composite_preview(
                 shown, ground, prev_cfg["draw_height_px"])
             result.previews["%s-%s" % (name, state)] = preview_mod.annotate_contact(
-                canvas, shown, anch, px, prev_cfg["draw_height_px"])
+                canvas, shown, anch, px, prev_cfg["draw_height_px"],
+                attachment=attachment, airborne=airborne)
             if not part_records:
                 break
 
@@ -400,7 +477,7 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     measured = {
         "light": dict(light_gate["measured"],
                       agrees_with_declared=bool(light_gate["passed"])),
-        "chroma": _chroma(body, alpha_opaque),
+        "chroma": _chroma(body, alpha_opaque, alpha_solid),
         "contact": anch_prov,
         "edge": {"composited_rim": gates[-1]["measured"].get("composited_rim")
                  if gates and "composited_rim" in gates[-1].get("measured", {}) else
@@ -428,8 +505,19 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
         gates=[{k: g[k] for k in ("id", "severity", "passed", "measured", "threshold",
                                   "message")} for g in gates],
         derived=result.derived, measured=measured,
-        turn_deg=contract["camera"]["turn_deg"])
+        turn_deg=contract["camera"]["turn_deg"], dims_cfg=dims_cfg)
 
     result.body = body
     result.gates = gates
+    # Which of the hard gates that ran take an operator flag as their only input.
+    # Gate (f) joins them only when --footprint overrode the derived contact band;
+    # otherwise it judges the image's own pixels.
+    op = set()
+    if part_specs:
+        op |= {"slide", "open_state"}
+    if state_specs:
+        op |= {"alignment", "registration"}
+    if footprint_src is not None:
+        op.add("f")
+    result.operator_gates = op
     return result

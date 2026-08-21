@@ -89,6 +89,30 @@ rather than as weak, and they are how a document like this stays faithful to a b
 It is a comparison of *rates*, deliberately: a build must not become safer by deleting objects,
 which is the exact incentive quality 3 needs reversed.
 
+**How the eight frames aggregate — one rule, and it is pooled.** [AI, row 3 close — an amendment to
+a frozen document, declared here rather than made quietly. It changes no threshold and no tell; it
+settles an ambiguity that made the arithmetic non-deterministic.]
+
+> Every quality's population is **pooled across all eight of our frames**, and the rate is computed
+> once over that pool. There is no per-frame verdict and no rule for combining eight of them,
+> because there are never eight to combine.
+
+What differs between qualities is only **what a member is** — an object-in-a-frame for Q1, a
+grounded-object-in-a-frame for Q2, a crossing pair for Q3, a frame for Q4, an object-in-a-frame for
+Q5 — never the scope. A tell marked "*Rate, per frame with two or more objects*" restricts which
+members are eligible; it does not create a per-frame verdict.
+
+This needed saying because two readings gave two different answers. Pooled, our set is about 88
+(object, frame) members against a single Riven still's 3, so the loss threshold is
+`1 ÷ (88 + 1) = 0.011` and one marked object in eighty-eight loses the quality. Counted inside a
+single frame, the same quality has 11 members and a threshold of `1 ÷ 12 = 0.083` — and nothing
+anywhere said how eight per-frame verdicts became one. A frozen document that gates Done cannot
+have two competent graders reach different arithmetic from it.
+
+The anchor side pools the same way over whatever anchor frames the grader was handed, which is
+usually one; the fourth worked example above is what protects a population of one from certifying
+itself green.
+
 **The empty-anchor rule.** If a quality's population is empty **on the anchor side** — the Riven
 still has no crossing pair of *objects* at all, and a landscape frame may have no grounded
 furniture — then `rate_anchor` is undefined and that frame cannot judge that quality. The grader
@@ -168,10 +192,14 @@ the coin.
 > "Objects overlap objects, not just the backdrop (draw order by baseline). Myst's frame sells depth
 > with column-before-building, ship-hull-behind-waterline — not with scale."
 
-**Population.** Every **crossing pair**, counted **across the whole set of eight frames** rather
-than per frame — depth built by overlap is a property of a set of views, and one frame may honestly
-contain none. The grader is handed our eight frames as a labelled group for this quality and this
-one only; every other population is counted inside a single frame.
+**Population.** Every **crossing pair** in any of the eight frames. Like every other quality this
+pools across the set (see *How the eight frames aggregate*); what is peculiar to this one is that a
+**member is a pair, not an object** — depth built by overlap is a property of a set of views, and
+one frame may honestly contain none.
+
+(This paragraph previously ended "every other population is counted inside a single frame", which
+contradicted Q1, Q2 and Q4's own wording and left the arithmetic undetermined. Pooling is the rule
+everywhere; the pairing is what is special here.)
 
 **A frame with no objects contributes no pairs and is never marked.** That is the bare-facing
 license operating exactly as §12.6 intends: a licensed-empty facing cannot lose this quality, and

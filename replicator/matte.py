@@ -123,17 +123,21 @@ def content_height(src_rgb, bg, tolerance):
     return 0 if box is None else box[3] - box[1]
 
 
-def _check_margin(src_rgb, bg, tolerance):
+def _check_margin(src_rgb, bg, tolerance, max_off=0.02):
     """The contract's framing.margin is 'full object centered'.
 
     A source whose object touches the border breaks the border-median sample
     and would be matted with a bitten silhouette. Detect it and refuse, rather
     than producing a sprite with a flat edge nobody drew.
+
+    `max_off` is `contract.json` ingest.matte.framing_rule. It was a literal
+    here — an acceptance number that decides which images ship, outside the
+    freeze and outside `provenance.contract.thresholds_sha256`.
     """
     ring = np.concatenate([src_rgb[0], src_rgb[-1], src_rgb[:, 0], src_rgb[:, -1]])
     d = im.rgb_distance(ring.reshape(-1, 3), bg)
     off = float((d > tolerance).mean())
-    if off > 0.02:
+    if off > max_off:
         raise MatteError(
             "the object touches the image border: %.1f%% of the 1-px border ring is "
             "further than tolerance %g from the sampled ground %s. The orientation "
@@ -143,7 +147,7 @@ def _check_margin(src_rgb, bg, tolerance):
     return off
 
 
-def _check_ground_plausible(src_rgb, bg):
+def _check_ground_plausible(src_rgb, bg, lum_min=40.0, lum_max=215.0):
     """The contract's ground is "perfectly plain seamless uniform mid-grey".
 
     The tolerance rule cites that clause as its whole authority, so the clause
@@ -154,7 +158,7 @@ def _check_ground_plausible(src_rgb, bg):
     IMAGE becomes object: twelve gates green and an opaque rectangle shipped.
     """
     lum = float(im.luminance(np.asarray(bg, np.float64)[None, None, :])[0, 0])
-    if not (40.0 <= lum <= 215.0):
+    if not (lum_min <= lum <= lum_max):
         raise MatteError(
             "the sampled ground is luminance %.0f, which is not the 'plain mid-grey seamless "
             "background' the orientation contract requires (and which the matte's tolerance "
@@ -163,14 +167,17 @@ def _check_ground_plausible(src_rgb, bg):
 
 
 def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
-          rgb_bleed_px, max_erode_excess_ratio=None):
+          rgb_bleed_px, max_erode_excess_ratio=None, framing_rule=None):
     """Matte one source image. See the module docstring for the stage order."""
     src_rgb = as_rgb(src_rgb)
     h, w = src_rgb.shape[:2]
 
     bg = sample_background(src_rgb)
-    border_off = _check_margin(src_rgb, bg, tolerance)
-    _check_ground_plausible(src_rgb, bg)
+    fr = framing_rule or {"max_border_off_fraction": 0.02,
+                          "ground_luminance_min": 40.0, "ground_luminance_max": 215.0}
+    border_off = _check_margin(src_rgb, bg, tolerance, fr["max_border_off_fraction"])
+    _check_ground_plausible(src_rgb, bg, fr["ground_luminance_min"],
+                            fr["ground_luminance_max"])
 
     # 2. similarity, 3. outer background
     dist = im.rgb_distance(src_rgb, bg)

@@ -28,6 +28,20 @@ def ingest(src, **kw):
     return pipeline_mod.ingest_sprite(source_rgb=src, contract=contract(), **args)
 
 
+def part_control():
+    """The constructed part source and a boolean mask of its drawer front.
+
+    `synth.part_source` returns the rect, not a mask, and four call sites turned
+    it into one by hand. One home for the conversion.
+    """
+    from replicator import maskgen
+    from replicator import synth
+    src, rect = synth.part_source()
+    mask = maskgen.rect_mask((src.shape[1], src.shape[0]),
+                             rect["x0"], rect["y0"], rect["x1"], rect["y1"])
+    return src, mask
+
+
 def matte_of(src, ct=None):
     """Stage 1 alone, with the contract's own per-image rules."""
     ct = ct or contract()

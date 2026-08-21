@@ -44,20 +44,31 @@ sudo apt-get install -y python3-numpy python3-pil
 python3 -m unittest discover -s replicator/tests -t . -v
 ```
 
-Nothing else is needed — Python, numpy and Pillow. To put a picture through it:
+Nothing else is needed — Python, numpy and Pillow. To put a picture through it, run it **from the
+repository root** (that is what puts `replicator` on Python's path) and give the picture and the
+destination as paths:
 
 ```
-python3 -m replicator.ingest picture.png --id oak-chair --noun "joined chair" \
-  --archetype static --attachment floor_against --height-m 1.05 --width-m 0.6 --depth-m 0.55
+python3 -m replicator.ingest ~/pictures/chair.png --id oak-chair --noun "joined chair" \
+  --archetype static --attachment floor_against --height-m 1.05 --width-m 0.6 --depth-m 0.55 \
+  --out library/ --preview-dir /tmp/prev
 ```
+
+The height, width and depth are the real object's, in metres, and it will tell you if they disagree
+with the picture's own proportions — a chair declared a third wider than it draws is a chair that
+will stand in the room at the wrong size beside everything else.
 
 It is hard to satisfy, and it says why: a halo left around the cut, a gap it missed between the
 legs, a shadow baked into the picture, a drawer that slides off the front of the thing it belongs
 to. Some things it only warns about — a light coming from the wrong side is one, because that is a
 judgement for the eye rather than for a number — and it says those out loud too, without refusing.
-Add `--check` to hear the verdict without writing anything, and `--preview-dir` to see the object
-composited small against a dark room and a light one, closed and open, which is where a bad cut
-shows.
+Add `--check` to hear the verdict while it writes nothing at all, and `--preview-dir` to see the
+object composited small against a dark room and a light one, closed and open, with the shadow pool
+the room will actually draw under it — which is where a bad cut shows.
+
+When it refuses, the exit code says whose problem it is: **2** means the picture needs making
+again, **3** means the command does (a travel you typed, a size you gave), **4** means the contract
+file itself is wrong, and **5** means the object is outside what the settings were built for.
 
 ## Editing the world
 

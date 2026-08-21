@@ -10,9 +10,9 @@ here.
 
     python3 -m replicator.ingest IMAGE --id desk-joined-oak-1660 \\
         --noun "joined oak writing desk" --archetype sliding \\
-        --attachment floor_against --height-m 0.78 --width-m 1.30 --depth-m 0.55 \\
+        --attachment floor_against --height-m 0.78 --width-m 0.81 --depth-m 0.55 \\
         --view-side left \\
-        [--part drawer_front:MASK.png --slide -0.10,0.24,1.06] \\
+        [--part drawer_front:MASK.png --slide -0.03,0.08,1.04] \\
         [--anchor surface_top:x0,y0,x1,y1] [--footprint x0,x1] \\
         [--state open:IMG --state-datum x0,y0,x1,y1 | --state-origin open:x,y] \\
         [--takeable] [--out library/] [--preview-dir DIR] [--report R.json]
@@ -24,7 +24,11 @@ once, then flag"), and exit 0 covers pass-with-warnings:
 
     0  pass (warnings allowed)
     2  content failure — regenerate the source
-    3  invocation failure — fix the command
+    3  invocation failure — fix the command. This covers a stage refusing the
+       flags AND a hard gate failing whose only inputs are flags (`slide`,
+       `open_state`, `alignment`, `registration`, an overridden `f`): a bad
+       `--slide` used to exit 2 and send the lane off to regenerate a picture
+       that was never wrong.
     4  contract failure — replicator/contract.json itself is wrong
     5  class failure — the object is outside what the frozen thresholds cover
        (the erosion guard's thin-feature refusal); the Navigator decides, via
@@ -66,13 +70,25 @@ def environment():
             "numpy": numpy.__version__, "pillow": PIL.__version__}
 
 
-def _read_rgb(path):
+def _read_rgb(path, meta=None):
+    """Decode a source to RGB, refusing one that has already been matted.
+
+    `meta`, when given, collects the encoding the file arrived in. Nothing
+    recorded it, though `tolerance_rule.min`'s own basis names "a lossy
+    encoder's own ringing" as the reason for its floor — so a JPEG source
+    ingested to exit 0 with every gate green and no trace of the fact. It is
+    reported, not gated: the ringing the floor exists for is real, and whether a
+    lossy source is acceptable is the Navigator's call on a named fact.
+    """
     from PIL import Image
     try:
         img = Image.open(path)
         img.load()
     except OSError as e:
         raise pipeline_mod.IngestError("cannot read image %s: %s" % (path, e))
+    if meta is not None:
+        meta.update({"format": img.format, "mode": img.mode,
+                     "lossy": img.format in ("JPEG", "WEBP", "MPO")})
     # An already-matted PNG handed back to the ingester is a plausible mistake
     # for a seat re-running an earlier output, and `.convert("RGB")` would
     # silently flatten it onto black -- whereupon the border median is black,
@@ -154,7 +170,9 @@ def build_parser():
                    help="where the dark/light composited previews go; never inside --out")
     p.add_argument("--report", default=None)
     p.add_argument("--check", action="store_true",
-                   help="run everything, write nothing, exit the code it would have exited")
+                   help="run every stage and every gate, write nothing at all — not the "
+                        "library, not previews even with --preview-dir — and exit the code "
+                        "it would have exited")
     p.add_argument("--json", action="store_true", help="the report on stdout, nothing else")
     p.add_argument("--contract", default=contract_mod.CONTRACT_PATH)
     return p
@@ -212,7 +230,8 @@ def _prune(directory, keep, subdir):
 
 def run(args):
     contract = contract_mod.load(args.contract)
-    source = _read_rgb(args.image)
+    source_meta = {}
+    source = _read_rgb(args.image, source_meta)
 
     regions = {}
     for text in args.anchor:
@@ -249,8 +268,10 @@ def run(args):
         dims_m={"h": args.height_m, "w": args.width_m, "d": args.depth_m},
         view_side=args.view_side, period=period, takeable=args.takeable,
         airborne=args.airborne, source=args.source, object_class=args.object_class,
-        environment=environment(), anchor_regions=regions, footprint_src=footprint,
-        part_specs=part_specs, state_specs=state_specs)
+        environment=dict(environment(), source_image=source_meta),
+        anchor_regions=regions, footprint_src=footprint,
+        part_specs=part_specs, state_specs=state_specs,
+        previews=bool(args.preview_dir) and not args.check)
 
     written = []
     if result.ok and not args.check:
@@ -282,7 +303,14 @@ def run(args):
 
     # Previews live OUTSIDE the library: blueprint §2 defines library/<id>/ as
     # the sprite's shipped contents and row 4's bake reads it.
-    if args.preview_dir:
+    #
+    # `--check` writes nothing, INCLUDING these. Blueprint §9's row-3 block, this
+    # module's docstring, the flag's own --help and the README all promised that,
+    # and `--check --preview-dir DIR` wrote four PNGs and printed `wrote:` — the
+    # one line that says "nothing written" was unreachable whenever a preview
+    # directory was named. A contract four documents state is not a contract one
+    # flag combination may quietly break.
+    if args.preview_dir and not args.check:
         for name, arr in sorted(result.previews.items()):
             path = os.path.join(args.preview_dir, "%s-preview-%s.png" % (args.id, name))
             _write_rgb(arr, path)
@@ -314,7 +342,15 @@ def report_of(result, args, written, exit_code):
 def human(result, args, written, exit_code):
     lines = ["%s  %s" % (args.id, "PASS" if result.ok else "FAIL")]
     for i, g in enumerate(result.gates, 1):
-        mark = "ok  " if g["passed"] else ("FAIL" if g["severity"] == "hard" else "warn")
+        # `part_mask` carries no verdict and printed `[ok  ]`, which on a board of
+        # gate lines reads as "this passed" — a statistic that inverts on real art
+        # dressed as evidence. It says what it is instead.
+        if g["severity"] == "report":
+            mark = "rept"
+        elif g["passed"]:
+            mark = "ok  "
+        else:
+            mark = "FAIL" if g["severity"] == "hard" else "warn"
         lines.append("  %2d. [%s] %-12s %s" % (i, mark, g["id"], g["message"]))
     if written:
         lines.append("  wrote:")
@@ -393,7 +429,18 @@ def main(argv=None):
     except ValueError as e:
         return _abort("usage", e, EXIT_USAGE)
 
-    exit_code = EXIT_OK if result.ok else EXIT_CONTENT
+    # Exit 2 tells the asset seat's autonomous lane to regenerate the image. When
+    # every hard failure is a gate whose only inputs are the operator's own flags
+    # -- slide, open_state, alignment, registration, or an overridden f -- the
+    # image was never the problem and regenerating it produces the same failure
+    # forever. Those are exit 3, "fix the command", which is what they are.
+    if result.ok:
+        exit_code = EXIT_OK
+    elif result.operator_failures and \
+            len(result.operator_failures) == len(result.failures):
+        exit_code = EXIT_USAGE
+    else:
+        exit_code = EXIT_CONTENT
     rep = report_of(result, args, written, exit_code)
     if args.report:
         d = os.path.dirname(os.path.abspath(args.report))
