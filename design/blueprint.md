@@ -307,6 +307,19 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
     validators, not the drawing. Row 12 inverts accordingly: plan.json is the source, the
     schematic derives from it — the first manor drawing anchored the human bar and becomes the
     solver's first fixture.
+11. *The replica shape* [HUMAN, 2026-08-21, on pattern-buffer integration: an update where "a
+    narrative agent identified that the human picked up the key without the human having tapped
+    on the key... the function of picking up the key needs to happen upon that update"]:
+    integrated holo-emitter holds a **versioned replica** of pattern-buffer's truth. All
+    mutation flows through one pure `apply(events)` — a local tap is propose(intent) → shared
+    validation → events → apply; a remote narrative ruling is events → apply; same function,
+    one path, remoteness is only authorship. Connect protocol is snapshot + monotonic envelope
+    stream (version cursor on document and envelope; a gap re-snapshots). Validation is a
+    shared pure function so host and client agree on legality; knowledge filtering is host-side
+    (already the spec's integrated mode); the event vocabulary reserves document growth
+    (entity_add, location_add) feeding the materialization ladder — a conjured room arrives as
+    grid first, like everything else. Not wired in M0; the shapes above are what M0's
+    structures must not contradict.
 
 ## 5. Backdrop metadata — `<facing>.meta.json`
 
