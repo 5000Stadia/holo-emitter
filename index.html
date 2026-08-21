@@ -378,6 +378,13 @@
     }
 
     function updateChrome(envelope) {
+      /* Once the page has said the projection will not resolve, nothing may
+         describe an event inside that projection. The subscriber runs INSIDE
+         harness.dispatch, so a paint fault spoke first and the world line
+         landed under it — "the pattern will not resolve" above "the drawer
+         resists, then gives", over a blank frame. A latch on the two boot
+         lines could never catch this; the ordering is the cause. */
+      if (halted) return;
       if (envelope && typeof envelope.narration === "string") {
         appendNarration(envelope.narration);
       }
@@ -394,9 +401,17 @@
         window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
       } catch (err) {
         console.error("inventory fault:", err);
-        if (!stripFaulted) {
+        while (inventoryEl.firstChild) inventoryEl.removeChild(inventoryEl.firstChild);
+        /* Only when the player is actually carrying something. At boot with
+           nothing held this printed "What you carry is with you still" as the
+           FIRST sentence a stranger reads — a claim about possessions they do
+           not have. An empty strip that cannot draw is truthfully silent. */
+        var held = 0, rel = harness.world.relations || [];
+        for (var h = 0; h < rel.length; h++) {
+          if (rel[h][0] === "held_by" && rel[h][2] === "player") held++;
+        }
+        if (held > 0 && !stripFaulted) {
           stripFaulted = true;
-          while (inventoryEl.firstChild) inventoryEl.removeChild(inventoryEl.firstChild);
           appendNarration("What you carry is with you still, though it will not show itself here.");
         }
       }
@@ -659,7 +674,17 @@
        UI-emittable refusal). A click that hits neither a drawn entity nor an
        open doorway dispatches nothing — dead space is dead. */
     scene.addEventListener("click", function (e) {
-      var r = resolve(canvasPoint(e));
+      var r;
+      try {
+        r = resolve(canvasPoint(e));
+      } catch (err) {
+        /* Same rule as the harness path: every route from a real input event
+           to the surface ends in a change or a product-voiced sentence. A
+           throw in hitTest/apertures/stamp used to take the click, say no
+           word, change no pixel, and do the same forever after. */
+        fault(err);
+        return;
+      }
       // Any deliberate click ends the double-click echo window, including one
       // that resolves to nothing: dead space dispatches no intent by design,
       // so keying the window on dispatched intents alone left it armed after
@@ -808,8 +833,12 @@
 
     scene.addEventListener("mousemove", function (e) {
       if (swallowNextMove) { swallowNextMove = false; clearHover(); return; }
-      lastPointer = canvasPoint(e);
-      showHover(lastPointer);
+      try {
+        lastPointer = canvasPoint(e);
+        showHover(lastPointer);
+      } catch (err) {
+        fault(err);
+      }
     });
     /* The pane's promise is about what a reader can SEE, and the box changes
        size after load: rotate a phone, or bump the browser's text size, and

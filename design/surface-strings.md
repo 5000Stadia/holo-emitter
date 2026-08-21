@@ -246,12 +246,13 @@ id | surface | state | verdict | observed | adjudicator | string
 
 ```COUNT
 STRINGS 62
-STATES 34
+STATES 36
 ```
 
-**Enumerated is not swept.** 61 rows are enumerated; 5 of them (#17–21) reach no surface on the
-shipped tree. Any report of this row cites **56 swept** and 61 enumerated rather than letting one
-number stand for both.
+**Enumerated is not swept.** `COUNT` is the authority for how many rows there are; five of them
+(#17–21) reach no surface on the shipped tree, so any report cites *enumerated* and *swept*
+separately rather than letting one number stand for both. The two figures are read off the fenced
+blocks, never written beside them — a prose count went stale the moment a row was added.
 
 The chevron glyphs `‹` and `›` are marks, not words, and are not `STRINGS` members; the runtime
 sweep skips them by exact value, recorded here so the exception is visible rather than silent.
@@ -293,6 +294,8 @@ unreadable-intent
 noun-missing
 scripts-disabled
 capture-mode
+pointer-hover
+pointer-click
 width-320
 width-1366
 zoom-200
@@ -424,12 +427,14 @@ over one destination out of two.
 
 ```CONSOLE
 index.html | boot witness | holo-emitter — fixture bake fp <fp> / truth: fixtures/demo-study/*.json / after editing a fixture, re-bake: node tools/bake-fixtures.mjs
+index.html | inventory fault: <detail>
 index.html | boot fault: <detail>
 index.html | render fault: <detail>
 index.html | BOOT ERROR: viewstate <json> names no location/facing in world.json — every turn will be refused. Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs
 src/harness.js | missing narration: <key>
 src/harness.js | unreadable intent: <detail>
 src/inventory.js | record has no usable noun: <sprite> (entity <id>)
+src/inventory.js | no library record for sprite: <sprite> (entity <id>)
 ```
 
 **Stated hole:** the `METHOD` scan over console strings runs on **source literals only**, so a

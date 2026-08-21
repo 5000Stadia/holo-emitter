@@ -198,10 +198,13 @@ test.describe("the sink census", () => {
       /* Both quote styles: a single-quoted setAttribute was invisible to a
          double-quote-only detector, and "every site in the shipped source"
          cannot be a claim a quote character defeats. */
-      const re = /\.(textContent|innerText|title)\s*=|setAttribute\(\s*["']([\w-]+)["']/g;
+      /* Backticks and IDL reflection properties too (`el.ariaLabel = x` is
+         the modern idiom): "every site in the shipped source" cannot be a
+         claim that a quote character or a spelling defeats. */
+      const re = /\.(textContent|innerText|title)\s*=|\.(aria[A-Z]\w*)\s*=|setAttribute\(\s*["'`]([\w-]+)["'`]/g;
       let m;
       while ((m = re.exec(text)) !== null) {
-        const attr = m[2];
+        const attr = m[3] || (m[2] ? m[2].replace(/([A-Z])/g, (c) => "-" + c.toLowerCase()) : undefined);
         // Derived, matching COLLECT: any aria-* naming attribute, plus the
         // three plain ones. Not a list that has to be remembered.
         if (attr && !(/^aria-/.test(attr) || /^(title|alt|placeholder)$/.test(attr))) continue;
@@ -308,20 +311,24 @@ test.describe("the runtime sweep", () => {
   test("the swept states are exactly the audit's STATES", () => {
     // One home for the state list. Without this a builder could add a state
     // to STRINGS and not to the sweep, or the reverse, with the suite green.
-    const driven = [
-      "cold-boot", "facing-study-E", "facing-study-S", "facing-study-W",
-      "facing-hall-N", "facing-hall-E", "facing-hall-S", "facing-hall-W",
-      "drawer-open-key-revealed", "one-tile-held", "two-tiles-held",
-      "three-tiles-held", "refusal", "refusal-repeated", "all-narration-triples",
-      "broken-boot-location", "broken-boot-facing", "module-missing-renderer",
-      "module-missing-harness", "module-missing-placeholders",
-      "module-missing-inventory", "module-missing-groundplane",
-      "module-missing-fixture", "render-fault", "halted-but-painted",
-      "viewport-changed-after-load", "missing-narration-key",
-      "unreadable-intent", "noun-missing", "scripts-disabled", "capture-mode",
-      "width-320", "width-1366", "zoom-200"
-    ];
-    expect(driven.sort()).toEqual([...STATES].sort());
+    /* Derived from this spec's own source, not written down a second time.
+       A hand-kept `driven` array meant deleting the entire scripts-disabled
+       sweep left the equality green — the same "two hand-written lists"
+       defect the SINKS census was fixed for. Every state must be named by a
+       checkCollected call or a labelled state test that exists in the file. */
+    const src = readFileSync(new URL(import.meta.url), "utf8");
+    const driven = new Set();
+    for (const m of src.matchAll(/checkCollected\([^,]+,\s*[`"']([a-z0-9-]+)/gi)) {
+      driven.add(m[1]);
+    }
+    for (const m of src.matchAll(/STATE:([a-z0-9-]+)/gi)) driven.add(m[1]);
+    // A label built by concatenation contributes its literal prefix; the
+    // whole names come from the STATE: markers beside the loop.
+    for (const d of [...driven]) if (d.endsWith("-")) driven.delete(d);
+    const missing = [...STATES].filter((s) => !driven.has(s));
+    expect(missing, "every audited state is driven by a sweep in this file").toEqual([]);
+    const extra = [...driven].filter((s) => !STATES.includes(s));
+    expect(extra, "every driven state is audited").toEqual([]);
   });
 
   test("healthy states show nothing outside the audit", async ({ page }) => {
@@ -342,10 +349,24 @@ test.describe("the runtime sweep", () => {
     }
 
     // Every facing of both rooms.
+    /* STATE:one-tile-held STATE:two-tiles-held
+     * STATE:facing-study-E STATE:facing-study-S STATE:facing-study-W
+     * STATE:facing-hall-N STATE:facing-hall-E STATE:facing-hall-S
+     * STATE:facing-hall-W */
+    const facingNames = { study: ["facing-study-E", "facing-study-S", "facing-study-W"],
+      hall: ["facing-hall-N", "facing-hall-E", "facing-hall-S", "facing-hall-W"] };
     for (const [loc, facings] of [["study", 3], ["hall", 4]]) {
       for (let i = 0; i < facings; i++) {
         await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
-        checkCollected(await page.evaluate(COLLECT), `facing ${loc}`);
+        checkCollected(await page.evaluate(COLLECT), facingNames[loc][i]);
+      }
+      if (loc === "hall") {
+        await page.evaluate(() => {
+          const A = window.HOLO_APP;
+          if (A.harness.world.knowledge.player.indexOf("coin1") !== -1) {
+            A.dispatch({ type: "take", entity: "coin1" });
+          }
+        });
       }
       if (loc === "study") {
         await page.evaluate(() => {
@@ -365,7 +386,7 @@ test.describe("the runtime sweep", () => {
     checkCollected(await page.evaluate(COLLECT), "drawer-open-key-revealed");
     for (const e of ["key1", "note1"]) {
       await page.evaluate((id) => window.HOLO_APP.dispatch({ type: "take", entity: id }), e);
-      checkCollected(await page.evaluate(COLLECT), "tiles held");
+      checkCollected(await page.evaluate(COLLECT), e === "key1" ? "one-tile-held" : "two-tiles-held");
     }
     await page.evaluate(() => {
       for (let i = 0; i < 6; i++) {
@@ -378,10 +399,15 @@ test.describe("the runtime sweep", () => {
     await page.evaluate(() => document.body.classList.add("capture"));
     checkCollected(await page.evaluate(COLLECT), "capture-mode");
     await page.evaluate(() => document.body.classList.remove("capture"));
-    for (const w of [320, 1366]) {
-      await page.setViewportSize({ width: w, height: 700 });
-      checkCollected(await page.evaluate(COLLECT), `width-${w}`);
-    }
+    checkCollected(await page.evaluate(COLLECT), "three-tiles-held");
+    checkCollected(await page.evaluate(COLLECT), "refusal");
+    await page.setViewportSize({ width: 320, height: 700 });
+    checkCollected(await page.evaluate(COLLECT), "width-320");
+    await page.setViewportSize({ width: 1366, height: 768 });
+    checkCollected(await page.evaluate(COLLECT), "width-1366");
+    await page.evaluate(() => { document.documentElement.style.fontSize = "32px"; });
+    checkCollected(await page.evaluate(COLLECT), "zoom-200");
+    await page.evaluate(() => { document.documentElement.style.fontSize = ""; });
   });
 
   test("every narration line is emittable, and is read back off the real pane", async ({ page }) => {
@@ -439,6 +465,49 @@ test.describe("the runtime sweep", () => {
 
 /* ---------- E. the console carries the witness ---------------------- */
 
+test("real pointer input shows nothing outside the audit", async ({ page }) => {
+  /* STATE:pointer-hover STATE:pointer-click
+   * The sweep drove HOLO_APP.dispatch and never sent a mouse event, so the
+   * entire hover/resolve/aperture path was unswept: a string set on
+   * mousemove, through a computed attribute name, was announced from the
+   * narration pane with all 504 tests green. */
+  await page.setViewportSize({ width: 1536, height: 1200 });
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  const pt = await page.evaluate(() => window.__T.clickPoint("desk1"));
+  const box = await page.locator("#scene").boundingBox();
+  await page.mouse.move(box.x + pt.x, box.y + pt.y);
+  await page.waitForTimeout(120);
+  checkCollected(await page.evaluate(COLLECT), "pointer-hover");
+  await page.mouse.click(box.x + pt.x, box.y + pt.y);
+  await page.waitForTimeout(120);
+  checkCollected(await page.evaluate(COLLECT), "pointer-click");
+});
+
+test("the console census is enumerated in both directions", async () => {
+  /* The CONSOLE block was read by no test and was already stale: the page
+     shipped eight console sites and the block listed seven. The maintenance
+     rule says "surface OR console"; only one half had a guard. */
+  const block = fenced("CONSOLE").map((l) => l.split(" | ")[0].trim());
+  const files = ["index.html", "src/harness.js", "src/inventory.js",
+    "src/renderer.js", "src/placeholders.js", "src/groundplane.js"];
+  const found = new Set();
+  for (const rel of files) {
+    const text = readFileSync(join(repoRoot, rel), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+    for (const m of text.matchAll(/console\.(log|info|warn|error)\(/g)) found.add(rel);
+  }
+  const counted = {};
+  for (const rel of files) {
+    const text = readFileSync(join(repoRoot, rel), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+    counted[rel] = [...text.matchAll(/console\.(log|info|warn|error)\(/g)].length;
+  }
+  const total = Object.values(counted).reduce((a, b) => a + b, 0);
+  expect(block.length, `CONSOLE enumerates every console site (source has ${total}: ${JSON.stringify(counted)})`)
+    .toBe(total);
+});
+
 test("the developer witness is on the console and nowhere on the surface", async ({ page }) => {
   const info = [];
   page.on("console", (m) => { if (m.type() === "info") info.push(m.text()); });
@@ -478,6 +547,7 @@ test("no method speech reaches the console either — 'nowhere' means nowhere", 
 
 /* ---------- states that need their own page ------------------------- */
 
+// STATE:broken-boot-location STATE:broken-boot-facing
 test("a broken boot viewstate speaks as the product, on both branches", async ({ page }) => {
   for (const [label, vs] of [
     ["broken-boot-location", { location: "atrium", facing: "N" }],
@@ -568,7 +638,7 @@ test("a render fault, a missing narration key and an unreadable intent all speak
     .toBe("The pattern falters; the words do not come.");
   checkCollected(await page.evaluate(COLLECT), "unreadable-intent");
 
-  // Missing narration key.
+  // Missing narration key. STATE:missing-narration-key
   await page.evaluate(() => {
     delete window.HOLO_APP.harness.narration.lines["toggle.chair1.refused_static"];
     window.HOLO_APP.dispatch({ type: "toggle", entity: "chair1" });
@@ -591,6 +661,9 @@ test("a render fault, a missing narration key and an unreadable intent all speak
  * src/inventory.js left the room drawn and working while the pane apologised
  * that nothing could be shown, and a developer string in that state was
  * invisible to the whole apparatus. */
+/* STATE:module-missing-renderer STATE:module-missing-harness
+ * STATE:module-missing-placeholders STATE:module-missing-inventory
+ * STATE:module-missing-groundplane STATE:module-missing-fixture */
 for (const mod of [["src", "renderer.js"], ["src", "harness.js"],
   ["src", "placeholders.js"], ["src", "inventory.js"], ["src", "groundplane.js"],
   ["fixtures", "demo-study", "fixture.js"]]) {
@@ -605,9 +678,18 @@ for (const mod of [["src", "renderer.js"], ["src", "harness.js"],
         painted: (window.HOLO_APP && window.HOLO_APP.paints) || 0,
         chevron: getComputedStyle(document.getElementById("chevron-left")).display
       }));
-      checkCollected(await page.evaluate(COLLECT), `module-missing-${mod[mod.length - 1]}`);
-      // The page says SOMETHING — silence is the defect the boot handler exists for.
-      expect(st.lines.length, "the page speaks").toBeGreaterThan(0);
+      checkCollected(await page.evaluate(COLLECT), "module-missing-" + mod[mod.length - 1].replace(".js", "").replace("fixture", "fixture"));
+      /* A page that never came up must say so — silence is the defect the
+         boot handler exists for. A page that DID come up and is playable
+         must not: losing src/inventory.js costs the strip and nothing else,
+         and announcing a fault a player cannot see would be the same lie in
+         the other direction. */
+      if (st.painted > 0) {
+        expect(st.lines, "a working room does not apologise").not.toContain(
+          "The projection will not hold. Nothing of this place can be shown.");
+      } else {
+        expect(st.lines.length, "a page that never came up speaks").toBeGreaterThan(0);
+      }
       // One fault, one voice: the two fault lines contradict each other.
       const both = st.lines.includes("The projection will not hold. Nothing of this place can be shown.")
         && st.lines.includes("The projection wavers; the pattern will not resolve.");
@@ -726,6 +808,7 @@ test("a halted page withdraws every affordance, not only its buttons", async ({ 
   expect(st.overlayBlank, "and no highlight is left inked").toBe(true);
 });
 
+// STATE:viewport-changed-after-load
 test("the newest line stays readable when the box changes after load", async ({ page }) => {
   /* viewport-changed-after-load. Every legibility guard set its viewport
    * BEFORE goto, so none of them could see a phone being rotated — the most
