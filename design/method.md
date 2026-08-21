@@ -586,6 +586,10 @@ decided on the channel is written into the design documents before the exchange 
 
 ## The loop
 
+**Maintainer update, relayed by the human 2026-08-20 (applies from row 3 on):** when review
+passes keep finding the same family — a fourth doorway fix, a fourth shadow fix — stop patching
+instances; name the family and put its architecture on the table before the next pass.
+
 The Navigator picks the next spec row and checks that whatever it builds on actually exists and
 resolves. The Builder writes the plan, then builds it. The Reviewer performs the two moments in
 *The shape* and no others. Between those two moments the Builder works alone and in silence — no
