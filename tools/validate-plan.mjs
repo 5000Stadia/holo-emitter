@@ -114,7 +114,15 @@ const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
 const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source", "note"];
 const BAND_KEYS = ["id", "kind", "floors", "rect"];
 const STAIR_KEYS = ["id", "kind", "treads", "rect", "joins", "up", "down"];
-const FLOOR_KEYS = ["id", "level"];
+/* `storey_height_m` is OPTIONAL and no floor of the shipped plan carries one.
+ * It exists because a room bounded left and right and unbounded upward reads
+ * as a shaft — at the pinned scale the frame holds 6.95 m of wall above the
+ * floor line against a c.1660 storey of 2.6–3.0 m — and the renderer can draw
+ * a ceiling from it. Whether it SHOULD is a look decision and it is Kabe's
+ * (row 11's direction package, question 2), so the field has a home, a schema,
+ * a validator clause and a test, and is set by nothing. A number that only the
+ * renderer knew about would be a fact with no home at all. */
+const FLOOR_KEYS = ["id", "level", "storey_height_m"];
 const WINDOW_KEYS = ["floor", "rect"];
 const FIREPLACE_KEYS = ["floor", "room", "rect"];
 /* World facts, by name. A plan that grows one of these has become a second
@@ -367,6 +375,10 @@ export function validatePlan(plan, world, records) {
       push(`plan.json: floors entry is not {id, level}`); continue;
     }
     keyCheck(`floor "${f.id}"`, f, FLOOR_KEYS, push);
+    if (f.storey_height_m != null &&
+        !(typeof f.storey_height_m === "number" && f.storey_height_m > 1.8 && f.storey_height_m < 12)) {
+      push(`floor "${f.id}": storey_height_m ${JSON.stringify(f.storey_height_m)} is not a room height a person stands up in [row11:plan.storey_height]`);
+    }
     if (floorIds.has(f.id)) push(`plan.json: duplicate floor id "${f.id}"`);
     floorIds.add(f.id);
   }
@@ -785,10 +797,10 @@ export function validatePlan(plan, world, records) {
      * value; without the reason beside it the next re-derivation cannot tell
      * a decision from a stale number, which is the whole point of the token. */
     if (o.source === "composed" && !(typeof o.note === "string" && o.note.trim().length > 20)) {
-      push(`object "${o.id}": source "composed" without a note saying why — blueprint §4's licence is "change it if it makes the product better, and say why", and the why lives where the value does`);
+      push(`object "${o.id}": source "composed" without a note saying why — blueprint §4's licence is "change it if it makes the product better, and say why", and the why lives where the value does [row11:plan.composed_needs_note]`);
     }
     if (o.note != null && o.source !== "composed") {
-      push(`object "${o.id}": carries a note but its source is "${o.source}" — a note records a composition choice, and a derived value has none`);
+      push(`object "${o.id}": carries a note but its source is "${o.source}" — a note records a composition choice, and a derived value has none [row11:plan.note_needs_composed]`);
     }
     if (!ATTACHMENTS.includes(o.attachment)) {
       push(`object "${o.id}": attachment ${JSON.stringify(o.attachment)} is not a §4 attachment token`);

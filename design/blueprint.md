@@ -158,13 +158,20 @@ Notes:
   to upper-right and breaks one-light; the staging validator rejects it. Each room stages at least
   one object-object overlap, named: study `chair1`×`desk1`, hall `stick1`×`shelf1` — exact u/depth
   values carry the license: change them if it makes the product better, and say why. Exercised at
-  row 2: `stick1`'s `depth_m` is 0.75 in the shipped staging. The example above says 0.9, which
-  also overlaps — an earlier note here claimed the spans stand clear at 0.9 and that is simply
-  false through the shipped `groundplane.js`, so the reason is composition, not satisfiability: at
-  0.4 the candlestick's base sits *inside* the bookcase plinth and the pair shows the mechanism
-  without the quality, and at 0.75 it stands on the floor in front of the case with its upper body
-  crossing it — column-before-building. Row 4's real asset needs only h ≥ ~0.11 m. The `u` values move with grid canonical
-  `wall_width_m` (below), each keeping its metre offset from the wall centre. `v` on wall-mounted placements is **metres above the wall
+  row 2 and re-composed at row 11: `stick1`'s `depth_m` is **0.50** in the shipped staging. The
+  example above says 0.9, which also overlaps — an earlier note here claimed the spans stand clear
+  at 0.9 and that is simply false through the shipped `groundplane.js`, so the reason is
+  composition, not satisfiability. Row 2 shipped 0.75, where the candlestick stood on the floor in
+  front of the case with its upper body crossing it — column-before-building — while 0.4 put its
+  base plate inside the bookcase plinth, the mechanism without the quality. **[AI, row 11]** Both
+  of those readings were taken at the unplanned-facing meta's 3.5 m camera. Giving the cross
+  passage the standpoint the approved plan draws — 1.95 m — strengthens the perspective enough that
+  at 0.75 the candlestick drops nearly clear of the case: 48 crossing opaque pixels against §12.8's
+  floor of 50. At 0.50 it measures 332. The value's home is `plan.json`'s object entry, which
+  carries that reason beside it under this section's own standing licence, and §12.8's floor was
+  not touched. Row 4's real asset needs only h ≥ ~0.11 m. The `u` values move with the facing's own
+  `wall_width_m` — the plan's, per facing, since row 11; grid canonical is the unplanned-facing
+  fallback — each keeping its metre offset from the wall centre. `v` on wall-mounted placements is **metres above the wall
   floor line** (`u`, `t` are normalized; `v` is not), and a wall-mounted placement takes wall
   scale at any `v` — the ground-plane lerp describes the floor, so reading it at a raised
   baseline shrinks a hung object by the amount it was raised [AI, row 2].

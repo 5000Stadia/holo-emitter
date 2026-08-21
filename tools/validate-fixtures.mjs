@@ -151,6 +151,20 @@ const META_REQUIRED = [
   "calibration_ref", "calibration_px"
 ];
 const FACING_TYPES = ["enclosed", "open", "corridor"];
+/* Every key a §5 meta may carry. `validate-plan.mjs` has had strict key
+ * whitelists since row 12 for exactly this reason and the meta arm arrived
+ * without one: an unknown key rode straight through, so a meta could carry a
+ * misspelling of a field the renderer reads and nothing would say so. */
+const META_KEYS = [
+  "floor_line_y", "px_per_m_at_wall", "px_per_m_at_bottom", "wall_width_m",
+  "key_tint", "image_h_px", "horizon_y", "key_dir", "calibration_ref",
+  "calibration_px", "camera_wall_m", "camera_far_m", "far_line",
+  "facing_type", "wall_continuous", "wall_segments",
+  "corner_x0_px", "corner_x1_px", "wall_x0_px", "storey_height_m",
+  // derived-meta provenance: which camera and which unruled reading produced it
+  "camera", "camera_id", "wide_view_policy", "provisional", "backdrop",
+  "focal_px", "nearest_floor_m"
+];
 
 /**
  * The meta the renderer resolves for a facing, in three tiers — a MEASURED
@@ -228,55 +242,84 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
   if (!isObj(meta)) { findings.push(`${label}: not a meta object`); return; }
   for (const k of META_REQUIRED) {
     if (meta[k] == null) {
-      findings.push(`${label}: §5 field "${k}" is missing — the renderer resolves one meta or the fallback, never a blend, so a partial meta reaches the paint as undefined`);
+      findings.push(`${label}: §5 field "${k}" is missing — the renderer resolves one meta or the fallback, never a blend, so a partial meta reaches the paint as undefined [row11:meta.required_fields]`);
+    }
+  }
+  for (const k of Object.keys(meta)) {
+    if (!META_KEYS.includes(k)) {
+      findings.push(`${label}: unknown §5 field "${k}" — a meta the renderer reads has a fixed vocabulary, and a misspelling of a field it reads would otherwise ride through in silence [row11:meta.unknown_key]`);
+    }
+  }
+  if (meta.storey_height_m != null &&
+      !(typeof meta.storey_height_m === "number" && meta.storey_height_m > 1.8 && meta.storey_height_m < 12)) {
+    findings.push(`${label}: storey_height_m ${JSON.stringify(meta.storey_height_m)} is not a room height a person stands up in — the renderer draws a ceiling from it [row11:meta.storey_height]`);
+  }
+  /* `wall_segments` describes where the building stands across the view, in
+   * view-relative metres. A segment past the wall's own width, or one that
+   * overlaps its neighbour, is a band the picture cannot honestly draw. */
+  if (Array.isArray(meta.wall_segments)) {
+    let prev = -Infinity;
+    for (const seg of meta.wall_segments) {
+      if (!isObj(seg) || typeof seg.from_m !== "number" || typeof seg.to_m !== "number" ||
+          !(seg.from_m < seg.to_m)) {
+        findings.push(`${label}: wall_segments entry ${JSON.stringify(seg)} is not a band with two ends [row11:meta.segments_sane]`);
+        continue;
+      }
+      if (seg.from_m < -1e-6 || seg.to_m > meta.wall_width_m + 1e-6) {
+        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m runs outside the ${meta.wall_width_m} m in view [row11:meta.segments_sane]`);
+      }
+      if (seg.from_m < prev - 1e-6) {
+        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m overlaps the one before it [row11:meta.segments_sane]`);
+      }
+      prev = seg.to_m;
     }
   }
   const type = meta.facing_type === undefined ? null : meta.facing_type;
   if (type !== null && !FACING_TYPES.includes(type)) {
-    findings.push(`${label}: facing_type ${JSON.stringify(type)} is not one of ${FACING_TYPES.join(" | ")} or null (blueprint §5)`);
+    findings.push(`${label}: facing_type ${JSON.stringify(type)} is not one of ${FACING_TYPES.join(" | ")} or null (blueprint §5) [row11:meta.facing_type]`);
   }
   const hasWall = meta.camera_wall_m != null;
   const hasFar = meta.camera_far_m != null;
   if (type === "open") {
-    if (!hasFar) findings.push(`${label}: an open facing must carry camera_far_m — it views a drawn ground line, not a surface`);
-    if (hasWall) findings.push(`${label}: an open facing carries camera_wall_m — the field name is the mechanism (§5): a depth model handed a far line as a wall distance puts a horizon where a wall goes`);
+    if (!hasFar) findings.push(`${label}: an open facing must carry camera_far_m — it views a drawn ground line, not a surface [row11:meta.camera_pairing]`);
+    if (hasWall) findings.push(`${label}: an open facing carries camera_wall_m — the field name is the mechanism (§5): a depth model handed a far line as a wall distance puts a horizon where a wall goes [row11:meta.camera_pairing]`);
   } else {
-    if (!hasWall) findings.push(`${label}: facing_type ${JSON.stringify(type)} must carry camera_wall_m`);
-    if (hasFar) findings.push(`${label}: facing_type ${JSON.stringify(type)} carries camera_far_m — only an open facing has a far line instead of a wall plane`);
+    if (!hasWall) findings.push(`${label}: facing_type ${JSON.stringify(type)} must carry camera_wall_m [row11:meta.camera_pairing]`);
+    if (hasFar) findings.push(`${label}: facing_type ${JSON.stringify(type)} carries camera_far_m — only an open facing has a far line instead of a wall plane [row11:meta.camera_pairing]`);
   }
   const c0 = meta.corner_x0_px, c1 = meta.corner_x1_px;
   const cornered = typeof c0 === "number" && typeof c1 === "number";
   if (!cornered && (typeof c0 === "number" || typeof c1 === "number")) {
-    findings.push(`${label}: one corner without the other — a wall has two ends or none`);
+    findings.push(`${label}: one corner without the other — a wall has two ends or none [row11:meta.corner_pairing]`);
   }
   if (cornered && !(c0 < c1)) {
-    findings.push(`${label}: corner_x0_px ${c0} is not left of corner_x1_px ${c1}`);
+    findings.push(`${label}: corner_x0_px ${c0} is not left of corner_x1_px ${c1} [row11:meta.corner_pairing]`);
   }
   if (type === "open" && cornered) {
-    findings.push(`${label}: an open facing carries corners — law (b): where no building stands the ground runs open to its far line, and a corner there would be an invented enclosure`);
+    findings.push(`${label}: an open facing carries corners — law (b): where no building stands the ground runs open to its far line, and a corner there would be an invented enclosure [row11:meta.open_no_corners]`);
   }
   if (meta.wall_continuous === false && cornered) {
-    findings.push(`${label}: a discontinuous wall carries corners — a view that is part building and part open ground has segments, not two corners`);
+    findings.push(`${label}: a discontinuous wall carries corners — a view that is part building and part open ground has segments, not two corners [row11:meta.segmented_no_corners]`);
   }
   if (meta.wall_continuous === false &&
       !(Array.isArray(meta.wall_segments) && meta.wall_segments.length > 0)) {
-    findings.push(`${label}: wall_continuous is false but wall_segments says nothing is built — law (b) needs the bands, or nothing can say where the building is`);
+    findings.push(`${label}: wall_continuous is false but wall_segments says nothing is built — law (b) needs the bands, or nothing can say where the building is [row11:meta.segments_present]`);
   }
   if (type === null && cornered) {
-    findings.push(`${label}: a facing no plan holds carries corners — a room whose extent nobody has drawn must not claim two`);
+    findings.push(`${label}: a facing no plan holds carries corners — a room whose extent nobody has drawn must not claim two [row11:meta.null_type_no_corners]`);
   }
   /* §12.5's frame clause, the one that reaches outside the meta. */
   if (cornered) {
-    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i))`);
-    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i))`);
+    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits]`);
+    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits]`);
   } else if (typeof meta.wall_width_m === "number" && typeof meta.px_per_m_at_wall === "number") {
     const spanned = meta.wall_width_m * meta.px_per_m_at_wall;
     if (spanned > canvasW + 1e-6) {
-      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits`);
+      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits [row11:meta.frame_fits]`);
     }
   }
   if (meta.image_h_px != null && meta.image_h_px !== canvasH) {
-    findings.push(`${label}: image_h_px ${meta.image_h_px} is not the ${canvasH}px canvas it is a meta for (§12.5 (iv))`);
+    findings.push(`${label}: image_h_px ${meta.image_h_px} is not the ${canvasH}px canvas it is a meta for (§12.5 (iv)) [row11:meta.image_h]`);
   }
 }
 
@@ -977,7 +1020,7 @@ export function validate(fixtureDir, records, derivedMetas) {
       const dom = groundplane.uDomain(meta, span.s, CANVAS_W);
       if (span.x0 < dom.x0 - 0.5 || span.x1 > dom.x1 + 0.5) {
         findings.push(
-          `staging.json: placement "${id}" on ${pl.facing} projects to x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}] but the room's own wall at that scale runs [${dom.x0.toFixed(1)}, ${dom.x1.toFixed(1)}] — it stands past a corner, outside the room`
+          `staging.json: placement "${id}" on ${pl.facing} projects to x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}] but the room's own wall at that scale runs [${dom.x0.toFixed(1)}, ${dom.x1.toFixed(1)}] — it stands past a corner, outside the room [row11:staging.outside_room]`
         );
       }
 
@@ -985,7 +1028,7 @@ export function validate(fixtureDir, records, derivedMetas) {
         /* A door cannot hang on a horizon. Blueprint §5: an `open` facing has
          * no facing wall at all, and law (b) forbids inventing one. */
         if (meta.facing_type === "open") {
-          findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing}, whose facing_type is "open" — there is no wall there to mount it on (blueprint §5, law (b))`);
+          findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing}, whose facing_type is "open" — there is no wall there to mount it on (blueprint §5, law (b)) [row11:staging.wall_mounted_on_open]`);
         } else if (Array.isArray(meta.wall_segments) && meta.wall_continuous === false) {
           /* Part building, part open ground: the thing must hang on a band
            * that is actually built, not across the gap between two. */
@@ -996,7 +1039,7 @@ export function validate(fixtureDir, records, derivedMetas) {
             return span.x0 >= Math.min(b0, b1) - 0.5 && span.x1 <= Math.max(b0, b1) + 0.5;
           });
           if (!inBand) {
-            findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing} at x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}], where the wall in view is built only in ${JSON.stringify(meta.wall_segments.map((s) => [s.from_m, s.to_m]))} m — law (b): a wall exists only where the building stands`);
+            findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing} at x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}], where the wall in view is built only in ${JSON.stringify(meta.wall_segments.map((s) => [s.from_m, s.to_m]))} m — law (b): a wall exists only where the building stands [row11:staging.wall_mounted_off_band]`);
           }
         }
       }

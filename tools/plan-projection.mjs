@@ -334,6 +334,11 @@ export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvas
  *                        building and part open ground has segments, not two
  *                        corners)
  */
+function storeyHeight(plan, room) {
+  const fl = (plan.floors || []).find((f) => f.id === room.floor);
+  return (fl && fl.storey_height_m != null) ? fl.storey_height_m : null;
+}
+
 export function deriveMeta(plan, roomId, facing, opts = {}) {
   const camera = opts.camera || GRID_CAMERA;
   const room = roomOf(plan, roomId);
@@ -389,6 +394,11 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
      * rather than an implication buried in the arithmetic — it is §5's open
      * field-of-view question, and Kabe's. */
     focal_px: pxAtWall * drawnDistance,
+    /* The room's height, where the plan gives its floor one. Optional and
+     * unset on the shipped plan — see validate-plan's FLOOR_KEYS note and
+     * row 11's direction package, question 2. The renderer draws a ceiling
+     * only where this arrives. */
+    storey_height_m: storeyHeight(plan, room),
     /* Where the floor first appears in front of the viewer. The intention's
      * fifth decomposed quality is "the camera has feet" — Riven's rails cut by
      * the frame bottom at your own feet — and this is the number that either

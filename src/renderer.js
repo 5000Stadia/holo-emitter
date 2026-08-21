@@ -234,6 +234,20 @@
     return [{ u0: 0, u1: 1 }];
   }
 
+  /* Is this screen x-span inside a single built band of the wall in view?
+   * Bands are given in the §4 u-domain; a span straddling two bands is not
+   * inside either, which is the point — the gap between them is not wall. */
+  function spannedByBand(x0, x1, bands, meta) {
+    var gp = groundplane();
+    for (var i = 0; i < bands.length; i++) {
+      var b0 = gp.xAtScale(bands[i].u0, meta.px_per_m_at_wall, meta, CANVAS_W);
+      var b1 = gp.xAtScale(bands[i].u1, meta.px_per_m_at_wall, meta, CANVAS_W);
+      var lo = Math.min(b0, b1), hi = Math.max(b0, b1);
+      if (x0 >= lo - 0.5 && x1 <= hi + 0.5) return true;
+    }
+    return false;
+  }
+
   function drawGrid(ctx, meta, facing, W, H, openings) {
     var gp = groundplane();
     var floorY = meta.floor_line_y * meta.image_h_px;
@@ -700,6 +714,20 @@
    */
   function apertures(world, staging, library, meta, viewstate) {
     var gp = groundplane();
+    /* A DOORWAY NEEDS A WALL TO BE A HOLE IN. Blueprint §5 law (b) [HUMAN,
+     * 2026-08-21]: "outdoor walls are only present as represented by exterior
+     * building walls" — so a facing with no band has nothing to cut an opening
+     * through, and painting one there is the picture asserting a wall the
+     * document does not hold. Before row 11 there was no way to say that;
+     * after it there is, and this is the aperture path reading it for itself
+     * rather than trusting the staging validator to have caught it upstream.
+     * An artifact critic rendered `study/E` with an `open` meta and got a
+     * jamb, two reveals, a soffit and a full plank leaf standing in void.
+     *
+     * The check is per OPENING, not per facing: on a segmented view the
+     * opening must fall inside a band that is actually built, which is law (b)
+     * at the resolution the law is written at. */
+    var bandsHere = wallBands(meta);
     var facingKey = viewstate.location + "/" + viewstate.facing;
     var known = {};
     var players = (world.knowledge && world.knowledge.player) || [];
@@ -730,6 +758,7 @@
         if (!lib) continue;
         var place = gp.placeHost(fp, lib.record, meta, CANVAS_W);
         if (!place) continue;
+        if (!spannedByBand(place.x0, place.x1, bandsHere, meta)) continue;
         out.push({
           exit: exit.id,
           via: exit.via,

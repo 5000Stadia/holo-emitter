@@ -172,7 +172,7 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
     s = await worldState(page);
     expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     expect(await lastNarration(page)).toBe(
-      "You step through into the hall. The air is wider here, and cooler.");
+      "You step through into the cross passage. The air is cooler here, and moves.");
 
     // Turn to the hall's furnished facing (right = clockwise, so LEFT from
     // E reaches N directly: RING = [N,E,S,W], step -1).

@@ -1561,6 +1561,20 @@ from the drawn floor line and drawn horizon on all eight facings** — the claus
 reading the derivation back cannot — and the grid scans re-pointed per facing);
 `shell` carries the new reserve/viewport numbers (row 1's stale "window width" title is dead).
 
+**THE CLAUSE LEDGER IS THE STANDING REQUIREMENT** (row 11, on the Navigator's ruling, after this
+family cost a round for the third time on this project). Row 3 answered it on the Python side with
+`replicator/tests/test_clause_guards.py`; `tests/playwright/guards.spec.mjs` is the same shape on
+the browser side. **Any new validator arm, and any new renderer mechanism, arrives with a case in
+the ledger** — a case that fails on that clause alone and names it, plus an entry in the ledger's
+declared `MECHANISMS` list, so a mechanism added without a case shows up as an absence rather than
+as silence. Two things make it work: every clause carries a stable `[row11:<name>]`-style token in
+the finding it emits, so a case names what fired instead of matching prose that will be reworded;
+and a document-side case doctors an INPUT while a renderer-side case stages the tree, deletes the
+mechanism and measures the picture. This is not a habit to remember — it is the shape the next row
+copies. Row 11's own first pass shipped six mechanisms held by nothing (the whole meta-schema arm,
+the `open` suppression, the bake's wide-camera refusal, both plan clauses, the floor's clip and the
+returns' grid), and the reason none of them surfaced is that nothing was counting.
+
 **A check that stays green when what it guards is deleted is a finding**, and this row learned it
 twice: the first fix pass shipped five mechanisms held by nothing. Every guard listed above was
 verified by reverting the mechanism it names and watching it go red. A corollary the row also

@@ -98,11 +98,54 @@ the contract's ~40° — and row 4's approved backdrop is where the real camera 
 
 ---
 
+---
+
+## Question 5 — turning changes the shape of the view. `07a` vs `07b`
+
+Both frames are the **same standpoint** in the cross passage. The viewer has not moved a step; they
+have turned once.
+
+- **`07a` — looking north.** An 8.00 m wall 1.95 m away. Effective view: **152°**. The floor starts
+  0.64 m in front of you.
+- **`07b` — looking east.** A 2.60 m wall 6.00 m away. Effective view: **106°**. The floor starts
+  1.98 m in front of you.
+
+One turn swings the lens by 46° and the near edge of the floor by 1.34 m. This is the same cause as
+question 3 — the scale is fixed and the distance is not — seen from inside one room instead of
+across two. It is why the two frames feel like different rooms.
+
+## Question 6 — a near-square room reads as a tunnel
+
+Look at `01` again. The study is **5.45 × 4.80 m** — very nearly square. Its far wall is a third of
+the frame and the two side walls are the other two thirds. The arithmetic is exactly right; what it
+produces is a view wide enough that a square room reads long. Same cause again.
+
+**These three are one question, and it is the one row 4's approved backdrop answers for good.**
+Whatever you say sets the interim look.
+
+## Question 7 — where should the desk stand? `08a` vs `08b`
+
+The study's chimney breast occupies the middle 2.2 m of the north wall, and the desk currently
+stands inside it — 0.65 m² of desk in the masonry. You cannot see it today because the grid paints
+no hearth; you would see it the day row 4's backdrop paints one. Two places it could go instead:
+
+- **`08a` — the north wall, east of the hearth.** Plan x 28.9–30.2, i.e. 1.88 m right of that
+  wall's centre. Nearest the room's east window. **Note the cost, which the frame shows:** the
+  chair stays where it is, so the desk-and-chair pair stops overlapping. If you like this, the
+  chair moves with it.
+- **`08b` — the west wall**, centred (plan x 24.95–25.50). `08c` is what the boot view becomes if
+  the desk leaves it: the room you first see is bare but for the chair.
+
+Neither is chosen. Both are a footprint in the plan and a line of staging; whichever you point at
+takes about a minute.
+
+---
+
 ## Three things we are reporting rather than fixing
 
 1. **The desk stands in the study's chimney breast** — 0.65 m² of overlap, on the very facing row 4
    generates first (`01`). It has been in the plan since the plan existed; row 11 only makes it
-   visible. It is in front of you now rather than at the probe.
+   visible. Question 7 above is the fix, waiting on your finger.
 2. **The furniture's positions were never authored in metres.** The desk, chair, bookcase and
    candlestick were placed on screen first and converted to plan positions afterwards, against the
    old 16 m wall. Their metre positions are legal and unremarkable but nobody chose them as metres;

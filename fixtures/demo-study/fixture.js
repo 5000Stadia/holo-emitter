@@ -13,7 +13,7 @@
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "4c34eea4",
+  fp: "23d9dec0",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -131,7 +131,7 @@ window.HOLO_FIXTURE = {
     "take.door1.refused_fixed": "The door hangs on its iron hinges, and there it will hang.",
     "take.stick1.refused_fixed": "The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.",
     "take.shelf1.refused_fixed": "The bookshelf is a full press of oak against the wall; no strength of yours will shift it.",
-    "go.door_study_hall.arrive": "You step through into the hall. The air is wider here, and cooler.",
+    "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves.",
     "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again.",
     "go.door_study_hall.refused_closed": "The door is shut against you; the latch has not been lifted.",
     "go.door_hall_study.refused_closed": "The way back stands barred; the door wants opening first.",
@@ -173,6 +173,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 506.4,
     "corner_x1_px": 1029.6,
     "focal_px": 345.6,
+    "storey_height_m": null,
     "nearest_floor_m": 1.1877403846153847,
     "camera_wall_m": 3.6
   },
@@ -204,6 +205,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 537.6,
     "corner_x1_px": 998.4,
     "focal_px": 392.64,
+    "storey_height_m": null,
     "nearest_floor_m": 1.349405048076923,
     "camera_wall_m": 4.09
   },
@@ -235,6 +237,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 506.4,
     "corner_x1_px": 1029.6,
     "focal_px": 345.6,
+    "storey_height_m": null,
     "nearest_floor_m": 1.1877403846153847,
     "camera_wall_m": 3.6
   },
@@ -266,6 +269,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 537.6,
     "corner_x1_px": 998.4,
     "focal_px": 392.64,
+    "storey_height_m": null,
     "nearest_floor_m": 1.349405048076923,
     "camera_wall_m": 4.09
   },
@@ -297,6 +301,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 384,
     "corner_x1_px": 1152,
     "focal_px": 187.2,
+    "storey_height_m": null,
     "nearest_floor_m": 0.643359375,
     "camera_wall_m": 1.95
   },
@@ -328,6 +333,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 643.2,
     "corner_x1_px": 892.8,
     "focal_px": 576,
+    "storey_height_m": null,
     "nearest_floor_m": 1.9795673076923077,
     "camera_wall_m": 6
   },
@@ -359,6 +365,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 384,
     "corner_x1_px": 1152,
     "focal_px": 187.2,
+    "storey_height_m": null,
     "nearest_floor_m": 0.643359375,
     "camera_wall_m": 1.95
   },
@@ -390,6 +397,7 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 643.2,
     "corner_x1_px": 892.8,
     "focal_px": 576,
+    "storey_height_m": null,
     "nearest_floor_m": 1.9795673076923077,
     "camera_wall_m": 6
   }
