@@ -261,6 +261,13 @@ Notes:
   the prompt sheet's starting point, not a gate. What remains open until the probe: nothing an
   agent decides — the camera is whatever the room Kabe loves turns out to have. Rows 7 and 3
   consume nothing from this.
+  **Refined 2026-08-20 [HUMAN], with a supplied look reference:** "we should be a bit higher as a
+  view angle looking down at about a 6ft height. For better visual presentation." §10's camera is
+  now eye 1.83 m (6 ft), pitch −8° starting point — superseding the earlier [HUMAN] 1.6 m — and
+  the reference's near-field lesson is recorded: the frame bottom may be anchored by a near
+  *surface* (the reference's paper-strewn desk), not only floor — the camera-has-feet device
+  through furniture. The reference image is Kabe's; it belongs in `design/references/` when Kabe
+  places the file (pending, non-blocking).
 - Backdrops **contain no interactable or takeable objects** — those are always sprites. Author backdrop prompts accordingly (empty desk-less walls). This removes the clean-plate problem from M0 entirely.
 
 **The room has corners — and a facing may have no wall at all [HUMAN, 2026-08-20]:** "the
@@ -504,7 +511,7 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
 ```json
 { "schema": "orientation-contract/0.1",
   "camera": { "view": "front-three-quarter", "turn_deg": 30, "side": "left",
-              "eye_height_m": 1.6, "focal_mm": 50 },
+              "eye_height_m": 1.83, "pitch_deg": -8, "focal_mm": 50 },
   "light":  { "key": "UL45", "quality": "soft", "fill": "even" },
   "framing": { "background": "seamless mid-grey", "margin": "full object centered",
                "states": "all moving parts closed", "props": "none" },
@@ -525,9 +532,13 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
   windows; W: blank oak paneling with wainscot.
 - *Hall* — N: paneled wall (shelf1 stands against it); W: the door opening to the study; E:
   leaded window at the far end; S: tapestry on paneling.
-- **World light:** overcast diffuse daylight through the windows, no visible sun shafts, no cast
-  window-light patterns — this is what lets screen-space `key_dir: UL` on every facing stay
-  plausible when the viewer turns. Written into every backdrop prompt sheet.
+- **World light [superseded 2026-08-20 by Kabe's look reference]:** the earlier "overcast diffuse,
+  no sun shafts" was an [AI] simplification to keep one screen-space key plausible; Kabe's
+  reference rules the feel instead — warm practicals (fire, lamp, candle) against a cool window.
+  The real light design lands in Kabe's probe loop; each approved backdrop's `key_dir` and
+  `key_tint` are *measured from that image* per facing, and sprites are tinted and lit to match
+  the facing they stand in. The one-light quality is unchanged — it now means "one light *per
+  frame*, the backdrop's own" rather than one global direction.
 - **Cross-facing coherence** (corners continue, paneling module repeats, one room reads) is judged
   by Kabe inside the backdrop generation loop — the human eye at generation time is the gate — and
   re-checked on the batched eight-facing screenshot set, per room, at row 4.
