@@ -143,11 +143,12 @@ Notes:
   to upper-right and breaks one-light; the staging validator rejects it. Each room stages at least
   one object-object overlap, named: study `chair1`×`desk1`, hall `stick1`×`shelf1` — exact u/depth
   values carry the license: change them if it makes the product better, and say why. Exercised at
-  row 2: `stick1`'s `depth_m` is 0.75 in the shipped staging (the example above says 0.9, where
-  the projected spans stand clear of each other and §12.8's opaque-overlap check cannot pass; at
-  0.4 they overlap but the candlestick's base sits *inside* the bookcase plinth, which shows the
-  mechanism and not the quality — at 0.75 it stands in front of the case with its upper body
-  crossing it. Row 4's real asset needs only h ≥ ~0.11 m). The `u` values move with grid canonical
+  row 2: `stick1`'s `depth_m` is 0.75 in the shipped staging. The example above says 0.9, which
+  also overlaps — an earlier note here claimed the spans stand clear at 0.9 and that is simply
+  false through the shipped `groundplane.js`, so the reason is composition, not satisfiability: at
+  0.4 the candlestick's base sits *inside* the bookcase plinth and the pair shows the mechanism
+  without the quality, and at 0.75 it stands on the floor in front of the case with its upper body
+  crossing it — column-before-building. Row 4's real asset needs only h ≥ ~0.11 m. The `u` values move with grid canonical
   `wall_width_m` (below), each keeping its metre offset from the wall centre. `v` on wall-mounted placements is **metres above the wall
   floor line** (`u`, `t` are normalized; `v` is not), and a wall-mounted placement takes wall
   scale at any `v` — the ground-plane lerp describes the floor, so reading it at a raised

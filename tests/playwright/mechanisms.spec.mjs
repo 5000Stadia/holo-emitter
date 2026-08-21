@@ -260,10 +260,16 @@ test.describe("§12.8 — each mechanism fires", () => {
           window.__T.worldWithout(
             fx.world.entities.filter((e) => e.id !== nearer && e.id !== farther).map((e) => e.id)),
           fx.staging, vs, { no_backdrop: true, shadows: false });
+        /* Only FULLY opaque pixels of the nearer sprite: at alpha 191 the
+           composite is the nearer blended over the farther and cannot equal
+           the nearer's solo colour, so a partly-transparent sample makes this
+           fail for a reason that is not draw order. Green here was partly
+           luck of which pixel the sampler happened to return. */
         let checked = null;
         for (const p of inter.samples) {
           const ca = window.__T.px(a, p.x, p.y);
           const cb = window.__T.px(b, p.x, p.y);
+          if (ca[3] !== 255) continue;
           if (ca.join() === cb.join()) continue;
           const cc = window.__T.px(both, p.x, p.y);
           checked = { p, nearerPx: ca, fartherPx: cb, compositePx: cc };
@@ -1634,11 +1640,12 @@ test.describe("a takeable a hand cannot hit is declared, not hidden", () => {
           window.HOLO.renderer.GRID_META, vs);
         for (const e of lay) {
           const ent = world.entities.find((x) => x.id === e.id);
-          // Every pointer target a player has to hit, not only takeables:
-          // the doorway is the one the two-room premise depends on, and it
-          // was the one target whose residue nothing declared.
-          const isTarget = ent && (ent.takeable || ent.transition);
-          if (!isTarget) continue;
+          // EVERY pointer target, because every drawn entity is one: the
+          // resolver can return any of them, and the desk itself measures
+          // 22.6 CSS px on a phone. Scoping the invariant to takeables and
+          // transitions left four records silent about a residue the shipped
+          // pointing code already treats them as having.
+          if (!ent) continue;
           const w = e.f * e.record.px.w * k;
           const h = e.f * e.record.px.h * k;
           out.push({
@@ -2097,12 +2104,15 @@ test.describe("the way back through a door is reachable by a finger", () => {
       const cssW = (open.w * box.width) / 1536;
       expect(cssW, "the open leaf really is a sliver").toBeLessThan(12);
 
-      /* A finger, off centre by 5–6 CSS px — outside the leaf's own 6 px of
-       * pixels and inside the tolerance margin, which is exactly the band
-       * that only exists if the ring reaches non-takeables. Land there with
-       * the ring scoped to takeables and the point falls in the opening
-       * instead: you walk through the door you were trying to shut. */
-      for (const dx of [-6, -5, 5, 6]) {
+      /* A finger, off centre to the LEFT — onto the wall beside the opening,
+       * outside the leaf's own 6 px of pixels and inside the tolerance
+       * margin. Not into the opening: §7 puts the ring last precisely so it
+       * cannot eat the doorway, and an earlier version of this test asserted
+       * the opposite — that a tap 5 CSS px INTO the visible gap shuts the
+       * door — which pinned a contradiction of the blueprint clause in
+       * place with a green test. The leaf keeps its forgiveness where there
+       * is nothing else to hit. */
+      for (const dx of [-6, -5, -4]) {
         await page.touchscreen.tap(
           box.x + (open.x * box.width) / 1536 + dx,
           box.y + (open.y * box.height) / 1024);
@@ -2167,5 +2177,213 @@ test.describe("the way back through a door is reachable by a finger", () => {
     });
     expect(bad.zones.length, "the chevrons are on the stage").toBe(2);
     expect(bad.out, "no entity's drawn box overlaps a chevron").toEqual([]);
+  });
+});
+
+test.describe("what a finger means, where the demo actually happens", () => {
+  const PHONE = { width: 393, height: 727 };
+
+  async function phone(browser, boot) {
+    const ctx = await equipContext(await browser.newContext({
+      hasTouch: true, viewport: PHONE
+    }));
+    const page = await ctx.newPage();
+    let root = null;
+    if (boot) { root = stageTree(); setViewstate(root, boot); }
+    await page.goto(appUrl(root ?? undefined));
+    await page.waitForFunction(() => !!window.HOLO_APP);
+    return { ctx, page, root };
+  }
+
+  test("every visible part of an open doorway walks you through", async ({ browser }) => {
+    /* §7: the tolerance ring comes last "so it cannot eat the opening". It
+     * ran second for a commit, and because the open leaf is a small target
+     * its margin reached inside the aperture — 46% of the visible gap on a
+     * phone answered "shut the door" to a player trying to walk through it,
+     * with a test pinning that in place. Sampled across the opening with
+     * real taps, on a fresh page each time so one answer cannot mask the
+     * next. */
+    const { ctx, page, root } = await phone(browser, { location: "study", facing: "E" });
+    try {
+      const box = await page.locator("#scene").boundingBox();
+      // Open it.
+      const leaf = await page.evaluate(() => {
+        const e = window.__T.currentLayout().find((x) => x.id === "door1");
+        const b = window.__T.entryBBox(e);
+        return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+      });
+      await page.touchscreen.tap(
+        box.x + (leaf.x * box.width) / 1536, box.y + (leaf.y * box.height) / 1024);
+      const a = await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        return window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library,
+          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      });
+      // Every column of the opening that is not the leaf's own pixels.
+      const verdicts = await page.evaluate(({ a }) => {
+        const A = window.HOLO_APP;
+        const L = window.__T.currentLayout();
+        const out = [];
+        for (let f = 0.05; f <= 0.96; f += 0.05) {
+          const x = a.x + f * a.w;
+          const y = a.y + a.h * 0.6;
+          const exact = window.HOLO.renderer.hitTest(L, A.library, x, y);
+          if (exact) continue; // the leaf's own pixels legitimately toggle
+          const r = A.resolve({ x, y });
+          out.push({ f: +f.toFixed(2), kind: r.kind === "entity" ? r.id : r.kind });
+        }
+        return out;
+      }, { a });
+      expect(verdicts.length, "the opening has clear columns").toBeGreaterThan(8);
+      const wrong = verdicts.filter((v) => v.kind !== "doorway");
+      expect(wrong, "no clear column of the opening means anything but travel")
+        .toEqual([]);
+      // And a real finger in the middle of the gap really travels.
+      await page.touchscreen.tap(
+        box.x + ((a.x + a.w * 0.6) * box.width) / 1536,
+        box.y + ((a.y + a.h * 0.6) * box.height) / 1024);
+      expect(await page.evaluate(() => window.HOLO_APP.harness.viewstate.location))
+        .toBe("hall");
+    } finally {
+      await ctx.close();
+      if (root) removeTree(root);
+    }
+  });
+
+  test("the revealed key can be picked up by a finger, and a near-miss does not shut it in", async ({ browser }) => {
+    /* The one dramatic beat of M0. `smallTargetAt` returned the FIRST entry
+     * within the margin, and a host draws before its anchored child — so at
+     * phone scale, where the desk itself counts as a small target, the key's
+     * own pixels were handed to the desk. Reachable area: 12 CSS px². A tap
+     * three CSS pixels off centre dispatched `toggle desk1` and shut the
+     * drawer over the reveal the player had just earned. */
+    const { ctx, page, root } = await phone(browser, null);
+    try {
+      const box = await page.locator("#scene").boundingBox();
+      await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "desk1" }));
+      const c = await page.evaluate(() => {
+        const e = window.__T.currentLayout().find((x) => x.id === "key1");
+        const b = window.__T.entryBBox(e);
+        return { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+      });
+      const k = 1536 / box.width;
+      for (const [dx, dy] of [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3]]) {
+        const st = await page.evaluate(({ x, y }) => {
+          const r = window.HOLO_APP.resolve({ x, y });
+          return r.kind === "entity" ? r.id : r.kind;
+        }, { x: c.x + dx * k, y: c.y + dy * k });
+        expect(st, `a finger ${dx},${dy} CSS px off the key means the key`).toBe("key1");
+      }
+      // And a real tap takes it, leaving the drawer open.
+      await page.touchscreen.tap(
+        box.x + (c.x * box.width) / 1536, box.y + (c.y * box.height) / 1024);
+      const after = await page.evaluate(() => {
+        const h = window.HOLO_APP.harness;
+        return {
+          held: h.world.relations.some((r) => r[0] === "held_by" && r[1] === "key1"),
+          desk: h.world.entities.find((e) => e.id === "desk1").state
+        };
+      });
+      expect(after.held, "the key is taken").toBe(true);
+      expect(after.desk, "and the drawer is still open").toBe("open");
+    } finally {
+      await ctx.close();
+      if (root) removeTree(root);
+    }
+  });
+});
+
+test.describe("the image that lands is the image the record names", () => {
+  /* §12.8 witnessed that the swap changes the hash and that the state's rect
+   * lands in the right place; §12.3 and the interpolation clauses read the
+   * diff rect or the library. None of them read WHICH image reached the
+   * canvas. Substituting the body image into the swap branch — so the open
+   * door draws the whole closed leaf, planks and ring pull, squashed into a
+   * sliver — left all 440 tests green, and so did substituting it into the
+   * part branch. "Exercising `states_images` end to end" is the centre of
+   * this row's target.
+   *
+   * These compare the drawn pixels against a same-run stamp of the library
+   * image at the same transform — no goldens, and the expectation is built
+   * from the record, not from the renderer's own output. */
+  async function compare(page, { id, vs, doctor, pick }) {
+    return await page.evaluate(({ id, vs, doctorSrc, pick }) => {
+      const fx = window.HOLO_FIXTURE;
+      const lib = window.__T.lib();
+      const world = window.__T.clone(fx.world);
+      if (doctorSrc) (new Function("world", doctorSrc))(world);
+      const solo = window.__T.worldWithout(
+        world.entities.filter((e) => e.id !== id).map((e) => e.id), world);
+      const drawn = window.__T.renderW(solo, fx.staging, vs,
+        { no_backdrop: true, shadows: false, tint: false });
+      const e = window.HOLO.renderer.layout(solo, fx.staging, lib,
+        window.HOLO.renderer.GRID_META, vs).find((x) => x.id === id);
+      // Where the named image should have landed, and which one it is.
+      const spec = pick === "swap"
+        ? { img: e.images.states[e.state].image,
+            x: e.drawX + e.f * e.swap.origin.x,
+            y: e.drawY + e.f * e.swap.origin.y, k: e.f }
+        : (function () {
+            const part = e.parts[0];
+            const t = part.t;
+            return {
+              img: e.images.parts[part.id],
+              x: e.drawX + e.f * (part.origin.x + t * part.slide.dx * e.record.px.w),
+              y: e.drawY + e.f * (part.origin.y + t * part.slide.dy * e.record.px.h),
+              k: e.f * (1 + t * (part.slide.scale_open - 1))
+            };
+          })();
+      const W = 1536, H = 1024;
+      const want = document.createElement("canvas");
+      want.width = W; want.height = H;
+      want.getContext("2d").drawImage(spec.img, spec.x, spec.y,
+        spec.img.width * spec.k, spec.img.height * spec.k);
+      const a = drawn.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = want.getContext("2d").getImageData(0, 0, W, H).data;
+      // Inside the named image's own rect, and only where the expectation is
+      // solid (the entity may draw other things around it — a body under a
+      // part — and anti-aliased edges are not the claim).
+      let checked = 0, wrong = 0;
+      const x0 = Math.max(0, Math.floor(spec.x)), y0 = Math.max(0, Math.floor(spec.y));
+      const x1 = Math.min(W, Math.ceil(spec.x + spec.img.width * spec.k));
+      const y1 = Math.min(H, Math.ceil(spec.y + spec.img.height * spec.k));
+      for (let y = y0; y < y1; y++) {
+        for (let x = x0; x < x1; x++) {
+          const i = (y * W + x) * 4;
+          if (b[i + 3] < 250) continue;
+          checked++;
+          if (Math.abs(a[i] - b[i]) > 2 || Math.abs(a[i + 1] - b[i + 1]) > 2 ||
+              Math.abs(a[i + 2] - b[i + 2]) > 2) wrong++;
+        }
+      }
+      return { checked, wrong };
+    }, { id, vs, doctorSrc: doctor || null, pick });
+  }
+
+  for (const side of [
+    { location: "study", facing: "E" },
+    { location: "hall", facing: "W" }
+  ]) {
+    test(`the open leaf on ${side.location}/${side.facing} is the state image, pixel for pixel`, async ({ page }) => {
+      await page.goto(appUrl());
+      const r = await compare(page, {
+        id: "door1", vs: side, pick: "swap",
+        doctor: 'world.entities.find((e) => e.id === "door1").state = "open";'
+      });
+      expect(r.checked, "there are solid state-image pixels to compare")
+        .toBeGreaterThan(500);
+      expect(r.wrong, `${r.wrong} of ${r.checked} pixels are not the state image`).toBe(0);
+    });
+  }
+
+  test("the open drawer front is the part image, pixel for pixel", async ({ page }) => {
+    await page.goto(appUrl());
+    const r = await compare(page, {
+      id: "desk1", vs: { location: "study", facing: "N" }, pick: "part",
+      doctor: 'world.entities.find((e) => e.id === "desk1").state = "open";'
+    });
+    expect(r.checked, "there are solid part pixels to compare").toBeGreaterThan(500);
+    expect(r.wrong, `${r.wrong} of ${r.checked} pixels are not the part image`).toBe(0);
   });
 });

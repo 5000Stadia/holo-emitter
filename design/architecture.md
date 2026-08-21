@@ -478,6 +478,19 @@ the shipped witness.
   the leaf being two targets is what gives the door a way back: every click on an open exit door
   used to dispatch `go`, so no pointer path could ever close one again, and the authored
   `toggle.door1.closed` line was unreachable by any player.
+- **The order is §7's, and it is load-bearing in both directions**: the exact drawn pixel, then
+  an open doorway the point falls inside, then the tolerance ring — *last*, "so it cannot eat the
+  opening". Running the ring second put the open leaf's margin inside the aperture, and the
+  smaller the screen the more it took: 46% of the visible gap on a phone answered "shut the door"
+  to a player trying to walk through it, with a test of ours pinning that in place. The one
+  exception, which is the ring's whole purpose, sits *inside* step 1: a target clearly smaller
+  than what is exactly under the point — the key over the desk it lies in, the coin over the
+  shelf board.
+- **Among candidates within the margin, the smallest rect wins** — not the first in draw order.
+  A host draws before its anchored child, so returning the first at distance 0 handed the key's
+  own pixels to the desk underneath (at phone scale the desk is itself "small"), and the
+  forgiveness written for the key never reached it: 12 CSS px² of reachable area, and a tap three
+  pixels off centre dispatched `toggle desk1`, shutting the drawer over the reveal.
 - **Pointing tolerance** applies to **any target too small to hit exactly**, not only takeables.
   §7's amendment says "a widening tolerance ring for targets too small to hit exactly", and
   scoping it to `takeable` restored the blueprint's own named failure on a phone: the open leaf
@@ -669,11 +682,12 @@ asserts, position checks in heights (a shared `xAtU` bug self-agrees everywhere 
 code where things are), and the horizon-device clause on feet (a height check reads scale on both
 sides and cannot see a floor that puts feet at the wrong depth). The stick1 staging change
 (`depth_m` 0.9 → 0.4) rides §4's own license: it stands well clear of shelf1 at 0.9 and overlaps
-it at 0.4. It ships at **0.75**: at 0.4 the candlestick's base plate sat inside the bookcase
-plinth and the pair read as interpenetration — demonstrating the mechanism (§12.8's intersecting
-opaque pixels) without demonstrating the quality it exists for. At 0.75 it stands on the floor in
-front of the case with its upper body crossing it: column-before-building. Row 4's real asset
-needs only h ≥ ~0.11 m.
+it at 0.4. It ships at **0.75**, and the reason is composition rather than satisfiability: 0.9
+overlaps too (a note here once said the spans stand clear there, which is false through the
+shipped `groundplane.js`), and at 0.4 the candlestick's base plate sat inside the bookcase plinth
+so the pair demonstrated the mechanism — §12.8's intersecting opaque pixels — without the quality
+it exists for. At 0.75 it stands on the floor in front of the case with its upper body crossing
+it: column-before-building. Row 4's real asset needs only h ≥ ~0.11 m.
 
 Witnessed engines: Chromium (the suite) and a Firefox `file://` smoke after assembly (boot
 paint, desk click → open → reveal narration, no console errors); WebKit is unwitnessed on this

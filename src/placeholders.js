@@ -127,7 +127,8 @@
       ],
       "takeable": false,
       "airborne": false,
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "at V1 this draws ~41×23 CSS px on a 390 px phone — under a 44 px tap target in one dimension. Apparent size follows the open camera question in blueprint §5, not this record's dims_m, which are honest." }
     },
 
     "chair-joined": {
@@ -147,7 +148,8 @@
       },
       "takeable": false,
       "airborne": false,
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "at V1 this draws ~26×39 CSS px on a 390 px phone — under a 44 px tap target. Apparent size follows the open camera question in blueprint §5." }
     },
 
     /* Swap archetype: body IS the closed state; states_images.open registers
@@ -199,7 +201,8 @@
       },
       "takeable": false,
       "airborne": false,
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "at V1 this draws ~30×48 CSS px on a 390 px phone — under a 44 px tap target in one dimension. Apparent size follows the open camera question in blueprint §5." }
     },
 
     "candlestick-brass": {
@@ -219,7 +222,8 @@
       },
       "takeable": false,
       "airborne": false,
-      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1" }
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "v1_apparent_size": "at V1 this draws ~5×17 CSS px on a 390 px phone — far under any tap target, and reachable only because the page carries a pointing tolerance around a small target's own rectangle. Apparent size follows the open camera question in blueprint §5." }
     },
 
     /* Takeables author at 400 px/m; anchor-hosted takeables carry the

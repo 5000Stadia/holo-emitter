@@ -445,8 +445,16 @@
     }
 
     function smallTargetAt(x, y, margin, k, skipId) {
+      /* Among everything within the margin, the SMALLEST rect wins — not the
+         first in draw order, and not the nearest. Returning the first at
+         distance 0 handed the key's own pixels to the desk underneath it (a
+         host draws before its anchored child, and at phone scale the desk is
+         itself a "small" target), so the forgiveness written for the key
+         never reached the key: three CSS pixels of reachable area, and a
+         near-miss dispatched `toggle desk1`, shutting the drawer over the
+         reveal the player had just earned. */
       var best = null;
-      var bestD = Infinity;
+      var bestArea = Infinity;
       if (!currentLayout) return null;
       for (var i = 0; i < currentLayout.length; i++) {
         var e = currentLayout[i];
@@ -467,7 +475,9 @@
         var dx = Math.max(b.x - x, 0, x - (b.x + b.w));
         var dy = Math.max(b.y - y, 0, y - (b.y + b.h));
         var d = Math.sqrt(dx * dx + dy * dy);
-        if (d <= margin && d < bestD) { bestD = d; best = e.id; }
+        if (d > margin) continue;
+        var area = b.w * b.h;
+        if (area < bestArea) { bestArea = area; best = e.id; }
       }
       return best;
     }
@@ -518,22 +528,26 @@
          it outranks nothing, which is what keeps a small object from
          answering for the furniture it stands on. */
       var k = cssToCanvas();
-      var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
-      if (near && near !== exact) {
-        /* A small target outranks the point only when it is clearly SMALLER
-           than whatever is exactly under it — the thing you were aiming at,
-           over the thing behind it. An absolute CSS threshold alone is not
-           enough: at phone scale everything is small, and the desk (22 CSS px
-           tall) then claimed a margin and answered for the chair standing in
-           front of it. */
-        var exactEntry = (exact === null || exact === undefined) ? null : entryOf(exact);
-        var nearEntry = entryOf(near);
-        if (!exactEntry ||
-            (nearEntry && rectArea(nearEntry) < rectArea(exactEntry) * 0.6)) {
-          return { kind: "entity", id: near };
-        }
-      }
+      /* §7's order, and it is load-bearing in both directions:
+           1. the exact pixel of a drawn entity
+           2. an open doorway the point falls inside
+           3. the tolerance ring, LAST, so it cannot eat the opening.
+         Evaluating the ring second put the open leaf's margin inside the
+         aperture, and the smaller the screen the more of the opening it took
+         — 46% of the visible gap on a phone answered "shut the door" while
+         the player was trying to walk through it. */
+      var exactEntry = (exact === null || exact === undefined) ? null : entryOf(exact);
       if (exact !== null && exact !== undefined) {
+        /* One exception, and it is the point of the ring: a target clearly
+           SMALLER than what is exactly under it — the key over the desk it
+           lies in, the coin over the shelf board. Anything else, the exact
+           pixel decides. */
+        var near0 = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
+        var nearEntry0 = near0 ? entryOf(near0) : null;
+        if (near0 && near0 !== exact && nearEntry0 && exactEntry &&
+            rectArea(nearEntry0) < rectArea(exactEntry) * 0.6) {
+          return { kind: "entity", id: near0 };
+        }
         return { kind: "entity", id: exact };
       }
       var ap = apertureAt(p);
@@ -544,6 +558,8 @@
         // leaf's own pixels do not reach; the doorway still belongs to it.
         if (leaf) return { kind: "entity", id: ap.via };
       }
+      var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
+      if (near) return { kind: "entity", id: near };
       return { kind: "none" };
     }
 
