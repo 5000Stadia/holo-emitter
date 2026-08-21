@@ -1,105 +1,199 @@
-# Row 11 — plan
+# Row 11 — plan (revision 2)
 
 Row 11 in `design/intention.md`. The target and its done live there; this file says how it gets
 built, what it must not touch, and what outside it feels the change.
 
----
-
-## 0. What this row inherits, and the one thing it must not re-derive
-
-`design/architecture.md`'s *The plan machinery* says what row 11 takes from row 12:
-`corner_x0_px` / `corner_x1_px`, `facing_type`, `wall_segments`, and §12.5's amended
-frame-filling clause. All four come out of `tools/plan-projection.mjs`'s `deriveMeta`, which
-reads `fixtures/demo-study/plan.json` — the approved drawing, as a document.
-
-**Import, never re-derive.** The corner positions, the camera distance and the wall width are
-`deriveMeta`'s output. This row adds no second arithmetic for any of them: the renderer, the
-validator, the bake and the page all read one derived meta per facing. The one place a second
-statement of the geometry is legitimate is the test side, where §12.5's independence rule
-*requires* it — and there it is written as literals taken off `projection.md` §4's table, not as
-an import.
+Revision 2 answers the first plan critique (35 findings, 26 marked blocking) and carries the
+Navigator's fork ruling of this run. **§0 is the authority ledger** — the critique's largest single
+family was a plan that cited its licences loosely, so every change of scope below names the
+sentence that authorizes it, quoted as it stands, before anything else.
 
 ---
 
-## 1. The camera, and the horizon gate
+## 0. Authorities — who said what, quoted
 
-Row 11's text places the corners "from camera_wall_m, wall width, and the ruled camera (eye
-1.83 m)". That sentence resolves `projection.md` §7's near-miss by construction, and it is the
-honest resolution rather than a widened tolerance:
+Nothing in this plan is licensed by inference. Where this row moves something a previous row's
+documents assign elsewhere, the sentence that moves it is here.
 
-Blueprint §5's camera-has-feet assertion is
-`|horizon_y − (floor_line_y − eye·px_per_m_at_wall/image_h_px)| ≤ 0.02`. Grid canonical meta was
-authored at eye 1.60 m and row 3 propagated Kabe's six-foot ruling into the assertion, leaving a
-residual of 0.0216 against a 0.02 tolerance — failing by 0.0016, with `heights.spec` still
-implementing the old 1.6 and the suite therefore green while the blueprint was not.
+**A1 — the row's own text** [HUMAN, 2026-08-20], `design/intention.md` row 11: *"grid mode draws a
+bounded room - corner verticals and side-wall returns placed from camera_wall_m, wall width, and
+the ruled camera - and groundplane.js/the validator learn the corner-bounded u-domain plus the
+enclosed/open/corridor facing type field (M0 ships enclosed only; the others must be a meta entry
+later, not a renderer rewrite)."*
 
-**The fix is to derive every meta at the ruled eye height and let `floor_line_y` follow.**
-`deriveMeta` already computes `floor_line_y = horizon_y + eye·px_per_m_at_wall/image_h_px`, so at
-eye 1.83 the residual is exactly 0 — not "inside tolerance", zero, because the derivation and the
-gate are the same equation. `px_per_m_at_bottom` follows from §5's own horizon device:
-`(image_h_px − horizon_y·image_h_px)/eye` = 290.9726775956284.
+**A2 — the Navigator's handoff for this row** (the seat that holds the intention and answers
+forks), verbatim: *"grid mode renders a bounded room — corner verticals and side-wall returns
+placed from the plan's camera_wall_m + wall width + the ruled camera (eye 1.83m)"*; *"The shipped
+study/hall grid rooms re-derive their geometry from plan.json's projection — this WILL move shipped
+pixels (the endless 16m wall becomes the study's real 5.45m walls with corners; the door re-sites
+~1.1m south per the approved drawing, projection.md §1) — that change is licensed by the human's
+schematic approval; make the grid geometry agree with the drawing he approved."*; *"Resolve the
+horizon-gate near-miss (projection.md §7) honestly in the re-derived meta rather than widening the
+tolerance."*; *"Update every hash/geometry test that encoded the old endless-wall grid."*
+This is the authority for three things the earlier revision mis-sourced: **the eye height in the
+ruled camera**, **the staging adoption**, and **`door1`'s re-siting** — which is `projection.md`
+§0's question 2 and is answered here by the Navigator, not closed as a side effect.
 
-Consequences, all named rather than absorbed:
+**A3 — the schematic approval** [HUMAN, 2026-08-21], blueprint §4b: *"Redline returned,
+2026-08-21 [HUMAN] — THE SCHEMATIC IS APPROVED ('aproval on the schematic')."* This is what makes
+the plan's metres the geometry the grid must agree with.
 
-- `floor_line_y` moves 0.63 → **0.6515625** and `px_per_m_at_bottom` 332.8 → **290.9726775956284**.
-  Every grid pixel moves. Licensed by the approved-drawing authority in the row text.
-- The frame-bottom floor cut — the intention's *"the camera has feet"* — moves **outward**, from
-  1.01 m to 1.19 m on `study/N`, because a taller *level* camera sees the floor start further
-  away. The pitch that would pull it back in (§10's −8°) is unmodelled by `groundplane.js` and
-  stays unmodelled here (adding a pitch term is a whole-project pixel move with no measured
-  camera to aim at — §5 rules that row 4's approved backdrop is where the real camera comes
-  from). This row **does not** silently improve the number by keeping `floor_line_y` at 0.63 and
-  moving `horizon_y` to 0.4584 instead: `horizon_y` is the authored horizon and `floor_line_y` is
-  where the wall meets the floor, which is the derived quantity. The direction of the derivation
-  is row 12's and stays.
-  Two facings gain feet rather than losing them: `hall/N` and `hall/S` stand 1.95 m off their
-  wall, so their floor cuts at **0.64 m** — nearer than anything the demo has shown.
-- `GRID_CAMERA` in `plan-projection.mjs` is derived back out of `GRID_META`, so it becomes the
-  ruled camera automatically and `projection.md` §7 collapses to "grid and contract cameras now
-  differ only in the unmodelled pitch". The report is generated; it regenerates.
+**A4 — the six-foot ruling** [HUMAN, 2026-08-20], blueprint §5: *"we should be a bit higher as a
+view angle looking down at about a 6ft height. For better visual presentation."* — encoded at §10
+as `eye_height_m: 1.83`, `pitch_deg: -8`. §5's camera-has-feet assertion was propagated to 1.83 at
+row 3 and grid canonical was never moved to match; `architecture.md` records the residual as live
+and names row 4 as owner of the *measured* camera. A2 rules that this row resolves it in the
+re-derived meta. **What this row adopts is the eye height and nothing else** — see §1.
 
-**What this does not settle**, and is still Kabe's: the field of view. Pinning the scale at
-96 px/m across standpoint distances from 1.95 m to 6.00 m means a different implied focal length
-per facing (187 px on `hall/N`, 576 px on `hall/E`), and an authored `horizon_y` of 0.48 on a
-frame whose centre is 0.5 implies a small per-facing pitch the model does not carry. Both are
-§5's open question and `projection.md` §§5–7 carry them with numbers. This row moves neither.
+**A5 — the fork ruling of this run** (Navigator, in writing, cited as the fork's authority): the
+approval lock's input is narrowed to the drawn content, and `stick1`'s plan depth moves 0.75 → 0.50
+under blueprint §4's standing licence. Quoted where it is executed, §6.
+
+**A6 — the human visual gate, ruled** (Navigator, same message): *"The playbook screenshot-gate
+exemption is MINE, explicitly: batch-as-delivery stands for this row under the human's
+checkpoints-inform law; his verdict on your corner batch routes as rows. You are not re-deriving
+that exemption — I own it here in writing."* `design/playbook.md` §3.4 and `design/intention.md`'s
+spec-list preamble both put a screenshot gate on a row that changes what the player sees; row 13
+paid for an agent deriving an exemption by analogy. This row does not derive one — it cites A6.
+
+**A7 — the standing value licence** [HUMAN], blueprint's own rule: *"Exact values are welcome,
+always with this license written next to them: change it if it makes the product better, and say
+why."* §4 repeats it for staging's `u`/`depth_m`. Row 12 moved the home of those values into
+`plan.json` without moving the licence.
+
+**A8 — what the approval does and does not cover**, `design/architecture.md`: *"Kabe approved the
+drawing. `plan.json` carries content no image has shown him: the four object footprints (the
+drawing draws no furniture) …"*
+
+Everything below cites these by tag.
 
 ---
 
-## 2. The typed-geometry model — one drawing, three types
+## 1. The camera: what moves, what does not, and what stays open
 
-§5 types a facing `enclosed` (facing wall, two corners), `open` (no facing wall, ground to a far
-line) or `corridor` (side planes converging, open centre). The row's promise is that open and
-corridor are "a meta entry later, not a renderer rewrite". The way to keep that promise is to
-stop treating them as three drawings:
+**The scale does not move.** `px_per_m_at_wall` stays 96 and `horizon_y` stays 0.48 — blueprint §7's
+grid-canonical values, unchanged since row 2. The field-of-view question §5 carries for Kabe is
+therefore untouched by this row, and the arithmetic is worth stating because corners are what make
+it *visible* for the first time: 5.45 m of study wall at 96 px/m is 523 px of a 1536 px frame, so
+after this row roughly two-thirds of a study frame is side wall, an implied ~131° view against
+§10's `focal_mm: 50` (≈40°).
 
-> **The wall in view is a list of bands.** Corner verticals stand at every band edge. Where the
-> view has no band, the ground runs past to the far line. Side-wall returns are drawn where —
-> and only where — one continuous band spans the whole view, because that is what having two
-> corners *means*.
+**The row's done clause is what forces that, and it cannot be avoided inside this row.** At §10's
+50 mm the focal length on a 1536 px frame is 768/tan(19.8°) ≈ 2133 px, so `px_per_m_at_wall` at the
+study's 3.60 m would be 593 and the 5.45 m wall would draw 3230 px — **wider than the frame, with
+neither corner in it**. "Two visible corners" and a 50 mm lens are not simultaneously satisfiable
+at these room sizes. So the grid keeps the pinned scale it has always drawn with, the wide view is
+the arithmetic consequence, and §5's open question is carried to Kabe unchanged — with this number
+beside it, and with a rendered frame in the batch so the question is asked against a picture rather
+than against a paragraph.
 
-- **enclosed / corridor with a continuous wall** — one band spanning the view; two corners; two
-  side-wall returns. This is what M0 ships.
-- **open** — zero bands; no corners; no returns; the vista band replaces the wall above the far
-  line. `deriveMeta` already emits `backdrop: "vista"` and `camera_far_m` instead of
-  `camera_wall_m` for these.
-- **segmented** (`wall_continuous: false`) — the bands `wall_segments` names, each with its own
-  two corner verticals, vista between them. Nothing in M0 ships this; the entrance approach's
-  north view is the plan's one instance and it is row 15's to walk.
+**The eye height moves, and only the eye height.** Per A2 and A4, every derived meta is computed at
+eye 1.83 m. `deriveMeta` already computes `floor_line_y = horizon_y + eye·px_per_m_at_wall/image_h_px`
+and `px_per_m_at_bottom = (image_h_px − horizon_y·image_h_px)/eye`, so:
 
-So there is one code path with a data-driven band list, and the type field selects data, never a
-branch in the drawing algorithm. That is the checkable form of "wall-existence is not hard-wired".
+- `floor_line_y` 0.63 → **0.6515625**
+- `px_per_m_at_bottom` 332.8 → **290.9726775956284**
 
-**Corridor lands in M0 whether or not the row's parenthetical expects it, and this is worth
-flagging to the Navigator rather than absorbing.** The row text says "M0 ships enclosed only".
-Re-deriving the shipped rooms from the approved plan makes `hall/E` and `hall/W` **`corridor`**
-facings — the cross passage's two ends — because that is what the drawing Kabe approved says the
-hall is. `door1` stands on one of them. Under the model above that costs nothing: a corridor's
-end wall is a band like any other, and what makes the view read as a corridor is arithmetic
-already in the plan (2.60 m of wall at 6.00 m, so the side returns fill most of the frame). The
-row's promise is *strengthened* — corridor arrives as a meta entry, exactly as promised, and the
-renderer is not rewritten for it. But the row's own sentence is now false, so the blueprint and
-the spec-list row say what actually ships.
+**The pitch is not adopted, and that is a loss this row reports rather than absorbs.** A4's sentence
+is *"a bit higher … looking down"* and §10 encodes both halves. `groundplane.js` has no pitch term;
+adding one is a whole-project pixel move with no measured camera to aim at, and §5 rules the real
+camera is measured off row 4's approved backdrop. So this row takes the half §5's own
+camera-has-feet device can express and leaves the half it cannot, **with the magnitude printed**:
+at the study's implied focal length of 346 px an −8° pitch moves the horizon down 49 px, 0.047 of
+frame height (`projection.md` §7 computes it; nothing here re-derives it). The consequence is
+directional and against a named quality — pitch would pull the floor cut *in*, and taking the
+height alone pushes it *out* — so the row's report says so in those words and the residue stays
+row 4's.
+
+**Every shipped facing's floor cut, before and after.** The first revision reported one facing and
+called two others an improvement; six of eight get worse. `d = camera_wall_m × px_per_m_at_wall /
+px_per_m_at_bottom` — the distance in front of the viewer at which the floor first appears:
+
+| facing | camera_wall_m | today (cam 3.5, pb 332.8) | after (pb 290.97) | Δ |
+|---|---|---|---|---|
+| study/N, study/S | 3.60 | 1.01 | **1.19** | +0.18 |
+| study/E, study/W | 4.09 | 1.01 | **1.35** | +0.34 |
+| hall/N, hall/S | 1.95 | 1.01 | **0.64** | −0.37 |
+| hall/E, hall/W | 6.00 | 1.01 | **1.98** | +0.97 |
+
+`hall/E` is one of the two arrival facings under row 13's orientation law and `hall/W` carries
+`door1`; both start their floor almost two metres out. That is the drawn standpoint rule meeting the
+pinned scale — `projection.md` §6 already names it across the manor and calls the fix "not an
+agent's" (a cap on the standpoint rule would change the approved drawing; pinning the lens is §5's
+open question). This row makes it visible on two shipped facings, names it, puts the frames in the
+batch, and changes neither the drawing nor the scale.
+
+**The horizon gate, and why "green" here witnesses less than it looks like.** Blueprint §5's
+assertion is `|horizon_y − (floor_line_y − eye·px_per_m_at_wall/image_h_px)| ≤ 0.02`. On a meta
+`deriveMeta` produced, this is the derivation's own equation read backwards: the residual is 0 by
+construction and the clause **cannot fail for any camera**. Saying "§12.5 green" over that would be
+the identity-not-evidence failure `architecture.md` already names once. So:
+
+- the clause is kept, and the blueprint records **in the same breath** that on a *synthesized* meta
+  it holds by construction and has content only on a *measured* one (row 4's) — the same honesty
+  §12.5's clause (iii) already carries for the corner equality;
+- and the row adds the check that **can** fail, with a term from outside the derivation: the eye
+  height the derivation runs at is asserted equal to `replicator/contract.json`'s
+  `camera.eye_height_m` — a different document, authored from A4, which no part of the projection
+  writes. Drift either way goes red.
+- `assertCameraConsistent` (already called by the bake) keeps its job on `GRID_META`: edit one of
+  its four numbers alone and the horizon device stops agreeing with the scale lerp.
+
+---
+
+## 2. The typed-geometry model — bands, and one drawing
+
+§5 types a facing `enclosed` (facing wall, two corners), `open` (no facing wall — ground to a far
+line) or `corridor` (side planes converging, open centre). The way to keep the row's promise that
+open and corridor are "a meta entry later, not a renderer rewrite" is to stop treating them as three
+drawings:
+
+> **The wall in view is a list of bands.** Corner verticals stand at every band edge. Where the view
+> has no band, no wall is drawn. Side-wall returns are drawn where — and only where — one continuous
+> band spans the whole view, because that is what having two corners *means*.
+
+| case | bands | corners | returns |
+|---|---|---|---|
+| `enclosed` / `corridor`, `wall_continuous: true` | one, spanning the view | two | two |
+| `enclosed` / `corridor`, `wall_continuous: false` | `wall_segments` | one pair per band | none |
+| `open` | none | none | none |
+| unplanned facing (`facing_type: null`) | one, unbounded | none | none |
+
+**Corridor is not nominal after this row, and it is not enclosed wearing a label.** §5 defines it as
+*"side planes converging, open centre"*; `architecture.md` records that row 12 left it "nominal" —
+the derived meta emits no side-plane fields and a corridor got the same `camera_wall_m` /
+`wall_width_m` pair an enclosed facing does. What discharges it is not a new field but the returns:
+the *proportion of the frame the converging side planes occupy* is already fully determined by the
+plan's own two numbers, and it separates the types cleanly.
+
+| facing | type | wall in view | camera | frame occupied by the returns |
+|---|---|---|---|---|
+| study/N | enclosed | 5.45 m | 3.60 m | 66 % |
+| hall/N | enclosed | 8.00 m | 1.95 m | 50 % |
+| hall/E, hall/W | **corridor** | 2.60 m | 6.00 m | **84 %** |
+
+So `hall/E` is a view down a passage whose end wall is a sixth of the frame and whose side planes
+are the rest — §5's alley, from the drawing's arithmetic, through one code path. **The row asserts
+this rather than claiming it**: a test computes the return share per facing from independent
+literals and requires the corridor facings' share to exceed every enclosed facing's. If that
+ordering ever fails, the type has stopped meaning anything and the check says so.
+
+**Corridor ships in M0, against the row's own parenthetical.** Re-deriving the shipped rooms from
+the approved drawing (A3) makes `hall/E` and `hall/W` corridor facings — the cross passage's two
+ends — and `door1` stands on one of them. Ruled by the Navigator this run: the promise is
+*discharged, not broken*, and what actually ships is written into the blueprint's parenthetical as
+an **[AI]-tagged amendment beside the [HUMAN] sentence, never inside it** (`design/playbook.md`
+§5.1's scar). The spec-list row is the Navigator's text and is not edited by this seat; it leaves
+the list at the close in any case.
+
+**`open` gets no invented look.** `architecture.md` is explicit that what an open facing's
+`px_per_m_at_wall`, `floor_line_y` and u-domain *mean* against a vista is "not settled by this row —
+it is row 4's", and ruling (1)'s scenic vista is a generated backdrop. So this row draws, for an
+open facing, exactly what its type asserts and nothing more: **the ground, and no wall** — no
+corner verticals, no wall grid, no invented sky band, no gradient standing in for a vista. The
+region above the far line is the grid's unestablished void, which is what it already is wherever no
+wall is drawn. No M0 facing is open; the case exists so the renderer does not hard-wire a wall, and
+its test asserts absence (no facing wall, no corners) rather than blessing an appearance.
 
 ---
 
@@ -108,249 +202,338 @@ the spec-list row say what actually ships.
 All of it in `src/renderer.js`, grid mode only. A real backdrop image still occludes the grid and
 this row does not touch that path.
 
-Given a resolved meta, let `pxW = px_per_m_at_wall`, `floorY = floor_line_y·image_h_px`,
-`sBottom = px_per_m_at_bottom`, and `X(u, s) = groundplane.xAtScale(u, s, meta, canvasW)`.
+Let `pxW = px_per_m_at_wall`, `floorY = floor_line_y·image_h_px`, `sBottom = px_per_m_at_bottom`,
+and `X(u, s) = groundplane.xAtScale(u, s, meta, canvasW)`.
 
-**Regions.** For a facing with one continuous band and corners `cL = corner_x0_px`,
-`cR = corner_x1_px`:
+**Regions**, for a facing with one continuous band and corners `cL`, `cR`:
 
 - *facing wall* — `x ∈ [cL, cR]`, `y ∈ [0, floorY]`.
-- *side-wall/floor junctions* — the straight lines from `(cL, floorY)` to `(X(0, sBottom), H)`
-  and from `(cR, floorY)` to `(X(1, sBottom), H)`. These are the two extreme floor longitudinals
-  the grid already draws; they now carry major weight, because they are the wall-floor line of
-  the side walls.
-- *side walls* — everything outside the polyline {vertical at `cL` above `floorY`} ∪ {left
-  junction below it}, and its mirror on the right.
+- *side-wall/floor junctions* — the straight lines `(cL, floorY) → (X(0, sBottom), H)` and
+  `(cR, floorY) → (X(1, sBottom), H)`. These are the two extreme floor longitudinals the grid
+  already draws; they now carry major weight, being the wall-floor line of the returns. On a wide
+  room the junction leaves the frame through the *side* (study/N: x = 0 at y ≈ 1007); on a narrow
+  one through the *bottom* (hall/E: x = 390 at y = 1024). Both are the same clipped polygon.
+- *returns* — everything outside the polyline {vertical at `cL` above `floorY`} ∪ {left junction
+  below it}, and its mirror.
 - *floor* — between the junctions, below `floorY`.
 
-**Paint.** Facing wall keeps `WALL_BASE`; the floor keeps `FLOOR_BASE` (unchanged, so §12.8's
-contact-pool luminance bar is untouched); the two side walls take their own bases, the
-viewer-left one darker and the viewer-right one lighter than the facing wall. That is the
-one-light quality applied to the room's own geometry — with a key from upper-left, a return whose
-face turns toward the key is brighter — and it is what makes a corner read even where no line
-falls on it. Flat rect/path fills only, never a canvas gradient object (engine rasterisation;
-the existing key falloff and the sprite painters already carry this rule).
+**One lighting model, stated once.** The first revision had two devices fighting: the existing
+stepped `key_tint` falloff makes the frame's upper-left brightest, and new return tones would make
+the left darkest. The model is **ambient falloff × a per-plane facing factor**, in that order:
+
+- each plane takes a base tone — facing wall `WALL_BASE`, floor `FLOOR_BASE` (both unchanged, so
+  §12.8's contact-pool luminance bar is untouched), the **viewer-left return darker and the
+  viewer-right return lighter**, because with a key at upper-left the left return's face turns away
+  from it and the right return's turns toward it. This is the same statement the sprite painters
+  make with their ±8 % across-width ramp, applied to the room's own geometry;
+- then the existing falloff paints over the whole frame, unchanged, as it does today.
+
+Checked as one model, not two: *within* each plane (facing wall, each return, floor) the falloff
+still reads left-brighter and top-brighter; *across* planes the right return reads brighter than the
+left. `mechanisms.spec`'s existing "the ground carries the same key the sprites do" case samples
+x 40–340 against x 1196–1496 — which after this row are the two returns, not the wall — so it is
+re-pointed inside the facing wall and gains the cross-plane clause.
 
 **Lines.**
-- Facing-wall metre verticals and horizontals: clipped to the facing wall, so they stop at the
-  corners instead of running the width of the frame.
-- **Corner verticals**: `cL` and `cR` from `y = 0` to `floorY`, at `ALPHA_MAJOR`. There is no
-  ceiling to stop at — the plan carries no vertical datum (`architecture.md` names row 4 as its
-  owner), so the corner runs off the top of frame, which is also what standing in a room looks
-  like.
-- Side-wall verticals: at each 0.5 m of depth `d ∈ (0, nearest]`, `x = X(0, scaleAtDepth(d))`,
-  from `yAtDepth(d)` up to `y = 0`.
-- Side-wall horizontals: straight lines through `(X(0, s), yAtScale(s) − h·s)` for each metre
-  `h`, clipped to the side-wall region — they fan from the corner exactly as the floor
-  longitudinals do.
-- Floor longitudinals: only the metre lines inside the room (the extremes are the junctions).
-  Today they fan across the whole frame, including floor the room does not have.
-- Floor transverse lines: clipped to the floor region.
+- Facing-wall metre verticals and horizontals: clipped to the facing wall, stopping at the corners.
+- **Corner verticals**: at `cL` and `cR`, `y = 0` to `floorY`, at `ALPHA_MAJOR`, weight 2.
+- Return verticals: at each 0.5 m of depth, `x = X(0 | 1, scaleAtDepth(d))`, from `yAtDepth(d)` up.
+- Return horizontals: straight lines through `(X(·, s), yAtScale(s) − h·s)` per metre `h`, fanning
+  from the corner exactly as the floor longitudinals do.
+- Floor longitudinals: only the metre lines inside the room. Floor transverse lines: clipped to the
+  floor region. The **eye line stays full width** — a level camera's horizon is one line across
+  every surface — and the floor line becomes the room's own continuous wall-floor line (the band's
+  foot plus the two junctions).
 
-**The facing glyph** stays on the facing wall and must now also stay *between the corners*. The
-existing dodge (left of an opening, else right) cannot satisfy that on `hall/W`, where a 1.0 m
-door sits in the middle of a 2.60 m wall: both dodges land outside the corner. So the candidate
-order becomes left-of-opening → right-of-opening → **above the opening**, and a candidate is
-taken only if its rect lies inside the band and clears every opening. `hall/W` takes the third.
+**The returns are featureless, and what that omits is named and pinned.** They are traceable to
+bands the plan holds (the room's own side walls), but the grid draws no opening in them: `apertures`
+derives openings from `locations[].exits` **on the facing being drawn**, and multi-facing presence
+is §4b item 9's, assigned to row 15. The omission is computable, so it is computed rather than
+asserted away — the visible extent of a return runs from the corner to whichever comes first, the
+frame edge or the nearest floor depth, and any exit opening inside that extent is a doorway the
+picture does not show:
 
-**Fallback (`GRID_META`, corners null).** A facing the plan does not hold keeps today's drawing —
-endless wall, no corners, no returns — because a room whose extent is unknown must not claim two
-corners. This is the honest state of unestablished space, and it is the only path in which the
-16.0 m `wall_width_m` survives.
+| facing | return | exit opening in view | drawn |
+|---|---|---|---|
+| study/S | left (the east wall) | `door1`, the full 1.00 m | blank wall |
+| hall/N | left (the west wall) | `door1`, 0.18 m sliver at the frame edge | blank wall |
+| hall/S | right (the west wall) | `door1`, 0.18 m sliver at the frame edge | blank wall |
+| all others | — | none | — |
 
----
+**Nothing interactive is denied** — the harness requires the exit's own facing, so no `go` target is
+lost and no click changes meaning — and this is strictly *less* divergence than today, where the
+picture runs the north wall across the whole frame and the side walls do not exist at all. But it
+is a wall feature the document holds and the picture does not, so: a committed test enumerates the
+list above and pins it, so a new omission cannot appear silently; the blueprint records it with
+row 15 as owner; and it goes to Kabe in the batch as a named question, his verdict routing as rows
+per A6.
 
-## 4. `groundplane.js` — the corner-bounded u-domain
+**The facing glyph** stays in-fiction signage and now has a rule for every case: it is placed on
+the largest band in view, at the eye line, and must lie inside that band and clear every opening —
+candidates in order **left of the opening → right of it → above it**; where there is no band
+(`open`) it is centred on the view at the eye line. `hall/W` is why the third candidate exists: a
+1.0 m door in the middle of a 2.60 m wall leaves no room beside it, and both dodges land outside a
+corner. `geometry.spec`'s existing bare-facing clause (a turn must move > 1200 px) is re-run on
+every shipped facing and extended to a synthesized `open` meta, so no facing type loses its only
+response to an arrow key.
 
-Three changes, all small, all in the one home of §4/§5 placement:
-
-1. **`u` spans corner to corner where corners exist.** `xAtScale` currently reads
-   `canvasW/2 + (u − 0.5)·wall_width_m·s`. It becomes
-   `wallCentrePx(meta, canvasW) + (u − 0.5)·wallSpanPxAtWall(meta)·(s / px_per_m_at_wall)`, where
-   the centre and span come from the corners when the meta carries them, from `wall_x0_px` when
-   §5's uncentred-wall extension point is used, and from `canvasW/2` + `wall_width_m·px_per_m_at_wall`
-   otherwise. **On every meta this project can currently produce the value is identical** — the
-   corners are `xAtScale(0)` and `xAtScale(1)` at wall scale by construction — so this moves no
-   pixel by itself; what it buys is that the u-domain and the corner verticals are the same
-   arithmetic rather than two that agree today. Row 2 paid twice for the other shape, and row 12's
-   critic caught it a third time in `deriveMeta`.
-2. **The depth anchor is typed.** `scaleAtDepth` reads `meta.camera_wall_m ?? CAMERA_WALL_M`, so
-   an open facing's meta — which deliberately carries no `camera_wall_m` — silently gets 3.5 m,
-   which in a 20.4 m courtyard is nonsense (`architecture.md` names this trap). It becomes
-   `camera_wall_m ?? camera_far_m ?? CAMERA_WALL_M`: for an open facing the far line *is* the
-   depth anchor, which is exactly what makes the same drawing code work for it.
-3. **`uDomain(meta, s, canvasW)`** is exported: `{ x0, x1 }`, the room's own wall at that scale.
-   The renderer clips with it, the validator checks placements against it, and `deriveMeta` keeps
-   calling `xAtScale` as it already does.
-
-`placeHost` is unchanged in shape; its `baseX` moves only because the meta it is handed moved.
+**Unplanned facings (`facing_type: null`) keep today's drawing** — one unbounded band, no corners,
+no returns — because a room whose extent is unknown must not claim two corners. Their *pixels* move
+with the eye height like everything else; the earlier revision said "keeps today's drawing" without
+that qualification and contradicted its own §1.
 
 ---
 
-## 5. The meta schema, and what the validator now refuses
+## 4. `groundplane.js`
 
-`tools/validate-fixtures.mjs` gains a meta-schema arm and three wall-existence clauses. Each one
-is written so that breaking it goes red on that clause alone (`architecture.md`'s clause-ledger
-rule, brought over from the replicator).
+1. **`u` spans corner to corner where corners exist.** `xAtScale` becomes
+   `wallCentrePx(meta, canvasW) + (u − 0.5)·wallSpanPxAtWall(meta)·(s / px_per_m_at_wall)`, with
+   centre and span read from the corners when present, from `wall_x0_px` when §5's uncentred-wall
+   extension point is used, and from `canvasW/2` + `wall_width_m·px_per_m_at_wall` otherwise. On
+   every meta this project can produce today the value is identical — the corners *are*
+   `xAtScale(0|1)` at wall scale by construction — so this moves no pixel by itself; what it buys is
+   that the u-domain and the corner verticals are one arithmetic. Row 2 paid for the other shape
+   twice and row 12's critic caught it a third time.
+2. **`uDomain(meta, s, canvasW) → { x0, x1 }`** — the room's own wall at that scale, exported. The
+   renderer clips with it and the validator checks placements against it. **Where corners are null
+   it returns the `wall_width_m` span with no clamp**, and that is the stated rule rather than a
+   fallthrough: an unplanned or segmented facing has no corner to clamp to, and `wall_segments` is
+   what says where the building is.
+   Note the row text's "clamps corner-to-corner" is read as *the domain is corner-to-corner* — the
+   mapping's endpoints are the corners, and the validator refuses staging that leaves the room. It
+   is **not** a render-time clamp that silently slides an out-of-room object back inside: a picture
+   that quietly moves what the document placed is the same lie as a picture that ignores it.
+3. **The depth anchor is typed, with no silent tail.** `scaleAtDepth` reads
+   `meta.camera_wall_m ?? meta.camera_far_m`; a meta carrying neither is an error, not a default
+   3.5 m. `architecture.md` names that fallback as the trap the field naming exists to prevent, and
+   the first revision reinstated it. `CAMERA_WALL_M` survives as the named home of `GRID_META`'s own
+   value and stops being an implicit default for everyone else.
 
-**Schema (every meta the fixture resolves, derived or measured):**
-- `facing_type ∈ {enclosed, open, corridor}` — required.
+`placeHost` is unchanged in shape; its outputs move only because the meta it is handed moved.
+
+---
+
+## 5. The meta schema, and what the validator refuses
+
+`tools/validate-fixtures.mjs` gains a meta arm. Every clause is written so that breaking it goes red
+on that clause alone (`architecture.md`'s clause-ledger rule, brought over from the replicator).
+
+**A resolved meta must be a complete §5 record.** The renderer resolves `entry.meta ?? GRID_META`,
+so the moment a facing carries a partial meta the fallback is never consulted and an `undefined`
+reaches the paint: `key_tint` drives both the per-sprite tint and the grid's own key falloff and is
+deliberately non-identity so §12.8's tint clause is satisfiable; `image_h_px` is in the ground-plane
+arithmetic; `horizon_y` is the left-hand side of §5's own gate. So `deriveMeta` emits the full §5
+field set — including `calibration_ref` / `calibration_px`, which for a synthesized facing are the
+grid's own metre module, as `GRID_META` already declares — and the validator **refuses any resolved
+meta missing a required §5 field**, rather than letting one drift in.
+
+**Typed fields.**
+- `facing_type ∈ {enclosed, open, corridor}` or `null` (the unplanned facing — a fourth §5 type is
+  not invented). Every facing the plan holds must carry a non-null one.
 - `enclosed`/`corridor` carry `camera_wall_m > 0` and no `camera_far_m`; `open` carries
-  `camera_far_m > 0` and **no** `camera_wall_m` (the different name is the mechanism — a missing
-  field with a fallback is invisible, a differently-named one forces the consumer to handle it).
-- `corner_x0_px` and `corner_x1_px` are both null or both numbers with `x0 < x1`.
-- §12.5 clause **(i)**: `0 ≤ corner_x0_px` and `corner_x1_px ≤ canvas width` — the canvas is the
-  thing outside every meta, so this is where the old `px_per_m_at_wall × wall_width_m ≈ canvas
-  width` clause's reach survives. Clause (ii) is row 4's, on a measured backdrop; clause (iii)
-  says (ii) holds by construction on a synthesized one. All three go into blueprint §12.5 beside
-  the clause they replace, as `architecture.md` already drafted them.
-- `wall_continuous: false` ⇒ corners null and `wall_segments` non-empty; `open` ⇒ corners null,
-  `wall_segments` empty, `backdrop: "vista"`.
+  `camera_far_m > 0` and **no** `camera_wall_m` — the different name is the mechanism.
+- `corner_x0_px`/`corner_x1_px` both null or both numbers with `x0 < x1`; and the partition is
+  total: `wall_continuous: true` ⇒ corners present and `wall_segments` spans the view;
+  `wall_continuous: false` ⇒ corners null and `wall_segments` non-empty; `open` ⇒ corners null and
+  `wall_segments` empty; `facing_type: null` ⇒ corners null, no `wall_segments` key.
+- `provisional`, `camera_id` and `wide_view_policy` ride every derived meta. `projection.md` §5
+  keeps two live wide-view readings that disagree on ten facings and says `fits` is the default
+  "only because nothing consumes a derived meta yet". This row makes something consume them, so the
+  **bake asserts every emitted meta is `camera: "pinned"`** — no shipped facing takes the wide
+  camera — and refuses otherwise, which is what forces a ruling before a wide facing can ship. The
+  `provisional` flag is carried, not stripped, and the close report says so.
+
+**§12.5's frame clause, for every meta and not only cornered ones.** The old
+`px_per_m_at_wall × wall_width_m ≈ canvas width` reached outside the meta; clauses (i)–(iii) as
+drafted in `architecture.md` leave null-corner metas with nothing that does. So the clause set is:
+**(i)** the wall in view fits the frame — with corners, `0 ≤ corner_x0_px` and
+`corner_x1_px ≤ canvasW`; without them, `wall_width_m × px_per_m_at_wall ≤ canvasW`; **(ii)** on a
+measured backdrop the corners are measured off the image and `corner_x1_px − corner_x0_px` equals
+`wall_width_m × px_per_m_at_wall` within the calibration audit's tolerance — pixels against
+arithmetic, row 4's; **(iii)** on a synthesized backdrop (ii) holds by construction and only (i) has
+content; plus **(iv)** `image_h_px` equals the canvas height. The canvas is the term no meta
+supplies, and after this row every meta the fixture can resolve is reached by at least one clause
+carrying it.
 
 **Wall existence, against staging** — "staging never addresses wall that does not exist":
-- A `wall_mounted` placement on an `open` facing is a finding. You cannot hang a door on a
-  horizon.
-- A `wall_mounted` placement's projected x-span must lie inside a wall band (inside the corners
-  where the wall is continuous; inside a named segment where it is not).
-- **Every directly-staged placement's footprint x-span lies inside the room at its own scale** —
-  `uDomain(meta, place.s)`. A floor object standing past the side wall is outside the room, and
-  today nothing sees it: `u ∈ [0,1]` plus "the rect intersects the canvas" was the whole net, and
+- a `wall_mounted` placement on an `open` facing is a finding — you cannot hang a door on a horizon;
+- a `wall_mounted` placement's projected x-span must lie inside a band (inside the corners where the
+  wall is continuous, inside a named segment where it is not);
+- **every directly-staged placement's footprint x-span lies inside the room at its own scale**
+  (`uDomain(meta, place.s)`). A floor object standing past the return is outside the room, and
+  nothing sees it today: `u ∈ [0,1]` plus "the rect intersects the canvas" was the whole net, and
   both were satisfied by a 16 m wall nobody had.
 
 **Meta resolution has one home and three tiers**, used identically by the renderer (through the
 baked metas), the page, the validator and the bake: a measured `backdrops/<loc>/<facing>.meta.json`
-if one exists → the plan's `deriveMeta` if the plan holds the room → `GRID_META`. The
-unreadable-meta finding row 2 wrote stays where it is.
+→ the plan's `deriveMeta` → `GRID_META`. Row 2's unreadable-meta finding stays where it is.
+
+**The depth-legality band narrows and the row says which values change class.** The validator bounds
+`depth_m` by `scaleAtDepth ≤ px_per_m_at_bottom`; with `px_per_m_at_bottom` at 290.97 and
+`hall/N`'s `camera_wall_m` at 1.95 the maximum legal depth there is **1.307 m** (it was 2.49 m).
+`stick1` at 0.50 sits well inside; the number goes in the report and in `architecture.md`, because a
+placement that is legal today can become a finding tomorrow.
 
 ---
 
-## 6. The bake, the fixture, and the staging adoption
+## 6. The plan document, the lock, and the staging adoption
 
-- `tools/bake-fixtures.mjs` computes the derived meta for every `location/facing` the world names
-  and the plan holds, and emits them into `fixture.js` as `window.HOLO_FIXTURE.metas`. The bake
-  stays byte-deterministic (a pure function of `plan.json` + the world). `plan.json` itself stays
-  unbaked — the page still does not read it. The fingerprint's input gains the metas, so a plan
-  edit that changes geometry moves the fingerprint, which it should.
-- `index.html` builds its `backdrops` map from `metas` as `{ meta }` entries with no `image`.
-  The renderer's existing resolution (`entry.meta ?? GRID_META`) and `metaFor` already do the
-  right thing, so this is wiring, not a renderer change. Row 4's images drop into the same map.
-- **`fixtures/demo-study/staging.json` adopts the projected spatial values.** This is what
-  `blueprint` §4b asks for ("hand-authored staging spatial values become generated ones") and
-  what row 12 deliberately deferred to the row that could absorb a pixel move. Under the new
-  metas: `desk1` u 0.479 → 0.4383, `chair1` 0.5052 → 0.5153, `shelf1` 0.4475 → 0.3950,
-  `stick1` 0.4632 → 0.4264, `door1@hall/W` unchanged at 0.5, and **`door1@study/E` 0.5 → 0.7292**
-  — the ~1.1 m re-siting the approved drawing calls for. `depth_m` values are already the plan's.
-  `KNOWN_DIVERGENCES` in `plan-projection.mjs` empties, and the bake's own "listed as a known
-  divergence but now agrees" refusal is what forces that in the same commit.
-- `stagingDivergence`'s default meta becomes per-facing (`metaForFacing`), replacing
-  `shippedMeta()`. Zero divergences after adoption, on every row of the table — and the report
-  says, as it already does, which of those agreements are definitional and which carry
-  information. Only `door1@study/E` ever carried information, and it now agrees because the
-  staging moved to the drawing, not because the drawing moved.
+### 6a. The approval lock's input, narrowed (A5)
 
-Composition consequences to look at rather than assume: `stick1` grows 28 % (67 → 86 px) and
-`shelf1` 8 %, because `hall/N`'s camera is 1.95 m rather than the fallback 3.5 m. The
-`stick1`×`shelf1` and `chair1`×`desk1` overlap pairs must still intersect in **opaque** pixels
-(§12.8) and must still read as column-before-building rather than as a base plate inside a
-plinth (§4's own license, and the reason `stick1` sits at 0.75). If the pair degrades, the fix is
-`stick1`'s plan footprint — a plan edit is a redline with a regeneration step and an approval
-lock, so it is a fork for the Navigator, not something this row does quietly.
+The Navigator's ruling, quoted: *"(4) is not a weakening of the human gate — it is correcting the
+gate's input to match its meaning. The stamp asserts 'Kabe approved this drawing.' Kabe saw and
+approved walls, outline, openings, stairs, standpoints, room polygons/labels/types — the sheets draw
+no furniture, and architecture.md already records that the approval does not cover the
+inverse-projected [AI] object footprints. Narrow `approval.lock`'s input to exactly the drawn
+content (walls, exterior outline, openings, stairs, standpoints with distances, room
+geometry/labels/types). The lock must still fire on ANY change to those. Add a red case proving a
+moved wall still trips it, and a case proving a moved footprint does not."*
+
+So `design/plan-draft/draw_plan.py` hashes a **canonical digest of the drawn content** instead of
+the whole file; `approval.lock` records that digest, its comment says what the input is, why it was
+narrowed, and that the change of value is a change of input and **not** a re-approval; and
+`plan.spec` gains the two cases the ruling names — a moved wall trips the stamp, a moved object
+footprint does not. `APPROVAL_COMMIT`'s byte-comparisons of the derived SVG geometry and
+`standpoints.tsv` are untouched, and both still pass, because objects are not drawn.
+
+### 6b. `stick1`'s depth, under A7
+
+The Navigator's ruling, quoted: *"set `stick1`'s plan depth 0.75 → 0.50 under blueprint §4's
+standing license, with the why recorded where the value lives: the cross passage's honest 1.95 m
+camera strengthens perspective, and the candlestick must stand nearer the shelf to preserve the
+authored occlusion chain (intention quality 3) — 0.50 measured 332 opaque px against the 50 floor.
+Do NOT touch §12.8's floor."*
+
+The measured evidence, through the shipped renderer with the adopted staging and the new metas
+(alpha ≥ 128 both sides, the §12.8 method): today 284 px; at depth 0.75 under the new meta **48** —
+below the floor of 50, so the pair would have failed; sweep 0.60 → 220, 0.50 → **332**, 0.45 → 348,
+0.35 → 368. `chair1`×`desk1` is unaffected (3970 → 4351). **§12.8's floor of 50 does not move** —
+tuning a gate until the corpus passes is refused, and the same threshold guards row 4's real assets.
+`architecture.md`'s scar applies and is honoured: at `depth_m` 0.4 this pair once "demonstrated the
+mechanism … without the quality it exists for", so the pass condition is a **looked-at frame**, in
+the batch, not the pixel count alone.
+
+### 6c. Adoption, the bake, and the fixture
+
+- `tools/bake-fixtures.mjs` derives the meta for every `location/facing` the world names and the
+  plan holds, and emits them into `fixture.js` as `window.HOLO_FIXTURE.metas`; byte-deterministic, a
+  pure function of `plan.json` + the world. `plan.json` stays unbaked — the page does not read it.
+  The fingerprint's input gains the metas, so a plan edit that changes geometry moves it.
+- `index.html` builds `backdrops` from `metas` as `{ meta }` entries with no `image`, and exposes
+  `metaFor` on `HOLO_APP` so the test helpers stop reaching for `GRID_META` on facings that no
+  longer use it (three helpers do today, which would put the hover, the hit test and the aperture
+  point on different geometry from the picture).
+- **`staging.json` adopts the projected values** (A2). Under the new metas: `desk1` 0.479 → 0.4383,
+  `chair1` 0.5052 → 0.5153, `shelf1` 0.4475 → 0.3950, `stick1` 0.4632 → 0.4264 with `depth_m`
+  0.75 → 0.50, `door1@hall/W` unchanged at 0.5, `door1@study/E` 0.5 → **0.7292**. Adoption is not
+  optional even if it were unlicensed: `u` is normalized across `wall_width_m`, so keeping 0.479 on
+  a 5.45 m wall would put the desk at a different metre offset from the one the plan draws, and the
+  bake's divergence check refuses it.
+- `KNOWN_DIVERGENCES` empties, and the bake's "listed as a known divergence but now agrees" refusal
+  is what forces that in the same commit. **After adoption the staging↔plan assertion carries no
+  information about the plan at all** — all six rows agree definitionally, where before exactly one
+  carried information — and `projection.md` says so in its own words rather than reporting six
+  agreements as evidence.
 
 ---
 
 ## 7. Tests
 
-Every existing check that encoded the endless wall moves. The rule from `architecture.md` holds
-throughout: **a guard that stays green when what it guards is deleted is a finding**, and every
-new clause below is written by breaking the mechanism and watching it go red.
+`architecture.md`'s rule holds throughout: **a guard that stays green when what it guards is deleted
+is a finding**, and every clause below is written by breaking the mechanism and watching it go red.
 
-- **`helpers.mjs` `LIT`/`MATH` become per-facing.** `LIT.facing(loc, f)` returns the literals for
-  that facing — `wall_width_m` and `camera_wall_m` written out from `projection.md` §4's table,
-  plus the shared eye 1.83, horizon 0.48, 96 px/m, 1536×1024. Still §12.5-independent: literals,
-  never an import, and now literals of the *drawing* rather than of one global wall.
-- **`geometry.spec`**: the horizon clause runs at 1.83 and must be exact, not merely inside
-  tolerance; the frame-filling test becomes §12.5's three clauses; the grid scans gain corner
-  positions and the side-wall junctions, measured off rendered pixels against test-side
-  arithmetic; the "documents state the shipped meta" test covers the new fields.
-- **`heights.spec`**: every literal moves; the census keeps its six entities; the horizon-device
-  clause on feet runs per facing.
-- **New (`geometry.spec`)**: *the room reads as a room* — corner verticals present at
-  `corner_x0_px`/`corner_x1_px` ± 1 px on all four study facings and all four hall facings, the
-  facing-wall grid stopping at them, and the side-wall junction lines running to the frame edge
-  or bottom where the arithmetic says. And *the corners move with the plan*: a doctored plan with
-  a wider study puts them where the wider room says, so the test cannot pass on a hard-coded pair.
-- **New (`geometry.spec`)**: *typed geometry is data, not a branch* — a synthesized `open` meta
-  (`deriveMeta` on `entrance_court/S`) and a synthesized segmented meta (`entrance_approach/N`)
-  both render without a facing wall and without inventing one, through the shipped renderer. This
-  is the check that makes "open and corridor are a meta entry, not a renderer rewrite" a fact
-  rather than a claim.
-- **`validator.spec`**: one red case per new clause, each failing on that clause alone.
-- **`mechanisms.spec`**: overlap pairs, tint/shadow/part switches, doorway derivation and the
-  two-door-facings-differ clause all re-run on the new geometry; the opaque-overlap thresholds
-  are unchanged and must still pass on the moved placements.
-- **`plan.spec`**: `GRID_CAMERA` is now the ruled camera; `assertCameraConsistent` still green;
-  the derived-render byte-identity against the approval commit is **untouched**, because
-  `plan.json` does not change — that is the reason this row re-derives instead of redlining.
-- **`determinism` / `walkthrough` / `isolation` / `knowledge` / `voice` / `shell` / `keyboard` /
-  `fullscreen`**: no literal changes expected beyond any that encode canvas geometry; all must be
-  green on both engines. §12.2's within-run identity and §12.8's mechanism clauses are the two
-  the row's done names, and both are re-run rather than re-derived.
-- The suite carries no stored goldens, so no hash literal exists to update — but the row moves
-  the canvas, so the **cross-commit canvas check** `architecture.md` lists as an open limit is
-  done by hand at this close (capture the hash sequence at the parent commit and after, and
-  report that every changed frame is a changed frame *on purpose*).
+**The independent side is independent of `deriveMeta`, and can disagree with it.** The first
+revision proposed typing the literals out of `projection.md` §4 — a *generated* document produced by
+the very function under test, which is the same self-agreement §12.5's independence rule exists to
+stop. Instead `helpers.mjs` gains `LIT.facing(loc, f)` whose two per-facing numbers
+(`wall_width_m`, `camera_wall_m`) are **typed by hand from the approved `standpoints.tsv`** — a
+human-approved artifact that `plan.spec` already byte-compares against `APPROVAL_COMMIT` — and whose
+camera literals (eye 1.83, horizon 0.48, 96 px/m, 1536×1024) are typed from blueprint §10 and §7.
+Everything else the tests need is computed test-side. A `deriveMeta` that starts lying goes red.
+
+- **`geometry.spec`** — the horizon clause at 1.83 (with the eye height cross-checked against
+  `replicator/contract.json`, the term outside the derivation); §12.5's clauses (i)–(iv); the grid
+  scans re-pointed to measure inside the regions that now exist rather than across a frame-wide
+  wall; the "documents state the shipped meta" test extended to the new fields.
+- **New, and it replaces the hand-run cross-commit check** — *the room is where the arithmetic says*:
+  for all eight shipped facings, the corner columns, the floor-line row, the eye row, the junction
+  exit points and each staged entity's baseline and drawn height are **predicted test-side and
+  measured from rendered pixels**. On a row where every frame moves, "every changed pixel changed on
+  purpose" discriminates nothing; a per-frame prediction does. And *the corners move with the plan*:
+  a doctored plan with a wider study puts them where the wider room says, so the test cannot pass on
+  a hard-coded pair.
+- **New** — *typed geometry is data, not a branch*: a synthesized `open` meta (`entrance_court/S`)
+  and a synthesized segmented meta (`entrance_approach/N`) render through the shipped renderer with
+  no facing wall and no invented corners; and the corridor/enclosed return-share ordering of §2.
+- **New** — *the returns' omission list is pinned* (§3's table), so a new blank-drawn doorway cannot
+  appear silently.
+- **`validator.spec`** — one red case per new clause, each failing on that clause alone.
+- **`plan.spec`** — the narrowed lock, with the ruling's two cases; `GRID_CAMERA` now the ruled eye
+  height; `assertCameraConsistent` still green; the derived-render byte-identity against
+  `APPROVAL_COMMIT` untouched, which is why this row re-derives instead of redlining.
+- **`heights.spec`, `mechanisms.spec`** — every literal moves; the census keeps its six entities;
+  overlap pairs, tint/shadow/part switches, doorway derivation and the two-door-facings clause all
+  re-run on the new geometry with **no threshold moved**.
+- **Enumerated, because the first revision predicted "no changes" here and was wrong**: the
+  walkthrough's arithmetic-pinned chair-refusal click sits at a `chair1`×`desk1` intersection pixel
+  and both move; the clickability sweep aims at object centres and all six move; `door1` moves
+  1.1 m on `study/E`; `knowledge.spec` and `helpers.mjs` pass `GRID_META` into `layout` and
+  `apertures` on facings that no longer resolve to it. Each is re-pointed at the resolved meta, not
+  at a new literal.
+- **Cost is measured, not assumed**: the returns add per-metre lines and two clip paths per frame,
+  against `architecture.md`'s recorded ≈270 ms per turn at 4× CPU throttle. The row measures the new
+  figure on the furnished study facing and records it; a regression beyond the recorded budget is
+  reported rather than shipped silently.
+- Both engines, whole suite.
 
 ---
 
 ## 8. Documents brought true in the same change
 
-- **`design/blueprint.md`** — §5's corner/type paragraph gains what was built (the band model,
-  the typed depth anchor, the schema fields and their required/forbidden pairings); §7's
-  grid-canonical amendment restates `GRID_META` at the ruled camera with its new fields and says
-  it is now the *unplanned-facing fallback*, not the geometry of the shipped rooms; §12.5 carries
-  clauses (i)/(ii)/(iii) in place of the frame-filling equality; §5's row-2 note says which of its
-  example numbers the shipped rooms now use (none — they are measured off the plan).
-- **`design/architecture.md`** — the grid-drawing internals, the corner-bounded u-domain, the
-  meta-resolution tiers, the staging adoption and what it cost, the corridor arrival, and the
-  updated open-limits list (the horizon-gate inconsistency it records as live is closed by this
-  row and the entry says so).
-- **`design/plan-draft/projection.md`** — regenerated; §0's question 1, §5, §6 and §7 change
-  because the camera did.
-- **`README.md`** — checked; it describes what the demo is and the one command, and gains nothing
-  unless a sentence about the picture has become false.
-- **`design/intention.md`** — row 11 deleted, in the state-only closing commit, per *How we work*.
+- **`design/blueprint.md`** — §5's corner/type paragraph gains an **[AI]-tagged amendment beside**
+  the [HUMAN] text (never inside it): the band model, the typed depth anchor with no fallback, the
+  schema fields and their required/forbidden pairings, and what actually ships (corridor included).
+  §7's grid-canonical amendment restates `GRID_META` at the ruled eye height, with its new
+  `facing_type: null` and null corners, and says it is now the *unplanned-facing fallback*. §12.5
+  carries clauses (i)–(iv) and the sentence that the horizon clause holds by construction on a
+  synthesized meta. §4b records the lock's narrowed input and its authority.
+- **`design/architecture.md`** — grid-drawing internals, the corner-bounded u-domain, the meta
+  resolution tiers and the complete-meta refusal, the staging adoption and what it cost, the
+  featureless-return omission list with row 15 as owner, the narrowed depth-legality band, the
+  measured repaint cost, and the open-limits list updated (the horizon-gate inconsistency it records
+  as live is closed here and the entry says so).
+- **`design/plan-draft/projection.md`** — regenerated; §0's questions 1 and 2 are answered, with
+  their authorities named (A2, A4), and the rest stay open. `design/plan-draft/README.md`'s
+  still-open list is corrected to match.
+- **`README.md`** — checked; it gains nothing unless a sentence about the picture has become false.
+- **`design/intention.md`** — row 11 deleted in the state-only closing commit, per *How we work*.
 
 ---
 
 ## 9. Edges — what this row must not touch
 
-- `replicator/`, `backdrops/`, `library-src/`, `library/` — other seats' lanes and other rows'
-  work. The asset seat's mailbox is not this row's to write to.
-- **`fixtures/demo-study/plan.json` is not edited.** The approval lock and `plan.spec`'s
-  byte-identity against the approval commit are what make the drawing an approved artifact; this
-  row consumes it and never redlines it. If the geometry it produces is wrong, that is a fork for
-  the Navigator and a redline with its own regeneration step, not an edit here.
-- `world.json` gains nothing — no coordinate has ever lived there and none arrives now. The plan
-  is presentation-side and stays so.
-- No other spec row's work: rows 4, 9, 14, 15, 16, 17 are untouched. Row 15 inherits the walkable
-  manor; row 4 inherits the measured half of the corner fields and clause (ii).
-- No chrome, no narration, no new surface string — `design/surface-strings.md` should need no
-  entry, and if the row somehow produces one, it is extended in the same commit or `voice.spec`
-  is red.
+- `replicator/` (read-only: `contract.json`'s eye height is a cross-check term), `backdrops/`,
+  `library-src/`, `library/`, and every AgentPost mailbox.
+- **`plan.json`'s drawn content is not edited.** The one edit is `objects[].stick1`'s footprint,
+  under A5 + A7, which no sheet draws; the drawn geometry, the outline, the openings, the stairs and
+  the standpoints are untouched and their byte-identity against `APPROVAL_COMMIT` is what proves it.
+- `world.json` gains nothing — no coordinate has ever lived there and none arrives now.
+- The `[HUMAN]`-tagged spec-list row is not rewritten by this seat.
+- §12.8's thresholds, §12.5's tolerances and every gate constant stay where they are.
+- No new surface string; `design/surface-strings.md` should need no entry, and if the row produces
+  one it is extended in the same commit or `voice.spec` is red.
 - Nothing is pushed.
 
 ## 10. What outside this row feels the change
 
-- **Row 4** — its eight measured metas inherit the schema, clause (ii), and the corner fields; its
-  prompt sheets now have `camera_wall_m`, the wall width and the corner positions per facing
-  rather than a 16 m wall; and the wall-return device Kabe asked for at the frame edges
-  ("the beginnings of the adjacent walls") is now what the grid already draws, so the two agree.
-- **Row 15** — the manor walks on this row's typed drawing; every unestablished room renders from
-  its own derived meta.
-- **Row 5's §12.6 batch** — every capture in it moves. The batch for this row goes to
-  `design/batches/row11-corners/` before the close.
-- **The public link** — the demo's rooms stop being an endless wall. `design/playbook.md` §3.4
-  makes that a human-gate class of change; the row's done clause as written does not carry the
-  screenshot condition, and the Navigator's handoff rules the batch delivery rather than a gate.
-  That disagreement is named here rather than resolved by an agent, and it is in the closing
-  report.
+- **Row 4** — inherits the schema, clause (ii), the corner fields, and per-facing `camera_wall_m`,
+  wall widths and corner positions for its prompt sheets; the wall-return device Kabe asked for at
+  the frame edges is now what the grid draws, so grid rooms and generated rooms have one device to
+  agree on. It also inherits the two residues this row prints rather than fixes: the unmodelled
+  pitch, and the floor cut on the four facings where it moves outward.
+- **Row 15** — the manor walks on this row's typed drawing; the featureless-return omission list is
+  its multi-facing-presence work.
+- **Kabe, through the batch** (A6) — the corner/return look, the ~131° view rendered rather than
+  described, blueprint §7's unspent wide-camera edge-corner decision with a rendered example, the
+  ceiling-less wall, and the three doorways a return draws blank. His verdict routes as rows.
+- **The public link** — the demo's rooms stop being an endless wall.
