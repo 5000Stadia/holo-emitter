@@ -4,6 +4,8 @@
 
 In Kabe's words [HUMAN]: "holo-emitter, a Myst-like holographic scene client — a browser world you navigate by turning and walking, built from generated backdrops with composited sprites, where a single document is the only truth and the picture is a projection of it. Plus the replicator, the build-time pipeline that turns a generated image into a library sprite. It sits beside pattern-buffer (the truth store) and construct (the drama engine) in the 5000Stadia family, and depends on neither. Unestablished space renders as the holodeck grid, in-fiction and literal. M0 is two rooms, four facings, a drawer that opens, a key you did not know existed until it did."
 
+What the demo showcases, ruled at the row-7 close [HUMAN, 2026-08-21]: "I just want to showcase visual, intractable, multi location, diverse persoective elements. Shape to allow future implementation with pattern buffer and construct projector" — visual, interactable, multi-location, diverse-perspective elements, shaped so pattern-buffer and the construct projector can be implemented against it later; the envelope seam (§8) and the knowledge-filter caveat (§3) are that shape's carriers.
+
 ## What "good" means here
 
 Kabe's bar, verbatim [HUMAN]:
@@ -33,7 +35,7 @@ The replicator's bar: gates in blueprint §9.4 are the floor; a sprite that pass
 - The **truth/presentation split**: `world.json` never holds pixels, `staging.json` never holds facts, the renderer is the only meeting place (§2). Enforceable by schema check.
 - The **envelope** as the only mutation path (§8); the renderer stays a pure function (§7).
 - The M0 **material world**: c. 1660 English interior — oak, iron, brass, vellum, leaded glass — one key light throughout.
-- **The product's voice on every rendered string** [HUMAN, 2026-08-19]: anything the page can show a player — chrome, status lines, errors — speaks as the product to a player, in the product's voice. Developer speech goes to the console; method speech goes nowhere. Every artifact examination reads every reachable surface string as its intended audience.
+- **The product's voice on every rendered string** [HUMAN, 2026-08-19]: anything the page can show a player — chrome, status lines, errors — speaks as the product to a player, in the product's voice. Developer speech goes to the console; method speech goes nowhere. Every artifact examination reads every reachable surface string as its intended audience. Ruled at the row-7 close [HUMAN, 2026-08-21]: the storefront's silence stands — "Mute is fine" — no onboarding line; and the tab title is "Holo Emitter Static Demo".
 - **Provenance tags** on decisions in design documents: [HUMAN] and [AI], per the playbook — human-tagged decisions cannot be overruled by an agent.
 
 ## What it must never do
