@@ -51,6 +51,14 @@ verified 2026-08-18 by the drafting pass; the u/RUSuper route spot-checked live 
   routes live in the intention.
 - **§2 org chart** maps to the solo route: Navigator holds the Manager function, the builder's
   fan-out subagents are the domain workers.
+- **Codex consults [HUMAN, 2026-08-20]:** "It may be helpful to use for 2 things: novel
+  alternative ideas to something that would benefit from complex or novel design value and
+  review from an alternative perspective." So beside its asset-hand seat, Codex serves at the
+  Navigator's judgment as (a) an independent *proposer* where a problem has real design space —
+  briefed with the problem and constraints, its proposal judged beside the Claude builder's, and
+  (b) an *alternative-perspective examiner* at chosen moments — briefed exactly like any critic
+  (the brief and the artifact, nothing of the builder's reading). Mechanics: one-shot `codex
+  exec` consults on the existing subscription; no standing seat beyond the asset hand.
 - **§7 models, ruled for this project** [HUMAN, 2026-08-20: "I will appeal to your judgment on when the task requires the higher intelligence you're free to load fable but if we are just code crunching, please stick with opus"]: Opus for all building, plan critique, and routine artifact critique; the strongest model reserved, at the Navigator's judgment, for the single-pass judgment gates — the row-5 agent rubric, the §12.10 criterion-anchored comparison, and the empty-brief critic. This is §7's "strongest model at max effort for heavy/convergence passes" mapped onto metered reality.
 - [felt — earned on this run, 2026-08-19; travels home at close] **§3.4's consumption camera includes reading every surface string as its intended audience.** The row-1 artifact critique (F1–F9) examined geometry and behaviour from the player's viewpoint but never read the visible strings as a stranger; the human caught the project's internal ideology printed on the product face within seconds of opening the alpha link.
 - Does not fit here (say so at close): Blender/engine MCPs (the replicator replaces them; but

@@ -590,6 +590,22 @@ decided on the channel is written into the design documents before the exchange 
 passes keep finding the same family — a fourth doorway fix, a fourth shadow fix — stop patching
 instances; name the family and put its architecture on the table before the next pass.
 
+**Maintainer updates, relayed 2026-08-20 by the maintainer's agent-bridge session (attributed
+authorization: Kabe — flagged to him on receipt), extending the family rule for the remaining
+rows:**
+1. *Stand-back, owned and tripwired (the Navigator's):* from a row's third pass — or when one
+   row is eating the run, or the human sounds a pace concern — step outside the flow before the
+   next pass begins, read the passes as a set (families, scoping, pace), and say what you see.
+   Never calendar-triggered; inside the loop every pass looks locally justified.
+2. *Milestone worth-it framing:* every milestone that reaches the human arrives carrying the
+   Navigator's own plain verdict on whether the result was worth its cost in passes and hours;
+   his take on that verdict is direction for the next stretch. Rides presentations that already
+   happen; creates none.
+3. *Checkpoints inform, gates hold:* a checkpoint is "how does this look," never "may I
+   continue" — work keeps moving while the answer is pending. Only visual/taste direction and
+   named milestones (phase exit, first public appearance) hold for the human. The interrupt rule
+   stays at two.
+
 The Navigator picks the next spec row and checks that whatever it builds on actually exists and
 resolves. The Builder writes the plan, then builds it. The Reviewer performs the two moments in
 *The shape* and no others. Between those two moments the Builder works alone and in silence — no
