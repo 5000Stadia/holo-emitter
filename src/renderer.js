@@ -130,6 +130,9 @@
    * falloff's own direction WITHIN each of them. */
   var RETURN_LEFT = "#0a0d12";
   var RETURN_RIGHT = "#1a202b";
+  /* The ceiling, where a meta gives the room a height. Darker than the wall:
+   * a key from upper-left rakes across a ceiling rather than facing it. */
+  var CEILING_BASE = "#080a0e";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.45;
@@ -257,6 +260,19 @@
      * side edge on a wide one (study/N: x 0 at y ≈ 1007). Same polygon. */
     var xb0 = bounded ? X(0, sBottom) : 0;
     var xb1 = bounded ? X(1, sBottom) : W;
+    /* THE CEILING, and it is drawn only where a meta says how high the room
+     * is. The plan carries no vertical datum — `design/architecture.md` names
+     * row 4 as its owner, with the measured backdrop — so no meta this project
+     * emits carries `storey_height_m` and nothing ships a ceiling. The device
+     * exists because the alternative is a room bounded left and right and
+     * unbounded upward: at 96 px/m the frame holds 6.95 m of wall above the
+     * floor line, against a c.1660 storey of roughly 2.6–3.0 m, so the corners
+     * run off the top and the room reads as a shaft. Which of the two is
+     * right is a look decision and it is Kabe's; this is what lets the
+     * question be asked against a picture instead of a paragraph. */
+    var storeyM = (meta.storey_height_m > 0) ? meta.storey_height_m : null;
+    var ceilY = storeyM != null ? floorY - storeyM * sWall : 0;
+    var wallTop = Math.max(0, ceilY);
 
     /* The left return's region: left of the corner above the floor line, left
      * of the junction below it, clipped to the frame. Traced rather than
@@ -270,6 +286,26 @@
       if (xb0 >= 0) { ctx.lineTo(xb0, H); ctx.lineTo(0, H); }
       else { ctx.lineTo(0, floorY + (cL / (cL - xb0)) * (H - floorY)); }
       ctx.closePath();
+    }
+    /* Everything below the line through two points, as a clip path. Used to
+     * cut the returns at their own wall-ceiling junction where the room has a
+     * height: without it the return's grid runs on across the ceiling plane. */
+    function belowLine(ax, ay, bx, by) {
+      var far = 1e5;
+      var m2 = (by - ay) / ((bx - ax) || 1e-9);
+      var yAt = function (x) { return ay + m2 * (x - ax); };
+      ctx.beginPath();
+      ctx.moveTo(-far, yAt(-far));
+      ctx.lineTo(far, yAt(far));
+      ctx.lineTo(far, H + far);
+      ctx.lineTo(-far, H + far);
+      ctx.closePath();
+    }
+    function ceilingCut(side) {
+      if (storeyM == null) return;
+      var u = side === 0 ? 0 : 1;
+      belowLine(u === 0 ? cL : cR, ceilY, X(u, sBottom), H - storeyM * sBottom);
+      ctx.clip();
     }
     function rightReturn() {
       ctx.beginPath();
@@ -310,7 +346,7 @@
     ctx.fillStyle = WALL_BASE;
     for (var bi = 0; bi < bands.length; bi++) {
       var br = bandRect(bands[bi]);
-      ctx.fillRect(br.x, 0, br.w, Math.ceil(floorY));
+      ctx.fillRect(br.x, wallTop, br.w, Math.ceil(floorY) - wallTop);
     }
     ctx.fillStyle = FLOOR_BASE;
     ctx.fillRect(0, Math.ceil(floorY), W, H - Math.ceil(floorY));
@@ -321,12 +357,27 @@
      * make with their across-width ramp, applied to the room's own geometry,
      * and the reason a corner reads even where no line falls on it. */
     if (bounded) {
-      ctx.fillStyle = RETURN_LEFT;
+      ctx.save();
       leftReturn();
-      ctx.fill();
-      ctx.fillStyle = RETURN_RIGHT;
+      ctx.clip();
+      ceilingCut(0);
+      ctx.fillStyle = RETURN_LEFT;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+      ctx.save();
       rightReturn();
-      ctx.fill();
+      ctx.clip();
+      ceilingCut(1);
+      ctx.fillStyle = RETURN_RIGHT;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+      /* The ceiling plane, where the room has a height: a fifth surface,
+       * darker than the wall because nothing lights it from below, with the
+       * floor's own fan mirrored across the eye line. */
+      if (storeyM != null && wallTop > 0) {
+        ctx.fillStyle = CEILING_BASE;
+        ctx.fillRect(0, 0, W, Math.ceil(wallTop));
+      }
     }
 
     /* The key falls on the ground too. Every sprite carries UL45 and every
@@ -374,7 +425,7 @@
       bx1 = X(band.u1, sWall);
       ctx.save();
       ctx.beginPath();
-      ctx.rect(bx0, 0, bx1 - bx0, floorY);
+      ctx.rect(bx0, wallTop, bx1 - bx0, floorY - wallTop);
       ctx.clip();
       for (m = Math.ceil((bx0 - centreX) / sWall); centreX + m * sWall <= bx1; m++) {
         var vx = snap(centreX + m * sWall);
@@ -417,6 +468,7 @@
         ctx.save();
         if (side === 0) leftReturn(); else rightReturn();
         ctx.clip();
+        ceilingCut(side);
         ctx.globalAlpha = ALPHA_MINOR;
         for (var dd = 0.5; dd < camM; dd += 0.5) {
           var ss = gp.scaleAtDepth(dd, meta);
@@ -504,14 +556,38 @@
     if (bounded) {
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(snap(cL), 0);
+      ctx.moveTo(snap(cL), wallTop);
       ctx.lineTo(snap(cL), snap(floorY));
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(snap(cR), 0);
+      ctx.moveTo(snap(cR), wallTop);
       ctx.lineTo(snap(cR), snap(floorY));
       ctx.stroke();
       ctx.lineWidth = 1;
+      /* Where the room has a height, the wall-ceiling line is the floor line's
+       * twin and the ceiling's own longitudinals fan from it. */
+      if (storeyM != null && wallTop > 0) {
+        ctx.beginPath();
+        ctx.moveTo(cL, snap(ceilY));
+        ctx.lineTo(cR, snap(ceilY));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cL, snap(ceilY));
+        ctx.lineTo(xb0, H - storeyM * sBottom);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cR, snap(ceilY));
+        ctx.lineTo(xb1, H - storeyM * sBottom);
+        ctx.stroke();
+        ctx.globalAlpha = ALPHA_MINOR;
+        for (m = Math.ceil(-halfM); m <= Math.floor(halfM); m++) {
+          ctx.beginPath();
+          ctx.moveTo(snap(centreX + m * sWall), snap(ceilY));
+          ctx.lineTo(snap(centreX + m * sBottom), H - storeyM * sBottom);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = ALPHA_MAJOR;
+      }
     }
 
     // Facing glyph: in-fiction signage, 1m tall at wall scale, centred on
