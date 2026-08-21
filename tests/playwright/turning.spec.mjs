@@ -101,8 +101,17 @@ test.describe("turning", () => {
       const errors = [];
       page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
       await page.goto(appUrl(dir));
-      await expect(page.locator("#status")).toContainText("BOOT ERROR");
-      expect(errors.some((e) => e.includes("BOOT ERROR"))).toBe(true);
+      // Loudly, and in the product's voice: the surface says a place is
+      // missing; the mechanics — the marker, the path, the command — are on
+      // the console, which is where speech to a developer belongs.
+      await expect(page.locator("#narration")).toContainText(
+        "The projection was set to a view this pattern does not hold.");
+      const pane = await page.locator("#narration").innerText();
+      for (const token of ["BOOT ERROR", "viewstate", ".json", "node ", "tools/"]) {
+        expect(pane, `no "${token}" on the product face`).not.toContain(token);
+      }
+      expect(errors.some((e) => e.includes("BOOT ERROR") &&
+        e.includes("bake-fixtures.mjs")), "console carries the whole mechanic").toBe(true);
     } finally {
       removeTree(dir);
     }

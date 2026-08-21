@@ -18,8 +18,8 @@
   /* The stage contain-fits the fixed 1536x1024 logical canvas within the
      window (§5 viewport, amended at row 1): width-only scaling pushed the
      frame-bottom floor cut — the camera-has-feet device — below the fold on
-     16:9 screens. 8.8rem is reserved for the bottom chrome, which is what
-     the bottom chrome measures: narration 4.2 + inventory 3.4 + status 1.2.
+     16:9 screens. 7.6rem is reserved for the bottom chrome, which is what
+     the bottom chrome measures: narration 4.2 + inventory 3.4.
      It read 9.6rem for a while against a chrome of 8.8, so the picture was
      ~9 px shorter and ~13 px narrower than the layout's own budget allowed
      at every height-bound viewport, and nothing compared the reserve to what
@@ -38,7 +38,7 @@
        one has 9 px of slack. Safari is the one engine this build has never
        been run on, so it gets the unit that cannot be wrong rather than a
        measurement nobody here can take. */
-    width: min(100%, max(120px, calc((100svh - 8.8rem) * (1536 / 1024))));
+    width: min(100%, max(120px, calc((100svh - 7.6rem) * (1536 / 1024))));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
@@ -72,14 +72,22 @@
   }
   #chevron-left { left: 0; border-left: none; }
   #chevron-right { right: 0; border-right: none; }
-  /* Bottom chrome: narration log + inventory strip + status = 9.6rem.
+  /* Bottom chrome: narration log + inventory strip = 7.6rem.
      Bare surfaces — no labels, no empty-state text (the product's voice
-     rule: method speech goes nowhere). */
+     rule: method speech goes nowhere).
+     There was a third band here, a status line, and it printed the fixture
+     bake fingerprint and a re-bake command on the product face — the
+     project talking to itself where a stranger reads it. The fingerprint
+     went to the console at boot; the one genuine fault it also carried (a
+     boot viewstate the world does not hold) is now a product-voiced line in
+     the narration pane, which is where every other fault line already
+     speaks. A developer-caused condition does not get a permanent element
+     of the product face, and no healthy visitor pays a reserved strip for
+     it. */
   /* 4.2rem, not 3.2: at 390 px an arrival line wraps to two rows and the
      pane held one and a sliced half of another, permanently, with ascenders
      cut mid-glyph. The narration is the only thing in this product that
-     speaks to a player. The 9.6rem chrome budget is unchanged — the room
-     comes out of the inventory strip and the status line. */
+     speaks to a player. */
   #narration {
     /* border-box, so the 2px of padding lives inside the 4.2rem rather than
        adding to it: the stage's reserve is stated in rem and the chrome has
@@ -113,19 +121,17 @@
     border: 1px solid rgba(200, 180, 137, 0.35);
     background: rgba(200, 180, 137, 0.04);
   }
-  /* One row, ellipsised. A fixed-height box with wrapping text presents a
-     second row sliced through its ascenders — half a line of type, which is
-     the defect the narration pane above is careful about. Row 7 replaces the
-     wording; the box has to hold whatever replaces it. */
-  #status {
-    height: 1.2rem; line-height: 1.2rem; font-size: 0.75rem; opacity: 0.6;
-    padding: 0 8px; box-sizing: border-box;
-    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-  }
   /* Capture mode: §12.6 flip pairs are element screenshots of the scene
      canvas, and overlapping DOM appears in element screenshots — so all
      chrome hides under this class; capture tooling sets it. */
-  body.capture .chrome { display: none; }
+  /* !important because an ID rule outranks this one: `#inventory` carries
+     `display: flex` at (0,1,0,0) against this selector's (0,0,2,1), so the
+     strip was never hidden by capture mode at all — the documented
+     invariant "all chrome hides under body.capture" was false for it, and
+     the only reason no capture was wrong is that the strip sits below the
+     stage and never overlapped the scene canvas. Making the rule win costs
+     nothing and makes the sentence true. */
+  body.capture .chrome { display: none !important; }
   /* Capture mode also drops the vertical centring: §12.6 wants the scene
      element captured at exactly 1536×1024, and a flex-centred stage lands on
      a fractional y, which rounds the element screenshot to 1025 px tall. All
@@ -143,7 +149,6 @@
   </div>
   <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.chevron{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
-  <div id="status" class="chrome"></div>
   <script>
   /* Registered before anything else loads, and depending on nothing that
      could fail: if a script does not arrive or throws on the way up, the
@@ -757,20 +762,42 @@
       else if (e.key === "ArrowRight") dispatch({ type: "turn", dir: "right" });
     });
 
+    /* The developer witness, at boot, always — on the console, which is
+       where speech about this project's construction belongs. It used to be
+       a line of chrome under the picture: a fingerprint, a repository path
+       and a shell command, read by every stranger who opened the public
+       link and addressed to none of them.
+       console.info, not warn/error: the console is now the load-bearing
+       developer channel, and a channel that is already noisy is one nobody
+       reads — a shell.spec guard holds a healthy run to no warnings and no
+       errors. The explicit MISSING marker exists because a witness whose
+       failure mode is the token "undefined" can be dead with nobody
+       alerted. */
+    console.info(
+      "holo-emitter — fixture bake fp " +
+        (fixture.fp || "MISSING (the bake wrote none)") + "\n" +
+      "truth: fixtures/demo-study/*.json (world, staging, narration, viewstate)\n" +
+      "after editing a fixture, re-bake: node tools/bake-fixtures.mjs");
+
     var boot = harness.viewstate;
     var bootLoc = fixture.world.locations.filter(function (l) {
       return l.id === boot.location;
     })[0];
-    if (!bootLoc || bootLoc.facings.indexOf(boot.facing) === -1) {
-      var msg = "BOOT ERROR: viewstate " + JSON.stringify(boot) +
+    var bootFault = (!bootLoc || bootLoc.facings.indexOf(boot.facing) === -1);
+    if (bootFault) {
+      /* A genuine fault, so it stays visible — but player-voiced, with the
+         mechanics on the console. The bake refuses an invalid boot viewstate
+         and the bootstrap re-checks, so this arises only from a hand-edited
+         or corrupted fixture.js; the page still paints (grid mode resolves
+         an unknown location) and every turn is refused, so the player is
+         told here and again by the turn refusal.
+         "view", not "place": the viewstate can name a location the world
+         lacks OR a facing that location lacks, and on the second branch the
+         place exists and only the aim within it is wrong. */
+      console.error(
+        "BOOT ERROR: viewstate " + JSON.stringify(boot) +
         " names no location/facing in world.json — every turn will be refused. " +
-        "Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs";
-      document.getElementById("status").textContent = msg;
-      console.error(msg);
-    } else {
-      document.getElementById("status").textContent =
-        "fixture bake fp " + fixture.fp +
-        " — truth lives in fixtures/demo-study/*.json; after editing, run: node tools/bake-fixtures.mjs";
+        "Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs");
     }
     window.HOLO_APP = {
       harness: harness, paints: 0, library: library, dispatch: dispatch,
@@ -786,6 +813,11 @@
     harness.subscribe(paint);
     harness.redraw();
     updateChrome(null);
+    /* After the first paint, so a page that faulted on the way up shows its
+       own fault line last rather than this one. `halted` is set by fault(). */
+    if (bootFault && !halted) {
+      appendNarration("The projection was set to a view this pattern does not hold.");
+    }
   })();
   </script>
 </body>

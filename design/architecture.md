@@ -18,6 +18,7 @@ src/groundplane.js              scale(y) ↔ y, depth→y, xAtU/xAtScale, placeH
                                 of §4/§5 placement (§5 + the pinhole completion), UMD
 src/placeholders.js             procedural placeholder library: complete §6 records + painters
 src/inventory.js                inventory strip: a projection of held_by relations
+design/surface-strings.md       every string the surface can show — the audit voice.spec parses
 fixtures/demo-study/*.json      world / staging / narration / viewstate (§3–4; truth)
 fixtures/demo-study/fixture.js  GENERATED from the .json files (see the bake)
 tools/bake-fixtures.mjs         the bake — calls the validator and refuses an invalid fixture
@@ -26,8 +27,8 @@ tests/playwright/               config + helpers + specs; run: npx playwright te
 ```
 
 Not built yet: the replicator (row 3), real backdrops and sprites (row 4+). Nothing exists under
-`backdrops/`, `library/`, or `library-src/`. Rows 7–9 (storefront sweep, fullscreen, speaker
-layer) are chrome work; row 7 runs first.
+`backdrops/`, `library/`, or `library-src/`. Rows 8–10 (fullscreen, speaker layer, access) are
+chrome work; row 7 (the storefront sweep) is done.
 
 ## The file:// constraint and the bake
 
@@ -46,8 +47,16 @@ requires running from `file://`. So:
   re-checks at boot.
 - **Accepted deviation** against "the picture never lies about it": a person who edits the JSON
   and reloads without re-baking sees the old document. Mitigations — the staleness test, the
-  GENERATED header, the README note, and the page's chrome status line showing the bake
-  fingerprint. `file://` allows no more; eliminated only when a served mode exists.
+  GENERATED header, the README note, and the **bake fingerprint printed to the console at boot**
+  (row 7 moved it off the product face: a fingerprint and a shell command were the project talking
+  to itself where a stranger reads it). **What that move costs, on the record:** the console is a
+  weaker channel than a visible footer, because a visitor never opens one — so the mitigation now
+  reaches only someone who already suspects a stale bake. The consequence worth naming is that a
+  bad deploy **reads as atmosphere**: every fault surface is in-fiction, so a stranger cannot tell
+  a broken page from an intended mood. Nothing automatic watches the public link; what catches a
+  stale bake is the staleness test, which runs in the suite the Navigator runs before pushing.
+  `file://` allows no more — the page cannot detect its own staleness at runtime with zero network
+  calls; eliminated only when a served mode exists.
 - **All `src/` files are classic scripts** attaching to `window.HOLO` — no ES modules. Each
   carries a two-line UMD guard so Node can `require` the same file the browser runs. The guards
   are now exercised: `tools/validate-fixtures.mjs` imports `groundplane.js` and
@@ -595,13 +604,31 @@ the shipped witness.
   empty under a small picture. `body.capture` drops the centring, because §12.6 wants the scene
   element captured at exactly 1536×1024 and a flex-centred stage lands on a fractional y, which
   rounds an element screenshot to 1025 px tall. All chrome is hidden in capture mode anyway.
-- **Surface strings, enumerated against the voice rule** [HUMAN]: narration lines, the two fault
-  lines and the boot line are product speech; inventory tiles carry the record noun as `title`;
-  the narration pane boots empty and the inventory strip renders no tiles and no words when
-  nothing is held — bare surfaces, no method vocabulary. The pre-existing status-line and BOOT
-  ERROR strings are **row 7's named work**: Kabe wrote that row himself after catching them on
-  the live link, and the intention sequences it to run immediately after this row's closing
-  commit.
+- **Surface strings have their own home: `design/surface-strings.md`** — the complete enumeration
+  of what this page can put in front of a person, in every state, with each string's audience
+  verdict. It is **test input**, not illustration: `tests/playwright/voice.spec.mjs` parses its
+  fenced blocks, so an edit to it is a code-class change and **a row that adds, changes or removes
+  a surface or console string extends it in the same commit** or the suite is red. Read it before
+  writing any string a player can see.
+- **The status band is gone** (row 7). It printed the fixture bake fingerprint and a re-bake
+  command on the product face — the project talking to itself where a stranger reads it, which is
+  what Kabe caught on the live link. The fingerprint went to `console.info` at boot; the one
+  genuine fault it also carried, a boot viewstate the world does not hold, is now a product-voiced
+  line in the narration pane. **Why not keep the band for that fault:** the bake refuses an invalid
+  boot viewstate and the bootstrap re-checks, so the condition arises only from a hand-edited or
+  corrupted `fixture.js` — a developer-caused condition, and one does not get a permanent element
+  of the product face while every healthy visitor pays a reserved strip for it. The chrome reserve
+  is **7.6rem** (narration 4.2 + inventory 3.4), so the picture is larger at every height-bound
+  viewport. Two known limits closed with it: the band's sub-AA contrast, and BOOT ERROR's wording
+  and quiet styling.
+  **The two branches of that fault differ, and only testing found it:** a bad *location* leaves
+  `nextFacing` with nothing, so every arrow press is refused aloud, forever; a bad *facing* is
+  recovered by the first arrow press, because `RING.indexOf` misses and the first candidate is a
+  facing the room really has. Both are product-voiced; only the first repeats.
+- **`body.capture .chrome` carries `!important`**, because `#inventory { display: flex }` outranks
+  it by ID specificity — the documented invariant "all chrome hides under `body.capture`" was
+  false for the strip, and the only reason no §12.6 capture was ever wrong is that the strip sits
+  below the stage and never overlapped the scene canvas.
 - **Accepted V1 interaction consequences** (from blueprint §7/§8 text; row 5's human pass sees
   them as decisions, not surprises): input stays live during the go fade; a double-click on a
   shut door opens it and walks through in one gesture, because the same point means "toggle"
@@ -654,7 +681,24 @@ unguarded — cavity clip cutting, alpha hit regions, silhouette ink inside a ho
 door's shadow following the drawn sliver); `validator` (green on repo fixtures, red per mutation
 class, the §12.9 cross-check, the bake-refusal witness, both fault surfaces, and the
 placement-binding guard that displaces `groundplane.placeHost` at runtime and requires the
-verdict to move). `determinism` extends §12.2 clause 1 across two fresh page loads (boot facing,
+verdict to move). `voice` (row 7: the product-voice rule made checkable — it **parses
+`design/surface-strings.md`**, so the audit and the guard are one object. The audit's own
+integrity: legal verdicts from a closed vocabulary, `OPEN` only where `QUESTIONS` names the row, a
+non-empty adjudicator per row, `COUNT:` equal to the rows parsed, and a parser that **hard-fails**
+on an unreadable row rather than dropping a string from the required set. Then: `observed: no`
+derived from `world.json`'s `takeable` rather than written by hand; the audit's copies byte-equal
+`narration.json` and the bound library; a sink census by pattern over every surface write, with
+comments stripped so the file's own prose about `fillText` is not read as a violation; no
+`UNUSED_SINKS`; no stylesheet `content:`; `GLYPHS` exactly the enumerated canvas marks; a runtime
+DOM sweep — text nodes, `::before`/`::after` content and every naming attribute, **no visibility
+and no `aria-hidden` filter** — across boot, every facing, tiles held, refusals, coalescing,
+capture mode, two widths, both broken-boot branches, four missing modules, a render fault, an
+unreadable intent, a missing narration key, a missing noun and scripts-off; every narration line
+read back off the real pane; the console witness present with the fingerprint `fixture.js` holds
+and absent from the surface; no method speech in any console literal; and the pane's whole-row
+guard at 320 px and 200% zoom, which is where `shell.spec`'s "half a row of type" scar moved when
+the status band was deleted — the scar is general and rows 8–10 add chrome);
+`determinism` extends §12.2 clause 1 across two fresh page loads (boot facing,
 swap state, one `part_t = 0.5` mid-state); `geometry`'s grid scans re-pointed at bare study/S;
 `shell` carries the new reserve/viewport numbers (row 1's stale "window width" title is dead).
 
@@ -723,8 +767,6 @@ Known limits, still open (row 1's list, updated):
 - **No favicon**, so the public link's tab carries a generic globe and the browser asks for
   `/favicon.ico`. Zero requests after load on `file://` is intact and measured; this is the one
   request row 6's Pages check will see.
-- **`#status` is ≈4.0:1 against its background at 0.75rem**, under WCAG AA's 4.5:1 for text that
-  small. Row 7 replaces the string; the box has to hold whatever replaces it.
 - **Nothing in the spec list owns keyboard or assistive access to scene entities**, or
   `prefers-reduced-motion` (the `go` veil is an unconditional 0.38 s fade). Rows 8 and 9 are
   fullscreen and the intro; neither covers either. Both are Navigator calls, raised at this
@@ -732,15 +774,46 @@ Known limits, still open (row 1's list, updated):
 - The network guard's WebSocket half fires only on a successful handshake (construction-vs-
   handshake hole; row 2 added no network seam). Hardening constraint unchanged: detect
   construction via an `addInitScript` shim.
-- BOOT ERROR's quiet styling and its wording (row 7's sweep owns the strings themselves).
 - **Nothing on the surface tells a visitor that anything can be touched** except the hover
   highlight, which touch devices do not have; and the V1 legibility cheats leave the coin at
   ≈6 logical px. Row 9 allocates the intro that would say so; row 4's asset scale probe is the
   real fix for the second half.
 - **No keyboard or assistive path to entities.** Only the chevrons are focusable; the canvas has
-  no `tabindex`, role or accessible name, and `#narration` is not a live region. A keyboard-only
-  player can turn forever and never open the drawer. Not covered by any allocated row — the
-  Navigator should decide whether it gets one.
+  no `tabindex`, role or accessible name. (`#narration` *is* announced — it carries
+  `aria-live="polite"`, `tabindex="0"` and a name, asserted by walkthrough.spec; an earlier
+  version of this sentence claimed it was not a live region and was simply false.) A keyboard-only
+  player can turn forever and never open the drawer. **Row 10** owns this, including the canvas's
+  accessible name — named here because row 7 swept the assistive attributes and would otherwise
+  look as if it had cleared a surface it never reached.
+- **The favicon, sharpened** (was: "no favicon, the one request row 6's Pages check will see"). A
+  browser requests `/favicon.ico` regardless, so on Pages the *absence* is itself a post-load
+  request, and row 6's done clause requires zero. **Owner: row 6**, which must ship an icon or
+  declare an inline `data:` one. Whether §12.7's "zero requests after load" even reaches a
+  browser-initiated favicon fetch is **Kabe's to rule** — this is not a request an agent may
+  license away against a standing *never do*.
+- **Narration arriving over the wire is unguarded.** Blueprint §8 makes the envelope the future
+  websocket wire format and its `narration` string goes straight to the pane, so a wire-delivered
+  line naming a module would land on the surface. Out of row 7's domain because no transport ships
+  in M0 (and `updateChrome` already refuses a non-string); owner is the row that builds the
+  transport.
+- **The narration pane is a log, and a log is a readout.** It accumulates, so a player who has
+  acted five times reads a transcript stacked under the picture — which touches "standing
+  somewhere, not looking at a diagram". Chrome *form* rather than a string, so row 7 left it; it
+  is in that row's batch to Kabe and in `design/surface-strings.md`'s `QUESTIONS`.
+- **Text painted into art is inside the surface-string domain and cannot be swept.** A book spine
+  or a tapestry motto in a generated backdrop is a string the surface shows a player, in nobody's
+  authored voice. None exists at V1. **Row 4's prompt sheets are the only place it can be
+  prevented.**
+- **What the deploy serves is wider than what the page renders.** Pages serves `main` root, so
+  every design document — this one, and `design/surface-strings.md` — is fetchable at the public
+  link, dense with method vocabulary. Nothing on the page links to them, and row 7's domain is
+  what `index.html` renders; but the complaint that created that row was framed as *what a stranger
+  at the alpha link can read*, so the boundary is recorded rather than assumed, and it is in
+  `QUESTIONS`.
+- **No committed cross-commit canvas guard.** Row 7 proved the canvas did not move by capturing the
+  hash sequence at the parent commit and again after, with a harness deliberately not committed
+  (the suite carries no goldens by design). Nothing in the committed suite can detect a canvas
+  change caused by chrome work — and rows 8, 9 and 10 all promise the scene canvas is untouched.
 - **Per-turn repaint cost.** `render` allocates two full 1536×1024 offscreen canvases per entity
   per frame (composite, then tint), which measures ≈270 ms at 4× CPU throttling and ≈410 ms at
   6× on the furnished study facing. Bounding the scratch to each entity's drawn rect is the fix

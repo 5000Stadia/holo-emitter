@@ -706,10 +706,13 @@ test.describe("a page that cannot boot still speaks", () => {
     // visitor with the whole suite still green.
     await page.goto(appUrl());
     await page.waitForFunction(() => !!window.HOLO_APP);
-    const status = await page.locator("#status").textContent();
-    expect(status).not.toMatch(/BOOT ERROR/);
     const narration = await page.locator("#narration").innerText();
     for (const line of FAULT_LINES) expect(narration).not.toContain(line);
+    expect(narration, "nor the boot-viewstate fault line").not.toContain(
+      "The projection was set to a view this pattern does not hold.");
+    // The pane boots empty on a healthy load — the old assert only checked a
+    // string it no longer shows, and would have passed over any wording.
+    expect(narration.trim(), "a healthy pane says nothing until the player acts").toBe("");
   });
 });
 

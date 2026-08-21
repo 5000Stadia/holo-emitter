@@ -41,9 +41,24 @@
         // The record's noun, as an accessible name and not only as a
         // hover title: a canvas has no text content, and on touch there is
         // no hover at all, so `title` alone names the tile to nobody.
-        tile.title = sprite.record.noun;
+        //
+        // A tile's name is COMPOSED from data, so its degenerate values are
+        // part of the surface. A record with no usable `noun` would put the
+        // literal token "undefined" on the product face as an accessible
+        // name — the purest developer speech, and past any vocabulary
+        // check. A silent tile is an accessibility hole instead. So: a
+        // product-voiced generic on the surface, the record id on the
+        // console. Row 4's records arrive through a bake rather than from
+        // src/placeholders.js, which is when this stops being theoretical.
+        var noun = sprite.record && sprite.record.noun;
+        if (typeof noun !== "string" || noun.trim() === "") {
+          console.error("record has no usable noun: " + entity.sprite +
+            " (entity " + id + ")");
+          noun = "something you carry";
+        }
+        tile.title = noun;
         tile.setAttribute("role", "img");
-        tile.setAttribute("aria-label", sprite.record.noun);
+        tile.setAttribute("aria-label", noun);
         if (sprite.images.thumb) {
           tile.getContext("2d").drawImage(sprite.images.thumb, 0, 0);
         }

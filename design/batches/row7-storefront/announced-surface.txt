@@ -1,0 +1,79 @@
+Every string an assistive reader meets, in order, per state.
+Screenshots carry only the sighted surface; these are the rest.
+
+== 01-cold-load-desktop ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+
+== 02-cold-load-phone-390 ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+
+== 03-a-refusal ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: The chair is joined oak through and through; nothing in it opens or shuts.
+
+== 04-an-item-taken ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+canvas [aria-label] iron key
+canvas [title] iron key
+narration: The drawer resists, then gives. Inside, an iron key.
+narration: You take the iron key. It is cold, and lighter than it looks.
+
+== 05-broken-boot ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: The projection was set to a view this pattern does not hold.
+
+== 06-no-frame-ever-painted ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: The projection will not hold. Nothing of this place can be shown.
+narration: The projection wavers; the pattern will not resolve.
+
+== 07-render-fault ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: The projection wavers; the pattern will not resolve.
+
+== 08-noun-missing ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+canvas [aria-label] something you carry
+canvas [title] something you carry
+narration: The drawer resists, then gives. Inside, an iron key.
+narration: You take the iron key. It is cold, and lighter than it looks.
+
+== scripts-off ==
+holo-emitter
+button#chevron-left [aria-label] turn left
+button#chevron-right [aria-label] turn right
+div#narration [aria-label] what the room says
+div#inventory [aria-label] what you are carrying
+narration: This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.

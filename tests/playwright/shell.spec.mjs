@@ -27,8 +27,9 @@ test.describe("shell", () => {
     // including the frame-bottom floor cut, the camera-has-feet device — is
     // visible without scrolling at common window shapes; aspect preserved.
     // Invisible to every pixel hash, so asserted on the displayed bounding
-    // box. 8.8rem = 140.8px is row 2's bottom-chrome reserve (narration log,
-    // inventory strip, status line).
+    // box. 7.6rem = 121.6px is the bottom-chrome reserve (narration log +
+    // inventory strip). It was 8.8rem until row 7 deleted the status line,
+    // whose only content was the bake fingerprint and a re-bake command.
     for (const vp of [
       { width: 1280, height: 900 },
       { width: 1920, height: 1080 }, // 16:9 — width-only scaling failed here
@@ -36,7 +37,7 @@ test.describe("shell", () => {
     ]) {
       await page.setViewportSize(vp);
       const box = await page.locator("#scene").boundingBox();
-      const expected = Math.min(vp.width, (vp.height - 140.8) * (1536 / 1024));
+      const expected = Math.min(vp.width, (vp.height - 121.6) * (1536 / 1024));
       expect(Math.abs(box.width - expected)).toBeLessThanOrEqual(2);
       expect(Math.abs(box.height - box.width * (1024 / 1536))).toBeLessThanOrEqual(2);
       expect(box.y + box.height, "frame bottom on screen").toBeLessThanOrEqual(vp.height);
@@ -74,7 +75,7 @@ test.describe("shell", () => {
     const shotOff = await page.locator("#scene").screenshot();
 
     await page.evaluate(() => document.body.classList.add("capture"));
-    for (const id of ["#chevron-left", "#chevron-right", "#status"]) {
+    for (const id of ["#chevron-left", "#chevron-right", "#narration", "#inventory"]) {
       const display = await page.locator(id).evaluate((el) => getComputedStyle(el).display);
       expect(display, `${id} hidden under capture`).toBe("none");
     }
@@ -117,41 +118,24 @@ test("a fault after the first frame does not print the boot apology", async ({ p
   expect(res.leftShown, "and the controls are not withdrawn").not.toBe("none");
 });
 
-test("the status line never presents half a row of type", async ({ page }) => {
-  // A fixed-height box with wrapping text slices its second row through the
-  // ascenders. Row 7 replaces the wording; the box has to hold whatever
-  // replaces it at the narrowest width.
-  await page.setViewportSize({ width: 320, height: 568 });
-  await page.goto(appUrl());
-  await page.waitForFunction(() => !!window.HOLO_APP);
-  const s = await page.evaluate(() => {
-    const el = document.getElementById("status");
-    const cs = getComputedStyle(el);
-    return {
-      whiteSpace: cs.whiteSpace, ellipsis: cs.textOverflow,
-      scrollHeight: el.scrollHeight, clientHeight: el.clientHeight
-    };
-  });
-  expect(s.whiteSpace, "one row, always").toBe("nowrap");
-  expect(s.ellipsis, "truncated, not sliced").toBe("ellipsis");
-  expect(s.scrollHeight, "and the content fits the box").toBeLessThanOrEqual(s.clientHeight + 1);
-});
-
 test("the stage's chrome reserve is what the chrome measures", () => {
   // The stage calc reserved 9.6rem against a chrome of 8.8, so the picture
   // was ~9px shorter and ~13px narrower than the layout's own budget allowed
   // at every height-bound viewport — a stated invariant nothing compared to
-  // the thing it states.
+  // the thing it states. Two bands now: row 7 deleted the status line, whose
+  // only content was the bake fingerprint and a re-bake command.
   const html = readFileSync(join(repoRoot, "index.html"), "utf8");
   const m = html.match(/100svh - ([\d.]+)rem/);
   expect(m, "the stage states a reserve").not.toBeNull();
   const reserve = Number(m[1]);
-  const heights = [...html.matchAll(/#(narration|inventory|status)\s*\{[^}]*height:\s*([\d.]+)rem/g)]
+  const heights = [...html.matchAll(/#(narration|inventory)\s*\{[^}]*height:\s*([\d.]+)rem/g)]
     .map((x) => Number(x[2]));
-  expect(heights.length, "three chrome bands").toBe(3);
+  expect(heights.length, "two chrome bands").toBe(2);
   const total = heights.reduce((a, b) => a + b, 0);
   expect(total, `chrome measures ${total}rem against a ${reserve}rem reserve`)
     .toBeCloseTo(reserve, 5);
+  // And nothing reserves space for a band that no longer exists.
+  expect(html.includes('id="status"'), "the status band is gone").toBe(false);
 });
 
 test("the chrome measures its reserve in the browser too", async ({ page }) => {
@@ -160,10 +144,10 @@ test("the chrome measures its reserve in the browser too", async ({ page }) => {
   const m = await page.evaluate(() => {
     const h = (id) => document.getElementById(id).getBoundingClientRect().height;
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    return { chrome: h("narration") + h("inventory") + h("status"), rem };
+    return { chrome: h("narration") + h("inventory"), rem };
   });
-  // 8.8rem, from the stage's own calc.
-  expect(m.chrome).toBeCloseTo(8.8 * m.rem, 0);
+  // 7.6rem, from the stage's own calc.
+  expect(m.chrome).toBeCloseTo(7.6 * m.rem, 0);
 });
 
 test("a cold load and a turn leave the console clean", async ({ page }) => {

@@ -43,5 +43,5 @@ node tools/bake-fixtures.mjs
 
 The bake checks the fixtures first and refuses to bake an invalid world (a coordinate in
 `world.json`, a world fact in `staging.json`, a reference that resolves nowhere, a missing
-narration line) — it prints numbered findings instead. The page footer shows the bake's
-fingerprint; if it did not change after your edit, the bake did not run.
+narration line) — it prints numbered findings instead. The page prints the bake's fingerprint to
+the browser console when it loads; if it did not change after your edit, the bake did not run.
