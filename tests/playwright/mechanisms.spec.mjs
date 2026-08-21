@@ -1951,12 +1951,17 @@ test.describe("the ground the sprites stand on carries the same key they do", ()
   });
 });
 
-test.describe("the doorway does not promise a room the go does not deliver", () => {
-  test("the floor beyond continues at this room's own floor line", async ({ page }) => {
-    /* The far room is another grid room at the same meta. Drawn with its
-     * floor line raised it showed a room one step deeper than walking
-     * through actually reaches — the one place the picture said something
-     * the document does not. */
+test.describe("the doorway reads as an opening, not a picture on the wall", () => {
+  test("the wall's own thickness is drawn inside it, lit from the same side", async ({ page }) => {
+    /* Two earlier attempts at depth-in-the-opening both failed, opposite
+     * ways: a raised far floor line drew a room one step deeper than the
+     * `go` delivers, and putting the line at this room's own floor line drew
+     * NOTHING — the aperture rect's bottom IS the floor line for a
+     * `wall_mounted` leaf at `v: 0`, so the fill had zero height and every
+     * transverse line fell below the clip. The check written for it passed
+     * on the jamb's own bottom stroke: a test asserting a device that draws
+     * no pixels. So this one reads the reveal itself, in columns, and it is
+     * verified to go red when the reveal is removed. */
     await page.goto(appUrl());
     const res = await page.evaluate(() => {
       const fx = window.HOLO_FIXTURE;
@@ -1972,21 +1977,30 @@ test.describe("the doorway does not promise a room the go does not deliver", () 
         const i = ((y * W + x) * 4);
         return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
       };
-      const floorY = Math.round(meta.floor_line_y * meta.image_h_px);
-      const x = Math.round(a.x + a.w / 2);
-      // Immediately above the floor line inside the opening: wall beyond.
-      // Immediately below: floor beyond. The step has to be AT this room's
-      // own floor line, so scan for where it happens.
-      let step = -1;
-      for (let y = Math.ceil(a.y) + 4; y < a.y + a.h - 2; y++) {
-        if (lum(x, y + 1) - lum(x, y) > 3) { step = y + 1; break; }
-      }
-      return { step, floorY, apertureBottom: a.y + a.h };
+      // A row well inside the opening, clear of the soffit and the jamb.
+      const y = Math.round(a.y + a.h * 0.6);
+      const col = (f) => lum(Math.round(a.x + f * a.w), y);
+      // A row inside the soffit band, and one below it, at mid-width.
+      const soffitY = Math.round(a.y + Math.max(2, a.w * 0.09) * 0.5);
+      const midY = Math.round(a.y + a.h * 0.4);
+      const midX = Math.round(a.x + a.w * 0.5);
+      return {
+        near: col(0.06), void_: col(0.5), far: col(0.93),
+        soffit: lum(midX, soffitY), below: lum(midX, midY),
+        w: a.w
+      };
     });
-    expect(res.step, "there is a floor line inside the opening").toBeGreaterThan(0);
-    expect(Math.abs(res.step - res.floorY),
-      `the floor beyond steps at ${res.step}, this room's floor line is ${res.floorY}`)
-      .toBeLessThanOrEqual(2);
+    // The near reveal — the jamb face turned toward an upper-left key —
+    // is the brightest thing in the opening.
+    expect(res.near - res.void_,
+      `near reveal ${res.near.toFixed(1)} vs the void ${res.void_.toFixed(1)}`)
+      .toBeGreaterThan(8);
+    // The far one is off the void but nothing like the near one: one light,
+    // not two.
+    expect(res.far, "the far reveal is lit at all").toBeGreaterThan(res.void_ + 1);
+    expect(res.far, "and far less than the near one").toBeLessThan(res.near - 4);
+    // And a lintel above, in shadow.
+    expect(res.soffit, "the soffit is not the void").not.toBe(res.below);
   });
 });
 
@@ -2039,4 +2053,119 @@ test.describe("real touch, at a real phone size", () => {
       }
     });
   }
+});
+
+test.describe("the way back through a door is reachable by a finger", () => {
+  test("an open leaf 6 CSS px wide still closes the door on a phone", async ({ browser }) => {
+    /* §7's amendment gives "a widening tolerance ring for targets too small
+     * to hit exactly"; scoping it to `takeable` restored the blueprint's own
+     * named failure on the device most people will open the link on. The
+     * open leaf draws 6 CSS px wide at 390×844 and is the ONLY pointer path
+     * from open back to closed — `toggle door1 → closed` is authored,
+     * narrated, a member of the §12.9 domain, and was unreachable by a
+     * finger. The earlier sweeps could not see it: they tap computed
+     * bounding-box centres, which is not a thing a hand does, and their
+     * target lists omitted the leaf and the doorway. */
+    const ctx = await equipContext(await browser.newContext({
+      hasTouch: true, viewport: { width: 390, height: 844 }
+    }));
+    const page = await ctx.newPage();
+    let root = null;
+    try {
+      root = stageTree();
+      setViewstate(root, { location: "study", facing: "E" });
+      await page.goto(appUrl(root));
+      await page.waitForFunction(() => !!window.HOLO_APP);
+      const box = await page.locator("#scene").boundingBox();
+      const tap = async (pt) => {
+        await page.touchscreen.tap(
+          box.x + (pt.x * box.width) / 1536,
+          box.y + (pt.y * box.height) / 1024);
+      };
+      const leafRect = async () => await page.evaluate(() => {
+        const e = window.__T.currentLayout().find((x) => x.id === "door1");
+        const b = window.__T.entryBBox(e);
+        return { x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w, h: b.h };
+      });
+      // Open it (the shut leaf is wide).
+      await tap(await leafRect());
+      expect(await page.evaluate(() =>
+        window.HOLO_APP.harness.world.entities.find((e) => e.id === "door1").state))
+        .toBe("open");
+
+      const open = await leafRect();
+      const cssW = (open.w * box.width) / 1536;
+      expect(cssW, "the open leaf really is a sliver").toBeLessThan(12);
+
+      /* A finger, off centre by 5–6 CSS px — outside the leaf's own 6 px of
+       * pixels and inside the tolerance margin, which is exactly the band
+       * that only exists if the ring reaches non-takeables. Land there with
+       * the ring scoped to takeables and the point falls in the opening
+       * instead: you walk through the door you were trying to shut. */
+      for (const dx of [-6, -5, 5, 6]) {
+        await page.touchscreen.tap(
+          box.x + (open.x * box.width) / 1536 + dx,
+          box.y + (open.y * box.height) / 1024);
+        const st = await page.evaluate(() => ({
+          door: window.HOLO_APP.harness.world.entities.find((e) => e.id === "door1").state,
+          where: window.HOLO_APP.harness.viewstate.location
+        }));
+        expect(st.where, `a tap ${dx} px off the leaf did not walk you through`).toBe("study");
+        expect(st.door, `a tap ${dx} px off the leaf shut the door`).toBe("closed");
+        // Re-open for the next offset.
+        await tap(await leafRect());
+      }
+    } finally {
+      await ctx.close();
+      if (root) removeTree(root);
+    }
+  });
+
+  test("no drawn entity hides under a chevron on any facing", async ({ page }) => {
+    /* The chevrons sit over the scene canvas at z-index 2, so a click on
+     * their 40×205 px boxes never reaches `resolve()` — the picture gives no
+     * sign that region is spoken for. Nothing is staged there in this
+     * fixture, and this is the guard that keeps it that way when row 4
+     * stages eight real facings: the clickability sweep computes its own
+     * points and would pass straight over an entity that is in fact
+     * unclickable. */
+    await page.goto(appUrl());
+    const bad = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const stage = document.getElementById("stage").getBoundingClientRect();
+      const scene = document.getElementById("scene");
+      const sx = 1536 / scene.getBoundingClientRect().width;
+      const sy = 1024 / scene.getBoundingClientRect().height;
+      const zones = [...document.querySelectorAll(".chevron")].map((c) => {
+        const r = c.getBoundingClientRect();
+        return {
+          x0: (r.left - stage.left) * sx, x1: (r.right - stage.left) * sx,
+          y0: (r.top - stage.top) * sy, y1: (r.bottom - stage.top) * sy
+        };
+      });
+      const out = [];
+      const world = window.__T.clone(fx.world);
+      world.entities.find((e) => e.id === "desk1").state = "open";
+      world.entities.find((e) => e.id === "door1").state = "open";
+      world.knowledge.player.push("key1");
+      for (const loc of world.locations) {
+        for (const f of loc.facings) {
+          const vs = { location: loc.id, facing: f };
+          const lay = window.HOLO.renderer.layout(world, fx.staging,
+            window.__T.lib(), window.HOLO.renderer.GRID_META, vs);
+          for (const e of lay) {
+            const b = window.__T.entryBBox(e);
+            for (const z of zones) {
+              if (b.x < z.x1 && b.x + b.w > z.x0 && b.y < z.y1 && b.y + b.h > z.y0) {
+                out.push(`${e.id} on ${loc.id}/${f}`);
+              }
+            }
+          }
+        }
+      }
+      return { out, zones };
+    });
+    expect(bad.zones.length, "the chevrons are on the stage").toBe(2);
+    expect(bad.out, "no entity's drawn box overlaps a chevron").toEqual([]);
+  });
 });

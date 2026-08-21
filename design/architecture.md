@@ -329,13 +329,18 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
 - **The jamb stands proud of the leaf**, because a doorway is wider than the door in it. Drawn
   flush the leaf covered it exactly, and a shut door was a plank on unbroken wall — "a doorway
   exists whether or not its leaf is shut" true of the code and invisible in the picture.
-- **The opening shows the space beyond**, not a panel painted on the wall: an unlit wall, and the
-  floor continuing through the gap at **this room's own floor line**, picked out by the same
-  transverse device at the same depths. A flat fill with a jamb read as a framed dark picture
-  hung where the doorway is; a floor line raised to suggest depth read as a room one step deeper
-  than the `go` actually delivers — the far room is another grid room at the same meta, so the
-  honest picture and the deep-looking one are not the same, and this row's first bar is that the
-  picture never says what the document does not.
+- **The opening carries the wall's own thickness**: a reveal down each inside edge and a soffit
+  across the top, the near jamb face catching the same upper-left key as everything else. Three
+  attempts, and the two that failed are the useful part. A flat fill with a jamb read as a framed
+  dark picture hung where the doorway is. A *raised* far floor line read as a room one step
+  deeper than the `go` delivers — the picture saying what the document does not. And putting that
+  line at this room's own floor line was truthful and drew **nothing**: the aperture rect is the
+  leaf's placement rectangle, whose bottom is the leaf's baseline, which for a `wall_mounted`
+  leaf at `v: 0` is exactly `floor_line_y · image_h_px`, so the fill had zero height and every
+  transverse line fell below the clip — and the check written for it passed on the jamb's own
+  bottom stroke, a test asserting a device that draws no pixels. A doorway's thickness is inside
+  the rect by construction, needs no room below the baseline, and claims nothing about the room
+  beyond. The guard reads the reveal columns and is verified red without them.
 
 ## Harness and envelope
 
@@ -473,8 +478,16 @@ the shipped witness.
   the leaf being two targets is what gives the door a way back: every click on an open exit door
   used to dispatch `go`, so no pointer path could ever close one again, and the authored
   `toggle.door1.closed` line was unreachable by any player.
-- **Pointing tolerance** is chrome, never the renderer: the alpha regions are untouched. The
-  margin is in **CSS pixels at the current display scale** — a margin in canvas pixels is a
+- **Pointing tolerance** applies to **any target too small to hit exactly**, not only takeables.
+  §7's amendment says "a widening tolerance ring for targets too small to hit exactly", and
+  scoping it to `takeable` restored the blueprint's own named failure on a phone: the open leaf
+  draws 6 CSS px wide and is the ONLY pointer path from open back to closed, so
+  `toggle door1 → closed` was authored, narrated, a member of the §12.9 domain, and unreachable
+  by a finger. A candidate wins only when it is **clearly smaller in drawn area** than whatever
+  is exactly under the point — an absolute CSS threshold alone is not enough, because at phone
+  scale everything is small and the desk then claimed a margin and answered for the chair in
+  front of it. It is chrome, never the renderer: the alpha regions are untouched. The margin is
+  in **CSS pixels at the current display scale** — a margin in canvas pixels is a
   different product at every window size — and the candidacy test is a **distance to the
   takeable's drawn rectangle**, because a six-pixel coin slips between discrete ring radii.
   What it buys is exactly one thing: a click on a see-through pixel *inside* a takeable means
@@ -543,6 +556,17 @@ the shipped witness.
   367 px tall — every phone in landscape — and added 20 px of scroll where the plain contain-fit
   fitted exactly. Guarded at five sizes, portrait and landscape, including one below the
   degenerate threshold where the page is allowed to scroll but not to be empty.
+- **A refusal repeated in a row does not repeat on screen**, and nothing about the repetition
+  reaches the surface: a count in the fiction's voice is a string about the message stream, in
+  the one place that speaks only about the world — and it would be composed at runtime, where an
+  audit built from source literals would never find it. Every envelope still fires.
+- **The chrome measures its own reserve.** The stage reserved 9.6rem against a chrome of 8.8, so
+  the picture was ~9 px shorter and ~13 px narrower than the layout's budget allowed at every
+  height-bound viewport. It is 8.8rem both ways now, asserted from the stylesheet and from the
+  rendered boxes. The unit is `svh`, not `vh`: on iOS Safari `100vh` excludes the toolbars, and
+  in phone landscape this layout has 9 px of slack — Safari is the one engine this build has
+  never run on, so it gets the unit that cannot be wrong rather than a measurement nobody here
+  can take.
 - **The narration pane is 4.2rem and its newest line always starts flush at the top.** At 3.2rem
   an arrival line wrapped to two rows at phone width and the pane permanently showed one message
   plus a horizontally sliced fragment of the previous one, ascenders cut mid-glyph — the whole

@@ -344,3 +344,39 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     expect(meta.image_h_px).toBe(LIT.H);
   });
 });
+
+test("nothing hanging on a wall casts a pool on the floor", async ({ page }) => {
+  /* §7's `airborne` opt-out covers a sprite that declares itself off the
+   * ground; a `wall_mounted` placement raised by §4's licensed `v` is the
+   * same case by geometry, and the contact ellipse is drawn in screen space
+   * with no clip — at v = 0 it lands on the floor line and is right, at
+   * v > 0 it would hang a pool in mid-air on the wall. Every shipped
+   * placement is at v = 0, so only a raised case can tell. */
+  await page.goto(appUrl());
+  const res = await page.evaluate(() => {
+    const fx = window.HOLO_FIXTURE;
+    const vs = { location: "study", facing: "E" };
+    const solo = window.__T.worldWithout(
+      fx.world.entities.filter((e) => e.id !== "door1").map((e) => e.id));
+    const shadowPixels = (staging) => {
+      const on = window.__T.renderW(solo, staging, vs, { tint: false });
+      const off = window.__T.renderW(solo, staging, vs, { tint: false, shadows: false });
+      const W = 1536, H = 1024;
+      const a = on.getContext("2d").getImageData(0, 0, W, H).data;
+      const b = off.getContext("2d").getImageData(0, 0, W, H).data;
+      let n = 0;
+      for (let p = 0; p < W * H; p++) {
+        const i = p * 4;
+        if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2]) n++;
+      }
+      return n;
+    };
+    const grounded = window.__T.clone(fx.staging);
+    const raised = window.__T.clone(fx.staging);
+    raised.placements.door1.find((p) => p.facing === "study/E").v = 1.0;
+    return { grounded: shadowPixels(grounded), raised: shadowPixels(raised) };
+  });
+  expect(res.grounded, "a leaf standing on the floor has its pool")
+    .toBeGreaterThan(0);
+  expect(res.raised, "a leaf hung a metre up has none").toBe(0);
+});

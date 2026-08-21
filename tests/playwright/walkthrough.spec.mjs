@@ -1073,7 +1073,10 @@ test.describe("two keyboard affordances, one set of keys", () => {
     });
     expect(res.envelopes, "every refusal still produced its envelope").toBe(6);
     expect(res.paragraphs, "and one line, not six").toBe(1);
-    expect(res.text, "which says how many times").toMatch(/×6\)$/);
+    // Nothing about the repeat reaches the surface: a count in the fiction's
+    // voice is a string about the message stream, not about the world.
+    expect(res.text, "and it is still just the line").toBe(
+      "The chair is joined oak through and through; nothing in it opens or shuts.");
   });
 
   test("the inventory strip is a named thing", async ({ page }) => {

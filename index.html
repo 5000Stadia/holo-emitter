@@ -13,14 +13,17 @@
      hash moves; this is where the letterbox goes. */
   body {
     font-family: Georgia, serif;
-    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
   }
   /* The stage contain-fits the fixed 1536x1024 logical canvas within the
      window (§5 viewport, amended at row 1): width-only scaling pushed the
      frame-bottom floor cut — the camera-has-feet device — below the fold on
-     16:9 screens. 9.6rem is reserved for the bottom chrome (narration log,
-     inventory strip, status line — row 2). The canvases keep their internal
-     size. */
+     16:9 screens. 8.8rem is reserved for the bottom chrome, which is what
+     the bottom chrome measures: narration 4.2 + inventory 3.4 + status 1.2.
+     It read 9.6rem for a while against a chrome of 8.8, so the picture was
+     ~9 px shorter and ~13 px narrower than the layout's own budget allowed
+     at every height-bound viewport, and nothing compared the reserve to what
+     it reserves for. The canvases keep their internal size. */
   #stage {
     position: relative;
     /* The max() is a floor for the degenerate case only: below ~154px of
@@ -29,7 +32,13 @@
        real device — at 320px it kicked in for any viewport under 367px tall,
        which is every phone in landscape, and added 20px of scroll where the
        plain calc fitted exactly. 120px binds below ~234px. */
-    width: min(100%, max(120px, calc((100vh - 9.6rem) * (1536 / 1024))));
+    /* svh, not vh: on iOS Safari `100vh` is the viewport WITHOUT the
+       toolbars, so a layout that exactly fills it puts the status line and
+       part of the inventory under the toolbar — and in phone landscape this
+       one has 9 px of slack. Safari is the one engine this build has never
+       been run on, so it gets the unit that cannot be wrong rather than a
+       measurement nobody here can take. */
+    width: min(100%, max(120px, calc((100svh - 8.8rem) * (1536 / 1024))));
     margin: 0 auto;
     aspect-ratio: 1536 / 1024;
   }
@@ -72,6 +81,10 @@
      speaks to a player. The 9.6rem chrome budget is unchanged — the room
      comes out of the inventory strip and the status line. */
   #narration {
+    /* border-box, so the 2px of padding lives inside the 4.2rem rather than
+       adding to it: the stage's reserve is stated in rem and the chrome has
+       to measure what it says. */
+    box-sizing: border-box;
     height: 4.2rem; overflow-y: auto; padding: 2px 8px;
     font-size: 0.95rem; line-height: 1.3;
   }
@@ -296,9 +309,14 @@
       var ps = narrationEl.querySelectorAll("p");
       var prev = ps.length ? ps[ps.length - 1] : null;
       if (prev && prev.getAttribute("data-line") === line) {
+        // The same refusal said twice is the same refusal: leave the line
+        // standing rather than filling a two-line pane with one sentence
+        // six times. The count is NOT written to the surface — "(×4)" is a
+        // string about the message stream's own behaviour, in the one voice
+        // that speaks only about the world, and it is composed at runtime
+        // where an audit that reads source literals would never find it.
         var n = (parseInt(prev.getAttribute("data-count"), 10) || 1) + 1;
         prev.setAttribute("data-count", String(n));
-        prev.textContent = line + "  (×" + n + ")";
         scrollNarration();
         return;
       }
@@ -392,6 +410,12 @@
       return !!(e && e.takeable);
     }
 
+    /* Below this, in CSS pixels, a target is one a hand cannot hit exactly
+       and the forgiveness applies. Above it the object is big enough to
+       answer for itself, and letting it claim a margin would let it answer
+       for its neighbours. */
+    var SMALL_TARGET_CSS = 24;
+
     /* The drawn rectangle of a layout entry, clipped as the entry is. */
     function entryRect(e) {
       var b = e.swap
@@ -407,15 +431,39 @@
       return b;
     }
 
-    function takeableAt(x, y, margin) {
+    function rectArea(e) {
+      var b = entryRect(e);
+      return Math.max(0, b.w) * Math.max(0, b.h);
+    }
+
+    function entryOf(id) {
+      if (!currentLayout) return null;
+      for (var i = 0; i < currentLayout.length; i++) {
+        if (currentLayout[i].id === id) return currentLayout[i];
+      }
+      return null;
+    }
+
+    function smallTargetAt(x, y, margin, k, skipId) {
       var best = null;
       var bestD = Infinity;
       if (!currentLayout) return null;
       for (var i = 0; i < currentLayout.length; i++) {
         var e = currentLayout[i];
-        if (!isTakeable(e.id)) continue;
         var b = entryRect(e);
         if (b.w <= 0 || b.h <= 0) continue;
+        /* Any target too small to hit exactly, not only takeables. §7's
+           amendment says "a widening tolerance ring for targets too small to
+           hit exactly", and scoping it to `takeable` restored the blueprint's
+           own named failure on a phone: the open door leaf draws 6 CSS px
+           wide and is the ONLY pointer path from open back to closed, so
+           `toggle door1 → closed` was authored, narrated, inside the §12.9
+           domain, and unreachable by a finger. The bound stays the target's
+           own rectangle plus a margin — that is what keeps a small object
+           from answering for the furniture it stands on. */
+        if (!isTakeable(e.id) &&
+            Math.min(b.w, b.h) / k >= SMALL_TARGET_CSS) continue;
+        if (e.id === skipId) continue;
         var dx = Math.max(b.x - x, 0, x - (b.x + b.w));
         var dy = Math.max(b.y - y, 0, y - (b.y + b.h));
         var d = Math.sqrt(dx * dx + dy * dy);
@@ -426,7 +474,8 @@
 
     function hitAtPoint(x, y) {
       if (!currentLayout) return null;
-      var near = takeableAt(x, y, TAKEABLE_MARGIN_CSS * cssToCanvas());
+      var k = cssToCanvas();
+      var near = smallTargetAt(x, y, TAKEABLE_MARGIN_CSS * k, k, null);
       if (near) return near;
       return window.HOLO.renderer.hitTest(currentLayout, library, x, y);
     }
@@ -468,9 +517,21 @@
          the drawer over the reveal the player just earned. Past that margin
          it outranks nothing, which is what keeps a small object from
          answering for the furniture it stands on. */
-      var near = takeableAt(p.x, p.y, TAKEABLE_MARGIN_CSS * cssToCanvas());
-      if (near && (exact === null || exact === undefined || !isTakeable(exact))) {
-        return { kind: "entity", id: near };
+      var k = cssToCanvas();
+      var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
+      if (near && near !== exact) {
+        /* A small target outranks the point only when it is clearly SMALLER
+           than whatever is exactly under it — the thing you were aiming at,
+           over the thing behind it. An absolute CSS threshold alone is not
+           enough: at phone scale everything is small, and the desk (22 CSS px
+           tall) then claimed a margin and answered for the chair standing in
+           front of it. */
+        var exactEntry = (exact === null || exact === undefined) ? null : entryOf(exact);
+        var nearEntry = entryOf(near);
+        if (!exactEntry ||
+            (nearEntry && rectArea(nearEntry) < rectArea(exactEntry) * 0.6)) {
+          return { kind: "entity", id: near };
+        }
       }
       if (exact !== null && exact !== undefined) {
         return { kind: "entity", id: exact };

@@ -303,10 +303,18 @@
   /* Painters (browser-only; called through build).                     */
   /* ------------------------------------------------------------------ */
 
+  /* Every canvas this module makes is read back later — the key-direction
+   * pass, the bottom-opaque extent scan, the thumb — and asking a canvas for
+   * a 2D context a second time with different options is ignored AND warns.
+   * The hint is taken once, here, and every other call site asks for the
+   * context it already has. Chromium printed that warning on every cold
+   * load, into the console row 7 is about to make the load-bearing
+   * developer channel. */
   function canvasOf(doc, w, h) {
     var c = doc.createElement("canvas");
     c.width = w;
     c.height = h;
+    c.getContext("2d", { willReadFrequently: true });
     return c;
   }
 
@@ -613,7 +621,7 @@
     var w = canvas.width;
     var h = canvas.height;
     if (!(w > 0 && h > 0)) return canvas;
-    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    var ctx = canvas.getContext("2d");
     var img = ctx.getImageData(0, 0, w, h);
     var d = img.data;
     for (var x = 0; x < w; x++) {

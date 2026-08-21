@@ -1,4 +1,6 @@
-import { test, expect, appUrl } from "./helpers.mjs";
+import { test, expect, appUrl, repoRoot } from "./helpers.mjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 test.describe("shell", () => {
   test("cold file:// load: 1536x1024 scene canvas, non-blank, contain-fit within the window", async ({ page }) => {
@@ -25,7 +27,7 @@ test.describe("shell", () => {
     // including the frame-bottom floor cut, the camera-has-feet device — is
     // visible without scrolling at common window shapes; aspect preserved.
     // Invisible to every pixel hash, so asserted on the displayed bounding
-    // box. 9.6rem = 153.6px is row 2's bottom-chrome reserve (narration log,
+    // box. 8.8rem = 140.8px is row 2's bottom-chrome reserve (narration log,
     // inventory strip, status line).
     for (const vp of [
       { width: 1280, height: 900 },
@@ -34,7 +36,7 @@ test.describe("shell", () => {
     ]) {
       await page.setViewportSize(vp);
       const box = await page.locator("#scene").boundingBox();
-      const expected = Math.min(vp.width, (vp.height - 153.6) * (1536 / 1024));
+      const expected = Math.min(vp.width, (vp.height - 140.8) * (1536 / 1024));
       expect(Math.abs(box.width - expected)).toBeLessThanOrEqual(2);
       expect(Math.abs(box.height - box.width * (1024 / 1536))).toBeLessThanOrEqual(2);
       expect(box.y + box.height, "frame bottom on screen").toBeLessThanOrEqual(vp.height);
@@ -52,7 +54,7 @@ test.describe("shell", () => {
   test("capture class hides all chrome overlapping the scene canvas (§12.6 seam)", async ({ page }) => {
     // §12.6 pins native-size captures: downscaling softens exactly the halo
     // tells the flip test exists to catch. 1536×1200 displays the canvas at
-    // native 1536 CSS px under contain-fit (row 2's 9.6rem reserve needs the
+    // native 1536 CSS px under contain-fit (row 2's 8.8rem reserve needs the
     // taller window).
     await page.setViewportSize({ width: 1536, height: 1200 });
     await page.goto(appUrl());
@@ -133,4 +135,55 @@ test("the status line never presents half a row of type", async ({ page }) => {
   expect(s.whiteSpace, "one row, always").toBe("nowrap");
   expect(s.ellipsis, "truncated, not sliced").toBe("ellipsis");
   expect(s.scrollHeight, "and the content fits the box").toBeLessThanOrEqual(s.clientHeight + 1);
+});
+
+test("the stage's chrome reserve is what the chrome measures", () => {
+  // The stage calc reserved 9.6rem against a chrome of 8.8, so the picture
+  // was ~9px shorter and ~13px narrower than the layout's own budget allowed
+  // at every height-bound viewport — a stated invariant nothing compared to
+  // the thing it states.
+  const html = readFileSync(join(repoRoot, "index.html"), "utf8");
+  const m = html.match(/100svh - ([\d.]+)rem/);
+  expect(m, "the stage states a reserve").not.toBeNull();
+  const reserve = Number(m[1]);
+  const heights = [...html.matchAll(/#(narration|inventory|status)\s*\{[^}]*height:\s*([\d.]+)rem/g)]
+    .map((x) => Number(x[2]));
+  expect(heights.length, "three chrome bands").toBe(3);
+  const total = heights.reduce((a, b) => a + b, 0);
+  expect(total, `chrome measures ${total}rem against a ${reserve}rem reserve`)
+    .toBeCloseTo(reserve, 5);
+});
+
+test("the chrome measures its reserve in the browser too", async ({ page }) => {
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  const m = await page.evaluate(() => {
+    const h = (id) => document.getElementById(id).getBoundingClientRect().height;
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    return { chrome: h("narration") + h("inventory") + h("status"), rem };
+  });
+  // 8.8rem, from the stage's own calc.
+  expect(m.chrome).toBeCloseTo(8.8 * m.rem, 0);
+});
+
+test("a cold load and a turn leave the console clean", async ({ page }) => {
+  /* Row 7 makes the console the load-bearing developer channel, and it
+   * started life with a browser performance warning in it: a canvas asked
+   * for a 2D context a second time with different options is ignored AND
+   * warns, once per sprite per build and once per entity per frame. A
+   * channel that is already noisy is a channel nobody reads. */
+  const noise = [];
+  page.on("console", (m) => {
+    if (m.type() === "warning" || m.type() === "error") noise.push(m.type() + ": " + m.text());
+  });
+  page.on("pageerror", (e) => noise.push("pageerror: " + e.message));
+  await page.goto(appUrl());
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    A.dispatch({ type: "turn", dir: "right" });
+    A.dispatch({ type: "turn", dir: "left" });
+    A.dispatch({ type: "toggle", entity: "desk1" });
+  });
+  expect(noise, "nothing in the console on a healthy run").toEqual([]);
 });

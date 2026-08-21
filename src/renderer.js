@@ -414,8 +414,14 @@
    * and invisible, and the doorway read as a framed dark picture hung on the
    * wall. Darker than this room's wall (it is further off and unlit) but far
    * enough apart from each other to carry depth at a thumbnail's size. */
-  var BEYOND_WALL = "#0a0e14";
-  var BEYOND_FLOOR = "#222a36";
+  var BEYOND_WALL = "#080b10";
+  /* The doorway's own thickness, lit by the same upper-left key: the near
+   * reveal catches it, the far one does not, the soffit is in shadow under
+   * the lintel. These are what make an opening read as an opening at the
+   * size it actually draws — 22 CSS px wide on a phone. */
+  var REVEAL_NEAR = "#39424f";
+  var REVEAL_FAR = "#171d26";
+  var REVEAL_SOFFIT = "#10141b";
 
   /* The frame stands proud of the leaf, because a doorway is wider than the
    * door in it. Drawn flush, the leaf covered the jamb exactly and a shut
@@ -427,46 +433,44 @@
   }
 
   function drawApertures(ctx, list, meta) {
-    var floorY = meta.floor_line_y * meta.image_h_px;
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
       ctx.save();
       ctx.beginPath();
       ctx.rect(a.x, a.y, a.w, a.h);
       ctx.clip();
-      /* The far room is another grid room at the same meta, so its floor
-       * line is at the same height and continues through the opening. Drawn
-       * higher it promised a room one step deeper than the `go` delivers:
-       * the one place the picture said something the document does not, on
-       * the row whose first bar is that it never does. It still reads as
-       * space — the floor runs through the gap and the wall beyond is
-       * unlit — and it now reads as the truth. */
-      var beyondFloorY = floorY;
+
+      /* Unlit space, and the WALL'S OWN THICKNESS carrying the depth: a
+       * reveal down each inside edge and a soffit across the top, lit by the
+       * same upper-left key as everything else, so the near jamb face reads
+       * brighter than the far one.
+       *
+       * Not a floor line inside the opening. Two earlier attempts both
+       * failed, in opposite ways. Raising a far floor line drew a room one
+       * step deeper than the `go` delivers — the picture saying what the
+       * document does not. Putting it at this room's own floor line is
+       * truthful and draws NOTHING: the aperture rect is the leaf's
+       * placement rectangle, whose bottom is the leaf's baseline, which for
+       * a `wall_mounted` leaf at `v: 0` is exactly `floor_line_y ·
+       * image_h_px` — so the floor fill had zero height and every transverse
+       * line fell below the clip. The check written for it passed on the
+       * jamb's own bottom stroke. A doorway's thickness is inside the rect
+       * by construction, needs no room below the baseline, and claims
+       * nothing about the room beyond. */
       ctx.fillStyle = BEYOND_WALL;
       ctx.fillRect(a.x, a.y, a.w, a.h);
-      ctx.fillStyle = BEYOND_FLOOR;
-      ctx.fillRect(a.x, beyondFloorY, a.w, a.y + a.h - beyondFloorY);
-      // Its floor picked out by the same transverse device, at the same
-      // depths this room's floor uses.
-      ctx.globalAlpha = ALPHA_MINOR;
-      ctx.strokeStyle = meta.key_tint;
-      ctx.lineWidth = 1;
-      var gp2 = groundplane();
-      var gk2 = meta.px_per_m_at_wall *
-        (meta.camera_wall_m != null ? meta.camera_wall_m : gp2.CAMERA_WALL_M);
-      for (var dd = 3.0; dd >= 1.5; dd -= 0.5) {
-        var ty = snap(gp2.yAtScale(gk2 / dd, meta));
-        if (ty <= a.y || ty >= a.y + a.h) continue;
-        ctx.beginPath();
-        ctx.moveTo(a.x, ty);
-        ctx.lineTo(a.x + a.w, ty);
-        ctx.stroke();
-      }
-      ctx.globalAlpha = ALPHA_MAJOR;
-      ctx.beginPath();
-      ctx.moveTo(a.x, snap(beyondFloorY));
-      ctx.lineTo(a.x + a.w, snap(beyondFloorY));
-      ctx.stroke();
+
+      var reveal = Math.max(3, a.w * 0.14);
+      var soffit = Math.max(2, a.w * 0.09);
+      // Near jamb (viewer-left, toward the key) catches the light; the far
+      // one is barely off the void.
+      ctx.fillStyle = REVEAL_NEAR;
+      ctx.fillRect(a.x, a.y + soffit, reveal, a.h - soffit);
+      ctx.fillStyle = REVEAL_FAR;
+      ctx.fillRect(a.x + a.w - reveal * 0.6, a.y + soffit, reveal * 0.6, a.h - soffit);
+      ctx.fillStyle = REVEAL_SOFFIT;
+      ctx.fillRect(a.x, a.y, a.w, soffit);
+
       ctx.restore();
       // The jamb, standing proud of the leaf.
       var j = jambOf(a);
@@ -478,6 +482,7 @@
       ctx.restore();
     }
   }
+
 
   /* ------------------------------------------------------------------ */
   /* Layout (§7 steps 2–3 + §2 placement math) — pure, no options: what   */
@@ -631,6 +636,8 @@
         baselineY: baselineY,
         state: state,
         swap: swap,
+        hangs: facingPlacement.attachment === "wall_mounted" &&
+          (facingPlacement.v || 0) > 0,
         parts: stateParts(record, state),
         clip: null
       });
@@ -899,7 +906,13 @@
       // (a) Contact shadow — on the scene, before (so under) the composite,
       // never tinted; clipped when the entry is (a cavity content's shadow
       // must not escape the cavity either).
-      if (options.shadows !== false && !e.record.airborne) {
+      /* `airborne` is §7's own opt-out, and a wall_mounted placement raised
+       * off the floor is the same case by geometry: a pool under something
+       * hanging on a wall is a pool in mid-air. At V1 every wall placement
+       * sits at v = 0 — the leaf stands on the floor and keeps its
+       * contact — so this only bites when §4's licensed `v > 0` is used,
+       * which is exactly why it is here before row 4 uses it. */
+      if (options.shadows !== false && !e.record.airborne && !e.hangs) {
         var cx, rx;
         if (e.swap) {
           // Non-closed swap state: shadow under the DRAWN extent, not the

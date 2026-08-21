@@ -12,7 +12,7 @@ export const appUrl = (root = repoRoot) =>
 
 /** Viewport for every pointer-driven spec (plan §8): the canvas displays at
  * scale 1, so canvas pixels are CSS pixels and small takeables stay
- * clickable. 1024 + 9.6rem bottom chrome ≈ 1178; 1200 gives headroom. */
+ * clickable. 1024 + 8.8rem bottom chrome ≈ 1178; 1200 gives headroom. */
 export const POINTER_VIEWPORT = { width: 1536, height: 1200 };
 
 /** Copy the runnable tree (index.html, src/, fixtures/, tools/) into a fresh
