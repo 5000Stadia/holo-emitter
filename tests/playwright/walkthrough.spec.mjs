@@ -842,52 +842,58 @@ test.describe("the page under ordinary clumsiness", () => {
    * directly against the real page through a real double-click — never the
    * harness API, since the defect this proves against is in index.html's
    * pointer resolution, not in the harness. */
+  /* Builds a scratch tree carrying demo-study's own fixture (chair1/desk1/
+   * stick1/shelf1 already present and overlapping, so the validator's
+   * hardcoded named-overlap-pair check passes without extra scaffolding)
+   * plus a third room, "gallery," chained off the hall on the SAME facing
+   * (E) the study exit uses — the geometry that puts a second, different
+   * doorway under a double-click's second click. door1 is forced open so
+   * the very first click of a double-click is `go`, not a toggle. */
+  function buildCorridorFixture(root) {
+    const fdir = join(root, "fixtures", "demo-study");
+    const world = JSON.parse(readFileSync(join(fdir, "world.json"), "utf8"));
+    const staging = JSON.parse(readFileSync(join(fdir, "staging.json"), "utf8"));
+    const narration = JSON.parse(readFileSync(join(fdir, "narration.json"), "utf8"));
+
+    const hall = world.locations.find((l) => l.id === "hall");
+    hall.exits.push({ id: "door_hall_gallery", from: "hall", facing: "E",
+      to: "gallery", arrive_facing: "E", via: "door2" });
+    world.locations.push({ id: "gallery", facings: ["N", "E", "S", "W"],
+      exits: [{ id: "door_gallery_hall", from: "gallery", facing: "W",
+        to: "hall", arrive_facing: "W", via: "door2" }] });
+    world.entities.push({ id: "door2", sprite: "door-plank", location: "hall",
+      states: ["closed", "open"], state: "open", transition: true });
+    world.knowledge.player.push("door2");
+    world.entities.find((e) => e.id === "door1").state = "open";
+
+    staging.placements.door2 = [
+      { facing: "hall/E", attachment: "wall_mounted", u: 0.5, v: 0.0 },
+      { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
+    ];
+
+    Object.assign(narration.lines, {
+      "toggle.door2.open": "The second door swings wide.",
+      "toggle.door2.closed": "The second door falls shut.",
+      "toggle.door2.refused_unreachable": "The second door will not answer from here.",
+      "take.door2.refused_fixed": "The second door hangs on its hinges, and there it stays.",
+      "go.door_hall_gallery.arrive": "You cross into the gallery beyond.",
+      "go.door_hall_gallery.refused_closed": "The gallery door is shut against you.",
+      "go.door_hall_gallery.refused_unreachable": "The way to the gallery does not open from here.",
+      "go.door_gallery_hall.arrive": "You come back into the hall.",
+      "go.door_gallery_hall.refused_closed": "The way back to the hall is shut.",
+      "go.door_gallery_hall.refused_unreachable": "The way to the hall is not before you."
+    });
+
+    writeFileSync(join(fdir, "world.json"), JSON.stringify(world, null, 2) + "\n");
+    writeFileSync(join(fdir, "staging.json"), JSON.stringify(staging, null, 2) + "\n");
+    writeFileSync(join(fdir, "narration.json"), JSON.stringify(narration, null, 2) + "\n");
+    bake(root, ["--fixture-dir", fdir]);
+  }
+
   test("the double-click guard against a corridor's aligned doorway", async ({ page }) => {
     const root = stageTree();
     try {
-      const fdir = join(root, "fixtures", "demo-study");
-      const world = JSON.parse(readFileSync(join(fdir, "world.json"), "utf8"));
-      const staging = JSON.parse(readFileSync(join(fdir, "staging.json"), "utf8"));
-      const narration = JSON.parse(readFileSync(join(fdir, "narration.json"), "utf8"));
-
-      const hall = world.locations.find((l) => l.id === "hall");
-      hall.exits.push({ id: "door_hall_gallery", from: "hall", facing: "E",
-        to: "gallery", arrive_facing: "E", via: "door2" });
-      world.locations.push({ id: "gallery", facings: ["N", "E", "S", "W"],
-        exits: [{ id: "door_gallery_hall", from: "gallery", facing: "W",
-          to: "hall", arrive_facing: "W", via: "door2" }] });
-      world.entities.push({ id: "door2", sprite: "door-plank", location: "hall",
-        states: ["closed", "open"], state: "open", transition: true });
-      world.knowledge.player.push("door2");
-      // door1 must already be open too: a shut leaf covers its own opening
-      // exactly (§7), so a click there resolves to the LEAF (toggle), not
-      // the doorway (go) — the very first click of the double-click would
-      // silently open it instead of walking through, and the second click's
-      // "go" would then have nothing to do with the guard at all.
-      world.entities.find((e) => e.id === "door1").state = "open";
-
-      staging.placements.door2 = [
-        { facing: "hall/E", attachment: "wall_mounted", u: 0.5, v: 0.0 },
-        { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
-      ];
-
-      Object.assign(narration.lines, {
-        "toggle.door2.open": "The second door swings wide.",
-        "toggle.door2.closed": "The second door falls shut.",
-        "toggle.door2.refused_unreachable": "The second door will not answer from here.",
-        "take.door2.refused_fixed": "The second door hangs on its hinges, and there it stays.",
-        "go.door_hall_gallery.arrive": "You cross into the gallery beyond.",
-        "go.door_hall_gallery.refused_closed": "The gallery door is shut against you.",
-        "go.door_hall_gallery.refused_unreachable": "The way to the gallery does not open from here.",
-        "go.door_gallery_hall.arrive": "You come back into the hall.",
-        "go.door_gallery_hall.refused_closed": "The way back to the hall is shut.",
-        "go.door_gallery_hall.refused_unreachable": "The way to the hall is not before you."
-      });
-
-      writeFileSync(join(fdir, "world.json"), JSON.stringify(world, null, 2) + "\n");
-      writeFileSync(join(fdir, "staging.json"), JSON.stringify(staging, null, 2) + "\n");
-      writeFileSync(join(fdir, "narration.json"), JSON.stringify(narration, null, 2) + "\n");
-      bake(root, ["--fixture-dir", fdir]);
+      buildCorridorFixture(root);
 
       await page.goto(appUrl(root));
       await page.waitForFunction(() => !!window.HOLO_APP);
@@ -917,6 +923,60 @@ test.describe("the page under ordinary clumsiness", () => {
       await page.mouse.click(x, y);
       s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
       expect(s, "a deliberate later click on the next door is not swallowed")
+        .toEqual({ location: "gallery", facing: "E" });
+    } finally {
+      removeTree(root);
+    }
+  });
+
+  /* The OTHER half of the guard, uncovered by the test above: clearing
+   * `lastGo` on any non-doorway click. Without it, a deliberate click on
+   * bare space between two doorway clicks does not end the window — the
+   * NEXT doorway click, even a real, separate gesture well inside 400ms of
+   * the FIRST `go`, would be swallowed as if it were the echo of a
+   * double-click that never happened. */
+  test("a click on bare space between two doorway clicks clears the guard, so the next doorway click is honoured", async ({ page }) => {
+    const root = stageTree();
+    try {
+      buildCorridorFixture(root);
+
+      await page.goto(appUrl(root));
+      await page.waitForFunction(() => !!window.HOLO_APP);
+      await page.keyboard.press("ArrowRight"); // study/E, door1 already open
+      const box = await sceneBox(page);
+
+      const a1 = await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        return window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library,
+          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      });
+      await page.mouse.click(
+        box.x + ((a1.x + a1.w / 2) * box.width) / 1536,
+        box.y + ((a1.y + a1.h / 2) * box.height) / 1024);
+      let s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
+      expect(s, "single click through: study -> hall").toEqual({ location: "hall", facing: "E" });
+
+      // A deliberate click on bare space — corner of the frame, well clear
+      // of anything drawn — between the first go and the second doorway
+      // click, still inside the 400ms window.
+      await page.mouse.click(box.x + 20, box.y + 20);
+      await page.waitForTimeout(120);
+
+      // The gallery's own door sits on THIS facing too (the corridor's
+      // aligned geometry) — a deliberate, separate click on it, ~120ms
+      // after the first `go`, well inside the window if nothing cleared it.
+      const a2 = await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        return window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library,
+          window.HOLO.renderer.GRID_META, A.harness.viewstate)[0];
+      });
+      await page.mouse.click(
+        box.x + ((a2.x + a2.w / 2) * box.width) / 1536,
+        box.y + ((a2.y + a2.h / 2) * box.height) / 1024);
+      s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
+      expect(s, "the bare-space click cleared the window: this doorway click is real, not an echo")
         .toEqual({ location: "gallery", facing: "E" });
     } finally {
       removeTree(root);

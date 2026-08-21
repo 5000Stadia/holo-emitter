@@ -782,15 +782,23 @@ Known limits, still open (row 1's list, updated):
   "direction of travel" is prose today — nothing yet checks that the hall actually lies east of the
   study in any geometric sense — which row 12's overhead plan is the first artifact positioned to
   verify against every exit's facing and `arrive_facing`.
-- **Whether row 13 needs a human visual gate is undecided, and the deciding is not this document's
-  to do.** `design/intention.md` exempts only rows 1–3 from the playbook's per-row screenshot
-  approval ("which resumes at row 4"), on the grounds those rows "change nothing Kabe judges as
-  look." Row 13 ships no new asset and its own done clause names no gate — closer in shape to row
-  11 (mechanical/V1, no gate) than to row 5/9/12 (each names one) — but it does change what a player
-  sees on arrival (the bullet above), which is squarely "look." Treated here as gate-exempt, by
-  analogy to row 11, for the purpose of closing this row without blocking on it — but that is a
-  judgment call standing in for a decision, not a settled reading, and it is named here because the
-  row's own plan file is deleted at close and this question would otherwise vanish with it.
+- **Row 13 needs a human visual gate, and does not yet have it.** `design/playbook.md`, read in full
+  only at this row's second artifact-critic pass (a gap in what this row was handed, named so the
+  next row's brief closes it): "any row that changes what the player sees carries in its done 'the
+  human has approved consumption-camera screenshots' … the human's yes closes it." The bullet above
+  measures exactly such a change (1.5% of pixels, all of it the door leaving frame). A first attempt
+  at closing this row treated it as gate-exempt "by analogy to row 11" — an agent resolving a
+  human-scoped question by analogy, which the method does not license, and which a second
+  artifact-critic pass correctly rejected. **This is now recorded where it survives the row's own
+  close**, since a first correction attempt lived only in `design/specs/13-passage-orientation.md`
+  and vanished the moment that file was slated for deletion — the same failure mode twice. The
+  actual gate: `design/intention.md`'s row 13 done clause carries the screenshot-approval condition
+  directly (see the spec list), the batch itself is committed at `design/batches/
+  row13-passage-orientation/` (eleven captures + a README, the same convention row 7's batch used —
+  unapproved, deleted once the verdict lands) and mirrored as an Artifact for a laid-out read, and
+  the row stays in the spec list — not closed, not deleted from here — until that yes lands.
+  Whoever closes this row does so only after confirming that approval, never by re-deriving an
+  exemption from this paragraph.
 - **`entryRect` — the chrome's idea of an entity's rectangle — ignores parts, and `drawnRect` in
   the renderer does not.** The hover halo sizes its scratch from `entryRect` and then stamps body
   *and* parts into it, and the pointing tolerance measures from the same rect, so a part that

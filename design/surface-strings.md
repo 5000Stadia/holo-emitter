@@ -215,7 +215,7 @@ id | surface | state | verdict | observed | adjudicator | string
 5 | #narration | a throw on the render path, after boot | PASS | yes | row7-artifact-critic | The projection wavers; the pattern will not resolve.
 6 | #narration | a narration key resolves to nothing; an intent the transport cannot read | PASS | yes | row7-artifact-critic | The pattern falters; the words do not come.
 7 | #narration | scripts disabled | LICENSED:device | yes | row7-artifact-critic | This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.
-8 | document title | always | OPEN | yes | row7-artifact-critic | holo-emitter
+8 | document title | always | PASS | yes | kabe-ruling-1d05819 | Holo Emitter Static Demo
 9 | #chevron-left aria-label | always | PASS | yes | row7-artifact-critic | turn left
 10 | #chevron-right aria-label | always | PASS | yes | row7-artifact-critic | turn right
 11 | #narration aria-label | always | PASS | yes | row7-artifact-critic | what the room says
@@ -262,7 +262,7 @@ id | surface | state | verdict | observed | adjudicator | string
 51 | #narration | take.door1.refused_fixed | PASS | yes | row7-artifact-critic | The door hangs on its iron hinges, and there it will hang.
 52 | #narration | take.stick1.refused_fixed | PASS | yes | row7-artifact-critic | The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.
 53 | #narration | take.shelf1.refused_fixed | PASS | yes | row7-artifact-critic | The bookshelf is a full press of oak against the wall; no strength of yours will shift it.
-54 | #narration | go.door_study_hall.arrive | PASS | yes | row13-artifact-critic-pass2 | You step through into the hall. The air is wider here, and cooler.
+54 | #narration | go.door_study_hall.arrive | PASS | yes | row13-artifact-critic-pass3 | You step through into the hall. The air is wider here, and cooler.
 55 | #narration | go.door_hall_study.arrive | PASS | yes | row7-artifact-critic | You pass back into the study, where ink and oak dust close about you again.
 56 | #narration | go.door_study_hall.refused_closed | PASS | yes | row7-artifact-critic | The door is shut against you; the latch has not been lifted.
 57 | #narration | go.door_hall_study.refused_closed | PASS | yes | row7-artifact-critic | The way back stands barred; the door wants opening first.
@@ -478,7 +478,6 @@ Navigator will find them** — only the Navigator can put anything in front of K
 mechanism in a document creates that message.
 
 ```QUESTIONS
-8 | the tab title | Reading A: blueprint §1 is [HUMAN] and spells the product `holo-emitter` lowercase as one of a family (pattern-buffer, construct), and a product's own name is product speech. Reading B: §1 spells a name in prose and rules nothing about what a browser tab shows a stranger; a lowercase hyphenated slug reads as a repository. Left unchanged, because the conservative act cannot be a provenance violation and is reversible by a new row while a rename would not be.
 - | the fault register | After this row every fault surface is in-fiction and unactionable by design, so a stranger cannot tell a broken deploy from an intended mood. Taste, and it may not be settled by the hand that authored the register.
 - | the storefront's silence | A healthy cold load now shows a picture and no words at all. This row did not create it — before the sweep the only words were developer speech — and Kabe allocated row 9 for the intro himself, sequenced after row 4. Remedies: move row 9 ahead of rows 3–4; allocate a small row for one line of arrival prose now; or accept the silence until row 9 lands.
 - | the picture's size | Deleting the status band drops the chrome reserve 8.8rem to 7.6rem, so the picture is larger on every height-bound viewport. A look change in a row sequenced before the presentation row.

@@ -93,9 +93,13 @@
      own diff with that one. Left alone; flagged here and in the closing report so it is not lost.
    - **F8/F9/F10, F11–F12 from pass 1:** unchanged — a keypress under the veil can skip the promised
      arrival facing; dead space answers nothing after arrival; a double-click on a *closed* door
-     opens and shuts it net zero (pre-existing, outside this row); the turn-back frame that proves
-     persistence looks nearly identical to the departure frame to a *player*, not only to a hash
-     (verified true, not tautological); WebKit remains unwitnessed. All named in
+     **opens it and walks the player through in one gesture** (corrected at pass 3 — an earlier
+     draft of this note said "opens and shuts it net zero," which is wrong: the first click toggles
+     the leaf open, which clears the echo window, so the second click resolves against the now-open
+     doorway and travels; `design/architecture.md`'s "Accepted V1 interaction consequences" already
+     had this right, this file did not); the turn-back frame that proves persistence looks nearly
+     identical to the departure frame to a *player*, not only to a hash (verified true, not
+     tautological); WebKit remains unwitnessed. All named in
      `design/architecture.md`'s Known limits, none fixed here.
    - **Row 14 allocated** (pass-1 artifact-critic F9, unchanged at pass 2): `voice.spec.mjs`'s
      runtime sweep never actually leaves the study and its `STATE:` labels are asserted by comment,

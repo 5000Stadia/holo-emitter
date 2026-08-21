@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>holo-emitter</title>
+<title>Holo Emitter Static Demo</title>
 <style>
   html, body { margin: 0; padding: 0; background: #05070a; color: #c8b489; }
   /* Centred vertically: the stage is a fixed 3:2 and the chrome is a fixed
@@ -249,7 +249,7 @@
     var paints = 0;
     var currentLayout = null;
     var veilTimer = null;
-    var lastGo = null;          // { exit, at } — the double-click echo guard
+    var lastGo = null;          // timestamp of the last successful `go` — the double-click echo guard
     var DOUBLE_CLICK_MS = 400;
     var lastPointer = null;
     var halted = false;         // a fault the page cannot come back from
@@ -460,7 +460,7 @@
       // the one just used, so it is a double-click guard and not a lock on
       // travel generally.
       lastGo = (intent && intent.type === "go" && envelope.events.length > 0)
-        ? { exit: intent.exit, at: Date.now() } : null;
+        ? Date.now() : null;
       if (intent && intent.type === "go" && envelope.events.length > 0) {
         if (veilTimer) clearTimeout(veilTimer);
         veil.classList.add("instant", "on");
@@ -726,18 +726,21 @@
            the middle one never seen, behind a veil never lifted on it. Row
            13 makes this *more* likely, not less, since every arrival now
            faces forward into whatever the next room has to offer on that
-           same facing. M0 has no corridor yet to construct a fixture
-           against (rows 11/12 build toward one), so this branch currently
-           has no committed test of its own; the risk is real and named
-           where those rows will read it (design/architecture.md), not
-           papered over by deleting the one thing standing in front of it.
+           same facing. M0 itself has no corridor, but `walkthrough.spec.mjs`
+           ("the double-click guard against a corridor's aligned doorway")
+           builds one as a doctored third room chained off the shipped hall
+           and drives a real double-click against it, proving both this
+           swallow AND the `lastGo = null` clearing above it — the risk is
+           real, tested, and named again where rows 11/12 will read it
+           (design/architecture.md), not papered over by deleting the one
+           thing standing in front of it.
            A blanket half-second lock on the only way between rooms is the
            opposite error — walk in, look back, walk out is a real thing to
            do, and it was silently dropped. So: the window is a double-click
            window, and ANY other intent ends it. The exit ids differ across
            the two halves of an echo (the two rooms' exits), so the window
            is what identifies it, not the target. */
-        var echo = lastGo && (Date.now() - lastGo.at) < DOUBLE_CLICK_MS;
+        var echo = lastGo && (Date.now() - lastGo) < DOUBLE_CLICK_MS;
         if (!echo) dispatch({ type: "go", exit: r.aperture.exit });
         return;
       }
