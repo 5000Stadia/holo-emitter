@@ -93,6 +93,40 @@ def contact_band_estimate(rgba, band_fraction, threshold=im.ALPHA_OPAQUE):
     return {"x0": int(cols.min()), "x1": int(cols.max()) + 1}
 
 
+def derive_anchors(rgba, band_fraction):
+    """The anchors as this ingester writes them.
+
+    `px` and `base.y` are pixel facts and stay exactly as §9.2 and
+    mechanisms.spec define them. `footprint` and `base.x` are **ground-contact**
+    facts and come from the contact band, because on generated three-quarter art
+    the bottom two rows are the nearest foot rather than the stance: measured on
+    the corpus desk, 27 px of 1148 against a real contact span of 33..1098.
+
+    Both derivations are returned so the record can carry the disagreement and a
+    reader can see that a judgement was made.
+    """
+    geometric = geometric_anchors(rgba)
+    band = contact_band_estimate(rgba, band_fraction)
+    if band is None:
+        return geometric, {"bottom_two_rows": geometric["footprint"],
+                           "contact_band": None, "chosen": "bottom_two_rows"}
+    anchors = {
+        "base": {"x": (band["x0"] + band["x1"]) / 2.0, "y": geometric["base"]["y"]},
+        "footprint": {"x0": band["x0"], "x1": band["x1"]},
+    }
+    g = geometric["footprint"]
+    gspan = max(1.0, g["x1"] - g["x0"])
+    bspan = band["x1"] - band["x0"]
+    provenance = {
+        "bottom_two_rows": g,
+        "contact_band": band,
+        "chosen": "contact_band",
+        "band_over_bottom_two_rows": round(bspan / gspan, 3),
+        "geometric_base_x": geometric["base"]["x"],
+    }
+    return anchors, provenance
+
+
 def apply_footprint_override(anchors, footprint_src, trim_offset, px):
     """Replace the geometric footprint with an operator-measured one.
 

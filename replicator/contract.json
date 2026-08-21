@@ -1,0 +1,190 @@
+{
+  "schema": "orientation-contract/0.1",
+  "ingest_schema": "replicator-ingest/0.1",
+
+  "_freeze": {
+    "note": "Row 3 authored this file. `frozen` blocks are frozen against ONE thing: moving a number so that an image which failed passes. They are not frozen against extension to an object class no constructed control covered (see `classes` and `amendment`), and they are not frozen against Kabe.",
+    "blocks": {
+      "gates": { "frozen": true, "against": "the constructed controls in replicator/synth.py", "amendable_by": "the Navigator, via `classes`, with a constructed control of that class landing in the same commit" },
+      "ingest": { "frozen": true, "against": "the constructed controls in replicator/synth.py", "amendable_by": "the Navigator, same rule" },
+      "camera": { "frozen": false, "amendable_by": "row 4, after the probe — blueprint §5: the camera is whatever the room Kabe loves turns out to have" },
+      "light": { "frozen": false, "amendable_by": "row 4, with the probe" },
+      "framing": { "frozen": false, "amendable_by": "row 4, with the probe" },
+      "prompt_block": { "frozen": false, "amendable_by": "row 4, after the probe" },
+      "negative_block": { "frozen": false, "amendable_by": "row 4, after the probe" },
+      "backdrop_block": { "frozen": false, "status": "provisional", "amendable_by": "Kabe" },
+      "style_block": { "frozen": false, "status": "placeholder", "amendable_by": "row 4, per blueprint §10" }
+    },
+    "amendment": "A threshold may never move because a real arriving image failed. That fork is the Navigator's, and its two outcomes are: the image is regenerated, or the row's target moves — and if a target moves, the closing report states which image failed which gate at what measured value."
+  },
+
+  "camera": {
+    "view": "front-three-quarter",
+    "turn_deg": 30,
+    "side": "left",
+    "eye_height_m": 1.83,
+    "pitch_deg": -8,
+    "focal_mm": 50
+  },
+  "light": { "key": "UL45", "quality": "soft", "fill": "even" },
+  "framing": {
+    "background": "seamless mid-grey",
+    "margin": "full object centered",
+    "states": "all moving parts closed",
+    "props": "none"
+  },
+
+  "prompt_block": "Front-three-quarter view turned 30 degrees to viewer-left, shot at 50mm, camera at 1.83m eye height pitched approximately 8 degrees downward, object centered and fully in frame with a generous even margin on every side, single soft key light from upper left at 45 degrees with even fill, plain mid-grey seamless background, sharp focus edge to edge, all moving parts closed and fully seated, panel and drawer edges clearly delineated with visible reveal gaps, nothing resting on or in front of the object, no props, no scene",
+
+  "negative_block": "cast shadow on background, dramatic lighting, rim light, vignette, depth of field, cropped, background scenery, props",
+
+  "style_block": "AUTHORED AT ROW 4 PROBE — extracted from the Kabe-approved study/N backdrop and written here before any sprite generation: palette (named hexes), medium (e.g. painterly gouache vs photoreal), grain/texture character, period rendering descriptors. Every backdrop AND sprite prompt appends it; the sprite hand reads this file and nothing else for style.",
+
+  "backdrop_block": "Interior view at 1.83m eye height pitched approximately 8 degrees downward, 50mm, 1536x1024, one dominant key light per frame whose screen direction and colour are this facing's own and are recorded in its meta as key_dir and key_tint, no rim light, no vignette, no sun shafts across the floor, floor running to the bottom edge of frame, no furniture, no props, door frame or opening only where the section 11 wall map places one.",
+
+  "_backdrop_block_status": {
+    "status": "provisional — authored by row 3 [AI], awaiting Kabe, and it must not become effective by silence",
+    "why_not_section_10_verbatim": "§10's placeholder text reads 'overcast diffuse daylight through any window, no visible sun shafts'. §11 marks that phrasing superseded 2026-08-20 by Kabe's look reference — warm practicals against a cool window — and says the real light design lands in Kabe's probe loop. Writing the superseded phrase into the file every backdrop prompt appends would hard-code a look Kabe has already ruled against. So this block states the constraint that matters (one dominant key per frame, recorded per facing) and leaves the direction to the probe.",
+    "open_fork_for_kabe": "If key_dir varies per facing, ONE sprite set cannot match every room: a sprite bakes one light and blueprint §1's non-goals forbid relighting beyond tint. Either M0 pins one screen-space key across the eight facings — which is what §5's `key_dir: \"UL\"` already authors, and what makes one sprite set honest — or sprites gain per-facing variants. That is a look decision with a build cost, and it is Kabe's. It must be answered before row 4's prompt sheets are written.",
+    "eye_height_and_pitch": "1.83m and -8 degrees, not §10's prose 1.6m: the intention's quality 5 names 6 ft per Kabe's 2026-08-20 ruling and `camera.eye_height_m` already carried it. Pitch appears here because a sprite generated level and composited into a room shot at -8 degrees will not foreshorten its top surface like the floor it stands on. NOTE for the Navigator: blueprint §5's horizon device and §12.5's assertion still read 1.6m, which cannot both be right while quality 5 rides on the answer."
+  },
+
+  "gates": {
+    "alpha_opaque": {
+      "value": 128,
+      "authority": "contract",
+      "basis": "One threshold for every derivation that asks whether a pixel is opaque: base.y, the footprint's contact columns, gate (c)'s content bbox, the thumb's content bbox, and row 4's bake reproducing extent. 128 is the value the shipped tests/playwright/mechanisms.spec.mjs already applies to the same questions, so an ingested record and the shipped witness agree by construction. Row 3 is the first row whose images have a genuinely soft edge, so >0 and >=128 differ by real pixels."
+    },
+    "halo": {
+      "inner_band_saturation_ratio_min": 0.55,
+      "inner_band_bg_distance_ratio_min": 0.55,
+      "coverage_residual_max": 0.30,
+      "rim_grounds": { "dark": [28, 20, 14], "light": [196, 188, 172] },
+      "authority": "control|contract",
+      "basis": "a2/a3 are ratios of a depth-2..4px band to the deep interior, so a uniformly grey object (an iron key, a silver coin) is not punished for being grey. Constructed controls: clean 0.988/0.918, legged 0.998/1.094, iron disc 1.000/1.000, grey-halo control 0.047/0.305 — 0.55 sits between them. a4 is the CONTRACT authority and needs no fitted number at all: straight-alpha compositing says a rim pixel of coverage a over ground G against local interior L must land at a*L + (1-a)*G, so the normalized residual is zero for a correct edge whatever the colours are. Constructed clean cases give |median| 0.019-0.155; the grey-halo control gives 0.305 dark / 0.519 light. Known sensitivity limit, stated rather than hidden: a ~2px generator antialias band scores about 0.10 and passes — which is why the MATTE erodes it rather than the gate catching it.",
+      "an absolute edge-distance clause was dropped": "An earlier draft required the semi-alpha ring's mean distance from the ground to exceed a fixed number. That cannot work: an iron key's own colour is about that far from mid-grey, so the clause would false-fail the object rather than the halo. Its relative form is a3."
+    },
+    "holes": {
+      "tolerance_multiplier": 2.2,
+      "authority": "contract",
+      "basis": "Gate (b) re-hunts at 2.2x the matte's own computed tolerance, so a gap whose interior is a graded grey the matte's net missed is still caught; at one tolerance the gate could not fail by construction. Its minimum area is the matte's own rule, so a region the matte deliberately declined to punch is also beneath the gate's notice. The flood is seeded from the border AND every transparent pixel, so the wider-tolerance fringe around an already-punched hole is reached and not counted — without that seeding every real image fails."
+    },
+    "resolution": {
+      "min_content_height_px": 512,
+      "min_content_height_px_takeable": 128,
+      "authority": "contract",
+      "basis": "blueprint §9.4(c) verbatim [HUMAN]"
+    },
+    "state_diff": {
+      "max_mean_abs": 1.0,
+      "pixel_over_threshold": 8,
+      "max_pixels_over": 64,
+      "reference": "the matted RGBA BEFORE the cavity inpaint",
+      "authority": "control",
+      "basis": "The reference is named because two readings differ: against the SOURCE image the matte's own erosion, feather, decontamination and bleed differ along the entire silhouette by construction, so the gate would need an unspecified excluded band. Against the pre-inpaint matte it measures exactly the cut and the inpaint. WHAT IT THEREFORE CANNOT SEE: a matte defect — that is gate (a) and gate (g)'s job, and this gate is not evidence about the matte. Zero pixels over is unachievable on a pipeline that feathers and blurs; 64 pixels over a channel diff of 8 is four orders of magnitude below a leaked inpaint, which moves tens of thousands."
+    },
+    "light": {
+      "expected_deg": 115.5,
+      "max_deviation_deg": 15.0,
+      "min_third_tilt": 2.0,
+      "authority": "control",
+      "basis": "expected_deg is the ESTIMATOR'S OWN measured response to a constructed correctly-UL45-lit solid, not the geometric 135 degrees: a Sobel bright-side estimate has a systematic pull toward 90 for any top-lit object, and using 135 forces a band so wide it admits everything from overhead to horizontal-left. Constructed controls: UL 115.3, TOP 90.0, UR 64.7 — a 15-degree band admits UL and rejects both others by 10.2 and 35.6 degrees. min_third_tilt 2.0 is exactly the shipped mechanisms.spec clause ('every sprite carries the horizontal half of UL45'), so a pass here predicts that Playwright case instead of disagreeing with it: UL +35.1, UR -35.1, TOP 0.0.",
+      "severity": "WARN ONLY, per blueprint §9.4(e) [HUMAN]. See the closing report: both corpus desks warn, so no automated check of the intention's 'one light' quality survives row 3 on real art. That is a fork for the Navigator, not a threshold to move."
+    },
+    "contact": {
+      "band_fraction": 0.25,
+      "disagreement_warn_ratio": 3.0,
+      "authority": "control",
+      "basis": "The footprint is DERIVED from the contact band — the x-extent of columns whose lowest opaque pixel lies within band_fraction of the content height of the bottom. An absolute-fraction floor was rejected: it would hard-fail every three-quarter sprite unless a human measured it first, which makes the autonomous sprite lane the intention promises impossible. band_fraction 0.25 is set on a constructed legged object whose stance is known by construction (true span 20..640 of 658; the derivation returns 20..638 at 0.25 and only the near pair at 0.20) and checked against a constructed squat disc, where it stays proportionate. disagreement_warn_ratio 3.0 passes the legged control (1.29) and the disc (2.82) and warns where a real judgement was made."
+    },
+    "over_matte": {
+      "max_tolerance_sensitivity": 0.02,
+      "max_erode_excess_ratio": 1.60,
+      "sweep": 0.25,
+      "authority": "control",
+      "basis": "max_erode_excess_ratio compares the erosion's ACTUAL area loss against what the silhouette's own perimeter predicts, so it is size-independent: a flat area budget rejected a small disc for being small rather than thin. Constructed controls all measure 1.00-1.30; the ratio only climbs when erosion eats a feature thinner than itself, and a vanished connected component is a separate hard failure. Tolerance sensitivity is |A(0.75t) - A(1.25t)| / A(t) on this image's own computed tolerance. Constructed: clean 0.0000, legged 0.0000, iron disc 0.0000, part source 0.0000, and a control with a pale limb six levels off the ground 0.0340. A fixed conservative tolerance was tried first and rejected — at tolerance 5 the ground's own noise stopped the flood fill and the conservative silhouette swallowed the frame, failing a good image for a reason unrelated to the object."
+    },
+    "shadow": {
+      "max_saturation": 0.16,
+      "luminance_lower": 0.35,
+      "luminance_upper": 0.99,
+      "max_toned_below_object_fraction": 0.01,
+      "authority": "control",
+      "basis": "A shadow lies BELOW the thing that casts it, and that — not tone — is what separates it from a legitimately grey object. The measure is the share of opaque pixels that are ground-toned AND sit below the lowest non-ground-toned opaque pixel in their own column, so a uniformly grey object scores zero by construction. Constructed: clean 0.0000, legged 0.0000, iron disc 0.0000 (it is 98.9% ground-TONED and still scores zero here, which is the point — an earlier tone-fraction draft would have hard-failed the key, the coin and the candlestick by material), shadow control 0.0595."
+    },
+    "part_mask": {
+      "min_within_3px_fraction": 0.40,
+      "severity": "warn",
+      "authority": "control",
+      "basis": "Per-edge, not a mean over the whole ring: a mask correct on three sides and 15px out on the fourth averages to a pass, and gate (d) at closed cannot see it either because the over-cut pixels are covered by the part. Warn-level because the discrimination is real but not sharp — a fitted mask scores 0.51 of boundary samples finding their darkest crossing within 3px against 0.24-0.27 for masks displaced 20-30px, and a drawer's own highlight band is nearly as dark as a reveal. The evidence that a mask follows the edges is the overlay image `replicator.maskgen --overlay` writes for the eye."
+    },
+    "registration": {
+      "min_correlation": 0.55,
+      "max_offset_fraction": 0.02,
+      "authority": "control",
+      "basis": "The alignment gate's clause (i) has exactly one satisfying origin.y, so an operator who never opens the images and simply subtracts passes it every time — it certifies nothing. This clause compares the typed --state-origin against an origin DERIVED from the two source images by normalized cross-correlation of a datum patch, in BOTH axes, which is where x registration stops being unverifiable."
+    }
+  },
+
+  "ingest": {
+    "matte": {
+      "tolerance_rule": {
+        "k_sigma": 8.0,
+        "drift_multiplier": 2.0,
+        "min": 8.0,
+        "max": 32.0,
+        "authority": "contract",
+        "basis": "The contract asserts a 'perfectly plain seamless uniform mid-grey background', so the ground's own noise is measurable on the border of every arriving image and the tolerance is COMPUTED per image rather than fitted to any corpus. k_sigma 8 is eight standard deviations of that measured noise — the separation at which a pixel is not the ground; drift_multiplier covers the residual non-uniformity a single border median cannot represent, measured as the spread of the four corner medians on the same image, which is why no constant is needed for it. The min/max clamps bound the rule where an image's border is pathologically clean or pathologically noisy: below 8 a lossy encoder's own ringing is treated as object, above 32 an oak brown starts to fall inside the net."
+      },
+      "spatial_rule": {
+        "erode_fraction": 0.0022,
+        "erode_min_px": 1,
+        "erode_max_px": 3,
+        "bleed_fraction": 0.0022,
+        "bleed_min_px": 1,
+        "bleed_max_px": 4,
+        "hole_side_fraction": 0.010,
+        "hole_min_area_floor_px": 4,
+        "authority": "contract|control",
+        "basis": "Every spatial parameter scales with the content bbox rather than being an absolute pixel count, because the contract admits sources from 128px of content (a takeable at gate (c)'s floor) to well over 1000 (the corpus): 2px of erosion is 0.2% of one and 1.6% of the other, and a 64px minimum hole area is 4% of the whole of the smaller. hole_side_fraction 0.010 says a gap a person drew is at least 1% of the object's height on a side. erode_fraction gives 2px at 900px of content and 1px at 128 — the depth measured, and looked at, as the one that removes the generator's own antialias band against the studio grey.",
+        "why_erode_at_all": "The generator antialiases the object against the mid-grey seamless, so the outermost 1-3px of the silhouette are already a blend of object and ground — opaque in any matte, and a light outline over a dark room. Composited at draw scale over a dark ground, the rim's brightness lift falls from 0.836 of the interior's to 0.245 at 2px, for 2.1% of the object's area. Both were looked at, not only measured."
+      },
+      "feather_px": 1
+    },
+    "cavity": {
+      "darken": 0.45,
+      "blur_radius_px": 6,
+      "agreement_tolerance_fraction": 0.15,
+      "clearance_fraction": 0.5,
+      "authority": "contract",
+      "basis": "clearance_fraction 0.5 is where an anchored child's base lands in the recess: the open front's top edge must fall at or below it, or a revealed key draws on the face of the drawer instead of inside it (architecture.md's note on the placeholder desk's slide.dy 0.24). It is deliberately independent of `slide` -- an earlier draft derived the cavity FROM the slide, which made the clearance check compute its own threshold from the value it was checking and unable to fail for any input. 0.45 is src/placeholders.js's own recess factor, so an ingested body satisfies the same body/part luminance ratio (< 0.7) mechanisms.spec asserts for the placeholders. agreement_tolerance_fraction is how far a flagged drawer_cavity may sit from the derived one, as a fraction of the part's height, before it is a hard error naming both rectangles."
+    },
+    "thumb": {
+      "size_px": 128,
+      "content_px": 112,
+      "filter": "LANCZOS",
+      "authority": "contract",
+      "basis": "§9.3c says 'content-bbox-centred crop, 128px'; a 128px crop of a 919px desk is a patch of oak, so this scales instead — a declared deviation. LANCZOS was chosen by looking: at the ~8x decimation a real sprite needs, nearest-neighbour drops the teardrop pulls and the reveal gaps and leaves a tile that reads as noise. Both are deterministic."
+    },
+    "preview": {
+      "grounds": { "dark": [28, 20, 14], "light": [196, 188, 172] },
+      "draw_height_px": 89,
+      "authority": "contract",
+      "basis": "Blueprint §5's own arithmetic for the desk as it is actually staged: floor_against, so its baseline is yAtDepth(dims_m.d) and its scale is scaleAtDepth(0.55) = 96 * 3.5 / (3.5 - 0.55) = 113.9 px/m, giving 0.78m * 113.9 = 89px in the 1536px frame — NOT the 75px the bare wall scale of 96 px/m suggests. The sprite is therefore drawn at roughly a 10x downscale, which is the scale every edge decision here has to be judged at."
+    },
+    "output": {
+      "max_content_height_px": 1024,
+      "authority": "contract",
+      "basis": "A stored-resolution policy, pinned here because row 3 freezes it and rows 4 and 6 pay for it. The matte trims to content and does not upscale; a sprite whose content exceeds 1024px is downsampled to it. Above that the sprite is carrying detail no draw scale can show (89px drawn, ~10x), and architecture.md's route for row 4 is a bake embedding library PNGs as data: URIs in a document that must load from file:// with zero network requests — where every stored pixel is base64-inflated into the page. 1024 keeps every sprite comfortably above gate (c)'s 512 floor while bounding that bake."
+    },
+    "period": { "earliest": 1640, "latest": 1700, "region": "England" },
+    "vocabularies": {
+      "attachment": ["floor_against", "floor_free", "wall_mounted", "anchored"],
+      "archetype": ["static", "sliding", "swap"],
+      "authority": "contract",
+      "basis": "One home for both vocabularies. `anchored` is the token row 2 minted for anchor-hosted takeables (blueprint §6, [AI] note); the shipped fixture validator requires anchor_on staging for exactly these. A test cross-checks the shipped src/placeholders.js records against this list without making that file the authority, since row 4 replaces it."
+    }
+  },
+
+  "classes": {}
+}

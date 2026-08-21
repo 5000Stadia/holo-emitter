@@ -1,0 +1,66 @@
+{
+  "bottom": {
+    "dropped": 0,
+    "max_abs_px": 5.607,
+    "rms_px": 3.103,
+    "samples": 40
+  },
+  "hint": [
+    [
+      355.0,
+      515.0
+    ],
+    [
+      745.0,
+      500.0
+    ],
+    [
+      745.0,
+      650.0
+    ],
+    [
+      355.0,
+      665.0
+    ]
+  ],
+  "inset": 0.12,
+  "left": {
+    "dropped": 4,
+    "max_abs_px": 2.111,
+    "rms_px": 0.564,
+    "samples": 36
+  },
+  "right": {
+    "dropped": 3,
+    "max_abs_px": 2.015,
+    "rms_px": 0.62,
+    "samples": 37
+  },
+  "samples": 40,
+  "search_px": 10,
+  "top": {
+    "dropped": 0,
+    "max_abs_px": 5.436,
+    "rms_px": 3.044,
+    "samples": 40
+  },
+  "vertices": [
+    [
+      353.69,
+      500.99
+    ],
+    [
+      741.18,
+      512.7
+    ],
+    [
+      740.05,
+      655.01
+    ],
+    [
+      354.51,
+      670.87
+    ]
+  ],
+  "worst_rms_px": 3.103
+}

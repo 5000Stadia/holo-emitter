@@ -37,19 +37,27 @@ def gate_halo(rgba, bg_color, cfg):
     and a silver coin. These four clauses keep the intent and add the viewpoint
     the flip test actually uses:
 
-      a1  the semi-alpha ring's mean distance from the sampled ground
-      a2  that ring's inner neighbourhood (depth 2..4 px) saturation, relative
-          to the deep interior (depth > 10) — the ratio form is what lets a
-          uniformly grey object through
+      a2  the inner band's (depth 2..4 px) saturation relative to the deep
+          interior (depth > 10) — the RATIO form is what lets a uniformly grey
+          object through
       a3  the same band's ground-distance ratio — the clause that still carries
           signal when the object has no saturation at all
-      a4  the composited rim's brightness lift over a dark ground at real draw
-          scale — the only clause that can see a halo that appears in the room
-          and not on the studio grey
+      a4  the composited rim's **coverage residual** over a dark ground and a
+          light one at real draw scale — the only clause that can see a halo
+          which appears in the room and not on the studio grey
 
-    Measured: corpus a2/a3 = 0.86/0.90 and 1.08/1.09; a constructed grey-halo
-    control = 0.047 and 0.288 while passing a1 at 37.7. a4: 0.836 un-eroded,
-    0.245 shipped.
+    An absolute edge-distance clause was drafted and dropped: an iron key's own
+    colour sits about as far from mid-grey as a halo does, so it would have
+    false-failed the object rather than the halo. a3 is its relative form.
+
+    a4 needs no fitted number at all. Straight-alpha compositing says a rim
+    pixel of coverage `a` over ground G against local interior L must land at
+    exactly `a*L + (1-a)*G`, so the normalized residual is ZERO for a correct
+    edge whatever the colours are. Constructed clean controls measure |median|
+    0.019-0.155; the grey-halo control measures 0.305 dark and 0.519 light.
+    Known limit, stated rather than hidden: a ~2px generator antialias band
+    scores about 0.10 and passes, which is why the MATTE erodes it rather than
+    this gate catching it.
 
     [AI, row 3] This changes a [HUMAN] gate definition. Blueprint §9.4 carries
     the amendment note, in the form row 2 used at §9.3b, reversible by Kabe as a
@@ -63,15 +71,10 @@ def gate_halo(rgba, bg_color, cfg):
     measured = {}
     clauses = []
 
-    if ring.sum() == 0:
-        measured["ring_px"] = 0
-    else:
-        d = im.rgb_distance(rgb, bg_color)
-        measured["ring_px"] = int(ring.sum())
-        measured["edge_bg_distance"] = round(float(d[ring].mean()), 3)
-        clauses.append(("a1 edge-vs-ground distance",
-                        measured["edge_bg_distance"] >= cfg["edge_bg_distance_min"],
-                        measured["edge_bg_distance"], cfg["edge_bg_distance_min"]))
+    measured["ring_px"] = int(ring.sum())
+    if ring.sum():
+        measured["edge_bg_distance"] = round(
+            float(im.rgb_distance(rgb, bg_color)[ring].mean()), 3)
 
     inner = im.erode(opaque, 1) & ~im.erode(opaque, 4)
     deep = im.erode(opaque, 10)
@@ -94,12 +97,19 @@ def gate_halo(rgba, bg_color, cfg):
         measured["inner_band_px"] = int(inner.sum())
         measured["deep_px"] = int(deep.sum())
 
-    rim = pv.rim_lift_ratio(rgba, cfg["_ground_rgb"], cfg["_draw_height_px"])
-    if rim is not None and rim["lift_ratio"] is not None:
-        measured["composited_rim"] = rim
-        clauses.append(("a4 composited rim lift over a dark ground",
-                        rim["lift_ratio"] <= cfg["composited_rim_lift_ratio_max"],
-                        rim["lift_ratio"], cfg["composited_rim_lift_ratio_max"]))
+    rims = pv.rim_lift_ratios(rgba, cfg["rim_grounds"], cfg["_draw_height_px"])
+    measured["composited_rim"] = rims
+    for name, rim in sorted(rims.items()):
+        if rim is None or rim["lift_ratio"] is None:
+            continue
+        # A correctly antialiased edge composites to a coverage-weighted blend,
+        # so its lift over the ground is about the mean coverage of the ring --
+        # `rim_lift_expected`. Bounded in BOTH directions: too high is a grey
+        # halo, too low is a dark fringe, and both read as a cut-out.
+        err = abs(rim["coverage_residual"])
+        clauses.append(("a4 composited rim over the %s ground" % name,
+                        err <= cfg["coverage_residual_max"],
+                        round(err, 4), cfg["coverage_residual_max"]))
 
     failed = [c for c in clauses if not c[1]]
     msg = ("all halo clauses hold (%s)" % ", ".join("%s %g" % (c[0], c[2]) for c in clauses)
@@ -191,7 +201,7 @@ def gate_state_diff(recomposited, original_matte, part_mask, cfg):
 
 # --------------------------------------------------------------------------- e
 
-def light_estimate(rgba):
+def light_estimate(rgba, expected_deg=115.5):
     """Sobel bright-side direction, plus the per-third tilt.
 
     The Sobel field is masked to the object's **interior**, eroded 4 px, because
@@ -224,7 +234,13 @@ def light_estimate(rgba):
         gy = np.where(interior, gy, 0.0)
         # Image y runs downward; negate it so the angle is measured with "up" positive.
         angle = float(np.degrees(np.arctan2(-gy.sum(), gx.sum())))
-        expected = 135.0            # UL45: up and to the left
+        # NOT the geometric 135 degrees. A Sobel bright-side estimate has a
+        # systematic pull toward 90 for any top-lit object, so the reference is
+        # the estimator's own measured response to a constructed correctly-UL45
+        # -lit solid (115.5). Using 135 forces a band so wide it admits
+        # everything from overhead to horizontal-left, which leaves the gate
+        # with no content on the one quality it exists for.
+        expected = float(expected_deg)
         dev = abs(((angle - expected + 180.0) % 360.0) - 180.0)
         out["estimate_deg"] = round(angle, 2)
         out["expected_deg"] = expected
@@ -244,13 +260,15 @@ def light_estimate(rgba):
 
 def gate_light(rgba, cfg, label="body"):
     """(e) WARN ONLY, per §9.4. Never blocks; the deviation is recorded."""
-    est = light_estimate(rgba)
+    est = light_estimate(rgba, cfg["expected_deg"])
     ok = True
     msgs = []
     if "deviation_deg" in est and est["deviation_deg"] > cfg["max_deviation_deg"]:
         ok = False
-        msgs.append("bright-side estimate %.1f° deviates %.1f° from UL45's 135° (budget %g°)"
-                    % (est["estimate_deg"], est["deviation_deg"], cfg["max_deviation_deg"]))
+        msgs.append("bright-side estimate %.1f deg deviates %.1f deg from the %.1f deg a "
+                    "constructed UL45 control measures (budget %g deg)"
+                    % (est["estimate_deg"], est["deviation_deg"], cfg["expected_deg"],
+                       cfg["max_deviation_deg"]))
     if "third_tilt" in est and est["third_tilt"] < cfg["min_third_tilt"]:
         ok = False
         msgs.append("left-third minus right-third luminance is %.2f, under the %g the shipped "
@@ -263,14 +281,23 @@ def gate_light(rgba, cfg, label="body"):
 
 # --------------------------------------------------------------------------- f
 
-def gate_contact(anchors, px, attachment, cfg, band_estimate=None):
-    """(f) The footprint must be able to carry a contact pool. [AI, row 3]
+def gate_contact(anchors, px, attachment, cfg, provenance=None):
+    """(f) The footprint the contact pool is drawn from must be sound. [AI, row 3]
 
     Nothing in §9.4 looks at `anchors.footprint`, and it is what the renderer
     draws every grounded object's contact shadow from. Measured on the corpus
     desk, §9.2's bottom-two-rows derivation gives 27 px of a 1148 px sprite —
-    one ball foot — against a named quality that reads "nothing sits on a floor
-    without it".
+    one ball foot — against a quality that reads "nothing sits on a floor
+    without it". So the footprint is *derived from the contact band* and this
+    gate judges the derivation, not an operator's typing: an absolute-fraction
+    floor would hard-fail every three-quarter sprite unless a human measured it
+    first, which would make the autonomous sprite lane the intention promises
+    impossible.
+
+      hard  — the band is degenerate (no columns, or a span under one pixel)
+      warn  — band and bottom-two-rows disagree beyond the pinned ratio; the
+              warning is the visible sign that a judgement was made, and it is
+              where an operator's --footprint override earns its place
     """
     grounded = attachment in ("floor_against", "floor_free")
     fp = anchors.get("footprint") or {}
@@ -279,47 +306,117 @@ def gate_contact(anchors, px, attachment, cfg, band_estimate=None):
     measured = {"footprint_span_px": round(span, 2),
                 "footprint_fraction_of_width": round(frac, 4),
                 "attachment": attachment}
-    if band_estimate:
-        measured["contact_band_estimate"] = band_estimate
+    if provenance:
+        measured["derivation"] = provenance
     if not grounded:
         return _result("f", "hard", True, measured, dict(cfg),
                        "not floor-attached — no ground contact to check")
-    ok = frac >= cfg["min_footprint_fraction"]
-    hint = ""
-    if band_estimate:
-        hint = (" The measured contact band suggests [%d, %d] (%.1f%% of width): pass it as "
-                "--footprint in SOURCE coordinates after checking it against the image."
-                % (band_estimate["x0"], band_estimate["x1"],
-                   100.0 * (band_estimate["x1"] - band_estimate["x0"]) / px["w"]))
-    return _result("f", "hard", ok, measured, dict(cfg),
-                   ("footprint spans %.1f%% of the sprite width (floor %.1f%%)"
-                    % (frac * 100, cfg["min_footprint_fraction"] * 100)) +
-                   ("" if ok else
-                    " — this is the nearest foot, not the stance, and the contact pool would be "
-                    "drawn from it." + hint))
+    if span < 1.0:
+        return _result("f", "hard", False, measured, dict(cfg),
+                       "the contact-band derivation is degenerate (span %.2f px): there is "
+                       "nothing to draw a contact pool from" % span)
+    ratio = (provenance or {}).get("band_over_bottom_two_rows")
+    if ratio is not None and ratio > cfg["disagreement_warn_ratio"]:
+        return _result("f", "warn", False, measured, dict(cfg),
+                       "the contact band spans %.1fx the bottom-two-rows extent — a real "
+                       "three-quarter stance, but a judgement was made: check it against the "
+                       "image, and override with --footprint x0,x1 in SOURCE coordinates if "
+                       "the band caught something that is not a foot" % ratio)
+    return _result("f", "hard", True, measured, dict(cfg),
+                   "footprint spans %.1f%% of the sprite width, derived from the contact band"
+                   % (frac * 100))
+
+
+def gate_shadow(rgba, bg_color, cfg):
+    """(h) No baked studio shadow welded to the silhouette. [AI, row 3]
+
+    `negative_block` forbids "cast shadow on the background" and generators
+    produce them anyway. A soft shadow on the seamless is further than the
+    matte's tolerance from the border median, so the matte keeps it as **opaque
+    object pixels**: every other gate then accepts it, and gate (f) is even
+    rewarded by the widened footprint. The sprite carries its studio shadow into
+    a room lit by another key — the sticker tell produced by the gate set rather
+    than caught by it.
+
+    A shadow of the ground is ground-toned: near the ground's own hue, nearly
+    unsaturated, and darker than the ground but not as dark as the object.
+    """
+    a = rgba[..., 3]
+    rgb = rgba[..., :3]
+    opaque = a >= im.ALPHA_OPAQUE
+    if opaque.sum() == 0:
+        return _result("h", "hard", True, {}, dict(cfg), "nothing opaque to check")
+    lum = im.luminance(rgb)
+    sat = im.saturation(rgb)
+    bg_lum = float(im.luminance(np.asarray(bg_color, np.float64)[None, None, :])[0, 0])
+    toned = (opaque & (sat <= cfg["max_saturation"]) &
+             (lum <= bg_lum * cfg["luminance_upper"]) &
+             (lum >= bg_lum * cfg["luminance_lower"]))
+
+    # Fraction alone cannot work: an iron key is ground-toned from end to end,
+    # and it is an object, not a shadow. What separates them is *position
+    # relative to the object* — a cast shadow lies BELOW the thing that casts
+    # it. So the measure is the share of opaque pixels that are ground-toned
+    # AND sit below the lowest non-ground-toned opaque pixel in their own
+    # column. A uniformly grey object has no non-toned pixels above, so it
+    # scores zero by construction; a shadow pooled under an oak desk scores its
+    # whole self.
+    solid = opaque & ~toned
+    h, w = lum.shape
+    rows = np.arange(h)[:, None]
+    solid_rows = np.where(solid, rows, -1)
+    lowest_solid = solid_rows.max(axis=0)            # -1 where a column has none
+    below = toned & (rows > lowest_solid[None, :]) & (lowest_solid[None, :] >= 0)
+    frac = float(toned.sum()) / float(opaque.sum())
+    below_frac = float(below.sum()) / float(opaque.sum())
+    measured = {"ground_toned_fraction": round(frac, 5),
+                "toned_below_object_fraction": round(below_frac, 5),
+                "ground_luminance": round(bg_lum, 2)}
+    ok = below_frac <= cfg["max_toned_below_object_fraction"]
+    return _result("h", "hard", ok, measured, dict(cfg),
+                   "no ground-toned pool below the object (%.3f%% of opaque pixels)"
+                   % (below_frac * 100) if ok else
+                   "%.2f%% of opaque pixels are ground-toned and sit below the object's own "
+                   "lowest solid pixel in their column — this is a cast shadow matted into "
+                   "the silhouette. The contract's negative_block forbids "
+                   "\"cast shadow on the background\"; regenerate the source."
+                   % (below_frac * 100))
 
 
 # --------------------------------------------------------------------------- g
 
-def gate_over_matte(shipped_area, conservative_area, erode_loss, cfg):
+def gate_over_matte(sensitivity, erode_excess, cfg, detail=None):
     """(g) The matte must not be eating the object. [AI, row 3]
 
     §9.4 hunts leftover holes and never hunts a bitten silhouette; a key with
     its shaft matted away reads as a broken sticker and exits zero.
+
+    The measure is **tolerance sensitivity**, not a comparison against one fixed
+    conservative tolerance: `|A(0.75t) - A(1.25t)| / A(t)`, where `t` is this
+    image's own computed tolerance. A well-separated object barely moves when
+    the tolerance moves a quarter either way; an object whose colour is near the
+    ground's moves a lot, and that is exactly the object at risk of being eaten.
+
+    Measured: clean 0.0000, legged 0.0000, squat iron disc 0.0000, part source
+    0.0000, and a constructed control with a pale limb six levels off the ground
+    0.0340. A fixed conservative tolerance was tried first and rejected: at
+    tolerance 5 the corpus's own ground noise stopped the flood fill and the
+    "conservative" silhouette swallowed the whole frame, which would have failed
+    a good image for a reason that had nothing to do with the object.
     """
-    loss = 1.0 - (shipped_area / float(max(conservative_area, 1)))
-    ok = loss <= cfg["max_area_loss_fraction"] and erode_loss <= cfg["max_erode_loss_fraction"]
-    return _result("g", "hard", ok,
-                   {"shipped_area_px": int(shipped_area),
-                    "conservative_area_px": int(conservative_area),
-                    "area_loss_fraction": round(float(loss), 5),
-                    "erode_loss_fraction": round(float(erode_loss), 5)},
-                   dict(cfg),
-                   "silhouette lost %.2f%% against a tolerance-%g matte (limit %.2f%%), "
-                   "erosion cost %.2f%% (limit %.2f%%)"
-                   % (loss * 100, cfg["conservative_tolerance"],
-                      cfg["max_area_loss_fraction"] * 100, erode_loss * 100,
-                      cfg["max_erode_loss_fraction"] * 100))
+    ok = (sensitivity <= cfg["max_tolerance_sensitivity"] and
+          erode_excess <= cfg["max_erode_excess_ratio"])
+    measured = {"tolerance_sensitivity": round(float(sensitivity), 5),
+                "erode_excess_ratio": round(float(erode_excess), 5)}
+    if detail:
+        measured.update(detail)
+    return _result("g", "hard", ok, measured, dict(cfg),
+                   "silhouette moves %.2f%% of its area across a +/-25%% tolerance sweep "
+                   "(limit %.2f%%), erosion cost %.2fx what its perimeter predicts (limit %.2fx)"
+                   % (sensitivity * 100, cfg["max_tolerance_sensitivity"] * 100,
+                      erode_excess, cfg["max_erode_excess_ratio"]) +
+                   ("" if ok else " — the object's own colour is close enough to the ground "
+                                  "that the matte is eating it, not cutting it."))
 
 
 # --------------------------------------------------------------------------- misc

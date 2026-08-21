@@ -33,6 +33,64 @@ def sample_background(src_rgb):
     return tuple(float(v) for v in np.median(ring.reshape(-1, 3), axis=0))
 
 
+def ground_statistics(src_rgb):
+    """What this image's own ground looks like: its colour, noise and drift.
+
+    The orientation contract asserts a "perfectly plain seamless uniform mid-grey
+    background", so the ground's noise is measurable on every arriving image and
+    a tolerance can be *computed* from it rather than fitted to a corpus. `drift`
+    is the spread of the four corner medians, which is what a slight vignette or
+    gradient costs the single border median.
+    """
+    bg = sample_background(src_rgb)
+    ring = np.concatenate([src_rgb[0], src_rgb[-1], src_rgb[:, 0], src_rgb[:, -1]])
+    sigma = float(ring.reshape(-1, 3).astype(np.float64).std(axis=0).max())
+    h, w = src_rgb.shape[:2]
+    k = max(8, min(h, w) // 32)
+    corners = [src_rgb[:k, :k], src_rgb[:k, -k:], src_rgb[-k:, :k], src_rgb[-k:, -k:]]
+    medians = np.array([np.median(c.reshape(-1, 3), axis=0) for c in corners])
+    drift = float(np.abs(medians - np.asarray(bg)).max())
+    return {"bg": bg, "sigma": round(sigma, 4), "drift": round(drift, 4)}
+
+
+def tolerance_for(stats, rule):
+    """This image's matte tolerance, by the frozen rule (row-3 plan §A).
+
+    `tolerance = clip(k_sigma * sigma + drift_multiplier * drift, min, max)`.
+    The rule is frozen; its output is per image, so one number validated at one
+    source resolution is never silently applied at another.
+    """
+    t = rule["k_sigma"] * stats["sigma"] + rule["drift_multiplier"] * stats["drift"]
+    return float(min(max(t, rule["min"]), rule["max"]))
+
+
+def spatial_params(content_height_px, rule):
+    """Erosion depth, hole minimum area and bleed width, scaled to the content.
+
+    The contract admits sources from 128 px of content (a takeable) to well over
+    1000 (the corpus), so an absolute pixel count validated at one end is wrong
+    at the other: 2 px of erosion is 0.2% of the corpus desk and 1.6% of a
+    128-px key, and a 64 px minimum hole area is 4% of the whole of that key.
+    """
+    h = float(max(1, content_height_px))
+    erode = int(min(rule["erode_max_px"],
+                    max(rule["erode_min_px"], round(h * rule["erode_fraction"]))))
+    bleed = int(min(rule["bleed_max_px"],
+                    max(rule["bleed_min_px"], round(h * rule["bleed_fraction"]))))
+    side = h * rule["hole_side_fraction"]
+    hole_area = int(max(rule["hole_min_area_floor_px"], round(side * side)))
+    return {"edge_erode_px": erode, "rgb_bleed_px": bleed, "hole_min_area_px": hole_area}
+
+
+def content_height(src_rgb, bg, tolerance):
+    """The content bbox height before matting, for the scale rules above."""
+    h, w = src_rgb.shape[:2]
+    similar = im.rgb_distance(src_rgb, bg) <= tolerance
+    outer = im.span_fill(similar, im.border_seeds(h, w))
+    box = im.alpha_bbox((~outer).astype(np.uint8) * 255, 1)
+    return 0 if box is None else box[3] - box[1]
+
+
 def _check_margin(src_rgb, bg, tolerance):
     """The contract's framing.margin is 'full object centered'.
 
@@ -54,7 +112,7 @@ def _check_margin(src_rgb, bg, tolerance):
 
 
 def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
-          rgb_bleed_px, max_erode_loss_fraction=None):
+          rgb_bleed_px, max_erode_excess_ratio=None):
     """Matte one source image. See the module docstring for the stage order."""
     src_rgb = np.asarray(src_rgb)
     if src_rgb.ndim != 3 or src_rgb.shape[2] < 3:
@@ -89,15 +147,49 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
     area_after_holes = int(obj.sum())
 
     # 5. edge erosion -- drop the generator's own antialias band against the ground
+    #
+    # The guard is deliberately NOT a flat fraction of area. Eroding k pixels off
+    # any shape costs roughly `perimeter * k` pixels, which is a large fraction of
+    # a small object and a tiny one of a large object purely by geometry: a flat
+    # 5% budget rejected a 51-px disc for being small, not for being thin. What
+    # the guard exists to catch is erosion eating a *thin feature* -- a key's
+    # shaft, a candlestick's stem -- which shows up as losing far more than the
+    # perimeter predicts, or as a piece of the object vanishing outright.
+    excess = 0.0
+    lost_components = 0
     if edge_erode_px:
         eroded = im.erode(obj, int(edge_erode_px))
         loss = 1.0 - (eroded.sum() / max(area_after_holes, 1))
-        if max_erode_loss_fraction is not None and loss > max_erode_loss_fraction:
+        perimeter = int(im.boundary_ring(obj).sum())
+        expected = min(0.95, (perimeter * float(edge_erode_px)) / max(area_after_holes, 1))
+        excess = loss / expected if expected > 1e-9 else 0.0
+        # Count only pieces big enough to be a feature. A soft edge leaves
+        # single-pixel specks outside the tolerance, and erosion removes them:
+        # counting those as "a piece vanished" failed a control for its noise.
+        def _pieces(mask):
+            labels_, count = im.label_components(mask)
+            if count == 0:
+                return 0
+            sizes = np.bincount(labels_.ravel(), minlength=count + 1)[1:]
+            return int((sizes >= hole_min_area_px).sum())
+        before = _pieces(obj)
+        after = _pieces(eroded)
+        lost_components = max(0, before - after)
+        if eroded.sum() == 0:
             raise MatteError(
-                "edge erosion of %d px would remove %.1f%% of the silhouette (limit %.1f%%). "
-                "The object is too thin for this edge treatment -- lower "
-                "ingest.matte.edge_erode_px for this class of sprite rather than eating it."
-                % (edge_erode_px, loss * 100.0, max_erode_loss_fraction * 100.0))
+                "edge erosion of %d px removes the whole silhouette — this object is thinner "
+                "than its own edge treatment." % edge_erode_px)
+        if max_erode_excess_ratio is not None and (
+                excess > max_erode_excess_ratio or lost_components > 0):
+            raise MatteError(
+                "edge erosion of %d px removes %.1f%% of the silhouette where its perimeter "
+                "predicts %.1f%% (excess ratio %.2f, limit %.2f) and %d connected piece(s) "
+                "vanish. The object has features thinner than the edge treatment. This is not "
+                "a number to move for this image: it is the contract's `classes` amendment "
+                "path, which needs a constructed control of this object class landing in the "
+                "same commit."
+                % (edge_erode_px, loss * 100.0, expected * 100.0, excess,
+                   max_erode_excess_ratio, lost_components))
         obj = eroded
     else:
         loss = 0.0
@@ -143,6 +235,8 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
         "holes_kept_below_min_area": kept_specks,
         "area_after_holes": area_after_holes,
         "erode_loss_fraction": round(float(loss), 5),
+        "erode_excess_ratio": round(float(excess), 4),
+        "erode_lost_components": int(lost_components),
         "area_final": area_final,
         "trim_bbox": [x0, y0, x1, y1],
     }
@@ -150,16 +244,23 @@ def matte(src_rgb, *, tolerance, hole_min_area_px, edge_erode_px, feather_px,
                        object_mask_untrimmed=obj, stats=stats)
 
 
-def conservative_area(src_rgb, *, tolerance):
-    """The silhouette area at a deliberately tight tolerance.
-
-    Gate (g) compares this against the shipped matte's area: nothing in §9.4
-    hunts a *bitten* silhouette, and a key with its shaft matted away exits
-    zero while reading as a broken sticker.
-    """
+def silhouette_area(src_rgb, bg, tolerance):
+    """The raw silhouette area at one tolerance, before holes or erosion."""
     src_rgb = np.asarray(src_rgb)[..., :3]
     h, w = src_rgb.shape[:2]
-    bg = sample_background(src_rgb)
     similar = im.rgb_distance(src_rgb, bg) <= tolerance
-    outer = im.span_fill(similar, im.border_seeds(h, w))
-    return int((~outer).sum())
+    return int((~im.span_fill(similar, im.border_seeds(h, w))).sum())
+
+
+def tolerance_sensitivity(src_rgb, bg, tolerance, sweep=0.25):
+    """How much the silhouette moves when the tolerance moves +/- `sweep`.
+
+    Gate (g)'s measure. A well-separated object barely moves; one whose colour
+    sits near the ground's moves a lot, and that is the object a tolerant matte
+    eats. See gates.gate_over_matte for why this replaced a comparison against
+    one fixed conservative tolerance.
+    """
+    lo = silhouette_area(src_rgb, bg, tolerance * (1.0 - sweep))
+    mid = silhouette_area(src_rgb, bg, tolerance)
+    hi = silhouette_area(src_rgb, bg, tolerance * (1.0 + sweep))
+    return abs(lo - hi) / float(max(1, mid)), {"area_low": lo, "area_mid": mid, "area_high": hi}

@@ -53,6 +53,69 @@ def mask_from_image(arr):
     return im.luminance(a[..., :3]) >= 128
 
 
+def mask_adherence_per_edge(src_rgb, mask, radius=10, samples=48):
+    """Mask-boundary adherence, measured **per edge** rather than as one mean.
+
+    A mask correct on three sides and 15 px outside the part on the fourth
+    averages to a pass, and gate (d) at closed cannot see it either — the
+    over-cut carcass pixels are covered by the part at closed, and the diff is
+    measured outside the mask. So the composite is perfect closed and wrong
+    open, which is the state nothing else gates. The reported score is the
+    **worst** edge, not the mean.
+    """
+    lum = im.luminance(np.asarray(src_rgb)[..., :3])
+    h, w = lum.shape
+    ys, xs = np.nonzero(mask)
+    if ys.size == 0:
+        return None
+    y0, y1, x0, x1 = int(ys.min()), int(ys.max()), int(xs.min()), int(xs.max())
+    cy, cx = (y0 + y1) / 2.0, (x0 + x1) / 2.0
+    ring = im.boundary_ring(mask)
+    rys, rxs = np.nonzero(ring)
+    if rys.size == 0:
+        return None
+
+    # Assign each boundary pixel to the edge it is nearest to, by which of the
+    # four distances to the bounding box is smallest.
+    d_top = rys - y0
+    d_bot = y1 - rys
+    d_left = rxs - x0
+    d_right = x1 - rxs
+    which = np.argmin(np.vstack([d_top, d_bot, d_left, d_right]), axis=0)
+    normals = {0: (0.0, -1.0), 1: (0.0, 1.0), 2: (-1.0, 0.0), 3: (1.0, 0.0)}
+    names = {0: "top", 1: "bottom", 2: "left", 3: "right"}
+
+    per_edge = {}
+    for edge in (0, 1, 2, 3):
+        idx = np.flatnonzero(which == edge)
+        if idx.size == 0:
+            continue
+        step = max(1, idx.size // samples)
+        picks = idx[::step][:samples]
+        nx, ny = normals[edge]
+        offsets = []
+        for i in picks:
+            y, x = int(rys[i]), int(rxs[i])
+            prof = []
+            for d in range(-radius, radius + 1):
+                py, px_ = int(round(y + ny * d)), int(round(x + nx * d))
+                prof.append(lum[py, px_] if 0 <= py < h and 0 <= px_ < w else 255.0)
+            offsets.append(int(np.argmin(prof)) - radius)
+        o = np.asarray(offsets)
+        per_edge[names[edge]] = {
+            "samples": int(o.size),
+            "within_3px_fraction": round(float((np.abs(o) <= 3).mean()), 4),
+            "median_offset_px": int(np.median(o)),
+        }
+    if not per_edge:
+        return None
+    worst = min(per_edge.values(), key=lambda v: v["within_3px_fraction"])
+    return {"per_edge": per_edge,
+            "within_3px_fraction": worst["within_3px_fraction"],
+            "worst_edge": [k for k, v in per_edge.items() if v is worst][0],
+            "centre": [round(cx, 1), round(cy, 1)]}
+
+
 def mask_adherence(src_rgb, mask, radius=10, samples_per_edge=60):
     """How well a mask's boundary sits on the dark reveal gaps around a part.
 
@@ -179,34 +242,35 @@ def cut_part(body_rgba, mask_body, *, darken, blur_radius):
 
 
 def derived_cavity(closed_rect, slide, px):
-    """Where a part's contents are visible when it is open, in body px space.
+    """The recess a part came out of, in body pixel space.
 
-    Row 2 pinned the convention ("`drawer_cavity` semantics: contents sit where
-    they are visible when *open*") and architecture.md records why the travel
-    has to clear the cavity: children draw after their host's parts, so an open
-    drawer front overlapping the cavity puts the revealed key on the *face* of
-    the drawer instead of inside it.
+    It is **the part's own closed rect** — the region the cut removed and the
+    inpaint filled. That is what is behind the drawer front, and it is the one
+    thing about the cavity a closed source image can actually witness.
 
-    The open front's top edge lands at `origin.y + dy * px.h`; everything of the
-    closed rect above that line is cavity. This cannot be measured off a closed
-    source image — the cavity is behind the drawer front — which is why it is
-    derived here rather than flagged blind.
+    An earlier draft derived the cavity as "the closed rect minus the travelled
+    front", which reads well and is a **tautology**: the clearance check then
+    computed its own threshold from the very `slide` it was checking, and could
+    not fail for any value. The cavity is now independent of `slide`, and
+    `min_dy_clearance` below is a real bound.
     """
-    dy = float(slide["dy"])
-    dx = float(slide["dx"])
-    open_top = closed_rect["y0"] + dy * px["h"]
-    x0 = closed_rect["x0"] + max(0.0, dx * px["w"])
-    x1 = closed_rect["x1"] + min(0.0, dx * px["w"])
-    y0 = float(closed_rect["y0"])
-    y1 = float(min(open_top, closed_rect["y1"]))
-    if not (x0 < x1 and y0 < y1):
-        return None
-    return {"x0": x0, "y0": y0, "x1": x1, "y1": y1}
+    return {"x0": float(closed_rect["x0"]), "y0": float(closed_rect["y0"]),
+            "x1": float(closed_rect["x1"]), "y1": float(closed_rect["y1"])}
 
 
-def min_dy_clearance(closed_rect, cavity, px):
-    """The smallest `slide.dy` for which the open front clears `cavity`."""
-    return (float(cavity["y1"]) - float(closed_rect["y0"])) / float(px["h"])
+def min_dy_clearance(closed_rect, cavity, px, clearance_fraction=0.5):
+    """The smallest `slide.dy` that opens enough of the recess to show contents.
+
+    An open drawer front must travel far enough that a revealed child draws
+    *inside* the recess rather than on the face of the front — children draw
+    after their host's parts (§7 step 3), which is the lesson architecture.md
+    records for the placeholder desk's `slide.dy` 0.24. The bound: the open
+    front's top edge must fall at or below `clearance_fraction` of the way down
+    the recess, which is where an anchored child's base lands.
+    """
+    height = float(cavity["y1"]) - float(cavity["y0"])
+    target = float(cavity["y0"]) + clearance_fraction * height
+    return (target - float(closed_rect["y0"])) / float(px["h"])
 
 
 def open_state_composite(body_rgba, part_rgba, origin, slide, px, t=1.0):
