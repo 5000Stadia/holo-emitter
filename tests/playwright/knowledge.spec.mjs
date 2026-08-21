@@ -129,9 +129,11 @@ test("a drawer left open is still open, with its contents, after a round trip", 
     const before = await window.__T.hashScene();
     A.dispatch({ type: "turn", dir: "right" });        // study/E
     A.dispatch({ type: "toggle", entity: "door1" });
-    A.dispatch({ type: "go", exit: "door_study_hall" });
-    A.dispatch({ type: "go", exit: "door_hall_study" });
-    A.dispatch({ type: "turn", dir: "left" });         // back to study/N
+    A.dispatch({ type: "go", exit: "door_study_hall" }); // arrives hall/E (direction of travel)
+    A.dispatch({ type: "turn", dir: "right" });        // hall/E -> hall/S
+    A.dispatch({ type: "turn", dir: "right" });        // hall/S -> hall/W, facing the door
+    A.dispatch({ type: "go", exit: "door_hall_study" }); // arrives study/W (direction of travel)
+    A.dispatch({ type: "turn", dir: "right" });        // study/W -> back to study/N
     const after = await window.__T.hashScene();
     return {
       before, after,

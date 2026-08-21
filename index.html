@@ -705,16 +705,21 @@
       if (r.kind === "doorway") {
         /* Swallow only the second half of a double-click: the SAME doorway,
            within the double-click window, with nothing else done in between.
-           `arrive_facing` puts the doorway you came through under the very
-           pixel you just clicked, so an accidental double-click walked you
-           through and straight back behind a veil you never saw past. A
-           blanket half-second lock on the only way between rooms is the
-           opposite error — walk in, look back, walk out is a real thing to
-           do, and it was silently dropped. So: the window is a double-click
-           window, and ANY other intent ends it. The exit ids differ across
-           the two halves of the echo (you arrive facing the door you came
-           through, and it is the other room's exit), so the window is what
-           identifies it, not the target. */
+           Before row 13, `arrive_facing` turned the player to face back at
+           the very doorway they had just come through, so the second click
+           of a real double-click landed on it too and walked them through
+           and straight back behind a veil they never saw past. Passage now
+           maintains orientation (blueprint §3) — arrival faces the
+           direction of travel, away from the door — so that coincidence no
+           longer arises on M0's two single-exit rooms; the window stays as
+           the general guard against a doorway landing under a repeated
+           click by any future world's geometry. A blanket half-second lock
+           on the only way between rooms is the opposite error — walk in,
+           look back, walk out is a real thing to do, and it was silently
+           dropped. So: the window is a double-click window, and ANY other
+           intent ends it. The exit ids differ across the two halves of an
+           echo (the two rooms' exits), so the window is what identifies it,
+           not the target. */
         var echo = lastGo && (Date.now() - lastGo.at) < DOUBLE_CLICK_MS;
         if (!echo) dispatch({ type: "go", exit: r.aperture.exit });
         return;

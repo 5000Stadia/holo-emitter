@@ -308,24 +308,70 @@ async function runScript(page, opts = {}) {
     expect(s.world.door).toBe("open");
     expect(s.lastNarrationLine).toBe(s.lastEnvelope.narration); // toggle-success class
   }
+
+  // Two references captured BEFORE the passage, so what follows cannot be
+  // satisfied by a renderer that is merely self-consistent with whatever the
+  // live world holds after crossing (a state reset during `go` would still
+  // agree with itself under a same-run re-render). `studyDoorOpenHash` is
+  // the room about to be left, captured live; `hallPreTravelWorld` is a
+  // frozen snapshot of the world at this instant, rendered independently
+  // once the door's own facing is reached on the far side.
+  let studyDoorOpenHash = null;
+  let hallPreTravelWorld = null;
+  if (opts.assertions) {
+    studyDoorOpenHash = (await state(page)).hash;
+    hallPreTravelWorld = await page.evaluate(
+      () => window.__T.clone(window.HOLO_APP.harness.world));
+  }
+
   await clickDoorway(page); // the opening is the `go` target
   await note();
   if (opts.assertions) {
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    // Passage maintains orientation (blueprint §3): walking east through the
+    // door lands you still facing east — the direction of travel — not
+    // turned about to face the door you came through.
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     expect(s.lastEnvelope.intent).toEqual({ type: "go", exit: "door_study_hall" });
     expect(s.lastNarrationLine).toBe(s.lastEnvelope.narration); // arrival class
-    // Door renders open from the hall side: harness view == pure render of
-    // the current world, and != the same-run render doctored to door closed.
-    expect(s.hash).toBe(await doctoredHash(page, []));
-    const closedHash = await page.evaluate(async () => {
+    // The arrival picture is not merely claimed by the viewstate string: it
+    // is independently constructed — a literal viewstate, not read back off
+    // the live harness — and must match what is actually on screen.
+    const independentHallE = await page.evaluate(async () => {
       const h = window.HOLO_APP.harness;
-      const w = window.__T.clone(h.world);
-      w.entities.find((e) => e.id === "door1").state = "closed";
       return await window.__T.hashCanvas(
-        window.__T.renderW(w, h.staging, h.viewstate, {}));
+        window.__T.renderW(h.world, h.staging, { location: "hall", facing: "E" }, {}));
     });
-    expect(s.hash).not.toBe(closedHash);
+    expect(s.hash).toBe(independentHallE);
+  }
+
+  // Look back (E → S → W) to face the door: persistence is checked by
+  // deliberately turning to the door's own facing and comparing against the
+  // pre-passage snapshot taken above — never against a re-render of the
+  // live (possibly-reset) world, which would only prove the renderer agrees
+  // with itself.
+  await page.keyboard.press("ArrowRight");
+  await note();
+  await page.keyboard.press("ArrowRight");
+  await note();
+  if (opts.assertions) {
+    const s = await state(page);
+    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    const predictedOpenHash = await page.evaluate(async (w) => {
+      const h = window.HOLO_APP.harness;
+      return await window.__T.hashCanvas(
+        window.__T.renderW(w, h.staging, { location: "hall", facing: "W" }, {}));
+    }, hallPreTravelWorld);
+    expect(s.hash, "the door survived the passage, checked against its pre-passage state")
+      .toBe(predictedOpenHash);
+    const closedHash = await page.evaluate(async (w) => {
+      const h = window.HOLO_APP.harness;
+      const c = window.__T.clone(w);
+      c.entities.find((e) => e.id === "door1").state = "closed";
+      return await window.__T.hashCanvas(
+        window.__T.renderW(c, h.staging, { location: "hall", facing: "W" }, {}));
+    }, hallPreTravelWorld);
+    expect(s.hash, "and is visibly distinct from a closed one").not.toBe(closedHash);
   }
 
   // right CHEVRON click (W→N) — §12.1's own letter includes chevron clicks.
@@ -354,9 +400,33 @@ async function runScript(page, opts = {}) {
   await note();
   if (opts.assertions) {
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "study", facing: "E" });
+    // Passage maintains orientation the other way too: walking west through
+    // the door lands you facing west, not turned about to face it.
+    expect(s.viewstate).toEqual({ location: "study", facing: "W" });
     expect(s.world.door, "door still open — persistence").toBe("open");
-    expect(s.hash).toBe(await doctoredHash(page, []));
+    // As on the outbound leg: the arrival picture is independently
+    // constructed, not merely read back off the live viewstate.
+    const independentStudyW = await page.evaluate(async () => {
+      const h = window.HOLO_APP.harness;
+      return await window.__T.hashCanvas(
+        window.__T.renderW(h.world, h.staging, { location: "study", facing: "W" }, {}));
+    });
+    expect(s.hash).toBe(independentStudyW);
+  }
+
+  // Look back (W → N → E) to face the door and see it standing open — the
+  // strongest form of the persistence check available: the exact frame
+  // stood in before ever leaving, captured live, compared to what is seen
+  // now, in the same room and the same facing.
+  await page.keyboard.press("ArrowRight");
+  await note();
+  await page.keyboard.press("ArrowRight");
+  await note();
+  if (opts.assertions) {
+    const s = await state(page);
+    expect(s.viewstate).toEqual({ location: "study", facing: "E" });
+    expect(s.hash, "the room you left is exactly the room you return to")
+      .toBe(studyDoorOpenHash);
     const closedHash = await page.evaluate(async () => {
       const h = window.HOLO_APP.harness;
       const w = window.__T.clone(h.world);
@@ -364,7 +434,7 @@ async function runScript(page, opts = {}) {
       return await window.__T.hashCanvas(
         window.__T.renderW(w, h.staging, h.viewstate, {}));
     });
-    expect(s.hash).not.toBe(closedHash);
+    expect(s.hash, "and is visibly distinct from a closed one").not.toBe(closedHash);
   }
 
   // turn to N; open desk again (plain open — reveal spent)
@@ -456,7 +526,7 @@ test.describe("the door, from the pointer", () => {
     // Dead centre of the opening — no searching, no help.
     await clickCanvasPoint(page, { x: a.x + a.w / 2, y: a.y + a.h / 2 });
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     expect(s.lastEnvelope.intent).toEqual({ type: "go", exit: "door_study_hall" });
   });
 
@@ -718,10 +788,18 @@ test.describe("a page that cannot boot still speaks", () => {
 
 test.describe("the page under ordinary clumsiness", () => {
   test("a double-click on a doorway walks you through once, not there and back", async ({ page }) => {
-    // `arrive_facing` puts the doorway you came through under the very pixel
-    // you just clicked, so the second click of a double-click landed in it
-    // and returned you — behind a veil you never saw past, with two arrival
-    // lines in the log and no sign anything had happened.
+    // Before row 13, `arrive_facing` turned the player to face back at the
+    // very doorway they had just come through, so the second click of a
+    // real double-click landed on it too and returned you — behind a veil
+    // you never saw past, with two arrival lines in the log and no sign
+    // anything had happened; a 400ms echo window in index.html guarded it.
+    // Passage now maintains orientation (blueprint §3): the player arrives
+    // facing the direction of travel, away from the door, so the second
+    // click's screen coordinates fall on bare wall in the room just entered
+    // and dispatch nothing on their own — the coincidence the echo window
+    // guarded against cannot arise in this fixture any more. What this test
+    // still protects, by outcome rather than by mechanism, is unchanged:
+    // one click through a doorway is one passage, never two.
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");
     await clickEntity(page, "door1");
@@ -736,10 +814,18 @@ test.describe("the page under ordinary clumsiness", () => {
     const y = box.y + ((a.y + a.h / 2) * box.height) / 1024;
     await page.mouse.click(x, y, { clickCount: 2, delay: 15 });
     const s = await state(page);
-    expect(s.viewstate, "one click through, one door").toEqual({ location: "hall", facing: "W" });
-    const arrivals = await page.evaluate(() =>
-      [...document.querySelectorAll("#narration p")]
-        .filter((p) => /step through|pass back/.test(p.textContent)).length);
+    expect(s.viewstate, "one click through, one door").toEqual({ location: "hall", facing: "E" });
+    // Counted against the fixture's own two arrival lines, not a guessed
+    // prose fragment — the check must not depend on how either line is
+    // worded, only on how many times either fired.
+    const arrivals = await page.evaluate(() => {
+      const lines = new Set([
+        window.HOLO_FIXTURE.narration.lines["go.door_study_hall.arrive"],
+        window.HOLO_FIXTURE.narration.lines["go.door_hall_study.arrive"]
+      ]);
+      return [...document.querySelectorAll("#narration p")]
+        .filter((p) => lines.has(p.textContent)).length;
+    });
     expect(arrivals, "and one arrival line").toBe(1);
   });
 
@@ -876,14 +962,17 @@ test.describe("travelling twice on purpose is not the same as travelling twice b
     await clickEntity(page, "door1");
     await clickDoorway(page);
     let s = await state(page);
-    expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
+    // Arrives facing the direction of travel, away from the door.
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     const envelopes = s.envelopes;
-    // A turn — any intent — ends the double-click window immediately.
+    // Look back (any intent also ends the double-click window, though the
+    // orientation change alone already keeps the second click of a real
+    // double-click off the doorway — see the double-click test above).
     await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowRight");
     await clickDoorway(page);
     s = await state(page);
-    expect(s.viewstate, "the way back is not locked").toEqual({ location: "study", facing: "E" });
+    expect(s.viewstate, "the way back is not locked").toEqual({ location: "study", facing: "W" });
     expect(s.envelopes, "and every input produced an envelope")
       .toBe(envelopes + 3);
   });
@@ -892,11 +981,13 @@ test.describe("travelling twice on purpose is not the same as travelling twice b
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");
     await clickEntity(page, "door1");
-    await clickDoorway(page);
+    await clickDoorway(page); // study/E -> hall, arrives facing E
+    await page.keyboard.press("ArrowRight"); // look back: E -> S -> W
+    await page.keyboard.press("ArrowRight");
     await page.waitForTimeout(500);
-    await clickDoorway(page);
+    await clickDoorway(page); // hall/W -> study, arrives facing W
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "study", facing: "E" });
+    expect(s.viewstate).toEqual({ location: "study", facing: "W" });
   });
 });
 

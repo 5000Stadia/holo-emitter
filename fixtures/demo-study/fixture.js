@@ -7,16 +7,16 @@
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
 window.HOLO_FIXTURE = {
-  fp: "a55f1918",
+  fp: "d14770a6",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
     { "id": "study", "facings": ["N","E","S","W"],
       "exits": [ { "id": "door_study_hall", "from": "study", "facing": "E",
-                   "to": "hall", "arrive_facing": "W", "via": "door1" } ] },
+                   "to": "hall", "arrive_facing": "E", "via": "door1" } ] },
     { "id": "hall", "facings": ["N","E","S","W"],
       "exits": [ { "id": "door_hall_study", "from": "hall", "facing": "W",
-                   "to": "study", "arrive_facing": "E", "via": "door1" } ] }
+                   "to": "study", "arrive_facing": "W", "via": "door1" } ] }
   ],
   "entities": [
     { "id": "desk1",    "sprite": "desk-joined-oak-1660", "location": "study",
@@ -125,7 +125,7 @@ window.HOLO_FIXTURE = {
     "take.door1.refused_fixed": "The door hangs on its iron hinges, and there it will hang.",
     "take.stick1.refused_fixed": "The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.",
     "take.shelf1.refused_fixed": "The bookshelf is a full press of oak against the wall; no strength of yours will shift it.",
-    "go.door_study_hall.arrive": "You step through into the hall and come about to face the doorway you came by. The air is wider here, and cooler.",
+    "go.door_study_hall.arrive": "You step through into the hall, on into wider air, and cooler.",
     "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again.",
     "go.door_study_hall.refused_closed": "The door is shut against you; the latch has not been lifted.",
     "go.door_hall_study.refused_closed": "The way back stands barred; the door wants opening first.",

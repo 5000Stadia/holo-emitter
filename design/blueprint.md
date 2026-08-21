@@ -82,10 +82,10 @@ tests/
   "locations": [
     { "id": "study", "facings": ["N","E","S","W"],
       "exits": [ { "id": "door_study_hall", "from": "study", "facing": "E",
-                   "to": "hall", "arrive_facing": "W", "via": "door1" } ] },
+                   "to": "hall", "arrive_facing": "E", "via": "door1" } ] },
     { "id": "hall", "facings": ["N","E","S","W"],
       "exits": [ { "id": "door_hall_study", "from": "hall", "facing": "W",
-                   "to": "study", "arrive_facing": "E", "via": "door1" } ] }
+                   "to": "study", "arrive_facing": "W", "via": "door1" } ] }
   ],
   "entities": [
     { "id": "desk1",    "sprite": "desk-joined-oak-1660", "location": "study",
@@ -118,9 +118,14 @@ Notes:
   hall's W-facing exit share it `via`, and its state is one fact seen from two sides.
 - **Passage maintains orientation [HUMAN, 2026-08-20]:** "when you walk through the door you
   should maintain your directional orientation." Every exit's `arrive_facing` continues the
-  direction of travel — walk east, arrive facing east — so the example values above are
-  superseded: `door_study_hall` arrives facing **E**, `door_hall_study` arrives facing **W**.
-  The rule governs all future exits unless the world's own fiction demands a turn.
+  direction of travel — walk east, arrive facing east — so the block above is written to agree:
+  `door_study_hall` arrives facing **E**, `door_hall_study` arrives facing **W** (row 13, which
+  flipped both to match this ruling in `fixtures/demo-study/world.json` — the block had briefly
+  shown the pre-ruling values with a note explaining the mismatch; that note is now moot and the
+  block itself is the agreement). The rule governs all future exits unless the world's own
+  fiction demands a turn — the schema carries no field naming that exception yet, since M0's two
+  single-exit rooms never need one; a future exit that does is a new-row decision, not one this
+  note can pre-authorize.
 - Static-demo caveat: the full document ships to the client, so "hidden" is honesty-by-convention here. In integrated mode (later), knowledge filtering happens host-side before emission; the client never receives unknown entities. Nothing in the renderer may depend on reading unknown entities — treat them as absent.
 
 ## 4. Staging — `staging.json`
@@ -603,7 +608,7 @@ Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeab
 
 ## 12. Acceptance (all must pass)
 
-1. **Scripted walkthrough (Playwright):** turn×4 → click chair1 (UI-emittable refusal: envelope with no events, refusal narration, scene-canvas hash unchanged) → toggle desk open → assert key visible → take key → assert inventory has key, cavity empty → toggle desk closed → toggle door1 open → go to hall → assert door1 renders open from the hall side → take coin → go back to study (door1 still open — persistence) → toggle desk open → assert key still absent, notebook still present. Document assertions after every step. [AI: door-toggle steps and refusal coverage are completions — the v0.2 script walked through a door it never opened, and no acceptance exercised "the picture never changes when the world doesn't". The walkthrough acts through **real pointer and keyboard events** — clicks on drawn entities' alpha hit-regions, chevron clicks, arrow keys — never by calling the harness directly, and asserts the hover highlight (overlay canvas) once; the interaction layer has no other gate. Refusals the UI cannot emit — `go` through a closed door (a closed door click is a toggle), `take key1` while unknown (undrawn, unclickable) — are covered by **harness-level unit tests** beside the walkthrough: a licensed exception that tests the harness API directly, with the same three asserts, adding no product affordance.]
+1. **Scripted walkthrough (Playwright):** turn×4 → click chair1 (UI-emittable refusal: envelope with no events, refusal narration, scene-canvas hash unchanged) → toggle desk open → assert key visible → take key → assert inventory has key, cavity empty → toggle desk closed → toggle door1 open → go to hall (arrives facing the direction of travel, away from the door) → turn back to face the door and assert it renders open from the hall side → take coin → go back to study (arrives facing the direction of travel, away from the door) → turn back to face the door and assert it is still open — persistence → toggle desk open → assert key still absent, notebook still present. Document assertions after every step. [AI: door-toggle steps and refusal coverage are completions — the v0.2 script walked through a door it never opened, and no acceptance exercised "the picture never changes when the world doesn't". The walkthrough acts through **real pointer and keyboard events** — clicks on drawn entities' alpha hit-regions, chevron clicks, arrow keys — never by calling the harness directly, and asserts the hover highlight (overlay canvas) once; the interaction layer has no other gate. Refusals the UI cannot emit — `go` through a closed door (a closed door click is a toggle), `take key1` while unknown (undrawn, unclickable) — are covered by **harness-level unit tests** beside the walkthrough: a licensed exception that tests the harness API directly, with the same three asserts, adding no product affordance.] [AI, row 13: the two "turn back" steps are the passage-maintains-orientation ruling's consequence — arrival no longer faces the door, so persistence can only be read from the picture by deliberately turning to the door's own facing; each turn-back is checked against a reference captured **before** the passage (the room just left, captured live, for the return trip; a solo render of the pre-departure world for the outbound one), never against a same-run re-render of whatever the live world holds after crossing, which would agree with itself even if crossing silently reset the door.]
 2. **Determinism:** identical fixture + viewstate rendered twice → identical canvas hash. Full walkthrough replayed → identical hash sequence.
 3. **State isolation:** toggling desk changes pixels only within the drawer part + cavity bounds (diff mask check).
 4. **Knowledge:** before first open, `key1` appears in zero frames — and the filter is exercised positively [AI]: render, through the pure renderer, a doctored fixture with `desk1` open and `key1` absent from `knowledge.player`; the cavity region must hash-equal the empty-cavity reference — which is a **same-run render** of the fixture with `key1` deleted from `entities`, never a stored golden image. (A closed-drawer-only check never touches the filter — a renderer that ignores knowledge entirely would pass it.)
