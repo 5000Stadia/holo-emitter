@@ -48,7 +48,7 @@ did not have and could have used:
   3. WITHHELD as a first-class verdict, with mechanical triggers, so a facing we
      cannot measure is not given a number that a re-ask would then chase.
 
-THE RULER PRIORITY RULE (blueprint's, restated in design/specs/21-painted-promotion.md §1)
+THE RULER PRIORITY RULE (blueprint §5's band and §11's ruled sizes)
 ------------------------------------------------------------------------------------------
   tier 1  a ruled-size feature painted IN THE WALL PLANE: the door opening
           (1.00 x 2.00 m; of a two-dimension feature the LONGER dimension is
@@ -826,8 +826,9 @@ def panelling_module(L, cfg, floor_y, band=(500, 640), cols=(200, 1400)):
     Read that way the two lines land 232/213 px above the floor on study/N,
     231/212 on study/E and 233/214 on study/W: the three walls of one room agree
     to 2 px on both lines. The dado_rail line is the one design/specs/
-    21-painted-promotion.md §1 names (213 px at 232.222 px/m => 0.9172 m) and
-    this code reproduces that number exactly rather than being told it.
+    the cand-2 round transfers (213 px at 232.222 px/m => 0.9172 m on the
+    approved frame), and this code DERIVES that number from the control's own
+    pixels rather than reading it out of any document.
     """
     a, b = band
     p = L[a:b + 1, cols[0]:cols[1] + 1].mean(axis=1)
@@ -1108,7 +1109,7 @@ RULER_WHAT = {
  "fireplace": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
  "window_bays": "the mean of the three window bays, each measured between its outer mullion centre-lines against the 0.90 m the facing's own prompt rules 'so this is a ruled-size measurement anchor'. Trustworthy only if the three were drawn equal.",
  "module_capping": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings.",
- "module_dado_rail": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md §1 names.",
+ "module_dado_rail": "the dado rail's undercut shadow, transferred from study/N the same way. Its metre size is derived from the approved frame's own pixels earlier in this same run - see _module_m.",
  "plan_wall_width": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
  "plan_storey": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
 }
@@ -2045,9 +2046,19 @@ def control_check(r):
                       "is what each facing's second ruler is for."))
 
 
-def write_misses(raw):
+def write_misses(raw, round_name="cand-2", records=None):
     """misses.jsonl - the machine-readable miss ledger design/production-law.md
-    requires. One JSON object per line, every line self-describing."""
+    requires. One JSON object per line, every line self-describing.
+
+    THE LEDGER HOLDS EVERY ROUND, and a run rewrites only its own. [Row 21, the
+    close] A ledger that kept one round would answer "what missed last time"
+    and never "is this getting better", and clause 4's acceptance metric is the
+    FIRST-ROLL PASS RATE RISING OVER TIME - which is a claim about rounds beside
+    each other. Each miss carries its `round`; lines belonging to another round
+    are carried through verbatim, so `--round cand2` and `--round cand3` can be
+    run in either order and neither erases the other. Entries written before the
+    field existed are the cand-2 round, which is when it was written.
+    """
     path = os.path.join(OUT, "misses.jsonl")
     # THE LEDGER'S OWN CLOSE-OUT SURVIVES A RE-MEASUREMENT. [Row 21, round 2]
     # `baked_in` is production-law clause 3's field -- what made this class of
@@ -2058,7 +2069,7 @@ def write_misses(raw):
     # definition of an open miss. Carried forward per facing instead, along
     # with `status`: a miss's measurement is this script's, its disposition is
     # not.
-    carried = {}
+    carried, foreign = {}, []
     if os.path.exists(path):
         with open(path) as fh:
             for line in fh:
@@ -2069,11 +2080,15 @@ def write_misses(raw):
                     prev = json.loads(line)
                 except ValueError:
                     continue
-                if prev.get("_record") == "miss" and prev.get("facing"):
-                    carried[prev["facing"]] = {
-                        "baked_in": prev.get("baked_in"),
-                        "status": prev.get("status", "open"),
-                    }
+                if prev.get("_record") != "miss" or not prev.get("facing"):
+                    continue
+                if prev.get("round", "cand-2") != round_name:
+                    foreign.append(prev)
+                    continue
+                carried[prev["facing"]] = {
+                    "baked_in": prev.get("baked_in"),
+                    "status": prev.get("status", "open"),
+                }
     lines = [dict(
         _record="header",
         _what_this_is=("The camera miss ledger for the backdrop acceptance "
@@ -2098,7 +2113,17 @@ def write_misses(raw):
                                         "possible. Sending a re-ask against a "
                                         "number we cannot trust sends the seat "
                                         "chasing a defect that is on our side."},
-        _round="cand-2, the seat's first camera-enforced regeneration of the seven",
+        _rounds={"cand-2": "the seat's first camera-enforced regeneration of "
+                           "the seven",
+                 "cand-3": "the universal-anchor round: every prompt declares "
+                           "blueprint §11's wainscot chair-rail at 0.95 m, so "
+                           "measurability is a property of the wall spec "
+                           "rather than of whichever feature a prompt asked "
+                           "for. Gated by an un-re-tuned harness on purpose - "
+                           "the round's own question is whether the recipe "
+                           "puts the features where the approved composition "
+                           "has them."},
+        _round_of_each_entry="every miss carries its own `round` field",
         _evidence=("design/plan-draft/measured/<loc>-<facing>.json carries every "
                    "ruler measured per facing with its own delta; "
                    "design/batches/row21-promotion/measured/<loc>-<facing>-"
@@ -2114,7 +2139,7 @@ def write_misses(raw):
                   "facing's `rulers` list is for."),
         _generated="2026-08-22")]
 
-    for fac in FACINGS:
+    for fac in (FACINGS if records is None else []):
         r = raw[fac]
         if fac == "study/N":
             continue                     # the approved frame; it is not a miss
@@ -2122,7 +2147,7 @@ def write_misses(raw):
         prim, dist = r["primary"], PLAN_NOW[fac]
         target_ppm = REFERENCE_PX / dist
         rec = dict(
-            _record="miss", facing=fac, candidate=r["src"],
+            _record="miss", round=round_name, facing=fac, candidate=r["src"],
             kind=info["kind"], gate="design/plan-draft/measured/gate.py",
             verdict=r["verdict"],
             measured=dict(
@@ -2193,8 +2218,18 @@ def write_misses(raw):
             rec["correction"] = info["extra_correction"]
         lines.append(rec)
 
+    for rec in (records or []):
+        # The same rule the loop above applies: a disposition is the hand's and
+        # survives a re-measurement, whichever round wrote it.
+        if rec["facing"] in carried:
+            rec["status"] = carried[rec["facing"]]["status"]
+            rec["baked_in"] = carried[rec["facing"]]["baked_in"]
+        lines.append(rec)
+    lines.extend(foreign)
+    head, misses = lines[0], sorted(
+        lines[1:], key=lambda x: (x.get("round", "cand-2"), x["facing"]))
     with open(path, "w") as fh:
-        for rec in lines:
+        for rec in [head] + misses:
             fh.write(json.dumps(rec) + "\n")
     return path
 
@@ -2305,10 +2340,12 @@ def main_cand2():
                         "dado rail %d px above its floor line at %.3f px/m."
                         % (r["module"]["capping_above_floor_px"],
                            r["module"]["dado_rail_above_floor_px"], ppm_n)),
-              "_spec": ("design/specs/21-painted-promotion.md §1 names this "
-                        "module as 213 px at 232.222 px/m => 0.9172 m; this run "
-                        "reproduces it from the pixels rather than being told "
-                        "it.")}
+              "_derived_here": ("Not read out of any document: the module is "
+                                "213 px at 232.222 px/m => 0.9172 m on the "
+                                "approved frame, and this run measures both "
+                                "ends of that transfer with one rule so a "
+                                "change to the detector moves them together "
+                                "or neither.")}
             r = measure2(fac, module_m)   # re-run so the control sees its own module
             r["control"] = control_check(r)
         raw[fac] = r
@@ -2352,14 +2389,304 @@ def main_cand2():
     return 0 if ctl["passed"] else 1
 
 
+# ---------------------------------------------------------------------------
+# ROUND cand-3 - THE UNIVERSAL ANCHOR, AND A HARNESS THAT IS NOT RE-TUNED.
+#
+# Blueprint §11 [Navigator ruling, 2026-08-22] rules that the wainscot
+# chair-rail stands at exactly 0.95 m above the floor on every panelled wall in
+# the manor, deliberately featureless bands included, so that MEASURABILITY IS A
+# PROPERTY OF THE WALL SPECIFICATION rather than of whichever feature a prompt
+# happened to ask for. Every cand-3 prompt declares it as its `Gate anchor:`.
+# This round is that recipe's validation, and three things about it are
+# deliberate:
+#
+#   ONE RULER. The declared anchor and nothing else. The cand-2 round's tier-1
+#   rulers were read BY EYE off cand-2 pixels (the fireplace jambs, the door
+#   jambs) and those coordinates are not measurements of a cand-3 image, so
+#   carrying them forward would be reading one painting's numbers off another's
+#   - the exact failure `_source_sha256` exists to prevent one file downstream.
+#
+#   NOTHING IS RE-TUNED. Every detector window is the cand-2 one. The round's
+#   own question is whether the recipe puts the features where the approved
+#   composition has them, and re-tuning a window until a feature appears in it
+#   is how you answer a different question - the scar design/architecture.md
+#   records as "an agent measuring a picture several ways until one agrees with
+#   its expectation".
+#
+#   THE ANCHOR HAS TO LOOK LIKE ITSELF. A chair-rail is a moulding STACK - a
+#   capping shadow above the rail's own undercut shadow, 0.08 m apart on the
+#   approved frame. A detector that returns one line, or two lines a quarter of
+#   a metre apart, has not found a chair-rail, and the reading is WITHHELD
+#   rather than issued. Without this clause a window sill and a floorboard join
+#   convert to a px/m as happily as a rail does.
+# ---------------------------------------------------------------------------
+CHAIR_RAIL_M = 0.95                  # blueprint §11's universal anchor
+STACK_M_RANGE = (0.05, 0.14)         # capping above rail; 0.082 m on study/N
+SRC3 = {"study/E": "backdrops/source/study-E/cand-3.png",
+        "study/S": "backdrops/source/study-S/cand-3.png",
+        "study/W": "backdrops/source/study-W/cand-3.png",
+        "hall/N": "backdrops/source/passage-N/cand-3.png",
+        "hall/E": "backdrops/source/passage-E/cand-3.png",
+        "hall/S": "backdrops/source/passage-S/cand-3.png",
+        "hall/W": "backdrops/source/passage-W/cand-3.png",
+        # Measured and printed, never gated: study/N is ADMITTED at cand-2 and
+        # its promotion is committed. Its cand-3 frame is reported so the round
+        # is not quoted as if the approved wall had been left out of it.
+        "study/N": "backdrops/source/study-N/cand-3.png"}
+
+# The control, through THIS round's code: the approved frame's floor line and
+# its two moulding lines. If these move, the detectors have changed what they
+# read and every verdict in the run is void.
+CONTROL3 = dict(wall_floor_line_y_px=777, dado_rail_y_px=564,
+                dado_rail_above_floor_px=213, capping_above_floor_px=232)
+
+
+def measure3(fac, src):
+    """One cand-3 frame, by the declared anchor and the cand-2 windows."""
+    cfg = CFG2[fac]
+    rgb = load(os.path.join(ROOT, src))
+    L = luma(rgb)
+    ceil_y, ceil_cands, _ = pick_ceiling(L, cfg)
+    floor_y, floor_cands, floor_best = pick_floor(L, cfg)
+    module = panelling_module(L, cfg, floor_y)
+    cx0, cx1, _ = find_corners_cand2(L, ceil_y)
+    band = bool(cfg.get("wall_band"))
+    votes, hy, hx = ({}, None, None) if band else horizon_votes(
+        L, ceil_y, floor_y, cx0, cx1)
+
+    rail_px = module["dado_rail_above_floor_px"]
+    cap_px = module["capping_above_floor_px"]
+    ppm = (rail_px / CHAIR_RAIL_M) if rail_px else None
+    dist = PLAN_NOW[fac]
+    focal = ppm * dist if ppm else None
+    delta = (100.0 * (focal - REFERENCE_PX) / REFERENCE_PX) if focal else None
+
+    why = []
+    if band or floor_y >= H - 20:
+        why.append(
+            "the declared anchor is a height ABOVE THE FLOOR and this frame "
+            "paints no floor line - its own prompt forbids one. A prompt that "
+            "declares an anchor and then forbids the datum the anchor is "
+            "measured from has declared nothing, and no ruler can be issued "
+            "from these pixels.")
+    elif cap_px is None:
+        why.append(
+            "only one moulding line was found where a chair-rail is two: the "
+            "capping shadow above the rail's own undercut. What the detector "
+            "returned is a horizontal, not a wainscot.")
+    else:
+        stack_m = (cap_px - rail_px) / ppm
+        if not (STACK_M_RANGE[0] <= stack_m <= STACK_M_RANGE[1]):
+            why.append(
+                "the two moulding lines stand %.3f m apart at the scale they "
+                "themselves imply, where a dado capping sits %.2f-%.2f m above "
+                "its rail (0.082 m on the approved frame). Two lines at that "
+                "spacing are not one chair-rail."
+                % (stack_m, *STACK_M_RANGE))
+    if ppm and not why:
+        storey = (floor_y - ceil_y) / ppm
+        eye = ((floor_y - hy) / ppm) if hy is not None else None
+        if not (STOREY_RANGE[0] <= storey <= STOREY_RANGE[1]):
+            why.append("the derived storey height is %.2f m, outside %.1f-%.1f m. "
+                       "A physically impossible derived quantity is the "
+                       "measurement telling you it is measuring something else."
+                       % (storey, *STOREY_RANGE))
+        if eye is not None and not (EYE_RANGE[0] <= eye <= EYE_RANGE[1]):
+            why.append("the derived eye height is %.2f m, outside %.1f-%.1f m."
+                       % (eye, *EYE_RANGE))
+
+    if why:
+        verdict = "WITHHELD"
+    elif abs(delta) <= BAND * 100:
+        verdict = "PASS"
+    else:
+        verdict = "FAIL"
+    return dict(
+        facing=fac, src=src, verdict=verdict, withheld_because=why,
+        ppm=(None if why else round(ppm, 3)),
+        rail_above_floor_px=rail_px, capping_above_floor_px=cap_px,
+        implied_focal_px=(None if why else round(focal, 1)),
+        delta_pct=(None if why else round(delta, 2)),
+        drawn_standpoint_m=dist,
+        measured=dict(wall_ceiling_line_y_px=(None if band else ceil_y),
+                      wall_floor_line_y_px=(None if band else floor_y),
+                      raw_wall_floor_line_y_px=floor_y,
+                      dado_rail_y_px=module["dado_rail_y_px"],
+                      capping_y_px=module["capping_y_px"],
+                      horizon_y_px=hy, corner_x0_px=cx0, corner_x1_px=cx1),
+        candidates={"wall_ceiling_line": ceil_cands, "wall_floor_line": floor_cands,
+                    "wall_floor_line_hand_read_window": floor_best},
+        module=module, votes=votes, light=light(rgb, L, ceil_y, floor_y, cx0, cx1))
+
+
+def cand3_doc(r):
+    fac = r["facing"]
+    return {
+      "_source_sha256": hashlib.sha256(
+          open(os.path.join(ROOT, r["src"]), "rb").read()).hexdigest(),
+      "_what_this_is":
+        "The cand-3 GATE READING for %s, measured off %s by "
+        "design/plan-draft/measured/measure.py --round cand3. It is not a §5 "
+        "meta and nothing consumes it: no cand-3 candidate promotes. The "
+        "standing-eye wave regenerates every wall against "
+        "backdrops/source/study-N/cand-4-standing-eye.png, and this round is "
+        "recipe validation - does the universal-anchor discipline transfer?"
+        % (fac, r["src"]),
+      "verdict": r["verdict"],
+      "px_per_m_at_wall": r["ppm"],
+      "implied_focal_px": r["implied_focal_px"],
+      "delta_pct": r["delta_pct"],
+      "drawn_standpoint_m": r["drawn_standpoint_m"],
+      "_ruler": {
+        "name": "chair_rail", "tier": 1, "ruled_m": CHAIR_RAIL_M,
+        "feature_px": r["rail_above_floor_px"],
+        "what": ("the wainscot chair-rail's undercut shadow above the wall's "
+                 "own floor line, against the 0.95 m blueprint §11 rules on "
+                 "every panelled wall in the manor and every cand-3 prompt "
+                 "declares as its `Gate anchor:`."),
+        "stack_capping_px": r["capping_above_floor_px"],
+        "only_ruler_because": (
+            "the cand-2 tier-1 rulers were read by eye off cand-2 pixels; "
+            "their coordinates are not measurements of this image."),
+      },
+      "_withheld_because": r["withheld_because"],
+      "_harness": ("Every detector window is the cand-2 one, unchanged. "
+                   "Nothing was re-tuned for these frames, on purpose: the "
+                   "round's question is whether the recipe puts the features "
+                   "where the approved composition has them."),
+      "_measured_px": r["measured"],
+      "_panelling_module": r["module"],
+      "_candidates": r["candidates"],
+      "_horizon_votes": r["votes"],
+      "_light": r["light"],
+      "_plan": dict(PLAN[fac], camera_wall_m_in_standpoints_tsv_now=PLAN_NOW[fac]),
+    }
+
+
+def control3():
+    """The approved frame through the cand-3 code."""
+    cfg = CFG2["study/N"]
+    L = luma(load(os.path.join(ROOT, cfg["src"])))
+    floor_y, _, _ = pick_floor(L, cfg)
+    mod = panelling_module(L, cfg, floor_y)
+    got = dict(wall_floor_line_y_px=floor_y, dado_rail_y_px=mod["dado_rail_y_px"],
+               dado_rail_above_floor_px=mod["dado_rail_above_floor_px"],
+               capping_above_floor_px=mod["capping_above_floor_px"])
+    per = [{"field": k, "committed": CONTROL3[k], "measured": got[k],
+            "delta": got[k] - CONTROL3[k]} for k in CONTROL3]
+    return dict(passed=all(p["delta"] == 0 for p in per), per_field=per,
+                measured=got, expected=CONTROL3,
+                _why=("study/N cand-2 is the one approved frame and the cand-3 "
+                      "round reads it with the same two detectors it reads "
+                      "everything else with. Its own rail is at 0.9172 m, not "
+                      "0.95 - it was painted before the ruling and blueprint "
+                      "§11 says the rule supersedes the inference WHEREVER A "
+                      "WALL IS PAINTED TO IT - so this frame is a control on "
+                      "the DETECTORS and is not gated by the anchor."))
+
+
+def main_cand3():
+    out = os.path.join(OUT, "cand3")
+    if not os.path.isdir(out):
+        os.makedirs(out)
+    ctl = control3()
+    raw = {fac: measure3(fac, SRC3[fac]) for fac in FACINGS}
+    for fac in FACINGS:
+        loc, f = fac.split("/")
+        doc = cand3_doc(raw[fac])
+        if fac == "study/N":
+            doc["_control"] = ctl
+            doc["_not_gated"] = (
+                "study/N is ADMITTED at cand-2 and promoted. This row measures "
+                "its cand-3 frame and issues no verdict against it.")
+        json.dump(doc, open(os.path.join(out, "%s-%s.json" % (loc, f)), "w"),
+                  indent=2)
+
+    records = []
+    for fac in FACINGS:
+        if fac == "study/N":
+            continue
+        r = raw[fac]
+        target_ppm = REFERENCE_PX / r["drawn_standpoint_m"]
+        records.append(dict(
+            _record="miss", round="cand-3", facing=fac, candidate=r["src"],
+            kind=("measurement_withheld" if r["verdict"] == "WITHHELD"
+                  else "generation_miss"),
+            gate="design/plan-draft/measured/gate.py --round cand3",
+            verdict=r["verdict"],
+            measured=dict(ruler="chair_rail", ruler_tier=1,
+                          ruler_px=r["rail_above_floor_px"],
+                          ruled_m=CHAIR_RAIL_M, px_per_m_at_wall=r["ppm"],
+                          implied_focal_px=r["implied_focal_px"],
+                          drawn_standpoint_m=r["drawn_standpoint_m"]),
+            target=dict(target_focal_px=REFERENCE_PX,
+                        target_px_per_m_at_wall=round(target_ppm, 2),
+                        band_pct=BAND * 100),
+            delta_pct=r["delta_pct"],
+            trust=("single ruler, no cross-check available" if r["ppm"]
+                   else "not measurable"),
+            robustness=("ONE RULER ONLY - the declared anchor, by the round's "
+                        "own design. Direction, not magnitude."
+                        if r["ppm"] else
+                        "no ruler: " + " ".join(r["withheld_because"])),
+            why=(" ".join(r["withheld_because"]) if r["withheld_because"] else
+                 "the wall was painted at %.1f px/m where the approved camera "
+                 "wants %.1f px/m at this facing's drawn %.2f m standpoint."
+                 % (r["ppm"], target_ppm, r["drawn_standpoint_m"])),
+            correction=(None if not r["ppm"] else
+                        "the wall must draw %.3fx larger: %.1f px/m at the wall "
+                        "plane, not %.1f, at the drawn standpoint of %.2f m."
+                        % (target_ppm / r["ppm"], target_ppm, r["ppm"],
+                           r["drawn_standpoint_m"])),
+            blocked_on=(None if r["ppm"] else " ".join(r["withheld_because"])),
+            status="open", baked_in=None))
+    misses = write_misses(None, "cand-3", records)
+
+    print("CONTROL study/N cand-2 through the cand-3 code: %s"
+          % ("PASSED" if ctl["passed"] else "*** MOVED ***"))
+    for p in ctl["per_field"]:
+        print("   %-28s committed %-9s measured %-9s delta %s"
+              % (p["field"], p["committed"], p["measured"], p["delta"]))
+    if not ctl["passed"]:
+        print("\n*** THE CONTROL HAS MOVED. EVERY VERDICT IN THIS RUN IS VOID. ***\n")
+    print("\n%-9s %-26s %8s %9s %8s %7s  %s"
+          % ("facing", "source", "rail px", "px/m", "focal", "delta", "verdict"))
+    for fac in FACINGS:
+        r = raw[fac]
+        tag = "  (not gated)" if fac == "study/N" else ""
+        if r["ppm"]:
+            print("%-9s %-26s %8s %9.2f %8.0f %+6.1f%%  %s%s"
+                  % (fac, os.path.basename(os.path.dirname(r["src"])) + "/"
+                     + os.path.basename(r["src"]), r["rail_above_floor_px"],
+                     r["ppm"], r["implied_focal_px"], r["delta_pct"],
+                     r["verdict"], tag))
+        else:
+            print("%-9s %-26s %8s %9s %8s %7s  %s%s"
+                  % (fac, os.path.basename(os.path.dirname(r["src"])) + "/"
+                     + os.path.basename(r["src"]), "-", "-", "-", "-",
+                     r["verdict"], tag))
+    print("\nWITHHELD, and why:")
+    for fac in FACINGS:
+        for w in raw[fac]["withheld_because"]:
+            print("  %-9s %s" % (fac, w))
+    print("\nledger: %s" % os.path.relpath(misses, ROOT))
+    print("readings: %s/" % os.path.relpath(out, ROOT))
+    return 0 if ctl["passed"] else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--round", choices=["cand1", "cand2"], default="cand2",
-                    help="cand2 (default) is row 21's; cand1 reproduces row 20's.")
+    ap.add_argument("--round", choices=["cand1", "cand2", "cand3"],
+                    default="cand2",
+                    help="cand2 (default) is row 21's promotion round; cand1 "
+                         "reproduces row 20's; cand3 gates the universal-anchor "
+                         "round, which promotes nothing.")
     args = ap.parse_args()
     if args.round == "cand1":
         main_cand1()
         return 0
+    if args.round == "cand3":
+        return main_cand3()
     return main_cand2()
 
 

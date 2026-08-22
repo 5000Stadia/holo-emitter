@@ -1,0 +1,593 @@
+{
+  "_source_sha256": "8c19e9c2c853728f6bae863e7aa524b804ec9938b684d0e26feadf2cec363e5f",
+  "_what_this_is": "The cand-3 GATE READING for study/W, measured off backdrops/source/study-W/cand-3.png by design/plan-draft/measured/measure.py --round cand3. It is not a \u00a75 meta and nothing consumes it: no cand-3 candidate promotes. The standing-eye wave regenerates every wall against backdrops/source/study-N/cand-4-standing-eye.png, and this round is recipe validation - does the universal-anchor discipline transfer?",
+  "verdict": "FAIL",
+  "px_per_m_at_wall": 230.526,
+  "implied_focal_px": 942.9,
+  "delta_pct": -6.65,
+  "drawn_standpoint_m": 4.09,
+  "_ruler": {
+    "name": "chair_rail",
+    "tier": 1,
+    "ruled_m": 0.95,
+    "feature_px": 219,
+    "what": "the wainscot chair-rail's undercut shadow above the wall's own floor line, against the 0.95 m blueprint \u00a711 rules on every panelled wall in the manor and every cand-3 prompt declares as its `Gate anchor:`.",
+    "stack_capping_px": 239,
+    "only_ruler_because": "the cand-2 tier-1 rulers were read by eye off cand-2 pixels; their coordinates are not measurements of this image."
+  },
+  "_withheld_because": [],
+  "_harness": "Every detector window is the cand-2 one, unchanged. Nothing was re-tuned for these frames, on purpose: the round's question is whether the recipe puts the features where the approved composition has them.",
+  "_measured_px": {
+    "wall_ceiling_line_y_px": 81,
+    "wall_floor_line_y_px": 788,
+    "raw_wall_floor_line_y_px": 788,
+    "dado_rail_y_px": 569,
+    "capping_y_px": 549,
+    "horizon_y_px": 500,
+    "corner_x0_px": 141,
+    "corner_x1_px": 1399
+  },
+  "_panelling_module": {
+    "band": [
+      500,
+      640
+    ],
+    "cols": [
+      200,
+      1400
+    ],
+    "band_median_luma": 33.29,
+    "capping_y_px": 549,
+    "dado_rail_y_px": 569,
+    "capping_above_floor_px": 239,
+    "dado_rail_above_floor_px": 219,
+    "profile": [
+      39.42,
+      38.92,
+      39.75,
+      39.38,
+      40.13,
+      39.55,
+      40.17,
+      39.51,
+      39.78,
+      39.09,
+      39.57,
+      38.7,
+      39.02,
+      38.01,
+      38.13,
+      36.99,
+      36.99,
+      36.39,
+      36.94,
+      36.28,
+      36.87,
+      36.38,
+      36.98,
+      36.48,
+      37.11,
+      36.7,
+      37.33,
+      36.73,
+      37.28,
+      36.59,
+      37.05,
+      36.51,
+      36.97,
+      36.33,
+      36.71,
+      35.7,
+      35.86,
+      34.1,
+      34.18,
+      24.86,
+      20.58,
+      40.43,
+      21.95,
+      27.57,
+      25.89,
+      25.45,
+      21.71,
+      28.17,
+      40.33,
+      9.89,
+      18.3,
+      31.4,
+      31.41,
+      32.86,
+      34.12,
+      33.67,
+      34.03,
+      33.0,
+      33.26,
+      32.34,
+      30.96,
+      30.33,
+      30.18,
+      11.02,
+      15.27,
+      16.05,
+      29.69,
+      58.23,
+      5.77,
+      2.73,
+      8.76,
+      46.54,
+      18.21,
+      9.99,
+      28.44,
+      30.02,
+      33.66,
+      35.02,
+      36.49,
+      35.28,
+      35.45,
+      34.82,
+      35.21,
+      34.11,
+      34.2,
+      33.71,
+      29.49,
+      13.15,
+      29.39,
+      51.14,
+      12.64,
+      11.73,
+      17.09,
+      17.37,
+      22.07,
+      36.31,
+      18.11,
+      25.77,
+      31.75,
+      32.19,
+      35.0,
+      35.51,
+      37.13,
+      34.45,
+      34.3,
+      33.79,
+      34.33,
+      33.81,
+      34.32,
+      33.62,
+      33.89,
+      33.29,
+      33.42,
+      32.67,
+      32.94,
+      32.28,
+      32.83,
+      32.25,
+      32.63,
+      32.11,
+      32.5,
+      32.03,
+      32.62,
+      32.06,
+      32.28,
+      31.54,
+      31.77,
+      31.17,
+      31.6,
+      31.09,
+      31.62,
+      31.26,
+      31.95,
+      31.66,
+      32.45,
+      32.02,
+      32.2,
+      31.65,
+      31.98,
+      31.23,
+      31.52
+    ],
+    "profile_first_row": 500
+  },
+  "_candidates": {
+    "wall_ceiling_line": [
+      {
+        "y": 82,
+        "strength": 45.85,
+        "horiz": 0.708,
+        "cv": 0.544
+      },
+      {
+        "y": 116,
+        "strength": 16.24,
+        "horiz": 0.672,
+        "cv": 0.991
+      },
+      {
+        "y": 142,
+        "strength": 11.38,
+        "horiz": 0.734,
+        "cv": 1.053
+      },
+      {
+        "y": 149,
+        "strength": 9.21,
+        "horiz": 0.538,
+        "cv": 1.133
+      },
+      {
+        "y": 110,
+        "strength": 7.96,
+        "horiz": 0.812,
+        "cv": 0.615
+      },
+      {
+        "y": 101,
+        "strength": 7.49,
+        "horiz": 0.717,
+        "cv": 1.552
+      },
+      {
+        "y": 88,
+        "strength": 5.94,
+        "horiz": 0.705,
+        "cv": 0.631
+      },
+      {
+        "y": 95,
+        "strength": 5.44,
+        "horiz": 0.799,
+        "cv": 1.312
+      },
+      {
+        "y": 136,
+        "strength": 4.05,
+        "horiz": 0.721,
+        "cv": 1.373
+      },
+      {
+        "y": 43,
+        "strength": 2.87,
+        "horiz": 0.729,
+        "cv": 0.908
+      },
+      {
+        "y": 33,
+        "strength": 2.73,
+        "horiz": 0.711,
+        "cv": 0.859
+      },
+      {
+        "y": 23,
+        "strength": 2.56,
+        "horiz": 0.708,
+        "cv": 0.869
+      }
+    ],
+    "wall_floor_line": [
+      {
+        "y": 751,
+        "strength": 54.28,
+        "horiz": 0.998,
+        "cv": 0.692
+      },
+      {
+        "y": 568,
+        "strength": 44.3,
+        "horiz": 0.971,
+        "cv": 0.791
+      },
+      {
+        "y": 590,
+        "strength": 35.94,
+        "horiz": 0.754,
+        "cv": 0.873
+      },
+      {
+        "y": 744,
+        "strength": 35.76,
+        "horiz": 0.972,
+        "cv": 0.522
+      },
+      {
+        "y": 756,
+        "strength": 31.61,
+        "horiz": 0.955,
+        "cv": 1.029
+      },
+      {
+        "y": 723,
+        "strength": 31.09,
+        "horiz": 0.744,
+        "cv": 1.005
+      },
+      {
+        "y": 549,
+        "strength": 27.49,
+        "horiz": 0.762,
+        "cv": 0.801
+      },
+      {
+        "y": 715,
+        "strength": 27.06,
+        "horiz": 0.638,
+        "cv": 1.131
+      },
+      {
+        "y": 541,
+        "strength": 19.05,
+        "horiz": 0.652,
+        "cv": 1.104
+      },
+      {
+        "y": 596,
+        "strength": 18.15,
+        "horiz": 0.643,
+        "cv": 0.966
+      },
+      {
+        "y": 574,
+        "strength": 16.59,
+        "horiz": 0.976,
+        "cv": 0.752
+      },
+      {
+        "y": 563,
+        "strength": 16.23,
+        "horiz": 0.891,
+        "cv": 0.669
+      },
+      {
+        "y": 789,
+        "strength": 11.22,
+        "horiz": 0.923,
+        "cv": 0.398
+      },
+      {
+        "y": 939,
+        "strength": 6.34,
+        "horiz": 0.722,
+        "cv": 1.494
+      },
+      {
+        "y": 955,
+        "strength": 6.34,
+        "horiz": 0.716,
+        "cv": 1.333
+      },
+      {
+        "y": 933,
+        "strength": 6.32,
+        "horiz": 0.731,
+        "cv": 1.37
+      },
+      {
+        "y": 917,
+        "strength": 6.31,
+        "horiz": 0.723,
+        "cv": 1.508
+      },
+      {
+        "y": 911,
+        "strength": 6.29,
+        "horiz": 0.731,
+        "cv": 1.415
+      },
+      {
+        "y": 889,
+        "strength": 6.14,
+        "horiz": 0.69,
+        "cv": 1.372
+      },
+      {
+        "y": 961,
+        "strength": 6.02,
+        "horiz": 0.735,
+        "cv": 1.239
+      },
+      {
+        "y": 923,
+        "strength": 6.02,
+        "horiz": 0.713,
+        "cv": 1.424
+      },
+      {
+        "y": 967,
+        "strength": 6.01,
+        "horiz": 0.731,
+        "cv": 1.362
+      },
+      {
+        "y": 946,
+        "strength": 5.88,
+        "horiz": 0.715,
+        "cv": 1.42
+      },
+      {
+        "y": 972,
+        "strength": 5.74,
+        "horiz": 0.723,
+        "cv": 1.32
+      },
+      {
+        "y": 928,
+        "strength": 5.73,
+        "horiz": 0.721,
+        "cv": 1.531
+      },
+      {
+        "y": 991,
+        "strength": 5.73,
+        "horiz": 0.697,
+        "cv": 1.294
+      },
+      {
+        "y": 985,
+        "strength": 5.64,
+        "horiz": 0.734,
+        "cv": 1.327
+      },
+      {
+        "y": 897,
+        "strength": 5.61,
+        "horiz": 0.741,
+        "cv": 1.346
+      },
+      {
+        "y": 876,
+        "strength": 5.59,
+        "horiz": 0.714,
+        "cv": 1.44
+      },
+      {
+        "y": 977,
+        "strength": 5.55,
+        "horiz": 0.732,
+        "cv": 1.332
+      },
+      {
+        "y": 866,
+        "strength": 5.5,
+        "horiz": 0.713,
+        "cv": 1.407
+      },
+      {
+        "y": 905,
+        "strength": 5.48,
+        "horiz": 0.715,
+        "cv": 1.471
+      },
+      {
+        "y": 1001,
+        "strength": 5.22,
+        "horiz": 0.712,
+        "cv": 1.365
+      },
+      {
+        "y": 883,
+        "strength": 5.15,
+        "horiz": 0.699,
+        "cv": 1.438
+      },
+      {
+        "y": 871,
+        "strength": 5.02,
+        "horiz": 0.684,
+        "cv": 1.527
+      },
+      {
+        "y": 857,
+        "strength": 5.01,
+        "horiz": 0.67,
+        "cv": 1.448
+      },
+      {
+        "y": 996,
+        "strength": 4.98,
+        "horiz": 0.708,
+        "cv": 1.448
+      },
+      {
+        "y": 852,
+        "strength": 4.63,
+        "horiz": 0.719,
+        "cv": 1.601
+      },
+      {
+        "y": 1007,
+        "strength": 4.6,
+        "horiz": 0.731,
+        "cv": 1.571
+      },
+      {
+        "y": 847,
+        "strength": 4.09,
+        "horiz": 0.714,
+        "cv": 1.538
+      }
+    ],
+    "wall_floor_line_hand_read_window": {
+      "window": [
+        770,
+        790
+      ],
+      "window_profile": [
+        14.63,
+        14.23,
+        14.46,
+        13.96,
+        13.66,
+        12.99,
+        13.07,
+        12.29,
+        12.03,
+        11.56,
+        11.65,
+        10.89,
+        10.96,
+        10.47,
+        10.79,
+        10.48,
+        11.41,
+        4.77,
+        2.04,
+        13.25,
+        13.6
+      ],
+      "window_profile_first_row": 770,
+      "automatic_lowest_true_horizontal": 788
+    }
+  },
+  "_horizon_votes": {
+    "floor": {
+      "x": 726,
+      "y": 496,
+      "edge_px": 28425
+    },
+    "ceiling": {
+      "x": 802,
+      "y": 515,
+      "edge_px": 7939
+    },
+    "side_walls": {
+      "x": 760,
+      "y": 497,
+      "edge_px": 1892
+    }
+  },
+  "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 248,
+    "key_dir_brightest_y": 10,
+    "key_tint": "#c8b39e",
+    "key_tint_patch": [
+      151,
+      448,
+      11,
+      73
+    ],
+    "key_tint_patch_mean_rgb": [
+      134.19,
+      119.78,
+      106.29
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8bebe",
+      "floor_bottom_strip": "#c89671",
+      "mid_wall_right": "#c8732e",
+      "mid_wall_left": "#b3b8c8",
+      "brightest_21x21_patch": "#c8bdb3"
+    },
+    "brightest_21x21_patch_centre_px": [
+      248,
+      10
+    ],
+    "sobel_bright_side_deg_whole_frame": 89.03,
+    "sobel_bright_side_deg_wall_band": 87.98,
+    "left_third_minus_right_third_luminance_whole_frame": 15.216,
+    "left_third_minus_right_third_luminance_wall_band": 7.177
+  },
+  "_plan": {
+    "camera_wall_m": 4.09,
+    "wall_width_m": 4.8,
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 4.09
+  }
+}

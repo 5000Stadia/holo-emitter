@@ -33,7 +33,8 @@ fixtures/nav-manor/plan.ref     one line: the plan this fixture is projected fro
 backdrops/<loc>/<facing>.png    a PROMOTED painting + its measured .meta.json (row 21; study/N)
 backdrops/baked.js              GENERATED: the promoted paintings as data: URIs (tools/bake-backdrops.mjs)
 tools/promote-backdrop.mjs      candidate + measurement -> backdrops/<loc>/<facing>.{png,meta.json}
-design/plan-draft/measured/     measure.py --round cand2 | gate.py | prompt_lint.py | misses.jsonl
+design/plan-draft/measured/     measure.py --round cand1|cand2|cand3 | gate.py [--round cand3] |
+                                prompt_lint.py | misses.jsonl (every round, keyed) | cand3/
 fixtures/demo-study/plan.json   the manor in metres (§4b) — the spatial source, presentation-side
 fixtures/demo-study/fixture.js  GENERATED from the .json files (see the bake; the plan is NOT baked)
 tools/bake-fixtures.mjs         the bake — calls both validators and refuses an invalid fixture
@@ -1386,7 +1387,8 @@ them:
   records it in the meta (`measured_room.carriers`), and `geometry.spec` holds the number so it
   cannot move unnoticed.
   **RULED at the row-21 close (Navigator, 2026-08-22): the PLAN amends to the painting**, and it
-  lands as its own row rather than inside this one. The wall map's hearth was [AI]-drafted; the
+  lands as **row 22** rather than inside this one — that row's spec-list entry carries the whole
+  cascade and its done clause ends at Kabe's glance, not at a green suite. The wall map's hearth was [AI]-drafted; the
   painting's position is what Kabe approved with his own eye (`design/approvals.log`, 2026-08-21)
   and blueprint §5 makes the approved image the geometric authority. The rectangle is the painted
   stone CASE — 1.27 m wide centred at 1.39 m, its outer mouldings measured at 0.756 and 2.023 m —
@@ -1477,24 +1479,74 @@ follows: the standing-eye wave regenerates the study and passage walls together 
 all against `cand-4` as the camera reference, and **no cand-3 candidate promotes** — that round is
 recipe validation (does the scale-and-anchor discipline transfer?) rather than an admission gate.
 
-**What the production run's first step is, and what a first look at `cand-4` already says.** Its
-measured eye height becomes `DRAWING_EYE_M`'s target, and the gate gains an eye-height band around
-that measured value on the same ±3 % idiom the focal uses; the focal band itself (1010 px) is
-eye-independent and stands. A run of the cand-2 detectors over `cand-4` WITHOUT re-tuning — which
-is exactly the thing this project has a scar about — says two things, and only one of them is
-usable:
+**What the production run's first step is, and what the harness says when it is pointed at
+`cand-4`.** Its measured eye height becomes `DRAWING_EYE_M`'s target, and the gate gains an
+eye-height band around that measured value on the same ±3 % idiom the focal uses; the focal band
+itself (1010 px) is eye-independent and stands. The harness was run over `cand-4` at the row's
+close, with every detector window left where the cand-2 round put it — the un-re-tuned run this
+project has a scar about, done deliberately and read as such. **NO EYE HEIGHT IS ISSUED**, and the
+three readings that say why are the production run's starting point:
 
-- the fireplace ruler transfers: its inner jambs measure 340 and 554 against cand-2's 342 and 550,
-  so 215 px of a 0.90 m opening is **238.9 px/m**, and at the drawn 4.35 m that is a 1039 px lens,
-  **+2.9 %** — inside the band, provisionally;
-- the ceiling and floor detectors do NOT transfer: the strongest step in the upper band is at y 85
-  while the horizontality rule picks 120, the lower band offers 774/775 and 804/805 with nothing to
-  choose between them, and the corner reference strength falls from 70.4 to 16.4. **So no eye
-  height is issued here** — which is the whole point of the A/B, and issuing one off windows tuned
-  to another frame is the defect the WITHHELD class exists to name.
+- **the ruled horizon instrument does not resolve.** The ceiling-ramp fit — ruled at row 20 over
+  the vanishing-point vote — returns y 86 on `cand-4` against a ceiling line detected at y 120,
+  where on the approved frame the same code returns 524.4 exactly.
+- **the superseded instrument does resolve, and answers absurdly.** The vote puts the horizon at
+  y 541, which with the fireplace ruler makes `cand-4`'s eye **0.99 m** — *lower* than the same
+  instrument's reading of the low-eye frame it replaces (1.20 m). A standing-eye frame that
+  measures shorter than the frame it stands in for is the measurement telling you it is measuring
+  something else.
+- **the two rulers straddle.** The fireplace opening is where it was — jambs at 342 and 554, 213 px
+  of a ruled 0.90 m → **236.7 px/m**, a 1029 px lens at the drawn 4.35 m, **+1.9 %** and inside the
+  band — while the wainscot rail measures 180 px above the floor against the approved room's 213, a
+  20 % disagreement. The likely reading is that the camera is right and the joinery moved; a likely
+  reading is not a measurement, and this is the WITHHELD class's own trigger.
 
 The re-tune, the eye measurement and the band are the production run's first step, with the numbers
 above as its starting point rather than its answer.
+
+### The cand-3 round: the universal anchor, gated, and what it clocked
+
+Blueprint §11 gained a ruling at this row — **the wainscot chair-rail stands at exactly 0.95 m
+above the floor on every panelled wall in the manor** — so that being measurable is a property of
+the WALL SPECIFICATION rather than of whichever feature a prompt happened to ask for, which is what
+the WITHHELD class had been telling us. The seven walls were repainted under it as `cand-3`, and
+`measure.py --round cand3` + `gate.py --round cand3` are that round's gate. **Nothing in it
+promotes**, decided before the numbers were: Kabe's B routes every wall through the standing-eye
+wave, so cand-3 is recipe validation.
+
+Three things about the instrument are deliberate and are what make the table mean anything.
+**One ruler** — the declared anchor and nothing else, because the cand-2 tier-1 rulers were read by
+eye off cand-2 pixels and those coordinates are not measurements of another image. **Nothing
+re-tuned** — every detector window is the cand-2 one, because the round's own question is whether
+the recipe puts the features where the approved composition has them. **The anchor has to look like
+itself** — a chair-rail is a moulding stack, a capping shadow above the rail's undercut, 0.082 m
+apart on the approved frame; one line, or two a quarter-metre apart, is not a wainscot and the
+reading is withheld rather than issued. The control holds: the approved frame through the cand-3
+code returns its committed floor line (777) and rail (213 px above it) to the pixel.
+
+The result: **0 of 7 admitted, the same as cand-2**, which is the one number strictly comparable
+across the two rounds because the instruments differ on purpose. `study/E` and `study/W` measure
+−7.5 % and −6.6 % — the camera still did not move as far as it was asked to, in the same direction
+and by about the same amount. `hall/E` and `hall/W` paint one moulding line where the anchor is
+two. `study/S` paints two 0.27 m apart. And `hall/N` and `hall/S` **declare the anchor and then
+forbid the floor it is measured above**, so they are withheld a second time under the very rule
+written to stop it — that cause is now `prompt_lint.py`'s third clause
+(`row21:prompt.anchor_datum_forbidden`).
+
+**The lint refused all seven compliant prompts on a comma, and that is the round's sharpest
+finding about our own side.** Its `Gate anchor:` parser required the metres to follow one; the seat
+wrote *"at exactly 0.95m above the floor, running the full wall"*; so the round meant to test the
+rule was generated against a tool that rejected obedience to it, and the tool's 25-of-25 refusal
+count read as discrimination when it was noise. **A gate that refuses compliant work teaches the
+seat nothing**, and it is the failure mode nobody looks for because it produces no false green. The
+parser reads the metres wherever they stand on the line now, and 5 of the 8 cand-3 prompts pass.
+
+**So `prompt_lint.py` is still apparatus and has still not clocked as an improvement**, which is
+production law clause 5's own verdict on it: the first-roll pass rate is unmoved at 0 of 7. What
+the round did buy is a third named cause and a working parser, both cited in `misses.jsonl`, whose
+entries now carry a `round` field — a run rewrites only its own round's lines and carries the
+others through verbatim, because "the pass rate rising over time" is a claim about rounds beside
+each other and a ledger that kept one round could not carry it.
 
 ### Residue, named
 
@@ -1512,12 +1564,49 @@ above as its starting point rather than its answer.
 4. **`backdrops/baked.js` is a second copy of the pixels**, 3.4 MB beside a 2.6 MB PNG, both
    committed to a public repository forever. The staleness test is the mitigation for their
    agreement; the size is the fork named above.
-5. **The promotion rides an open human gate** — the camera A/B between the promoted low-eye cand-2
-   and `cand-4-standing-eye.png`. If the standing eye wins, this is a re-run of
-   `promote-backdrop.mjs` against a new candidate plus a regeneration batch, not a rewrite.
-6. **`prompt_lint.py` is apparatus until the next round clocks it.** The production law's fifth
-   clause presumes a change that moves neither accuracy nor speed is not an improvement; this one
-   has an argument and a baseline (0 of 7) and no result yet.
+5. **CLOSED: the camera A/B is answered — B, the standing eye** (`design/approvals.log`, 964188d).
+   The promotion stands as built and `backdrops/study/N.png` is the last wall this project will
+   ever stand at the low eye; the standing-eye wave supersedes it in the production run. What
+   remains open is not the ruling but its number: `cand-4`'s measured eye height, which the
+   un-re-tuned harness will not issue (above).
+6. **`prompt_lint.py` is apparatus, and the next round has now clocked it: UNMOVED.** First-roll
+   pass rate 0 of 7 at cand-2 and 0 of 7 at cand-3. Production law clause 5 presumes a change that
+   moves neither accuracy nor speed is not an improvement, so this one has to argue for its life at
+   the standing-eye wave or be removed. It gained a third clause and a parser that no longer
+   refuses obedience, which is a reason to expect better and not evidence of it.
+7. **The plan and the painting still disagree about the hearth, and the fix is allocated.** The
+   number is held by test so it cannot drift; **row 22** is the execution row and its full cascade
+   is written into its spec-list entry. Nothing is staged on the study's north wall until it lands.
+
+### What row 21 hands on, and to whom
+
+The spec list is the one home of targets and a closing row may not edit another row's text, so the
+hand-offs live here.
+
+- **Row 22 — the plan amends to the painting.** Allocated at this close with its full cascade in
+  its own row text. It is the first thing the asset lane needs, because nothing may be staged on
+  the study's north wall until the carrier and `study/S`'s standpoint have moved.
+- **The production run (row 4's bulk step) inherits three things.** The standing-eye wave — every
+  wall regenerated against `cand-4-standing-eye`, which supersedes the promoted low-eye `study/N`.
+  The **re-tune** of `measure.py`'s detector windows against that frame, which is its first step
+  and without which no eye height can be issued (above). And the **encode fork**: eight facings of
+  q92 JPEG data: URI is the lever, and taking it means deciding whether the flip test may judge a
+  picture the repository does not hold.
+- **The asset seat inherits a lint that now discriminates** and three named causes, one of which
+  (an anchor declared above a floor the frame forbids) it has already committed twice. The prompt
+  sheets for the wave are written against `prompt_lint.py`, and a prompt it refuses does not go out.
+- **Row 4's sprite lane inherits `key_dir: "L-BELOW"` on `study/N`** — that facing's sprites
+  generate fire-lit, per §10's own disposition — and the two decomposed qualities the painted world
+  cannot exercise at all, *contact* and *occlusion chains*, which have no subject until objects
+  land.
+- **Row 15 inherits the through-view's named limits**: nothing is drawn two doorways deep, and the
+  destination's parallax is the destination camera's. Both are consequences of pasting a frame
+  rather than re-projecting a room, and the manor is where a second doorway in view becomes
+  ordinary — the ledger case for the recursion stop is built on exactly that world.
+- **The batch waits on Kabe.** `design/batches/row21-promotion/` stays in the tree with its entry
+  in `design/approvals.log` reading AWAITING, and the row-20 batch rides with it; `plan.spec`
+  requires both to be there while their entries are open. The row's own done clause is delivery to
+  the Navigator, so the close does not pretend to hold his word.
 
 ## Ground plane (`src/groundplane.js`)
 
@@ -2500,7 +2589,12 @@ the status band was deleted — the scar is general and rows 8–10 add chrome);
 law made geometric, the camera, the derived meta by test-side arithmetic AND against the approved
 `standpoints.tsv`, the staging↔projection divergence, the three groundplane import bindings, the
 bake's new refusals, and the derived render's byte-identity — it shells out to `python3`, and
-fails rather than skips when it is missing, because that byte-identity is row 12's acceptance);
+fails rather than skips when it is missing, because that byte-identity is row 12's acceptance;
+**row 21** adds the two batches' re-render, the approvals-ledger gate, the prompt lint's
+discrimination cases, and at the close the cand-3 round's membership claim — *nothing is admitted* —
+its control against the committed promotion, and a line-for-line comparison of **both gate tables
+the batch quotes to Kabe** against what `gate.py` prints today, because a quoted table is a second
+copy of a fact and this row already shipped one that had drifted by a space);
 `determinism` extends §12.2 clause 1 across two fresh page loads (boot facing,
 swap state, one `part_t = 0.5` mid-state); `geometry` (row 11: §5's horizon device on the fallback
 meta at the RULED eye height, the ruled eye asserted against `replicator/contract.json`, §12.5's

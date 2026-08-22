@@ -33,12 +33,31 @@ THE FIX FOR (2) IS A DECLARATION, not a guess: every prompt names its own
 metres. That makes the prompt and the gate agree about what the ruler is before
 the image exists, which is the one thing neither could check afterwards.
 
+  (3) THE PROMPT DECLARED AN ANCHOR AND FORBADE ITS DATUM. Earned by the cand-3
+      round, at row 21's close. Every cand-3 prompt declares blueprint §11's
+      universal anchor -- the wainscot chair-rail at 0.95 m ABOVE THE FLOOR --
+      and `passage-N` and `passage-S` then ask for a frame with "No floor, no
+      ceiling, and no corners". A height above a datum the frame does not show
+      is not a length in that frame: both came back WITHHELD again, for the same
+      reason as at cand-2 and through a clause that was supposed to have closed
+      it. A declaration is only a declaration when the thing it is measured from
+      is in the picture.
+
 WHAT IT CLOCKED, per the production law's fifth clause (an improvement must
-clock as one): run over the seven cand-2 prompts this refuses 5 for (1) and 7
-for (2). The accuracy metric it is aimed at is the FIRST-ROLL PASS RATE, whose
-baseline is 0 of 7, and the next round is what says whether these two clauses
-moved it. Recorded here rather than asserted: if the next round misses again
-for a third reason, this file gained a clause and did not gain a verdict.
+clock as one): over the seven cand-2 prompts it refuses 5 for (1) and 7 for (2).
+Over the seven cand-3 prompts -- the first round generated with it standing --
+the first-roll pass rate is UNMOVED at 0 of 7, and the round is diagnosed at
+`design/plan-draft/measured/cand3/` and in `misses.jsonl`. Two of the three
+causes it now names are (3), which this file could not see when those prompts
+were written. **So this is still apparatus with an argument and not yet a
+clocked improvement**, and the honest reading of the cand-3 round is worse than
+that: this lint's own `Gate anchor:` parser refused all seven cand-3 prompts on
+a comma -- it required the metres to follow one, and the seat wrote "at exactly
+0.95m above the floor, running the full wall" -- so the round that was meant to
+test the rule was generated against a tool that rejected a compliant prompt. The
+parser reads the metres wherever they stand on the line now. A gate that refuses
+compliant work teaches the seat nothing, and it makes the tool's own refusal
+count read as discrimination when it is noise.
 """
 import os
 import re
@@ -73,7 +92,22 @@ FORBIDS_SCALE = re.compile(
 FORBIDS_ALL_FEATURES = re.compile(
     r"no\s+corners?\s+in\s+frame|no\s+visible\s+corners?|no\s+floor\s+line|"
     r"no\s+visible\s+floor|no\s+ceiling\s+line", re.I)
-ANCHOR = re.compile(r"^gate anchor:\s*(.+?),\s*([0-9]*\.?[0-9]+)\s*m\b", re.I | re.M)
+# THE ANCHOR LINE, AND THE METRES WHEREVER THEY STAND ON IT. This was
+# `^gate anchor:\s*(.+?),\s*(N)\s*m\b` -- the size had to follow a comma -- and
+# it therefore refused every one of the seven cand-3 prompts, which declare the
+# ruled anchor as "wainscot chair-rail at exactly 0.95m above the floor, running
+# the full wall". The round meant to test this rule was generated against a tool
+# that rejected a compliant prompt, and the tool's refusal count read as
+# discrimination when it was noise. The line is what the seat writes; the size
+# is the first length in metres on it, and the whole line is what the ruler
+# table is matched against.
+ANCHOR_LINE = re.compile(r"^gate anchor:\s*(.+)$", re.I | re.M)
+ANCHOR_SIZE = re.compile(r"([0-9]*\.?[0-9]+)\s*(?:m\b|metres?\b|meters?\b)", re.I)
+# A height above a datum the frame does not show is not a length in that frame.
+FORBIDS_FLOOR = re.compile(
+    r"no\s+floor\b|no\s+floor\s+line|no\s+visible\s+floor|"
+    r"floor\s+is\s+not\s+visible|without\s+a\s+floor\s+line", re.I)
+ANCHOR_ON_FLOOR = re.compile(r"above\s+(?:the\s+)?floor", re.I)
 
 # THE RULERS THE GATE ACTUALLY HAS, and their ruled sizes in metres. A `Gate
 # anchor:` line that names something else, or names one of these at the wrong
@@ -97,26 +131,33 @@ def anchor_problem(text, m):
     """Why this prompt's `Gate anchor:` line is not one, or None."""
     if not m:
         return ("no `Gate anchor:` line")
-    what, size = m.group(1).strip(), float(m.group(2))
+    what = m.group(1).strip()
+    size_m = ANCHOR_SIZE.search(what)
+    if not size_m:
+        return ("`Gate anchor: %s` states no size in metres — a ruler is a "
+                "feature AND a length, and the gate has to have both before the "
+                "image exists" % what)
+    size = float(size_m.group(1))
     if size <= 0:
-        return ("`Gate anchor: %s, %s m` declares a size of nothing — a ruler with "
-                "no length measures nothing" % (what, m.group(2)))
+        return ("`Gate anchor: %s` declares a size of nothing — a ruler with "
+                "no length measures nothing" % what)
     for pat, ruled, name in RULERS:
         if pat.search(what):
             if abs(size - ruled) > 0.01:
-                return ("`Gate anchor: %s, %.2f m` names %s, which this project rules "
-                        "at %.2f m — the prompt and the gate would be measuring the "
-                        "same feature against different lengths" % (what, size, name, ruled))
+                return ("`Gate anchor: %s` names %s at %.2f m, which this project "
+                        "rules at %.2f m — the prompt and the gate would be "
+                        "measuring the same feature against different lengths"
+                        % (what, name, size, ruled))
             return None
-    return ("`Gate anchor: %s, %.2f m` names no feature the gate can measure. The "
-            "rulers are: %s" % (what, size, "; ".join(n for _, _, n in RULERS)))
+    return ("`Gate anchor: %s` names no feature the gate can measure. The "
+            "rulers are: %s" % (what, "; ".join(n for _, _, n in RULERS)))
 
 
 def lint(path):
     """(findings, anchor) for one prompt file."""
     text = open(path, encoding="utf-8").read()
     out = []
-    m = ANCHOR.search(text)
+    m = ANCHOR_LINE.search(text)
     problem = anchor_problem(text, m)
     if problem:
         out.append(
@@ -140,6 +181,15 @@ def lint(path):
             "for contains nothing of ruled size at all — an image that cannot "
             "be admitted however well it is painted "
             "[row21:prompt.unmeasurable_by_design]")
+    if not problem and m and ANCHOR_ON_FLOOR.search(m.group(1)) \
+            and FORBIDS_FLOOR.search(text):
+        out.append(
+            "declares an anchor measured ABOVE THE FLOOR and then forbids the "
+            "floor: %r. A height above a datum the frame does not show is not a "
+            "length in that frame, which is how passage-N and passage-S came "
+            "back WITHHELD a second time, at cand-3, under the very rule "
+            "written to stop it [row21:prompt.anchor_datum_forbidden]"
+            % FORBIDS_FLOOR.search(text).group(0))
     return out, (m.group(0) if m else None)
 
 

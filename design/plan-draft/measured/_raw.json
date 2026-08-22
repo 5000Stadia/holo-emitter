@@ -476,7 +476,7 @@
         "implied_focal_px": 1010.2,
         "delta_pct": 0.02,
         "admissible": false,
-        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names.",
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. Its metre size is derived from the approved frame's own pixels earlier in this same run - see _module_m.",
         "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
       },
       {
@@ -1340,7 +1340,7 @@
         "implied_focal_px": 923.0,
         "delta_pct": -8.61,
         "admissible": true,
-        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names."
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. Its metre size is derived from the approved frame's own pixels earlier in this same run - see _module_m."
       },
       {
         "name": "plan_wall_width",
@@ -2802,7 +2802,7 @@
         "implied_focal_px": 954.2,
         "delta_pct": -5.52,
         "admissible": true,
-        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names."
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. Its metre size is derived from the approved frame's own pixels earlier in this same run - see _module_m."
       },
       {
         "name": "plan_wall_width",

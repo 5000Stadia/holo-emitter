@@ -22,6 +22,13 @@ which is the very defect row 20 removes, arriving from the asset side.
 usage:
     python3 design/plan-draft/measured/gate.py                 # all eight, as measured
     python3 design/plan-draft/measured/gate.py study/N hall/E  # named facings only
+    python3 design/plan-draft/measured/gate.py --round cand3   # the cand-3 readings
+
+THE ROUND IS AN ARGUMENT AND THE BAND IS NOT. `--round cand3` reads the
+universal-anchor round's readings out of `measured/cand3/` instead of the
+promotion round's out of `measured/`; every number this file applies to them is
+the same one. A round that could bring its own band would be a corpus moving the
+law, which is the one thing this gate exists to refuse.
 
 The TARGET column is what a regenerated candidate has to measure: 1010 divided
 by that facing's own drawn standpoint distance, in pixels per metre at the wall
@@ -61,19 +68,46 @@ def standpoints():
 
 
 def main(argv):
+    argv = list(argv)
+    here = HERE
+    if "--round" in argv:
+        i = argv.index("--round")
+        rnd = argv[i + 1] if len(argv) > i + 1 else ""
+        if rnd not in ("cand2", "cand3"):
+            print("gate: --round takes cand2 or cand3")
+            return 2
+        del argv[i:i + 2]
+        if rnd == "cand3":
+            here = os.path.join(HERE, "cand3")
+            if not os.path.isdir(here):
+                print("gate: no cand-3 readings - run "
+                      "design/plan-draft/measured/measure.py --round cand3")
+                return 1
+            print("ROUND cand-3: the universal-anchor round. NOTHING HERE "
+                  "PROMOTES - the standing-eye wave regenerates every wall "
+                  "against cand-4. This table is recipe validation.\n")
     want = argv[1:]
     dist = standpoints()
-    rows, worst = [], 0.0
+    rows, worst, notes = [], 0.0, []
     for fac, d in sorted(dist.items()):
         if want and fac not in want:
             continue
         loc, f = fac.split("/")
-        path = os.path.join(HERE, "%s-%s.json" % (loc, f))
+        path = os.path.join(here, "%s-%s.json" % (loc, f))
         if not os.path.exists(path):
             rows.append((fac, None, None, None, "NOT MEASURED"))
             continue
         m = json.load(open(path))
         ppm = m["px_per_m_at_wall"]
+        if m.get("_not_gated"):
+            # A round may READ a facing it does not judge - the cand-3 round
+            # measures study/N, which is already admitted and promoted at
+            # cand-2. Printing its reading as a verdict would put the approved
+            # wall in a table of misses; leaving it out would let the round be
+            # quoted as if the approved wall had not been looked at.
+            notes.append("%-9s not gated: %s" % (fac, m["_not_gated"]))
+            rows.append((fac, d, ppm, (ppm * d if ppm else None), "NOT GATED"))
+            continue
         if ppm is None:
             # WITHHELD [row 21]. A facing whose measurement could not issue a
             # number is not a facing that failed: it is one nothing measured.
@@ -102,6 +136,8 @@ def main(argv):
         else:
             print("%-9s %9.2f %10.2f %10.1f %10.0f   %s"
                   % (fac, d, ppm, REFERENCE_PX / d, focal, verdict))
+    for n in notes:
+        print("  " + n)
     # ---------------------------------------------------------- WARN tier
     # THE ROOM THE PAINTING DEPICTS, against the room the plan rules. This
     # never fails and never will until it has been clocked: the Navigator
@@ -118,7 +154,7 @@ def main(argv):
         if want and fac not in want:
             continue
         loc, f = fac.split("/")
-        path = os.path.join(HERE, "%s-%s.json" % (loc, f))
+        path = os.path.join(here, "%s-%s.json" % (loc, f))
         if not os.path.exists(path):
             continue
         m = json.load(open(path))

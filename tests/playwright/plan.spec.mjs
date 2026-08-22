@@ -2161,9 +2161,116 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(lint([wrongSize]),
         "an anchor at a size this project does not rule would have the prompt and the gate measuring different lengths")
         .toMatch(/row21:prompt\.no_gate_anchor/);
+
+      /* [The close] AND THE OTHER FAILURE OF A GATE: REFUSING COMPLIANT WORK.
+         The parser required the metres to follow a comma, so all seven cand-3
+         prompts — which declare the ruled anchor as "at exactly 0.95m above the
+         floor, running the full wall" — were refused for having no anchor at
+         all. The round written to test the rule was generated against a tool
+         that rejected obedience to it, and a refusal count that is noise reads
+         exactly like one that is discrimination. */
+      const seatPhrasing = join(dir, "seat.prompt.txt");
+      writeFileSync(seatPhrasing, [
+        "Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall",
+        "Geometry: floorboards reach the bottom edge and the ceiling junction is visible."
+      ].join("\n") + "\n");
+      expect(lint([seatPhrasing]),
+        "the metres are read wherever they stand on the line — this is the phrasing the seat actually writes")
+        .toMatch(/^ok\s+.*seat\.prompt\.txt/m);
+
+      const noSize = join(dir, "nosize.prompt.txt");
+      writeFileSync(noSize, ["Gate anchor: the wainscot chair-rail, running the full wall"].join("\n") + "\n");
+      expect(lint([noSize]), "a feature with no length is half a ruler")
+        .toMatch(/row21:prompt\.no_gate_anchor/);
+
+      /* And the clause the cand-3 round earned: an anchor is only declared when
+         the datum it is measured from is in the picture. */
+      const noDatum = join(dir, "nodatum.prompt.txt");
+      writeFileSync(noDatum, [
+        "Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall",
+        "Geometry: No floor, no ceiling, and no corners appear."
+      ].join("\n") + "\n");
+      const noDatumOut = lint([noDatum]);
+      expect(noDatumOut, "a height above a floor the frame forbids is not a length in that frame")
+        .toMatch(/row21:prompt\.anchor_datum_forbidden/);
+      expect(noDatumOut, "and it is that clause, not the one about declaring an anchor — this prompt declares a good one")
+        .not.toMatch(/row21:prompt\.no_gate_anchor/);
+      expect(lint([seatPhrasing]),
+        "a frame that shows its floor keeps the same anchor without complaint")
+        .not.toMatch(/row21:prompt\.anchor_datum_forbidden/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  /* [ROW 21, the close] THE CAND-3 ROUND, AND WHAT IT CLOCKED.
+   *
+   * The universal-anchor round is recipe validation and promotes nothing —
+   * blueprint §11 rules the wainscot chair-rail at 0.95 m on every panelled
+   * wall so that measurability is a property of the WALL SPEC rather than of
+   * whichever feature a prompt asked for, and every cand-3 prompt declares it.
+   * What the round is quoted for in `design/batches/row21-promotion/README.md`
+   * is a MEMBERSHIP claim — nothing is admitted — and this is its reader.
+   * Asserting the membership rather than the band is the shape row 20 paid for
+   * twice: a band pinned against itself moves with the number it pins. */
+  test("the cand-3 round admits nothing, and its control still reads the approved frame", () => {
+    const dir = join(draftDir, "measured", "cand3");
+    expect(existsSync(dir),
+      "the cand-3 readings are gone — run measure.py --round cand3").toBe(true);
+    let out = "";
+    try {
+      out = execFileSync("python3", [join(draftDir, "measured", "gate.py"), "--round", "cand3"],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      out = String(e.stdout || "");
+    }
+    expect(out, "gate.py --round cand3 printed nothing — the tool did not run").toContain("facing");
+    expect(out, "no cand-3 candidate is admitted; the standing-eye wave regenerates every wall")
+      .toMatch(/\n0 of 8 admitted/);
+    expect(out, "and the approved wall is read but not judged by a round it does not belong to")
+      .toMatch(/study\/N .*NOT GATED/);
+
+    const control = JSON.parse(readFileSync(join(dir, "study-N.json"), "utf8"))._control;
+    expect(control.passed,
+      `the cand-3 detectors no longer read the approved frame the way the promotion did: ${JSON.stringify(control.per_field)}`)
+      .toBe(true);
+    /* The control is a claim about the DETECTORS, so its fields are asserted
+       against the committed promotion rather than against themselves. */
+    expect(control.measured.wall_floor_line_y_px).toBe(777);
+    expect(control.measured.dado_rail_above_floor_px).toBe(213);
+  });
+
+  /* [ROW 21, the close] THE BATCH QUOTES TWO GATE TABLES TO KABE, AND A QUOTED
+   * TABLE IS A SECOND COPY OF A FACT. The row-20 batch shipped stale frames
+   * because nothing could see them move; a stale TABLE is the same defect in
+   * prose, and this project has already recorded one unread `before` column for
+   * exactly this reason. Both tables are compared, line for line, against what
+   * the tool prints today. The README may say anything it likes ABOUT the
+   * numbers; the numbers themselves are the tool's. */
+  test("the batch's gate tables are what gate.py prints, both rounds", () => {
+    const readme = readFileSync(join(ROW21_DIR, "README.md"), "utf8");
+    const blocks = [...readme.matchAll(/```\n(facing\s+standpt[\s\S]*?)```/g)]
+      .map((m) => m[1].trimEnd().split("\n"));
+    expect(blocks.length,
+      "the batch carries two gate tables — the promotion round's and cand-3's")
+      .toBe(2);
+    const gate = (args) => {
+      try {
+        return execFileSync("python3",
+          [join(draftDir, "measured", "gate.py"), ...args],
+          { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { return String(e.stdout || ""); }
+    };
+    const rounds = [[], ["--round", "cand3"]];
+    blocks.forEach((quoted, i) => {
+      const printed = gate(rounds[i]).split("\n");
+      const head = printed.findIndex((l) => l.startsWith("facing"));
+      expect(head, `gate.py ${rounds[i].join(" ")} printed no table`).toBeGreaterThanOrEqual(0);
+      const actual = printed.slice(head, head + quoted.length).map((l) => l.trimEnd());
+      expect(actual,
+        `design/batches/row21-promotion/README.md quotes a gate table the tool no longer prints (round ${i === 0 ? "cand-2" : "cand-3"}) — re-run gate.py and paste what it says`)
+        .toEqual(quoted.map((l) => l.trimEnd()));
+    });
   });
 
   test("the cand-2 corpus is the lint's clock baseline, and the numbers are read not quoted", () => {

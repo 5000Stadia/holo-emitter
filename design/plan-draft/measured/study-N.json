@@ -40,7 +40,7 @@
       "implied_focal_px": 1010.2,
       "delta_pct": 0.02,
       "admissible": false,
-      "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names.",
+      "what": "the dado rail's undercut shadow, transferred from study/N the same way. Its metre size is derived from the approved frame's own pixels earlier in this same run - see _module_m.",
       "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
     },
     {
@@ -765,7 +765,7 @@
     "capping": 0.9990440182239408,
     "dado_rail": 0.9172257581107732,
     "_from": "study/N cand-2, the approved frame: capping 232 px and dado rail 213 px above its floor line at 232.222 px/m.",
-    "_spec": "design/specs/21-painted-promotion.md \u00a71 names this module as 213 px at 232.222 px/m => 0.9172 m; this run reproduces it from the pixels rather than being told it."
+    "_derived_here": "Not read out of any document: the module is 213 px at 232.222 px/m => 0.9172 m on the approved frame, and this run measures both ends of that transfer with one rule so a change to the detector moves them together or neither."
   },
   "_prompt_forbids": null,
   "_raw_detector_output_before_wall_band_suppression": null,

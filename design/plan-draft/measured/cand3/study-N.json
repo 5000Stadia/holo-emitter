@@ -1,0 +1,634 @@
+{
+  "_source_sha256": "d8d460f072136cdfacf8a5236782db8bac06fcec1500307086235b3ec28ed5d6",
+  "_what_this_is": "The cand-3 GATE READING for study/N, measured off backdrops/source/study-N/cand-3.png by design/plan-draft/measured/measure.py --round cand3. It is not a \u00a75 meta and nothing consumes it: no cand-3 candidate promotes. The standing-eye wave regenerates every wall against backdrops/source/study-N/cand-4-standing-eye.png, and this round is recipe validation - does the universal-anchor discipline transfer?",
+  "verdict": "WITHHELD",
+  "px_per_m_at_wall": null,
+  "implied_focal_px": null,
+  "delta_pct": null,
+  "drawn_standpoint_m": 4.35,
+  "_ruler": {
+    "name": "chair_rail",
+    "tier": 1,
+    "ruled_m": 0.95,
+    "feature_px": 262,
+    "what": "the wainscot chair-rail's undercut shadow above the wall's own floor line, against the 0.95 m blueprint \u00a711 rules on every panelled wall in the manor and every cand-3 prompt declares as its `Gate anchor:`.",
+    "stack_capping_px": 262,
+    "only_ruler_because": "the cand-2 tier-1 rulers were read by eye off cand-2 pixels; their coordinates are not measurements of this image."
+  },
+  "_withheld_because": [
+    "the two moulding lines stand 0.000 m apart at the scale they themselves imply, where a dado capping sits 0.05-0.14 m above its rail (0.082 m on the approved frame). Two lines at that spacing are not one chair-rail."
+  ],
+  "_harness": "Every detector window is the cand-2 one, unchanged. Nothing was re-tuned for these frames, on purpose: the round's question is whether the recipe puts the features where the approved composition has them.",
+  "_measured_px": {
+    "wall_ceiling_line_y_px": 103,
+    "wall_floor_line_y_px": 780,
+    "raw_wall_floor_line_y_px": 780,
+    "dado_rail_y_px": 518,
+    "capping_y_px": 518,
+    "horizon_y_px": 523,
+    "corner_x0_px": 123,
+    "corner_x1_px": 1396
+  },
+  "_panelling_module": {
+    "band": [
+      500,
+      640
+    ],
+    "cols": [
+      200,
+      1400
+    ],
+    "band_median_luma": 38.09,
+    "capping_y_px": 518,
+    "dado_rail_y_px": 518,
+    "capping_above_floor_px": 262,
+    "dado_rail_above_floor_px": 262,
+    "profile": [
+      41.95,
+      39.85,
+      39.55,
+      38.16,
+      31.18,
+      33.23,
+      43.03,
+      28.15,
+      30.16,
+      37.96,
+      34.1,
+      29.71,
+      30.34,
+      27.72,
+      28.74,
+      35.24,
+      41.96,
+      26.23,
+      16.34,
+      22.34,
+      40.13,
+      38.85,
+      33.82,
+      35.16,
+      35.8,
+      33.66,
+      35.75,
+      35.51,
+      36.43,
+      34.49,
+      36.24,
+      34.47,
+      34.82,
+      33.39,
+      35.7,
+      34.19,
+      23.21,
+      30.35,
+      35.8,
+      33.32,
+      41.49,
+      53.32,
+      48.36,
+      25.99,
+      22.05,
+      21.78,
+      20.66,
+      34.16,
+      46.45,
+      20.19,
+      22.18,
+      35.21,
+      36.46,
+      34.98,
+      37.87,
+      37.6,
+      38.65,
+      36.99,
+      38.73,
+      38.38,
+      39.76,
+      38.04,
+      39.3,
+      37.79,
+      38.9,
+      38.09,
+      37.75,
+      37.6,
+      42.51,
+      29.07,
+      28.4,
+      40.22,
+      41.2,
+      41.76,
+      33.69,
+      25.47,
+      27.2,
+      27.97,
+      32.3,
+      36.63,
+      35.1,
+      30.73,
+      46.75,
+      30.88,
+      27.41,
+      34.66,
+      38.88,
+      37.15,
+      38.55,
+      37.29,
+      39.45,
+      37.6,
+      38.96,
+      38.11,
+      39.66,
+      38.17,
+      39.55,
+      38.01,
+      39.6,
+      37.93,
+      39.29,
+      37.37,
+      38.76,
+      37.62,
+      39.33,
+      37.92,
+      40.06,
+      39.48,
+      41.35,
+      39.7,
+      40.52,
+      38.98,
+      40.68,
+      39.31,
+      40.8,
+      39.35,
+      41.43,
+      40.23,
+      42.24,
+      41.25,
+      42.3,
+      40.82,
+      42.46,
+      40.82,
+      42.5,
+      40.82,
+      42.59,
+      41.35,
+      43.37,
+      42.55,
+      44.74,
+      43.15,
+      45.15,
+      43.8,
+      45.51,
+      44.69,
+      46.39,
+      44.52,
+      46.0,
+      45.04,
+      46.45
+    ],
+    "profile_first_row": 500
+  },
+  "_candidates": {
+    "wall_ceiling_line": [
+      {
+        "y": 104,
+        "strength": 36.15,
+        "horiz": 0.837,
+        "cv": 0.89
+      },
+      {
+        "y": 416,
+        "strength": 32.45,
+        "horiz": 0.549,
+        "cv": 0.835
+      },
+      {
+        "y": 98,
+        "strength": 24.93,
+        "horiz": 0.564,
+        "cv": 0.857
+      },
+      {
+        "y": 372,
+        "strength": 17.73,
+        "horiz": 0.648,
+        "cv": 1.027
+      },
+      {
+        "y": 134,
+        "strength": 16.14,
+        "horiz": 0.752,
+        "cv": 0.692
+      },
+      {
+        "y": 165,
+        "strength": 15.36,
+        "horiz": 0.658,
+        "cv": 0.854
+      },
+      {
+        "y": 140,
+        "strength": 13.26,
+        "horiz": 0.692,
+        "cv": 0.945
+      },
+      {
+        "y": 179,
+        "strength": 12.76,
+        "horiz": 0.615,
+        "cv": 0.904
+      },
+      {
+        "y": 110,
+        "strength": 12.62,
+        "horiz": 0.734,
+        "cv": 1.205
+      },
+      {
+        "y": 381,
+        "strength": 10.44,
+        "horiz": 0.678,
+        "cv": 0.871
+      },
+      {
+        "y": 387,
+        "strength": 7.92,
+        "horiz": 0.718,
+        "cv": 0.877
+      },
+      {
+        "y": 127,
+        "strength": 6.75,
+        "horiz": 0.756,
+        "cv": 0.85
+      }
+    ],
+    "wall_floor_line": [
+      {
+        "y": 549,
+        "strength": 44.0,
+        "horiz": 0.679,
+        "cv": 0.707
+      },
+      {
+        "y": 753,
+        "strength": 39.59,
+        "horiz": 0.658,
+        "cv": 0.723
+      },
+      {
+        "y": 543,
+        "strength": 34.71,
+        "horiz": 0.749,
+        "cv": 0.682
+      },
+      {
+        "y": 520,
+        "strength": 30.95,
+        "horiz": 0.653,
+        "cv": 0.751
+      },
+      {
+        "y": 729,
+        "strength": 26.99,
+        "horiz": 0.648,
+        "cv": 0.89
+      },
+      {
+        "y": 583,
+        "strength": 26.59,
+        "horiz": 0.598,
+        "cv": 0.955
+      },
+      {
+        "y": 507,
+        "strength": 26.16,
+        "horiz": 0.601,
+        "cv": 0.881
+      },
+      {
+        "y": 569,
+        "strength": 23.93,
+        "horiz": 0.695,
+        "cv": 0.706
+      },
+      {
+        "y": 734,
+        "strength": 23.73,
+        "horiz": 0.679,
+        "cv": 0.728
+      },
+      {
+        "y": 748,
+        "strength": 22.74,
+        "horiz": 0.683,
+        "cv": 0.693
+      },
+      {
+        "y": 536,
+        "strength": 21.26,
+        "horiz": 0.719,
+        "cv": 0.741
+      },
+      {
+        "y": 780,
+        "strength": 19.46,
+        "horiz": 0.702,
+        "cv": 0.619
+      },
+      {
+        "y": 574,
+        "strength": 19.12,
+        "horiz": 0.693,
+        "cv": 0.932
+      },
+      {
+        "y": 719,
+        "strength": 18.86,
+        "horiz": 0.629,
+        "cv": 0.961
+      },
+      {
+        "y": 808,
+        "strength": 18.65,
+        "horiz": 0.73,
+        "cv": 1.107
+      },
+      {
+        "y": 817,
+        "strength": 17.56,
+        "horiz": 0.668,
+        "cv": 0.868
+      },
+      {
+        "y": 515,
+        "strength": 15.26,
+        "horiz": 0.646,
+        "cv": 0.838
+      },
+      {
+        "y": 902,
+        "strength": 15.07,
+        "horiz": 0.777,
+        "cv": 1.135
+      },
+      {
+        "y": 954,
+        "strength": 14.39,
+        "horiz": 0.752,
+        "cv": 1.053
+      },
+      {
+        "y": 937,
+        "strength": 14.18,
+        "horiz": 0.728,
+        "cv": 1.072
+      },
+      {
+        "y": 929,
+        "strength": 14.03,
+        "horiz": 0.74,
+        "cv": 1.126
+      },
+      {
+        "y": 908,
+        "strength": 13.99,
+        "horiz": 0.745,
+        "cv": 1.135
+      },
+      {
+        "y": 916,
+        "strength": 13.92,
+        "horiz": 0.753,
+        "cv": 1.066
+      },
+      {
+        "y": 921,
+        "strength": 13.91,
+        "horiz": 0.766,
+        "cv": 1.084
+      },
+      {
+        "y": 979,
+        "strength": 13.88,
+        "horiz": 0.733,
+        "cv": 0.991
+      },
+      {
+        "y": 949,
+        "strength": 13.82,
+        "horiz": 0.709,
+        "cv": 1.064
+      },
+      {
+        "y": 963,
+        "strength": 13.81,
+        "horiz": 0.722,
+        "cv": 1.132
+      },
+      {
+        "y": 943,
+        "strength": 13.65,
+        "horiz": 0.728,
+        "cv": 1.084
+      },
+      {
+        "y": 892,
+        "strength": 13.41,
+        "horiz": 0.753,
+        "cv": 1.196
+      },
+      {
+        "y": 897,
+        "strength": 13.2,
+        "horiz": 0.732,
+        "cv": 1.097
+      },
+      {
+        "y": 878,
+        "strength": 13.19,
+        "horiz": 0.752,
+        "cv": 1.062
+      },
+      {
+        "y": 884,
+        "strength": 13.19,
+        "horiz": 0.748,
+        "cv": 1.086
+      },
+      {
+        "y": 971,
+        "strength": 13.1,
+        "horiz": 0.723,
+        "cv": 1.02
+      },
+      {
+        "y": 856,
+        "strength": 12.88,
+        "horiz": 0.72,
+        "cv": 1.103
+      },
+      {
+        "y": 988,
+        "strength": 12.82,
+        "horiz": 0.733,
+        "cv": 1.021
+      },
+      {
+        "y": 999,
+        "strength": 12.81,
+        "horiz": 0.726,
+        "cv": 1.019
+      },
+      {
+        "y": 872,
+        "strength": 12.39,
+        "horiz": 0.71,
+        "cv": 1.176
+      },
+      {
+        "y": 993,
+        "strength": 12.38,
+        "horiz": 0.728,
+        "cv": 1.04
+      },
+      {
+        "y": 862,
+        "strength": 12.26,
+        "horiz": 0.728,
+        "cv": 1.174
+      },
+      {
+        "y": 743,
+        "strength": 11.94,
+        "horiz": 0.712,
+        "cv": 2.019
+      }
+    ],
+    "wall_floor_line_hand_read_window": {
+      "window": [
+        770,
+        786
+      ],
+      "window_profile": [
+        33.75,
+        32.84,
+        34.05,
+        32.27,
+        32.94,
+        32.32,
+        34.71,
+        32.12,
+        36.64,
+        37.4,
+        23.04,
+        28.9,
+        39.06,
+        37.47,
+        34.84,
+        39.37,
+        40.4
+      ],
+      "window_profile_first_row": 770,
+      "automatic_lowest_true_horizontal": null
+    }
+  },
+  "_horizon_votes": {
+    "floor": {
+      "x": 768,
+      "y": 517,
+      "edge_px": 30000
+    },
+    "ceiling": {
+      "x": 776,
+      "y": 539,
+      "edge_px": 11510
+    },
+    "side_walls": {
+      "x": 770,
+      "y": 535,
+      "edge_px": 1375
+    }
+  },
+  "_light": {
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 556,
+    "key_dir_brightest_y": 688,
+    "key_tint": "#c8884e",
+    "key_tint_patch": [
+      356,
+      756,
+      33,
+      95
+    ],
+    "key_tint_patch_mean_rgb": [
+      96.55,
+      65.73,
+      37.61
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8753a",
+      "floor_bottom_strip": "#c88756",
+      "mid_wall_right": "#c8997d",
+      "mid_wall_left": "#c88346",
+      "brightest_21x21_patch": "#c8bba0"
+    },
+    "brightest_21x21_patch_centre_px": [
+      556,
+      688
+    ],
+    "sobel_bright_side_deg_whole_frame": 73.86,
+    "sobel_bright_side_deg_wall_band": 85.57,
+    "left_third_minus_right_third_luminance_whole_frame": -13.632,
+    "left_third_minus_right_third_luminance_wall_band": -0.049
+  },
+  "_plan": {
+    "camera_wall_m": 3.6,
+    "wall_width_m": 5.45,
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 4.35
+  },
+  "_control": {
+    "passed": true,
+    "per_field": [
+      {
+        "field": "wall_floor_line_y_px",
+        "committed": 777,
+        "measured": 777,
+        "delta": 0
+      },
+      {
+        "field": "dado_rail_y_px",
+        "committed": 564,
+        "measured": 564,
+        "delta": 0
+      },
+      {
+        "field": "dado_rail_above_floor_px",
+        "committed": 213,
+        "measured": 213,
+        "delta": 0
+      },
+      {
+        "field": "capping_above_floor_px",
+        "committed": 232,
+        "measured": 232,
+        "delta": 0
+      }
+    ],
+    "measured": {
+      "wall_floor_line_y_px": 777,
+      "dado_rail_y_px": 564,
+      "dado_rail_above_floor_px": 213,
+      "capping_above_floor_px": 232
+    },
+    "expected": {
+      "wall_floor_line_y_px": 777,
+      "dado_rail_y_px": 564,
+      "dado_rail_above_floor_px": 213,
+      "capping_above_floor_px": 232
+    },
+    "_why": "study/N cand-2 is the one approved frame and the cand-3 round reads it with the same two detectors it reads everything else with. Its own rail is at 0.9172 m, not 0.95 - it was painted before the ruling and blueprint \u00a711 says the rule supersedes the inference WHEREVER A WALL IS PAINTED TO IT - so this frame is a control on the DETECTORS and is not gated by the anchor."
+  },
+  "_not_gated": "study/N is ADMITTED at cand-2 and promoted. This row measures its cand-3 frame and issues no verdict against it."
+}

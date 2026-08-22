@@ -47,6 +47,32 @@ Four of them are the row-20 batch's, which has not had its verdict yet and rides
    candidate rather than a rewrite, and the production run that follows regenerates every wall
    against `cand-4` as its camera reference. What you are looking at here is the mechanism, on the
    frame that was available; the room you get is the standing one.
+
+   **What your word routes to, stated so it cannot be lost between sessions.** The
+   **standing-eye wave supersedes the promoted camera**: `backdrops/study/N.png` is the last wall
+   that will ever stand at the low eye, and the production run regenerates the study and the
+   passage together with the manor's, every one of them against `cand-4-standing-eye` as the camera
+   reference. Nothing in this row promotes at the standing eye and nothing in the cand-3 round
+   promotes at all.
+
+   **And the harness was pointed at `cand-4` to get you its measured eye height. It issues none,
+   and the reason is worth one paragraph** — the enforced eye is meant to be `cand-4`'s own
+   measurement, so this is the number the production run starts from:
+   - the **ruled** horizon instrument does not resolve on that frame. The ceiling-ramp fit — the
+     one the Navigator ruled at row 20 over the vanishing-point vote — returns y 86 against a
+     ceiling line detected at y 120, where on the approved frame it returns 524.4 exactly.
+   - the **superseded** instrument does resolve, at y 541, and would put `cand-4`'s eye at
+     **0.99 m** — *lower* than its own reading of the low-eye frame it replaces (1.20 m). A
+     standing-eye frame that measures shorter than the frame it stands in for is the measurement
+     telling you it is measuring something else.
+   - the two rulers on that frame **straddle**: the fireplace opening is where it was (jambs 342
+     and 554, 213 px of a ruled 0.90 m → 236.7 px/m, a 1029 px lens at the drawn 4.35 m, **+1.9 %**
+     and inside the band), while the wainscot rail sits 180 px above the floor against the approved
+     room's 213 — a 20 % disagreement. The camera is probably fine and the joinery moved, but
+     "probably" is not a measurement.
+
+   So the re-tune is the production run's first step, exactly as it was before your word landed;
+   what your word changed is which frame it re-tunes against.
 2. **The two long-wall passage facings** (05, 07 in the row-20 batch; 08 and 06 here) show no
    floor, no ceiling line and no corner. That is correct for the room and it may still be wrong for
    the product.
@@ -107,10 +133,10 @@ hall/E         6.00      88.85      168.3        533   FAIL  -47.2%
 hall/N         2.15          -      469.8          -   WITHHELD
 hall/S         2.15          -      469.8          -   WITHHELD
 hall/W         6.00     106.00      168.3        636   FAIL  -37.0%
-study/E        4.09     235.50      246.9        963   FAIL   -4.6%
+study/E        4.09     235.50      246.9        963   FAIL  -4.6%
 study/N        4.35     232.22      232.2       1010   PASS
 study/S        3.85          -      262.3          -   WITHHELD
-study/W        4.09     233.22      246.9        954   FAIL   -5.6%
+study/W        4.09     233.22      246.9        954   FAIL  -5.6%
 ```
 
 A candidate is admitted when the camera it was painted at is the camera the project projects at —
@@ -124,3 +150,56 @@ them are now refused before an image is made rather than after
 for — five of the seven did, and two walls came back corner-for-corner identical to the round
 before — and a prompt that declares no feature the gate can measure. Whether that moves the
 first-roll pass rate is the next round's answer; the baseline is 0 of 7.
+
+## The cand-3 round, which promotes nothing, and what it says about the recipe
+
+The seven walls were painted a third time under a new rule — blueprint §11's **universal anchor**:
+*the wainscot chair-rail stands at exactly 0.95 m above the floor on every panelled wall in the
+manor*, so that being measurable is a property of the wall specification rather than of whichever
+feature a prompt happened to ask for. **Nothing here promotes**, and that was decided before the
+numbers were: your B ruling routes every wall through the standing-eye wave, so this round is
+recipe validation. `python3 design/plan-draft/measured/measure.py --round cand3` then
+`python3 design/plan-draft/measured/gate.py --round cand3`:
+
+```
+facing      standpt       px/m     TARGET   focal px   verdict
+hall/E         6.00          -      168.3          -   WITHHELD
+hall/N         2.15          -      469.8          -   WITHHELD
+hall/S         2.15          -      469.8          -   WITHHELD
+hall/W         6.00          -      168.3          -   WITHHELD
+study/E        4.09     228.42      246.9        934   FAIL  -7.5%
+study/N        4.35          -      232.2          -   NOT GATED
+study/S        3.85          -      262.3          -   WITHHELD
+study/W        4.09     230.53      246.9        943   FAIL  -6.6%
+```
+
+**0 of 7 admitted, which is the same as the round before it.** The one number strictly comparable
+across the two rounds is that one, because the instruments differ on purpose: cand-2 was read with
+windows re-tuned to each frame and two of its rulers were read by eye, and cand-3 is read by the
+declared anchor alone with **every detector window left exactly where cand-2 put it**. Re-tuning a
+window until the feature appears in it is how you answer a different question. The control holds
+either way: the approved frame goes through the cand-3 code and returns its committed floor line
+(777) and its committed rail (213 px above it) to the pixel.
+
+Why each wall is withheld is in the ledger, and three of the reasons are new:
+
+- **`hall/N` and `hall/S` declare the anchor and then forbid the floor it is measured above.** A
+  height above a datum the frame does not show is not a length in that frame. Both were WITHHELD at
+  cand-2 for want of a ruler, and they are WITHHELD again — under the very rule written to stop it.
+- **`hall/E` and `hall/W` paint one moulding line where a chair-rail is two** (a capping shadow
+  above the rail's own undercut, 0.082 m apart on the approved frame). One horizontal is not a
+  wainscot, and a detector that converts it to a scale is measuring a floorboard.
+- **`study/S` paints two lines 0.27 m apart** — three times the module — so whatever they are, they
+  are not one chair-rail.
+
+`study/E` and `study/W` are the two that measure, and they measure **−7.5 %** and **−6.6 %**: the
+camera still did not move as far as it was asked to, in the same direction and by about the same
+amount as at cand-2. That is the honest headline. **The prompt lint is still apparatus and has not
+clocked as an improvement** (production law clause 5), and the round exposed a fault in the lint
+itself worth your knowing about, because it is the shape of failure a gate can have that nobody
+looks for: **it refused all seven compliant prompts on a comma.** Its `Gate anchor:` parser wanted
+the metres to follow one, the seat wrote *"at exactly 0.95m above the floor, running the full
+wall"*, and so the round meant to test the rule was generated against a tool that rejected
+obedience to it. The parser reads the metres wherever they stand now, and the lint's refusal count
+means something again: **5 of the 8 cand-3 prompts pass it**, and the 3 it refuses are the two that
+forbid their own datum plus one that declares no anchor at all.

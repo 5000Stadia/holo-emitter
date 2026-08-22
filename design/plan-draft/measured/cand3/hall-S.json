@@ -1,0 +1,501 @@
+{
+  "_source_sha256": "5f0a95e1085801f2d1c1b722868e492fbd2eb9109b0bd9f2cb7a49409538d862",
+  "_what_this_is": "The cand-3 GATE READING for hall/S, measured off backdrops/source/passage-S/cand-3.png by design/plan-draft/measured/measure.py --round cand3. It is not a \u00a75 meta and nothing consumes it: no cand-3 candidate promotes. The standing-eye wave regenerates every wall against backdrops/source/study-N/cand-4-standing-eye.png, and this round is recipe validation - does the universal-anchor discipline transfer?",
+  "verdict": "WITHHELD",
+  "px_per_m_at_wall": null,
+  "implied_focal_px": null,
+  "delta_pct": null,
+  "drawn_standpoint_m": 2.15,
+  "_ruler": {
+    "name": "chair_rail",
+    "tier": 1,
+    "ruled_m": 0.95,
+    "feature_px": 500,
+    "what": "the wainscot chair-rail's undercut shadow above the wall's own floor line, against the 0.95 m blueprint \u00a711 rules on every panelled wall in the manor and every cand-3 prompt declares as its `Gate anchor:`.",
+    "stack_capping_px": null,
+    "only_ruler_because": "the cand-2 tier-1 rulers were read by eye off cand-2 pixels; their coordinates are not measurements of this image."
+  },
+  "_withheld_because": [
+    "the declared anchor is a height ABOVE THE FLOOR and this frame paints no floor line - its own prompt forbids one. A prompt that declares an anchor and then forbids the datum the anchor is measured from has declared nothing, and no ruler can be issued from these pixels."
+  ],
+  "_harness": "Every detector window is the cand-2 one, unchanged. Nothing was re-tuned for these frames, on purpose: the round's question is whether the recipe puts the features where the approved composition has them.",
+  "_measured_px": {
+    "wall_ceiling_line_y_px": null,
+    "wall_floor_line_y_px": null,
+    "raw_wall_floor_line_y_px": 1013,
+    "dado_rail_y_px": 513,
+    "capping_y_px": null,
+    "horizon_y_px": null,
+    "corner_x0_px": 228,
+    "corner_x1_px": 1309
+  },
+  "_panelling_module": {
+    "band": [
+      500,
+      640
+    ],
+    "cols": [
+      200,
+      1400
+    ],
+    "band_median_luma": 37.32,
+    "capping_y_px": null,
+    "dado_rail_y_px": 513,
+    "capping_above_floor_px": null,
+    "dado_rail_above_floor_px": 500,
+    "profile": [
+      36.59,
+      35.53,
+      38.29,
+      36.03,
+      38.42,
+      37.0,
+      39.15,
+      36.89,
+      36.8,
+      34.11,
+      36.06,
+      34.35,
+      35.87,
+      33.41,
+      34.85,
+      33.48,
+      35.98,
+      35.07,
+      36.53,
+      34.65,
+      37.21,
+      35.42,
+      36.53,
+      34.99,
+      36.33,
+      34.81,
+      37.33,
+      35.1,
+      37.27,
+      34.89,
+      36.5,
+      34.8,
+      36.95,
+      35.37,
+      37.05,
+      34.97,
+      37.38,
+      34.7,
+      36.27,
+      34.72,
+      35.65,
+      33.69,
+      35.41,
+      34.23,
+      37.2,
+      36.23,
+      38.92,
+      37.58,
+      39.36,
+      37.44,
+      39.39,
+      37.55,
+      38.94,
+      36.52,
+      39.49,
+      38.88,
+      40.3,
+      38.01,
+      40.31,
+      38.38,
+      39.84,
+      37.09,
+      38.79,
+      37.76,
+      39.42,
+      38.03,
+      40.33,
+      38.44,
+      40.87,
+      38.56,
+      39.28,
+      37.32,
+      38.95,
+      37.13,
+      38.67,
+      36.78,
+      39.02,
+      36.18,
+      37.92,
+      36.55,
+      37.88,
+      36.85,
+      40.1,
+      38.98,
+      41.33,
+      40.22,
+      42.41,
+      41.14,
+      42.7,
+      39.38,
+      41.09,
+      38.87,
+      40.18,
+      37.55,
+      39.42,
+      37.42,
+      39.1,
+      36.87,
+      39.08,
+      36.98,
+      37.62,
+      34.86,
+      37.21,
+      36.48,
+      38.35,
+      37.58,
+      39.62,
+      37.17,
+      39.6,
+      37.88,
+      39.22,
+      36.74,
+      38.61,
+      36.65,
+      39.03,
+      37.1,
+      39.03,
+      37.08,
+      38.73,
+      36.48,
+      38.31,
+      36.66,
+      38.89,
+      36.9,
+      38.67,
+      36.06,
+      38.25,
+      37.36,
+      39.34,
+      37.37,
+      39.0,
+      36.13,
+      37.98,
+      35.62,
+      37.65,
+      35.18,
+      36.48,
+      35.22,
+      37.04,
+      34.56,
+      35.39
+    ],
+    "profile_first_row": 500
+  },
+  "_candidates": {
+    "wall_ceiling_line": [
+      {
+        "y": 164,
+        "strength": 17.39,
+        "horiz": 0.69,
+        "cv": 0.696
+      },
+      {
+        "y": 171,
+        "strength": 15.67,
+        "horiz": 0.69,
+        "cv": 0.826
+      },
+      {
+        "y": 198,
+        "strength": 8.62,
+        "horiz": 0.686,
+        "cv": 1.213
+      },
+      {
+        "y": 19,
+        "strength": 8.34,
+        "horiz": 0.676,
+        "cv": 0.898
+      },
+      {
+        "y": 189,
+        "strength": 7.9,
+        "horiz": 0.67,
+        "cv": 1.187
+      },
+      {
+        "y": 183,
+        "strength": 7.54,
+        "horiz": 0.676,
+        "cv": 1.112
+      },
+      {
+        "y": 12,
+        "strength": 6.99,
+        "horiz": 0.851,
+        "cv": 0.455
+      },
+      {
+        "y": 177,
+        "strength": 6.65,
+        "horiz": 0.655,
+        "cv": 1.199
+      },
+      {
+        "y": 66,
+        "strength": 5.91,
+        "horiz": 0.605,
+        "cv": 0.792
+      },
+      {
+        "y": 56,
+        "strength": 5.64,
+        "horiz": 0.678,
+        "cv": 0.747
+      },
+      {
+        "y": 50,
+        "strength": 3.33,
+        "horiz": 0.789,
+        "cv": 1.283
+      },
+      {
+        "y": 157,
+        "strength": 1.81,
+        "horiz": 0.76,
+        "cv": 0.708
+      }
+    ],
+    "wall_floor_line": [
+      {
+        "y": 855,
+        "strength": 1.93,
+        "horiz": 0.761,
+        "cv": 1.03
+      },
+      {
+        "y": 873,
+        "strength": 1.92,
+        "horiz": 0.751,
+        "cv": 1.06
+      },
+      {
+        "y": 897,
+        "strength": 1.92,
+        "horiz": 0.757,
+        "cv": 1.106
+      },
+      {
+        "y": 885,
+        "strength": 1.91,
+        "horiz": 0.751,
+        "cv": 1.146
+      },
+      {
+        "y": 927,
+        "strength": 1.89,
+        "horiz": 0.747,
+        "cv": 1.202
+      },
+      {
+        "y": 865,
+        "strength": 1.89,
+        "horiz": 0.738,
+        "cv": 1.074
+      },
+      {
+        "y": 879,
+        "strength": 1.88,
+        "horiz": 0.773,
+        "cv": 1.078
+      },
+      {
+        "y": 907,
+        "strength": 1.87,
+        "horiz": 0.752,
+        "cv": 1.222
+      },
+      {
+        "y": 919,
+        "strength": 1.86,
+        "horiz": 0.753,
+        "cv": 1.157
+      },
+      {
+        "y": 939,
+        "strength": 1.85,
+        "horiz": 0.747,
+        "cv": 1.092
+      },
+      {
+        "y": 891,
+        "strength": 1.82,
+        "horiz": 0.763,
+        "cv": 1.045
+      },
+      {
+        "y": 913,
+        "strength": 1.77,
+        "horiz": 0.74,
+        "cv": 1.064
+      },
+      {
+        "y": 959,
+        "strength": 1.71,
+        "horiz": 0.748,
+        "cv": 1.083
+      },
+      {
+        "y": 945,
+        "strength": 1.68,
+        "horiz": 0.747,
+        "cv": 0.979
+      },
+      {
+        "y": 971,
+        "strength": 1.67,
+        "horiz": 0.733,
+        "cv": 1.084
+      },
+      {
+        "y": 933,
+        "strength": 1.66,
+        "horiz": 0.734,
+        "cv": 1.11
+      },
+      {
+        "y": 951,
+        "strength": 1.64,
+        "horiz": 0.745,
+        "cv": 1.031
+      },
+      {
+        "y": 860,
+        "strength": 1.61,
+        "horiz": 0.719,
+        "cv": 1.24
+      },
+      {
+        "y": 977,
+        "strength": 1.54,
+        "horiz": 0.757,
+        "cv": 0.981
+      },
+      {
+        "y": 991,
+        "strength": 1.53,
+        "horiz": 0.729,
+        "cv": 1.129
+      },
+      {
+        "y": 902,
+        "strength": 1.5,
+        "horiz": 0.718,
+        "cv": 1.104
+      },
+      {
+        "y": 1003,
+        "strength": 1.46,
+        "horiz": 0.713,
+        "cv": 1.08
+      },
+      {
+        "y": 965,
+        "strength": 1.45,
+        "horiz": 0.738,
+        "cv": 0.995
+      },
+      {
+        "y": 983,
+        "strength": 1.43,
+        "horiz": 0.717,
+        "cv": 1.033
+      },
+      {
+        "y": 997,
+        "strength": 1.41,
+        "horiz": 0.737,
+        "cv": 0.954
+      },
+      {
+        "y": 1009,
+        "strength": 1.27,
+        "horiz": 0.731,
+        "cv": 0.945
+      },
+      {
+        "y": 1015,
+        "strength": 1.13,
+        "horiz": 0.675,
+        "cv": 1.013
+      }
+    ],
+    "wall_floor_line_hand_read_window": {
+      "window": [
+        995,
+        1015
+      ],
+      "window_profile": [
+        14.31,
+        14.81,
+        14.14,
+        14.8,
+        14.14,
+        14.78,
+        14.06,
+        14.63,
+        13.87,
+        14.33,
+        13.68,
+        14.21,
+        13.36,
+        13.66,
+        12.85,
+        13.33,
+        12.77,
+        13.26,
+        12.74,
+        13.31,
+        12.79
+      ],
+      "window_profile_first_row": 995,
+      "automatic_lowest_true_horizontal": null
+    }
+  },
+  "_horizon_votes": {},
+  "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 10,
+    "key_dir_brightest_y": 440,
+    "key_tint": "#c8854c",
+    "key_tint_patch": [
+      0,
+      210,
+      93,
+      155
+    ],
+    "key_tint_patch_mean_rgb": [
+      21.72,
+      14.47,
+      8.29
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8ac73",
+      "floor_bottom_strip": "#c86828",
+      "mid_wall_right": "#c88c36",
+      "mid_wall_left": "#c8b07a",
+      "brightest_21x21_patch": "#94aac8"
+    },
+    "brightest_21x21_patch_centre_px": [
+      10,
+      440
+    ],
+    "sobel_bright_side_deg_whole_frame": 26.86,
+    "sobel_bright_side_deg_wall_band": 17.77,
+    "left_third_minus_right_third_luminance_whole_frame": 16.891,
+    "left_third_minus_right_third_luminance_wall_band": 19.382
+  },
+  "_plan": {
+    "camera_wall_m": 1.95,
+    "wall_width_m": 8.0,
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 2.15
+  }
+}
