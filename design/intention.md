@@ -22,7 +22,7 @@ What "not a sticker" decomposes into — extracted by opening the anchors (below
 2. **Contact.** Every grounded object darkens the ground under it. Machinarium pools occlusion at every contact point; nothing sits on a floor without it.
 3. **Occlusion chains.** Objects overlap objects, not just the backdrop (draw order by baseline). Myst's frame sells depth with column-before-building, ship-hull-behind-waterline — not with scale.
 4. **One hand.** Sprites and backdrops share palette, grain, and rendering style; interactables are distinguished by position and behaviour, never by looking pasted (Machinarium's whole craft).
-5. **The camera has feet.** Consistent eye height (contract §10 — 6 ft, pitched slightly down, per Kabe's 2026-08-20 ruling) and facing geometry, so the viewer infers a body position — Riven's rails are cut by the frame bottom at your own feet; Kabe's reference anchors the same way through a near desk surface.
+5. **The camera has feet.** Consistent eye height (the approved painted world's measured camera — blueprint §5's approved-image authority; Kabe's 6-ft ruling of 2026-08-20 superseded by his own approval of the painted frames and his "Whatever looks good" delegation, 2026-08-22 [HUMAN]) and facing geometry, so the viewer infers a body position — Riven's rails are cut by the frame bottom at your own feet; Kabe's reference anchors the same way through a near desk surface.
 
 The replicator's bar: gates in blueprint §9.4 are the floor; a sprite that passes gates but fails the flip test has failed.
 

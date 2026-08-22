@@ -682,6 +682,23 @@ cannot satisfy by being self-consistent; a second token and a second case for th
 with its band sourced from `gate.py`'s own two literals in the other language; and the scanned file
 set derived from the directory instead of typed.
 
+**A trap found on the way into the promotion, before anything shipped, and it is the row's own
+family one more time.** `design/plan-draft/measured/*.json` carries `camera_wall_m`, and it is
+**back-derived**: `measure.py` computes `cam = 1024 / px_per_m_at_wall` and says so in its own
+printed summary — *"px_per_m_at_wall x implied_camera_wall_m is 1024 by construction"*. Ship that
+field as a `backdrops/<loc>/<facing>.meta.json` and §12.5 (i′)'s MEASURED arm evaluates
+`px_per_m_at_wall × camera_wall_m` = exactly 1024 on every painted facing forever — a gate that
+cannot fail, arriving on the very first measured meta, which is the exact thing `architecture.md`
+promises the clause stops being. The sixth bite of the family in one project.
+
+**What the shipped meta must do instead**, and the architecture already says it in words the field
+would have contradicted: *"the scale is read off the painting's own pixels and the distance off the
+approved drawing, so their product is a claim about a picture."* A shipped measured meta pairs the
+MEASURED scale with the PLAN's standpoint. `study/N` then reads 232.222 px/m at 4.35 m = 1010.2 px,
+which is what `gate.py` computes and what the ±3 % band exists to judge — and the two numbers can
+now disagree, which is the whole point. `measure.py`'s field keeps its name and its draft status;
+what may not happen is that number reaching a shipped meta.
+
 **What the row still owes, in order:** the seven regenerated backdrops through the gate; their
 promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
 the doorway-as-a-building-fact that an empty painted room needs to be walkable; the batch of the
