@@ -18,8 +18,8 @@ Each of these is live before row 4's prompt sheets:
 
 1. **CLOSED AT ROW 20 — the camera is MEASURED now.** Blueprint §5 rules that the geometry
    is determined by the orientation of the approved image generation; those generations
-   arrived, and the one Kabe's probe loop blessed measures eye **1.09 m**, level, with its
-   horizon at y 524.4 of 1024 by the ceiling-ramp fit. That is what this report and the
+   arrived, and the standing-eye reference [HUMAN 2026-08-22, "B"] measures eye **1.18 m**, level, with its
+   horizon at y 526.1 of 1024 by the ceiling-ramp fit. That is what this report and the
    renderer both run on. §10's generation camera — eye **1.83 m**, **−8° pitch** — is
    untouched and is what backdrops are PROMPTED at; the generator was asked for it on all
    eight and drew 1.1–1.5 m level every time. The size of that difference is below (§7).
@@ -190,94 +190,94 @@ number is not moved here because it is read off the approved drawing.
 
 | floor | room | facing | type | standpoint | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ground | GREAT HALL | N | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6350 | 2.23 | -76.7 | 1612.7 | wall |
-| ground | GREAT HALL | E | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6114 | 2.23 | 333.2 | 1202.8 | wall |
-| ground | GREAT HALL | S | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6350 | 2.23 | -76.7 | 1612.7 | wall |
-| ground | GREAT HALL | W | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6114 | 2.23 | 333.2 | 1202.8 | wall |
-| ground | STUDY | N | enclosed | threshold | 4.35 | 5.45 | 235.40 | 1024 | 0.7622 | 2.23 | 126.5 | 1409.5 | wall |
-| ground | STUDY | E | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.7781 | 2.23 | 167.1 | 1368.9 | wall |
-| ground | STUDY | S | enclosed | threshold | 3.85 | 5.45 | 265.97 | 1024 | 0.7946 | 2.23 | 43.2 | 1492.8 | wall |
-| ground | STUDY | W | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.7781 | 2.23 | 167.1 | 1368.9 | wall |
-| ground | BACK STAIR | N | enclosed | rule | 3.11 | 5.45 | 329.26 | 1024 | 0.8619 | 2.23 | -129.2 | 1665.2 | wall |
-| ground | BACK STAIR | E | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.7781 | 2.23 | 248.5 | 1287.5 | wall |
-| ground | BACK STAIR | S | enclosed | threshold | 3.70 | 5.45 | 276.76 | 1024 | 0.8061 | 2.23 | 13.8 | 1522.2 | wall |
-| ground | BACK STAIR | W | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.7781 | 2.23 | 248.5 | 1287.5 | wall |
-| ground | CROSS PASSAGE | N | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0180 | 2.23 | -1137.1 | 2673.1 | wall |
-| ground | CROSS PASSAGE | E | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.6934 | 2.23 | 546.1 | 989.9 | wall |
-| ground | CROSS PASSAGE | S | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0180 | 2.23 | -1137.1 | 2673.1 | wall |
-| ground | CROSS PASSAGE | W | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.6934 | 2.23 | 546.1 | 989.9 | wall |
-| ground | KITCHEN | N | enclosed | rule | 6.49 | 8.00 | 157.78 | 1024 | 0.6797 | 2.23 | 136.9 | 1399.1 | wall |
-| ground | KITCHEN | E | enclosed | rule | 6.00 | 8.65 | 170.67 | 1024 | 0.6934 | 2.23 | 29.9 | 1506.1 | wall |
-| ground | KITCHEN | S | enclosed | rule | 6.49 | 8.00 | 157.78 | 1024 | 0.6797 | 2.23 | 136.9 | 1399.1 | wall |
-| ground | KITCHEN | W | enclosed | rule | 6.00 | 8.65 | 170.67 | 1024 | 0.6934 | 2.23 | 29.9 | 1506.1 | wall |
-| ground | BUTTERY & PANTRY | N | enclosed | threshold | 4.50 | 8.00 | 227.56 | 1024 | 0.7538 | 2.23 | -142.2 | 1678.2 | wall |
-| ground | BUTTERY & PANTRY | E | enclosed | rule | 6.00 | 4.95 | 170.67 | 1024 | 0.6934 | 2.23 | 345.6 | 1190.4 | wall |
-| ground | BUTTERY & PANTRY | S | enclosed | threshold | 4.50 | 8.00 | 227.56 | 1024 | 0.7538 | 2.23 | -142.2 | 1678.2 | wall |
-| ground | BUTTERY & PANTRY | W | enclosed | rule | 6.00 | 4.95 | 170.67 | 1024 | 0.6934 | 2.23 | 345.6 | 1190.4 | wall |
-| ground | SERVANTS' HALL | N | enclosed | threshold | 6.60 | 8.00 | 155.15 | 1024 | 0.6769 | 2.23 | 147.4 | 1388.6 | wall |
-| ground | SERVANTS' HALL | E | enclosed | rule | 6.00 | 7.05 | 170.67 | 1024 | 0.6934 | 2.23 | 166.4 | 1369.6 | wall |
-| ground | SERVANTS' HALL | S | enclosed | threshold | 6.60 | 8.00 | 155.15 | 1024 | 0.6769 | 2.23 | 147.4 | 1388.6 | wall |
-| ground | SERVANTS' HALL | W | enclosed | rule | 6.00 | 7.05 | 170.67 | 1024 | 0.6934 | 2.23 | 166.4 | 1369.6 | wall |
-| ground | DINING PARLOUR | N | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6642 | 2.23 | 137.8 | 1398.2 | wall |
-| ground | DINING PARLOUR | E | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6769 | 2.23 | 178.4 | 1357.6 | wall |
-| ground | DINING PARLOUR | S | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6642 | 2.23 | 137.8 | 1398.2 | wall |
-| ground | DINING PARLOUR | W | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6769 | 2.23 | 178.4 | 1357.6 | wall |
-| ground | GREAT STAIR HALL | N | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7213 | 2.23 | -98.5 | 1634.5 | wall |
-| ground | GREAT STAIR HALL | E | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6769 | 2.23 | 329.7 | 1206.3 | wall |
-| ground | GREAT STAIR HALL | S | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7213 | 2.23 | -98.5 | 1634.5 | wall |
-| ground | GREAT STAIR HALL | W | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6769 | 2.23 | 329.7 | 1206.3 | wall |
-| ground | LIBRARY | N | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.6934 | 2.23 | 17.1 | 1518.9 | wall |
-| ground | LIBRARY | E | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6769 | 2.23 | 267.6 | 1268.4 | wall |
-| ground | LIBRARY | S | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.6934 | 2.23 | 17.1 | 1518.9 | wall |
-| ground | LIBRARY | W | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6769 | 2.23 | 267.6 | 1268.4 | wall |
-| ground | GARDEN ROOM | N | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8630 | 2.23 | -685.4 | 2221.4 | wall |
-| ground | GARDEN ROOM | E | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6769 | 2.23 | 492.6 | 1043.4 | wall |
-| ground | GARDEN ROOM | S | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8630 | 2.23 | -685.4 | 2221.4 | wall |
-| ground | GARDEN ROOM | W | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6769 | 2.23 | 492.6 | 1043.4 | wall |
-| ground | ENTRANCE COURT | N | enclosed | threshold | 8.55 | 20.40 | 119.77 | 1024 | 0.6393 | 2.23 | -453.6 | 1989.6 | wall |
-| ground | ENTRANCE COURT | E | enclosed | rule | 15.30 | 9.00 | 66.93 | 1024 | 0.5832 | 2.23 | 466.8 | 1069.2 | wall |
-| ground | ENTRANCE COURT | S | open | rule | 26.75 | 20.40 | 38.28 | 1024 | 0.5528 | 2.23 | — | — | vista |
-| ground | ENTRANCE COURT | W | enclosed | rule | 15.30 | 9.00 | 66.93 | 1024 | 0.5832 | 2.23 | 466.8 | 1069.2 | wall |
-| ground | PRIVY GARDEN | N | enclosed | threshold | 5.10 | 20.40 | 200.78 | 1024 | 0.7254 | 2.23 | -1280.0 | 2816.0 | wall |
-| ground | PRIVY GARDEN | E | enclosed | rule | 15.30 | 5.55 | 66.93 | 1024 | 0.5832 | 2.23 | 582.3 | 953.7 | wall |
-| ground | PRIVY GARDEN | S | enclosed | threshold | 5.10 | 20.40 | 200.78 | 1024 | 0.7254 | 2.23 | -1280.0 | 2816.0 | wall |
-| ground | PRIVY GARDEN | W | enclosed | rule | 15.30 | 5.55 | 66.93 | 1024 | 0.5832 | 2.23 | 582.3 | 953.7 | wall |
-| ground | ENTRANCE APPROACH | N | enclosed | threshold | 19.55 | 32.00 | 52.38 | 1024 | 0.5677 | 2.23 | — | — | wall |
-| ground | ENTRANCE APPROACH | E | open | rule | 24.00 | 20.00 | 42.67 | 1024 | 0.5574 | 2.23 | — | — | vista |
-| ground | ENTRANCE APPROACH | S | open | rule | 15.00 | 32.00 | 68.27 | 1024 | 0.5846 | 2.23 | — | — | vista |
-| ground | ENTRANCE APPROACH | W | open | rule | 24.00 | 20.00 | 42.67 | 1024 | 0.5574 | 2.23 | — | — | vista |
-| upper | SOLAR (GREAT CHAMBER) | N | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6350 | 2.23 | -76.7 | 1612.7 | wall |
-| upper | SOLAR (GREAT CHAMBER) | E | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6114 | 2.23 | 333.2 | 1202.8 | wall |
-| upper | SOLAR (GREAT CHAMBER) | S | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6350 | 2.23 | -76.7 | 1612.7 | wall |
-| upper | SOLAR (GREAT CHAMBER) | W | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6114 | 2.23 | 333.2 | 1202.8 | wall |
-| upper | MUNIMENT ROOM | N | enclosed | threshold | 4.35 | 5.45 | 235.40 | 1024 | 0.7622 | 2.23 | 126.5 | 1409.5 | wall |
-| upper | MUNIMENT ROOM | E | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.7781 | 2.23 | 167.1 | 1368.9 | wall |
-| upper | MUNIMENT ROOM | S | enclosed | threshold | 3.85 | 5.45 | 265.97 | 1024 | 0.7946 | 2.23 | 43.2 | 1492.8 | wall |
-| upper | MUNIMENT ROOM | W | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.7781 | 2.23 | 167.1 | 1368.9 | wall |
-| upper | BACK STAIR HEAD | N | enclosed | rule | 3.11 | 5.45 | 329.26 | 1024 | 0.8619 | 2.23 | -129.2 | 1665.2 | wall |
-| upper | BACK STAIR HEAD | E | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.7781 | 2.23 | 248.5 | 1287.5 | wall |
-| upper | BACK STAIR HEAD | S | enclosed | threshold | 3.70 | 5.45 | 276.76 | 1024 | 0.8061 | 2.23 | 13.8 | 1522.2 | wall |
-| upper | BACK STAIR HEAD | W | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.7781 | 2.23 | 248.5 | 1287.5 | wall |
-| upper | LONG GALLERY | N | corridor | rule | 18.22 | 8.00 | 56.20 | 1024 | 0.5718 | 2.23 | 543.2 | 992.8 | wall |
-| upper | LONG GALLERY | E | enclosed | threshold | 7.55 | 24.30 | 135.63 | 1024 | 0.6562 | 2.23 | -879.9 | 2415.9 | wall |
-| upper | LONG GALLERY | S | corridor | rule | 18.22 | 8.00 | 56.20 | 1024 | 0.5718 | 2.23 | 543.2 | 992.8 | wall |
-| upper | LONG GALLERY | W | enclosed | threshold | 7.55 | 24.30 | 135.63 | 1024 | 0.6562 | 2.23 | -879.9 | 2415.9 | wall |
-| upper | MASTER BEDCHAMBER | N | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6642 | 2.23 | 137.8 | 1398.2 | wall |
-| upper | MASTER BEDCHAMBER | E | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6769 | 2.23 | 178.4 | 1357.6 | wall |
-| upper | MASTER BEDCHAMBER | S | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6642 | 2.23 | 137.8 | 1398.2 | wall |
-| upper | MASTER BEDCHAMBER | W | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6769 | 2.23 | 178.4 | 1357.6 | wall |
-| upper | STAIR LANDING | N | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7213 | 2.23 | -98.5 | 1634.5 | wall |
-| upper | STAIR LANDING | E | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6769 | 2.23 | 329.7 | 1206.3 | wall |
-| upper | STAIR LANDING | S | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7213 | 2.23 | -98.5 | 1634.5 | wall |
-| upper | STAIR LANDING | W | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6769 | 2.23 | 329.7 | 1206.3 | wall |
-| upper | GUEST CHAMBER | N | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.6934 | 2.23 | 17.1 | 1518.9 | wall |
-| upper | GUEST CHAMBER | E | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6769 | 2.23 | 267.6 | 1268.4 | wall |
-| upper | GUEST CHAMBER | S | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.6934 | 2.23 | 17.1 | 1518.9 | wall |
-| upper | GUEST CHAMBER | W | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6769 | 2.23 | 267.6 | 1268.4 | wall |
-| upper | CLOSET CHAMBER | N | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8630 | 2.23 | -685.4 | 2221.4 | wall |
-| upper | CLOSET CHAMBER | E | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6769 | 2.23 | 492.6 | 1043.4 | wall |
-| upper | CLOSET CHAMBER | S | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8630 | 2.23 | -685.4 | 2221.4 | wall |
-| upper | CLOSET CHAMBER | W | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6769 | 2.23 | 492.6 | 1043.4 | wall |
+| ground | GREAT HALL | N | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6474 | 2.43 | -76.7 | 1612.7 | wall |
+| ground | GREAT HALL | E | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6218 | 2.43 | 333.2 | 1202.8 | wall |
+| ground | GREAT HALL | S | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6474 | 2.43 | -76.7 | 1612.7 | wall |
+| ground | GREAT HALL | W | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6218 | 2.43 | 333.2 | 1202.8 | wall |
+| ground | STUDY | N | enclosed | threshold | 4.35 | 5.45 | 235.40 | 1024 | 0.7857 | 2.43 | 126.5 | 1409.5 | wall |
+| ground | STUDY | E | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.8030 | 2.43 | 167.1 | 1368.9 | wall |
+| ground | STUDY | S | enclosed | threshold | 3.85 | 5.45 | 265.97 | 1024 | 0.8210 | 2.43 | 43.2 | 1492.8 | wall |
+| ground | STUDY | W | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.8030 | 2.43 | 167.1 | 1368.9 | wall |
+| ground | BACK STAIR | N | enclosed | rule | 3.11 | 5.45 | 329.26 | 1024 | 0.8942 | 2.43 | -129.2 | 1665.2 | wall |
+| ground | BACK STAIR | E | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
+| ground | BACK STAIR | S | enclosed | threshold | 3.70 | 5.45 | 276.76 | 1024 | 0.8335 | 2.43 | 13.8 | 1522.2 | wall |
+| ground | BACK STAIR | W | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
+| ground | CROSS PASSAGE | N | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | E | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.7109 | 2.43 | 546.1 | 989.9 | wall |
+| ground | CROSS PASSAGE | S | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | W | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.7109 | 2.43 | 546.1 | 989.9 | wall |
+| ground | KITCHEN | N | enclosed | rule | 6.49 | 8.00 | 157.78 | 1024 | 0.6960 | 2.43 | 136.9 | 1399.1 | wall |
+| ground | KITCHEN | E | enclosed | rule | 6.00 | 8.65 | 170.67 | 1024 | 0.7109 | 2.43 | 29.9 | 1506.1 | wall |
+| ground | KITCHEN | S | enclosed | rule | 6.49 | 8.00 | 157.78 | 1024 | 0.6960 | 2.43 | 136.9 | 1399.1 | wall |
+| ground | KITCHEN | W | enclosed | rule | 6.00 | 8.65 | 170.67 | 1024 | 0.7109 | 2.43 | 29.9 | 1506.1 | wall |
+| ground | BUTTERY & PANTRY | N | enclosed | threshold | 4.50 | 8.00 | 227.56 | 1024 | 0.7767 | 2.43 | -142.2 | 1678.2 | wall |
+| ground | BUTTERY & PANTRY | E | enclosed | rule | 6.00 | 4.95 | 170.67 | 1024 | 0.7109 | 2.43 | 345.6 | 1190.4 | wall |
+| ground | BUTTERY & PANTRY | S | enclosed | threshold | 4.50 | 8.00 | 227.56 | 1024 | 0.7767 | 2.43 | -142.2 | 1678.2 | wall |
+| ground | BUTTERY & PANTRY | W | enclosed | rule | 6.00 | 4.95 | 170.67 | 1024 | 0.7109 | 2.43 | 345.6 | 1190.4 | wall |
+| ground | SERVANTS' HALL | N | enclosed | threshold | 6.60 | 8.00 | 155.15 | 1024 | 0.6930 | 2.43 | 147.4 | 1388.6 | wall |
+| ground | SERVANTS' HALL | E | enclosed | rule | 6.00 | 7.05 | 170.67 | 1024 | 0.7109 | 2.43 | 166.4 | 1369.6 | wall |
+| ground | SERVANTS' HALL | S | enclosed | threshold | 6.60 | 8.00 | 155.15 | 1024 | 0.6930 | 2.43 | 147.4 | 1388.6 | wall |
+| ground | SERVANTS' HALL | W | enclosed | rule | 6.00 | 7.05 | 170.67 | 1024 | 0.7109 | 2.43 | 166.4 | 1369.6 | wall |
+| ground | DINING PARLOUR | N | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6792 | 2.43 | 137.8 | 1398.2 | wall |
+| ground | DINING PARLOUR | E | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6930 | 2.43 | 178.4 | 1357.6 | wall |
+| ground | DINING PARLOUR | S | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6792 | 2.43 | 137.8 | 1398.2 | wall |
+| ground | DINING PARLOUR | W | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6930 | 2.43 | 178.4 | 1357.6 | wall |
+| ground | GREAT STAIR HALL | N | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7413 | 2.43 | -98.5 | 1634.5 | wall |
+| ground | GREAT STAIR HALL | E | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6930 | 2.43 | 329.7 | 1206.3 | wall |
+| ground | GREAT STAIR HALL | S | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7413 | 2.43 | -98.5 | 1634.5 | wall |
+| ground | GREAT STAIR HALL | W | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6930 | 2.43 | 329.7 | 1206.3 | wall |
+| ground | LIBRARY | N | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.7109 | 2.43 | 17.1 | 1518.9 | wall |
+| ground | LIBRARY | E | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6930 | 2.43 | 267.6 | 1268.4 | wall |
+| ground | LIBRARY | S | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.7109 | 2.43 | 17.1 | 1518.9 | wall |
+| ground | LIBRARY | W | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6930 | 2.43 | 267.6 | 1268.4 | wall |
+| ground | GARDEN ROOM | N | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8954 | 2.43 | -685.4 | 2221.4 | wall |
+| ground | GARDEN ROOM | E | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6930 | 2.43 | 492.6 | 1043.4 | wall |
+| ground | GARDEN ROOM | S | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8954 | 2.43 | -685.4 | 2221.4 | wall |
+| ground | GARDEN ROOM | W | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6930 | 2.43 | 492.6 | 1043.4 | wall |
+| ground | ENTRANCE COURT | N | enclosed | threshold | 8.55 | 20.40 | 119.77 | 1024 | 0.6521 | 2.43 | -453.6 | 1989.6 | wall |
+| ground | ENTRANCE COURT | E | enclosed | rule | 15.30 | 9.00 | 66.93 | 1024 | 0.5911 | 2.43 | 466.8 | 1069.2 | wall |
+| ground | ENTRANCE COURT | S | open | rule | 26.75 | 20.40 | 38.28 | 1024 | 0.5580 | 2.43 | — | — | vista |
+| ground | ENTRANCE COURT | W | enclosed | rule | 15.30 | 9.00 | 66.93 | 1024 | 0.5911 | 2.43 | 466.8 | 1069.2 | wall |
+| ground | PRIVY GARDEN | N | enclosed | threshold | 5.10 | 20.40 | 200.78 | 1024 | 0.7457 | 2.43 | -1280.0 | 2816.0 | wall |
+| ground | PRIVY GARDEN | E | enclosed | rule | 15.30 | 5.55 | 66.93 | 1024 | 0.5911 | 2.43 | 582.3 | 953.7 | wall |
+| ground | PRIVY GARDEN | S | enclosed | threshold | 5.10 | 20.40 | 200.78 | 1024 | 0.7457 | 2.43 | -1280.0 | 2816.0 | wall |
+| ground | PRIVY GARDEN | W | enclosed | rule | 15.30 | 5.55 | 66.93 | 1024 | 0.5911 | 2.43 | 582.3 | 953.7 | wall |
+| ground | ENTRANCE APPROACH | N | enclosed | threshold | 19.55 | 32.00 | 52.38 | 1024 | 0.5743 | 2.43 | — | — | wall |
+| ground | ENTRANCE APPROACH | E | open | rule | 24.00 | 20.00 | 42.67 | 1024 | 0.5631 | 2.43 | — | — | vista |
+| ground | ENTRANCE APPROACH | S | open | rule | 15.00 | 32.00 | 68.27 | 1024 | 0.5926 | 2.43 | — | — | vista |
+| ground | ENTRANCE APPROACH | W | open | rule | 24.00 | 20.00 | 42.67 | 1024 | 0.5631 | 2.43 | — | — | vista |
+| upper | SOLAR (GREAT CHAMBER) | N | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6474 | 2.43 | -76.7 | 1612.7 | wall |
+| upper | SOLAR (GREAT CHAMBER) | E | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6218 | 2.43 | 333.2 | 1202.8 | wall |
+| upper | SOLAR (GREAT CHAMBER) | S | enclosed | threshold | 8.85 | 14.60 | 115.71 | 1024 | 0.6474 | 2.43 | -76.7 | 1612.7 | wall |
+| upper | SOLAR (GREAT CHAMBER) | W | enclosed | rule | 10.95 | 9.30 | 93.52 | 1024 | 0.6218 | 2.43 | 333.2 | 1202.8 | wall |
+| upper | MUNIMENT ROOM | N | enclosed | threshold | 4.35 | 5.45 | 235.40 | 1024 | 0.7857 | 2.43 | 126.5 | 1409.5 | wall |
+| upper | MUNIMENT ROOM | E | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.8030 | 2.43 | 167.1 | 1368.9 | wall |
+| upper | MUNIMENT ROOM | S | enclosed | threshold | 3.85 | 5.45 | 265.97 | 1024 | 0.8210 | 2.43 | 43.2 | 1492.8 | wall |
+| upper | MUNIMENT ROOM | W | enclosed | rule | 4.09 | 4.80 | 250.37 | 1024 | 0.8030 | 2.43 | 167.1 | 1368.9 | wall |
+| upper | BACK STAIR HEAD | N | enclosed | rule | 3.11 | 5.45 | 329.26 | 1024 | 0.8942 | 2.43 | -129.2 | 1665.2 | wall |
+| upper | BACK STAIR HEAD | E | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
+| upper | BACK STAIR HEAD | S | enclosed | threshold | 3.70 | 5.45 | 276.76 | 1024 | 0.8335 | 2.43 | 13.8 | 1522.2 | wall |
+| upper | BACK STAIR HEAD | W | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
+| upper | LONG GALLERY | N | corridor | rule | 18.22 | 8.00 | 56.20 | 1024 | 0.5787 | 2.43 | 543.2 | 992.8 | wall |
+| upper | LONG GALLERY | E | enclosed | threshold | 7.55 | 24.30 | 135.63 | 1024 | 0.6705 | 2.43 | -879.9 | 2415.9 | wall |
+| upper | LONG GALLERY | S | corridor | rule | 18.22 | 8.00 | 56.20 | 1024 | 0.5787 | 2.43 | 543.2 | 992.8 | wall |
+| upper | LONG GALLERY | W | enclosed | threshold | 7.55 | 24.30 | 135.63 | 1024 | 0.6705 | 2.43 | -879.9 | 2415.9 | wall |
+| upper | MASTER BEDCHAMBER | N | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6792 | 2.43 | 137.8 | 1398.2 | wall |
+| upper | MASTER BEDCHAMBER | E | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6930 | 2.43 | 178.4 | 1357.6 | wall |
+| upper | MASTER BEDCHAMBER | S | enclosed | threshold | 7.15 | 8.80 | 143.22 | 1024 | 0.6792 | 2.43 | 137.8 | 1398.2 | wall |
+| upper | MASTER BEDCHAMBER | W | enclosed | rule | 6.60 | 7.60 | 155.15 | 1024 | 0.6930 | 2.43 | 178.4 | 1357.6 | wall |
+| upper | STAIR LANDING | N | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7413 | 2.43 | -98.5 | 1634.5 | wall |
+| upper | STAIR LANDING | E | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6930 | 2.43 | 329.7 | 1206.3 | wall |
+| upper | STAIR LANDING | S | enclosed | threshold | 5.20 | 8.80 | 196.92 | 1024 | 0.7413 | 2.43 | -98.5 | 1634.5 | wall |
+| upper | STAIR LANDING | W | enclosed | rule | 6.60 | 5.65 | 155.15 | 1024 | 0.6930 | 2.43 | 329.7 | 1206.3 | wall |
+| upper | GUEST CHAMBER | N | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.7109 | 2.43 | 17.1 | 1518.9 | wall |
+| upper | GUEST CHAMBER | E | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6930 | 2.43 | 267.6 | 1268.4 | wall |
+| upper | GUEST CHAMBER | S | enclosed | threshold | 6.00 | 8.80 | 170.67 | 1024 | 0.7109 | 2.43 | 17.1 | 1518.9 | wall |
+| upper | GUEST CHAMBER | W | enclosed | rule | 6.60 | 6.45 | 155.15 | 1024 | 0.6930 | 2.43 | 267.6 | 1268.4 | wall |
+| upper | CLOSET CHAMBER | N | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8954 | 2.43 | -685.4 | 2221.4 | wall |
+| upper | CLOSET CHAMBER | E | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6930 | 2.43 | 492.6 | 1043.4 | wall |
+| upper | CLOSET CHAMBER | S | enclosed | threshold | 3.10 | 8.80 | 330.32 | 1024 | 0.8954 | 2.43 | -685.4 | 2221.4 | wall |
+| upper | CLOSET CHAMBER | W | enclosed | rule | 6.60 | 3.55 | 155.15 | 1024 | 0.6930 | 2.43 | 492.6 | 1043.4 | wall |
 
 **Law (b), where it bites.** These facings claim a wall and do not have a continuous one:
 
@@ -318,7 +318,7 @@ which is what a camera does and what makes a corner move with where you stand.
 **Where the floor starts, in front of the viewer.** The intention's fifth decomposed
 quality: *"The camera has feet … Riven's rails are cut by the frame bottom at your own
 feet"*. Under a pinned lens this is `f / px_per_m_at_bottom` — the lens and the horizon
-decide it and the standpoint does not — so it is ONE number for the whole manor: 2.23 m.
+decide it and the standpoint does not — so it is ONE number for the whole manor: 2.43 m.
 0 facings start their floor more than twice that far out, against fifteen before.
 
 That number is the row's largest named cost and its arithmetic is worth having in full:
@@ -326,7 +326,7 @@ That number is the row's largest named cost and its arithmetic is worth having i
 here. Its infimum over any horizon a picture can use is the EYE HEIGHT itself, so no
 lens shift at this focal length puts the cut at a viewer's feet. What brought it in from
 the 3.08 m every 24 mm preview drew is the approved backdrops' own camera, measured at
-1.0878 m rather than the 1.83 m §10 asked for. The quality's second carrier —
+1.1830 m rather than the 1.83 m §10 asked for. The quality's second carrier —
 *"Kabe's reference anchors the same way through a near desk surface"* — is what closes
 the rest, and it belongs to the row that stages a near surface.
 
@@ -343,18 +343,18 @@ size, so the fork is a number rather than a worry:
 
 | quantity | grid camera (shipped) | contract camera (§10) |
 |---|---|---|
-| eye height | 1.09 m | 1.83 m |
-| study/N floor_line_y | 0.7622 | 0.9328 |
-| study/N px_per_m_at_bottom | 459.3 | 273.0 |
-| nearest floor in frame | 2.23 m | 3.75 m |
+| eye height | 1.18 m | 1.83 m |
+| study/N floor_line_y | 0.7857 | 0.9345 |
+| study/N px_per_m_at_bottom | 420.9 | 272.1 |
+| nearest floor in frame | 2.43 m | 3.76 m |
 
 **And §5's own gate is asserted at whichever height the pixels are drawn at.** The
 camera-has-feet assertion — |`horizon_y` − (`floor_line_y` − eye·`px_per_m_at_wall`/
 `image_h_px`)| ≤ 0.02 — is a check on a meta's self-consistency, so it holds against the
 drawing camera and fails against the other one. Against grid canonical:
 
-- at 1.09 m (the measured camera the demo draws): residual 0.0000 — passes
-- at 1.83 m (§10's generation camera): residual 0.1856 — FAILS
+- at 1.18 m (the measured camera the demo draws): residual 0.0000 — passes
+- at 1.83 m (§10's generation camera): residual 0.1617 — FAILS
 
 
 **And by how much depends on how wide the wall is**, which is the part that would bite
@@ -363,9 +363,9 @@ with the scale:
 
 | facing | px/m at wall | residual against the 1.83 m gate | verdict |
 |---|---|---|---|
-| study/N | 235.40 | 0.1706 | **fails** |
-| long_gallery/E | 135.63 | 0.0983 | **fails** |
-| entrance_approach/N | 52.38 | 0.0380 | **fails** |
+| study/N | 235.40 | 0.1487 | **fails** |
+| long_gallery/E | 135.63 | 0.0857 | **fails** |
+| entrance_approach/N | 52.38 | 0.0331 | **fails** |
 
 So a derivation run at the generation camera would emit metas that pass or fail one
 acceptance clause according to the size of the room. That is not a tolerance being tight;

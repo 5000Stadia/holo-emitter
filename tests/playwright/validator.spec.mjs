@@ -504,14 +504,28 @@ test.describe("the overlap check is bound to the renderer's placement", () => {
  * project's to 0.99 with the whole suite green because the number lived
  * nowhere else. Now widening either one alone goes red. */
 test.describe("the measured-lens acceptance band", () => {
+  /* [Standing-eye wave] THE BAND'S TWO NUMBERS NOW COME FROM TWO PLACES, and
+     neither of them is a literal in this file. The band itself is `gate.py`'s
+     `BAND6`; the reference is READ OFF THE FRAME — `measure.py --round
+     cand5ref` writes `_reference_set.focal_px` into
+     `design/plan-draft/measured/cand5ref/study-N.json` and gate.py loads it
+     from there rather than typing it, so the number the whole wave answers to
+     cannot drift from the pixels it came off. The old binding was against
+     gate.py's `REFERENCE_PX` literal, which is still there and is still the
+     cand-2 round's own 1010 px: that round is frozen and its band is not this
+     one. */
   test("agrees, number for number, with the asset gate that admits the backdrops", () => {
     const gate = readFileSync(join(repoRoot, "design", "plan-draft", "measured", "gate.py"), "utf8");
-    const ref = gate.match(/^REFERENCE_PX\s*=\s*([0-9.]+)/m);
-    const band = gate.match(/^BAND\s*=\s*([0-9.]+)/m);
-    expect(ref, "gate.py no longer states REFERENCE_PX").toBeTruthy();
-    expect(band, "gate.py no longer states BAND").toBeTruthy();
-    expect(Number(ref[1])).toBe(MEASURED_REFERENCE_PX);
+    const band = gate.match(/^BAND6\s*=\s*([0-9.]+)/m);
+    expect(band, "gate.py no longer states BAND6").toBeTruthy();
     expect(Number(band[1])).toBe(MEASURED_BAND);
+    const refFile = join(repoRoot, "design", "plan-draft", "measured", "cand5ref", "study-N.json");
+    expect(existsSync(refFile),
+      "the standing camera reference set is gone — run measure.py --round cand5ref").toBe(true);
+    const ref = JSON.parse(readFileSync(refFile, "utf8"))._reference_set;
+    expect(ref.focal_px,
+      "the acceptance band's reference is not the focal length measured off cand-5-reference")
+      .toBe(MEASURED_REFERENCE_PX);
   });
 
   test("and the band is a band, not a shrug — it cannot be widened past the ruled lens", () => {
@@ -535,7 +549,7 @@ test.describe("the measured-lens acceptance band", () => {
    * blueprint rather than asserted against a second literal. */
   test("and the number itself is the one blueprint §5 rules, read from the blueprint", () => {
     const bp = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
-    const m = /within \*\*±([\d.]+) % of ([\d]+) px\*\*/.exec(bp);
+    const m = /within \*\*±([\d.]+) % of ([\d.]+) px\*\*/.exec(bp);
     expect(m, "blueprint §5 no longer states the measured-lens acceptance band").toBeTruthy();
     expect(MEASURED_BAND, `blueprint §5 rules ±${m[1]} %`).toBeCloseTo(Number(m[1]) / 100, 12);
     expect(MEASURED_REFERENCE_PX, `blueprint §5 rules ${m[2]} px`).toBe(Number(m[2]));
@@ -627,24 +641,28 @@ test.describe("the lens tolerances are pinned from both sides", () => {
        has left the tree, which is a finding rather than a pass. */
     expect(existsSync(dir),
       "design/plan-draft/measured/ is gone — the measured band has nothing left to be a band over").toBe(true);
-    /* px/m read off each painting, and each facing's DRAWN standpoint. [Row 21]
-       These are the cand-2 round's numbers, and three facings are WITHHELD —
-       nothing in their pixels converts to a scale — so they carry null and are
-       not members of any band. A withheld facing is not a failing one and must
-       not be counted as either. */
+    /* px/m read off each painting, and each facing's DRAWN standpoint.
+       [Standing-eye wave] These are the cand-6 round's numbers, plus the
+       reference itself, and two facings are WITHHELD — nothing in their pixels
+       converts to a scale, because neither paints the chair-rail its own
+       prompt declares — so they carry null and are not members of any band. A
+       withheld facing is not a failing one and must not be counted as either.
+       The membership is the claim, not the arithmetic: a widened band that
+       admitted hall/W at +17.9 % would still satisfy an assertion written
+       against `MEASURED_BAND`. */
     const MEASURED = {
-      "study/N": [232.222, 4.35], "study/E": [235.5, 4.09], "study/S": [null, 3.85],
-      "study/W": [233.22, 4.09], "hall/N": [null, 2.15], "hall/E": [88.85, 6.00],
-      "hall/S": [null, 2.15], "hall/W": [106.0, 6.00]
+      "study/N": [188.421, 4.35], "study/E": [204.211, 4.09], "study/S": [null, 3.85],
+      "study/W": [192.632, 4.09], "hall/N": [301.05, 2.15], "hall/E": [171.58, 6.00],
+      "hall/S": [null, 2.15], "hall/W": [161.05, 6.00]
     };
     const lo = MEASURED_REFERENCE_PX * (1 - MEASURED_BAND);
     const hi = MEASURED_REFERENCE_PX * (1 + MEASURED_BAND);
     const admitted = Object.entries(MEASURED)
       .filter(([, [ppm, cam]]) => ppm !== null && ppm * cam >= lo && ppm * cam <= hi)
-      .map(([k]) => k);
+      .map(([k]) => k).sort();
     expect(admitted,
-      "the band's membership over the eight approved backdrops has changed — blueprint §5 admits study/N and rules the other seven back to the asset seat")
-      .toEqual(["study/N"]);
+      "the band's membership over the standing-eye wave has changed — it admits the reference and the study's east and west walls, and rules the other four back to the asset seat")
+      .toEqual(["study/E", "study/N", "study/W"]);
   });
 
   /* The numbers above are typed from the measurement, so they can rot. This
@@ -682,5 +700,23 @@ test.describe("the lens tolerances are pinned from both sides", () => {
     }
     expect(out).toMatch(/1 of 8 admitted/);
     expect(out.match(/^study\/N\s.*PASS/m), "study/N must be the admitted one").toBeTruthy();
+    /* AND THE ROUND THE SHIPPED BAND IS ABOUT, which is not that one. The
+       default run above is the frozen cand-2 round with its own frozen 1010 px
+       reference; the band this file imports is the standing-eye wave's, so the
+       tool has to be asked the question the band is an answer to. */
+    let wave = "";
+    try {
+      wave = execFileSync("python3", [gate, "--round", "cand6"],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      wave = e.stdout ? String(e.stdout) : "";
+    }
+    expect(wave.trim(), "gate.py --round cand6 printed nothing — the tool did not run")
+      .not.toHaveLength(0);
+    expect(wave).toMatch(/2 of 7 admitted/);
+    for (const f of ["study/E", "study/W"]) {
+      expect(wave.match(new RegExp("^" + f.replace("/", "\\/") + "\\s.*PASS", "m")),
+        `${f} must be admitted by the wave`).toBeTruthy();
+    }
   });
 });

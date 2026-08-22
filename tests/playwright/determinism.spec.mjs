@@ -113,19 +113,21 @@ test.describe("determinism and purity", () => {
 
   test("§12.8 grid clause: a facing with no backdrop asset renders the grid deterministically and structurally", async ({ page }) => {
     await page.goto(appUrl());
-    /* study/W, because [row 21] study/N is PAINTED now and this clause is
-       about the facing that has no asset. Until a painting existed the clause
-       could not discriminate — every facing rendered the grid, so "renders the
-       grid" was true of a renderer that had never heard of a backdrop. The
-       facing that does have one is asserted beside it, below. study/W is a
-       bare wall with both corners in frame, which is the structure this reads
-       under `backdrop_only` — the layer §7 puts the doorway in, and the one
-       row 11's corners belong to. */
-    const exp = gridExpectations("study", "W");
+    /* study/S, because the standing-eye wave promoted study/N, study/E AND
+       study/W, and this clause is about the facing that has no asset. It moved
+       here from study/W, which moved here from study/N at row 21 for the same
+       reason each time: until a painting existed the clause could not
+       discriminate — every facing rendered the grid, so "renders the grid" was
+       true of a renderer that had never heard of a backdrop. The facing that
+       does have one is asserted beside it, below. study/S is the study's
+       window wall, unadmitted by the cand-6 gate (its chair-rail is not drawn
+       and no scale could be issued), with both corners in frame, which is the
+       structure this reads under `backdrop_only`. */
+    const exp = gridExpectations("study", "S");
     const res = await page.evaluate(async (exp) => {
       const opt = { backdrop_only: true };
-      const c1 = window.__T.renderDirect({ location: "study", facing: "W" }, null, opt);
-      const c2 = window.__T.renderDirect({ location: "study", facing: "W" }, null, opt);
+      const c1 = window.__T.renderDirect({ location: "study", facing: "S" }, null, opt);
+      const c2 = window.__T.renderDirect({ location: "study", facing: "S" }, null, opt);
       return {
         h1: await window.__T.hashCanvas(c1),
         h2: await window.__T.hashCanvas(c2),

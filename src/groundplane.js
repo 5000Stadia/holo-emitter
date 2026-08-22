@@ -82,7 +82,7 @@
    * row 1's 3.5: under a pinned lens every other number in that meta is
    * derived from it, and 4.0 makes the scale an exact decimal a human can
    * check in the blueprint (256 px/m) where 3.5 gives 292.57142857142856.
-   * `floor_line_y` is 0.784047 at the measured eye — no longer a round
+   * `floor_line_y` is 0.809520 at the measured eye — no longer a round
    * number, because the eye stopped being an authored one and became a
    * measurement off the approved picture. It is a choice about space nobody has drawn, and
    * nothing the demo renders resolves to it. */
@@ -108,6 +108,22 @@
    * four independently generated frames agree about their eye height 2.6×
    * better (spread 0.131 m against 0.346 m). Nothing was regenerated for it.
    *
+   * THE STANDING-EYE WAVE MOVED BOTH NUMBERS, and it is the one thing in this
+   * comment that is not row 20's. [HUMAN 2026-08-22, design/approvals.log at
+   * 964188d] ruled "B" — the standing eye — over the low-eye frame row 21
+   * promoted, on interaction visibility over mood. The camera that ruling
+   * names is `backdrops/source/study-N/cand-5-reference.png`, and it was
+   * measured by the same harness and the same ruled instrument:
+   * `design/plan-draft/measured/measure.py --round cand5ref`, whose reference
+   * set is `measured/cand5ref/study-N.json`. The horizon is the ceiling-ramp
+   * intersection at y 526.1 of 1024 (residual 0.30/0.29 px over 61 columns a
+   * side) and the eye is 1.183 m — 1.7 px and 0.095 m from row 20's, which is
+   * the honest size of what "the standing eye" bought at this generator: the
+   * frame shows more floor because the LENS widened, not because the camera
+   * rose. The old numbers were 1.08775 m and 524.4/1024; the anchor is the
+   * chair-rail rather than the fireplace, and those two rulers agree on the
+   * reference frame to 1.43 %.
+   *
    * This supersedes row 11's 1.60 m, which was named an interim awaiting
    * exactly this measurement. §10's ruled 1.83 m is the GENERATION camera and
    * is untouched — the generator was asked for it on all eight and drew about
@@ -121,8 +137,8 @@
    * cuts the floor at 2.23 m instead of the 3.08 m every 24 mm preview frame
    * drew. `horizon_y` is the lens SHIFT (a level camera with its frame moved,
    * not a tilted one), and it stays one. */
-  var DRAWING_EYE_M = 1.08775;
-  var HORIZON_Y = 524.4 / 1024;
+  var DRAWING_EYE_M = 1.183;
+  var HORIZON_Y = 526.1 / 1024;
 
   /** Pixels per metre at the wall plane, for a camera-to-plane distance. */
   function pxPerMAtWall(distanceM) { return FOCAL_PX / distanceM; }

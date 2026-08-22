@@ -1486,6 +1486,16 @@ follows: the standing-eye wave regenerates the study and passage walls together 
 all against `cand-4` as the camera reference, and **no cand-3 candidate promotes** — that round is
 recipe validation (does the scale-and-anchor discipline transfer?) rather than an admission gate.
 
+**SUPERSEDED BY THE STANDING-EYE WAVE — read *The standing-eye wave* below.
+The asset seat did not repaint against `cand-4`; it generated
+`cand-5-reference`, which unites the approved painting's finish with the
+standing-eye camera, and THAT frame is what the wave measured. Everything in
+the paragraph below is row 21's account of the un-re-tuned `cand-4` run, kept
+because its three readings are what the wave's first step answered — and it
+answered them: re-tuned against `cand-5-reference`, the ruled ceiling-ramp
+instrument resolves at a 0.30 px residual, the two rulers agree to 1.43 %, and
+an eye height of 1.183 m WAS issued.**
+
 **What the production run's first step is, and what the harness says when it is pointed at
 `cand-4`.** Its measured eye height becomes `DRAWING_EYE_M`'s target, and the gate gains an
 eye-height band around that measured value on the same ±3 % idiom the focal uses; the focal band
@@ -1615,7 +1625,7 @@ alibi**. It reads to the end of the parameter now.
 4. **`backdrops/baked.js` is a second copy of the pixels**, 3.4 MB beside a 2.6 MB PNG, both
    committed to a public repository forever. The staleness test is the mitigation for their
    agreement; the size is the fork named above.
-5. **CLOSED: the camera A/B is answered — B, the standing eye** (`design/approvals.log`, 964188d).
+5. **CLOSED, AND EXECUTED: the camera A/B is answered — B, the standing eye** (`design/approvals.log`, 964188d), and the wave that carries it is *The standing-eye wave* below. The number this item left open — the measured eye height — is **1.183 m**, off `cand-5-reference` rather than `cand-4`.
    The promotion stands as built and `backdrops/study/N.png` is the last wall this project will
    ever stand at the low eye; the standing-eye wave supersedes it in the production run. What
    remains open is not the ruling but its number: `cand-4`'s measured eye height, which the
@@ -1785,6 +1795,226 @@ hand-offs live here.
   in `design/approvals.log` reading AWAITING, and the row-20 batch rides with it; `plan.spec`
   requires both to be there while their entries are open. The row's own done clause is delivery to
   the Navigator, so the close does not pretend to hold his word.
+
+## The standing-eye wave — the camera the manor is painted at now
+
+**[HUMAN 2026-08-22, `design/approvals.log` at 964188d]: "B".** The camera A/B
+closed on the standing eye, and that ruling is what this section records the
+execution of. It supersedes row 21's promoted low-eye `study/N` and it moves
+four numbers this whole project is built on.
+
+### The reference is a frame, and it is READ rather than admitted
+
+`design/plan-draft/measured/measure.py --round cand5ref` measures
+`backdrops/source/study-N/cand-5-reference.png` and writes ONE file,
+`measured/cand5ref/study-N.json`, whose `_reference_set` block is the standing
+camera:
+
+```
+px_per_m_at_wall  188.421      anchor: the chair-rail, 179 px above the floor at a ruled 0.95 m
+implied focal     819.6 px     at study/N's drawn 4.35 m standpoint
+eye height        1.183 m      floor line 749 minus the ceiling-ramp horizon 526.1, over 188.421
+horizon           y 526.1      ceiling-ramp intersection, residual 0.30 / 0.29 px over 61 columns a side
+floor line        y 749        the darkest row of the shadow seam at the skirting foot
+corners           188 .. 1351
+storey            3.349 m      PAINTED, against the plan's ruled 2.80 — warn tier
+```
+
+There is no band over it. A reference is not a candidate.
+
+**What carries it, and nothing types it twice**: `src/groundplane.js`'s
+`DRAWING_EYE_M` (1.183) and `HORIZON_Y` (526.1/1024);
+`tools/validate-fixtures.mjs`'s `MEASURED_REFERENCE_PX` (819.6) and
+`MEASURED_BAND` (0.08); `gate.py --round cand6`, which **loads the reference
+off that JSON rather than stating it**; and the three promoted metas.
+`validator.spec` binds the band to `gate.py`'s `BAND6` and the reference to the
+JSON, so widening one alone goes red.
+
+### The eye rose 0.095 m and the LENS widened 20 %, and that is the headline
+
+Row 20 measured 1.08775 m and a 1010 px lens off the low-eye frame. The
+standing-eye frame measures **1.183 m and 819.6 px**. The eye moved 8.8 %; the
+focal length moved **−19 %**. So the frame shows more floor because the
+generator answered "standing adult eye" with a WIDER LENS, not with a higher
+camera — the horizon sits at 35.3 % of the painted wall's height where the
+low-eye frame put it at 36.3 %. Measured against the ruled 2.80 m storey rather
+than the painted 3.35, the camera is standing at **0.99 m**.
+
+**The consequence to expect and not be surprised by:** a painted facing now
+draws at 819.6 px where an unpainted one draws at the ruled 1024 px — 20 %,
+where row 21's two-lenses-in-one-room note recorded 1.4 %. It closes when the
+manor is wholly painted, and until then it is the largest divergence this
+project carries. §10's ruled 24 mm lens and `replicator/contract.json`'s
+`camera.focal_mm` are UNTOUCHED: that field is [HUMAN] and moving it would
+invalidate the contract identity digest and the corpus record with it.
+
+### The adopted ruler is the anchor the prompt declares, and only it
+
+Every cand-6 prompt and the reference's own carry one `Measurement anchor:`
+line — blueprint §11's universal wainscot chair-rail at 0.95 m — so the camera
+verdict is computed from that line on all eight frames. One instrument across
+the corpus AND the reference, because a reference read with a different ruler
+puts that instrument's offset into every delta in the table.
+
+**Every other ruled feature is measured, printed, and votes on nothing.** They
+are in each document's `_cross_rulers` with their own implied focal length and
+their disagreement with the anchor. On the reference the fireplace opening
+(172 px at a ruled 0.90 m → 191.11 px/m) agrees with the chair-rail to
+**1.43 %**, which is the cross-check that says the anchor is looking at what it
+names. On `study/E` the door opening reads 224.0 px/m from its head and 188.0
+from its jambs against the chair-rail's 204.21 — an 18 % span — because the
+painting drew a 0.92 × 2.19 m door against a ruled 1.00 × 2.00. That is a fact
+about **the room the painting depicts**, which the Navigator ruled WARN-TIER on
+2026-08-22, and folding it into the camera verdict would fail a wall for its
+joinery. Under the cand-2 straddle rule `study/E` would be WITHHELD instead;
+`_ruler_policy.counterfactual` in every document says so, because the policy was
+written after the frames were measured and that is the honest form of the
+admission.
+
+### The band is ±8 % on BOTH halves, and it is an [AI] licence with a clock
+
+A cand-6 wall is admitted when its implied focal length AND its eye height land
+within ±8 % of the reference's. Grounds: 8 % of a focal length is below the
+just-noticeable difference for a focal-length change across a film cut, which is
+the perceptual quantity the band stands in for — a player turning between two
+walls of one room is exactly a cut. The cand-2 band was ±3 %, twice the residual
+between the approved painting and the ruled lens, and it admitted 0 of 7 twice.
+
+**The clock is a record in `misses.jsonl`** (`_record: "clock"`), carrying the
+rate at every round and the trigger: cand-2 **0 of 7**, cand-3 **0 of 7**,
+cand-6 **2 of 7**. *If a wave admits ~0 again the band and the approach are
+re-examined and NOT widened a second time* — a second widening would be the
+corpus moving the law, which `gate.py`'s own header refuses. `plan.spec` reads
+the clock, so a licence without one goes red.
+
+### The gate table, and what it refused
+
+```
+facing      standpt       px/m     TARGET   focal px     eye m    dfocal      deye   verdict
+hall/E         6.00     171.58      136.6       1030    1.2653    +25.6%     +7.0%   FAIL
+hall/N         2.15     301.05      381.2        647         -    -21.0%         -   FAIL
+hall/S         2.15          -      381.2          -         -         -         -   WITHHELD
+hall/W         6.00     161.05      136.6        966    1.3343    +17.9%    +12.8%   FAIL
+study/E        4.09     204.21      200.4        835    1.1380     +1.9%     -3.8%   PASS
+study/S        3.85          -      212.9          -         -         -         -   WITHHELD
+study/W        4.09     192.63      200.4        788    1.1488     -3.9%     -2.9%   PASS
+```
+
+**A FAIL is issued even where the eye half could not be read** (`hall/N`, which
+paints no corners and so has no ceiling ramp): the camera is wrong either way
+and the re-ask is the same one. A focal length INSIDE the band with no eye
+height is a WITHHELD, because admission is on both halves and half a
+measurement admits nothing.
+
+**Both WITHHELDs are the same cause and it is the anchor, not the camera.**
+`study/S` paints a window-seat sill 0.68 m above the floor where the chair-rail
+is ruled at 0.95, and the two moulding lines the detector finds stand 0.245 m
+apart; `hall/S` paints one moulding line where a wainscot is two (0.044 m).
+Neither is a wainscot, so no scale is issued and no re-ask is sent against a
+number nobody could measure. Their cross-rulers are recorded: `study/S`'s three
+window bays measure 221.2 / 233.2 / 220.5 px at a ruled 0.90 m — a 5.7 % spread
+on three features one prompt ruled equal — implying 250.0 px/m and a 962 px lens,
++17.4 %.
+
+**What the round clocked, and what it does not prove.** The first-roll pass rate
+moved 0 → 0 → 2 of 7. Three things changed in one step — the anchor discipline,
+the camera reference and the band — so the movement cannot be attributed to
+`prompt_lint.py` alone, and the `clock` record says so in as many words. What
+did visibly land: the two facings that had declared an anchor above a floor
+their own prompt forbade now paint a floor line, which is the lint's third
+clause taking effect in the corpus.
+
+### Every detector window is RE-TUNED, which is the opposite of cand-3
+
+`CFG_WAVE` in `measure.py` holds them, per facing, with the rule that placed
+them: the module band starts BELOW the facing's own feature (a window head, a
+tapestry's frame, a fireplace mantel) so the first contiguous dark group
+scanning down is the chair-rail's capping and not that feature's shadow, and
+the columns are the wall-plane columns clear of it. The cand-3 round refused to
+re-tune on purpose — its question was whether the recipe puts a feature where
+the approved composition has it — and this round's question is what the camera
+IS, which cannot be read through a window pointed at where a feature used to be.
+
+`module_in_bands` is `panelling_module`'s rule over column BANDS instead of one
+span, because `hall/W`'s end wall is 490–630 and 890–1050 with a lit doorway
+between them and a single span puts the doorway's own light into the band
+median.
+
+**The control is the row-21 promotion frame through this round's code**: the
+reference is new and cannot be its own control, so `backdrops/source/study-N/
+cand-2.png` goes through `pick_floor` and `module_in_bands` every run and must
+return floor line 777 and the chair rail 213 px above it. If it moves, the
+reference set is VOID and the run says so.
+
+### Two walls are promoted; the third is ADMITTED AND HELD, and that is a ruling
+
+`study/N` ← `cand-5-reference` and `study/W` ← `cand-6`, through
+`tools/promote-backdrop.mjs`, which gained `--round <dir>` so it can read a
+round's own directory (`measured/` itself stays the default and is still the
+cand-2 round's home) and a `measured_round` field in the meta so a promotion
+can be RE-DERIVED from the meta alone — `fixtures.spec`'s staleness case runs
+the tool again and byte-compares, and without the round it read the cand-2
+corpus, a different painting's numbers.
+
+**`study/E` passed the gate at +1.9 % focal and −3.8 % eye and is NOT in the
+world.** It was promoted, the consequence was looked at, and the promotion was
+reversed. The reason is the second carrier disagreement below: the painting
+puts the study's doorway **dead centre of frame** and the approved plan puts it
+**1.11 m to the right**, and `apertures()` resolves a facing that has a staged
+LEAF through the leaf's placement rectangle — which is authored off the plan.
+So the furnished world cut its hole at x 942–1126 while the painting drew its
+door at 673–860: a hole in the paint beside a painted door that does not open,
+which is §11's *"the painted opening must coincide with the click target"*
+false by 1.11 m. Three tests found it from three directions (the through-view
+transform, the doorway's own darkness, the walkthrough's open-door check) and
+none of them could have if the wall had not been promoted.
+
+**What it is NOT is a camera failure**, and the distinction matters for the
+re-ask: nothing about `study/E`'s camera is wrong. What is wrong is that two
+approved documents disagree about where a door is, and blueprint §5 makes the
+painting the geometric authority — so **the plan is the document that moves**,
+exactly as row 22 already rules for the hearth. `study/E` promotes the day that
+row lands, by re-running the tool. Nothing else about it changes.
+
+**`study/E` also exposed a gap before it came back out**, and the fix stands:
+it is the first painted facing with a doorway in it, so it is the first meta a
+promotion has ever written an opening into — the only promoted wall until now
+being the study's hearth wall. Promoted against row 15's in-flight
+`meta.opening_kind` clause, the bake refused it: the projection emitted an
+opening's `kind` and the promotion dropped it. `promote-backdrop.mjs` carries
+the field across now, like the two `beyond_*` metres beside it. Row 15 is not
+in this commit, so the key is absent from every meta written here exactly as it
+was before; the line is what makes the two agree the day that row lands.
+
+**The carrier disagreements the promotion prints**: the plan centres the
+study's chimney breast at 772.7 px and the painting puts its fireplace at
+464.5 — **1.64 m apart**, where row 21 measured 1.41 m against the low-eye
+frame, so **row 22's cascade grew rather than shrank**. And `op13`, the
+study↔passage doorway, 1.11 m — the one above. `geometry.spec` pins both per
+facing, by kind, so neither can move unnoticed.
+
+### What the wave hands on
+
+- **`study/E` is admitted and waiting on row 22.** It is the cheapest wall in
+  the manor to land: the painting is done and gated, and what it needs is a
+  plan amendment a human has to redline.
+- **Four walls re-ask**, with their deltas and their target scales in
+  `misses.jsonl`: `hall/E` +25.6 %, `hall/W` +17.9 %, `hall/N` −21.0 %, and
+  `study/S` +17.4 % from its bays (recorded as a cross-ruler, since its verdict
+  is WITHHELD). The corridor pair are the interesting ones — both drew their end
+  wall too LARGE, in the same direction and by a similar amount, which is the
+  same signature the study pair showed at cand-2 and cand-3 in the other
+  direction.
+- **Two walls need their anchor drawn before they can be gated at all**:
+  `study/S` and `hall/S`. The re-ask is not a camera re-ask and must not be sent
+  as one.
+- **The plan/painting doorway disagreement joins the hearth in row 22's
+  cascade.**
+- **The two-lens divergence is 20 % now**, not 1.4 %, and it is the biggest
+  open question this wave raises for the Navigator: either the manor finishes
+  painting at 819.6 px and the ruled 24 mm lens becomes a generation-side
+  fiction, or the wave re-asks every wall against the ruled 1024 px and the
+  reference is regenerated. That fork is not an agent's.
 
 ## Ground plane (`src/groundplane.js`)
 

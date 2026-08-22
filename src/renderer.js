@@ -42,15 +42,15 @@
    * `camera.focal_mm`), so `px_per_m_at_wall` is no longer a constant anyone
    * may author: it is `FOCAL_PX / camera_wall_m`. The three inputs are the
    * fallback's own camera distance (4.0 m), the measured drawing eye height
-   * (1.08775 m) and the measured horizon (524.4 / 1024) — all three named and
+   * (1.183 m) and the measured horizon (526.1 / 1024) — all three named and
    * argued in `src/groundplane.js`. What comes out, and what blueprint §7
    * states as this constant's one written home:
    *
    *     px_per_m_at_wall    1024 / 4.0              = 256
-   *     horizon_y           524.4 / 1024            = 0.512109
-   *     floor_line_y        horizon_y + eye/4       = 0.784047
-   *     px_per_m_at_bottom  (1024 - 524.4) / eye     = 459.297
-   *     nearest visible floor  1024 / 459.297       = 2.2295 m
+   *     horizon_y           526.1 / 1024            = 0.513770
+   *     floor_line_y        horizon_y + eye/4       = 0.809520
+   *     px_per_m_at_bottom  (1024 - 526.1) / eye     = 420.879
+   *     nearest visible floor  1024 / 420.879       = 2.4330 m
    *
    * `wall_width_m` stays 16.0 and its MEANING changed: it used to be "the wall
    * the frame holds at 96 px/m", which was true only of a pinned scale. Under
@@ -67,14 +67,14 @@
    * its pixels like any other, and the audit passes on its own arithmetic
    * (256 px for a 1.0 m module at 256 px/m).
    *
-   * WHY THE EYE HEIGHT IS 1.08775 AND NOT 1.60 OR §10's 1.83. Blueprint §5
+   * WHY THE EYE HEIGHT IS 1.183 AND NOT 1.60 OR §10's 1.83. Blueprint §5
    * rules that the geometry is determined by the orientation of the approved
    * image generation; row 11's 1.60 m was named an interim awaiting exactly
    * that measurement; the approved backdrops arrived at row 20 and measure
-   * 1.08775 m with no pitch, by the ceiling-ramp horizon the Navigator ruled
+   * 1.183 m with no pitch, by the ceiling-ramp horizon the Navigator ruled
    * on its 0.3 px residual against a vanishing-point vote's 30 px scatter. §10's contract camera is unchanged and still what
    * backdrops are prompted at — the generator was asked for 1.83 m pitched
-   * down and drew 1.08775 m level, and that divergence is on the record
+   * down and drew 1.183 m level, and that divergence is on the record
    * (`design/plan-draft/measured/`), not corrected by an agent.
    *
    * The lower camera is what returns the intention's fifth quality: the
@@ -85,16 +85,16 @@
     var gp = groundplane();
     var cam = gp.CAMERA_WALL_M;                  // 4.0 m — see groundplane.js
     var px = gp.pxPerMAtWall(cam);               // 1024 / 4.0 = 256
-    var eye = gp.DRAWING_EYE_M;                  // 1.08775 m, measured
-    var hy = gp.HORIZON_Y;                       // 524.4 / 1024 = 0.51211
+    var eye = gp.DRAWING_EYE_M;                  // 1.183 m, measured
+    var hy = gp.HORIZON_Y;                       // 526.1 / 1024 = 0.51377
     return {
-      floor_line_y: hy + eye * px / 1024,        // 0.784047
+      floor_line_y: hy + eye * px / 1024,        // 0.809520
       px_per_m_at_wall: px,                      // 256
-      px_per_m_at_bottom: (1024 - hy * 1024) / eye,  // 459.2967
+      px_per_m_at_bottom: (1024 - hy * 1024) / eye,  // 420.8791
       wall_width_m: 16,
       key_tint: "#c8b489",
       image_h_px: 1024,
-      horizon_y: hy,                             // 0.51211
+      horizon_y: hy,                             // 0.51377
       key_dir: "UL",
       calibration_ref: "wall grid module, 1.0 m at the wall plane",
       calibration_px: px,                        // 256

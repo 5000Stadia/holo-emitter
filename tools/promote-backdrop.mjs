@@ -49,8 +49,21 @@ const argOf = (flag, dflt) => {
 const facingArg = argOf("--facing");
 const candidate = argOf("--candidate");
 const planPath = argOf("--plan", join(root, "fixtures", "demo-study", "plan.json"));
+/* WHICH ROUND'S MEASUREMENT. `design/plan-draft/measured/` itself is the cand-2
+ * promotion round's home and stays the default, so every call written before
+ * the standing-eye wave still resolves to the file it always did. The wave
+ * writes to `measured/cand5ref/` and `measured/cand6/` — rounds have their own
+ * directories since row 21, after `--round cand1` once overwrote the promotion
+ * corpus in silence — so promoting one of its walls names its round. The
+ * directory is the only thing this flag chooses: the refusals below, the band
+ * and the meta's shape are the same whichever round produced the numbers. */
+const roundDir = argOf("--round", "");
 if (!facingArg || !candidate) {
-  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>]");
+  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>] [--round cand5ref|cand6]");
+  process.exit(2);
+}
+if (roundDir && !/^[a-z0-9]+$/.test(roundDir)) {
+  console.error(`promote refused: --round ${roundDir} is not a round directory name`);
   process.exit(2);
 }
 const [loc, facing] = facingArg.split("/");
@@ -60,9 +73,10 @@ const [loc, facing] = facingArg.split("/");
  * (`passage-E`). Two names for one place is a trap and this is the one line
  * that maps them: the location id is what the world, the plan and the
  * backdrops map all use, and it is what the promoted file is named for. */
-const measuredFile = join(root, "design", "plan-draft", "measured", `${loc}-${facing}.json`);
+const measuredFile = join(root, "design", "plan-draft", "measured",
+  ...(roundDir ? [roundDir] : []), `${loc}-${facing}.json`);
 if (!existsSync(measuredFile)) {
-  console.error(`promote refused: no measurement at ${measuredFile} — run design/plan-draft/measured/measure.py first`);
+  console.error(`promote refused: no measurement at ${measuredFile} — run design/plan-draft/measured/measure.py${roundDir ? ` --round ${roundDir}` : ""} first`);
   process.exit(1);
 }
 const m = JSON.parse(readFileSync(measuredFile, "utf8"));
@@ -153,6 +167,14 @@ const meta = {
   corner_x1_px: m.corner_x1_px,
   storey_height_m: null,
   camera_id: "measured:" + srcRel,
+  /* WHICH ROUND MEASURED IT, so the promotion can be RE-RUN from the meta
+   * alone. `fixtures.spec`'s staleness case re-derives every promoted meta by
+   * running this tool again and byte-comparing, and it finds the candidate
+   * through `camera_id`; once rounds have their own directories the candidate
+   * is not enough — the tool has to be told where the measurement lives, and
+   * an unstated round silently reads the cand-2 corpus, which is a DIFFERENT
+   * painting's numbers. Null for the default directory. */
+  measured_round: roundDir || null,
   provisional: false,
   measured: true,
   backdrop: fc.type === "open" ? "vista" : "wall",
@@ -222,6 +244,16 @@ for (const p of planned) {
     : null;
   meta.openings.push({
     id: p.id,
+    /* [Standing-eye wave] THE KIND COMES ACROSS TOO, and until this row nothing
+     * noticed it did not: row 15 made `kind` a required field of every opening
+     * — the renderer draws a jamb and the room beyond through a `door` and
+     * nothing at all through a `threshold` — and no promoted meta had ever
+     * carried an opening, because the one promoted wall was the study's
+     * hearth wall. `study/E` is the first painted facing with a doorway in it,
+     * and the bake refused its meta on this clause the first time it was
+     * written. The kind is the plan's, like the two `beyond_*` metres beside
+     * it: what a way through IS is a fact about the building. */
+    kind: p.kind,
     via: p.via,
     x: round(measuredRect ? measuredRect.x : p.x, 2),
     y: round(measuredRect ? measuredRect.y : p.y, 2),

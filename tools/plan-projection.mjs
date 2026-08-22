@@ -202,7 +202,7 @@ export const GRID_CAMERA = cameraFrom({
   horizon_y: groundplane.HORIZON_Y,
   focal_px: FOCAL_PX,
   image_h_px: GRID_META.image_h_px,
-  source: "the camera MEASURED off the approved study/N backdrop (row 20): eye 1.08775 m, level, horizon at y 524.4 of 1024 by the ceiling-ramp fit, on the ruled 24 mm lens — blueprint §5's 'the geometry elements should be determined by the orientation of the approved initial image generation' [HUMAN 2026-08-20], now that the approved generation exists"
+  source: "the camera MEASURED off the standing-eye reference backdrops/source/study-N/cand-5-reference.png ([HUMAN 2026-08-22] 'B'): eye 1.183 m, level, horizon at y 526.1 of 1024 by the ceiling-ramp fit, on the ruled 24 mm lens — blueprint §5's 'the geometry elements should be determined by the orientation of the approved initial image generation' [HUMAN 2026-08-20], now that the approved generation exists"
 });
 
 /** Blueprint §10's generation camera, for comparison only. Its home is
@@ -1130,8 +1130,8 @@ export function report(plan, staging, records) {
   P();
   P("1. **CLOSED AT ROW 20 — the camera is MEASURED now.** Blueprint §5 rules that the geometry");
   P("   is determined by the orientation of the approved image generation; those generations");
-  P("   arrived, and the one Kabe's probe loop blessed measures eye **1.09 m**, level, with its");
-  P("   horizon at y 524.4 of 1024 by the ceiling-ramp fit. That is what this report and the");
+  P("   arrived, and the standing-eye reference [HUMAN 2026-08-22, \"B\"] measures eye **1.18 m**, level, with its");
+  P("   horizon at y 526.1 of 1024 by the ceiling-ramp fit. That is what this report and the");
   P("   renderer both run on. §10's generation camera — eye **1.83 m**, **−8° pitch** — is");
   P("   untouched and is what backdrops are PROMPTED at; the generator was asked for it on all");
   P("   eight and drew 1.1–1.5 m level every time. The size of that difference is below (§7).");

@@ -2094,6 +2094,15 @@ def write_misses(raw, round_name="cand-2", records=None):
                     prev = json.loads(line)
                 except ValueError:
                     continue
+                if prev.get("_record") == "clock" and \
+                        prev.get("round") == round_name and records:
+                    # A CLOCK IS REWRITTEN BY ITS OWN ROUND, not appended to.
+                    # It is a derived record - the pass rate at every round -
+                    # so a second run of the same round must replace its line
+                    # rather than leave two contradictory ones for a reader to
+                    # choose between. Every other round's clock is carried
+                    # through with everything else.
+                    continue
                 if prev.get("_record") not in ("miss", "header"):
                     # EVERY OTHER RECORD SURVIVES THIS RUN. [Row 21, the close]
                     # The ledger holds apparatus gaps as well as misses now --
@@ -2148,7 +2157,19 @@ def write_misses(raw, round_name="cand-2", records=None):
                            "for. Gated by an un-re-tuned harness on purpose - "
                            "the round's own question is whether the recipe "
                            "puts the features where the approved composition "
-                           "has them."},
+                           "has them.",
+                 "cand-6": "THE STANDING-EYE WAVE. [HUMAN 2026-08-22, "
+                           "design/approvals.log at 964188d] \"B\" - the "
+                           "standing eye - so every wall is regenerated "
+                           "against a NEW camera reference, "
+                           "backdrops/source/study-N/cand-5-reference.png, "
+                           "measured by --round cand5ref. The adopted ruler "
+                           "is the anchor each prompt declares (§11's "
+                           "chair-rail) and every detector window is re-tuned "
+                           "against the frame it reads. The band is +/-8 % on "
+                           "the focal length AND the eye height, an [AI] "
+                           "starting licence whose clock is the `clock` record "
+                           "in this file."},
         _round_of_each_entry="every miss carries its own `round` field",
         _evidence=("design/plan-draft/measured/<loc>-<facing>.json carries every "
                    "ruler measured per facing with its own delta; "
@@ -2246,7 +2267,12 @@ def write_misses(raw, round_name="cand-2", records=None):
 
     for rec in (records or []):
         # The same rule the loop above applies: a disposition is the hand's and
-        # survives a re-measurement, whichever round wrote it.
+        # survives a re-measurement, whichever round wrote it. A record that is
+        # not a miss (the standing-eye wave's `clock`) names no facing and
+        # carries no disposition.
+        if rec.get("_record") != "miss":
+            lines.append(rec)
+            continue
         if rec["facing"] in carried:
             rec["status"] = carried[rec["facing"]]["status"]
             rec["baked_in"] = carried[rec["facing"]]["baked_in"]
@@ -2713,13 +2739,899 @@ def main_cand3():
     return 0 if ctl["passed"] else 1
 
 
+# ---------------------------------------------------------------------------
+# THE STANDING-EYE WAVE - ROUND cand5ref (the reference) and ROUND cand6.
+#
+# [HUMAN 2026-08-22, design/approvals.log at 964188d]: "B" - the standing eye.
+# That ruling routes every wall of the manor through one regeneration wave
+# against a single camera reference, and supersedes the low-eye `study/N` this
+# project promoted at row 21. `backdrops/source/study-N/cand-5-reference.png` is
+# that reference: the frame generated to unite the approved painting's finish
+# with the standing-eye camera.
+#
+# ROUND cand5ref MEASURES THE REFERENCE AND NOTHING ELSE, and what it measures
+# IS the standing camera reference set - the focal length, the eye height, the
+# floor line, the corners and the storey that `src/groundplane.js`,
+# `tools/validate-fixtures.mjs` and the cand-6 gate all answer to afterwards.
+# There is no band over it: a reference is not admitted, it is read.
+#
+# ROUND cand6 GATES THE SEVEN REGENERATED WALLS against that set, on BOTH
+# halves - the implied focal length and the eye height - at +/-8 %.
+#
+# WHY +/-8 %, AND WHOSE LICENCE IT IS. [AI, 2026-08-22, a starting licence
+# granted by the Navigator with its clock attached.] The cand-2 band was
+# +/-3 %, which is twice the measurement residual between the approved painting
+# and the ruled lens, and under it the corpus admitted 0 of 7 twice running
+# (cand-2 and cand-3). 8 % of a focal length is below the just-noticeable
+# difference for a focal-length change across a film cut, which is the
+# perceptual quantity the band is standing in for - a viewer turning between two
+# walls of one room is exactly a cut. The licence is recorded in
+# `misses.jsonl` WITH ITS CLOCK per design/production-law.md clause 5: if this
+# round admits ~0 again, the band and the whole approach are re-examined rather
+# than widened a second time.
+#
+# THE ADOPTED RULER IS THE DECLARED ANCHOR, AND ONLY IT. Every cand-6 prompt
+# carries one `Measurement anchor:` line and it is blueprint §11's universal
+# wainscot chair-rail at 0.95 m above the floor; the reference's own prompt
+# carries it too. So the chair-rail is what the camera verdict is computed
+# from on all eight frames - one instrument across the corpus AND the
+# reference, because a reference measured with a different ruler from the
+# corpus puts that instrument's offset into every delta in the table.
+#
+# EVERY OTHER RULED FEATURE IS MEASURED AND PRINTED AND DOES NOT VOTE. It goes
+# in `_cross_rulers` with its own implied focal length, so a reading resting on
+# one detector window can be overturned by a human in one look. The reason it
+# does not vote is the Navigator's WARN-TIER ruling of 2026-08-22, applied
+# where it already points: a door drawn 2.19 m tall against a ruled 2.00, three
+# window bays 5.7 % apart, a storey painted 3.35 m against a ruled 2.80 are
+# facts about THE ROOM THE PAINTING DEPICTS. They are recorded, and they are not
+# the camera. Folding them into the camera verdict would fail a wall for its
+# joinery.
+#
+# WHAT WAS SEEN BEFORE THIS CODE WAS WRITTEN, said out loud because the ruler
+# policy is the one place it could hide: the eight frames were measured with the
+# cand-2 detectors before the policy above was written down. The policy is
+# cand-3's own, inherited unchanged, and `_ruler_policy.counterfactual` in every
+# document states what the verdict WOULD be under the cand-2 straddle rule over
+# all tier-1 rulers, so the choice is visible rather than argued.
+# ---------------------------------------------------------------------------
+BAND6 = 0.08
+CAND5REF_SRC = "backdrops/source/study-N/cand-5-reference.png"
+STACK_M_RANGE6 = STACK_M_RANGE       # a chair-rail is still a chair-rail
+
+# The wave's per-facing detector windows. EVERY ONE IS RE-TUNED against the
+# frame it reads - which is the production run's first step as
+# design/architecture.md records it, and the opposite of the cand-3 round's
+# deliberate refusal to re-tune. The two rounds answer different questions: the
+# cand-3 round asked whether the recipe puts a feature where the approved
+# composition has it, and this one asks what the camera IS, which cannot be read
+# through a window pointed at where a feature used to be.
+#
+# `module_band` and `module_cols` are the only judgement in here and they are
+# stated as a rule rather than as a number: the band starts BELOW the facing's
+# own feature (a window head, a tapestry's frame, a fireplace mantel) so that
+# the first contiguous dark group scanning down is the chair-rail's capping and
+# not that feature's shadow; the columns are the wall-plane columns clear of the
+# feature. Where that rule cannot be satisfied the reading is withheld, which
+# happens twice in this round and is in the ledger.
+CFG_WAVE = {
+ "study/N": dict(
+    src=CAND5REF_SRC,
+    role=("THE REFERENCE. Not gated and not admitted: this frame IS the "
+          "standing camera, and rounds cand6 and the promoted metas are "
+          "measured against what it reads."),
+    floor_window=(741, 760),
+    ceil_cols=[(300, 1250)], ceil_range=(8, 420),
+    floor_cols=[(600, 1300)], floor_range=(500, 1010),
+    rail_cols=[(620, 1300)], rail_range=(480, 700),
+    module_band=(500, 640), module_cols=[(650, 1400)],
+    fire=dict(x0=379, x1=550,
+              how=("Over rows 600-700 the left stone face holds 55-65 out to "
+                   "x 353, the lit inner mouldings run 354-378 (peaking 190 at "
+                   "356 and 152 at 371) and the wall-plane corner falls to 11.0 "
+                   "at 379; on the right the opening runs dark to 550 and the "
+                   "stone picks up at 551. Clear opening 550 - 379 + 1 = 172 px. "
+                   "The case's own outer edges are 325 and 606, which is the "
+                   "feature a strongest-edge detector takes and is not the "
+                   "opening.")),
+    fire_cols=(250, 700), fire_rows=(600, 700),
+    cross=["fireplace", "plan_wall_width", "plan_storey"]),
+
+ "study/E": dict(
+    src="backdrops/source/study-E/cand-6.png",
+    role="The doorway wall: the study's way into the cross passage.",
+    floor_window=(750, 766),
+    ceil_cols=[(250, 600), (950, 1300)], ceil_range=(8, 420),
+    floor_cols=[(250, 600), (950, 1300)], floor_range=(500, 1010),
+    rail_cols=[(250, 600), (950, 1300)], rail_range=(480, 700),
+    module_band=(500, 640), module_cols=[(250, 600), (950, 1300)],
+    opening=dict(
+        x0=673, x1=860, y0=310,
+        how_x0=("Over rows 450-700 the stone case's outer edge is at 626, its "
+                "front face holds 80-140 to 672 and the opening's interior "
+                "falls to 1.3 at 673. This door is centred at 766.5 against a "
+                "frame centre of 767.5, so neither reveal is more than a pixel "
+                "or two wide and the wall-plane edge and the reveal's inner "
+                "edge coincide."),
+        how_x1=("Mirror: the interior runs to 860, the right jamb reads 861-906 "
+                "(peaking 223 at 906) and the case's outer edge is 907."),
+        how_y0=("Down the opening's own columns (x 700-840) the lintel face "
+                "holds 60-100 to y 309, and 310 is the wall-plane shadow line "
+                "(23.5) above a soffit of 15-30 running to 318 and the dark "
+                "passage at 319."),
+        how_y1=("The threshold is the wall's own floor line, 758.")),
+    door_cols=(600, 960), door_rows=(450, 700),
+    cross=["door_height", "door_width", "plan_wall_width", "plan_storey"]),
+
+ "study/S": dict(
+    src="backdrops/source/study-S/cand-6.png",
+    role="The window wall: three bays its own prompt rules at 0.90 m each.",
+    floor_window=(738, 756),
+    ceil_cols=[(250, 1300)], ceil_range=(8, 420),
+    floor_cols=[(300, 1250)], floor_range=(500, 1010),
+    rail_cols=[(160, 200), (1390, 1430)], rail_range=(480, 700),
+    module_band=(500, 700), module_cols=[(300, 1250)],
+    bays=dict(
+        rows=(300, 500), bright=120.0, min_run=20, n_bays=3, lights_per_bay=3,
+        how=("Unchanged in rule from the cand-2 round and re-run on these "
+             "pixels: the leaded lights are the runs of columns whose mean "
+             "luminance over rows 300-500 exceeds 120, nine of them, three per "
+             "bay, and a bay's outer-mullion-centre width is 1.5 x its "
+             "first-to-last light-centre span.")),
+    cross=["window_bays", "plan_wall_width", "plan_storey"]),
+
+ "study/W": dict(
+    src="backdrops/source/study-W/cand-6.png",
+    role="The blank wall: no opening, no feature, the chair-rail alone.",
+    floor_window=(740, 760),
+    ceil_cols=[(250, 1300)], ceil_range=(8, 420),
+    floor_cols=[(250, 1300)], floor_range=(500, 1010),
+    rail_cols=[(250, 1300)], rail_range=(480, 700),
+    module_band=(500, 640), module_cols=[(250, 1300)],
+    cross=["plan_wall_width", "plan_storey"]),
+
+ "hall/N": dict(
+    src="backdrops/source/passage-N/cand-6.png",
+    role=("The close north wall band. Its prompt still asks for no corners, "
+          "and unlike cand-2 and cand-3 it no longer forbids the floor - which "
+          "is the third named cause of design/plan-draft/measured/misses.jsonl "
+          "answered by the asset seat, and this frame paints a floor line."),
+    forbids=["room corners"],
+    wall_band=True,
+    floor_window=(992, 1010),
+    ceil_cols=[(200, 1300)], ceil_range=(8, 200),
+    floor_cols=[(200, 1300)], floor_range=(850, 1015),
+    rail_cols=[(200, 1300)], rail_range=(600, 800),
+    module_band=(680, 780), module_cols=[(200, 1300)],
+    cross=[]),
+
+ "hall/E": dict(
+    src="backdrops/source/passage-E/cand-6.png",
+    role="The axial view east, to the end window.",
+    floor_window=(734, 752),
+    ceil_cols=[(560, 690), (860, 980)], ceil_range=(80, 500),
+    floor_cols=[(560, 690), (860, 980)], floor_range=(560, 900),
+    rail_cols=[(560, 690), (860, 980)], rail_range=(500, 660),
+    module_band=(540, 640), module_cols=[(560, 690), (860, 980)],
+    cross=["plan_wall_width", "plan_storey"]),
+
+ "hall/S": dict(
+    src="backdrops/source/passage-S/cand-6.png",
+    role="The close south wall band, with the verdure tapestry.",
+    forbids=["room corners"],
+    wall_band=True,
+    floor_window=(966, 984),
+    ceil_cols=[(200, 1300)], ceil_range=(8, 200),
+    floor_cols=[(200, 1300)], floor_range=(850, 1015),
+    rail_cols=[(200, 1300)], rail_range=(700, 800),
+    module_band=(700, 800), module_cols=[(200, 1300)],
+    cross=[]),
+
+ "hall/W": dict(
+    src="backdrops/source/passage-W/cand-6.png",
+    role="The axial view west, through the open doorway to the study's fire.",
+    floor_window=(707, 725),
+    ceil_cols=[(500, 620), (900, 1040)], ceil_range=(80, 500),
+    floor_cols=[(500, 620), (900, 1040)], floor_range=(560, 900),
+    rail_cols=[(500, 620), (900, 1040)], rail_range=(480, 640),
+    module_band=(500, 620), module_cols=[(490, 630), (890, 1050)],
+    cross=["plan_wall_width", "plan_storey"]),
+}
+WAVE_FACINGS = ["study/E", "study/S", "study/W",
+                "hall/N", "hall/E", "hall/S", "hall/W"]
+
+
+def module_in_bands(L, floor_y, band, col_bands):
+    """`panelling_module`'s rule, over column BANDS instead of one span.
+
+    Identical arithmetic - the first contiguous group below 60 % of the band's
+    median is the capping, the deepest row in the band is the rail's undercut -
+    over a column set that can skip a doorway, a window or a fireplace. A single
+    span cannot: `hall/W`'s end wall is 490-630 and 890-1050 with a lit doorway
+    between them, and the doorway's own light moves the band median far enough
+    that the capping group lands on the wrong moulding.
+    """
+    a, b = band
+    cols = cols_of(col_bands)
+    p = L[a:b + 1][:, cols].mean(axis=1)
+    med = float(np.median(p))
+    below = np.nonzero(p < 0.6 * med)[0]
+    capping = None
+    if len(below):
+        group = [below[0]]
+        for i in below[1:]:
+            if i - group[-1] <= 2:
+                group.append(i)
+            else:
+                break
+        capping = a + int(group[int(np.argmin(p[group]))])
+    rail = a + int(np.argmin(p))
+    return dict(
+        band=[a, b], col_bands=[list(x) for x in col_bands],
+        band_median_luma=round(med, 2),
+        capping_y_px=capping, dado_rail_y_px=rail,
+        capping_above_floor_px=(floor_y - capping) if capping is not None else None,
+        dado_rail_above_floor_px=floor_y - rail,
+        profile=[round(float(v), 2) for v in p], profile_first_row=a)
+
+
+def measure_wave(fac, cfg, ref=None):
+    """One frame of the standing-eye wave, by the declared anchor.
+
+    `ref` is the reference set the cand-6 round gates against, or None for the
+    reference frame itself, which is gated by nothing.
+    """
+    rgb = load(os.path.join(ROOT, cfg["src"]))
+    L = luma(rgb)
+    band = bool(cfg.get("wall_band"))
+
+    ceil_y, ceil_cands, _ = pick_ceiling(L, cfg)
+    floor_y, floor_cands, floor_best = pick_floor(L, cfg)
+    rail_y, rail_cands, _ = pick_rail(L, cfg, floor_y)
+    cx0, cx1, _ = find_corners_cand2(L, ceil_y)
+    e0 = confirm_corner_edge(L, cx0, ceil_y, floor_y)
+    e1 = confirm_corner_edge(L, cx1, ceil_y, floor_y)
+    ramp = None if band else ceiling_ramp_vp(L, ceil_y, cx0, cx1)
+    votes = {}
+    if not band:
+        votes, _, _ = horizon_votes(L, ceil_y, floor_y, cx0, cx1)
+    module = module_in_bands(L, floor_y, cfg["module_band"], cfg["module_cols"])
+
+    m = dict(wall_ceiling_line_y_px=(None if band else ceil_y),
+             wall_floor_line_y_px=floor_y,
+             horizon_y_px=(ramp["y"] if ramp else None),
+             horizon_x_px=(ramp["x"] if ramp else None),
+             corner_x0_px=(None if band else cx0),
+             corner_x1_px=(None if band else cx1),
+             dado_rail_top_y_px=rail_y,
+             dado_rail_above_floor_px=module["dado_rail_above_floor_px"])
+    if m["corner_x0_px"] is not None and m["corner_x1_px"] is not None:
+        m["corner_midpoint_px"] = (cx0 + cx1) / 2.0
+
+    opening = read_opening(L, cfg, floor_y) if "opening" in cfg else None
+    if opening:
+        m.update({k: v for k, v in opening.items()
+                  if not k.startswith("how_") and k != "column_edge_candidates"})
+    fire = None
+    if "fire" in cfg:
+        xs, d = col_step_profile(L, cfg["fire_cols"][0], cfg["fire_cols"][1],
+                                 cfg["fire_rows"][0], cfg["fire_rows"][1])
+        cands = top_cols(xs, d, 10, min_sep=10)
+        fx0, fx1 = cfg["fire"]["x0"], cfg["fire"]["x1"]
+        fire = dict(fireplace_opening_x0_px=fx0, fireplace_opening_x1_px=fx1,
+                    fireplace_opening_width_px=fx1 - fx0 + 1,
+                    how_fireplace_opening=cfg["fire"]["how"],
+                    column_edge_candidates=[[int(a), round(b, 1)] for a, b in cands])
+        m.update({k: v for k, v in fire.items()
+                  if not k.startswith("how_") and k != "column_edge_candidates"})
+    bays = read_window_bays(L, cfg) if "bays" in cfg else None
+
+    # ---- the declared anchor, and the reasons it can fail to be one --------
+    rail_px = module["dado_rail_above_floor_px"]
+    cap_px = module["capping_above_floor_px"]
+    why = []
+    if floor_y >= H - FLOOR_EDGE_PX:
+        why.append(
+            "the declared anchor is a height ABOVE THE FLOOR and this frame "
+            "paints no floor line - the detector ran out of picture at y %d of "
+            "%d. A prompt that declares an anchor and then gives it no datum "
+            "has declared nothing." % (floor_y, H))
+    ppm = (rail_px / CHAIR_RAIL_M) if rail_px and rail_px > 0 else None
+    if ppm is None and not why:
+        why.append("no chair-rail line was found above the floor line at all.")
+    if ppm and cap_px is None:
+        why.append(
+            "only one moulding line was found where a chair-rail is two: the "
+            "capping shadow above the rail's own undercut. What the detector "
+            "returned is a horizontal, not a wainscot.")
+    elif ppm:
+        stack_m = (cap_px - rail_px) / ppm
+        if not (STACK_M_RANGE6[0] <= stack_m <= STACK_M_RANGE6[1]):
+            why.append(
+                "the two moulding lines stand %.3f m apart at the scale they "
+                "themselves imply, where a dado capping sits %.2f-%.2f m above "
+                "its rail (0.082 m on the frame row 21 promoted). Two lines at "
+                "that spacing are not one chair-rail."
+                % (stack_m, *STACK_M_RANGE6))
+
+    dist = PLAN_NOW[fac]
+    focal = ppm * dist if ppm else None
+    eye = ((floor_y - ramp["y"]) / ppm) if (ppm and ramp) else None
+    storey = ((floor_y - ceil_y) / ppm) if (ppm and not band) else None
+    if ppm and not why:
+        if storey is not None and not (STOREY_RANGE[0] <= storey <= STOREY_RANGE[1]):
+            why.append("the derived storey height is %.2f m, outside %.1f-%.1f m. "
+                       "A physically impossible derived quantity is the "
+                       "measurement telling you it is measuring something else."
+                       % (storey, *STOREY_RANGE))
+        if eye is not None and not (EYE_RANGE[0] <= eye <= EYE_RANGE[1]):
+            why.append("the derived eye height is %.2f m, outside %.1f-%.1f m."
+                       % (eye, *EYE_RANGE))
+
+    # ---- the cross-rulers, measured and printed, voting on nothing ---------
+    cross = []
+    for name in cfg.get("cross", []):
+        px = _ruler_px(name, m, module, bays)
+        if px is None:
+            continue
+        ruled = _ruler_size(name, {}, fac)
+        if ruled is None:
+            continue
+        cppm = px / ruled
+        rec = dict(name=name, tier=RULER_TIER[name], feature_px=round(float(px), 2),
+                   ruled_m=round(ruled, 5), px_per_m_at_wall=round(cppm, 3),
+                   implied_focal_px=round(cppm * dist, 1),
+                   disagreement_with_anchor_pct=(
+                       round(100.0 * (cppm - ppm) / ppm, 2) if ppm else None),
+                   votes=False, what=RULER_WHAT[name])
+        if name == "window_bays":
+            rec["instances_px"] = bays["bay_widths_px"]
+            rec["instance_spread_pct"] = bays["bay_width_spread_pct"]
+        cross.append(rec)
+
+    # ---- the verdict ------------------------------------------------------
+    d_focal = d_eye = None
+    if ref and focal:
+        d_focal = 100.0 * (focal - ref["focal_px"]) / ref["focal_px"]
+    if ref and eye:
+        d_eye = 100.0 * (eye - ref["eye_m"]) / ref["eye_m"]
+    verdict = None
+    blocked = list(why)
+    if ref:
+        if why:
+            verdict = "WITHHELD"
+        elif d_focal is not None and abs(d_focal) > BAND6 * 100:
+            # A FAIL is a fact about the painting and carries a delta the asset
+            # seat can act on, so it is issued even where the eye half could
+            # not be read: the camera is wrong either way and the re-ask is the
+            # same one.
+            verdict = "FAIL"
+        elif d_eye is None:
+            verdict = "WITHHELD"
+            blocked.append(
+                "the focal length is inside the band but no eye height can be "
+                "read from this frame: the ceiling-ramp instrument needs two "
+                "corners and a ceiling line, and this facing's own prompt asks "
+                "for neither. Admission is on BOTH halves, so half a "
+                "measurement admits nothing.")
+        elif abs(d_eye) > BAND6 * 100:
+            verdict = "FAIL"
+        else:
+            verdict = "PASS"
+
+    return dict(
+        facing=fac, src=cfg["src"], cfg=cfg, measured=m, module=module,
+        opening=opening, fire=fire, bays=bays, ramp=ramp, votes=votes,
+        ceil_cands=ceil_cands, floor_cands=floor_cands, floor_window=floor_best,
+        rail_cands=rail_cands, corner_vertical_edge_x0=e0,
+        corner_vertical_edge_x1=e1, cross=cross,
+        ppm=(None if why else (round(ppm, 3) if ppm else None)),
+        raw_ppm=(round(ppm, 3) if ppm else None),
+        implied_focal_px=(None if why else (round(focal, 1) if focal else None)),
+        eye_m=(None if why else (round(eye, 4) if eye else None)),
+        storey_m=(None if why else (round(storey, 4) if storey else None)),
+        delta_focal_pct=(None if why else (round(d_focal, 2) if d_focal is not None else None)),
+        delta_eye_pct=(None if why else (round(d_eye, 2) if d_eye is not None else None)),
+        verdict=verdict, withheld_because=blocked,
+        drawn_standpoint_m=dist,
+        light=light(rgb, L, ceil_y, floor_y, cx0, cx1))
+
+
+WAVE_RULER_POLICY = {
+  "adopted": "chair_rail",
+  "ruled_m": CHAIR_RAIL_M,
+  "rule": (
+    "ONE RULER, AND IT IS THE ONE THE PROMPT DECLARES. Every cand-6 prompt and "
+    "the reference's own carry a single `Measurement anchor:` line - blueprint "
+    "§11's universal wainscot chair-rail, 0.95 m above the floor on every "
+    "panelled wall in the manor - so the camera verdict is computed from that "
+    "line on all eight frames. One instrument across the corpus AND the "
+    "reference, because a reference read with a different ruler from the corpus "
+    "puts that instrument's own offset into every delta in the table."),
+  "cross_rulers_do_not_vote": (
+    "Every other ruled feature is measured and printed in `_cross_rulers` with "
+    "its own implied focal length and its disagreement with the anchor, and "
+    "votes on nothing. A door drawn 2.19 m tall against a ruled 2.00, three "
+    "window bays 5.7 % apart, a storey painted 3.35 m against a ruled 2.80 are "
+    "facts about THE ROOM THE PAINTING DEPICTS, which the Navigator ruled "
+    "WARN-TIER on 2026-08-22. Folding them into the camera verdict fails a wall "
+    "for its joinery."),
+  "what_was_seen_first": (
+    "The eight frames were measured with the cand-2 detectors before this "
+    "policy was written down, so it cannot be claimed as fixed-before-the-"
+    "answers the way the cand-2 tier rule was. It is cand-3's own policy "
+    "inherited unchanged, and `counterfactual` below states what the cand-2 "
+    "straddle rule over all tier-1 rulers would have said, so the choice is "
+    "visible rather than argued."),
+  "counterfactual": (
+    "Under the cand-2 straddle rule study/E would be WITHHELD - its chair-rail "
+    "reads 204.21 px/m and its door opening 224.0 px/m from the head and 188.0 "
+    "from the jambs, a 18 % span - and study/S would take its window bays "
+    "(250.0 px/m, FAIL +17.4 %) instead of being withheld for a chair-rail it "
+    "does not paint. No other facing's verdict moves."),
+}
+
+
+def wave_doc(fac, r, ref, round_name):
+    cfg, m = r["cfg"], r["measured"]
+    ramp = r["ramp"]
+    is_ref = ref is None
+    doc = {
+      "_source_sha256": hashlib.sha256(
+          open(os.path.join(ROOT, cfg["src"]), "rb").read()).hexdigest(),
+      "_what_this_is": (
+        ("THE STANDING CAMERA REFERENCE SET for %s, measured off %s by "
+         "design/plan-draft/measured/measure.py --round cand5ref. This is the "
+         "frame [HUMAN 2026-08-22] \"B\" routes the manor through, and what it "
+         "measures is what src/groundplane.js's DRAWING_EYE_M and HORIZON_Y, "
+         "tools/validate-fixtures.mjs's MEASURED_REFERENCE_PX and the cand-6 "
+         "gate all carry. It is read, not admitted: there is no band over a "
+         "reference." % (fac, cfg["src"])) if is_ref else
+        ("The cand-6 GATE READING for %s, measured off %s by "
+         "design/plan-draft/measured/measure.py --round cand6, against the "
+         "standing camera reference set in "
+         "design/plan-draft/measured/cand5ref/study-N.json."
+         % (fac, cfg["src"]))),
+      "_role": cfg["role"],
+      "verdict": ("REFERENCE" if is_ref else r["verdict"]),
+      "facing_type": ("wall_band" if cfg.get("wall_band") else "enclosed"),
+      "image_h_px": H,
+      "floor_line_y": round(m["wall_floor_line_y_px"] / H, 6),
+      "horizon_y": (round(ramp["y"] / H, 6) if ramp else None),
+      "px_per_m_at_wall": r["ppm"],
+      "px_per_m_at_bottom": (round((H - ramp["y"]) / r["eye_m"], 2)
+                             if (ramp and r["eye_m"]) else None),
+      "implied_focal_px": r["implied_focal_px"],
+      "eye_height_m": r["eye_m"],
+      "storey_height_m": r["storey_m"],
+      "drawn_standpoint_m": r["drawn_standpoint_m"],
+      "delta_focal_pct": r["delta_focal_pct"],
+      "delta_eye_pct": r["delta_eye_pct"],
+      "band_pct": (None if is_ref else BAND6 * 100),
+      "wall_width_m": ((round((m["corner_x1_px"] - m["corner_x0_px"]) / r["ppm"], 3)
+                        if (r["ppm"] and m["corner_x0_px"] is not None
+                            and m["corner_x1_px"] is not None) else None)),
+      "camera_wall_m": (round(H / r["ppm"], 4) if r["ppm"] else None),
+      "corner_x0_px": m["corner_x0_px"],
+      "corner_x1_px": m["corner_x1_px"],
+      "key_tint": r["light"]["key_tint"],
+      "key_dir": "%s-%s" % (
+          r["light"]["key_dir_measured"],
+          "ABOVE" if (ramp and r["light"]["key_dir_brightest_y"] < ramp["y"])
+          else ("BELOW" if ramp else "NO-HORIZON")),
+      # THE SENTENCE IS PARSED, not only read: geometry.spec's calibration
+      # audit pulls the metres out of this string with /taken at ([\d.]+) m/
+      # and checks that calibration_px over that size IS px_per_m_at_wall, so
+      # a meta cannot say one thing in prose and another in arithmetic. The
+      # phrase has to survive rewording.
+      "calibration_ref": (
+        "the wainscot chair-rail's undercut shadow above the wall's own floor "
+        "line, taken at %.2f m — blueprint §11 rules it there on every "
+        "panelled wall in the manor and this facing's own prompt declares it "
+        "as the measurement anchor" % CHAIR_RAIL_M),
+      "calibration_px": r["module"]["dado_rail_above_floor_px"],
+      "calibration_tier": 1,
+      "_ruler_policy": WAVE_RULER_POLICY,
+      "_cross_rulers": r["cross"],
+      "_withheld_because": r["withheld_because"],
+      "_which_horizon": (
+        "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 "
+        "over the vanishing-point vote and which this round adopts as the ONLY "
+        "horizon - the vote is recorded beside it and is not read. The two "
+        "side-wall/ceiling junctions run parallel to the view axis and must "
+        "converge on the horizon; on the four frames of this wave that carry "
+        "corners they fit to a residual under a third of a pixel over 61 "
+        "columns a side. A facing with no corners has no ramp and issues no eye "
+        "height, which is a WITHHELD and not a zero."),
+      "_measured_px": m,
+      "_how_each_was_measured": HOW,
+      "_panelling_module": r["module"],
+      "_window_bays": r["bays"],
+      "_candidates": {"wall_ceiling_line": r["ceil_cands"],
+                      "wall_floor_line": r["floor_cands"],
+                      "wall_floor_line_hand_read_window": r["floor_window"],
+                      "dado_rail": r["rail_cands"]},
+      "_corner_evidence": {
+          "rule": ("the cand-2 rule, unchanged: the ceiling-line step must "
+                   "collapse below 30 % of its median over the 80 columns on "
+                   "the WALL side of the candidate, for 10 consecutive "
+                   "columns."),
+          "vertical_edge_confirming_x0": r["corner_vertical_edge_x0"],
+          "vertical_edge_confirming_x1": r["corner_vertical_edge_x1"]},
+      "_horizon_votes": {"per_region": r["votes"],
+                         "adopted_y": (ramp["y"] if ramp else None),
+                         "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+                         "ceiling_ramp_intersection": ramp},
+      "_derived": {
+          "eye_height_m": r["eye_m"], "storey_height_m": r["storey_m"],
+          "px_per_m_at_bottom": (round((H - ramp["y"]) / r["eye_m"], 4)
+                                 if (ramp and r["eye_m"]) else None),
+          "nearest_visible_floor_m": (
+              round(H / ((H - ramp["y"]) / r["eye_m"]), 4)
+              if (ramp and r["eye_m"]) else None),
+          "implied_camera_wall_m": (round(H / r["ppm"], 4) if r["ppm"] else None),
+          "implied_wall_width_m": (
+              round((m["corner_x1_px"] - m["corner_x0_px"]) / r["ppm"], 4)
+              if (r["ppm"] and m["corner_x0_px"] is not None
+                  and m["corner_x1_px"] is not None) else None)},
+      "_light": r["light"],
+      "_plan": dict(PLAN[fac], camera_wall_m_in_standpoints_tsv_now=PLAN_NOW[fac]),
+      "_prompt_forbids": cfg.get("forbids"),
+      "_harness": (
+        "EVERY DETECTOR WINDOW IS RE-TUNED against the frame it reads, which is "
+        "the opposite of the cand-3 round and is deliberate: that round asked "
+        "whether the recipe puts a feature where the approved composition has "
+        "it, and this one asks what the camera IS, which cannot be read through "
+        "a window pointed at where a feature used to be. What the windows are, "
+        "and the rule that placed them, is `cfg` in measure.py's CFG_WAVE."),
+      "_control": None,
+    }
+    if is_ref:
+        doc["_reference_set"] = {
+          "focal_px": r["implied_focal_px"], "eye_m": r["eye_m"],
+          "floor_line_y_px": m["wall_floor_line_y_px"],
+          "horizon_y_px": (ramp["y"] if ramp else None),
+          "corner_x0_px": m["corner_x0_px"], "corner_x1_px": m["corner_x1_px"],
+          "storey_height_m": r["storey_m"],
+          "px_per_m_at_wall": r["ppm"],
+          "_what_carries_it": [
+            "src/groundplane.js DRAWING_EYE_M and HORIZON_Y",
+            "tools/validate-fixtures.mjs MEASURED_REFERENCE_PX and MEASURED_BAND",
+            "design/plan-draft/measured/gate.py --round cand6",
+            "backdrops/study/N.meta.json, via tools/promote-backdrop.mjs"],
+        }
+    return doc
+
+
+def wave_marked(fac, r, round_name, ref):
+    """The frame with every line the measurement used drawn on it."""
+    from PIL import Image, ImageDraw, ImageFont
+    cfg, m = r["cfg"], r["measured"]
+    im = Image.open(os.path.join(ROOT, cfg["src"])).convert("RGB")
+    dr = ImageDraw.Draw(im)
+    try:
+        font = ImageFont.load_default(size=17)
+        big = ImageFont.load_default(size=21)
+    except TypeError:
+        font = big = ImageFont.load_default()
+    CY, FL, HZ, CO, RU = ((0, 229, 255), (124, 252, 0), (255, 0, 200),
+                          (255, 149, 0), (255, 235, 59))
+
+    def hline(y, c, label, x=8):
+        if y is None:
+            return
+        y = int(round(y))
+        dr.line([(0, y), (W - 1, y)], fill=c, width=2)
+        dr.text((x, y + 3), label, fill=c, font=font)
+
+    def vline(x, c, label, y=H - 120):
+        if x is None:
+            return
+        dr.line([(x, 0), (x, H - 1)], fill=c, width=2)
+        dr.text((x + 4, y), label, fill=c, font=font)
+
+    hline(m["wall_ceiling_line_y_px"], CY, "ceiling y=%s" % m["wall_ceiling_line_y_px"])
+    hline(m["wall_floor_line_y_px"], FL, "floor y=%s" % m["wall_floor_line_y_px"])
+    if r["ramp"]:
+        hline(r["ramp"]["y"], HZ,
+              "horizon y=%.1f (ceiling ramp, resid %.2f/%.2f px)"
+              % (r["ramp"]["y"], r["ramp"]["left_resid_px"], r["ramp"]["right_resid_px"]),
+              x=620)
+    vline(m["corner_x0_px"], CO, "corner x=%s" % m["corner_x0_px"])
+    vline(m["corner_x1_px"], CO, "corner x=%s" % m["corner_x1_px"])
+    mo = r["module"]
+    for y, lab in ((mo["capping_y_px"], "dado capping y=%s (%s px above floor)"
+                    % (mo["capping_y_px"], mo["capping_above_floor_px"])),
+                   (mo["dado_rail_y_px"], "CHAIR RAIL y=%s (%s px above floor, ruled 0.95 m)"
+                    % (mo["dado_rail_y_px"], mo["dado_rail_above_floor_px"]))):
+        if y is None:
+            continue
+        for a, b in mo["col_bands"]:
+            dr.line([(a, y), (b, y)], fill=RU, width=2)
+        dr.text((mo["col_bands"][0][0] + 10, y - 20), lab, fill=RU, font=font)
+    if r["opening"]:
+        o = r["opening"]
+        dr.rectangle([o["opening_x0_px"], o["opening_y0_px"],
+                      o["opening_x1_px"], o["opening_y1_px"]], outline=RU, width=3)
+        dr.text((o["opening_x0_px"] + 5, o["opening_y0_px"] - 22),
+                "door opening %d x %d px (ruled 1.00 x 2.00 m) - CROSS-RULER, does not vote"
+                % (o["opening_width_px"], o["opening_height_px"]), fill=RU, font=font)
+    if r["fire"]:
+        f = r["fire"]
+        for x in (f["fireplace_opening_x0_px"], f["fireplace_opening_x1_px"]):
+            dr.line([(x, 430), (x, m["wall_floor_line_y_px"])], fill=RU, width=3)
+        dr.text((f["fireplace_opening_x0_px"] + 5, 410),
+                "fireplace opening %d px (ruled 0.90 m) - CROSS-RULER"
+                % f["fireplace_opening_width_px"], fill=RU, font=font)
+    if r["bays"]:
+        for i, b in enumerate(r["bays"]["bays"]):
+            x0 = b["light_centres_px"][0] - (b["width_px"] / 3.0) / 2.0
+            x1 = b["light_centres_px"][-1] + (b["width_px"] / 3.0) / 2.0
+            dr.rectangle([x0, 190, x1, 600], outline=RU, width=3)
+            dr.text((x0 + 6, 165), "bay %d: %.1f px (ruled 0.90 m) - CROSS-RULER"
+                    % (i + 1, b["width_px"]), fill=RU, font=font)
+
+    head = ["%s   %s   %s" % (fac, round_name, r["verdict"] or "REFERENCE")]
+    if r["ppm"]:
+        head.append("anchor: chair_rail  %s px / %.2f m = %.2f px/m"
+                    % (r["module"]["dado_rail_above_floor_px"], CHAIR_RAIL_M, r["ppm"]))
+        head.append("focal %.0f px at the drawn %.2f m%s   eye %s m%s"
+                    % (r["implied_focal_px"], r["drawn_standpoint_m"],
+                       ("  (%+.1f %%)" % r["delta_focal_pct"]) if r["delta_focal_pct"] is not None else "",
+                       r["eye_m"],
+                       ("  (%+.1f %%)" % r["delta_eye_pct"]) if r["delta_eye_pct"] is not None else ""))
+    for w in (r["withheld_because"] or [])[:2]:
+        head.append("WITHHELD: " + (w[:96] + "..." if len(w) > 96 else w))
+    dr.rectangle([0, 0, W - 1, 26 * len(head) + 12], fill=(0, 0, 0))
+    for i, line in enumerate(head):
+        dr.text((10, 8 + 26 * i), line, fill=(255, 255, 255), font=big)
+    os.makedirs(MARKED, exist_ok=True)
+    loc, f = fac.split("/")
+    out = os.path.join(MARKED, "%s-%s-marked.png" % (loc, f))
+    im.save(out)
+    return out
+
+
+def read_reference():
+    """The standing camera reference set, off disk, never typed.
+
+    gate.py and the cand-6 round both read it from the round's own committed
+    corpus, so the reference is a MEASUREMENT the whole wave points at rather
+    than a literal that can drift from the frame it came off.
+    """
+    p = os.path.join(HERE, "cand5ref", "study-N.json")
+    if not os.path.exists(p):
+        return None
+    return json.load(open(p))["_reference_set"]
+
+
+def main_cand5ref():
+    out = os.path.join(OUT, "cand5ref")
+    os.makedirs(out, exist_ok=True)
+    global MARKED
+    marked_was = MARKED
+    MARKED = os.path.join(out, "marked") if OUT != HERE else os.path.join(
+        ROOT, "design", "batches", "standing-eye-wave", "measured")
+    r = measure_wave("study/N", CFG_WAVE["study/N"], ref=None)
+    # THE CONTROL IS THE ROW-21 PROMOTION, MEASURED BY THIS ROUND'S CODE. The
+    # reference frame is new, so it cannot be its own control; what has to hold
+    # is that the detectors still read the approved frame the way the promotion
+    # did. `cand-2`'s study/N through pick_floor and the module rule.
+    ctl = wave_control()
+    doc = wave_doc("study/N", r, None, "cand5ref")
+    doc["_control"] = ctl
+    json.dump(doc, open(os.path.join(out, "study-N.json"), "w"), indent=2)
+    wave_marked("study/N", r, "cand5ref", None)
+    MARKED = marked_was
+
+    print("CONTROL backdrops/source/study-N/cand-2.png through the cand5ref "
+          "code: %s" % ("PASSED" if ctl["passed"] else "*** MOVED ***"))
+    for p in ctl["per_field"]:
+        print("   %-28s committed %-9s measured %-9s delta %s"
+              % (p["field"], p["committed"], p["measured"], p["delta"]))
+    if not ctl["passed"]:
+        print("\n*** THE CONTROL HAS MOVED. THE REFERENCE SET IS VOID. ***\n")
+    print("\nTHE STANDING CAMERA REFERENCE SET, off %s" % CAND5REF_SRC)
+    print("   anchor          chair_rail, %s px above the floor at a ruled %.2f m"
+          % (r["module"]["dado_rail_above_floor_px"], CHAIR_RAIL_M))
+    print("   px_per_m_at_wall %.3f" % r["ppm"])
+    print("   implied focal    %.1f px at the drawn %.2f m" % (r["implied_focal_px"], r["drawn_standpoint_m"]))
+    print("   eye height       %.4f m   (ceiling-ramp horizon y %.1f, resid %.2f/%.2f px)"
+          % (r["eye_m"], r["ramp"]["y"], r["ramp"]["left_resid_px"], r["ramp"]["right_resid_px"]))
+    print("   floor line       y %d" % r["measured"]["wall_floor_line_y_px"])
+    print("   ceiling line     y %d" % r["measured"]["wall_ceiling_line_y_px"])
+    print("   corners          %d .. %d" % (r["measured"]["corner_x0_px"], r["measured"]["corner_x1_px"]))
+    print("   storey           %.3f m painted against the plan's %.2f m"
+          % (r["storey_m"], PLAN[r["facing"]]["storey_m"]))
+    print("\ncross-rulers (measured, printed, voting on nothing):")
+    for c in r["cross"]:
+        print("   %-18s %8.1f px / %.3f m = %8.2f px/m  focal %6.0f  %+.2f %% from the anchor"
+              % (c["name"], c["feature_px"], c["ruled_m"], c["px_per_m_at_wall"],
+                 c["implied_focal_px"], c["disagreement_with_anchor_pct"]))
+    print("\nreadings: %s/" % os.path.relpath(out, ROOT))
+    return 0 if ctl["passed"] else 1
+
+
+def wave_control():
+    """The row-21 promotion frame through this round's detectors."""
+    cfg = dict(CFG2["study/N"])
+    L = luma(load(os.path.join(ROOT, cfg["src"])))
+    floor_y, _, _ = pick_floor(L, cfg)
+    mod = module_in_bands(L, floor_y, (500, 640), [(200, 1400)])
+    got = dict(wall_floor_line_y_px=floor_y,
+               dado_rail_y_px=mod["dado_rail_y_px"],
+               dado_rail_above_floor_px=mod["dado_rail_above_floor_px"],
+               capping_above_floor_px=mod["capping_above_floor_px"])
+    per = [{"field": k, "committed": CONTROL3[k], "measured": got[k],
+            "delta": got[k] - CONTROL3[k]} for k in CONTROL3]
+    return dict(passed=all(p["delta"] == 0 for p in per), per_field=per,
+                measured=got, expected=CONTROL3,
+                _why=("The reference frame is new and cannot be its own "
+                      "control. What has to hold is that the detectors still "
+                      "read the frame row 21 promoted the way the promotion "
+                      "did - floor line 777, chair rail 213 px above it - so "
+                      "cand-2's study/N goes through this round's own "
+                      "`pick_floor` and `module_in_bands` every run. If these "
+                      "have moved, the code has changed what it reads and the "
+                      "reference set is VOID."))
+
+
+def main_cand6():
+    ref = read_reference()
+    if not ref:
+        print("cand6: no reference set - run measure.py --round cand5ref first")
+        return 1
+    out = os.path.join(OUT, "cand6")
+    os.makedirs(out, exist_ok=True)
+    global MARKED
+    marked_was = MARKED
+    MARKED = os.path.join(out, "marked") if OUT != HERE else os.path.join(
+        ROOT, "design", "batches", "standing-eye-wave", "measured")
+    ctl = wave_control()
+    raw = {}
+    for fac in WAVE_FACINGS:
+        r = measure_wave(fac, CFG_WAVE[fac], ref=ref)
+        raw[fac] = r
+        loc, f = fac.split("/")
+        doc = wave_doc(fac, r, ref, "cand6")
+        doc["_control"] = ctl
+        doc["_reference_set"] = ref
+        json.dump(doc, open(os.path.join(out, "%s-%s.json" % (loc, f)), "w"), indent=2)
+        wave_marked(fac, r, "cand6", ref)
+    MARKED = marked_was
+
+    records = []
+    for fac in WAVE_FACINGS:
+        r = raw[fac]
+        if r["verdict"] == "PASS":
+            continue
+        target_ppm = ref["focal_px"] / r["drawn_standpoint_m"]
+        withheld = r["verdict"] == "WITHHELD"
+        records.append(dict(
+            _record="miss", round="cand-6", facing=fac, candidate=r["src"],
+            kind=("measurement_withheld" if withheld else "generation_miss"),
+            gate="design/plan-draft/measured/gate.py --round cand6",
+            verdict=r["verdict"],
+            measured=dict(ruler="chair_rail", ruler_tier=1,
+                          ruler_px=r["module"]["dado_rail_above_floor_px"],
+                          ruled_m=CHAIR_RAIL_M,
+                          px_per_m_at_wall=r["ppm"],
+                          implied_focal_px=r["implied_focal_px"],
+                          eye_height_m=r["eye_m"],
+                          drawn_standpoint_m=r["drawn_standpoint_m"]),
+            target=dict(target_focal_px=ref["focal_px"],
+                        target_eye_m=ref["eye_m"],
+                        target_px_per_m_at_wall=round(target_ppm, 2),
+                        band_pct=BAND6 * 100),
+            delta_pct=r["delta_focal_pct"],
+            delta_eye_pct=r["delta_eye_pct"],
+            trust=("single ruler by the round's own design - the declared "
+                   "anchor; cross-rulers are in the corpus and vote on nothing"),
+            robustness=("ONE RULER ONLY. Direction, not magnitude."
+                        if r["ppm"] else
+                        "no ruler: " + " ".join(r["withheld_because"])),
+            why=(" ".join(r["withheld_because"]) if withheld else
+                 "the wall was painted at %.1f px/m where the standing camera "
+                 "wants %.1f px/m at this facing's drawn %.2f m standpoint."
+                 % (r["ppm"], target_ppm, r["drawn_standpoint_m"])),
+            correction=(None if withheld else
+                        "the wall must draw %.3fx larger: %.1f px/m at the wall "
+                        "plane, not %.1f, at the drawn standpoint of %.2f m."
+                        % (target_ppm / r["ppm"], target_ppm, r["ppm"],
+                           r["drawn_standpoint_m"])),
+            blocked_on=(" ".join(r["withheld_because"]) if withheld else None),
+            status="open", baked_in=None))
+    admitted = [f for f in WAVE_FACINGS if raw[f]["verdict"] == "PASS"]
+    records.append(dict(
+        _record="clock", round="cand-6",
+        _law="design/production-law.md clause 4 (first-roll pass rate) and clause 5 (an improvement must clock as one)",
+        metric="first_roll_pass_rate",
+        history=[{"round": "cand-2", "admitted": 0, "of": 7},
+                 {"round": "cand-3", "admitted": 0, "of": 7},
+                 {"round": "cand-6", "admitted": len(admitted), "of": len(WAVE_FACINGS)}],
+        admitted_facings=admitted,
+        band_pct=BAND6 * 100,
+        band_licence=(
+            "[AI, 2026-08-22] +/-8 % on focal AND eye, granted by the Navigator "
+            "as a STARTING licence for the standing-eye wave. Grounds: 8 % of a "
+            "focal length is below the just-noticeable difference for a "
+            "focal-length change across a film cut, which is the perceptual "
+            "quantity the band stands in for - a player turning between two "
+            "walls of one room is exactly a cut. The cand-2 band was +/-3 %, "
+            "twice the residual between the approved painting and the ruled "
+            "lens, and it admitted 0 of 7 twice."),
+        band_trigger=(
+            "IF THIS ROUND ADMITS ~0, THE BAND AND THE APPROACH ARE RE-EXAMINED "
+            "AND NOT WIDENED. A second widening would be the corpus moving the "
+            "law, which gate.py's own header refuses. This entry is the clock: "
+            "it carries the rate at every round so the claim 'this is getting "
+            "better' has a reader."),
+        also_clocked=dict(
+            prompt_lint_py=(
+                "design/plan-draft/measured/prompt_lint.py was UNMOVED at "
+                "cand-3 (0 of 7 twice) and design/architecture.md records it as "
+                "unclocked apparatus that must argue for its life at this wave. "
+                "The cand-6 prompts all declare a `Measurement anchor:` and "
+                "none contradicts itself about the camera, and the two facings "
+                "that had declared an anchor above a floor their own prompt "
+                "forbade now paint a floor line - which is the lint's third "
+                "clause taking effect in the corpus."),
+            what_it_does_not_prove=(
+                "The wave changed the anchor discipline, the camera reference "
+                "and the band in one step, so the rate's movement cannot be "
+                "attributed to the lint alone.")),
+    ))
+    misses = write_misses(None, "cand-6", records)
+
+    print("CONTROL backdrops/source/study-N/cand-2.png through the cand6 code: "
+          "%s" % ("PASSED" if ctl["passed"] else "*** MOVED ***"))
+    for p in ctl["per_field"]:
+        print("   %-28s committed %-9s measured %-9s delta %s"
+              % (p["field"], p["committed"], p["measured"], p["delta"]))
+    if not ctl["passed"]:
+        print("\n*** THE CONTROL HAS MOVED. EVERY VERDICT IN THIS RUN IS VOID. ***\n")
+    print("\nreference: focal %.1f px, eye %.4f m (%s)"
+          % (ref["focal_px"], ref["eye_m"], CAND5REF_SRC))
+    print("\n%-9s %-28s %7s %9s %8s %8s %7s %7s  %s"
+          % ("facing", "source", "rail px", "px/m", "focal", "eye m",
+             "dfocal", "deye", "verdict"))
+    for fac in WAVE_FACINGS:
+        r = raw[fac]
+        name = (os.path.basename(os.path.dirname(r["src"])) + "/"
+                + os.path.basename(r["src"]))
+        if r["ppm"]:
+            print("%-9s %-28s %7s %9.2f %8.0f %8s %7s %7s  %s"
+                  % (fac, name, r["module"]["dado_rail_above_floor_px"], r["ppm"],
+                     r["implied_focal_px"],
+                     ("%.4f" % r["eye_m"]) if r["eye_m"] else "-",
+                     ("%+.1f%%" % r["delta_focal_pct"]) if r["delta_focal_pct"] is not None else "-",
+                     ("%+.1f%%" % r["delta_eye_pct"]) if r["delta_eye_pct"] is not None else "-",
+                     r["verdict"]))
+        else:
+            print("%-9s %-28s %7s %9s %8s %8s %7s %7s  %s"
+                  % (fac, name, "-", "-", "-", "-", "-", "-", r["verdict"]))
+    print("\nWITHHELD, and why:")
+    for fac in WAVE_FACINGS:
+        if raw[fac]["verdict"] == "WITHHELD":
+            for w in raw[fac]["withheld_because"]:
+                print("  %-9s %s" % (fac, w))
+    print("\n%d of %d admitted (cand-2: 0 of 7; cand-3: 0 of 7)"
+          % (len(admitted), len(WAVE_FACINGS)))
+    print("ledger: %s" % os.path.relpath(misses, ROOT))
+    print("readings: %s/" % os.path.relpath(out, ROOT))
+    return 0 if ctl["passed"] else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--round", choices=["cand1", "cand2", "cand3"],
+    ap.add_argument("--round",
+                    choices=["cand1", "cand2", "cand3", "cand5ref", "cand6"],
                     default="cand2",
                     help="cand2 (default) is row 21's promotion round; cand1 "
                          "reproduces row 20's; cand3 gates the universal-anchor "
-                         "round, which promotes nothing.")
+                         "round, which promotes nothing; cand5ref MEASURES the "
+                         "standing camera reference and cand6 gates the seven "
+                         "regenerated walls against it.")
     # WRITE SOMEWHERE ELSE, so a run can be COMPARED rather than trusted. Every
     # number the promoted meta is derived from lives in the JSONs this script
     # writes, and until row 21's close nothing re-derived them: a critic moved
@@ -2744,6 +3656,10 @@ def main():
         return 0
     if args.round == "cand3":
         return main_cand3()
+    if args.round == "cand5ref":
+        return main_cand5ref()
+    if args.round == "cand6":
+        return main_cand6()
     return main_cand2()
 
 

@@ -9,6 +9,7 @@
  * Plus (plan strengthenings): the open-door geometric gate on both facings,
  * the anchor_on child (note1), and the revealed key in the cavity.
  */
+import { MEASURED_BAND } from "../../tools/validate-fixtures.mjs";
 import { test, expect, appUrl, LIT, MATH, MF, repoRoot } from "./helpers.mjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -347,9 +348,34 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
            camera, and it would be worth nothing if it were asserted to the
            float, because then it would only be saying that one number came
            from the other. */
-        expect(Math.abs(horizonPx + EYE_M * m.px_per_m_at_wall - m.floor_line_y * LIT.H),
-          `${key} wall-plane end, measured against the project's own eye height`)
-          .toBeLessThanOrEqual(0.5);
+        /* AND ONLY ON THE FRAME THE CAMERA WAS MEASURED OFF. `study/N` is the
+           standing camera reference, so its floor line, its horizon and the
+           project's eye height are three readings of one frame and they agree
+           to half a thousandth of a pixel. Every OTHER painted facing is a
+           different painting admitted by a BAND, and the residual here is that
+           band expressed in pixels: `study/W` measures its own eye at 1.1488 m
+           against the project's 1.183, which at its 192.63 px/m is 6.6 px, and
+           its own horizon sits 1.6 px lower again — 4.98 px net. Asserting 0.5
+           on it would be asserting that a band admits nothing, and widening
+           the reference's 0.5 to cover it would throw away the one piece of
+           evidence in this file that the picture and the arithmetic are one
+           camera. So the two are separate claims. */
+        const isReference = key === "study/N";
+        const residual = Math.abs(horizonPx + EYE_M * m.px_per_m_at_wall - m.floor_line_y * LIT.H);
+        if (isReference) {
+          expect(residual,
+            `${key} IS the camera reference, so its wall-plane end is an identity, not an agreement`)
+            .toBeLessThanOrEqual(0.5);
+        } else {
+          /* The eye band the cand-6 gate admits on, carried into pixels at
+             this facing's own scale. A painting outside it is not in the
+             world; a painting inside it is this far from the drawn camera and
+             that distance is what the band buys. */
+          const bandPx = MEASURED_BAND * EYE_M * m.px_per_m_at_wall;
+          expect(residual,
+            `${key}: its own floor line stands ${residual.toFixed(2)} px from where the project's ${EYE_M} m eye puts it, against the ±${(MEASURED_BAND * 100).toFixed(0)}% eye band's ${bandPx.toFixed(1)} px`)
+            .toBeLessThanOrEqual(bandPx);
+        }
         continue;
       }
       expect(horizonPx + EYE_M * m.px_per_m_at_wall, `${key} wall-plane end`)

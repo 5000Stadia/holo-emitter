@@ -705,12 +705,15 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     PLAN HOLDS resolves to — unestablished space whose extent nobody has drawn. Its 16.0 m wall is
     meaningful only there. **[AI, amended at row 20: every number below is now DERIVED, from three
     authored terms — the fallback's own camera distance 4.0 m, the MEASURED drawing eye height
-    1.08775 m, and the MEASURED horizon 524.4/1024 — because the project pins a LENS and
-    `px_per_m_at_wall` is no longer anyone's to author.]** In full: `camera_wall_m` **4** (was
+    1.183 m, and the MEASURED horizon 526.1/1024 — because the project pins a LENS and
+    `px_per_m_at_wall` is no longer anyone's to author. **The two measured terms moved at the
+    standing-eye wave** [HUMAN 2026-08-22, "B"]: they were 1.08775 m and 524.4/1024, read off the
+    low-eye `study/N`, and they are now read off `backdrops/source/study-N/cand-5-reference.png`
+    by the same ceiling-ramp instrument.]** In full: `camera_wall_m` **4** (was
     3.5, moved so the derived values are decimals a human can check),
-    `px_per_m_at_wall` **256** (= 1024 / 4), `horizon_y` **0.512109** (= 524.4 / 1024),
-    `floor_line_y` **0.784047** (= horizon + eye × 256 / 1024), `px_per_m_at_bottom` **459.297**
-    (= (1024 − 524.4) / 1.08775), `wall_width_m` 16.0, `key_dir` "UL", `key_tint` `#c8b489`
+    `px_per_m_at_wall` **256** (= 1024 / 4), `horizon_y` **0.51377** (= 526.1 / 1024),
+    `floor_line_y` **0.80952** (= horizon + eye × 256 / 1024), `px_per_m_at_bottom` **420.879**
+    (= (1024 − 526.1) / 1.183), `wall_width_m` 16.0, `key_dir` "UL", `key_tint` `#c8b489`
     (deliberately non-identity so the §12.8 tint assertion is satisfiable on grid backdrops),
     `image_h_px` 1024, `calibration_ref` "wall grid module, 1.0 m at the wall plane",
     `calibration_px` **256**, at 1536×1024;
@@ -1082,10 +1085,28 @@ which is the very defect this ruling removes, arriving from the asset side. `stu
 frame the probe loop blessed) lands at **1010 px, 1.4 % away**, so the approved picture and the
 pinned lens are the same camera within measurement error. The other seven regenerate through the
 asset seat with the camera enforced, and `design/plan-draft/measured/gate.py` is their acceptance
-gate: a candidate is admitted when its implied focal lands within **±3 % of 1010 px**, and the
-tool prints the per-facing scale target (1010 ÷ that facing's own drawn standpoint) the seat
+gate: a candidate is admitted when its implied focal lands within **±8 % of 819.6 px**, and the
+tool prints the per-facing scale target (819.6 ÷ that facing's own drawn standpoint) the seat
 generates to. Widening the law to admit the corpus would have been calibrating a gate on the
 corpus it judges, which `contract.json`'s own amendment rule forbids.
+
+**The number the law is written against moved once, and a human moved it [HUMAN, 2026-08-22,
+`design/approvals.log` at 964188d].** The camera A/B closed on **"B"** — the standing eye — which
+routes every wall of the manor through ONE regeneration wave at a new camera, so the reference
+the corpus conforms to is now `backdrops/source/study-N/cand-5-reference.png`: **188.421 px/m at
+its drawn 4.35 m, an 819.6 px lens, the eye 1.183 m above the floor** and the horizon at y 526.1
+of 1024 by the ceiling-ramp fit. That is a corpus moved by a ruling and not a law moved by a
+corpus, which is the distinction the paragraph above turns on. Two things ride with it. The
+**adopted ruler is the anchor each prompt declares** — §11's universal wainscot chair-rail at
+0.95 m, one instrument across the reference AND the corpus; every other ruled feature is measured,
+printed and votes on nothing, because a door drawn 2.19 m tall against a ruled 2.00 is a fact about
+the room the painting depicts and not about the camera. And **the band is ±8 % on the focal length
+AND on the eye height**, an [AI] STARTING licence: 8 % of a focal length is below the
+just-noticeable difference for a focal-length change across a film cut, which is what a player
+turning between two walls of one room is. It is recorded with its clock in
+`design/plan-draft/measured/misses.jsonl` — 0 of 7 admitted at ±3 % twice (cand-2, cand-3), 2 of 7
+at ±8 % (cand-6) — and **if a wave admits ~0 again the band and the approach are re-examined, not
+widened a second time**.
 
 **11b. Request precision escalates from text to shown geometry [HUMAN, 2026-08-22]:** "if those
 specifications are text only there may be too much interpretive requirements... The request

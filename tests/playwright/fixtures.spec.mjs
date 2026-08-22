@@ -148,8 +148,14 @@ test.describe("fixtures", () => {
            seat's lane — so the source of THIS promotion comes over by itself. */
         mkdirSync(join(dir, candidate, ".."), { recursive: true });
         cpSync(join(repoRoot, candidate), join(dir, candidate));
+        /* AND THE ROUND IT WAS MEASURED IN, which the meta carries: rounds
+           have their own directories, so re-running the tool without naming
+           one reads the cand-2 corpus — a different painting's numbers — and
+           the refusal that catches it is `_source_sha256`, which would make
+           this case red for the wrong reason. */
         execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
-          "--facing", `${loc}/${facing}`, "--candidate", candidate],
+          "--facing", `${loc}/${facing}`, "--candidate", candidate,
+          ...(meta.measured_round ? ["--round", meta.measured_round] : [])],
           { cwd: dir, encoding: "utf8", stdio: "pipe" });
         expect(readFileSync(join(dir, "backdrops", loc, `${facing}.meta.json`), "utf8"),
           `backdrops/${loc}/${facing}.meta.json is not what promote-backdrop.mjs writes — a field was edited by hand, or the measurement moved and the promotion was not re-run`)

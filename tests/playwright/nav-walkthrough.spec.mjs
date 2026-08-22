@@ -87,7 +87,7 @@ test.describe("the painted world a visitor opens", () => {
       return { grid, lit, measured: meta.measured === true, ppm: meta.px_per_m_at_wall };
     });
     expect(p.measured, "study/N resolves to the meta measured off the painting").toBe(true);
-    expect(p.ppm, "at the scale the painting was measured at").toBeCloseTo(232.222, 3);
+    expect(p.ppm, "at the scale the painting was measured at").toBeCloseTo(188.421, 3);
     expect(p.grid, "no grid floor in a painted room").toBe(0);
     expect(p.lit, "and the fire in the hearth is lit — this is the painting").toBeGreaterThan(1000);
   });

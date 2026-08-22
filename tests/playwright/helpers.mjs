@@ -440,7 +440,7 @@ export { expect };
  *   - the camera: blueprint §7's grid-canonical amendment, and §5's rule
  *     that the approved image is the geometric authority — so since row 20
  *     the eye and the horizon are MEASURED off `study/N` rather than
- *     authored: horizon 524.4/1024, eye 1.08775 m, a 1024 px lens, and
+ *     authored: horizon 526.1/1024, eye 1.183 m, a 1024 px lens, and
  *     1536×1024. `floor_line_y` and `px_per_m_at_bottom`
  *     are then §5's own horizon device, written out here as arithmetic rather
  *     than copied. §10's ruled 1.83 m is here too, under its own name, because
@@ -464,17 +464,20 @@ export const LIT = {
   focal_px: 1024,
   /* THE HORIZON, and it is the lens SHIFT — a level camera with its frame
      moved, not a tilted one. Measured off the approved `study/N` backdrop at
-     y 524.4 of 1024 by the CEILING-RAMP FIT, which the Navigator ruled in
+     y 526.1 of 1024 by the CEILING-RAMP FIT, which the Navigator ruled in
      over the vanishing-point vote: the two disagree by up to 66 px across the
      eight frames and the ramp fit closes at a 0.3 px residual. */
-  horizon_y: 524.4 / 1024,
-  /* THE DRAWING CAMERA'S EYE HEIGHT, MEASURED (row 20). Blueprint §5 [HUMAN,
+  horizon_y: 526.1 / 1024,
+  /* THE DRAWING CAMERA'S EYE HEIGHT, MEASURED. Blueprint §5 [HUMAN,
      2026-08-20] rules that the geometry is determined by the orientation of
-     the approved image generation; the approved backdrops arrived and measure
-     1.08775 m, level, by the ceiling-ramp horizon the Navigator ruled on its
-     0.3 px residual. This supersedes row 11's 1.60 m interim, which was named
-     an interim awaiting exactly this measurement. */
-  eye_m: 1.08775,
+     the approved image generation; row 20 measured 1.08775 m off the low-eye
+     `study/N`, and [HUMAN 2026-08-22, design/approvals.log at 964188d] "B"
+     replaced that camera with the standing eye. The frame that ruling names is
+     `backdrops/source/study-N/cand-5-reference.png`, and the standing-eye wave
+     measured it by the same ceiling-ramp instrument: horizon y 526.1 of 1024
+     at a 0.30/0.29 px residual, eye 1.183 m. Both numbers here are typed from
+     `design/plan-draft/measured/cand5ref/study-N.json`, never imported. */
+  eye_m: 1.183,
   /* THE GENERATION CAMERA. [HUMAN, 2026-08-20] "about a 6ft height" —
      blueprint §10 `camera.eye_height_m`, which backdrops are PROMPTED at and
      which the generator did not honour. No pixel here is drawn at it. */
@@ -486,8 +489,8 @@ export const LIT = {
      makes no claim about where its wall ends. */
   camera_wall_m: 4.0,
   px_per_m_at_wall: 1024 / 4.0,                    // 256
-  floor_line_y: 524.4 / 1024 + 1.08775 * (1024 / 4.0) / 1024,
-  px_per_m_at_bottom: (1024 - 524.4) / 1.08775,
+  floor_line_y: 526.1 / 1024 + 1.183 * (1024 / 4.0) / 1024,
+  px_per_m_at_bottom: (1024 - 526.1) / 1.183,
   wall_width_m: 16,
   k: 1024,      // px_per_m_at_wall × camera_wall_m — the focal length itself
   /* Every planned facing's room height [HUMAN 2026-08-21] — `plan.floors[].
@@ -522,31 +525,55 @@ export const LIT = {
      committed artifact, so a re-measurement that moves the camera turns this
      file red instead of sliding through.
 
-     What actually moved when study/N was promoted, and it is worth seeing in
-     one place: the scale, by −1.35 % (the painting draws 232.222 px/m where
-     the ruled lens at the drawn 4.35 m would draw 235.402), and the corners
-     with it. The floor line moved by 0.007 px and the horizon and the
-     frame-bottom scale did not move at all — because the drawing camera was
-     MEASURED OFF THIS PAINTING at row 20, so the picture and the arithmetic
-     were already the same camera. The 1.35 % is the measurement's own residual
-     against the ruled 1024 px lens, and it is inside blueprint §5's ±3 %
-     acceptance band by 1.65 points. */
+     THE STANDING-EYE WAVE REPLACED ONE PAINTED FACING WITH THREE. [HUMAN
+     2026-08-22] "B" supersedes the low-eye `study/N` row 21 promoted; the
+     study's north, east and west walls are now painted, all three at the
+     standing camera measured off `cand-5-reference`. What moved, worth seeing
+     in one place: the scale, by −20 % (188.421 px/m on the north wall where
+     the ruled 24 mm lens at the drawn 4.35 m would draw 235.402) — the
+     generator drew the standing-eye brief with a WIDER LENS rather than a
+     higher camera, and that divergence between a painted facing and an
+     unpainted one is the largest this project has carried. The band that
+     admits it is ±8 % around the reference's own 819.6 px, not around the
+     ruled 1024.
+
+     AND study/E IS ADMITTED AND NOT PROMOTED, which is why it is not here.
+     The cand-6 gate passes it at +1.9 % focal and −3.8 % eye, and its painted
+     doorway stands 1.11 m from where the approved plan puts it — so promoting
+     it cuts the furnished world's aperture at the LEAF's staged rectangle,
+     1.11 m from the hole the painting draws, and the demo shows a hole beside
+     a painted door. §11's "the painted opening must coincide with the click
+     target" is what that breaks. The plan is the document that moves (row 22
+     already carries the hearth's amendment) and that is Kabe's redline, not an
+     agent's, so the wall waits. */
   MEASURED: {
     "study/N": {
-      px_per_m_at_wall: 232.222,
-      floor_line_y: 0.758789,
-      horizon_y: 0.512109,
-      px_per_m_at_bottom: 459.3,
-      corner_x0_px: 142,
-      corner_x1_px: 1389,
-      /* The storey the PAINTING draws — 2.997 m against the plan's ruled 2.80,
+      px_per_m_at_wall: 188.421,
+      floor_line_y: 0.731445,
+      horizon_y: 0.51377,
+      px_per_m_at_bottom: 420.88,
+      corner_x0_px: 188,
+      corner_x1_px: 1351,
+      /* The storey the PAINTING draws — 3.349 m against the plan's ruled 2.80,
          which is the warn-tier disagreement the meta records in
          `measured_room`. Typed here because a test that wants to point a scan
          at the painting's own wall-ceiling junction has to know where the
-         painting put it, and the declared storey puts it 46 px lower. */
-      measured_storey_m: 2.997,
-      nearest_floor_m: 2.1994,
-      calibration_px: 209,
+         painting put it, and the declared storey puts it far higher. */
+      measured_storey_m: 3.349,
+      nearest_floor_m: 1.9474,
+      calibration_px: 179,
+      measured: true
+    },
+    "study/W": {
+      px_per_m_at_wall: 192.632,
+      floor_line_y: 0.731445,
+      horizon_y: 0.515332,
+      px_per_m_at_bottom: 432.01,
+      corner_x0_px: 186,
+      corner_x1_px: 1351,
+      measured_storey_m: 3.271,
+      nearest_floor_m: 1.8237,
+      calibration_px: 183,
       measured: true
     }
   },

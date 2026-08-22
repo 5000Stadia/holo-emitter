@@ -43,8 +43,21 @@ const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_P
  * `design/plan-draft/measured/gate.py` states the same two numbers as the
  * asset seat's acceptance gate (`REFERENCE_PX`, `BAND`); `plan.spec` asserts
  * the two files agree, so widening one without the other goes red. */
-export const MEASURED_REFERENCE_PX = 1010.0;   // study/N, measured — the approved camera
-export const MEASURED_BAND = 0.03;             // ±3 %, blueprint §5 / gate.py
+/* THE STANDING-EYE WAVE MOVED BOTH. [HUMAN 2026-08-22, design/approvals.log at
+ * 964188d] "B" — the standing eye — routes every wall of the manor through one
+ * regeneration wave at a new camera, so the reference the corpus conforms to
+ * moved by a human's ruling and not by a corpus arguing. It is
+ * `backdrops/source/study-N/cand-5-reference.png` measured by
+ * `measure.py --round cand5ref`: 188.421 px/m at its drawn 4.35 m standpoint,
+ * an 819.6 px lens. The band is the wave's [AI] STARTING licence — 8 % of a
+ * focal length is below the just-noticeable difference for a focal-length
+ * change across a film cut, which is what a player turning between two walls of
+ * one room actually is — and it is recorded WITH ITS CLOCK in
+ * `design/plan-draft/measured/misses.jsonl`: cand-2 admitted 0 of 7 at ±3 %,
+ * cand-3 0 of 7, cand-6 2 of 7 at ±8 %. If a wave admits ~0 again the band and
+ * the approach are re-examined, not widened. Previously 1010.0 / 0.03. */
+export const MEASURED_REFERENCE_PX = 819.6;    // study/N cand-5-reference, measured
+export const MEASURED_BAND = 0.08;             // ±8 %, the standing-eye wave / gate.py
 
 /* THE DERIVED ARM'S TOLERANCE, exported for the same reason the band is. A
  * derived meta computes `px_per_m_at_wall` as `FOCAL_PX / distance`, so the
@@ -191,6 +204,9 @@ const META_KEYS = [
   // provenance: which camera produced it, and whether it was MEASURED off a
   // painted backdrop (row 20) or derived from the plan
   "camera_id", "provisional", "measured", "backdrop",
+  // ...and which measurement ROUND produced it, so the promotion can be
+  // re-derived from the meta alone once rounds have their own directories
+  "measured_round",
   "focal_px", "nearest_floor_m",
   // [row 21] the room the PAINTING depicts, beside the room the plan rules —
   // informational, warn-tier, and never read by the renderer

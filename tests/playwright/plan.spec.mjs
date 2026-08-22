@@ -874,7 +874,7 @@ test.describe("the camera the projection runs on", () => {
      * approved study/N backdrop's own camera and blueprint §5 makes that image
      * the authority, so the interim it was awaiting has arrived and shipped. */
     expect(GRID_CAMERA.eye_m).toBe(DRAWING_EYE_M);
-    expect(DRAWING_EYE_M).toBe(1.08775);     // MEASURED off the approved study/N backdrop (row 20)
+    expect(DRAWING_EYE_M).toBe(1.183);       // MEASURED off backdrops/source/study-N/cand-5-reference.png
     expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled, and absent from the approved image
     expect(INTERIM_EYE_M).toBe(DRAWING_EYE_M);
     expect(RULED_EYE_M).toBe(1.83);          // §10's generation camera, untouched
@@ -882,7 +882,7 @@ test.describe("the camera the projection runs on", () => {
     /* The provenance string names the numbers it claims, so it cannot go on
        describing a camera the object no longer carries — an artifact critic
        found it saying "eye 1.2316 m, horizon at y 490" beside fields reading
-       1.08775 and 524.4, and a `/MEASURED/` match let it. */
+       1.183 and 526.1, and a `/MEASURED/` match let it. */
     expect(GRID_CAMERA.source).toMatch(/MEASURED/);
     expect(GRID_CAMERA.source).toContain(String(GRID_CAMERA.eye_m));
     expect(GRID_CAMERA.source).toContain(String(Math.round(GRID_CAMERA.horizon_y * 1024 * 10) / 10));
@@ -1099,8 +1099,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(5.45);
     expect(m.px_per_m_at_wall).toBeCloseTo(PX, 9);          // 235.402
     expect(m.camera).toBeUndefined();
-    expect(m.floor_line_y).toBeCloseTo(524.4 / 1024 + 1.08775 * PX / 1024, 12);
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 524.4) / 1.08775, 9);
+    expect(m.floor_line_y).toBeCloseTo(526.1 / 1024 + 1.183 * PX / 1024, 12);
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 526.1) / 1.183, 9);
     expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * PX, 9);        // 126.5
     expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * PX, 9);        // 1409.5
     expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * PX, 9);
@@ -1126,7 +1126,7 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(20.4);
     expect(m.camera).toBeUndefined();
     expect(m.px_per_m_at_wall).toBeCloseTo(1024 / m.camera_wall_m, 9);
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 524.4) / 1.08775, 9); // scale-independent
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 526.1) / 1.183, 9); // scale-independent
     expect(m.corner_x0_px).toBeLessThan(0);
     expect(m.corner_x1_px).toBeGreaterThan(1536);
   });
@@ -2281,7 +2281,14 @@ test.describe("the schematic is a derived render of the plan", () => {
    * it is what makes the control, the ruler priority, the three WITHHELD
    * triggers and `_source_sha256` executed code rather than committed prose.
    * Chromium only — a claim about a Python script has no engine. */
-  for (const [round, dir] of [["cand2", ""], ["cand3", "cand3"], ["cand1", "cand1"]]) {
+  for (const [round, dir] of [["cand2", ""], ["cand3", "cand3"], ["cand1", "cand1"],
+    /* [Standing-eye wave] The two new rounds answer to the same rule the three
+       before them do: the committed corpus must be what `measure.py` produces
+       today, into a scratch directory, byte for byte. `cand5ref` is the one
+       that matters most — it is a SINGLE FILE, and every camera constant in
+       `src/groundplane.js`, the acceptance band in `tools/validate-fixtures.mjs`
+       and three promoted metas are derived from it. */
+    ["cand5ref", "cand5ref"], ["cand6", "cand6"]]) {
     test(`the ${round} measurement re-runs byte-identical to its committed corpus`, async ({ browserName }) => {
       test.setTimeout(180_000);
       test.skip(browserName !== "chromium", "a claim about a Python script has no engine");
@@ -2293,7 +2300,10 @@ test.describe("the schematic is a derived render of the plan", () => {
         const committed = join(draftDir, "measured", dir);
         const fresh = join(out, dir);
         const names = readdirSync(committed).filter((f) => f.endsWith(".json") && f !== "misses.jsonl");
-        expect(names.length, `${round} writes no per-facing JSON`).toBeGreaterThanOrEqual(8);
+        /* cand5ref writes ONE file — it measures the reference and nothing
+           else — and cand6 writes the seven walls the reference gates. */
+        const least = round === "cand5ref" ? 1 : (round === "cand6" ? 7 : 8);
+        expect(names.length, `${round} writes no per-facing JSON`).toBeGreaterThanOrEqual(least);
         const moved = names.filter((n) =>
           !existsSync(join(fresh, n)) ||
           !readFileSync(join(fresh, n)).equals(readFileSync(join(committed, n))));
@@ -2307,11 +2317,13 @@ test.describe("the schematic is a derived render of the plan", () => {
            suite green, because this compared `.json` and `--out` sent the fresh
            ones to the scratch directory. Evidence that answers to nothing is
            not evidence. */
-        if (round === "cand2") {
-          const marks = join(repoRoot, "design", "batches", "row21-promotion", "measured");
-          const freshMarks = join(out, "marked");
+        if (round === "cand2" || round === "cand5ref" || round === "cand6") {
+          const marks = join(repoRoot, "design", "batches",
+            round === "cand2" ? "row21-promotion" : "standing-eye-wave", "measured");
+          const freshMarks = join(out, round === "cand2" ? "marked" : join(round, "marked"));
           const drawn = readdirSync(freshMarks).filter((f) => f.endsWith(".png")).sort();
-          expect(drawn.length, "the cand-2 round draws a marked frame per facing").toBe(8);
+          expect(drawn.length, `the ${round} round draws a marked frame per facing`)
+            .toBe(round === "cand2" ? 8 : (round === "cand5ref" ? 1 : 7));
           const gone = drawn.filter((n) => !existsSync(join(marks, n)));
           expect(gone, "these marked frames are not in the batch a human is shown").toEqual([]);
           const different = drawn.filter((n) =>
@@ -2347,7 +2359,14 @@ test.describe("the schematic is a derived render of the plan", () => {
       const map = {};
       for (const line of out.split("\n")) {
         const m = /^((?:study|hall)\/[NESW])\s+\S+\s+(\S+)\s+\S+\s+\S+\s+(PASS|FAIL|WITHHELD|NOT GATED)\s*([-+][\d.]+)?%?/.exec(line);
-        if (m) map[m[1]] = { verdict: m[3], delta: m[4] === undefined ? null : Number(m[4]) };
+        if (m) { map[m[1]] = { verdict: m[3], delta: m[4] === undefined ? null : Number(m[4]) }; continue; }
+        /* [Standing-eye wave] The cand-6 table carries two more columns — the
+           eye height and its own delta — because admission is on BOTH halves,
+           so its verdict does not sit where the other rounds' does. The delta
+           taken here is the FOCAL one, which is what the ledger's `delta_pct`
+           carries; the eye's is `delta_eye_pct` beside it. */
+        const w = /^((?:study|hall)\/[NESW])\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(PASS|FAIL|WITHHELD)\s*$/.exec(line.trimEnd());
+        if (w) map[w[1]] = { verdict: w[3], delta: w[2] === "-" ? null : Number(w[2].replace("%", "")) };
       }
       return map;
     };
@@ -2366,17 +2385,32 @@ test.describe("the schematic is a derived render of the plan", () => {
       "and names both kinds, because reading one as the other is the failure the class exists to prevent")
       .toEqual(["generation_miss", "measurement_withheld"]);
     expect(Object.keys(header._rounds || {}).sort(),
-      "and every round it holds entries for").toEqual(["cand-2", "cand-3"]);
+      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3"]);
+      .toEqual(["cand-2", "cand-3", "cand-6"]);
+    /* [Standing-eye wave] AND THE CLOCK IS A RECORD IN THE LEDGER, because
+       production law clause 5 says an improvement must clock as one and clause
+       4's acceptance metric is the first-roll pass rate rising over time. A
+       band widened without its clock is the corpus moving the law. */
+    const clock = allLines.find((r) => r._record === "clock" && r.round === "cand-6");
+    expect(clock, "the standing-eye wave carries no clock record").toBeTruthy();
+    expect(clock.history.map((h) => `${h.round} ${h.admitted}/${h.of}`),
+      "the clock does not carry the rate at every round, so 'this is getting better' has no reader")
+      .toEqual(["cand-2 0/7", "cand-3 0/7", "cand-6 2/7"]);
+    expect(clock.band_pct, "the clock does not name the band it is a clock for").toBe(8);
+    expect(String(clock.band_trigger),
+      "the licence carries no re-examination trigger, so a second widening has nothing to refuse it")
+      .toMatch(/RE-EXAMINED AND NOT WIDENED/);
 
-    for (const [round, args] of [["cand-2", []], ["cand-3", ["--round", "cand3"]]]) {
+    for (const [round, args] of [["cand-2", []], ["cand-3", ["--round", "cand3"]],
+      ["cand-6", ["--round", "cand6"]]]) {
       const table = verdicts(gate(args));
-      expect(Object.keys(table).length, `gate.py ${args.join(" ")} printed no facings`).toBe(8);
+      expect(Object.keys(table).length, `gate.py ${args.join(" ")} printed no facings`)
+        .toBe(round === "cand-6" ? 7 : 8);
       const rows = ledger.filter((r) => (r.round || "cand-2") === round);
       const gated = Object.entries(table)
         .filter(([, v]) => v.verdict !== "PASS" && v.verdict !== "NOT GATED")
@@ -2387,8 +2421,8 @@ test.describe("the schematic is a derived render of the plan", () => {
 
       const corpus = (facing) => {
         const [loc, f] = facing.split("/");
-        return JSON.parse(readFileSync(join(draftDir, "measured",
-          round === "cand-3" ? "cand3" : ".", `${loc}-${f}.json`), "utf8"));
+        const dir = round === "cand-3" ? "cand3" : (round === "cand-6" ? "cand6" : ".");
+        return JSON.parse(readFileSync(join(draftDir, "measured", dir, `${loc}-${f}.json`), "utf8"));
       };
       for (const r of rows) {
         const t = table[r.facing];
@@ -2399,7 +2433,9 @@ test.describe("the schematic is a derived render of the plan", () => {
            measurement found, and everything under `verdict` was free text. */
         const src = corpus(r.facing);
         const ruler = round === "cand-3" ? src._ruler
-          : (src._rulers || []).find((x) => x.admissible) || null;
+          : round === "cand-6"
+            ? { name: "chair_rail", feature_px: src.calibration_px, ruled_m: 0.95 }
+            : (src._rulers || []).find((x) => x.admissible) || null;
         expect(r.candidate, `${round} ${r.facing}: the ledger names a different image than the measurement did`)
           .toBe(src._what_this_is.match(/backdrops\/\S+\.png/)[0]);
         expect(r.measured.px_per_m_at_wall, `${round} ${r.facing}: the ledger's scale is not the measurement's`)
@@ -2488,7 +2524,20 @@ test.describe("the schematic is a derived render of the plan", () => {
   test("the promotion refuses every input its own words say it refuses", () => {
     const tree = stagePromotionTree("study/N", "backdrops/source/study-N/cand-2.png");
     const measured = join(tree, "design", "plan-draft", "measured", "study-N.json");
-    const pristine = readFileSync(measured, "utf8");
+    /* THE BASELINE IS PUT INSIDE THE BAND FIRST, and it has to be said out
+       loud. This case is about the tool's SIX REFUSALS, not about any
+       particular painting, and it runs on the frozen cand-2 corpus because
+       that is the round `stagePromotionTree` copies. The standing-eye wave
+       moved the band to ±8 % of 819.6 px, so cand-2's 232.222 px/m — a 1010 px
+       lens — is now out of it, and every later assertion here would trip on
+       the band clause instead of the clause it names. So the baseline's scale
+       is set to what the band admits at this facing's drawn standpoint, the
+       same device the painted-opening case beside it uses, and the band
+       refusal is then exercised deliberately below. */
+    const baseline = JSON.parse(readFileSync(measured, "utf8"));
+    baseline.px_per_m_at_wall = 819.6 / 4.35;
+    const pristine = JSON.stringify(baseline, null, 2) + "\n";
+    writeFileSync(measured, pristine);
     const promote = (args) => {
       try {
         const out = execFileSync("node", [join(tree, "tools", "promote-backdrop.mjs"), ...args],
@@ -2507,10 +2556,10 @@ test.describe("the schematic is a derived render of the plan", () => {
     try {
       expect(promote(OK).code, "the admitted candidate still promotes").toBe(0);
 
-      doctor((m) => { m.px_per_m_at_wall = 200; });
+      doctor((m) => { m.px_per_m_at_wall = 350; });   // a 1522 px lens at 4.35 m
       let r = promote(OK);
       expect(r.code, "a candidate outside blueprint §5's band is refused").not.toBe(0);
-      expect(r.out).toMatch(/outside the ±3% band/);
+      expect(r.out).toMatch(/outside the ±8% band/);
 
       doctor((m) => { m.px_per_m_at_wall = null; });
       r = promote(OK);
@@ -2559,7 +2608,7 @@ test.describe("the schematic is a derived render of the plan", () => {
     const tree = stagePromotionTree("study/E", "backdrops/source/study-E/cand-2.png");
     const measured = join(tree, "design", "plan-draft", "measured", "study-E.json");
     const pristine = JSON.parse(readFileSync(measured, "utf8"));
-    const IN_BAND = 1010 / 4.09;          // study/E's drawn standpoint
+    const IN_BAND = 819.6 / 4.09;         // study/E's drawn standpoint
     const promote = () => execFileSync("node",
       [join(tree, "tools", "promote-backdrop.mjs"), "--facing", "study/E",
         "--candidate", "backdrops/source/study-E/cand-2.png"],
@@ -2814,9 +2863,24 @@ test.describe("the schematic is a derived render of the plan", () => {
     test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     expect(existsSync(join(ROW21_DIR, "capture.mjs")),
       "the batch must carry the script that made it").toBe(true);
+    /* FROM THE BUILD THAT DREW THEM, which is row 21's own closing commit and
+       not HEAD. The standing-eye wave repainted `study/N` and took the low-eye
+       painting out of the world, so eight of these eleven frames are pictures
+       today's build cannot draw — and re-capturing them would replace evidence
+       Kabe has not ruled on with evidence he has never seen, which is exactly
+       the objection row 21 recorded when it did this to the row-20 batch. The
+       treatment is the one that batch already carries: `capture.mjs` takes an
+       app root, and this one is a checkout of `ROW21_COMMIT`. It moves when a
+       human has ruled on a new set of pictures and at no other time. */
+    const ROW21_COMMIT = "ad82ede";
+    const tree = mkdtempSync(join(tmpdir(), "holo-row21-tree-"));
     const out = mkdtempSync(join(tmpdir(), "holo-row21-"));
     try {
-      const log = execFileSync("node", [join(ROW21_DIR, "capture.mjs"), out],
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW21_COMMIT,
+        "index.html", "src", "fixtures", "backdrops", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node", [join(ROW21_DIR, "capture.mjs"), out, tree],
         { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
       const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
       expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(8);
@@ -2827,7 +2891,7 @@ test.describe("the schematic is a derived render of the plan", () => {
         if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
       }
       expect(stale,
-        "these batch frames are not what the code draws — re-run design/batches/row21-promotion/capture.mjs into the batch")
+        `these batch frames are not what ${ROW21_COMMIT} drew — the build that made them is the only thing that can answer for them`)
         .toEqual([]);
       const committedFrames = readdirSync(ROW21_DIR)
         .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
@@ -2847,8 +2911,88 @@ test.describe("the schematic is a derived render of the plan", () => {
           .toBe(`${m[1]}/${m[2]}`);
       }
     } finally {
+      rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
+  });
+
+  /* [STANDING-EYE WAVE] AND THE WAVE'S OWN BATCH ANSWERS FOR ITSELF THE SAME
+   * WAY. The shape is row 21's, deliberately copied rather than generalised:
+   * the script that made the frames is committed beside them, the suite
+   * re-runs it into a scratch directory, and every frame is byte-compared. An
+   * artifact nobody can regenerate is not derived — it is just a file. What
+   * this batch is FOR is the seam: three of the study's four walls are painted
+   * now and the corners where they meet are what a human has to look at. */
+  const WAVE_DIR = join(repoRoot, "design", "batches", "standing-eye-wave");
+  test("the standing-eye-wave batch IS what the code draws — every frame re-rendered and compared", async ({ browserName }) => {
+    test.setTimeout(180_000);
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
+    expect(existsSync(join(WAVE_DIR, "capture.mjs")),
+      "the batch must carry the script that made it").toBe(true);
+    const out = mkdtempSync(join(tmpdir(), "holo-wave-"));
+    try {
+      const log = execFileSync("node", [join(WAVE_DIR, "capture.mjs"), out],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThanOrEqual(5);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(WAVE_DIR, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale,
+        "these batch frames are not what the code draws — re-run design/batches/standing-eye-wave/capture.mjs into the batch")
+        .toEqual([]);
+      const committedFrames = readdirSync(WAVE_DIR)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
+      expect(committedFrames, "a frame the script draws is missing from the set a human is shown")
+        .toEqual(fresh);
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(?:demo-)?(study|hall)-([NESW])(?:-|$)/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  /* AND THE TABLE IT QUOTES TO KABE IS THE TOOL'S OWN, to the end of the
+   * table and in both directions — round 5's finding, applied where it applies
+   * next: a comparison that reads only as far as the document it checks is a
+   * comparison the document controls, and deleting the last row of a quoted
+   * gate table is how a human comes to be shown one with a failing wall
+   * missing. */
+  test("the standing-eye-wave README quotes the gate table gate.py prints", () => {
+    const readme = readFileSync(join(WAVE_DIR, "README.md"), "utf8");
+    const blocks = [...readme.matchAll(/```\n(facing\s+standpt[\s\S]*?)```/g)]
+      .map((m) => m[1].trimEnd().split("\n"));
+    expect(blocks.length, "the batch carries the cand-6 gate table").toBe(1);
+    let out = "";
+    try {
+      out = execFileSync("python3",
+        [join(draftDir, "measured", "gate.py"), "--round", "cand6"],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) { out = String(e.stdout || ""); }
+    const printed = out.split("\n").map((l) => l.trimEnd());
+    const head = printed.findIndex((l) => l.startsWith("facing"));
+    expect(head, "gate.py --round cand6 printed no table").toBeGreaterThanOrEqual(0);
+    let end = head + 1;
+    while (end < printed.length && printed[end].trim() !== "" &&
+           !printed[end].startsWith(" ")) end++;
+    const actual = printed.slice(head, end);
+    expect(blocks[0].length,
+      `the README quotes ${blocks[0].length} lines where gate.py prints ${actual.length} — a row was dropped from what a human is shown`)
+      .toBe(actual.length);
+    expect(actual,
+      "design/batches/standing-eye-wave/README.md quotes a gate table the tool no longer prints — re-run gate.py --round cand6 and paste what it says")
+      .toEqual(blocks[0].map((l) => l.trimEnd()));
   });
 
   /* The batch's two schematics ARE the live sheets — same bytes, not a copy
