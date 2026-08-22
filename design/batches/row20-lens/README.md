@@ -9,7 +9,9 @@ read.
 
 Placeholder art (V1). Nothing here is judged on finish.
 
-**These frames are re-rendered and compared by the test suite on every run.** `capture.mjs` beside them is the script that made them, and `plan.spec` runs it into a temporary directory and requires every frame to come back byte-identical — so a picture here cannot drift from the build, and a frame cannot be swapped for another. This replaced a commit hash typed into this README: a critic pointed out that a guard reading a string in the document it guards is satisfied by editing the string, and that the sentence was already false — it named a commit two changes later than the capture.
+**Every picture here is re-rendered and compared by the test suite on every run — the before frames too.** `capture.mjs` beside them is the script that made them; the suite runs it into a temporary directory and requires every frame to come back byte-identical, so a picture here cannot drift from the build and a frame cannot be swapped for another. The eight BEFORE frames cannot be drawn by today's code — that is what "before" means — so the script is pointed at the last build before the lens changed, extracted from this repository's own history, and they have to come back byte-identical from that. It also checks that each frame is of what its name says: `06-hall-E.png` has to have been captured standing in the passage looking east.
+
+This replaced a commit hash typed into this file. A critic pointed out that a guard reading a string in the document it guards is satisfied by editing the string, and that the sentence was already false — it named a commit two changes later than the capture. A second critic then found that the replacement had bound the eight after frames and quietly skipped the eight before ones, which is half of what you are being asked to look at.
 
 ---
 
@@ -131,8 +133,28 @@ The old camera never goes blind, because it re-zooms every facing to fill the fr
 false, and legible.
 
 The full record, including where the second comparator contradicts its own measurements and where
-its lens arithmetic is off by a factor of two, is in `comparison.md` beside this file. It is not
-resolved here, because it is a look question and those are yours.
+its lens arithmetic is off by a factor of two, is in `comparison.md` beside this file.
+
+**One half of that disagreement has since been answered, and not in the build's favour on purpose.**
+Both comparators were scoring "does this read as a room" **one facing at a time**, and a room is not
+a facing. A room reads if *some* view of it shows you the corners, the floor and the ceiling; a
+corridor reads down its length. The passage does, on `06-hall-E.png` and `08-hall-W.png` — the view
+you arrive on — so `05` and `07` are the passage's long walls seen close, which is honest wall
+rather than a picture failing to tell you anything. That rule now sits in the frozen criteria
+document.
+
+**And it is only fair to tell you which way that cuts.** Every mark either comparator made against
+the new frames sat on those same two pictures, so counting them per room instead of per facing
+removes all of them and removes nothing on the other side. The reason it is not simply the build
+excusing itself is that the rule was written down before either comparator looked — the project has
+called those two facings deliberately bare since long before this row — and that it changes nothing
+else: a room where no view shows you the corners still fails, and so does a room whose views
+disagree about where it ends. If you look at `05` and `07` and say they are wrong, no rule protects
+them.
+
+**What it does not answer is still yours**, and it is the same thing item 1 below says: from inside
+a 2.60 m passage you see one wall and nothing else, and the lever on that is how wide the passage is
+on the plan.
 
 ## The five things that are yours
 
@@ -156,8 +178,8 @@ you look through it into black.** The opening is a hole in the wall with nothing
 of the frame on the study side, about six times the void the old fisheye showed, at exactly the
 point your eye goes (`10-study-E-door-open.png`). That black is what the shipped code draws today
 and this batch shows it rather than hiding it. What belongs there is the next room's own painted
-wall, and *"through an opening, the destination room's content shows"* is queued as its own row the
-moment this one closes.
+wall, and *"through an opening, the destination room's content shows"* is now the next piece of work
+on the list, alongside hanging the paintings themselves.
 
 **3. The passage's furniture moved to its east end wall, and it was forced.** The bookcase and the
 candlestick stood against the passage's north wall, which now has no floor to stand on — the
@@ -185,12 +207,17 @@ made it better (it was seven pixels of target before) and it is the row that was
 it, because the reason it was left open was the camera question this row answers. It is now a
 question of how big the objects themselves are, which is the asset work.
 
-**6. The schematics say APPROVED and also say what they are waiting for.** `12` and `13` carry a
-stamp reading *"APPROVED 2026-08-21 … AWAITING HIS EYE ON: the standpoint markers and their printed
-distances"*. The anchor rests on your approval of the preview frames `01d` and `02b` — those two
-frames ARE the standpoint rule stated in pictures, one at the threshold and one at the drawn
-distance — but you have not seen these two sheets, and the stamp says so on its own face rather
-than claiming more than it has.
+**6. The schematics say APPROVED and also say, in a number, what they are waiting for.** `12` and
+`13` carry a stamp reading *"APPROVED 2026-08-21 … AWAITING HIS EYE ON: the standpoint distances on
+38 of the manor's 88 facings, changed since the sheet he approved"*. The anchor rests on
+your approval of the preview frames `01d` and `02b` — those two frames ARE the standpoint rule
+stated in pictures, one at the threshold and one at the drawn distance — but you have not seen these
+two sheets, and the stamp says so on its own face rather than claiming more than it has.
+
+That sentence is **counted, not written**. A critic pointed out that a caption a person composes is
+a caption a person can quietly narrow — or, worse, negate while still using the right words — so the
+sheet now prints what the drawing itself says has moved since the last sheet you looked at, and the
+suite refuses any other wording. If the 38 is wrong, the drawing is wrong.
 
 ---
 

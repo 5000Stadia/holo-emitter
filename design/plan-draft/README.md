@@ -51,9 +51,13 @@ To close a redline, in order:
 2. write the new `sha256` of the plan's DRAWN CONTENT — `draw_plan.py`'s `plan_digests()` returns
    it, and it is not the whole file's hash — and the approval date into
    `design/plan-draft/approval.lock`. Where the anchor rests on an approval of something OTHER
-   than these sheets (row 20 anchored on two approved rendered FRAMES, `01d` and `02b`), add a
-   `pending` line naming the drawn content he has not yet seen: the stamp prints it, so the sheet
-   says "APPROVED … AWAITING HIS EYE ON: …" rather than claiming more than it has;
+   than these sheets (row 20 anchored on two approved rendered FRAMES, `01d` and `02b`), the lock
+   also carries a `pending` line naming the drawn content he has not yet seen, and the stamp prints
+   it — "APPROVED … AWAITING HIS EYE ON: …" — rather than claiming more than it has. **Do not
+   compose that line.** It is derived from `standpoints.tsv` against the last sheet a human looked
+   at, and `plan.spec` requires the lock to carry exactly the computed string; run the suite and it
+   prints the line to paste. A caption somebody writes is a caption somebody can narrow, or negate
+   while still using the right words, which is how it was defeated twice;
 3. re-run `python3 design/plan-draft/draw_plan.py` and `./design/plan-draft/render.sh` — the
    sheet now stamps APPROVED with the new date;
 4. move `APPROVAL_COMMIT` in `tests/playwright/plan.spec.mjs` to the commit carrying the newly
@@ -61,6 +65,13 @@ To close a redline, in order:
 
 Steps 2 and 4 are deliberately manual. They are the two places a human gate is recorded, and an
 agent that could move them by itself could approve its own drawing.
+
+**Step 4 is for a redline and for nothing else.** A change that moves the sheet's bytes without
+moving what it *draws* — the provenance stamp shrinking, wrapping to a second line, taking the
+header rule down with it — is not a redline and must not move `APPROVAL_COMMIT`. The comparison in
+`plan.spec.mjs` normalises the header band off **both** sides for exactly this, so a stamp change
+leaves it green where it stands. Walking the anchor forward to keep a case green is how the anchor
+stops meaning anything; row 20 shipped that mistake once and it cost four red cases nobody read.
 
 `tools/validate-plan.mjs` is the standing validator: rooms tile the interior gross area, no two
 spaces overlap, every opening lies in a wall and joins the two spaces it names, every space is

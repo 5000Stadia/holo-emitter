@@ -134,6 +134,38 @@ overlap another, so:
 - **An empty population is not automatically a pass.** Each criterion states its own empty-set rule
   below; two say "out of scope" and one says "lost".
 
+### The room-read population, ruled
+
+*[cite: Navigator, 2026-08-22, per the §12.10 bare-facing precedent. A dated, reasoned edit made
+outside a grading pass, which the freeze above permits and this line declares. It corrects an
+error found by running the criteria, which is the second thing the freeze explicitly does not
+forbid.]*
+
+**A criterion about how a ROOM reads is judged PER ROOM, never per facing.** Its population member
+is the room — that room's facings taken together — and the room satisfies the criterion when
+*some* facing of it shows what the criterion asks for: the corners where the room ends, the floor
+line, the ceiling line. A corridor reads down its own axis, and that axis is where its room-read
+lives; its two long walls are not two independent verdicts against it.
+
+**A close side-wall band is honest wall, not a blind failure.** A facing whose whole frame is the
+wall two metres in front of you is what standing two metres from a wall looks like, and a picture
+that shows it is telling the truth about the room. This is §12.6's bare-facing license operating
+one level up: there, a facing carrying nothing to grade cannot lose a quality; here, a facing
+carrying nothing but wall cannot lose the room its quality is about.
+
+**What this does not license.** A room where *no* facing shows the corners, the floor line or the
+ceiling line fails, and so does a room whose facings disagree about where it ends or how high the
+eye is — T5.2 is still a contradiction and is still read across a room's views. The ruling moves
+the population up one level; it does not soften a tell and it does not remove a criterion.
+
+**Declared, because the run that produced it was not neutral.** The row-20 scored pass is where the
+error surfaced, and every mark either comparator made against that build sat on one room's two long
+walls — so this correction removes findings only on one side. It is recorded here rather than argued
+there because the precedent it rests on is older than the pass: §12.6 named hall N/S deliberately
+bare, and said why, before any comparator saw a frame. A reader who thinks that is too convenient
+should apply the rule to the anchor side too, where it costs the anchor nothing and us nothing —
+which is the test of whether a population rule is a rule or an excuse.
+
 ---
 
 ## Quality 1 — One light

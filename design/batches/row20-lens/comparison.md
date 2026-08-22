@@ -90,9 +90,65 @@ long", "at 41° the frame is a crop of the last third of the room", the candlest
    separation to 68 px after run 1 flagged it, and run 2 — looking at the moved version — says the
    read is now "in front", but by the weakest cue in the frame.
 
+## The population both runs scored under was wrong, and it has been ruled
+
+*[cite: Navigator, 2026-08-22, per the §12.10 bare-facing precedent. Written into
+`design/comparison-criteria.md` as *The room-read population, ruled*, which is where it lives; this
+is what it does to the two runs above.]*
+
+**Room-read criteria are judged PER ROOM, never per facing.** The member is the room — its facings
+taken together — and the room satisfies the criterion when *some* facing of it shows the corners,
+the floor line and the ceiling line. A corridor reads down its own axis. **And a close side-wall
+band is honest wall, not a blind failure**: a frame filled by the wall two metres in front of you is
+what standing two metres from a wall looks like.
+
+Both runs scored per facing, and every point of weight in both of them sits on `hall/N` and
+`hall/S` — one room's two long walls.
+
+**Run 2's verdict dies; its measurements stand.** *"A treatment that goes blind on 25 % of the
+passage's facings is not shippable"* is a per-facing sentence with no per-facing verdict left to
+hang on. The passage reads down its axis, on `hall/E` and `hall/W` — including the view a player
+actually arrives on — so the room is not blind and the two long-wall frames are not a failure to
+answer. The verdict is withdrawn. Everything run 2 **measured** is untouched and remains the record:
+wall widths to 0.01 m against the true 2.60 / 4.80 / 5.45 / 8.00, the 2.80 m ceiling, both eye
+heights, and the before set's far wall drawn 269 px tall whatever its distance. So are its four
+unprompted findings below — the eye-height read most of all, which lands on a live [HUMAN] question
+and is not touched by any population rule.
+
+**Run 1's single loss goes the same way.** *Where the room ends*, −1.13, was lost *entirely* on
+those same two frames, so under the corrected population it does not stand either.
+
+**And that is uncomfortable, so it is said out loud: this ruling removes every finding that was
+running against the build, and removes nothing that was running for it.** Both losses sat on the
+same two frames, so correcting how those frames are counted could only ever point one way. What
+stops that being a build marking its own homework is not this file's argument:
+
+- the precedent is **older than the runs** — §12.6 licensed hall N/S as deliberately bare, and said
+  why, before either comparator saw a frame;
+- the ruling is the Navigator's and is carried in `design/comparison-criteria.md`, the **frozen**
+  document, as a dated and reasoned edit made outside a grading pass, which is the only way that
+  document may move;
+- it changes **no tell and no threshold**, and it explicitly does not rescue a room where no facing
+  shows the corners, or a room whose facings disagree about where it ends or how high the eye is;
+- and the thing both comparators actually found is **not** withdrawn — see below. What is withdrawn
+  is the arithmetic that turned one room's two long walls into four independent verdicts.
+
+If Kabe reads the two long-wall frames and says they are wrong, the ruling does not protect them:
+it moves that question from the criteria arithmetic to his eye, which is where the row's own residue
+had already put it.
+
+**What still stands from both, undisturbed.** The passage's long walls carry no corner, no floor
+line and no ceiling line, and nothing can be staged on them at any depth. That is a fact about a
+2.60 m room under a 24 mm lens, it was this row's own named residue before either comparator saw a
+frame, and the lever on it is the passage's width on the plan rather than the lens. It is a look
+question, it is Kabe's, and the batch carries it.
+
 ## What this file is for
 
-Nothing here is settled by an agent. The row's rule was that a lost criterion is a finding, and six
-were lost; the honest state is that **the two rooms are geometrically true and one of two independent
-outside eyes still prefers the version that was geometrically false**, because the true version goes
-blind on two facings and the false one never does. That is the question the batch carries.
+Nothing here is settled by an agent. The row's rule was that a lost criterion is a finding, and the
+findings were taken: two of them are answered above by a population ruling that is stated with its
+own bias declared, and the rest — the eye height, the floor that starts two paces away, objects
+existing only on the wall you face, the candlestick's first read — are carried to Kabe in the batch
+README rather than closed by an agent. The honest state is that **the two rooms are geometrically
+true, and what the outside eyes measured about them is on this page whether or not it flattered the
+build.**

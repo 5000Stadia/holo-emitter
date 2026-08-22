@@ -937,9 +937,9 @@ oldest defect wearing a lab coat**, and the control is the cheapest thing that s
   also the one word an agent can type to move where a player stands without a check noticing.
 - **The byte-compare baseline is a commit this row's builder made.** `plan.spec`'s derived-render
   test answers "has the drawing left what the builder drew", not "…what Kabe approved". The
-  `pending` line on the sheet's own face is the mitigation, and the row does not close until his
-  word lands — but the distinction is the lock's whole purpose and it is named rather than
-  smoothed over.
+  `pending` line on the sheet's own face is the mitigation, and the batch does not leave the tree
+  until his word lands — but the distinction is the lock's whole purpose and it is named rather
+  than smoothed over.
 - **Turning right in the study empties it.** The desk, chair and notebook stand on the north wall
   and appear in no other facing; §4b item 9's multi-facing presence is row 15's. This predates row
   20, and row 20 sharpens it: a room that now reads as a bounded room with corners and a ceiling
@@ -955,6 +955,32 @@ oldest defect wearing a lab coat**, and the control is the cheapest thing that s
   that question and the defect stands, improved from 7 px to 11 px. It is now a question about how
   big the objects are, which is the asset lane's.
 
+### Where row 20 stopped, and why there
+
+**The row closed at the LENS boundary — its original scope, and the whole of it.** The lens is
+pinned, the standpoints moved, the sheets redrawn, the gates recomputed, and nine rounds of
+examination are spent on exactly that. Two things that grew onto the row late did NOT close with
+it and were not built: promoting the painted backdrops into the world, and the doorway that shows
+the next room instead of black. They are **row 21**, allocated at this close.
+
+**What the row owed when it stopped, in order, so the list is not reconstructed from memory:** the
+seven regenerated backdrops through `gate.py` (0 of 7 admitted at the close — three study facings
+measured and short by 4.6 %, 5.1 % and 24.2 %, four passage facings WITHHELD because the harness
+returned an impossible room, all of it in `design/plan-draft/measured/miss-ledger.json`); their
+promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
+the doorway-as-a-building-fact an empty painted room needs to be walkable; a batch of the painted
+facings. Every one of those is row 21.
+
+**Kabe's word on `design/batches/row20-lens/` is still outstanding.** The row's own done clause
+made his verdict the close, and this close does not pretend to have it: the batch stays in the
+tree with every question it carries — the eye height, the two long-wall facings, the turning
+translation, the schematics' stamp — and it rides with row 21, which re-batches over the painted
+world. `design/approvals.log` carries the entry, reading `pending-close`; `approval.lock`'s
+`pending` line and the batch directory are one switch, and while it is on the sheets keep printing
+what the approval does not cover. The scored pass's population error is ruled and recorded in
+`design/comparison-criteria.md` and in the batch's own `comparison.md`; what the comparators
+measured stands, and what they *verdicted* per facing does not.
+
 ### What row 20 hands on, and to whom
 
 The spec list is the one home of targets and this row may not edit another row's
@@ -966,8 +992,10 @@ text, so the hand-offs are recorded here where they survive its close:
   Kabe's probe approved — lands 1.4 % away, so the measurement CONFIRMS the
   ruling; the disagreement is concentrated in the passage, whose north and south
   paintings depict a room 4.01 m and 3.54 m deep against a plan that says 2.60.
-  Promoting them at true geometry is a fork with three answers and it is carried
-  to the Navigator in the row's report.
+  Promoting them at true geometry is a fork with three answers; the Navigator
+  ruled (c) — the seven regenerate with the camera enforced, `gate.py` is their
+  acceptance gate at ±3 % of 1010 px, and the law is not widened to admit the
+  corpus. **Row 21 carries the promotion**, one admitted facing at a time.
 - **The measurement also found**: the frames disagree with themselves about
   their own horizon (ceiling geometry and floor geometry give vanishing points
   up to 66 px apart, the ceiling-ramp fit being far the sharper at 0.3 px
@@ -982,16 +1010,15 @@ text, so the hand-offs are recorded here where they survive its close:
   opening must coincide with the click target"* true by construction instead of
   by prompt discipline, and it is what an empty painted room needs in order to
   be walkable. Ratified in principle; unbuilt.
-- **A row candidate the Navigator holds for allocation the moment row 20's close
-  frees the spec list**: *through an opening, the destination room's content
-  shows*. The picture must not say VOID where a room stands, which makes it
+- **Allocated at row 20's close as part of row 21**: *through an opening, the
+  destination room's content shows*. The picture must not say VOID where a room stands, which makes it
   product truth rather than polish, and the lens sharpened it — the black through
   an open door went from about 10,000 px to 69,120 px, 4.4 % of the frame,
   because magnifying the doorway magnified what is behind it. It boards from the
-  integration/sprite phase and it wants the meta-carried opening above. **For
-  this row it is honest interim, not a defect to hide**: what the shipped code
-  draws today is a dark aperture, and the batch README says so in those words
-  rather than letting a reviewer discover it.
+  integration/sprite phase and it wants the meta-carried opening above. **What
+  row 20 shipped is honest interim, not a defect hidden**: what the code draws
+  today is a dark aperture, and the batch README says so in those words rather
+  than letting a reviewer discover it.
 - **Rows 18 and 19**: eight more ledger tokens, and row 19's carrier work partly
   reached here for standpoints only (`plan.standpoint_clear`).
 
