@@ -2063,59 +2063,55 @@ one-directional: a rename is caught by `[row21:exit.via_unfilled]`.
 
 ### A stair is a fact about the building, and the grid draws the flight
 
-`deriveMeta` emits `meta.stairs[]` for every flight whose room is this one and whose travel axis is
-this facing — `up` out of the lower room (`joins[0]`), `down` out of the upper. Every field's
-source: `id`, `treads` and the run/width extents from `plan.stairs[]`; `rise_m` from the LOWER
-room's floor's `storey_height_m`, one definition true from both ends; `u0/u1` and
-`depth_near_m/depth_far_m` the plan rect in the view's own terms; `x/y/w/h`, `poly`, `floor_poly`
-and `well_poly` those metres projected. **The named limit**: the plan carries no vertical datum, so
-`rise_m` is a storey height and not a measured rise — floor structure is unmodelled, exactly as
-`treads` is checked against a 10–30 band because there is no rise to check it against.
+`deriveMeta` emits `meta.stairs[]` for every flight whose room is this one — **on every facing, not
+only the direction of travel.** The first cut emitted it on one facing in four, and an artifact
+critic stood in `great_stair_hall/W` looking straight down 4.6 m of a seventeen-tread flight at an
+empty box with an unbroken floor grid. A doorway in a wall you are not facing is honestly absent; a
+staircase on floor you are looking at is not. What stays on the travel facing is WALKING it:
+`apertures` iterates exits, so a flight seen side-on is drawn and is not a `go` target. The picture
+shows the building; the world says where you may walk.
 
-**The projection of a raised point is new camera math and it has one home**: `groundplane.yAtHeight
-(depthM, heightM, meta)` = `yAtScale(scaleAtDepth(d)) − h·scaleAtDepth(d)`, which under the pinned
-lens is `horizon + (eye − h)·f/d`. Everything before this row sat on the ground: `yAtDepth` is the
-floor, and a `wall_mounted` object's height is read at WALL scale. `manor.spec` predicts every
-tread's y test-side from the plan's own numbers and measures it off the render — §12.5 (v)'s own
-shape, pixels against arithmetic — and `guards.spec`'s `renderer.stair_flight` case removes the
-drawing and watches the ink go.
+**The projection is general, not axis-aligned.** Each tread's nose is two plan points, and a plan
+point becomes a depth from this facing's wall line and a lateral position across its view whichever
+way the run happens to lie. That needed one thing this module could not do, and it has one home:
+`groundplane.yAtHeight(depthM, heightM, meta)` = `yAtScale(scaleAtDepth(d)) − h·scaleAtDepth(d)`,
+which under the pinned lens is `horizon + (eye − h)·f/d`. Everything before this row sat on the
+ground.
 
 **Its consequence, and the row's first plan guessed it backwards**: a tread ABOVE eye height draws
-ABOVE the horizon, and the spacing between equal steps WIDENS toward the top. A staircase painted
+ABOVE the horizon and the spacing between equal steps WIDENS toward the top. A staircase painted
 flat on the floor does the opposite, and "the top treads are a few pixels apart" was that mistake
-written down. The test asserts both halves.
+written down. `manor.spec` predicts every nose test-side from the plan's own numbers, compares it
+against the meta, and then measures the render: the row the plan puts the top tread on must carry
+ink and the row between two treads must carry less.
 
-**Two things are drawn and they answer two different views.** The footprint on the FLOOR is the
-flight's own plan position — the well seen from above, the ground under the steps seen from below —
-and it is all that survives on a descending flight: from `stair_landing/S` every one of its visible
-steps draws below y 1399 on a 1024 px canvas, and only the well it opens in the floor is in the
-picture. The tread NOSES are the flight itself; on `great_stair_hall/N` they run from the frame
-bottom to y ≈ 174.
+**A flight is a SOLID with a stepped top, drawn tread by tread.** The outline alone self-crosses
+whenever the run lies across the view instead of along it — the two stringers sit at different
+depths, both pass through the view axis, and a ring that walks up one and back down the other ties
+itself in a bow at the centre of the frame; filled it is two triangles, stroked it is a wire
+stretched across the room. So the meta carries `treads_poly` (a quadrilateral per tread, which is a
+quadrilateral from any angle), `mass_poly` (the two closed strings — the sawtooth of the noses above,
+the floor below, which is the face a viewer beside it sees), `floor_poly` and `well_poly`, and
+`poly` is the treads' own CONVEX HULL, because the hit region has to be a shape a point can be
+tested against and a bow-tie is not. Filled in `STAIR_BASE`, the mass stops the room's floor grid
+where the stair stands in front of it — the one place this drawing occludes anything, and the one
+piece of building fabric that stands off a wall.
 
-**A flight does not run into an unbroken ceiling.** That top tread lands ~13 px above this room's
-ceiling line, so without a well the picture would show a staircase disappearing into a plane the
-document has no aperture in — the inverse of "never void", one storey up. The plan cannot express a
-floor opening and this row may not add a field to it, so the well is DERIVED: the flight's footprint
-lifted to the storey height, and the ceiling's line work (its wall-ceiling line, junctions, fan and
-transverse set) is clipped out of it with an even-odd path. A stairwell is a hole in the ceiling, and
-the ceiling is line work, so the hole costs one clip and no new appearance.
+**Two of the manor's standpoints stand ON a flight**, which the drawing puts there and this row does
+not move: `back_stair/N`, `back_stair_head/N`, `great_stair_hall/E` and `stair_landing/E`. Row 20
+computed that and hung the list on a PROPERTY of `validatePlan` that nothing read — not the bake,
+not a spec, not a batch — and a warning nobody prints is not "reported". `planWarnings` recomputes
+and prints them now, because this row is the one that makes it matter: the flight is drawn, and the
+viewer is standing in it.
 
 **`up`/`down` are anchored to the drawing as far as a plan view can anchor them.**
-`[row15:plan.stair_directions]` requires the flight rect's LONGER axis to be the axis they name —
-the run of a flight is the direction it travels, and that is drawn content. What cannot be anchored
-is which END is the top, because the two rooms a flight joins are stacked and have identical rects.
-Named, not discovered. Both shipped flights pass: `great_stair` runs 4.8 m N–S against 1.6 m across
-with `up: "N"`; `back_stair_flight` 4.6 m E–W against 1.1 m with `up: "E"`.
+`[row15:plan.stair_directions]` requires the flight rect's LONGER axis to be the axis they name.
+What cannot be anchored is which END is the top, because the two rooms a flight joins are stacked
+and have identical rects. Named, not discovered.
 
-**A flight IS an aperture**, so the hit region, the hover halo, the page's `go` resolver and row 10's
-keyboard control read one list. Its hit region is its OUTLINE, not its bounding box: a flight is a
-quad on a receding plane and a rectangle round it answers "climb the stair" for a click on the bare
-floor beside it — the overshoot this resolver has been wrong in before. `apertures` carries `poly`
-and `index.html`'s `resolve` tests the point inside it.
-
-**A flight appears on one facing of its room and on no other**, which is row 11's omission census
-gaining its largest member. It is in the census and in the batch, and multi-facing presence for
-building fabric is §4b item 9's.
+**Its hit region is its outline, not its bounding box** — a flight is a quad on a receding plane and
+a rectangle round it answers "climb the stair" for a click on the bare floor beside it, which is an
+overshoot this resolver has been wrong in before.
 
 ### An open threshold is the absence of a wall, and it is walkable
 
@@ -2290,6 +2286,42 @@ the approved drawing places. A WARNING, on this document's own precedent: a vali
 them would refuse the plan Kabe signed, and one that could not see them is why nobody would find
 them. Printed by the bake, carried into `projection.md` §10, batched.
 
+### Found by the artifact critic and NOT fixed, each with its reason
+
+- **The manor is 88 facings and 75 distinct pictures.** Thirteen pairs render identically —
+  `dining_parlour/N` and `master_bedchamber/N` among them, a ground-floor parlour and an upstairs
+  bedchamber — because two rooms of the same size at the same standpoint distance ARE the same grid.
+  `turn` is silent and arrival is spoken once, so a player who turns twice cannot tell which room
+  they are in. Row 24 owns the instrument (a compass, a map); this is the picture's half of the same
+  hole and it closes when rooms are painted.
+- **Nothing in the empty world can be picked up, opened or refused.** Row 21's ruling, multiplied
+  from two rooms to twenty-two. The intention's drawer and key are at `?world=demo-study`, which
+  nothing on the page names — the storefront is ruled mute.
+- **The scene canvas is `aria-label="what you see"` on all 88 facings**, so a screen-reader user
+  hears nothing that distinguishes one room from another. Row 24.
+- **Kabe's wide-view camera licence (§4b ruling 3, "sure") is still unspent**, and this row ships
+  the facings that would use it: `hall/N` and `hall/S` show no floor line, no ceiling line and no
+  corner; `op14` falls off the frame; eight facings show more side wall than facing wall. A
+  human-granted remedy exists for exactly these and no row has taken it. It is in the batch.
+- **`validatePlan` alone does not catch a 1.85 m storey** — only the derived metas and the staging
+  do, through `[row19:meta.opening_over_storey]` and `[row19:staging.wall_mounted_over_storey]`.
+  §4b item 10 makes `plan.json` the interchange document and its validators the gate, so a host
+  emitting that plan gets a green plan validator and a red bake. Named because the gate is in the
+  wrong file, not because the number escapes.
+- **`#chevron-right` overlaps the visible sliver of `door_hall_buttery_pantry`**, so aiming at the
+  middle of the manor's narrowest doorway turns you instead of walking you through. The chevron is a
+  stage-overlaying control with `pointer-events` enabled and `mechanisms.spec`'s eclipse guard is
+  scoped to entity hit regions, not to apertures. It is the same defect that guard exists for, one
+  target class out.
+- **The `go` echo guard is a blanket 400 ms lock on all travel**, not only on the second half of a
+  double-click: walking at speed, eight exits refused in silence. Row 13's guard, whose cost this
+  row measured rather than inherited — `nav-walkthrough`'s manor route waits the window out between
+  click legs and says why.
+- **Three of row 15's stair clauses carry no ledger token** ("its flight is not inside", "joins two
+  rooms on the same floor", the tread band) while `plan.stair_directions` beside them does. They
+  predate this row's own clause and are held by prose-matching cases in `plan.spec`'s mutation
+  table, which is the weaker binding this project keeps paying for.
+
 ### What rows 15 and 19 hand on, and to whom
 
 The spec list is the one home of targets and a closing row may not edit another row's text, so the
@@ -2331,6 +2363,40 @@ from it and from this tree through the same script, and compare bytes. **All eig
 That is the honest scope of the claim: the demo world's pictures are untouched, and the manor's own
 `hall/N` DID move (it gains a doorway sliver, because the manor world walks through `op15`) — which
 is a facing of the NAVIGATION world, not of the two rooms §12 accepts on.
+
+### What the artifact critic moved, beyond the sections above
+
+A full click-and-arrow-key walk of all twenty-two rooms at two viewports, renders of all eighty-eight
+facings, and delete-and-confirm-red on every mechanism the row cites. Eight of its findings blocked
+and each is answered where the thing it names lives; four are worth keeping here because the FAMILY
+matters more than the instance.
+
+- **A mechanism this row minted survived deletion behind its own vacuous test.** The pointing ring
+  was extended to reach an aperture, and the case written for it dispatched a `go` the harness
+  refuses, asserted a literal `true`, and never aimed outside a rectangle at all — removing
+  `nearAperture` left 655 tests green. It is a REAL CLICK now, two CSS pixels past the jamb of the
+  17-px doorway the entrance court's stand-back produces, and deleting the ring turns it red. This
+  is the fifth time this project has shipped a guard that guards nothing, and the shape was the
+  usual one: the case was written from the fix rather than from the defect.
+- **A sentence that lied to a player.** `op14` cannot be walked from the passage side (below), so
+  arriving in the passage FROM the kitchen there is no way back on that wall — and the arrival line,
+  like all fifty-five, ended "The doorway stands open behind you." Fifty-four were true. That one
+  now says what is there: the passage runs away east and west and the door you came by is on
+  neither wall.
+- **The prose furnished rooms the picture leaves empty.** The plan holds sixty-nine carriers the
+  grid paints as plain wall — fifty-seven window appearances, eleven hearths and `op14` — and the
+  arrival lines said "window after window", "the great hearth is a mouth in the wall", "roof timbers
+  go up into the dark" over a flat 2.80 m ceiling. Twelve clauses were rewritten. What the lines
+  evoke now is air, sound, use and proportion, which an empty room does not contradict. **The
+  residue, stated rather than smoothed**: they still describe rooms with nothing in them, which is
+  true of the document as well as of the picture and is what the sprite phase closes.
+- **The page grew sideways, and one key did two things.** `hall/N`'s only way through has its centre
+  at canvas x 1721 on a 1536 px canvas, so its 1×1 clipped keyboard control sat at `left: 112 %`,
+  the document became 1721 px wide, and — because the turn handler never called `preventDefault` —
+  one ArrowRight both turned the room and scrolled the picture 40 px, on a phone taking the newest
+  narration line half off the screen with it. Controls are clamped inside the stage and the key is
+  consumed. `manor.spec` asserts `scrollWidth <= clientWidth` at 390×844, which is the check that
+  would have caught it.
 
 ### Residue, named
 

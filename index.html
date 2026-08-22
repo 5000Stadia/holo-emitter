@@ -1041,6 +1041,15 @@
           return aperture.direction === "down" ? "go down the stair" : "climb the stair";
         }
         if (kind === "threshold") return "cross the threshold";
+        /* [Row 15] TWO DOORWAYS ON ONE WALL MUST NOT SHARE ONE NAME. Four
+           facings of the manor carry two ways through, and both controls read
+           "walk through the doorway" while leading to different rooms — which
+           is a screen-reader user choosing blind between them. Neither has a
+           leaf to be named after, and the building offers one true
+           distinction: which of them is on which hand. */
+        if (aperture && aperture.siblings === 2 && aperture.hand) {
+          return "walk through the doorway on the " + aperture.hand;
+        }
         return "walk through the doorway";
       }
       var noun = nounOf(leafEntity);
@@ -1053,10 +1062,19 @@
        activation that might resolve by screen position rather than by the
        accessibility tree's own idea of what has focus. */
     function positionControl(btn, rect) {
+      /* [Row 15] CLAMPED INSIDE THE STAGE. These controls are 1×1 px and
+         clipped, but an ABSOLUTE position outside the stage still widens the
+         document: the cross passage's own doorway sits at canvas x 1721 on a
+         1536 px canvas, which put a control at `left: 112%`, gave the page a
+         horizontal scrollbar, and let one arrow key both turn the room and
+         scroll the picture 40 px sideways — on a phone, most of the way off
+         the narration line. A control is a handle on a thing, not a claim
+         about where the thing is; the thing's own rectangle is what the
+         picture and the hit test read. */
       var cx = (rect.x + rect.w / 2) / scene.width * 100;
       var cy = (rect.y + rect.h / 2) / scene.height * 100;
-      btn.style.left = cx + "%";
-      btn.style.top = cy + "%";
+      btn.style.left = Math.max(0, Math.min(100, cx)) + "%";
+      btn.style.top = Math.max(0, Math.min(100, cy)) + "%";
     }
 
     /* Rebuilt every repaint, from the same currentLayout the hover halo
@@ -1457,8 +1475,13 @@
          claim the same key and the room turns while a reader is trying to
          move through the prose. */
       if (document.activeElement === narrationEl) return;
-      if (e.key === "ArrowLeft") dispatch({ type: "turn", dir: "left" });
-      else if (e.key === "ArrowRight") dispatch({ type: "turn", dir: "right" });
+      /* [Row 15] AND THE KEY IS CONSUMED. An arrow that turns the room is the
+         room's; leaving the default in place meant the same press ALSO scrolled
+         the document, which is invisible until something makes the page wider
+         than the window — and row 15's off-frame control did exactly that. Two
+         effects from one press is one too many whatever the page's width. */
+      if (e.key === "ArrowLeft") { dispatch({ type: "turn", dir: "left" }); e.preventDefault(); }
+      else if (e.key === "ArrowRight") { dispatch({ type: "turn", dir: "right" }); e.preventDefault(); }
     });
 
     /* The developer witness, at boot, always — on the console, which is
@@ -1475,8 +1498,15 @@
     console.info(
       "holo-emitter — fixture bake fp " +
         (fixture.fp || "MISSING (the bake wrote none)") + "\n" +
-      "truth: fixtures/demo-study/*.json (world, staging, narration, viewstate)\n" +
-      "after editing a fixture, re-bake: node tools/bake-fixtures.mjs");
+      /* [Row 15] THE WORLD IT ACTUALLY BOOTED, and the command that re-bakes
+         THAT one. These two lines named `demo-study` whatever was on screen,
+         so a person editing the world the bare link serves and following the
+         page's own instruction re-baked the other fixture and left this one
+         stale in silence — the console being the load-bearing developer
+         channel, that is the one place it may not be wrong. */
+      "truth: fixtures/" + fixture.id + "/*.json (world, staging, narration, viewstate)\n" +
+      "after editing a fixture, re-bake: node tools/bake-fixtures.mjs" +
+        (fixture.id === "demo-study" ? "" : " --fixture-dir fixtures/" + fixture.id));
 
     var boot = harness.viewstate;
     var bootLoc = fixture.world.locations.filter(function (l) {

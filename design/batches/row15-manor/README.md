@@ -13,7 +13,7 @@ else answers a question underneath one of them.
 | `02-master_bedchamber-N` | the ordinary case, eleven of which the manor holds | eleven rooms will look like this until they are painted |
 | `03-long_gallery-N` | a corridor-typed room at manor length | the gallery runs 22 m; its wall is wider than the frame |
 | `04-back_stair-E-flight-up` | a flight, drawn tread by tread, climbing away | the stair is the thing you click to go up |
-| `05-back_stair-N-turned-from-the-flight` | the SAME room, turned one press | the flight is drawn on one facing and on no other — turn and it is gone |
+| `05-back_stair-N-turned-from-the-flight` | the SAME room, turned one press | the flight is drawn from every side you can see it from — turn, and it is still there, side-on |
 | `06-back_stair_head-W-flight-down` | the same flight from the landing above | going down, the steps fall below the frame within a metre; what is left is the well they open in the floor |
 | `07-entrance_court-S-open` | an open facing: ground to a far line, no wall | and the line across the ground is the court mouth |
 | `08-entrance_approach-N-threshold` | standing outside the front, looking in | two wing fronts, and 20.4 m of gap between them that you walk through |
@@ -50,15 +50,22 @@ holds no height for an outdoor wall and adding one would change the drawing you 
 picture says "a wall stands here" and says nothing about how high — which is honest, and looks like
 a very tall wall. Your call whether that ships or whether outdoor walls get a ruled height.
 
-**4 — The letter on every wall.** `N`, `E`, `S`, `W` are painted on the wall of every facing, at the
+**4 — A room and a room.** Eighty-eight facings render as seventy-five distinct pictures: thirteen
+pairs are identical, because two rooms of the same size at the same standpoint distance ARE the same
+grid — a ground-floor parlour and an upstairs bedchamber among them. Turning is silent and the
+arrival line is spoken once, so a player who turns twice cannot tell which room they are in. A
+compass or a map is allocated as its own row; this is the picture's half of it and it closes when
+rooms get painted, so the question for you is whether it can wait that long.
+
+**5 — The letter on every wall.** `N`, `E`, `S`, `W` are painted on the wall of every facing, at the
 size you last saw them in the study. Nearly the whole product is bare facings now, so that letter is
 the most repeated mark in the thing. Still right?
 
-**5 — The narration pane at the end of a long walk.** Walking the route in `TRANSCRIPT.md`'s order
+**6 — The narration pane at the end of a long walk.** Walking the route in `TRANSCRIPT.md`'s order
 stacks a line per room under the picture. At twenty rooms that is a transcript, and a transcript
 under a picture is closer to a diagram than to standing somewhere.
 
-**6 — How far back you stand.** The standpoint law has no cap, so across the manor's 88 facings the
+**7 — How far back you stand.** The standpoint law has no cap, so across the manor's 88 facings the
 viewer stands anywhere from 2.15 m to 26.75 m from the wall being looked at (median 6.60 m; **11
 facings over 12 m, 10 over 15 m**). Two consequences you can see and one you cannot:
 
@@ -79,7 +86,13 @@ A cap on the stand-back is a rule for the document and it is yours to set. So is
 which is §4b item 9's several standpoints per room — that one moves the drawn plan and would come
 back to you as a redline.
 
-**7 — One door in the house cannot be walked from one side.** From the middle of the cross passage
+**8 — Your wide-view camera is still unspent, and these are the facings that want it.** You granted
+it at the schematic redline — *"sure"*, for open and corridor deep-views — and no row has taken it.
+The manor now renders the facings it was granted for: `10-hall-N` has no floor line, no ceiling line
+and no corner at all; the same geometry is why one doorway falls off the frame (below); and eight
+facings show more side wall than facing wall. Worth spending now or worth leaving?
+
+**9 — One door in the house cannot be walked from one side.** From the middle of the cross passage
 you cannot see the kitchen door: the passage is 8.00 m long and at this lens you see 3.2 m of it, so
 that doorway is 185 px past the edge of the frame. The world does not offer a way through something
 nobody can see, so the kitchen is entered from the entrance court instead. Nothing is unreachable;

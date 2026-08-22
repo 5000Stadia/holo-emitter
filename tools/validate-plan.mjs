@@ -1096,22 +1096,59 @@ export function validatePlan(plan, world, records) {
         carrier(`objects "${o.id}" and "${other.id}" occupy the same floor area [row11:plan.objects_do_not_share_floor]`);
       }
     }
-    /* THE THIRD OF ROW 19'S CARRIER CLAUSES IS NOT HERE, and where it is and
-     * why is worth reading before adding one.
+    /* [Row 19] AND THE THIRD CARRIER CLAUSE, WHICH IS THE ONE THAT CATCHES
+     * THE CLASS RATHER THAN THE CONSTRUCTION.
      *
-     * The finitely-projects clause lives in `tools/plan-projection.mjs`,
-     * inside `projectPlacement` — at the site
-     * that produces the number, not beside the document. A plan-side version
-     * of it is either vacuous or wrong, and the corpus says which: the study's
-     * standpoints stand the viewer LEVEL with the desk and the chair, off to
-     * one side, so on `study/W` and `study/S` those two objects straddle the
-     * camera depth while sitting well outside the frame. A clause that refused
-     * that would refuse the approved plan for a picture nobody draws; a clause
-     * narrowed to objects across the viewing axis is unreachable, because an
-     * object across the axis at camera depth necessarily covers the standpoint
-     * and the clause above fires first. What is genuinely wrong is a
-     * PROJECTION that returns a scale nothing can paint with, which is exactly
-     * what the row's own citation describes, and that has one site. */
+     * The two above remove the footprints anyone has thought of. An artifact
+     * critic then put a desk at (25.3..26.1, 9.75..9.95) — inside the study,
+     * on no standpoint, clear of hearth, threshold, flight and every other
+     * footprint — and the plan validated CLEAN while `projectPlacement` on
+     * `study/N` returned −3413 px/m and on `study/E` −1014.
+     *
+     * So: for every facing whose view CONTAINS this footprint, its nearest
+     * ground edge must be strictly in front of that facing's camera. "Contains"
+     * is the FRUSTUM and not the band between the standpoint and the wall,
+     * which is the distinction that makes this clause both correct and
+     * satisfiable: the study's own desk and chair stand LEVEL with two of its
+     * standpoints, a metre and a half off the view axis, where the frustum has
+     * closed to a few centimetres — beside the viewer, not in front of them,
+     * and in no picture at all. A clause reading the band would refuse the
+     * plan Kabe approved for a picture nobody draws.
+     *
+     * The frustum's half-width at depth `d` is `(canvasW / 2) · (cam − d) / f`
+     * metres, which is zero AT the camera — so an object that reaches the
+     * camera plane inside the view is caught by construction, and one beside
+     * it is not. */
+    if (rectOk(o.footprint) && room.facings) {
+      for (const f of FACINGS) {
+        const fc = room.facings[f];
+        if (!fc || !fc.standpoint) continue;
+        const cam = fc.camera_wall_m ?? fc.camera_far_m;
+        const line = fc.wall_line;
+        if (typeof cam !== "number" || typeof line !== "number") continue;
+        const [normalAxis] = NORMAL[f];
+        const lateralAxis = normalAxis === "y" ? "x" : "y";
+        const a0 = Math.abs(line - o.footprint[normalAxis + "0"]);
+        const a1 = Math.abs(line - o.footprint[normalAxis + "1"]);
+        const dFar = Math.min(a0, a1), dNear = Math.max(a0, a1);
+        if (dFar >= cam - EPS) continue;              // wholly behind the camera
+        /* Does any part of the footprint that is IN FRONT of the camera fall
+         * inside the frustum? Sampled at the near end of that part, where the
+         * frustum is narrowest, and at the far end, where it is widest. */
+        const axisPos = fc.standpoint[lateralAxis];
+        const lo = o.footprint[lateralAxis + "0"], hi = o.footprint[lateralAxis + "1"];
+        let inView = false;
+        for (const d of [dFar, Math.min(dNear, cam - 1e-6)]) {
+          const half = (PLAN_CANVAS_W / 2) * (cam - d) / groundplane.FOCAL_PX;
+          if (hi > axisPos - half - EPS && lo < axisPos + half + EPS) { inView = true; break; }
+        }
+        if (!inView) continue;
+        if (!(dNear < cam - EPS)) {
+          carrier(`object "${o.id}": on ${o.room}/${f} it stands in the view with its near ground edge ${dNear.toFixed(3)} m from the wall line and the camera at ${cam} m — an object at or beyond the camera has no projection, and a scale that is not a positive finite number is a finding rather than a number the renderer paints with [row19:plan.object_projects_finitely]`);
+          break;
+        }
+      }
+    }
     if (fault) push(fault);
 
     /* A composed footprint is one a human licence moved off its derived
@@ -1249,6 +1286,33 @@ export function planWarnings(plan, records, world) {
       if (!sh.corner && !sh.floor_line && !sh.ceiling_line) {
         const fc = room.facings[f];
         out.push(`room "${room.id}" facing ${f} shows no corner, no wall-floor line and no wall-ceiling line — a ${fc.wall_width_m} m wall seen from ${fc.camera_wall_m ?? fc.camera_far_m} m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth`);
+      }
+    }
+  }
+
+  /* [Row 15] A STANDPOINT INSIDE A FLIGHT, WHERE A HUMAN CAN READ IT.
+   *
+   * Row 20 computed these — four of the manor's standpoints stand in a stair
+   * flight, on the approved drawing, so they are reported rather than moved —
+   * and hung the list on a PROPERTY of `validatePlan`, which nothing read: not
+   * the bake, not a spec, not a batch. A warning nobody prints is not
+   * "reported", and this row is the one that makes it matter, because a flight
+   * is drawn now and the viewer is standing in it.
+   *
+   * Recomputed here rather than read off that property, because a property set
+   * by the last call is a fact about call order. */
+  for (const room of plan.rooms || []) {
+    if (!room.facings) continue;
+    for (const f of FACINGS) {
+      const fc = room.facings[f];
+      if (!fc || !fc.standpoint) continue;
+      for (const st of plan.stairs || []) {
+        if (!(st.joins || []).includes(room.id) || !rectOk(st.rect)) continue;
+        const p2 = fc.standpoint;
+        if (p2.x >= st.rect.x0 - EPS && p2.x <= st.rect.x1 + EPS &&
+            p2.y >= st.rect.y0 - EPS && p2.y <= st.rect.y1 + EPS) {
+          out.push(`room "${room.id}" facing ${f}: its standpoint (${p2.x}, ${p2.y}) stands ON the "${st.id}" flight — the drawing puts the viewer partway up a staircase, and the picture draws the flight around them; it is on the approved sheet, so it is reported rather than moved`);
+        }
       }
     }
   }

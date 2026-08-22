@@ -568,38 +568,40 @@ export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS
 }
 
 /**
- * [Row 15] A STAIR IS A FACT ABOUT THE BUILDING, exactly as a doorway is.
+ * [Row 15] A STAIR IS A FACT ABOUT THE BUILDING, exactly as a doorway is —
+ * and unlike a doorway it stands on the floor, so it is visible from wherever
+ * the floor it stands on is visible.
  *
- * Row 21 gave the doorway a rectangle in the meta so an empty painted room
- * could be walked out of. A flight is the same kind of fact and it is the
- * second thing an empty manor needs: `world.json`'s stair exits name a flight,
- * and until this row nothing in the picture or in the meta knew one existed —
- * so a `go` target would have sat on featureless floor, in a page whose own
- * rule is that dead space is dead.
+ * The first cut of this emitted a flight on ONE facing of each room, the
+ * direction of travel, and an artifact critic stood in `great_stair_hall/W`
+ * looking straight down 4.6 m of a seventeen-tread flight at an empty box with
+ * an unbroken floor grid. A doorway in a wall you are not facing is honestly
+ * absent; a staircase on floor you are looking at is not. So the flight is
+ * emitted on EVERY facing of every room it joins, and the projection is
+ * general rather than axis-aligned: each tread's nose is two plan points, and
+ * a plan point becomes a depth from this facing's wall line and a lateral
+ * position across its view, whichever way the run happens to lie.
  *
- * The flight appears on ONE facing of each room it joins: the direction of
- * travel. `up` out of the lower room, `down` out of the upper one, which are
- * opposite, so the aperture is always on the facing the exit is staged on and
- * `crossCheckWorld` is already asserting that agreement.
+ * What is NOT general is walking it: the exit lives on the travel facing and
+ * `apertures` iterates exits, so a flight seen side-on is drawn and is not a
+ * `go` target. The picture shows the building; the world says where you may
+ * walk. `direction` is the flight's own sense out of THIS room — `up` where
+ * the room is `joins[0]` — and the heights follow it, so from a landing the
+ * same flight descends.
  *
- * Its geometry, all of it from the plan:
- *   - the run is along the viewing axis, the width across it;
- *   - `t` runs 0 at the end nearest the viewer to 1 at the far end;
- *   - height is `+rise·t` going up and `−rise·t` going down, where the rise is
- *     the storey the flight passes through — the LOWER room's floor's own
- *     `storey_height_m`, which is one definition true from both ends.
- *
- * `poly` is the outline the renderer draws and the page hit-tests, in scene
- * pixels: up one stringer, across the top tread, down the other. A bounding
- * rectangle would answer "climb the stair" for a click on the bare floor
- * beside it, and this project's resolver has been wrong in that direction
- * before.
+ * Every field's source: `id`, `treads` and the extents from `plan.stairs[]`;
+ * `rise_m` from the LOWER room's floor's `storey_height_m`, one definition
+ * true from both ends; `x/y/w/h`, `poly`, `floor_poly` and `well_poly` those
+ * metres projected. The plan carries no vertical datum, so `rise_m` is a
+ * storey height and not a measured rise — floor structure is unmodelled,
+ * exactly as `treads` is checked against a band because there is no rise to
+ * check it against.
  */
 export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
   const span = viewSpan(room.rect, facing);
-  const [normalAxis, sign] = NORMAL[facing];
+  const [normalAxis] = NORMAL[facing];
   const [rx, ry] = RIGHT[facing];
   const alongRight = span.axis === "x" ? rx : ry;
   const width = span.hi - span.lo;
@@ -609,90 +611,130 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
   let cam;
   try { cam = groundplane.cameraDistance(meta); } catch (e) { return out; }
   const H = meta.image_h_px;
+  const line = fc.wall_line;
+
+  /* A plan point at a height, in scene pixels. Depth is measured from this
+   * facing's own wall line and the lateral position across its own view, so
+   * the same three lines serve a flight seen end-on and one seen side-on. */
+  const project = (px, py, heightM) => {
+    const pt = { x: px, y: py };
+    const depth = Math.abs(line - pt[normalAxis]);
+    if (!(depth < cam - EPS) || !(depth >= -EPS)) return null;
+    const s = groundplane.scaleAtDepth(depth, meta);
+    if (!isFinite(s) || !(s > 0)) return null;
+    const u = toView(pt[span.axis]) / width;
+    const x = groundplane.xAtScale(u, s, meta, canvasW);
+    const y = groundplane.yAtHeight(depth, heightM, meta);
+    if (!isFinite(x) || !isFinite(y)) return null;
+    return { x, y };
+  };
+  const inReach = (p) => p && p.y > -H && p.y < 2 * H && p.x > -6 * canvasW && p.x < 6 * canvasW;
+
   for (const st of plan.stairs || []) {
     const joins = st.joins || [];
     if (!joins.includes(roomId)) continue;
     const direction = joins[0] === roomId ? "up" : "down";
-    if ((direction === "up" ? st.up : st.down) !== facing) continue;
     if (!st.rect) continue;
     const lower = (plan.rooms || []).find((r) => r.id === joins[0]);
     const fl = lower && (plan.floors || []).find((f) => f.id === lower.floor);
     const rise = fl && fl.storey_height_m != null ? fl.storey_height_m : null;
     const treads = Number.isInteger(st.treads) && st.treads > 0 ? st.treads : null;
     if (rise == null || treads == null) continue;
-    /* The two ends of the run, and their depth from this facing's wall line —
-     * `far` is the one in the direction being looked at. */
-    const far = sign > 0 ? st.rect[normalAxis + "1"] : st.rect[normalAxis + "0"];
-    const near = sign > 0 ? st.rect[normalAxis + "0"] : st.rect[normalAxis + "1"];
-    const dFar = Math.abs(fc.wall_line - far);
-    const dNear = Math.abs(fc.wall_line - near);
-    const a = toView(st.rect[span.axis + "0"]) / width;
-    const b = toView(st.rect[span.axis + "1"]) / width;
-    const u0 = Math.min(a, b), u1 = Math.max(a, b);
-    const sgn = direction === "up" ? 1 : -1;
 
-    /* Every point the flight draws, in scene pixels. A tread at or behind the
-     * camera has no projection at all — `back_stair`'s bottom step stands
-     * 5.00 m from a wall its viewer is 4.09 m from — and a scale computed
-     * there is the negative pixels-per-metre row 19 exists to refuse. Skipped
-     * by name, never divided anyway. */
-    const at = (t, heightM) => {
-      const d = dNear + (dFar - dNear) * t;
-      if (!(d < cam - EPS) || !(d >= -EPS)) return null;
-      const s = groundplane.scaleAtDepth(d, meta);
-      if (!isFinite(s) || !(s > 0)) return null;
-      /* Through `groundplane.yAtHeight`, the ONE home of a raised point. A
-       * private `yAtScale(s) − h·s` here would be the third private copy of
-       * this module's arithmetic in this project's history. */
-      const y = groundplane.yAtHeight(d, heightM, meta);
-      const x0 = groundplane.xAtScale(u0, s, meta, canvasW);
-      const x1 = groundplane.xAtScale(u1, s, meta, canvasW);
-      if (![y, x0, x1].every(isFinite)) return null;
-      return { t, d, s, y, x0: Math.min(x0, x1), x1: Math.max(x0, x1) };
+    /* THE RUN IS THE AXIS THE FLIGHT IS CLIMBED ALONG, which is `up`'s own
+     * axis — `plan.stair_directions` holds the drawing to it. The width axis
+     * is the other one, and a tread's nose is a segment across it. */
+    const runAxis = (st.up === "N" || st.up === "S") ? "y" : "x";
+    const across = runAxis === "y" ? "x" : "y";
+    const upSign = (st.up === "N" || st.up === "E") ? 1 : -1;
+    const foot = upSign > 0 ? st.rect[runAxis + "0"] : st.rect[runAxis + "1"];
+    const head = upSign > 0 ? st.rect[runAxis + "1"] : st.rect[runAxis + "0"];
+    const w0 = st.rect[across + "0"], w1 = st.rect[across + "1"];
+    /* Height above THIS room's floor: a flight climbed out of this room rises,
+     * and the same flight seen from the landing above it descends. */
+    const sgn = direction === "up" ? 1 : -1;
+    const base = direction === "up" ? 0 : -rise;
+    const at = (t, w) => {
+      const along = foot + (head - foot) * t;
+      const h = base + sgn * rise * t * (direction === "up" ? 1 : 1);
+      const pt = runAxis === "y" ? { x: w, y: along } : { x: along, y: w };
+      return project(pt.x, pt.y, direction === "up" ? rise * t : rise * t - rise);
     };
-    /* THE FOOTPRINT ON THE FLOOR — the flight's own plan position, which is
-     * the well seen from above and the ground under the treads seen from
-     * below. It is what a descending flight leaves in the picture: at this
-     * eye height the steps themselves drop below the frame within a metre,
-     * and the opening in the floor is the honest and the reachable thing. */
-    const floorQuad = [];
-    const steps = [];
-    /* THE WELL: the flight's own footprint lifted to the storey height — the
-     * hole it needs in the ceiling above it. The ceiling is line work drawn
-     * across the whole room, so without this a flight rising 2.8 m runs into
-     * an unbroken plane and the picture asserts an enclosure the document has
-     * no aperture in. The plan carries no floor opening and this row may not
-     * add one (a new field moves the drawn digest), so the well is DERIVED
-     * from the two things the plan does hold: the flight's rect and its
-     * floor's storey height. */
-    const wellQuad = [];
-    /* BOUNDED, and bounded by the frame rather than by the camera. The depth
-     * guard alone admits a tread one nanometre in front of the standpoint,
-     * whose scale is 10^9 and whose y is 35,000 — a polygon a hit test walks
-     * and a canvas strokes for nothing. One frame of slack either side keeps
-     * the outline's on-screen part whole and truncates the rest. */
-    const inReach = (p) => p && p.y > -H && p.y < 2 * H;
+
+    const steps = [], floorQuad = [], wellQuad = [];
     for (let i = 0; i <= treads; i++) {
       const t = i / treads;
-      const onFloor = at(t, 0);
-      if (inReach(onFloor)) floorQuad.push(onFloor);
-      const p = at(t, sgn * rise * t);
-      if (inReach(p)) steps.push(p);
-      const w = at(t, rise);
-      if (inReach(w)) wellQuad.push(w);
+      const along = foot + (head - foot) * t;
+      const p0 = runAxis === "y" ? { x: w0, y: along } : { x: along, y: w0 };
+      const p1 = runAxis === "y" ? { x: w1, y: along } : { x: along, y: w1 };
+      const hStep = direction === "up" ? rise * t : rise * t - rise;
+      const a0 = project(p0.x, p0.y, hStep), a1 = project(p1.x, p1.y, hStep);
+      if (inReach(a0) && inReach(a1)) steps.push([a0, a1]);
+      const f0 = project(p0.x, p0.y, 0), f1 = project(p1.x, p1.y, 0);
+      if (inReach(f0) && inReach(f1)) floorQuad.push([f0, f1]);
+      /* THE WELL is the flight's footprint lifted a storey — the hole it needs
+       * in the ceiling above it. Only a rising flight cuts the plane over your
+       * head; a descending one opens the floor you stand on, which the floor's
+       * own line work is already clipped to the room. */
+      if (direction === "up") {
+        const g0 = project(p0.x, p0.y, rise), g1 = project(p1.x, p1.y, rise);
+        if (inReach(g0) && inReach(g1)) wellQuad.push([g0, g1]);
+      }
     }
     if (!floorQuad.length && !steps.length) continue;
     const ring = (list) => {
       const r = [];
-      for (const p of list) r.push([p.x0, p.y]);
-      for (let i = list.length - 1; i >= 0; i--) r.push([list[i].x1, list[i].y]);
+      for (const [a0] of list) r.push([round6(a0.x), round6(a0.y)]);
+      for (let i = list.length - 1; i >= 0; i--) r.push([round6(list[i][1].x), round6(list[i][1].y)]);
       return r;
     };
-    const pts = ring(steps);
-    const floorPts = ring(floorQuad);
-    const wellPts = direction === "up" ? ring(wellQuad) : [];
-    const all = pts.concat(floorPts);
-    const xs = all.map((p) => p[0]), ys = all.map((p) => p[1]);
+    /* PER-TREAD QUADS, not one outline. A flight's own outline SELF-CROSSES
+     * whenever the run is across the view rather than along it: the two
+     * stringers lie at different depths, both pass through the view axis, and
+     * a ring that walks up one and back down the other ties itself in a bow at
+     * the centre of the frame. Filled, that is two triangles; stroked, it is a
+     * wire. A tread is a quadrilateral at any angle, so the treads are what is
+     * carried and what is drawn. */
+    const quads = [];
+    for (let i = 0; i + 1 < steps.length; i++) {
+      quads.push([steps[i][0], steps[i][1], steps[i + 1][1], steps[i + 1][0]]
+        .map((q) => [round6(q.x), round6(q.y)]));
+    }
+    /* And the HIT REGION is the convex hull of the treads — a shape the page
+     * can test a point against, which a bow-tie is not. */
+    const hull = (pts) => {
+      if (pts.length < 3) return pts.slice();
+      const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+      const lo = [], up = [];
+      for (const q of p) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+      for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length > 1 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+      lo.pop(); up.pop();
+      return lo.concat(up);
+    };
+    const stepPts = [];
+    for (const [a0, a1] of steps) { stepPts.push([round6(a0.x), round6(a0.y)]); stepPts.push([round6(a1.x), round6(a1.y)]); }
+    /* THE MASS, which is what makes a flight read as a flight from the side.
+     * A staircase is not two rails: it is a solid with a stepped top, and the
+     * face a viewer beside it sees is the closed string — the sawtooth of the
+     * noses above, the floor below. Without it a flight seen across its own
+     * run collapses to two nearly-coincident diagonals with the room's floor
+     * grid running through them. One polygon per stringer, each built from
+     * points already computed: up the noses, back along the floor. */
+    const mass = [];
+    if (steps.length >= 2 && floorQuad.length === steps.length) {
+      for (const side of [0, 1]) {
+        const top = steps.map((st2) => [round6(st2[side].x), round6(st2[side].y)]);
+        const bot = floorQuad.map((f2) => [round6(f2[side].x), round6(f2[side].y)]);
+        mass.push(top.concat(bot.slice().reverse()));
+      }
+    }
+    const floorRing = ring(floorQuad);
+    const wellRing = ring(wellQuad);
+    const onFrame = (r) => r.some((q) => q[1] > -EPS && q[1] < H && q[0] > -EPS && q[0] < canvasW);
+    const all = stepPts.concat(floorRing);
+    if (!all.length) continue;
+    const xs = all.map((q) => q[0]), ys = all.map((q) => q[1]);
     const x = Math.max(0, Math.min(...xs)), xe = Math.min(canvasW, Math.max(...xs));
     const y = Math.max(0, Math.min(...ys)), ye = Math.min(H, Math.max(...ys));
     if (!(xe > x) || !(ye > y)) continue;
@@ -703,26 +745,16 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
       direction,
       treads,
       rise_m: rise,
-      u0: round6(u0), u1: round6(u1),
-      depth_near_m: round6(dNear), depth_far_m: round6(dFar),
       x, y, w: xe - x, h: ye - y,
-      /* The drawn outline: the tread noses where any are in frame, else the
-       * footprint on the floor. What the page hit-tests. */
-      /* THE OUTLINE A PLAYER AIMS AT. The tread noses where any of them are in
-       * the frame, and the footprint on the floor where none are — which is a
-       * descending flight at this eye height: from `stair_landing/S` every one
-       * of its fifteen visible steps draws below y 1399 on a 1024 px canvas,
-       * and the only thing of the stair in the picture is the well it opens in
-       * the floor. Choosing by "are there steps" rather than "are there steps
-       * IN FRAME" gave a hit region entirely off the canvas. */
-      poly: (pts.length >= 3 && pts.some((p) => p[1] > -EPS && p[1] < H)
-        ? pts : floorPts).map((p) => [round6(p[0]), round6(p[1])]),
-      floor_poly: floorPts.map((p) => [round6(p[0]), round6(p[1])]),
-      /* Empty on a DESCENDING flight: it opens the floor you are standing on,
-       * not the ceiling over your head, and the floor is drawn as line work
-       * clipped to the room already — the flight's own footprint outline IS
-       * that opening. Only a rising flight needs the plane above it cut. */
-      well_poly: wellPts.map((p) => [round6(p[0]), round6(p[1])]),
+      /* THE OUTLINE A PLAYER AIMS AT: the treads' own convex hull where any of
+       * them are in the frame, the footprint on the floor where none are —
+       * which is a descending flight at this eye height, whose steps drop
+       * below the frame within a metre and leave only the well in the floor. */
+      poly: (stepPts.length >= 6 && onFrame(stepPts)) ? hull(stepPts) : floorRing,
+      treads_poly: quads,
+      mass_poly: mass,
+      floor_poly: floorRing,
+      well_poly: wellRing,
       beyond_m: null, beyond_offset_m: null
     });
   }
@@ -1017,7 +1049,7 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
    * a facing from the manifest for exactly that reason, and `planWarnings`
    * counts what it excluded, so the exclusion is printed rather than silent. */
   if (!isFinite(s) || !(s > 0)) {
-    throw new Error(`plan-projection: "${objectId}" on ${roomId}/${facing} has its baseline ${depth_m.toFixed(3)} m from the wall line and the camera at ${(fc.camera_wall_m ?? fc.camera_far_m)} m, so it projects at ${String(s)} px/m — an object at or beyond the camera has no picture, and a scale that is not a positive finite number is a finding rather than a number to draw with [row19:plan.object_projects_finitely]`);
+    throw new Error(`plan-projection: "${objectId}" on ${roomId}/${facing} has its baseline ${depth_m.toFixed(3)} m from the wall line and the camera at ${(fc.camera_wall_m ?? fc.camera_far_m)} m, so it projects at ${String(s)} px/m — an object at or beyond the camera has no picture, and a scale that is not a positive finite number is a finding rather than a number to draw with [row19:projection.refuses_nonfinite]`);
   }
   const centreX = groundplane.xAtScale(0.5, s, m, canvasW);
   const targetX = centreX + offset_m * s;

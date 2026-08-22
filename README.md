@@ -20,8 +20,10 @@ takes over wherever the browser withholds real fullscreen).
 
 So far: the whole house is walkable, and one wall of it is painted. Twenty-two rooms, courts and
 gardens over two floors; you can walk from the gravel outside the front, in through the court, the
-great hall and the service range, up either stair, along the long gallery and back, without meeting
-a wall the plan does not hold. The study's north wall — the hearth with a fire in it — is a real
+great hall and the service range, up either stair, along the long gallery and back. One doorway of
+the fifty-six is not walkable from one side — the cross passage is eight metres long and from the
+middle of it the kitchen door is off the edge of what you can see — so the kitchen is entered from
+the court instead, and the page says so when the world is baked. The study's north wall — the hearth with a fire in it — is a real
 room; every other direction is still the holodeck grid, which is what unestablished space looks
 like from inside the emitter. Each is a room you
 stand inside rather than a wall you face: the walls end in corners where the building's own plan
@@ -31,10 +33,11 @@ drawn through one lens, a 24 mm one, the same in every direction you can turn to
 direction had a lens of its own and they ran from a fisheye to a portrait lens, which made every
 wall of the study look like the end of a corridor. Walk east through the doorway and the passage
 is already visible through it — an opening shows the room on the other side of it, not a black
-rectangle. A stair is drawn where the house has one, tread by tread, and you climb it by clicking
-it; where two outdoor spaces meet there is no door at all, only the line on the ground where one
-ends and the other begins, and you walk across it. The words of the room appear beneath the picture
-as you go, and every room says its own name.
+rectangle. A stair is drawn where the house has one, tread by tread, from
+whichever side of it you are standing on, and you climb it by clicking it; where two outdoor spaces
+meet there is no door at all, only the line on the ground where one ends and the other begins, and
+you walk across it. The words of the room appear beneath the picture as you go, and every room
+names itself as you come into it.
 
 The house is empty while the furniture is being made: nothing in it can be picked up or opened
 yet. The furnished world — the desk whose drawer opens on something, the door with a latch,

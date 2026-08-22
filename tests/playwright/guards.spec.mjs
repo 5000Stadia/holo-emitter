@@ -338,6 +338,7 @@ export const MECHANISMS = [
   "plan.object_clear_of_thresholds",
   "plan.object_clear_of_standpoints",
   "plan.object_projects_finitely",
+  "projection.refuses_nonfinite",
   "staging.wall_mounted_over_storey",
   "meta.opening_over_storey"
 ];
@@ -716,28 +717,35 @@ const DOCUMENT_CASES = {
     return tokensOf(validatePlan(p));
   },
   "plan.object_projects_finitely": () => {
-    /* THE PROJECTION'S OWN REFUSAL, at the site that produces the number.
-       This is the second half of the critic's construction and it is where
-       `-1152` was actually returned: the plan validator's own clause above
-       removes the footprint that reaches it, and this one refuses whatever
-       else does — a staged object whose baseline stands at the camera, which
-       is a state a doctored staging or a solver-authored plan can produce
-       without covering a standpoint. */
+    /* IN THE FRUSTUM AND STRADDLING THE CAMERA, and clear of the standpoint
+       POINT so the clause above does not fire first. An artifact critic's own
+       construction — a desk behind the viewer — turned out NOT to be this
+       defect: an object behind you is in no picture and the projection's
+       refusal is the right answer for a caller that asked anyway. What this
+       clause is about is an object the viewer is walking INTO: in the study's
+       north view, half a metre wide on the view axis, its near ground edge
+       4.40 m from the wall where the camera stands at 4.35. */
+    const p = clone(PLAN);
+    p.objects.find((o) => o.id === "desk1").footprint =
+      { x0: 27.7, x1: 28.5, y0: 10.0, y1: 10.6 };
+    return tokensOf(validatePlan(p));
+  },
+  "projection.refuses_nonfinite": () => {
+    /* AND THE SITE THAT PRODUCES THE NUMBER REFUSES IT TOO, which is where
+       `scale_px_per_m: -1152` was actually returned. Belt and braces beneath
+       the clause above, and its own token because one token means one place. */
     const p = clone(PLAN);
     const room = p.rooms.find((r) => r.id === "study");
     const cam = room.facings.N.camera_wall_m;
     const line = room.facings.N.wall_line;
-    /* Its baseline exactly AT the camera: the singularity itself, where the
-       scale is not merely negative but infinite. */
     p.objects.find((o) => o.id === "desk1").footprint =
-      { x0: 26.0, x1: 26.8, y0: line - cam, y1: line - cam + 0.55 };
-    let tokens = new Set();
+      { x0: 26.0, x1: 26.8, y0: line - cam - 0.01, y1: line - cam + 0.54 };
     try {
       projectPlacement(p, "desk1", "study", "N");
     } catch (e) {
-      tokens = tokensOf([e.message]);
+      return tokensOf([e.message]);
     }
-    return tokens;
+    return new Set();
   },
   "meta.opening_over_storey": () => tokensFromNavMetas((m) => {
     /* Blueprint §11 rules every door opening at 2.00 m and the plan gives its
@@ -2493,7 +2501,7 @@ test.describe("row 19's bounds, from both sides", () => {
     expect(Number.isFinite(infront.scale)).toBe(true);
     const behind = at(cam + 0.01);
     expect(behind.tokens, "and 1 cm behind it has none, by name")
-      .toEqual(["plan.object_projects_finitely"]);
+      .toEqual(["projection.refuses_nonfinite"]);
   });
 
   test("a footprint touching a threshold is clear of it; a millimetre over it is not", () => {
@@ -2512,16 +2520,23 @@ test.describe("row 19's bounds, from both sides", () => {
       .toEqual(["plan.object_clear_of_thresholds"]);
   });
 
-  test("a footprint beside a standpoint is clear of it; over it is not", () => {
+  test("a footprint a centimetre in front of a standpoint is clear of it; over it is not", () => {
+    /* MOVED IN DEPTH, not sideways. A desk a millimetre to the SIDE of where
+       the viewer stands is still in the frustum and still straddles the camera
+       plane, so it trips `object_projects_finitely` — correctly, and that is
+       the clause's own case. What isolates THIS clause is a footprint wholly
+       in front of the camera: one centimetre past the standpoint is a room's
+       floor, and one centimetre short of it is the floor the viewer is
+       standing on. */
     const sp = PLAN.rooms.find((r) => r.id === "study").facings.N.standpoint;
-    const desk = (dx) => {
+    const desk = (dy) => {
       const p = clone(PLAN);
       p.objects.find((o) => o.id === "desk1").footprint =
-        { x0: sp.x + dx, x1: sp.x + dx + 0.81, y0: sp.y - 0.275, y1: sp.y + 0.275 };
+        { x0: sp.x - 0.405, x1: sp.x + 0.405, y0: sp.y + dy, y1: sp.y + dy + 0.55 };
       return [...tokensOf(validatePlan(p))];
     };
-    expect(desk(0.001), "a millimetre clear of where the viewer stands").toEqual([]);
-    expect(desk(-0.001), "and a millimetre over it")
+    expect(desk(0.01), "a centimetre in front of where the viewer stands").toEqual([]);
+    expect(desk(-0.01), "and a centimetre over it")
       .toEqual(["plan.object_clear_of_standpoints"]);
   });
 });

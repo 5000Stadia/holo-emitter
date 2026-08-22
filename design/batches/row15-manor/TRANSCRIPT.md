@@ -10,56 +10,64 @@ is pairwise distinct, it carries no duplicate refusal) are satisfied by a mail m
 writing. Nothing checks whether it reads as one voice at this length. That is what a person is for,
 and it is why the whole set is here rather than a sample.
 
+**What it may not do, and what an artifact critic caught it doing.** The picture draws no windows,
+no hearths and no furniture — the plan holds sixty-nine such carriers and the grid paints every one
+as plain wall — so prose that named them told a player about things the room does not show. Twelve
+clauses were rewritten for that: the great hall no longer has roof timbers over a flat 2.8 m
+ceiling, the long gallery no longer runs "window after window", the kitchen's great hearth is no
+longer a mouth in the wall. What the lines still evoke is air, sound, use and proportion, which an
+empty room does not contradict.
+
 ## Arrivals — what the room says when you come into it
 
-- **door_back_stair_great_hall** — Out of the back stair, you come into the great hall. The roof timbers go up into the dark, and the floor rings under you. The doorway stands open behind you.
-- **door_back_stair_head_long_gallery** — You leave the back stair head and come into the long gallery. The gallery runs off further than a room has any right to, window after window. The doorway stands open behind you.
-- **door_back_stair_head_solar** — The back stair head gives onto the solar, and you step through into it. The great chamber over the hall, and the light lies long across the boards. The doorway stands open behind you.
-- **door_back_stair_servants_hall** — You pass from the back stair into the servants' hall. A long board with the benches pushed under it, and the day's work sounding somewhere beyond. The doorway stands open behind you.
+- **door_back_stair_great_hall** — Out of the back stair, you come into the great hall. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.
+- **door_back_stair_head_long_gallery** — You leave the back stair head and come into the long gallery. The gallery runs off further than a room has any right to, and your steps run off with it. The doorway stands open behind you.
+- **door_back_stair_head_solar** — The back stair head gives onto the solar, and you step through into it. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.
+- **door_back_stair_servants_hall** — You pass from the back stair into the servants' hall. Low and plain, with the day's work sounding somewhere beyond it. The doorway stands open behind you.
 - **door_buttery_pantry_hall** — You cross out of the buttery and pantry and into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.
-- **door_buttery_pantry_servants_hall** — The buttery and pantry lets you go, and the servants' hall takes you. A long board with the benches pushed under it, and the day's work sounding somewhere beyond. The doorway stands open behind you.
-- **door_closet_chamber_guest_chamber** — Out of the closet chamber, you come into the guest chamber. Made ready and not lived in; the bed is smooth and the grate is cold. The doorway stands open behind you.
+- **door_buttery_pantry_servants_hall** — The buttery and pantry lets you go, and the servants' hall takes you. Low and plain, with the day's work sounding somewhere beyond it. The doorway stands open behind you.
+- **door_closet_chamber_guest_chamber** — Out of the closet chamber, you come into the guest chamber. Made ready and not lived in; nothing here has been disturbed. The doorway stands open behind you.
 - **door_dining_parlour_entrance_court** — You leave the dining parlour and come into the entrance court. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.
 - **door_dining_parlour_great_stair_hall** — The dining parlour gives onto the great stair hall, and you step through into it. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.
-- **door_entrance_court_dining_parlour** — You pass from the entrance court into the dining parlour. Panelling to the shoulder, and the light comes in mannerly through glass. The doorway stands open behind you.
-- **door_entrance_court_great_hall** — You cross out of the entrance court and into the great hall. The roof timbers go up into the dark, and the floor rings under you. The doorway stands open behind you.
-- **door_entrance_court_kitchen** — The entrance court lets you go, and the kitchen takes you. Ash and cold fat hang in the air, and the great hearth is a mouth in the wall. The doorway stands open behind you.
-- **door_garden_room_library** — Out of the garden room, you come into the library. Leather and paper, and a stillness that seems to be listening. The doorway stands open behind you.
+- **door_entrance_court_dining_parlour** — You pass from the entrance court into the dining parlour. Panelling to the shoulder, and the air of a room kept for company. The doorway stands open behind you.
+- **door_entrance_court_great_hall** — You cross out of the entrance court and into the great hall. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.
+- **door_entrance_court_kitchen** — The entrance court lets you go, and the kitchen takes you. Ash and cold fat hang in the air, and everything here is built for work. The doorway stands open behind you.
+- **door_garden_room_library** — Out of the garden room, you come into the library. Paper and leather in the air, and a stillness that seems to be listening. The doorway stands open behind you.
 - **door_garden_room_privy_garden** — You leave the garden room and come into the privy garden. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.
 - **door_great_hall_back_stair** — The great hall gives onto the back stair, and you step through into it. The walls draw close, plastered and plain, and the air smells of tallow. The doorway stands open behind you.
 - **door_great_hall_entrance_court** — You pass from the great hall into the entrance court. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.
 - **door_great_hall_great_stair_hall** — You cross out of the great hall and into the great stair hall. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.
-- **door_great_hall_library** — The great hall lets you go, and the library takes you. Leather and paper, and a stillness that seems to be listening. The doorway stands open behind you.
+- **door_great_hall_library** — The great hall lets you go, and the library takes you. Paper and leather in the air, and a stillness that seems to be listening. The doorway stands open behind you.
 - **door_great_hall_privy_garden** — Out of the great hall, you come into the privy garden. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.
-- **door_great_stair_hall_dining_parlour** — You leave the great stair hall and come into the dining parlour. Panelling to the shoulder, and the light comes in mannerly through glass. The doorway stands open behind you.
-- **door_great_stair_hall_great_hall** — The great stair hall gives onto the great hall, and you step through into it. The roof timbers go up into the dark, and the floor rings under you. The doorway stands open behind you.
-- **door_great_stair_hall_library** — You pass from the great stair hall into the library. Leather and paper, and a stillness that seems to be listening. The doorway stands open behind you.
+- **door_great_stair_hall_dining_parlour** — You leave the great stair hall and come into the dining parlour. Panelling to the shoulder, and the air of a room kept for company. The doorway stands open behind you.
+- **door_great_stair_hall_great_hall** — The great stair hall gives onto the great hall, and you step through into it. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.
+- **door_great_stair_hall_library** — You pass from the great stair hall into the library. Paper and leather in the air, and a stillness that seems to be listening. The doorway stands open behind you.
 - **door_guest_chamber_closet_chamber** — You cross out of the guest chamber and into the closet chamber. A small close room off the chamber, for prayer or for nothing. The doorway stands open behind you.
 - **door_guest_chamber_stair_landing** — The guest chamber lets you go, and the stair landing takes you. The stair-head, and the house below sounding faintly up the well. The doorway stands open behind you.
-- **door_hall_buttery_pantry** — Out of the cross passage, you come into the buttery and pantry. Shelved and shuttered, it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.
+- **door_hall_buttery_pantry** — Out of the cross passage, you come into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.
 - **door_hall_study** — You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.
 - **door_kitchen_entrance_court** — The kitchen gives onto the entrance court, and you step through into it. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.
-- **door_kitchen_hall** — You pass from the kitchen into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.
-- **door_library_garden_room** — You cross out of the library and into the garden room. Green light off the garden, and the floor is flagged and cool. The doorway stands open behind you.
-- **door_library_great_hall** — The library lets you go, and the great hall takes you. The roof timbers go up into the dark, and the floor rings under you. The doorway stands open behind you.
+- **door_kitchen_hall** — You come out of the kitchen into the cross passage. The air is cooler here, and moves. The passage runs away east and west, and the door you came by is not on either wall.
+- **door_library_garden_room** — You cross out of the library and into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.
+- **door_library_great_hall** — The library lets you go, and the great hall takes you. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.
 - **door_library_great_stair_hall** — Out of the library, you come into the great stair hall. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.
 - **door_long_gallery_back_stair_head** — You leave the long gallery and come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The doorway stands open behind you.
-- **door_long_gallery_muniment_room** — The long gallery gives onto the muniment room, and you step through into it. Deeds and dust in presses to the ceiling, and one small window keeping watch. The doorway stands open behind you.
+- **door_long_gallery_muniment_room** — The long gallery gives onto the muniment room, and you step through into it. Deeds and dust, and a silence kept on purpose. The doorway stands open behind you.
 - **door_master_bedchamber_stair_landing** — You pass from the master bedchamber into the stair landing. The stair-head, and the house below sounding faintly up the well. The doorway stands open behind you.
-- **door_muniment_room_long_gallery** — You cross out of the muniment room and into the long gallery. The gallery runs off further than a room has any right to, window after window. The doorway stands open behind you.
-- **door_muniment_room_solar** — The muniment room lets you go, and the solar takes you. The great chamber over the hall, and the light lies long across the boards. The doorway stands open behind you.
-- **door_privy_garden_garden_room** — Out of the privy garden, you come into the garden room. Green light off the garden, and the floor is flagged and cool. The doorway stands open behind you.
-- **door_privy_garden_great_hall** — You leave the privy garden and come into the great hall. The roof timbers go up into the dark, and the floor rings under you. The doorway stands open behind you.
-- **door_privy_garden_servants_hall** — The privy garden gives onto the servants' hall, and you step through into it. A long board with the benches pushed under it, and the day's work sounding somewhere beyond. The doorway stands open behind you.
+- **door_muniment_room_long_gallery** — You cross out of the muniment room and into the long gallery. The gallery runs off further than a room has any right to, and your steps run off with it. The doorway stands open behind you.
+- **door_muniment_room_solar** — The muniment room lets you go, and the solar takes you. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.
+- **door_privy_garden_garden_room** — Out of the privy garden, you come into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.
+- **door_privy_garden_great_hall** — You leave the privy garden and come into the great hall. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.
+- **door_privy_garden_servants_hall** — The privy garden gives onto the servants' hall, and you step through into it. Low and plain, with the day's work sounding somewhere beyond it. The doorway stands open behind you.
 - **door_servants_hall_back_stair** — You pass from the servants' hall into the back stair. The walls draw close, plastered and plain, and the air smells of tallow. The doorway stands open behind you.
-- **door_servants_hall_buttery_pantry** — You cross out of the servants' hall and into the buttery and pantry. Shelved and shuttered, it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.
+- **door_servants_hall_buttery_pantry** — You cross out of the servants' hall and into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.
 - **door_servants_hall_privy_garden** — The servants' hall lets you go, and the privy garden takes you. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.
 - **door_solar_back_stair_head** — Out of the solar, you come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The doorway stands open behind you.
-- **door_solar_muniment_room** — You leave the solar and come into the muniment room. Deeds and dust in presses to the ceiling, and one small window keeping watch. The doorway stands open behind you.
+- **door_solar_muniment_room** — You leave the solar and come into the muniment room. Deeds and dust, and a silence kept on purpose. The doorway stands open behind you.
 - **door_solar_stair_landing** — The solar gives onto the stair landing, and you step through into it. The stair-head, and the house below sounding faintly up the well. The doorway stands open behind you.
-- **door_stair_landing_guest_chamber** — You pass from the stair landing into the guest chamber. Made ready and not lived in; the bed is smooth and the grate is cold. The doorway stands open behind you.
-- **door_stair_landing_master_bedchamber** — You cross out of the stair landing and into the master bedchamber. Hangings, a great bed, and the hush that sleeps in a room by day. The doorway stands open behind you.
-- **door_stair_landing_solar** — The stair landing lets you go, and the solar takes you. The great chamber over the hall, and the light lies long across the boards. The doorway stands open behind you.
+- **door_stair_landing_guest_chamber** — You pass from the stair landing into the guest chamber. Made ready and not lived in; nothing here has been disturbed. The doorway stands open behind you.
+- **door_stair_landing_master_bedchamber** — You cross out of the stair landing and into the master bedchamber. The hush that sleeps in a room by day, and a floor that does not creak. The doorway stands open behind you.
+- **door_stair_landing_solar** — The stair landing lets you go, and the solar takes you. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.
 - **door_study_hall** — You step through into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.
 - **stair_back_stair_back_stair_head** — You leave the back stair and come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The stair falls away behind you.
 - **stair_back_stair_head_back_stair** — The back stair head gives onto the back stair, and you step through into it. The walls draw close, plastered and plain, and the air smells of tallow. The stair rises behind you.

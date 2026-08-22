@@ -125,6 +125,10 @@
    * a product mode (§7), not placeholder art. Still darker than the wall:
    * unestablished space, lit from nowhere. */
   var FLOOR_BASE = "#2c3542";
+  /* [Row 15] A flight's own tone: between the wall it stands off and the floor
+   * it stands on, so a staircase reads as fabric in the room rather than as a
+   * hole in it or as a patch of floor lifted up. */
+  var STAIR_BASE = "#1b222c";
   /* The two side-wall returns (row 11). One lighting model with the rest of
    * the frame: a per-plane facing tone, then the frame-wide key falloff over
    * it. With the key at upper-left (`key_dir: "UL"`, and every sprite shaded
@@ -213,6 +217,15 @@
   /* [Row 15] A closed ring of scene-pixel points, as the §5 meta carries a
    * flight's outline. Not `strokePolylines`: that one maps a normalized glyph
    * into a box, and these points are already where they belong. */
+  function fillRing(ctx, ring) {
+    if (!ring || ring.length < 3) return;
+    ctx.beginPath();
+    ctx.moveTo(ring[0][0], ring[0][1]);
+    for (var i = 1; i < ring.length; i++) ctx.lineTo(ring[i][0], ring[i][1]);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   function strokeRing(ctx, ring) {
     if (!ring || ring.length < 3) return;
     ctx.beginPath();
@@ -795,27 +808,55 @@
     for (var si = 0; si < flights.length; si++) {
       var fl = flights[si];
       ctx.save();
+      /* A FLIGHT STANDS IN FRONT OF THINGS, so it is a SOLID and not a wire,
+       * and it is drawn TREAD BY TREAD rather than as one outline. A flight's
+       * outline self-crosses whenever the run lies across the view instead of
+       * along it — the two stringers sit at different depths, both pass
+       * through the view axis, and a ring that walks up one and back down the
+       * other ties itself in a bow at the centre of the frame. A tread is a
+       * quadrilateral from any angle. Filled in its own tone, each one stops
+       * the room's floor grid where the stair stands in front of it, which is
+       * the one place this drawing occludes anything and the one piece of
+       * building fabric that stands off a wall. */
+      var quads = fl.treads_poly || [];
+      var mass = fl.mass_poly || [];
+      ctx.fillStyle = STAIR_BASE;
+      /* The two closed strings first — the flight's own mass, stepped along
+       * the top and standing on the floor — then the treads over them. */
+      for (var mi = 0; mi < mass.length; mi++) fillRing(ctx, mass[mi]);
+      for (var qi = 0; qi < quads.length; qi++) fillRing(ctx, quads[qi]);
       ctx.strokeStyle = meta.key_tint;
+      /* The footprint on the floor: the well seen from above, the ground under
+       * the steps seen from below, and on a descending flight the only thing
+       * of the stair the frame holds. */
       ctx.globalAlpha = ALPHA_MINOR;
       ctx.lineWidth = 1;
       strokeRing(ctx, fl.floor_poly);
+      /* And every nose, which is what makes a climb read as a climb. */
       ctx.globalAlpha = ALPHA_MAJOR;
       ctx.lineWidth = 2;
-      strokeRing(ctx, fl.poly);
-      /* Every nosing, drawn where the polygon's two stringers already say it
-       * is: the outline is the noses' own left and right ends, so the rungs
-       * between them need no second derivation of the geometry. */
-      var n = fl.poly.length / 2;
-      if (fl.poly.length >= 4 && n === Math.floor(n)) {
-        ctx.globalAlpha = ALPHA_MINOR;
+      for (var qj = 0; qj < quads.length; qj++) {
+        ctx.beginPath();
+        ctx.moveTo(quads[qj][0][0], quads[qj][0][1]);
+        ctx.lineTo(quads[qj][1][0], quads[qj][1][1]);
+        ctx.stroke();
+      }
+      if (quads.length) {
+        var last = quads[quads.length - 1];
+        ctx.beginPath();
+        ctx.moveTo(last[3][0], last[3][1]);
+        ctx.lineTo(last[2][0], last[2][1]);
+        ctx.stroke();
+        /* The two stringers, so the flight has edges as well as rungs. */
         ctx.lineWidth = 1;
-        for (var ti = 0; ti < n; ti++) {
-          var L = fl.poly[ti], Rr = fl.poly[fl.poly.length - 1 - ti];
-          ctx.beginPath();
-          ctx.moveTo(L[0], snap(L[1]));
-          ctx.lineTo(Rr[0], snap(Rr[1]));
-          ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(quads[0][0][0], quads[0][0][1]);
+        for (var qk = 0; qk < quads.length; qk++) ctx.lineTo(quads[qk][3][0], quads[qk][3][1]);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(quads[0][1][0], quads[0][1][1]);
+        for (var ql = 0; ql < quads.length; ql++) ctx.lineTo(quads[ql][2][0], quads[ql][2][1]);
+        ctx.stroke();
       }
       ctx.restore();
     }
@@ -1062,6 +1103,23 @@
           h: rect.h
         });
       }
+    }
+    /* [Row 15] WHICH HAND EACH WAY THROUGH IS ON, where a facing has more than
+     * one. A control's accessible name is the shortest true name of what it
+     * does, and "walk through the doorway" said twice on one wall names
+     * neither. Computed here, from the drawn rectangles, because the page must
+     * not re-derive an ordering the picture already fixes. */
+    var unfilled = [];
+    for (var oi2 = 0; oi2 < out.length; oi2++) if (out[oi2].source === "building" && out[oi2].kind === "door") unfilled.push(out[oi2]);
+    unfilled.sort(function (a, b) { return a.x - b.x; });
+    for (var oj2 = 0; oj2 < unfilled.length; oj2++) {
+      unfilled[oj2].siblings = unfilled.length;
+      /* Left and right, for exactly two. A wall with THREE unfilled doorways
+       * would need an ordinal and the manor has none — and a string nobody can
+       * reach may not be enumerated in the audit, so naming a case that does
+       * not exist would be a row no sweep could ever see. Recorded as a limit
+       * rather than answered: the eight facings that carry two carry two. */
+      unfilled[oj2].hand = unfilled.length !== 2 ? null : (oj2 === 0 ? "left" : "right");
     }
     return out;
   }

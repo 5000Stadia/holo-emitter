@@ -289,13 +289,18 @@ const IN_PAGE = () => {
      * the tolerance ring. This is where a person clicks to walk through: the
      * opening, not the edge-on sliver of the swung leaf. Returns null when
      * the facing has no exit. */
-    aperturePoint() {
+    /* [Row 15] AND IT MAY BE ASKED FOR A NAMED EXIT. It returned `list[0]`
+       whatever was wanted, which was harmless while every facing carried at
+       most one way through and is not now: eight facings of the manor carry
+       two, and a spec asking for one could walk the other and pass. */
+    aperturePoint(exitId) {
       const A = window.HOLO_APP;
       const list = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library,
         window.__T.metaOf(A.harness.viewstate), A.harness.viewstate);
       if (!list.length) return null;
-      const a = list[0];
+      const a = exitId ? list.find((x) => x.exit === exitId) : list[0];
+      if (!a) return null;
       for (let fy = 0.5; fy <= 0.9; fy += 0.04) {
         for (let fx = 0.95; fx >= 0.05; fx -= 0.02) {
           const x = Math.round(a.x + fx * a.w);

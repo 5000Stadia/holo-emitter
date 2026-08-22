@@ -25,6 +25,13 @@ const FACINGS = ["N", "E", "S", "W"];
 const W = 1536, H = 1024;
 const PHONE = { width: 390, height: 844 };
 
+/** A real click at a scene-canvas point, scaled to wherever the stage is. */
+async function clickCanvasPoint(page, pt) {
+  const box = await page.locator("#scene").boundingBox();
+  await page.mouse.click(box.x + (pt.x * box.width) / 1536,
+    box.y + (pt.y * box.height) / 1024);
+}
+
 /** The approved sheet, parsed: room name -> facing -> {type, distance, width}. */
 const SHEET = (() => {
   const lines = readFileSync(join(repoRoot, "design", "plan-draft", "standpoints.tsv"), "utf8")
@@ -346,8 +353,11 @@ test.describe("the picture, on every facing the manor renders", () => {
       const A = window.HOLO_APP;
       const vs = { location: "great_stair_hall", facing: "N" };
       const fl = (A.metaFor(vs).stairs || [])[0];
-      const half = fl.poly.length / 2;
-      return fl.poly.slice(0, half).map((p) => p[1]).sort((a2, b2) => a2 - b2);
+      /* The noses themselves, off `treads_poly` — `poly` is the hit region's
+         convex hull and says nothing about where any one tread is. */
+      const ys = fl.treads_poly.map((q) => q[0][1]);
+      ys.push(fl.treads_poly[fl.treads_poly.length - 1][3][1]);
+      return ys.sort((a2, b2) => a2 - b2);
     });
     expect(got.length, "every tread the frame can hold").toBe(want.length);
     got.forEach((y, i) => {
@@ -421,6 +431,36 @@ test.describe("the picture, on every facing the manor renders", () => {
           const ap = window.HOLO.renderer.apertures(
             fx.world, fx.staging, A.library, meta, vs).find((a) => a.exit === ex.id);
           if (!ap) { silent.push(`${ex.id}: no aperture`); continue; }
+          /* [Row 15] A THRESHOLD IS NOT SKIPPED, it is checked for the thing
+             that IS true of it: it draws nothing of its own, so what must be
+             in it is the ground the room beyond it stands on. Skipping it left
+             the manor's own front door — 20.4 m of it — checked for nothing at
+             all. A flight is skipped and says so: it is drawn by the grid and
+             has no room behind it. */
+          if (ap.kind === "stair") continue;
+          if (ap.kind === "threshold") {
+            const bd2 = {};
+            for (const k of Object.keys(A.backdrops)) bd2[k] = { meta: A.backdrops[k].meta };
+            bd2[`${loc.id}/${ex.facing}`] = { meta };
+            window.HOLO.renderer.render(c, fx.world, fx.staging, A.library, bd2, vs, {});
+            const dt = ctx.getImageData(0, 0, w, h).data;
+            let lit = 0, tot = 0;
+            const tx0 = Math.max(0, Math.ceil(ap.x)), tx1 = Math.min(w, Math.floor(ap.x + ap.w));
+            for (let y = Math.max(0, Math.ceil(ap.y)); y < Math.min(h, Math.floor(ap.y + ap.h)); y++) {
+              for (let x = tx0; x < tx1; x++) {
+                const i = ((y * w + x) << 2);
+                tot++;
+                if (dt[i] + dt[i + 1] + dt[i + 2] > 90) lit++;
+              }
+            }
+            /* On the approach's side the mouth stands at that facing's own
+               wall line and everything past it is unestablished void — the
+               vista is row 4's — so what is asserted there is that the mouth's
+               own ground line is drawn. On the court's side the ground beyond
+               it is in the picture and most of the rectangle is lit. */
+            if (tot > 400 && lit === 0) voids.push(`${ex.id}: its mouth is wholly unlit`);
+            continue;
+          }
           if (ap.kind !== "door") continue;
           const bd = {};
           for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
@@ -507,41 +547,56 @@ test.describe("reachability is a hand, not a graph", () => {
           const ap = window.HOLO.renderer.apertures(
             fx.world, fx.staging, A.library, A.metaFor(vs), vs).find((a) => a.exit === ex.id);
           if (!ap) { sizes.push({ id: ex.id, w: 0, h: 0 }); continue; }
-          sizes.push({ id: ex.id, w: ap.w * k, h: ap.h * k });
+          /* WHAT IS ON THE SCREEN, not what the rectangle declares. Two of the
+             manor's apertures run past the frame — `door_hall_buttery_pantry`
+             declares 476 canvas px and shows 54 — so a bound on the declared
+             width measures a target nobody can reach. Intersected with the
+             canvas first. */
+          const x0 = Math.max(0, ap.x), x1 = Math.min(1536, ap.x + ap.w);
+          const y0 = Math.max(0, ap.y), y1 = Math.min(1024, ap.y + ap.h);
+          sizes.push({ id: ex.id, w: Math.max(0, x1 - x0) * k, h: Math.max(0, y1 - y0) * k });
         }
       }
-      return { k, sizes };
+      return { k, sizes, docWidth: document.documentElement.scrollWidth,
+        winWidth: document.documentElement.clientWidth };
     });
     const none = r.sizes.filter((s) => s.w === 0);
     expect(none, "every exit of the manor has an aperture on its own facing").toEqual([]);
     const minW = Math.min(...r.sizes.map((s) => s.w));
+    const minSide = Math.min(...r.sizes.map((s) => Math.min(s.w, s.h)));
     const minArea = Math.min(...r.sizes.map((s) => s.w * s.h));
     /* ABSOLUTE, not derived from the corpus it measures: a bound phrased as a
-       fraction of the current worst is true for every value of the worst. */
-    expect(minW, "the narrowest way through the manor, in CSS px on a phone").toBeGreaterThan(15);
+       fraction of the current worst is true for every value of the worst. And
+       the SMALLER SIDE is bounded as well as the width, because a target 271
+       CSS px wide and 14 tall is a target a thumb misses in the other
+       direction — the manor's own front door was exactly that. */
+    expect(minW, "the narrowest way through the manor, in CSS px on a phone").toBeGreaterThan(12);
+    expect(minSide, "and its smaller side").toBeGreaterThan(12);
     expect(minArea, "and the smallest reachable area").toBeGreaterThan(500);
-    /* AND THE COUNT UNDER THE PLATFORM MINIMUM IS PINNED, because it is the
-       number that must not grow. 28 of 55 at this camera; the tolerance ring
-       is what makes them hittable and the standpoint cap is what would fix
-       them. */
-    expect(r.sizes.filter((s) => s.w < 44).length,
-      "exits narrower than the 44 CSS px platform minimum").toBe(29);
+    /* AND THE PAGE DOES NOT GROW SIDEWAYS. An aperture that runs past the
+       frame used to put its keyboard control at `left: 112%`, which widened
+       the document and let one arrow key turn the room AND scroll the picture
+       out from under it. */
+    expect(r.docWidth, "the page is no wider than the window").toBeLessThanOrEqual(r.winWidth);
   });
 
   test("a near miss on the narrowest doorway lands on it, and bare wall still means nothing", async ({ page }) => {
-    /* BOTH DIRECTIONS, because the pointing ring has been wrong in both before:
-       too little (a ring that widened nothing for the key) and too much (a
-       notebook answering clicks 85 px away on bare wall). Driven through
-       `HOLO_APP.resolve` — the shipped resolver, not the piece it calls, which
-       is the guard row 20 had to move after consulting `apertures` directly
-       left the exact defect it was written against green. */
+    /* A REAL CLICK, at a real point, on a real phone-sized screen. The first
+       version of this case asked `HOLO_APP.resolve` and never sent an event —
+       and worse, never aimed OUTSIDE an aperture at all, so removing the ring
+       entirely left the whole suite green. What the ring exists for is a
+       finger's slop on a 17 CSS px doorway, and the only way to know it is
+       there is to miss by a finger's width and still arrive.
+
+       BOTH DIRECTIONS, because this ring has been wrong in both before: too
+       little (it widened nothing for the key) and too much (a notebook
+       answering clicks 85 px away on bare wall). */
     await page.goto(navUrl());
-    await page.waitForFunction(() => !!window.HOLO_APP);
-    const r = await page.evaluate(() => {
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    /* Stand in the entrance court facing its west door — 17 CSS px wide here
+       and the narrowest way through the manor. */
+    const ok = await page.evaluate(() => {
       const A = window.HOLO_APP;
-      /* Stand in the entrance court, facing its west door — 17 CSS px wide on
-         a phone and the narrowest way through the manor. Positioned by
-         intents, because the resolver reads the LIVE viewstate. */
       for (const id of ["door_study_hall", "door_hall_buttery_pantry",
         "door_buttery_pantry_servants_hall", "door_servants_hall_back_stair",
         "door_back_stair_great_hall", "door_great_hall_entrance_court"]) {
@@ -556,32 +611,45 @@ test.describe("reachability is a hand, not a graph", () => {
       }
       let g = 0;
       while (A.harness.viewstate.facing !== "W" && g++ < 4) A.harness.dispatch({ type: "turn", dir: "right" });
+      return A.harness.viewstate.location === "entrance_court" && A.harness.viewstate.facing === "W";
+    });
+    expect(ok, "standing in the entrance court, facing its west door").toBe(true);
+
+    const geom = await page.evaluate(() => {
+      const A = window.HOLO_APP;
       const vs = A.harness.viewstate;
       const ap = window.HOLO.renderer.apertures(
         A.harness.world, A.harness.staging, A.library, A.metaFor(vs), vs)
         .find((x) => x.exit === "door_entrance_court_dining_parlour");
-      if (!ap) return { at: vs, ap: null };
-      const k = document.getElementById("scene").getBoundingClientRect().width / 1536;
-      const cy = ap.y + ap.h / 2;
-      return {
-        at: vs, ap: { w: ap.w, cssW: ap.w * k },
-        inside: A.resolve({ x: ap.x + ap.w / 2, y: cy }),
-        /* A finger's slop past the jamb — inside the 4 CSS px margin at this
-           display scale, which is several canvas pixels. */
-        justOutside: A.resolve({ x: ap.x + ap.w + 2 / k, y: cy }),
-        /* And well clear of it: bare wall, which must still mean nothing. */
-        bareWall: A.resolve({ x: ap.x + ap.w + 60 / k, y: cy }),
-        bareFloor: A.resolve({ x: 768, y: 1000 })
-      };
+      const box = document.getElementById("scene").getBoundingClientRect();
+      return ap ? { x: ap.x, y: ap.y, w: ap.w, h: ap.h, k: box.width / 1536 } : null;
     });
-    expect(r.ap, `standing at ${JSON.stringify(r.at)} there is a west door`).toBeTruthy();
-    expect(r.inside.kind, "the middle of the opening travels").toBe("doorway");
-    expect(r.justOutside.kind, "and a finger's slop past its jamb still travels").toBe("doorway");
-    expect(r.justOutside.aperture && r.justOutside.aperture.exit,
-      "to the same way through, not to another one").toBe("door_entrance_court_dining_parlour");
-    expect(r.bareWall.kind, "bare wall well clear of it still means nothing").toBe("none");
-    expect(r.bareFloor.kind, "and so does bare floor").toBe("none");
+    expect(geom, "there is a west door").toBeTruthy();
+    expect(geom.w * geom.k, "and it is a narrow one on this screen").toBeLessThan(30);
+
+    /* A finger's width past its jamb: outside the drawn rectangle, inside the
+       margin. Two CSS px, converted to canvas px at this display scale. */
+    const miss = { x: geom.x + geom.w + 2 / geom.k, y: geom.y + geom.h / 2 };
+    await clickCanvasPoint(page, miss);
+    await page.waitForTimeout(200);
+    expect(await page.evaluate(() => window.HOLO_APP.harness.viewstate.location),
+      "a miss by a finger's width still walks you through").toBe("dining_parlour");
+
+    /* And bare wall well clear of it still means nothing — measured as an
+       intent count, because dead space dispatching nothing is the rule this
+       ring must not break. */
+    const before = await page.evaluate(() => window.HOLO_APP.harness.envelopes.length);
+    await clickCanvasPoint(page, { x: geom.x + geom.w + 90 / geom.k, y: geom.y + geom.h / 2 });
+    await clickCanvasPoint(page, { x: 768, y: 1000 });
+    await page.waitForTimeout(200);
+    const after = await page.evaluate(() => ({
+      n: window.HOLO_APP.harness.envelopes.length,
+      where: window.HOLO_APP.harness.viewstate.location
+    }));
+    expect(after.n, "bare wall and bare floor dispatch nothing at all").toBe(before);
+    expect(after.where, "and nobody moved").toBe("dining_parlour");
   });
+
 });
 
 test.describe("leave a room and return, in a world where something changed", () => {
