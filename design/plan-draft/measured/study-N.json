@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "80f780d5d44bf7163379becf020077a64eb323b32730bf6603b52e8ba1c0d792",
   "_what_this_is": "DRAFT \u00a75 meta for study/N, measured off backdrops/source/study-N/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "THE CONTROL. The one Kabe-approved frame (APPROVED.md, design/approvals.log 2026-08-21). Its windows are the cand-1 run's, unchanged, because it is the same image; what is new is that the cand-2 corner rule and the cand-2 ruler machinery are run over it and have to return the committed numbers.",
   "verdict": "PASS",

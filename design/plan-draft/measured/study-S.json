@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "11f080946aa9095a8a2c18899e663a6acb6c603ffae68e6787cea66f74a5fca0",
   "_what_this_is": "DRAFT \u00a75 meta for study/S, measured off backdrops/source/study-S/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "The window wall. Its cand-2 prompt turned the three bays into a ruled-size anchor - 'exactly 0.90 metre wide measured between its two vertical mullion centre-lines... so this is a ruled-size measurement anchor' - which is a tier-1 ruler if and only if the three were drawn equal, and on a wall parallel to the image plane equal features MUST project equally.",
   "verdict": "WITHHELD",

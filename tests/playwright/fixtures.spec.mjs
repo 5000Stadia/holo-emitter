@@ -35,19 +35,33 @@ function extractBlueprintJsonBlock(md, headingPrefix) {
 }
 
 test.describe("fixtures", () => {
-  test("bake staleness: the committed fixture.js byte-equals a fresh bake of the .json truth", () => {
-    const scratch = mkdtempSync(join(tmpdir(), "holo-bake-"));
-    try {
-      const out = join(scratch, "fixture.js");
-      bake(repoRoot, ["--fixture-dir", fixtureDir, "--out", out]);
-      const fresh = readFileSync(out);
-      const committed = readFileSync(join(fixtureDir, "fixture.js"));
-      expect(
-        fresh.equals(committed),
-        "stale bake — run: node tools/bake-fixtures.mjs"
-      ).toBe(true);
-    } finally {
-      rmSync(scratch, { recursive: true, force: true });
+  /* EVERY BAKED WORLD, ENUMERATED FROM THE TREE. [Row 21, round 3 — G4] This
+     baked `fixtures/demo-study` by name, so the world the BARE URL boots was
+     the one world whose bake nothing checked: a critic hand-edited
+     `wall_width_m` from 8 to 6 on `hall/N` in `fixtures/nav-manor/fixture.js`
+     and the suite stayed green, where the same edit to the demo fixture fires
+     fifty assertions. A fixture directory is one that carries a `world.json`;
+     adding a third world adds it here by existing. */
+  const bakedWorlds = () => readdirSync(join(repoRoot, "fixtures"))
+    .filter((d) => existsSync(join(repoRoot, "fixtures", d, "world.json")))
+    .sort();
+
+  test("bake staleness: every committed fixture.js byte-equals a fresh bake of its own .json truth", () => {
+    const worlds = bakedWorlds();
+    expect(worlds.length, "the page carries more than one world; both are baked")
+      .toBeGreaterThanOrEqual(2);
+    for (const w of worlds) {
+      const dir = join(repoRoot, "fixtures", w);
+      const scratch = mkdtempSync(join(tmpdir(), "holo-bake-"));
+      try {
+        const out = join(scratch, "fixture.js");
+        bake(repoRoot, ["--fixture-dir", dir, "--out", out]);
+        expect(readFileSync(out).equals(readFileSync(join(dir, "fixture.js"))),
+          `stale bake for ${w} — run: node tools/bake-fixtures.mjs --fixture-dir fixtures/${w}`)
+          .toBe(true);
+      } finally {
+        rmSync(scratch, { recursive: true, force: true });
+      }
     }
   });
 

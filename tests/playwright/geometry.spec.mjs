@@ -257,6 +257,26 @@ test.describe("camera-has-feet geometry", () => {
          quietly stopped being measured would move a facing out of both
          branches and be caught. */
       if (m.measured) {
+        /* [G2/G3] THE TYPED LITERALS ARE HELD TO THE SHIPPED META, FIRST.
+           This branch judged `LIT.MEASURED` — a hand-typed copy — against the
+           picture, so the meta the page actually renders with was judged by
+           none of it: a critic moved its corners 58 px and its floor line by
+           0.04 and this test stayed green, and the copy's own
+           `nearest_floor_m` had already drifted 0.03 m from the file it claims
+           to be typed from. Every field is compared here, so the copy cannot
+           be a second answer — and the clauses below then read the copy,
+           knowing it IS the file. */
+        const shipped = JSON.parse(readFileSync(
+          join(repoRoot, "backdrops", loc, `${f}.meta.json`), "utf8"));
+        for (const k of Object.keys(LIT.MEASURED[key])) {
+          if (k === "measured" || k === "measured_storey_m") continue;
+          expect(shipped[k], `${key}: LIT.MEASURED.${k} is typed ${LIT.MEASURED[key][k]} and the committed meta says ${shipped[k]}`)
+            .toBeCloseTo(LIT.MEASURED[key][k], 6);
+        }
+        expect(shipped.measured, `${key}: the committed meta does not call itself measured`).toBe(true);
+        expect(shipped.measured_room.storey_height_m,
+          `${key}: LIT.MEASURED.measured_storey_m is typed ${LIT.MEASURED[key].measured_storey_m} and the meta's painted storey is ${shipped.measured_room.storey_height_m}`)
+          .toBeCloseTo(LIT.MEASURED[key].measured_storey_m, 3);
         const painted = await page.evaluate(({ loc, f, fl, cx0, cx1 }) => {
           const T = window.__T;
           const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });

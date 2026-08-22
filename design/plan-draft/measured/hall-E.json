@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "b3d322544398da4afe3d1665d2e062d3c6b914988e4610216b2dc6b595658607",
   "_what_this_is": "DRAFT \u00a75 meta for hall/E, measured off backdrops/source/passage-E/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "The axial view east. The end window is the only feature in the end wall and NO SIZE IS RULED FOR IT, so there is no tier-1 ruler; the corridor is not the study, so there is no tier-2 ruler either. This facing reaches tier 3 and its number is circular by construction.",
   "verdict": "FAIL",

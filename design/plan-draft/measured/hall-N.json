@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "801a8e70c68ef16af69501d3af50eb2f2c7b0035a47a9073f9cbde6a1aee8aba",
   "_what_this_is": "DRAFT \u00a75 meta for hall/N, measured off backdrops/source/passage-N/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "A flat wall band by instruction. Its prompt forbids every feature this gate can measure and the painting obeyed, which is why it has no verdict rather than a bad one.",
   "verdict": "WITHHELD",

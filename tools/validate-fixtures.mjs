@@ -289,7 +289,7 @@ function derivedMetasFor(fixtureDir, world, findings) {
  * the term no meta supplies — and after row 11 it has to reach every meta the
  * fixture can resolve, cornered or not.
  */
-function checkMeta(label, meta, findings, canvasW, canvasH) {
+function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
   if (!isObj(meta)) { findings.push(`${label}: not a meta object`); return; }
   const type = meta.facing_type === undefined ? null : meta.facing_type;
   for (const k of META_REQUIRED) {
@@ -461,6 +461,30 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
       }
     }
   }
+  /* [Row 21, round 3 — G1] A MEASURED META'S BUILDING HALF IS THE PLAN'S, and
+   * until this it was held by nothing: a critic changed `promote-backdrop.mjs`
+   * to take the storey from the PAINTING instead, shipped a meta declaring
+   * 2.997 m against a plan that rules 2.80, and the whole suite stayed green —
+   * with the renderer drawing its ceiling from that field. The measured half
+   * of a meta is a reading off a painting and has its own clauses above; the
+   * building half is a fact the drawing rules and the painting answers to, and
+   * the derived meta for the same facing IS the plan's answer to it. So they
+   * are compared, field by field, and a painting cannot re-rule the building
+   * by being promoted. */
+  if (meta.measured && derivedForLabel) {
+    const BUILDING = ["wall_width_m", "camera_wall_m", "camera_far_m",
+      "storey_height_m", "facing_type", "wall_continuous"];
+    for (const k of BUILDING) {
+      const a = meta[k], b = derivedForLabel[k];
+      if (a === undefined && b === undefined) continue;
+      if (JSON.stringify(a) !== JSON.stringify(b)) {
+        findings.push(`${label}: measured meta says ${k} = ${JSON.stringify(a)}, the plan says ${JSON.stringify(b)} — a painting is measured for its pixels and answers to the drawing for its metres [row21:meta.building_fields]`);
+      }
+    }
+    if (JSON.stringify(meta.wall_segments) !== JSON.stringify(derivedForLabel.wall_segments)) {
+      findings.push(`${label}: measured meta's wall_segments differ from the plan's — where the building stands across a view is the plan's to say [row21:meta.building_segments]`);
+    }
+  }
   if (meta.image_h_px != null && meta.image_h_px !== canvasH) {
     findings.push(`${label}: image_h_px ${meta.image_h_px} is not the ${canvasH}px canvas it is a meta for (§12.5 (iv)) [row11:meta.image_h]`);
   }
@@ -544,7 +568,7 @@ export function validate(fixtureDir, records, derivedMetas) {
       for (const f of loc.facings) {
         const key = `${loc.id}/${f}`;
         checkMeta(`meta ${key}`, metaForFacing(key, findings, derived), findings,
-          CANVAS_W, GRID_META.image_h_px);
+          CANVAS_W, GRID_META.image_h_px, derived && derived[key]);
       }
     }
   }

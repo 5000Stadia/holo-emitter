@@ -545,7 +545,7 @@ export const LIT = {
          at the painting's own wall-ceiling junction has to know where the
          painting put it, and the declared storey puts it 46 px lower. */
       measured_storey_m: 2.997,
-      nearest_floor_m: 2.2295,
+      nearest_floor_m: 2.1994,
       calibration_px: 209,
       measured: true
     }

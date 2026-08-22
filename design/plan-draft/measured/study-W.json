@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "14b2274fd2e7c780739cb170b2c225f170541b567a9c2baef260d7acb2a4dec9",
   "_what_this_is": "DRAFT \u00a75 meta for study/W, measured off backdrops/source/study-W/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "Blank by instruction - 'No architectural feature or focal object of any kind' - so it carries no tier-1 ruler at all and the panelling module transferred from study/N is the whole of its scale.",
   "verdict": "FAIL",

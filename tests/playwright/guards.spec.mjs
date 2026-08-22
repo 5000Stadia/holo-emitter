@@ -30,7 +30,7 @@
  * watching it go red.
  */
 import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl, navUrl } from "./helpers.mjs";
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
@@ -164,6 +164,8 @@ export const MECHANISMS = [
   // prevent, committed by the file itself.
   /* [Row 21] The doorway as a fact about the building, and the two ways a
      world can name a way through that is neither. */
+  "meta.building_fields",
+  "meta.building_segments",
   "meta.openings_list",
   "meta.opening_rect",
   "meta.opening_via",
@@ -231,6 +233,9 @@ export const MECHANISMS = [
   "renderer.building_fact_opening",
   "renderer.through_view",
   "renderer.through_view_painted",
+  "renderer.through_view_corners",
+  "renderer.through_view_depth",
+  "renderer.through_view_finite",
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
@@ -269,6 +274,15 @@ const DOCUMENT_CASES = {
      the hole the renderer cuts where no leaf is staged, and the rectangle the
      page accepts a `go` click inside — so a malformed one is either a doorway
      nobody can see or a click target over solid paint. */
+  /* [Row 21, round 3] A measured meta's building half against the plan's own
+     answer. `study/N` is the only measured meta in the tree, and the file it
+     lives in is resolved BEFORE the derived map — so these two doctor the
+     DERIVED side, which is the same comparison from the other end and the only
+     one a doctored map can reach. */
+  "meta.building_fields": () => tokensFromMetas((m) => { m["study/N"].storey_height_m = 2.5; }),
+  "meta.building_segments": () => tokensFromMetas((m) => {
+    m["study/N"].wall_segments = [{ from_m: 0, to_m: 1, kind: "wall" }];
+  }),
   "meta.openings_list": () => tokensFromMetas((m) => { m["study/E"].openings = "op13"; }),
   "meta.opening_rect": () => tokensFromMetas((m) => {
     m["study/E"].openings = [{ id: "op13", via: "door1", x: 900, y: 300, w: 0, h: 500,
@@ -497,7 +511,14 @@ test.describe("the clause ledger — document-side mechanisms", () => {
   }
 
   test("and the shipped documents trip none of them", () => {
-    expect([...tokensOf(validate(FIXTURE_DIR, RECORDS))]).toEqual([]);
+    /* [Row 21, round 3 — G4] EVERY shipped world, not the demo one. Two of the
+       clauses this project minted can only fire on a world whose doorways are
+       building facts, and that world was the one this check never opened. */
+    for (const dir of readdirSync(join(repoRoot, "fixtures"))
+      .filter((d) => existsSync(join(repoRoot, "fixtures", d, "world.json")))) {
+      expect([...tokensOf(validate(join(repoRoot, "fixtures", dir), RECORDS))],
+        `${dir} trips a clause`).toEqual([]);
+    }
     expect([...tokensOf(validatePlan(PLAN, WORLD, byEntity()))]).toEqual([]);
   });
 });
@@ -654,6 +675,84 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       expect(broken, "with the painted call gone the painting's doorway keeps its own dark hole")
         .toBeGreaterThan(5000);
       expect(clean, "and the shipped renderer puts the passage in it").toBe(0);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_view_corners", async ({ page }) => {
+    /* [Row 21, round 3 — G8] THE FOUR CORNER DRAWS HAD NO SUBJECT. The
+     * destination frame covers the shipped openings in three directions, so
+     * the corner regions measure 0 px wide on every facing this world has and
+     * a critic deleted all four calls with the suite green. The subject is a
+     * FAR destination: at 40 m the far room draws 209 px inside a 250 px
+     * opening and all four corners are real. */
+    const dir = stageWithout(
+      "    ctx.drawImage(off, 0, 0, 1, 1, a.x, a.y, lft, top);\n" +
+      "    ctx.drawImage(off, W - 1, 0, 1, 1, dx + dw, a.y, rgt, top);\n" +
+      "    ctx.drawImage(off, 0, H - 1, 1, 1, a.x, dy + dh, lft, bot);\n" +
+      "    ctx.drawImage(off, W - 1, H - 1, 1, 1, dx + dw, dy + dh, rgt, bot);",
+      "    void [lft, rgt, top, bot];");
+    try {
+      const broken = await farApertureVoid(page, dir);
+      const clean = await farApertureVoid(page, repoRoot);
+      expect(broken - clean,
+        "with the corner draws gone a wide arch leaves thousands of pixels of its corners void")
+        .toBeGreaterThan(1000);
+      /* Not zero, and RELATIVE, for a reason worth a line: a thin seam between
+         the far room's frame and its stretched edge sits within a whisker of
+         the threshold (11.9 against a bar of 12), and the two engines
+         rasterise that seam differently — 4 pixels on Chromium, 240 on
+         Firefox. What the mechanism owes is the CORNER REGIONS, which are
+         thousands, so the claim is that the corners are a different order of
+         magnitude from the seam rather than an absolute count neither engine
+         agrees on. */
+      expect(clean * 5, "and the shipped renderer fills them").toBeLessThan(broken);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_view_depth", async ({ page }) => {
+    /* [Row 21, round 3 — G9] `no_through` HAD NO SUBJECT EITHER: both shipped
+     * worlds are two rooms with one door and an arrival that faces away, so
+     * the recursion terminates at depth 1 whatever the flag says. The subject
+     * is a world where the destination facing has a doorway of its own —
+     * which is what row 15's manor is made of — and there the flag is the only
+     * thing between one room and an unbounded descent. */
+    const dir = stageWithout(
+      "      no_through: true,",
+      "      no_through: false,");
+    try {
+      const broken = await secondDoorwayVoid(page, dir);
+      const clean = await secondDoorwayVoid(page, repoRoot);
+      expect(clean - broken,
+        "with the stop gone, the room beyond the SECOND doorway is drawn too — one room deeper than the renderer promises")
+        .toBeGreaterThan(300);
+      expect(clean,
+        "and the shipped renderer leaves that second opening as the unlit hole it is at that distance")
+        .toBeGreaterThan(300);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_view_finite", async ({ page }) => {
+    /* [Row 21, round 3 — G10] `null >= 0` IS TRUE, and the guard written
+     * against it was invisible: no shipped opening carries a null `beyond_m`,
+     * so reverting the fix left the suite green. The subject is an opening
+     * whose meta cannot say what is beyond it — which is what every plan door
+     * into an unbuilt room will carry the day the manor is walked. */
+    const dir = stageWithout(
+      '    if (typeof a.beyond_m !== "number" || !isFinite(a.beyond_m) || a.beyond_m < 0) {',
+      "    if (!(a.beyond_m >= 0)) {");
+    try {
+      const broken = await nullBeyondVoid(page, dir);
+      const clean = await nullBeyondVoid(page, repoRoot);
+      expect(broken, "with the old test back, an opening that knows nothing draws a room anyway")
+        .toBeLessThan(20000);
+      expect(clean, "and the shipped renderer says nothing rather than guessing")
+        .toBeGreaterThan(50000);
     } finally {
       removeTree(dir);
     }
@@ -1008,6 +1107,113 @@ async function paintedApertureVoid(page, root) {
     const bd = {};
     for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
     bd["study/E"] = { meta: A.metaFor(vs), image: A.backdrops["study/N"].image };
+    const ap = window.HOLO.renderer.apertures(
+      world, A.harness.staging, A.library, bd["study/E"].meta, vs)[0];
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, world, A.harness.staging, A.library, bd, vs,
+      { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(
+      Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+    let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) n++;
+    }
+    return n;
+  });
+}
+
+/** [Row 21, round 3] The same opening with its destination pushed to 40 m, so
+ *  the far room is smaller than the hole and all four corners are real. */
+async function farApertureVoid(page, root) {
+  /* A WIDE ARCH ONTO A DEEP ROOM, which is the shape that exposes a corner at
+     all: the reveals are 14 % and 8 % of an opening's own width and they are
+     drawn OVER the room beyond, so the far room's frame has to fall further
+     inside the opening than that before any corner region is visible. A 0.90 m
+     door onto a 12.7 m passage never does — every corner of the two shipped
+     openings measures 0 px, which is why four draws could be deleted with the
+     whole suite green. A 900 px arch (great-hall scale, which the manor has)
+     onto a room 12 m off does: the far frame is 507 px in a 900 px hole,
+     leaving 196 px of corner a side. */
+  return await doctoredApertureVoid(page, root, (o) => {
+    o.x = 320; o.w = 900; o.beyond_m = 12; o.beyond_offset_m = 0.088;
+  });
+}
+
+/** [Row 21, round 3] And with its `beyond_m` unknown, which is what a plan door
+ *  into a room this world does not hold will carry. */
+async function nullBeyondVoid(page, root) {
+  return await doctoredApertureVoid(page, root, (o) => { o.beyond_m = null; });
+}
+
+async function doctoredApertureVoid(page, root, doctor) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate((doctorSrc) => {
+    const A = window.HOLO_APP;
+    const vs = { location: "study", facing: "E" };
+    const meta = JSON.parse(JSON.stringify(A.metaFor(vs)));
+    // eslint-disable-next-line no-new-func
+    (new Function("o", doctorSrc))(meta.openings[0]);
+    const bd = {};
+    for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+    bd["study/E"] = { meta };
+    const ap = window.HOLO.renderer.apertures(
+      A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, A.harness.world, A.harness.staging, A.library, bd, vs,
+      { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(
+      Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+    let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) n++;
+    }
+    return n;
+  }, doctorBody(doctor));
+}
+
+function doctorBody(fn) {
+  const src = String(fn);
+  return src.slice(src.indexOf("{") + 1, src.lastIndexOf("}"));
+}
+
+/** [Row 21, round 3] A THREE-ROOM CHAIN: the destination facing has a doorway
+ *  of its own, which is what row 15's manor is made of. With the recursion stop
+ *  in place the second doorway is drawn as what it is at that distance — an
+ *  unlit opening — and with it gone the third room is drawn inside it. The
+ *  answer is a number rather than a hang: an earlier version of this case built
+ *  a SELF-loop and detected the descent by waiting for a stack overflow, which
+ *  is engine-dependent (Chromium unwinds in under a second, Firefox grinds) and
+ *  wedged a page for eight seconds on a loaded machine. */
+async function secondDoorwayVoid(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    const vs = { location: "study", facing: "E" };
+    const world = JSON.parse(JSON.stringify(A.harness.world));
+    /* A third room beyond the passage, reached on the facing you arrive with. */
+    world.locations.push({ id: "cellar", facings: ["N", "E", "S", "W"], exits: [] });
+    world.locations.find((l) => l.id === "hall").exits.push({
+      id: "onward", from: "hall", facing: "E", to: "cellar",
+      arrive_facing: "E", via: "door2"
+    });
+    const bd = {};
+    for (const k of Object.keys(A.backdrops)) {
+      bd[k] = { meta: JSON.parse(JSON.stringify(A.backdrops[k].meta)) };
+    }
+    bd["cellar/E"] = { meta: JSON.parse(JSON.stringify(A.backdrops["study/N"].meta)) };
+    const src = bd["study/E"].meta.openings[0];
+    /* AT THE RIGHT-HAND END OF THE PASSAGE'S OWN END WALL, and the position is
+       forced rather than chosen: the far room is drawn at 0.47 scale offset
+       into a 250 px opening, so only about 43 px of its end wall falls inside
+       the hole we are looking through. A second doorway anywhere else in that
+       wall maps outside the clip and is invisible whatever the renderer does —
+       which is what makes this mechanism so easy to leave unguarded. */
+    bd["hall/E"].meta.openings = [{ id: "onward", via: "door2", x: 928, y: 430,
+      w: 62, h: 300, beyond_m: src.beyond_m, beyond_offset_m: 0 }];
     const ap = window.HOLO.renderer.apertures(
       world, A.harness.staging, A.library, bd["study/E"].meta, vs)[0];
     const c = document.createElement("canvas");

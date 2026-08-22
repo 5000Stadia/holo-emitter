@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "b384a48da64f83ce6f9a00e45a5781ffefd1986e7001f90de410bf11d9f0e68f",
   "_what_this_is": "DRAFT \u00a75 meta for study/E, measured off backdrops/source/study-E/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "One of the two facings that carry the study<->cross-passage door, so it carries a tier-1 ruler and does not have to lean on the module.",
   "verdict": "FAIL",

@@ -96,6 +96,7 @@ rests on one re-tuned window and on nothing else.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -1608,6 +1609,14 @@ def main_cand1():
         d = r["derived"]
         loc, f = fac.split("/")
         doc = {
+          # [Row 21, round 3 — G13] THE CANDIDATE'S OWN BYTES. A critic
+          # repainted a candidate in place — moved its fireplace 200 px — and
+          # the promotion dressed the new picture in the old measurement's
+          # numbers, because the only binding between the two was a PATH in a
+          # sentence. A path is not a picture. `promote-backdrop.mjs` refuses
+          # when this digest is not the digest of the file it is promoting.
+          "_source_sha256": hashlib.sha256(
+              open(os.path.join(ROOT, cfg["src"]), "rb").read()).hexdigest(),
           "_what_this_is":
             "DRAFT §5 meta for %s, measured off %s. Not a shipped "
             "backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px "
@@ -1887,6 +1896,15 @@ def cand2_doc(fac, r, module_m):
     cfg, m, d = r["cfg"], r["measured"], r["derived"]
     prim = r["primary"]
     doc = {
+      # [Row 21, round 3 — G13] THE CANDIDATE'S OWN BYTES, and this is the
+      # round `tools/promote-backdrop.mjs` actually reads. A critic repainted a
+      # candidate in place — moved its fireplace 200 px — and the promotion
+      # dressed the new picture in the old measurement's numbers, because the
+      # only binding between the two was a PATH in a sentence. A path is not a
+      # picture. The promotion refuses when this digest is not the digest of
+      # the file it is promoting.
+      "_source_sha256": hashlib.sha256(
+          open(os.path.join(ROOT, cfg["src"]), "rb").read()).hexdigest(),
       "_what_this_is":
         "DRAFT §5 meta for %s, measured off %s by design/plan-draft/measured/"
         "measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>."

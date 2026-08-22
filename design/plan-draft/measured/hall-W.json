@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "0aec157bd54a8eb3e529a1b6b18683e6201ebf9f01fb1901faf1a97b6df39e69",
   "_what_this_is": "DRAFT \u00a75 meta for hall/W, measured off backdrops/source/passage-W/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "The axial view west, and the other side of the same door. The one cross-passage facing with a tier-1 ruler in it.",
   "verdict": "FAIL",

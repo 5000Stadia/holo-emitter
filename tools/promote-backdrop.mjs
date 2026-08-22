@@ -30,6 +30,7 @@
  * decides by running the promotion.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -82,6 +83,23 @@ if (!String(m._what_this_is || "").includes(srcRel)) {
   console.error(`promote refused: ${measuredFile} was measured off a different image than ${srcRel}`);
   console.error(`  its own header says: ${m._what_this_is}`);
   process.exit(1);
+}
+/* [Round 3 — G13] AND OF THE SAME BYTES, not merely the same path. A critic
+ * repainted the candidate in place — moved its fireplace 200 px — and this
+ * script dressed the new picture in the old measurement's numbers with nothing
+ * downstream able to see it, which is the one failure its own header warns
+ * about. A path is a name; a digest is the picture. */
+{
+  const want = m._source_sha256;
+  if (!want) {
+    console.error(`promote refused: ${measuredFile} carries no _source_sha256 — re-run design/plan-draft/measured/measure.py, which records the bytes it measured`);
+    process.exit(1);
+  }
+  const got = createHash("sha256").update(readFileSync(join(root, candidate))).digest("hex");
+  if (got !== want) {
+    console.error(`promote refused: ${candidate} is not the image ${measuredFile} was measured off — the measurement recorded sha256 ${want.slice(0, 12)}… and this file is ${got.slice(0, 12)}…. Re-measure before promoting a repainted candidate.`);
+    process.exit(1);
+  }
 }
 
 const ppm = m.px_per_m_at_wall;

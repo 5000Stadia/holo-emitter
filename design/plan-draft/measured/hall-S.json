@@ -1,4 +1,5 @@
 {
+  "_source_sha256": "35f8a8e3faf8c8c3767b27f453bd7640c7d295c3acaa1353c16d8edc33e4c933",
   "_what_this_is": "DRAFT \u00a75 meta for hall/S, measured off backdrops/source/passage-S/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
   "_role": "The tapestry wall band. Same instruction as hall/N and the same obedience; the tapestry has no ruled size.",
   "verdict": "WITHHELD",

@@ -627,15 +627,20 @@ test.describe("the lens tolerances are pinned from both sides", () => {
        has left the tree, which is a finding rather than a pass. */
     expect(existsSync(dir),
       "design/plan-draft/measured/ is gone — the measured band has nothing left to be a band over").toBe(true);
-    const MEASURED = {                       // px/m read off each painting, and each facing's DRAWN standpoint
-      "study/N": [232.222, 4.35], "study/E": [235.0, 4.09], "study/S": [196.667, 3.85],
-      "study/W": [237.778, 4.09], "hall/N": [255.556, 2.15], "hall/E": [151.111, 6.00],
-      "hall/S": [288.889, 2.15], "hall/W": [136.0, 6.00]
+    /* px/m read off each painting, and each facing's DRAWN standpoint. [Row 21]
+       These are the cand-2 round's numbers, and three facings are WITHHELD —
+       nothing in their pixels converts to a scale — so they carry null and are
+       not members of any band. A withheld facing is not a failing one and must
+       not be counted as either. */
+    const MEASURED = {
+      "study/N": [232.222, 4.35], "study/E": [235.5, 4.09], "study/S": [null, 3.85],
+      "study/W": [233.22, 4.09], "hall/N": [null, 2.15], "hall/E": [88.85, 6.00],
+      "hall/S": [null, 2.15], "hall/W": [106.0, 6.00]
     };
     const lo = MEASURED_REFERENCE_PX * (1 - MEASURED_BAND);
     const hi = MEASURED_REFERENCE_PX * (1 + MEASURED_BAND);
     const admitted = Object.entries(MEASURED)
-      .filter(([, [ppm, cam]]) => ppm * cam >= lo && ppm * cam <= hi)
+      .filter(([, [ppm, cam]]) => ppm !== null && ppm * cam >= lo && ppm * cam <= hi)
       .map(([k]) => k);
     expect(admitted,
       "the band's membership over the eight approved backdrops has changed — blueprint §5 admits study/N and rules the other seven back to the asset seat")
@@ -661,6 +666,17 @@ test.describe("the lens tolerances are pinned from both sides", () => {
       out = e.stdout ? String(e.stdout) : "";
     }
     if (!out.trim()) {
+      /* [Row 21, round 3 — G6] AN EMPTY STDOUT IS A FAILURE, NOT A SKIP. The
+         skip was written for a tree with no measurement corpus, and a critic
+         used it as an off-switch: breaking `gate.py`'s WITHHELD guard makes it
+         raise a TypeError, print nothing, and this case reported a green skip
+         over a tool that had crashed. The corpus is either there or it is not,
+         and that is a question about the tree rather than about the tool — so
+         it is asked directly, and anything else is red. */
+      const corpus = join(repoRoot, "design", "plan-draft", "measured", "study-N.json");
+      expect(existsSync(corpus),
+        "gate.py printed nothing and its own corpus IS in the tree — the tool did not run")
+        .toBe(false);
       test.skip(true, "the measurement corpus is not present here");
       return;
     }

@@ -1859,6 +1859,16 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(g.word.length,
         `${g.dir}'s entry records a verdict with no word in it — the ledger holds what a human said`)
         .toBeGreaterThan(3);
+      /* [Round 3 — G5] AND THE WORD MAY NOT BE A PLACEHOLDER. Writing a commit
+         hash into a row whose verdict column still reads AWAITING KABE closed
+         the gate with the whole suite green: the hash was checked and the word
+         was not, so a gate could retire on a line that says in plain English
+         that nobody has looked. A closed entry carries what a person actually
+         said, in quotation marks, because that is what this file is for. */
+      expect(g.word, `${g.dir} is recorded as CLOSED against ${g.commit} while its verdict still reads "${g.word}" — a placeholder is not a verdict`)
+        .not.toMatch(/awaiting|pending|tbd|todo|^-$/i);
+      expect(g.word, `${g.dir}'s verdict is not quoted — the ledger holds a human's own words`)
+        .toMatch(/["“”]/);
     }
     /* And the row-20 lock's own line is that gate's second half: while its
        ledger entry is open the sheets must keep printing what the approval
@@ -1898,8 +1908,14 @@ test.describe("the schematic is a derived render of the plan", () => {
    *
    * It costs one browser and eleven page loads, and it is the only assertion
    * in this file that can tell Kabe he is looking at this build. */
-  test("the batch IS what the build that made it drew — every frame re-rendered and compared", async () => {
+  test("the batch IS what the build that made it drew — every frame re-rendered and compared", async ({ browserName }) => {
     test.setTimeout(180_000);
+    /* ONCE, not once per engine. This case launches its own Chromium through
+       `capture.mjs` and renders eleven frames; running it again under the
+       Firefox project measures nothing new about the frames and doubles a
+       minute of work, which on a loaded machine is what turned it red twice.
+       The engine under test is irrelevant to a claim about a script. */
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
     const dir = BATCH_DIR;
     expect(existsSync(dir),
@@ -1993,8 +2009,14 @@ test.describe("the schematic is a derived render of the plan", () => {
   const BEFORE_FACINGS = ["01-study-N", "02-study-E", "03-study-S", "04-study-W",
     "05-hall-N", "06-hall-E", "07-hall-S", "08-hall-W"];
 
-  test("the batch's BEFORE frames are what the superseded build drew", async () => {
+  test("the batch's BEFORE frames are what the superseded build drew", async ({ browserName }) => {
     test.setTimeout(180_000);
+    /* ONCE, not once per engine. This case launches its own Chromium through
+       `capture.mjs` and renders eleven frames; running it again under the
+       Firefox project measures nothing new about the frames and doubles a
+       minute of work, which on a loaded machine is what turned it red twice.
+       The engine under test is irrelevant to a claim about a script. */
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
     expect(execFileSync("git", ["rev-parse", "--short", BEFORE_COMMIT],
       { cwd: repoRoot, encoding: "utf8" }).trim(),
@@ -2094,6 +2116,51 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(blindOut).toMatch(/row21:prompt\.no_gate_anchor/);
       expect(blindOut, "a frame with nothing of ruled size in it is refused by its own clause")
         .toMatch(/row21:prompt\.unmeasurable_by_design/);
+
+      /* [Round 3 — G7] AND THE ADVERSARIAL FORMS, one per clause, because a
+         critic defeated all three of them by writing the same instruction
+         differently. Each of these commits exactly the fault its clause
+         exists to refuse, in words the first version of the clause did not
+         enumerate. */
+      const paraphrase = join(dir, "paraphrase.prompt.txt");
+      writeFileSync(paraphrase, [
+        "Gate anchor: the door opening's height at the wall plane, 2.00 m",
+        "Avoid: changing the camera scale, fisheye, rim light.",
+        "Targeted correction: back the camera off until the wall reads 1346 pixels across."
+      ].join("\n") + "\n");
+      expect(lint([paraphrase]), "a paraphrased scale instruction is still one")
+        .toMatch(/row21:prompt\.contradictory_scale/);
+
+      const listed = join(dir, "listed.prompt.txt");
+      writeFileSync(listed, [
+        "Gate anchor: the fireplace opening, jamb to jamb, 0.90 m",
+        "Avoid:",
+        "- changing the camera scale",
+        "- fisheye",
+        "Targeted correction: move the camera closer until the wall spans about 1346 pixels."
+      ].join("\n") + "\n");
+      expect(lint([listed]), "the prohibition still counts when it is a bullet under Avoid:")
+        .toMatch(/row21:prompt\.contradictory_scale/);
+
+      const nullAnchor = join(dir, "null.prompt.txt");
+      writeFileSync(nullAnchor, [
+        "Gate anchor: nothing whatsoever, 0 m",
+        "Hard camera geometry: No corner shall appear in frame. NO corners in frame."
+      ].join("\n") + "\n");
+      const nullOut = lint([nullAnchor]);
+      expect(nullOut, "an anchor of nothing is not an anchor")
+        .toMatch(/row21:prompt\.no_gate_anchor/);
+      expect(nullOut, "and it does not silence the clause that depends on one")
+        .toMatch(/row21:prompt\.unmeasurable_by_design/);
+
+      const wrongSize = join(dir, "wrong.prompt.txt");
+      writeFileSync(wrongSize, [
+        "Gate anchor: the wainscot chair-rail above the floor, 1.20 m",
+        "Hard camera geometry: camera 4.09 metres from the wall."
+      ].join("\n") + "\n");
+      expect(lint([wrongSize]),
+        "an anchor at a size this project does not rule would have the prompt and the gate measuring different lengths")
+        .toMatch(/row21:prompt\.no_gate_anchor/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -2130,8 +2197,14 @@ test.describe("the schematic is a derived render of the plan", () => {
    * outstanding. */
   const ROW21_DIR = join(repoRoot, "design", "batches", "row21-promotion");
 
-  test("the row-21 batch IS what the code draws — every frame re-rendered and compared", async () => {
+  test("the row-21 batch IS what the code draws — every frame re-rendered and compared", async ({ browserName }) => {
     test.setTimeout(180_000);
+    /* ONCE, not once per engine. This case launches its own Chromium through
+       `capture.mjs` and renders eleven frames; running it again under the
+       Firefox project measures nothing new about the frames and doubles a
+       minute of work, which on a loaded machine is what turned it red twice.
+       The engine under test is irrelevant to a claim about a script. */
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     expect(existsSync(join(ROW21_DIR, "capture.mjs")),
       "the batch must carry the script that made it").toBe(true);
     const out = mkdtempSync(join(tmpdir(), "holo-row21-"));
