@@ -333,6 +333,7 @@ export const MECHANISMS = [
   "renderer.stairwell_clears_the_ceiling",
   "renderer.threshold_line",
   "renderer.threshold_needs_no_band",
+  "renderer.threshold_draws_no_jamb",
   /* [Row 19] Carrier clearance completed. */
   "plan.object_clear_of_thresholds",
   "plan.object_clear_of_standpoints",
@@ -1560,6 +1561,31 @@ test.describe("the clause ledger — renderer mechanisms", () => {
     }
   });
 
+  ledgerCase("renderer.threshold_draws_no_jamb", async ({ page }) => {
+    /* AND IT DRAWS NOTHING ELSE. `drawApertures` cuts an opening's own dark
+     * fill, its two reveals, its soffit and its jamb — the wall's thickness —
+     * and a threshold has no wall and therefore no thickness. Blueprint §4b
+     * law (b) forbids the invented enclosure that would be; and because the
+     * device CLIPS to the rectangle before it fills, drawing it over a
+     * threshold does not merely add a frame, it blots out the ground that was
+     * there. Measured on `entrance_court/S`, where the mouth stands in front
+     * of open ground rather than in a gap between two wing fronts: the lit
+     * area inside the mouth's own rectangle falls from 205,824 px to 1,536 —
+     * the ground beyond the threshold replaced by a framed dark panel. */
+    const dir = stageWithout(
+      '      if (a.kind && a.kind !== "door") continue;',
+      "      if (false) continue;");
+    try {
+      const clean = await thresholdGround(page, repoRoot);
+      const broken = await thresholdGround(page, dir);
+      expect(clean, "the ground beyond the mouth is drawn").toBeGreaterThan(100000);
+      expect(broken, "and the doorway's own thickness would blot it out")
+        .toBeLessThan(clean / 10);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
   ledgerCase("renderer.threshold_needs_no_band", async ({ page }) => {
     /* LAW (b), READ IN THE OTHER DIRECTION. A doorway needs a band to be a
      * hole in; a threshold needs the ABSENCE of one, or it is a way through a
@@ -1717,6 +1743,35 @@ async function thresholdInk(page, root) {
       if (here - beside > 40) onLine++;
     }
     return { onLine };
+  });
+}
+
+/** [Row 15] Lit pixels inside the court mouth's own rectangle on
+ *  `entrance_court/S` — the ground beyond the threshold, which is what a
+ *  doorway's fill would replace with a dark panel. */
+async function thresholdGround(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    const vs = { location: "entrance_court", facing: "S" };
+    const meta = A.metaFor(vs);
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, fx.world, fx.staging, A.library,
+      { [`${vs.location}/${vs.facing}`]: { meta } }, vs, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    const th = (meta.openings || []).find((o) => o.kind === "threshold");
+    if (!th) return 0;
+    let lit = 0;
+    const x0 = Math.max(0, Math.ceil(th.x)), x1 = Math.min(1536, Math.floor(th.x + th.w));
+    for (let y = Math.max(0, Math.ceil(th.y)); y < Math.min(1024, Math.floor(th.y + th.h)); y++) {
+      for (let x = x0; x < x1; x++) {
+        const i = (y * 1536 + x) << 2;
+        if (d[i] + d[i + 1] + d[i + 2] > 90) lit++;
+      }
+    }
+    return lit;
   });
 }
 
