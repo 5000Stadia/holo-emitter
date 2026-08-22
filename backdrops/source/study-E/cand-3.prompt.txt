@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: round-3 camera-scale correction for the study east backdrop
+Input images: Image 1 is backdrops/source/study-N/cand-2.png, the exact style, material, palette, finish, and lighting reference. Image 2 is backdrops/source/study-E/cand-2.png, the east-wall composition reference.
+Primary request: Render the empty east wall of the same c.1660 English study as an exact 1536x1024 landscape image, with the camera moved closer so the wall and all wall-plane architecture draw exactly 1.05 times larger than Image 2.
+Geometry: The centred east wall has both room corners visible. Its corner-to-corner span is approximately 1253 pixels. A single centred stone-cased door opening is exactly 2.00 metres tall and draws 494 pixels tall from threshold to head. The camera is square and level to the wall, with true parallel verticals and the same rectilinear lens character as Image 1. Floorboards reach the bottom edge and the ceiling junction is visible.
+Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall
+Named anchor: the door opening is exactly 2.00 metres tall and draws 494 pixels tall.
+Scene: Dark aged English-oak fielded paneling, pale stone door case, bare broad oak floorboards, plain warm plaster ceiling, and an open dark passage beyond the doorway. The room is completely empty. The doorway is an architectural opening with a clear threshold and jambs.
+Lighting and style: Match Image 1 exactly: warm hearth light from off-frame left, cool daylight fill from off-frame right, fine oil realism at high finish, crisp architectural detail, smooth blended brushwork, believable dark oak, stone, light, and reflection.

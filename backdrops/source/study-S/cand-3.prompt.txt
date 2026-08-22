@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: round-3 equal-bay correction for the study south backdrop
+Input images: Image 1 is backdrops/source/study-N/cand-2.png, the exact style, material, palette, finish, and lighting reference. Image 2 is backdrops/source/study-S/cand-2.png, the south window-wall composition reference.
+Primary request: Render the empty south wall of the same c.1660 English study as an exact 1536x1024 landscape image, with three precisely equal leaded-window architectural bays.
+Geometry: The camera stands exactly 3.85 metres from the south wall, square and level to it. One metre of wall spans 262 pixels. Exactly three window bays cross the wall. Each bay is exactly 0.90 metres wide between its outer vertical mullion centre-lines, approximately 236 pixels, and all three bays draw exactly equal widths to the pixel. Both room corners remain visible, verticals remain parallel, floorboards reach the bottom edge, and the ceiling junction is visible.
+Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall
+Named anchor: exactly three equal window bays, each exactly 0.90 metres between mullion centre-lines and approximately 236 pixels wide, equal to the pixel.
+Scene: Dark aged English-oak fielded paneling surrounds three tall equal leaded-window bays with small diamond panes. A continuous bare oak sill and wainscot complete the architecture. Broad old oak floorboards and plain warm plaster ceiling frame the completely empty room.
+Lighting and style: Match Image 1 exactly: cool grey-blue daylight through the three windows, restrained warm hearth reflection from behind the camera, fine oil realism at high finish, crisp leaded glass and joinery, smooth blended brushwork, believable dark oak, glass, light, and reflection.

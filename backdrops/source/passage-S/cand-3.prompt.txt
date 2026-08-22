@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: round-3 measurable close wall band for the hall south facing
+Input images: Image 1 is backdrops/source/study-N/cand-2.png, the exact style, material, palette, finish, and lighting reference. Image 2 is backdrops/source/passage-S/cand-2.png, the south wall-band and tapestry composition reference.
+Primary request: Render the close transverse south wall band of the same c.1660 English cross passage as an exact 1536x1024 landscape image, with its single verdure tapestry.
+Geometry: The camera is square and level to the long wall. One metre of wall spans approximately 470 pixels. The frame shows wall height from approximately 0.50 metres to 2.60 metres. No floor, no ceiling, and no corners appear. The eight-metre wall continues beyond both frame edges.
+Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall
+Named anchor: one metre of wall spans approximately 470 pixels; the 0.95-metre chair-rail is clearly visible below the tapestry edge across the full frame.
+Scene: A close flat front-on band of dark aged English-oak fielded paneling with one large flat c.1660 English verdure tapestry in muted olive, umber, faded ochre, and deep blue. The tapestry hangs above the chair-rail, leaving that rail fully exposed and measurable. The wall is otherwise empty.
+Lighting and style: Match Image 1 exactly: restrained warm ambience from frame right, cool grey-blue fill from frame left, fine oil realism at high finish, crisp panel joinery and tapestry weave, smooth blended brushwork, believable dark oak, textile, light, and reflection.

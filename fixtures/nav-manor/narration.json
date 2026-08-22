@@ -1,8 +1,8 @@
 {
   "schema": "holo-emitter-narration/0.1",
   "lines": {
-    "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves.",
-    "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again.",
+    "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.",
+    "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.",
     "go.door_study_hall.refused_unreachable": "The way to the cross passage does not open from where you stand.",
     "go.door_hall_study.refused_unreachable": "The way to the study is not before you; you must come to it first.",
     "toggle.*.refused_unknown": "Nothing of that description offers itself to your hand.",

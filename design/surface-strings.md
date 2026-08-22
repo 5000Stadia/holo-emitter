@@ -278,8 +278,8 @@ id | surface | state | verdict | observed | adjudicator | string
 51 | #narration | take.door1.refused_fixed | PASS | yes | row7-artifact-critic | The door hangs on its iron hinges, and there it will hang.
 52 | #narration | take.stick1.refused_fixed | PASS | yes | row7-artifact-critic | The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.
 53 | #narration | take.shelf1.refused_fixed | PASS | yes | row7-artifact-critic | The bookshelf is a full press of oak against the wall; no strength of yours will shift it.
-54 | #narration | go.door_study_hall.arrive | PASS | yes | row13-artifact-critic-pass3 | You step through into the cross passage. The air is cooler here, and moves.
-55 | #narration | go.door_hall_study.arrive | PASS | yes | row7-artifact-critic | You pass back into the study, where ink and oak dust close about you again.
+54 | #narration | go.door_study_hall.arrive (the furnished world; a leaf stands in that opening) | PASS | yes | row21-kabe-live-finding | You step through into the cross passage. The air is cooler here, and moves. The door stands open behind you.
+55 | #narration | go.door_hall_study.arrive (the furnished world) | PASS | yes | row21-kabe-live-finding | You pass back into the study, where ink and oak dust close about you again. The door stands open behind you.
 56 | #narration | go.door_study_hall.refused_closed | PASS | yes | row7-artifact-critic | The door is shut against you; the latch has not been lifted.
 57 | #narration | go.door_hall_study.refused_closed | PASS | yes | row7-artifact-critic | The way back stands barred; the door wants opening first.
 58 | #narration | go.door_study_hall.refused_unreachable | PASS | yes | row7-artifact-critic | The way to the cross passage does not open from where you stand.
@@ -301,13 +301,15 @@ id | surface | state | verdict | observed | adjudicator | string
 75 | entity-control aria-label | note1, takeable, not yet held | PASS | yes | row8-10-artifact-critic | take the vellum notebook
 76 | entity-control aria-label | coin1, takeable, not yet held | PASS | yes | row8-10-artifact-critic | take the silver coin
 77 | entity-control go-control aria-label | door1 open, on the facing of either exit it serves — one shared leaf, one string, named from the leaf's own record rather than a per-exit lookup | PASS | yes | row8-10-artifact-critic | walk through the plank door
+81 | #narration | go.door_study_hall.arrive (the painted navigation world, where the opening is the building's and no leaf stands in it) | PASS | yes | row21-kabe-live-finding | You step through into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.
+82 | #narration | go.door_hall_study.arrive (the painted navigation world) | PASS | yes | row21-kabe-live-finding | You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.
 80 | entity-control go-control aria-label | an exit through an opening no leaf fills — the doorway as a fact about the building, which is what the painted navigation world walks through [row 21] | PASS | yes | row21-painted-promotion | walk through the doorway
 78 | #scene aria-label | always | PASS | yes | row8-10-artifact-critic | what you see
 79 | entity-control aria-label | a bound entity's record has no usable noun (degenerate case; forced by a doctored record, not reachable on the shipped tree in ordinary play) | PASS | yes | row8-10-artifact-critic | something here
 ```
 
 ```COUNT
-STRINGS 78
+STRINGS 80
 STATES 36
 ```
 

@@ -131,7 +131,7 @@ test.describe("the painted world a visitor opens", () => {
     expect(s.viewstate, "arriving in the passage, facing the way you were walking")
       .toEqual({ location: "hall", facing: "E" });
     expect(s.narration[s.narration.length - 1])
-      .toBe("You step through into the cross passage. The air is cooler here, and moves.");
+      .toBe("You step through into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.");
   });
 
   test("and back again, so the two rooms are a world rather than a one-way trip", async ({ page }) => {
@@ -151,7 +151,7 @@ test.describe("the painted world a visitor opens", () => {
     expect(s.viewstate, "back in the study, still walking west")
       .toEqual({ location: "study", facing: "W" });
     expect(s.narration[s.narration.length - 1])
-      .toBe("You pass back into the study, where ink and oak dust close about you again.");
+      .toBe("You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.");
   });
 
   test("the doorway is reachable by keyboard alone, and it is named for what it is", async ({ page }) => {

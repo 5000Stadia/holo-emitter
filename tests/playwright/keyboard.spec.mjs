@@ -172,7 +172,7 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
     s = await worldState(page);
     expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
     expect(await lastNarration(page)).toBe(
-      "You step through into the cross passage. The air is cooler here, and moves.");
+      "You step through into the cross passage. The air is cooler here, and moves. The door stands open behind you.");
 
     /* The hall's furnished facing is the one you ARRIVE on since row 20: the
        press and the candlestick stand against the passage's east end wall,
@@ -218,7 +218,7 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
     s = await worldState(page);
     expect(s.viewstate).toEqual({ location: "study", facing: "W" });
     expect(await lastNarration(page)).toBe(
-      "You pass back into the study, where ink and oak dust close about you again.");
+      "You pass back into the study, where ink and oak dust close about you again. The door stands open behind you.");
   });
 });
 

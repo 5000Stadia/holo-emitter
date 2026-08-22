@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "1176f82c",
+  fp: "99622ad8",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -134,8 +134,8 @@ window.HOLO_FIXTURES["demo-study"] = {
     "take.door1.refused_fixed": "The door hangs on its iron hinges, and there it will hang.",
     "take.stick1.refused_fixed": "The brass candlestick is a great floor-piece, heavier than it has any right to be; it stays where it was set.",
     "take.shelf1.refused_fixed": "The bookshelf is a full press of oak against the wall; no strength of yours will shift it.",
-    "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves.",
-    "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again.",
+    "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves. The door stands open behind you.",
+    "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again. The door stands open behind you.",
     "go.door_study_hall.refused_closed": "The door is shut against you; the latch has not been lifted.",
     "go.door_hall_study.refused_closed": "The way back stands barred; the door wants opening first.",
     "go.door_study_hall.refused_unreachable": "The way to the cross passage does not open from where you stand.",

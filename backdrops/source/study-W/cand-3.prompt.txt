@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: round-3 camera-scale correction for the study west backdrop
+Input images: Image 1 is backdrops/source/study-N/cand-2.png, the exact style, material, palette, finish, and lighting reference. Image 2 is backdrops/source/study-W/cand-2.png, the west-wall composition reference.
+Primary request: Render the empty blank west wall of the same c.1660 English study as an exact 1536x1024 landscape image, with the camera moved closer so the wall draws exactly 1.06 times larger than Image 2.
+Geometry: One metre of the west wall spans 247 pixels. The wall's corner-to-corner span is approximately 1319 pixels. Both room corners remain visible. The camera is square and level to the wall, with true parallel verticals and the same rectilinear lens character as Image 1. Floorboards reach the bottom edge and the ceiling junction is visible.
+Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall
+Named anchor: one metre of wall spans 247 pixels and the corner span is approximately 1319 pixels.
+Scene: Completely blank dark aged English-oak fielded paneling with restrained period moulding, bare broad oak floorboards, and a plain warm plaster ceiling. The room is empty and the wall is architecturally quiet.
+Lighting and style: Match Image 1 exactly: subtle cool daylight from off-frame left, restrained warm hearth reflection from off-frame right, fine oil realism at high finish, crisp joinery, smooth blended brushwork, believable dark oak, light, and reflection.

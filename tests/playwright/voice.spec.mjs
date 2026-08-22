@@ -131,17 +131,34 @@ test.describe("the audit itself", () => {
   });
 
   test("the audit's copies byte-equal their homes", () => {
-    const narration = JSON.parse(readFileSync(
-      join(repoRoot, "fixtures", "demo-study", "narration.json"), "utf8")).lines;
-    const byKey = new Map(Object.entries(narration));
-    let matched = 0;
+    /* [Row 21] BOTH WORLDS. The page carries two baked fixtures now — the
+       furnished demo world and the painted navigation world — and each has its
+       own narration.json. Two of their lines differ by one word, because in
+       one world a leaf stands in the opening and in the other the doorway is
+       the building's, so an audit that read one file would have called the
+       other's line a stranger. Every line of every world is enumerated
+       verbatim, and every enumerated line is some world's. */
+    const WORLDS = ["demo-study", "nav-manor"].map((id) => ({
+      id,
+      lines: JSON.parse(readFileSync(
+        join(repoRoot, "fixtures", id, "narration.json"), "utf8")).lines
+    }));
+    const covered = new Set();
     for (const r of STRINGS) {
-      if (!byKey.has(r.state.split(" ")[0])) continue;
-      expect(r.text, `#${r.id} byte-equals narration.json`)
-        .toBe(byKey.get(r.state.split(" ")[0]));
-      matched++;
+      const key = r.state.split(" ")[0];
+      const homes = WORLDS.filter((w) => Object.prototype.hasOwnProperty.call(w.lines, key));
+      if (homes.length === 0) continue;
+      const same = homes.filter((w) => w.lines[key] === r.text);
+      expect(same.length, `#${r.id} (${key}) byte-equals no world's narration.json — the audit says ${JSON.stringify(r.text)}, the worlds say ${JSON.stringify(homes.map((w) => w.lines[key]))}`)
+        .toBeGreaterThan(0);
+      /* Every world whose line this row IS, because most lines are shared
+         verbatim between the two worlds and one audit row is the home of both
+         copies. The two that differ are covered by their own rows. */
+      for (const w of same) covered.add(`${w.id}:${key}`);
     }
-    expect(matched, "every narration line is enumerated").toBe(byKey.size);
+    const want = WORLDS.flatMap((w) => Object.keys(w.lines).map((k) => `${w.id}:${k}`));
+    expect([...want].filter((k) => !covered.has(k)).sort(),
+      "every narration line of every world is enumerated").toEqual([]);
   });
 
   test("record nouns byte-equal the bound library", async ({ page }) => {

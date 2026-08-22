@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: round-3 camera-scale correction for the hall east axial backdrop
+Input images: Image 1 is backdrops/source/study-N/cand-2.png, the exact style, material, palette, finish, and lighting reference. Image 2 is backdrops/source/passage-E/cand-2.png, the east axial composition reference.
+Primary request: Render the empty east-facing axial view down the same narrow c.1660 English cross passage as an exact 1536x1024 landscape image. Draw the far end wall 1.9 times larger than Image 2.
+Geometry: The passage is 2.60 metres wide and the camera stands exactly 6.00 metres down the corridor, centred on its axis. The 2.60-metre-wide east end wall spans at least 437 pixels. Both long side walls converge strongly and symmetrically toward that larger far wall. The tall centred leaded window is exactly 1.80 metres tall. True verticals remain parallel and the rectilinear camera is level.
+Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall
+Named anchor: the tall leaded window is exactly 1.80 metres tall, and the 2.60-metre end wall spans at least 437 pixels.
+Scene: Dark aged English-oak fielded paneling covers the side walls and far wall; a tall narrow leaded window is centred in the end wall; bare broad floorboards and plain warm plaster ceiling complete the empty corridor.
+Lighting and style: Match Image 1 exactly: cool daylight from the end window, faint warm ambient fill from behind the camera, fine oil realism at high finish, crisp panel and leaded-glass detail, smooth blended brushwork, believable dark oak, light, and reflection.

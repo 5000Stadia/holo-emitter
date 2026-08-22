@@ -848,6 +848,28 @@ px_per_m_at_bottom` refuses any placement at any depth — which is what forced
 `shelf1` and `stick1` onto `hall/E` (the reasons are on the plan objects). The
 census is a plan warning rather than a hidden fact.
 
+### A live player finding, and the one word that answers it
+
+[HUMAN, 2026-08-22, verbatim, on the current link]: *"Demo door puts me in a room without a return
+door but otherwise ok."*
+
+The return door is drawn and works — `hall/W` renders it correctly and the walk back is one click.
+What was missing is that **his own orientation law puts the door behind you on arrival**: passage
+maintains orientation, so you walk east and arrive facing east, with the way back at your shoulder
+and nothing saying so. A player reads a room with no door in it.
+
+Both arrival lines gained the peripheral sense (§4b shape item 9's doctrine — what the body knows
+that the frame does not show): *"…The door stands open behind you."* in the furnished world, where
+a leaf stands in that opening, and *"…The doorway stands open behind you."* in the painted
+navigation world, where the opening is the building's and no leaf fills it. Two worlds, two
+narration files, one word apart — which is why `voice.spec`'s audit byte-equality reads BOTH files
+now and requires every line of each to be enumerated.
+
+**What it does not do, and the honest limit**: the line is spoken once, at arrival. A player who
+turns twice and forgets is not told again, and the picture still shows a bare wall on three of the
+four facings of an empty room. The full answer is a turn-around affordance or a compass, and
+neither is this row's.
+
 ### Residue, named
 
 1. **The nearest visible floor is 2.23 m on every facing in the manor**, and it
