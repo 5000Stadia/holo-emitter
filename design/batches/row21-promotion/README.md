@@ -63,7 +63,12 @@ And three that are this row's own:
    the README says it in the player's voice — but a room in two materials is a look, and the look
    is Kabe's.
 7. **An empty world.** Nothing in the painted world can be picked up, opened or refused. The
-   showcase's interactable half returns with the sprite phase, which is next.
+   showcase's interactable half returns with the sprite phase, which is next. Said plainly rather
+   than left for a reader to notice: **two of the five decomposed qualities have no subject in
+   these frames at all** — *contact* (every grounded object darkens the ground under it) and
+   *occlusion chains* (objects overlap objects) need objects, and there are none. Frames 10 and 11
+   are the only ones where either can be judged, and what they show is V1 placeholder shapes. An
+   empty room passing is not the same as a room that passed.
 
 ## The gate, and why only one wall was admitted
 
