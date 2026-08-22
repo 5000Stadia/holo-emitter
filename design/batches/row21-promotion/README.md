@@ -41,10 +41,12 @@ in one look and to no amount of JSON — that is what those eight are for.
 
 Four of them are the row-20 batch's, which has not had its verdict yet and rides with this one.
 
-1. **The eye height.** `design/approvals.log` records the camera A/B — the low eye of the promoted
-   `cand-2` against `cand-4-standing-eye.png` — as AWAITING. This row promoted the approved
-   low-eye frame and says so: if the standing eye wins, the promotion is a re-run of a committed
-   script against a new candidate, not a rewrite.
+1. **The eye height — ANSWERED while this batch was being made.** You picked **B**, the standing
+   eye. The wall in frame 01 is the low-eye `cand-2`, promoted before your word landed and left
+   exactly as it is: the promotion is a committed script, so the swap is a re-run against a new
+   candidate rather than a rewrite, and the production run that follows regenerates every wall
+   against `cand-4` as its camera reference. What you are looking at here is the mechanism, on the
+   frame that was available; the room you get is the standing one.
 2. **The two long-wall passage facings** (05, 07 in the row-20 batch; 08 and 06 here) show no
    floor, no ceiling line and no corner. That is correct for the room and it may still be wrong for
    the product.

@@ -1464,6 +1464,38 @@ ramp fit the promotion adopts; and in the empty painted world a screen-reader us
 all on seven of eight facings, which is row 10's surface meeting row 9's silence and belongs to
 neither of them alone.
 
+### The camera A/B closed while this row was closing: B, the standing eye
+
+[HUMAN, 2026-08-22]: **"B"** — `design/approvals.log`'s entry at `c900f66` carries it with its
+grounds, interaction visibility over mood. `backdrops/source/study-N/cand-4-standing-eye.png` is
+the frame that won.
+
+**This row's promotion stands exactly as built** [Navigator, 2026-08-22]. It was designed
+provisional against precisely this outcome and the promotion is a committed script, so the swap is
+a re-run against a new candidate rather than a rewrite. What changes is the PRODUCTION RUN that
+follows: the standing-eye wave regenerates the study and passage walls together with the manor's,
+all against `cand-4` as the camera reference, and **no cand-3 candidate promotes** — that round is
+recipe validation (does the scale-and-anchor discipline transfer?) rather than an admission gate.
+
+**What the production run's first step is, and what a first look at `cand-4` already says.** Its
+measured eye height becomes `DRAWING_EYE_M`'s target, and the gate gains an eye-height band around
+that measured value on the same ±3 % idiom the focal uses; the focal band itself (1010 px) is
+eye-independent and stands. A run of the cand-2 detectors over `cand-4` WITHOUT re-tuning — which
+is exactly the thing this project has a scar about — says two things, and only one of them is
+usable:
+
+- the fireplace ruler transfers: its inner jambs measure 340 and 554 against cand-2's 342 and 550,
+  so 215 px of a 0.90 m opening is **238.9 px/m**, and at the drawn 4.35 m that is a 1039 px lens,
+  **+2.9 %** — inside the band, provisionally;
+- the ceiling and floor detectors do NOT transfer: the strongest step in the upper band is at y 85
+  while the horizontality rule picks 120, the lower band offers 774/775 and 804/805 with nothing to
+  choose between them, and the corner reference strength falls from 70.4 to 16.4. **So no eye
+  height is issued here** — which is the whole point of the A/B, and issuing one off windows tuned
+  to another frame is the defect the WITHHELD class exists to name.
+
+The re-tune, the eye measurement and the band are the production run's first step, with the numbers
+above as its starting point rather than its answer.
+
 ### Residue, named
 
 1. **Seven walls are unadmitted and the world shows grid on them.** That is the materialization
