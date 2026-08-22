@@ -1981,58 +1981,75 @@ test.describe("the schematic is a derived render of the plan", () => {
    * the entire anchor rests on by inference — silently folded under APPROVED.
    * Deleting the line was caught; narrowing it to a lie was not.
    *
-   * So the clause is read against what actually moved. `standpoints.tsv` is the
-   * drawn content in pure numbers, and comparing it to the last sheet a human
-   * looked at directly says which drawn family Kabe has not seen. A family that
-   * moved and is not named in the clause is the stamp claiming more than it
-   * has; a clause naming a family that did not move is a clause about nothing. */
-  test("the pending clause names the drawn content that actually moved since Kabe last saw a sheet", () => {
+   * The first repair read the clause against what actually moved and demanded
+   * the moved family be NAMED — a word-presence test, and a critic negated it
+   * in the guard's own vocabulary: `pending  the standpoint distances and the
+   * wall widths are exactly as he approved them; nothing on this sheet needs
+   * his eye` printed on both sheets with every case green. Round 5 could be
+   * defeated by naming the wrong subject; that repair could be defeated by
+   * naming the right subject and negating it, which is worse, because the
+   * failure reads as compliance.
+   *
+   * SO NO SENTENCE OF ANYONE'S CARRIES THE CLAIM. The clause is DERIVED from
+   * the delta — which family moved, on how many facings — and the lock carries
+   * that derived string and no other. Its home is `scopeFromDelta` below;
+   * `approval.lock` holds a byte-checked copy the way `render.lock` holds a
+   * hash, and the sheet prints it. There is no prose left to negate: any edit
+   * to the line, in any direction, is a string that is not the computed one. */
+  function standpointDelta() {
+    const rows = (t) => t.trim().split("\n").map((l) => l.split("\t"));
+    const then = rows(execFileSync("git", ["show", `${SEEN_SHEET_COMMIT}:design/plan-draft/standpoints.tsv`],
+      { cwd: repoRoot, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }));
+    const now = rows(readFileSync(join(draftDir, "standpoints.tsv"), "utf8"));
+    return { then, now };
+  }
+
+  /* Each drawn family the sheet prints, the column that carries it, and the
+     words the derived clause uses for it. Only families that MOVED appear, so
+     the clause cannot be satisfied by naming everything. */
+  const FAMILIES = [
+    { column: "camera_wall_m", said: "the standpoint distances" },
+    { column: "wall_width_m", said: "the wall widths" },
+    { column: "room_type", said: "the room types" },
+    { column: "facing_type", said: "the facing types" }
+  ];
+
+  function scopeFromDelta(then, now) {
+    const head = then[0];
+    const moved = [], changedRows = new Set();
+    for (const fam of FAMILIES) {
+      const i = head.indexOf(fam.column);
+      if (i < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
+      let differs = then.length !== now.length;
+      for (let r = 1; r < Math.min(then.length, now.length); r++) {
+        if (then[r][i] !== now[r][i]) { differs = true; changedRows.add(r); }
+      }
+      if (differs) moved.push(fam);
+    }
+    if (!moved.length) return { moved, sentence: null };
+    const sentence = `${moved.map((f) => f.said).join(" and ")} on `
+      + `${changedRows.size} of the ${now.length - 1} facings this sheet draws, `
+      + `changed since the sheet he approved`;
+    return { moved, sentence };
+  }
+
+  test("the pending clause is DERIVED from what moved — no sentence of anyone's carries the claim", () => {
     const scope = pendingScope();
     test.skip(!scope, "the batch has been retired: approval.lock carries no `pending` line");
     expect(execFileSync("git", ["rev-parse", "--short", SEEN_SHEET_COMMIT],
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(SEEN_SHEET_COMMIT);
 
-    const rows = (t) => t.trim().split("\n").map((l) => l.split("\t"));
-    const then = rows(execFileSync("git", ["show", `${SEEN_SHEET_COMMIT}:design/plan-draft/standpoints.tsv`],
-      { cwd: repoRoot, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }));
-    const now = rows(readFileSync(join(draftDir, "standpoints.tsv"), "utf8"));
-    const head = then[0];
+    const { then, now } = standpointDelta();
     expect(now[0], "the standpoint table's columns changed; this comparison no longer knows what it is comparing")
-      .toEqual(head);
-    const col = (name) => head.indexOf(name);
-
-    /* Each drawn family the sheet prints, the column that carries it, and the
-       word the clause has to use for it. Only families that MOVED are demanded,
-       so this cannot be satisfied by naming everything. */
-    const FAMILIES = [
-      { column: "camera_wall_m", word: /standpoint/i, said: "the standpoint distances" },
-      { column: "wall_width_m", word: /wall/i, said: "the wall widths" },
-      { column: "room_type", word: /room/i, said: "the room types" },
-      { column: "facing_type", word: /facing/i, said: "the facing types" }
-    ];
-    const moved = [];
-    for (const fam of FAMILIES) {
-      const i = col(fam.column);
-      expect(i, `standpoints.tsv has no ${fam.column} column`).toBeGreaterThanOrEqual(0);
-      const n = Math.min(then.length, now.length);
-      let differs = then.length !== now.length;
-      for (let r = 1; r < n && !differs; r++) if (then[r][i] !== now[r][i]) differs = true;
-      if (differs) moved.push(fam);
-    }
-    expect(moved.length,
+      .toEqual(then[0]);
+    const d = scopeFromDelta(then, now);
+    expect(d.error).toBeUndefined();
+    expect(d.sentence,
       "nothing the sheet draws has moved since Kabe last saw one, so the `pending` line is a claim about nothing — retire it")
-      .toBeGreaterThan(0);
-    for (const fam of moved) {
-      expect(scope, `${fam.said} moved since ${SEEN_SHEET_COMMIT} and the pending clause does not name them — the stamp is claiming more than it has`)
-        .toMatch(fam.word);
-    }
-    /* And the distances themselves are printed on the sheet, so the clause must
-       say that too — "the standpoint markers" alone would leave the numbers
-       beside them reading as approved. */
-    if (moved.some((f) => f.column === "camera_wall_m")) {
-      expect(scope, "the printed standpoint distances moved and the pending clause does not say so")
-        .toMatch(/distance/i);
-    }
+      .not.toBeNull();
+    expect(scope,
+      `approval.lock's \`pending\` line is not the derived scope. Write exactly:\n\npending  ${d.sentence}\n\nand re-run draw_plan.py and render.sh. The line is computed from standpoints.tsv against ${SEEN_SHEET_COMMIT}, not composed — a clause a person writes is a clause a person can negate.`)
+      .toBe(d.sentence);
   });
 
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {

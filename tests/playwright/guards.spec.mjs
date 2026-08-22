@@ -105,8 +105,18 @@ const TOKEN_RE = /\[row(\d+):([a-z_.]+)\]/g;
    three to `validate-fixtures.mjs` and the suite stayed green.
    `TOKEN_LOOSE_RE` matches anything SHAPED like a token, and the case below
    requires each match to parse — so a malformed token is a finding rather than
-   a silence, and the strict grammar can no longer be evaded by breaking it. */
-const TOKEN_LOOSE_RE = /\[row\d*:?([^\]\n]{0,80})(\]|\n|$)/g;
+   a silence, and the strict grammar can no longer be evaded by breaking it.
+
+   AND IT IS THE OPENING SHAPE ALONE, case-blind and unbudgeted. The first
+   version of this was `/\[row\d*:?([^\]\n]{0,80})(\]|\n|$)/` and carried two
+   typed constants of its own, each the exact shape it was written to close: a
+   critic escaped it with `[ROW21:meta.brandNew]`, invisible to a case-sensitive
+   `\[row`, and with an 94-character body, invisible past `{0,80}` — both
+   landing back in the "neither declared nor undeclared" state this case exists
+   to abolish. There is nothing left to type narrower than the thing it hunts:
+   an opening bracket, `row`, a digit, and then the rest of that line is the
+   case's problem rather than the pattern's. */
+const TOKEN_LOOSE_RE = /\[row\d/gi;
 
 const REGISTERED = new Set();
 function ledgerCase(name, body) {
@@ -1177,10 +1187,16 @@ test("anything shaped like a ledger token IS one — the grammar is read, not on
    * prefix, carried down to the last typed part of the pattern. */
   const bad = [];
   for (const f of SCANNED) {
-    const src = readFileSync(join(repoRoot, f), "utf8");
-    for (const m of src.matchAll(TOKEN_LOOSE_RE)) {
-      const whole = m[0].endsWith("]") ? m[0] : `${m[0].replace(/\n$/, "")} (unterminated)`;
-      if (!/^\[row\d+:[a-z_.]+\]$/.test(whole)) bad.push(`${f}: ${whole}`);
+    for (const line of readFileSync(join(repoRoot, f), "utf8").split("\n")) {
+      for (const m of line.matchAll(TOKEN_LOOSE_RE)) {
+        /* From the opening shape to the end of its own line: no character
+           budget to slip past, and an unterminated token has no `]` to hide
+           behind either. */
+        const rest = line.slice(m.index);
+        if (!/^\[row\d+:[a-z_.]+\]/.test(rest)) {
+          bad.push(`${f}: ${rest.slice(0, 60)}${rest.length > 60 ? "…" : ""}`);
+        }
+      }
     }
   }
   expect(bad.sort(),

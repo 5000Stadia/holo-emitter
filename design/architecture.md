@@ -2068,6 +2068,19 @@ was not. It is now read against `standpoints.tsv`'s delta from `SEEN_SHEET_COMMI
 a human looked at directly: each drawn family that actually moved must be named in the clause, and
 a clause naming nothing that moved is a claim about nothing.
 
+**And naming is not asserting — the round-7 turn of the same screw.** That first repair demanded
+the moved family be NAMED, which is a word-presence test, and a critic negated it inside the
+guard's own vocabulary: `pending  the standpoint distances and the wall widths are exactly as he
+approved them; nothing on this sheet needs his eye` printed on both sheets with every case green.
+Round 5 could be defeated by naming the wrong subject; round 6 could be defeated by naming the
+right subject and denying it, which is worse, because the failure reads as compliance. **So no
+sentence of anyone's carries the claim any more.** The clause is DERIVED — which family moved, on
+how many facings — its home is `scopeFromDelta` in `plan.spec`, and `approval.lock` carries a
+byte-checked copy the way `render.lock` carries a hash. The general rule, and it is the last one
+this row learned: **a claim a person authors is a claim a person can negate; where a guard can
+compute the claim, it must, and the document holds the computed string rather than a description
+of it.**
+
 **A picture guard proves the picture is CURRENT, not that it is of what its name says.** The batch
 re-render byte-compares eleven frames against a fresh capture — but `capture.mjs` is both the
 definition and the comparison, so renaming a row of `FRAMES` is green by construction. The script
@@ -2093,9 +2106,13 @@ failure's 7) rather than one derived from the shipped `depth_m`.
 derives its file set from `tools/` and its row prefix from the sources, and left the token BODY as
 `[a-z_.]+` — so `[row21:meta.brandNew]` is not an undeclared token, it is not a token at all, and
 both completeness checks are silent about it. Anything shaped like a token must now PARSE as one,
-or it is a finding by itself.
+or it is a finding by itself. **And the matcher that finds them carries no typed constants of its
+own**: the first version was `/\[row\d*:?([^\]\n]{0,80})…/` and a critic escaped it twice, once
+with an uppercase prefix and once with a 94-character body — each escape the exact shape the case
+was written to close, one level out. It is `/\[row\d/gi` now, the opening shape alone, and the rest
+of the line is the case's problem rather than the pattern's.
 
-**Two round-6 findings are recorded rather than fixed, and here is why.**
+**Findings recorded rather than fixed, and here is why.**
 
 - **`approval.lock`'s `undrawn` digest is stale, and every sheet prints so.** Row 20 moved
   `stick1`'s footprint — undrawn content, under §4's standing licence — so both sheets carry
@@ -2112,7 +2129,32 @@ or it is a finding by itself.
   what a human has *not* seen is the clause that breaks the render when it grows. The band is a
   layout number, not a ruled one, and the honest fix is for it to grow with the stamp. Left for the
   row that next touches the sheet. `wrap_px` also drops to a flat 8 pt the moment it wraps, where
-  two lines at a fitted size would fit the column.
+  two lines at a fitted size would fit the column. *(Round-7 critic, G4: the ink band that measures
+  the stamp derives its BOTTOM from the rule's y and leaves its top a literal 140. If the stamp's
+  first line ever moved up, the band would clip it and ink from the second line would keep the case
+  green — the same kind of number at the other end of the same window.)*
+- **[Round 7, G2] Retiring the whole gate is still reachable by removal, and nothing in the tree
+  records whether Kabe's word ever landed.** Delete `pending`, re-run `draw_plan.py` and
+  `render.sh`, `rm -r design/batches/row20-lens/`: 568 passed, 5 skipped, 0 failed, both sheets
+  printing a bare `APPROVED 2026-08-21` over a drawing nobody has seen. The coupling made it twice
+  as expensive to switch off and made the skips visible, which is real, but the shape is unchanged:
+  the row's own target — *"the row closes on Kabe's word on that batch"* — has no representation any
+  check can read. **The representation is coming and it is not this row's to build**: the Navigator
+  is standing up `design/approvals.log`, a committed ledger of every human gate verdict with its
+  date, his verbatim word, its scope and the commit it was given against. Once it exists the lock's
+  requirement becomes a POSITIVE assertion — the gate retires when the ledger records a verdict, not
+  when a directory stops existing — and wiring this check to it is inherited by the promotion row.
+- **[Round 7, G5] Nothing distinguishes an agent editing blueprint §5's number from Kabe ruling
+  it.** Moving `MEASURED_BAND`, `gate.py`'s `BAND` and the blueprint sentence together is green, and
+  correctly so: the blueprint is the ruling document and reading the law from it is the right
+  architecture. Recorded because the parse also makes that sentence's exact markdown
+  (`**±3 % of 1010 px**`) load-bearing without the blueprint saying so, and because the same
+  approvals ledger is what would eventually distinguish the two edits.
+- **[Round 7, G6] The batch README's BEFORE column of *"the symptom, as a number"* is unread.**
+  `geometry.spec` asserts the after values and says honestly of the before ones that they are
+  *"quoted here as the before, not asserted"* — but the batch quotes them to Kabe in a table. The
+  archive-an-old-tree-and-render pattern that round 6 built for the BEFORE frames is exactly what
+  would bind them, and it now exists. Low severity: the code claims nothing the batch does not.
 
 **A check that stays green when what it guards is deleted is a finding**, and this row learned it
 twice: the first fix pass shipped five mechanisms held by nothing. Every guard listed above was
