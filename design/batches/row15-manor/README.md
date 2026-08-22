@@ -33,10 +33,11 @@ refusal for every way through the house.
 
 **1 — Did anything you already approved move?** `13` and `14` are the furnished world on its two
 most-looked-at facings, captured by this build. They should be the pictures you have already seen.
-One thing DID move and you should hear it from us: the cross passage's north wall gains a sliver of
-doorway (the manor world now walks through it into the buttery), so
-`design/batches/row21-promotion/08-hall-N.png` was re-captured. That batch is still awaiting your
-word and its other ten frames are untouched.
+One picture in the manor world DID change and you should hear it from us rather than notice it: the
+cross passage's north wall gains a sliver of doorway, because the manor now walks through it into
+the buttery. The row-21 batch you are still ruling on shows that wall — and it is untouched, because
+that batch re-renders from its own closing commit rather than from today's build. It is a picture of
+what it was, which is what makes it evidence.
 
 **2 — Does a house of grid rooms read as a house?** Twelve of these fourteen frames are the same
 material: line work on dark ground. That is the materialization fiction doing exactly what it says —

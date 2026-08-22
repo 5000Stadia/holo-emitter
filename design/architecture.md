@@ -2325,11 +2325,17 @@ them. Printed by the bake, carried into `projection.md` §10, batched.
    scratch to the opening's own rect rather than the frame, which must not move a hash. **Cold first
    paint at 390×844 from `file://` is 395 ms** with 149 kB of manor fixture and the one painting's
    base64 beside it.
-8. **`design/batches/row21-promotion/`'s `08-hall-N.png` was RE-CAPTURED.** The manor world names
-   `op15` as an exit, so the cross passage's north wall gains a doorway sliver and that frame is a
-   picture of a build that no longer exists. Re-capturing is that batch's own designed behaviour —
-   its frames are "pictures of what the link serves now" — and it is said here rather than left for
-   Kabe to notice.
+8. **`design/batches/row21-promotion/` is NOT touched by this row, and the reason changed under
+   it.** The manor world names `op15` as an exit, so the cross passage's north wall gains a sliver
+   of doorway and `08-hall-N.png` is a picture today's build does not draw. When this row began,
+   that batch re-rendered against TODAY's build and the honest act was to re-capture the frame. The
+   standing-eye wave changed the rule while this row was in flight: that batch now re-renders from
+   `ad82ede`, its own closing commit, exactly as row 20's does — because it is evidence a human has
+   not ruled on, and re-capturing would replace evidence he has never seen. So the frame stays as it
+   was, the batch answers to the build that drew it, and this row moves nothing in it. The
+   re-capture was made and then undone; it is written here because "we changed a picture Kabe was
+   waiting on and then changed it back" is the kind of thing a reader should not have to reconstruct
+   from git.
 
 ## Ground plane (`src/groundplane.js`)
 

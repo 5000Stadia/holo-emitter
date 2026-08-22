@@ -642,18 +642,22 @@ const DOCUMENT_CASES = {
     unknown: () => tokensFromMetas((m) => { m["study/E"].openings[0].kind = "archway"; }),
     absent: () => tokensFromMetas((m) => { delete m["study/E"].openings[0].kind; })
   }),
+  /* [Standing-eye wave] `study/S`, not `study/W`: the wave painted the study's
+     west wall too, and doctoring the DERIVED map cannot reach a facing whose
+     meta is resolved from a file — the case would go green by absence, which
+     is exactly what row 21 had to move four cases for. */
   "meta.stairs_list": () => everyArm("meta.stairs_list", {
-    not_a_list: () => tokensFromMetas((m) => { m["study/W"].stairs = "up"; }),
+    not_a_list: () => tokensFromMetas((m) => { m["study/S"].stairs = "up"; }),
     /* A flight is three things at once — the click target, the outline the
        grid strokes and the hover halo traces, and the well the ceiling is cut
        out of — so each is its own way to be wrong. */
-    no_rectangle: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ w: 0 })]; }),
-    no_direction: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ direction: "sideways" })]; }),
-    no_rise: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ rise_m: 0 })]; }),
-    no_treads: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ treads: 2.5 })]; }),
-    no_outline: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ poly: [] })]; }),
-    broken_ring: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
-    point_not_a_point: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; })
+    no_rectangle: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ w: 0 })]; }),
+    no_direction: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ direction: "sideways" })]; }),
+    no_rise: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ rise_m: 0 })]; }),
+    no_treads: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ treads: 2.5 })]; }),
+    no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ poly: [] })]; }),
+    broken_ring: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
+    point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; })
   }),
   "plan.stair_directions": () => {
     /* The flight kept where it is drawn and told it is climbed ACROSS its own
