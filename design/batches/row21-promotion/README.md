@@ -73,20 +73,25 @@ And three that are this row's own:
    are the only ones where either can be judged, and what they show is V1 placeholder shapes. An
    empty room passing is not the same as a room that passed.
 
-And three an artifact critic put on the table that only you can answer:
+And two an artifact critic put on the table, both already ANSWERED with authority — recorded here
+so you see what was decided in your name and can overturn either:
 
 8. **The painting and the plan disagree about where the hearth is, by 1.41 m.** The drawing you
    approved puts the study's chimney breast at 1.65–3.85 m along the north wall — dead centre of
    the frame. The painting you approved puts its fireplace at 0.87–1.78 m, well to the left of it.
-   Both documents are yours; the row promoted the painting and recorded the disagreement in the
-   meta rather than picking a side. One of the two has to move before anything is staged on that
-   wall — the plan re-drawn to the painting (and re-approved), or this wall re-asked with the
-   hearth where the plan puts it.
-9. **The light in the approved study is the hearth fire — left of centre, below the horizon.** The
-   orientation contract lights every sprite from the upper left (`UL45`), and `replicator/
-   contract.json` carries this as an open fork in your name: *"If key_dir varies per facing, ONE
-   sprite set cannot match every room."* It does vary, measurably, in the one frame we have. The
-   sprite lane is written against whatever you answer.
+   **Ruled: the PLAN amends to the painting.** The wall map's hearth position was drafted by an
+   agent; the painting's is what your own eye approved on 2026-08-21, and blueprint §5 makes the
+   approved image the geometric authority. The amendment is execution rather than judgement now —
+   it moves a drawn carrier, so it re-renders the sheets and re-anchors their stamp, and it moves
+   the study's south standpoint (which stands where it does to clear this very hearth). Nothing is
+   staged on that wall until it lands. Row 21 records the disagreement per carrier in the meta and
+   holds the number by test so it cannot drift while it waits.
+9. **The light in the approved study is the hearth fire — left of centre, below the horizon**,
+   against the orientation contract's UL45. **Ruled, under §10's own standing disposition: a facing
+   whose measured key defies UL rules its own sprites' light**, as one more dimension of the
+   variant manifest, with UL45 the default for unmeasured or neutral-keyed walls. So the study's
+   north wall gets a fire-lit sprite set. `replicator/contract.json` carries the fork closed, with
+   the authority chain in it.
 10. **On a phone the picture is 31 % of the screen.** 390×260 of an 844-tall display, with the
     narration and inventory strips below it holding nothing at all in the empty world. That is the
     layout doing exactly what it was told (contain-fit, chrome reserved); whether an empty painted
