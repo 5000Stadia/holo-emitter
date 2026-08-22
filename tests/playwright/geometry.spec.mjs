@@ -1,4 +1,7 @@
 import { test, expect, appUrl, LIT, repoRoot, gridExpectations, navUrl } from "./helpers.mjs";
+import {
+  metaForFacing as resolveMeta, MEASURED_REFERENCE_PX, MEASURED_BAND
+} from "../../tools/validate-fixtures.mjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -142,12 +145,58 @@ test.describe("camera-has-feet geometry", () => {
      *         has content;
      *   (iv)  image_h_px is the canvas it is a meta for. */
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
+    /* [ROW 21, round 2] THROUGH THE RESOLUTION RULE, not through `deriveMeta`.
+       This loop built every meta from the plan, so the one MEASURED meta the
+       project has — the file the page actually renders `study/N` with — was
+       judged by none of these clauses. An artifact critic set its
+       `calibration_px` to 999 and its `focal_px` to 1500 and the whole suite
+       stayed green. `metaForFacing` is the same three-tier resolution the
+       bake, the page and the validator use, so what is checked here is what is
+       drawn. */
     const metas = LIT.facingKeys().map((k) => {
       const [loc, f] = k.split("/");
-      return [k, deriveMeta(PLAN, loc, f)];
+      return [k, resolveMeta(k, [], { [k]: deriveMeta(PLAN, loc, f) })];
     });
     metas.push(["unplanned facing", GRID_META]);
     for (const [name, meta] of metas) {
+      /* A MEASURED meta answers to the same clauses with two different
+         numbers, and both of them are blueprint §5's: its lens is the ±3 %
+         acceptance band around the approved camera rather than the ruled
+         focal exactly (a reading off a painting cannot hit a constant), and
+         its calibration reference is its own named feature rather than the
+         grid's metre module. Everything else — the frame it is a meta for, the
+         audit that its scale follows from its own calibration pixels — is the
+         same claim. */
+      if (meta.measured) {
+        const dist0 = meta.camera_wall_m ?? meta.camera_far_m;
+        const focal0 = meta.px_per_m_at_wall * dist0;
+        expect(Math.abs(focal0 - MEASURED_REFERENCE_PX) / MEASURED_REFERENCE_PX,
+          `${name} (i′ measured): ${focal0.toFixed(1)} px against the approved ${MEASURED_REFERENCE_PX}`)
+          .toBeLessThanOrEqual(MEASURED_BAND);
+        expect(meta.focal_px, `${name}: the meta's own focal_px is that product`)
+          .toBeCloseTo(focal0, 1);
+        expect(meta.image_h_px, `${name} (iv)`).toBe(LIT.H);
+        /* §5's calibration audit on a painting: the scale follows from the
+           measured pixels of the named feature and its assumed real size,
+           within ±3 %. The size is parsed out of `calibration_ref`'s own
+           sentence, so the meta cannot say one thing in prose and another in
+           arithmetic. */
+        const sized = /taken at ([0-9]*\.?[0-9]+) m/.exec(meta.calibration_ref);
+        expect(sized, `${name}: calibration_ref names no size in metres`).toBeTruthy();
+        expect(Math.abs(meta.calibration_px / Number(sized[1]) - meta.px_per_m_at_wall) /
+          meta.px_per_m_at_wall,
+        `${name}: ${meta.calibration_px} px of a ${sized[1]} m feature is ${(meta.calibration_px / Number(sized[1])).toFixed(2)} px/m against the declared ${meta.px_per_m_at_wall}`)
+          .toBeLessThanOrEqual(0.03);
+        /* And the two fields a second formula could quietly disagree about. */
+        expect(meta.px_per_m_at_bottom,
+          `${name}: px_per_m_at_bottom follows from the horizon and the eye it implies`)
+          .toBeCloseTo((LIT.H - meta.horizon_y * LIT.H) /
+            ((meta.floor_line_y - meta.horizon_y) * LIT.H / meta.px_per_m_at_wall), 1);
+        expect(meta.nearest_floor_m,
+          `${name}: nearest_floor_m is cam × ppm / ppm_bottom, the one definition`)
+          .toBeCloseTo(dist0 * meta.px_per_m_at_wall / meta.px_per_m_at_bottom, 3);
+        continue;
+      }
       /* §12.5 (i) IS RETIRED (row 20). Under a pinned lens a wall wider than
          the frame runs past it, exactly as it does in life — the cross
          passage's 8.00 m north wall seen from 2.15 m puts its corners 1137 px
@@ -239,13 +288,85 @@ test.describe("camera-has-feet geometry", () => {
         expect(Math.abs(painted.row - Math.round(floorPx)),
           `${key}: the painted wall-floor line is drawn at ${painted.row}, the meta says ${Math.round(floorPx)}`)
           .toBeLessThanOrEqual(3);
-        /* §12.5 (ii). The tolerance is the calibration audit's own ±3 %,
-           blueprint §5's, which is also the band the asset gate admits on. */
-        const span = m.corner_x1_px - m.corner_x0_px;
+        /* §12.5 (ii), AND THE CORNERS ARE FOUND IN THE PICTURE. [Round 2] This
+           read `LIT.MEASURED`'s typed span against `LIT.MEASURED`'s typed
+           scale, so a corner-detector misfire that agreed with a scale error
+           would have passed a clause whose own comment says "measured off the
+           image". The corners are located here, in the render, by an
+           independent re-implementation of §5's own rule — the x at which the
+           wall-ceiling line stops being a strong horizontal, declared where
+           the step strength collapses below a quarter of its mid-wall median
+           for ten columns — and the meta's numbers are then held to what the
+           painting shows. The scan is POINTED at the painting's own
+           wall-ceiling junction, which is 46 px above where the declared
+           storey would put it — that gap is the warn-tier room disagreement,
+           and a scan aimed by the declared storey finds no corner at all. */
+        const found = await page.evaluate(({ loc, f, ceilRow }) => {
+          const c = window.__T.renderDirect({ location: loc, facing: f }, null,
+            { backdrop_only: true });
+          const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+          const lum = (x, y) => {
+            const i = (y * 1536 + x) * 4;
+            return 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+          };
+          const strength = [];
+          for (let x = 0; x < 1536; x++) {
+            let best = 0;
+            for (let y = ceilRow - 4; y <= ceilRow + 4; y++) {
+              best = Math.max(best, Math.abs(lum(x, y + 1) - lum(x, y)));
+            }
+            strength.push(best);
+          }
+          const mid = strength.slice(668, 868).slice().sort((a, b) => a - b);
+          const ref = mid[Math.floor(mid.length / 2)];
+          const ok = strength.map((v) => v >= 0.25 * ref);
+          const scan = (dir) => {
+            let x = 768;
+            for (;;) {
+              const nx = x + dir;
+              if (nx < 10 || nx > 1525) return null;
+              const seg = dir < 0 ? ok.slice(nx - 9, nx + 1) : ok.slice(nx, nx + 10);
+              if (!seg.some(Boolean)) return x;
+              x = nx;
+            }
+          };
+          return { x0: scan(-1), x1: scan(1), ref };
+        }, { loc, f, ceilRow: Math.round(m.floor_line_y * LIT.H -
+          m.measured_storey_m * m.px_per_m_at_wall) });
+        expect(found.x0, `${key}: no left corner found in the painting`).not.toBeNull();
+        expect(found.x1, `${key}: no right corner found in the painting`).not.toBeNull();
+        expect(Math.abs(found.x0 - m.corner_x0_px),
+          `${key}: the painting's left corner is at ${found.x0}, the meta says ${m.corner_x0_px}`)
+          .toBeLessThanOrEqual(4);
+        expect(Math.abs(found.x1 - m.corner_x1_px),
+          `${key}: the painting's right corner is at ${found.x1}, the meta says ${m.corner_x1_px}`)
+          .toBeLessThanOrEqual(4);
+        /* The tolerance is the calibration audit's own ±3 %, blueprint §5's,
+           which is also the band the asset gate admits on. */
+        const span = found.x1 - found.x0;
         const implied = m.wall_width_m * m.px_per_m_at_wall;
         expect(Math.abs(span - implied) / implied,
           `${key}: corners measured ${span.toFixed(0)} px apart against the ${implied.toFixed(0)} px its ${m.wall_width_m} m wall implies at ${m.px_per_m_at_wall.toFixed(2)} px/m`)
           .toBeLessThanOrEqual(0.03);
+        /* [F1] THE ROOM'S OWN FURNITURE OF STONE, and where the two documents
+           disagree about it. The gate asks whether a painting was made at the
+           project's camera; it cannot ask whether the room in the picture is
+           the room the plan draws, and on this wall they differ: the approved
+           plan puts the study's chimney breast at 1.65-3.85 m along the wall
+           and the painting puts its fireplace opening's centre 1.414 m to the
+           left of the breast's. The promoted meta records it per carrier and
+           this holds the record to the number, so the day either document
+           moves, someone has to look. It is not a pass/fail on the
+           disagreement — that is Kabe's, and it is in the batch. */
+        const meta = JSON.parse(readFileSync(
+          join(repoRoot, "backdrops", loc, `${f}.meta.json`), "utf8"));
+        const fire = (meta.measured_room.carriers || []).find((c) => c.kind === "fireplace");
+        expect(fire, `${key}: the plan holds a hearth on this wall and the meta records no carrier for it`)
+          .toBeTruthy();
+        expect(fire.centre_delta_m,
+          `${key}: the painted hearth stands ${fire.centre_delta_m} m from where the approved plan puts it — if that number has moved, a human has to rule on it again`)
+          .toBeCloseTo(-1.414, 3);
+
         /* And the camera-has-feet residual on the painting's own two lines. */
         const residual = Math.abs(m.horizon_y -
           (painted.row / LIT.H - LIT.eye_m * m.px_per_m_at_wall / LIT.H));

@@ -1,5 +1,6 @@
-import { test, expect, repoRoot, bake } from "./helpers.mjs";
-import { readFileSync, writeFileSync, cpSync, mkdtempSync, rmSync } from "node:fs";
+import { test, expect, repoRoot, bake, stageTree, removeTree } from "./helpers.mjs";
+import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, readdirSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -45,6 +46,79 @@ test.describe("fixtures", () => {
         fresh.equals(committed),
         "stale bake — run: node tools/bake-fixtures.mjs"
       ).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 21, round 2] THE PROMOTED META IS WHAT THE PROMOTION TOOL WRITES.
+   *
+   * An artifact critic set `storey_height_m` to 4.9, `calibration_px` to 999,
+   * `focal_px` to 1500 and `nearest_floor_m` to 9.9 in
+   * `backdrops/study/N.meta.json`, one at a time, and the whole suite stayed
+   * green each time: the file the page renders with was guarded on two of its
+   * fifteen fields and the tool that writes it was guarded on none. This is
+   * the fixture bake's own staleness shape applied to the meta — run the
+   * generator into a scratch tree and byte-compare — and it holds every field
+   * at once, because the tool derives all of them from the measurement and the
+   * plan. A hand-edited meta cannot ship between suite runs. */
+  test("promotion staleness: the committed meta byte-equals a fresh run of promote-backdrop", () => {
+    const dir = stageTree();
+    try {
+      /* The tool reads the measurement beside the gates; a staged tree carries
+         no `design/`, so that one directory comes with it. */
+      mkdirSync(join(dir, "design", "plan-draft"), { recursive: true });
+      cpSync(join(repoRoot, "design", "plan-draft", "measured"),
+        join(dir, "design", "plan-draft", "measured"), { recursive: true });
+      const promoted = readdirSync(join(repoRoot, "backdrops"))
+        .filter((loc) => loc !== "source" && !loc.endsWith(".js"))
+        .flatMap((loc) => readdirSync(join(repoRoot, "backdrops", loc))
+          .filter((f) => /^[NESW]\.meta\.json$/.test(f))
+          .map((f) => [loc, f[0]]));
+      expect(promoted.length, "no painting is promoted at all").toBeGreaterThan(0);
+      for (const [loc, facing] of promoted) {
+        const meta = JSON.parse(readFileSync(
+          join(repoRoot, "backdrops", loc, `${facing}.meta.json`), "utf8"));
+        const candidate = String(meta.camera_id).replace(/^measured:/, "");
+        expect(existsSync(join(repoRoot, candidate)),
+          `${loc}/${facing}'s meta names a candidate that is not in the tree: ${candidate}`)
+          .toBe(true);
+        /* The one candidate this meta names. `stageTree` leaves
+           `backdrops/source/` behind on purpose — it is 20 MB of the asset
+           seat's lane — so the source of THIS promotion comes over by itself. */
+        mkdirSync(join(dir, candidate, ".."), { recursive: true });
+        cpSync(join(repoRoot, candidate), join(dir, candidate));
+        execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+          "--facing", `${loc}/${facing}`, "--candidate", candidate],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" });
+        expect(readFileSync(join(dir, "backdrops", loc, `${facing}.meta.json`), "utf8"),
+          `backdrops/${loc}/${facing}.meta.json is not what promote-backdrop.mjs writes — a field was edited by hand, or the measurement moved and the promotion was not re-run`)
+          .toBe(readFileSync(join(repoRoot, "backdrops", loc, `${facing}.meta.json`), "utf8"));
+        expect(readFileSync(join(dir, "backdrops", loc, `${facing}.png`))
+          .equals(readFileSync(join(repoRoot, "backdrops", loc, `${facing}.png`))),
+          `backdrops/${loc}/${facing}.png is not a byte copy of the candidate it names`)
+          .toBe(true);
+      }
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  /* [ROW 21, round 2] AND THE BAKED PAINTINGS ARE THE PROMOTED ONES.
+   * `bake-backdrops.mjs`'s own header claimed a staleness test that did not
+   * exist: a critic replaced the image inside `backdrops/baked.js` with a
+   * flipped painting, left the PNG alone, and only the batch's frame
+   * comparison noticed — an incidental guard that a re-captured batch would
+   * have silenced. This is the one that cannot be talked out of. */
+  test("backdrop bake staleness: the committed baked.js byte-equals a fresh bake of the promoted PNGs", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "holo-bd-"));
+    try {
+      const out = join(scratch, "baked.js");
+      execFileSync("node", [join(repoRoot, "tools", "bake-backdrops.mjs"), "--out", out],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      expect(readFileSync(out).equals(readFileSync(join(repoRoot, "backdrops", "baked.js"))),
+        "stale backdrop bake — run: node tools/bake-backdrops.mjs")
+        .toBe(true);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }

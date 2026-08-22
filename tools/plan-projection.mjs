@@ -1096,7 +1096,7 @@ export function horizonGate(meta, eye) {
  * from the wall, which is the complement and is the wrong number: it made the
  * study read 2.56 m where the shipped grid cuts the floor at 1.04 m.)
  */
-function nearestFloorM(meta) {
+export function nearestFloorM(meta) {
   const cam = meta.camera_wall_m ?? meta.camera_far_m;
   return cam * meta.px_per_m_at_wall / meta.px_per_m_at_bottom;
 }

@@ -2782,3 +2782,83 @@ test.describe("the image that lands is the image the record names", () => {
     expect(r.wrong, `${r.wrong} of ${r.checked} pixels are not the part image`).toBe(0);
   });
 });
+
+/* [ROW 21, round 2] THE PAINTED ARM OF THE THROUGH-VIEW, which had no subject.
+ *
+ * The row claims one device serves painted and synthesized facings alike, and
+ * an artifact critic deleted the painted call site outright with the whole
+ * suite green: `study/N` is the only painting and it carries no doorway, so
+ * nothing in the product exercised that branch. The claim was true of the code
+ * and untested anywhere.
+ *
+ * So the case builds the state the product will reach the day a doorway facing
+ * is admitted: a painted entry bound to `study/E` — the real baked painting,
+ * standing in for a wall not yet gated — with `door1` removed from the world so
+ * the opening is the building's own. What must be true is what is true on the
+ * grid arm: the room beyond shows, and with the device gone the opening is
+ * void. */
+test.describe("through an opening, on a PAINTED facing", () => {
+  test("the destination room draws through a painted wall's doorway too", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    const res = await page.evaluate(async () => {
+      const A = window.HOLO_APP, T = window.__T;
+      const vs = { location: "study", facing: "E" };
+      const world = T.worldWithout(["door1"]);
+      const painting = A.backdrops["study/N"].image;
+      if (!painting) return { skipped: "no painting is bound to study/N" };
+      const bd = {};
+      for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+      bd["study/E"] = { meta: A.metaFor(vs), image: painting };
+      const ap = window.HOLO.renderer.apertures(
+        world, A.harness.staging, A.library, bd["study/E"].meta, vs)[0];
+      const draw = (opts) => {
+        const c = document.createElement("canvas");
+        c.width = 1536; c.height = 1024;
+        window.HOLO.renderer.render(c, world, A.harness.staging, A.library, bd, vs, opts);
+        return c.getContext("2d").getImageData(
+          Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+      };
+      const dark = (d) => {
+        let n = 0;
+        for (let i = 0; i < d.length; i += 4) {
+          if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) n++;
+        }
+        return n;
+      };
+      const painted = draw({ backdrop_only: true });
+      const withoutDevice = draw({ backdrop_only: true, no_through: true });
+      /* And the painting is really underneath: a column of wall outside the
+         opening carries the painting's own pixels, not the grid's. */
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      window.HOLO.renderer.render(c, world, A.harness.staging, A.library, bd, vs,
+        { backdrop_only: true });
+      const wallPx = c.getContext("2d").getImageData(200, 400, 1, 1).data;
+      const truth = document.createElement("canvas");
+      truth.width = 1536; truth.height = 1024;
+      truth.getContext("2d").drawImage(painting, 0, 0, 1536, 1024);
+      const truthPx = truth.getContext("2d").getImageData(200, 400, 1, 1).data;
+      return {
+        source: ap.source,
+        voidWith: dark(painted),
+        voidWithout: dark(withoutDevice),
+        wallIsPainting: wallPx[0] === truthPx[0] && wallPx[1] === truthPx[1] && wallPx[2] === truthPx[2]
+      };
+    });
+    expect(res.skipped, `${res.skipped}`).toBeUndefined();
+    expect(res.source, "the opening is the building's — no leaf is in this world").toBe("building");
+    expect(res.wallIsPainting, "the wall outside the opening is the painting itself").toBe(true);
+    /* 5,000 rather than the grid arm's 50,000, and the difference is the
+       point: a painted wall paints its OWN doorway, so with the device off the
+       opening is not blank canvas — it is the dark passage the painter put
+       there, 10,026 near-black pixels of it. What the device adds is the room
+       that is actually beyond, and what it removes is every one of them. */
+    expect(res.voidWithout,
+      "with the device off, a painted wall's doorway is the painter's own dark hole")
+      .toBeGreaterThan(5000);
+    expect(res.voidWith,
+      "and with it on, the passage is there — through a painting exactly as through a grid")
+      .toBe(0);
+  });
+});

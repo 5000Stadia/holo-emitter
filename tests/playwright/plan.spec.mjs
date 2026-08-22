@@ -1839,6 +1839,27 @@ test.describe("the schematic is a derived render of the plan", () => {
         `${g.dir} is an open human gate with no pictures in it`)
         .toBeGreaterThan(0);
     }
+    /* [F18] AND A CLOSED ENTRY CITES A COMMIT THAT EXISTS. Deleting the batch
+       and the lock's line together is caught; WRITING a verdict was not, and
+       fabricating a line is the same class of act as deleting one. A commit
+       hash is the one part of an entry that something outside the document can
+       check, so it is checked: `git rev-parse` it. This does not make the
+       QUOTE true — nothing in a repository can — but it stops a gate retiring
+       on a sentence with no history behind it. */
+    for (const g of gates) {
+      if (g.open) continue;
+      let resolved = "";
+      try {
+        resolved = execFileSync("git", ["rev-parse", "--verify", "--quiet", g.commit + "^{commit}"],
+          { cwd: repoRoot, encoding: "utf8" }).trim();
+      } catch (e) { resolved = ""; }
+      expect(resolved,
+        `design/approvals.log records a verdict on ${g.dir} against "${g.commit}", which is not a commit in this history`)
+        .not.toBe("");
+      expect(g.word.length,
+        `${g.dir}'s entry records a verdict with no word in it — the ledger holds what a human said`)
+        .toBeGreaterThan(3);
+    }
     /* And the row-20 lock's own line is that gate's second half: while its
        ledger entry is open the sheets must keep printing what the approval
        does not cover. */
@@ -2005,6 +2026,98 @@ test.describe("the schematic is a derived render of the plan", () => {
       rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
+  });
+
+  /* [ROW 21, round 2] THE PROMPT LINT IS A GATE, SO IT IS TESTED LIKE ONE.
+   *
+   * `prompt_lint.py` is the miss ledger's bake-in — the clause that makes two
+   * of this round's diagnosed causes impossible rather than merely written
+   * down. An artifact critic found it refusing 18 of 18 committed prompts and
+   * run by nothing, which is a rule with no discrimination and no enforcement.
+   * Two things answer that. This case proves the lint discriminates: a prompt
+   * that satisfies the rules passes, and one that breaks each rule is refused
+   * BY THAT CLAUSE. And the corpus number is asserted rather than quoted,
+   * because it is the lint's own clock baseline.
+   *
+   * The committed prompts are GRANDFATHERED and the lint says so by refusing
+   * them: they were written before the rule existed, they are the evidence for
+   * it, and the round they produced is the 0-of-7 baseline. The lint governs
+   * the next round. */
+  const LINT = join(draftDir, "measured", "prompt_lint.py");
+
+  function lint(paths) {
+    try {
+      return execFileSync("python3", [LINT, ...paths],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      return String(e.stdout || "") + String(e.stderr || "");
+    }
+  }
+
+  test("the prompt lint refuses what it names and passes what obeys it", () => {
+    const dir = mkdtempSync(join(tmpdir(), "holo-lint-"));
+    try {
+      const good = join(dir, "good.prompt.txt");
+      const bad = join(dir, "bad.prompt.txt");
+      const blind = join(dir, "blind.prompt.txt");
+      writeFileSync(good, [
+        "Asset type: backdrop candidate for the study east facing",
+        "Gate anchor: the door opening's height at the wall plane, 2.00 m",
+        "Hard camera geometry: camera 4.09 metres from the wall; one metre must span about 247 pixels.",
+        "Targeted correction: move the camera closer until the wall spans about 1346 pixels.",
+        "Avoid: fisheye, converging verticals, rim light."
+      ].join("\n") + "\n");
+      writeFileSync(bad, [
+        "Asset type: backdrop candidate",
+        "Gate anchor: the fireplace opening at the wall plane, 0.90 m",
+        "Targeted correction: move the camera closer until the wall spans about 1346 pixels.",
+        "Avoid: changing the camera scale, fisheye, rim light."
+      ].join("\n") + "\n");
+      writeFileSync(blind, [
+        "Asset type: backdrop candidate for a flat wall band",
+        "Hard camera geometry: NO floor line. NO ceiling line. NO corners in frame.",
+        "Critical constraints: no feature, carrier, opening, or decoration."
+      ].join("\n") + "\n");
+
+      const okOut = lint([good]);
+      expect(okOut, "a prompt that declares its anchor and does not contradict itself passes")
+        .toMatch(/^ok\s+.*good\.prompt\.txt/m);
+      expect(okOut).toMatch(/0 of 1 prompt\(s\) refused/);
+
+      const badOut = lint([bad]);
+      expect(badOut, "the contradiction is named by its own clause")
+        .toMatch(/row21:prompt\.contradictory_scale/);
+      expect(badOut, "and only by it — this prompt declares an anchor")
+        .not.toMatch(/row21:prompt\.no_gate_anchor/);
+
+      const blindOut = lint([blind]);
+      expect(blindOut).toMatch(/row21:prompt\.no_gate_anchor/);
+      expect(blindOut, "a frame with nothing of ruled size in it is refused by its own clause")
+        .toMatch(/row21:prompt\.unmeasurable_by_design/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("the cand-2 corpus is the lint's clock baseline, and the numbers are read not quoted", () => {
+    const prompts = readdirSync(join(repoRoot, "backdrops", "source"))
+      .filter((d) => d !== "refs")
+      .map((d) => join(repoRoot, "backdrops", "source", d, "cand-2.prompt.txt"))
+      .filter((p) => existsSync(p));
+    expect(prompts.length, "eight cand-2 prompts, one per facing").toBe(8);
+    const out = lint(prompts);
+    const count = (re) => (out.match(re) || []).length;
+    /* The seven regenerated walls carry the contradiction; study/N's own
+       prompt is not a re-ask and does not. This is the number the architecture
+       and the batch quote, asserted here so quoting it cannot go stale. */
+    expect(count(/row21:prompt\.contradictory_scale/g),
+      "five of the seven re-asks forbid the correction they ask for").toBe(5);
+    expect(count(/row21:prompt\.no_gate_anchor/g),
+      "and not one of the eight declares what the gate should measure").toBe(8);
+    expect(count(/row21:prompt\.unmeasurable_by_design/g),
+      "two ask for a frame nothing can measure").toBe(2);
+    expect(out, "every one of them is refused — the corpus is grandfathered, not compliant")
+      .toMatch(/8 of 8 prompt\(s\) refused/);
   });
 
   /* [ROW 21] AND THE PAINTED BATCH ANSWERS FOR ITSELF THE SAME WAY. Every

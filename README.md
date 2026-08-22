@@ -33,8 +33,10 @@ rectangle. The words of the room appear beneath the picture as you go.
 The painted rooms are empty while the furniture is being made: nothing in them can be picked up or
 opened yet. The furnished world — the desk whose drawer opens on something, the door with a latch,
 the things that ride in the strip at the bottom of the page — is one link away, at
-[`index.html?world=demo-study`](https://5000stadia.github.io/holo-emitter/?world=demo-study),
-standing in with drawn shapes until the real objects arrive.
+[`index.html?world=demo-study`](https://5000stadia.github.io/holo-emitter/?world=demo-study).
+Go there to see what the world *does*, not what it looks like: its objects are flat stand-in
+shapes, drawn by a few lines of code, and they are standing in a painted room they were never made
+to match. They are replaced by real ones next.
 
 ## Tests
 

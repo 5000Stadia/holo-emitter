@@ -539,6 +539,12 @@ export const LIT = {
       px_per_m_at_bottom: 459.3,
       corner_x0_px: 142,
       corner_x1_px: 1389,
+      /* The storey the PAINTING draws — 2.997 m against the plan's ruled 2.80,
+         which is the warn-tier disagreement the meta records in
+         `measured_room`. Typed here because a test that wants to point a scan
+         at the painting's own wall-ceiling junction has to know where the
+         painting put it, and the declared storey puts it 46 px lower. */
+      measured_storey_m: 2.997,
       nearest_floor_m: 2.2295,
       calibration_px: 209,
       measured: true

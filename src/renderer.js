@@ -973,13 +973,15 @@
    * see through the door is what you will be looking at once you have walked
    * through it — the same room, the same camera, one step later.
    *
-   * TWO NARROWINGS, both deliberate and both stated rather than discovered:
-   * the destination is drawn WITHOUT its own apertures, so looking through one
-   * doorway never draws a second behind it; and nothing staged in the
-   * destination room is drawn either, because entities are knowledge-filtered
-   * per standpoint and compositing another room's sprites through a hole would
-   * put the filter in two places. What shows through is the ROOM — its walls,
-   * its floor, its light — which is what the void was lying about. */
+   * WHAT IS AND IS NOT DRAWN, corrected [F13 — this comment used to say the
+   * opposite of the code, forty lines above the line that contradicted it]:
+   * the destination IS drawn with whatever the document stands in it, through
+   * the real renderer and the same knowledge filter (knowledge is the world's,
+   * not the standpoint's), because a doorway that showed an empty passage
+   * would deny the bookcase the document puts there. What it is NOT drawn with
+   * is its own apertures: `no_through` stops the recursion at one room, so the
+   * doorway BEYOND this one is drawn as what it is at that distance — an
+   * unlit opening — rather than as a second room seen through two holes. */
   var THROUGH_DIM = 0.42;
 
   function drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options) {
@@ -991,7 +993,19 @@
     if (!backdrops || !a.to || !a.arrive_facing) return false;
     var entry = backdrops[a.to + "/" + a.arrive_facing];
     if (!entry || !entry.meta) return false;
-    if (!(a.beyond_m >= 0)) return false;   // a meta that cannot say what is beyond says nothing
+    /* [F5] `null >= 0` IS TRUE IN JAVASCRIPT, and this guard was written as
+     * `!(a.beyond_m >= 0)`. A meta that cannot say what lies beyond an opening
+     * writes `beyond_m: null`, so the guard never fired: `D` collapsed to this
+     * room's own distance and the far room drew 3.1x too large, silently. The
+     * test is a real number test now, and a non-finite value is a FINDING
+     * rather than a silent fallback — row 19's rule, applied here. */
+    if (typeof a.beyond_m !== "number" || !isFinite(a.beyond_m) || a.beyond_m < 0) {
+      if (a.beyond_m !== null && a.beyond_m !== undefined) {
+        throw new Error("renderer: opening " + a.exit + " carries beyond_m " +
+          JSON.stringify(a.beyond_m) + " — a distance to the far wall must be a finite number");
+      }
+      return false;   // the meta says nothing about what is beyond, so neither does the picture
+    }
     var destMeta = entry.meta;
     var W = CANVAS_W, H = Math.round(meta.image_h_px);
     var gp = groundplane();
@@ -1054,10 +1068,22 @@
      * strip rather than left as void: the floor beyond does continue toward
      * you, and a hard edge where a picture ran out would be a claim about the
      * room that nobody made. */
-    ctx.drawImage(off, 0, H - 1, W, 1, dx, dy + dh, dw, Math.max(0, a.y + a.h - (dy + dh)));
-    ctx.drawImage(off, 0, 0, W, 1, dx, a.y, dw, Math.max(0, dy - a.y));
-    ctx.drawImage(off, 0, 0, 1, H, a.x, dy, Math.max(0, dx - a.x), dh);
-    ctx.drawImage(off, W - 1, 0, 1, H, dx + dw, dy, Math.max(0, a.x + a.w - (dx + dw)), dh);
+    /* [F6] THE CORNERS TOO. Four edge strips fill a CROSS, not a rectangle:
+     * the four corner regions between them stayed void, and the void grows
+     * with distance — 1.6 % of an opening on a facing the demo does not ship,
+     * 53 % of it with the far room 40 m away. Each corner is the destination's
+     * own corner pixel stretched, which is what clamping to an edge means in
+     * two directions at once. */
+    var lft = Math.max(0, dx - a.x), rgt = Math.max(0, a.x + a.w - (dx + dw));
+    var top = Math.max(0, dy - a.y), bot = Math.max(0, a.y + a.h - (dy + dh));
+    ctx.drawImage(off, 0, H - 1, W, 1, dx, dy + dh, dw, bot);
+    ctx.drawImage(off, 0, 0, W, 1, dx, a.y, dw, top);
+    ctx.drawImage(off, 0, 0, 1, H, a.x, dy, lft, dh);
+    ctx.drawImage(off, W - 1, 0, 1, H, dx + dw, dy, rgt, dh);
+    ctx.drawImage(off, 0, 0, 1, 1, a.x, a.y, lft, top);
+    ctx.drawImage(off, W - 1, 0, 1, 1, dx + dw, a.y, rgt, top);
+    ctx.drawImage(off, 0, H - 1, 1, 1, a.x, dy + dh, lft, bot);
+    ctx.drawImage(off, W - 1, H - 1, 1, 1, dx + dw, dy + dh, rgt, bot);
     ctx.drawImage(off, dx, dy, dw, dh);
     /* Dimmed, because it is another room seen from outside it through a hole
      * in a wall — and because at full brightness the opening reads as a second

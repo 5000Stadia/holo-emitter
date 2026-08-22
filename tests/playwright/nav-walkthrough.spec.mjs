@@ -253,11 +253,31 @@ test.describe("the same world in a hand", () => {
     const m = await page.evaluate(() => ({
       scrollW: document.documentElement.scrollWidth,
       clientW: document.documentElement.clientWidth,
+      clientH: document.documentElement.clientHeight,
+      rootFontSize: parseFloat(getComputedStyle(document.documentElement).fontSize),
       scene: document.getElementById("scene").getBoundingClientRect().toJSON()
     }));
     expect(m.scrollW, "no horizontal scroll").toBeLessThanOrEqual(m.clientW + 1);
     expect(m.scene.width, "the whole width of the frame is on screen")
       .toBeLessThanOrEqual(m.clientW + 1);
-    expect(m.scene.height, "and the frame has real height").toBeGreaterThan(100);
+    /* [Row 21, round 2] `> 100` WAS THE CONVENIENT-VIEWPOINT CHECK — it passes
+       at a size that leaves the row's whole achievement unreadable in a hand.
+       The real claim is that the picture is as large as the layout allows: a
+       3:2 frame contain-fitted into the width, with the bottom chrome's
+       reserve taken off the height. If a future row shrinks the picture, or
+       reserves space it does not use, this moves. */
+    const chrome = m.rootFontSize * 7.6;                 // narration 4.2 + strip 3.4
+    const avail = { w: m.clientW, h: m.clientH - chrome };
+    const fit = Math.min(avail.w / 1536, avail.h / 1024);
+    expect(m.scene.width, `the picture fills the width the layout allows (${avail.w}×${avail.h.toFixed(0)} available)`)
+      .toBeCloseTo(1536 * fit, 0);
+    expect(m.scene.height, "and the height that follows from it").toBeCloseTo(1024 * fit, 0);
+    /* WHAT THAT LEAVES, as a number rather than a shrug: on this phone the
+       picture is 390×260 of an 844-tall screen — 31 % of it — and in the empty
+       painted world the two chrome strips below it hold nothing at all. That
+       is a look question and it is in the row's batch, not a defect this
+       assertion can settle. */
+    expect(m.scene.height / m.clientH, "the picture's share of a phone screen")
+      .toBeLessThan(0.4);
   });
 });

@@ -35,9 +35,10 @@ import { fileURLToPath } from "node:url";
 import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, wallSegments } from "./plan-projection.mjs";
+import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers } from "./plan-projection.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const CANVAS_W = 1536;
 const args = process.argv.slice(2);
 const argOf = (flag, dflt) => {
   const i = args.indexOf(flag);
@@ -174,7 +175,15 @@ meta.wall_segments = walls.segments;
 meta.wall_continuous = walls.continuous;
 const fl = (plan.floors || []).find((f) => f.id === room.floor);
 meta.storey_height_m = (room.type === "open" || !fl) ? null : (fl.storey_height_m ?? null);
-meta.nearest_floor_m = round(eyeM / (1 - horizonY), 4);
+/* [F4] THROUGH THE ONE DEFINITION, not a second one that agrees on a facing
+ * where the focal length happens to equal the frame height. `eyeM / (1 −
+ * horizon_y)` is true only when `f` is 1024, which is what the RULED lens
+ * gives and not what a measured painting does: it wrote 2.2295 where the
+ * project's own `nearestFloorM` — `cam × ppm / ppm_bottom`, the definition
+ * `plan.spec` pins and every derived meta carries — gives 2.1994. A second
+ * formula for one number is how a 1.4 % measurement residual leaks into a
+ * field that has no business carrying it. */
+meta.nearest_floor_m = round(nearestFloorM(meta), 4);
 
 /* THE DOORWAY, measured where the painting has one. `measure.py` reads the
  * painted opening's wall-plane rectangle off the pixels for the two facings
@@ -206,6 +215,54 @@ for (const p of planned) {
   });
 }
 
+/* [F1] WHERE THE PLAN PUTS THIS WALL'S CARRIERS, AND WHERE THE PAINTING PUT
+ * THEM. The gate asks whether a candidate was painted at the project's camera.
+ * It does not ask whether the room in the picture is the room the plan draws,
+ * and on the very first promoted wall those two answers differ: the approved
+ * plan puts the study's chimney breast at 1.65-3.85 m along the north wall —
+ * dead centre of frame — and the painting puts its fireplace opening at
+ * 0.87-1.78 m, its centre 1.4 m from where the document holds it. An artifact
+ * critic found that, and nothing in this project could have.
+ *
+ * It is recorded, per carrier, in the meta and printed here. It is NOT made a
+ * refusal by an agent: two human-approved artifacts disagree — the drawing
+ * Kabe signed and the painting he blessed — and which one moves is his, not
+ * this script's. What this script owes is that the disagreement can never
+ * again be invisible. */
+const carriers = [];
+for (const c of facingCarriers(plan, loc, facing)) {
+  const width = fc.wall_width_m;
+  const px0 = groundplaneX(c.from_m / width), px1 = groundplaneX(c.to_m / width);
+  const entry = {
+    kind: c.kind, id: c.id ?? null,
+    plan_px: [round(Math.min(px0, px1), 1), round(Math.max(px0, px1), 1)],
+    plan_centre_px: round((px0 + px1) / 2, 1),
+    painted_px: null, painted_centre_px: null,
+    centre_delta_px: null, centre_delta_m: null,
+    painted_feature: null
+  };
+  const mp = m._measured_px || {};
+  if (c.kind === "fireplace" && typeof mp.fireplace_opening_x0_px === "number") {
+    entry.painted_px = [mp.fireplace_opening_x0_px, mp.fireplace_opening_x1_px];
+    entry.painted_feature = "the fireplace OPENING (the plan holds the whole breast, which is wider)";
+  } else if (c.kind === "door" && typeof mp.opening_x0_px === "number") {
+    entry.painted_px = [mp.opening_x0_px, mp.opening_x1_px];
+    entry.painted_feature = "the painted door opening at the wall plane";
+  }
+  if (entry.painted_px) {
+    entry.painted_centre_px = round((entry.painted_px[0] + entry.painted_px[1]) / 2, 1);
+    entry.centre_delta_px = round(entry.painted_centre_px - entry.plan_centre_px, 1);
+    entry.centre_delta_m = round(entry.centre_delta_px / ppm, 3);
+  }
+  carriers.push(entry);
+}
+meta.measured_room.carriers = carriers;
+
+function groundplaneX(u) {
+  /* The same u -> x the corners and the staging use, at wall scale. */
+  return CANVAS_W / 2 + (u - 0.5) * fc.wall_width_m * ppm;
+}
+
 const outDir = join(root, "backdrops", loc);
 mkdirSync(outDir, { recursive: true });
 const png = join(outDir, `${facing}.png`);
@@ -220,6 +277,13 @@ console.log(`promoted ${facingArg}: ${candidate} -> backdrops/${loc}/${facing}.p
 console.log(`  ${ppm.toFixed(3)} px/m at the drawn ${drawn} m = a ${focal.toFixed(1)} px lens (${((focal - MEASURED_REFERENCE_PX) / MEASURED_REFERENCE_PX * 100).toFixed(1)}% from the approved ${MEASURED_REFERENCE_PX})`);
 console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (ceiling ramp), floor line ${(floorLineY * imageH).toFixed(0)} px`);
 console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
+for (const c of carriers) {
+  if (c.centre_delta_px === null) {
+    console.log(`  carrier ${c.kind}${c.id ? " " + c.id : ""}: the plan puts it at ${c.plan_px[0]}..${c.plan_px[1]} px; the measurement reads no such feature in the painting`);
+  } else {
+    console.log(`  carrier ${c.kind}${c.id ? " " + c.id : ""}: the plan centres it at ${c.plan_centre_px} px, the painting at ${c.painted_centre_px} — ${c.centre_delta_m} m apart (${c.painted_feature})`);
+  }
+}
 
 function round(v, n) {
   const f = Math.pow(10, n);

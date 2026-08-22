@@ -230,6 +230,7 @@ export const MECHANISMS = [
   /* [Row 21] The doorway as a fact about the building, and the room behind it. */
   "renderer.building_fact_opening",
   "renderer.through_view",
+  "renderer.through_view_painted",
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
@@ -635,6 +636,29 @@ test.describe("the clause ledger — renderer mechanisms", () => {
     }
   });
 
+  ledgerCase("renderer.through_view_painted", async ({ page }) => {
+    /* [Row 21, round 2] THE PAINTED ARM IS A SECOND CALL SITE, and a critic
+     * deleted it whole with the suite green: `study/N` is the only painting in
+     * the project and it carries no doorway, so the branch had no subject
+     * anywhere. The case builds the subject — the baked painting bound to
+     * `study/E`, `door1` out of the world so the opening is the building's —
+     * and measures the opening. One token per arm, because one token over two
+     * behaviours is one countable thing the ledger can only ever exercise on
+     * whichever call its case happens to reach. */
+    const dir = stageWithout(
+      "          drawThroughOpening(ctx, painted[ai], meta, world, staging, library, backdrops, doc0, options);",
+      "          void painted[ai];");
+    try {
+      const broken = await paintedApertureVoid(page, dir);
+      const clean = await paintedApertureVoid(page, repoRoot);
+      expect(broken, "with the painted call gone the painting's doorway keeps its own dark hole")
+        .toBeGreaterThan(5000);
+      expect(clean, "and the shipped renderer puts the passage in it").toBe(0);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
   ledgerCase("renderer.floor_clipped_to_room", async ({ page }) => {
     /* The floor the room actually has runs between the two wall-floor
      * junctions. Unclipped, its transverse lines paint straight across both
@@ -968,6 +992,35 @@ async function navApertureCount(page, root) {
     const vs = { location: "study", facing: "E" };
     return window.HOLO.renderer.apertures(
       fx.world, fx.staging, A.library, A.metaFor(vs), vs).length;
+  });
+}
+
+/** [Row 21, round 2] The same, on a PAINTED facing: the baked painting bound
+ *  to `study/E` with no leaf in the world, which is the state the product
+ *  reaches the day a doorway facing is admitted. */
+async function paintedApertureVoid(page, root) {
+  await page.goto(appUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, T = window.__T;
+    const vs = { location: "study", facing: "E" };
+    const world = T.worldWithout(["door1"]);
+    const bd = {};
+    for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+    bd["study/E"] = { meta: A.metaFor(vs), image: A.backdrops["study/N"].image };
+    const ap = window.HOLO.renderer.apertures(
+      world, A.harness.staging, A.library, bd["study/E"].meta, vs)[0];
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, world, A.harness.staging, A.library, bd, vs,
+      { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(
+      Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+    let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) n++;
+    }
+    return n;
   });
 }
 

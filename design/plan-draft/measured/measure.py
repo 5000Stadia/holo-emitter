@@ -2031,6 +2031,31 @@ def write_misses(raw):
     """misses.jsonl - the machine-readable miss ledger design/production-law.md
     requires. One JSON object per line, every line self-describing."""
     path = os.path.join(OUT, "misses.jsonl")
+    # THE LEDGER'S OWN CLOSE-OUT SURVIVES A RE-MEASUREMENT. [Row 21, round 2]
+    # `baked_in` is production-law clause 3's field -- what made this class of
+    # miss impossible, and when. It is written by the hand that lands the fix,
+    # NOT by this script, which knows only what the pixels say. Rewriting the
+    # file from scratch wiped it on every re-run, so the law's own evidence
+    # lived in a file whose generator destroyed it, which is the law's own
+    # definition of an open miss. Carried forward per facing instead, along
+    # with `status`: a miss's measurement is this script's, its disposition is
+    # not.
+    carried = {}
+    if os.path.exists(path):
+        with open(path) as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    prev = json.loads(line)
+                except ValueError:
+                    continue
+                if prev.get("_record") == "miss" and prev.get("facing"):
+                    carried[prev["facing"]] = {
+                        "baked_in": prev.get("baked_in"),
+                        "status": prev.get("status", "open"),
+                    }
     lines = [dict(
         _record="header",
         _what_this_is=("The camera miss ledger for the backdrop acceptance "
@@ -2101,7 +2126,8 @@ def write_misses(raw):
             delta_pct=(prim["delta_pct"] if r["ppm"] else None),
             trust=None, robustness=None, why=info["why"],
             correction=None, blocked_on=info.get("blocked_on"),
-            status="open", baked_in=None)
+            status=carried.get(fac, {}).get("status", "open"),
+            baked_in=carried.get(fac, {}).get("baked_in"))
 
         adm = [x for x in r["rulers"] if x["admissible"]]
         if adm:

@@ -57,7 +57,10 @@ And three that are this row's own:
 
 5. **How dark should the room beyond a doorway be?** It is dimmed to 58 % of its own brightness by
    a constant nobody has ruled. Open 02 and 11 and say whether the next room reads as depth or as a
-   picture pasted in a hole.
+   picture pasted in a hole. Frame 07 is the hard case and a critic called it honestly: from the
+   passage looking west, the study through the doorway is drawn at 0.28 scale on top of the dim,
+   and what is left is a dark rectangle with a sliver of floor. It is not void — every measurement
+   says so — and it is not yet a room.
 6. **A half-painted room.** The study's north wall is fine oil realism and its other three are
    procedural grid. The fiction says unestablished space renders as the holodeck's own scaffold, and
    the README says it in the player's voice — but a room in two materials is a look, and the look
@@ -69,6 +72,25 @@ And three that are this row's own:
    *occlusion chains* (objects overlap objects) need objects, and there are none. Frames 10 and 11
    are the only ones where either can be judged, and what they show is V1 placeholder shapes. An
    empty room passing is not the same as a room that passed.
+
+And three an artifact critic put on the table that only you can answer:
+
+8. **The painting and the plan disagree about where the hearth is, by 1.41 m.** The drawing you
+   approved puts the study's chimney breast at 1.65–3.85 m along the north wall — dead centre of
+   the frame. The painting you approved puts its fireplace at 0.87–1.78 m, well to the left of it.
+   Both documents are yours; the row promoted the painting and recorded the disagreement in the
+   meta rather than picking a side. One of the two has to move before anything is staged on that
+   wall — the plan re-drawn to the painting (and re-approved), or this wall re-asked with the
+   hearth where the plan puts it.
+9. **The light in the approved study is the hearth fire — left of centre, below the horizon.** The
+   orientation contract lights every sprite from the upper left (`UL45`), and `replicator/
+   contract.json` carries this as an open fork in your name: *"If key_dir varies per facing, ONE
+   sprite set cannot match every room."* It does vary, measurably, in the one frame we have. The
+   sprite lane is written against whatever you answer.
+10. **On a phone the picture is 31 % of the screen.** 390×260 of an 844-tall display, with the
+    narration and inventory strips below it holding nothing at all in the empty world. That is the
+    layout doing exactly what it was told (contain-fit, chrome reserved); whether an empty painted
+    room should give the picture more of the glass is a look call.
 
 ## The gate, and why only one wall was admitted
 

@@ -848,28 +848,6 @@ px_per_m_at_bottom` refuses any placement at any depth — which is what forced
 `shelf1` and `stick1` onto `hall/E` (the reasons are on the plan objects). The
 census is a plan warning rather than a hidden fact.
 
-### A live player finding, and the one word that answers it
-
-[HUMAN, 2026-08-22, verbatim, on the current link]: *"Demo door puts me in a room without a return
-door but otherwise ok."*
-
-The return door is drawn and works — `hall/W` renders it correctly and the walk back is one click.
-What was missing is that **his own orientation law puts the door behind you on arrival**: passage
-maintains orientation, so you walk east and arrive facing east, with the way back at your shoulder
-and nothing saying so. A player reads a room with no door in it.
-
-Both arrival lines gained the peripheral sense (§4b shape item 9's doctrine — what the body knows
-that the frame does not show): *"…The door stands open behind you."* in the furnished world, where
-a leaf stands in that opening, and *"…The doorway stands open behind you."* in the painted
-navigation world, where the opening is the building's and no leaf fills it. Two worlds, two
-narration files, one word apart — which is why `voice.spec`'s audit byte-equality reads BOTH files
-now and requires every line of each to be enumerated.
-
-**What it does not do, and the honest limit**: the line is spoken once, at arrival. A player who
-turns twice and forgets is not told again, and the picture still shows a bare wall on three of the
-four facings of an empty room. The full answer is a turn-around affordance or a compass, and
-neither is this row's.
-
 ### Residue, named
 
 1. **The nearest visible floor is 2.23 m on every facing in the manor**, and it
@@ -1372,6 +1350,97 @@ tree with pictures in it AND `approval.lock` carries its `pending` line. Retirin
 writing down what a human actually said and the commit he said it against — a claim about a person,
 which is the one thing an agent cannot satisfy by deleting a file. Row 21's own batch has its entry,
 reading AWAITING.
+
+### A live player finding, and the one word that answers it
+
+[HUMAN, 2026-08-22, verbatim, on the current link]: *"Demo door puts me in a room without a return
+door but otherwise ok."*
+
+The return door is drawn and works — `hall/W` renders it correctly and the walk back is one click.
+What was missing is that **his own orientation law puts the door behind you on arrival**: passage
+maintains orientation, so you walk east and arrive facing east, with the way back at your shoulder
+and nothing saying so. A player reads a room with no door in it.
+
+Both arrival lines gained the peripheral sense (§4b shape item 9's doctrine — what the body knows
+that the frame does not show): *"…The door stands open behind you."* in the furnished world, where
+a leaf stands in that opening, and *"…The doorway stands open behind you."* in the painted
+navigation world, where the opening is the building's and no leaf fills it. Two worlds, two
+narration files, one word apart — which is why `voice.spec`'s audit byte-equality reads BOTH files
+now and requires every line of each to be enumerated.
+
+**What it does not do, and the honest limit**: the line is spoken once, at arrival. A player who
+turns twice and forgets is not told again, and the picture still shows a bare wall on three of the
+four facings of an empty room. The full answer is a turn-around affordance or a compass, and
+neither is this row's.
+
+### What round 2 changed, after an artifact critic took it apart
+
+Fifteen blocking findings and ten observations. What they moved, in the order a reader would want
+them:
+
+- **The picture and the plan disagree about where the study's hearth is, by 1.41 m** — the approved
+  drawing puts the chimney breast at 1.65–3.85 m along the north wall, the approved painting puts
+  its fireplace opening at 0.87–1.78 m. The gate could not see it: it asks whether a candidate was
+  painted at the project's CAMERA and never whether the room in the picture is the room the plan
+  draws. `promote-backdrop.mjs` now measures every in-view carrier against its plan position and
+  records it in the meta (`measured_room.carriers`), `geometry.spec` holds the number so it cannot
+  move unnoticed, and the batch asks Kabe which of his two approved documents moves. **Nothing is
+  staged on that wall until it is answered** — row 4's first backdrop is this one.
+- **`null >= 0` is `true`**, so the guard meant to silence a doorway with no known "beyond" never
+  fired and the far room drew 3.1× too large instead. A finite-number test now, with a throw rather
+  than a silent fallback on a non-finite value.
+- **The through-view filled a cross, not a rectangle** — the four corners of an opening stayed void,
+  1.6 % of an opening on a facing the demo does not ship and 53 % with the destination 40 m away.
+  Eight edge draws now, four of them corners.
+- **The painted arm of the through-view had no subject and no case.** `study/N` is the only painting
+  and it carries no doorway, so the branch could be deleted whole with the suite green. A
+  `mechanisms.spec` case builds the state the product reaches the day a doorway facing is admitted —
+  the baked painting bound to `study/E`, no leaf in the world — and `renderer.through_view_painted`
+  is its ledger token.
+- **§12.5's clauses never touched the one measured meta.** `geometry.spec` built its metas from
+  `deriveMeta`; the file the page renders with was judged by none of them, and a critic set
+  `calibration_px` to 999 and `focal_px` to 1500 with the suite green. That loop resolves through
+  the validator's own three-tier `metaForFacing` now, and a measured meta answers to the measured
+  band, its own calibration audit (the size is parsed out of `calibration_ref`'s sentence), and both
+  derived fields.
+- **The corners in §12.5 (ii) are found in the picture**, by a test-side re-implementation of §5's
+  own rule, rather than read from the same typed literals as the scale.
+- **`nearest_floor_m` had a second formula** — `eye / (1 − horizon_y)`, true only when the focal
+  length equals the frame height — and wrote 2.2295 where the project's one definition gives 2.1994.
+  Through `nearestFloorM` now.
+- **Two staleness tests that did not exist**: the promoted meta must byte-equal a fresh run of
+  `promote-backdrop.mjs` (which holds all fifteen of its fields at once — a critic edited four of
+  them with the suite green), and `backdrops/baked.js` must byte-equal a fresh bake.
+- **`measure.py` erased the ledger's own close-out.** `baked_in` and `status` are the hand's, not
+  the script's, and are carried forward per facing across a re-measurement. Each entry names the
+  clauses that apply to IT, and `commit` is null with the reason in the record rather than the prose
+  string it carried.
+- **The prompt lint had no test and no discrimination.** It has both: synthetic prompts prove each
+  clause refuses what it names and passes what obeys it, and the corpus count is asserted (5 of 7
+  contradict, 8 of 8 declare no anchor, 2 of 7 ask for an unmeasurable frame) rather than quoted.
+  The committed prompts are grandfathered — they are the evidence for the rule, and the round they
+  produced is its 0-of-7 baseline.
+- **The page held its first frame for 19 seconds on a slow phone link.** 3.4 MB of base64 per wall,
+  and nothing on the surface while it arrived. The bake encodes at q92 now — 525 kB, a mean channel
+  delta of 1.77 of 255, printed into the generated file per painting — and first paint on the same
+  rate-limited link is **3.7 s**. The PNG stays the promoted artifact and the flip test's subject;
+  what ships to a browser is that encode of it. The remaining silence belongs to row 9's intro.
+- **A closed approvals entry must cite a commit that exists.** Deleting the gate was caught;
+  fabricating a verdict was not.
+- **The phone assertion was the convenient viewpoint.** `scene.height > 100` passes at a size that
+  leaves the painting unreadable; it is now the contain-fit the layout allows, with the 31 %-of-screen
+  share stated as the look question it is.
+- **Two comments that said the opposite of their code** — the through-view's account of destination
+  entities (they ARE drawn, knowledge-filtered by the world), and a dead `worldFault` branch whose
+  narration line could never be reached.
+
+Findings recorded rather than fixed: the "never void" measurement clears its own threshold by about
+1.1 luminance units of 255 (a change to `THROUGH_DIM` would flip the metric, and the geometric
+clauses beside it are what carry the claim); two doorways deep the second opening is still drawn as
+its dark fill; the measurement JSON still presents the superseded vanishing-point horizon beside the
+ramp fit the promotion adopts; and in the empty painted world a screen-reader user hears nothing at
+all on seven of eight facings, which is row 10's surface meeting row 9's silence and belongs to
+neither of them alone.
 
 ### Residue, named
 

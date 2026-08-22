@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "99622ad8",
+  fp: "29a7de15",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -177,12 +177,31 @@ window.HOLO_FIXTURES["demo-study"] = {
     "measured": true,
     "backdrop": "wall",
     "focal_px": 1010.2,
-    "nearest_floor_m": 2.2295,
+    "nearest_floor_m": 2.1994,
     "measured_room": {
       "storey_height_m": 2.997,
       "wall_width_m": 5.37,
       "ruled_storey_height_m": 2.8,
-      "ruled_wall_width_m": 5.45
+      "ruled_wall_width_m": 5.45,
+      "carriers": [
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            518.4,
+            1029.2
+          ],
+          "plan_centre_px": 773.8,
+          "painted_px": [
+            341,
+            550
+          ],
+          "painted_centre_px": 445.5,
+          "centre_delta_px": -328.3,
+          "centre_delta_m": -1.414,
+          "painted_feature": "the fireplace OPENING (the plan holds the whole breast, which is wider)"
+        }
+      ]
     },
     "openings": []
   },

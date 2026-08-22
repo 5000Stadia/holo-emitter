@@ -356,8 +356,13 @@
       if (q) wanted = q[1];
     } catch (ignored) { /* no location to read: the default stands */ }
     var fixture = fixtures[wanted];
-    var worldFault = !fixture;
-    if (worldFault) {
+    if (!fixture) {
+      /* [F16] And then the line below throws, which is the whole handling: the
+         boot surface registered before any module loaded answers an uncaught
+         error with "nothing of this place can be shown", withdraws the
+         chevrons and says it once. A second branch here used to set a flag for
+         a narration line that could never be reached, because nothing after
+         this point runs. The console keeps the developer's half. */
       console.error(
         "BOOT ERROR: no baked world \"" + wanted + "\" — the page carries " +
         JSON.stringify(Object.keys(fixtures)) + ". Bake it with: " +
@@ -1408,7 +1413,7 @@
       updateChrome(null);
       /* After the first paint, so a page that faulted on the way up shows its
          own fault line last rather than this one. `halted` is set by fault(). */
-      if ((bootFault || worldFault) && !halted) {
+      if (bootFault && !halted) {
         appendNarration("The projection was set to a view this pattern does not hold.");
       }
     }
