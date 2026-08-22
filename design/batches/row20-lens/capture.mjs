@@ -4,14 +4,21 @@
  * which never carried class="chrome"). Every frame is reached by real intents
  * through the harness, never by writing viewstate.
  *
- * usage: node capture.mjs <outDir>
+ * usage: node capture.mjs <outDir> [appRoot]
+ *
+ * `appRoot` defaults to this repository. It exists so the BEFORE frames can be
+ * re-drawn from the build that drew them — extract the superseded commit's tree
+ * somewhere and point this at it — which is what lets those eight pictures
+ * answer for themselves instead of being eight files bound to nothing.
  */
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const ROOT = process.argv[3]
+  ? resolve(process.argv[3])
+  : resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const outDir = resolve(process.argv[2]);
 mkdirSync(outDir, { recursive: true });
 

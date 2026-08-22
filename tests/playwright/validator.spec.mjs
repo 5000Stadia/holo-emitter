@@ -522,6 +522,24 @@ test.describe("the measured-lens acceptance band", () => {
     expect(MEASURED_REFERENCE_PX * (1 - MEASURED_BAND)).toBeGreaterThan(498);
     expect(MEASURED_BAND).toBeLessThan(0.1);
   });
+
+  /* AND THE RULED NUMBER HAS A READER THAT IS NOT A COPY OF ITSELF. Every
+   * other case here derives its edges FROM `MEASURED_BAND`, so moving the
+   * constant moves the edges with it — a critic set both copies (here and in
+   * `gate.py`) to 0.001 and to 0.037 and the boundary case passed both times,
+   * which is the self-referential defect this row already removed on the
+   * DERIVED arm and left standing on the arm whose title says "±3 %". At 0.001
+   * the gate silently refuses every regeneration the asset seat can produce;
+   * at 0.037 it admits `study/W` at −3.7 % un-regenerated. The band is
+   * blueprint §5's ruling in Kabe's project's own words, so it is read off the
+   * blueprint rather than asserted against a second literal. */
+  test("and the number itself is the one blueprint §5 rules, read from the blueprint", () => {
+    const bp = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
+    const m = /within \*\*±([\d.]+) % of ([\d]+) px\*\*/.exec(bp);
+    expect(m, "blueprint §5 no longer states the measured-lens acceptance band").toBeTruthy();
+    expect(MEASURED_BAND, `blueprint §5 rules ±${m[1]} %`).toBeCloseTo(Number(m[1]) / 100, 12);
+    expect(MEASURED_REFERENCE_PX, `blueprint §5 rules ${m[2]} px`).toBe(Number(m[2]));
+  });
 });
 
 /* A TOLERANCE NOTHING READS IS NOT A TOLERANCE. Round 4 found `meta.one_lens`
@@ -604,7 +622,11 @@ test.describe("the lens tolerances are pinned from both sides", () => {
      that the seven still fail and the one still passes. */
   test("the band still admits exactly the one backdrop blueprint §5 admits", () => {
     const dir = join(repoRoot, "design", "plan-draft", "measured");
-    if (!existsSync(dir)) return;
+    /* NOT a silent return. The measurements are committed and this arm exists
+       to judge them; a missing directory means the corpus this band is about
+       has left the tree, which is a finding rather than a pass. */
+    expect(existsSync(dir),
+      "design/plan-draft/measured/ is gone — the measured band has nothing left to be a band over").toBe(true);
     const MEASURED = {                       // px/m read off each painting, and each facing's DRAWN standpoint
       "study/N": [232.222, 4.35], "study/E": [235.0, 4.09], "study/S": [196.667, 3.85],
       "study/W": [237.778, 4.09], "hall/N": [255.556, 2.15], "hall/E": [151.111, 6.00],
@@ -624,7 +646,8 @@ test.describe("the lens tolerances are pinned from both sides", () => {
      reads gate.py's own verdict line and requires the two to agree. */
   test("and gate.py, run for real, says the same thing", () => {
     const gate = join(repoRoot, "design", "plan-draft", "measured", "gate.py");
-    if (!existsSync(gate)) return;
+    expect(existsSync(gate),
+      "gate.py is gone — the band's only independent reader has left the tree").toBe(true);
     /* gate.py EXITS NON-ZERO while any candidate fails, which is its whole
        job today — seven of eight are meant to fail. So a throw is the normal
        path and its stdout is the verdict; only a missing stdout means the tool

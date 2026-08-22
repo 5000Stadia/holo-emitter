@@ -918,19 +918,27 @@ test.describe("the camera the projection runs on", () => {
       px_per_m_at_bottom: GRID_META.px_per_m_at_bottom,
       "nearest visible floor": 1024 / GRID_META.px_per_m_at_bottom
     };
-    let seenHeader = 0;
+    /* THE FLOOR IS THE TABLE'S ARITY, NOT FOUR OF IT. `>= 4` against five
+       claims left the table free to drop exactly one entry in silence, and the
+       one it could drop is the pinned lens's own `px_per_m_at_wall`. And the
+       row was found by `l.includes(name)`, an unanchored substring — the
+       `floor_line_y  horizon_y + eye/4 = 0.784047` entry contains the string
+       `horizon_y`, so a reordered table matched the wrong row and failed with
+       a message naming a number that was never wrong. Each name anchors at the
+       start of its own entry now, and every claim must be found. */
+    const headerRows = header.split("\n").map((l) => l.replace(/^\s*\*?\s*/, ""));
     for (const [name, actual] of Object.entries(headerClaims)) {
-      const row = header.split("\n").find((l) => l.includes(name) && l.includes("="));
-      if (!row) continue;                       // the table may be reworded; what it STATES is bound
-      seenHeader++;
+      const rows = headerRows.filter((l) => l.startsWith(name) && l.includes("="));
+      expect(rows.length,
+        `the GRID_META header table states ${name} ${rows.length} times; a fresh session boards from this table and every number in it is bound`)
+        .toBe(1);
+      const row = rows[0];
       const claim = row.slice(row.lastIndexOf("=") + 1).trim().split(/\s+/)[0];
       const dp = (claim.split(".")[1] || "").length;
       expect(Math.abs(Number(claim) - actual),
         `the GRID_META header table says ${name} = ${claim}; it is ${actual}`)
         .toBeLessThanOrEqual(0.5 * Math.pow(10, -dp) + 1e-9);
     }
-    expect(seenHeader, "the header table no longer states any of the meta's numbers — if it stopped stating them that is fine, but say so here")
-      .toBeGreaterThanOrEqual(4);
 
     for (const [needle, actual] of claims) {
       const line = block.split("\n").find((l) => l.includes(needle));
@@ -1735,10 +1743,47 @@ test.describe("the schematic is a derived render of the plan", () => {
    * has said yes to the new one. */
   const APPROVAL_COMMIT = "f50e20e";
 
+  /* The last sheets a human looked at DIRECTLY — Kabe's 2026-08-21 approval was
+   * of two rendered frames, not of these drawings, which is the whole reason a
+   * `pending` line exists. The drawn content that has moved since he last saw a
+   * sheet is what that line has to name, and this is the commit that delta is
+   * measured against. */
+  const SEEN_SHEET_COMMIT = "9059605";
+
   function approvedBlob(path) {
     return execFileSync("git", ["show", `${APPROVAL_COMMIT}:${path}`],
       { cwd: repoRoot, encoding: "buffer", maxBuffer: 32 * 1024 * 1024 });
   }
+
+  /* THE BATCH AND THE LOCK'S `pending` LINE ARE ONE SWITCH, NOT TWO.
+   *
+   * Round 5 moved the AWAITING requirement out of the lock and onto the batch
+   * directory's existence, on the reasoning that a directory leaving the tree is
+   * a human-visible event where a deleted line is not. A critic then deleted the
+   * directory: four cases — the AWAITING requirement, the frame re-render, the
+   * BEFORE frames and the schematic byte-equality — all reported PASS, because
+   * every one of them opened with `if (!existsSync(dir)) return`. The mitigation
+   * and the three things it was protecting were switched off by the same `rm`.
+   *
+   * So neither may move alone. `pending` present means the batch is out; the
+   * batch out means `pending` is present; and the cases below skip VISIBLY when
+   * it is retired rather than reporting a pass they did not earn. Retiring it
+   * takes both edits, and the lock half is a step `design/plan-draft/README.md`
+   * makes a human's. */
+  const BATCH_DIR = join(repoRoot, "design", "batches", "row20-lens");
+
+  function pendingScope() {
+    const m = /^pending\s+(.+)$/m.exec(readFileSync(join(draftDir, "approval.lock"), "utf8"));
+    return m ? m[1].trim() : null;
+  }
+
+  test("the batch and the lock's pending line stand or fall together", () => {
+    const scope = pendingScope();
+    expect(existsSync(BATCH_DIR), scope
+      ? "approval.lock names pending scope, so design/batches/row20-lens/ must still be in the tree — retiring the gate takes BOTH edits"
+      : "design/batches/row20-lens/ is still out, so approval.lock must still carry the `pending` line naming what Kabe has not seen")
+      .toBe(!!scope);
+  });
 
   test("git is available — the approved artifact is read from history, not from a literal", () => {
     expect(execFileSync("git", ["rev-parse", "--short", APPROVAL_COMMIT],
@@ -1769,8 +1814,11 @@ test.describe("the schematic is a derived render of the plan", () => {
    * in this file that can tell Kabe he is looking at this build. */
   test("the batch IS what the code draws — every frame re-rendered and compared", async () => {
     test.setTimeout(180_000);
-    const dir = join(repoRoot, "design", "batches", "row20-lens");
-    if (!existsSync(dir)) return;                       // the row closed; nothing to check
+    test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
+    const dir = BATCH_DIR;
+    expect(existsSync(dir),
+      "approval.lock still carries a `pending` line, so the batch it names must still be in the tree")
+      .toBe(true);
     const script = join(dir, "capture.mjs");
     expect(existsSync(script),
       "the batch must carry the script that made it — an artifact nobody can regenerate is not derived")
@@ -1778,7 +1826,7 @@ test.describe("the schematic is a derived render of the plan", () => {
 
     const out = mkdtempSync(join(tmpdir(), "holo-batch-"));
     try {
-      execFileSync("node", [script, out], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const log = execFileSync("node", [script, out], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
       const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
       expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(8);
       const stale = [];
@@ -1796,7 +1844,80 @@ test.describe("the schematic is a derived render of the plan", () => {
         .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png") && !f.includes("BEFORE") && !f.includes("schematic"))
         .sort();
       expect(committedFrames).toEqual(fresh);
+
+      /* AND EACH FRAME IS OF WHAT ITS NAME PROMISES. Byte-equality proves the
+         picture is current; it cannot prove `06-hall-E.png` is the hall looking
+         east, because `capture.mjs` is both the definition and the comparison
+         and renaming a row of FRAMES is green by construction. The script
+         already prints the viewstate it actually reached for every frame; the
+         guard reads that line instead of discarding it. */
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(study|hall)-([NESW])(?:-|$)/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name}: capture.mjs printed no viewstate for it`).toBeDefined();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
     } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  /* THE BEFORE FRAMES ANSWER FOR THEMSELVES TOO, and until this they answered
+   * for nothing at all.
+   *
+   * Round 5 bound the eleven AFTER frames by re-rendering them, and the filter
+   * that did it reads `!f.includes("BEFORE")` — so eight of the batch's
+   * twenty-one images stayed exactly as unbound as all twenty-one had been.
+   * `cp 05-hall-N-BEFORE.png 01-study-N-BEFORE.png` left the suite green, and
+   * the batch README tells Kabe to open the before/after pair FIRST: *"that is
+   * the whole row in two pictures"*. Half of the row's evidence was a picture
+   * nobody could check.
+   *
+   * They cannot be re-rendered by today's code — that is what "before" means —
+   * so the script takes the tree to draw from. `git archive` the last build
+   * before the lens was pinned, point `capture.mjs` at it, and the eight frames
+   * come back byte-identical or they are not what they claim to be. No digest
+   * is stored, and nothing is read out of the document being guarded. */
+  const BEFORE_COMMIT = "ff095d9";   // the last build before the lens was pinned
+  const BEFORE_FACINGS = ["01-study-N", "02-study-E", "03-study-S", "04-study-W",
+    "05-hall-N", "06-hall-E", "07-hall-S", "08-hall-W"];
+
+  test("the batch's BEFORE frames are what the superseded build drew", async () => {
+    test.setTimeout(180_000);
+    test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
+    expect(execFileSync("git", ["rev-parse", "--short", BEFORE_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim(),
+      "BEFORE_COMMIT must be a commit in this history, not a string").toBe(BEFORE_COMMIT);
+
+    const committed = readdirSync(BATCH_DIR).filter((f) => f.endsWith("-BEFORE.png")).sort();
+    expect(committed, "the batch promises one BEFORE frame per facing")
+      .toEqual(BEFORE_FACINGS.map((f) => `${f}-BEFORE.png`));
+
+    const tree = mkdtempSync(join(tmpdir(), "holo-before-tree-"));
+    const out = mkdtempSync(join(tmpdir(), "holo-before-"));
+    try {
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, BEFORE_COMMIT,
+        "index.html", "src", "fixtures", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      execFileSync("node", [join(BATCH_DIR, "capture.mjs"), out, tree],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const wrong = [];
+      for (const f of BEFORE_FACINGS) {
+        const a = join(BATCH_DIR, `${f}-BEFORE.png`), b = join(out, `${f}.png`);
+        if (!existsSync(b)) { wrong.push(`${f} (the superseded build drew no such frame)`); continue; }
+        if (!readFileSync(a).equals(readFileSync(b))) wrong.push(`${f}-BEFORE.png`);
+      }
+      expect(wrong,
+        `these BEFORE frames are not what ${BEFORE_COMMIT} drew — they are the other half of the row's evidence`)
+        .toEqual([]);
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
   });
@@ -1806,8 +1927,8 @@ test.describe("the schematic is a derived render of the plan", () => {
      a drift notice the live sheets no longer carry, because the pictures were
      older than the drawing that made them. */
   test("the batch's schematics are the live sheets, byte for byte", () => {
-    const dir = join(repoRoot, "design", "batches", "row20-lens");
-    if (!existsSync(dir)) return;                       // the row closed
+    test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
+    const dir = BATCH_DIR;
     for (const [batch, live] of [["12-schematic-ground.png", "manor-ground.png"],
                                  ["13-schematic-upper.png", "manor-upper.png"]]) {
       expect(readFileSync(join(dir, batch)).equals(readFileSync(join(draftDir, live))),
@@ -1828,19 +1949,12 @@ test.describe("the schematic is a derived render of the plan", () => {
    * the approval's apparent scope without touching a hash.
    *
    * The reader has to sit OUTSIDE the lock, or it is the lock checking itself.
-   * It sits on the batch: while `design/batches/row20-lens/` exists, this
-   * drawing is in front of a human who has not seen it, and the sheet must say
-   * so on its own face. The batch's departure is what retires the requirement,
-   * and that is a human-visible event rather than a line an agent can delete. */
+   * It sits on the batch, coupled to the lock by the case above so that neither
+   * can be switched off alone. */
   test("while the batch is out, the sheets say what the approval does NOT cover", () => {
-    const batch = join(repoRoot, "design", "batches", "row20-lens");
-    if (!existsSync(batch)) return;                 // the batch has landed; the row is closed
-    const lock = readFileSync(join(draftDir, "approval.lock"), "utf8");
-    const pending = /^pending\s+(.+)$/m.exec(lock);
-    expect(pending,
-      "design/batches/row20-lens/ is still out, so approval.lock must carry a `pending` line naming what Kabe has not seen")
-      .toBeTruthy();
-    expect(pending[1].trim().length,
+    const scope = pendingScope();
+    test.skip(!scope, "the batch has been retired: approval.lock carries no `pending` line");
+    expect(scope.length,
       "the pending line must name the drawn content the anchor rests on by inference").toBeGreaterThan(20);
     for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
       const svg = readFileSync(join(draftDir, f), "utf8");
@@ -1853,7 +1967,71 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
         .toContain("AWAITING HIS EYE ON");
       expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
-        .toContain(pending[1].trim());
+        .toContain(scope);
+    }
+  });
+
+  /* AND THE SCOPE LINE MUST NAME ITS SUBJECT, not merely be twenty characters
+   * of something.
+   *
+   * The clause above asked for a length and for the stamp to print it, and a
+   * critic set `pending` to *"the sheet border and the scale bar"*: both sheets
+   * then printed `AWAITING HIS EYE ON: the sheet border and the scale bar.` and
+   * every case stayed green, with the standpoint markers — the drawn content
+   * the entire anchor rests on by inference — silently folded under APPROVED.
+   * Deleting the line was caught; narrowing it to a lie was not.
+   *
+   * So the clause is read against what actually moved. `standpoints.tsv` is the
+   * drawn content in pure numbers, and comparing it to the last sheet a human
+   * looked at directly says which drawn family Kabe has not seen. A family that
+   * moved and is not named in the clause is the stamp claiming more than it
+   * has; a clause naming a family that did not move is a clause about nothing. */
+  test("the pending clause names the drawn content that actually moved since Kabe last saw a sheet", () => {
+    const scope = pendingScope();
+    test.skip(!scope, "the batch has been retired: approval.lock carries no `pending` line");
+    expect(execFileSync("git", ["rev-parse", "--short", SEEN_SHEET_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(SEEN_SHEET_COMMIT);
+
+    const rows = (t) => t.trim().split("\n").map((l) => l.split("\t"));
+    const then = rows(execFileSync("git", ["show", `${SEEN_SHEET_COMMIT}:design/plan-draft/standpoints.tsv`],
+      { cwd: repoRoot, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }));
+    const now = rows(readFileSync(join(draftDir, "standpoints.tsv"), "utf8"));
+    const head = then[0];
+    expect(now[0], "the standpoint table's columns changed; this comparison no longer knows what it is comparing")
+      .toEqual(head);
+    const col = (name) => head.indexOf(name);
+
+    /* Each drawn family the sheet prints, the column that carries it, and the
+       word the clause has to use for it. Only families that MOVED are demanded,
+       so this cannot be satisfied by naming everything. */
+    const FAMILIES = [
+      { column: "camera_wall_m", word: /standpoint/i, said: "the standpoint distances" },
+      { column: "wall_width_m", word: /wall/i, said: "the wall widths" },
+      { column: "room_type", word: /room/i, said: "the room types" },
+      { column: "facing_type", word: /facing/i, said: "the facing types" }
+    ];
+    const moved = [];
+    for (const fam of FAMILIES) {
+      const i = col(fam.column);
+      expect(i, `standpoints.tsv has no ${fam.column} column`).toBeGreaterThanOrEqual(0);
+      const n = Math.min(then.length, now.length);
+      let differs = then.length !== now.length;
+      for (let r = 1; r < n && !differs; r++) if (then[r][i] !== now[r][i]) differs = true;
+      if (differs) moved.push(fam);
+    }
+    expect(moved.length,
+      "nothing the sheet draws has moved since Kabe last saw one, so the `pending` line is a claim about nothing — retire it")
+      .toBeGreaterThan(0);
+    for (const fam of moved) {
+      expect(scope, `${fam.said} moved since ${SEEN_SHEET_COMMIT} and the pending clause does not name them — the stamp is claiming more than it has`)
+        .toMatch(fam.word);
+    }
+    /* And the distances themselves are printed on the sheet, so the clause must
+       say that too — "the standpoint markers" alone would leave the numbers
+       beside them reading as approved. */
+    if (moved.some((f) => f.column === "camera_wall_m")) {
+      expect(scope, "the printed standpoint distances moved and the pending clause does not say so")
+        .toMatch(/distance/i);
     }
   });
 
@@ -1987,7 +2165,20 @@ test.describe("the approval stamp fits inside the paper", () => {
   for (const sheet of SHEETS) {
     test(`${sheet}: no stamp ink reaches the sheet edge`, async ({ page }) => {
       const png = readFileSync(join(draftDir, `${sheet}.png`)).toString("base64");
-      const ink = await page.evaluate(async (b64) => {
+      /* THE BAND STOPS ABOVE THE RULE, and it used not to. The sampled rows
+         were 140..235 at 2×, and round 5 moved the header rule down into that
+         window — a full-width line from SVG x 40 to 1480, which is device
+         column 80 to 2960, exactly the two margins. It pinned `lo` at 80 and
+         `hi` at 2960 by itself: patching `draw_plan.py` to print NO stamp text
+         at all, re-rendering and re-rasterising left both cases green, with
+         `expect(ink.hi).toBeGreaterThan(0)  // there IS a stamp` satisfied by
+         a horizontal rule. The rule's y is read off the sheet, so the band
+         follows it wherever the stamp's line count puts it. */
+      const ruleY = headerRule(readFileSync(join(draftDir, `${sheet}.svg`), "utf8")).y;
+      const y0 = 140, h = Math.round(ruleY * 2) - 6 - y0;
+      expect(h, `${sheet}: the header band has collapsed; there is no room left to measure the stamp in`)
+        .toBeGreaterThan(20);
+      const ink = await page.evaluate(async ({ b64, y0, h }) => {
         const img = new Image();
         img.src = "data:image/png;base64," + b64;
         await img.decode();
@@ -1995,11 +2186,9 @@ test.describe("the approval stamp fits inside the paper", () => {
         c.width = img.width; c.height = img.height;
         const g = c.getContext("2d");
         g.drawImage(img, 0, 0);
-        /* The stamp block: the SVG puts the title at y 40, the stamp from y 80
-           and the rule under it. At 2x that is roughly rows 140..230. */
-        const band = g.getImageData(0, 140, img.width, 95).data;
+        const band = g.getImageData(0, y0, img.width, h).data;
         let lo = img.width, hi = -1;
-        for (let y = 0; y < 95; y++) {
+        for (let y = 0; y < h; y++) {
           for (let x = 0; x < img.width; x++) {
             const i = (y * img.width + x) * 4;
             if (band[i] < 230 || band[i + 1] < 230 || band[i + 2] < 230) {
@@ -2009,8 +2198,9 @@ test.describe("the approval stamp fits inside the paper", () => {
           }
         }
         return { lo, hi, w: img.width };
-      }, png);
-      expect(ink.hi).toBeGreaterThan(0);          // there IS a stamp
+      }, { b64: png, y0, h });
+      expect(ink.hi, `${sheet}: the header band above the rule carries no ink at all — the sheet is printing no stamp`)
+        .toBeGreaterThan(0);
       /* The sheet's margin is 40 SVG units, 80 device px at 2x. Ink inside the
          margin on either side means the line was laid out to the paper. */
       expect(ink.lo, `${sheet}: stamp ink starts left of the margin`).toBeGreaterThanOrEqual(72);

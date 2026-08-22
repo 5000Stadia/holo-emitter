@@ -2039,6 +2039,81 @@ and survived the exact widening it was written to catch. And where the tolerance
 of a real corpus, assert the MEMBERSHIP: not "the band is 3 %" but "the band still admits exactly
 the one backdrop blueprint §5 admits."
 
+**And a third round found the same clause's other arm unpinned in the same way.** The MEASURED
+band's boundary case derived its own edges from `MEASURED_BAND`, so it was true for any band wider
+than two pixels: a critic moved the constant and `gate.py`'s copy of it to 0.001 and to 0.037 and
+the case passed both times — at 0.001 the gate silently refuses every regeneration the asset seat
+can produce, at 0.037 it admits `study/W` at −3.7 % un-regenerated. Blueprint §5's ruled *"within
+±3 % of 1010 px"* now has a reader that is not a copy of itself: the case parses the number out of
+the blueprint sentence that rules it. **Where a number is ruled in prose, read the prose — a second
+literal agreeing with the first is one edit away from agreeing with nothing.**
+
+**[Row 20, round 6] A SWITCH THAT TURNS OFF THE GUARD AND ITS MITIGATION TOGETHER IS NOT A
+MITIGATION.** Round 5 moved the `AWAITING HIS EYE ON` requirement out of `approval.lock` and onto
+`design/batches/row20-lens/`'s existence, reasoning that a directory leaving the tree is
+human-visible where a deleted line is not. Four cases then opened with `if (!existsSync(dir))
+return`, so one `rm -r` reported four passes: the AWAITING requirement, the frame re-render, the
+BEFORE frames and the schematic byte-equality all went quiet in the same command. **The batch and
+the lock's `pending` line are one switch now** — each asserts the other, so neither retires alone —
+and the gated cases skip VISIBLY instead of returning a pass they did not earn. Two rules come out
+of it, and they generalize past this row: **a guard's off-switch must not also be the off-switch of
+what it guards**, and **an early `return` in a test is a green tick; use a visible skip.**
+
+**A scope line has to be read against its subject, not against a length.** The `pending` clause was
+held by `length > 20` plus the stamp printing it, so a critic set it to *"the sheet border and the
+scale bar"*: both sheets printed `AWAITING HIS EYE ON: the sheet border and the scale bar.` and
+everything stayed green while the standpoint markers — the drawn content the whole anchor rests on
+by inference — folded silently under APPROVED. Deleting the line was caught; narrowing it to a lie
+was not. It is now read against `standpoints.tsv`'s delta from `SEEN_SHEET_COMMIT`, the last sheets
+a human looked at directly: each drawn family that actually moved must be named in the clause, and
+a clause naming nothing that moved is a claim about nothing.
+
+**A picture guard proves the picture is CURRENT, not that it is of what its name says.** The batch
+re-render byte-compares eleven frames against a fresh capture — but `capture.mjs` is both the
+definition and the comparison, so renaming a row of `FRAMES` is green by construction. The script
+already prints the viewstate it reached per frame; the guard reads that line now and requires
+`06-hall-E.png` to have been captured at `hall/E`. **And its filter excluded the other eight
+pictures entirely**: `!f.includes("BEFORE")` left the batch's before/after halves — the pair the
+README tells Kabe to open first — bound to nothing, which is round 5's own finding surviving inside
+round 5's own fix. Those cannot be re-rendered by today's code, so `capture.mjs` takes the tree to
+draw from: `git archive` the last pre-lens build (`ff095d9`) into a temp directory, point the script
+at it, and the eight come back byte-identical. **A "before" picture answers for itself by being
+re-drawn from the build that drew it** — no stored digest, nothing read out of the document guarded.
+
+**A composition ruled by eye needs a measured reader or it is held by nothing.** Round 5 moved the
+`hall/E` candlestick because a critic looked at the frame and saw it standing ON the press; the fix
+was correct and was guarded by no test at all — reverting the two fixture numbers and re-running the
+two generators restored the failing arrangement with the whole suite green, and the existing
+opaque-overlap case was green at both positions, because crossing a silhouette is what a thing
+BEHIND another does too. What separates the two readings is the drop between the two drawn bases, so
+that is what `mechanisms.spec` measures, with an ABSOLUTE floor (40 px, against the fix's 68 and the
+failure's 7) rather than one derived from the shipped `depth_m`.
+
+**A derived grammar is only as derived as its last typed character class.** The completeness scan
+derives its file set from `tools/` and its row prefix from the sources, and left the token BODY as
+`[a-z_.]+` — so `[row21:meta.brandNew]` is not an undeclared token, it is not a token at all, and
+both completeness checks are silent about it. Anything shaped like a token must now PARSE as one,
+or it is a finding by itself.
+
+**Two round-6 findings are recorded rather than fixed, and here is why.**
+
+- **`approval.lock`'s `undrawn` digest is stale, and every sheet prints so.** Row 20 moved
+  `stick1`'s footprint — undrawn content, under §4's standing licence — so both sheets carry
+  *"Content the sheet does not draw has changed since then (sha 0987ac56); the drawing is
+  unaffected."* That is the designed behaviour, not a defect: the lock's own rule is that `undrawn`
+  re-anchors **with** `plan`, and `plan` has not moved because no drawn content changed. Nothing
+  reads `undrawn` in the suite, so its staleness is visible only on the sheet's face — degraded
+  visibility rather than blindness, since the printed sha is the *current* digest and moves when the
+  undrawn content moves again. It is also, incidentally, what pushed the provenance stamp onto a
+  second line and so caused four cases to go red at 44630f3. **The next redline re-anchors both.**
+- **The header band holds two stamp lines and refuses a third**, with about 240 characters of
+  `pending` clause left before it refuses. The refusal is correct — the alternative is printing over
+  the plan — but the incentive is wrong way round: the one clause whose job is completeness about
+  what a human has *not* seen is the clause that breaks the render when it grows. The band is a
+  layout number, not a ruled one, and the honest fix is for it to grow with the stamp. Left for the
+  row that next touches the sheet. `wrap_px` also drops to a flat 8 pt the moment it wraps, where
+  two lines at a fitted size would fit the column.
+
 **A check that stays green when what it guards is deleted is a finding**, and this row learned it
 twice: the first fix pass shipped five mechanisms held by nothing. Every guard listed above was
 verified by reverting the mechanism it names and watching it go red. A corollary the row also

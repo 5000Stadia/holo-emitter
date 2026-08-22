@@ -97,6 +97,17 @@ const SCANNED = readdirSync(join(repoRoot, "tools"))
    and the same argument that derived the file set derives this. */
 const TOKEN_RE = /\[row(\d+):([a-z_.]+)\]/g;
 
+/* AND THE GRAMMAR IS READ, NOT ONLY APPLIED — the row prefix was derived and
+   the token BODY was left typed one character class in, which is the same hole
+   one level down. `[row21:meta.brandNew]` and `[row23:MetaFoo]` do not match
+   `[a-z_.]+`, so they are not undeclared tokens to the scan above; they are not
+   tokens at all, and both checks say nothing about them. A critic added all
+   three to `validate-fixtures.mjs` and the suite stayed green.
+   `TOKEN_LOOSE_RE` matches anything SHAPED like a token, and the case below
+   requires each match to parse — so a malformed token is a finding rather than
+   a silence, and the strict grammar can no longer be evaded by breaking it. */
+const TOKEN_LOOSE_RE = /\[row\d*:?([^\]\n]{0,80})(\]|\n|$)/g;
+
 const REGISTERED = new Set();
 function ledgerCase(name, body) {
   REGISTERED.add(name);
@@ -1155,4 +1166,24 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
   for (const [name, n] of Object.entries(counts)) {
     expect(n, `${name} tags ${n} emit sites across the scanned tools — one token, one arm`).toBe(1);
   }
+});
+
+test("anything shaped like a ledger token IS one — the grammar is read, not only applied", () => {
+  /* The two checks above are blind to a token they cannot parse: an emit site
+   * tagged `[row21:meta.brandNew]` is neither declared nor undeclared, and
+   * neither counted nor uncounted. So every occurrence of the token's opening
+   * shape has to parse under the strict grammar or it is a finding by itself.
+   * This is the same argument that derived the scanned file set and the row
+   * prefix, carried down to the last typed part of the pattern. */
+  const bad = [];
+  for (const f of SCANNED) {
+    const src = readFileSync(join(repoRoot, f), "utf8");
+    for (const m of src.matchAll(TOKEN_LOOSE_RE)) {
+      const whole = m[0].endsWith("]") ? m[0] : `${m[0].replace(/\n$/, "")} (unterminated)`;
+      if (!/^\[row\d+:[a-z_.]+\]$/.test(whole)) bad.push(`${f}: ${whole}`);
+    }
+  }
+  expect(bad.sort(),
+    "these read as ledger tokens and do not parse as one, so every completeness check above is silent about them")
+    .toEqual([]);
 });

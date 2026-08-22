@@ -298,6 +298,51 @@ test.describe("§12.8 — each mechanism fires", () => {
     }
   });
 
+  /* THE HALL/E PAIR READS AS ONE THING IN FRONT OF ANOTHER, MEASURED.
+   *
+   * Row 20 wrote its own acceptance for this composition — *"if the pair reads
+   * as two objects side by side rather than one in front of the other, the
+   * composition moves again"* — and then failed it: at 0.20 m in front of the
+   * press the candlestick's base sat 7 drawn pixels below the press's and read
+   * as standing ON its bottom shelf. It was found by a critic looking at the
+   * frame, fixed by moving the candlestick to 1.70 m, and the fix was held by
+   * NOTHING: reverting the two fixture numbers and re-running the two
+   * generators put the failing arrangement back with the whole suite green.
+   * The overlap case above was green at 0.20 m too — crossing silhouettes is
+   * what a thing BEHIND another does as well.
+   *
+   * What separates the two readings is how far apart the two bases are drawn,
+   * so that is what is measured. The bounds are ABSOLUTE, not derived from the
+   * shipped `depth_m`: a bound computed from its own subject moves with it and
+   * survives the exact regression it was written to catch, which is the defect
+   * this row paid for twice already. 68 px is what the fix draws; 7 px is what
+   * failed; the floor sits between them and far from both. */
+  test("hall/E: the candlestick's base is drawn clear of the press's, not on it", async ({ page }) => {
+    await page.goto(appUrl());
+    const res = await page.evaluate(() => {
+      const fx = window.HOLO_FIXTURE;
+      const vs = { location: "hall", facing: "E" };
+      const solo = (id) => window.__T.renderW(
+        window.__T.worldWithout(
+          fx.world.entities.filter((e) => e.id !== id).map((e) => e.id)),
+        fx.staging, vs, { no_backdrop: true, shadows: false });
+      const near = window.__T.alphaBounds(solo("stick1"), 128);
+      const far = window.__T.alphaBounds(solo("shelf1"), 128);
+      return { near, far };
+    });
+    expect(res.near, "stick1 draws nothing on hall/E").not.toBeNull();
+    expect(res.far, "shelf1 draws nothing on hall/E").not.toBeNull();
+    const sep = res.near.y1 - res.far.y1;
+    expect(sep,
+      `the candlestick's base is drawn ${sep} px below the press's; under about 40 px the pair first-reads as the candlestick standing ON the press, which is the read this composition was moved to fix`)
+      .toBeGreaterThanOrEqual(40);
+    /* And it must still CROSS the press, or it is simply a separate object
+       standing somewhere else — the depth cue is the overlap plus the drop. */
+    expect(res.near.y0,
+      "the candlestick no longer overlaps the press's silhouette at all — moving it forward has moved it out of the pair")
+      .toBeLessThan(res.far.y1);
+  });
+
   test("desk body carries the recess, not a baked drawer face", async ({ page }) => {
     await page.goto(appUrl());
     const res = await page.evaluate(() => {
