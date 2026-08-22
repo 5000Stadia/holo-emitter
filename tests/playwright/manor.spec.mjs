@@ -340,23 +340,15 @@ test.describe("the picture, on every facing the manor renders", () => {
       if (y > -LIT.H && y < 2 * LIT.H) want.push(y);
     }
     want.sort((a, b) => a - b);
+    await page.goto(navUrl());
+    await page.waitForFunction(() => !!window.HOLO_APP);
     const got = await page.evaluate(() => {
       const A = window.HOLO_APP;
       const vs = { location: "great_stair_hall", facing: "N" };
       const fl = (A.metaFor(vs).stairs || [])[0];
       const half = fl.poly.length / 2;
-      return fl.poly.slice(0, half).map((p) => p[1]).sort((a, b) => a - b);
-    }).catch(() => null) ?? await (async () => {
-      await page.goto(navUrl());
-      await page.waitForFunction(() => !!window.HOLO_APP);
-      return await page.evaluate(() => {
-        const A = window.HOLO_APP;
-        const vs = { location: "great_stair_hall", facing: "N" };
-        const fl = (A.metaFor(vs).stairs || [])[0];
-        const half = fl.poly.length / 2;
-        return fl.poly.slice(0, half).map((p) => p[1]).sort((a, b) => a - b);
-      });
-    })();
+      return fl.poly.slice(0, half).map((p) => p[1]).sort((a2, b2) => a2 - b2);
+    });
     expect(got.length, "every tread the frame can hold").toBe(want.length);
     got.forEach((y, i) => {
       expect(Math.abs(y - want[i]), `tread ${i}: drawn at ${y.toFixed(1)}, the plan puts it at ${want[i].toFixed(1)}`)
