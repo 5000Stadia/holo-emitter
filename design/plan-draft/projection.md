@@ -25,20 +25,23 @@ Each of these is live before row 4's prompt sheets:
 2. **Whether `door1` sits where the drawing puts it or where the staging puts it** (§1).
 3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open
    court mouth and not a wall (§3).
-4. **The wide-view trigger's reading**, and the implied focal length, which under a pinned
-   scale is not constant across facings (§5).
+4. **CLOSED BY ROW 20** — the wide-view trigger's two readings are deleted with the
+   machinery: a pinned lens clips no wall, so the fork has no subject. Kabe's ruling (3)
+   is SUPERSEDED by his own later approval of preview frame `02b`, the 24 mm `hall/E`
+   view, which is narrower than the licence granted. Recorded, not asked again.
 5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted
    into them at row 4, or do the manor's extra exits wait for a later row? The four rulings
    of 2026-08-21 did not reach this one.
 6. **The desk stands in the study's chimney breast** (§10) — visible for the first time now
    that the room has real metres.
 7. **An [AI] correction was made to a datum on the approved drawing** (§9).
-8. **The floor cut is not at your feet on most facings** — the intention's fifth quality
-   is *"the camera has feet … Riven's rails are cut by the frame bottom at your own
-   feet"*, and under the standpoint rule on the approved drawing the floor starts more
-   than twice as far out as the shipped study's on fifteen facings (§6).
-9. **The implied lens is not constant** — pinning the SCALE across standpoint distances
-   from 1.95 m to 15.30 m means a different focal length per facing (§6).
+8. **CLOSED BY ROW 20** — the frame-bottom floor cut was fifteen anomalies running to
+   6.05 m under a pinned scale. Under a pinned lens it is ONE number for the whole
+   manor, `f / px_per_m_at_bottom`, because it depends on the lens and the horizon and
+   not on where you stand. What is left is that one number, and it is named residue.
+9. **CLOSED BY ROW 20** — the implied lens ran 187 px to 2014 px across the manor, a
+   factor of eleven. It is `f` = 1024 px on every facing now, bound to blueprint §10's
+   `camera.focal_mm` and refused at the bake if it drifts.
 10. **What row 4 measures and what it takes from the plan** — §5 rules the approved image
     the geometric authority, and this row makes the plan one. The per-field table in §8 is
     a proposal, not a ruling.
@@ -56,8 +59,8 @@ hard failure of the bake.
 | `chair1` | study/N | floor_free | 0.8345 | 0.8345 | 0.0000 | 1.20 | 1.20 | yes |
 | `door1` | study/E | wall_mounted | 0.7292 | 0.7292 | 0.0000 | — | — | yes |
 | `door1` | hall/W | wall_mounted | 0.5000 | 0.5000 | 0.0000 | — | — | yes |
-| `shelf1` | hall/N | floor_against | 0.3950 | 0.3950 | 0.0000 | — | 0.30 | yes |
-| `stick1` | hall/N | floor_free | 0.4264 | 0.4264 | 0.0000 | 0.50 | 0.50 | yes |
+| `shelf1` | hall/E | floor_against | 0.4038 | 0.4038 | 0.0000 | — | 0.30 | yes |
+| `stick1` | hall/E | floor_free | 0.4615 | 0.4615 | 0.0000 | 0.50 | 0.50 | yes |
 
 **What that table is and is not evidence of** — this matters more than the count:
 
@@ -77,12 +80,12 @@ surprise someone reading only the `u` column:
 
 | entity | facing | u today | u under plan meta | drawn height px today | under plan meta |
 |---|---|---|---|---|---|
-| `desk1` | study/N | 0.6172 | 0.8440 | 88.8 | 88.4 |
-| `chair1` | study/N | 0.6139 | 0.8345 | 153.4 | 151.2 |
-| `door1` | study/E | 0.5688 | 0.7292 | 192.0 | 192.0 |
-| `door1` | hall/W | 0.5000 | 0.5000 | 192.0 | 192.0 |
-| `shelf1` | hall/N | 0.4475 | 0.3950 | 189.0 | 204.2 |
-| `stick1` | hall/N | 0.4632 | 0.4264 | 61.6 | 71.0 |
+| `desk1` | study/N | 0.6172 | 0.8440 | 231.5 | 210.2 |
+| `chair1` | study/N | 0.6139 | 0.8345 | 384.0 | 341.3 |
+| `door1` | study/E | 0.5688 | 0.7292 | 512.0 | 500.7 |
+| `door1` | hall/W | 0.5000 | 0.5000 | 512.0 | 341.3 |
+| `shelf1` | hall/E | 0.4844 | 0.4038 | 498.2 | 323.4 |
+| `stick1` | hall/E | 0.4937 | 0.4615 | 160.9 | 102.4 |
 
 ## 2. View angles, for row 4's prompt sheets
 
@@ -103,12 +106,12 @@ board from.
 
 | entity | facing | offset from centre | standpoint distance | view_angle_deg |
 |---|---|---|---|---|
-| `desk1` | study/N | 1.875 m | 3.05 m | 31.58 |
-| `chair1` | study/N | 1.823 m | 2.40 m | 37.22 |
+| `desk1` | study/N | 1.875 m | 3.80 m | 26.26 |
+| `chair1` | study/N | 1.823 m | 3.15 m | 30.06 |
 | `door1` | study/E | 1.100 m | 4.09 m | 15.05 |
 | `door1` | hall/W | 0.000 m | 6.00 m | 0.00 |
-| `shelf1` | hall/N | -0.840 m | 1.65 m | -26.98 |
-| `stick1` | hall/N | -0.589 m | 1.45 m | -22.10 |
+| `shelf1` | hall/E | -0.250 m | 5.70 m | -2.51 |
+| `stick1` | hall/E | -0.100 m | 5.50 m | -1.04 |
 
 ## 3. What each facing's wall carries
 
@@ -145,17 +148,17 @@ is §11's fireplace wall and row 4's probe backdrop.
 
 | facing | relief | across the view | at | wall line at | on the sight line |
 |---|---|---|---|---|---|
-| GREAT HALL/N | fireplace | 2.50–5.50 m (u 0.274) | 6.38 m | 6.98 m | no |
-| STUDY/N | fireplace | 1.65–3.85 m (u 0.505) | 3.10 m | 3.60 m | **yes** |
+| GREAT HALL/N | fireplace | 2.50–5.50 m (u 0.274) | 8.25 m | 8.85 m | no |
+| STUDY/N | fireplace | 1.65–3.85 m (u 0.505) | 3.85 m | 4.35 m | **yes** |
 | KITCHEN/S | fireplace | 2.50–5.50 m (u 0.500) | 5.69 m | 6.49 m | **yes** |
 | SERVANTS' HALL/E | fireplace | 2.90–4.90 m (u 0.553) | 5.40 m | 6.00 m | **yes** |
-| DINING PARLOUR/N | fireplace | 0.90–2.90 m (u 0.216) | 5.10 m | 5.70 m | no |
-| LIBRARY/S | fireplace | 1.40–3.40 m (u 0.273) | 4.24 m | 4.84 m | no |
-| SOLAR (GREAT CHAMBER)/N | fireplace | 2.50–5.50 m (u 0.274) | 6.38 m | 6.98 m | no |
-| MUNIMENT ROOM/N | fireplace | 1.65–3.85 m (u 0.505) | 3.10 m | 3.60 m | **yes** |
-| LONG GALLERY/E | fireplace | 2.90–4.90 m (u 0.160) | 5.40 m | 6.00 m | no |
-| MASTER BEDCHAMBER/N | fireplace | 0.90–2.90 m (u 0.216) | 5.10 m | 5.70 m | no |
-| GUEST CHAMBER/S | fireplace | 1.40–3.40 m (u 0.273) | 4.24 m | 4.84 m | no |
+| DINING PARLOUR/N | fireplace | 0.90–2.90 m (u 0.216) | 6.55 m | 7.15 m | no |
+| LIBRARY/S | fireplace | 1.40–3.40 m (u 0.273) | 5.40 m | 6.00 m | no |
+| SOLAR (GREAT CHAMBER)/N | fireplace | 2.50–5.50 m (u 0.274) | 8.25 m | 8.85 m | no |
+| MUNIMENT ROOM/N | fireplace | 1.65–3.85 m (u 0.505) | 3.85 m | 4.35 m | **yes** |
+| LONG GALLERY/E | fireplace | 2.90–4.90 m (u 0.160) | 6.95 m | 7.55 m | no |
+| MASTER BEDCHAMBER/N | fireplace | 0.90–2.90 m (u 0.216) | 6.55 m | 7.15 m | no |
+| GUEST CHAMBER/S | fireplace | 1.40–3.40 m (u 0.273) | 5.40 m | 6.00 m | no |
 
 The number is not moved: the drawing is what it is and law (a) names the wall line. What
 row 4 needs is this table beside it, so a backdrop is authored to a wall with a hearth in
@@ -180,94 +183,94 @@ number is not moved here because it is read off the approved drawing.
 
 | floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ground | GREAT HALL | N | enclosed | pinned | 6.97 | 14.60 | 96.00 | 669 | 0.6300 | 2.01 | 67.2 | 1468.8 | wall |
-| ground | GREAT HALL | E | enclosed | pinned | 10.95 | 9.30 | 96.00 | 1051 | 0.6300 | 3.16 | 321.6 | 1214.4 | wall |
-| ground | GREAT HALL | S | enclosed | pinned | 6.97 | 14.60 | 96.00 | 669 | 0.6300 | 2.01 | 67.2 | 1468.8 | wall |
-| ground | GREAT HALL | W | enclosed | pinned | 10.95 | 9.30 | 96.00 | 1051 | 0.6300 | 3.16 | 321.6 | 1214.4 | wall |
-| ground | STUDY | N | enclosed | pinned | 3.60 | 5.45 | 96.00 | 346 | 0.6300 | 1.04 | 506.4 | 1029.6 | wall |
-| ground | STUDY | E | enclosed | pinned | 4.09 | 4.80 | 96.00 | 393 | 0.6300 | 1.18 | 537.6 | 998.4 | wall |
-| ground | STUDY | S | enclosed | pinned | 3.60 | 5.45 | 96.00 | 346 | 0.6300 | 1.04 | 506.4 | 1029.6 | wall |
-| ground | STUDY | W | enclosed | pinned | 4.09 | 4.80 | 96.00 | 393 | 0.6300 | 1.18 | 537.6 | 998.4 | wall |
-| ground | BACK STAIR | N | enclosed | pinned | 3.11 | 5.45 | 96.00 | 299 | 0.6300 | 0.90 | 506.4 | 1029.6 | wall |
-| ground | BACK STAIR | E | enclosed | pinned | 4.09 | 4.15 | 96.00 | 393 | 0.6300 | 1.18 | 568.8 | 967.2 | wall |
-| ground | BACK STAIR | S | enclosed | pinned | 3.11 | 5.45 | 96.00 | 299 | 0.6300 | 0.90 | 506.4 | 1029.6 | wall |
-| ground | BACK STAIR | W | enclosed | pinned | 4.09 | 4.15 | 96.00 | 393 | 0.6300 | 1.18 | 568.8 | 967.2 | wall |
-| ground | CROSS PASSAGE | N | enclosed | pinned | 1.95 | 8.00 | 96.00 | 187 | 0.6300 | 0.56 | 384.0 | 1152.0 | wall |
-| ground | CROSS PASSAGE | E | corridor | pinned | 6.00 | 2.60 | 96.00 | 576 | 0.6300 | 1.73 | 643.2 | 892.8 | wall |
-| ground | CROSS PASSAGE | S | enclosed | pinned | 1.95 | 8.00 | 96.00 | 187 | 0.6300 | 0.56 | 384.0 | 1152.0 | wall |
-| ground | CROSS PASSAGE | W | corridor | pinned | 6.00 | 2.60 | 96.00 | 576 | 0.6300 | 1.73 | 643.2 | 892.8 | wall |
-| ground | KITCHEN | N | enclosed | pinned | 6.49 | 8.00 | 96.00 | 623 | 0.6300 | 1.87 | 384.0 | 1152.0 | wall |
-| ground | KITCHEN | E | enclosed | pinned | 6.00 | 8.65 | 96.00 | 576 | 0.6300 | 1.73 | 352.8 | 1183.2 | wall |
-| ground | KITCHEN | S | enclosed | pinned | 6.49 | 8.00 | 96.00 | 623 | 0.6300 | 1.87 | 384.0 | 1152.0 | wall |
-| ground | KITCHEN | W | enclosed | pinned | 6.00 | 8.65 | 96.00 | 576 | 0.6300 | 1.73 | 352.8 | 1183.2 | wall |
-| ground | BUTTERY & PANTRY | N | enclosed | pinned | 3.71 | 8.00 | 96.00 | 356 | 0.6300 | 1.07 | 384.0 | 1152.0 | wall |
-| ground | BUTTERY & PANTRY | E | enclosed | pinned | 6.00 | 4.95 | 96.00 | 576 | 0.6300 | 1.73 | 530.4 | 1005.6 | wall |
-| ground | BUTTERY & PANTRY | S | enclosed | pinned | 3.71 | 8.00 | 96.00 | 356 | 0.6300 | 1.07 | 384.0 | 1152.0 | wall |
-| ground | BUTTERY & PANTRY | W | enclosed | pinned | 6.00 | 4.95 | 96.00 | 576 | 0.6300 | 1.73 | 530.4 | 1005.6 | wall |
-| ground | SERVANTS' HALL | N | enclosed | pinned | 5.29 | 8.00 | 96.00 | 508 | 0.6300 | 1.53 | 384.0 | 1152.0 | wall |
-| ground | SERVANTS' HALL | E | enclosed | pinned | 6.00 | 7.05 | 96.00 | 576 | 0.6300 | 1.73 | 429.6 | 1106.4 | wall |
-| ground | SERVANTS' HALL | S | enclosed | pinned | 5.29 | 8.00 | 96.00 | 508 | 0.6300 | 1.53 | 384.0 | 1152.0 | wall |
-| ground | SERVANTS' HALL | W | enclosed | pinned | 6.00 | 7.05 | 96.00 | 576 | 0.6300 | 1.73 | 429.6 | 1106.4 | wall |
-| ground | DINING PARLOUR | N | enclosed | pinned | 5.70 | 8.80 | 96.00 | 547 | 0.6300 | 1.64 | 345.6 | 1190.4 | wall |
-| ground | DINING PARLOUR | E | enclosed | pinned | 6.60 | 7.60 | 96.00 | 634 | 0.6300 | 1.90 | 403.2 | 1132.8 | wall |
-| ground | DINING PARLOUR | S | enclosed | pinned | 5.70 | 8.80 | 96.00 | 547 | 0.6300 | 1.64 | 345.6 | 1190.4 | wall |
-| ground | DINING PARLOUR | W | enclosed | pinned | 6.60 | 7.60 | 96.00 | 634 | 0.6300 | 1.90 | 403.2 | 1132.8 | wall |
-| ground | GREAT STAIR HALL | N | enclosed | pinned | 4.24 | 8.80 | 96.00 | 407 | 0.6300 | 1.22 | 345.6 | 1190.4 | wall |
-| ground | GREAT STAIR HALL | E | enclosed | pinned | 6.60 | 5.65 | 96.00 | 634 | 0.6300 | 1.90 | 496.8 | 1039.2 | wall |
-| ground | GREAT STAIR HALL | S | enclosed | pinned | 4.24 | 8.80 | 96.00 | 407 | 0.6300 | 1.22 | 345.6 | 1190.4 | wall |
-| ground | GREAT STAIR HALL | W | enclosed | pinned | 6.60 | 5.65 | 96.00 | 634 | 0.6300 | 1.90 | 496.8 | 1039.2 | wall |
-| ground | LIBRARY | N | enclosed | pinned | 4.84 | 8.80 | 96.00 | 465 | 0.6300 | 1.40 | 345.6 | 1190.4 | wall |
-| ground | LIBRARY | E | enclosed | pinned | 6.60 | 6.45 | 96.00 | 634 | 0.6300 | 1.90 | 458.4 | 1077.6 | wall |
-| ground | LIBRARY | S | enclosed | pinned | 4.84 | 8.80 | 96.00 | 465 | 0.6300 | 1.40 | 345.6 | 1190.4 | wall |
-| ground | LIBRARY | W | enclosed | pinned | 6.60 | 6.45 | 96.00 | 634 | 0.6300 | 1.90 | 458.4 | 1077.6 | wall |
-| ground | GARDEN ROOM | N | enclosed | pinned | 2.66 | 8.80 | 96.00 | 255 | 0.6300 | 0.77 | 345.6 | 1190.4 | wall |
-| ground | GARDEN ROOM | E | enclosed | pinned | 6.60 | 3.55 | 96.00 | 634 | 0.6300 | 1.90 | 597.6 | 938.4 | wall |
-| ground | GARDEN ROOM | S | enclosed | pinned | 2.66 | 8.80 | 96.00 | 255 | 0.6300 | 0.77 | 345.6 | 1190.4 | wall |
-| ground | GARDEN ROOM | W | enclosed | pinned | 6.60 | 3.55 | 96.00 | 634 | 0.6300 | 1.90 | 597.6 | 938.4 | wall |
-| ground | ENTRANCE COURT | N | enclosed | wide | 6.75 | 20.40 | 75.29 | 508 | 0.5976 | 1.53 | 0.0 | 1536.0 | wall |
-| ground | ENTRANCE COURT | E | enclosed | pinned | 15.30 | 9.00 | 96.00 | 1469 | 0.6300 | 4.41 | 336.0 | 1200.0 | wall |
-| ground | ENTRANCE COURT | S | open | wide | 26.75 | 20.40 | 75.29 | 2014 | 0.5976 | 6.05 | — | — | vista |
-| ground | ENTRANCE COURT | W | enclosed | pinned | 15.30 | 9.00 | 96.00 | 1469 | 0.6300 | 4.41 | 336.0 | 1200.0 | wall |
-| ground | PRIVY GARDEN | N | enclosed | wide | 4.16 | 20.40 | 75.29 | 313 | 0.5976 | 0.94 | 0.0 | 1536.0 | wall |
-| ground | PRIVY GARDEN | E | enclosed | pinned | 15.30 | 5.55 | 96.00 | 1469 | 0.6300 | 4.41 | 501.6 | 1034.4 | wall |
-| ground | PRIVY GARDEN | S | enclosed | wide | 4.16 | 20.40 | 75.29 | 313 | 0.5976 | 0.94 | 0.0 | 1536.0 | wall |
-| ground | PRIVY GARDEN | W | enclosed | pinned | 15.30 | 5.55 | 96.00 | 1469 | 0.6300 | 4.41 | 501.6 | 1034.4 | wall |
-| ground | ENTRANCE APPROACH | N | enclosed | wide | 15.00 | 32.00 | 48.00 | 720 | 0.5550 | 2.16 | — | — | wall |
-| ground | ENTRANCE APPROACH | E | open | wide | 24.00 | 20.00 | 76.80 | 1843 | 0.6000 | 5.54 | — | — | vista |
-| ground | ENTRANCE APPROACH | S | open | wide | 15.00 | 32.00 | 48.00 | 720 | 0.5550 | 2.16 | — | — | vista |
-| ground | ENTRANCE APPROACH | W | open | wide | 24.00 | 20.00 | 76.80 | 1843 | 0.6000 | 5.54 | — | — | vista |
-| upper | SOLAR (GREAT CHAMBER) | N | enclosed | pinned | 6.97 | 14.60 | 96.00 | 669 | 0.6300 | 2.01 | 67.2 | 1468.8 | wall |
-| upper | SOLAR (GREAT CHAMBER) | E | enclosed | pinned | 10.95 | 9.30 | 96.00 | 1051 | 0.6300 | 3.16 | 321.6 | 1214.4 | wall |
-| upper | SOLAR (GREAT CHAMBER) | S | enclosed | pinned | 6.97 | 14.60 | 96.00 | 669 | 0.6300 | 2.01 | 67.2 | 1468.8 | wall |
-| upper | SOLAR (GREAT CHAMBER) | W | enclosed | pinned | 10.95 | 9.30 | 96.00 | 1051 | 0.6300 | 3.16 | 321.6 | 1214.4 | wall |
-| upper | MUNIMENT ROOM | N | enclosed | pinned | 3.60 | 5.45 | 96.00 | 346 | 0.6300 | 1.04 | 506.4 | 1029.6 | wall |
-| upper | MUNIMENT ROOM | E | enclosed | pinned | 4.09 | 4.80 | 96.00 | 393 | 0.6300 | 1.18 | 537.6 | 998.4 | wall |
-| upper | MUNIMENT ROOM | S | enclosed | pinned | 3.60 | 5.45 | 96.00 | 346 | 0.6300 | 1.04 | 506.4 | 1029.6 | wall |
-| upper | MUNIMENT ROOM | W | enclosed | pinned | 4.09 | 4.80 | 96.00 | 393 | 0.6300 | 1.18 | 537.6 | 998.4 | wall |
-| upper | BACK STAIR HEAD | N | enclosed | pinned | 3.11 | 5.45 | 96.00 | 299 | 0.6300 | 0.90 | 506.4 | 1029.6 | wall |
-| upper | BACK STAIR HEAD | E | enclosed | pinned | 4.09 | 4.15 | 96.00 | 393 | 0.6300 | 1.18 | 568.8 | 967.2 | wall |
-| upper | BACK STAIR HEAD | S | enclosed | pinned | 3.11 | 5.45 | 96.00 | 299 | 0.6300 | 0.90 | 506.4 | 1029.6 | wall |
-| upper | BACK STAIR HEAD | W | enclosed | pinned | 4.09 | 4.15 | 96.00 | 393 | 0.6300 | 1.18 | 568.8 | 967.2 | wall |
-| upper | LONG GALLERY | N | corridor | pinned | 18.22 | 8.00 | 96.00 | 1749 | 0.6300 | 5.26 | 384.0 | 1152.0 | wall |
-| upper | LONG GALLERY | E | enclosed | wide | 6.00 | 24.30 | 63.21 | 379 | 0.5788 | 1.14 | 0.0 | 1536.0 | wall |
-| upper | LONG GALLERY | S | corridor | pinned | 18.22 | 8.00 | 96.00 | 1749 | 0.6300 | 5.26 | 384.0 | 1152.0 | wall |
-| upper | LONG GALLERY | W | enclosed | wide | 6.00 | 24.30 | 63.21 | 379 | 0.5788 | 1.14 | 0.0 | 1536.0 | wall |
-| upper | MASTER BEDCHAMBER | N | enclosed | pinned | 5.70 | 8.80 | 96.00 | 547 | 0.6300 | 1.64 | 345.6 | 1190.4 | wall |
-| upper | MASTER BEDCHAMBER | E | enclosed | pinned | 6.60 | 7.60 | 96.00 | 634 | 0.6300 | 1.90 | 403.2 | 1132.8 | wall |
-| upper | MASTER BEDCHAMBER | S | enclosed | pinned | 5.70 | 8.80 | 96.00 | 547 | 0.6300 | 1.64 | 345.6 | 1190.4 | wall |
-| upper | MASTER BEDCHAMBER | W | enclosed | pinned | 6.60 | 7.60 | 96.00 | 634 | 0.6300 | 1.90 | 403.2 | 1132.8 | wall |
-| upper | STAIR LANDING | N | enclosed | pinned | 4.24 | 8.80 | 96.00 | 407 | 0.6300 | 1.22 | 345.6 | 1190.4 | wall |
-| upper | STAIR LANDING | E | enclosed | pinned | 6.60 | 5.65 | 96.00 | 634 | 0.6300 | 1.90 | 496.8 | 1039.2 | wall |
-| upper | STAIR LANDING | S | enclosed | pinned | 4.24 | 8.80 | 96.00 | 407 | 0.6300 | 1.22 | 345.6 | 1190.4 | wall |
-| upper | STAIR LANDING | W | enclosed | pinned | 6.60 | 5.65 | 96.00 | 634 | 0.6300 | 1.90 | 496.8 | 1039.2 | wall |
-| upper | GUEST CHAMBER | N | enclosed | pinned | 4.84 | 8.80 | 96.00 | 465 | 0.6300 | 1.40 | 345.6 | 1190.4 | wall |
-| upper | GUEST CHAMBER | E | enclosed | pinned | 6.60 | 6.45 | 96.00 | 634 | 0.6300 | 1.90 | 458.4 | 1077.6 | wall |
-| upper | GUEST CHAMBER | S | enclosed | pinned | 4.84 | 8.80 | 96.00 | 465 | 0.6300 | 1.40 | 345.6 | 1190.4 | wall |
-| upper | GUEST CHAMBER | W | enclosed | pinned | 6.60 | 6.45 | 96.00 | 634 | 0.6300 | 1.90 | 458.4 | 1077.6 | wall |
-| upper | CLOSET CHAMBER | N | enclosed | pinned | 2.66 | 8.80 | 96.00 | 255 | 0.6300 | 0.77 | 345.6 | 1190.4 | wall |
-| upper | CLOSET CHAMBER | E | enclosed | pinned | 6.60 | 3.55 | 96.00 | 634 | 0.6300 | 1.90 | 597.6 | 938.4 | wall |
-| upper | CLOSET CHAMBER | S | enclosed | pinned | 2.66 | 8.80 | 96.00 | 255 | 0.6300 | 0.77 | 345.6 | 1190.4 | wall |
-| upper | CLOSET CHAMBER | W | enclosed | pinned | 6.60 | 3.55 | 96.00 | 634 | 0.6300 | 1.90 | 597.6 | 938.4 | wall |
+| ground | GREAT HALL | N | enclosed | undefined | 8.85 | 14.60 | 115.71 | 1024 | 0.6177 | 2.36 | -76.7 | 1612.7 | wall |
+| ground | GREAT HALL | E | enclosed | undefined | 10.95 | 9.30 | 93.52 | 1024 | 0.5910 | 2.36 | 333.2 | 1202.8 | wall |
+| ground | GREAT HALL | S | enclosed | undefined | 8.85 | 14.60 | 115.71 | 1024 | 0.6177 | 2.36 | -76.7 | 1612.7 | wall |
+| ground | GREAT HALL | W | enclosed | undefined | 10.95 | 9.30 | 93.52 | 1024 | 0.5910 | 2.36 | 333.2 | 1202.8 | wall |
+| ground | STUDY | N | enclosed | undefined | 4.35 | 5.45 | 235.40 | 1024 | 0.7616 | 2.36 | 126.5 | 1409.5 | wall |
+| ground | STUDY | E | enclosed | undefined | 4.09 | 4.80 | 250.37 | 1024 | 0.7796 | 2.36 | 167.1 | 1368.9 | wall |
+| ground | STUDY | S | enclosed | undefined | 3.85 | 5.45 | 265.97 | 1024 | 0.7984 | 2.36 | 43.2 | 1492.8 | wall |
+| ground | STUDY | W | enclosed | undefined | 4.09 | 4.80 | 250.37 | 1024 | 0.7796 | 2.36 | 167.1 | 1368.9 | wall |
+| ground | BACK STAIR | N | enclosed | undefined | 3.11 | 5.45 | 329.26 | 1024 | 0.8745 | 2.36 | -129.2 | 1665.2 | wall |
+| ground | BACK STAIR | E | enclosed | undefined | 4.09 | 4.15 | 250.37 | 1024 | 0.7796 | 2.36 | 248.5 | 1287.5 | wall |
+| ground | BACK STAIR | S | enclosed | undefined | 3.70 | 5.45 | 276.76 | 1024 | 0.8114 | 2.36 | 13.8 | 1522.2 | wall |
+| ground | BACK STAIR | W | enclosed | undefined | 4.09 | 4.15 | 250.37 | 1024 | 0.7796 | 2.36 | 248.5 | 1287.5 | wall |
+| ground | CROSS PASSAGE | N | enclosed | undefined | 2.15 | 8.00 | 476.28 | 1024 | 1.0514 | 2.36 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | E | corridor | undefined | 6.00 | 2.60 | 170.67 | 1024 | 0.6838 | 2.36 | 546.1 | 989.9 | wall |
+| ground | CROSS PASSAGE | S | enclosed | undefined | 2.15 | 8.00 | 476.28 | 1024 | 1.0514 | 2.36 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | W | corridor | undefined | 6.00 | 2.60 | 170.67 | 1024 | 0.6838 | 2.36 | 546.1 | 989.9 | wall |
+| ground | KITCHEN | N | enclosed | undefined | 6.49 | 8.00 | 157.78 | 1024 | 0.6683 | 2.36 | 136.9 | 1399.1 | wall |
+| ground | KITCHEN | E | enclosed | undefined | 6.00 | 8.65 | 170.67 | 1024 | 0.6838 | 2.36 | 29.9 | 1506.1 | wall |
+| ground | KITCHEN | S | enclosed | undefined | 6.49 | 8.00 | 157.78 | 1024 | 0.6683 | 2.36 | 136.9 | 1399.1 | wall |
+| ground | KITCHEN | W | enclosed | undefined | 6.00 | 8.65 | 170.67 | 1024 | 0.6838 | 2.36 | 29.9 | 1506.1 | wall |
+| ground | BUTTERY & PANTRY | N | enclosed | undefined | 4.50 | 8.00 | 227.56 | 1024 | 0.7522 | 2.36 | -142.2 | 1678.2 | wall |
+| ground | BUTTERY & PANTRY | E | enclosed | undefined | 6.00 | 4.95 | 170.67 | 1024 | 0.6838 | 2.36 | 345.6 | 1190.4 | wall |
+| ground | BUTTERY & PANTRY | S | enclosed | undefined | 4.50 | 8.00 | 227.56 | 1024 | 0.7522 | 2.36 | -142.2 | 1678.2 | wall |
+| ground | BUTTERY & PANTRY | W | enclosed | undefined | 6.00 | 4.95 | 170.67 | 1024 | 0.6838 | 2.36 | 345.6 | 1190.4 | wall |
+| ground | SERVANTS' HALL | N | enclosed | undefined | 6.60 | 8.00 | 155.15 | 1024 | 0.6651 | 2.36 | 147.4 | 1388.6 | wall |
+| ground | SERVANTS' HALL | E | enclosed | undefined | 6.00 | 7.05 | 170.67 | 1024 | 0.6838 | 2.36 | 166.4 | 1369.6 | wall |
+| ground | SERVANTS' HALL | S | enclosed | undefined | 6.60 | 8.00 | 155.15 | 1024 | 0.6651 | 2.36 | 147.4 | 1388.6 | wall |
+| ground | SERVANTS' HALL | W | enclosed | undefined | 6.00 | 7.05 | 170.67 | 1024 | 0.6838 | 2.36 | 166.4 | 1369.6 | wall |
+| ground | DINING PARLOUR | N | enclosed | undefined | 7.15 | 8.80 | 143.22 | 1024 | 0.6508 | 2.36 | 137.8 | 1398.2 | wall |
+| ground | DINING PARLOUR | E | enclosed | undefined | 6.60 | 7.60 | 155.15 | 1024 | 0.6651 | 2.36 | 178.4 | 1357.6 | wall |
+| ground | DINING PARLOUR | S | enclosed | undefined | 7.15 | 8.80 | 143.22 | 1024 | 0.6508 | 2.36 | 137.8 | 1398.2 | wall |
+| ground | DINING PARLOUR | W | enclosed | undefined | 6.60 | 7.60 | 155.15 | 1024 | 0.6651 | 2.36 | 178.4 | 1357.6 | wall |
+| ground | GREAT STAIR HALL | N | enclosed | undefined | 5.20 | 8.80 | 196.92 | 1024 | 0.7154 | 2.36 | -98.5 | 1634.5 | wall |
+| ground | GREAT STAIR HALL | E | enclosed | undefined | 6.60 | 5.65 | 155.15 | 1024 | 0.6651 | 2.36 | 329.7 | 1206.3 | wall |
+| ground | GREAT STAIR HALL | S | enclosed | undefined | 5.20 | 8.80 | 196.92 | 1024 | 0.7154 | 2.36 | -98.5 | 1634.5 | wall |
+| ground | GREAT STAIR HALL | W | enclosed | undefined | 6.60 | 5.65 | 155.15 | 1024 | 0.6651 | 2.36 | 329.7 | 1206.3 | wall |
+| ground | LIBRARY | N | enclosed | undefined | 6.00 | 8.80 | 170.67 | 1024 | 0.6838 | 2.36 | 17.1 | 1518.9 | wall |
+| ground | LIBRARY | E | enclosed | undefined | 6.60 | 6.45 | 155.15 | 1024 | 0.6651 | 2.36 | 267.6 | 1268.4 | wall |
+| ground | LIBRARY | S | enclosed | undefined | 6.00 | 8.80 | 170.67 | 1024 | 0.6838 | 2.36 | 17.1 | 1518.9 | wall |
+| ground | LIBRARY | W | enclosed | undefined | 6.60 | 6.45 | 155.15 | 1024 | 0.6651 | 2.36 | 267.6 | 1268.4 | wall |
+| ground | GARDEN ROOM | N | enclosed | undefined | 3.10 | 8.80 | 330.32 | 1024 | 0.8758 | 2.36 | -685.4 | 2221.4 | wall |
+| ground | GARDEN ROOM | E | enclosed | undefined | 6.60 | 3.55 | 155.15 | 1024 | 0.6651 | 2.36 | 492.6 | 1043.4 | wall |
+| ground | GARDEN ROOM | S | enclosed | undefined | 3.10 | 8.80 | 330.32 | 1024 | 0.8758 | 2.36 | -685.4 | 2221.4 | wall |
+| ground | GARDEN ROOM | W | enclosed | undefined | 6.60 | 3.55 | 155.15 | 1024 | 0.6651 | 2.36 | 492.6 | 1043.4 | wall |
+| ground | ENTRANCE COURT | N | enclosed | undefined | 8.55 | 20.40 | 119.77 | 1024 | 0.6226 | 2.36 | -453.6 | 1989.6 | wall |
+| ground | ENTRANCE COURT | E | enclosed | undefined | 15.30 | 9.00 | 66.93 | 1024 | 0.5590 | 2.36 | 466.8 | 1069.2 | wall |
+| ground | ENTRANCE COURT | S | open | undefined | 26.75 | 20.40 | 38.28 | 1024 | 0.5246 | 2.36 | — | — | vista |
+| ground | ENTRANCE COURT | W | enclosed | undefined | 15.30 | 9.00 | 66.93 | 1024 | 0.5590 | 2.36 | 466.8 | 1069.2 | wall |
+| ground | PRIVY GARDEN | N | enclosed | undefined | 5.10 | 20.40 | 200.78 | 1024 | 0.7200 | 2.36 | -1280.0 | 2816.0 | wall |
+| ground | PRIVY GARDEN | E | enclosed | undefined | 15.30 | 5.55 | 66.93 | 1024 | 0.5590 | 2.36 | 582.3 | 953.7 | wall |
+| ground | PRIVY GARDEN | S | enclosed | undefined | 5.10 | 20.40 | 200.78 | 1024 | 0.7200 | 2.36 | -1280.0 | 2816.0 | wall |
+| ground | PRIVY GARDEN | W | enclosed | undefined | 15.30 | 5.55 | 66.93 | 1024 | 0.5590 | 2.36 | 582.3 | 953.7 | wall |
+| ground | ENTRANCE APPROACH | N | enclosed | undefined | 19.55 | 32.00 | 52.38 | 1024 | 0.5415 | 2.36 | — | — | wall |
+| ground | ENTRANCE APPROACH | E | open | undefined | 24.00 | 20.00 | 42.67 | 1024 | 0.5298 | 2.36 | — | — | vista |
+| ground | ENTRANCE APPROACH | S | open | undefined | 15.00 | 32.00 | 68.27 | 1024 | 0.5606 | 2.36 | — | — | vista |
+| ground | ENTRANCE APPROACH | W | open | undefined | 24.00 | 20.00 | 42.67 | 1024 | 0.5298 | 2.36 | — | — | vista |
+| upper | SOLAR (GREAT CHAMBER) | N | enclosed | undefined | 8.85 | 14.60 | 115.71 | 1024 | 0.6177 | 2.36 | -76.7 | 1612.7 | wall |
+| upper | SOLAR (GREAT CHAMBER) | E | enclosed | undefined | 10.95 | 9.30 | 93.52 | 1024 | 0.5910 | 2.36 | 333.2 | 1202.8 | wall |
+| upper | SOLAR (GREAT CHAMBER) | S | enclosed | undefined | 8.85 | 14.60 | 115.71 | 1024 | 0.6177 | 2.36 | -76.7 | 1612.7 | wall |
+| upper | SOLAR (GREAT CHAMBER) | W | enclosed | undefined | 10.95 | 9.30 | 93.52 | 1024 | 0.5910 | 2.36 | 333.2 | 1202.8 | wall |
+| upper | MUNIMENT ROOM | N | enclosed | undefined | 4.35 | 5.45 | 235.40 | 1024 | 0.7616 | 2.36 | 126.5 | 1409.5 | wall |
+| upper | MUNIMENT ROOM | E | enclosed | undefined | 4.09 | 4.80 | 250.37 | 1024 | 0.7796 | 2.36 | 167.1 | 1368.9 | wall |
+| upper | MUNIMENT ROOM | S | enclosed | undefined | 3.85 | 5.45 | 265.97 | 1024 | 0.7984 | 2.36 | 43.2 | 1492.8 | wall |
+| upper | MUNIMENT ROOM | W | enclosed | undefined | 4.09 | 4.80 | 250.37 | 1024 | 0.7796 | 2.36 | 167.1 | 1368.9 | wall |
+| upper | BACK STAIR HEAD | N | enclosed | undefined | 3.11 | 5.45 | 329.26 | 1024 | 0.8745 | 2.36 | -129.2 | 1665.2 | wall |
+| upper | BACK STAIR HEAD | E | enclosed | undefined | 4.09 | 4.15 | 250.37 | 1024 | 0.7796 | 2.36 | 248.5 | 1287.5 | wall |
+| upper | BACK STAIR HEAD | S | enclosed | undefined | 3.70 | 5.45 | 276.76 | 1024 | 0.8114 | 2.36 | 13.8 | 1522.2 | wall |
+| upper | BACK STAIR HEAD | W | enclosed | undefined | 4.09 | 4.15 | 250.37 | 1024 | 0.7796 | 2.36 | 248.5 | 1287.5 | wall |
+| upper | LONG GALLERY | N | corridor | undefined | 18.22 | 8.00 | 56.20 | 1024 | 0.5461 | 2.36 | 543.2 | 992.8 | wall |
+| upper | LONG GALLERY | E | enclosed | undefined | 7.55 | 24.30 | 135.63 | 1024 | 0.6416 | 2.36 | -879.9 | 2415.9 | wall |
+| upper | LONG GALLERY | S | corridor | undefined | 18.22 | 8.00 | 56.20 | 1024 | 0.5461 | 2.36 | 543.2 | 992.8 | wall |
+| upper | LONG GALLERY | W | enclosed | undefined | 7.55 | 24.30 | 135.63 | 1024 | 0.6416 | 2.36 | -879.9 | 2415.9 | wall |
+| upper | MASTER BEDCHAMBER | N | enclosed | undefined | 7.15 | 8.80 | 143.22 | 1024 | 0.6508 | 2.36 | 137.8 | 1398.2 | wall |
+| upper | MASTER BEDCHAMBER | E | enclosed | undefined | 6.60 | 7.60 | 155.15 | 1024 | 0.6651 | 2.36 | 178.4 | 1357.6 | wall |
+| upper | MASTER BEDCHAMBER | S | enclosed | undefined | 7.15 | 8.80 | 143.22 | 1024 | 0.6508 | 2.36 | 137.8 | 1398.2 | wall |
+| upper | MASTER BEDCHAMBER | W | enclosed | undefined | 6.60 | 7.60 | 155.15 | 1024 | 0.6651 | 2.36 | 178.4 | 1357.6 | wall |
+| upper | STAIR LANDING | N | enclosed | undefined | 5.20 | 8.80 | 196.92 | 1024 | 0.7154 | 2.36 | -98.5 | 1634.5 | wall |
+| upper | STAIR LANDING | E | enclosed | undefined | 6.60 | 5.65 | 155.15 | 1024 | 0.6651 | 2.36 | 329.7 | 1206.3 | wall |
+| upper | STAIR LANDING | S | enclosed | undefined | 5.20 | 8.80 | 196.92 | 1024 | 0.7154 | 2.36 | -98.5 | 1634.5 | wall |
+| upper | STAIR LANDING | W | enclosed | undefined | 6.60 | 5.65 | 155.15 | 1024 | 0.6651 | 2.36 | 329.7 | 1206.3 | wall |
+| upper | GUEST CHAMBER | N | enclosed | undefined | 6.00 | 8.80 | 170.67 | 1024 | 0.6838 | 2.36 | 17.1 | 1518.9 | wall |
+| upper | GUEST CHAMBER | E | enclosed | undefined | 6.60 | 6.45 | 155.15 | 1024 | 0.6651 | 2.36 | 267.6 | 1268.4 | wall |
+| upper | GUEST CHAMBER | S | enclosed | undefined | 6.00 | 8.80 | 170.67 | 1024 | 0.6838 | 2.36 | 17.1 | 1518.9 | wall |
+| upper | GUEST CHAMBER | W | enclosed | undefined | 6.60 | 6.45 | 155.15 | 1024 | 0.6651 | 2.36 | 267.6 | 1268.4 | wall |
+| upper | CLOSET CHAMBER | N | enclosed | undefined | 3.10 | 8.80 | 330.32 | 1024 | 0.8758 | 2.36 | -685.4 | 2221.4 | wall |
+| upper | CLOSET CHAMBER | E | enclosed | undefined | 6.60 | 3.55 | 155.15 | 1024 | 0.6651 | 2.36 | 492.6 | 1043.4 | wall |
+| upper | CLOSET CHAMBER | S | enclosed | undefined | 3.10 | 8.80 | 330.32 | 1024 | 0.8758 | 2.36 | -685.4 | 2221.4 | wall |
+| upper | CLOSET CHAMBER | W | enclosed | undefined | 6.60 | 3.55 | 155.15 | 1024 | 0.6651 | 2.36 | 492.6 | 1043.4 | wall |
 
 **Law (b), where it bites.** These facings claim a wall and do not have a continuous one:
 
@@ -278,114 +281,47 @@ forbids: *"a wall seen from the courtyard or grounds exists only where the manor
 wall actually stands in the plan."* Whether such a facing should be typed `enclosed` at all
 is Kabe's to rule — the drawing's own note says the court mouth is open at its centre.
 
-## 5. The wide-view camera [AI, under Kabe's standing license]
+## 5. The wide-view camera — deleted, and by whose authority
 
-Ruling (3), blueprint §4b: *open and corridor deep-views take their own wider camera,
-enclosed flat views keep the pinned frame.* The pinned frame holds 16.0 m of wall
-(1536 px at 96 px/m). The trigger built is the arithmetic the license was
-granted about: **a facing whose wall in view is wider than the frame holds takes the wider
-camera**, its `px_per_m_at_wall` becoming `canvas / wall_width_m` so the wall exactly fills
-the frame instead of being clipped. Everything else follows from §5's horizon device.
+Kabe's ruling (3) [HUMAN, 2026-08-21] granted open and corridor deep views *"their own
+wider camera"*, and row 12 built two readings of it that disagreed on ten facings and
+left the choice to him. **Row 20 deletes both.** They existed only because a pinned SCALE
+had to clip a wall wider than the frame; a pinned LENS does not clip — a wall wider than
+the frame extends past it, as in life — so there is nothing for the licence to be about.
 
-The 10 facings it selects:
+Said straight, because it is a [HUMAN] licence: this **supersedes** ruling (3) rather than
+satisfying it. The pinned lens makes `hall/E` NARROWER (an implied 106.3° becomes 73.7°)
+and gives no facing a wider camera than any other. The authority is Kabe's own later act
+on the same subject: preview frame `02b` IS the 24 mm `hall/E` view, and *"full steam
+ahead"* approved it. The licence died by his approval of the narrower picture.
 
-- ENTRANCE COURT/N — 20.40 m at 75.29 px/m (room type `open`, facing type `enclosed`)
-- ENTRANCE COURT/S — 20.40 m at 75.29 px/m (room type `open`, facing type `open`)
-- PRIVY GARDEN/N — 20.40 m at 75.29 px/m (room type `open`, facing type `enclosed`)
-- PRIVY GARDEN/S — 20.40 m at 75.29 px/m (room type `open`, facing type `enclosed`)
-- ENTRANCE APPROACH/N — 32.00 m at 48.00 px/m (room type `open`, facing type `enclosed`)
-- ENTRANCE APPROACH/E — 20.00 m at 76.80 px/m (room type `open`, facing type `open`)
-- ENTRANCE APPROACH/S — 32.00 m at 48.00 px/m (room type `open`, facing type `open`)
-- ENTRANCE APPROACH/W — 20.00 m at 76.80 px/m (room type `open`, facing type `open`)
-- LONG GALLERY/E — 24.30 m at 63.21 px/m (room type `corridor`, facing type `enclosed`)
-- LONG GALLERY/W — 24.30 m at 63.21 px/m (room type `corridor`, facing type `enclosed`)
+## 6. The camera has feet, and the lens is one lens
 
-**Both readings are computable, and neither is an agent's to pick.** `WIDE_VIEW_POLICIES`
-carries two: `fits` (above) and `ruling` — the sentence's own vocabulary, *facing type is
-`open` or `corridor`*. They disagree on 10 facings:
+Row 20 pinned the LENS instead of the scale, and both halves of this section inverted.
 
-| facing | wall in view | facing type | `fits` | `ruling` |
-|---|---|---|---|---|
-| CROSS PASSAGE/E | 2.60 m | `corridor` | pinned | wide |
-| CROSS PASSAGE/W | 2.60 m | `corridor` | pinned | wide |
-| ENTRANCE COURT/N | 20.40 m | `enclosed` | wide | pinned |
-| PRIVY GARDEN/N | 20.40 m | `enclosed` | wide | pinned |
-| PRIVY GARDEN/S | 20.40 m | `enclosed` | wide | pinned |
-| ENTRANCE APPROACH/N | 32.00 m | `enclosed` | wide | pinned |
-| LONG GALLERY/N | 8.00 m | `corridor` | pinned | wide |
-| LONG GALLERY/E | 24.30 m | `enclosed` | wide | pinned |
-| LONG GALLERY/S | 8.00 m | `corridor` | pinned | wide |
-| LONG GALLERY/W | 24.30 m | `enclosed` | wide | pinned |
-
-Under `ruling`, six real walls wider than the frame go back to being clipped — which is
-the outcome the license was granted to avoid — and four narrow views that fit perfectly
-well take a wider camera they do not need. Under `fits`, the ruling's own words select a
-different set than the code does. `fits` is the default only because nothing consumes a
-derived meta yet and every one of them carries `provisional: true` and its
-`wide_view_policy`. When Kabe rules, the loser is deleted.
-
-**Where a redline would land [flagged for Kabe].** The trigger reads one quantity and not the
-ruling's vocabulary, and the two do not line up cleanly. 6 of the 10 are `enclosed` FACINGS —
-real walls, simply wider than the frame holds. Meanwhile the long gallery's two `corridor`
-facings, at 18.22 m the deepest views inside the house, do **not** take the wider camera,
-because their 8.00 m end wall fits the pinned frame perfectly well. If "deep view" was meant
-to select on depth rather than on width, that set changes; if "enclosed flat views keep the
-pinned frame" was meant per facing, six of these clip instead, and the drawing's
-clipped-`wall_width_m` question comes back for them.
-
-Residue, named rather than decided (it is §5's open field-of-view question, and it is
-Kabe's): `px_per_m_at_wall × camera_wall_m` is the implied focal length, and under a pinned
-*scale* it is not constant —
-346 px in the study, 508 px on the entrance court's north view. The pinned frame
-is a pinned scale, not a pinned lens.
-
-## 6. The camera has feet, and the lens is not one lens
-
-Two consequences of pinning the SCALE at 96 px/m while the drawn standpoint distance
-runs from 1.95 m to 15.30 m. Neither is this row's invention — the standpoint rule is on
-the drawing and the pinned scale is blueprint §7's — but this is the row that computes
-them across eighty-eight facings, so here they are as numbers.
+**The lens.** `px_per_m_at_wall × camera_wall_m` is the implied focal length. Under the
+pinned scale it ran 187 px to 2014 px across the manor — a factor of eleven, a 4 mm
+fisheye to a 47 mm normal. It is now 1024 px on every one of 88 facings
+(1024 px at the widest), which is 24 mm on this frame's own 36×24 format,
+bound to blueprint §10's `camera.focal_mm` by `assertRuledLens` and refused at the bake
+if the two ever drift. `px_per_m_at_wall` is a consequence now, not a constant: it is
+`f / camera_wall_m`, so a metre of wall is worth more pixels the nearer the wall is,
+which is what a camera does and what makes a corner move with where you stand.
 
 **Where the floor starts, in front of the viewer.** The intention's fifth decomposed
 quality: *"The camera has feet … Riven's rails are cut by the frame bottom at your own
-feet"*. The shipped study cuts its floor at 1.04 m — computed from the grid
-meta the browser actually draws (`camera_wall_m` 3.5, groundplane's fallback, not the
-plan's measured 3.60 m), because the only frame-bottom cut any human has judged is the
-one on screen. 15 of 88 facings start their floor more than twice that far out:
+feet"*. Under a pinned lens this is `f / px_per_m_at_bottom` — the lens and the horizon
+decide it and the standpoint does not — so it is ONE number for the whole manor: 2.36 m.
+0 facings start their floor more than twice that far out, against fifteen before.
 
-| facing | standpoint distance | floor starts at |
-|---|---|---|
-| ENTRANCE COURT/S | 26.75 m | 6.05 m |
-| ENTRANCE APPROACH/E | 24.00 m | 5.54 m |
-| ENTRANCE APPROACH/W | 24.00 m | 5.54 m |
-| LONG GALLERY/N | 18.22 m | 5.26 m |
-| LONG GALLERY/S | 18.22 m | 5.26 m |
-| ENTRANCE COURT/E | 15.30 m | 4.41 m |
-| ENTRANCE COURT/W | 15.30 m | 4.41 m |
-| PRIVY GARDEN/E | 15.30 m | 4.41 m |
-| PRIVY GARDEN/W | 15.30 m | 4.41 m |
-| GREAT HALL/E | 10.95 m | 3.16 m |
-| GREAT HALL/W | 10.95 m | 3.16 m |
-| SOLAR (GREAT CHAMBER)/E | 10.95 m | 3.16 m |
-| SOLAR (GREAT CHAMBER)/W | 10.95 m | 3.16 m |
-| ENTRANCE APPROACH/N | 15.00 m | 2.16 m |
-| ENTRANCE APPROACH/S | 15.00 m | 2.16 m |
-
-A backdrop authored to a meta whose floor begins six metres out is a diagram, not a
-place. The fix is not an agent's: it is either a cap on the standpoint rule (which is on
-the approved drawing), a per-type camera, or accepting that a courtyard is looked at
-rather than stood in. Row 4's prompt sheets read `camera_wall_m` from here.
-
-**The lens.** `px_per_m_at_wall × camera_wall_m` is the implied focal length. Pinned at
-96 px/m it runs from 187 px to 2014 px across the manor — a factor of
-11. The visible consequence: `floor_line_y` comes out identical on every pinned
-facing whatever the room's size, because it depends only on the scale and the eye
-height, so the great hall and the study are the same picture with different corner
-positions. The alternative is to pin the LENS instead and let the scale vary
-(`px_per_m_at_wall = f / camera_wall_m`), which is what a real camera does and what
-§10's `focal_mm: 50` implies. Blueprint §5 has carried this as an open question since
-row 2 and it is still Kabe's; this row does not answer it, and every derived meta is
-marked `provisional` because of it.
+That number is the row's largest named cost and its arithmetic is worth having in full:
+`nearest_floor = eye / (1 − horizon_y)` when `f` equals the frame height, as it does
+here. Its infimum over any horizon a picture can use is the EYE HEIGHT itself, so no
+lens shift at this focal length puts the cut at a viewer's feet. What brought it in from
+the 3.08 m every 24 mm preview drew is the approved backdrops' own camera, measured at
+1.2316 m rather than the 1.83 m §10 asked for. The quality's second carrier —
+*"Kabe's reference anchors the same way through a near desk surface"* — is what closes
+the rest, and it belongs to the row that stages a near surface.
 
 ## 7. What the contract camera would give instead
 
@@ -399,18 +335,18 @@ one. This is the size of the difference, so the fork is a number rather than a w
 
 | quantity | grid camera (shipped) | contract camera (§10) |
 |---|---|---|
-| eye height | 1.60 m | 1.83 m |
-| study/N floor_line_y | 0.6300 | 0.6516 |
-| study/N px_per_m_at_bottom | 332.8 | 291.0 |
-| nearest floor in frame | 1.04 m | 1.19 m |
+| eye height | 1.23 m | 1.83 m |
+| study/N floor_line_y | 0.7616 | 0.8992 |
+| study/N px_per_m_at_bottom | 433.6 | 291.8 |
+| nearest floor in frame | 2.36 m | 3.51 m |
 
 **And §5's own gate is asserted at whichever height the pixels are drawn at.** The
 camera-has-feet assertion — |`horizon_y` − (`floor_line_y` − eye·`px_per_m_at_wall`/
 `image_h_px`)| ≤ 0.02 — is a check on a meta's self-consistency, so it holds against the
 drawing camera and fails against the other one. Against grid canonical:
 
-- at 1.60 m (the interim camera the demo draws): residual 0.0000 — passes
-- at 1.83 m (§10's generation camera): residual 0.0216 — FAILS
+- at 1.23 m (the interim camera the demo draws): residual 0.0000 — passes
+- at 1.83 m (§10's generation camera): residual 0.1496 — FAILS
 
 
 **And by how much depends on how wide the wall is**, which is the part that would bite
@@ -419,9 +355,9 @@ with the scale:
 
 | facing | px/m at wall | residual against the 1.83 m gate | verdict |
 |---|---|---|---|
-| study/N | 96.00 | 0.0216 | **fails** |
-| long_gallery/E | 63.21 | 0.0142 | passes |
-| entrance_approach/N | 48.00 | 0.0108 | passes |
+| study/N | 235.40 | 0.1376 | **fails** |
+| long_gallery/E | 135.63 | 0.0793 | **fails** |
+| entrance_approach/N | 52.38 | 0.0306 | **fails** |
 
 So a derivation run at the generation camera would emit metas that pass or fail one
 acceptance clause according to the size of the room. That is not a tolerance being tight;
@@ -435,7 +371,7 @@ for the quality the six-foot ruling was given to serve. Row 4 measures the real 
 **Pitch is not modelled at all**, by anything in this project: `groundplane.js` has no pitch
 term and adding one would move every shipped pixel. Its magnitude, so the omission is a known
 quantity rather than a silence — at the study's implied focal length of
-346 px, an −8° pitch moves the horizon down 49 px, 0.047 of frame height,
+1024 px, an −8° pitch moves the horizon down 144 px, 0.141 of frame height,
 against an authored `horizon_y` of 0.48. Row 4's approved backdrop is where §5 says the real
 camera comes from; until then no agent should pick one.
 

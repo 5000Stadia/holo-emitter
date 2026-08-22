@@ -53,6 +53,16 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
+
+/* The lens and the canvas, imported rather than restated: row 20's standpoint
+ * law is about whether a wall FITS THE FRAME, which is a question about
+ * pixels, and the two terms that answer it live in `src/groundplane.js`
+ * (`FOCAL_PX`, bound to §10's `camera.focal_mm`) and in the pinned §5
+ * viewport. A plan document holds no pixel — these are the CONSUMER's
+ * parameters, exactly as `tools/plan-projection.mjs` says of `CANVAS_W`. */
+const groundplane = createRequire(import.meta.url)("../src/groundplane.js");
+export const PLAN_CANVAS_W = 1536;
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -105,7 +115,8 @@ const isNum = (v) => typeof v === "number" && Number.isFinite(v);
  * of it. Enforced by whitelist, the way tools/validate-fixtures.mjs enforces
  * the other two documents. */
 const PLAN_TOP_KEYS = ["schema", "version", "units", "north", "entrance",
-  "standpoint_stand_back", "wall_thickness", "outline", "floors", "wall_bands",
+  "standpoint_stand_back", "standpoint_threshold_clearance_m", "wall_thickness",
+  "outline", "floors", "wall_bands",
   "rooms", "openings", "windows", "fireplaces", "stairs", "objects"];
 const ROOM_KEYS = ["id", "floor", "name", "type", "archetype", "rect", "facings"];
 const FACING_KEYS = ["type", "standpoint_source", "standpoint", "wall_line",
@@ -224,6 +235,101 @@ export function measuredDistance(standpoint, facing, line) {
     : facing === "S" ? standpoint.y - line
     : facing === "E" ? line - standpoint.x
     : standpoint.x - line;
+}
+
+/**
+ * THE STANDPOINT LAW (row 20), and it is one function so the plan, the
+ * rebuild, the drawing and the validator cannot hold three versions of it.
+ *
+ * Blueprint §10's ruling [HUMAN, 2026-08-21]: "Standpoints move to the
+ * thresholds (shape item 9's own convention)." Shape item 9's convention is
+ * *you view a wall from across the room*. Two [HUMAN] artifacts make the
+ * literal reading — every facing to its threshold — untenable, and the
+ * Navigator ratified the conditional in their light:
+ *
+ *   - Kabe approved preview frame `02b`, the cross passage's east view AT ITS
+ *     DRAWN RULE DISTANCE of 6.00 m, not at its threshold of 7.55 m; and
+ *   - he approved `01d`, the study's north view AT ITS THRESHOLD of 4.35 m.
+ *
+ * The two frames together ARE the conditional, stated in pictures: a facing
+ * stands back to the far side of the room WHEN, AND ONLY WHEN, its own wall
+ * does not fit the frame from the drawn standpoint. The study's 5.45 m wall at
+ * 3.60 m draws 1550 px in a 1536 px frame and misses by seven pixels; the
+ * passage's 2.60 m end wall at 6.00 m draws 444 px and fits with room to
+ * spare. Nothing here is a criterion an agent invented: "fits the frame" is
+ * the frame, and the frame is not ours.
+ *
+ * A facing that views no wall keeps the rule — an `open` facing's far line is
+ * a horizon and there is no wall behind you to stand across from.
+ *
+ * WHERE THE FAR SIDE IS NOT STANDABLE, the standpoint stops at what is: a
+ * chimney breast, a stair flight or a wall band on the room's own axis is
+ * masonry, and the threshold pulls forward to clear it by the same clearance.
+ * Without that, four of the manor's standpoints would stand inside their own
+ * fireplaces and flights. `standpointObstructions` is the list, and
+ * `plan.standpoint_clear` is the clause that refuses one that does not.
+ */
+export function standpointObstructions(plan, room) {
+  const out = [];
+  for (const f of plan.fireplaces || []) if (f.floor === room.floor) out.push({ kind: `the hearth in "${f.room}"`, rect: f.rect });
+  for (const st of plan.stairs || []) if ((st.joins || []).includes(room.id)) out.push({ kind: `the "${st.id}" flight`, rect: st.rect });
+  for (const b of plan.wall_bands || []) if ((b.floors || []).includes(room.floor)) out.push({ kind: `wall band "${b.id}"`, rect: b.rect });
+  return out;
+}
+
+/** Does this facing's wall fit the frame from a standpoint that far away? */
+export function wallFitsFrame(wallWidthM, distanceM, canvasW = PLAN_CANVAS_W) {
+  return wallWidthM * groundplane.FOCAL_PX <= canvasW * distanceM + 1e-9;
+}
+
+/**
+ * The point the standpoint law puts a facing at, and which branch produced it.
+ * Returns `{ point, source }` with source "rule" or "threshold".
+ */
+export function standpointFor(plan, room, facing, K, clearanceM) {
+  const fc = room.facings[facing];
+  const rule = ruleStandpoint(room.rect, facing, K);
+  const open = fc && fc.type === "open";
+  const geo = facingGeometry(room.rect, facing, open ? fc.far_line : undefined);
+  const ruleD = measuredDistance(rule, facing, geo.wallLine);
+  if (open || wallFitsFrame(fc.wall_width_m, ruleD)) return { point: rule, source: "rule" };
+  const [axis, sign] = NORMAL[facing];
+  const cx = (room.rect.x0 + room.rect.x1) / 2, cy = (room.rect.y0 + room.rect.y1) / 2;
+  /* The far side of the room along the viewing axis — the wall you stand with
+   * your back to. */
+  let back = facing === "N" ? room.rect.y0 : facing === "S" ? room.rect.y1
+    : facing === "E" ? room.rect.x0 : room.rect.x1;
+  for (const o of standpointObstructions(plan, room)) {
+    const onAxis = axis === "y"
+      ? (cx >= o.rect.x0 - 1e-9 && cx <= o.rect.x1 + 1e-9)
+      : (cy >= o.rect.y0 - 1e-9 && cy <= o.rect.y1 + 1e-9);
+    if (!onAxis) continue;
+    /* Only masonry ATTACHED TO THE WALL BEHIND YOU stands between you and it:
+     * its far edge is at or behind `back`, and its near edge projects into the
+     * room. A hearth on the wall you are LOOKING AT is relief on the plane you
+     * view (`wallRelief`), not something you back into. */
+    const far = sign > 0 ? o.rect[axis + "0"] : o.rect[axis + "1"];
+    const near = sign > 0 ? o.rect[axis + "1"] : o.rect[axis + "0"];
+    if ((back - far) * sign < -1e-9) continue;
+    if ((near - back) * sign > 1e-9) back = near;
+  }
+  const p = axis === "y" ? { x: cx, y: back + sign * clearanceM }
+    : { x: back + sign * clearanceM, y: cy };
+  const tD = measuredDistance(p, facing, geo.wallLine);
+  if (!(tD > ruleD + 1e-9)) return { point: rule, source: "rule" };
+  /* And if the pulled-forward point is STILL inside masonry — a stair flight
+   * that fills its own room, which the manor has two of — there is nowhere
+   * further back to stand and the drawn standpoint keeps the facing. The
+   * alternative is a standpoint inside a flight, which `plan.standpoint_clear`
+   * refuses; a rule that cannot be satisfied gives way rather than producing
+   * an absurdity it then reports. */
+  for (const o of standpointObstructions(plan, room)) {
+    if (p.x >= o.rect.x0 - 1e-9 && p.x <= o.rect.x1 + 1e-9 &&
+        p.y >= o.rect.y0 - 1e-9 && p.y <= o.rect.y1 + 1e-9) {
+      return { point: rule, source: "rule" };
+    }
+  }
+  return { point: p, source: "threshold" };
 }
 
 /** The span of the view along the wall, in world coordinates. */
@@ -362,6 +468,16 @@ export function validatePlan(plan, world, records) {
    * declaring anything else would be silently mirrored end to end. */
   if (plan.north !== "+y") push(`plan.json: north must be "+y" — RIGHT, NORMAL and every facing derivation assume it, and a plan declaring otherwise would be mirrored end to end with no other symptom`);
   if (!isObj(plan.wall_thickness)) push("plan.json: wall_thickness must be an object keyed by band kind");
+  /* Row 20's clearance: how far in front of the wall behind you a threshold
+   * standpoint stands. A person cannot put their eye in the wall plane, and
+   * 0.45 m is the half-depth of a standing body — it is also the value the
+   * frame Kabe approved (`01d`, the study at 4.35 m in a 4.80 m room) was
+   * rendered at, which is where the number comes from rather than from an
+   * agent's taste. */
+  if (!isNum(plan.standpoint_threshold_clearance_m) ||
+      plan.standpoint_threshold_clearance_m <= 0 || plan.standpoint_threshold_clearance_m >= 1.5) {
+    push(`plan.json: standpoint_threshold_clearance_m must be in (0, 1.5) metres — the clearance a threshold standpoint keeps off the wall behind it; got ${JSON.stringify(plan.standpoint_threshold_clearance_m)}`);
+  }
   if (!isNum(plan.standpoint_stand_back) || plan.standpoint_stand_back <= 0 || plan.standpoint_stand_back >= 0.5) {
     push(`plan.json: standpoint_stand_back must be in (0, 0.5) — law (a)'s stand-back fraction; got ${JSON.stringify(plan.standpoint_stand_back)}`);
   }
@@ -372,6 +488,8 @@ export function validatePlan(plan, world, records) {
   if (findings.length) return findings; // nothing below can run on a broken shape
 
   const K = plan.standpoint_stand_back;
+  const C = plan.standpoint_threshold_clearance_m;
+  const standpointWarnings = validatePlan.standpointWarnings = [];
   const floorIds = new Set();
   for (const f of plan.floors) {
     if (!isObj(f) || typeof f.id !== "string" || !Number.isInteger(f.level)) {
@@ -537,12 +655,40 @@ export function validatePlan(plan, world, records) {
        * are named as its first honest use. `standpoint_source` says which,
        * and the K rule is checked only where the plan claims it. */
       const src = fc.standpoint_source || "rule";
-      if (src !== "rule" && src !== "drawn") {
-        push(`room "${r.id}" facing ${f}: standpoint_source ${JSON.stringify(src)} is not "rule" or "drawn"`);
-      } else if (src === "rule") {
-        const want = ruleStandpoint(r.rect, f, K);
-        if (Math.abs(fc.standpoint.x - want.x) > 1e-9 || Math.abs(fc.standpoint.y - want.y) > 1e-9) {
-          push(`room "${r.id}" facing ${f}: standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) is not the ruled one (${want.x}, ${want.y}) — stand-back ${K} of the room's own dimension; mark it standpoint_source "drawn" if it is deliberate`);
+      if (src !== "rule" && src !== "threshold" && src !== "drawn") {
+        push(`room "${r.id}" facing ${f}: standpoint_source ${JSON.stringify(src)} is not "rule", "threshold" or "drawn" [row20:plan.standpoint_source]`);
+      } else if (src !== "drawn") {
+        /* THE STANDPOINT LAW (row 20). `rule` and `threshold` are both
+         * computed — one function, `standpointFor`, decides which branch a
+         * facing takes and where it stands — so the document cannot claim one
+         * branch and stand in the other's place, and it cannot claim `rule`
+         * on a facing whose wall does not fit the frame. `drawn` is the
+         * escape hatch §4b item 9's multi-standpoint rooms need and is
+         * checked only for its measured distance, as before. */
+        const want = standpointFor(plan, r, f, K, C);
+        if (want.source !== src) {
+          push(`room "${r.id}" facing ${f}: standpoint_source "${src}" but the law puts it at the "${want.source}" standpoint — a ${fc.wall_width_m} m wall ${wallFitsFrame(fc.wall_width_m, measuredDistance(ruleStandpoint(r.rect, f, K), f, geo.wallLine)) ? "fits" : "does not fit"} the frame from the drawn standpoint; mark it standpoint_source "drawn" if it is deliberate [row20:plan.standpoint_source]`);
+        } else if (Math.abs(fc.standpoint.x - want.point.x) > 1e-9 || Math.abs(fc.standpoint.y - want.point.y) > 1e-9) {
+          push(`room "${r.id}" facing ${f}: standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) is not the "${src}" one (${want.point.x}, ${want.point.y}) — stand-back ${K} of the room's own dimension, threshold clearance ${C} m off the wall behind [row20:plan.standpoint_stands_back]`);
+        }
+      }
+      /* Nobody stands inside masonry. The threshold law walks standpoints into
+       * the deep interior of rooms, where hearths and stair flights are, and
+       * four of the manor's would have landed inside one. */
+      for (const o of standpointObstructions(plan, r)) {
+        if (fc.standpoint.x >= o.rect.x0 - 1e-9 && fc.standpoint.x <= o.rect.x1 + 1e-9 &&
+            fc.standpoint.y >= o.rect.y0 - 1e-9 && fc.standpoint.y <= o.rect.y1 + 1e-9) {
+          /* HARD for a standpoint an agent computed, a WARNING for one the
+           * drawing carries. The distinction is the one row 11 paid for on the
+           * desk in the hearth: a warning is for something a human approved and
+           * an agent may not change, and `rule`/`drawn` standpoints are on the
+           * sheet Kabe signed. `threshold` standpoints are this row's own
+           * arithmetic, so an absurdity in one is a defect, not a question. */
+          if (src === "threshold") {
+            push(`room "${r.id}" facing ${f}: the threshold standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) stands inside ${o.kind} — a viewer stands on floor the room has left, not in its masonry [row20:plan.standpoint_clear]`);
+          } else {
+            standpointWarnings.push(`room "${r.id}" facing ${f}: the ${src} standpoint stands inside ${o.kind} — it is on the approved drawing, so it is reported rather than moved`);
+          }
         }
       }
       /* Law (a), always: the printed number IS the measured distance from the

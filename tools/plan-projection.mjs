@@ -39,7 +39,7 @@ import { createRequire } from "node:module";
 import {
   RIGHT, NORMAL, FACINGS, BUILT_KINDS, ALL_WALL_KINDS, drawn,
   validatePlan, planWarnings, builtOnWallLine, viewSpan,
-  facingGeometry, ruleStandpoint, measuredDistance
+  facingGeometry, ruleStandpoint, measuredDistance, standpointFor
 } from "./validate-plan.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -67,10 +67,43 @@ const EPS = 1e-9;
  * requirement and could not fail. What CAN fail is assertCameraConsistent
  * below, which asks whether GRID_META's own numbers still satisfy the device.
  */
-export function cameraFrom({ id, eye_m, pitch_deg, horizon_y, px_per_m_at_wall, image_h_px, source }) {
+export function cameraFrom({ id, eye_m, pitch_deg, horizon_y, focal_px, image_h_px, source }) {
   return Object.freeze({
-    id, eye_m, pitch_deg: pitch_deg || 0, horizon_y, px_per_m_at_wall, image_h_px, source
+    id, eye_m, pitch_deg: pitch_deg || 0, horizon_y,
+    focal_px: focal_px == null ? groundplane.FOCAL_PX : focal_px,
+    image_h_px, source
   });
+}
+
+/**
+ * The lens, and the check on it that can go red.
+ *
+ * Blueprint §10's ruling pins f = 1024 px (24 mm on the 36 mm-wide frame).
+ * The millimetres are authored in `replicator/contract.json` — §10's [HUMAN]
+ * home — and `src/groundplane.js` holds the pixel constant every consumer
+ * reads. This asserts the two are one number, exactly as `assertRuledEye`
+ * does for the eye height, so a drift in either goes red rather than
+ * silently re-lensing the project.
+ */
+export const FOCAL_MM = groundplane.FOCAL_MM;
+export const FOCAL_PX = groundplane.FOCAL_PX;
+
+export function assertRuledLens(contractPath = join(ROOT, "replicator", "contract.json")) {
+  const problems = [];
+  let contract;
+  try {
+    contract = JSON.parse(readFileSync(contractPath, "utf8"));
+  } catch (e) {
+    return [`cannot read the orientation contract at ${contractPath} (${e.message}) — it is where blueprint §10's ruled focal length lives [row20:bake.refuses_lens_drift]`];
+  }
+  const mm = contract && contract.camera && contract.camera.focal_mm;
+  if (mm !== FOCAL_MM) {
+    problems.push(`FOCAL_MM is ${FOCAL_MM} but replicator/contract.json camera.focal_mm is ${JSON.stringify(mm)} — blueprint §10 is the [HUMAN] home of that number [row20:bake.refuses_lens_drift]`);
+  }
+  if (FOCAL_PX !== FOCAL_MM * CANVAS_W / groundplane.FRAME_W_MM) {
+    problems.push(`FOCAL_PX ${FOCAL_PX} is not ${FOCAL_MM} mm on a ${CANVAS_W}px frame of the ${groundplane.FRAME_W_MM}mm format [row20:bake.refuses_lens_drift]`);
+  }
+  return problems;
 }
 
 /**
@@ -116,7 +149,27 @@ export const RULED_EYE_M = 1.83;
  * row 4's backdrops are prompted at, and `assertRuledEye` still pins it to the
  * contract file.
  */
-export const INTERIM_EYE_M = 1.6;
+export const INTERIM_EYE_M = groundplane.DRAWING_EYE_M;
+
+/**
+ * THE DRAWING EYE HEIGHT, AND IT IS MEASURED NOW RATHER THAN INTERIM.
+ *
+ * Blueprint §5 [HUMAN, 2026-08-20]: *"The geometry elements should be
+ * determined by the orientation of the approved initial image generation."*
+ * The approved generations exist (row 20's backdrop integration), they were
+ * measured off their own pixels, and the height they were drawn at is what
+ * this project now draws at. The 1.60 m that shipped from row 11 was named an
+ * interim awaiting exactly this measurement, and §10's ruled 1.83 m — which
+ * the generator was asked for and did not honour — stays the GENERATION
+ * camera, pinned to `replicator/contract.json` by `assertRuledEye`.
+ *
+ * The divergence is on the record rather than smoothed away: the contract asks
+ * for 1.83 m pitched slightly down, and the approved images are 0.6 m lower
+ * with no pitch at all and their principal point ABOVE frame centre. That is a
+ * [HUMAN] field and an agent does not move it; what an agent may do is draw at
+ * the height the approved picture was drawn at, which is what §5 rules.
+ */
+export const DRAWING_EYE_M = groundplane.DRAWING_EYE_M;
 
 export function assertRuledEye(contractPath = join(ROOT, "replicator", "contract.json")) {
   const problems = [];
@@ -136,12 +189,12 @@ export function assertRuledEye(contractPath = join(ROOT, "replicator", "contract
 /** The camera the shipped demo draws with: the interim eye height, level. */
 export const GRID_CAMERA = cameraFrom({
   id: "grid",
-  eye_m: INTERIM_EYE_M,
+  eye_m: DRAWING_EYE_M,
   pitch_deg: 0,
-  horizon_y: GRID_META.horizon_y,
-  px_per_m_at_wall: GRID_META.px_per_m_at_wall,
+  horizon_y: groundplane.HORIZON_Y,
+  focal_px: FOCAL_PX,
   image_h_px: GRID_META.image_h_px,
-  source: "the interim eye height 1.60 m [HUMAN 2026-08-21], level — §10's ruled 1.83 m returns with row 4's measured camera, which can carry the −8° pitch half too (see §7 of the report)"
+  source: "the camera MEASURED off the approved backdrops (row 20): eye 1.2316 m, level, horizon at y 490 of 1024, on the ruled 24 mm lens — blueprint §5's 'the geometry elements should be determined by the orientation of the approved initial image generation' [HUMAN 2026-08-20], now that the approved generation exists"
 });
 
 /** Blueprint §10's generation camera, for comparison only. Its home is
@@ -152,10 +205,10 @@ export const CONTRACT_CAMERA = cameraFrom({
   id: "contract",
   eye_m: RULED_EYE_M,
   pitch_deg: -8,
-  horizon_y: GRID_META.horizon_y,
-  px_per_m_at_wall: GRID_META.px_per_m_at_wall,
+  horizon_y: groundplane.HORIZON_Y,
+  focal_px: FOCAL_PX,
   image_h_px: GRID_META.image_h_px,
-  source: "blueprint §10 camera.eye_height_m 1.83 / pitch_deg −8 [HUMAN 2026-08-20]"
+  source: "blueprint §10 camera.eye_height_m 1.83 / pitch_deg −8 [HUMAN 2026-08-20] — what backdrops are PROMPTED at, and what the approved generations did not honour"
 });
 
 /**
@@ -184,9 +237,11 @@ export function assertCameraConsistent(meta = GRID_META, eye = INTERIM_EYE_M) {
   return problems;
 }
 
-/** Metres of wall the pinned frame holds — 1536 px at 96 px/m is 16.0 m. */
-export function pinnedWallInFrame(camera = GRID_CAMERA, canvasW = CANVAS_W) {
-  return canvasW / camera.px_per_m_at_wall;
+/** Metres of wall the frame holds at a given camera-to-plane distance. Under
+ * a pinned lens this is a function of the DISTANCE, not a constant: the frame
+ * holds `canvasW / (f/d)` = `d · canvasW / f` metres — 1.5 × d at f = 1024. */
+export function wallInFrame(distanceM, camera = GRID_CAMERA, canvasW = CANVAS_W) {
+  return distanceM * canvasW / camera.focal_px;
 }
 
 const roomOf = (plan, id) => {
@@ -289,55 +344,29 @@ export function wallReliefReport(plan) {
   return out;
 }
 
-/**
- * Does this facing need the wider camera?
+/* THE WIDE-VIEW MACHINERY IS GONE (row 20), and this paragraph is what stands
+ * where it stood.
  *
- * Kabe's ruling (3), blueprint §4b: "wide-view camera license granted
- * ('sure') — open and corridor deep-views take their own wider camera,
- * enclosed flat views keep the pinned frame."
+ * `WIDE_VIEW_POLICIES`, `DEFAULT_WIDE_VIEW_POLICY`, `needsWideView` and the
+ * `camera: "pinned"|"wide"` meta field existed for one reason: under a pinned
+ * SCALE a wall wider than 16 m could not fit the frame, and the alternative to
+ * a second, wider camera was clipping it. Kabe's ruling (3) granted that
+ * second camera ("open and corridor deep-views take their own wider camera")
+ * and `design/plan-draft/projection.md` §5 carried two readings of it that
+ * disagreed on ten facings, unruled.
  *
- * [AI, under that standing license] The trigger is the arithmetic the license
- * was granted about: **a facing whose wall in view is wider than the pinned
- * frame holds cannot use the pinned frame** — the alternative the drawing
- * offered was clipping `wall_width_m`, and the license is what declined it.
- * A compound trigger that also read the room's or the facing's type was tried
- * and dropped: it contradicted the sentence's own vocabulary in both
- * directions. This reads one quantity; the report says which facings it
- * selects and exactly where a redline would land.
- */
-export const WIDE_VIEW_POLICIES = {
-  /* What the license was granted ABOUT: a wall wider than the frame holds
-   * cannot use the pinned frame, and clipping was the alternative the ruling
-   * declined. */
-  fits: (plan, room, fc, camera, canvasW) =>
-    fc.wall_width_m > pinnedWallInFrame(camera, canvasW) + EPS,
-  /* The ruling's own vocabulary, literally: "open and corridor deep-views take
-   * their own wider camera, enclosed flat views keep the pinned frame." */
-  ruling: (plan, room, fc) => fc.type === "open" || fc.type === "corridor"
-};
-export const DEFAULT_WIDE_VIEW_POLICY = "fits";
-
-/**
- * Does this facing need the wider camera?
+ * Under a pinned LENS nothing is clipped: a wall wider than the frame simply
+ * extends past it, as in life, so the fork has no subject and both readings
+ * are deleted rather than argued (perspective-research.md §8.5).
  *
- * Kabe's ruling (3), blueprint §4b: "wide-view camera license granted
- * ('sure') — open and corridor deep-views take their own wider camera,
- * enclosed flat views keep the pinned frame."
- *
- * The two readings above do not select the same facings on this manor and
- * neither is an agent's to pick, so BOTH are computable and the report prints
- * the difference facing by facing. `fits` is the default because it is the one
- * that leaves no wall clipped, and because nothing downstream consumes a
- * derived meta yet — every one of them is marked `provisional`. When Kabe
- * rules, the loser is deleted rather than argued.
- */
-export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvasW = CANVAS_W, policy = DEFAULT_WIDE_VIEW_POLICY) {
-  const room = roomOf(plan, roomId);
-  const fc = facingOf(room, facing);
-  const fn = WIDE_VIEW_POLICIES[policy];
-  if (!fn) throw new Error(`plan-projection: no wide-view policy "${policy}"`);
-  return fn(plan, room, fc, camera, canvasW);
-}
+ * SAID STRAIGHT: this SUPERSEDES ruling (3) rather than satisfying it. The
+ * pinned lens makes `hall/E` NARROWER (an implied 106.3° becomes 73.7°) and
+ * gives no facing a wider camera than any other. The authority for the
+ * supersession is Kabe's own later act on the same subject: preview frame
+ * `02b` IS the 24 mm `hall/E` view — a corridor deep view, narrower than
+ * ruling (3) licensed — and "full steam ahead" approved it. The licence died
+ * by his approval of the narrower picture, and the row's batch says so as a
+ * record rather than asking it again. */
 
 /**
  * deriveMeta(plan, roomId, facing, opts?) -> the §5 backdrop meta this
@@ -348,8 +377,7 @@ export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvas
  *       `camera_wall_m`; an `open` facing views a drawn ground line with no
  *       surface on it and carries `camera_far_m` INSTEAD, so a consumer
  *       cannot hand a horizon to a depth model that expects a plane.
- *   px_per_m_at_wall   = the camera's pinned scale, or canvasW / wall_width_m
- *                        under the wide-view license
+ *   px_per_m_at_wall   = FOCAL_PX / the drawn distance — row 20's pinned lens
  *   floor_line_y       = horizon_y + eye_m · px_per_m_at_wall / image_h_px
  *   px_per_m_at_bottom = (image_h_px − horizon_y·image_h_px) / eye_m  (§5's
  *                        horizon device; independent of the wall scale)
@@ -376,10 +404,15 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
   const canvasW = opts.canvasW || CANVAS_W;
-  const policy = opts.wideViewPolicy || DEFAULT_WIDE_VIEW_POLICY;
-  const wide = needsWideView(plan, roomId, facing, camera, canvasW, policy);
   const drawnDistance = fc.camera_wall_m ?? fc.camera_far_m;
-  const pxAtWall = wide ? canvasW / fc.wall_width_m : camera.px_per_m_at_wall;
+  /* THE LENS, not the scale. `px_per_m_at_wall` is a consequence of where you
+   * stand and what lens you are on, and both terms come from outside this
+   * function: the distance is read off the approved drawing (law (a)) and the
+   * focal length is `groundplane.FOCAL_PX`, pinned to §10's `camera.focal_mm`
+   * by `assertRuledLens`. An `open` facing quotes its scale at its far line,
+   * the only plane it has, which is why this reads the same field
+   * `groundplane.cameraDistance` does. */
+  const pxAtWall = camera.focal_px / drawnDistance;
   const imageH = camera.image_h_px;
   const horizonY = camera.horizon_y;
   const walls = wallSegments(plan, roomId, facing);
@@ -403,22 +436,21 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     calibration_ref: GRID_META.calibration_ref,
     calibration_px: pxAtWall,
     facing_type: fc.type,
-    camera: wide ? "wide" : "pinned",
     camera_id: camera.id,
-    wide_view_policy: policy,
     /* PROVISIONAL, always, and machine-readably. Blueprint §5 rules that the
      * geometry elements are determined by the orientation of the approved
      * image generation, which does not exist until row 4; §10's ruled camera
      * is 1.83 m at −8° and this is derived at the interim 1.60 m the demo
      * draws with [HUMAN 2026-08-21, direction question 1]; and the
-     * wide-view reading is unsettled. **[Row 11] The repo DOES consume these
-     * now** — the bake emits one per shipped facing and the page renders with
-     * them — so the sentence that used to stand here ("nothing in the repo
-     * consumes a derived meta") is retired. What replaced the obligation it
-     * stated: the bake refuses to emit a meta whose `camera` is `wide`, which
-     * is the reading `projection.md` §5 leaves unruled. `camera_id` is NOT
-     * refused on — every facing derives at one camera today and a second
-     * would have to arrive with a row of its own. */
+     * camera is now the MEASURED one (row 20). **[Row 11] The repo DOES
+     * consume these** — the bake emits one per facing the world names and the
+     * page renders with them. What the bake refuses on is no longer the
+     * wide-view reading (deleted) but the LENS: a derived meta whose
+     * `focal_px` is not `groundplane.FOCAL_PX` cannot ship, because a facing
+     * on a different lens is the defect row 20 exists to remove. `provisional`
+     * stays true of a DERIVED meta and is false of a measured one: where a
+     * painted backdrop exists, its own `backdrops/<loc>/<facing>.meta.json`
+     * supersedes this and carries `provisional: false`. */
     provisional: true,
     backdrop: fc.type === "open" ? "vista" : "wall",
     wall_segments: walls.segments,
@@ -896,15 +928,26 @@ export const WALL_MAP_11 = [
 export function rebuildFacings(plan) {
   const out = JSON.parse(JSON.stringify(plan));
   const K = out.standpoint_stand_back;
+  const C = out.standpoint_threshold_clearance_m;
   for (const r of out.rooms) {
     for (const f of FACINGS) {
       const fc = r.facings[f];
       const open = fc.type === "open";
       if (!open) delete fc.far_line;
       const geo = facingGeometry(r.rect, f, open ? fc.far_line : undefined);
-      if ((fc.standpoint_source || "rule") === "rule") fc.standpoint = ruleStandpoint(r.rect, f, K);
       fc.wall_line = geo.wallLine;
       fc.wall_width_m = drawn(geo.width);
+      /* Row 20: the standpoint law decides both WHERE and WHICH BRANCH, from
+       * `tools/validate-plan.mjs`'s one home, so the rebuild and the validator
+       * cannot disagree about it. A `drawn` standpoint stays where it was put
+       * and only its measurement is refreshed (§4b item 9). The wall line and
+       * width are set first because the law reads the facing's own width. */
+      if ((fc.standpoint_source || "rule") !== "drawn") {
+        const sp = standpointFor(out, r, f, K, C);
+        fc.standpoint = sp.point;
+        if (sp.source === "rule") delete fc.standpoint_source;
+        else fc.standpoint_source = sp.source;
+      }
       delete fc.camera_wall_m;
       delete fc.camera_far_m;
       fc[open ? "camera_far_m" : "camera_wall_m"] =
@@ -985,20 +1028,23 @@ export function report(plan, staging, records) {
   P("2. **Whether `door1` sits where the drawing puts it or where the staging puts it** (§1).");
   P("3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open");
   P("   court mouth and not a wall (§3).");
-  P("4. **The wide-view trigger's reading**, and the implied focal length, which under a pinned");
-  P("   scale is not constant across facings (§5).");
+  P("4. **CLOSED BY ROW 20** — the wide-view trigger's two readings are deleted with the");
+  P("   machinery: a pinned lens clips no wall, so the fork has no subject. Kabe's ruling (3)");
+  P("   is SUPERSEDED by his own later approval of preview frame `02b`, the 24 mm `hall/E`");
+  P("   view, which is narrower than the licence granted. Recorded, not asked again.");
   P("5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted");
   P("   into them at row 4, or do the manor's extra exits wait for a later row? The four rulings");
   P("   of 2026-08-21 did not reach this one.");
   P("6. **The desk stands in the study's chimney breast** (§10) — visible for the first time now");
   P("   that the room has real metres.");
   P("7. **An [AI] correction was made to a datum on the approved drawing** (§9).");
-  P("8. **The floor cut is not at your feet on most facings** — the intention's fifth quality");
-  P("   is *\"the camera has feet … Riven's rails are cut by the frame bottom at your own");
-  P("   feet\"*, and under the standpoint rule on the approved drawing the floor starts more");
-  P("   than twice as far out as the shipped study's on fifteen facings (§6).");
-  P("9. **The implied lens is not constant** — pinning the SCALE across standpoint distances");
-  P("   from 1.95 m to 15.30 m means a different focal length per facing (§6).");
+  P("8. **CLOSED BY ROW 20** — the frame-bottom floor cut was fifteen anomalies running to");
+  P("   6.05 m under a pinned scale. Under a pinned lens it is ONE number for the whole");
+  P("   manor, `f / px_per_m_at_bottom`, because it depends on the lens and the horizon and");
+  P("   not on where you stand. What is left is that one number, and it is named residue.");
+  P("9. **CLOSED BY ROW 20** — the implied lens ran 187 px to 2014 px across the manor, a");
+  P("   factor of eleven. It is `f` = 1024 px on every facing now, bound to blueprint §10's");
+  P("   `camera.focal_mm` and refused at the bake if it drifts.");
   P("10. **What row 4 measures and what it takes from the plan** — §5 rules the approved image");
   P("    the geometric authority, and this row makes the plan one. The per-field table in §8 is");
   P("    a proposal, not a ruling.");
@@ -1166,116 +1212,54 @@ export function report(plan, staging, records) {
   P("is Kabe's to rule — the drawing's own note says the court mouth is open at its centre.");
   P();
 
-  P("## 5. The wide-view camera [AI, under Kabe's standing license]");
+  P("## 5. The wide-view camera — deleted, and by whose authority");
   P();
-  P("Ruling (3), blueprint §4b: *open and corridor deep-views take their own wider camera,");
-  P(`enclosed flat views keep the pinned frame.* The pinned frame holds ${fixed(pinnedWallInFrame(), 1)} m of wall`);
-  P(`(${CANVAS_W} px at ${GRID_META.px_per_m_at_wall} px/m). The trigger built is the arithmetic the license was`);
-  P("granted about: **a facing whose wall in view is wider than the frame holds takes the wider");
-  P("camera**, its `px_per_m_at_wall` becoming `canvas / wall_width_m` so the wall exactly fills");
-  P("the frame instead of being clipped. Everything else follows from §5's horizon device.");
+  P("Kabe's ruling (3) [HUMAN, 2026-08-21] granted open and corridor deep views *\"their own");
+  P("wider camera\"*, and row 12 built two readings of it that disagreed on ten facings and");
+  P("left the choice to him. **Row 20 deletes both.** They existed only because a pinned SCALE");
+  P("had to clip a wall wider than the frame; a pinned LENS does not clip — a wall wider than");
+  P("the frame extends past it, as in life — so there is nothing for the licence to be about.");
   P();
-  const wide = [];
-  for (const room of plan.rooms) {
-    for (const f of FACINGS) {
-      const m = deriveMeta(plan, room.id, f);
-      if (m.camera === "wide") wide.push({ room, f, m });
-    }
-  }
-  P(`The ${wide.length} facings it selects:`);
-  P();
-  for (const w of wide) {
-    P(`- ${w.room.name}/${w.f} — ${fixed(w.m.wall_width_m, 2)} m at ${fixed(w.m.px_per_m_at_wall, 2)} px/m (room type \`${w.room.type}\`, facing type \`${w.m.facing_type}\`)`);
-  }
-  P();
-  const encl = wide.filter((w) => w.m.facing_type === "enclosed");
-  {
-    const other = [];
-    for (const room of plan.rooms) {
-      for (const f of FACINGS) {
-        const a = needsWideView(plan, room.id, f, GRID_CAMERA, CANVAS_W, "fits");
-        const b = needsWideView(plan, room.id, f, GRID_CAMERA, CANVAS_W, "ruling");
-        if (a !== b) other.push({ room, f, fits: a, ruling: b, fc: room.facings[f] });
-      }
-    }
-    P("**Both readings are computable, and neither is an agent's to pick.** `WIDE_VIEW_POLICIES`");
-    P("carries two: `fits` (above) and `ruling` — the sentence's own vocabulary, *facing type is");
-    P(`\`open\` or \`corridor\`*. They disagree on ${other.length} facings:`);
-    P("");
-    P("| facing | wall in view | facing type | `fits` | `ruling` |");
-    P("|---|---|---|---|---|");
-    for (const o of other) {
-      P(`| ${o.room.name}/${o.f} | ${fixed(o.fc.wall_width_m, 2)} m | \`${o.fc.type}\` | ${o.fits ? "wide" : "pinned"} | ${o.ruling ? "wide" : "pinned"} |`);
-    }
-    P("");
-    P("Under `ruling`, six real walls wider than the frame go back to being clipped — which is");
-    P("the outcome the license was granted to avoid — and four narrow views that fit perfectly");
-    P("well take a wider camera they do not need. Under `fits`, the ruling's own words select a");
-    P("different set than the code does. `fits` is the default only because nothing consumes a");
-    P("derived meta yet and every one of them carries `provisional: true` and its");
-    P("`wide_view_policy`. When Kabe rules, the loser is deleted.");
-    P("");
-  }
-  P("**Where a redline would land [flagged for Kabe].** The trigger reads one quantity and not the");
-  P(`ruling's vocabulary, and the two do not line up cleanly. ${encl.length} of the ${wide.length} are \`enclosed\` FACINGS —`);
-  P("real walls, simply wider than the frame holds. Meanwhile the long gallery's two `corridor`");
-  P("facings, at 18.22 m the deepest views inside the house, do **not** take the wider camera,");
-  P("because their 8.00 m end wall fits the pinned frame perfectly well. If \"deep view\" was meant");
-  P("to select on depth rather than on width, that set changes; if \"enclosed flat views keep the");
-  P("pinned frame\" was meant per facing, six of these clip instead, and the drawing's");
-  P("clipped-`wall_width_m` question comes back for them.");
-  P();
-  P("Residue, named rather than decided (it is §5's open field-of-view question, and it is");
-  P("Kabe's): `px_per_m_at_wall × camera_wall_m` is the implied focal length, and under a pinned");
-  P("*scale* it is not constant —");
-  {
-    const a = deriveMeta(plan, "study", "N");
-    const b = deriveMeta(plan, "entrance_court", "N");
-    P(`${fixed(a.px_per_m_at_wall * a.camera_wall_m, 0)} px in the study, ${fixed(b.px_per_m_at_wall * b.camera_wall_m, 0)} px on the entrance court's north view. The pinned frame`);
-  }
-  P("is a pinned scale, not a pinned lens.");
+  P("Said straight, because it is a [HUMAN] licence: this **supersedes** ruling (3) rather than");
+  P("satisfying it. The pinned lens makes `hall/E` NARROWER (an implied 106.3° becomes 73.7°)");
+  P("and gives no facing a wider camera than any other. The authority is Kabe's own later act");
+  P("on the same subject: preview frame `02b` IS the 24 mm `hall/E` view, and *\"full steam");
+  P("ahead\"* approved it. The licence died by his approval of the narrower picture.");
   P();
 
-  P("## 6. The camera has feet, and the lens is not one lens");
+  P("## 6. The camera has feet, and the lens is one lens");
   P();
-  P("Two consequences of pinning the SCALE at " + GRID_META.px_per_m_at_wall + " px/m while the drawn standpoint distance");
-  P("runs from 1.95 m to 15.30 m. Neither is this row's invention — the standpoint rule is on");
-  P("the drawing and the pinned scale is blueprint §7's — but this is the row that computes");
-  P("them across eighty-eight facings, so here they are as numbers.");
+  P("Row 20 pinned the LENS instead of the scale, and both halves of this section inverted.");
   P();
   {
     const feet = cameraFeetReport(plan);
+    const focals = feet.rows.map((r) => r.focal_px);
+    P("**The lens.** `px_per_m_at_wall × camera_wall_m` is the implied focal length. Under the");
+    P("pinned scale it ran 187 px to 2014 px across the manor — a factor of eleven, a 4 mm");
+    P(`fisheye to a 47 mm normal. It is now ${fixed(Math.min(...focals), 0)} px on every one of ${feet.rows.length} facings`);
+    P(`(${fixed(Math.max(...focals), 0)} px at the widest), which is 24 mm on this frame's own 36×24 format,`);
+    P("bound to blueprint §10's `camera.focal_mm` by `assertRuledLens` and refused at the bake");
+    P("if the two ever drift. `px_per_m_at_wall` is a consequence now, not a constant: it is");
+    P("`f / camera_wall_m`, so a metre of wall is worth more pixels the nearer the wall is,");
+    P("which is what a camera does and what makes a corner move with where you stand.");
+    P("");
     P("**Where the floor starts, in front of the viewer.** The intention's fifth decomposed");
     P("quality: *\"The camera has feet … Riven's rails are cut by the frame bottom at your own");
-    P(`feet\"*. The shipped study cuts its floor at ${fixed(feet.reference, 2)} m — computed from the grid`);
-    P(`meta the browser actually draws (\`camera_wall_m\` ${groundplane.CAMERA_WALL_M}, groundplane's fallback, not the`);
-    P(`plan's measured ${fixed(deriveMeta(plan, "study", "N").camera_wall_m, 2)} m), because the only frame-bottom cut any human has judged is the`);
-    P(`one on screen. ${feet.over.length} of ${feet.rows.length} facings start their floor more than twice that far out:`);
+    P("feet\"*. Under a pinned lens this is `f / px_per_m_at_bottom` — the lens and the horizon");
+    P(`decide it and the standpoint does not — so it is ONE number for the whole manor: ${fixed(feet.reference, 2)} m.`);
+    P(`${feet.over.length} facings start their floor more than twice that far out, against fifteen before.`);
     P("");
-    P("| facing | standpoint distance | floor starts at |");
-    P("|---|---|---|");
-    for (const r of feet.over) {
-      P(`| ${r.room}/${r.facing} | ${fixed(r.camera_wall_m, 2)} m | ${fixed(r.nearest_floor_m, 2)} m |`);
-    }
-    P("");
-    P("A backdrop authored to a meta whose floor begins six metres out is a diagram, not a");
-    P("place. The fix is not an agent's: it is either a cap on the standpoint rule (which is on");
-    P("the approved drawing), a per-type camera, or accepting that a courtyard is looked at");
-    P("rather than stood in. Row 4's prompt sheets read `camera_wall_m` from here.");
-    P("");
-    const focals = feet.rows.map((r) => r.focal_px);
-    P("**The lens.** `px_per_m_at_wall × camera_wall_m` is the implied focal length. Pinned at");
-    P(`${GRID_META.px_per_m_at_wall} px/m it runs from ${fixed(Math.min(...focals), 0)} px to ${fixed(Math.max(...focals), 0)} px across the manor — a factor of`);
-    P(`${fixed(Math.max(...focals) / Math.min(...focals), 0)}. The visible consequence: \`floor_line_y\` comes out identical on every pinned`);
-    P("facing whatever the room's size, because it depends only on the scale and the eye");
-    P("height, so the great hall and the study are the same picture with different corner");
-    P("positions. The alternative is to pin the LENS instead and let the scale vary");
-    P("(`px_per_m_at_wall = f / camera_wall_m`), which is what a real camera does and what");
-    P("§10's `focal_mm: 50` implies. Blueprint §5 has carried this as an open question since");
-    P("row 2 and it is still Kabe's; this row does not answer it, and every derived meta is");
-    P("marked `provisional` because of it.");
+    P("That number is the row's largest named cost and its arithmetic is worth having in full:");
+    P("`nearest_floor = eye / (1 − horizon_y)` when `f` equals the frame height, as it does");
+    P("here. Its infimum over any horizon a picture can use is the EYE HEIGHT itself, so no");
+    P("lens shift at this focal length puts the cut at a viewer's feet. What brought it in from");
+    P("the 3.08 m every 24 mm preview drew is the approved backdrops' own camera, measured at");
+    P(`${fixed(GRID_CAMERA.eye_m, 4)} m rather than the 1.83 m §10 asked for. The quality's second carrier —`);
+    P("*\"Kabe's reference anchors the same way through a near desk surface\"* — is what closes");
+    P("the rest, and it belongs to the row that stages a near surface.");
   }
   P();
+
   P("## 7. What the contract camera would give instead");
   P();
   P("Blueprint §10 rules the generation camera at eye **1.83 m** with **−8° pitch** [HUMAN,");

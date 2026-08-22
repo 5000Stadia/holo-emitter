@@ -22,7 +22,8 @@ import { createRequire } from "node:module";
 import { validate } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
 import {
-  stagingDivergence, assertCameraConsistent, assertRuledEye, metaForFacing
+  stagingDivergence, assertCameraConsistent, assertRuledEye, assertRuledLens,
+  metaForFacing, FOCAL_PX
 } from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -119,6 +120,9 @@ let plan;
   // The ruled eye height is blueprint §10's, whose authored home is
   // replicator/contract.json. The projection derives every meta from it, so a
   // drift between the two would silently re-camera the project.
+  const lensProblems = assertRuledLens();
+  for (const p of lensProblems) console.error(`bake refused: ${p}`);
+  if (lensProblems.length) process.exit(1);
   const eyeProblems = assertRuledEye();
   if (eyeProblems.length) {
     eyeProblems.forEach((c) => console.error(`bake refused: camera — ${c}`));
@@ -169,8 +173,17 @@ let plan;
   for (const loc of parsed.world.locations || []) {
     for (const f of loc.facings || []) {
       const m = metaForFacing(plan, loc.id, f);
-      if (m.camera === "wide") {
-        console.error(`bake refused: ${loc.id}/${f} derives the WIDE camera (wall_width_m ${m.wall_width_m} m); projection.md §5's two readings of the wide-view licence are unruled, so a wide facing may not ship`);
+      /* ONE LENS, refused at the bake. Row 20 pins f = 1024 px and the whole
+       * row exists because a scale pinned across standpoint distances put a
+       * different lens on every facing — 187 px to 2014 px across the manor,
+       * which is what made every direction of the study read as a corridor.
+       * A meta whose focal length is not the ruled one may not ship. The
+       * tolerance is relative and small: `camera_wall_m` is stored at the
+       * drawn two decimals, so the product is FOCAL_PX up to that rounding
+       * and up to floating point, and nothing else. */
+      const focal = m.px_per_m_at_wall * (m.camera_wall_m ?? m.camera_far_m);
+      if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX < 1e-9)) {
+        console.error(`bake refused: ${loc.id}/${f} derives a meta on a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (blueprint §10) — one lens per room, and per manor [row20:bake.refuses_foreign_lens]`);
         process.exit(1);
       }
       metas[`${loc.id}/${f}`] = m;

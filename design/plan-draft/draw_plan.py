@@ -52,6 +52,7 @@ APPROVAL = os.path.join(OUT, "approval.lock")
 # is non-blocking. Narrowing the input without keeping that second record would
 # delete the only trace that unapproved fields had moved.
 DRAWN_KEYS = ("schema", "version", "units", "north", "standpoint_stand_back",
+              "standpoint_threshold_clearance_m",
               "entrance", "wall_thickness", "outline", "floors", "wall_bands",
               "rooms", "openings", "windows", "fireplaces", "stairs")
 
@@ -94,7 +95,7 @@ def approval_line(plan_path, validated):
     with open(plan_path) as fh:
         plan_doc = json.load(fh)
     digest, undrawn = plan_digests(plan_doc)
-    approved_sha, approved_on, approved_undrawn = "", "", ""
+    approved_sha, approved_on, approved_undrawn, pending = "", "", "", ""
     try:
         with open(APPROVAL) as fh:
             for line in fh:
@@ -102,6 +103,8 @@ def approval_line(plan_path, validated):
                     _, approved_sha, approved_on = line.split()
                 elif line.startswith("undrawn "):
                     _, approved_undrawn = line.split()
+                elif line.startswith("pending "):
+                    pending = line.split(" ", 1)[1].strip()
     except OSError:
         pass
     rel = os.path.relpath(plan_path, REPO)
@@ -114,9 +117,16 @@ def approval_line(plan_path, validated):
         drift = ("" if undrawn == approved_undrawn else
                  " Content the sheet does not draw has changed since then "
                  "(sha %s); the drawing is unaffected." % undrawn[:8])
-        return ("holo-emitter - overhead plan. APPROVED %s; DERIVED from %s.%s "
+        # A `pending` line names drawn content the anchor rests on by
+        # INFERENCE rather than by a human having looked at this sheet. The
+        # stamp carries it in its own first breath, because "APPROVED" over a
+        # drawing nobody has seen is the picture lying about the document -
+        # exactly what the lock exists to prevent.
+        wait = (" AWAITING HIS EYE ON: %s." % pending) if pending else ""
+        return ("holo-emitter - overhead plan. APPROVED %s; DERIVED from %s.%s%s "
                 "Drawn at 26 px per metre; use the scale bar. All room "
-                "dimensions are clear internal metres." % (approved_on, rel, drift))
+                "dimensions are clear internal metres."
+                % (approved_on, rel, drift, wait))
     return ("holo-emitter - overhead plan. UNAPPROVED REVISION of %s (sha %s; "
             "the sheet Kabe approved on %s was drawn from sha %s) - this sheet "
             "goes back to Kabe. Drawn at 26 px per metre; use the scale bar. "
@@ -557,7 +567,7 @@ def build(name, title, sub, rooms, parts, doors, wins, fires, stairs,
         ("h", "READING THE STANDPOINTS"),
         ("t", "o  standpoint for one facing; the dashed leader runs to the wall"),
         ("t", "   line that facing views. The printed number IS camera_wall_m."),
-        ("t", "N 3.60  =  facing N, standpoint 3.60 m from the N wall line."),
+        ("t", "N 4.35  =  facing N, standpoint 4.35 m from the N wall line."),
         ("t", "\"open\" = no facing wall; the number is to the drawn far ground line."),
         ("t", "Doubled red arrows = an opening, with the travel directions"),
         ("t", "   through it. You arrive facing the way you went (orientation law)."),

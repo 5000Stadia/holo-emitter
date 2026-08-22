@@ -45,7 +45,70 @@
 (function () {
   "use strict";
 
-  var CAMERA_WALL_M = 3.5;
+  /* THE LENS (row 20). Blueprint §10's ruling [HUMAN, 2026-08-21, "full steam
+   * ahead"]: interiors render at a pinned LENS, not a pinned scale —
+   * f = 1024 px on the 1536-wide frame, so `px_per_m_at_wall = FOCAL_PX /
+   * cameraDistance(meta)` and the scale is a per-facing consequence rather
+   * than a constant.
+   *
+   * The frame is EXACTLY the 36×24 mm still format in proportion (1536×1024 is
+   * 3:2), so a focal length in millimetres transfers with no crop factor:
+   * FOCAL_PX = FOCAL_MM × canvasW / FRAME_W_MM = 24 × 1536 / 36 = 1024 px, an
+   * exact integer. hFOV = 2·atan(768/1024) = 73.74°.
+   *
+   * The authored home of the millimetres is `replicator/contract.json`
+   * `camera.focal_mm` (blueprint §10, [HUMAN]); `assertRuledLens` in
+   * tools/plan-projection.mjs pins this constant to that file and the bake
+   * refuses when they drift, so the number here is bound to a document rather
+   * than merely agreeing with one.
+   *
+   * WHAT PINNING IT BUYS, in one line: the implied focal length used to run
+   * 187 px → 2014 px across the manor — a 4 mm fisheye to a 47 mm normal, a
+   * different lens on every facing — and that is what made every direction of
+   * the study read as a corridor.
+   *
+   * AND THE MODEL COLLAPSES TO ONE PINHOLE. A floor point at distance d draws
+   * at y = horizon_px + f·eye/d and at scale f/d, so scale(y) = (y −
+   * horizon_px)/eye: linear in y, zero exactly at the authored horizon, and
+   * `scaleAtDepth` reduces to f/(cam − d) = f/distance. §5's scale lerp and
+   * §5's horizon device were already one camera per facing since row 11; what
+   * this changes is that it is now the SAME camera on every facing. */
+  var FOCAL_MM = 24;
+  var FRAME_W_MM = 36;
+  var CANVAS_W_PX = 1536;
+  var FOCAL_PX = FOCAL_MM * CANVAS_W_PX / FRAME_W_MM;   // 1024, exactly
+
+  /* The unplanned-facing fallback's own camera distance. 4.0 m rather than
+   * row 1's 3.5: under a pinned lens every other number in that meta is
+   * derived from it, and 4.0 makes them exact decimals a human can check in
+   * the blueprint (256 px/m, floor_line_y 0.88) where 3.5 gives
+   * 292.57142857142856. It is a choice about space nobody has drawn, and
+   * nothing the demo renders resolves to it. */
+  var CAMERA_WALL_M = 4.0;
+
+  /* THE CAMERA THIS PROJECT DRAWS AT, measured off the approved backdrops
+   * rather than authored (row 20). Blueprint §5 [HUMAN, 2026-08-20]: "The
+   * geometry elements should be determined by the orientation of the approved
+   * initial image generation." Those generations arrived, Kabe approved them,
+   * and they were measured off their own pixels: the eye sits 1.2316 m above
+   * the floor and the horizon at y 490 of 1024, with no pitch (the principal
+   * point is 22 px ABOVE frame centre, the opposite sign to §10's −8°).
+   *
+   * This supersedes row 11's 1.60 m, which was named an interim awaiting
+   * exactly this measurement. §10's ruled 1.83 m is the GENERATION camera and
+   * is untouched — the generator was asked for it and drew 1.23 m instead, and
+   * that divergence is recorded rather than corrected, because §5 makes the
+   * approved image the authority and §10's field is [HUMAN].
+   *
+   * What the lower camera buys is the intention's fifth quality: the frame
+   * bottom cuts the floor at 2.36 m instead of the 3.08 m every 24 mm preview
+   * frame drew. `horizon_y` is the lens SHIFT (a level camera with the frame
+   * moved, not a tilted one), and it stays one. */
+  var DRAWING_EYE_M = 1.2316;
+  var HORIZON_Y = 490 / 1024;
+
+  /** Pixels per metre at the wall plane, for a camera-to-plane distance. */
+  function pxPerMAtWall(distanceM) { return FOCAL_PX / distanceM; }
 
   /**
    * Pixels per metre at a baseline screen-y.
@@ -102,6 +165,20 @@
   function scaleAtDepth(depthM, meta) {
     var cam = cameraDistance(meta);
     return meta.px_per_m_at_wall * cam / (cam - depthM);
+  }
+
+  /**
+   * The focal length this meta implies, in pixels — `px_per_m_at_wall` × the
+   * distance to the plane that scale is quoted at.
+   *
+   * On a DERIVED meta this is FOCAL_PX by construction, and the row that
+   * pinned the lens says so out loud rather than counting it as a green gate.
+   * On a MEASURED backdrop meta it is evidence: the scale is read off the
+   * painting and the distance is read off the approved drawing, so their
+   * product is a claim about a picture that can be wrong.
+   */
+  function focalPx(meta) {
+    return meta.px_per_m_at_wall * cameraDistance(meta);
   }
 
   /** Baseline screen-y for a floor point depth_m in front of the wall. */
@@ -242,8 +319,15 @@
     wallSpanPxAtWall: wallSpanPxAtWall,
     wallCentrePx: wallCentrePx,
     cameraDistance: cameraDistance,
+    focalPx: focalPx,
+    pxPerMAtWall: pxPerMAtWall,
     placeHost: placeHost,
-    CAMERA_WALL_M: CAMERA_WALL_M
+    CAMERA_WALL_M: CAMERA_WALL_M,
+    DRAWING_EYE_M: DRAWING_EYE_M,
+    HORIZON_Y: HORIZON_Y,
+    FOCAL_MM: FOCAL_MM,
+    FRAME_W_MM: FRAME_W_MM,
+    FOCAL_PX: FOCAL_PX
   };
 
   if (typeof window !== "undefined") {

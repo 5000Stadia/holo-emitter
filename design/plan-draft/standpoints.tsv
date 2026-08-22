@@ -1,89 +1,89 @@
 floor	room	room_type	facing	facing_type	camera_wall_m	wall_width_m	note
-ground	GREAT HALL	enclosed	N	enclosed	6.97	14.60	
+ground	GREAT HALL	enclosed	N	enclosed	8.85	14.60	
 ground	GREAT HALL	enclosed	E	enclosed	10.95	9.30	
-ground	GREAT HALL	enclosed	S	enclosed	6.97	14.60	
+ground	GREAT HALL	enclosed	S	enclosed	8.85	14.60	
 ground	GREAT HALL	enclosed	W	enclosed	10.95	9.30	
-ground	STUDY	enclosed	N	enclosed	3.60	5.45	
+ground	STUDY	enclosed	N	enclosed	4.35	5.45	
 ground	STUDY	enclosed	E	enclosed	4.09	4.80	
-ground	STUDY	enclosed	S	enclosed	3.60	5.45	
+ground	STUDY	enclosed	S	enclosed	3.85	5.45	
 ground	STUDY	enclosed	W	enclosed	4.09	4.80	
 ground	BACK STAIR	corridor	N	enclosed	3.11	5.45	
 ground	BACK STAIR	corridor	E	enclosed	4.09	4.15	
-ground	BACK STAIR	corridor	S	enclosed	3.11	5.45	
+ground	BACK STAIR	corridor	S	enclosed	3.70	5.45	
 ground	BACK STAIR	corridor	W	enclosed	4.09	4.15	
-ground	CROSS PASSAGE	corridor	N	enclosed	1.95	8.00	
+ground	CROSS PASSAGE	corridor	N	enclosed	2.15	8.00	
 ground	CROSS PASSAGE	corridor	E	corridor	6.00	2.60	
-ground	CROSS PASSAGE	corridor	S	enclosed	1.95	8.00	
+ground	CROSS PASSAGE	corridor	S	enclosed	2.15	8.00	
 ground	CROSS PASSAGE	corridor	W	corridor	6.00	2.60	
 ground	KITCHEN	enclosed	N	enclosed	6.49	8.00	
 ground	KITCHEN	enclosed	E	enclosed	6.00	8.65	
 ground	KITCHEN	enclosed	S	enclosed	6.49	8.00	
 ground	KITCHEN	enclosed	W	enclosed	6.00	8.65	
-ground	BUTTERY & PANTRY	enclosed	N	enclosed	3.71	8.00	
+ground	BUTTERY & PANTRY	enclosed	N	enclosed	4.50	8.00	
 ground	BUTTERY & PANTRY	enclosed	E	enclosed	6.00	4.95	
-ground	BUTTERY & PANTRY	enclosed	S	enclosed	3.71	8.00	
+ground	BUTTERY & PANTRY	enclosed	S	enclosed	4.50	8.00	
 ground	BUTTERY & PANTRY	enclosed	W	enclosed	6.00	4.95	
-ground	SERVANTS' HALL	enclosed	N	enclosed	5.29	8.00	
+ground	SERVANTS' HALL	enclosed	N	enclosed	6.60	8.00	
 ground	SERVANTS' HALL	enclosed	E	enclosed	6.00	7.05	
-ground	SERVANTS' HALL	enclosed	S	enclosed	5.29	8.00	
+ground	SERVANTS' HALL	enclosed	S	enclosed	6.60	8.00	
 ground	SERVANTS' HALL	enclosed	W	enclosed	6.00	7.05	
-ground	DINING PARLOUR	enclosed	N	enclosed	5.70	8.80	
+ground	DINING PARLOUR	enclosed	N	enclosed	7.15	8.80	
 ground	DINING PARLOUR	enclosed	E	enclosed	6.60	7.60	
-ground	DINING PARLOUR	enclosed	S	enclosed	5.70	8.80	
+ground	DINING PARLOUR	enclosed	S	enclosed	7.15	8.80	
 ground	DINING PARLOUR	enclosed	W	enclosed	6.60	7.60	
-ground	GREAT STAIR HALL	corridor	N	enclosed	4.24	8.80	
+ground	GREAT STAIR HALL	corridor	N	enclosed	5.20	8.80	
 ground	GREAT STAIR HALL	corridor	E	enclosed	6.60	5.65	
-ground	GREAT STAIR HALL	corridor	S	enclosed	4.24	8.80	
+ground	GREAT STAIR HALL	corridor	S	enclosed	5.20	8.80	
 ground	GREAT STAIR HALL	corridor	W	enclosed	6.60	5.65	
-ground	LIBRARY	enclosed	N	enclosed	4.84	8.80	
+ground	LIBRARY	enclosed	N	enclosed	6.00	8.80	
 ground	LIBRARY	enclosed	E	enclosed	6.60	6.45	
-ground	LIBRARY	enclosed	S	enclosed	4.84	8.80	
+ground	LIBRARY	enclosed	S	enclosed	6.00	8.80	
 ground	LIBRARY	enclosed	W	enclosed	6.60	6.45	
-ground	GARDEN ROOM	enclosed	N	enclosed	2.66	8.80	
+ground	GARDEN ROOM	enclosed	N	enclosed	3.10	8.80	
 ground	GARDEN ROOM	enclosed	E	enclosed	6.60	3.55	
-ground	GARDEN ROOM	enclosed	S	enclosed	2.66	8.80	
+ground	GARDEN ROOM	enclosed	S	enclosed	3.10	8.80	
 ground	GARDEN ROOM	enclosed	W	enclosed	6.60	3.55	
-ground	ENTRANCE COURT	open	N	enclosed	6.75	20.40	hall range front
+ground	ENTRANCE COURT	open	N	enclosed	8.55	20.40	hall range front
 ground	ENTRANCE COURT	open	E	enclosed	15.30	9.00	east wing front
 ground	ENTRANCE COURT	open	S	open	26.75	20.40	no wall - ground to far line
 ground	ENTRANCE COURT	open	W	enclosed	15.30	9.00	west wing front
-ground	PRIVY GARDEN	open	N	enclosed	4.16	20.40	garden wall (built)
+ground	PRIVY GARDEN	open	N	enclosed	5.10	20.40	garden wall (built)
 ground	PRIVY GARDEN	open	E	enclosed	15.30	5.55	east wing flank
-ground	PRIVY GARDEN	open	S	enclosed	4.16	20.40	hall range back
+ground	PRIVY GARDEN	open	S	enclosed	5.10	20.40	hall range back
 ground	PRIVY GARDEN	open	W	enclosed	15.30	5.55	west wing flank
-ground	ENTRANCE APPROACH	open	N	enclosed	15.00	32.00	wing fronts; court mouth open at centre (hall front 24.0 m)
+ground	ENTRANCE APPROACH	open	N	enclosed	19.55	32.00	wing fronts; court mouth open at centre (hall front 24.0 m)
 ground	ENTRANCE APPROACH	open	E	open	24.00	20.00	no wall
 ground	ENTRANCE APPROACH	open	S	open	15.00	32.00	no wall
 ground	ENTRANCE APPROACH	open	W	open	24.00	20.00	no wall
-upper	SOLAR (GREAT CHAMBER)	enclosed	N	enclosed	6.97	14.60	
+upper	SOLAR (GREAT CHAMBER)	enclosed	N	enclosed	8.85	14.60	
 upper	SOLAR (GREAT CHAMBER)	enclosed	E	enclosed	10.95	9.30	
-upper	SOLAR (GREAT CHAMBER)	enclosed	S	enclosed	6.97	14.60	
+upper	SOLAR (GREAT CHAMBER)	enclosed	S	enclosed	8.85	14.60	
 upper	SOLAR (GREAT CHAMBER)	enclosed	W	enclosed	10.95	9.30	
-upper	MUNIMENT ROOM	enclosed	N	enclosed	3.60	5.45	
+upper	MUNIMENT ROOM	enclosed	N	enclosed	4.35	5.45	
 upper	MUNIMENT ROOM	enclosed	E	enclosed	4.09	4.80	
-upper	MUNIMENT ROOM	enclosed	S	enclosed	3.60	5.45	
+upper	MUNIMENT ROOM	enclosed	S	enclosed	3.85	5.45	
 upper	MUNIMENT ROOM	enclosed	W	enclosed	4.09	4.80	
 upper	BACK STAIR HEAD	corridor	N	enclosed	3.11	5.45	
 upper	BACK STAIR HEAD	corridor	E	enclosed	4.09	4.15	
-upper	BACK STAIR HEAD	corridor	S	enclosed	3.11	5.45	
+upper	BACK STAIR HEAD	corridor	S	enclosed	3.70	5.45	
 upper	BACK STAIR HEAD	corridor	W	enclosed	4.09	4.15	
 upper	LONG GALLERY	corridor	N	corridor	18.22	8.00	
-upper	LONG GALLERY	corridor	E	enclosed	6.00	24.30	
+upper	LONG GALLERY	corridor	E	enclosed	7.55	24.30	
 upper	LONG GALLERY	corridor	S	corridor	18.22	8.00	
-upper	LONG GALLERY	corridor	W	enclosed	6.00	24.30	
-upper	MASTER BEDCHAMBER	enclosed	N	enclosed	5.70	8.80	
+upper	LONG GALLERY	corridor	W	enclosed	7.55	24.30	
+upper	MASTER BEDCHAMBER	enclosed	N	enclosed	7.15	8.80	
 upper	MASTER BEDCHAMBER	enclosed	E	enclosed	6.60	7.60	
-upper	MASTER BEDCHAMBER	enclosed	S	enclosed	5.70	8.80	
+upper	MASTER BEDCHAMBER	enclosed	S	enclosed	7.15	8.80	
 upper	MASTER BEDCHAMBER	enclosed	W	enclosed	6.60	7.60	
-upper	STAIR LANDING	corridor	N	enclosed	4.24	8.80	
+upper	STAIR LANDING	corridor	N	enclosed	5.20	8.80	
 upper	STAIR LANDING	corridor	E	enclosed	6.60	5.65	
-upper	STAIR LANDING	corridor	S	enclosed	4.24	8.80	
+upper	STAIR LANDING	corridor	S	enclosed	5.20	8.80	
 upper	STAIR LANDING	corridor	W	enclosed	6.60	5.65	
-upper	GUEST CHAMBER	enclosed	N	enclosed	4.84	8.80	
+upper	GUEST CHAMBER	enclosed	N	enclosed	6.00	8.80	
 upper	GUEST CHAMBER	enclosed	E	enclosed	6.60	6.45	
-upper	GUEST CHAMBER	enclosed	S	enclosed	4.84	8.80	
+upper	GUEST CHAMBER	enclosed	S	enclosed	6.00	8.80	
 upper	GUEST CHAMBER	enclosed	W	enclosed	6.60	6.45	
-upper	CLOSET CHAMBER	enclosed	N	enclosed	2.66	8.80	
+upper	CLOSET CHAMBER	enclosed	N	enclosed	3.10	8.80	
 upper	CLOSET CHAMBER	enclosed	E	enclosed	6.60	3.55	
-upper	CLOSET CHAMBER	enclosed	S	enclosed	2.66	8.80	
+upper	CLOSET CHAMBER	enclosed	S	enclosed	3.10	8.80	
 upper	CLOSET CHAMBER	enclosed	W	enclosed	6.60	3.55	

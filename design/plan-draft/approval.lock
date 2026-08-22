@@ -38,5 +38,32 @@
 #
 # Format: one "plan  <sha256>  <YYYY-MM-DD>" line and one "undrawn  <sha256>"
 # line. Everything else is comment.
-plan  3ab033f97955d1c970c7b07a09634ea96243cdb264a6321c6fbfba946d136c9c  2026-08-21
-undrawn  76cd7120ccb91fc9eed35fdf3765cb406bbefb9a158ad177d4f232af5473edfd
+#
+# RE-ANCHORED AT ROW 20, and what that anchor rests on, in full.
+#
+# What changed in the drawing: every facing whose viewed wall does not fit the
+# frame from its drawn standpoint now stands at the far side of its room
+# instead - 0.45 m off the wall behind it, pulled forward where a hearth or a
+# stair flight is in the way. Forty-two of the manor's eighty-eight standpoints
+# moved, all of them BACKWARD, and their printed distances moved with them.
+# Nothing else the sheets draw changed: no wall, no opening, no window, no
+# hearth, no stair, no room.
+#
+# The authority: Kabe's approval of the perspective preview frames on
+# 2026-08-21 - "If so full steam ahead, lets build this thing" - which blessed
+# `01d` (the study's north view from the THRESHOLD, 4.35 m) and `02b` (the
+# passage's east view from its DRAWN standpoint, 6.00 m). Those two frames are
+# the standpoint law stated in pictures, and the law was applied mechanically
+# to the rest of the manor from them.
+#
+# What that authority does NOT cover, and the stamp says so on the sheet's own
+# face rather than in this comment: Kabe has seen two RENDERED FRAMES, not
+# these two redrawn schematics. The `pending` line below is printed in the
+# stamp - "APPROVED ... AWAITING HIS EYE ON: ..." - so a reader of the sheet
+# learns from the sheet that the standpoint markers are new. The sheets are in
+# `design/batches/row20-lens/` with the row's other questions, and the row does
+# not close until his word lands.
+#
+plan  ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065  2026-08-21
+undrawn  1aaec76da12d0b253542faa11c0602325cffb668c23aab97d990f7935749bb8f
+pending  the standpoint markers and their printed distances, moved by row 20's standpoint law from the preview frames 01d/02b he approved

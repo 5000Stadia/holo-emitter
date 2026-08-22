@@ -27,9 +27,10 @@ import {
   inverseProjectPlacement, metaForFacing, facingsContaining, report, rebuildFacings,
   RULED_EYE_M, INTERIM_EYE_M, assertRuledEye,
   wallRelief, wallReliefReport,
-  assertCameraConsistent, needsWideView, pinnedWallInFrame, horizonGate,
+  assertCameraConsistent, assertRuledLens, wallInFrame, horizonGate,
   GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
-  facingCarriers, cameraFeetReport, WALL_MAP_11, WIDE_VIEW_POLICIES, CANVAS_W
+  facingCarriers, cameraFeetReport, WALL_MAP_11, CANVAS_W, FOCAL_PX, FOCAL_MM,
+  DRAWING_EYE_M
 } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -237,7 +238,7 @@ const MUTATIONS = [
   ["reachability through the stairs", /cannot be walked to/i, (p) => { p.stairs = []; }],
   ["camera_wall_m is measured, not typed", /camera_wall_m .* is not the measured/i,
     (p) => { room(p, "study").facings.N.camera_wall_m = 3.5; }],
-  ["the standpoint is where the rule puts it", /is not the ruled one/i,
+  ["the standpoint is where the rule puts it", /is not the "rule" one|is not the "threshold" one/i,
     (p) => { room(p, "study").facings.N.standpoint.x += 0.4; }],
   ["wall_width_m is the wall in view", /wall_width_m .* is not the drawn width/i,
     (p) => { room(p, "study").facings.N.wall_width_m = 4.2; }],
@@ -634,11 +635,18 @@ test.describe("the plan is presentation-side, and says so by schema", () => {
   });
 
   test("the canvas width is the consumer's parameter, not the document's", () => {
-    expect(PLAN.canvas_w_px).toBeUndefined();
+    /* The plan holds no pixel. Hand `deriveMeta` a different canvas and the
+       wall's SPAN in pixels does not move — the lens and the standpoint fix
+       that — while the wall's PLACE in the frame does, because the u-domain is
+       centred on the canvas. Under the pinned scale this test had to use the
+       deleted wide camera to say the same thing. */
     expect(CANVAS_W).toBe(1536);
-    const wide = deriveMeta(PLAN, "study", "N", { canvasW: 3072 });
-    expect(wide.corner_x1_px - wide.corner_x0_px).toBeCloseTo(5.45 * 96, 9);
-    expect(wide.corner_x0_px).toBeCloseTo(3072 / 2 - 5.45 / 2 * 96, 9);
+    const a = deriveMeta(PLAN, "study", "N");
+    const b = deriveMeta(PLAN, "study", "N", { canvasW: 3072 });
+    expect(b.px_per_m_at_wall).toBe(a.px_per_m_at_wall);
+    expect(b.corner_x1_px - b.corner_x0_px).toBeCloseTo(a.corner_x1_px - a.corner_x0_px, 9);
+    expect(b.corner_x1_px - b.corner_x0_px).toBeCloseTo(5.45 * (1024 / 4.35), 9);
+    expect(b.corner_x0_px).toBeCloseTo(3072 / 2 - 5.45 / 2 * (1024 / 4.35), 9);
   });
 
   test("every room carries §4b's production archetype, distinct from its facing geometry", () => {
@@ -685,7 +693,7 @@ test.describe("what each facing carries", () => {
     expect(studyN[0].depth_m).toBeCloseTo(3.1, 6);
     expect(studyN[0].proud_by_m).toBeCloseTo(0.5, 6);
     expect(studyN[0].on_axis).toBe(true);
-    expect(room(PLAN, "study").facings.N.camera_wall_m).toBe(3.6);   // unmoved
+    expect(room(PLAN, "study").facings.N.camera_wall_m).toBe(4.35);  // row 20's threshold standpoint
     // a hearth on another wall is an object in the view, not relief on the
     // plane — study/E's viewed wall is flat
     expect(wallRelief(PLAN, "study", "E")).toEqual([]);
@@ -785,12 +793,13 @@ test.describe("the camera the projection runs on", () => {
      * eye height is a constant with a citation and the metas are derived FROM
      * it. Which constant is Kabe's [HUMAN 2026-08-21] — the interim 1.60 m
      * ships until row 4 measures a camera that can carry §10's pitch half. */
-    expect(GRID_CAMERA.eye_m).toBe(1.6);
-    expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled — see §7
-    expect(INTERIM_EYE_M).toBe(1.6);
+    expect(GRID_CAMERA.eye_m).toBe(DRAWING_EYE_M);
+    expect(DRAWING_EYE_M).toBe(1.2316);      // MEASURED off the approved backdrops (row 20)
+    expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled, and absent from the approved image
+    expect(INTERIM_EYE_M).toBe(DRAWING_EYE_M);
     expect(RULED_EYE_M).toBe(1.83);          // §10's generation camera, untouched
     expect(assertRuledEye()).toEqual([]);
-    expect(GRID_CAMERA.source).toMatch(/2026-08-21/);
+    expect(GRID_CAMERA.source).toMatch(/MEASURED/);
   });
 
   test("and the contract cross-check goes red when the two statements drift apart", () => {
@@ -840,27 +849,30 @@ test.describe("the camera the projection runs on", () => {
     expect(at16.residual).toBeCloseTo(0, 12);
     const at183 = horizonGate(GRID_META, 1.83);
     expect(at183.passes).toBe(false);
-    expect(at183.residual).toBeCloseTo(Math.abs(0.48 - (0.63 - 1.83 * 96 / 1024)), 9);
+    expect(at183.residual).toBeCloseTo(
+      Math.abs(GRID_META.horizon_y - (GRID_META.floor_line_y - 1.83 * GRID_META.px_per_m_at_wall / 1024)), 9);
     for (const key of ["study/N", "study/E", "hall/N", "hall/E"]) {
       const [loc, f] = key.split("/");
-      const g = horizonGate(deriveMeta(PLAN, loc, f), 1.6);
+      const g = horizonGate(deriveMeta(PLAN, loc, f), DRAWING_EYE_M);
       expect(g.passes, `${key} at the drawing eye height`).toBe(true);
     }
   });
 
-  /* F1/F2's arithmetic, pinned. Pinning the SCALE across standpoint distances
-   * means the lens varies and the floor cut walks away from the viewer's feet.
-   * Both are consequences of documents older than this row, and both are
-   * asserted here so they cannot become invisible. */
-  test("pinning the scale makes the lens vary by a factor of ten across the manor", () => {
+  /* THE SAME ARITHMETIC, INVERTED BY ROW 20, and that inversion is the row.
+   * Under the pinned SCALE the implied focal length ran 187 px to 2014 px — a
+   * factor of eleven, a 4 mm fisheye to a 47 mm normal — and `floor_line_y`
+   * came out IDENTICAL on every facing whatever the room's size, which is the
+   * arithmetic behind "every direction is a corridor". Under the pinned LENS
+   * it is the other way round: one focal length everywhere, and a floor line
+   * that moves with how far away the wall is, because that is what a floor
+   * line does. */
+  test("pinning the lens makes the focal length one number and the floor line a per-facing one", () => {
     const feet = cameraFeetReport(PLAN);
     const focals = feet.rows.map((r) => r.focal_px);
-    expect(Math.min(...focals)).toBeCloseTo(96 * 1.95, 6);    // cross passage N
-    expect(Math.max(...focals)).toBeCloseTo(1536 / 20.4 * 26.75, 6); // entrance court S, wide
-    expect(Math.max(...focals) / Math.min(...focals)).toBeGreaterThan(8);
-    // and the visible consequence: floor_line_y is the same on every pinned facing
+    expect(Math.min(...focals)).toBeCloseTo(FOCAL_PX, 6);
+    expect(Math.max(...focals)).toBeCloseTo(FOCAL_PX, 6);
     expect(deriveMeta(PLAN, "great_hall", "E").floor_line_y)
-      .toBeCloseTo(deriveMeta(PLAN, "study", "N").floor_line_y, 12);
+      .not.toBeCloseTo(deriveMeta(PLAN, "study", "N").floor_line_y, 3);
   });
 
   test("the frame-bottom floor cut is at the viewer's feet in the study and metres out elsewhere", () => {
@@ -871,15 +883,16 @@ test.describe("the camera the projection runs on", () => {
        the study its own derived meta, so the shipped cut and the derived one
        are the same number and the substitution the round-4 critic caught
        cannot recur. */
-    expect(feet.reference).toBeCloseTo(3.6 * 96 / ((1024 - 0.48 * 1024) / 1.6), 9);
-    expect(feet.reference).toBeLessThan(1.2);
-    // measured from the VIEWER, not from the wall — the complement is the bug
-    // this assertion exists to prevent recurring
-    expect(deriveMeta(PLAN, "great_hall", "E").nearest_floor_m)
-      .toBeCloseTo(10.95 * 96 / ((1024 - 0.48 * 1024) / 1.6), 9);
-    expect(feet.over.length).toBe(15);
-    expect(feet.over[0].nearest_floor_m).toBeGreaterThan(5);
-    expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/The camera has feet, and the lens is not one lens/);
+    const expected = FOCAL_PX / GRID_META.px_per_m_at_bottom;
+    expect(feet.reference).toBeCloseTo(expected, 9);
+    /* ONE NUMBER FOR THE WHOLE MANOR. Under the pinned scale this was fifteen
+       anomalies running to 6.05 m; under a pinned lens the nearest visible
+       floor is `f / px_per_m_at_bottom` and depends on the lens and the
+       horizon alone — not on where you stand — so every facing has the same
+       one and there is nothing left to be "over". */
+    for (const r of feet.rows) expect(r.nearest_floor_m, r.room + "/" + r.facing).toBeCloseTo(expected, 9);
+    expect(feet.over.length).toBe(0);
+    expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/The camera has feet, and the lens is one lens/);
   });
 
   test("the two cameras differ in the height Kabe ruled interim and in the pitch nothing models", () => {
@@ -902,7 +915,7 @@ test.describe("the camera the projection runs on", () => {
     // not, so nothing else about b differs.
     expect(b.floor_line_y).toBeGreaterThan(a.floor_line_y);
     expect(b.floor_line_y - a.floor_line_y)
-      .toBeCloseTo((RULED_EYE_M - INTERIM_EYE_M) * 96 / 1024, 12);
+      .toBeCloseTo((RULED_EYE_M - DRAWING_EYE_M) * a.px_per_m_at_wall / 1024, 12);
     expect(b.corner_x0_px).toBeCloseTo(a.corner_x0_px, 12); // pitch is unmodelled
     expect(deriveMeta(PLAN, "study", "N").camera_id).toBe("grid");
   });
@@ -975,84 +988,90 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(gap).toBeCloseTo(20.4, 9);   // the court mouth, exactly the court's width
   });
 
-  /* Kabe's ruling (3) and the arithmetic select different sets, and neither is
-   * an agent's to pick. Both policies exist; the report prints the difference;
-   * every derived meta says which one produced it. */
-  test("both wide-view readings are computable and they disagree on ten facings", () => {
-    const disagree = [];
+  /* ROW 20: the wide-view fork is gone, and what stands here is the law that
+   * replaced it. `WIDE_VIEW_POLICIES`, `needsWideView` and the `camera` meta
+   * field existed only because a pinned SCALE had to clip a wall wider than
+   * the frame; a pinned LENS does not clip, so the fork has no subject. */
+  test("ONE LENS: every facing in the manor, on every camera, implies the ruled focal length", () => {
+    expect(FOCAL_MM).toBe(24);
+    expect(FOCAL_PX).toBe(24 * 1536 / 36);       // exactly 1024 on this frame
+    expect(FOCAL_PX).toBe(1024);
+    const focals = new Set();
     for (const r of PLAN.rooms) {
       for (const f of FACINGS) {
-        const a = needsWideView(PLAN, r.id, f, GRID_CAMERA, CANVAS_W, "fits");
-        const b = needsWideView(PLAN, r.id, f, GRID_CAMERA, CANVAS_W, "ruling");
-        if (a !== b) disagree.push(`${r.id}/${f}`);
+        const m = deriveMeta(PLAN, r.id, f);
+        const d = m.camera_wall_m ?? m.camera_far_m;
+        focals.add(Math.round(m.px_per_m_at_wall * d * 1e6) / 1e6);
       }
     }
-    expect(disagree.length).toBe(10);
-    expect(disagree).toContain("long_gallery/N");   // corridor, deep, fits the frame
-    expect(disagree).toContain("privy_garden/N");   // enclosed, flat, does not fit
-    expect(Object.keys(WIDE_VIEW_POLICIES).sort()).toEqual(["fits", "ruling"]);
-    expect(deriveMeta(PLAN, "privy_garden", "N", { wideViewPolicy: "ruling" }).camera).toBe("pinned");
-    expect(deriveMeta(PLAN, "privy_garden", "N").camera).toBe("wide");
+    expect([...focals]).toEqual([FOCAL_PX]);
+    /* And it is a lens, not a scale: the px/m that comes out is DIFFERENT on
+       facings at different distances, which is the whole point — the corner
+       moves with where you stand, which is what blueprint §5's [HUMAN]
+       sentence asked for and the pinned scale could not give. */
+    const study = deriveMeta(PLAN, "study", "N"), passage = deriveMeta(PLAN, "hall", "E");
+    expect(study.px_per_m_at_wall).not.toBeCloseTo(passage.px_per_m_at_wall, 3);
+    expect(study.px_per_m_at_wall).toBeCloseTo(1024 / 4.35, 6);
+    expect(passage.px_per_m_at_wall).toBeCloseTo(1024 / 6.0, 6);
   });
 
-  test("every derived meta says it is provisional and names the camera and policy that made it", () => {
+  test("and the lens is bound to blueprint §10's [HUMAN] field, not merely equal to it", () => {
+    expect(assertRuledLens()).toEqual([]);
+    const tmp = mkdtempSync(join(tmpdir(), "holo-lens-"));
+    try {
+      const c = JSON.parse(readFileSync(join(repoRoot, "replicator", "contract.json"), "utf8"));
+      c.camera.focal_mm = 50;
+      mkdirSync(join(tmp, "replicator"), { recursive: true });
+      writeFileSync(join(tmp, "replicator", "contract.json"), JSON.stringify(c));
+      expect(assertRuledLens(join(tmp, "replicator", "contract.json")).length).toBeGreaterThan(0);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("the frame holds metres in proportion to how far away the plane is", () => {
+    // was pinnedWallInFrame(), a constant 16.0 m; under a lens it is 1.5 x d
+    expect(wallInFrame(4.0)).toBeCloseTo(6.0, 9);
+    expect(wallInFrame(6.0)).toBeCloseTo(9.0, 9);
+  });
+
+  test("every derived meta says it is provisional and names the camera that made it", () => {
     for (const r of PLAN.rooms) {
       for (const f of FACINGS) {
         const m = deriveMeta(PLAN, r.id, f);
         expect(m.provisional, `${r.id}/${f}`).toBe(true);
         expect(m.camera_id).toBe("grid");
-        expect(m.wide_view_policy).toBe("fits");
+        expect(m.wide_view_policy, `${r.id}/${f} carries no wide-view reading`).toBeUndefined();
+        expect(m.camera, `${r.id}/${f} carries no camera token`).toBeUndefined();
       }
     }
   });
 
-  /* Blueprint §12.5's clause as row 12 amended it: the wall in view fits the
-   * frame, and where corners exist their span is wall_width_m × the scale. Row
-   * 11's done requires §12.5 green, so it is asserted across every facing here
-   * rather than on two samples. */
-  test("every derived meta satisfies the amended frame-filling clause", () => {
-    let withCorners = 0, edge = 0;
+  /* §12.5's frame clauses as ROW 20 leaves them. (i) is retired: under a
+   * pinned lens a wall wider than the frame runs past it, as in life, so
+   * "the wall in view fits the frame" is false by design. What survives is
+   * (ii) — corner span against arithmetic — and the honest census of which
+   * facings show a corner at all. */
+  test("corners span what the arithmetic says, and only some of them are in frame", () => {
+    let withCorners = 0, bothIn = 0, someOut = 0;
     for (const r of PLAN.rooms) {
       for (const f of FACINGS) {
         const m = deriveMeta(PLAN, r.id, f);
         if (m.corner_x0_px === null) { expect(m.corner_x1_px).toBeNull(); continue; }
         withCorners++;
-        expect(m.corner_x0_px, `${r.id}/${f} left corner off frame`).toBeGreaterThanOrEqual(-1e-9);
-        expect(m.corner_x1_px, `${r.id}/${f} right corner off frame`).toBeLessThanOrEqual(CANVAS_W + 1e-9);
         expect(m.corner_x1_px - m.corner_x0_px, `${r.id}/${f} span`)
           .toBeCloseTo(m.wall_width_m * m.px_per_m_at_wall, 6);
-        if (m.corner_x0_px < 1e-9 || m.corner_x1_px > CANVAS_W - 1e-9) edge++;
+        if (m.corner_x0_px >= 0 && m.corner_x1_px <= CANVAS_W) bothIn++; else someOut++;
       }
     }
-    // 88 less the four open facings and the one segmented one (entrance
-    // approach/N, whose view is part wing front and part open court mouth)
+    // 88 less the four open facings and the one segmented one
     expect(withCorners).toBe(83);
-    /* The wide-view facings put their corners exactly ON the frame edge — the
-     * wall fills the view by construction — which reads as "not visible"
-     * against row 11's "two visible corners". Named in the blueprint as a look
-     * decision; pinned here so the count cannot drift unnoticed. */
-    expect(edge).toBe(5);   // the wide facings that have corners at all
-  });
-
-  test("the wide camera is taken by exactly the facings the pinned frame cannot hold", () => {
-    expect(pinnedWallInFrame()).toBeCloseTo(16.0, 9);
-    const wide = [];
-    for (const r of PLAN.rooms) {
-      for (const f of FACINGS) if (needsWideView(PLAN, r.id, f)) wide.push(`${r.id}/${f}`);
-    }
-    expect(wide.sort()).toEqual([
-      "entrance_approach/E", "entrance_approach/N", "entrance_approach/S", "entrance_approach/W",
-      "entrance_court/N", "entrance_court/S",
-      "long_gallery/E", "long_gallery/W",
-      "privy_garden/N", "privy_garden/S"
-    ]);
-    for (const r of PLAN.rooms) {
-      for (const f of FACINGS) {
-        const wideHere = needsWideView(PLAN, r.id, f);
-        const w = r.facings[f].wall_width_m;
-        expect(wideHere, `${r.id}/${f}`).toBe(w > 16.0);
-      }
-    }
+    /* The number that matters to the row's done — "corners appear exactly when
+       honestly in frame". A wall too wide to fit from where you stand shows
+       neither corner, and the count is pinned so it cannot drift in silence. */
+    expect(bothIn + someOut).toBe(83);
+    expect(bothIn).toBeGreaterThan(0);
+    expect(someOut).toBeGreaterThan(0);
   });
 
   /* The genuinely independent check: every derived camera_wall_m and

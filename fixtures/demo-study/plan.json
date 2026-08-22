@@ -4,6 +4,7 @@
   "units": "m",
   "north": "+y",
   "standpoint_stand_back": 0.25,
+  "standpoint_threshold_clearance_m": 0.45,
   "entrance": "entrance_approach",
   "wall_thickness": {
     "exterior": 0.6,
@@ -412,18 +413,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 17.3,
-            "y": 11.925
+            "y": 10.049999999999999
           },
           "wall_line": 18.9,
           "wall_width_m": 14.6,
-          "camera_wall_m": 6.97
+          "camera_wall_m": 8.85
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 13.65,
             "y": 14.25
@@ -434,18 +434,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 17.3,
-            "y": 16.575
+            "y": 18.45
           },
           "wall_line": 9.6,
           "wall_width_m": 14.6,
-          "camera_wall_m": 6.97
+          "camera_wall_m": 8.85
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 20.950000000000003,
             "y": 14.25
@@ -471,18 +470,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 10.8
+            "y": 10.049999999999999
           },
           "wall_line": 14.4,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.6
+          "camera_wall_m": 4.35
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 26.312499999999996,
             "y": 12
@@ -493,18 +491,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 13.2
+            "y": 13.450000000000001
           },
           "wall_line": 9.6,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.6
+          "camera_wall_m": 3.85
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 29.037499999999998,
             "y": 12
@@ -530,7 +527,6 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 27.674999999999997,
             "y": 15.7875
@@ -541,7 +537,6 @@
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 26.312499999999996,
             "y": 16.825
@@ -552,18 +547,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 17.862499999999997
+            "y": 18.45
           },
           "wall_line": 14.75,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.11
+          "camera_wall_m": 3.7
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 29.037499999999998,
             "y": 16.825
@@ -589,18 +583,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 10.249999999999998
+            "y": 10.049999999999999
           },
           "wall_line": 12.2,
           "wall_width_m": 8,
-          "camera_wall_m": 1.95
+          "camera_wall_m": 2.15
         },
         "E": {
           "type": "corridor",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 33,
             "y": 10.899999999999999
@@ -611,18 +604,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 11.549999999999999
+            "y": 11.75
           },
           "wall_line": 9.6,
           "wall_width_m": 8,
-          "camera_wall_m": 1.95
+          "camera_wall_m": 2.15
         },
         "W": {
           "type": "corridor",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 37,
             "y": 10.899999999999999
@@ -648,7 +640,6 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 35,
             "y": 2.7624999999999997
@@ -659,7 +650,6 @@
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 33,
             "y": 4.925
@@ -670,7 +660,6 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 35,
             "y": 7.0875
@@ -681,7 +670,6 @@
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 37,
             "y": 4.925
@@ -707,18 +695,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 13.787500000000001
+            "y": 13
           },
           "wall_line": 17.5,
           "wall_width_m": 8,
-          "camera_wall_m": 3.71
+          "camera_wall_m": 4.5
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 33,
             "y": 15.025
@@ -729,18 +716,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 16.2625
+            "y": 17.05
           },
           "wall_line": 12.55,
           "wall_width_m": 8,
-          "camera_wall_m": 3.71
+          "camera_wall_m": 4.5
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 37,
             "y": 15.025
@@ -766,18 +752,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 19.6125
+            "y": 18.3
           },
           "wall_line": 24.9,
           "wall_width_m": 8,
-          "camera_wall_m": 5.29
+          "camera_wall_m": 6.6
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 33,
             "y": 21.375
@@ -788,18 +773,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 35,
-            "y": 23.1375
+            "y": 24.45
           },
           "wall_line": 17.85,
           "wall_width_m": 8,
-          "camera_wall_m": 5.29
+          "camera_wall_m": 6.6
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 37,
             "y": 21.375
@@ -825,18 +809,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 2.4999999999999996
+            "y": 1.05
           },
           "wall_line": 8.2,
           "wall_width_m": 8.8,
-          "camera_wall_m": 5.7
+          "camera_wall_m": 7.15
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 4.3999999999999995
@@ -847,18 +830,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 6.299999999999999
+            "y": 7.749999999999999
           },
           "wall_line": 0.6,
           "wall_width_m": 8.8,
-          "camera_wall_m": 5.7
+          "camera_wall_m": 7.15
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 4.3999999999999995
@@ -884,18 +866,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 9.9625
+            "y": 9
           },
           "wall_line": 14.2,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.24
+          "camera_wall_m": 5.2
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 11.375
@@ -906,18 +887,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 12.7875
+            "y": 13.75
           },
           "wall_line": 8.55,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.24
+          "camera_wall_m": 5.2
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 11.375
@@ -943,18 +923,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 16.162499999999998
+            "y": 15
           },
           "wall_line": 21,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.84
+          "camera_wall_m": 6
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 17.775
@@ -965,18 +944,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 19.3875
+            "y": 20.55
           },
           "wall_line": 14.55,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.84
+          "camera_wall_m": 6
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 17.775
@@ -1002,18 +980,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 22.2375
+            "y": 21.8
           },
           "wall_line": 24.9,
           "wall_width_m": 8.8,
-          "camera_wall_m": 2.66
+          "camera_wall_m": 3.1
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 23.125
@@ -1024,18 +1001,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 24.0125
+            "y": 24.45
           },
           "wall_line": 21.35,
           "wall_width_m": 8.8,
-          "camera_wall_m": 2.66
+          "camera_wall_m": 3.1
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 23.125
@@ -1061,19 +1037,18 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 20.2,
-            "y": 2.25
+            "y": 0.45
           },
           "wall_line": 9,
           "wall_width_m": 20.4,
           "note": "hall range front",
-          "camera_wall_m": 6.75
+          "camera_wall_m": 8.55
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 15.1,
             "y": 4.5
@@ -1085,7 +1060,6 @@
         },
         "S": {
           "type": "open",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 20.2,
             "y": 6.75
@@ -1098,7 +1072,6 @@
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 25.299999999999997,
             "y": 4.5
@@ -1125,19 +1098,18 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 20.2,
-            "y": 20.8875
+            "y": 19.95
           },
           "wall_line": 25.05,
           "wall_width_m": 20.4,
           "note": "garden wall (built)",
-          "camera_wall_m": 4.16
+          "camera_wall_m": 5.1
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 15.1,
             "y": 22.275
@@ -1149,19 +1121,18 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 20.2,
-            "y": 23.662499999999998
+            "y": 24.6
           },
           "wall_line": 19.5,
           "wall_width_m": 20.4,
           "note": "hall range back",
-          "camera_wall_m": 4.16
+          "camera_wall_m": 5.1
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 25.299999999999997,
             "y": 22.275
@@ -1188,19 +1159,18 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 19.799999999999997,
-            "y": -15
+            "y": -19.55
           },
           "wall_line": 0,
           "wall_width_m": 32,
           "note": "wing fronts; court mouth open at centre (hall front 24.0 m)",
-          "camera_wall_m": 15
+          "camera_wall_m": 19.55
         },
         "E": {
           "type": "open",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 11.799999999999997,
             "y": -10
@@ -1213,7 +1183,6 @@
         },
         "S": {
           "type": "open",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 19.799999999999997,
             "y": -5
@@ -1226,7 +1195,6 @@
         },
         "W": {
           "type": "open",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 27.799999999999997,
             "y": -10
@@ -1254,18 +1222,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 17.3,
-            "y": 11.925
+            "y": 10.049999999999999
           },
           "wall_line": 18.9,
           "wall_width_m": 14.6,
-          "camera_wall_m": 6.97
+          "camera_wall_m": 8.85
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 13.65,
             "y": 14.25
@@ -1276,18 +1243,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 17.3,
-            "y": 16.575
+            "y": 18.45
           },
           "wall_line": 9.6,
           "wall_width_m": 14.6,
-          "camera_wall_m": 6.97
+          "camera_wall_m": 8.85
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 20.950000000000003,
             "y": 14.25
@@ -1313,18 +1279,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 10.8
+            "y": 10.049999999999999
           },
           "wall_line": 14.4,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.6
+          "camera_wall_m": 4.35
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 26.312499999999996,
             "y": 12
@@ -1335,18 +1300,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 13.2
+            "y": 13.450000000000001
           },
           "wall_line": 9.6,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.6
+          "camera_wall_m": 3.85
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 29.037499999999998,
             "y": 12
@@ -1372,7 +1336,6 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 27.674999999999997,
             "y": 15.7875
@@ -1383,7 +1346,6 @@
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 26.312499999999996,
             "y": 16.825
@@ -1394,18 +1356,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 27.674999999999997,
-            "y": 17.862499999999997
+            "y": 18.45
           },
           "wall_line": 14.75,
           "wall_width_m": 5.45,
-          "camera_wall_m": 3.11
+          "camera_wall_m": 3.7
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 29.037499999999998,
             "y": 16.825
@@ -1431,7 +1392,6 @@
       "facings": {
         "N": {
           "type": "corridor",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 35,
             "y": 6.675000000000001
@@ -1442,18 +1402,17 @@
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
-            "x": 33,
+            "x": 31.45,
             "y": 12.75
           },
           "wall_line": 39,
           "wall_width_m": 24.3,
-          "camera_wall_m": 6
+          "camera_wall_m": 7.55
         },
         "S": {
           "type": "corridor",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 35,
             "y": 18.825
@@ -1464,14 +1423,14 @@
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
-            "x": 37,
+            "x": 38.55,
             "y": 12.75
           },
           "wall_line": 31,
           "wall_width_m": 24.3,
-          "camera_wall_m": 6
+          "camera_wall_m": 7.55
         }
       }
     },
@@ -1490,18 +1449,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 2.4999999999999996
+            "y": 1.05
           },
           "wall_line": 8.2,
           "wall_width_m": 8.8,
-          "camera_wall_m": 5.7
+          "camera_wall_m": 7.15
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 4.3999999999999995
@@ -1512,18 +1470,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 6.299999999999999
+            "y": 7.749999999999999
           },
           "wall_line": 0.6,
           "wall_width_m": 8.8,
-          "camera_wall_m": 5.7
+          "camera_wall_m": 7.15
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 4.3999999999999995
@@ -1549,18 +1506,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 9.9625
+            "y": 9
           },
           "wall_line": 14.2,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.24
+          "camera_wall_m": 5.2
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 11.375
@@ -1571,18 +1527,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 12.7875
+            "y": 13.75
           },
           "wall_line": 8.55,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.24
+          "camera_wall_m": 5.2
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 11.375
@@ -1608,18 +1563,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 16.162499999999998
+            "y": 15
           },
           "wall_line": 21,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.84
+          "camera_wall_m": 6
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 17.775
@@ -1630,18 +1584,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 19.3875
+            "y": 20.55
           },
           "wall_line": 14.55,
           "wall_width_m": 8.8,
-          "camera_wall_m": 4.84
+          "camera_wall_m": 6
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 17.775
@@ -1667,18 +1620,17 @@
       "facings": {
         "N": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 22.2375
+            "y": 21.8
           },
           "wall_line": 24.9,
           "wall_width_m": 8.8,
-          "camera_wall_m": 2.66
+          "camera_wall_m": 3.1
         },
         "E": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 2.8,
             "y": 23.125
@@ -1689,18 +1641,17 @@
         },
         "S": {
           "type": "enclosed",
-          "standpoint_source": "rule",
+          "standpoint_source": "threshold",
           "standpoint": {
             "x": 5,
-            "y": 24.0125
+            "y": 24.45
           },
           "wall_line": 21.35,
           "wall_width_m": 8.8,
-          "camera_wall_m": 2.66
+          "camera_wall_m": 3.1
         },
         "W": {
           "type": "enclosed",
-          "standpoint_source": "rule",
           "standpoint": {
             "x": 7.2,
             "y": 23.125
@@ -2747,27 +2698,28 @@
       "floor": "ground",
       "room": "hall",
       "footprint": {
-        "x0": 33.66,
-        "x1": 34.66,
-        "y0": 11.9,
-        "y1": 12.2
+        "x0": 38.7,
+        "x1": 39,
+        "y0": 10.65,
+        "y1": 11.65
       },
       "attachment": "floor_against",
-      "source": "inverse-projected"
+      "source": "composed",
+      "note": "Row 20, under blueprint 4's standing licence and Kabe's standing placement rule (\"Standing rule, place things where they make sense in the room\"), ruled by the Navigator. Moved from the passage's north wall to its east end wall. FORCED, not chosen: under the ruled 24 mm lens the passage is 2.60 m deep, so its north and south facings show no floor at all (the wall-floor line falls 230 px below the frame) and the shipped validator clause scaleAtDepth <= px_per_m_at_bottom refuses any placement on them at any depth. hall/E sees 6.00 m down the passage, where the floor runs from 3.08 m to 6.00 m and a press stands whole. The press is 1.0 m wide on a 2.60 m end wall that carries a 1.00 m window at its centre, so it cannot clear that window on this wall at all - recorded for the prompt sheet that paints it, and reported by planWarnings rather than left to a picture nobody checks."
     },
     {
       "id": "stick1",
       "floor": "ground",
       "room": "hall",
       "footprint": {
-        "x0": 34.3312,
-        "x1": 34.4912,
-        "y0": 11.7,
-        "y1": 11.86
+        "x0": 38.5,
+        "x1": 38.66,
+        "y0": 10.92,
+        "y1": 11.08
       },
       "attachment": "floor_free",
       "source": "composed",
-      "note": "Row 11, under blueprint §4's standing licence (change the value if it makes the product better, and say why), ruled by the Navigator. Moved 0.25 m toward the wall: depth 0.75 -> 0.50 m. The cross passage's honest camera stands 1.95 m off its north wall where the demo previously drew every facing at the 3.5 m fallback, and the stronger perspective dropped the candlestick almost clear of the bookcase - the authored occlusion chain (intention quality 3, stick1 x shelf1) fell to 48 intersecting opaque pixels against blueprint §12.8's floor of 50. At 0.50 m it measures 332. The floor was not moved; the composition was. The drawing draws no furniture, so no sheet changes and the approval stamp is untouched."
+      "note": "Row 20, under blueprint 4's standing licence, ruled by the Navigator. Moved with shelf1 to the passage's east end wall for the same forced reason, and composed to keep the pair: 0.20 m in front of the press and 0.15 m to its right, so the candlestick's upper body crosses the press's silhouette - column-before-building, the intention's third quality, which is what this pair is staged for. Depth stays 0.50 m from the wall."
     }
   ]
 }

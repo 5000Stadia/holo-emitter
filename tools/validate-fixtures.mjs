@@ -36,6 +36,9 @@ import { createRequire } from "node:module";
 
 import { metaForFacing as planMetaForFacing } from "./plan-projection.mjs";
 
+/* Row 20: the ruled lens, from its one code home. */
+const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_PX;
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 const { GRID_META } = require_("../src/renderer.js");
@@ -161,9 +164,15 @@ const META_KEYS = [
   "calibration_px", "camera_wall_m", "camera_far_m", "far_line",
   "facing_type", "wall_continuous", "wall_segments",
   "corner_x0_px", "corner_x1_px", "wall_x0_px", "storey_height_m",
-  // derived-meta provenance: which camera and which unruled reading produced it
-  "camera", "camera_id", "wide_view_policy", "provisional", "backdrop",
-  "focal_px", "nearest_floor_m"
+  // provenance: which camera produced it, and whether it was MEASURED off a
+  // painted backdrop (row 20) or derived from the plan
+  "camera_id", "provisional", "measured", "backdrop",
+  "focal_px", "nearest_floor_m",
+  // row 20: the painted doorway, measured off the backdrop. Where a meta
+  // carries this, the aperture a player walks through IS the painted opening
+  // and §11's "the painted opening must coincide with the click target" is
+  // true by construction rather than by prompt discipline.
+  "openings"
 ];
 
 /**
@@ -319,14 +328,42 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
   if (type === null && cornered) {
     findings.push(`${label}: a facing no plan holds carries corners — a room whose extent nobody has drawn must not claim two [row11:meta.null_type_no_corners]`);
   }
-  /* §12.5's frame clause, the one that reaches outside the meta. */
-  if (cornered) {
-    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits_left]`);
-    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits_right]`);
-  } else if (typeof meta.wall_width_m === "number" && typeof meta.px_per_m_at_wall === "number") {
-    const spanned = meta.wall_width_m * meta.px_per_m_at_wall;
-    if (spanned > canvasW + 1e-6) {
-      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits [row11:meta.frame_fits_uncornered]`);
+  /* §12.5 (i) IS RETIRED, AND (i′) STANDS IN ITS PLACE (row 20).
+   *
+   * (i) asserted that the wall in view fits the frame — `0 ≤ corner_x0_px`,
+   * `corner_x1_px ≤ canvasW`, and for an uncornered view `wall_width_m ×
+   * px_per_m_at_wall ≤ canvasW`. It was worth having because it reached
+   * OUTSIDE the meta, to the canvas. Under a pinned scale a wall that did not
+   * fit had to be clipped, so not fitting was a defect.
+   *
+   * Under a pinned LENS it is not. A wall wider than the frame extends past
+   * it, exactly as it does in life: the cross passage's 8.00 m north wall seen
+   * from 2.15 m is 3810 px of wall in a 1536 px frame and its corners are
+   * 1137 px outside, and that is what standing 2 m from a long wall looks
+   * like. Keeping the clause would refuse the honest picture. It is retired
+   * rather than widened, and its three ledger mechanisms with it — a claim
+   * that stopped being true is narrowed, not softened.
+   *
+   * (i′) ONE LENS. What replaces it is the row's own law: the focal length a
+   * meta implies is the ruled one. Both terms are outside the meta —
+   * `groundplane.FOCAL_PX`, which `assertRuledLens` pins to §10's
+   * `camera.focal_mm`, and the distance the drawing measures.
+   *
+   * ITS STATUS, SAID OUT LOUD, because this project has paid five times for
+   * gates that cannot fail: on a DERIVED meta this holds by construction
+   * (`deriveMeta` computes `px_per_m_at_wall` as `FOCAL_PX / distance`) and it
+   * is a schema clause, not evidence. On a MEASURED backdrop meta it is
+   * evidence and can fail: the scale is read off the painting's own pixels and
+   * the distance off the approved drawing, so their product is a claim about a
+   * picture. Row 20's eight painted facings are the first metas it judges. */
+  if (typeof meta.px_per_m_at_wall === "number") {
+    const dist = meta.camera_wall_m != null ? meta.camera_wall_m : meta.camera_far_m;
+    if (typeof dist === "number") {
+      const focal = meta.px_per_m_at_wall * dist;
+      const tol = meta.measured ? 0.05 : 1e-9;
+      if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= tol)) {
+        findings.push(`${label}: ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (§12.5 (i′), blueprint §10) — one lens per room, and per manor [row20:meta.one_lens]`);
+      }
     }
   }
   if (meta.image_h_px != null && meta.image_h_px !== canvasH) {

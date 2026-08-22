@@ -27,95 +27,90 @@
    *
    * Row 11 changed what this constant IS. Until row 11 it was the geometry of
    * every facing the demo drew. Now every facing the overhead plan holds
-   * carries its own derived meta (tools/plan-projection.mjs `deriveMeta`,
-   * baked into fixture.js and handed to the renderer as a backdrop entry with
-   * no image), and this is what is left: the meta for a facing NO PLAN HOLDS —
-   * unestablished space whose extent nobody has drawn.
+   * carries its own meta — a MEASURED one where a painted backdrop exists
+   * (row 20's eight), the plan's derived one otherwise — and this is what is
+   * left: the meta for a facing NO PLAN HOLDS, unestablished space whose
+   * extent nobody has drawn.
    *
    * That is why it carries `facing_type: null` and null corners rather than
    * borrowing one of §5's three tokens. A room whose extent is unknown must
    * not claim two corners, so this draws what it has always drawn: one
-   * unbounded wall, no corners, no side-wall returns. `wall_width_m` 16.0 is
-   * the wall the frame holds at 96 px/m and is meaningful only here.
+   * unbounded wall, no corners, no side-wall returns.
+   *
+   * EVERY NUMBER HERE IS DERIVED, AND ROW 20 IS WHY. The project pins a LENS
+   * (f = 1024 px, 24 mm — `groundplane.FOCAL_PX`, bound to §10's
+   * `camera.focal_mm`), so `px_per_m_at_wall` is no longer a constant anyone
+   * may author: it is `FOCAL_PX / camera_wall_m`. The three inputs are the
+   * fallback's own camera distance (4.0 m), the measured drawing eye height
+   * (1.2316 m) and the measured horizon (490 / 1024) — all three named and
+   * argued in `src/groundplane.js`. What comes out, and what blueprint §7
+   * states as this constant's one written home:
+   *
+   *     px_per_m_at_wall    1024 / 4.0            = 256
+   *     horizon_y           490 / 1024            = 0.4785
+   *     floor_line_y        horizon_y + eye/4     = 0.7864
+   *     px_per_m_at_bottom  (1024 - 490) / eye    = 433.5823
+   *     nearest visible floor  1024 / 433.5823    = 2.3617 m
+   *
+   * `wall_width_m` stays 16.0 and its MEANING changed: it used to be "the wall
+   * the frame holds at 96 px/m", which was true only of a pinned scale. Under
+   * a pinned lens the frame holds 6.0 m at this distance, so 16.0 m is now
+   * deliberately WIDER than the frame — an unbounded wall, so that nothing
+   * about a facing nobody has drawn reads as a claim that its wall ends.
    *
    * key_tint is deliberately non-identity so §12.8's tint assertion is
    * satisfiable on grid backdrops. Tests assert against literals, never
    * against this constant (§12.5's independence rule).
    *
-   * `px_per_m_at_bottom` is (image_h − horizon_y·image_h)/eye, not §5's
-   * example 210. The grid is a backdrop we synthesize rather than measure, so
-   * its meta has to be self-consistent, and §5 states the same floor twice:
-   * once as the scale lerp between (floor_line_y, px_per_m_at_wall) and
-   * (bottom of frame, px_per_m_at_bottom), and once as the horizon device,
-   * which is what makes `horizon_y` mean "the horizon at eye height". Both are
-   * linear in (y, scale) and both pass through (floor line, 96); the second
-   * fixes the other end. At §5's 210 the two disagreed and the lerp won: every
-   * floor object's feet were drawn further down the frame than its own eye
-   * height allows, and §12.5 could not see it because both sides of a height
-   * check use the scale.
+   * calibration_ref/_px are §5-required fields: the grid's own metre lines on
+   * the wall are its known-height feature, so its meta can be audited against
+   * its pixels like any other, and the audit passes on its own arithmetic
+   * (256 px for a 1.0 m module at 256 px/m).
    *
-   * THE EYE HEIGHT IS 1.60 m, AS AN INTERIM RULED BY KABE [HUMAN 2026-08-21,
-   * "Sounds good on the outline"], and every meta this project derives is
-   * derived at it: floor_line_y = horizon_y + 1.60·96/1024 = 0.63 and
-   * px_per_m_at_bottom = (1024 − 0.48·1024)/1.60 = 332.8. §5's camera-has-feet
-   * gate is asserted at that height, so the shipped meta satisfies the gate on
-   * its own pixels rather than on a height it does not draw at — which is the
-   * defect row 11 found (grid canonical was authored at 1.6, the gate had been
-   * propagated to 1.83, and the suite stayed green on a test that still said
-   * 1.6).
+   * WHY THE EYE HEIGHT IS 1.2316 AND NOT 1.60 OR §10's 1.83. Blueprint §5
+   * rules that the geometry is determined by the orientation of the approved
+   * image generation; row 11's 1.60 m was named an interim awaiting exactly
+   * that measurement; the approved backdrops arrived at row 20 and measure
+   * 1.2316 m with no pitch. §10's contract camera is unchanged and still what
+   * backdrops are prompted at — the generator was asked for 1.83 m pitched
+   * down and drew 1.23 m level, and that divergence is on the record
+   * (`design/plan-draft/measured/`), not corrected by an agent.
    *
-   * WHY NOT §10's ruled 1.83 m, which row 11 drew for one commit. Kabe ruled
-   * six feet on 2026-08-20 — "we should be a bit higher as a view angle looking
-   * down at about a 6ft height. For better visual presentation" — and that
-   * ruling has two halves, eye 1.83 m AND a −8° downward pitch. `groundplane.js`
-   * has no pitch term; adding one moves every pixel in the project; and §5 rules
-   * that the real camera is measured off row 4's approved backdrop. Taking the
-   * height WITHOUT the pitch pushes the frame-bottom floor cut further from the
-   * viewer's feet (hall/E to 1.98 m) where the pitch would have pulled it in —
-   * the opposite of the presentation the ruling was given for, against the
-   * intention's fifth quality. Shown to Kabe as a rendered pair, `04a` against
-   * `04b`, he took `04b`. The six-foot ruling returns whole with the camera row
-   * 4 measures, which can carry the pitch half too; §10's contract camera is
-   * unchanged and is what backdrops are generated at.
-   *
-   * The pitch magnitude stays on the record rather than going silent: at the
-   * study's implied focal length an −8° pitch moves the horizon down 49 px,
-   * 0.047 of frame height (design/plan-draft/projection.md §7).
-   *
-   * `px_per_m_at_wall` and `horizon_y` did NOT move. The field of view stays
-   * §5's open question for Kabe: 16 m of wall at 3.5 m is a ~133° view against
-   * §10's `focal_mm: 50` (≈40°). Row 11 makes that visible for the first time
-   * — corners are what show you how much of the frame is side wall — and
-   * answers it with nothing, because a 50 mm lens puts no corner in frame at
-   * these room sizes and the row's own done requires two visible ones.
-   *
-   * calibration_ref/_px are §5-required fields: the grid's own metre lines
-   * on the wall are its known-height feature, so its meta can be audited
-   * against its pixels like any other. */
-  var GRID_META = {
-    floor_line_y: 0.63,
-    px_per_m_at_wall: 96,
-    px_per_m_at_bottom: 332.8,
-    wall_width_m: 16,
-    key_tint: "#c8b489",
-    image_h_px: 1024,
-    horizon_y: 0.48,
-    key_dir: "UL",
-    calibration_ref: "wall grid module, 1.0 m at the wall plane",
-    calibration_px: 96,
-    camera_wall_m: 3.5,
-    facing_type: null,
-    corner_x0_px: null,
-    corner_x1_px: null
-  };
+   * The lower camera is what returns the intention's fifth quality: the
+   * frame-bottom floor cut comes in to 2.36 m, where every 24 mm preview frame
+   * this project drew put it at 3.08 m. */
+  var GRID_META = (function () {
+    var gp = groundplane();
+    var cam = gp.CAMERA_WALL_M;                  // 4.0 m — see groundplane.js
+    var px = gp.pxPerMAtWall(cam);               // 1024 / 4.0 = 256
+    var eye = gp.DRAWING_EYE_M;                  // 1.2316 m, measured
+    var hy = gp.HORIZON_Y;                       // 490 / 1024
+    return {
+      floor_line_y: hy + eye * px / 1024,        // 0.7864
+      px_per_m_at_wall: px,                      // 256
+      px_per_m_at_bottom: (1024 - hy * 1024) / eye,  // 433.5823
+      wall_width_m: 16,
+      key_tint: "#c8b489",
+      image_h_px: 1024,
+      horizon_y: hy,                             // 0.4785
+      key_dir: "UL",
+      calibration_ref: "wall grid module, 1.0 m at the wall plane",
+      calibration_px: px,                        // 256
+      camera_wall_m: cam,
+      facing_type: null,
+      corner_x0_px: null,
+      corner_x1_px: null
+    };
+  })();
 
-  /* Grid-drawing constants. The former GRID_K = 336 px·m is now derived in
-   * drawGrid — meta.px_per_m_at_wall × camera_wall_m (the plan-§2 amendment:
-   * GRID_K was always px_per_m_at_wall × 3.5 implicitly; deriving it keeps
-   * grid transverse lines and entity depth math agreeing from one home,
-   * groundplane.js). Identical value (96 × 3.5 = 336) on grid canonical
-   * meta — same pixels as row 1. Colours and alphas are pinned: lines stroke
-   * in key_tint at 0.25 (minor) / 0.55 (major); glyph strokes at 0.9. */
+  /* Grid-drawing constants. The former GRID_K = 336 px·m is derived in
+   * drawGrid — meta.px_per_m_at_wall × camera_wall_m, one home in
+   * groundplane.js, so grid transverse lines and entity depth math cannot
+   * disagree. Under row 20's pinned lens that product IS the focal length,
+   * 1024 px, on every meta the project can produce — the grid constant and
+   * the lens turn out to be the same number, which is what "one lens" means
+   * expressed in the drawing rather than in the meta. Colours and alphas are
+   * pinned: lines stroke in key_tint at 0.25 (minor) / 0.55 (major). */
   var WALL_BASE = "#10141b";
   /* The floor carries enough luminance for a contact shadow to take a
    * VISIBLE amount away, on this floor and not on a stand-in for row 4's.
@@ -286,7 +281,7 @@
      * and corridor — has one; an open space carries no storey height and has
      * no corners to hang one between, so nothing here fires for it. The device
      * exists because the alternative is a room bounded left and right and
-     * unbounded upward: at 96 px/m the frame holds 6.95 m of wall above the
+     * unbounded upward: the frame holds several metres of wall above the
      * floor line, against a c.1660 storey of roughly 2.6–3.0 m, so the corners
      * ran off the top and the room read as a shaft. 2.8 m is period-plausible
      * and sits under blueprint §4's standing licence — a value we can change
@@ -694,12 +689,19 @@
     // render identical until entities arrive.
     var glyph = GLYPHS[facing];
     if (glyph) {
-      // 1.5 m tall at wall scale. On a bare facing the glyph is the ONLY
-      // thing that changes when you turn, and at 1 m it was one small
-      // letterform — 0.03% of the frame, which on a phone is no response at
-      // all to pressing an arrow key. Larger than this and it crowds the
-      // furniture standing in front of it.
-      var gh = sWall * 1.5;
+      /* 0.6 m tall at wall scale, and it stays GEOMETRY rather than becoming
+         a frame-relative mark. Row 2 set it at 1.5 m because at 96 px/m that
+         drew 144 px and at 1 m it was 0.03% of the frame — no response at all
+         to an arrow key on a phone. Row 20's pinned lens makes wall scale a
+         per-facing number running 170 → 476 px/m, and 1.5 m of it is 256 px
+         on the widest view and 714 px — 70% of the frame height — on the
+         nearest wall in the manor. A metre-high letter filling a room is the
+         diagram Kabe named. At 0.6 m the mark draws 102 → 286 px: bigger where
+         the wall is close, which is what something painted on a wall does, and
+         never the loudest object in the frame. §7 calls it in-fiction signage
+         on the grid wall and it still is one — capping it in frame fractions
+         would have made it chrome wearing the wall's clothes. */
+      var gh = sWall * 0.6;
       var gw = gh * (2 / 3);
       /* The glyph stands on the largest band in view, and must lie INSIDE it
        * — a mark painted past a corner is signage floating in the side wall.

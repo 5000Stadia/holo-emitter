@@ -36,15 +36,15 @@
       "t": 0.5
     },
     "shelf1": {
-      "facing": "hall/N",
+      "facing": "hall/E",
       "attachment": "floor_against",
-      "u": 0.395,
+      "u": 0.403846153846,
       "mirror": false
     },
     "stick1": {
-      "facing": "hall/N",
+      "facing": "hall/E",
       "attachment": "floor_free",
-      "u": 0.4264,
+      "u": 0.461538461538,
       "depth_m": 0.5
     },
     "coin1": {
