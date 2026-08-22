@@ -828,7 +828,13 @@ test.describe("the camera the projection runs on", () => {
     expect(INTERIM_EYE_M).toBe(DRAWING_EYE_M);
     expect(RULED_EYE_M).toBe(1.83);          // §10's generation camera, untouched
     expect(assertRuledEye()).toEqual([]);
+    /* The provenance string names the numbers it claims, so it cannot go on
+       describing a camera the object no longer carries — an artifact critic
+       found it saying "eye 1.2316 m, horizon at y 490" beside fields reading
+       1.08775 and 524.4, and a `/MEASURED/` match let it. */
     expect(GRID_CAMERA.source).toMatch(/MEASURED/);
+    expect(GRID_CAMERA.source).toContain(String(GRID_CAMERA.eye_m));
+    expect(GRID_CAMERA.source).toContain(String(Math.round(GRID_CAMERA.horizon_y * 1024 * 10) / 10));
   });
 
   test("and the contract cross-check goes red when the two statements drift apart", () => {
@@ -1604,7 +1610,7 @@ test.describe("the schematic is a derived render of the plan", () => {
    * line, so the stamp reads "APPROVED … AWAITING HIS EYE ON: the standpoint
    * markers and their printed distances". The sheets are in the row's batch,
    * and the row does not close until his word lands. */
-  const APPROVAL_COMMIT = "d87335f";
+  const APPROVAL_COMMIT = "f50e20e";
 
   function approvedBlob(path) {
     return execFileSync("git", ["show", `${APPROVAL_COMMIT}:${path}`],

@@ -94,13 +94,15 @@ wrong to you, the lever is the passage's own width on the plan, not the lens.
 **2. The floor still starts two paces away.** `f / px_per_m_at_bottom` is the same on every facing
 in the manor — **2.23 m**. It was 3.08 m in the preview frames you approved and 1.04 m under the
 old fisheye, so the camera the approved backdrops turned out to be drawn at has bought most of it
-back. And one thing this row did not fix: **open a door and you look through it into black.** The
-opening is a hole in the wall with nothing behind it — 4.4 % of the frame on the study side, six
-times the void the old fisheye showed, at exactly the point your eye goes. What goes behind it is
-the next room's own painted wall, and that is the painted world's work rather than the lens's. The intention's *"rails cut by the frame bottom at your own feet"* is not fully delivered
-and no lens shift at this focal length can deliver it; its other half — *"Kabe's reference anchors
-the same way through a near desk surface"* — is what closes the rest, and it belongs to the row
-that stages a near surface.
+back. The intention's *"rails cut by the frame bottom at your own feet"* is still not fully
+delivered, and no lens shift at this focal length can deliver it; its other half — *"Kabe's
+reference anchors the same way through a near desk surface"* — is what closes the rest, and it
+belongs to the row that stages a near surface.
+
+**And one thing this row made worse before the painted world fixes it: open a door and you look
+through it into black.** The opening is a hole in the wall with nothing behind it — 4.4 % of the
+frame on the study side, about six times the void the old fisheye showed, at exactly the point your
+eye goes (`10-study-E-door-open.png`). What belongs behind it is the next room's own painted wall.
 
 **3. The passage's furniture moved to its east end wall, and it was forced.** The bookcase and the
 candlestick stood against the passage's north wall, which now has no floor to stand on — the

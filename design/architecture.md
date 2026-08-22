@@ -868,6 +868,40 @@ census is a plan warning rather than a hidden fact.
 7. **The rooms read larger than their metres**, by a factor no reachable lens
    removes and uniform across every facing.
 
+### Found by the artifact critic, kept as known limits
+
+- **`stageWithout` fires on TEXT, not behaviour.** A renderer ledger case throws when its marker
+  string is absent, so a harmless reformat of `src/renderer.js` turns the ledger red while a real
+  defect that leaves the marker intact does not. It is the price of breaking a mechanism by
+  deleting its own line, and it is worth knowing before anyone tidies that file.
+- **`meta.one_lens` cannot fail on anything this project produces.** `deriveMeta` computes the
+  scale from the lens, so the clause holds by construction and its ledger case hand-doctors a
+  meta. What carries the content at V1 is §12.5 (v) — the drawn metre module measured against the
+  meta — and (i′) becomes evidence the day a MEASURED backdrop meta ships.
+- **`standpoint_source: "drawn"` is an unguarded opt-out.** Writing that one string exempts a
+  facing from the standpoint law entirely, with no finding; only law (a) (the printed distance is
+  the measured one) survives. It is §4b item 9's escape hatch for multi-standpoint rooms and it is
+  also the one word an agent can type to move where a player stands without a check noticing.
+- **The byte-compare baseline is a commit this row's builder made.** `plan.spec`'s derived-render
+  test answers "has the drawing left what the builder drew", not "…what Kabe approved". The
+  `pending` line on the sheet's own face is the mitigation, and the row does not close until his
+  word lands — but the distinction is the lock's whole purpose and it is named rather than
+  smoothed over.
+- **Turning right in the study empties it.** The desk, chair and notebook stand on the north wall
+  and appear in no other facing; §4b item 9's multi-facing presence is row 15's. This predates row
+  20, and row 20 sharpens it: a room that now reads as a bounded room with corners and a ceiling
+  makes an empty adjacent wall read as a fault rather than as a convention.
+- **Open a door and you look through it into black.** The aperture is a hole in the wall with
+  nothing behind it — 69,120 near-black pixels, 4.4 % of the frame, on `study/E`, against about
+  10,000 under the pinned scale. The lens magnified it 6.8× because it magnified the doorway. What
+  belongs behind it is the next room's own painted wall; it is the painted world's to close and it
+  is in the row's batch.
+- **The coin is a 2.7 CSS-px target on a phone**, with about 11 px of reachable area against a
+  44 px platform minimum, and a near-miss silently takes the bookcase instead. `index.html`
+  attributed this to "the apparent-size consequence of the open camera question" — row 20 closed
+  that question and the defect stands, improved from 7 px to 11 px. It is now a question about how
+  big the objects are, which is the asset lane's.
+
 ### What row 20 hands on, and to whom
 
 The spec list is the one home of targets and this row may not edit another row's
