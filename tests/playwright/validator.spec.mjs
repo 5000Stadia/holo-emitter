@@ -496,6 +496,89 @@ test.describe("the overlap check is bound to the renderer's placement", () => {
   });
 });
 
+/* [ROW 15] AND THE SAME CLAUSE FOR `openingFor`, WHICH IS THE OTHER THING BOTH
+ * SIDES NOW READ. What an exit's `via` names — a leaf, or the plan's own name
+ * for a hole, a threshold or a flight — has ONE home, in `src/groundplane.js`,
+ * and the renderer and this validator both call it. "One home" is prose until
+ * something moves when the home moves: this project paid for that twice, once
+ * when `corner_x*_px` turned out to be a private copy of the u-mapping and
+ * displacing `xAtScale` left the corners where they were, and once when a
+ * doorway guard consulted `apertures` instead of the page's own resolver.
+ *
+ * So both consumers are displaced against the same function, in the same case,
+ * and both have to move. */
+test.describe("what an exit's `via` names is bound to one function", () => {
+  const groundplane = require(join(repoRoot, "src", "groundplane.js"));
+  const navDir = join(repoRoot, "fixtures", "nav-manor");
+
+  test("displacing openingFor displaces the validator's verdict", () => {
+    const original = groundplane.openingFor;
+    try {
+      expect(validate(navDir, records), "the manor is green to begin with").toEqual([]);
+      groundplane.openingFor = function () { return null; };
+      const findings = validate(navDir, records);
+      /* Every exit the manor walks resolves through that function and only
+         through it, so with it gone every one of them is an exit through
+         nothing the building holds. A validator carrying its own copy of the
+         lookup stays green here. */
+      const unfilled = findings.filter((f) => f.includes("[row21:exit.via_unfilled]"));
+      expect(unfilled.length, "the validator reads the lookup from groundplane, not from its own copy")
+        .toBe(55);
+    } finally {
+      groundplane.openingFor = original;
+    }
+    expect(validate(navDir, records), "and restored").toEqual([]);
+  });
+
+  test("displacing openingFor displaces the picture too", async ({ page }) => {
+    await page.goto(appUrl().replace(/\?world=demo-study$/, ""));
+    await page.waitForFunction(() => !!window.HOLO_APP);
+    const r = await page.evaluate(() => {
+      const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+      const count = () => {
+        let n = 0;
+        for (const loc of fx.world.locations) {
+          for (const f of loc.facings) {
+            const vs = { location: loc.id, facing: f };
+            n += window.HOLO.renderer.apertures(
+              fx.world, fx.staging, A.library, A.metaFor(vs), vs).length;
+          }
+        }
+        return n;
+      };
+      const before = count();
+      const original = window.HOLO.groundplane.openingFor;
+      window.HOLO.groundplane.openingFor = function () { return null; };
+      const during = count();
+      window.HOLO.groundplane.openingFor = original;
+      return { before, during, after: count() };
+    });
+    expect(r.before, "every way through the manor is an aperture on its own facing").toBe(55);
+    expect(r.during, "with the lookup displaced the building has no ways through at all").toBe(0);
+    expect(r.after, "and restored").toBe(55);
+  });
+
+  test("a leaf outranks the plan's own name for the hole it stands in", () => {
+    /* THE ORDER IS FIXED AND IT MATTERS: an id that is both an entity's and an
+       opening's must resolve to the ENTITY, because a leaf governs the hole it
+       stands in — it is knowledge-filtered, it can be shut, and it is what the
+       page offers a click. Reading the building first would make a shut door
+       walkable. */
+    const meta = {
+      openings: [
+        { id: "op13", via: "door1", kind: "door", x: 1, y: 2, w: 3, h: 4 },
+        { id: "door1", via: null, kind: "door", x: 9, y: 9, w: 9, h: 9 }
+      ]
+    };
+    expect(groundplane.openingFor(meta, "door1").x,
+      "the leaf's own hole, not the one that happens to share its name").toBe(1);
+    expect(groundplane.openingFor(meta, "op13").x,
+      "and the plan's name still reaches the same hole").toBe(1);
+    expect(groundplane.openingFor(meta, "nothing"), "and a name nobody holds resolves to nothing")
+      .toBe(null);
+  });
+});
+
 /* ONE BAND, TWO FILES, AND THE FILES ARE IN DIFFERENT LANGUAGES. The measured
  * arm of §12.5 (i′) admits exactly what the asset seat's acceptance gate
  * admits — a candidate backdrop whose implied focal lands within ±3 % of the
