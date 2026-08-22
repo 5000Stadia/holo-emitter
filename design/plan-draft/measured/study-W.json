@@ -11,10 +11,11 @@
   "corner_x0_px": 142,
   "corner_x1_px": 1385,
   "key_tint": "#c8986f",
-  "key_dir": null,
+  "key_dir": "L-BELOW",
+  "key_dir_reading": "The brightest 21x21 patch sits at (10, 992): left third of the frame, below the measured horizon at y 465. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
   "calibration_ref": "the panelling's dado-rail top, taken at 0.90 m above the floor line. This wall is blank by instruction and offers nothing else.",
   "calibration_px": 214,
-  "calibration_confidence": "MEDIUM-LOW in the assumed module (+-7 %%), but the READING is clean (step strength 45.1, horizontality 1.00). Independent support: this facing's ceiling line (82), floor line (779) and rail (564) are within 2 px of study/N's (81, 777, 564), so the same room drawn at the same scale; study/N's fireplace calibration would give 232.2 px/m against the 226.3 adopted here, a 2.5 %% spread.",
+  "calibration_confidence": "MEDIUM-LOW in the assumed module (+-7 %%), but the READING is clean (step strength 45.1, horizontality 1.00). Independent support: this facing's ceiling line (82), floor line (777) and rail (563) are within 1 px of study/N's (81, 777, 563), so the same room at the same scale; carrying study/N's fireplace calibration across gives 232.2 px/m against the 237.8 adopted here, a 2.4 %% spread, which is the honest error bar.",
   "_measured_px": {
     "wall_ceiling_line_y_px": 82,
     "wall_floor_line_y_px": 777,
@@ -419,8 +420,8 @@
   },
   "_corner_evidence": {
     "mid_wall_reference_step_strength": 56.0,
-    "vertical_edge_confirming_x0": 125,
-    "vertical_edge_confirming_x1": 1402
+    "vertical_edge_confirming_x0": 142,
+    "vertical_edge_confirming_x1": 1387
   },
   "_horizon_votes": {
     "per_region": {
@@ -444,14 +445,14 @@
     "adopted_x": 753,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": {
-      "x": 724.8,
-      "y": 336.8,
-      "left_slope": 0.4633,
-      "right_slope": -0.4134,
-      "left_n": 125,
-      "left_resid_px": 11.78,
-      "right_n": 138,
-      "right_resid_px": 11.98
+      "x": 767.9,
+      "y": 531.5,
+      "left_slope": 0.7239,
+      "right_slope": -0.7345,
+      "left_n": 61,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.29
     }
   },
   "_derived": {
@@ -463,6 +464,9 @@
     "implied_wall_width_m": 5.2276
   },
   "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 10,
+    "key_dir_brightest_y": 992,
     "key_tint": "#c8986f",
     "key_tint_patch": [
       0,
@@ -494,6 +498,18 @@
   "_plan": {
     "camera_wall_m": 4.09,
     "wall_width_m": 4.8,
-    "storey_m": 2.8
-  }
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 4.09,
+    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 4.09 m for this facing. Nothing measured off the pixels depends on either value."
+  },
+  "_flags": [
+    "The brief asked for a 4.80 m wall. The corner span implies 5.23 m and is within 4 px of study/N's 1247 px span for a 5.45 m wall - i.e. the generator drew the west wall the same width as the north wall and ignored the 4.80.",
+    "Ceiling line 82, floor line 777, dado rail 563: all within 2 px of study/N (81, 777, 564). Same room, same camera height, same scale - which is the strongest single piece of evidence in the set that the study's four facings were meant to agree.",
+    "HORIZON, TWO ANSWERS. The vanishing-point vote adopts y 465; the side-wall ceiling junctions, fitted to a residual of 0.29 px over 61 columns each side and intersected, put the principal point at y 531.5. That is a +66 px disagreement, +0.280 m of eye height. Both are measurements of the same frame, so the frame is not internally consistent: its ceiling geometry and its floor/edge statistics do not share a vanishing point. The vote is adopted because it is the method the draft lays down and because it draws on three disjoint regions; the ramp figure is the sharper single number and is recorded so the Navigator can choose.",
+    "IMPLIED FOCAL LENGTH 973 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-5.0 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 4.09 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
+    "EYE HEIGHT 1.312 m against the 1.83 m every prompt asked for (-0.518 m). STOREY 2.923 m against the ruled 2.80 m (+4.4 %). CAMERA 4.31 m from the wall against the plan's 4.09 m (+5.3 %).",
+    "WALL WIDTH 5.23 m from the corner span against the plan's 4.80 m (+8.9 %).",
+    "LIGHT does not read UL45. Brightest 21x21 patch at (10, 992) - left third of the frame, below the measured horizon. Gate (e)'s Sobel bright-side estimator returns 106.8 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is +14.43 on the whole frame and +4.12 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require.",
+    "No doorway is painted on this facing. Checked: the only two openings in the eight are study/E's and hall/W's, which are the two sides of the same door between the study and the cross passage."
+  ]
 }

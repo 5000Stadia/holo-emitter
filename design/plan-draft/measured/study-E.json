@@ -11,7 +11,8 @@
   "corner_x0_px": 171,
   "corner_x1_px": 1365,
   "key_tint": "#c88f5e",
-  "key_dir": null,
+  "key_dir": "R-BELOW",
+  "key_dir_reading": "The brightest 21x21 patch sits at (1525, 996): right third of the frame, below the measured horizon at y 514. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
   "calibration_ref": "the painted door opening's height at the wall plane, head soffit to threshold, taken at 2.00 m (the plan's door leaf height; the prompt also says '2.0-metre-tall')",
   "calibration_px": 470,
   "calibration_confidence": "HIGH in the assumed size - the plan rules the openings and this facing's own prompt restates '2.0-metre-tall'. The risk is in the drawing, not the ruler: the wall-plane opening is painted 470 x 214 px, an aspect of 2.20 : 1 against the ruled 2 : 1, so the SAME opening calibrated on its 1.00 m width gives 214.0 px/m against the 235.0 adopted - a 9 % spread that bounds the error. The height is adopted because it is the longer dimension (less relative reading error) and because 235.0 px/m puts this room's storey at 2.84 m against the ruled 2.80 while 214.0 px/m puts it at 3.12 m.",
@@ -426,8 +427,8 @@
   },
   "_corner_evidence": {
     "mid_wall_reference_step_strength": 61.1,
-    "vertical_edge_confirming_x0": 154,
-    "vertical_edge_confirming_x1": 1382
+    "vertical_edge_confirming_x0": 168,
+    "vertical_edge_confirming_x1": 1367
   },
   "_horizon_votes": {
     "per_region": {
@@ -451,14 +452,14 @@
     "adopted_x": 798,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": {
-      "x": 752.0,
-      "y": 536.2,
-      "left_slope": 0.7395,
-      "right_slope": -0.7008,
-      "left_n": 140,
-      "left_resid_px": 0.31,
-      "right_n": 147,
-      "right_resid_px": 0.32
+      "x": 749.8,
+      "y": 536.6,
+      "left_slope": 0.7428,
+      "right_slope": -0.6991,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29
     }
   },
   "_derived": {
@@ -470,6 +471,9 @@
     "implied_wall_width_m": 5.0809
   },
   "_light": {
+    "key_dir_measured": "R",
+    "key_dir_brightest_x": 1525,
+    "key_dir_brightest_y": 996,
     "key_tint": "#c88f5e",
     "key_tint_patch": [
       1325,
@@ -501,6 +505,18 @@
   "_plan": {
     "camera_wall_m": 4.09,
     "wall_width_m": 4.8,
-    "storey_m": 2.8
-  }
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 4.09,
+    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 4.09 m for this facing. Nothing measured off the pixels depends on either value."
+  },
+  "_flags": [
+    "One of the two facings that carry the study<->cross-passage door. The wall-plane opening is 660..874 x 308..778 and that rectangle is the click target for walking through.",
+    "The opening is painted 2.20 : 1 where the plan rules 2 : 1. Whichever ruled dimension is used, the other is then wrong by 9 %.",
+    "The prompt asked for a 4.80 m wall; the corner span implies 5.08 m, +5.9 %.",
+    "HORIZON, TWO ANSWERS. The vanishing-point vote adopts y 514; the side-wall ceiling junctions, fitted to a residual of 0.30 px over 61 columns each side and intersected, put the principal point at y 536.6. That is a +23 px disagreement, +0.096 m of eye height. Both are measurements of the same frame, so the frame is not internally consistent: its ceiling geometry and its floor/edge statistics do not share a vanishing point. The vote is adopted because it is the method the draft lays down and because it draws on three disjoint regions; the ramp figure is the sharper single number and is recorded so the Navigator can choose.",
+    "IMPLIED FOCAL LENGTH 961 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-6.1 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 4.09 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
+    "EYE HEIGHT 1.123 m against the 1.83 m every prompt asked for (-0.707 m). STOREY 2.843 m against the ruled 2.80 m (+1.5 %). CAMERA 4.36 m from the wall against the plan's 4.09 m (+6.5 %).",
+    "WALL WIDTH 5.08 m from the corner span against the plan's 4.80 m (+5.9 %).",
+    "LIGHT does not read UL45. Brightest 21x21 patch at (1525, 996) - right third of the frame, below the measured horizon. Gate (e)'s Sobel bright-side estimator returns 107.2 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is -5.11 on the whole frame and -0.34 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require."
+  ]
 }

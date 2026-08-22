@@ -78,7 +78,7 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
     ["parted overlap pair (u)", "staging",
       (s) => { s.placements.chair1.u = 0.5; }, /overlap|chair1/i],
     ["parted overlap pair (depth/y-span)", "staging",
-      (s) => { s.placements.stick1.depth_m = 1.6; }, /overlap|stick1/i],
+      (s) => { s.placements.stick1.depth_m = 2.9; }, /overlap|stick1/i],
     ["missing narration key", "narration",
       (n) => { delete n.lines["toggle.chair1.refused_static"]; }, /toggle\.chair1\.refused_static/],
     ["placeholder-token line", "narration",

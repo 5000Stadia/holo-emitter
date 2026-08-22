@@ -19,7 +19,8 @@
  *   > five other clauses, and not "some hard check went red".
  *
  * Two things make it structural rather than a habit. Every clause carries a
- * stable `[row11:<name>]` token in the finding it emits, so a case can name
+ * stable `[row11:<name>]` or `[row20:<name>]` token in the finding it emits — the
+ * prefix is the ROW THAT MINTED the clause, not a version — so a case can name
  * what fired instead of pattern-matching prose that will be reworded. And
  * `MECHANISMS` below declares the full set: the ledger test asserts that the
  * set of cases in this file is EXACTLY the declared set, so a mechanism added
@@ -33,7 +34,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
-import { validatePlan } from "../../tools/validate-plan.mjs";
+import { validatePlan, drawn } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -62,7 +63,7 @@ function tokensFromMetas(doctor) {
 function tokensOf(findings) {
   const out = new Set();
   for (const f of findings) {
-    const m = /\[row11:([a-z_.]+)\]/g;
+    const m = /\[row(?:11|20):([a-z_.]+)\]/g;
     let hit;
     while ((hit = m.exec(f)) !== null) out.add(hit[1]);
   }
@@ -102,9 +103,10 @@ export const MECHANISMS = [
   "meta.segmented_no_corners",
   "meta.segments_present",
   "meta.null_type_no_corners",
-  "meta.frame_fits_left",
-  "meta.frame_fits_right",
-  "meta.frame_fits_uncornered",
+  /* §12.5 (i)'s three arms are RETIRED at row 20, not softened: under a pinned
+     lens a wall wider than the frame runs past it, as in life, so "the wall in
+     view fits the frame" is false by design. `meta.one_lens` is what replaced
+     the clause, and it is declared below with the row's other mechanisms. */
   "meta.image_h",
   "meta.segment_shape",
   "meta.segment_bounds",
@@ -121,7 +123,13 @@ export const MECHANISMS = [
   "plan.object_clear_of_stairs",
   "plan.objects_do_not_share_floor",
   // the bake
-  "bake.refuses_wide_camera",
+  "bake.refuses_lens_drift",
+  // row 20: the lens, the standpoint law, and the doorway as a building fact
+  "meta.one_lens",
+  "plan.standpoint_source",
+  "plan.standpoint_branch",
+  "plan.standpoint_stands_back",
+  "plan.standpoint_clear",
   // the renderer. The six below `renderer.corner_verticals` are the ones the
   // first ledger did not name, each of which a critic removed with the whole
   // suite green.
@@ -157,8 +165,11 @@ const DOCUMENT_CASES = {
     delete m["hall/S"].camera_far_m;
   }),
   "meta.open_rejects_wall": () => tokensFromMetas((m) => {
+    const d = m["hall/S"].camera_wall_m;
     m["hall/S"] = openLike(m["hall/S"]);
-    m["hall/S"].camera_wall_m = 1.95;
+    /* Its OWN distance, so the meta stays on the ruled lens and `meta.one_lens`
+       does not fire alongside. */
+    m["hall/S"].camera_wall_m = d;
   }),
   "meta.walled_needs_wall": () => tokensFromMetas((m) => { delete m["hall/S"].camera_wall_m; }),
   "meta.walled_rejects_far": () => tokensFromMetas((m) => { m["hall/S"].camera_far_m = 9; }),
@@ -183,16 +194,10 @@ const DOCUMENT_CASES = {
     m["hall/S"].corner_x1_px = null;
   }),
   "meta.null_type_no_corners": () => tokensFromMetas((m) => { m["hall/S"].facing_type = null; }),
-  "meta.frame_fits_left": () => tokensFromMetas((m) => { m["hall/S"].corner_x0_px = -1; }),
-  "meta.frame_fits_right": () => tokensFromMetas((m) => { m["hall/S"].corner_x1_px = 1600; }),
-  "meta.frame_fits_uncornered": () => tokensFromMetas((m) => {
-    // the no-corner half of §12.5 (i) — the half row 11 extended it for, and
-    // the half the first ledger's single `frame_fits` case never reached
-    m["hall/S"].facing_type = null;
-    m["hall/S"].corner_x0_px = null;
-    m["hall/S"].corner_x1_px = null;
-    m["hall/S"].wall_width_m = 20;
-  }),
+  /* ROW 20. The lens a meta implies is the ruled one — the clause that
+     replaced §12.5 (i). Doctoring the SCALE alone (not the distance) is what a
+     meta authored on a different lens looks like. */
+  "meta.one_lens": () => tokensFromMetas((m) => { m["hall/S"].px_per_m_at_wall *= 1.2; }),
   "meta.image_h": () => tokensFromMetas((m) => { m["hall/S"].image_h_px = 900; }),
   "meta.segment_shape": () => tokensFromMetas((m) => segmented(m, [{ from_m: 2, to_m: 1, kind: "wall" }])),
   "meta.segment_bounds": () => tokensFromMetas((m) => segmented(m, [{ from_m: 0, to_m: 99, kind: "wall" }])),
@@ -223,9 +228,53 @@ const DOCUMENT_CASES = {
     return tokensOf(validatePlan(p));
   },
   "plan.note_needs_composed": () => {
+    /* Every shipped object is `composed` since row 20 moved the passage's two
+       into the only facing of that room with floor in frame, so the case adds
+       a fresh derived object rather than annotating one that already carries a
+       reason. */
     const p = clone(PLAN);
-    const o = p.objects.find((x) => x.id === "shelf1");
-    o.note = "a reason for a value nobody chose";
+    const src = p.objects.find((x) => x.id === "shelf1");
+    p.objects.push({
+      id: "zz_derived_probe", floor: src.floor, room: src.room,
+      footprint: { x0: 31.2, x1: 31.6, y0: 10.8, y1: 11.2 },
+      attachment: "floor_free", source: "inverse-projected",
+      note: "a reason for a value nobody chose"
+    });
+    return tokensOf(validatePlan(p));
+  },
+  /* ROW 20's standpoint law, in its three arms. */
+  "plan.standpoint_source": () => {
+    const p = clone(PLAN);
+    p.rooms.find((x) => x.id === "study").facings.N.standpoint_source = "wherever";
+    return tokensOf(validatePlan(p));
+  },
+  "plan.standpoint_branch": () => {
+    const p = clone(PLAN);
+    // a facing whose wall does not fit the frame, still claiming the rule
+    p.rooms.find((x) => x.id === "study").facings.N.standpoint_source = "rule";
+    return tokensOf(validatePlan(p));
+  },
+  "plan.standpoint_stands_back": () => {
+    const p = clone(PLAN);
+    const r = p.rooms.find((x) => x.id === "study");
+    r.facings.N.standpoint = { x: r.facings.N.standpoint.x, y: r.facings.N.standpoint.y + 0.2 };
+    r.facings.N.camera_wall_m = drawn(r.facings.N.wall_line - r.facings.N.standpoint.y);
+    return tokensOf(validatePlan(p));
+  },
+  "plan.standpoint_clear": () => {
+    const p = clone(PLAN);
+    /* A threshold standpoint walked into the masonry it is supposed to clear:
+       the study's south facing stands 0.45 m off the chimney breast's near
+       face, so putting it back where the bare rule would have is standing in
+       the hearth. */
+    const r = p.rooms.find((x) => x.id === "study");
+    /* Walked into the study's own chimney breast, with its distance kept
+       honest so the document is self-consistent. It trips this clause ALONE
+       because the validator gives a standpoint in masonry precedence: one
+       fault, one finding, which is what lets the ledger isolate it. */
+    const fire = p.fireplaces.find((x) => x.room === "study");
+    r.facings.S.standpoint = { x: r.facings.S.standpoint.x, y: (fire.rect.y0 + fire.rect.y1) / 2 };
+    r.facings.S.camera_wall_m = drawn(r.facings.S.standpoint.y - r.facings.S.wall_line);
     return tokensOf(validatePlan(p));
   },
   "plan.storey_height": () => {
@@ -315,30 +364,24 @@ function byEntity() {
 /* ------------------------------------------------------- the bake's refusal */
 
 test.describe("the clause ledger — the bake", () => {
-  ledgerCase("bake.refuses_wide_camera", () => {
-    /* The refusal blueprint §5 promises: a wide-camera meta may not ship until
-     * `design/plan-draft/projection.md` §5's two readings of Kabe's licence
-     * are ruled. The mutation is the live, unruled choice itself — switch the
-     * default wide-view policy to the ruling's own vocabulary and the cross
-     * passage's two corridor facings become wide, which is exactly the
-     * scenario the refusal exists for. Nothing else fires first: the metas
-     * stay self-consistent, so the camera checks pass. */
+  ledgerCase("bake.refuses_lens_drift", () => {
+    /* And the other half: the pixel constant is bound to blueprint §10's
+       [HUMAN] field. Two files agreeing is not a binding; a check that fires
+       when they stop is. */
     const dir = stageTree();
     try {
-      const f = join(dir, "tools", "plan-projection.mjs");
-      const src = readFileSync(f, "utf8");
-      expect(src).toContain('export const DEFAULT_WIDE_VIEW_POLICY = "fits";');
-      writeFileSync(f, src.replace('export const DEFAULT_WIDE_VIEW_POLICY = "fits";',
-        'export const DEFAULT_WIDE_VIEW_POLICY = "ruling";'));
+      const f = join(dir, "replicator", "contract.json");
+      const c = JSON.parse(readFileSync(f, "utf8"));
+      c.camera.focal_mm = 50;
+      writeFileSync(f, JSON.stringify(c, null, 2));
       let msg = "";
       try {
         bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study")]);
       } catch (e) {
         msg = String(e.stderr || e.message);
       }
-      expect(msg, "the bake refused, and named the wide camera")
-        .toMatch(/derives the WIDE camera/);
-      expect(msg).toMatch(/hall\/[EW]/);
+      expect(msg, "the bake refused, and named the contract").toMatch(/camera\.focal_mm/);
+      expect(msg).toMatch(/row20:bake\.refuses_lens_drift/);
     } finally {
       removeTree(dir);
     }
@@ -460,7 +503,13 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * in the open part of a part-built wall with the whole suite green. */
     const dir = stageWithout(
       "      if (x0 >= lo - 0.5 && x1 <= hi + 0.5) return true;",
-      "      if (x0 >= lo - 500 && x1 <= hi + 500) return true;");
+      "      if (x0 >= lo - 4000 && x1 <= hi + 4000) return true;");
+    /* ±4000 px, where row 11 used ±500. Row 20's lens draws the study's east
+       wall at 250 px/m instead of 96, so the door's own span moved from
+       830–917 to 931–1156 and a 500 px slackening no longer reaches past a
+       band at 167–267 — the mutation would have "passed" by being too small to
+       disable the guard, which is a case that proves nothing. The tolerance is
+       chosen to be larger than the frame, so the guard is genuinely off. */
     try {
       expect(await apertureCount(page, dir, SEGMENTED_META_FOR_STUDY_E),
         "a doorway painted across the open part of a part-built wall").toBeGreaterThan(0);
@@ -500,8 +549,13 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       "        for (m = 1; floorY - m * sWall >= 0; m++) {\n          ctx.beginPath();\n          ctx.moveTo(X(u, sWall), floorY - m * sWall);",
       "        for (m = 1; false; m++) {\n          ctx.beginPath();\n          ctx.moveTo(X(u, sWall), floorY - m * sWall);");
     try {
-      const clean = await brightPixels(page, repoRoot, { location: "study", facing: "S" });
-      const broken = await brightPixels(page, dir, { location: "study", facing: "S" });
+      /* Measured on `hall/E`, not on `study/S`. Row 20's lens makes the study
+         a room whose facing wall fills the frame — 5.6% of it is return — so a
+         return mechanism measured there is measured where it barely draws. The
+         passage's east view is 71% return, which is where a side-wall
+         mechanism is worth measuring. */
+      const clean = await brightPixels(page, repoRoot, { location: "hall", facing: "E" });
+      const broken = await brightPixels(page, dir, { location: "hall", facing: "E" });
       expect(clean - broken, "the returns lose their height fan").toBeGreaterThan(1000);
     } finally {
       removeTree(dir);
@@ -533,8 +587,11 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       "      ctx.beginPath();\n      ctx.moveTo(cL, snap(floorY));\n      ctx.lineTo(xb0, H);",
       "      ctx.beginPath();\n      ctx.moveTo(cL, snap(floorY));\n      ctx.lineTo(cL, snap(floorY));");
     try {
-      const clean = await brightPixels(page, repoRoot, { location: "study", facing: "S" });
-      const broken = await brightPixels(page, dir, { location: "study", facing: "S" });
+      const clean = await brightPixels(page, repoRoot, { location: "hall", facing: "E" });
+      const broken = await brightPixels(page, dir, { location: "hall", facing: "E" });
+      /* 517 px on `hall/E` at row 20's lens, against the 621–1508 row 11
+         measured on the study at the pinned scale — the junctions are the same
+         two strokes, drawn shorter because the returns are shallower. */
       expect(clean - broken, "a wall-floor junction goes missing").toBeGreaterThan(300);
     } finally {
       removeTree(dir);
@@ -550,13 +607,25 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       "    function fitsBand(x) { return x >= bandLo && x + gw <= bandHi; }",
       "    function fitsBand(x) { return true; }");
     try {
-      const clean = await glyphInk(page, repoRoot);
-      const broken = await glyphInk(page, dir);
-      expect(broken.offBand - clean.offBand,
-        "with the check gone the letter moves off the wall into the return")
-        .toBeGreaterThan(100);
-      expect(broken.onBand + broken.offBand, "and it is the same letter, moved")
-        .toBeGreaterThan(clean.onBand + clean.offBand - 50);
+      /* WHERE the letter is, not how much ink is either side of a line. Row
+         11 counted pixels; at row 20's lens the glyph is 0.6 m rather than
+         1.5 m of wall and the ink either side of the corner moved by only 33
+         pixels, which measured the glyph's SIZE rather than its PLACE. The
+         box is what the mechanism is about: with `fitsBand` gone the letter
+         dodges left, out past the corner and onto the return. */
+      const clean = await glyphBox(page, repoRoot);
+      const broken = await glyphBox(page, dir);
+      expect(clean.x0, "the shipped glyph stands inside the band")
+        .toBeGreaterThanOrEqual(clean.bandLo - 1);
+      expect(broken.x0, "with the check gone the letter moves off the wall into the return")
+        .toBeLessThan(clean.bandLo - 8);
+      /* The same letter, moved — not a deleted or a clipped one. Total lit ink
+         rather than the box, because the box on this facing also contains the
+         doorway's own jamb, which does not move and would mask the change. */
+      const cleanInk = await litPixels(page, repoRoot, { location: "hall", facing: "W" });
+      const brokenInk = await litPixels(page, dir, { location: "hall", facing: "W" });
+      expect(Math.abs(brokenInk - cleanInk), "and it is the same letter, moved")
+        .toBeLessThan(cleanInk * 0.02);
     } finally {
       removeTree(dir);
     }
@@ -587,10 +656,15 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       "    var j = Math.max(3, Math.round(a.w * 0.05));",
       "    var j = 0;");
     try {
-      const clean = await glyphInk(page, repoRoot);
-      const broken = await glyphInk(page, dir);
-      expect((clean.onBand + clean.offBand) - (broken.onBand + broken.offBand),
-        "the doorway loses its proud frame").toBeGreaterThan(150);
+      /* Measured on the doorway's own rows, over its own columns, where the
+         jamb is drawn. Row 11 read this off `glyphInk`, whose scan stops at
+         y 660 — under the pinned scale the door's 86 px of width put nearly
+         all of its jamb inside that window, and row 20's lens draws the same
+         door 154 px wide from y 423 to y 765, so two thirds of the frame this
+         mechanism paints fell outside the instrument. */
+      const clean = await jambInk(page, repoRoot);
+      const broken = await jambInk(page, dir);
+      expect(clean - broken, "the doorway loses its proud frame").toBeGreaterThan(150);
     } finally {
       removeTree(dir);
     }
@@ -636,9 +710,17 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       "        var sCeil = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);",
       "        var sCeil = sBottom;");
     try {
-      const clean = await ceilingInk(page, repoRoot);
-      const broken = await ceilingInk(page, dir);
-      expect(clean.nearBand, "the shipped ceiling reaches the top of frame").toBeGreaterThan(300);
+      /* AT A 2.0 m STOREY, and the reason is arithmetic rather than taste.
+         `sCeil` takes the LARGER of the floor's last scale and the scale at
+         which the ceiling leaves the top of frame, and which of the two wins
+         depends on the room's height: at row 20's camera
+         `px_per_m_at_bottom` is 433.6 and `(H+2)/2.8` is 366, so at a 2.8 m
+         storey the floor's own scale already carries the ceiling past the
+         frame and the term is inert. It bites below 1026/433.6 = 2.37 m. A
+         mechanism is measured where it acts; measuring it where it cannot act
+         would have been a case that passes by accident. */
+      const clean = await ceilingInk(page, repoRoot, 2.0);
+      const broken = await ceilingInk(page, dir, 2.0);
       expect(clean.nearBand - broken.nearBand, "and stops short without it").toBeGreaterThan(200);
     } finally {
       removeTree(dir);
@@ -810,19 +892,23 @@ async function eyeLineOnOpen(page, root) {
 }
 
 /** Ceiling plane pixels, and ceiling ink outside the room it belongs to. */
-async function ceilingInk(page, root) {
+async function ceilingInk(page, root, storey = 2.8) {
   await open_(page, root);
-  return await page.evaluate(() => {
+  return await page.evaluate((storey) => {
     const T = window.__T, fx = window.HOLO_FIXTURE;
-    const vs = { location: "study", facing: "N" };
+    /* Measured on the passage's east view. Row 20's lens makes the study a
+       room whose facing wall fills the frame, so a mechanism about the CEILING
+       AND THE RETURNS measured there is measured where the returns are 5.6% of
+       the frame; hall/E is 71% return and its ceiling line sits at y 287. */
+    const vs = { location: "hall", facing: "E" };
     const base = T.metaOf(vs);
-    const meta = { ...base, storey_height_m: 2.8 };
+    const meta = { ...base, storey_height_m: storey };
     const c = document.createElement("canvas");
     c.width = 1536; c.height = 1024;
-    const bd = {}; bd["study/N"] = { meta };
+    const bd = {}; bd["hall/E"] = { meta };
     window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs, { backdrop_only: true });
     const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
-    const ceilY = meta.floor_line_y * meta.image_h_px - 2.8 * meta.px_per_m_at_wall;
+    const ceilY = meta.floor_line_y * meta.image_h_px - storey * meta.px_per_m_at_wall;
     /* All the ceiling's ink, and the part of it that lands where the room's
        ceiling is not: left of the left corner, above the wall-ceiling line. */
     let ink = 0, outside = 0, nearBand = 0;
@@ -836,6 +922,63 @@ async function ceilingInk(page, root) {
       }
     }
     return { ink, outside, nearBand };
+  }, storey);
+}
+
+/** The facing glyph's own bounding box on hall/W, and where its band is. */
+async function glyphBox(page, root) {
+  await open_(page, root);
+  return await page.evaluate(() => {
+    const T = window.__T;
+    const vs = { location: "hall", facing: "W" };
+    const c = T.renderDirect(vs, null, { backdrop_only: true });
+    const meta = T.metaOf(vs);
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    /* The glyph is the brightest ink on a bare wall — brighter than the metre
+       lines, which is what `ALPHA_GLYPH` 0.45 against `ALPHA_MINOR` 0.25
+       buys. Its box is taken over the rows it occupies. */
+    let x0 = 1e9, x1 = -1e9;
+    for (let y = 150; y < 700; y++) {
+      let run = 0;
+      for (let x = 2; x < 1534; x++) {
+        if (d[(y * 1536 + x) * 4] > 90) run++;
+        else {
+          /* Runs of four or more, so the letter's own strokes are counted and
+             the wall's 1 px metre lines and the 2 px corner verticals are not.
+             The glyph strokes at `gh/18`, six pixels at this scale. */
+          /* And TALL: the same column bright eight rows down. The eye line is
+             a full-width run one pixel high, and without this it hands the box
+             the whole frame. */
+          const mid = x - Math.ceil(run / 2);
+          if (run >= 4 && y + 8 < 1024 && d[((y + 8) * 1536 + mid) * 4] > 90) {
+            if (x - run < x0) x0 = x - run;
+            if (x - 1 > x1) x1 = x - 1;
+          }
+          run = 0;
+        }
+      }
+    }
+    return { x0, x1, bandLo: meta.corner_x0_px, bandHi: meta.corner_x1_px };
+  });
+}
+
+/** Ink inside the doorway's own rect on study/E — where the jamb is drawn. */
+async function jambInk(page, root) {
+  await open_(page, root);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, T = window.__T, fx = window.HOLO_FIXTURE;
+    const vs = { location: "study", facing: "E" };
+    const meta = T.metaOf(vs);
+    const a = window.HOLO.renderer.apertures(fx.world, fx.staging, A.library, meta, vs)[0];
+    const c = T.renderDirect(vs, null, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    let n = 0;
+    const x0 = Math.max(0, Math.floor(a.x) - 14), x1 = Math.min(1535, Math.ceil(a.x + a.w) + 14);
+    const y0 = Math.max(0, Math.floor(a.y) - 14), y1 = Math.min(1023, Math.ceil(a.y + a.h) + 4);
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) if (d[(y * 1536 + x) * 4] > 60) n++;
+    }
+    return n;
   });
 }
 
@@ -909,18 +1052,26 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
    * invisible as a mechanism added without a case. */
   const declared = new Set(MECHANISMS);
   const seen = new Set();
-  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs"]) {
+  /* ROW 20 EXTENDS THE SCAN. Row 18 is the row that makes it read every emit
+     site; until it lands this reads the two validators AND the two tools row
+     20's own document-side clauses emit from, which is every token this row
+     mints outside the renderer. The renderer's tokens are still covered by
+     `MECHANISMS` plus a registered case and NOT by a source scan — that half
+     stays row 18's, and saying which half is scanned is the point. */
+  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs",
+    "tools/plan-projection.mjs", "tools/bake-fixtures.mjs"]) {
     const src = readFileSync(join(repoRoot, f), "utf8");
-    for (const m of src.matchAll(/\[row11:([a-z_.]+)\]/g)) seen.add(m[1]);
+    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) seen.add(m[1]);
   }
   expect([...seen].filter((n) => !declared.has(n)).sort(), "emitted but undeclared").toEqual([]);
   /* And each token tags exactly ONE emit site, so a case that names a clause
    * is naming one arm — the first ledger let `meta.camera_pairing` tag four
    * and exercised one, which is the failure this file exists to prevent. */
-  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs"]) {
+  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs",
+    "tools/plan-projection.mjs", "tools/bake-fixtures.mjs"]) {
     const src = readFileSync(join(repoRoot, f), "utf8");
     const counts = {};
-    for (const m of src.matchAll(/\[row11:([a-z_.]+)\]/g)) counts[m[1]] = (counts[m[1]] || 0) + 1;
+    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) counts[m[1]] = (counts[m[1]] || 0) + 1;
     for (const [name, n] of Object.entries(counts)) {
       expect(n, `${name} tags ${n} emit sites in ${f} — one token, one arm`).toBe(1);
     }

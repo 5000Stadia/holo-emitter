@@ -655,7 +655,27 @@ export function validatePlan(plan, world, records) {
        * are named as its first honest use. `standpoint_source` says which,
        * and the K rule is checked only where the plan claims it. */
       const src = fc.standpoint_source || "rule";
-      if (src !== "rule" && src !== "threshold" && src !== "drawn") {
+      /* PRECEDENCE, and it is load-bearing: a standpoint inside masonry is
+       * reported as THAT and nothing else. The alternative is two findings for
+       * one fault — "you are standing in the hearth" and "you are not where
+       * the law puts you" — and a ledger case that can isolate neither. Same
+       * shape as the harness's unknown-check-runs-first. */
+      let inMasonry = null;
+      for (const o of standpointObstructions(plan, r)) {
+        if (fc.standpoint && fc.standpoint.x >= o.rect.x0 - 1e-9 && fc.standpoint.x <= o.rect.x1 + 1e-9 &&
+            fc.standpoint.y >= o.rect.y0 - 1e-9 && fc.standpoint.y <= o.rect.y1 + 1e-9) { inMasonry = o; break; }
+      }
+      if (inMasonry) {
+        /* HARD for a standpoint an agent computed, a WARNING for one the
+         * drawing carries. A warning is for something a human approved and an
+         * agent may not change; `threshold` standpoints are this row's own
+         * arithmetic, so an absurdity in one is a defect. */
+        if (src === "threshold") {
+          push(`room "${r.id}" facing ${f}: the threshold standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) stands inside ${inMasonry.kind} — a viewer stands on floor the room has left, not in its masonry [row20:plan.standpoint_clear]`);
+        } else {
+          standpointWarnings.push(`room "${r.id}" facing ${f}: the ${src} standpoint stands inside ${inMasonry.kind} — it is on the approved drawing, so it is reported rather than moved`);
+        }
+      } else if (src !== "rule" && src !== "threshold" && src !== "drawn") {
         push(`room "${r.id}" facing ${f}: standpoint_source ${JSON.stringify(src)} is not "rule", "threshold" or "drawn" [row20:plan.standpoint_source]`);
       } else if (src !== "drawn") {
         /* THE STANDPOINT LAW (row 20). `rule` and `threshold` are both
@@ -667,28 +687,9 @@ export function validatePlan(plan, world, records) {
          * checked only for its measured distance, as before. */
         const want = standpointFor(plan, r, f, K, C);
         if (want.source !== src) {
-          push(`room "${r.id}" facing ${f}: standpoint_source "${src}" but the law puts it at the "${want.source}" standpoint — a ${fc.wall_width_m} m wall ${wallFitsFrame(fc.wall_width_m, measuredDistance(ruleStandpoint(r.rect, f, K), f, geo.wallLine)) ? "fits" : "does not fit"} the frame from the drawn standpoint; mark it standpoint_source "drawn" if it is deliberate [row20:plan.standpoint_source]`);
+          push(`room "${r.id}" facing ${f}: standpoint_source "${src}" but the law puts it at the "${want.source}" standpoint — a ${fc.wall_width_m} m wall ${wallFitsFrame(fc.wall_width_m, measuredDistance(ruleStandpoint(r.rect, f, K), f, geo.wallLine)) ? "fits" : "does not fit"} the frame from the drawn standpoint; mark it standpoint_source "drawn" if it is deliberate [row20:plan.standpoint_branch]`);
         } else if (Math.abs(fc.standpoint.x - want.point.x) > 1e-9 || Math.abs(fc.standpoint.y - want.point.y) > 1e-9) {
           push(`room "${r.id}" facing ${f}: standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) is not the "${src}" one (${want.point.x}, ${want.point.y}) — stand-back ${K} of the room's own dimension, threshold clearance ${C} m off the wall behind [row20:plan.standpoint_stands_back]`);
-        }
-      }
-      /* Nobody stands inside masonry. The threshold law walks standpoints into
-       * the deep interior of rooms, where hearths and stair flights are, and
-       * four of the manor's would have landed inside one. */
-      for (const o of standpointObstructions(plan, r)) {
-        if (fc.standpoint.x >= o.rect.x0 - 1e-9 && fc.standpoint.x <= o.rect.x1 + 1e-9 &&
-            fc.standpoint.y >= o.rect.y0 - 1e-9 && fc.standpoint.y <= o.rect.y1 + 1e-9) {
-          /* HARD for a standpoint an agent computed, a WARNING for one the
-           * drawing carries. The distinction is the one row 11 paid for on the
-           * desk in the hearth: a warning is for something a human approved and
-           * an agent may not change, and `rule`/`drawn` standpoints are on the
-           * sheet Kabe signed. `threshold` standpoints are this row's own
-           * arithmetic, so an absurdity in one is a defect, not a question. */
-          if (src === "threshold") {
-            push(`room "${r.id}" facing ${f}: the threshold standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) stands inside ${o.kind} — a viewer stands on floor the room has left, not in its masonry [row20:plan.standpoint_clear]`);
-          } else {
-            standpointWarnings.push(`room "${r.id}" facing ${f}: the ${src} standpoint stands inside ${o.kind} — it is on the approved drawing, so it is reported rather than moved`);
-          }
         }
       }
       /* Law (a), always: the printed number IS the measured distance from the

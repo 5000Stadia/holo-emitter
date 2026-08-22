@@ -23,7 +23,7 @@ import { validate } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
 import {
   stagingDivergence, assertCameraConsistent, assertRuledEye, assertRuledLens,
-  metaForFacing, FOCAL_PX
+  metaForFacing
 } from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -173,19 +173,12 @@ let plan;
   for (const loc of parsed.world.locations || []) {
     for (const f of loc.facings || []) {
       const m = metaForFacing(plan, loc.id, f);
-      /* ONE LENS, refused at the bake. Row 20 pins f = 1024 px and the whole
-       * row exists because a scale pinned across standpoint distances put a
-       * different lens on every facing — 187 px to 2014 px across the manor,
-       * which is what made every direction of the study read as a corridor.
-       * A meta whose focal length is not the ruled one may not ship. The
-       * tolerance is relative and small: `camera_wall_m` is stored at the
-       * drawn two decimals, so the product is FOCAL_PX up to that rounding
-       * and up to floating point, and nothing else. */
-      const focal = m.px_per_m_at_wall * (m.camera_wall_m ?? m.camera_far_m);
-      if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX < 1e-9)) {
-        console.error(`bake refused: ${loc.id}/${f} derives a meta on a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (blueprint §10) — one lens per room, and per manor [row20:bake.refuses_foreign_lens]`);
-        process.exit(1);
-      }
+      /* ONE LENS is refused by `tools/validate-fixtures.mjs`'s
+       * `meta.one_lens`, which the bake runs over exactly these metas before
+       * it writes anything — so a second check here would be a mechanism no
+       * case could measure on its own, which this project narrows rather than
+       * widens. What the bake DOES own is the binding to blueprint §10's
+       * [HUMAN] field: `assertRuledLens`, above, beside `assertRuledEye`. */
       metas[`${loc.id}/${f}`] = m;
     }
   }

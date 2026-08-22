@@ -2,6 +2,7 @@
   "study/N": {
     "facing": "study/N",
     "src": "backdrops/source/study-N/cand-2.png",
+    "cfg_calib": "fireplace",
     "measured": {
       "wall_ceiling_line_y_px": 81,
       "wall_floor_line_y_px": 777,
@@ -395,17 +396,17 @@
       }
     ],
     "corner_ref_strength": 70.4,
-    "corner_vertical_edge_x0": 125,
-    "corner_vertical_edge_x1": 1405,
+    "corner_vertical_edge_x0": 139,
+    "corner_vertical_edge_x1": 1390,
     "ceiling_ramp_vp": {
-      "x": 747.4,
-      "y": 334.3,
-      "left_slope": 0.4444,
-      "right_slope": -0.4199,
-      "left_n": 128,
-      "left_resid_px": 12.3,
-      "right_n": 124,
-      "right_resid_px": 11.96
+      "x": 757.8,
+      "y": 524.4,
+      "left_slope": 0.7262,
+      "right_slope": -0.7078,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29
     },
     "votes": {
       "floor": {
@@ -424,17 +425,20 @@
         "edge_px": 1675
       }
     },
-    "calib_px": 208,
-    "ppm": 231.11111111111111,
+    "calib_px": 209,
+    "ppm": 232.22222222222223,
     "derived": {
-      "eye_height_m": 1.2072115384615385,
-      "storey_height_m": 3.0115384615384615,
-      "px_per_m_at_bottom": 435.7148546395858,
-      "nearest_visible_floor_m": 2.3501608657502198,
-      "implied_camera_wall_m": 4.430769230769231,
-      "implied_wall_width_m": 5.395673076923077
+      "eye_height_m": 1.2014354066985646,
+      "storey_height_m": 2.9971291866028706,
+      "px_per_m_at_bottom": 437.8096375945838,
+      "nearest_visible_floor_m": 2.3389160769188786,
+      "implied_camera_wall_m": 4.40956937799043,
+      "implied_wall_width_m": 5.369856459330143
     },
     "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 451,
+      "key_dir_brightest_y": 696,
       "key_tint": "#c89663",
       "key_tint_patch": [
         251,
@@ -508,6 +512,7 @@
   "study/E": {
     "facing": "study/E",
     "src": "backdrops/source/study-E/cand-1.png",
+    "cfg_calib": "door_h",
     "measured": {
       "wall_ceiling_line_y_px": 110,
       "wall_floor_line_y_px": 778,
@@ -905,17 +910,17 @@
       }
     ],
     "corner_ref_strength": 61.1,
-    "corner_vertical_edge_x0": 154,
-    "corner_vertical_edge_x1": 1382,
+    "corner_vertical_edge_x0": 168,
+    "corner_vertical_edge_x1": 1367,
     "ceiling_ramp_vp": {
-      "x": 752.0,
-      "y": 536.2,
-      "left_slope": 0.7395,
-      "right_slope": -0.7008,
-      "left_n": 140,
-      "left_resid_px": 0.31,
-      "right_n": 147,
-      "right_resid_px": 0.32
+      "x": 749.8,
+      "y": 536.6,
+      "left_slope": 0.7428,
+      "right_slope": -0.6991,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29
     },
     "votes": {
       "floor": {
@@ -945,6 +950,9 @@
       "implied_wall_width_m": 5.080851063829787
     },
     "light": {
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1525,
+      "key_dir_brightest_y": 996,
       "key_tint": "#c88f5e",
       "key_tint_patch": [
         1325,
@@ -1033,6 +1041,7 @@
   "study/S": {
     "facing": "study/S",
     "src": "backdrops/source/study-S/cand-1.png",
+    "cfg_calib": "dado",
     "measured": {
       "wall_ceiling_line_y_px": 103,
       "wall_floor_line_y_px": 731,
@@ -1423,17 +1432,17 @@
       }
     ],
     "corner_ref_strength": 60.1,
-    "corner_vertical_edge_x0": 164,
-    "corner_vertical_edge_x1": 1369,
+    "corner_vertical_edge_x0": 178,
+    "corner_vertical_edge_x1": 1357,
     "ceiling_ramp_vp": {
-      "x": 770.5,
-      "y": 504.1,
-      "left_slope": 0.6838,
-      "right_slope": -0.6918,
-      "left_n": 139,
-      "left_resid_px": 0.37,
-      "right_n": 134,
-      "right_resid_px": 0.29
+      "x": 774.4,
+      "y": 503.3,
+      "left_slope": 0.6784,
+      "right_slope": -0.6949,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.3
     },
     "votes": {
       "floor": {
@@ -1463,6 +1472,9 @@
       "implied_wall_width_m": 5.979661016949152
     },
     "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 774,
+      "key_dir_brightest_y": 242,
       "key_tint": "#c8a88e",
       "key_tint_patch": [
         574,
@@ -1497,6 +1509,7 @@
   "study/W": {
     "facing": "study/W",
     "src": "backdrops/source/study-W/cand-1.png",
+    "cfg_calib": "dado",
     "measured": {
       "wall_ceiling_line_y_px": 82,
       "wall_floor_line_y_px": 777,
@@ -1887,17 +1900,17 @@
       }
     ],
     "corner_ref_strength": 56.0,
-    "corner_vertical_edge_x0": 125,
-    "corner_vertical_edge_x1": 1402,
+    "corner_vertical_edge_x0": 142,
+    "corner_vertical_edge_x1": 1387,
     "ceiling_ramp_vp": {
-      "x": 724.8,
-      "y": 336.8,
-      "left_slope": 0.4633,
-      "right_slope": -0.4134,
-      "left_n": 125,
-      "left_resid_px": 11.78,
-      "right_n": 138,
-      "right_resid_px": 11.98
+      "x": 767.9,
+      "y": 531.5,
+      "left_slope": 0.7239,
+      "right_slope": -0.7345,
+      "left_n": 61,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.29
     },
     "votes": {
       "floor": {
@@ -1927,6 +1940,9 @@
       "implied_wall_width_m": 5.227570093457944
     },
     "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 10,
+      "key_dir_brightest_y": 992,
       "key_tint": "#c8986f",
       "key_tint_patch": [
         0,
@@ -1961,11 +1977,12 @@
   "hall/N": {
     "facing": "hall/N",
     "src": "backdrops/source/passage-N/cand-1.png",
+    "cfg_calib": "dado",
     "measured": {
       "wall_ceiling_line_y_px": 64,
       "wall_floor_line_y_px": 812,
-      "horizon_y_px": 395,
-      "horizon_x_px": 782,
+      "horizon_y_px": 425,
+      "horizon_x_px": 776,
       "corner_x0_px": null,
       "corner_x1_px": null,
       "dado_rail_top_y_px": 582,
@@ -2358,24 +2375,22 @@
         "x": 776,
         "y": 425,
         "edge_px": 28450
-      },
-      "ceiling": {
-        "x": 810,
-        "y": 252,
-        "edge_px": 5905
       }
     },
     "calib_px": 230,
     "ppm": 255.55555555555554,
     "derived": {
-      "eye_height_m": 1.6317391304347826,
+      "eye_height_m": 1.5143478260869565,
       "storey_height_m": 2.9269565217391307,
-      "px_per_m_at_bottom": 385.47828403943515,
-      "nearest_visible_floor_m": 2.6564401741895347,
+      "px_per_m_at_bottom": 395.54981337927074,
+      "nearest_visible_floor_m": 2.588801625898236,
       "implied_camera_wall_m": 4.006956521739131,
       "implied_wall_width_m": null
     },
     "light": {
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1374,
+      "key_dir_brightest_y": 10,
       "key_tint": "#c8b6a2",
       "key_tint_patch": [
         1174,
@@ -2410,6 +2425,7 @@
   "hall/E": {
     "facing": "hall/E",
     "src": "backdrops/source/passage-E/cand-1.png",
+    "cfg_calib": "dado",
     "measured": {
       "wall_ceiling_line_y_px": 237,
       "wall_floor_line_y_px": 677,
@@ -2800,17 +2816,17 @@
       }
     ],
     "corner_ref_strength": 38.9,
-    "corner_vertical_edge_x0": 610,
-    "corner_vertical_edge_x1": 926,
+    "corner_vertical_edge_x0": 581,
+    "corner_vertical_edge_x1": 951,
     "ceiling_ramp_vp": {
-      "x": 767.0,
-      "y": 258.4,
-      "left_slope": 0.2916,
-      "right_slope": -0.3024,
-      "left_n": 143,
-      "left_resid_px": 22.95,
-      "right_n": 146,
-      "right_resid_px": 24.68
+      "x": 771.4,
+      "y": 448.8,
+      "left_slope": 1.2026,
+      "right_slope": -1.2599,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.34
     },
     "votes": {
       "floor": {
@@ -2840,6 +2856,9 @@
       "implied_wall_width_m": 2.316176470588235
     },
     "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 769,
+      "key_dir_brightest_y": 316,
       "key_tint": "#c8baa6",
       "key_tint_patch": [
         602,
@@ -2874,11 +2893,12 @@
   "hall/S": {
     "facing": "hall/S",
     "src": "backdrops/source/passage-S/cand-1.png",
+    "cfg_calib": "dado",
     "measured": {
       "wall_ceiling_line_y_px": 46,
       "wall_floor_line_y_px": 880,
-      "horizon_y_px": 450,
-      "horizon_x_px": 785,
+      "horizon_y_px": 503,
+      "horizon_x_px": 796,
       "corner_x0_px": null,
       "corner_x1_px": null,
       "dado_rail_top_y_px": 620,
@@ -3271,24 +3291,22 @@
         "x": 796,
         "y": 503,
         "edge_px": 18357
-      },
-      "ceiling": {
-        "x": 738,
-        "y": 214,
-        "edge_px": 4149
       }
     },
     "calib_px": 260,
     "ppm": 288.88888888888886,
     "derived": {
-      "eye_height_m": 1.4884615384615387,
+      "eye_height_m": 1.3050000000000002,
       "storey_height_m": 2.886923076923077,
-      "px_per_m_at_bottom": 385.63307493540043,
-      "nearest_visible_floor_m": 2.655373894398285,
+      "px_per_m_at_bottom": 399.2337164750957,
+      "nearest_visible_floor_m": 2.564913627639156,
       "implied_camera_wall_m": 3.544615384615385,
       "implied_wall_width_m": null
     },
     "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 152,
+      "key_dir_brightest_y": 10,
       "key_tint": "#c8baa8",
       "key_tint_patch": [
         0,
@@ -3323,6 +3341,7 @@
   "hall/W": {
     "facing": "hall/W",
     "src": "backdrops/source/passage-W/cand-1.png",
+    "cfg_calib": "door_h",
     "measured": {
       "wall_ceiling_line_y_px": 293,
       "wall_floor_line_y_px": 649,
@@ -3721,16 +3740,16 @@
     ],
     "corner_ref_strength": 41.6,
     "corner_vertical_edge_x0": 586,
-    "corner_vertical_edge_x1": 933,
+    "corner_vertical_edge_x1": 934,
     "ceiling_ramp_vp": {
-      "x": 759.3,
-      "y": 473.3,
-      "left_slope": 1.0034,
-      "right_slope": -0.9927,
-      "left_n": 143,
-      "left_resid_px": 0.25,
-      "right_n": 145,
-      "right_resid_px": 0.41
+      "x": 759.9,
+      "y": 476.6,
+      "left_slope": 1.0162,
+      "right_slope": -1.0107,
+      "left_n": 61,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.33
     },
     "votes": {
       "floor": {
@@ -3760,6 +3779,9 @@
       "implied_wall_width_m": 2.713235294117647
     },
     "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 814,
+      "key_dir_brightest_y": 536,
       "key_tint": "#c88953",
       "key_tint_patch": [
         614,

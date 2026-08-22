@@ -94,14 +94,14 @@ export function assertRuledLens(contractPath = join(ROOT, "replicator", "contrac
   try {
     contract = JSON.parse(readFileSync(contractPath, "utf8"));
   } catch (e) {
-    return [`cannot read the orientation contract at ${contractPath} (${e.message}) — it is where blueprint §10's ruled focal length lives [row20:bake.refuses_lens_drift]`];
+    return [`cannot read the orientation contract at ${contractPath} (${e.message}) — it is where blueprint §10's ruled focal length lives`];
   }
   const mm = contract && contract.camera && contract.camera.focal_mm;
   if (mm !== FOCAL_MM) {
     problems.push(`FOCAL_MM is ${FOCAL_MM} but replicator/contract.json camera.focal_mm is ${JSON.stringify(mm)} — blueprint §10 is the [HUMAN] home of that number [row20:bake.refuses_lens_drift]`);
   }
   if (FOCAL_PX !== FOCAL_MM * CANVAS_W / groundplane.FRAME_W_MM) {
-    problems.push(`FOCAL_PX ${FOCAL_PX} is not ${FOCAL_MM} mm on a ${CANVAS_W}px frame of the ${groundplane.FRAME_W_MM}mm format [row20:bake.refuses_lens_drift]`);
+    problems.push(`FOCAL_PX ${FOCAL_PX} is not ${FOCAL_MM} mm on a ${CANVAS_W}px frame of the ${groundplane.FRAME_W_MM}mm format`);
   }
   return problems;
 }

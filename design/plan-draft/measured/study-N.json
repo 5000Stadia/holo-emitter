@@ -4,16 +4,17 @@
   "image_h_px": 1024,
   "floor_line_y": 0.758789,
   "horizon_y": 0.486328,
-  "px_per_m_at_wall": 231.111,
-  "px_per_m_at_bottom": 435.71,
-  "wall_width_m": 5.396,
-  "camera_wall_m": 4.4308,
+  "px_per_m_at_wall": 232.222,
+  "px_per_m_at_bottom": 437.81,
+  "wall_width_m": 5.37,
+  "camera_wall_m": 4.4096,
   "corner_x0_px": 142,
   "corner_x1_px": 1389,
   "key_tint": "#c89663",
-  "key_dir": null,
+  "key_dir": "L-BELOW",
+  "key_dir_reading": "The brightest 21x21 patch sits at (451, 696): left third of the frame, below the measured horizon at y 498. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
   "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m wide at the wall plane",
-  "calibration_px": 208,
+  "calibration_px": 209,
   "calibration_confidence": "MEDIUM-HIGH. 0.90 m is an inference, not a ruling: it is the size at which this opening's 209 px agree with the panelling module and with a 2.8-3.0 m storey. The brief's '~1.4 m' is refuted here exactly as the draft refutes it (1.4 m puts the storey at 4.66 m). A chamber fireplace, not a hall one.",
   "_measured_px": {
     "wall_ceiling_line_y_px": 81,
@@ -422,8 +423,8 @@
   },
   "_corner_evidence": {
     "mid_wall_reference_step_strength": 70.4,
-    "vertical_edge_confirming_x0": 125,
-    "vertical_edge_confirming_x1": 1405
+    "vertical_edge_confirming_x0": 139,
+    "vertical_edge_confirming_x1": 1390
   },
   "_horizon_votes": {
     "per_region": {
@@ -447,25 +448,28 @@
     "adopted_x": 773,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": {
-      "x": 747.4,
-      "y": 334.3,
-      "left_slope": 0.4444,
-      "right_slope": -0.4199,
-      "left_n": 128,
-      "left_resid_px": 12.3,
-      "right_n": 124,
-      "right_resid_px": 11.96
+      "x": 757.8,
+      "y": 524.4,
+      "left_slope": 0.7262,
+      "right_slope": -0.7078,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29
     }
   },
   "_derived": {
-    "eye_height_m": 1.2072,
-    "storey_height_m": 3.0115,
-    "px_per_m_at_bottom": 435.7149,
-    "nearest_visible_floor_m": 2.3502,
-    "implied_camera_wall_m": 4.4308,
-    "implied_wall_width_m": 5.3957
+    "eye_height_m": 1.2014,
+    "storey_height_m": 2.9971,
+    "px_per_m_at_bottom": 437.8096,
+    "nearest_visible_floor_m": 2.3389,
+    "implied_camera_wall_m": 4.4096,
+    "implied_wall_width_m": 5.3699
   },
   "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 451,
+    "key_dir_brightest_y": 696,
     "key_tint": "#c89663",
     "key_tint_patch": [
       251,
@@ -497,6 +501,55 @@
   "_plan": {
     "camera_wall_m": 3.6,
     "wall_width_m": 5.45,
-    "storey_m": 2.8
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 4.35,
+    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 4.35 m for this facing. Nothing measured off the pixels depends on either value."
+  },
+  "_flags": [
+    "The one facing with a prior measurement. _control_vs_study_N_meta_draft is the reproduction test and it passes: ceiling 0 px, floor +1 px, corners -5/+1 px, fireplace opening 0 px, px_per_m_at_wall identical to three decimals. The only material delta is the horizon, +8 px.",
+    "px_per_m_at_wall x implied_wall_width_m = 1247 px, 81 % of the 1536 canvas, not the canvas width - the draft flags this and it is still true. Both corners are in frame, so the corner span IS the u-domain.",
+    "HORIZON, TWO ANSWERS. The vanishing-point vote adopts y 498; the side-wall ceiling junctions, fitted to a residual of 0.30 px over 61 columns each side and intersected, put the principal point at y 524.4. That is a +26 px disagreement, +0.114 m of eye height. Both are measurements of the same frame, so the frame is not internally consistent: its ceiling geometry and its floor/edge statistics do not share a vanishing point. The vote is adopted because it is the method the draft lays down and because it draws on three disjoint regions; the ramp figure is the sharper single number and is recorded so the Navigator can choose.",
+    "IMPLIED FOCAL LENGTH 836 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-18.4 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 3.60 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
+    "EYE HEIGHT 1.201 m against the 1.83 m every prompt asked for (-0.629 m). STOREY 2.997 m against the ruled 2.80 m (+7.0 %). CAMERA 4.41 m from the wall against the plan's 3.60 m (+22.5 %).",
+    "WALL WIDTH 5.37 m from the corner span against the plan's 5.45 m (-1.5 %).",
+    "LIGHT does not read UL45. Brightest 21x21 patch at (451, 696) - left third of the frame, below the measured horizon. Gate (e)'s Sobel bright-side estimator returns 86.8 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is -13.53 on the whole frame and -2.66 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require.",
+    "No doorway is painted on this facing. Checked: the only two openings in the eight are study/E's and hall/W's, which are the two sides of the same door between the study and the cross passage."
+  ],
+  "_control_vs_study_N_meta_draft": {
+    "_why": "study/N cand-2 is the one facing already measured, in design/plan-draft/study-N-meta-draft.json. This pipeline was built without tuning toward those numbers; the deltas below are the evidence that it reads the same pixels the same way, or the evidence that it does not.",
+    "wall_ceiling_line_y_px": {
+      "draft": 81,
+      "measured": 81,
+      "delta": 0
+    },
+    "wall_floor_line_y_px": {
+      "draft": 776,
+      "measured": 777,
+      "delta": 1
+    },
+    "horizon_y_px": {
+      "draft": 490,
+      "measured": 498,
+      "delta": 8
+    },
+    "corner_x0_px": {
+      "draft": 147,
+      "measured": 142,
+      "delta": -5
+    },
+    "corner_x1_px": {
+      "draft": 1388,
+      "measured": 1389,
+      "delta": 1
+    },
+    "fireplace_opening": {
+      "draft": "341..550, 209 px",
+      "measured": "341..550, 209 px",
+      "delta_width_px": 0
+    },
+    "px_per_m_at_wall": {
+      "draft": 232.222,
+      "measured": 232.222
+    }
   }
 }

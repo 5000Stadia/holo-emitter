@@ -16,6 +16,7 @@ import {
   test, expect, appUrl, POINTER_VIEWPORT, MF, stageTree, removeTree, equipContext, bake
 } from "./helpers.mjs";
 import { rmSync, readFileSync, writeFileSync } from "node:fs";
+import { projectPlacement, deriveMeta } from "../../tools/plan-projection.mjs";
 import { join } from "node:path";
 
 test.use({ viewport: POINTER_VIEWPORT });
@@ -401,12 +402,17 @@ async function runScript(page, opts = {}) {
     expect(s.hash, "and is visibly distinct from a closed one").not.toBe(closedHash);
   }
 
-  // right CHEVRON click (W→N) — §12.1's own letter includes chevron clicks.
+  /* Two right CHEVRON clicks (W→N→E) — §12.1's own letter includes chevron
+     clicks, and row 20 moved the passage's furniture to its east end wall:
+     under the ruled lens the passage is 2.60 m deep and its long facings show
+     no floor at all, so nothing can stand on them. */
+  await page.click("#chevron-right");
+  await note();
   await page.click("#chevron-right");
   await note();
   if (opts.assertions) {
     const s = await state(page);
-    expect(s.viewstate).toEqual({ location: "hall", facing: "N" });
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
   }
 
   // take coin
@@ -415,12 +421,15 @@ async function runScript(page, opts = {}) {
   if (opts.assertions) {
     const s = await state(page);
     expect(s.inventory).toEqual(["key1", "coin1"]);
-    // The scene-side half witnessed too: post-take hall/N equals the
+    // The scene-side half witnessed too: post-take hall/E equals the
     // same-run coin1-deleted render (the unclipped on-relation removal).
     expect(s.hash).toBe(await doctoredHash(page, ["coin1"]));
   }
 
-  // back to W; go through the still-open door
+  // back to W (E → N → W, two steps since the furniture moved to hall/E);
+  // go through the still-open door
+  await page.keyboard.press("ArrowLeft");
+  await note();
   await page.keyboard.press("ArrowLeft");
   await note();
   await clickDoorway(page);
@@ -896,16 +905,44 @@ test.describe("the page under ordinary clumsiness", () => {
     /* ALIGNED, deliberately, which is the whole point of the fixture: the
        gallery door has to sit under the same screen x as the study door, so
        that the second click of a double-click resolves to a DIFFERENT
-       doorway. Row 11 made that alignment something to compute rather than
-       something to get for free — the study's door stands 1.1 m off its wall
-       centre (the approved drawing) and the cross passage's east wall is only
-       2.60 m wide, so u 0.5 on both no longer puts them at the same x. At
-       u 0.80 the gallery door spans 799.7–886.1 and contains the study door's
-       centre at 873.6, with its own right edge inside the corner at 892.8.
-       If either room's geometry moves, the click lands on bare wall and this
-       test fails loudly rather than passing for the wrong reason. */
+       doorway.
+
+       ROW 20 made that alignment impossible where row 11 left it, and the
+       reason is the lens. The study's east wall is 4.80 m and the passage's
+       west wall 2.60 m; under the pinned scale both drew at 96 px/m and the
+       study's door at u 0.729 sat at x 874, comfortably inside the passage's
+       249 px of wall. Under the pinned lens the study's wall draws at 250 px/m
+       and the passage's end wall at 171 px/m, so the study's door centre moves
+       to x 1043 while the passage's whole wall ends at x 990: no `u` on the
+       arrival facing can put a doorway under that point.
+
+       So the fixture moves the SHARED OPENING south in the plan — to the
+       southernmost 1.00 m both rooms' walls share — and re-derives both of
+       door1's `u` values from the plan through the shipped projection, which
+       is what keeps the bake's staging-equals-projection check satisfied. The
+       gallery door is then placed at the study door's own aperture centre. All
+       of it computed, none of it typed: a literal here would be a fact about
+       one camera, which is exactly what row 20 is removing from this project. */
+    const plan = JSON.parse(readFileSync(join(fdir, "plan.json"), "utf8"));
+    const opening = plan.openings.find((o) => o.entity === "door1");
+    opening.rect = { ...opening.rect, y0: 11.2, y1: 12.2 };
+    writeFileSync(join(fdir, "plan.json"), JSON.stringify(plan, null, 2) + "\n");
+
+    const uStudy = projectPlacement(plan, "door1", "study", "E").u;
+    const uHall = projectPlacement(plan, "door1", "hall", "W").u;
+    staging.placements.door1 = [
+      { facing: "study/E", attachment: "wall_mounted", u: uStudy, v: 0.0 },
+      { facing: "hall/W", attachment: "wall_mounted", u: uHall, v: 0.0 }
+    ];
+
+    /* Where the study's doorway centre lands in pixels, and the `u` on the
+       arrival facing that puts the gallery's doorway centre at the same x. */
+    const mStudyE = deriveMeta(plan, "study", "E");
+    const mHallE = deriveMeta(plan, "hall", "E");
+    const doorX = 1536 / 2 + (uStudy - 0.5) * mStudyE.wall_width_m * mStudyE.px_per_m_at_wall;
+    const u2 = 0.5 + (doorX - 1536 / 2) / (mHallE.wall_width_m * mHallE.px_per_m_at_wall);
     staging.placements.door2 = [
-      { facing: "hall/E", attachment: "wall_mounted", u: 0.8, v: 0.0 },
+      { facing: "hall/E", attachment: "wall_mounted", u: u2, v: 0.0 },
       { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
     ];
 

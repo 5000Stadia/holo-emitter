@@ -44,18 +44,29 @@ W, H = 1536, 1024
 # The dado-rail module. Four facings carry no feature of known real size, so
 # they are calibrated on the panelling's dado rail. Its height above the floor
 # is measured on the four facings that DO carry a sized feature:
-#     study/N  fireplace 0.90 m wide      -> 213 px / 232.2 px/m = 0.917 m
-#     study/E  door opening 2.00 m tall  -> 207 px / 235.0 px/m = 0.881 m
-#     hall/W   door opening 2.00 m tall  -> 121 px / 136.0 px/m = 0.890 m
-#     hall/E   end-wall span 2.60 m wide -> 135 px / 134.6 px/m = 1.003 m
+#     study/N  fireplace 0.90 m wide      -> 214 px / 232.22 px/m = 0.921 m
+#     study/E  door opening 2.00 m tall  -> 208 px / 235.00 px/m = 0.885 m
+#     hall/W   door opening 2.00 m tall  -> 122 px / 136.00 px/m = 0.897 m
+#     hall/E   end-wall span 2.60 m wide -> 136 px / 134.62 px/m = 1.010 m
 # The first three cluster at 0.88-0.92; the fourth leans on the plan's corridor
 # width applied to the smallest, darkest and least trustworthy of the eight
 # facings. Adopted 0.90 with the full spread stated. This is the least certain
 # number in the run and every facing that leans on it says so.
 DADO_M = 0.90
-DADO_M_RANGE = (0.881, 1.003)
+DADO_M_RANGE = (0.885, 1.010)
 
-# Plan standpoint distances, design/plan-draft/standpoints.tsv (CROSS PASSAGE = hall).
+# Plan standpoint distances as ruled for this measurement run, from
+# design/plan-draft/standpoints.tsv (CROSS PASSAGE = hall).
+#
+# CAUTION, and it is not a rounding matter: standpoints.tsv was REWRITTEN while
+# this run was in progress (commit 385b1db, "the lens pinned, the standpoint
+# law"). Four of these eight moved: study/N 3.60 -> 4.35, study/S 3.60 -> 3.85,
+# hall/N and hall/S 1.95 -> 2.15. The values below are the ones this run was
+# ruled to use; PLAN_NOW records what the file says now, and SUMMARY.md section
+# C reports the implied focal length against BOTH. Nothing measured off the
+# pixels changes either way - only the comparison does.
+PLAN_NOW = {"study/N": 4.35, "study/E": 4.09, "study/S": 3.85, "study/W": 4.09,
+            "hall/N": 2.15, "hall/E": 6.00, "hall/S": 2.15, "hall/W": 6.00}
 PLAN = {
     "study/N": dict(camera_wall_m=3.60, wall_width_m=5.45, storey_m=2.80),
     "study/E": dict(camera_wall_m=4.09, wall_width_m=4.80, storey_m=2.80),
@@ -75,6 +86,10 @@ PLAN = {
 # ---------------------------------------------------------------------------
 CFG = {
  "study/N": dict(
+    notes=[
+        "The one facing with a prior measurement. _control_vs_study_N_meta_draft is the reproduction test and it passes: ceiling 0 px, floor +1 px, corners -5/+1 px, fireplace opening 0 px, px_per_m_at_wall identical to three decimals. The only material delta is the horizon, +8 px.",
+        "px_per_m_at_wall x implied_wall_width_m = 1247 px, 81 % of the 1536 canvas, not the canvas width - the draft flags this and it is still true. Both corners are in frame, so the corner span IS the u-domain.",
+    ],
     src="backdrops/source/study-N/cand-2.png",
     floor_window=(770, 786),
     ceil_cols=[(300, 1250)], ceil_range=(8, 420),
@@ -99,6 +114,11 @@ CFG = {
     fire_cols=(250, 650), fire_rows=(600, 720)),
 
  "study/E": dict(
+    notes=[
+        "One of the two facings that carry the study<->cross-passage door. The wall-plane opening is 660..874 x 308..778 and that rectangle is the click target for walking through.",
+        "The opening is painted 2.20 : 1 where the plan rules 2 : 1. Whichever ruled dimension is used, the other is then wrong by 9 %.",
+        "The prompt asked for a 4.80 m wall; the corner span implies 5.08 m, +5.9 %.",
+    ],
     src="backdrops/source/study-E/cand-1.png",
     floor_window=(770, 790),
     ceil_cols=[(250, 1300)], ceil_range=(8, 420),
@@ -144,6 +164,11 @@ CFG = {
     door_cols=(560, 1000), door_rows=(280, 820)),
 
  "study/S": dict(
+    notes=[
+        "The least trustworthy scale in the set. No feature of ruled size: the calibration is the panelling module read on the side-wall returns AT the corners, and the module itself is only known to +-7 %.",
+        "The wall-floor line here is at y 731 against y 777 on study/N - 46 px higher for the opposite wall of the same room at the same standpoint. Either this wall is drawn further away or the camera is higher; the derived storey (3.19 m) and camera distance (5.21 m) both say further.",
+        "The only facing of the eight whose brightest patch is above the horizon AND near the frame centre: the three window bays are the key, exactly as briefed.",
+    ],
     src="backdrops/source/study-S/cand-1.png",
     floor_window=(724, 740),
     ceil_cols=[(250, 1300)], ceil_range=(8, 420),
@@ -154,12 +179,16 @@ CFG = {
                "AT the corner columns (the south wall itself is glazed and "
                "carries no rail), taken at %.2f m above the floor line" % DADO_M),
     calib_conf=("LOW. Two compounding weaknesses: the assumed module is only "
-                "known to +-7 %% (0.887-1.008 m across the four facings that "
+                "known to +-7 %% (0.885-1.010 m across the four facings that "
                 "carry a sized feature), and on this facing the rail has to be "
                 "read on the returns rather than on the wall plane, where the "
                 "step is weak (strength 5.6 against 43.9 on study/N).")),
 
  "study/W": dict(
+    notes=[
+        "The brief asked for a 4.80 m wall. The corner span implies 5.23 m and is within 4 px of study/N's 1247 px span for a 5.45 m wall - i.e. the generator drew the west wall the same width as the north wall and ignored the 4.80.",
+        "Ceiling line 82, floor line 777, dado rail 563: all within 2 px of study/N (81, 777, 564). Same room, same camera height, same scale - which is the strongest single piece of evidence in the set that the study's four facings were meant to agree.",
+    ],
     src="backdrops/source/study-W/cand-1.png",
     floor_window=(770, 790),
     ceil_cols=[(300, 1300)], ceil_range=(8, 420),
@@ -171,13 +200,18 @@ CFG = {
                "else." % DADO_M),
     calib_conf=("MEDIUM-LOW in the assumed module (+-7 %%), but the READING is "
                 "clean (step strength 45.1, horizontality 1.00). Independent "
-                "support: this facing's ceiling line (82), floor line (779) and "
-                "rail (564) are within 2 px of study/N's (81, 777, 564), so the "
-                "same room drawn at the same scale; study/N's fireplace "
-                "calibration would give 232.2 px/m against the 226.3 adopted "
-                "here, a 2.5 %% spread.")),
+                "support: this facing's ceiling line (82), floor line (777) and "
+                "rail (563) are within 1 px of study/N's (81, 777, 563), so the "
+                "same room at the same scale; carrying study/N's fireplace "
+                "calibration across gives 232.2 px/m against the 237.8 adopted "
+                "here, a 2.4 %% spread, which is the honest error bar.")),
 
  "hall/N": dict(
+    notes=[
+        "No corner in frame in either direction, as the prompt demanded ('Do NOT invent or squeeze room corners into frame'). corner_x0_px and corner_x1_px are null and implied_wall_width_m cannot be computed. Obeyed.",
+        "But the camera did not obey. The prompt put it 1.95 m from the wall; the measured scale puts it at 4.01 m. The panelling module measures 230 px here against 213 px on study/N, whose camera is 4.41 m away - if the camera really were at 1.95 m the module would be more than twice study/N's.",
+        "Only one region could vote for the horizon: with no corners there are no side-wall bands, and the ceiling band of a flat transverse view is featureless plaster with nothing in it that converges. The floor is the whole vote and the number is correspondingly softer.",
+    ],
     src="backdrops/source/passage-N/cand-1.png",
     floor_window=(802, 822),
     ceil_cols=[(200, 1300)], ceil_range=(8, 420),
@@ -190,6 +224,11 @@ CFG = {
     calib_conf="MEDIUM-LOW in the module (+-7 %); the reading is clean (41.0, horizontality 0.99)."),
 
  "hall/E": dict(
+    notes=[
+        "The far end wall is 350 px of a 1536 px frame. Every number for this facing is read off that small, dark, distant patch and none of it is as firm as the study's.",
+        "The end wall's corner span implies a 2.32 m corridor against the plan's 2.60, while hall/W's implies 2.71 m. The two axial views of the same corridor disagree about its width by 0.40 m, 16 %.",
+        "The end window is the only feature. No size is ruled for it, so it is measured and reported but not used as a ruler.",
+    ],
     src="backdrops/source/passage-E/cand-1.png",
     floor_window=(664, 692),
     ceil_cols=[(610, 930)], ceil_range=(80, 420),
@@ -208,6 +247,11 @@ CFG = {
     win_cols=(690, 830), win_rows=(280, 660)),
 
  "hall/S": dict(
+    notes=[
+        "No corner in frame, as demanded. Same single-region horizon vote as hall/N.",
+        "The tapestry is drawn as instructed - flat, no rod, no fringe - and it covers the dado rail across the middle third, which is why the rail's horizontality only reaches 0.76 here.",
+        "The only facing of the eight that reads UPPER-LEFT: brightest patch at (152, 10), left third and far above the horizon, and the left-third-minus-right-third luminance is +25.9, the largest positive tilt in the set. The sprite contract's UL45 would sit correctly in this frame and in no other.",
+    ],
     src="backdrops/source/passage-S/cand-1.png",
     floor_window=(870, 892),
     ceil_cols=[(200, 1300)], ceil_range=(8, 420),
@@ -222,6 +266,11 @@ CFG = {
                 "so the horizontality only reaches 0.76.")),
 
  "hall/W": dict(
+    notes=[
+        "The second of the two door facings. The wall-plane opening is 698..825 x 377..649 and that rectangle is the click target.",
+        "Side walls are unbroken, exactly one opening, centred in the end wall - the prompt's hardest constraint, obeyed.",
+        "Storey height 2.62 m is the lowest of the eight and 0.30 m below the set mean; the implied camera distance 7.53 m is the largest and 1.53 m beyond the plan's 6.00 m standpoint. This facing is drawn from further back than it was asked for.",
+    ],
     src="backdrops/source/passage-W/cand-1.png",
     floor_window=(638, 662),
     ceil_cols=[(590, 935)], ceil_range=(80, 420),
@@ -375,17 +424,23 @@ def find_corners(L, ceil_y, win=4, run=10, frac=0.25, halfref=100):
     return scan(-1), scan(1), ref, f
 
 
-def confirm_corner_edge(L, x, ceil_y, floor_y, span=18):
-    """Second witness for a corner: the strongest vertical edge within +-span
-    of the x the ceiling line gave, measured over the wall's own height."""
+def confirm_corner_edge(L, x, ceil_y, floor_y, span=12):
+    """Second witness for a corner: the strongest vertical edge within +-12 px
+    of the x the ceiling line gave, measured over the UPPER wall only (the 380
+    rows below the ceiling line), where nothing but the corner itself runs
+    vertically. Read over the whole wall height instead and the fireplace jambs,
+    door cases and panel stiles compete with it."""
     if x is None:
         return None
     a, b = max(1, x - span), min(W - 1, x + span)
-    xs, d = col_step_profile(L, a, b, ceil_y + 20, floor_y - 20)
+    r0, r1 = ceil_y + 20, min(floor_y - 20, ceil_y + 400)
+    if r1 - r0 < 60:
+        r0, r1 = ceil_y + 10, floor_y - 10
+    xs, d = col_step_profile(L, a, b, r0, r1)
     return int(xs[int(np.argmax(d))])
 
 
-def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=150):
+def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64):
     """Independent, well-conditioned cross-check on the horizon.
 
     The side walls meet the ceiling along lines that run parallel to the view
@@ -403,12 +458,19 @@ def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=150):
         if len(xs) < 25:
             return None
         yv = ys[np.argmax(D[lo - 1:hi, x0:x1 + 1], axis=0)].astype(float)
+        # Drop columns whose argmax is pinned to the search window's own edge:
+        # past the frame top the junction has left the image and the argmax
+        # clamps, which would otherwise drag the fitted slope.
+        keep = (yv > max(lo + 2, 6)) & (yv < hi - 2)
+        xs, yv = xs[keep], yv[keep]
+        if len(xs) < 25:
+            return None
         A = None
         for _ in range(6):
             A = np.polyfit(xs, yv, 1)
             r = yv - np.polyval(A, xs)
-            s = max(float(r.std()), 0.8)
-            k = np.abs(r) < 2.5 * s
+            sd = max(float(r.std()), 0.6)
+            k = np.abs(r) < 2.5 * sd
             if k.sum() < 20:
                 break
             xs, yv = xs[k], yv[k]
@@ -434,7 +496,11 @@ def horizon_votes(L, ceil_y, floor_y, cx0, cx1):
     yy, xx = np.mgrid[0:H, 0:W]
     regions = {}
     regions["floor"] = yy > floor_y + 13
-    regions["ceiling"] = yy < max(4, ceil_y - 7)
+    if cx0 is not None or cx1 is not None:
+        regions["ceiling"] = yy < max(4, ceil_y - 7)
+    # else: the ceiling band of a cornerless wall-band view is flat plaster with
+    # no line in it that converges on anything. It is not voted; saying "no
+    # region" is honest where saying "252" would not be.
     if cx0 is not None or cx1 is not None:
         side = np.zeros((H, W), bool)
         if cx0 is not None:
@@ -508,9 +574,13 @@ def light(rgb, L, ceil_y, floor_y, cx0, cx1):
         patch_mean(rgb, (cx0 or 0) + 40, (cx0 or 0) + 220, my - 60, my + 60))[0]
     alts["brightest_21x21_patch"] = normalise_tint(
         patch_mean(rgb, bx - 10, bx + 10, by - 10, by + 10))[0]
+    third = W / 3.0
+    hpos = "L" if bx < third else ("R" if bx > 2 * third else "C")
     wall = np.zeros((H, W), bool)
     wall[ceil_y + 10:floor_y - 10, (cx0 or 0) + 10:(cx1 or W - 1) - 10] = True
     return dict(
+        key_dir_measured=hpos,
+        key_dir_brightest_x=bx, key_dir_brightest_y=by,
         key_tint=tint,
         key_tint_patch=[a, b, lo, hi],
         key_tint_patch_mean_rgb=[round(v, 2) for v in ceil_mean],
@@ -588,7 +658,7 @@ def measure(fac):
 
     lt = light(rgb, L, ceil_y, floor_y, cx0, cx1)
 
-    return dict(facing=fac, src=cfg["src"], cfg=cfg, measured=m,
+    return dict(facing=fac, src=cfg["src"], cfg=cfg, cfg_calib=cfg["calib"], measured=m,
                 ceil_cands=ceil_cands, floor_cands=floor_cands,
                 rail_cands=rail_cands,
                 corner_ref_strength=round(cref, 1),
@@ -674,6 +744,74 @@ HOW = {
 }
 
 
+def flags(fac, r):
+    m, d = r["measured"], r["derived"]
+    out = list(r["cfg"]["notes"])
+    ramp = r["ceiling_ramp_vp"]
+    if ramp:
+        out.append(
+          "HORIZON, TWO ANSWERS. The vanishing-point vote adopts y %d; the "
+          "side-wall ceiling junctions, fitted to a residual of %.2f px over "
+          "%d columns each side and intersected, put the principal point at y "
+          "%.1f. That is a %+d px disagreement, %+.3f m of eye height. Both are "
+          "measurements of the same frame, so the frame is not internally "
+          "consistent: its ceiling geometry and its floor/edge statistics do "
+          "not share a vanishing point. The vote is adopted because it is the "
+          "method the draft lays down and because it draws on three disjoint "
+          "regions; the ramp figure is the sharper single number and is "
+          "recorded so the Navigator can choose." % (
+            m["horizon_y_px"], ramp["left_resid_px"], ramp["left_n"], ramp["y"],
+            int(round(ramp["y"] - m["horizon_y_px"])),
+            (ramp["y"] - m["horizon_y_px"]) / r["ppm"]))
+    f = r["ppm"] * PLAN[fac]["camera_wall_m"]
+    out.append(
+      "IMPLIED FOCAL LENGTH %.0f px against the 1024 px a 24 mm-equivalent lens "
+      "on a 1536 px frame would give (%+.1f %%). px_per_m_at_wall x "
+      "implied_camera_wall_m is 1024 by construction, so this is "
+      "px_per_m_at_wall x THE PLAN'S standpoint of %.2f m for this facing - "
+      "i.e. how far the drawn camera is from where the plan stands it, "
+      "expressed as a lens." % (f, 100 * (f - 1024) / 1024,
+                                PLAN[fac]["camera_wall_m"]))
+    out.append(
+      "EYE HEIGHT %.3f m against the 1.83 m every prompt asked for (%+.3f m). "
+      "STOREY %.3f m against the ruled 2.80 m (%+.1f %%). CAMERA %.2f m from "
+      "the wall against the plan's %.2f m (%+.1f %%)." % (
+        d["eye_height_m"], d["eye_height_m"] - 1.83, d["storey_height_m"],
+        100 * (d["storey_height_m"] - 2.80) / 2.80, d["implied_camera_wall_m"],
+        PLAN[fac]["camera_wall_m"],
+        100 * (d["implied_camera_wall_m"] - PLAN[fac]["camera_wall_m"]) / PLAN[fac]["camera_wall_m"]))
+    if d["implied_wall_width_m"]:
+        out.append("WALL WIDTH %.2f m from the corner span against the plan's "
+                   "%.2f m (%+.1f %%)." % (
+                     d["implied_wall_width_m"], PLAN[fac]["wall_width_m"],
+                     100 * (d["implied_wall_width_m"] - PLAN[fac]["wall_width_m"])
+                     / PLAN[fac]["wall_width_m"]))
+    else:
+        out.append("No corner in frame either side, so no implied wall width. "
+                   "The wall runs past both frame edges and none was invented.")
+    lt = r["light"]
+    out.append(
+      "LIGHT does not read UL45. Brightest 21x21 patch at (%d, %d) - %s third "
+      "of the frame, %s the measured horizon. Gate (e)'s Sobel bright-side "
+      "estimator returns %.1f deg on the whole frame against the 115.5 deg a "
+      "constructed UL45 control gives. Left-third-minus-right-third luminance "
+      "is %+.2f on the whole frame and %+.2f on the wall band, against the "
+      "+2.0 that mechanisms.spec.mjs's light clause and gate (e)'s "
+      "min_third_tilt both require." % (
+        lt["key_dir_brightest_x"], lt["key_dir_brightest_y"],
+        {"L": "left", "C": "centre", "R": "right"}[lt["key_dir_measured"]],
+        "above" if lt["key_dir_brightest_y"] < m["horizon_y_px"] else "below",
+        lt["sobel_bright_side_deg_whole_frame"],
+        lt["left_third_minus_right_third_luminance_whole_frame"],
+        lt["left_third_minus_right_third_luminance_wall_band"]))
+    if "opening" not in r["cfg"]:
+        out.append("No doorway is painted on this facing. Checked: the only two "
+                   "openings in the eight are study/E's and hall/W's, which are "
+                   "the two sides of the same door between the study and the "
+                   "cross passage.")
+    return out
+
+
 def main():
     raw = {}
     for fac in FACINGS:
@@ -704,7 +842,20 @@ def main():
           "corner_x0_px": m["corner_x0_px"],
           "corner_x1_px": m["corner_x1_px"],
           "key_tint": r["light"]["key_tint"],
-          "key_dir": None,          # filled below
+          "key_dir": "%s-%s" % (
+              r["light"]["key_dir_measured"],
+              "ABOVE" if r["light"]["key_dir_brightest_y"] < m["horizon_y_px"]
+              else "BELOW"),
+          "key_dir_reading": (
+              "The brightest 21x21 patch sits at (%d, %d): %s third of the "
+              "frame, %s the measured horizon at y %d. This is the honest "
+              "direction; the Sobel and third-tilt statistics beside it in "
+              "_light frequently disagree with it, and where they do the frame "
+              "has two lights." % (
+                  r["light"]["key_dir_brightest_x"], r["light"]["key_dir_brightest_y"],
+                  {"L": "left", "C": "centre", "R": "right"}[r["light"]["key_dir_measured"]],
+                  "above" if r["light"]["key_dir_brightest_y"] < m["horizon_y_px"]
+                  else "below", m["horizon_y_px"])),
           "calibration_ref": cfg["calib_ref"],
           "calibration_px": r["calib_px"],
           "calibration_confidence": cfg["calib_conf"],
@@ -725,8 +876,41 @@ def main():
           "_derived": {k: (round(v, 4) if isinstance(v, float) else v)
                        for k, v in d.items()},
           "_light": r["light"],
-          "_plan": PLAN[fac],
+          "_plan": dict(PLAN[fac],
+                        camera_wall_m_in_standpoints_tsv_now=PLAN_NOW[fac],
+                        _note=("camera_wall_m here is the standpoint this run "
+                               "was ruled to compare against. standpoints.tsv "
+                               "was rewritten mid-run (commit 385b1db) and now "
+                               "says %.2f m for this facing. Nothing measured "
+                               "off the pixels depends on either value."
+                               % PLAN_NOW[fac])),
+          "_flags": flags(fac, r),
         }
+        if fac == "study/N":
+            doc["_control_vs_study_N_meta_draft"] = {
+              "_why": ("study/N cand-2 is the one facing already measured, in "
+                       "design/plan-draft/study-N-meta-draft.json. This pipeline "
+                       "was built without tuning toward those numbers; the "
+                       "deltas below are the evidence that it reads the same "
+                       "pixels the same way, or the evidence that it does not."),
+              "wall_ceiling_line_y_px": {"draft": 81, "measured": m["wall_ceiling_line_y_px"],
+                                         "delta": m["wall_ceiling_line_y_px"] - 81},
+              "wall_floor_line_y_px": {"draft": 776, "measured": m["wall_floor_line_y_px"],
+                                       "delta": m["wall_floor_line_y_px"] - 776},
+              "horizon_y_px": {"draft": 490, "measured": m["horizon_y_px"],
+                               "delta": m["horizon_y_px"] - 490},
+              "corner_x0_px": {"draft": 147, "measured": m["corner_x0_px"],
+                               "delta": m["corner_x0_px"] - 147},
+              "corner_x1_px": {"draft": 1388, "measured": m["corner_x1_px"],
+                               "delta": m["corner_x1_px"] - 1388},
+              "fireplace_opening": {"draft": "341..550, 209 px",
+                                    "measured": "%d..%d, %d px" % (
+                                        m["fireplace_opening_x0_px"],
+                                        m["fireplace_opening_x1_px"],
+                                        m["fireplace_opening_width_px"]),
+                                    "delta_width_px": m["fireplace_opening_width_px"] - 209},
+              "px_per_m_at_wall": {"draft": 232.222, "measured": round(r["ppm"], 3)},
+            }
         json.dump(doc, open(os.path.join(OUT, "%s-%s.json" % (loc, f)), "w"),
                   indent=2)
     json.dump({k: {kk: vv for kk, vv in v.items() if kk != "cfg"}

@@ -3,23 +3,24 @@
   "facing_type": "wall_band",
   "image_h_px": 1024,
   "floor_line_y": 0.792969,
-  "horizon_y": 0.385742,
+  "horizon_y": 0.415039,
   "px_per_m_at_wall": 255.556,
-  "px_per_m_at_bottom": 385.48,
+  "px_per_m_at_bottom": 395.55,
   "wall_width_m": null,
   "camera_wall_m": 4.007,
   "corner_x0_px": null,
   "corner_x1_px": null,
   "key_tint": "#c8b6a2",
-  "key_dir": null,
+  "key_dir": "R-ABOVE",
+  "key_dir_reading": "The brightest 21x21 patch sits at (1374, 10): right third of the frame, above the measured horizon at y 425. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
   "calibration_ref": "the panelling's dado-rail top, taken at 0.90 m above the floor line. This facing is a flat wall band with no opening, no corner and no sized feature of any kind.",
   "calibration_px": 230,
   "calibration_confidence": "MEDIUM-LOW in the module (+-7 %); the reading is clean (41.0, horizontality 0.99).",
   "_measured_px": {
     "wall_ceiling_line_y_px": 64,
     "wall_floor_line_y_px": 812,
-    "horizon_y_px": 395,
-    "horizon_x_px": 782,
+    "horizon_y_px": 425,
+    "horizon_x_px": 776,
     "corner_x0_px": null,
     "corner_x1_px": null,
     "dado_rail_top_y_px": 582,
@@ -427,27 +428,25 @@
         "x": 776,
         "y": 425,
         "edge_px": 28450
-      },
-      "ceiling": {
-        "x": 810,
-        "y": 252,
-        "edge_px": 5905
       }
     },
-    "adopted_y": 395,
-    "adopted_x": 782,
+    "adopted_y": 425,
+    "adopted_x": 776,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": null
   },
   "_derived": {
-    "eye_height_m": 1.6317,
+    "eye_height_m": 1.5143,
     "storey_height_m": 2.927,
-    "px_per_m_at_bottom": 385.4783,
-    "nearest_visible_floor_m": 2.6564,
+    "px_per_m_at_bottom": 395.5498,
+    "nearest_visible_floor_m": 2.5888,
     "implied_camera_wall_m": 4.007,
     "implied_wall_width_m": null
   },
   "_light": {
+    "key_dir_measured": "R",
+    "key_dir_brightest_x": 1374,
+    "key_dir_brightest_y": 10,
     "key_tint": "#c8b6a2",
     "key_tint_patch": [
       1174,
@@ -479,6 +478,18 @@
   "_plan": {
     "camera_wall_m": 1.95,
     "wall_width_m": 8.0,
-    "storey_m": 2.8
-  }
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 2.15,
+    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 2.15 m for this facing. Nothing measured off the pixels depends on either value."
+  },
+  "_flags": [
+    "No corner in frame in either direction, as the prompt demanded ('Do NOT invent or squeeze room corners into frame'). corner_x0_px and corner_x1_px are null and implied_wall_width_m cannot be computed. Obeyed.",
+    "But the camera did not obey. The prompt put it 1.95 m from the wall; the measured scale puts it at 4.01 m. The panelling module measures 230 px here against 213 px on study/N, whose camera is 4.41 m away - if the camera really were at 1.95 m the module would be more than twice study/N's.",
+    "Only one region could vote for the horizon: with no corners there are no side-wall bands, and the ceiling band of a flat transverse view is featureless plaster with nothing in it that converges. The floor is the whole vote and the number is correspondingly softer.",
+    "IMPLIED FOCAL LENGTH 498 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-51.3 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 1.95 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
+    "EYE HEIGHT 1.514 m against the 1.83 m every prompt asked for (-0.316 m). STOREY 2.927 m against the ruled 2.80 m (+4.5 %). CAMERA 4.01 m from the wall against the plan's 1.95 m (+105.5 %).",
+    "No corner in frame either side, so no implied wall width. The wall runs past both frame edges and none was invented.",
+    "LIGHT does not read UL45. Brightest 21x21 patch at (1374, 10) - right third of the frame, above the measured horizon. Gate (e)'s Sobel bright-side estimator returns 97.5 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is -16.52 on the whole frame and -13.04 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require.",
+    "No doorway is painted on this facing. Checked: the only two openings in the eight are study/E's and hall/W's, which are the two sides of the same door between the study and the cross passage."
+  ]
 }
