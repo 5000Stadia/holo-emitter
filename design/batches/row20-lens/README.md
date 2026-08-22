@@ -8,6 +8,11 @@ read.
 
 Placeholder art (V1). Nothing here is judged on finish.
 
+**CAPTURE-SRC 0f98884** — the commit whose `src/` these frames were rendered from. It is machine-read
+by `plan.spec`, which goes red if `src/` moves and the batch does not, because a batch that no longer
+shows what the code draws is worse than no batch: the first version of this one was captured before
+the facing glyph was resized, and every frame in it was a picture of code that had stopped existing.
+
 ---
 
 ## What changed, in one sentence

@@ -1662,6 +1662,27 @@ test.describe("the schematic is a derived render of the plan", () => {
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(APPROVAL_COMMIT);
   });
 
+  /* A BATCH IS AN ARTIFACT OF THE CODE AND NOTHING WAS CHECKING IT. Row 20's
+   * batch was captured, then the facing glyph was resized in a later fix pass,
+   * and every frame Kabe would have opened was a picture of code that had
+   * stopped existing — a two-line change that silently invalidated eleven
+   * images and the blind comparison run on them. This is not a stored golden
+   * (§12.6 forbids those and re-rendering here would be one): it asks git
+   * whether `src/` has moved since the commit the README names, which is the
+   * whole content of "is this batch current". Recapture and update the line. */
+  test("the batch shows what the code draws — CAPTURE-SRC has not been outrun by src/", () => {
+    const dir = join(repoRoot, "design", "batches", "row20-lens");
+    if (!existsSync(dir)) return;                       // the row closed; nothing to check
+    const readme = readFileSync(join(dir, "README.md"), "utf8");
+    const m = readme.match(/CAPTURE-SRC\s+([0-9a-f]{7,40})/);
+    expect(m, "the batch README must name the src commit its frames were rendered from").toBeTruthy();
+    const changed = execFileSync("git", ["diff", "--name-only", m[1], "HEAD", "--", "src/"],
+      { cwd: repoRoot, encoding: "utf8" }).trim();
+    expect(changed,
+      `src/ moved since the batch was captured at ${m[1]} — recapture the batch and update CAPTURE-SRC`)
+      .toBe("");
+  });
+
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {
     for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
       const approved = geometryOnly(approvedBlob(`design/plan-draft/${f}`).toString("utf8"));
