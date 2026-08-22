@@ -563,3 +563,46 @@ no question is a batch nobody can answer: the feet residue (9.1), the two wall-o
 `door1`'s magnified divergence (9.8), the redrawn sheets, and the before/after pairs §7.4 scores.
 Four facings are bare, so their pairs assert composite == backdrop exactly and the batch says so.
 The approved frames join `design/references/` with their V-stage when Kabe's verdict lands.
+
+---
+
+## 14. Revision 3 — what was actually built, and where the row stands
+
+Revision 2 was written before two things arrived: the plan critic's second pass, and the eight
+approved backdrops. Both moved the row, and this section is the difference rather than a rewrite.
+
+**Built and green — 1090 tests, both engines.** The lens is pinned at `FOCAL_PX` 1024 in
+`src/groundplane.js`, bound to §10's `camera.focal_mm` by `assertRuledLens` and refused at the
+bake. Every meta derives its scale from it. The standpoint law is `standpointFor` in
+`tools/validate-plan.mjs`, one home for the validator, the rebuild and the drawing; 42 of the
+manor's 88 standpoints moved, `study/N` to the approved 4.35 m and `hall/E` staying at the
+approved 6.00 m. The wide-view machinery is deleted and the supersession recorded. §12.5 (i) is
+retired with its three ledger mechanisms and replaced by (i′) one lens, (v) the drawn metre module
+measured against the meta, and (vi) corner honesty in both directions. The `+` junction guard
+measures side-wall share and separates 5.6–21.8 % from 71.1 % where the pinned scale had one band
+at 66–84 %. Eight new ledger mechanisms, each with an isolated case, and the completeness scan
+extended to the two tools this row's document-side clauses emit from.
+
+**Corrections the second plan critic forced, each of which was a real error:** `study/S` stands at
+3.85 m, not 4.35 — the chimney breast is behind you on that facing and you cannot back into it, so
+the threshold pulls forward and the law falls back to the drawn standpoint where even that is
+inside masonry; the fit test is *the frame*, not an invented margin, and the five-sixths criterion
+is gone with the need for it; the `~8 px` desk-pool clip and the `chair1` move were both computed
+from a wrong shadow offset and are withdrawn; the residue's claim that lens shift would restore the
+feet was arithmetically impossible and is replaced by the bound that makes it so.
+
+**The painted world is held, and why.** The eight approved backdrops were measured
+(`design/plan-draft/measured/`, re-runnable, control reproducing the row-4 probe's own read). They
+imply **eight different focal lengths, 498 px to 1010 px against the ruled 1024** — the defect this
+row removes, arriving from the asset side. `study/N` lands 1.4 % away, so the approved picture and
+the pinned lens are one camera; the passage's paintings depict a room 4.01 m and 3.54 m deep where
+the plan says 2.60. The Navigator ruled (c): the seven regenerate through the asset seat with the
+camera enforced, `gate.py` is their acceptance gate at ±3 % of 1010 px, and the law is not widened
+to admit the corpus. The three sub-rulings that came with it — the ceiling-ramp horizon, the
+approved camera as the project's, the measured door rectangle as the click target with width ruling
+and aspect warn-only — are applied and in the documents.
+
+**What the row still owes, in order:** the seven regenerated backdrops through the gate; their
+promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
+the doorway-as-a-building-fact that an empty painted room needs to be walkable; the batch of the
+eight painted facings; and Kabe's word, which closes and pushes.
