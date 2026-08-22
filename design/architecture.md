@@ -1295,6 +1295,14 @@ continue toward you and a hard edge where a picture ran out would be a claim nob
 dimmed to 58 % (`THROUGH_DIM` 0.42), which is a look decision made by a constant and goes to Kabe in
 the batch as one.
 
+**What it costs, measured** (unthrottled, through `renderer.render` directly, mean of ten):
+`study/E` with an open door draws in **63.9 ms** against **12.9 ms** with `no_through` — an extra
+full-frame render of the destination, which is exactly what it is. The painted `study/N` draws in
+32.9 ms. Per turn, not per frame, and the page repaints only on a non-empty envelope; the fix if it
+ever matters is the same one the per-entity offscreen canvases want — bound the scratch to the
+rect that is actually used, here the opening rather than the frame. Named rather than optimised,
+because nothing in the shipped page is paced by it.
+
 **A shut door shows no room**: the leaf is a sprite with its own alpha and does not fill its
 placement rectangle to the pixel, so a lit room drawn behind a closed leaf leaks around its edges.
 **`no_through` stops the recursion at one room** — looking through a door never draws the door
@@ -2728,6 +2736,10 @@ Known limits, still open (row 1's list, updated):
   geometry change that nobody intended goes red on the facing it broke. On a row where every frame
   moves for a stated reason, that is the only witness worth having — "every changed pixel changed
   on purpose" discriminates nothing.
+- **Per-turn repaint cost, and row 21 added to it.** A facing with an open doorway now renders the
+  destination room into a full-frame offscreen as well: `study/E` measures 63.9 ms against 12.9 ms
+  with the device off, unthrottled and through `render` directly. Same shape as the bullet below —
+  a full-frame scratch where a rect would do — and the same fix.
 - **Per-turn repaint cost.** `render` allocates two full 1536×1024 offscreen canvases per entity
   per frame (composite, then tint), which measures ≈270 ms at 4× CPU throttling and ≈410 ms at
   6× on the furnished study facing. Row 11 added the returns' line work and two clip paths per
