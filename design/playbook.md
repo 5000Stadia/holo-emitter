@@ -75,6 +75,18 @@ verified 2026-08-18 by the drafting pass; the u/RUSuper route spot-checked live 
   exclusivity, six unnamed mechanisms). Architecture that survived: completeness derived from
   the artifacts that exist, one token per arm, exclusivity asserted — and no closure claim on a
   verification mechanism until an adversary has failed against it.
+- [felt — earned 2026-08-22 (row 20); travels home at close] **A direction gate that shows the
+  human stale pixels is the worst defect this project has named, and the fix is a binding, not
+  care.** Row 20's batch — the eleven frames the row's whole close was gated on — was captured,
+  then two lines in the renderer resized the facing glyph, and every frame silently became a
+  picture of code that no longer ran. A blind comparator scored it and an artifact critic
+  measured it before anyone noticed, so the review budget of two independent passes was spent on
+  a build that did not exist. Nothing could go red: a batch had no relationship to the code at
+  all. What survived: the batch names the commit its frames were rendered from, a test asks the
+  version control whether the rendering inputs have moved past it, and the capture script is
+  committed BESIDE the frames — an artifact nobody can regenerate is not derived, it is just a
+  file. **The artifact a human is asked to rule on must be captured from the exact commit he is
+  ruling on, and something must fail when it is not.**
 - [felt — earned 2026-08-21; travels home at close] **A round flag routed into the builder's own
   transcript is no flag.** Row 3 went two rounds over budget flagging correctly — into its own
   output, where nobody lives. The flag's transport must be named in the brief: a message to the
