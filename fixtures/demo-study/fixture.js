@@ -13,7 +13,7 @@
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "85d58bc1",
+  fp: "9b134818",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -135,7 +135,7 @@ window.HOLO_FIXTURE = {
     "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again.",
     "go.door_study_hall.refused_closed": "The door is shut against you; the latch has not been lifted.",
     "go.door_hall_study.refused_closed": "The way back stands barred; the door wants opening first.",
-    "go.door_study_hall.refused_unreachable": "The way to the hall does not open from where you stand.",
+    "go.door_study_hall.refused_unreachable": "The way to the cross passage does not open from where you stand.",
     "go.door_hall_study.refused_unreachable": "The way to the study is not before you; you must come to it first.",
     "toggle.*.refused_unknown": "Nothing of that description offers itself to your hand.",
     "take.*.refused_unknown": "You reach, and your hand closes on nothing of the sort.",

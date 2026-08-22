@@ -282,7 +282,7 @@ id | surface | state | verdict | observed | adjudicator | string
 55 | #narration | go.door_hall_study.arrive | PASS | yes | row7-artifact-critic | You pass back into the study, where ink and oak dust close about you again.
 56 | #narration | go.door_study_hall.refused_closed | PASS | yes | row7-artifact-critic | The door is shut against you; the latch has not been lifted.
 57 | #narration | go.door_hall_study.refused_closed | PASS | yes | row7-artifact-critic | The way back stands barred; the door wants opening first.
-58 | #narration | go.door_study_hall.refused_unreachable | PASS | yes | row7-artifact-critic | The way to the hall does not open from where you stand.
+58 | #narration | go.door_study_hall.refused_unreachable | PASS | yes | row7-artifact-critic | The way to the cross passage does not open from where you stand.
 59 | #narration | go.door_hall_study.refused_unreachable | PASS | yes | row7-artifact-critic | The way to the study is not before you; you must come to it first.
 60 | #narration | toggle.*.refused_unknown | PASS | yes | row7-artifact-critic | Nothing of that description offers itself to your hand.
 61 | #narration | take.*.refused_unknown | PASS | yes | row7-artifact-critic | You reach, and your hand closes on nothing of the sort.

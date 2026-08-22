@@ -140,6 +140,7 @@ export const MECHANISMS = [
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
+  "renderer.ceiling_reaches_the_frame",
   "renderer.ceiling_clipped_to_the_room"
 ];
 
@@ -622,6 +623,28 @@ test.describe("the clause ledger — renderer mechanisms", () => {
     }
   });
 
+  ledgerCase("renderer.ceiling_reaches_the_frame", async ({ page }) => {
+    /* A surface does not stop where a DIFFERENT surface leaves the frame.
+     * Row 11 ran the ceiling's fan to `px_per_m_at_bottom` — where the FLOOR
+     * goes — and the ceiling stopped 209 px down, leaving the nearest fifth of
+     * the frame with no ceiling in it at all, in the very pair a human is
+     * asked to judge the device by. `renderer.ceiling_lines` measures the
+     * wall-ceiling line and `renderer.ceiling_clipped_to_the_room` measures
+     * the clip; neither can see a surface that is simply short. This measures
+     * the near band. */
+    const dir = stageWithout(
+      "        var sCeil = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);",
+      "        var sCeil = sBottom;");
+    try {
+      const clean = await ceilingInk(page, repoRoot);
+      const broken = await ceilingInk(page, dir);
+      expect(clean.nearBand, "the shipped ceiling reaches the top of frame").toBeGreaterThan(300);
+      expect(clean.nearBand - broken.nearBand, "and stops short without it").toBeGreaterThan(200);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
   ledgerCase("renderer.ceiling_clipped_to_the_room", async ({ page }) => {
     /* The ceiling's own fan is clipped to the room, like the floor's. Row 11
      * shipped it unclipped for a commit: the longitudinals and both
@@ -802,16 +825,17 @@ async function ceilingInk(page, root) {
     const ceilY = meta.floor_line_y * meta.image_h_px - 2.8 * meta.px_per_m_at_wall;
     /* All the ceiling's ink, and the part of it that lands where the room's
        ceiling is not: left of the left corner, above the wall-ceiling line. */
-    let ink = 0, outside = 0;
+    let ink = 0, outside = 0, nearBand = 0;
     for (let y = 4; y < 1020; y++) {
       for (let x = 2; x < 1534; x++) {
         if (d[(y * 1536 + x) * 4] > 60) {
           ink++;
           if (y < ceilY - 4 && x < meta.corner_x0_px - 6) outside++;
+          if (y < 200) nearBand++;   // the nearest fifth of the frame
         }
       }
     }
-    return { ink, outside };
+    return { ink, outside, nearBand };
   });
 }
 

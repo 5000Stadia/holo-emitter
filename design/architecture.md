@@ -637,7 +637,10 @@ from the renderer. It exists because a room bounded left and right and unbounded
 shaft — at the pinned scale the frame holds 6.95 m of wall above the floor line against a c.1660
 storey of 2.6–3.0 m — and whether it SHOULD be drawn is a look decision in the direction package
 (question 2), asked against a rendered pair rather than a paragraph. The ceiling is line work: its
-wall-ceiling line, the two junctions and its own fan, clipped to the room exactly as the floor's are.
+wall-ceiling line, the two junctions, its own fan and its own transverse set, clipped to the room
+exactly as the floor's are and carried to the scale at which the CEILING leaves the frame rather
+than the one at which the floor does — row 11 used the floor's and the ceiling stopped 209 px down,
+leaving the nearest fifth of the frame empty in the pair a human is asked to judge it by.
 It has no plane FILL, and that is the narrowing rather than an omission — the fill was `#080a0e`
 over a void base of `#080b10`, which measured through the real draw path moved nothing a detector
 could name.
@@ -705,15 +708,18 @@ Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for 
   Changing an [AI] adoption, not a [HUMAN] value: §7's grid-canonical list took §5's *example*
   numbers wholesale, and §5's block itself is untouched — it illustrates the schema for meta that
   row 4 measures per backdrop.
-- **Still open, and it is Kabe's**: 16 m of wall in frame at 3.5 m is a ~133° view against §10's
-  `focal_mm: 50` (≈40°). Blueprint **§7's row-2 amendment is the one place grid-canonical meta is
-  stated**, and §5's row-2 note carries the question with its arithmetic, saying per bullet which
-  of §5's example numbers the shipped grid still uses — the two documents disagreed about
-  `wall_width_m` for a while, and a [HUMAN] question stated against numbers that were not
-  shipping is worse than no question. The answer gates a **named quality**, not only row 4's meta
-  authoring: at 96 px/m a 1.3 m desk draws 125 px in a 1536 px frame whatever art row 4 produces,
-  so *standing somewhere, not looking at a diagram* rides on it. Rows 3 and 7 consume nothing
-  from it.
+- **Still open, and it is Kabe's** — restated at row 11, because the 16 m wall it used to be stated
+  against is no facing the demo draws. Per facing now: the study's 5.45 m wall at 3.60 m is a
+  **~131.5°** view, the cross passage's 8.00 m at 1.95 m is **~152.6°**, and its 2.60 m end wall at
+  6.00 m is **~106.3°**, all against §10's `focal_mm: 50` (≈40°). Two consequences row 11 made
+  visible and did not create: turning once in the passage swings the lens 46° and the near floor
+  edge 1.34 m under a viewer who has not moved, so the "facing geometry" half of the
+  camera-has-feet quality is not consistent across a turn; and under the pinned SCALE the corner's
+  x is `768 ± wall_width_m × 96 / 2`, so `camera_wall_m` cancels and two rooms with the same wall
+  at different standpoints get pixel-identical corners — which is not what blueprint §5's [HUMAN]
+  sentence asks for. The answer gates a **named quality**, not only row 4's meta authoring, and it
+  is in the direction package as questions 3, 5 and 6 with rendered frames. Rows 3 and 7 consume
+  nothing from it.
 
 ## Renderer
 
@@ -1103,7 +1109,7 @@ this badly". Furniture an agent inverse-projected is the second kind. So the che
 now (`plan.object_clear_of_carriers`, with `…_of_stairs` and `objects_do_not_share_floor` beside
 it), and the desk moved east along the north wall, clear of the hearth, on the Navigator's ruling
 and under §4's standing licence — **an interim, superseded by Kabe's answer to the direction
-package's question 7.** `chair1` moved with it, and by the amount that KEEPS THE PAIR rather than by
+package's question 6.** `chair1` moved with it, and by the amount that KEEPS THE PAIR rather than by
 the same metres: the two draw at different scales (144 and 113 px/m), so preserving their metre
 offset would have opened their screen gap from 50 px to 118 and broken the authored occlusion chain.
 Both footprints carry their reason on the object. The same paragraph applies to §4b
@@ -1664,17 +1670,18 @@ bounds unreadable over an opaque grid), paint counter (exact no-redraw), open-do
 gate (a swap state must land right, not just differ), body-recess assert, per-step document
 asserts, position checks in heights (a shared `xAtU` bug self-agrees everywhere a test asks the
 code where things are), and the horizon-device clause on feet (a height check reads scale on both
-sides and cannot see a floor that puts feet at the wrong depth). The stick1 staging change
-(`depth_m` 0.9 → 0.4) rides §4's own license: it stands well clear of shelf1 at 0.9 and overlaps
-it at 0.4. It ships at **0.75**, and the reason is composition rather than satisfiability: 0.9
-overlaps too (a note here once said the spans stand clear there, which is false through the
-shipped `groundplane.js`), and at 0.4 the candlestick's base plate sat inside the bookcase plinth
-so the pair demonstrated the mechanism — §12.8's intersecting opaque pixels — without the quality
-it exists for. At 0.75 it stands on the floor in front of the case with its upper body crossing
-it: column-before-building. Row 4's real asset needs only h ≥ ~0.11 m.
+sides and cannot see a floor that puts feet at the wrong depth). The stick1 staging change rides §4's own
+license, and its value has moved twice. Row 2 tried 0.9 (clear of shelf1 through the shipped
+`groundplane.js` — a note here once said otherwise and was wrong) and 0.4 (base plate inside the
+bookcase plinth: the mechanism without the quality), and shipped **0.75**. **Row 11 moved it to
+0.50**, and the value's home is `plan.json`'s object entry now rather than `staging.json`: giving
+the cross passage its own drawn 1.95 m standpoint strengthened the perspective enough that at 0.75
+the candlestick dropped nearly clear of the case — 48 crossing opaque pixels against §12.8's floor
+of 50. At 0.50 it measures 332. Row 4's real asset needs only h ≥ ~0.11 m.
 
-Witnessed engines: Chromium (the suite) and a Firefox `file://` smoke after assembly (boot
-paint, desk click → open → reveal narration, no console errors); WebKit is unwitnessed on this
+Witnessed engines: **both, over everything.** `playwright.config.mjs` has run chromium and firefox
+across the whole suite since row 2 — the "Firefox smoke after assembly" this line used to describe
+is long superseded, and saying otherwise understated what the suite covers. WebKit is unwitnessed on this
 machine. Row 2's painterly passes (radial-gradient shadows, `multiply`/`destination-in`,
 fractional-scale `drawImage`) are deterministic within the witnessed engine — all §12.2's
 letter requires; cross-platform hash stability is accepted residue.

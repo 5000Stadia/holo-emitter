@@ -336,9 +336,11 @@
       ctx.beginPath();
       ctx.rect(-1e5, -1e5, 2e5, 1e5 + ceilY);
       ctx.clip();
-      aboveLine(cL, ceilY, X(0, sBottom), H - storeyM * sBottom);
+      var sC = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);
+      var yC = groundplane().yAtScale(sC, meta) - storeyM * sC;
+      aboveLine(cL, ceilY, X(0, sC), yC);
       ctx.clip();
-      aboveLine(cR, ceilY, X(1, sBottom), H - storeyM * sBottom);
+      aboveLine(cR, ceilY, X(1, sC), yC);
       ctx.clip();
     }
     function ceilingCut(side) {
@@ -623,19 +625,43 @@
         ctx.moveTo(cL, snap(ceilY));
         ctx.lineTo(cR, snap(ceilY));
         ctx.stroke();
+        var sCeilJ = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);
+        var yCeilJ = gp.yAtScale(sCeilJ, meta) - storeyM * sCeilJ;
         ctx.beginPath();
         ctx.moveTo(cL, snap(ceilY));
-        ctx.lineTo(xb0, H - storeyM * sBottom);
+        ctx.lineTo(X(0, sCeilJ), yCeilJ);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(cR, snap(ceilY));
-        ctx.lineTo(xb1, H - storeyM * sBottom);
+        ctx.lineTo(X(1, sCeilJ), yCeilJ);
         ctx.stroke();
         ctx.globalAlpha = ALPHA_MINOR;
+        /* The ceiling's fan runs to the scale at which it leaves the TOP of
+         * frame, not to the one at which the FLOOR leaves the bottom. Row 11
+         * shipped it at `sBottom` for a commit and the ceiling stopped 209 px
+         * down: the nearest fifth of the frame had no ceiling in it at all,
+         * in the very pair a human is asked to judge the device by. Same
+         * reasoning as the returns' own `sMax`, and the same arithmetic —
+         * the surface does not stop where a different surface leaves. */
+        var sCeil = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);
+        var yCeil = gp.yAtScale(sCeil, meta) - storeyM * sCeil;
         for (m = Math.ceil(-halfM); m <= Math.floor(halfM); m++) {
           ctx.beginPath();
           ctx.moveTo(snap(centreX + m * sWall), snap(ceilY));
-          ctx.lineTo(snap(centreX + m * sBottom), H - storeyM * sBottom);
+          ctx.lineTo(snap(centreX + m * sCeil), yCeil);
+          ctx.stroke();
+        }
+        /* And the ceiling's transverse set, the floor's mirrored: without it
+         * the ceiling is five radiating strokes rather than a surface. */
+        var dWallC = gridK / sWall;
+        for (var dc = 0.5; dc < dWallC; dc += 0.5) {
+          var sc = gridK / dc;
+          if (sc < sWall) continue;
+          if (sc > sCeil) continue;
+          var ty2 = snap(gp.yAtScale(sc, meta) - storeyM * sc);
+          ctx.beginPath();
+          ctx.moveTo(0, ty2);
+          ctx.lineTo(W, ty2);
           ctx.stroke();
         }
         ctx.globalAlpha = ALPHA_MAJOR;

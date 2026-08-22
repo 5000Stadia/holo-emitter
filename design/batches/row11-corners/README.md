@@ -92,7 +92,7 @@ facing it broke.
 
 - **The desk and chair moved out of the study's chimney breast**, and that is why `01` and `11` look
   different from anything you have seen before: the desk was standing with 91% of its footprint
-  inside the fireplace. Interim, on the Navigator's ruling — the direction package's question 7 is
+  inside the fireplace. Interim, on the Navigator's ruling — the direction package's question 6 is
   where you settle it — and the plan refuses that class of placement now instead of noting it.
 - **The grid paints no fireplaces, windows or side-wall doorways.** Five of these eight frames show
   plain wall where the building's own plan holds something: the study's fireplace is 2.2 m of the

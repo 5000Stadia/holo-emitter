@@ -861,10 +861,12 @@ test.describe("the camera the projection runs on", () => {
 
   test("the frame-bottom floor cut is at the viewer's feet in the study and metres out elsewhere", () => {
     const feet = cameraFeetReport(PLAN);
-    // the shipped study, the only frame-bottom cut a human has judged
-    // The SHIPPED grid meta's cut — groundplane's 3.5 m fallback, not the
-    // plan's measured 3.60 m standpoint. What a human has judged is what the
-    // browser draws; the round-4 critic caught the substitution.
+    /* The cut the BROWSER DRAWS on the facing a human looks at first — the
+       study's north view. Row 12 had to use the fallback meta's cut because
+       the demo drew every facing at `groundplane.CAMERA_WALL_M`; row 11 gave
+       the study its own derived meta, so the shipped cut and the derived one
+       are the same number and the substitution the round-4 critic caught
+       cannot recur. */
     expect(feet.reference).toBeCloseTo(3.6 * 96 / ((1024 - 0.48 * 1024) / 1.83), 9);
     expect(feet.reference).toBeLessThan(1.2);
     // measured from the VIEWER, not from the wall — the complement is the bug

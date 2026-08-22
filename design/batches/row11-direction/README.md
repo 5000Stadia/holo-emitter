@@ -10,10 +10,10 @@ for the grid, so it comes to you before it is locked rather than after.
 **Unapproved.** Delete this directory when the verdict lands; anything approved graduates to
 `design/references/` with its V-stage.
 
-Nine captures, the scene canvas element alone at native 1536×1024, cold `file://` load, Chromium,
-no chrome — §12.6's capture spec, the same frame every hash test and the flip test read. Grid-mode
-placeholder art (V1): nothing here is judged on finish. **Four questions**, each a pair or a single
-glance.
+Fourteen captures, the scene canvas element alone at native 1536×1024, cold `file://` load,
+Chromium, no chrome — §12.6's capture spec, the same frame every hash test and the flip test read.
+Grid-mode placeholder art (V1): nothing here is judged on finish. **Six questions**, each a pair or
+a single glance.
 
 ---
 
@@ -98,9 +98,7 @@ the contract's ~40° — and row 4's approved backdrop is where the real camera 
 
 ---
 
----
-
-## Question 5 — turning changes the shape of the view. `07a` vs `07b`
+## Question 4 — turning changes the shape of the view. `07a` vs `07b`
 
 Both frames are the **same standpoint** in the cross passage. The viewer has not moved a step; they
 have turned once.
@@ -114,16 +112,16 @@ One turn swings the lens by 46° and the near edge of the floor by 1.34 m. This 
 question 3 — the scale is fixed and the distance is not — seen from inside one room instead of
 across two. It is why the two frames feel like different rooms.
 
-## Question 6 — a near-square room reads as a tunnel
+## Question 5 — a near-square room reads as a tunnel
 
 Look at `01` again. The study is **5.45 × 4.80 m** — very nearly square. Its far wall is a third of
 the frame and the two side walls are the other two thirds. The arithmetic is exactly right; what it
 produces is a view wide enough that a square room reads long. Same cause again.
 
-**These three are one question, and it is the one row 4's approved backdrop answers for good.**
+**Questions 3, 4 and 5 are one question**, and it is the one row 4's approved backdrop answers for good.
 Whatever you say sets the interim look.
 
-## Question 7 — where should the desk stand? `08a` (what ships now) vs `08b`
+## Question 6 — where should the desk stand? `08a` (what ships now) vs `08b`
 
 The study's chimney breast occupies the middle 2.2 m of the north wall, and the desk was standing
 **inside** it — 0.65 m² of a 0.715 m² footprint, so 91% of the desk was in the masonry, on the wall
@@ -150,7 +148,7 @@ pair moves together or not at all.
 
 ## Three things we are reporting rather than fixing
 
-1. **The desk was standing in the study's chimney breast** — see question 7. Fixed as an interim,
+1. **The desk was standing in the study's chimney breast** — see question 6. Fixed as an interim,
    waiting on your answer for good, and the plan now refuses any furniture placed inside the
    building rather than reporting it as a note nobody had to read.
 2. **The furniture's positions were never authored in metres.** The desk, chair, bookcase and

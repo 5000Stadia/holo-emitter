@@ -378,9 +378,14 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
      * geometry elements are determined by the orientation of the approved
      * image generation, which does not exist until row 4; §10's ruled camera
      * is 1.83 m at −8° and this is derived at the shipped grid camera; and the
-     * wide-view reading is unsettled. Nothing in the repo consumes a derived
-     * meta, and a consumer that starts to must refuse one whose `camera_id`
-     * or `wide_view_policy` is not the one it expects. */
+     * wide-view reading is unsettled. **[Row 11] The repo DOES consume these
+     * now** — the bake emits one per shipped facing and the page renders with
+     * them — so the sentence that used to stand here ("nothing in the repo
+     * consumes a derived meta") is retired. What replaced the obligation it
+     * stated: the bake refuses to emit a meta whose `camera` is `wide`, which
+     * is the reading `projection.md` §5 leaves unruled. `camera_id` is NOT
+     * refused on — every facing derives at one camera today and a second
+     * would have to arrive with a row of its own. */
     provisional: true,
     backdrop: fc.type === "open" ? "vista" : "wall",
     wall_segments: walls.segments,
