@@ -429,15 +429,18 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
   is itself a lerp in depth; (b) "inverse lerp" names only the final scale→y inversion, fed by a
   depth model the sentence does not fix. Reading (b) was built, with a pinhole model:
   `scaleAtDepth(d) = px_per_m_at_wall × camera_wall_m / (camera_wall_m − d)`, where
-  `camera_wall_m` = 3.5 joins grid canonical meta (per-facing values arrive with measured
-  backdrops, alongside the `wall_x0_px` extension point for uncentred walls). Known incoherence,
-  with numbers: a single pinhole through the wall endpoint implies ≈333 px/m at frame bottom
-  where this section pins 210, and the scale lerp's implied vanishing line sits at y ≈ 0.32, not
-  the authored `horizon_y` 0.48 — entity foreshortening and the authored horizon follow two
-  different cameras. The composite is an approximation no real camera produces; reconciliation
-  is row 4's meta-authoring work, and §12.5's row-2 green witnesses implementation-against-model,
-  never model-against-intent. Reversal cost: groundplane, heights.spec, and the grid transverse
-  math rework in a new row.
+  `camera_wall_m` = 3.5 joined grid canonical meta.
+  **[AI, CLOSED AT ROW 20.]** This note recorded a known incoherence with numbers: a single
+  pinhole through the wall endpoint implied ≈333 px/m at frame bottom where this section pins
+  210, and the scale lerp's implied vanishing line sat at y ≈ 0.32 rather than at the authored
+  `horizon_y` 0.48 — entity foreshortening and the authored horizon following two different
+  cameras. Row 11 closed the first half by deriving `px_per_m_at_bottom` from the horizon device
+  itself. Row 20 closes the rest by pinning the LENS: with `px_per_m_at_wall = f / camera_wall_m`
+  a floor point at distance `d` draws at `y = horizon_px + f·eye/d` and at scale `f/d`, so
+  `scale(y) = (y − horizon_px)/eye` — linear in y and **zero exactly at the authored horizon** —
+  and `scaleAtDepth` reduces to `f / distance`. The lerp and the pinhole are one camera, and the
+  same camera on every facing. §5's own example values above are untouched: they are [HUMAN] and
+  they illustrate the schema.
 - [AI, row 2 — **the fork above, stated in full; this is the blocking question for Kabe, and it
   is about the numbers in this section, not about the code that implements them.** Read it as
   being about §5's EXAMPLE block: the grid the demo ships has since been given a self-consistent
@@ -609,16 +612,19 @@ carrier the plan gains cannot now become blank wall in silence.
 *What the corners make visible, and do not settle.* At the pinned 96 px/m a 5.45 m study wall is
 523 px of a 1536 px frame, so about two thirds of a study frame is side wall — an implied ~131°
 view against §10's `focal_mm: 50`. Row 11 changed no scale; it is the corners that show how much of
-the frame the room does not fill. And under a pinned SCALE the corner's x is `768 ± wall_width_m ×
-96 / 2`, so `camera_wall_m` cancels: two rooms with the same wall at different standpoint distances
-get pixel-identical corners, where the [HUMAN] sentence above asks for the corner to be
-"determined in location based on the distance expected between the player and that wall". The
-distance does drive the returns' convergence, the floor's depth spacing and the frame-bottom cut,
-but not the corner's position. Pinning the LENS instead would move it with distance and would put
-NO corner in frame at these room sizes — 50 mm is a 2133 px focal on this frame, which draws the
-study's wall 3230 px wide.
+the frame the room does not fill. And under a pinned SCALE the corner's x was `768 ± wall_width_m ×
+96 / 2`, so `camera_wall_m` cancelled: two rooms with the same wall at different standpoint
+distances got pixel-identical corners, where the [HUMAN] sentence above asks for the corner to be
+"determined in location based on the distance expected between the player and that wall".
+**[AI, ANSWERED AT ROW 20.]** Pinning the lens moves the corner with the distance, which is what
+that sentence asks for. The fear recorded here — that a pinned lens would put no corner in frame
+at these room sizes — was true of §10's then-`focal_mm: 50` (a 2133 px focal, drawing the study's
+wall 3230 px wide) and is false of the 24 mm Kabe ruled: at 1024 px the study's north wall is
+1283 px of a 1536 px frame with both corners in it, and the passage's end wall 444 px.
 **Ruled [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended specifics]: the
-fixed scale stands for the grid era**, and the question is not reopened by an agent. It is answered
+fixed scale stood for the grid era — and the grid era ended the same day, when Kabe ruled the
+researched lens in ("full steam ahead"). Row 20 built it; see §10's lens ruling.** What follows
+was the state until then, and the question was never reopened by an agent. It is answered
 for good by the same thing that answers everything else about the camera — the approved backdrop of
 row 4, whose measured geometry is this section's law already — so no document may claim the model
 is still an agent's to pick. What ships until then is the corner as a fact about the wall rather
@@ -764,7 +770,22 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     room the plan holds. It generalizes to three clauses, and the first
     two are what keep it reaching outside the meta the way the original did:
     **(i)** the wall in view fits the frame — `0 ≤ corner_x0_px` and `corner_x1_px ≤ canvas
-    width`, the canvas being the thing outside every meta;
+    width`, the canvas being the thing outside every meta. **[AI, RETIRED AT ROW 20, with the
+    three ledger mechanisms that carried it.]** Under a pinned lens a wall wider than the frame
+    runs past it, exactly as in life — the cross passage's 8.00 m north wall seen from 2.15 m is
+    3810 px of wall in a 1536 px frame and its corners are 1137 px outside — so this clause is
+    false by design and keeping it would refuse the honest picture. What replaces it is
+    **(i′) ONE LENS**: `px_per_m_at_wall × cameraDistance(meta)` is the ruled `FOCAL_PX`, whose
+    two terms both come from outside the meta (`src/groundplane.js`, bound to §10's
+    `camera.focal_mm` by `assertRuledLens`). Its status is stated rather than assumed: on a
+    DERIVED meta it holds by construction and is a schema clause; on a MEASURED backdrop meta it
+    is evidence and can fail, because the scale is read off the painting and the distance off the
+    approved drawing. Two further clauses carry what (i) used to: **(v)** the drawn spacing of the
+    facing wall's own vertical metre lines, measured off the render, equals `px_per_m_at_wall`
+    within 2 px on every facing — pixels against arithmetic, which is where the original clause's
+    force lived; and **(vi)** a corner vertical is drawn **iff** its computed x lies inside the
+    canvas, measured off the render in both directions, which is row 20's own done clause made
+    into pixels;
     **(ii)** on a *measured* backdrop the corners are measured off the image, and
     `corner_x1_px − corner_x0_px` must equal `wall_width_m × px_per_m_at_wall` within the
     calibration audit's tolerance — pixels against arithmetic, which is where the original
@@ -1032,6 +1053,39 @@ user is in the middle. Like a + shape." Residue named for row 4: the nearest vis
 at ~3 m under any honest lens — the feet return via lens-shift and near-surface anchoring at
 the probe.
 
+**[AI, row 20 — what the approved backdrops turned out to be, and the three rulings that
+followed.]** The eight backdrops arrived, Kabe approved them, and they were measured off their own
+pixels (`design/plan-draft/measured/`, re-runnable, with a control that reproduces the row-4
+probe's own read of `study/N`). Three things the measurement settled, all ruled by the Navigator:
+
+- **The horizon is read from the ceiling ramp, not from a vanishing-point vote.** The two
+  side-wall/ceiling junctions are lines parallel to the view axis and must converge ON the
+  horizon; fitted robustly they give 0.29–0.34 px residuals over 61 columns a side, against a vote
+  whose three regions scatter by 30 px — and adopting them makes the study's four independently
+  generated frames agree about their eye height 2.6× better. Nothing was regenerated for it.
+- **The project draws at the approved image's own camera: eye 1.08775 m, horizon 524.4/1024,
+  level.** §10's `camera.eye_height_m` 1.83 m and `pitch_deg` −8 are the GENERATION camera and are
+  untouched — the generator was asked for them on all eight and drew 1.1–1.5 m level every time.
+  The intention's fifth quality asks for a CONSISTENT eye height and measurement delivers one; it
+  is simply not the height the briefs name, and the delta is the standing note. What the lower
+  camera buys is the other half of that quality: the frame-bottom floor cut comes in to **2.23 m**
+  against 3.08 m for every 24 mm preview.
+- **The painted door's click target is the MEASURED rectangle** — pixels, no derivation, nothing
+  needs to rule for clicking. Where a scale-bearing dimension must rule a cross-check, **width
+  rules**; the painted aspect (2.20 : 1 and 2.14 : 1 against a ruled 2 : 1) is recorded warn-only,
+  in gate (e)'s own idiom.
+
+**And the corpus conforms to the law, never the reverse [Navigator, 2026-08-21].** Measured, the
+eight paintings imply eight different focal lengths — 498 px to 1010 px against the ruled 1024 —
+which is the very defect this ruling removes, arriving from the asset side. `study/N` (cand-2, the
+frame the probe loop blessed) lands at **1010 px, 1.4 % away**, so the approved picture and the
+pinned lens are the same camera within measurement error. The other seven regenerate through the
+asset seat with the camera enforced, and `design/plan-draft/measured/gate.py` is their acceptance
+gate: a candidate is admitted when its implied focal lands within **±3 % of 1010 px**, and the
+tool prints the per-facing scale target (1010 ÷ that facing's own drawn standpoint) the seat
+generates to. Widening the law to admit the corpus would have been calibrating a gate on the
+corpus it judges, which `contract.json`'s own amendment rule forbids.
+
 **Per-placement view angle [HUMAN, 2026-08-21]:** "Due to perspective some things will be angles
 to various angles, so when generated the request should include its location horizontally across
 the screen with a flat wall facing background to maintain angle persecutive. The saved element
@@ -1067,8 +1121,15 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
 [AI] **Wall maps** (authored so four generations depict one room; standing license applies):
 - *Study* — N: paneled wall with stone fireplace; E: the door opening to the hall; S: leaded
   windows; W: blank oak paneling with wainscot.
-- *Hall* — N: paneled wall (shelf1 stands against it); W: the door opening to the study; E:
-  leaded window at the far end; S: tapestry on paneling.
+- *Hall* — N: paneled wall; W: the door opening to the study; E: leaded window at the far end,
+  and **`shelf1` stands against this wall** [AI, row 20, under Kabe's standing placement rule
+  "place things where they make sense in the room"]: the passage is 2.60 m deep, so at the ruled
+  lens its long facings show no floor at all — the wall-floor line falls 230 px below the frame —
+  and the shipped validator refuses any placement on them at any depth. The end wall seen from
+  6.00 m is the only facing of that room with floor to stand on. **The press cannot clear the
+  1.00 m window centred on that 2.60 m wall**, so the prompt sheet that paints it must set the
+  sill above the press's head or Kabe re-sites the window; `planWarnings` reports the collision
+  rather than leaving it to a picture nobody checks.
 - **World light [superseded 2026-08-20 by Kabe's look reference]:** the earlier "overcast diffuse,
   no sun shafts" was an [AI] simplification to keep one screen-space key plausible; Kabe's
   reference rules the feel instead — warm practicals (fire, lamp, candle) against a cool window.
@@ -1104,7 +1165,7 @@ Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeab
 3. **State isolation:** toggling desk changes pixels only within the drawer part + cavity bounds (diff mask check).
 4. **Knowledge:** before first open, `key1` appears in zero frames — and the filter is exercised positively [AI]: render, through the pure renderer, a doctored fixture with `desk1` open and `key1` absent from `knowledge.player`; the cavity region must hash-equal the empty-cavity reference — which is a **same-run render** of the fixture with `key1` deleted from `entities`, never a stored golden image. (A closed-drawer-only check never touches the filter — a renderer that ignores knowledge entirely would pass it.)
 5. **Geometric:** each floor entity's rendered height within ±5% of dims_m through the ground-plane fn (measured on 3 calibration entities per room — any staged entity with known `dims_m` qualifies, wall-mounted included: the hall's census is shelf1, stick1, door1 [AI]). [AI] Plus the camera-has-feet gates per backdrop: the §5 horizon consistency assertion and the §5 pixel-audit of `calibration_px` hold on all eight facings, and the audit is not self-graded: a fresh agent re-measures `calibration_ref` from the image alone on at least one facing per room — **the agent picks which facings, never the builder** — and must agree within tolerance. Height checks derive the expected value from the meta by independent arithmetic (per-facing literals, typed from the approved `design/plan-draft/standpoints.tsv` and NOT from the generated `projection.md`, which the same `deriveMeta` writes) and measure the actual from rendered alpha bounds — never from the renderer's own computed scale, which would make the test a tautology. Backdrop `key_dir` gets a warn-level pixel estimate (the gate-(e) Sobel bright-side reused), recorded per facing — warn-only; the authored light reads are gated by Kabe's eye and the flip test.
-6. **Flip test (human):** for each facing, composite vs backdrop-only, 3 seconds each; grader (agent rubric + Kabe) marks any object that reads as a sticker. Zero stickers to pass. [AI] The agent rubric is the intention's five decomposed qualities — one light, contact, occlusion chains, one hand, the camera has feet — applied per object. **One capture spec everywhere** (probe, this test, §12.10): the scene canvas element at native 1536×1024, Playwright element screenshot, cold `file://` load, no chrome, no hover — downscaled or windowed captures soften exactly the halo tells this test exists to catch. The batch enumerates **state-variant pairs** beyond the eight defaults: study/N with drawer open and key revealed; the door open *and* closed from both rooms. The batch also carries the full narration transcript — prose taste is Kabe's call here. [AI, with the standing license] Four facings (study S/W, hall E/S) are deliberately bare — Myst has bare walls too — so their pairs assert composite==backdrop exactly (an honest nothing-drawn check) and their "standing somewhere" rides on backdrop taste alone; the batch says so to Kabe rather than hiding it.
+6. **Flip test (human):** for each facing, composite vs backdrop-only, 3 seconds each; grader (agent rubric + Kabe) marks any object that reads as a sticker. Zero stickers to pass. [AI] The agent rubric is the intention's five decomposed qualities — one light, contact, occlusion chains, one hand, the camera has feet — applied per object. **One capture spec everywhere** (probe, this test, §12.10): the scene canvas element at native 1536×1024, Playwright element screenshot, cold `file://` load, no chrome, no hover — downscaled or windowed captures soften exactly the halo tells this test exists to catch. The batch enumerates **state-variant pairs** beyond the eight defaults: study/N with drawer open and key revealed; the door open *and* closed from both rooms. The batch also carries the full narration transcript — prose taste is Kabe's call here. [AI, with the standing license] Four facings (study S/W, hall N/S — the passage's long walls, which at the ruled lens show no floor and can carry no staged object at any depth) are deliberately bare — Myst has bare walls too — so their pairs assert composite==backdrop exactly (an honest nothing-drawn check) and their "standing somewhere" rides on backdrop taste alone; the batch says so to Kabe rather than hiding it.
 7. **Static hosting:** the demo runs from `file://` and from GitHub Pages with zero network requests after load.
 8. [AI] **Compositing mechanisms fire (placeholder-testable):** rendering with tint, contact shadows, or part interpolation disabled must produce a different canvas hash than the full pipeline (each mechanism asserted separately); a mid-state part render differs from both end states; the staged overlap pairs (`chair1`×`desk1`, `stick1`×`shelf1`) render with intersecting **opaque pixels** (alpha above threshold — one entity genuinely occludes part of the other; touching bounding boxes do not pass); and a viewstate whose facing has no backdrop asset renders the procedural holodeck grid, deterministically (§7 grid mode). This is what catches a silently absent §7 mechanism before the expensive human moment.
 9. [AI] **Narration coverage:** every (intent × entity × outcome) triple the harness can emit — enumerated statically from the fixture (every entity is clickable, so `take note1`, `toggle chair1`, hall-side door toggles and all refusal outcomes are in the domain), not just the walkthrough's path — resolves to a non-empty, non-placeholder line in `narration.json`.

@@ -48,8 +48,12 @@ date typed into the script.
 To close a redline, in order:
 
 1. show Kabe the new PNGs and get an approval;
-2. write the new `sha256` of `fixtures/demo-study/plan.json` and the approval date into
-   `design/plan-draft/approval.lock`;
+2. write the new `sha256` of the plan's DRAWN CONTENT — `draw_plan.py`'s `plan_digests()` returns
+   it, and it is not the whole file's hash — and the approval date into
+   `design/plan-draft/approval.lock`. Where the anchor rests on an approval of something OTHER
+   than these sheets (row 20 anchored on two approved rendered FRAMES, `01d` and `02b`), add a
+   `pending` line naming the drawn content he has not yet seen: the stamp prints it, so the sheet
+   says "APPROVED … AWAITING HIS EYE ON: …" rather than claiming more than it has;
 3. re-run `python3 design/plan-draft/draw_plan.py` and `./design/plan-draft/render.sh` — the
    sheet now stamps APPROVED with the new date;
 4. move `APPROVAL_COMMIT` in `tests/playwright/plan.spec.mjs` to the commit carrying the newly

@@ -204,7 +204,7 @@ sudo apt-get install -y python3-numpy python3-pil     # pip is PEP-668 blocked h
 python3 -m unittest discover -s replicator/tests -t . -v
 ```
 
-151 tests, ~5½ minutes. `-t .` puts the repo root on `sys.path`; `replicator/tests/__init__.py`
+182 tests, ~6¼ minutes. `-t .` puts the repo root on `sys.path`; `replicator/tests/__init__.py`
 must exist or discovery refuses the directory, and it raises a message naming the apt line if
 either dependency is missing.
 
@@ -533,6 +533,8 @@ the picture is not drawn with.
 purpose: a room whose extent nobody has drawn must not claim two corners, so it draws the unbounded
 16 m wall it always drew. Its numbers moved with the camera (below) and nothing else about it did.
 
+**SUPERSEDED BY ROW 20 — read *The lens (row 20)* below; kept for the reasoning, corrected for the facts.** The drawing camera is MEASURED now (eye 1.08775 m, horizon 524.4/1024, `px_per_m_at_wall` derived from the pinned lens), which is what row 11's interim was waiting for. What follows describes the state row 11 shipped.
+
 **Two eye heights, two jobs, and the metas derive from the drawing one.** `INTERIM_EYE_M` = 1.60 m
 is what this project draws at — [HUMAN 2026-08-21], ruled against a rendered pair — so
 `floor_line_y` is 0.63 and `px_per_m_at_bottom` 332.8, and §5's camera-has-feet gate is asserted at
@@ -612,6 +614,8 @@ same claim is read off the render as well as computed test-side, so the type can
 the drawing ignores. §5's "open centre" is the deep view between converging planes; a passage with
 no end wall at all is the `open` type, which the same bands already draw.
 
+**SUPERSEDED BY ROW 20: the corner DOES move with the standpoint distance now, which is what blueprint §5's [HUMAN] sentence asked for and the pinned scale could not give.** The paragraph below is row 11's, kept because its arithmetic is the argument row 20 acted on.
+
 **What the corners make visible and do not settle.** 5.45 m at 96 px/m is 523 px of a 1536 px frame,
 so two thirds of a study frame is side wall — an implied ~131° view against §10's 50 mm. Row 11
 changed no scale. And under the pinned scale the corner's x is `768 ± wall_width_m × 96 / 2`, so
@@ -619,7 +623,7 @@ changed no scale. And under the pinned scale the corner's x is `768 ± wall_widt
 corners — where blueprint §5's [HUMAN] sentence asks the corner to be located "based on the distance
 expected between the player and that wall". A pinned LENS would move it with distance and put no
 corner in frame at these sizes (50 mm is a 2133 px focal; the study's wall would draw 3230 px).
-**Ruled [HUMAN 2026-08-21]: the fixed scale stands for the grid era**, and the corner-as-a-fact-about-
+**Ruled [HUMAN 2026-08-21]: the fixed scale stood for the grid era — and the grid era ended at row 20, when Kabe ruled the researched lens in ("full steam ahead").** What follows was true until then: the corner-as-a-fact-about-
 the-wall is what ships; row 4's approved backdrop answers the model for good, which is blueprint
 §5's law already. The bounded-room look and the corner treatment in row 11's frames are approved as
 shipped. `mechanisms.spec` pins the current model with a case that says so, so a silent change of
@@ -705,15 +709,29 @@ at the authored horizon. §5's lerp and §5's horizon device had been one camera
 PER FACING since row 11; what row 20 changes is that it is the same camera on
 every facing. `scaleAtDepth` reduces to `f / distance`.
 
-**The drawing camera is MEASURED now.** `groundplane.DRAWING_EYE_M` = 1.2316 m
-and `HORIZON_Y` = 490/1024, read off the approved backdrops rather than
+**The drawing camera is MEASURED now.** `groundplane.DRAWING_EYE_M` = 1.08775 m
+and `HORIZON_Y` = 524.4/1024, read off the approved study/N backdrop rather than
 authored — blueprint §5 [HUMAN, 2026-08-20] rules that the geometry is
 determined by the orientation of the approved image generation, and row 11's
 1.60 m was named an interim awaiting exactly that. §10's ruled 1.83 m is
 untouched: it is the GENERATION camera, it is what backdrops are prompted at,
 and the generator did not honour it. The lower camera is what returns the
-intention's fifth quality — the frame-bottom floor cut comes in to **2.36 m**
-where every 24 mm preview frame drew 3.08 m.
+intention's fifth quality — the frame-bottom floor cut comes in to **2.23 m**
+where every 24 mm preview frame drew 3.08 m and the fisheye it replaces drew
+1.04 m.
+
+**WHICH horizon, and it was ruled on evidence rather than adopted by default.**
+Two instruments measure it and they disagree by up to 66 px across the eight
+approved backdrops: a vanishing-point vote over Sobel gradients, and a robust
+fit of the two side-wall/ceiling junctions — lines parallel to the view axis,
+which must therefore converge ON the horizon. The Navigator ruled the ramp fit:
+0.29–0.34 px residual over 61 columns a side against a vote whose three regions
+scatter by 30 px, and adopting it makes the study's four independently
+generated frames agree about their eye height **2.6× better** (spread 0.131 m
+against 0.346 m). Nothing was regenerated for it. The measurement is
+`design/plan-draft/measured/`, re-runnable, numpy and PIL only, and its control
+reproduces the probe's own read of `study/N` — ceiling line and fireplace
+opening exactly, floor line within a pixel, `px_per_m_at_wall` exactly.
 
 ### The standpoint law
 
@@ -803,7 +821,7 @@ census is a plan warning rather than a hidden fact.
 
 ### Residue, named
 
-1. **The nearest visible floor is 2.36 m on every facing in the manor**, and it
+1. **The nearest visible floor is 2.23 m on every facing in the manor**, and it
    is `eye / (1 − horizon_y)` when `f` equals the frame height, as it does here.
    Its infimum over any usable horizon is the EYE HEIGHT itself, so no lens
    shift at this focal length puts the cut at a viewer's feet — the intention's
@@ -870,7 +888,7 @@ text, so the hand-offs are recorded here where they survive its close:
 
 Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for placement**:
 
-- **`CAMERA_WALL_M = 3.5` is the unplanned-facing fallback's own camera distance** (amending
+- **`CAMERA_WALL_M` is the unplanned-facing fallback's own camera distance — 4.0 m since row 20, 3.5 before it** (amending
   row 1's "GRID_K is not meta" note: GRID_K is derived, `px_per_m_at_wall × camera_wall_m`).
   **[Row 11] It is no longer a default for anyone else.** `cameraDistance(meta)` reads
   `camera_wall_m ?? camera_far_m` and THROWS on a meta naming neither: the old `?? CAMERA_WALL_M`
@@ -923,11 +941,11 @@ Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for 
   Changing an [AI] adoption, not a [HUMAN] value: §7's grid-canonical list took §5's *example*
   numbers wholesale, and §5's block itself is untouched — it illustrates the schema for meta that
   row 4 measures per backdrop.
-- **Ruled for the grid era, and reopened only by row 4's approved backdrop** [HUMAN 2026-08-21] —
-  restated at row 11, because the 16 m wall it used to be stated
-  against is no facing the demo draws. Per facing now: the study's 5.45 m wall at 3.60 m is a
-  **~131.5°** view, the cross passage's 8.00 m at 1.95 m is **~152.6°**, and its 2.60 m end wall at
-  6.00 m is **~106.3°**, all against §10's `focal_mm: 50` (≈40°). Two consequences row 11 made
+- **CLOSED BY ROW 20.** This bullet recorded that pinning the SCALE gave every facing its own
+  lens — the study's 5.45 m wall at 3.60 m a **~131.5°** view, the cross passage's 8.00 m at
+  1.95 m **~152.6°**, its 2.60 m end wall at 6.00 m **~106.3°**, all against §10's then-`focal_mm:
+  50`. Kabe ruled the researched lens in on 2026-08-21 and every facing is 73.7° now. The two
+  consequences below are what the row acted on and are kept for that reason. Two consequences row 11 made
   visible and did not create: turning once in the passage swings the lens 46° and the near floor
   edge 1.34 m under a viewer who has not moved, so the "facing geometry" half of the
   camera-has-feet quality is not consistent across a turn; and under the pinned SCALE the corner's
@@ -1342,9 +1360,9 @@ item 10's **solver**: this row builds the document, the validators and the deriv
 grammar and the solver that would author a plan from a description are not built here and have
 no owner yet.
 
-**The lens, and the floor at your feet.** Two consequences of blueprint §7's pinned *scale*
-(96 px/m) meeting law (a)'s drawn standpoint distances (1.95 m to 15.30 m), computed here for
-the first time. The implied focal length — `px_per_m_at_wall × camera_wall_m` — runs 187 px to
+**The lens, and the floor at your feet — BOTH CLOSED BY ROW 20, and this is what they were.** Two
+consequences of blueprint §7's pinned *scale* (96 px/m) meeting law (a)'s drawn standpoint
+distances, computed at row 12 for the first time and acted on at row 20. The implied focal length — `px_per_m_at_wall × camera_wall_m` — runs 187 px to
 2014 px across the manor, so it is a different lens per facing and `floor_line_y` comes out
 identical on every pinned facing whatever the room's size. And the frame-bottom floor cut, which
 the intention's fifth quality calls *the camera has feet*, sits 1.04 m out in the study and more

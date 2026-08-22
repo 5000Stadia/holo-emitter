@@ -22,7 +22,10 @@ So far: two rooms on the holodeck grid, four facings each, furnished with stand-
 the real art is fabricated. Each is a room you stand inside rather than a wall you face: the walls
 end in corners where the building's own plan says they do, the side walls run back toward you, and
 there is a ceiling overhead at the height of the storey — so the study is a study-sized room and
-the cross passage is a passage. Click things — the desk drawer opens (something waits inside), the
+the cross passage is a passage. Everything is drawn through one lens, a 24 mm one, the same on
+every direction you can turn to; before that each direction had a lens of its own and they ran
+from a fisheye to a portrait lens, which made every wall of the study look like the end of a
+corridor. Click things — the desk drawer opens (something waits inside), the
 door between the rooms opens and takes you through, and what you pick up rides in the strip at
 the bottom of the page. The words of the room appear beneath the picture as you act.
 
