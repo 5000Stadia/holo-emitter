@@ -881,6 +881,29 @@ census is a plan warning rather than a hidden fact.
 7. **The rooms read larger than their metres**, by a factor no reachable lens
    removes and uniform across every facing.
 
+### A batch is an artifact of the code, and it answers for itself
+
+The frames a human is asked to rule on are the only artifact in this project with no compiler, no
+test and no reader between them and his eye — and row 20 shipped a batch that had gone stale two
+commits after it was captured, because a two-line glyph resize repainted every frame and nothing
+could see it. A blind comparator and an artifact critic both spent a full pass scoring a build that
+no longer existed.
+
+The first fix named the capture commit in the batch README and asked git whether `src/` had moved
+past it. That failed for the reason this project keeps re-learning: **a guard that reads a string
+out of the document it guards is satisfied by editing the string** — and the string was already
+wrong, naming a commit two changes later than the capture, while the test was green. It also bound
+nothing about the pictures, so copying one frame over another left the whole suite green.
+
+What ships instead: `design/batches/<row>/capture.mjs` is committed beside the frames, and
+`plan.spec` runs it into a temporary directory and requires every frame back byte-identical. **This
+is not a stored golden** — §12.6 forbids those and re-rendering against a kept file would be one.
+Nothing is stored; the comparison is against what the code draws at this moment, and it is available
+only because the capture path is deterministic (same intents, cold `file://` load, `body.capture`,
+nothing hovered or focused). It also asserts that every frame the script produces IS in the batch,
+so one cannot be quietly dropped from the set a human is shown. **Any future batch copies this
+shape**, and an artifact nobody can regenerate is not derived — it is just a file.
+
 ### The measurement has to be trustworthy before the verdict is
 
 Row 20's backdrop gate learned this on live work. `design/plan-draft/measured/measure.py` carries a
