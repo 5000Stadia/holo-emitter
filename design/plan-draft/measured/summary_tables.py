@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Print the tables that appear in SUMMARY.md, straight out of _raw.json.
+"""Print the tables that appear in SUMMARY.md, straight out of the cand-1 round.
 
+    cd <repo root> && python3 design/plan-draft/measured/measure.py --round cand1
     cd <repo root> && python3 design/plan-draft/measured/summary_tables.py
 
-Run measure.py first. Nothing here re-measures anything; this file exists so the
+SUMMARY.md is the ROW-20 record and its tables are the cand-1 round's, so this
+reads `measured/cand1/`, not the promotion round in `measured/` itself. Nothing here re-measures anything; this file exists so the
 numbers in the prose can be regenerated and diffed rather than retyped.
 """
 import json
@@ -11,7 +13,14 @@ import os
 import statistics as st
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-R = json.load(open(os.path.join(HERE, "_raw.json")))
+# THE CAND-1 ROUND'S OWN DATA, and the path is the point. SUMMARY.md is the
+# row-20 record and its tables are cand-1's; this file read `_raw.json` out of
+# `measured/` itself, which since row 21 has held the CAND-2 promotion round --
+# so it reprinted one round's numbers under another round's prose, and the
+# document that exists so numbers can be diffed rather than retyped was the one
+# lying about them. Each round writes its own directory now; this reads cand-1's.
+ROUND = os.path.join(HERE, "cand1")
+R = json.load(open(os.path.join(ROUND, "_raw.json")))
 F = ["study/N", "study/E", "study/S", "study/W", "hall/N", "hall/E", "hall/S", "hall/W"]
 STAND = {"study/N": 3.60, "study/E": 4.09, "study/S": 3.60, "study/W": 4.09,
          "hall/N": 1.95, "hall/E": 6.00, "hall/S": 1.95, "hall/W": 6.00}
@@ -61,7 +70,7 @@ def main():
     for f in F:
         v = R[f]
         d = v["derived"]
-        doc = json.load(open(os.path.join(HERE, f.replace("/", "-") + ".json")))
+        doc = json.load(open(os.path.join(ROUND, f.replace("/", "-") + ".json")))
         conf = doc["calibration_confidence"].split(".")[0].split(" in ")[0].strip()
         print("| `%s` | %s | %s | **%.2f** | %.1f | **%.3f** | **%.3f** | %.3f | %.2f | %.2f | %s | %s | `%s` | %s |" % (
             f, short[v["cfg_calib"]], conf, v["ppm"], d["px_per_m_at_bottom"],

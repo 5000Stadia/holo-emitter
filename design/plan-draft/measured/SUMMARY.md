@@ -1,19 +1,28 @@
 # Eight backdrops measured — draft §5 metadata and what the pixels say
 
-Eight approved 1536×1024 backdrops, measured off the pixels, one JSON per facing
-beside this file. **Nothing here is a shipped `backdrops/<loc>/<facing>.meta.json`
-and nothing consumes it.** Only `design/plan-draft/measured/` was written.
+**THIS IS THE ROW-20 RECORD, AND IT IS THE CAND-1 ROUND'S.** Read that first, because
+the directory it sits in has moved on: `design/plan-draft/measured/` itself now holds
+the **cand-2 promotion round** (the one `tools/promote-backdrop.mjs` reads and the one
+that admitted `study/N`), `cand3/` holds the universal-anchor round, and this file's
+own data lives in **`cand1/`**. Every number below is reproducible —
+`measure.py --round cand1` then `summary_tables.py` — and neither touches the
+promotion corpus. The verdicts here are superseded by `gate.py`; what survives is the
+method and what the pixels said the first time anyone looked.
+
+Eight approved 1536×1024 backdrops, measured off the pixels, one JSON per facing in
+`cand1/`. **Nothing here is a shipped `backdrops/<loc>/<facing>.meta.json`
+and nothing consumes it.** Only `design/plan-draft/measured/cand1/` is written.
 
 | facing | image | file |
 |---|---|---|
-| study/N | `backdrops/source/study-N/cand-2.png` (the selected candidate, not cand-1) | `study-N.json` |
-| study/E | `backdrops/source/study-E/cand-1.png` | `study-E.json` |
-| study/S | `backdrops/source/study-S/cand-1.png` | `study-S.json` |
-| study/W | `backdrops/source/study-W/cand-1.png` | `study-W.json` |
-| hall/N | `backdrops/source/passage-N/cand-1.png` | `hall-N.json` |
-| hall/E | `backdrops/source/passage-E/cand-1.png` | `hall-E.json` |
-| hall/S | `backdrops/source/passage-S/cand-1.png` | `hall-S.json` |
-| hall/W | `backdrops/source/passage-W/cand-1.png` | `hall-W.json` |
+| study/N | `backdrops/source/study-N/cand-2.png` (the selected candidate, not cand-1) | `cand1/study-N.json` |
+| study/E | `backdrops/source/study-E/cand-1.png` | `cand1/study-E.json` |
+| study/S | `backdrops/source/study-S/cand-1.png` | `cand1/study-S.json` |
+| study/W | `backdrops/source/study-W/cand-1.png` | `cand1/study-W.json` |
+| hall/N | `backdrops/source/passage-N/cand-1.png` | `cand1/hall-N.json` |
+| hall/E | `backdrops/source/passage-E/cand-1.png` | `cand1/hall-E.json` |
+| hall/S | `backdrops/source/passage-S/cand-1.png` | `cand1/hall-S.json` |
+| hall/W | `backdrops/source/passage-W/cand-1.png` | `cand1/hall-W.json` |
 
 `hall` is the fixture's room id for what the plan calls the CROSS PASSAGE.
 
@@ -21,8 +30,8 @@ and nothing consumes it.** Only `design/plan-draft/measured/` was written.
 
 ```
 cd <repo root>
-python3 design/plan-draft/measured/measure.py          # writes the 8 JSONs + _raw.json
-python3 design/plan-draft/measured/summary_tables.py   # prints every table below
+python3 design/plan-draft/measured/measure.py --round cand1   # writes cand1/'s 8 JSONs + _raw.json
+python3 design/plan-draft/measured/summary_tables.py          # prints every table below
 ```
 
 `measure_lib.py` holds the primitives (Sobel, step profiles, the vanishing-point

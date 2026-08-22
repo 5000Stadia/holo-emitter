@@ -26,8 +26,16 @@ Ruled elsewhere     : nothing. This script derives no focal length in the cand-1
                       round; SUMMARY.md reports px_per_m_at_wall x THE PLAN'S
                       standpoint instead.
 
-THE TWO ROUNDS
---------------
+THE THREE ROUNDS, AND WHERE EACH ONE WRITES
+-------------------------------------------
+`design/plan-draft/measured/` itself holds the CURRENT round -- cand-2, the
+promotion round, the one `tools/promote-backdrop.mjs` reads. Every other round
+writes its own subdirectory (`cand1/`, `cand3/`), and that is not tidiness: for
+one row of this project's history `--round cand1` overwrote the promotion
+corpus with row 20's numbers in silence, so re-running the frozen record
+destroyed the live one. A round that is not the current round may be re-run at
+any time without touching what the promotion consumes.
+
 `--round cand1` is the row-20 run, frozen: CFG below, its per-facing windows, its
 single named calibration feature per facing, its numbers. Nothing in the cand-2
 work is allowed to move it, because it is the record the miss ledger was written
@@ -1601,6 +1609,12 @@ def flags(fac, r):
 
 
 def main_cand1():
+    # ITS OWN DIRECTORY. See "THE THREE ROUNDS" above: `measured/` is the
+    # current round's home and the promotion reads it, so a frozen record
+    # re-run must not land on top of it.
+    out = os.path.join(OUT, "cand1")
+    if not os.path.isdir(out):
+        os.makedirs(out)
     raw = {}
     for fac in FACINGS:
         r = measure(fac)
@@ -1708,11 +1722,11 @@ def main_cand1():
                                     "delta_width_px": m["fireplace_opening_width_px"] - 209},
               "px_per_m_at_wall": {"draft": 232.222, "measured": round(r["ppm"], 3)},
             }
-        json.dump(doc, open(os.path.join(OUT, "%s-%s.json" % (loc, f)), "w"),
+        json.dump(doc, open(os.path.join(out, "%s-%s.json" % (loc, f)), "w"),
                   indent=2)
     json.dump({k: {kk: vv for kk, vv in v.items() if kk != "cfg"}
                for k, v in raw.items()},
-              open(os.path.join(OUT, "_raw.json"), "w"), indent=2, default=str)
+              open(os.path.join(out, "_raw.json"), "w"), indent=2, default=str)
     for fac in FACINGS:
         r = raw[fac]
         m, d = r["measured"], r["derived"]

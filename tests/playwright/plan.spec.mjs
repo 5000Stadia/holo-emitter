@@ -2240,6 +2240,38 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(control.measured.dado_rail_above_floor_px).toBe(213);
   });
 
+  /* [ROW 21, the close] EACH ROUND'S DATA LIVES WHERE ITS PROSE SAYS IT DOES.
+   *
+   * `SUMMARY.md` is the row-20 record and its tables are the cand-1 round's,
+   * and `summary_tables.py` exists so those numbers can be REGENERATED and
+   * diffed rather than retyped. It read `_raw.json` out of `measured/` itself,
+   * which since row 21 has held the cand-2 promotion round — so the one file
+   * whose whole job is to stop numbers being retyped was reprinting a different
+   * round's numbers under this round's prose, and `--round cand1` overwrote the
+   * promotion corpus in silence. Rounds have their own directories now, and
+   * this asserts the binding the way the failure would have been caught: a row
+   * the tool prints must appear in the prose verbatim. */
+  test("SUMMARY.md's tables are the cand-1 round's own numbers, regenerated", () => {
+    let out = "";
+    try {
+      out = execFileSync("python3", [join(draftDir, "measured", "summary_tables.py")],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) { out = String(e.stdout || ""); }
+    const rows = out.split("\n").filter((l) => /^\| `(study|hall)\//.test(l));
+    expect(rows.length, "summary_tables.py printed no per-facing rows").toBeGreaterThanOrEqual(8);
+    const md = readFileSync(join(draftDir, "measured", "SUMMARY.md"), "utf8");
+    const missing = rows.filter((r) => !md.includes(r.trimEnd()));
+    expect(missing,
+      "SUMMARY.md quotes numbers the cand-1 round no longer prints — regenerate it, or the round directories have been crossed")
+      .toEqual([]);
+    /* And the promotion corpus says which round it is, so a re-run of another
+       round landing on top of it is visible rather than silent. */
+    const promo = JSON.parse(readFileSync(join(draftDir, "measured", "study-N.json"), "utf8"));
+    expect(promo._what_this_is,
+      "design/plan-draft/measured/ is the promotion round's home and its own header no longer says so")
+      .toContain("--round cand2");
+  });
+
   /* [ROW 21, the close] THE BATCH QUOTES TWO GATE TABLES TO KABE, AND A QUOTED
    * TABLE IS A SECOND COPY OF A FACT. The row-20 batch shipped stale frames
    * because nothing could see them move; a stale TABLE is the same defect in
