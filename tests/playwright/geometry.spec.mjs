@@ -299,12 +299,12 @@ test.describe("camera-has-feet geometry", () => {
     /* study/S stands 3.85 m off its south wall — the threshold, pulled forward
        to clear the chimney breast you would otherwise back into — so its scale
        is 1024/3.85 = 265.97 px/m and every row below follows from that. */
-    expect(exp.floorRow).toBe(817);
-    expect(exp.eyeRow).toBe(490);
-    expect(exp.transverseRows).toEqual([850, 910, 994]);
+    expect(exp.floorRow).toBe(813);
+    expect(exp.eyeRow).toBe(524);
+    expect(exp.transverseRows).toEqual([842, 895, 969]);
     expect(exp.cornerCols[0]).toBeCloseTo(768 - 5.45 / 2 * (1024 / 3.85), 6);
     expect(exp.cornerCols[1]).toBeCloseTo(768 + 5.45 / 2 * (1024 / 3.85), 6);
-    expect(exp.ceilRow).toBe(73);    // 2.8 m of room at 265.97 px/m below the floor line
+    expect(exp.ceilRow).toBe(69);    // 2.8 m of room at 265.97 px/m below the floor line
 
     // Foreshortening is asserted, not assumed: successive gaps strictly
     // decrease toward the wall (a uniformly-spaced floor fails).

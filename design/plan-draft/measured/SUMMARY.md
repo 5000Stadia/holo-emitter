@@ -56,7 +56,12 @@ Where the four non-zero deltas come from, in full:
 foot of the skirting. Row means over x 600..1300 run 775 → 24.6, 776 → 22.5,
 **777 → 3.8**, 778 → 18.0. The draft calls 776 "the first floorboard"; this
 pipeline places the line on the darkest row of the seam, 777. Same feature, one
-row apart, 0.004 m.
+row apart, 0.004 m. Worth noting: the fully automatic "lowest true horizontal"
+rule, run unaided, returns **776** here — the draft's own value to the pixel.
+It agrees within 1 px unaided on `study/N`, `study/W`, `hall/N` and `hall/S`;
+the other four needed the hand-read bracket, and every JSON records what the
+automatic rule would have said in
+`_candidates.wall_floor_line_hand_read_window.automatic_lowest_true_horizontal`.
 
 **Corners, −5 / +1 px.** The right corner agrees with the draft's 4× zoom read
 of the vertical edge (1390) to the pixel. On the left the ceiling-line step

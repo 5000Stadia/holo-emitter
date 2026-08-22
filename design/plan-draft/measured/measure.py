@@ -661,6 +661,7 @@ def measure(fac):
 
     return dict(facing=fac, src=cfg["src"], cfg=cfg, cfg_calib=cfg["calib"], measured=m,
                 ceil_cands=ceil_cands, floor_cands=floor_cands,
+                floor_window=floor_best,
                 rail_cands=rail_cands,
                 corner_ref_strength=round(cref, 1),
                 corner_vertical_edge_x0=e0, corner_vertical_edge_x1=e1,
@@ -874,6 +875,7 @@ def main():
           "_how_each_was_measured": HOW,
           "_candidates": {"wall_ceiling_line": r["ceil_cands"],
                           "wall_floor_line": r["floor_cands"],
+                          "wall_floor_line_hand_read_window": r["floor_window"],
                           "dado_rail": r["rail_cands"]},
           "_corner_evidence": {
               "mid_wall_reference_step_strength": r["corner_ref_strength"],

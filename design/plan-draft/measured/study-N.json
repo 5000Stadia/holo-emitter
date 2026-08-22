@@ -358,6 +358,33 @@
         "cv": 1.2
       }
     ],
+    "wall_floor_line_hand_read_window": {
+      "window": [
+        770,
+        786
+      ],
+      "window_profile": [
+        21.64,
+        20.09,
+        20.41,
+        20.69,
+        19.31,
+        24.54,
+        22.45,
+        3.79,
+        18.01,
+        27.38,
+        22.46,
+        22.02,
+        23.69,
+        22.9,
+        25.48,
+        24.95,
+        26.95
+      ],
+      "window_profile_first_row": 770,
+      "automatic_lowest_true_horizontal": 776
+    },
     "dado_rail": [
       {
         "y": 564,

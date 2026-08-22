@@ -436,13 +436,14 @@ export const LIT = {
   /* THE HORIZON, and it is the lens SHIFT — a level camera with its frame
      moved, not a tilted one. Measured off the approved backdrops at y 490 of
      1024 by a vanishing-point vote over three disjoint regions. */
-  horizon_y: 490 / 1024,
+  horizon_y: 524.4 / 1024,
   /* THE DRAWING CAMERA'S EYE HEIGHT, MEASURED (row 20). Blueprint §5 [HUMAN,
      2026-08-20] rules that the geometry is determined by the orientation of
      the approved image generation; the approved backdrops arrived and measure
-     1.2316 m, level. This supersedes row 11's 1.60 m interim, which was named
+     1.08775 m, level, by the ceiling-ramp horizon the Navigator ruled on its
+     0.3 px residual. This supersedes row 11's 1.60 m interim, which was named
      an interim awaiting exactly this. */
-  eye_m: 1.2316,
+  eye_m: 1.08775,
   /* THE GENERATION CAMERA. [HUMAN, 2026-08-20] "about a 6ft height" —
      blueprint §10 `camera.eye_height_m`, which backdrops are PROMPTED at and
      which the generator did not honour. No pixel here is drawn at it. */
@@ -454,8 +455,8 @@ export const LIT = {
      makes no claim about where its wall ends. */
   camera_wall_m: 4.0,
   px_per_m_at_wall: 1024 / 4.0,                    // 256
-  floor_line_y: 490 / 1024 + 1.2316 * (1024 / 4.0) / 1024,
-  px_per_m_at_bottom: (1024 - 490) / 1.2316,
+  floor_line_y: 524.4 / 1024 + 1.08775 * (1024 / 4.0) / 1024,
+  px_per_m_at_bottom: (1024 - 524.4) / 1.08775,
   wall_width_m: 16,
   k: 1024,      // px_per_m_at_wall × camera_wall_m — the focal length itself
   /* Every planned facing's room height [HUMAN 2026-08-21] — `plan.floors[].

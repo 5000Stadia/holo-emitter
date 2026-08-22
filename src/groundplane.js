@@ -12,13 +12,13 @@
  * completed [AI] with a pinhole anchored at the wall — scale(d) =
  * px_per_m_at_wall * camera_wall_m / (camera_wall_m - d), d in metres from
  * the wall toward the camera — then y through yAtScale (the inverse lerp).
- * CAMERA_WALL_M = 3.5 is the named home of the unplanned-facing fallback
- * meta's own camera distance (it is what row 1's GRID_K = 336 = 96 * 3.5
- * already meant). It is NOT a default for anyone else: since row 11 every
- * meta names its own depth anchor, and one that names none is an error rather
- * than a silent 3.5 m (see cameraDistance). The completion
- * is flagged to Kabe in blueprint §5's [AI] note; §12.5's V1 green witnesses
- * implementation-against-model, not model-against-intent.
+ * CAMERA_WALL_M (4.0 m since row 20) is the named home of the unplanned-facing
+ * fallback meta's own camera distance. It is NOT a default for anyone else:
+ * since row 11 every meta names its own depth anchor, and one that names none
+ * is an error rather than a silent fallback (see cameraDistance). Under row
+ * 20's pinned lens `scaleAtDepth` reduces to f / distance, so this function IS
+ * a pinhole rather than a completion of one — blueprint §5's [AI] note is
+ * rewritten to say so.
  *
  * u-mapping (pinned at row 1, homed here at row 2 because the validator's
  * overlap check must import it): u in [0,1] spans the central wall_width_m
@@ -89,23 +89,38 @@
   /* THE CAMERA THIS PROJECT DRAWS AT, measured off the approved backdrops
    * rather than authored (row 20). Blueprint §5 [HUMAN, 2026-08-20]: "The
    * geometry elements should be determined by the orientation of the approved
-   * initial image generation." Those generations arrived, Kabe approved them,
-   * and they were measured off their own pixels: the eye sits 1.2316 m above
-   * the floor and the horizon at y 490 of 1024, with no pitch (the principal
-   * point is 22 px ABOVE frame centre, the opposite sign to §10's −8°).
+   * initial image generation." That generation arrived, Kabe approved it, and
+   * it was measured off its own pixels — `design/plan-draft/measured/`, a
+   * re-runnable harness whose control reproduces the probe's own read of this
+   * image: the horizon at y 524.4 of 1024 and the eye 1.08775 m above the
+   * floor, with no pitch. The principal point sits ABOVE frame centre, the
+   * opposite sign to §10's −8°.
+   *
+   * WHICH HORIZON, and why this one. Two instruments measure it and they
+   * disagree by up to 66 px across the eight approved backdrops: a
+   * vanishing-point vote over Sobel gradients, and a robust fit of the two
+   * side-wall/ceiling junctions — lines parallel to the view axis, which must
+   * therefore converge ON the horizon. The Navigator ruled the ramp fit on its
+   * evidence: 0.29–0.34 px residual over 61 columns a side, against a vote
+   * whose three regions scatter by 30 px; and adopting it makes the study's
+   * four independently generated frames agree about their eye height 2.6×
+   * better (spread 0.131 m against 0.346 m). Nothing was regenerated for it.
    *
    * This supersedes row 11's 1.60 m, which was named an interim awaiting
    * exactly this measurement. §10's ruled 1.83 m is the GENERATION camera and
-   * is untouched — the generator was asked for it and drew 1.23 m instead, and
-   * that divergence is recorded rather than corrected, because §5 makes the
-   * approved image the authority and §10's field is [HUMAN].
+   * is untouched — the generator was asked for it on all eight and drew about
+   * 1.1–1.5 m every time, and that divergence is recorded rather than
+   * corrected, because §5 makes the approved image the authority and §10's
+   * field is [HUMAN]. The intention's fifth quality asks for a CONSISTENT eye
+   * height, and measurement delivers one; it is simply not the height the
+   * briefs name.
    *
-   * What the lower camera buys is the intention's fifth quality: the frame
-   * bottom cuts the floor at 2.36 m instead of the 3.08 m every 24 mm preview
-   * frame drew. `horizon_y` is the lens SHIFT (a level camera with the frame
-   * moved, not a tilted one), and it stays one. */
-  var DRAWING_EYE_M = 1.2316;
-  var HORIZON_Y = 490 / 1024;
+   * What the lower camera buys is that quality's other half: the frame bottom
+   * cuts the floor at 2.23 m instead of the 3.08 m every 24 mm preview frame
+   * drew. `horizon_y` is the lens SHIFT (a level camera with its frame moved,
+   * not a tilted one), and it stays one. */
+  var DRAWING_EYE_M = 1.08775;
+  var HORIZON_Y = 524.4 / 1024;
 
   /** Pixels per metre at the wall plane, for a camera-to-plane distance. */
   function pxPerMAtWall(distanceM) { return FOCAL_PX / distanceM; }

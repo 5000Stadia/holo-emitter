@@ -805,7 +805,7 @@ test.describe("the camera the projection runs on", () => {
      * it. Which constant is Kabe's [HUMAN 2026-08-21] — the interim 1.60 m
      * ships until row 4 measures a camera that can carry §10's pitch half. */
     expect(GRID_CAMERA.eye_m).toBe(DRAWING_EYE_M);
-    expect(DRAWING_EYE_M).toBe(1.2316);      // MEASURED off the approved backdrops (row 20)
+    expect(DRAWING_EYE_M).toBe(1.08775);     // MEASURED off the approved study/N backdrop (row 20)
     expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled, and absent from the approved image
     expect(INTERIM_EYE_M).toBe(DRAWING_EYE_M);
     expect(RULED_EYE_M).toBe(1.83);          // §10's generation camera, untouched
@@ -948,8 +948,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(5.45);
     expect(m.px_per_m_at_wall).toBeCloseTo(PX, 9);          // 235.402
     expect(m.camera).toBeUndefined();
-    expect(m.floor_line_y).toBeCloseTo(490 / 1024 + 1.2316 * PX / 1024, 12);  // 0.8478 -> y 868
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 490) / 1.2316, 9);
+    expect(m.floor_line_y).toBeCloseTo(524.4 / 1024 + 1.08775 * PX / 1024, 12);
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 524.4) / 1.08775, 9);
     expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * PX, 9);        // 126.5
     expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * PX, 9);        // 1409.5
     expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * PX, 9);
@@ -975,7 +975,7 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(20.4);
     expect(m.camera).toBeUndefined();
     expect(m.px_per_m_at_wall).toBeCloseTo(1024 / m.camera_wall_m, 9);
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 490) / 1.2316, 9); // scale-independent
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 524.4) / 1.08775, 9); // scale-independent
     expect(m.corner_x0_px).toBeLessThan(0);
     expect(m.corner_x1_px).toBeGreaterThan(1536);
   });

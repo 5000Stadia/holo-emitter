@@ -1258,8 +1258,12 @@ test.describe("mechanisms that were unguarded", () => {
         known, fx.staging, window.__T.lib(), window.__T.metaOf(vs), vs)[0];
       const mid = { x: Math.round(a.x + a.w / 2), y: Math.round(a.y + a.h / 2) };
       const unknownScene = window.__T.renderW(unknown, fx.staging, vs, {});
+      /* study/W, not study/S: row 20's lens gives every facing its own scale,
+         and the only facing that shares study/E's meta exactly — same 4.80 m
+         wall, same 4.09 m standpoint — is its opposite. A bare facing on a
+         different meta would be a different wall at that pixel. */
       const bare = window.__T.renderW(unknown, fx.staging,
-        { location: "study", facing: "S" }, {});
+        { location: "study", facing: "W" }, {});
       const px = (c) => {
         const d = c.getContext("2d").getImageData(mid.x, mid.y, 1, 1).data;
         return d[0] + d[1] + d[2];
@@ -2205,7 +2209,7 @@ test.describe("the room has corners, and they are where the plan says", () => {
       const meta = {
         ...base, camera_wall_m: cam, px_per_m_at_wall: px,
         wall_width_m: w,
-        floor_line_y: base.horizon_y + 1.2316 * px / 1024,
+        floor_line_y: base.horizon_y + 1.08775 * px / 1024,
         corner_x0_px: 768 - w / 2 * px, corner_x1_px: 768 + w / 2 * px
       };
       const c = document.createElement("canvas");

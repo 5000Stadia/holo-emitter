@@ -699,12 +699,12 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     PLAN HOLDS resolves to — unestablished space whose extent nobody has drawn. Its 16.0 m wall is
     meaningful only there. **[AI, amended at row 20: every number below is now DERIVED, from three
     authored terms — the fallback's own camera distance 4.0 m, the MEASURED drawing eye height
-    1.2316 m, and the MEASURED horizon 490/1024 — because the project pins a LENS and
+    1.08775 m, and the MEASURED horizon 524.4/1024 — because the project pins a LENS and
     `px_per_m_at_wall` is no longer anyone's to author.]** In full: `camera_wall_m` **4** (was
     3.5, moved so the derived values are decimals a human can check),
-    `px_per_m_at_wall` **256** (= 1024 / 4), `horizon_y` **0.478516**,
-    `floor_line_y` **0.786416** (= horizon + eye × 256 / 1024), `px_per_m_at_bottom` **433.582**
-    (= (1024 − 490) / 1.2316), `wall_width_m` 16.0, `key_dir` "UL", `key_tint` `#c8b489`
+    `px_per_m_at_wall` **256** (= 1024 / 4), `horizon_y` **0.512109** (= 524.4 / 1024),
+    `floor_line_y` **0.784047** (= horizon + eye × 256 / 1024), `px_per_m_at_bottom` **459.297**
+    (= (1024 − 524.4) / 1.08775), `wall_width_m` 16.0, `key_dir` "UL", `key_tint` `#c8b489`
     (deliberately non-identity so the §12.8 tint assertion is satisfiable on grid backdrops),
     `image_h_px` 1024, `calibration_ref` "wall grid module, 1.0 m at the wall plane",
     `calibration_px` **256**, at 1536×1024;
@@ -714,7 +714,7 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     "the wall the frame holds at 96 px/m", which was a fact about a pinned scale. The frame holds
     6.0 m at this distance now, so 16.0 m is deliberately WIDER than the frame — an unbounded wall,
     so that nothing about a facing nobody has drawn reads as a claim that its wall ends. The
-    nearest visible floor is 1024 / 433.582 = **2.36 m**.
+    nearest visible floor is 1024 / 459.297 = **2.23 m**.
     §5's own example block stays as Kabe's illustration of the schema, to be measured per
     backdrop at row 4. Both documents said different things about `wall_width_m` for a commit,
     which is how a [HUMAN] question came to be stated against numbers that were not shipping.

@@ -673,6 +673,199 @@ could name.
 today, and any future object in that room composes inside 1.3 m — row 4 and row 15 inherit that as a
 composition limit, not only as a legality bound.
 
+## The lens (row 20) — what changed, and what it is bound to
+
+**The project pins a LENS, not a scale.** Until row 20 every facing drew at
+`px_per_m_at_wall` 96 whatever its standpoint distance, so the implied focal
+length — `px_per_m_at_wall × camera_wall_m` — ran 187 px to 2014 px across the
+manor: a 4 mm fisheye in the cross passage, a 47 mm normal in the entrance
+court, eleven different lenses in one building. That is the arithmetic behind
+Kabe's symptom, verbatim: *"the demo first room looks like every direction is a
+corridor….. That looks like a cross junction of long hall rooms or something and
+user is in the middle. Like a + shape."*
+
+Now `px_per_m_at_wall = FOCAL_PX / cameraDistance(meta)` with `FOCAL_PX` = 1024,
+which is 24 mm on the 36×24 mm format this 1536×1024 frame exactly is (hFOV
+73.7°). Three unrelated authorities converge there and the research at
+`design/plan-draft/perspective-research.md` has the workings: Presto Studios'
+own released interior camera at 70.6°, architectural photography's stated
+ceiling at 73.7°, and the study's own north wall requiring 74.2°.
+
+**Where the number lives, and what binds it.** `src/groundplane.js` holds
+`FOCAL_MM` 24, `FRAME_W_MM` 36 and the derived `FOCAL_PX`; `replicator/
+contract.json`'s `camera.focal_mm` is blueprint §10's [HUMAN] home for the
+millimetres; `assertRuledLens` in `tools/plan-projection.mjs` refuses when they
+differ and the bake calls it beside `assertRuledEye`. Two files agreeing is not
+a binding — the check that fires when they stop is.
+
+**The model collapses to one pinhole, and §5's recorded incoherence dies with
+it.** A floor point at distance `d` draws at `y = horizon_px + f·eye/d` and at
+scale `f/d`, so `scale(y) = (y − horizon_px)/eye`: linear in y and zero exactly
+at the authored horizon. §5's lerp and §5's horizon device had been one camera
+PER FACING since row 11; what row 20 changes is that it is the same camera on
+every facing. `scaleAtDepth` reduces to `f / distance`.
+
+**The drawing camera is MEASURED now.** `groundplane.DRAWING_EYE_M` = 1.2316 m
+and `HORIZON_Y` = 490/1024, read off the approved backdrops rather than
+authored — blueprint §5 [HUMAN, 2026-08-20] rules that the geometry is
+determined by the orientation of the approved image generation, and row 11's
+1.60 m was named an interim awaiting exactly that. §10's ruled 1.83 m is
+untouched: it is the GENERATION camera, it is what backdrops are prompted at,
+and the generator did not honour it. The lower camera is what returns the
+intention's fifth quality — the frame-bottom floor cut comes in to **2.36 m**
+where every 24 mm preview frame drew 3.08 m.
+
+### The standpoint law
+
+Blueprint §10's ruling is *"Standpoints move to the thresholds"*. Two [HUMAN]
+artifacts make the literal reading untenable and the Navigator ratified the
+conditional in their light: Kabe approved preview frame `02b`, the passage's
+east view at its DRAWN rule distance of 6.00 m, and `01d`, the study's north
+view at its THRESHOLD of 4.35 m. The two frames together are the conditional,
+stated in pictures:
+
+> A facing that views a wall stands back to the far side of the room — a body's
+> clearance (`plan.standpoint_threshold_clearance_m`, 0.45 m) off the wall
+> behind it — when, and only when, its own wall does not fit the frame from the
+> drawn standpoint. Otherwise the drawn standpoint stands. An `open` facing
+> keeps the rule: its far line is a horizon and there is nothing to stand
+> across from.
+
+`standpointFor` in `tools/validate-plan.mjs` is its one home, called by the
+validator, by `--rebuild-facings` and (through the plan) by the drawing.
+`standpoint_source` gained a third token, `threshold`, beside `rule` and
+`drawn`. Forty-two of the manor's eighty-eight standpoints moved, all backward.
+
+Two things the law has to handle and does: **masonry**. A threshold walks into
+the deep interior of a room, which is where hearths and stair flights are, and
+four of the manor's would have landed inside one. The point pulls forward to
+clear anything attached to the wall behind it (`study/S` therefore stands at
+3.85 m, not 4.35 — you cannot back into your own chimney breast), and where the
+pulled-forward point is STILL inside masonry — a stair flight that fills its own
+room, which the manor has two of — the drawn standpoint keeps the facing. A rule
+that cannot be satisfied gives way rather than producing an absurdity it then
+reports. `plan.standpoint_clear` is the clause that refuses one anyway, hard for
+a `threshold` standpoint (an agent computed it) and a warning for a `rule` or
+`drawn` one (the drawing carries it). A standpoint in masonry takes
+**precedence** over the branch and placement clauses: one fault, one finding,
+which is what lets the ledger isolate it.
+
+### What §12.5 lost, and what stands in its place
+
+**Clause (i) is retired** — *the wall in view fits the frame*, and its
+null-corner half with it, along with the three ledger mechanisms that carried
+them (`meta.frame_fits_left`, `_right`, `_uncornered`). Under a pinned lens a
+wall wider than the frame runs past it, exactly as in life: the cross passage's
+8.00 m north wall seen from 2.15 m is 3810 px of wall in a 1536 px frame and its
+corners are 1137 px outside. Keeping the clause would refuse the honest picture.
+It is narrowed, not softened.
+
+**(i′) ONE LENS** replaces it: `px_per_m_at_wall × cameraDistance(meta)` is
+`FOCAL_PX`. Its status is said out loud, because this project has paid five
+times for gates that cannot fail — **on a derived meta it holds by construction
+and is a schema clause, not evidence; on a measured backdrop meta it is evidence
+and can fail**, because the scale is read off the painting and the distance off
+the approved drawing.
+
+**(v) the falsifiable half at V1, in pixels.** What actually binds a meta to the
+canvas now is the render: `geometry.spec` measures the drawn spacing of the
+facing wall's own vertical metre lines and requires it to equal
+`px_per_m_at_wall` within 2 px, on every facing. Pixels against arithmetic —
+where the original clause's force lived, surviving the model change.
+
+**(vi) corner honesty.** A corner vertical is drawn iff its computed x lies
+inside the canvas — measured off the render on all eight facings, in both
+directions. `hall/N` and `hall/S` assert that NO corner column exists anywhere
+in the frame; the other six assert the detector finds the corner that is there,
+so a renderer that stopped drawing corners could not pass by saying "no".
+
+### The `+` junction guard
+
+The symptom made measurable: the share of the frame taken by side-wall RETURN
+rather than by the wall you are facing. Under the pinned scale `study/N`
+measured 66 % and `hall/E` 84 % — one band, no separation, which is why every
+direction read the same. Now: study 5.6–21.8 %, passage ends 71.1 %, passage
+long walls 0 % (their wall is wider than the frame). Two clauses, at two levels:
+no facing of a room that is not a corridor may show more side wall than facing
+wall, and every study facing is under a third. Row 11's relative two-term
+corridor ordering is kept beside them.
+
+### What a facing shows, and two that show a wall
+
+`hall/N` and `hall/S` show **no floor line, no ceiling line and no corner**, and
+this is correct rather than a defect: the passage is 2.60 m deep, at this lens
+you see one metre of wall per metre of distance, and from anywhere inside it the
+wall runs from 0.48 m to 2.63 m with its foot 230 px below the frame. Nothing
+can be staged on them either — the shipped depth bound `scaleAtDepth ≤
+px_per_m_at_bottom` refuses any placement at any depth — which is what forced
+`shelf1` and `stick1` onto `hall/E` (the reasons are on the plan objects). The
+census is a plan warning rather than a hidden fact.
+
+### Residue, named
+
+1. **The nearest visible floor is 2.36 m on every facing in the manor**, and it
+   is `eye / (1 − horizon_y)` when `f` equals the frame height, as it does here.
+   Its infimum over any usable horizon is the EYE HEIGHT itself, so no lens
+   shift at this focal length puts the cut at a viewer's feet — the intention's
+   fifth quality's second carrier, *"Kabe's reference anchors the same way
+   through a near desk surface"*, is what closes the rest, and it belongs to the
+   row that stages a near surface. **And that carrier is currently forbidden by
+   a guard**: the depth bound above refuses any placement nearer than the
+   nearest visible floor, which is exactly the near-surface device. Whoever
+   builds it needs the bound to admit an object whose feet are out of frame but
+   whose surface is in it.
+2. **Objects near the wall draw larger by a different factor per facing** —
+   ×1.78 on the passage's ends, ×2.45 and ×2.61 in the study, ×4.96 on the
+   passage's long walls. One number for the manor would be false.
+3. **Turning translates the body further than before.** Threshold standpoints
+   put the study's N and S standpoints 3.90 m apart in a 4.80 m room (2.40 m
+   before), the passage's E and W 4.00 m apart. The ruling's own words are *"one
+   lens per room so turning never changes the body"*: the lens half is fixed and
+   the position half is worse. §4b item 9's multi-standpoint rooms are row 15's,
+   and this is the number that decides them.
+4. **The eye/pitch axis is untouched and still disagrees.** §10 rules eye 1.83 m
+   with −8° pitch for generation and the renderer draws at the measured 1.2316 m
+   level. A backdrop generated at −8° and projected level mis-sites the horizon
+   by `f·tan 8°` = 144 px. Same class of defect as the focal one, on an axis
+   this row is not licensed to move.
+5. **`door1`'s plan/staging divergence is magnified.** The drawing sites it
+   1.1 m south of the study's east-wall centre and the staging centres it; at
+   250 px/m that disagreement is 275 px of picture against 106 px before.
+6. **Sprites do not stretch.** A real 24 mm lens elongates an off-axis object by
+   up to 1.35× and a pasted sprite will not; `chair1` sits 37.2° off axis.
+7. **The rooms read larger than their metres**, by a factor no reachable lens
+   removes and uniform across every facing.
+
+### What row 20 hands on, and to whom
+
+The spec list is the one home of targets and this row may not edit another row's
+text, so the hand-offs are recorded here where they survive its close:
+
+- **The asset lane** — the eight approved backdrops are measured
+  (`design/plan-draft/measured/`, re-runnable) and they imply **eight different
+  focal lengths**, 498 px to 1010 px against the ruled 1024. `study/N` — the one
+  Kabe's probe approved — lands 1.4 % away, so the measurement CONFIRMS the
+  ruling; the disagreement is concentrated in the passage, whose north and south
+  paintings depict a room 4.01 m and 3.54 m deep against a plan that says 2.60.
+  Promoting them at true geometry is a fork with three answers and it is carried
+  to the Navigator in the row's report.
+- **The measurement also found**: the frames disagree with themselves about
+  their own horizon (ceiling geometry and floor geometry give vanishing points
+  up to 66 px apart, the ceiling-ramp fit being far the sharper at 0.3 px
+  residual); the camera is ~1.2 m on all eight where 1.83 m was asked for every
+  time; and the painted door is measured at 660..874 × 308..778 on `study/E` and
+  698..825 × 377..649 on `hall/W` but painted at 2.20:1 and 2.14:1 against a
+  ruled 2:1, so its two ruled dimensions disagree by 9 % and 7 % about that
+  facing's scale.
+- **The doorway wants to become a fact about the BUILDING rather than about a
+  leaf sprite** — a meta carrying its own measured opening, with the aperture
+  derived from it where no leaf is staged. That makes §11's *"the painted
+  opening must coincide with the click target"* true by construction instead of
+  by prompt discipline, and it is what an empty painted room needs in order to
+  be walkable. Ratified in principle; unbuilt.
+- **Rows 18 and 19**: eight more ledger tokens, and row 19's carrier work partly
+  reached here for standpoints only (`plan.standpoint_clear`).
+
 ## Ground plane (`src/groundplane.js`)
 
 Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for placement**:
