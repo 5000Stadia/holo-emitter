@@ -709,3 +709,70 @@ test.describe("§12.8's switches, on the facings this row invents", () => {
     }
   });
 });
+
+test.describe("§12.2 over a manor route, in both engines", () => {
+  test.use({ viewport: POINTER_VIEWPORT });
+
+  /* The route both clauses run on: out of the study, round the service range,
+     up the great stair, along the gallery, down the back stair and home —
+     eighteen passages across both floors. Turns included, because a turn is a
+     picture too and clause 1 is about the SEQUENCE of them. */
+  const ROUTE = ["door_study_hall", "door_hall_buttery_pantry",
+    "door_buttery_pantry_servants_hall", "door_servants_hall_privy_garden",
+    "door_privy_garden_garden_room", "door_garden_room_library",
+    "door_library_great_stair_hall", "stair_great_stair_hall_stair_landing",
+    "door_stair_landing_solar", "door_solar_muniment_room",
+    "door_muniment_room_long_gallery", "door_long_gallery_back_stair_head",
+    "stair_back_stair_head_back_stair", "door_back_stair_great_hall",
+    "door_great_hall_entrance_court", "way_entrance_court_entrance_approach",
+    "way_entrance_approach_entrance_court", "door_entrance_court_kitchen"];
+
+  async function hashes(page) {
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    return await page.evaluate(async (route) => {
+      const A = window.HOLO_APP;
+      const c = document.getElementById("scene");
+      const hash = async () => {
+        const b = await new Promise((r) => c.toBlob(r, "image/png"));
+        const d = await crypto.subtle.digest("SHA-256", await b.arrayBuffer());
+        return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
+      };
+      const out = [await hash()];
+      const refused = [];
+      for (const id of route) {
+        const vs = A.harness.viewstate;
+        const ex = (A.harness.world.locations.find((l) => l.id === vs.location).exits || [])
+          .find((e) => e.id === id);
+        if (!ex) { refused.push(`${id}: not an exit of ${vs.location}`); continue; }
+        let g = 0;
+        while (A.harness.viewstate.facing !== ex.facing && g++ < 4) {
+          A.harness.dispatch({ type: "turn", dir: "right" });
+          out.push(await hash());
+        }
+        if (!A.harness.dispatch({ type: "go", exit: id }).events.length) {
+          refused.push(`${id}: refused from ${JSON.stringify(vs)}`);
+        }
+        out.push(await hash());
+      }
+      return { out, refused, end: A.harness.viewstate };
+    }, ROUTE);
+  }
+
+  test("clause 1: two fresh loads of the same route paint the identical sequence", async ({ page }) => {
+    test.setTimeout(240_000);
+    const a = await hashes(page);
+    expect(a.refused, "the route walks").toEqual([]);
+    const b = await hashes(page);
+    expect(b.end, "and ends in the same room both times").toEqual(a.end);
+    expect(a.out.length, "a picture per turn and per passage").toBeGreaterThan(ROUTE.length);
+    /* Not a stored golden — a within-run identity, which is all §12.2's letter
+       asks and all a `file://` page with no network can honestly hold. */
+    expect(b.out, "equal inputs paint equal pixels, across two cold loads").toEqual(a.out);
+    /* And the pictures are not all the same picture, which is the thing an
+       identity check cannot notice on its own: a renderer that painted one
+       frame forever would pass every clause above. */
+    expect(new Set(a.out).size, "and the manor is not one room repeated")
+      .toBeGreaterThan(ROUTE.length);
+  });
+});
