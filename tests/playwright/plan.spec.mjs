@@ -2061,23 +2061,20 @@ test.describe("the schematic is a derived render of the plan", () => {
       `approval.lock's \`pending\` line is not the derived scope. Write exactly:\n\npending  ${d.sentence}\n\nand re-run draw_plan.py and render.sh. The line is computed from standpoints.tsv against ${SEEN_SHEET_COMMIT}, not composed — a clause a person writes is a clause a person can negate.`)
       .toBe(d.sentence);
 
-    /* AND THE LOCK'S OWN PROSE MAY NOT CONTRADICT IT. The commentary above the
-       clause read "Forty-two of the manor's eighty-eight standpoints moved" —
-       forty-two is not any baseline's answer (38 against every pre-row-20
-       commit, 0 against every post-row-20 one), and it sat eighteen lines above
-       a derived line saying 38, in the file whose new paragraph argues that
-       human-authored prose cannot carry the claim. Any count of facings this
-       file states, anywhere in it, is the computed one. */
-    const lock = readFileSync(join(draftDir, "approval.lock"), "utf8");
-    const counted = [...lock.matchAll(/(\d+) of the manor's (\d+) facings/g)]
-      .map((m) => `${m[1]} of the manor's ${m[2]} facings`);
-    expect(counted.length,
-      "approval.lock states no facing count at all — the clause itself carries one, so this comparison has lost its subject")
-      .toBeGreaterThan(0);
-    for (const c of counted) {
-      expect(d.sentence, `approval.lock states "${c}", which is not what the delta computes`)
-        .toContain(c);
-    }
+    /* AND THE LOCK'S PROSE STATES NO COUNT, WHICH IS WHY THERE IS NO SECOND
+       ASSERTION HERE. The commentary once read "Forty-two of the manor's
+       eighty-eight standpoints moved" — no baseline's answer, typed into a
+       comment and read by nothing, eighteen lines above a derived line saying
+       38. The first repair put the right number in the prose and matched it
+       with `/(\d+) of the manor's (\d+) facings/`; a critic typed the original
+       false sentence straight back in — words, and the noun "standpoints" —
+       and the suite stayed green, along with three other phrasings. **A pattern
+       enumerating one spelling cannot hold prose.** So the count lives exactly
+       once, in the clause the line above computes, and the paragraph points at
+       it instead of restating it. [Navigator's ruling at the row-20 close,
+       2026-08-22, taking the critic's own first constraint: when prose states
+       no number, there is no number for prose to get wrong — which is the
+       argument the `pending` line itself won on.] */
   });
 
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {

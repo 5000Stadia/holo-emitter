@@ -60,14 +60,22 @@
 # What changed in the drawing: every facing whose viewed wall does not fit the
 # frame from its drawn standpoint now stands at the far side of its room
 # instead - 0.45 m off the wall behind it, pulled forward where a hearth or a
-# stair flight is in the way. The printed distances moved with the standpoints,
-# on 38 of the manor's 88 facings - and that count is the one the `pending`
-# line below carries, because it is the same computation. It read "Forty-two of
-# the manor's eighty-eight" until a critic checked it against every plausible
-# baseline and got 38 from all of them: a number typed into a comment, read by
-# nothing, eighteen lines above a derived line that disagreed with it. Nothing
-# else the sheets draw changed: no wall, no opening, no window, no hearth, no
-# stair, no room.
+# stair flight is in the way, and their printed distances moved with them.
+#
+# HOW MANY IS NOT STATED HERE, AND THAT IS THE FIX. This paragraph used to
+# count the moved standpoints in its own words - a number typed into a comment
+# and read by nothing, which turned out to be no baseline's answer at all. The
+# first repair replaced it with the right number and
+# pattern-matched for that one spelling, and a critic typed the false sentence
+# straight back in, in words instead of digits, with the suite green. A guard
+# that enumerates one phrasing cannot hold prose. So the count lives exactly
+# once, in the `pending` line at the foot of this file, which is computed from
+# standpoints.tsv rather than written - and when prose states no number there
+# is no number for prose to get wrong. [Ruled by the Navigator at the row-20
+# close, 2026-08-22, on the critic's own first constraint.]
+#
+# Nothing else the sheets draw changed: no wall, no opening, no window, no
+# hearth, no stair, no room.
 #
 # The authority: Kabe's approval of the perspective preview frames on
 # 2026-08-21 - "If so full steam ahead, lets build this thing" - which blessed

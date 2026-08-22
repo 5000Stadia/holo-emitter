@@ -2165,9 +2165,24 @@ out when it did not.
   commit it removed everyone's ability to notice. **The words are scoped to the manor now, so they
   are true wherever they are printed** — the alternative, a per-sheet count off the `floor` column,
   stays available and is what to reach for if the clause ever names something a sheet holds only
-  part of. The lock's own commentary carried a *"Forty-two of the manor's eighty-eight"* beside it
-  that was no baseline's answer, so every facing count that file states, anywhere in it, is now the
-  computed one.
+  part of.
+- **[Round 8, J1] A pattern enumerating one phrasing cannot hold prose, and the last repair was
+  one.** `approval.lock`'s commentary carried a *"Forty-two of the manor's eighty-eight standpoints
+  moved"* that was no baseline's answer; the repair put the computed number into the prose and
+  asserted every `/(\d+) of the manor's (\d+) facings/` in the file against it — and a critic typed
+  the original false sentence straight back in, in words and with the noun *standpoints*, green,
+  along with three other phrasings. The row's own signature defect at its narrowest: a guard written
+  against one literal that does not match the literal that caused it. **So the prose states no count
+  at all and points at the clause.** The number lives exactly once, where it is computed, and when
+  prose states no number there is no number for prose to get wrong — which is the argument the
+  `pending` line itself won on. [Ruled by the Navigator at the row-20 close, 2026-08-22, on the
+  critic's own first constraint; no verification round follows a deletion whose safety is that there
+  is nothing left to be wrong.] The general form, and it is the last thing this row learned:
+  **prefer deleting the second copy of a fact to writing a guard that compares the two.**
+- **[Round 8, J2] A guard satisfied by its own subject is not a check.** The same repair asserted
+  that `approval.lock` states at least one facing count — satisfied by the `pending` line the scan
+  ran over, so its only failing state was one the byte-equality three lines above already caught. It
+  went with the rest of the machinery.
 - **[Round 7] `walkthrough.spec`'s highlight-stall case is timing-sensitive on Firefox.** It failed
   once during a 2.8-minute run of a suite that normally takes 1.6, on a machine loaded by a parallel
   capture, and passed alone and in two clean full runs after. Pre-existing, outside row 20, recorded
