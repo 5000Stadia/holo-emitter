@@ -1383,9 +1383,24 @@ them:
   its fireplace opening at 0.87–1.78 m. The gate could not see it: it asks whether a candidate was
   painted at the project's CAMERA and never whether the room in the picture is the room the plan
   draws. `promote-backdrop.mjs` now measures every in-view carrier against its plan position and
-  records it in the meta (`measured_room.carriers`), `geometry.spec` holds the number so it cannot
-  move unnoticed, and the batch asks Kabe which of his two approved documents moves. **Nothing is
-  staged on that wall until it is answered** — row 4's first backdrop is this one.
+  records it in the meta (`measured_room.carriers`), and `geometry.spec` holds the number so it
+  cannot move unnoticed.
+  **RULED at the row-21 close (Navigator, 2026-08-22): the PLAN amends to the painting**, and it
+  lands as its own row rather than inside this one. The wall map's hearth was [AI]-drafted; the
+  painting's position is what Kabe approved with his own eye (`design/approvals.log`, 2026-08-21)
+  and blueprint §5 makes the approved image the geometric authority. The rectangle is the painted
+  stone CASE — 1.27 m wide centred at 1.39 m, its outer mouldings measured at 0.756 and 2.023 m —
+  and NOT the 0.87–1.78 m opening the first report quoted, because a 0.91 m breast around a 0.91 m
+  opening is impossible. What it costs, priced before it was scheduled: moving the carrier takes
+  `study/S`'s standpoint back from 3.85 m to its threshold 4.35 m, because that standpoint is
+  pulled forward TO CLEAR THIS HEARTH — and with it go the derived meta, the drawn distance,
+  `standpoints.tsv`, the gate's own re-ask target for that facing (262.3 → 232.2 px/m), the
+  test-side literal in `helpers.mjs`, `projection.md` and `measure.py`'s comparison table. The
+  drawn digest moves too, so the sheets print UNAPPROVED REVISION until `approval.lock` and
+  `APPROVAL_COMMIT` are re-anchored — and the re-anchor is not an agent's to take on the ledger's
+  say-so alone: the re-rendered sheet goes to Kabe for a one-glance redline approval, which is
+  where the method says a redline ends. **Nothing is staged on that wall until it lands** — row 4's
+  first backdrop is this one.
 - **`null >= 0` is `true`**, so the guard meant to silence a doorway with no known "beyond" never
   fired and the far room drew 3.1× too large instead. A finite-number test now, with a throw rather
   than a silent fallback on a non-finite value.
@@ -1430,6 +1445,13 @@ them:
 - **The phone assertion was the convenient viewpoint.** `scene.height > 100` passes at a size that
   leaves the painting unreadable; it is now the contain-fit the layout allows, with the 31 %-of-screen
   share stated as the look question it is.
+- **The `key_dir` fork is CLOSED**, under blueprint §10's own recorded disposition and the
+  Navigator's ruling of 2026-08-22: a facing whose MEASURED key defies UL rules its own staged
+  sprites' light, as one more dimension of the variant manifest, and UL45 remains the default for a
+  facing that is unmeasured or neutral-keyed. `study/N` measures L-BELOW — the hearth fire — so its
+  sprite set generates fire-lit. `replicator/contract.json`'s `_backdrop_block_status` carries the
+  fork rewritten as closed with the authority chain in it; nothing else in that file moved and its
+  identity digest is unchanged.
 - **Two comments that said the opposite of their code** — the through-view's account of destination
   entities (they ARE drawn, knowledge-filtered by the world), and a dead `worldFault` branch whose
   narration line could never be reached.
