@@ -1,0 +1,85 @@
+{
+  "_what_this_is": "DRAFT §5 meta for study/N, measured off backdrops/source/study-N/cand-2.png at the row-4 probe. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it yet, and the camera it implies is not written into any document. Every number below was read off the pixels; the derivations are stated so a fresh agent can re-measure and disagree.",
+
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.757813,
+  "horizon_y": 0.478516,
+  "px_per_m_at_wall": 232.222,
+  "px_per_m_at_bottom": 433.59,
+  "wall_width_m": 5.344,
+  "camera_wall_m": 4.4096,
+  "corner_x0_px": 147,
+  "corner_x1_px": 1388,
+  "key_tint": "#c8a681",
+  "key_dir": "L",
+  "calibration_ref": "fireplace opening, 0.90 m wide at the wall plane",
+  "calibration_px": 209,
+
+  "_measured_px": {
+    "wall_ceiling_line_y_px": 81,
+    "wall_floor_line_y_px": 776,
+    "horizon_y_px": 490,
+    "corner_x0_px": 147,
+    "corner_x1_px": 1388,
+    "corner_midpoint_px": 767.5,
+    "fireplace_opening_x0_px": 341,
+    "fireplace_opening_x1_px": 550,
+    "fireplace_opening_width_px": 209,
+    "fireplace_opening_height_px": 251,
+    "mantel_shelf_top_y_px": 450
+  },
+
+  "_how_each_was_measured": {
+    "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the top band, constant at y=81 for every column from x≈148 to x≈1386 (checked at 4x zoom: the plaster coving meets the paneling head; there is no deep cornice). Outside that span the line slopes away — those are the side-wall returns.",
+    "wall_floor_line_y_px": "The naive strongest step in the lower band is y=742, and that is the SKIRTING CAP moulding, not the floor. At 4x zoom the skirting face runs from y≈743 to y≈775 and the first floorboard begins at y≈776. Confirmed independently by the hearth slab's back edge, which meets the wall at y≈775.",
+    "horizon_y_px": "Vanishing-point vote, not an assumption. Sobel gradients over the whole frame; for a grid of candidate vanishing points, count edge pixels whose gradient is perpendicular to the ray from that point. Run separately on three disjoint regions: the floor below y=789 votes (768, 486); the ceiling above y=74 votes (754, 498); the two side-wall panelling bands vote (748, 516). Adopted 490. The x agreement at 768 (frame centre) also says the camera is square to the wall and unrolled.",
+    "corner_x_px": "The x where the wall-ceiling line stops being horizontal, both sides, confirmed against the vertical corner edge at 4x zoom (left 145, right 1390). Their midpoint is 767.5 against a frame centre of 768.",
+    "fireplace_opening": "Row-gradient edges of the stone jambs' inner faces, stable across y=600..720: left 341, right 550. Height from the four-centred arch apex (y≈517) to the firebox floor (y≈768).",
+    "px_per_m_at_wall": "calibration_px / calibration_ref size = 209 / 0.90.",
+    "px_per_m_at_bottom": "§5's own horizon device: (image_h_px − horizon_y·image_h_px) / eye_height_m = 534 / 1.2316.",
+    "camera_wall_m": "f / px_per_m_at_wall with f = 1024 px (blueprint §10's ruled 24 mm lens). A single image cannot measure focal length without a known depth, so this is the ONE number here that is derived from a ruling rather than from the pixels.",
+    "key_tint": "Mean RGB of the firelit ceiling bounce (x 600..1000, y 0..70) = (106.0, 88.0, 68.3), normalised so the largest channel is 200. The alternates measured: floor immediately before the hearth normalises to #c88042 (much warmer); the right-hand floor to #c8bdbc (neutral); the upper right wall to #c8bab4."
+  },
+
+  "_derived": {
+    "eye_height_m": 1.2316,
+    "storey_height_m": 2.9928,
+    "nearest_visible_floor_m": 2.3617,
+    "hfov_deg_at_f1024": 73.7,
+    "camera_has_feet_gate_residual": 0.0
+  },
+
+  "_measured_vs_nominal": {
+    "_nominal": "24 mm equivalent, camera 4.35 m from the wall, eye 1.83 m, pitched slightly down.",
+    "px_per_m_at_wall": {"nominal": 235.4, "measured": 232.22, "delta": "-1.35%"},
+    "camera_wall_m": {"nominal": 4.35, "measured": 4.4096, "delta": "+1.37%"},
+    "eye_height_m": {"nominal": 1.83, "measured": 1.2316, "delta": "-0.598 m, -32.7%"},
+    "pitch_deg": {"nominal": "slightly down", "measured": "none; the principal point sits at y 490, 22 px ABOVE frame centre — a small UPWARD shift, the opposite sign", "delta": "the pitch half of §10's camera is absent from the approved image"},
+    "storey_height_m": {"plan": 2.8, "measured": 2.9928, "delta": "+6.9%"},
+    "wall_width_m": {"plan_study_N": 5.45, "measured": 5.344, "delta": "-1.94%"},
+    "horizon_y": {"project_canonical": 0.48, "measured": 0.478516, "delta": "-0.3%"},
+    "floor_line_y": {"grid_canonical_at_eye_1.60": 0.63, "measured": 0.757813, "delta": "+0.128 of frame height"},
+    "nearest_visible_floor_m": {"preview_24mm_at_eye_1.60": 3.077, "measured": 2.3617, "delta": "-0.72 m — the floor cuts CLOSER to the viewer's feet than any frame this project has drawn, because the camera is lower"},
+    "key_dir": {"contract": "UL", "measured": "left and BELOW; see _light below", "delta": "the sprite contract's UL45 is not what this room does"}
+  },
+
+  "_light": {
+    "brightest_21x21_patch_centre_px": [451, 696],
+    "reading": "The dominant practical is the hearth fire, at x 451 (left of the frame centre 768) and y 696 — 206 px BELOW the measured horizon. Left, yes; upper, no.",
+    "sobel_bright_side_estimate_deg_whole_frame": 83.78,
+    "sobel_bright_side_estimate_deg_wall_band": -91.9,
+    "sobel_expected_deg_for_UL45": 115.5,
+    "left_third_minus_right_third_luminance_whole_frame": -13.163,
+    "left_third_minus_right_third_luminance_wall_band": -4.488,
+    "shipped_clause_requires": "+2.0 (tests/playwright/mechanisms.spec.mjs's light clause, and gate (e)'s min_third_tilt)",
+    "why_the_sign_is_negative": "Two lights, not one. The fire is a warm local practical at lower-left, but the frame's broad illumination rises to the RIGHT: the wall band's mean luminance runs 7.8 at x=147, 29 at the fireplace, 19 mid-wall, 38.7 at x≈1187; the floor runs 32 at x=0 to 122 at x=1408. Averaged over thirds the right-hand rise wins, so the frame measures right-lit even though the thing you look at is a fire on the left.",
+    "vertical_falloff": "Wall column means (x 900..1100) run 12.7 at the ceiling line, 41.2 at mid-wall (y≈441), 28.9 at the floor line — brightest in the middle, darkest at the top. A UL45 key would put the maximum at the top."
+  },
+
+  "_flags_for_the_navigator": [
+    "px_per_m_at_wall × wall_width_m = 1241 px, which is 81% of the 1536 canvas, not the canvas width. §5's row-2 amendment asserts px_per_m_at_wall × wall_width_m ≈ canvas width on any meta; that clause was written before corners existed and is false of the first honestly measured backdrop, whose corners are both in frame. The corner span IS the u-domain (row 11's own model), so the clause needs to become 'corner span', not 'canvas width'.",
+    "The camera-has-feet residual is 0.0 by construction because eye_height_m is derived from the same three measurements the gate compares. The independent content of the check is that the vanishing point voted for by the floor edges (486), the ceiling edges (498) and the side walls (516) brackets the 490 the arithmetic wants — three regions that share no pixels.",
+    "The brief for this measurement named 'a period fireplace opening ~1.4 m wide' as the calibration reference. That size is wrong for this image and the numbers say so: at 1.4 m the opening's 209 px give 149.3 px/m, which makes the room 4.66 m from floor to ceiling and puts the mantel shelf 1.96 m off the floor. At the adopted 0.90 m the storey is 2.99 m and the mantel shelf is 1.40 m — and the same scale is independently reached by the ruled 24 mm lens at the nominal 4.35 m standpoint (235.4 px/m, 1.35% away). cand-2 depicts a chamber fireplace, not a hall one."
+  ]
+}
