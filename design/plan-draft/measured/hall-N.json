@@ -1,18 +1,18 @@
 {
   "_what_this_is": "DRAFT \u00a75 meta for hall/N, measured off backdrops/source/passage-N/cand-1.png. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels by design/plan-draft/measured/measure.py; the only assumed quantity is the real-world size named in calibration_ref, and calibration_confidence says how far it can be trusted.",
-  "facing_type": "enclosed",
+  "facing_type": "wall_band",
   "image_h_px": 1024,
   "floor_line_y": 0.792969,
   "horizon_y": 0.385742,
-  "px_per_m_at_wall": 242.105,
-  "px_per_m_at_bottom": 365.19,
-  "wall_width_m": 6.266,
-  "camera_wall_m": 4.2296,
-  "corner_x0_px": 9,
-  "corner_x1_px": 1526,
+  "px_per_m_at_wall": 255.556,
+  "px_per_m_at_bottom": 385.48,
+  "wall_width_m": null,
+  "camera_wall_m": 4.007,
+  "corner_x0_px": null,
+  "corner_x1_px": null,
   "key_tint": "#c8b6a2",
   "key_dir": null,
-  "calibration_ref": "the panelling's dado-rail top, taken at 0.95 m above the floor line. This facing is a flat wall band with no opening, no corner and no sized feature of any kind.",
+  "calibration_ref": "the panelling's dado-rail top, taken at 0.90 m above the floor line. This facing is a flat wall band with no opening, no corner and no sized feature of any kind.",
   "calibration_px": 230,
   "calibration_confidence": "MEDIUM-LOW in the module (+-7 %); the reading is clean (41.0, horizontality 0.99).",
   "_measured_px": {
@@ -20,11 +20,10 @@
     "wall_floor_line_y_px": 812,
     "horizon_y_px": 395,
     "horizon_x_px": 782,
-    "corner_x0_px": 9,
-    "corner_x1_px": 1526,
+    "corner_x0_px": null,
+    "corner_x1_px": null,
     "dado_rail_top_y_px": 582,
-    "dado_rail_above_floor_px": 230,
-    "corner_midpoint_px": 767.5
+    "dado_rail_above_floor_px": 230
   },
   "_how_each_was_measured": {
     "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
@@ -120,6 +119,12 @@
         "cv": 0.545
       },
       {
+        "y": 772,
+        "strength": 37.78,
+        "horiz": 0.993,
+        "cv": 0.501
+      },
+      {
         "y": 604,
         "strength": 33.65,
         "horiz": 0.754,
@@ -138,22 +143,22 @@
         "cv": 0.93
       },
       {
-        "y": 770,
-        "strength": 24.73,
-        "horiz": 0.992,
-        "cv": 0.388
+        "y": 782,
+        "strength": 22.0,
+        "horiz": 0.934,
+        "cv": 0.753
+      },
+      {
+        "y": 609,
+        "strength": 18.84,
+        "horiz": 0.678,
+        "cv": 0.853
       },
       {
         "y": 813,
         "strength": 17.61,
         "horiz": 0.954,
         "cv": 0.345
-      },
-      {
-        "y": 611,
-        "strength": 14.7,
-        "horiz": 0.657,
-        "cv": 0.826
       },
       {
         "y": 973,
@@ -186,6 +191,12 @@
         "cv": 1.066
       },
       {
+        "y": 968,
+        "strength": 10.09,
+        "horiz": 0.724,
+        "cv": 1.15
+      },
+      {
         "y": 979,
         "strength": 9.98,
         "horiz": 0.752,
@@ -208,6 +219,138 @@
         "strength": 9.84,
         "horiz": 0.742,
         "cv": 1.052
+      },
+      {
+        "y": 903,
+        "strength": 9.83,
+        "horiz": 0.733,
+        "cv": 1.145
+      },
+      {
+        "y": 909,
+        "strength": 9.79,
+        "horiz": 0.729,
+        "cv": 1.153
+      },
+      {
+        "y": 963,
+        "strength": 9.75,
+        "horiz": 0.713,
+        "cv": 1.13
+      },
+      {
+        "y": 917,
+        "strength": 9.7,
+        "horiz": 0.731,
+        "cv": 1.148
+      },
+      {
+        "y": 987,
+        "strength": 9.63,
+        "horiz": 0.731,
+        "cv": 1.075
+      },
+      {
+        "y": 995,
+        "strength": 9.52,
+        "horiz": 0.729,
+        "cv": 1.057
+      },
+      {
+        "y": 944,
+        "strength": 9.42,
+        "horiz": 0.729,
+        "cv": 1.094
+      },
+      {
+        "y": 893,
+        "strength": 9.07,
+        "horiz": 0.738,
+        "cv": 1.212
+      },
+      {
+        "y": 1009,
+        "strength": 9.01,
+        "horiz": 0.734,
+        "cv": 1.052
+      },
+      {
+        "y": 898,
+        "strength": 8.84,
+        "horiz": 0.738,
+        "cv": 1.191
+      },
+      {
+        "y": 888,
+        "strength": 8.62,
+        "horiz": 0.736,
+        "cv": 1.154
+      },
+      {
+        "y": 883,
+        "strength": 8.5,
+        "horiz": 0.749,
+        "cv": 1.185
+      },
+      {
+        "y": 874,
+        "strength": 8.29,
+        "horiz": 0.742,
+        "cv": 1.282
+      },
+      {
+        "y": 861,
+        "strength": 8.06,
+        "horiz": 0.75,
+        "cv": 1.293
+      },
+      {
+        "y": 867,
+        "strength": 7.6,
+        "horiz": 0.751,
+        "cv": 1.327
+      },
+      {
+        "y": 856,
+        "strength": 7.2,
+        "horiz": 0.732,
+        "cv": 1.213
+      },
+      {
+        "y": 851,
+        "strength": 6.97,
+        "horiz": 0.718,
+        "cv": 1.299
+      },
+      {
+        "y": 845,
+        "strength": 6.89,
+        "horiz": 0.758,
+        "cv": 1.321
+      },
+      {
+        "y": 835,
+        "strength": 6.24,
+        "horiz": 0.753,
+        "cv": 1.19
+      },
+      {
+        "y": 840,
+        "strength": 6.1,
+        "horiz": 0.738,
+        "cv": 1.26
+      },
+      {
+        "y": 828,
+        "strength": 5.38,
+        "horiz": 0.737,
+        "cv": 1.256
+      },
+      {
+        "y": 823,
+        "strength": 4.34,
+        "horiz": 0.752,
+        "cv": 1.265
       }
     ],
     "dado_rail": [
@@ -275,8 +418,8 @@
   },
   "_corner_evidence": {
     "mid_wall_reference_step_strength": 68.4,
-    "vertical_edge_confirming_x0": 15,
-    "vertical_edge_confirming_x1": 1519
+    "vertical_edge_confirming_x0": null,
+    "vertical_edge_confirming_x1": null
   },
   "_horizon_votes": {
     "per_region": {
@@ -289,11 +432,6 @@
         "x": 810,
         "y": 252,
         "edge_px": 5905
-      },
-      "side_walls": {
-        "x": null,
-        "y": null,
-        "edge_px": 12
       }
     },
     "adopted_y": 395,
@@ -302,30 +440,30 @@
     "ceiling_ramp_intersection": null
   },
   "_derived": {
-    "eye_height_m": 1.7224,
-    "storey_height_m": 3.0896,
-    "px_per_m_at_bottom": 365.19,
-    "nearest_visible_floor_m": 2.804,
-    "implied_camera_wall_m": 4.2296,
-    "implied_wall_width_m": 6.2659
+    "eye_height_m": 1.6317,
+    "storey_height_m": 2.927,
+    "px_per_m_at_bottom": 385.4783,
+    "nearest_visible_floor_m": 2.6564,
+    "implied_camera_wall_m": 4.007,
+    "implied_wall_width_m": null
   },
   "_light": {
     "key_tint": "#c8b6a2",
     "key_tint_patch": [
       1174,
-      1516,
+      1535,
       0,
       56
     ],
     "key_tint_patch_mean_rgb": [
-      116.8,
-      106.5,
-      94.47
+      114.95,
+      104.8,
+      92.92
     ],
     "key_tint_alternates": {
       "floor_under_brightest": "#c8b4ac",
       "floor_bottom_strip": "#c8936a",
-      "mid_wall_right": "#c7c2c8",
+      "mid_wall_right": "#c5c1c8",
       "mid_wall_left": "#c87025",
       "brightest_21x21_patch": "#c8bdae"
     },
@@ -334,7 +472,7 @@
       10
     ],
     "sobel_bright_side_deg_whole_frame": 97.45,
-    "sobel_bright_side_deg_wall_band": 156.96,
+    "sobel_bright_side_deg_wall_band": 136.08,
     "left_third_minus_right_third_luminance_whole_frame": -16.521,
     "left_third_minus_right_third_luminance_wall_band": -13.043
   },

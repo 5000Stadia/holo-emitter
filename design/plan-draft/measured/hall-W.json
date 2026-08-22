@@ -1,0 +1,506 @@
+{
+  "_what_this_is": "DRAFT \u00a75 meta for hall/W, measured off backdrops/source/passage-W/cand-1.png. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels by design/plan-draft/measured/measure.py; the only assumed quantity is the real-world size named in calibration_ref, and calibration_confidence says how far it can be trusted.",
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.633789,
+  "horizon_y": 0.478516,
+  "px_per_m_at_wall": 136.0,
+  "px_per_m_at_bottom": 456.75,
+  "wall_width_m": 2.713,
+  "camera_wall_m": 7.5294,
+  "corner_x0_px": 576,
+  "corner_x1_px": 945,
+  "key_tint": "#c88953",
+  "key_dir": null,
+  "calibration_ref": "the painted door opening's height in the far end wall, head soffit to threshold, taken at 2.00 m (the plan's door leaf height; the prompt says '2.0-metre-tall')",
+  "calibration_px": 272,
+  "calibration_confidence": "HIGH in the assumed size, and this opening is drawn closer to true than study/E's: the wall-plane rectangle is 272 x 127 px, an aspect of 2.14 : 1 against the ruled 2 : 1, so calibrating on the 1.00 m width instead gives 127.0 px/m against the 136.0 adopted - a 7 % spread that bounds the error. This facing is nonetheless the outlier of the eight on storey height (2.62 m against a set mean near 2.9), so treat its scale with care.",
+  "_measured_px": {
+    "wall_ceiling_line_y_px": 293,
+    "wall_floor_line_y_px": 649,
+    "horizon_y_px": 490,
+    "horizon_x_px": 757,
+    "corner_x0_px": 576,
+    "corner_x1_px": 945,
+    "dado_rail_top_y_px": 527,
+    "dado_rail_above_floor_px": 122,
+    "corner_midpoint_px": 760.5,
+    "opening_x0_px": 698,
+    "opening_x1_px": 825,
+    "opening_y0_px": 377,
+    "opening_y1_px": 649,
+    "opening_width_px": 127,
+    "opening_height_px": 272,
+    "opening_aspect_h_over_w": 2.142
+  },
+  "_how_each_was_measured": {
+    "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
+    "wall_floor_line_y_px": "NOT the strongest step. The strongest step in the lower band is the SKIRTING CAP: on study/N it is at y 743 and the floor is 34 px lower. The rule is 'the lowest TRUE horizontal in the band' - floorboard seams below the floor line converge toward the vanishing point and so fail the horizontality test (they light up ~0.73 of the columns with CV>1.0 against ~0.95 and CV<0.5 for an architectural horizontal), which is what lets 'lowest' mean 'the floor'. The line is then placed on the darkest row of the shadow seam at the skirting foot. Every facing shows the same cap / face / seam / boards sequence and it was read row by row on each.",
+    "horizon_y_px": "Vanishing-point vote, not an assumption. 3x3 Sobel over the region; keep the top 12 % of gradient magnitudes WITHIN the region; discard edges whose tangent is within 15 degrees of horizontal or vertical, because those two families are degenerate (an exactly vertical edge is perpendicular to the ray from every point on its own column and so votes for a whole line of candidates - without this filter the side-wall vote is captured by the panel stiles and returns x=52); then, for a coarse-to-fine grid of candidate vanishing points, count edge pixels whose gradient is perpendicular to the ray from that candidate. Run on three disjoint regions - floor below the floor line, ceiling above the ceiling line, and the side-wall bands outside the corners - reported per region in _horizon_votes. ADOPTED value is the edge-pixel-weighted mean of the regions that voted, so a thin dark side band cannot outvote the floor. The voted x says whether the camera is square to the wall.",
+    "corner_x_px": "The x at which the wall-ceiling line stops being horizontal: f(x) is the step strength at the ceiling line in column x, and a corner is declared where f collapses below 25 % of its mid-wall median for 10 consecutive columns - the run requirement stops a panel head crossing the line from faking a corner. Confirmed against the strongest vertical edge within +-18 px, measured over the wall's own height (_corner_vertical_edge_x*). Where the wall runs past the frame edge no corner is emitted: null, not a guess.",
+    "px_per_m_at_wall": "calibration_px / the calibration feature's assumed size in metres.",
+    "px_per_m_at_bottom": "(image_h_px - horizon_y_px) / eye_height_m.",
+    "key_tint": "Mean RGB of the dominant light's bounce off the ceiling - the one broad near-neutral diffuser every facing has - sampled from a 400 px window centred on the x of the frame's brightest 21x21 patch, in the 62 rows above the wall-ceiling line, then normalised so the largest channel is 200. Alternates measured on the floor, on both mid-wall bands and on the brightest patch itself are in _light.key_tint_alternates; where they disagree widely the facing has two lights and a single key_tint is a compromise.",
+    "key_dir": "The honest direction: where the brightest 21x21 patch actually sits relative to the frame centre and the measured horizon. Gate (e)'s Sobel bright-side estimator and the left-third-minus-right-third luminance are reported beside it, on the whole frame and on the wall band, because they frequently disagree with the eye when a frame has two lights.",
+    "ceiling_ramp_vp": "An independent, better-conditioned cross-check on the horizon that the draft does not run. The side walls meet the ceiling along lines parallel to the view axis, which in a rectilinear image converge on the principal point and therefore lie on the horizon. Both ramps are fitted outside the corners by robust least squares and intersected. Residuals are given: where they are a fraction of a pixel over 100+ columns, the intersection is a sharper statement than the vote, and where the two disagree the IMAGE is inconsistent, not the measurement."
+  },
+  "_candidates": {
+    "wall_ceiling_line": [
+      {
+        "y": 294,
+        "strength": 40.98,
+        "horiz": 1.0,
+        "cv": 0.058
+      },
+      {
+        "y": 377,
+        "strength": 31.87,
+        "horiz": 0.616,
+        "cv": 1.038
+      },
+      {
+        "y": 402,
+        "strength": 26.72,
+        "horiz": 0.694,
+        "cv": 1.359
+      },
+      {
+        "y": 310,
+        "strength": 15.12,
+        "horiz": 0.855,
+        "cv": 0.419
+      },
+      {
+        "y": 325,
+        "strength": 10.49,
+        "horiz": 0.769,
+        "cv": 0.65
+      },
+      {
+        "y": 395,
+        "strength": 8.78,
+        "horiz": 0.647,
+        "cv": 1.157
+      },
+      {
+        "y": 366,
+        "strength": 7.22,
+        "horiz": 0.616,
+        "cv": 1.105
+      },
+      {
+        "y": 232,
+        "strength": 6.56,
+        "horiz": 0.746,
+        "cv": 0.696
+      },
+      {
+        "y": 214,
+        "strength": 6.37,
+        "horiz": 0.769,
+        "cv": 0.737
+      },
+      {
+        "y": 253,
+        "strength": 6.35,
+        "horiz": 0.763,
+        "cv": 0.651
+      },
+      {
+        "y": 182,
+        "strength": 6.07,
+        "horiz": 0.772,
+        "cv": 0.793
+      },
+      {
+        "y": 196,
+        "strength": 5.96,
+        "horiz": 0.746,
+        "cv": 0.8
+      }
+    ],
+    "wall_floor_line": [
+      {
+        "y": 528,
+        "strength": 24.53,
+        "horiz": 0.968,
+        "cv": 0.324
+      },
+      {
+        "y": 630,
+        "strength": 14.58,
+        "horiz": 0.952,
+        "cv": 0.395
+      },
+      {
+        "y": 862,
+        "strength": 13.66,
+        "horiz": 0.674,
+        "cv": 1.002
+      },
+      {
+        "y": 899,
+        "strength": 12.54,
+        "horiz": 0.727,
+        "cv": 0.937
+      },
+      {
+        "y": 614,
+        "strength": 11.88,
+        "horiz": 0.658,
+        "cv": 0.714
+      },
+      {
+        "y": 893,
+        "strength": 11.85,
+        "horiz": 0.733,
+        "cv": 0.772
+      },
+      {
+        "y": 541,
+        "strength": 11.84,
+        "horiz": 0.679,
+        "cv": 0.684
+      },
+      {
+        "y": 885,
+        "strength": 10.79,
+        "horiz": 0.786,
+        "cv": 0.758
+      },
+      {
+        "y": 876,
+        "strength": 9.87,
+        "horiz": 0.797,
+        "cv": 0.869
+      },
+      {
+        "y": 852,
+        "strength": 9.81,
+        "horiz": 0.727,
+        "cv": 0.922
+      },
+      {
+        "y": 867,
+        "strength": 9.76,
+        "horiz": 0.738,
+        "cv": 0.889
+      },
+      {
+        "y": 857,
+        "strength": 9.38,
+        "horiz": 0.743,
+        "cv": 0.942
+      },
+      {
+        "y": 840,
+        "strength": 9.36,
+        "horiz": 0.797,
+        "cv": 0.972
+      },
+      {
+        "y": 822,
+        "strength": 8.9,
+        "horiz": 0.706,
+        "cv": 0.991
+      },
+      {
+        "y": 845,
+        "strength": 8.87,
+        "horiz": 0.717,
+        "cv": 0.93
+      },
+      {
+        "y": 810,
+        "strength": 8.63,
+        "horiz": 0.733,
+        "cv": 0.934
+      },
+      {
+        "y": 687,
+        "strength": 8.46,
+        "horiz": 0.754,
+        "cv": 1.17
+      },
+      {
+        "y": 833,
+        "strength": 8.25,
+        "horiz": 0.807,
+        "cv": 0.886
+      },
+      {
+        "y": 827,
+        "strength": 8.16,
+        "horiz": 0.743,
+        "cv": 0.758
+      },
+      {
+        "y": 623,
+        "strength": 8.12,
+        "horiz": 0.968,
+        "cv": 0.345
+      },
+      {
+        "y": 672,
+        "strength": 8.09,
+        "horiz": 0.743,
+        "cv": 1.102
+      },
+      {
+        "y": 680,
+        "strength": 8.03,
+        "horiz": 0.668,
+        "cv": 1.128
+      },
+      {
+        "y": 799,
+        "strength": 7.92,
+        "horiz": 0.711,
+        "cv": 0.984
+      },
+      {
+        "y": 815,
+        "strength": 7.9,
+        "horiz": 0.69,
+        "cv": 0.908
+      },
+      {
+        "y": 805,
+        "strength": 7.73,
+        "horiz": 0.738,
+        "cv": 0.973
+      },
+      {
+        "y": 781,
+        "strength": 7.73,
+        "horiz": 0.754,
+        "cv": 0.985
+      },
+      {
+        "y": 751,
+        "strength": 7.53,
+        "horiz": 0.722,
+        "cv": 1.263
+      },
+      {
+        "y": 773,
+        "strength": 7.47,
+        "horiz": 0.738,
+        "cv": 1.081
+      },
+      {
+        "y": 664,
+        "strength": 7.34,
+        "horiz": 0.738,
+        "cv": 1.185
+      },
+      {
+        "y": 762,
+        "strength": 7.27,
+        "horiz": 0.727,
+        "cv": 1.161
+      },
+      {
+        "y": 792,
+        "strength": 7.26,
+        "horiz": 0.77,
+        "cv": 0.921
+      },
+      {
+        "y": 695,
+        "strength": 7.25,
+        "horiz": 0.749,
+        "cv": 1.141
+      },
+      {
+        "y": 737,
+        "strength": 7.22,
+        "horiz": 0.733,
+        "cv": 1.207
+      },
+      {
+        "y": 701,
+        "strength": 6.96,
+        "horiz": 0.674,
+        "cv": 1.275
+      },
+      {
+        "y": 787,
+        "strength": 6.93,
+        "horiz": 0.69,
+        "cv": 0.99
+      },
+      {
+        "y": 767,
+        "strength": 6.92,
+        "horiz": 0.722,
+        "cv": 1.125
+      },
+      {
+        "y": 756,
+        "strength": 6.62,
+        "horiz": 0.717,
+        "cv": 1.257
+      },
+      {
+        "y": 732,
+        "strength": 6.54,
+        "horiz": 0.759,
+        "cv": 1.27
+      },
+      {
+        "y": 710,
+        "strength": 6.3,
+        "horiz": 0.711,
+        "cv": 1.024
+      },
+      {
+        "y": 715,
+        "strength": 6.29,
+        "horiz": 0.749,
+        "cv": 1.172
+      }
+    ],
+    "dado_rail": [
+      {
+        "y": 528,
+        "strength": 24.53,
+        "horiz": 0.968,
+        "cv": 0.324
+      },
+      {
+        "y": 614,
+        "strength": 11.88,
+        "horiz": 0.658,
+        "cv": 0.714
+      },
+      {
+        "y": 541,
+        "strength": 11.84,
+        "horiz": 0.679,
+        "cv": 0.684
+      },
+      {
+        "y": 517,
+        "strength": 9.87,
+        "horiz": 0.727,
+        "cv": 0.601
+      },
+      {
+        "y": 457,
+        "strength": 1.89,
+        "horiz": 0.791,
+        "cv": 1.625
+      },
+      {
+        "y": 475,
+        "strength": 1.8,
+        "horiz": 0.845,
+        "cv": 1.037
+      },
+      {
+        "y": 567,
+        "strength": 1.74,
+        "horiz": 0.813,
+        "cv": 0.888
+      },
+      {
+        "y": 549,
+        "strength": 1.69,
+        "horiz": 0.749,
+        "cv": 1.066
+      },
+      {
+        "y": 505,
+        "strength": 1.67,
+        "horiz": 0.749,
+        "cv": 1.429
+      },
+      {
+        "y": 483,
+        "strength": 1.66,
+        "horiz": 0.765,
+        "cv": 1.056
+      }
+    ]
+  },
+  "_corner_evidence": {
+    "mid_wall_reference_step_strength": 41.6,
+    "vertical_edge_confirming_x0": 586,
+    "vertical_edge_confirming_x1": 933
+  },
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 756,
+        "y": 503,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 760,
+        "y": 469,
+        "edge_px": 16067
+      },
+      "side_walls": {
+        "x": 740,
+        "y": 457,
+        "edge_px": 1691
+      }
+    },
+    "adopted_y": 490,
+    "adopted_x": 757,
+    "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
+    "ceiling_ramp_intersection": {
+      "x": 759.3,
+      "y": 473.3,
+      "left_slope": 1.0034,
+      "right_slope": -0.9927,
+      "left_n": 143,
+      "left_resid_px": 0.25,
+      "right_n": 145,
+      "right_resid_px": 0.41
+    }
+  },
+  "_derived": {
+    "eye_height_m": 1.1691,
+    "storey_height_m": 2.6176,
+    "px_per_m_at_bottom": 456.7547,
+    "nearest_visible_floor_m": 2.2419,
+    "implied_camera_wall_m": 7.5294,
+    "implied_wall_width_m": 2.7132
+  },
+  "_light": {
+    "key_tint": "#c88953",
+    "key_tint_patch": [
+      614,
+      935,
+      223,
+      285
+    ],
+    "key_tint_patch_mean_rgb": [
+      128.51,
+      88.26,
+      53.1
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c88247",
+      "floor_bottom_strip": "#c89c79",
+      "mid_wall_right": "#c86c27",
+      "mid_wall_left": "#c86f2f",
+      "brightest_21x21_patch": "#c88d47"
+    },
+    "brightest_21x21_patch_centre_px": [
+      814,
+      536
+    ],
+    "sobel_bright_side_deg_whole_frame": 121.25,
+    "sobel_bright_side_deg_wall_band": -126.01,
+    "left_third_minus_right_third_luminance_whole_frame": 3.681,
+    "left_third_minus_right_third_luminance_wall_band": 4.398
+  },
+  "_plan": {
+    "camera_wall_m": 6.0,
+    "wall_width_m": 2.6,
+    "storey_m": 2.8
+  }
+}

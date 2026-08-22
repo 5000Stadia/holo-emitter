@@ -4,16 +4,16 @@
   "image_h_px": 1024,
   "floor_line_y": 0.758789,
   "horizon_y": 0.486328,
-  "px_per_m_at_wall": 322.222,
-  "px_per_m_at_bottom": 607.49,
-  "wall_width_m": 3.87,
-  "camera_wall_m": 3.1779,
+  "px_per_m_at_wall": 231.111,
+  "px_per_m_at_bottom": 435.71,
+  "wall_width_m": 5.396,
+  "camera_wall_m": 4.4308,
   "corner_x0_px": 142,
   "corner_x1_px": 1389,
   "key_tint": "#c89663",
   "key_dir": null,
   "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m wide at the wall plane",
-  "calibration_px": 290,
+  "calibration_px": 208,
   "calibration_confidence": "MEDIUM-HIGH. 0.90 m is an inference, not a ruling: it is the size at which this opening's 209 px agree with the panelling module and with a 2.8-3.0 m storey. The brief's '~1.4 m' is refuted here exactly as the draft refutes it (1.4 m puts the storey at 4.66 m). A chamber fireplace, not a hall one.",
   "_measured_px": {
     "wall_ceiling_line_y_px": 81,
@@ -25,9 +25,9 @@
     "dado_rail_top_y_px": 563,
     "dado_rail_above_floor_px": 214,
     "corner_midpoint_px": 765.5,
-    "fireplace_opening_x0_px": 314,
-    "fireplace_opening_x1_px": 604,
-    "fireplace_opening_width_px": 291
+    "fireplace_opening_x0_px": 341,
+    "fireplace_opening_x1_px": 550,
+    "fireplace_opening_width_px": 209
   },
   "_how_each_was_measured": {
     "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
@@ -159,16 +159,16 @@
         "cv": 1.161
       },
       {
+        "y": 569,
+        "strength": 28.23,
+        "horiz": 0.97,
+        "cv": 0.453
+      },
+      {
         "y": 591,
         "strength": 27.85,
         "horiz": 0.596,
         "cv": 1.063
-      },
-      {
-        "y": 570,
-        "strength": 27.45,
-        "horiz": 0.896,
-        "cv": 0.631
       },
       {
         "y": 537,
@@ -187,6 +187,12 @@
         "strength": 18.16,
         "horiz": 0.926,
         "cv": 0.414
+      },
+      {
+        "y": 748,
+        "strength": 17.06,
+        "horiz": 0.777,
+        "cv": 1.167
       },
       {
         "y": 931,
@@ -211,6 +217,144 @@
         "strength": 15.07,
         "horiz": 0.709,
         "cv": 1.086
+      },
+      {
+        "y": 872,
+        "strength": 14.85,
+        "horiz": 0.735,
+        "cv": 1.123
+      },
+      {
+        "y": 862,
+        "strength": 14.81,
+        "horiz": 0.73,
+        "cv": 1.071
+      },
+      {
+        "y": 905,
+        "strength": 14.74,
+        "horiz": 0.738,
+        "cv": 1.117
+      },
+      {
+        "y": 925,
+        "strength": 14.59,
+        "horiz": 0.733,
+        "cv": 1.093
+      },
+      {
+        "y": 911,
+        "strength": 14.56,
+        "horiz": 0.736,
+        "cv": 1.19
+      },
+      {
+        "y": 852,
+        "strength": 14.45,
+        "horiz": 0.738,
+        "cv": 1.165
+      },
+      {
+        "y": 892,
+        "strength": 14.32,
+        "horiz": 0.728,
+        "cv": 1.115
+      },
+      {
+        "y": 880,
+        "strength": 14.32,
+        "horiz": 0.72,
+        "cv": 1.193
+      },
+      {
+        "y": 949,
+        "strength": 14.16,
+        "horiz": 0.735,
+        "cv": 1.091
+      },
+      {
+        "y": 885,
+        "strength": 14.14,
+        "horiz": 0.749,
+        "cv": 1.138
+      },
+      {
+        "y": 857,
+        "strength": 13.74,
+        "horiz": 0.719,
+        "cv": 1.124
+      },
+      {
+        "y": 936,
+        "strength": 13.66,
+        "horiz": 0.729,
+        "cv": 1.097
+      },
+      {
+        "y": 955,
+        "strength": 13.53,
+        "horiz": 0.72,
+        "cv": 1.063
+      },
+      {
+        "y": 844,
+        "strength": 13.52,
+        "horiz": 0.748,
+        "cv": 1.11
+      },
+      {
+        "y": 867,
+        "strength": 13.3,
+        "horiz": 0.708,
+        "cv": 1.161
+      },
+      {
+        "y": 973,
+        "strength": 13.09,
+        "horiz": 0.72,
+        "cv": 1.12
+      },
+      {
+        "y": 961,
+        "strength": 13.07,
+        "horiz": 0.766,
+        "cv": 1.025
+      },
+      {
+        "y": 967,
+        "strength": 12.89,
+        "horiz": 0.728,
+        "cv": 1.102
+      },
+      {
+        "y": 979,
+        "strength": 12.31,
+        "horiz": 0.759,
+        "cv": 1.055
+      },
+      {
+        "y": 839,
+        "strength": 12.23,
+        "horiz": 0.735,
+        "cv": 1.166
+      },
+      {
+        "y": 832,
+        "strength": 12.02,
+        "horiz": 0.752,
+        "cv": 1.195
+      },
+      {
+        "y": 989,
+        "strength": 11.58,
+        "horiz": 0.736,
+        "cv": 1.06
+      },
+      {
+        "y": 999,
+        "strength": 11.56,
+        "horiz": 0.74,
+        "cv": 1.2
       }
     ],
     "dado_rail": [
@@ -314,12 +458,12 @@
     }
   },
   "_derived": {
-    "eye_height_m": 0.8659,
-    "storey_height_m": 2.16,
-    "px_per_m_at_bottom": 607.4871,
-    "nearest_visible_floor_m": 1.6856,
-    "implied_camera_wall_m": 3.1779,
-    "implied_wall_width_m": 3.87
+    "eye_height_m": 1.2072,
+    "storey_height_m": 3.0115,
+    "px_per_m_at_bottom": 435.7149,
+    "nearest_visible_floor_m": 2.3502,
+    "implied_camera_wall_m": 4.4308,
+    "implied_wall_width_m": 5.3957
   },
   "_light": {
     "key_tint": "#c89663",

@@ -4,15 +4,15 @@
   "image_h_px": 1024,
   "floor_line_y": 0.758789,
   "horizon_y": 0.454102,
-  "px_per_m_at_wall": 225.263,
-  "px_per_m_at_bottom": 403.6,
-  "wall_width_m": 5.518,
-  "camera_wall_m": 4.5458,
+  "px_per_m_at_wall": 237.778,
+  "px_per_m_at_bottom": 426.02,
+  "wall_width_m": 5.228,
+  "camera_wall_m": 4.3065,
   "corner_x0_px": 142,
   "corner_x1_px": 1385,
   "key_tint": "#c8986f",
   "key_dir": null,
-  "calibration_ref": "the panelling's dado-rail top, taken at 0.95 m above the floor line. This wall is blank by instruction and offers nothing else.",
+  "calibration_ref": "the panelling's dado-rail top, taken at 0.90 m above the floor line. This wall is blank by instruction and offers nothing else.",
   "calibration_px": 214,
   "calibration_confidence": "MEDIUM-LOW in the assumed module (+-7 %%), but the READING is clean (step strength 45.1, horizontality 1.00). Independent support: this facing's ceiling line (82), floor line (779) and rail (564) are within 2 px of study/N's (81, 777, 564), so the same room drawn at the same scale; study/N's fireplace calibration would give 232.2 px/m against the 226.3 adopted here, a 2.5 %% spread.",
   "_measured_px": {
@@ -126,16 +126,22 @@
         "cv": 0.565
       },
       {
+        "y": 738,
+        "strength": 43.3,
+        "horiz": 0.982,
+        "cv": 0.579
+      },
+      {
         "y": 584,
         "strength": 40.63,
         "horiz": 0.772,
         "cv": 0.615
       },
       {
-        "y": 737,
-        "strength": 39.1,
-        "horiz": 0.926,
-        "cv": 0.834
+        "y": 569,
+        "strength": 33.83,
+        "horiz": 1.0,
+        "cv": 0.541
       },
       {
         "y": 716,
@@ -150,6 +156,12 @@
         "cv": 1.062
       },
       {
+        "y": 748,
+        "strength": 26.89,
+        "horiz": 0.97,
+        "cv": 0.806
+      },
+      {
         "y": 544,
         "strength": 26.44,
         "horiz": 0.733,
@@ -162,22 +174,22 @@
         "cv": 0.9
       },
       {
+        "y": 559,
+        "strength": 20.79,
+        "horiz": 0.985,
+        "cv": 0.51
+      },
+      {
+        "y": 539,
+        "strength": 17.43,
+        "horiz": 0.651,
+        "cv": 1.066
+      },
+      {
         "y": 779,
         "strength": 16.2,
         "horiz": 0.941,
         "cv": 0.375
-      },
-      {
-        "y": 571,
-        "strength": 16.19,
-        "horiz": 0.964,
-        "cv": 0.596
-      },
-      {
-        "y": 537,
-        "strength": 11.97,
-        "horiz": 0.649,
-        "cv": 0.792
       },
       {
         "y": 931,
@@ -208,6 +220,138 @@
         "strength": 9.92,
         "horiz": 0.74,
         "cv": 1.237
+      },
+      {
+        "y": 905,
+        "strength": 9.82,
+        "horiz": 0.743,
+        "cv": 1.17
+      },
+      {
+        "y": 941,
+        "strength": 9.78,
+        "horiz": 0.731,
+        "cv": 1.135
+      },
+      {
+        "y": 889,
+        "strength": 9.59,
+        "horiz": 0.723,
+        "cv": 1.203
+      },
+      {
+        "y": 913,
+        "strength": 9.58,
+        "horiz": 0.739,
+        "cv": 1.259
+      },
+      {
+        "y": 852,
+        "strength": 9.57,
+        "horiz": 0.747,
+        "cv": 1.265
+      },
+      {
+        "y": 955,
+        "strength": 9.54,
+        "horiz": 0.733,
+        "cv": 1.109
+      },
+      {
+        "y": 947,
+        "strength": 9.49,
+        "horiz": 0.737,
+        "cv": 1.121
+      },
+      {
+        "y": 884,
+        "strength": 9.39,
+        "horiz": 0.728,
+        "cv": 1.307
+      },
+      {
+        "y": 961,
+        "strength": 9.39,
+        "horiz": 0.722,
+        "cv": 1.187
+      },
+      {
+        "y": 857,
+        "strength": 9.33,
+        "horiz": 0.718,
+        "cv": 1.222
+      },
+      {
+        "y": 971,
+        "strength": 9.27,
+        "horiz": 0.734,
+        "cv": 1.137
+      },
+      {
+        "y": 865,
+        "strength": 9.17,
+        "horiz": 0.748,
+        "cv": 1.316
+      },
+      {
+        "y": 870,
+        "strength": 9.15,
+        "horiz": 0.729,
+        "cv": 1.279
+      },
+      {
+        "y": 936,
+        "strength": 8.88,
+        "horiz": 0.746,
+        "cv": 1.225
+      },
+      {
+        "y": 966,
+        "strength": 8.6,
+        "horiz": 0.727,
+        "cv": 1.153
+      },
+      {
+        "y": 977,
+        "strength": 8.59,
+        "horiz": 0.75,
+        "cv": 1.157
+      },
+      {
+        "y": 843,
+        "strength": 8.57,
+        "horiz": 0.748,
+        "cv": 1.286
+      },
+      {
+        "y": 989,
+        "strength": 8.17,
+        "horiz": 0.746,
+        "cv": 1.213
+      },
+      {
+        "y": 983,
+        "strength": 8.01,
+        "horiz": 0.726,
+        "cv": 1.129
+      },
+      {
+        "y": 999,
+        "strength": 7.99,
+        "horiz": 0.732,
+        "cv": 1.124
+      },
+      {
+        "y": 838,
+        "strength": 7.96,
+        "horiz": 0.721,
+        "cv": 1.281
+      },
+      {
+        "y": 831,
+        "strength": 7.28,
+        "horiz": 0.725,
+        "cv": 1.329
       }
     ],
     "dado_rail": [
@@ -311,12 +455,12 @@
     }
   },
   "_derived": {
-    "eye_height_m": 1.385,
-    "storey_height_m": 3.0853,
-    "px_per_m_at_bottom": 403.5965,
-    "nearest_visible_floor_m": 2.5372,
-    "implied_camera_wall_m": 4.5458,
-    "implied_wall_width_m": 5.518
+    "eye_height_m": 1.3121,
+    "storey_height_m": 2.9229,
+    "px_per_m_at_bottom": 426.0185,
+    "nearest_visible_floor_m": 2.4037,
+    "implied_camera_wall_m": 4.3065,
+    "implied_wall_width_m": 5.2276
   },
   "_light": {
     "key_tint": "#c8986f",

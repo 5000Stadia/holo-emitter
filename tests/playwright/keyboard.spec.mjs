@@ -174,11 +174,12 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
     expect(await lastNarration(page)).toBe(
       "You step through into the cross passage. The air is cooler here, and moves.");
 
-    // Turn to the hall's furnished facing (right = clockwise, so LEFT from
-    // E reaches N directly: RING = [N,E,S,W], step -1).
-    await page.keyboard.press("ArrowLeft");
+    /* The hall's furnished facing is the one you ARRIVE on since row 20: the
+       press and the candlestick stand against the passage's east end wall,
+       because at the ruled lens its long walls show no floor to stand on. So
+       no turn at all is needed here. */
     s = await worldState(page);
-    expect(s.viewstate).toEqual({ location: "hall", facing: "N" });
+    expect(s.viewstate).toEqual({ location: "hall", facing: "E" });
 
     expect(await tabToLabel(page, "the back-panelled oak bookcase")).toBe(true);
     auditClean(await activeLabel(page));
@@ -198,7 +199,10 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
     s = await worldState(page);
     expect(s.relations).toContainEqual(["held_by", "coin1", "player"]);
 
-    // Turn to the door's own hall-side facing and go back.
+    // Turn to the door's own hall-side facing and go back. Two steps from the
+    // arrival facing now (E -> N -> W), because the furnished facing IS the
+    // arrival facing since row 20.
+    await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
     s = await worldState(page);
     expect(s.viewstate).toEqual({ location: "hall", facing: "W" });
@@ -219,7 +223,7 @@ test.describe("the keyboard-only journey (row 10, no pointer at all)", () => {
 });
 
 test.describe("accessible names", () => {
-  test("every control at study/N, study/E (both door states) and hall/N", async ({ page }) => {
+  test("every control at study/N, study/E (both door states) and hall/E", async ({ page }) => {
     await page.goto(appUrl());
     await page.waitForFunction(() => !!window.HOLO_APP);
 
@@ -238,9 +242,9 @@ test.describe("accessible names", () => {
     expect((await labelsAt()).sort()).toEqual(
       ["close the plank door", "walk through the plank door"].sort());
 
+    // Arrival IS the furnished facing since row 20 — no turn.
     await page.evaluate(() => {
       window.HOLO_APP.dispatch({ type: "go", exit: "door_study_hall" });
-      window.HOLO_APP.dispatch({ type: "turn", dir: "left" });
     });
     expect((await labelsAt()).sort()).toEqual([
       "the back-panelled oak bookcase", "the brass candlestick", "take the silver coin"
@@ -414,10 +418,9 @@ test.describe("the mouse path is unaffected", () => {
     await page.evaluate(() => window.HOLO_APP.dispatch({ type: "toggle", entity: "door1" }));
     await checkHere("study/E, door open"); // door1 + go-control
     await page.evaluate(() => window.HOLO_APP.dispatch({ type: "go", exit: "door_study_hall" }));
-    // hall/E (arrival) is bare — door1's hall-side leaf is staged on W, not
-    // E — so nothing to check there; go straight to the furnished facing.
+    // hall/E (arrival) is the furnished facing since row 20.
+    await checkHere("hall/E"); // shelf1, stick1, coin1
     await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "left" })); // hall/N
-    await checkHere("hall/N"); // shelf1, stick1, coin1
     await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "left" })); // hall/W
     await checkHere("hall/W"); // door1 + go-control back to the study
   });

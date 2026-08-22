@@ -2,79 +2,36 @@
   "_what_this_is": "DRAFT \u00a75 meta for study/E, measured off backdrops/source/study-E/cand-1.png. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels by design/plan-draft/measured/measure.py; the only assumed quantity is the real-world size named in calibration_ref, and calibration_confidence says how far it can be trusted.",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.728516,
-  "horizon_y": 0.490234,
-  "px_per_m_at_wall": 219.0,
-  "px_per_m_at_bottom": 468.52,
-  "wall_width_m": 5.452,
-  "camera_wall_m": 4.6758,
+  "floor_line_y": 0.759766,
+  "horizon_y": 0.501953,
+  "px_per_m_at_wall": 235.0,
+  "px_per_m_at_bottom": 453.98,
+  "wall_width_m": 5.081,
+  "camera_wall_m": 4.3574,
   "corner_x0_px": 171,
   "corner_x1_px": 1365,
   "key_tint": "#c88f5e",
   "key_dir": null,
   "calibration_ref": "the painted door opening's height at the wall plane, head soffit to threshold, taken at 2.00 m (the plan's door leaf height; the prompt also says '2.0-metre-tall')",
-  "calibration_px": 438,
-  "calibration_confidence": "HIGH in the assumed size (ruled by the plan and restated in this facing's own prompt); the risk is in the drawing, not the ruler - the opening is painted 2.26 : 1 instead of 2 : 1, so calibrating on its WIDTH at 1.00 m instead would give 207.0 px/m, 11 % lower. The height is adopted because it is the longer dimension and because 233.5 px/m reproduces this room's 2.8 m storey while 207.0 px/m gives 3.23 m.",
+  "calibration_px": 470,
+  "calibration_confidence": "HIGH in the assumed size - the plan rules the openings and this facing's own prompt restates '2.0-metre-tall'. The risk is in the drawing, not the ruler: the wall-plane opening is painted 470 x 214 px, an aspect of 2.20 : 1 against the ruled 2 : 1, so the SAME opening calibrated on its 1.00 m width gives 214.0 px/m against the 235.0 adopted - a 9 % spread that bounds the error. The height is adopted because it is the longer dimension (less relative reading error) and because 235.0 px/m puts this room's storey at 2.84 m against the ruled 2.80 while 214.0 px/m puts it at 3.12 m.",
   "_measured_px": {
     "wall_ceiling_line_y_px": 110,
-    "wall_floor_line_y_px": 746,
-    "horizon_y_px": 502,
-    "horizon_x_px": 824,
+    "wall_floor_line_y_px": 778,
+    "horizon_y_px": 514,
+    "horizon_x_px": 798,
     "corner_x0_px": 171,
     "corner_x1_px": 1365,
     "dado_rail_top_y_px": 570,
-    "dado_rail_above_floor_px": 176,
+    "dado_rail_above_floor_px": 208,
     "corner_midpoint_px": 768.0,
-    "opening_x0_px": 661,
-    "opening_x1_px": 918,
+    "opening_x0_px": 660,
+    "opening_x1_px": 874,
     "opening_y0_px": 308,
-    "opening_y1_px": 746,
-    "opening_w_px": 257,
-    "opening_h_px": 438,
-    "opening_aspect_h_over_w": 1.704,
-    "column_edge_candidates": [
-      [
-        918,
-        147.4
-      ],
-      [
-        661,
-        130.9
-      ],
-      [
-        953,
-        63.2
-      ],
-      [
-        875,
-        62.2
-      ],
-      [
-        617,
-        52.4
-      ],
-      [
-        868,
-        47.1
-      ],
-      [
-        929,
-        39.4
-      ],
-      [
-        570,
-        29.9
-      ],
-      [
-        960,
-        26.2
-      ],
-      [
-        592,
-        22.7
-      ]
-    ],
-    "interior_darkest_column_px": 836
+    "opening_y1_px": 778,
+    "opening_width_px": 214,
+    "opening_height_px": 470,
+    "opening_aspect_h_over_w": 2.196
   },
   "_how_each_was_measured": {
     "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
@@ -236,10 +193,10 @@
         "cv": 1.086
       },
       {
-        "y": 907,
-        "strength": 15.74,
-        "horiz": 0.746,
-        "cv": 1.08
+        "y": 906,
+        "strength": 15.76,
+        "horiz": 0.743,
+        "cv": 1.073
       },
       {
         "y": 913,
@@ -258,6 +215,150 @@
         "strength": 15.12,
         "horiz": 0.734,
         "cv": 1.23
+      },
+      {
+        "y": 935,
+        "strength": 15.1,
+        "horiz": 0.719,
+        "cv": 1.076
+      },
+      {
+        "y": 871,
+        "strength": 14.85,
+        "horiz": 0.716,
+        "cv": 1.077
+      },
+      {
+        "y": 896,
+        "strength": 14.79,
+        "horiz": 0.749,
+        "cv": 1.137
+      },
+      {
+        "y": 921,
+        "strength": 14.77,
+        "horiz": 0.741,
+        "cv": 1.103
+      },
+      {
+        "y": 890,
+        "strength": 14.61,
+        "horiz": 0.744,
+        "cv": 1.124
+      },
+      {
+        "y": 883,
+        "strength": 14.53,
+        "horiz": 0.709,
+        "cv": 1.222
+      },
+      {
+        "y": 953,
+        "strength": 14.32,
+        "horiz": 0.731,
+        "cv": 1.023
+      },
+      {
+        "y": 947,
+        "strength": 14.29,
+        "horiz": 0.736,
+        "cv": 1.077
+      },
+      {
+        "y": 860,
+        "strength": 14.18,
+        "horiz": 0.757,
+        "cv": 1.14
+      },
+      {
+        "y": 927,
+        "strength": 13.83,
+        "horiz": 0.723,
+        "cv": 1.117
+      },
+      {
+        "y": 851,
+        "strength": 13.79,
+        "horiz": 0.714,
+        "cv": 1.147
+      },
+      {
+        "y": 971,
+        "strength": 13.32,
+        "horiz": 0.723,
+        "cv": 1.031
+      },
+      {
+        "y": 963,
+        "strength": 13.31,
+        "horiz": 0.756,
+        "cv": 1.054
+      },
+      {
+        "y": 865,
+        "strength": 13.3,
+        "horiz": 0.733,
+        "cv": 1.179
+      },
+      {
+        "y": 977,
+        "strength": 12.87,
+        "horiz": 0.736,
+        "cv": 1.037
+      },
+      {
+        "y": 842,
+        "strength": 12.69,
+        "horiz": 0.738,
+        "cv": 1.148
+      },
+      {
+        "y": 958,
+        "strength": 12.15,
+        "horiz": 0.711,
+        "cv": 1.078
+      },
+      {
+        "y": 987,
+        "strength": 12.04,
+        "horiz": 0.719,
+        "cv": 1.01
+      },
+      {
+        "y": 826,
+        "strength": 11.9,
+        "horiz": 0.736,
+        "cv": 1.136
+      },
+      {
+        "y": 837,
+        "strength": 11.79,
+        "horiz": 0.738,
+        "cv": 1.154
+      },
+      {
+        "y": 1001,
+        "strength": 11.65,
+        "horiz": 0.721,
+        "cv": 1.015
+      },
+      {
+        "y": 995,
+        "strength": 11.39,
+        "horiz": 0.718,
+        "cv": 1.096
+      },
+      {
+        "y": 831,
+        "strength": 11.1,
+        "horiz": 0.736,
+        "cv": 1.2
+      },
+      {
+        "y": 1007,
+        "strength": 10.69,
+        "horiz": 0.752,
+        "cv": 1.021
       }
     ],
     "dado_rail": [
@@ -331,7 +432,7 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 830,
+        "x": 826,
         "y": 516,
         "edge_px": 30000
       },
@@ -341,13 +442,13 @@
         "edge_px": 11316
       },
       "side_walls": {
-        "x": 1336,
-        "y": 202,
-        "edge_px": 1660
+        "x": 756,
+        "y": 518,
+        "edge_px": 2508
       }
     },
-    "adopted_y": 502,
-    "adopted_x": 824,
+    "adopted_y": 514,
+    "adopted_x": 798,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": {
       "x": 752.0,
@@ -361,12 +462,12 @@
     }
   },
   "_derived": {
-    "eye_height_m": 1.1142,
-    "storey_height_m": 2.9041,
-    "px_per_m_at_bottom": 468.5164,
-    "nearest_visible_floor_m": 2.1856,
-    "implied_camera_wall_m": 4.6758,
-    "implied_wall_width_m": 5.4521
+    "eye_height_m": 1.1234,
+    "storey_height_m": 2.8426,
+    "px_per_m_at_bottom": 453.9773,
+    "nearest_visible_floor_m": 2.2556,
+    "implied_camera_wall_m": 4.3574,
+    "implied_wall_width_m": 5.0809
   },
   "_light": {
     "key_tint": "#c88f5e",
@@ -382,9 +483,9 @@
       14.78
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c4bfc8",
+      "floor_under_brightest": "#b4b9c8",
       "floor_bottom_strip": "#c8a184",
-      "mid_wall_right": "#c8b7b0",
+      "mid_wall_right": "#c8b6ad",
       "mid_wall_left": "#c87b3c",
       "brightest_21x21_patch": "#a2b1c8"
     },
@@ -393,9 +494,9 @@
       996
     ],
     "sobel_bright_side_deg_whole_frame": 107.19,
-    "sobel_bright_side_deg_wall_band": 153.71,
+    "sobel_bright_side_deg_wall_band": 159.45,
     "left_third_minus_right_third_luminance_whole_frame": -5.114,
-    "left_third_minus_right_third_luminance_wall_band": -0.592
+    "left_third_minus_right_third_luminance_wall_band": -0.335
   },
   "_plan": {
     "camera_wall_m": 4.09,

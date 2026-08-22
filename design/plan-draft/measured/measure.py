@@ -44,14 +44,16 @@ W, H = 1536, 1024
 # The dado-rail module. Four facings carry no feature of known real size, so
 # they are calibrated on the panelling's dado rail. Its height above the floor
 # is measured on the four facings that DO carry a sized feature:
-#     study/N fireplace 0.90 m  -> 0.917 m
-#     study/E door width 1.00 m -> 1.000 m ; door height 2.00 m -> 0.887 m
-#     hall/W  door width 1.00 m -> 1.008 m ; door height 2.00 m -> 0.976 m
-#     hall/E  corner span 2.60 m-> 1.003 m
-# Adopted mid-range with the spread stated. This is the least certain number in
-# the whole run and every facing that leans on it says so.
-DADO_M = 0.95
-DADO_M_RANGE = (0.887, 1.008)
+#     study/N  fireplace 0.90 m wide      -> 213 px / 232.2 px/m = 0.917 m
+#     study/E  door opening 2.00 m tall  -> 207 px / 235.0 px/m = 0.881 m
+#     hall/W   door opening 2.00 m tall  -> 121 px / 136.0 px/m = 0.890 m
+#     hall/E   end-wall span 2.60 m wide -> 135 px / 134.6 px/m = 1.003 m
+# The first three cluster at 0.88-0.92; the fourth leans on the plan's corridor
+# width applied to the smallest, darkest and least trustworthy of the eight
+# facings. Adopted 0.90 with the full spread stated. This is the least certain
+# number in the run and every facing that leans on it says so.
+DADO_M = 0.90
+DADO_M_RANGE = (0.881, 1.003)
 
 # Plan standpoint distances, design/plan-draft/standpoints.tsv (CROSS PASSAGE = hall).
 PLAN = {
@@ -74,6 +76,7 @@ PLAN = {
 CFG = {
  "study/N": dict(
     src="backdrops/source/study-N/cand-2.png",
+    floor_window=(770, 786),
     ceil_cols=[(300, 1250)], ceil_range=(8, 420),
     floor_cols=[(600, 1300)], floor_range=(500, 1010),
     rail_cols=[(620, 1300)], rail_range=(480, 700),
@@ -85,10 +88,19 @@ CFG = {
                 "module and with a 2.8-3.0 m storey. The brief's '~1.4 m' is "
                 "refuted here exactly as the draft refutes it (1.4 m puts the "
                 "storey at 4.66 m). A chamber fireplace, not a hall one."),
+    fire=dict(
+        x0=342, x1=550,
+        how=("Row-gradient edges of the stone jambs' INNER faces, stable across "
+             "y 600-720 and unchanged when the band is moved to 560-600 or "
+             "650-700: the strongest column steps in x 250-650 fall at 341|342 "
+             "(95.7) and 550|551 (79.1), with the case's outer mouldings at "
+             "315 (97.9), 332, 566 and 605. Clear opening = 551 - 342 = 209 px. "
+             "This reproduces the study-N draft's 341..550 / 209 px exactly.")),
     fire_cols=(250, 650), fire_rows=(600, 720)),
 
  "study/E": dict(
     src="backdrops/source/study-E/cand-1.png",
+    floor_window=(770, 790),
     ceil_cols=[(250, 1300)], ceil_range=(8, 420),
     floor_cols=[(300, 600), (950, 1250)], floor_range=(500, 1010),
     rail_cols=[(300, 600), (950, 1250)], rail_range=(480, 700),
@@ -96,20 +108,47 @@ CFG = {
     calib_ref=("the painted door opening's height at the wall plane, head "
                "soffit to threshold, taken at 2.00 m (the plan's door leaf "
                "height; the prompt also says '2.0-metre-tall')"),
-    calib_conf=("HIGH in the assumed size (ruled by the plan and restated in "
-                "this facing's own prompt); the risk is in the drawing, not the "
-                "ruler - the opening is painted 2.26 : 1 instead of 2 : 1, so "
-                "calibrating on its WIDTH at 1.00 m instead would give 207.0 "
-                "px/m, 11 % lower. The height is adopted because it is the "
-                "longer dimension and because 233.5 px/m reproduces this "
-                "room's 2.8 m storey while 207.0 px/m gives 3.23 m."),
+    calib_conf=("HIGH in the assumed size - the plan rules the openings and this "
+                "facing's own prompt restates '2.0-metre-tall'. The risk is in "
+                "the drawing, not the ruler: the wall-plane opening is painted "
+                "470 x 214 px, an aspect of 2.20 : 1 against the ruled 2 : 1, "
+                "so the SAME opening calibrated on its 1.00 m width gives 214.0 "
+                "px/m against the 235.0 adopted - a 9 % spread that bounds the "
+                "error. The height is adopted because it is the longer "
+                "dimension (less relative reading error) and because 235.0 "
+                "px/m puts this room's storey at 2.84 m against the ruled 2.80 "
+                "while 214.0 px/m puts it at 3.12 m."),
+    opening=dict(
+        x0=660, x1=874, y0=308,
+        how_x0=("The left jamb's front stone face runs flat at luminance ~74 out "
+                "to x 657, lifts to a lit arris at 658-659 (111, 139) and falls "
+                "to a one-pixel shadow line at 660 (17); the opening's lit "
+                "reveal begins at 661 (147) and the dark passage at 666 (1). "
+                "The WALL-PLANE edge is the shadow line: 660. Column-gradient "
+                "confirmation: the strongest edge in x 645-680 is at 660|661, "
+                "strength 130.9, measured over rows 400-700."),
+        how_x1=("Mirror image: the opening's lit reveal ends at 872 (64), a "
+                "shadow line falls at 873-874 (35, 17), and the right jamb's "
+                "front face runs flat at ~90 from 875. WALL-PLANE edge 874. The "
+                "much stronger column edge at 917|918 (147.4) is the case's "
+                "OUTER edge against the panelling and is not the opening."),
+        how_y0=("Reading down the opening's own columns (x 680-900): the stone "
+                "face above holds ~65 to y 307, a shadow line falls at 308 "
+                "(19.7), a lit arris follows at 309-310 (58.8, 72.4), then the "
+                "soffit of the reveal runs 312-320 at ~28 before the dark "
+                "passage at 321 (12.5). WALL-PLANE head is the shadow line: "
+                "308. 321 is the BACK of the reveal, 13 px of wall thickness."),
+        how_y1=("The threshold is the wall-floor line itself, 778: the stone "
+                "jambs' plinths stand on the floor and their feet are read at "
+                "the same row as the skirting's, within 1 px.")),
     door_cols=(560, 1000), door_rows=(280, 820)),
 
  "study/S": dict(
     src="backdrops/source/study-S/cand-1.png",
+    floor_window=(724, 740),
     ceil_cols=[(250, 1300)], ceil_range=(8, 420),
     floor_cols=[(300, 1250)], floor_range=(620, 1010),
-    rail_cols=[(182, 215), (1320, 1352)], rail_range=(480, 700),
+    rail_cols=[(182, 215), (1320, 1352)], rail_range=(480, 650),
     calib="dado", calib_m=DADO_M,
     calib_ref=("the panelling's dado-rail top, read on the side-wall returns "
                "AT the corner columns (the south wall itself is glazed and "
@@ -122,6 +161,7 @@ CFG = {
 
  "study/W": dict(
     src="backdrops/source/study-W/cand-1.png",
+    floor_window=(770, 790),
     ceil_cols=[(300, 1300)], ceil_range=(8, 420),
     floor_cols=[(300, 1300)], floor_range=(500, 1010),
     rail_cols=[(300, 1300)], rail_range=(480, 700),
@@ -139,6 +179,7 @@ CFG = {
 
  "hall/N": dict(
     src="backdrops/source/passage-N/cand-1.png",
+    floor_window=(802, 822),
     ceil_cols=[(200, 1300)], ceil_range=(8, 420),
     floor_cols=[(200, 1300)], floor_range=(600, 1010),
     rail_cols=[(200, 1300)], rail_range=(500, 740),
@@ -150,6 +191,7 @@ CFG = {
 
  "hall/E": dict(
     src="backdrops/source/passage-E/cand-1.png",
+    floor_window=(664, 692),
     ceil_cols=[(610, 930)], ceil_range=(80, 420),
     floor_cols=[(610, 700), (830, 930)], floor_range=(560, 900),
     rail_cols=[(610, 700), (830, 930)], rail_range=(480, 620),
@@ -167,6 +209,7 @@ CFG = {
 
  "hall/S": dict(
     src="backdrops/source/passage-S/cand-1.png",
+    floor_window=(870, 892),
     ceil_cols=[(200, 1300)], ceil_range=(8, 420),
     floor_cols=[(200, 1300)], floor_range=(700, 1010),
     rail_cols=[(200, 1300)], rail_range=(540, 800),
@@ -180,6 +223,7 @@ CFG = {
 
  "hall/W": dict(
     src="backdrops/source/passage-W/cand-1.png",
+    floor_window=(638, 662),
     ceil_cols=[(590, 935)], ceil_range=(80, 420),
     floor_cols=[(590, 690), (850, 935)], floor_range=(520, 900),
     rail_cols=[(590, 690), (850, 935)], rail_range=(450, 620),
@@ -187,11 +231,34 @@ CFG = {
     calib_ref=("the painted door opening's height in the far end wall, head "
                "soffit to threshold, taken at 2.00 m (the plan's door leaf "
                "height; the prompt says '2.0-metre-tall')"),
-    calib_conf=("HIGH. The assumed size is ruled, and unlike study/E this "
-                "opening is drawn nearly true: 248 x 120 px is 2.07 : 1 against "
-                "the ruled 2 : 1, so calibrating on the 1.00 m width instead "
-                "would give 120.0 px/m against the 124.0 adopted - a 3 % "
-                "spread, which bounds the error."),
+    calib_conf=("HIGH in the assumed size, and this opening is drawn closer to "
+                "true than study/E's: the wall-plane rectangle is 272 x 127 px, "
+                "an aspect of 2.14 : 1 against the ruled 2 : 1, so calibrating "
+                "on the 1.00 m width instead gives 127.0 px/m against the 136.0 "
+                "adopted - a 7 % spread that bounds the error. This facing is "
+                "nonetheless the outlier of the eight on storey height (2.62 m "
+                "against a set mean near 2.9), so treat its scale with care."),
+    opening=dict(
+        x0=698, x1=825, y0=377,
+        how_x0=("The left jamb's front stone face runs flat at ~85 out to x "
+                "697-698, a shadow line falls at 699 (45), and the reveal - "
+                "brilliantly lit here because the study's fire is behind it - "
+                "runs 700-703 (99, 191, 170, 152) before the opening's interior "
+                "at 704 (28). WALL-PLANE edge 698."),
+        how_x1=("Mirror: the reveal runs 820-823 (177, 169, 163, 186), a shadow "
+                "line falls at 824-825 (67, 31), and the right jamb's front "
+                "face holds ~80 from 826. WALL-PLANE edge 825. Note this door "
+                "is 3 px off-centre to the left of the frame (centre 761.5 "
+                "against 768)."),
+        how_y0=("Down the opening's columns (x 720-800): the case above the "
+                "opening sits in shadow at ~20 to y 374, a darker line at 376 "
+                "(13), then the brightly lit soffit 378-401 (71..98) and the "
+                "opening's dark head at 402 (2). WALL-PLANE head 376-377; 377 "
+                "adopted."),
+        how_y1=("The threshold is the wall-floor line of the end wall, 649. The "
+                "floor runs continuously through the opening here, so there is "
+                "no step to read inside it; the jamb plinths' feet are the "
+                "witness and they sit on 648-649.")),
     door_cols=(650, 900), door_rows=(340, 700)),
 }
 
@@ -235,27 +302,39 @@ def pick_ceiling(L, cfg):
 
 
 def pick_floor(L, cfg):
-    """The floor line is the LOWEST true horizontal in the lower band.
+    """The floor line is the darkest row of the shadow seam at the skirting foot.
 
-    The strongest step down there is the skirting cap, not the floor: on
-    study/N the cap is at 743 and the floor 34 px lower. Floorboard seams below
-    the floor line converge and so fail the horizontality test, which is what
-    lets 'lowest true horizontal' mean 'the floor'."""
+    Two traps, both real on these images. (1) The STRONGEST step in the lower
+    band is the skirting cap, not the floor: on study/N the cap is at y 743 and
+    the floor is 34 px lower; every one of the eight shows the same
+    cap / face / seam / boards sequence. (2) The lower band also contains
+    floorboard seams, which are strong but converge, and the panelling's own
+    base rails, which are horizontal but are not the floor.
+
+    So the band's step candidates are computed and kept as evidence, and the
+    line itself is placed at the LUMINANCE MINIMUM inside a bracket read off the
+    row-by-row luminance profile by hand for each facing (`floor_window`). The
+    bracket is 16-28 rows wide and is quoted in the output so a re-measurer can
+    see exactly what was and was not left to the automatic rule; the automatic
+    'lowest true horizontal' rule agrees with it unaided on study/N, study/W,
+    hall/N and hall/S, and on the other four the band is too crowded (study/E,
+    study/S) or the transition too soft (the two axial corridor views, where the
+    far end wall's foot is a low-contrast shadow) for the rule to land alone."""
     cols = cols_of(cfg["floor_cols"])
-    cands = band_steps(L, cols, *cfg["floor_range"], n=16, min_sep=6)
-    if not cands:
-        return None, [], None
-    mx = max(c["strength"] for c in cands)
-    good = [c for c in cands if c["horiz"] >= 0.9 and c["cv"] <= 0.5
-            and c["strength"] >= 0.12 * mx]
-    if not good:
-        good = [c for c in cands if c["horiz"] >= 0.85]
-    best = max(good, key=lambda c: c["y"])
-    # Place the line on the darkest row of the shadow seam at the skirting foot.
-    lo, hi = best["y"] - 3, best["y"] + 3
-    prof = L[lo:hi + 1][:, cols].mean(axis=1)
-    y = int(lo + np.argmin(prof))
-    return y, cands, best
+    cands = band_steps(L, cols, *cfg["floor_range"], n=40, min_sep=5)
+    a, b = cfg["floor_window"]
+    prof = L[a:b + 1][:, cols].mean(axis=1)
+    y = int(a + np.argmin(prof))
+    auto = None
+    if cands:
+        mx = max(c["strength"] for c in cands)
+        good = [c for c in cands if c["horiz"] >= 0.9 and c["cv"] <= 0.5
+                and c["strength"] >= 0.12 * mx]
+        if good:
+            auto = max(good, key=lambda c: c["y"])["y"] - 1
+    return y, cands, dict(window=[a, b],
+                          window_profile=[round(float(v), 2) for v in prof],
+                          automatic_lowest_true_horizontal=auto)
 
 
 def pick_rail(L, cfg, floor_y):
@@ -288,7 +367,9 @@ def find_corners(L, ceil_y, win=4, run=10, frac=0.25, halfref=100):
             if nx < 0 or nx > W - 1:
                 return None          # the wall runs past the frame edge
             seg = ok[max(0, nx - run + 1):nx + 1] if direction < 0 else ok[nx:nx + run]
-            if len(seg) < run or not seg.any():
+            if len(seg) < run:
+                return None      # reached the frame edge still horizontal: no corner
+            if not seg.any():
                 return x
             x = nx
     return scan(-1), scan(1), ref, f
@@ -372,41 +453,32 @@ def horizon_votes(L, ceil_y, floor_y, cx0, cx1):
     return out, adopted_y, adopted_x
 
 
-def rect_opening(L, cols_win, rows_win, dark_inside=True):
-    """Measure a painted opening's rectangle at the WALL PLANE.
+def read_opening(L, cfg, floor_y):
+    """Read the painted door opening's WALL-PLANE rectangle.
 
-    x edges  : the two strongest column-gradient edges bounding the opening's
-               own interior, taken over rows well inside it.
-    head     : the row at which the lit stone soffit gives way downward; the
-               FRONT edge of the head, not the back of the reveal.
-    threshold: the row at which the opening's interior gives way to the near
-               floor - i.e. the foot of the jamb plinths.
-    Returned with the per-edge evidence so a re-measurer can disagree."""
-    cx0, cx1 = cols_win
-    ry0, ry1 = rows_win
-    mid0, mid1 = int(ry0 + 0.45 * (ry1 - ry0)), int(ry0 + 0.72 * (ry1 - ry0))
-    xs, d = col_step_profile(L, cx0, cx1, mid0, mid1)
+    Not automated, and deliberately so. Both openings are stone-cased with a
+    visible reveal, so there are TWO rectangles in the pixels: the front one, in
+    the wall plane, which is the click target for walking through, and the back
+    one, 13 px (study/E) and 25 px (hall/W) of wall thickness behind it. A
+    generic strongest-edge detector picks whichever of the two happens to carry
+    the bigger step, and on study/E it picks the case's outer moulding instead.
+    Each of the four edges was therefore read off a one-pixel luminance profile
+    by eye; `how_x0` .. `how_y1` quote the profile that decided it, and the
+    column-gradient candidate list is emitted beside them so the reading can be
+    checked or overturned."""
+    o = cfg["opening"]
+    x0, x1, y0 = o["x0"], o["x1"], o["y0"]
+    y1 = floor_y
+    a, b = cfg["door_cols"]
+    xs, d = col_step_profile(L, a, b, y0 + 90, y1 - 80)
     cands = top_cols(xs, d, 10, min_sep=6)
-    # the interior is the darkest run; find it, then take the bounding edges
-    prof = L[mid0:mid1 + 1, cx0:cx1 + 1].mean(axis=0)
-    xc = cx0 + int(np.argmin(np.convolve(prof, np.ones(31) / 31, mode="same")[15:-15])) + 15
-    left = [c for c in cands if c[0] < xc]
-    right = [c for c in cands if c[0] > xc]
-    x0 = max(left, key=lambda c: c[1])[0] if left else None
-    x1 = max(right, key=lambda c: c[1])[0] if right else None
-    return x0, x1, xc, cands
-
-
-def opening_rows(L, x0, x1, rows_win):
-    ry0, ry1 = rows_win
-    inner = np.arange(x0 + 8, x1 - 7)
-    prof = L[ry0:ry1 + 1, inner].mean(axis=1)
-    ys = np.arange(ry0, ry1 + 1)
-    dif = np.diff(prof)
-    # head: the biggest DROP in the upper third
-    up = (ys[1:] < ry0 + 0.45 * (ry1 - ry0))
-    head = int(ys[1:][up][int(np.argmin(dif[up]))])
-    return head, ys, prof
+    return dict(opening_x0_px=x0, opening_x1_px=x1,
+                opening_y0_px=y0, opening_y1_px=y1,
+                opening_width_px=x1 - x0, opening_height_px=y1 - y0,
+                opening_aspect_h_over_w=round((y1 - y0) / (x1 - x0), 3),
+                how_opening_x0=o["how_x0"], how_opening_x1=o["how_x1"],
+                how_opening_y0=o["how_y0"], how_opening_y1=o["how_y1"],
+                column_edge_candidates=[[int(p), round(q, 1)] for p, q in cands])
 
 
 def light(rgb, L, ceil_y, floor_y, cx0, cx1):
@@ -479,43 +551,30 @@ def measure(fac):
 
     # --------------------------------------------------------------- openings
     opening = None
-    if "door_cols" in cfg:
-        x0, x1, xc, cands = rect_opening(L, cfg["door_cols"], cfg["door_rows"])
-        head, ys, prof = opening_rows(L, x0, x1, cfg["door_rows"])
-        thr = floor_y            # the jamb plinths stand on the floor line
-        opening = dict(opening_x0_px=x0, opening_x1_px=x1,
-                       opening_y0_px=head, opening_y1_px=thr,
-                       opening_w_px=x1 - x0, opening_h_px=thr - head,
-                       opening_aspect_h_over_w=round((thr - head) / (x1 - x0), 3),
-                       column_edge_candidates=[[int(a), round(b, 1)] for a, b in cands],
-                       interior_darkest_column_px=int(xc))
-        m.update(opening)
+    if "opening" in cfg:
+        opening = read_opening(L, cfg, floor_y)
+        m.update({k: v for k, v in opening.items()
+                  if not k.startswith("how_") and k != "column_edge_candidates"})
 
     fire = None
-    if "fire_cols" in cfg:
+    if "fire" in cfg:
         xs, d = col_step_profile(L, cfg["fire_cols"][0], cfg["fire_cols"][1],
                                  cfg["fire_rows"][0], cfg["fire_rows"][1])
         cands = top_cols(xs, d, 8, min_sep=10)
-        prof = L[cfg["fire_rows"][0]:cfg["fire_rows"][1] + 1,
-                 cfg["fire_cols"][0]:cfg["fire_cols"][1] + 1].mean(axis=0)
-        xc = cfg["fire_cols"][0] + int(np.argmax(prof))
-        # the opening is the dark firebox flanked by pale stone: take the two
-        # strongest edges that bracket the frame's brightest column (the fire)
-        bf = brightest_patch(L, 21)[0]
-        left = [c for c in cands if c[0] < bf]
-        right = [c for c in cands if c[0] > bf]
-        fx0 = max(left, key=lambda c: c[1])[0] - 1
-        fx1 = max(right, key=lambda c: c[1])[0] - 1
-        fire = dict(fireplace_opening_x0_px=fx0, fireplace_opening_x1_px=fx1,
+        fx0, fx1 = cfg["fire"]["x0"], cfg["fire"]["x1"]
+        fire = dict(fireplace_opening_x0_px=fx0 - 1,
+                    fireplace_opening_x1_px=fx1,
                     fireplace_opening_width_px=fx1 - fx0 + 1,
+                    how_fireplace_opening=cfg["fire"]["how"],
                     column_edge_candidates=[[int(a), round(b, 1)] for a, b in cands])
-        m.update({k: v for k, v in fire.items() if k != "column_edge_candidates"})
+        m.update({k: v for k, v in fire.items()
+                  if not k.startswith("how_") and k != "column_edge_candidates"})
 
     # ------------------------------------------------------------ calibration
     if cfg["calib"] == "fireplace":
-        calib_px = fire["fireplace_opening_width_px"] - 1   # jamb face to jamb face
+        calib_px = fire["fireplace_opening_width_px"]   # clear opening, jamb face to jamb face
     elif cfg["calib"] == "door_h":
-        calib_px = opening["opening_h_px"]
+        calib_px = opening["opening_height_px"]
     else:
         calib_px = m["dado_rail_above_floor_px"]
     ppm = calib_px / cfg["calib_m"]

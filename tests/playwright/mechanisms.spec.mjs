@@ -257,7 +257,7 @@ test.describe("§12.8 — each mechanism fires", () => {
     await page.goto(appUrl());
     for (const pair of [
       { nearer: "chair1", farther: "desk1", vs: { location: "study", facing: "N" } },
-      { nearer: "stick1", farther: "shelf1", vs: { location: "hall", facing: "N" } }
+      { nearer: "stick1", farther: "shelf1", vs: { location: "hall", facing: "E" } }
     ]) {
       const res = await page.evaluate(async ({ nearer, farther, vs }) => {
         const fx = window.HOLO_FIXTURE;
@@ -493,8 +493,15 @@ test.describe("§12.8 — each mechanism fires", () => {
     expect(noteShadow.count, "note1 casts a contact shadow on the surface").toBeGreaterThan(0);
     const noteFootW = (noteRec.dims_m.h * P.s / noteRec.px.h) *
       (noteRec.anchors.footprint.x1 - noteRec.anchors.footprint.x0);
-    expect(Math.abs((noteShadow.x0 + noteShadow.x1) / 2 - baseX),
-      "note shadow centred at the child's base").toBeLessThanOrEqual(3);
+    /* Centred at the base plus the ruled key offset. §7's pool is thrown down
+       and to the RIGHT (contract UL45), by `SHADOW_DX` of its own radius, so
+       "centred at the base" was only ever true while the radius was small
+       enough for the offset to hide inside a 3 px tolerance. Row 20's lens
+       draws everything on this desk 2.6× larger and the offset came out with
+       it, so the expectation states the offset instead of tolerating it. */
+    const noteRx = Math.max(noteFootW / 2, 4);
+    expect(Math.abs((noteShadow.x0 + noteShadow.x1) / 2 - (baseX + 0.22 * noteRx)),
+      "note shadow centred at the child's base, offset by the key").toBeLessThanOrEqual(3);
     expect(noteShadow.x1 - noteShadow.x0 + 1).toBeLessThanOrEqual(noteFootW + 6);
   });
 
@@ -561,7 +568,7 @@ test.describe("clickability sweep — every staged entity answers a real click (
   const sweep = [
     { boot: null, facing: "study/N", entities: ["desk1", "chair1", "note1"] },
     { boot: { location: "study", facing: "E" }, facing: "study/E", entities: ["door1"] },
-    { boot: { location: "hall", facing: "N" }, facing: "hall/N", entities: ["shelf1", "stick1", "coin1"] },
+    { boot: { location: "hall", facing: "E" }, facing: "hall/E", entities: ["shelf1", "stick1", "coin1"] },
     { boot: { location: "hall", facing: "W" }, facing: "hall/W", entities: ["door1"] }
   ];
   // key1 is excluded: undrawn at boot; its click coverage is the
@@ -713,8 +720,8 @@ test.describe("contact shadows are strong enough to be seen", () => {
   const grounded = [
     { id: "desk1", vs: { location: "study", facing: "N" } },
     { id: "chair1", vs: { location: "study", facing: "N" } },
-    { id: "stick1", vs: { location: "hall", facing: "N" } },
-    { id: "shelf1", vs: { location: "hall", facing: "N" } }
+    { id: "stick1", vs: { location: "hall", facing: "E" } },
+    { id: "shelf1", vs: { location: "hall", facing: "E" } }
   ];
 
   for (const g of grounded) {
@@ -826,8 +833,8 @@ test.describe("the validator's placement is the renderer's placement", () => {
   const staged = [
     { id: "desk1", vs: { location: "study", facing: "N" } },
     { id: "chair1", vs: { location: "study", facing: "N" } },
-    { id: "shelf1", vs: { location: "hall", facing: "N" } },
-    { id: "stick1", vs: { location: "hall", facing: "N" } },
+    { id: "shelf1", vs: { location: "hall", facing: "E" } },
+    { id: "stick1", vs: { location: "hall", facing: "E" } },
     { id: "door1", vs: { location: "study", facing: "E" } }
   ];
 
@@ -871,7 +878,7 @@ test.describe("small takeables answer a real click at ordinary window sizes", ()
     { name: "desktop 1920×1080", width: 1920, height: 1080 }
   ];
   const targets = [
-    { id: "coin1", boot: { location: "hall", facing: "N" } },
+    { id: "coin1", boot: { location: "hall", facing: "E" } },
     { id: "note1", boot: null }
   ];
 
@@ -1405,10 +1412,10 @@ test.describe("contact reads on the floor the product ships", () => {
   const grounded = [
     { id: "desk1", vs: { location: "study", facing: "N" } },
     { id: "chair1", vs: { location: "study", facing: "N" } },
-    { id: "stick1", vs: { location: "hall", facing: "N" } },
-    { id: "shelf1", vs: { location: "hall", facing: "N" } },
+    { id: "stick1", vs: { location: "hall", facing: "E" } },
+    { id: "shelf1", vs: { location: "hall", facing: "E" } },
     { id: "note1", vs: { location: "study", facing: "N" }, host: "desk1", surface: true },
-    { id: "coin1", vs: { location: "hall", facing: "N" }, host: "shelf1", surface: true },
+    { id: "coin1", vs: { location: "hall", facing: "E" }, host: "shelf1", surface: true },
     { id: "key1", vs: { location: "study", facing: "N" }, host: "desk1", surface: true, reveal: true }
   ];
 
@@ -1614,7 +1621,7 @@ test.describe("contact on the placement classes nothing was measuring", () => {
 
   for (const c of [
     { id: "note1", vs: { location: "study", facing: "N" }, host: "the desk top" },
-    { id: "coin1", vs: { location: "hall", facing: "N" }, host: "the shelf board" }
+    { id: "coin1", vs: { location: "hall", facing: "E" }, host: "the shelf board" }
   ]) {
     test(`${c.id} darkens ${c.host} it rests on`, async ({ page }) => {
       // §7's [AI] clause: an on-surface object with no grounding is a sticker.
@@ -1985,7 +1992,14 @@ test.describe("the ground the sprites stand on carries the same key they do", ()
       const floor = { left: mean(fL, fL + 200, floorRow), right: mean(fR - 200, fR, floorRow) };
       /* The two returns, sampled at the same row and the same distance in
          from their own frame edge, so only the plane differs. */
-      const returns = { left: mean(20, 200, wallRow), right: mean(W - 200, W - 20, wallRow) };
+      /* The returns, sampled OUTSIDE their own corner and at the same distance
+         in from the frame edge, so only the plane differs. Row 20's lens puts
+         study/S's corners at 43 and 1493, so the old fixed 20..200 /
+         W-200..W-20 windows straddled the facing wall on one side and the
+         return on the other. */
+      const rL0 = 4, rL1 = Math.max(rL0 + 8, cL - 4);
+      const rR1 = W - 4, rR0 = Math.min(rR1 - 8, cR + 4);
+      const returns = { left: mean(rL0, rL1, wallRow), right: mean(rR0, rR1, wallRow) };
       return { wall, floor, returns, topL: lum(cL + 20, 390), lowL: lum(cL + 20, 630) };
     });
     expect(res.wall.left - res.wall.right,
@@ -2006,12 +2020,17 @@ test.describe("the room has corners, and they are where the plan says", () => {
      the wall-ceiling line and the floor line since the rooms gained a storey
      height [HUMAN 2026-08-21]; above `y0` the frame is ceiling and below `y1`
      it is floor, so every column scan for a corner vertical lives in here. */
-  const WALL_BAND = (() => {
-    const m = LIT.facing("study", "N");
+  const wallBandFor = (m) => {
     const floorY = m.floor_line_y * m.image_h_px;
-    return { y0: Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall) + 6,
-      y1: Math.floor(floorY) - 45 };
-  })();
+    return {
+      y0: Math.max(6, Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall) + 6),
+      y1: Math.min(1018, Math.floor(Math.min(floorY, 1024)) - 45)
+    };
+  };
+  /* Row 20 made the wall band per-facing: the scale is a consequence of how
+     far away the wall is, so the wall-ceiling line and the floor line are at
+     different rows on every facing. */
+  const WALL_BAND = wallBandFor(LIT.facing("study", "S"));
 
   /* Row 11's own clause, and the committed replacement for the hand-run
    * cross-commit canvas check: on a row where every frame moves, "every
@@ -2057,17 +2076,67 @@ test.describe("the room has corners, and they are where the plan says", () => {
           }
           return { x: den > 0 ? num / den : -1, v: T.colFraction(c, Math.round(centre), y0, y1), peak };
         };
-        return { left: locate(c0), right: locate(c1) };
-      }, { loc, f, c0: m.corner_x0_px, c1: m.corner_x1_px, ...WALL_BAND });
-      expect(cols.left.v, `${key}: a left corner is drawn`).toBeGreaterThan(0.9);
-      expect(cols.right.v, `${key}: a right corner is drawn`).toBeGreaterThan(0.9);
-      expect(Math.abs(cols.left.x - m.corner_x0_px),
-        `${key}: left corner at ${m.corner_x0_px}`).toBeLessThanOrEqual(2);
-      expect(Math.abs(cols.right.x - m.corner_x1_px),
-        `${key}: right corner at ${m.corner_x1_px}`).toBeLessThanOrEqual(2);
-      /* And they are BOTH in frame — §12.5 (i), from the picture. */
-      expect(cols.left.x).toBeGreaterThanOrEqual(0);
-      expect(cols.right.x).toBeLessThanOrEqual(1536);
+        /* Is a CORNER drawn anywhere? A corner is a 2 px stroke at
+           ALPHA_MAJOR; the wall's own metre lines are 1 px at ALPHA_MINOR and
+           the returns' verticals the same. So the test is two ADJACENT columns
+           each brighter than the wall a few pixels either side of them — which
+           a 1 px line cannot be. `bright` is a column mean over the wall band,
+           so the key falloff (which brightens whole regions) cancels. */
+        /* Is a CORNER drawn anywhere? A corner is a 2 px stroke at ALPHA_MAJOR
+           running the WHOLE band, floor line to wall-ceiling line. The wall's
+           own metre lines are 1 px at ALPHA_MINOR, and the facing glyph is a
+           tall bright mark too (16 px of stroke at this scale) but covers well
+           under a third of the band — so "brighter than the wall five pixels
+           either side, on more than 90% of the band's rows" finds a corner and
+           nothing else, without excluding the glyph by name. */
+        const rows = y1 - y0;
+        const band = ctx.getImageData(0, y0, 1536, rows).data;
+        const at = (x, i) => band[(i * 1536 + x) * 4];
+        const fullBand = (x) => {
+          let hit = 0;
+          for (let i = 0; i < rows; i++) {
+            const base = Math.min(at(x - 5, i), at(x + 6, i));
+            if (at(x, i) > base + 6) hit++;
+          }
+          return hit / rows > 0.9;
+        };
+        let anyVertical = false;
+        for (let x = 6; x < 1528 && !anyVertical; x++) {
+          /* TWO adjacent columns, because a corner is a 2 px stroke and the
+             wall's own metre lines are 1 px. Without the adjacency this finds
+             every metre line on the wall. */
+          if (fullBand(x) && fullBand(x + 1)) anyVertical = true;
+        }
+        return { left: locate(c0), right: locate(c1), anyVertical };
+      }, { loc, f, c0: m.corner_x0_px, c1: m.corner_x1_px, ...wallBandFor(m) });
+      /* CORNERS APPEAR EXACTLY WHEN THEY ARE HONESTLY IN FRAME — the row's own
+         done clause, read off the render. A corner whose computed x lies
+         inside the canvas must be drawn AND be where the arithmetic says; a
+         corner outside it must not be drawn at all, and the picture must not
+         invent one somewhere else. The cross passage's long facings are the
+         second case: an 8.00 m wall seen from 2.15 m puts both corners more
+         than a thousand pixels outside the frame. */
+      const inFrame = (x) => x >= 0 && x <= 1536;
+      if (inFrame(m.corner_x0_px)) {
+        expect(cols.left.v, `${key}: a left corner is drawn`).toBeGreaterThan(0.9);
+        expect(Math.abs(cols.left.x - m.corner_x0_px),
+          `${key}: left corner at ${m.corner_x0_px}`).toBeLessThanOrEqual(2);
+      }
+      if (inFrame(m.corner_x1_px)) {
+        expect(cols.right.v, `${key}: a right corner is drawn`).toBeGreaterThan(0.9);
+        expect(Math.abs(cols.right.x - m.corner_x1_px),
+          `${key}: right corner at ${m.corner_x1_px}`).toBeLessThanOrEqual(2);
+      }
+      if (!inFrame(m.corner_x0_px) && !inFrame(m.corner_x1_px)) {
+        expect(cols.anyVertical, `${key}: no corner is drawn, because neither is in frame`)
+          .toBe(false);
+      } else {
+        /* And the detector is not vacuous: where a corner IS in frame it finds
+           one. Both halves matter — a check that can only say "no" would pass
+           a renderer that had stopped drawing corners altogether. */
+        expect(cols.anyVertical, `${key}: the corner detector finds the corner that is there`)
+          .toBe(true);
+      }
     });
   }
 
@@ -2104,28 +2173,41 @@ test.describe("the room has corners, and they are where the plan says", () => {
     expect(found.some((x) => Math.abs(x - 1029.6) <= 2), "not the real study corner").toBe(false);
   });
 
-  test("under the pinned scale a corner does NOT move with the standpoint distance, and that is Kabe's open question", async ({ page }) => {
+  test("under the pinned LENS a corner MOVES with the standpoint distance — Kabe's sentence, answered", async ({ page }) => {
     /* Blueprint §5 [HUMAN, 2026-08-20]: "the horizontal corner of the room
        needs to be determined in location based on the distance expected
-       between the player and that wall." Under §7's pinned SCALE the corner's
-       x is `768 ± wall_width_m × 96 / 2` and `camera_wall_m` cancels: two
-       rooms with the same wall at different distances get pixel-identical
-       corners. What the distance DOES drive is the returns' convergence, the
-       floor's depth spacing and the frame-bottom cut.
-       This is not asserted because it is right — it is asserted because it is
-       the shape of §5's unresolved scale-vs-lens question, and a silent
-       change of model should go red here rather than pass unnoticed. Pinning
-       the LENS instead would move the corner with distance and cost visible
-       corners on wide walls; that is a look decision and it is Kabe's. */
+       between the player and that wall."
+
+       Under §7's pinned SCALE the corner's x was `768 ± wall_width_m × 96 / 2`
+       and `camera_wall_m` CANCELLED: two rooms with the same wall at different
+       distances got pixel-identical corners, which is the opposite of what
+       that sentence asks for. Row 11 asserted the cancellation here, named it
+       as the shape of §5's unresolved scale-vs-lens question, and left it.
+
+       Row 20 pins the lens, so `px_per_m_at_wall` is `f / camera_wall_m` and
+       the corner is `768 ± wall_width_m × f / (2 × camera_wall_m)`. Halve the
+       distance and the wall draws twice as wide: the corner moves outward, and
+       on a wall this size it leaves the frame entirely, which is what standing
+       half as far from it looks like. This is the same test inverted, and the
+       inversion is the row. */
     await page.goto(appUrl());
-    const a = LIT.facing("study", "N");      // 5.45 m at 3.60 m
-    const moved = await page.evaluate(({ width, y0, y1 }) => {
+    const a = LIT.facing("study", "N");      // 5.45 m at 4.35 m
+    const halfDistance = a.camera_wall_m / 2;
+    const movedCorner = 768 - a.wall_width_m / 2 * (LIT.focal_px / halfDistance);
+    expect(movedCorner).toBeLessThan(0);     // off the left of the frame, honestly
+    const res = await page.evaluate(({ y0, y1, cam, px, w }) => {
       const T = window.__T;
       const fx = window.HOLO_FIXTURE;
       const vs = { location: "study", facing: "S" };
       const base = T.metaOf(vs);
-      // The same wall, viewed from half as far away.
-      const meta = { ...base, camera_wall_m: base.camera_wall_m / 2 };
+      /* The same wall, viewed from half as far away — a whole meta, derived
+         the way `deriveMeta` derives one, not a corner field poked by hand. */
+      const meta = {
+        ...base, camera_wall_m: cam, px_per_m_at_wall: px,
+        wall_width_m: w,
+        floor_line_y: base.horizon_y + 1.2316 * px / 1024,
+        corner_x0_px: 768 - w / 2 * px, corner_x1_px: 768 + w / 2 * px
+      };
       const c = document.createElement("canvas");
       c.width = 1536; c.height = 1024;
       const bd = {}; bd["study/S"] = { meta };
@@ -2134,9 +2216,12 @@ test.describe("the room has corners, and they are where the plan says", () => {
       const cols = [];
       for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, y0, y1) > 0.9) cols.push(x);
       return cols;
-    }, { width: a.wall_width_m, ...WALL_BAND });
-    expect(moved.some((x) => Math.abs(x - a.corner_x0_px) <= 2),
-      "the corner is where it was at twice the distance").toBe(true);
+    }, { y0: WALL_BAND.y0, y1: WALL_BAND.y1, cam: halfDistance,
+      px: LIT.focal_px / halfDistance, w: a.wall_width_m });
+    /* The corner is NOT where it was at twice the distance — the assertion row
+       11 could only make in the negative. */
+    expect(res.some((x) => Math.abs(x - a.corner_x0_px) <= 2),
+      "the corner did not stay where it was at twice the distance").toBe(false);
   });
 
   test("typed geometry is data, not a branch: open and segmented facings draw no wall", async ({ page }) => {
@@ -2252,8 +2337,8 @@ test.describe("real touch, at a real phone size", () => {
   const targets = [
     { id: "note1", boot: null, intent: "take" },
     { id: "desk1", boot: null, intent: "toggle" },
-    { id: "coin1", boot: { location: "hall", facing: "N" }, intent: "take" },
-    { id: "stick1", boot: { location: "hall", facing: "N" }, intent: "toggle" }
+    { id: "coin1", boot: { location: "hall", facing: "E" }, intent: "take" },
+    { id: "stick1", boot: { location: "hall", facing: "E" }, intent: "toggle" }
   ];
   for (const t of targets) {
     test(`${t.id}: a finger on a 390×844 phone reaches it`, async ({ browser }) => {
@@ -2295,7 +2380,7 @@ test.describe("real touch, at a real phone size", () => {
 });
 
 test.describe("the way back through a door is reachable by a finger", () => {
-  test("an open leaf 6 CSS px wide still closes the door on a phone", async ({ browser }) => {
+  test("an open leaf a fraction of the shut one's width still closes the door on a phone", async ({ browser }) => {
     /* §7's amendment gives "a widening tolerance ring for targets too small
      * to hit exactly"; scoping it to `takeable` restored the blueprint's own
      * named failure on the device most people will open the link on. The
@@ -2327,14 +2412,28 @@ test.describe("the way back through a door is reachable by a finger", () => {
         return { x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w, h: b.h };
       });
       // Open it (the shut leaf is wide).
-      await tap(await leafRect());
+      const shut = await leafRect();
+      await tap(shut);
       expect(await page.evaluate(() =>
         window.HOLO_APP.harness.world.entities.find((e) => e.id === "door1").state))
         .toBe("open");
 
       const open = await leafRect();
       const cssW = (open.w * box.width) / 1536;
-      expect(cssW, "the open leaf really is a sliver").toBeLessThan(12);
+      const shutW = (shut.w * box.width) / 1536;
+      /* A sliver, stated as a RATIO rather than as a pixel count. The open leaf
+         is swung near-flat to the wall, so it draws a small fraction of the
+         shut leaf's width — that is the property this test needs. Row 20's
+         lens makes the passage's wall 1.8× the pixels per metre it was, so
+         every absolute width on this facing grew with it and a literal here
+         would have been a fact about the old scale. */
+      /* A quarter of the shut leaf is what the placeholder's open-state image
+         happens to be; what the test needs is only that the sliver is far too
+         narrow for a finger, which is the premise the tolerance ring exists
+         for. Both are asserted, and the absolute one is in CSS pixels at a
+         real phone width, where a fingertip is about 40. */
+      expect(cssW / shutW, "the open leaf really is a sliver").toBeLessThan(0.5);
+      expect(cssW, "and far too narrow for a finger").toBeLessThan(20);
 
       /* A finger, off centre to the LEFT — onto the wall beside the opening,
        * outside the leaf's own 6 px of pixels and inside the tolerance
