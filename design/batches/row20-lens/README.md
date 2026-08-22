@@ -114,6 +114,26 @@ preference.
 
 If that is not what you meant, this is the cheapest possible moment to say so.
 
+## The scored pass, and it did not go the row's way
+
+The row froze six criteria before it changed anything, and required a fresh outside eye to score
+before-and-after unlabelled before closing — with the rule set in advance that a criterion the new
+frames lose is a finding, not a note.
+
+**Two comparators ran and they disagree.** The first preferred the new frames on four criteria of
+six. The second, scoring the frames in this batch, **preferred the OLD ones on all six** and would
+ship the fisheye.
+
+Both put the weight in the same place: `hall/N` and `hall/S`, the passage's two long walls, which
+show no corner, no floor line and no ceiling line at all. The second one's sentence is worth having
+in front of you: *"a treatment that goes blind on 25 % of the passage's facings is not shippable."*
+The old camera never goes blind, because it re-zooms every facing to fill the frame — which is
+false, and legible.
+
+The full record, including where the second comparator contradicts its own measurements and where
+its lens arithmetic is off by a factor of two, is in `comparison.md` beside this file. It is not
+resolved here, because it is a look question and those are yours.
+
 ## The five things that are yours
 
 **1. Two of the eight are a wall in your face, and they cannot be anything else.** `05-hall-N.png`

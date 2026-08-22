@@ -750,6 +750,33 @@ to be 1010, so none of them are admissible. That control is the whole reason no 
 an agent measuring a picture three ways until one agrees with its expectation is this project's
 oldest defect, and the ledger says so on its face.
 
+**§7.4's scored pass ran twice and returned opposite verdicts, and the second one ships the
+fisheye.** Run 1, against the frames of 2026-08-21, preferred the new set on four criteria of six.
+Run 2, against the frames that ship, scored the new set LOWER ON ALL SIX — by 2.00, 1.87, 1.62,
+1.38, 1.37 and 0.50 — and would ship the pinned scale. The record is
+`design/batches/row20-lens/comparison.md`, written before the close and naming both runs, because
+reporting only the run that agrees with the build is the failure the frozen rule exists to prevent.
+
+**What replicates is the row's own named residue, arriving twice from outside and unprompted:**
+`hall/N` and `hall/S` show no corner, no floor line and no ceiling line, and both comparators put
+their entire weight there — run 1 lost one criterion by those two frames, run 2 lost six. *"A
+treatment that goes blind on 25 % of the passage's facings is not shippable"* is the sentence to
+answer. It is not a measurement artifact: it is what a 2.60 m room does under a 24 mm lens, which
+this row proved and did not solve.
+
+**What does not survive scrutiny in run 2, stated so the finding is not inflated:** it scores the
+BEFORE set 4.25 on *"does the room look the size it is"* while observing in the same report that
+that set's far wall *"is 269 px tall in every single frame regardless of whether the wall is 2.6 m
+or 12 m away"* — a camera that cannot convey size, scored as conveying it, and the exact defect this
+row removed. And its lens arithmetic is out by a factor of two (41.4° and 7.7–12.0 m against the
+build's 73.7° and 2.15–6.00 m), so every inference it draws FROM the lens is unsound. What it
+measured directly — wall widths to 0.01 m, the ceiling, both eye heights — is exact.
+
+**And one thing a blind eye said that no criterion asked for**, which lands on the fork Kabe just
+delegated: measuring the camera correctly at 1.09 m, it called the viewer *"crouching or a child"*
+and said it *"makes every wall tower"*. That is the first outside opinion on the measured camera and
+it is not a friendly one.
+
 **What the row still owes, in order:** the seven regenerated backdrops through the gate; their
 promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
 the doorway-as-a-building-fact that an empty painted room needs to be walkable; the batch of the
