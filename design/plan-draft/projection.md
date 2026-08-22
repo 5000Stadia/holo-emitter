@@ -64,7 +64,7 @@ claimed until row 20. Any divergence at all is a hard failure of the bake.
 | `door1` | study/E | wall_mounted | 0.7292 | 0.7292 | 0.0000 | — | — | yes |
 | `door1` | hall/W | wall_mounted | 0.5000 | 0.5000 | 0.0000 | — | — | yes |
 | `shelf1` | hall/E | floor_against | 0.4038 | 0.4038 | 0.0000 | — | 0.30 | yes |
-| `stick1` | hall/E | floor_free | 0.4615 | 0.4615 | 0.0000 | 0.50 | 0.50 | yes |
+| `stick1` | hall/E | floor_free | 0.4808 | 0.4808 | 0.0000 | 1.78 | 1.78 | yes |
 
 **What that table is and is not evidence of** — this matters more than the count:
 
@@ -92,7 +92,7 @@ surprise someone reading only the `u` column:
 | `door1` | study/E | 0.5688 | 0.7292 | 512.0 | 500.7 |
 | `door1` | hall/W | 0.5000 | 0.5000 | 512.0 | 341.3 |
 | `shelf1` | hall/E | 0.4844 | 0.4038 | 498.2 | 323.4 |
-| `stick1` | hall/E | 0.4937 | 0.4615 | 160.9 | 102.4 |
+| `stick1` | hall/E | 0.4969 | 0.4808 | 253.7 | 133.5 |
 
 ## 2. View angles, for row 4's prompt sheets
 
@@ -118,7 +118,7 @@ board from.
 | `door1` | study/E | 1.100 m | 4.09 m | 15.05 |
 | `door1` | hall/W | 0.000 m | 6.00 m | 0.00 |
 | `shelf1` | hall/E | -0.250 m | 5.70 m | -2.51 |
-| `stick1` | hall/E | -0.100 m | 5.50 m | -1.04 |
+| `stick1` | hall/E | -0.050 m | 4.22 m | -0.68 |
 
 ## 3. What each facing's wall carries
 

@@ -1,0 +1,105 @@
+{
+  "_what_this_is": "The camera miss ledger: one entry per backdrop candidate that the acceptance gate refused, with the measured delta and the reason, so a re-ask prompt can be built from the arithmetic rather than from a description. Written by an agent, read by a human before any re-ask goes to the asset seat. A FAIL here is a fact about a measurement, and every entry says how far that measurement can be trusted.",
+  "_gate": "design/plan-draft/measured/gate.py — a candidate is admitted when its implied focal (px_per_m_at_wall x the facing's DRAWN standpoint) lands within +/-3% of study/N's measured 1010 px. Blueprint §5.",
+  "_generated": "2026-08-22",
+  "_round": "cand-2, the seat's first camera-enforced regeneration of the seven",
+
+  "_measurement_trust": {
+    "summary": "The measurement harness is NOT trustworthy on the cand-2 passage images, and its verdicts for those four facings are withheld rather than reported as numbers.",
+    "why": "measure.py carries a per-facing configuration — fixed pixel windows (floor_window, ceil_range, rail_range) and a named calibration feature with an assumed real size — hand-tuned to each cand-1 composition. Pointed at a NEW image without re-tuning, each detector searches a fixed band for a feature that has moved, and reports whatever is at those coordinates.",
+    "evidence": "On cand-2 the harness derives storey heights of 5.38 m (hall/N), 4.67 m (hall/S), 2.36 m (hall/E) and 1.81 m (hall/W) in a room the plan puts at 2.80 m, and an eye height of 3.09 m on hall/S. It also reports two corners on hall/N, a facing whose own prompt forbids them. Numbers that imply an impossible room are measuring something other than the room.",
+    "independent_attempts": "Three ad-hoc measurements of hall/E gave 740 px (harness), 1027 px (strongest vertical edges) and 111 px (flat floor-line run). The last method was then run on study/N as a control, where the answer is known to be 1010 px, and returned 49 px. The control fails, so none of the ad-hoc numbers are admissible either. This is recorded because an agent measuring a picture three ways until one agrees with its expectation is the defect this project keeps paying for.",
+    "what_is_needed": "Re-identify each passage facing's calibration feature and detector windows against the cand-2 images, with a human eye on the marked-up frames, before any passage verdict is issued. That is asset-lane work and it is not guesswork an agent may do alone.",
+    "study_facings": "The four study facings measure plausibly on cand-2 — storey 2.84-3.16 m against a ruled 2.80, eye 1.20-1.48 m — so their verdicts below are reported as numbers."
+  },
+
+  "entries": [
+    {
+      "facing": "study/E",
+      "candidate": "backdrops/source/study-E/cand-2.png",
+      "verdict": "FAIL",
+      "measured_px_per_m_at_wall": 235.5,
+      "drawn_standpoint_m": 4.09,
+      "implied_focal_px": 963,
+      "target_focal_px": 1010,
+      "delta_pct": -4.6,
+      "target_px_per_m_at_wall": 246.9,
+      "scale_correction": "the wall must draw 1.049x larger: 246.9 px/m, not 235.5",
+      "trust": "measurement plausible (storey 2.84 m, eye 1.20 m)",
+      "why": "the room is drawn slightly deeper than the plan stands the camera; the scale is 4.6% short of the approved camera and the band is 3%",
+      "prior_round": { "candidate": "cand-1", "implied_focal_px": 961, "delta_pct": -4.8 },
+      "movement": "+0.2 pct — the regeneration did not materially change this facing's camera"
+    },
+    {
+      "facing": "study/W",
+      "candidate": "backdrops/source/study-W/cand-2.png",
+      "verdict": "FAIL",
+      "measured_px_per_m_at_wall": 234.44,
+      "drawn_standpoint_m": 4.09,
+      "implied_focal_px": 959,
+      "target_focal_px": 1010,
+      "delta_pct": -5.1,
+      "target_px_per_m_at_wall": 246.9,
+      "scale_correction": "the wall must draw 1.053x larger: 246.9 px/m, not 234.4",
+      "trust": "measurement plausible (storey 2.97 m, eye 1.48 m)",
+      "why": "same miss as study/E and by the same amount; the pair are the study's two side walls",
+      "prior_round": { "candidate": "cand-1", "implied_focal_px": 973, "delta_pct": -3.7 },
+      "movement": "-1.4 pct — this facing moved AWAY from the band"
+    },
+    {
+      "facing": "study/S",
+      "candidate": "backdrops/source/study-S/cand-2.png",
+      "verdict": "FAIL",
+      "measured_px_per_m_at_wall": 198.89,
+      "drawn_standpoint_m": 3.85,
+      "implied_focal_px": 766,
+      "target_focal_px": 1010,
+      "delta_pct": -24.2,
+      "target_px_per_m_at_wall": 262.3,
+      "scale_correction": "the wall must draw 1.319x larger: 262.3 px/m, not 198.9",
+      "trust": "measurement plausible, with the softest storey of the four (3.16 m against a ruled 2.80)",
+      "why": "the largest study miss by far. The plan pulls this standpoint forward to 3.85 m for the chimney breast, so the wall should draw LARGER here than on any other study facing, and it draws smaller than all of them",
+      "prior_round": { "candidate": "cand-1", "implied_focal_px": 757, "delta_pct": -25.0 },
+      "movement": "+0.8 pct — effectively unchanged"
+    },
+    {
+      "facing": "hall/N",
+      "candidate": "backdrops/source/passage-N/cand-2.png",
+      "verdict": "WITHHELD",
+      "trust": "measurement NOT trustworthy — see _measurement_trust",
+      "harness_reading_not_to_be_quoted": { "implied_focal_px": 308, "delta_pct": -69.5 },
+      "what_the_eye_sees": "a flat wall of panelling filling the frame edge to edge, with no floor line, no ceiling line and no corner. That is what the row says this facing must be — a 2.60 m room seen across its short axis is a wall in your face — so the picture is not obviously wrong. But it contains no sized feature at all, which is why the harness falls back to the panelling module and why its reading is soft by its own note (MEDIUM-LOW, +/-7%) even on the image it was tuned for.",
+      "why": "no verdict is possible from this image without a ruled feature in it. The re-ask should carry a sized feature the gate can measure, or this facing's scale has to be accepted on the module and said to be accepted on the module."
+    },
+    {
+      "facing": "hall/S",
+      "candidate": "backdrops/source/passage-S/cand-2.png",
+      "verdict": "WITHHELD",
+      "trust": "measurement NOT trustworthy — the harness derives eye 3.09 m and storey 4.67 m",
+      "harness_reading_not_to_be_quoted": { "implied_focal_px": 330, "delta_pct": -67.4 },
+      "why": "same as hall/N: the harness config points at cand-1's features"
+    },
+    {
+      "facing": "hall/E",
+      "candidate": "backdrops/source/passage-E/cand-2.png",
+      "verdict": "WITHHELD",
+      "trust": "measurement NOT trustworthy — the harness derives storey 2.36 m and finds no corners at all",
+      "harness_reading_not_to_be_quoted": { "implied_focal_px": 740, "delta_pct": -26.7 },
+      "what_the_eye_sees": "a genuine corridor with a leaded window on the end wall, and a good picture. But it reads LONG: the end wall occupies roughly an eighth of the frame width, where a 2.60 m wall at the drawn 6.00 m standpoint on the ruled lens must occupy 444 px, nearly a third of it. If that holds under a re-tuned measurement, the camera enforcement did not take on this facing.",
+      "why": "the look says the miss is large and in the same direction as cand-1's; the number that would say how large cannot be trusted yet"
+    },
+    {
+      "facing": "hall/W",
+      "candidate": "backdrops/source/passage-W/cand-2.png",
+      "verdict": "WITHHELD",
+      "trust": "measurement NOT trustworthy — the harness derives storey 1.81 m",
+      "harness_reading_not_to_be_quoted": { "implied_focal_px": 783, "delta_pct": -22.5 },
+      "what_the_eye_sees": "a corridor with a lit open doorway on the end wall. Same long read as hall/E.",
+      "why": "as hall/E"
+    }
+  ],
+
+  "admitted_this_round": [],
+  "still_admitted_overall": ["study/N"],
+  "consequence": "0 of 7 regenerations admitted. Row 20 closes on the Navigator's fallback: study/N promoted, grid for the other seven, stated on the batch's face. The seven promote in the sprite-processing phase as they pass."
+}

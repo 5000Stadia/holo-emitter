@@ -9,13 +9,7 @@ read.
 
 Placeholder art (V1). Nothing here is judged on finish.
 
-**CAPTURE-SRC 86e65ee** — the commit whose `src/` and `index.html` these frames were rendered from.
-It is machine-read by `plan.spec`, which goes red if either moves and the batch does not, because a
-batch that no longer shows what the code draws is worse than no batch: the first version of this one
-was captured before the facing glyph was resized, and every frame in it was a picture of code that
-had stopped existing. `capture.mjs` beside these files is the script that made them — it was in a
-scratch directory when a critic pointed out that an artifact nobody can regenerate is not derived,
-it is just a file.
+**These frames are re-rendered and compared by the test suite on every run.** `capture.mjs` beside them is the script that made them, and `plan.spec` runs it into a temporary directory and requires every frame to come back byte-identical — so a picture here cannot drift from the build, and a frame cannot be swapped for another. This replaced a commit hash typed into this README: a critic pointed out that a guard reading a string in the document it guards is satisfied by editing the string, and that the sentence was already false — it named a commit two changes later than the capture.
 
 ---
 
@@ -89,7 +83,7 @@ The preview pair you blessed — `01d` and `02b` — licensed two things, and on
 still exactly what you saw.
 
 **Unchanged, to the pixel.** How wide a metre of wall draws (235.4 px/m in the study, 170.7 in the
-passage), where the corners land (127 and 1409; 546 and 990), and how much of the frame the wall
+passage), where the corners land (the drawn stroke centres measure 126.0 and 1409.1; 546.0 and 989.1 — the preview notes rounded them to 127 and 990, which is a pixel out in a sentence whose force is "to the pixel", so the measured values are what this says), and how much of the frame the wall
 fills (83.5 %, 28.9 %). Those are the lens and the standpoint, and both are what you approved.
 
 **Changed, and by a later decision of yours.** Your eight backdrops arrived after those previews
@@ -101,28 +95,24 @@ that camera. The consequence is visible: **the floor is 24 % of the study frame 
 3.08 m. It is a better picture by the intention's own fifth quality, and it is not the composition
 you looked at.
 
-## Question 1, and it is the only one that blocks: two worlds, pick one
+## Question 1: answered, and here is what your answer did
 
-Your intention names the eye height in your own words — *"contract §10 — 6 ft, pitched slightly
-down"*. The camera now drawing is **3 ft 7 in**. It got there by measurement: the generator was
-asked for six feet on all eight backdrops and drew about four on every single one, and blueprint §5
-says the approved image is the geometric authority. So this is not a number to correct. It is a
-choice between two worlds, and only you can make it.
+Your intention named the eye height in your own words — *"contract §10 — 6 ft, pitched slightly
+down"*. The camera drawing these frames is **3 ft 7 in**, because the generator was asked for six
+feet on all eight backdrops and drew about four on every one, and blueprint §5 makes the approved
+image the geometric authority. That was a choice between two worlds, not two numbers: keep the
+picture you approved, or hold everything until a generator that has missed six feet eight times out
+of eight finally hits it.
 
-**(i) KEEP THE PICTURE.** The world you are looking at in these frames. Eye ~1.09 m, the floor
-starting 2.23 m ahead, the same camera on all eight facings, nothing regenerates, the batch is
-finished art direction. The cost: the intention's parenthetical amends to the measured camera, and
-your 6-ft ruling is recorded as superseded by your own approved image — which is the authority
-chain you yourself set when you ruled that the approved image IS the camera.
+You answered **"Whatever looks good"**, and the Navigator took it as keep the picture. So the
+measured camera is the project's camera now, and `design/intention.md` quality 5 reads *"the approved
+painted world's measured camera"* — your sentences untouched, only the parenthetical's number moved,
+with the chain written into it: §5's approved-image rule, your approval of the painted frames, and
+your delegation. **Your 6-ft ruling is recorded as superseded rather than deleted**, so anyone
+reading it later can see it was your own approved picture that overruled it, not an agent's
+preference.
 
-**(ii) ENFORCE SIX FEET.** Your number stands in the intention untouched. The cost: every backdrop
-regenerates with the eye fought upward against a generator that has drawn about four feet on all
-eight asks so far, for an unknown number of re-rolls, and nothing ships until they land.
-
-**The Navigator's recommendation is (i)**, and the reason is what quality 5 is actually for: its
-substance is CONSISTENCY of eye height and rooms that read right, and measurement delivers both.
-The number was always a means to *"better visual presentation"* — which the approved frames already
-are. Your word decides. Nothing ships before it either way.
+If that is not what you meant, this is the cheapest possible moment to say so.
 
 ## The five things that are yours
 
@@ -183,6 +173,31 @@ distance — but you have not seen these two sheets, and the stamp says so on it
 than claiming more than it has.
 
 ---
+
+## Which facings are painted, and which are still grid
+
+**None of them yet — every frame in this batch is the schematic.** Saying otherwise would be the
+one thing this row exists to prevent, so here is exactly where the painted world stands.
+
+**`study/N` is the one backdrop ready to go up.** The frame your own probe approved is the only one
+whose painted camera and this row's ruled lens are the same camera — measured 1010 px against the
+ruled 1024, 1.4 % apart. It is not on screen yet because hanging it is not a one-line change: the
+painting's own geometry differs slightly from the plan's (it draws a 5.37 m wall from 4.41 m where
+the plan says 5.45 m from 4.35 m), so the room's objects re-site to the picture and every test that
+pins that facing's corners moves with them. That is real work and it belongs in front of an
+adversary, not after the last one has gone home.
+
+**The other seven are grid**, and the reason is not a delay. The asset seat regenerated all seven
+with the camera enforced and **none of them passed the gate**: the three study facings measure 4.6 %,
+5.1 % and 24.2 % short of your approved camera, and none moved materially from the previous
+attempt. The four passage facings were not given a verdict at all, because the measuring harness
+could not be trusted on them — pointed at the new images it reported a 5.38 m ceiling in a 2.80 m
+room. A number that describes an impossible room is measuring something other than the room, so it
+is recorded as WITHHELD in `design/plan-draft/measured/miss-ledger.json` rather than quoted at you.
+
+So what you are looking at is a world that is **true everywhere and painted nowhere** — every room
+correct in its geometry, none of it dressed. The paint boards from the phase that processes sprites:
+`study/N` first, since it already agrees with the camera, and the other seven as they pass the gate.
 
 ## And the thing that is not in this batch yet
 

@@ -2712,14 +2712,14 @@
       "floor": "ground",
       "room": "hall",
       "footprint": {
-        "x0": 38.5,
-        "x1": 38.66,
-        "y0": 10.92,
-        "y1": 11.08
+        "x0": 37.22,
+        "x1": 37.38,
+        "y0": 10.87,
+        "y1": 11.03
       },
       "attachment": "floor_free",
       "source": "composed",
-      "note": "Row 20, under blueprint §4's standing licence, ruled by the Navigator. Moved with shelf1 to the passage's east end wall for the same forced reason, and composed to keep the pair: 0.20 m in front of the press and 0.15 m to its right, so the candlestick's upper body crosses the press's silhouette - column-before-building, the intention's third quality: the authored occlusion chain this pair exists for. Depth stays 0.50 m from the wall."
+      "note": "Row 20, under blueprint §4's standing licence, ruled by the Navigator. Moved with shelf1 to the passage's east end wall for the same forced reason. RECOMPOSED after a round-5 critic measured the pair and found it failing the acceptance test this row wrote for itself: at 0.20 m in front of the press the two baselines were 7 drawn pixels apart and the candlestick read as standing ON the press's bottom shelf, not in front of it. The plan named the lever - 'the candlestick forward, the press deeper' - and the press cannot go deeper because it is against the wall, so the candlestick came forward: 1.70 m off the east wall, 1.48 m in front of the press's front face. It now stands 4.22 m from the standpoint against the press's 5.70 m, which draws the bases 68 px apart and still crosses 65 px of the press's silhouette - in front of it and overlapping it, which is what an occlusion chain is. Well clear of the 2.23 m nearest visible floor."
     }
   ]
 }

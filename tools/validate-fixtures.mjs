@@ -45,6 +45,18 @@ const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_P
  * the two files agree, so widening one without the other goes red. */
 export const MEASURED_REFERENCE_PX = 1010.0;   // study/N, measured — the approved camera
 export const MEASURED_BAND = 0.03;             // ±3 %, blueprint §5 / gate.py
+
+/* THE DERIVED ARM'S TOLERANCE, exported for the same reason the band is. A
+ * derived meta computes `px_per_m_at_wall` as `FOCAL_PX / distance`, so the
+ * product is `FOCAL_PX` to within a few units in the last place of a double.
+ * This is a float-equality epsilon, NOT an engineering allowance, and nothing
+ * about a picture may move it. It sat inline and unread as `1e-9` until a
+ * round-5 critic widened it to `0.1` - a factor of 10^8 - with the whole suite
+ * green, at which value a 10%-wrong lens ships. The ledger case could not see
+ * that, because it doctors by x1.2 and stays red under any widening short of
+ * its own delta: a case proves the clause fires, and only a test at the
+ * BOUNDARY proves the number. `validator.spec` pins it from both sides. */
+export const DERIVED_LENS_TOL = 1e-9;
 export function measuredLensBand() {
   return { lo: MEASURED_REFERENCE_PX * (1 - MEASURED_BAND),
            hi: MEASURED_REFERENCE_PX * (1 + MEASURED_BAND), exact: false };
@@ -394,7 +406,7 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
         if (!(focal >= band.lo && focal <= band.hi)) {
           findings.push(`${label}: MEASURED ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% acceptance band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the approved ${MEASURED_REFERENCE_PX} px (§12.5 (i′), blueprint §5) — the painting is not on the project's camera [row20:meta.one_lens_measured]`);
         }
-      } else if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= 1e-9)) {
+      } else if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= DERIVED_LENS_TOL)) {
         findings.push(`${label}: ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (§12.5 (i′), blueprint §10) — one lens per room, and per manor [row20:meta.one_lens]`);
       }
     }

@@ -44,8 +44,8 @@
     "stick1": {
       "facing": "hall/E",
       "attachment": "floor_free",
-      "u": 0.461538461538,
-      "depth_m": 0.5
+      "u": 0.480769230769,
+      "depth_m": 1.78
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",

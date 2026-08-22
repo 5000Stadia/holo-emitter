@@ -117,7 +117,26 @@ def text_px(s, size):
     return sum(_ADV.get(ord(c), _ADV_MAX) for c in s) * size / 1000.0
 
 
-def fit_size_px(s, max_px, size, floor):
+def wrap_px(s, size, max_px):
+    """Greedy word wrap of `s` at `size` into lines of at most `max_px`.
+    Refuses a single word too wide to fit at all."""
+    lines, cur = [], ""
+    for word in s.split(" "):
+        if text_px(word, size) > max_px:
+            raise SystemExit("draw_plan: %r alone is wider than the %.0f px the "
+                             "sheet gives the stamp at size %s" % (word, max_px, size))
+        trial = word if not cur else cur + " " + word
+        if text_px(trial, size) <= max_px:
+            cur = trial
+        else:
+            lines.append(cur)
+            cur = word
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def fit_size_px(s, max_px, size, floor, allow_refuse=True):
     """The largest font size at or below `size` whose rendered advance fits in
     `max_px`, in quarter-point steps. Refuses below `floor` rather than
     printing past the sheet edge - a stamp that runs off the paper stops the
@@ -128,6 +147,8 @@ def fit_size_px(s, max_px, size, floor):
         if text_px(s, px) <= max_px:
             return round(px, 2)
         px -= 0.25
+    if not allow_refuse:
+        return None
     raise SystemExit(
         "draw_plan: the provenance line needs %.0f px at size %s and the sheet "
         "gives the stamp %.0f px - it does not fit even at the %s floor. "
@@ -592,16 +613,32 @@ def build(name, title, sub, rooms, parts, doors, wins, fires, stairs,
     b.o.append('<rect x="0" y="0" width="%d" height="%d" fill="#ffffff"/>' % (W, H))
     b.ptext(40, 40, title, 25, weight="bold")
     b.ptext(40, 62, sub, 11.5, fill="#4a443c")
-    # THE STAMP IS FITTED TO THE SHEET, and fitted by SIZE rather than by
-    # wrapping, because the header band between the subtitle and the map is one
-    # line deep and a provenance line getting longer must not move a single
-    # drawn thing - or the approval lock trips on the stamp instead of on the
-    # drawing it is guarding. `fit_size_px` returns the largest size at or
-    # below 10 that finishes inside the column, and REFUSES below 7.5 rather
-    # than printing off the right edge, which is what the sheet used to do.
-    b.ptext(40, 80, PROVENANCE, fit_size_px(PROVENANCE, W - 80, 10, 7.5),
-            fill="#6b6257")
-    b.pline(40, 90, W - 40, 90, stroke="#2b2620", stroke_width="1.6")
+    # THE STAMP IS FITTED TO THE SHEET, by size first and then by wrapping.
+    #
+    # A provenance line that grows must not move a single DRAWN thing, or the
+    # approval lock trips on the stamp instead of on the drawing it guards. So
+    # the stamp is shrunk to fit one line while it can (`fit_size_px`, floor
+    # 7.5), and only then takes a second line - and the rule under it, which is
+    # sheet chrome and not part of the plan, moves down with it. `geometryOnly`
+    # in plan.spec strips anything marked `sheet-chrome`, so the drawn geometry
+    # hash is unmoved by any of this; a wall moving still trips it.
+    #
+    # The header band runs from the rule to the map's top margin at y 104, so
+    # two lines fit and three do not, and the drawing REFUSES rather than
+    # printing over the plan. It refuses on width too: an artifact critic found
+    # ink at column 3039 of a 3040-px render, the sentence stopping mid-word.
+    size = fit_size_px(PROVENANCE, W - 80, 10, 7.5, allow_refuse=False)
+    prov = [PROVENANCE] if size else wrap_px(PROVENANCE, 8, W - 80)
+    size = size or 8
+    for i, ln in enumerate(prov):
+        b.ptext(40, 80 + i * 12, ln, size, fill="#6b6257")
+    rule_y = 80 + (len(prov) - 1) * 12 + 10
+    if rule_y > b.my - 2:
+        raise SystemExit("draw_plan: the stamp needs %d lines and the header band "
+                         "holds 2 - the sheet cannot print its own provenance "
+                         "without covering the plan" % len(prov))
+    b.pline(40, rule_y, W - 40, rule_y, stroke="#2b2620", stroke_width="1.6",
+            **{"class": "sheet-chrome"})
     fit_check(name, b, rooms, parts, stars)
     rows = draw_floor(b, rooms, parts, doors, wins, fires, stairs, gw)
     for (sx, sy) in stars:

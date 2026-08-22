@@ -635,6 +635,50 @@ test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async
   expect(drawn_, `glyph ${drawn_} px is the letterform plus its stroke, not more`)
     .toBeLessThanOrEqual(expected + expected / 6 + 8);
   expect(drawn_, "and never a fifth of the frame").toBeLessThan(LIT.H / 5);
+
+  /* AND ITS INK STRENGTH, which is the other half of the same problem and was
+     held by nothing. `architecture.md` states both halves in one sentence —
+     "The alpha is the other half of the same problem — at 0.9 the letter was
+     the most legible object in every frame, and a room with a label on the
+     wall is a diagram" — and the row guarded only the size. A round-5 critic
+     doubled `ALPHA_GLYPH` from 0.45 to 0.90 with the whole suite green, which
+     repaints every frame of the batch: 1576 changed pixels on `01-study-N`,
+     5419 on `05-hall-N`. That is the round-4 batch defect with a different
+     constant, so the constant gets a reader.
+
+     Measured as the mean channel-sum distance between each glyph pixel and the
+     wall 200 px to its left, over the two bare passage facings — the same
+     difference-of-two-facings the size clause uses, so the ink measured is the
+     letters and nothing else. It is a pure alpha ramp and identical on both
+     engines: 0.25 → 51, 0.45 → 92 (shipped), 0.60 → 122, 0.90 → 183. The
+     bounds hold it away from both failures the sentence names: too faint to
+     answer an arrow key, and loud enough to be the most legible thing in the
+     room. */
+  const ink = await page.evaluate(() => {
+    const T = window.__T;
+    const a = T.renderDirect({ location: "hall", facing: "N" }, null, { backdrop_only: true });
+    const b = T.renderDirect({ location: "hall", facing: "S" }, null, { backdrop_only: true });
+    const W = a.width, H = a.height;
+    const da = a.getContext("2d").getImageData(0, 0, W, H).data;
+    const db = b.getContext("2d").getImageData(0, 0, W, H).data;
+    let n = 0, sum = 0;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * 4;
+        if (da[i] === db[i] && da[i + 1] === db[i + 1] && da[i + 2] === db[i + 2]) continue;
+        const j = (y * W + Math.max(0, x - 200)) * 4;   // bare wall, same row
+        sum += Math.abs(da[i] - da[j]) + Math.abs(da[i + 1] - da[j + 1]) +
+               Math.abs(da[i + 2] - da[j + 2]);
+        n++;
+      }
+    }
+    return { n, mean: sum / n };
+  });
+  expect(ink.n, "the glyph draws no ink at all").toBeGreaterThan(2000);
+  expect(ink.mean, `glyph ink ${ink.mean.toFixed(0)} against the wall — too faint to answer an arrow key on a bare facing`)
+    .toBeGreaterThan(70);
+  expect(ink.mean, `glyph ink ${ink.mean.toFixed(0)} against the wall — a room with a label this loud on it is a diagram, not a room`)
+    .toBeLessThan(140);
 });
 
 test("turning is visible even on a bare wall", async ({ page }) => {

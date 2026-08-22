@@ -699,6 +699,57 @@ which is what `gate.py` computes and what the ±3 % band exists to judge — and
 now disagree, which is the whole point. `measure.py`'s field keeps its name and its draft status;
 what may not happen is that number reaching a shipped meta.
 
+**Round 5 — the final round — returned NOT PASS on six blocking findings, and four of them were
+round 4's family one turn deeper: a claim whose only reader is a second copy of the claim.** Round 4
+split `meta.one_lens` into two tokens and bound the MEASURED half to the asset gate; round 5 widened
+the DERIVED half from `1e-9` to `0.1` — a factor of 10⁸ — with the whole suite green, because the
+ledger case doctors by ×1.2 and stays red under any widening short of its own delta. **A case proves
+a clause FIRES; only an assertion at the boundary pins the number.** Both tolerances are now pinned
+from both sides, and the measured band is judged against the corpus it exists to judge: not "is the
+number 0.03" but "does the band still admit exactly the one backdrop blueprint §5 admits", asserted
+against `gate.py`'s own printed verdict. A critic's 0.0999 took the gate from 1 of 8 admitted to 3
+of 8, shipping two un-regenerated backdrops; it now goes red twice.
+
+**The batch guard was the same defect in a different costume, and it had already come true.** The
+README named a commit two changes LATER than the capture, so its own sentence was false while the
+test was green — and because the guard read a hash out of the document it guards, editing the string
+satisfied it. Nineteen of twenty-one images were bound to nothing: `cp 05-hall-N.png
+01-study-N.png` left the suite green. The frames answer for themselves now. `plan.spec` runs the
+committed `capture.mjs` into a temporary directory and requires every frame back byte-identical —
+available as a live check, not a stored golden, precisely because the capture is deterministic here.
+
+**Three more that were mine to have caught.** `ALPHA_GLYPH` was an unguarded constant that repaints
+every frame in the batch — `architecture.md` states the size and the alpha as two halves of one
+sentence and the row guarded only the size; the glyph's ink strength is measured now. The approval
+stamp's `AWAITING HIS EYE ON` line — §12's entire mitigation for an APPROVED stamp over a drawing
+nobody has seen — was deletable with the suite green, because neither digest moves and the caption
+clause excludes the provenance line by name; the requirement now sits OUTSIDE the lock, on the
+batch's existence. And the `hall/E` pair failed the acceptance test **this row wrote for itself**:
+*"if the pair reads as two objects side by side rather than one in front of the other, the
+composition moves again."* At 0.20 m in front of the press the two baselines were 7 drawn pixels
+apart and the candlestick read as standing ON the press's bottom shelf. The plan named the lever and
+the press cannot go deeper, so the candlestick came forward to 1.70 m off the wall: 68 px of base
+separation and 65 px still crossing the press's silhouette.
+
+**And one the row caught on itself.** The first version of the tolerance boundary test asserted that
+a deviation of `TOL × 4` is refused — true for every value of `TOL`, so it moved with the number it
+was meant to pin and survived the exact widening it was written to catch. A boundary test phrased in
+terms of its own subject is the self-referential defect one level down. The assertions are absolute
+now.
+
+**The seven regenerated backdrops: 0 of 7 admitted, and the passage verdicts are WITHHELD rather
+than reported.** `design/plan-draft/measured/miss-ledger.json` carries the entries. The three study
+facings measure plausibly and fail: `study/E` −4.6 %, `study/W` −5.1 %, `study/S` −24.2 %, none of
+them materially moved from the previous round. The four passage facings cannot be given a number:
+`measure.py` carries per-image pixel windows and a named calibration feature tuned to each cand-1
+composition, and pointed at cand-2 it derives storey heights of 1.81 m to 5.38 m in a 2.80 m room
+and finds two corners on a facing whose prompt forbids them. **An impossible room means the harness
+is measuring something other than the room.** Three ad-hoc measurements of `hall/E` gave 740, 1027
+and 111 px; the last method run on `study/N` as a control returned 49 px where the answer is known
+to be 1010, so none of them are admissible. That control is the whole reason no number is quoted —
+an agent measuring a picture three ways until one agrees with its expectation is this project's
+oldest defect, and the ledger says so on its face.
+
 **What the row still owes, in order:** the seven regenerated backdrops through the gate; their
 promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
 the doorway-as-a-building-fact that an empty painted room needs to be walkable; the batch of the

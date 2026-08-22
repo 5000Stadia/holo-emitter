@@ -7,10 +7,13 @@
  * pattern.
  */
 import { test, expect, repoRoot, appUrl, stageTree, removeTree, bake } from "./helpers.mjs";
-import { validate, MEASURED_REFERENCE_PX, MEASURED_BAND } from "../../tools/validate-fixtures.mjs";
+import { validate, MEASURED_REFERENCE_PX, MEASURED_BAND, DERIVED_LENS_TOL }
+  from "../../tools/validate-fixtures.mjs";
 import { createRequire } from "node:module";
-import { readFileSync, writeFileSync } from "node:fs";
+import { metaForFacing } from "../../tools/plan-projection.mjs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const { records } = require(join(repoRoot, "src", "placeholders.js"));
@@ -518,5 +521,127 @@ test.describe("the measured-lens acceptance band", () => {
     expect(MEASURED_BAND).toBeGreaterThan(0);
     expect(MEASURED_REFERENCE_PX * (1 - MEASURED_BAND)).toBeGreaterThan(498);
     expect(MEASURED_BAND).toBeLessThan(0.1);
+  });
+});
+
+/* A TOLERANCE NOTHING READS IS NOT A TOLERANCE. Round 4 found `meta.one_lens`
+ * carrying `meta.measured ? 0.05 : 1e-9` and widened 0.05 to 0.99 with the
+ * suite green; the fix split the token and bound the measured half to the
+ * asset gate, and round 5 then widened the DERIVED half - 1e-9 to 0.1, a
+ * factor of 10^8 - with the suite green again. Same defect, other arm, one
+ * round apart.
+ *
+ * The reason a ledger case cannot catch this is structural and worth stating:
+ * a case doctors a meta far outside the tolerance (x1.2 here) to prove the
+ * clause FIRES. It stays red under any widening short of its own delta. Only a
+ * pair of assertions at the boundary - just outside must fail, just inside
+ * must pass - pins the number itself, and a widened tolerance breaks the first
+ * while a narrowed one breaks the second. */
+/** Findings matching `re` after doctoring the SHIPPED derived metas. */
+function lensTokens(doctor, re) {
+  const plan = JSON.parse(readFileSync(join(fixtureDir, "plan.json"), "utf8"));
+  const world = JSON.parse(readFileSync(join(fixtureDir, "world.json"), "utf8"));
+  const metas = {};
+  for (const loc of world.locations) {
+    for (const f of loc.facings) metas[`${loc.id}/${f}`] = metaForFacing(plan, loc.id, f);
+  }
+  doctor(metas);
+  return validate(fixtureDir, records, metas).filter((x) => re.test(x)).length;
+}
+
+test.describe("the lens tolerances are pinned from both sides", () => {
+  test("the DERIVED arm is a float epsilon: 4x it is refused, a fraction of it is not", () => {
+    const bend = (rel) => lensTokens((m) => {
+      m["hall/S"].px_per_m_at_wall *= (1 + rel);
+    }, /row20:meta\.one_lens\]/);
+
+    /* ABSOLUTE deviations, never multiples of the constant under test. My
+       first version of this asserted `bend(TOL * 4)` is refused, which is true
+       for EVERY value of TOL — the test moved with the number it was meant to
+       pin and survived the exact 1e-9 -> 0.1 widening it was written to catch.
+       A boundary test phrased in terms of its own subject is the same
+       self-referential defect as a document that reads a second copy of
+       itself, one level down. So: fixed relative deviations, chosen for what
+       they mean in PIXELS on this frame. */
+    expect(bend(0), "the shipped derived meta must pass").toBe(0);
+    expect(bend(1e-12),
+      "1e-12 is float noise on a derived meta and must not be a finding").toBe(0);
+    expect(bend(1e-6),
+      "1e-6 relative — a thousandth of a pixel on a 1024 px lens — must be refused: this arm is a float-equality epsilon, and if it is green the tolerance has become an allowance")
+      .toBeGreaterThan(0);
+  });
+
+  test("and the epsilon is an epsilon, not an allowance", () => {
+    /* A float-equality tolerance may not become a licence. At 1e-6 a 1024 px
+       lens admits a 1024.001 px one, which is still nothing - but at 1e-3 it
+       admits a whole pixel, and that is a picture decision nobody ruled. */
+    expect(DERIVED_LENS_TOL).toBeLessThanOrEqual(1e-8);
+    expect(DERIVED_LENS_TOL).toBeGreaterThan(0);
+  });
+
+  test("the MEASURED band is +/-3%: just outside is refused, just inside is not", () => {
+    const atFocal = (focalPx) => lensTokens((m) => {
+      m["hall/S"].measured = true;
+      m["hall/S"].px_per_m_at_wall = focalPx / m["hall/S"].camera_wall_m;
+    }, /row20:meta\.one_lens_measured\]/);
+
+    const lo = MEASURED_REFERENCE_PX * (1 - MEASURED_BAND);
+    const hi = MEASURED_REFERENCE_PX * (1 + MEASURED_BAND);
+    expect(atFocal(MEASURED_REFERENCE_PX), "the approved camera itself must pass").toBe(0);
+    expect(atFocal(lo + 1), "just inside the low edge must pass").toBe(0);
+    expect(atFocal(hi - 1), "just inside the high edge must pass").toBe(0);
+    expect(atFocal(lo - 1), "just outside the low edge must be refused").toBeGreaterThan(0);
+    expect(atFocal(hi + 1), "just outside the high edge must be refused").toBeGreaterThan(0);
+  });
+
+  /* AND THE BAND IS JUDGED AGAINST THE CORPUS IT EXISTS TO JUDGE. `gate.py`'s
+     own sentence is "The corpus conforms to the law; the law is never moved to
+     admit the corpus", and blueprint §5 rules seven of the eight backdrops
+     must regenerate. A round-5 critic set the band to 0.0999 - inside the
+     `< 0.1` rail the first version of this file called a guard - and gate.py
+     silently went from 1 of 8 admitted to 3 of 8, letting study/E and study/W
+     ship un-regenerated. So the real assertion is not about the number: it is
+     that the seven still fail and the one still passes. */
+  test("the band still admits exactly the one backdrop blueprint §5 admits", () => {
+    const dir = join(repoRoot, "design", "plan-draft", "measured");
+    if (!existsSync(dir)) return;
+    const MEASURED = {                       // px/m read off each painting, and each facing's DRAWN standpoint
+      "study/N": [232.222, 4.35], "study/E": [235.0, 4.09], "study/S": [196.667, 3.85],
+      "study/W": [237.778, 4.09], "hall/N": [255.556, 2.15], "hall/E": [151.111, 6.00],
+      "hall/S": [288.889, 2.15], "hall/W": [136.0, 6.00]
+    };
+    const lo = MEASURED_REFERENCE_PX * (1 - MEASURED_BAND);
+    const hi = MEASURED_REFERENCE_PX * (1 + MEASURED_BAND);
+    const admitted = Object.entries(MEASURED)
+      .filter(([, [ppm, cam]]) => ppm * cam >= lo && ppm * cam <= hi)
+      .map(([k]) => k);
+    expect(admitted,
+      "the band's membership over the eight approved backdrops has changed — blueprint §5 admits study/N and rules the other seven back to the asset seat")
+      .toEqual(["study/N"]);
+  });
+
+  /* The numbers above are typed from the measurement, so they can rot. This
+     reads gate.py's own verdict line and requires the two to agree. */
+  test("and gate.py, run for real, says the same thing", () => {
+    const gate = join(repoRoot, "design", "plan-draft", "measured", "gate.py");
+    if (!existsSync(gate)) return;
+    /* gate.py EXITS NON-ZERO while any candidate fails, which is its whole
+       job today — seven of eight are meant to fail. So a throw is the normal
+       path and its stdout is the verdict; only a missing stdout means the tool
+       could not run. This test skipped silently on that throw when it was
+       first written, which would have made it the very thing it guards: a
+       check that is green because it never ran. */
+    let out = "";
+    try {
+      out = execFileSync("python3", [gate], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      out = e.stdout ? String(e.stdout) : "";
+    }
+    if (!out.trim()) {
+      test.skip(true, "the measurement corpus is not present here");
+      return;
+    }
+    expect(out).toMatch(/1 of 8 admitted/);
+    expect(out.match(/^study\/N\s.*PASS/m), "study/N must be the admitted one").toBeTruthy();
   });
 });

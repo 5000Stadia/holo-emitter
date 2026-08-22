@@ -1214,13 +1214,17 @@
       if (real) {
         manualMaximize = false;
         var p = exitFS();
-        /* SYNC ON THE PROMISE, not only on the event. The exit path used to
-           return here and leave the label to `fullscreenchange`; under load a
-           critic caught the button still reading "leave the full screen" after
-           `document.fullscreenElement` was already null — a stale aria-label on
-           the one control a screen-reader user needs to be told the truth
-           about. The event still fires and `syncFullscreenUI` is idempotent,
-           so this is a second chance rather than a replacement. */
+        /* BELT AND BRACES, and the record says so rather than claiming a fix.
+           A critic caught the button still reading "leave the full screen"
+           after `document.fullscreenElement` was already null, and this
+           promise sync was added alongside a test change. A later critic then
+           showed the honest thing: delete these two lines and the suite still
+           passes, because `fullscreenchange` was already wired and the test's
+           condition-wait resolves exactly when the queued listener would have
+           healed it. What removed the flake was the TEST becoming a condition
+           instead of a timer. This stays because it is a real second chance on
+           a path where the label is what a screen-reader user is told — but it
+           is not load-bearing, and no check here can prove it is. */
         if (p && p.then) p.then(syncFullscreenUI, function () { manualMaximize = false; syncFullscreenUI(); });
         else syncFullscreenUI();
         return;

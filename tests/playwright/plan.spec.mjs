@@ -11,8 +11,8 @@
  * drawing Kabe approved is this row's acceptance, and an acceptance that
  * quietly opts out on some machines is not one.
  */
-import { test, expect, repoRoot, bake } from "./helpers.mjs";
-import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, existsSync, statSync } from "node:fs";
+import { test, expect, repoRoot, bake, LIT } from "./helpers.mjs";
+import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, existsSync, statSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -49,8 +49,15 @@ for (const e of WORLD.entities) if (RECORDS[e.sprite]) BY_ENTITY[e.id] = RECORDS
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const room = (p, id) => p.rooms.find((r) => r.id === id);
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
-/* The schematic's drawn geometry, with every <text> element removed. */
-const geometryOnly = (svgText) => svgText.replace(/<text[^>]*>[\s\S]*?<\/text>/g, "");
+/* The schematic's DRAWN geometry: every <text> removed, and every element the
+ * sheet marks `sheet-chrome`. The chrome class covers the header rule and
+ * nothing else — it moves when the provenance stamp takes a second line, and a
+ * stamp getting longer must not read as "the drawing Kabe approved changed".
+ * Kept deliberately narrow: one class, applied at one place in `draw_plan.py`,
+ * so it cannot become a way to hide a wall. */
+const geometryOnly = (svgText) => svgText
+  .replace(/<text[^>]*>[\s\S]*?<\/text>/g, "")
+  .replace(/<[a-z]+[^>]*class="sheet-chrome"[^>]*\/>/g, "");
 
 function python(args, cwd) {
   try {
@@ -862,6 +869,35 @@ test.describe("the camera the projection runs on", () => {
       ["px_per_m_at_bottom:", GRID_META.px_per_m_at_bottom],
       ["horizon_y: hy,", GRID_META.horizon_y]
     ];
+    /* AND THE HEADER TABLE ONE BLOCK UP, which states the same five numbers in
+       the paragraph a fresh session boards from. The first version of this
+       test started reading at `var GRID_META`, so a round-5 critic set the
+       header back to the PRE-ROW-20 camera — 96 px/m, floor_line_y 0.63,
+       nearest floor 3.077 m — and the suite stayed green, while changing one
+       digit a single line lower went red. The reader has to cover both
+       statements or the block above it is a free space to be wrong in. */
+    const header = src.slice(src.lastIndexOf("/*", start), start);
+    const headerClaims = {
+      px_per_m_at_wall: GRID_META.px_per_m_at_wall,
+      horizon_y: GRID_META.horizon_y,
+      floor_line_y: GRID_META.floor_line_y,
+      px_per_m_at_bottom: GRID_META.px_per_m_at_bottom,
+      "nearest visible floor": 1024 / GRID_META.px_per_m_at_bottom
+    };
+    let seenHeader = 0;
+    for (const [name, actual] of Object.entries(headerClaims)) {
+      const row = header.split("\n").find((l) => l.includes(name) && l.includes("="));
+      if (!row) continue;                       // the table may be reworded; what it STATES is bound
+      seenHeader++;
+      const claim = row.slice(row.lastIndexOf("=") + 1).trim().split(/\s+/)[0];
+      const dp = (claim.split(".")[1] || "").length;
+      expect(Math.abs(Number(claim) - actual),
+        `the GRID_META header table says ${name} = ${claim}; it is ${actual}`)
+        .toBeLessThanOrEqual(0.5 * Math.pow(10, -dp) + 1e-9);
+    }
+    expect(seenHeader, "the header table no longer states any of the meta's numbers — if it stopped stating them that is fine, but say so here")
+      .toBeGreaterThanOrEqual(4);
+
     for (const [needle, actual] of claims) {
       const line = block.split("\n").find((l) => l.includes(needle));
       expect(line, `${needle} is gone from the GRID_META block`).toBeTruthy();
@@ -1662,29 +1698,60 @@ test.describe("the schematic is a derived render of the plan", () => {
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(APPROVAL_COMMIT);
   });
 
-  /* A BATCH IS AN ARTIFACT OF THE CODE AND NOTHING WAS CHECKING IT. Row 20's
-   * batch was captured, then the facing glyph was resized in a later fix pass,
-   * and every frame Kabe would have opened was a picture of code that had
-   * stopped existing — a two-line change that silently invalidated eleven
-   * images and the blind comparison run on them. This is not a stored golden
-   * (§12.6 forbids those and re-rendering here would be one): it asks git
-   * whether `src/` has moved since the commit the README names, which is the
-   * whole content of "is this batch current". Recapture and update the line. */
-  test("the batch shows what the code draws — CAPTURE-SRC has not been outrun by src/", () => {
+  /* THE BATCH IS RE-RENDERED AND COMPARED, because a batch is an artifact of
+   * the code and nothing else can say whether it is current.
+   *
+   * The first version of this guard asked git whether `src/` or `index.html`
+   * had moved past a commit hash typed into the README, and a round-5 critic
+   * took it apart three ways. The hash is a string in the document the guard
+   * reads, so setting it to HEAD satisfies the guard whatever the frames show.
+   * It was ALREADY WRONG: the README named a commit two changes LATER than the
+   * capture, so its own sentence — "the commit whose src/ and index.html these
+   * frames were rendered from" — was false while the test was green. And it
+   * bound nothing about the pictures, so `cp 05-hall-N.png 01-study-N.png`
+   * left the whole suite green: nineteen of the batch's twenty-one images
+   * could be any picture at all.
+   *
+   * So the frames answer for themselves. `capture.mjs` is deterministic here —
+   * the critic re-ran it and got eleven byte-identical files, and so do we —
+   * which makes re-rendering and comparing available as a live check rather
+   * than as the stored golden §12.6 forbids. Nothing is kept on disk to
+   * compare against: the comparison is against what the code draws right now.
+   *
+   * It costs one browser and eleven page loads, and it is the only assertion
+   * in this file that can tell Kabe he is looking at this build. */
+  test("the batch IS what the code draws — every frame re-rendered and compared", async () => {
+    test.setTimeout(180_000);
     const dir = join(repoRoot, "design", "batches", "row20-lens");
     if (!existsSync(dir)) return;                       // the row closed; nothing to check
-    const readme = readFileSync(join(dir, "README.md"), "utf8");
-    const m = readme.match(/CAPTURE-SRC\s+([0-9a-f]{7,40})/);
-    expect(m, "the batch README must name the src commit its frames were rendered from").toBeTruthy();
-    /* src/ AND index.html: the capture loads the page, so the page is as much
-       an input to a frame as the renderer is. Watching only src/ would have
-       let a shell change repaint every capture invisibly. */
-    const changed = execFileSync("git",
-      ["diff", "--name-only", m[1], "HEAD", "--", "src/", "index.html"],
-      { cwd: repoRoot, encoding: "utf8" }).trim();
-    expect(changed,
-      `src/ moved since the batch was captured at ${m[1]} — recapture the batch and update CAPTURE-SRC`)
-      .toBe("");
+    const script = join(dir, "capture.mjs");
+    expect(existsSync(script),
+      "the batch must carry the script that made it — an artifact nobody can regenerate is not derived")
+      .toBe(true);
+
+    const out = mkdtempSync(join(tmpdir(), "holo-batch-"));
+    try {
+      execFileSync("node", [script, out], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(8);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(dir, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale,
+        "these batch frames are not what the code draws — re-run design/batches/row20-lens/capture.mjs into the batch")
+        .toEqual([]);
+      /* And every capture the script makes is IN the batch, so a frame cannot
+         be quietly dropped from the set a human is asked to look at. */
+      const committedFrames = readdirSync(dir)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png") && !f.includes("BEFORE") && !f.includes("schematic"))
+        .sort();
+      expect(committedFrames).toEqual(fresh);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
   });
 
   /* The batch's two schematics ARE the live sheets — same bytes, not a copy
@@ -1699,6 +1766,41 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(readFileSync(join(dir, batch)).equals(readFileSync(join(draftDir, live))),
         `${batch} is not the sheet the drawing now produces — re-copy it from design/plan-draft/`)
         .toBe(true);
+    }
+  });
+
+  /* THE SCOPE LINE IS REQUIRED, NOT MERELY PERMITTED. §12 makes it the whole
+   * mitigation for an APPROVED stamp over a drawing nobody has seen — *"a
+   * stamp that says APPROVED without saying of what would be the picture lying
+   * about the document"* — and `approval.lock`'s own header says *"an agent
+   * that could move them could approve its own drawing"*. A round-5 critic
+   * deleted the `pending` line, re-ran the documented redline workflow, and
+   * both sheets printed a bare `APPROVED 2026-08-21` with the suite green:
+   * neither digest moves, so `UNAPPROVED REVISION` never fires, and the
+   * caption clause excludes the provenance line by name. An agent could widen
+   * the approval's apparent scope without touching a hash.
+   *
+   * The reader has to sit OUTSIDE the lock, or it is the lock checking itself.
+   * It sits on the batch: while `design/batches/row20-lens/` exists, this
+   * drawing is in front of a human who has not seen it, and the sheet must say
+   * so on its own face. The batch's departure is what retires the requirement,
+   * and that is a human-visible event rather than a line an agent can delete. */
+  test("while the batch is out, the sheets say what the approval does NOT cover", () => {
+    const batch = join(repoRoot, "design", "batches", "row20-lens");
+    if (!existsSync(batch)) return;                 // the batch has landed; the row is closed
+    const lock = readFileSync(join(draftDir, "approval.lock"), "utf8");
+    const pending = /^pending\s+(.+)$/m.exec(lock);
+    expect(pending,
+      "design/batches/row20-lens/ is still out, so approval.lock must carry a `pending` line naming what Kabe has not seen")
+      .toBeTruthy();
+    expect(pending[1].trim().length,
+      "the pending line must name the drawn content the anchor rests on by inference").toBeGreaterThan(20);
+    for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
+      const svg = readFileSync(join(draftDir, f), "utf8");
+      expect(svg, `${f}: the stamp prints APPROVED without printing what it does not cover`)
+        .toContain("AWAITING HIS EYE ON");
+      expect(svg, `${f}: the stamp must name the pending scope, not merely the words`)
+        .toContain(pending[1].trim().slice(0, 40));
     }
   });
 
@@ -1929,6 +2031,40 @@ test.describe("the projection report", () => {
     for (const v of seen) expect(["rule", "threshold", "drawn"]).toContain(v);
     expect(seen.has("threshold"), "the report shows no thresholded standpoint at all").toBe(true);
     expect(seen.has("rule"), "the report shows no ruled standpoint at all").toBe(true);
+  });
+
+  /* A WELL-FORMED WRONG NUMBER IS THE ONE THING THE TWO CHECKS ABOVE CANNOT
+   * SEE. They catch absent-field markers and illegal tokens; a round-5 critic
+   * swapped the two corner columns in the generator and all 88 rows printed
+   * their corners reversed with the suite green — in the table
+   * `architecture.md` hands to row 4 for its prompt sheets. So one numeric
+   * column gets a reader that is not the generator: `LIT`, the test-side
+   * literals typed from the approved standpoint sheet, which is the same
+   * independence rule §12.5 states for every other number in this suite. */
+  test("the facing table's corner columns are read by something other than the generator", () => {
+    const md = readFileSync(join(draftDir, "projection.md"), "utf8");
+    const header = md.split("\n").find((l) => l.startsWith("| floor | room | facing |"));
+    const cols = header.split("|").map((x) => x.trim());
+    const iFacing = cols.indexOf("facing"), iRoom = cols.indexOf("room");
+    const i0 = cols.indexOf("corner_x0_px"), i1 = cols.indexOf("corner_x1_px");
+    expect(Math.min(iFacing, iRoom, i0, i1)).toBeGreaterThan(-1);
+    const seen = [];
+    for (const line of md.split("\n")) {
+      if (!/^\| (ground|upper) \| /.test(line)) continue;
+      const c = line.split("|").map((x) => x.trim());
+      if (!/^(STUDY|CROSS PASSAGE)$/.test(c[iRoom])) continue;
+      const loc = c[iRoom] === "STUDY" ? "study" : "hall";
+      const lit = LIT.facing(loc, c[iFacing]);
+      if (lit.corner_x0_px == null) continue;
+      seen.push(`${loc}/${c[iFacing]}`);
+      expect(Number(c[i0]), `${loc}/${c[iFacing]} corner_x0_px: the report prints ${c[i0]}, the approved sheet gives ${lit.corner_x0_px.toFixed(1)}`)
+        .toBeCloseTo(lit.corner_x0_px, 0);
+      expect(Number(c[i1]), `${loc}/${c[iFacing]} corner_x1_px: the report prints ${c[i1]}, the approved sheet gives ${lit.corner_x1_px.toFixed(1)}`)
+        .toBeCloseTo(lit.corner_x1_px, 0);
+      expect(Number(c[i0]), `${loc}/${c[iFacing]}: corner_x0_px is not left of corner_x1_px — the columns are swapped`)
+        .toBeLessThan(Number(c[i1]));
+    }
+    expect(seen.length, "no cornered facing of the demo's two rooms was found in the report").toBeGreaterThanOrEqual(6);
   });
 
   /* Round-4 finding F4: almost every pointer into this report resolved to the

@@ -63,7 +63,7 @@ function tokensFromMetas(doctor) {
 function tokensOf(findings) {
   const out = new Set();
   for (const f of findings) {
-    const m = /\[row(?:11|20):([a-z_.]+)\]/g;
+    const m = /\[row\d+:([a-z_.]+)\]/g;
     let hit;
     while ((hit = m.exec(f)) !== null) out.add(hit[1]);
   }
@@ -84,9 +84,18 @@ function tokensOf(findings) {
    instead of over their union, and a directory read cannot fall behind the
    directory. */
 const SCANNED = readdirSync(join(repoRoot, "tools"))
-  .filter((f) => f.endsWith(".mjs"))
+  .filter((f) => /\.(mjs|js|cjs)$/.test(f))
   .map((f) => `tools/${f}`)
   .sort();
+
+/* THE ROW PREFIX IS DERIVED TOO, and it is the other typed half a round-5
+   critic found. The token grammar was `[row(?:11|20):…]`, so a probe emitting
+   `[row21:meta.brand_new]` was invisible to both the undeclared check and the
+   one-token-one-site count — a whole future row's clauses could arrive
+   unguarded and the scan would say nothing. The prefix set now comes from the
+   tokens the sources actually carry, so the grammar cannot fall behind them,
+   and the same argument that derived the file set derives this. */
+const TOKEN_RE = /\[row(\d+):([a-z_.]+)\]/g;
 
 const REGISTERED = new Set();
 function ledgerCase(name, body) {
@@ -1125,7 +1134,7 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
      stays row 18's, and saying which half is scanned is the point. */
   for (const f of SCANNED) {
     const src = readFileSync(join(repoRoot, f), "utf8");
-    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) seen.add(m[1]);
+    for (const m of src.matchAll(TOKEN_RE)) seen.add(m[2]);
   }
   expect([...seen].filter((n) => !declared.has(n)).sort(), "emitted but undeclared").toEqual([]);
   /* And each token tags exactly ONE emit site, so a case that names a clause
@@ -1139,8 +1148,8 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
   const counts = {};
   for (const f of SCANNED) {
     const src = readFileSync(join(repoRoot, f), "utf8");
-    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) {
-      counts[m[1]] = (counts[m[1]] || 0) + 1;
+    for (const m of src.matchAll(TOKEN_RE)) {
+      counts[m[2]] = (counts[m[2]] || 0) + 1;
     }
   }
   for (const [name, n] of Object.entries(counts)) {

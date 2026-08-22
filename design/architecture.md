@@ -881,6 +881,23 @@ census is a plan warning rather than a hidden fact.
 7. **The rooms read larger than their metres**, by a factor no reachable lens
    removes and uniform across every facing.
 
+### The measurement has to be trustworthy before the verdict is
+
+Row 20's backdrop gate learned this on live work. `design/plan-draft/measured/measure.py` carries a
+per-facing configuration — fixed pixel windows and a named calibration feature with an assumed real
+size — hand-tuned to each candidate image. Pointed at a NEW candidate without re-tuning, every
+detector searches a fixed band for a feature that has moved and reports whatever is at those
+coordinates. On the second round of backdrops it derived storey heights of 1.81 m to 5.38 m in a
+2.80 m room, an eye height of 3.09 m, and two corners on a facing whose own prompt forbids them.
+
+**A derived quantity that is physically impossible is the measurement telling you it is measuring
+something else**, and the rule the row adopted is that such a facing gets a WITHHELD verdict in the
+miss ledger rather than a number. The temptation is the other way: three ad-hoc measurements of one
+facing gave 740, 1027 and 111 px, and any of them could have been quoted. What settles it is a
+CONTROL — run the same method on `study/N`, whose answer is known to be 1010 px, and it returned 49.
+**An agent measuring a picture several ways until one agrees with its expectation is this project's
+oldest defect wearing a lab coat**, and the control is the cheapest thing that stops it.
+
 ### Found by the artifact critic, kept as known limits
 
 - **`stageWithout` fires on TEXT, not behaviour.** A renderer ledger case throws when its marker
@@ -1969,6 +1986,20 @@ This is not a habit to remember — it is the shape the next row copies. **A mec
 a case cannot measure is a claim to narrow, not a guard to widen**: row 11 removed the ceiling's
 plane fill for exactly that reason — `#080a0e` over a void base of `#080b10` moved nothing a
 detector could name, so the fill was a mechanism nobody could see and a case nobody could write.
+
+**A CASE PROVES A CLAUSE FIRES; ONLY A BOUNDARY TEST PINS ITS NUMBER.** Row 20 paid for this twice
+in consecutive critic rounds on the same clause. `meta.one_lens` carried `meta.measured ? 0.05 :
+1e-9`; a critic widened `0.05` to `0.99`, the fix split the token and bound the measured half to the
+asset gate, and the next critic widened the DERIVED half from `1e-9` to `0.1` — 10⁸ — with the whole
+suite green. The ledger case could not see either, and the reason is structural: a case doctors its
+input far outside the tolerance to prove the clause fires at all, so it stays red under any widening
+short of its own delta. **A tolerance is a separate claim from the clause that applies it, and it
+needs its own reader: one assertion that a deviation just outside is refused, one that a deviation
+just inside is not.** Phrase both in ABSOLUTE terms — the row's first attempt asserted `TOL × 4` is
+refused, which is true for every value of `TOL`, so the test moved with the number it was pinning
+and survived the exact widening it was written to catch. And where the tolerance decides membership
+of a real corpus, assert the MEMBERSHIP: not "the band is 3 %" but "the band still admits exactly
+the one backdrop blueprint §5 admits."
 
 **A check that stays green when what it guards is deleted is a finding**, and this row learned it
 twice: the first fix pass shipped five mechanisms held by nothing. Every guard listed above was

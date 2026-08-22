@@ -74,7 +74,7 @@
    * 1.08775 m with no pitch, by the ceiling-ramp horizon the Navigator ruled
    * on its 0.3 px residual against a vanishing-point vote's 30 px scatter. §10's contract camera is unchanged and still what
    * backdrops are prompted at — the generator was asked for 1.83 m pitched
-   * down and drew 1.23 m level, and that divergence is on the record
+   * down and drew 1.08775 m level, and that divergence is on the record
    * (`design/plan-draft/measured/`), not corrected by an agent.
    *
    * The lower camera is what returns the intention's fifth quality: the

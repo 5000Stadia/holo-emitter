@@ -13,7 +13,7 @@
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "d8bf9ed6",
+  fp: "24966c50",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -91,8 +91,8 @@ window.HOLO_FIXTURE = {
     "stick1": {
       "facing": "hall/E",
       "attachment": "floor_free",
-      "u": 0.461538461538,
-      "depth_m": 0.5
+      "u": 0.480769230769,
+      "depth_m": 1.78
     },
     "coin1": {
       "anchor_on": "shelf1.surface_top",
