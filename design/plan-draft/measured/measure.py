@@ -383,6 +383,7 @@ def pick_floor(L, cfg):
             auto = max(good, key=lambda c: c["y"])["y"] - 1
     return y, cands, dict(window=[a, b],
                           window_profile=[round(float(v), 2) for v in prof],
+                          window_profile_first_row=a,
                           automatic_lowest_true_horizontal=auto)
 
 
@@ -682,15 +683,25 @@ HOW = {
     "junction lies between this row and the next. All candidates, with their "
     "horizontality, are in _candidates.",
  "wall_floor_line_y_px":
-    "NOT the strongest step. The strongest step in the lower band is the "
-    "SKIRTING CAP: on study/N it is at y 743 and the floor is 34 px lower. The "
-    "rule is 'the lowest TRUE horizontal in the band' - floorboard seams below "
-    "the floor line converge toward the vanishing point and so fail the "
-    "horizontality test (they light up ~0.73 of the columns with CV>1.0 against "
-    "~0.95 and CV<0.5 for an architectural horizontal), which is what lets "
-    "'lowest' mean 'the floor'. The line is then placed on the darkest row of "
-    "the shadow seam at the skirting foot. Every facing shows the same "
-    "cap / face / seam / boards sequence and it was read row by row on each.",
+    "NOT the strongest step, and NOT fully automatic - read the qualification. "
+    "The strongest step in the lower band is the SKIRTING CAP: on study/N it is "
+    "at y 743 and the floor is 34 px lower, and all eight show the same "
+    "cap / face / shadow-seam / boards sequence. The lower band also holds "
+    "floorboard seams, which are strong but converge, and the panelling's own "
+    "base rails, which are horizontal but are not the floor. The rule is "
+    "therefore 'the lowest TRUE horizontal in the band', horizontality being "
+    "the fraction of columns carrying the same step (an architectural "
+    "horizontal lights ~0.95 of them with a step-strength CV below 0.5; a "
+    "converging floorboard seam lights ~0.73 with CV above 1.0). The line is "
+    "then placed on the darkest row of the shadow seam at the skirting foot. "
+    "THE QUALIFICATION: that rule lands unaided on study/N, study/W, hall/N and "
+    "hall/S only. On study/E and study/S the band is too crowded and on the two "
+    "axial corridor views the far end wall's foot is too soft a transition, so "
+    "for all eight the row-by-row luminance profile was read by eye and a "
+    "16-28 row bracket recorded per facing (`floor_window`); the line is the "
+    "luminance minimum inside it. Both the bracket and its profile are emitted "
+    "in _candidates, along with what the automatic rule would have said, so the "
+    "hand-read part is visible and can be overturned.",
  "horizon_y_px":
     "Vanishing-point vote, not an assumption. 3x3 Sobel over the region; keep "
     "the top 12 % of gradient magnitudes WITHIN the region; discard edges whose "

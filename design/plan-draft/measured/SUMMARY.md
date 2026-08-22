@@ -35,10 +35,10 @@ Runtime about 90 s. Deterministic: the vote's pixel subsample is seeded.
 
 ## 0. THE CONTROL — does this pipeline reproduce the study/N draft?
 
-Yes — four of the seven exactly, two more within a single pixel, and the
-seventh is the number the whole set turns out to argue about. This pipeline was built and its rules fixed against the *method*
-in `study-N-meta-draft.json`, not against its answers; nothing was tuned after
-comparing.
+Yes — three of the seven exactly, three more within a pixel or five, and the
+seventh is the number the whole set turns out to argue about. This pipeline was
+built and its rules fixed against the *method* in `study-N-meta-draft.json`, not
+against its answers; nothing was tuned after comparing.
 
 | quantity | draft | measured here | delta |
 |---|---|---|---|
@@ -50,7 +50,7 @@ comparing.
 | fireplace opening | 341..550, 209 px | **341..550, 209 px** | **0 px** |
 | `px_per_m_at_wall` | 232.222 | **232.222** | **0** |
 
-Where the three non-zero deltas come from, in full:
+Where the four non-zero deltas come from, in full:
 
 **Floor, +1 px.** Both readings are inside the same one-pixel shadow seam at the
 foot of the skirting. Row means over x 600..1300 run 775 → 24.6, 776 → 22.5,
@@ -393,7 +393,8 @@ on every one of these frames.
 transverse passage views.
 
 **3. `hall/N` and `hall/S` are not close transverse views.** Both prompts said
-1.95 m from the wall and "do NOT invent or squeeze room corners into frame". The
+1.95 m from the wall (`standpoints.tsv` now says 2.15 m) and "do NOT invent or
+squeeze room corners into frame". The
 second instruction was obeyed perfectly — no corner in frame either side, so
 `corner_x0_px` and `corner_x1_px` are **null** in both JSONs and no wall width
 was invented. The first was not: the measured standpoints are **4.01 m** and
@@ -402,8 +403,9 @@ dado module measures 230 px on `hall/N` and 214 px on `study/N`, whose camera is
 4.41 m away. At a genuine 1.95 m the module would be more than twice `study/N`'s.
 
 **4. `study/W`'s wall is the wrong width** (§3), and `study/S`'s room reads
-0.5 m deeper than `study/N`'s from the same standpoint: its wall–floor line sits
-at y 731 against y 777 for the opposite wall of the same room.
+deeper than `study/N`'s: its wall–floor line sits at y 731 against y 777 for the
+opposite wall of the same room, and its implied standpoint is 5.21 m against
+`study/N`'s 4.41 m.
 
 **5. The light contract is not met on four of eight** (§G). The `key_dir` UL45
 that `mechanisms.spec.mjs` and gate (e) expect is present on `hall/S` alone.
@@ -417,18 +419,19 @@ standpoint is the largest unexplained geometric disagreement in the run.
 and unrolled (§F). Storey height is consistent to ±0.15 m across eight
 independent generations (§E). Both cornerless facings are honestly cornerless.
 Both doorways are openings with no leaf, as instructed. The panelling module
-holds to ±7 % across all eight, which is why the four featureless facings can be
-calibrated at all.
+holds to ±7 % across the four facings that can check it, which is the only
+reason the five featureless facings can be calibrated at all.
 
 ---
 
 ## 5. What is assumed, and how much of this rests on it
 
-Three facings' scale rests on a **ruled** size (the plan's door opening, the
-plan's corridor width). One rests on an **argued** size — `study/N`'s fireplace
-at 0.90 m, the draft's refutation of the brief's 1.4 m, which this run
-re-verified: the opening is 209 px, and at 1.4 m that would make the storey
-4.66 m. **Four rest on a transferred module and are the weak part of this file.**
+Two facings' scale rests on a **ruled** size — the plan's door opening, on
+`study/E` and `hall/W`. One rests on an **argued** size: `study/N`'s fireplace at
+0.90 m, the draft's refutation of the brief's 1.4 m, which this run re-verified
+(the opening is 209 px, and at 1.4 m that would make the storey 4.66 m).
+**The other five rest on a transferred module and are the weak part of this
+file.**
 
 The module is the panelling's dado-rail top above the floor. Measured on the
 four facings that carry a sized feature it comes out:
@@ -473,7 +476,11 @@ both consistent with its px/m being 8–10 % low.
    scale. Pick which dimension rules before the click target ships.
 4. **`hall/N` and `hall/S` are not the frames that were ordered.** They obeyed
    the hard instruction (no corners invented) and ignored the camera: 4.01 m and
-   3.54 m from the wall against a ruled 1.95 m, which is why their implied focal
-   lengths are 498 and 563 px against 1024. Every other facing is 5–20 % off; those
-   two are 45–51 % off, and a shelf sprite placed on `hall/N`'s quiet middle band
-   will be sized against a wall that is twice as far away as the plan believes.
+   3.54 m from the wall against 1.95 m as ruled for this run, 2.15 m in
+   `standpoints.tsv` now. Their implied focal lengths are 498 / 549 px and
+   563 / 621 px against 1024. Every other facing is 1–26 % off; those two are
+   39–51 % off, and a shelf sprite placed on `hall/N`'s quiet middle band will be
+   sized against a wall roughly twice as far away as the plan believes.
+   Separately worth the Navigator's eye: on the standpoints as they stand now,
+   `study/N` lands at 1010 px, 1.4 % from 1024 — so the pinned lens and the one
+   approved backdrop agree, and the disagreement is concentrated in the passage.
