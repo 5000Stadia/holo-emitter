@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import {
-  deriveMeta, RULED_EYE_M, assertRuledEye, assertCameraConsistent, facingCarriers
+  deriveMeta, RULED_EYE_M, INTERIM_EYE_M, assertRuledEye, assertCameraConsistent, facingCarriers
 } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -60,15 +60,18 @@ function returnCarriers(loc, f, side, depth) {
 }
 
 test.describe("camera-has-feet geometry", () => {
-  test("§5's horizon device holds on the unplanned-facing meta at the RULED eye height", () => {
+  test("§5's horizon device holds on the unplanned-facing meta at the DRAWING eye height", () => {
     /* Expected values are this file's literals (independent of the renderer);
      * the actual is the shipped constant, read through the UMD guard — so
      * drift in GRID_META goes red here, not only in pixel scans.
      *
-     * Row 11 moved the eye height to §10's ruled 1.83 m [HUMAN, 2026-08-20].
-     * At 1.6 m this meta failed §5's own camera-has-feet assertion by 0.0016
-     * while `heights.spec` still implemented the assertion at 1.6 and the
-     * suite stayed green — the blueprint was red and nothing said so. */
+     * The eye height is the interim 1.60 m [HUMAN 2026-08-21], and the gate is
+     * asserted AT IT. The defect row 11 found was not the number: it was that
+     * the meta was authored at 1.6 while §5's gate had been propagated to
+     * 1.83, so the shipped meta failed the blueprint's own assertion by 0.0016
+     * and `heights.spec` still implemented the assertion at 1.6 — the
+     * blueprint was red and nothing said so. One height, asserted where the
+     * pixels are. */
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
     expect(GRID_META.floor_line_y).toBe(LIT.floor_line_y);
     expect(GRID_META.horizon_y).toBe(LIT.horizon_y);
@@ -83,28 +86,40 @@ test.describe("camera-has-feet geometry", () => {
     expect(GRID_META.corner_x0_px).toBeNull();
     expect(GRID_META.corner_x1_px).toBeNull();
     // |horizon_y − (floor_line_y − eye·px_per_m_at_wall/image_h_px)| ≤ 0.02,
-    // and at the ruled eye height it is not merely inside the gate — it is 0.
+    // and at the drawing eye height it is not merely inside the gate — it is 0.
     const derived = GRID_META.floor_line_y -
       (LIT.eye_m * GRID_META.px_per_m_at_wall) / GRID_META.image_h_px;
     expect(Math.abs(GRID_META.horizon_y - derived)).toBeLessThanOrEqual(1e-12);
   });
 
-  test("the ruled eye height has one home, and the projection reads it from there", () => {
-    /* The check that can go red with a term from outside the derivation. §10's
-     * `camera.eye_height_m` is the authored home of Kabe's six-foot ruling and
-     * lives in `replicator/contract.json`; the projection derives every meta
-     * from it. Drift either way re-cameras the project in silence.
+  test("the two eye heights each have one home, and neither is read out of the picture", () => {
+    /* Two cameras, two jobs, two homes, and the check that can go red with a
+     * term from outside the derivation.
+     *
+     * §10's `camera.eye_height_m` is the authored home of Kabe's six-foot
+     * ruling and lives in `replicator/contract.json`; it is the camera row 4's
+     * backdrops are GENERATED at, pitch included. Drift there re-cameras
+     * generation in silence.
+     *
+     * `INTERIM_EYE_M` is the height this project DRAWS at [HUMAN 2026-08-21],
+     * and every derived meta comes from it, so `assertCameraConsistent`
+     * compares a meta against a number the meta did not supply.
      *
      * Scope, so this does not invert a [HUMAN] ruling: §5 makes row 4's
      * APPROVED BACKDROP the geometric authority, and when it measures a
-     * camera that measurement updates §10's number — this check follows that
-     * home, it does not outrank it. */
+     * camera that measurement updates §10's number and retires the interim —
+     * this check follows those homes, it does not outrank them. */
     const contract = JSON.parse(
       readFileSync(join(repoRoot, "replicator", "contract.json"), "utf8"));
-    expect(contract.camera.eye_height_m).toBe(LIT.eye_m);
-    expect(RULED_EYE_M).toBe(LIT.eye_m);
+    expect(contract.camera.eye_height_m).toBe(LIT.ruled_eye_m);
+    expect(RULED_EYE_M).toBe(LIT.ruled_eye_m);
     expect(assertRuledEye()).toEqual([]);
+    expect(INTERIM_EYE_M).toBe(LIT.eye_m);
+    expect(INTERIM_EYE_M).not.toBe(RULED_EYE_M);
     expect(assertCameraConsistent()).toEqual([]);
+    // and the gate really is asserted at the height the pixels are drawn at:
+    // hand the same meta the other camera and it fails.
+    expect(assertCameraConsistent(undefined, LIT.ruled_eye_m).length).toBeGreaterThan(0);
   });
 
   test("§12.5's frame clauses: every meta the fixture can resolve fits the frame it is a meta FOR", () => {
@@ -215,10 +230,11 @@ test.describe("camera-has-feet geometry", () => {
     const exp = gridExpectations("study", "S");
 
     // Expected rows from this facing's own literals.
-    expect(exp.floorRow).toBe(667);
+    expect(exp.floorRow).toBe(645);
     expect(exp.eyeRow).toBe(491);
-    expect(exp.transverseRows).toEqual([672, 702, 744]);
+    expect(exp.transverseRows).toEqual([649, 675, 712]);
     expect(exp.cornerCols).toEqual([506.4, 1029.6]);
+    expect(exp.ceilRow).toBe(377);   // 2.8 m of room at 96 px/m below the floor line
 
     // Foreshortening is asserted, not assumed: successive gaps strictly
     // decrease toward the wall (a uniformly-spaced floor fails).
@@ -326,16 +342,16 @@ test.describe("what the picture does not say, computed from the document", () =>
       "hall/S left window 0.17m of 1.00m",
       "hall/S right door1 0.17m of 1.00m",
       "hall/W left op14 1.00m of 1.00m",
-      "hall/W left window 0.22m of 1.40m",
+      "hall/W left window 0.47m of 1.40m",
       "hall/W left window 1.40m of 1.40m",
-      "study/E left fireplace 1.14m of 2.20m",
+      "study/E left fireplace 1.26m of 2.20m",
       "study/E right op14 1.00m of 1.00m",
       "study/E right window 1.40m of 1.40m",
       "study/N left op11 0.77m of 1.00m",
       "study/S left door1 1.00m of 1.00m",
       "study/W left window 1.40m of 1.40m",
       "study/W left window 1.50m of 1.50m",
-      "study/W right fireplace 1.09m of 2.20m"
+      "study/W right fireplace 1.21m of 2.20m"
     ]);
   });
 });
@@ -371,10 +387,10 @@ test.describe("corridor is a geometry, not a label", () => {
     }
     /* The numbers, pinned, so a change of camera model has to restate them:
        the corridor's returns fill 84% of the frame against the study's 66%,
-       and 5.03 m of side wall is in view against 2.37 m. */
+       and 4.27 m of side wall is in view against 2.37 m. */
     expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * 96 / 1536, 6);
     expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * 96 / 1536, 6);
-    expect(returnDepth(of("hall", "E"))).toBeCloseTo(4.02, 1);
+    expect(returnDepth(of("hall", "E"))).toBeCloseTo(4.27, 1);
     expect(returnDepth(of("study", "N"))).toBeCloseTo(2.37, 1);
   });
 

@@ -114,14 +114,17 @@ const OPENING_KEYS = ["id", "kind", "floor", "axis", "rect", "joins", "entity"];
 const OBJECT_KEYS = ["id", "floor", "room", "footprint", "attachment", "source", "note"];
 const BAND_KEYS = ["id", "kind", "floors", "rect"];
 const STAIR_KEYS = ["id", "kind", "treads", "rect", "joins", "up", "down"];
-/* `storey_height_m` is OPTIONAL and no floor of the shipped plan carries one.
- * It exists because a room bounded left and right and unbounded upward reads
- * as a shaft — at the pinned scale the frame holds 6.95 m of wall above the
- * floor line against a c.1660 storey of 2.6–3.0 m — and the renderer can draw
- * a ceiling from it. Whether it SHOULD is a look decision and it is Kabe's
- * (row 11's direction package, question 2), so the field has a home, a schema,
- * a validator clause and a test, and is set by nothing. A number that only the
- * renderer knew about would be a fact with no home at all. */
+/* `storey_height_m` is OPTIONAL in the schema and BOTH shipped floors carry
+ * 2.8 m, ruled by Kabe on 2026-08-21 against a rendered pair (row 11's
+ * direction package, question 2). It exists because a room bounded left and
+ * right and unbounded upward reads as a shaft — at the pinned scale the frame
+ * holds 6.95 m of wall above the floor line against a c.1660 storey of
+ * 2.6–3.0 m — and the renderer draws a ceiling from it. It stays optional
+ * because an unplanned facing has no floor to read one off. 2.8 m is
+ * period-plausible and sits under blueprint §4's standing licence; it is not a
+ * measurement, and row 4's approved backdrop may move it. It is a vertical
+ * dimension no plan VIEW draws, so `draw_plan.py` keeps it out of the approval
+ * stamp's drawn digest and reports it in the second one. */
 const FLOOR_KEYS = ["id", "level", "storey_height_m"];
 const WINDOW_KEYS = ["floor", "rect"];
 const FIREPLACE_KEYS = ["floor", "room", "rect"];

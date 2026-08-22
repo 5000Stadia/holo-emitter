@@ -52,6 +52,10 @@ Three other things moved with it, each on a stated authority:
   camera-has-feet gate. The consequence is not all good and it is the direction package's question
   1: the floor's near edge moves *out* on six of the eight facings, because §10's −8° pitch is
   modelled by nothing and it is the half that would pull it back.
+  **SUPERSEDED, 2026-08-21 [HUMAN]:** the frames in this directory were captured at 1.83 m and the
+  build does not draw at that height any more. Kabe ruled 1.60 m the interim on exactly the ground
+  named above, and §10's six feet returns with the camera row 4 measures — which can carry the
+  pitch. What closed the gate was one eye height rather than that particular one.
 - **The candlestick moved 0.25 m nearer the bookcase**, under blueprint §4's standing licence with
   the reason recorded on the object itself. The passage's real 1.95 m standpoint makes perspective
   much stronger than the 3.5 m the demo used to assume; at its old position the authored overlap

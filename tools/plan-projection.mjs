@@ -18,7 +18,8 @@
  *
  * WHICH CAMERA. There are two in the documents and they are not the same:
  *   - the **grid camera** the demo ships (GRID_META: eye 1.6 m, level), the
- *     only camera this project has ever drawn a pixel with; and
+ *     only camera this project has ever drawn a pixel with, and the interim
+ *     Kabe ruled on 2026-08-21 against a rendered pair; and
  *   - the **contract camera** blueprint §10 rules for generation — eye 1.83 m
  *     (Kabe's 2026-08-20 six-foot ruling) and pitch −8°, whose home is
  *     `replicator/contract.json`.
@@ -83,16 +84,39 @@ export function cameraFrom({ id, eye_m, pitch_deg, horizon_y, px_per_m_at_wall, 
  *
  * Row 12 derived the grid camera's eye height back OUT of GRID_META, which it
  * said in its own comment was "an identity, not evidence": deriveMeta then
- * reproduced GRID_META because it could not do anything else. Row 11 turns the
- * arrow round. The eye height comes from the contract, the meta is derived
- * from it, and `assertCameraConsistent` — which now compares a meta against a
- * number it did not supply — is a check that can actually go red.
+ * reproduced GRID_META because it could not do anything else. Row 11 turned the
+ * arrow round — the eye height is a named constant the metas derive FROM, so
+ * `assertCameraConsistent` compares a meta against a number it did not supply
+ * and is a check that can actually go red. Which constant is the DRAWING one is
+ * the ruling below (`INTERIM_EYE_M`); this one stays the contract's.
  *
  * `assertRuledEye` is the other half: the constant here is asserted equal to
  * the contract file's, so a drift in either goes red rather than silently
  * re-cameraing the project.
  */
 export const RULED_EYE_M = 1.83;
+
+/**
+ * The height this project DRAWS at, until row 4 measures the real camera.
+ *
+ * [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended
+ * specifics] — row 11's direction package asked the question against a rendered
+ * pair (`04a` at 1.83 m, `04b` at 1.60 m) and `04b` ships. The reason is in the
+ * ruling itself: Kabe ruled six feet *"for better visual presentation"*, and the
+ * ruling has two halves — eye 1.83 m AND a −8° downward pitch. Nothing in this
+ * project models pitch. Taking the height alone pushes the frame-bottom floor
+ * cut FURTHER out (hall/E to 1.98 m), which is the opposite of what the ruling
+ * was for, and the floor cut at your feet is the intention's fifth quality. So
+ * the six-foot ruling returns whole, with the measured camera that can carry
+ * the pitch half too; until then the drawing camera is the 1.60 m it has always
+ * been and §5's horizon gate is asserted at that height rather than at one the
+ * pixels do not honour.
+ *
+ * `RULED_EYE_M` above is untouched: it is §10's GENERATION camera, the height
+ * row 4's backdrops are prompted at, and `assertRuledEye` still pins it to the
+ * contract file.
+ */
+export const INTERIM_EYE_M = 1.6;
 
 export function assertRuledEye(contractPath = join(ROOT, "replicator", "contract.json")) {
   const problems = [];
@@ -109,15 +133,15 @@ export function assertRuledEye(contractPath = join(ROOT, "replicator", "contract
   return problems;
 }
 
-/** The camera the shipped demo draws with: §10's ruled eye height, level. */
+/** The camera the shipped demo draws with: the interim eye height, level. */
 export const GRID_CAMERA = cameraFrom({
   id: "grid",
-  eye_m: RULED_EYE_M,
+  eye_m: INTERIM_EYE_M,
   pitch_deg: 0,
   horizon_y: GRID_META.horizon_y,
   px_per_m_at_wall: GRID_META.px_per_m_at_wall,
   image_h_px: GRID_META.image_h_px,
-  source: "blueprint §10 camera.eye_height_m [HUMAN 2026-08-20], level (§10's −8° pitch is unmodelled — see §7 of the report)"
+  source: "the interim eye height 1.60 m [HUMAN 2026-08-21], level — §10's ruled 1.83 m returns with row 4's measured camera, which can carry the −8° pitch half too (see §7 of the report)"
 });
 
 /** Blueprint §10's generation camera, for comparison only. Its home is
@@ -146,11 +170,11 @@ export const CONTRACT_CAMERA = cameraFrom({
  * blueprint §5 asserts at ≤ 0.02. Edit any one of GRID_META's numbers alone —
  * or run a meta authored at a different eye height past this — and it fails.
  */
-export function assertCameraConsistent(meta = GRID_META, eye = RULED_EYE_M) {
+export function assertCameraConsistent(meta = GRID_META, eye = INTERIM_EYE_M) {
   const problems = [];
   const impliedFloor = meta.horizon_y + eye * meta.px_per_m_at_wall / meta.image_h_px;
   if (Math.abs(impliedFloor - meta.floor_line_y) > 1e-9) {
-    problems.push(`floor_line_y is ${meta.floor_line_y}, but §5's horizon device at the ruled eye ${eye} m puts the wall-floor line at ${impliedFloor} (residual ${Math.abs(impliedFloor - meta.floor_line_y)} against §5's 0.02 gate)`);
+    problems.push(`floor_line_y is ${meta.floor_line_y}, but §5's horizon device at the drawing eye ${eye} m puts the wall-floor line at ${impliedFloor} (residual ${Math.abs(impliedFloor - meta.floor_line_y)} against §5's 0.02 gate)`);
   }
   const bottom = (meta.image_h_px - meta.horizon_y * meta.image_h_px) / eye;
   if (Math.abs(bottom - meta.px_per_m_at_bottom) > 1e-6) {
@@ -335,6 +359,14 @@ export function needsWideView(plan, roomId, facing, camera = GRID_CAMERA, canvas
  *                        corners)
  */
 function storeyHeight(plan, room) {
+  /* An OPEN space has no storey. The courtyard, the privy garden and the
+   * entrance approach sit on the `ground` floor like every other room, so a
+   * floor-level height would hand them a 2.8 m ceiling over open sky. Nothing
+   * would draw it — the ceiling is inside the renderer's `bounded` branch and
+   * an open facing has no corners — but the meta would be making a claim the
+   * document does not hold, and a meta that lies is worse than one that is
+   * silent. */
+  if (room.type === "open") return null;
   const fl = (plan.floors || []).find((f) => f.id === room.floor);
   return (fl && fl.storey_height_m != null) ? fl.storey_height_m : null;
 }
@@ -377,7 +409,8 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     /* PROVISIONAL, always, and machine-readably. Blueprint §5 rules that the
      * geometry elements are determined by the orientation of the approved
      * image generation, which does not exist until row 4; §10's ruled camera
-     * is 1.83 m at −8° and this is derived at the shipped grid camera; and the
+     * is 1.83 m at −8° and this is derived at the interim 1.60 m the demo
+     * draws with [HUMAN 2026-08-21, direction question 1]; and the
      * wide-view reading is unsettled. **[Row 11] The repo DOES consume these
      * now** — the bake emits one per shipped facing and the page renders with
      * them — so the sentence that used to stand here ("nothing in the repo
@@ -399,10 +432,11 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
      * rather than an implication buried in the arithmetic — it is §5's open
      * field-of-view question, and Kabe's. */
     focal_px: pxAtWall * drawnDistance,
-    /* The room's height, where the plan gives its floor one. Optional and
-     * unset on the shipped plan — see validate-plan's FLOOR_KEYS note and
-     * row 11's direction package, question 2. The renderer draws a ceiling
-     * only where this arrives. */
+    /* The room's height, where the plan gives its floor one. Both floors of
+     * the shipped plan carry 2.8 m since row 11's direction verdict [HUMAN
+     * 2026-08-21], so every enclosed and corridor facing draws its ceiling;
+     * open spaces carry null (see `storeyHeight`). The renderer draws a
+     * ceiling only where this arrives. */
     storey_height_m: storeyHeight(plan, room),
     /* Where the floor first appears in front of the viewer. The intention's
      * fifth decomposed quality is "the camera has feet" — Riven's rails cut by
@@ -940,11 +974,14 @@ export function report(plan, staging, records) {
   P();
   P("Each of these is live before row 4's prompt sheets:");
   P();
-  P("1. **Which camera the projection runs on.** The demo's grid camera is eye 1.60 m and level");
-  P("   (`GRID_META`); blueprint §10's generation camera is eye **1.83 m** with **−8° pitch**");
-  P("   (Kabe's six-foot ruling). §5 rules that the real answer is whatever the backdrop Kabe");
-  P("   approves at row 4 measures out to. This report runs on the grid camera — the only one");
-  P("   that reproduces today's pixels — and §5 below is the size of the difference.");
+  P("1. **Which camera the projection runs on — RULED, as an interim.** The demo's grid camera is");
+  P("   eye 1.60 m and level (`GRID_META`); blueprint §10's generation camera is eye **1.83 m**");
+  P("   with **−8° pitch** (Kabe's six-foot ruling). Asked against a rendered pair on 2026-08-21,");
+  P("   Kabe ruled the 1.60 m frame ships as the interim: the six-foot ruling was given *\"for");
+  P("   better visual presentation\"* and its pitch half is what would deliver that, so the");
+  P("   height alone degrades the very thing it was ruled for. §5 rules that the real answer is");
+  P("   whatever the backdrop Kabe approves at row 4 measures out to, and that camera can carry");
+  P("   the pitch. This report runs on the grid camera; §7 below is the size of the difference.");
   P("2. **Whether `door1` sits where the drawing puts it or where the staging puts it** (§1).");
   P("3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open");
   P("   court mouth and not a wall (§3).");
@@ -1243,8 +1280,11 @@ export function report(plan, staging, records) {
   P();
   P("Blueprint §10 rules the generation camera at eye **1.83 m** with **−8° pitch** [HUMAN,");
   P("2026-08-20: *\"we should be a bit higher as a view angle looking down at about a 6ft");
-  P("height\"*]. The demo's grid camera is eye 1.60 m and level. The projection runs on the grid");
-  P("camera; this is the size of the difference, so the fork is a number rather than a worry:");
+  P("height\"*]. The demo's grid camera is eye 1.60 m and level, and it stays there as an");
+  P("**interim** [HUMAN 2026-08-21, ruled against a rendered pair]: the height without its pitch");
+  P("pushes the frame-bottom floor cut further from the viewer's feet, which is the opposite of");
+  P("what the six-foot ruling was given for. The ruled camera returns whole with row 4's measured");
+  P("one. This is the size of the difference, so the fork is a number rather than a worry:");
   P();
   P("| quantity | grid camera (shipped) | contract camera (§10) |");
   P("|---|---|---|");
@@ -1260,15 +1300,16 @@ export function report(plan, staging, records) {
   {
     const g16 = horizonGate(GRID_META, GRID_CAMERA.eye_m);
     const g18 = horizonGate(GRID_META, CONTRACT_CAMERA.eye_m);
-    P("**And the blueprint's own gate now fails on the shipped grid meta.** §5's camera-has-feet");
-    P("assertion — |`horizon_y` − (`floor_line_y` − eye·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 —");
-    P(`carried 1.6 m until row 3 propagated Kabe's six-foot ruling into it. Against grid canonical:`);
+    P("**And §5's own gate is asserted at whichever height the pixels are drawn at.** The");
+    P("camera-has-feet assertion — |`horizon_y` − (`floor_line_y` − eye·`px_per_m_at_wall`/");
+    P("`image_h_px`)| ≤ 0.02 — is a check on a meta's self-consistency, so it holds against the");
+    P("drawing camera and fails against the other one. Against grid canonical:");
     P("");
-    P(`- at ${fixed(g16.eye_m ?? g16.eye, 2)} m (what grid canonical implies): residual ${fixed(g16.residual, 4)} — ${g16.passes ? "passes" : "FAILS"}`);
-    P(`- at ${fixed(g18.eye, 2)} m (the ruled camera, and what §5 now says): residual ${fixed(g18.residual, 4)} — ${g18.passes ? "passes" : "FAILS"}`);
+    P(`- at ${fixed(g16.eye_m ?? g16.eye, 2)} m (the interim camera the demo draws): residual ${fixed(g16.residual, 4)} — ${g16.passes ? "passes" : "FAILS"}`);
+    P(`- at ${fixed(g18.eye, 2)} m (§10's generation camera): residual ${fixed(g18.residual, 4)} — ${g18.passes ? "passes" : "FAILS"}`);
     P("");
     P("");
-    P("**And the verdict depends on how wide the wall is**, which is the part that would bite");
+    P("**And by how much depends on how wide the wall is**, which is the part that would bite");
     P("silently. The residual is `(1.83 − 1.60) × px_per_m_at_wall / image_h_px`, so it scales");
     P("with the scale:");
     P("");
@@ -1280,14 +1321,14 @@ export function report(plan, staging, records) {
       P(`| ${rid}/${f} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(g.residual, 4)} | ${g.passes ? "passes" : "**fails**"} |`);
     }
     P("");
-    P("So the same derivation emits metas that pass or fail one acceptance clause according to");
-    P("the size of the room. That is not a tolerance being tight; it is two eye heights in one");
-    P("project.");
+    P("So a derivation run at the generation camera would emit metas that pass or fail one");
+    P("acceptance clause according to the size of the room. That is not a tolerance being tight;");
+    P("it is two eye heights in one project.");
     P("");
-    P("Row 12 did not create that and cannot fix it: grid canonical is what the demo draws, and");
-    P("every way of satisfying the gate at 1.83 m moves shipped pixels (`horizon_y` to 0.4584,");
-    P(`\`floor_line_y\` to 0.6516, or \`px_per_m_at_wall\` to ${fixed((0.63 - 0.48) * 1024 / 1.83, 2)}). It is named here because this`);
-    P("is the row that reads the camera out of that meta, and because row 4 measures the real one.");
+    P("Which is why there is one drawing height rather than two, and why it is the interim: every");
+    P("way of satisfying the gate at 1.83 m moves shipped pixels (`horizon_y` to 0.4584,");
+    P(`\`floor_line_y\` to 0.6516, or \`px_per_m_at_wall\` to ${fixed((0.63 - 0.48) * 1024 / 1.83, 2)}), and moves them the wrong way`);
+    P("for the quality the six-foot ruling was given to serve. Row 4 measures the real one.");
     P("");
   }
   P("**Pitch is not modelled at all**, by anything in this project: `groundplane.js` has no pitch");

@@ -55,6 +55,15 @@ DRAWN_KEYS = ("schema", "version", "units", "north", "standpoint_stand_back",
               "entrance", "wall_thickness", "outline", "floors", "wall_bands",
               "rooms", "openings", "windows", "fireplaces", "stairs")
 
+# A floor entry is drawn by its identity and its level - which sheet a room is
+# on. Its STOREY HEIGHT is not: a plan view is a horizontal section and draws no
+# vertical dimension anywhere, so a room height cannot have been part of what
+# Kabe saw. It arrived on 2026-08-21 with his ceiling verdict, under blueprint
+# section 4's standing licence like any other value we may change, and it is
+# reported by the second digest rather than unapproving a drawing it cannot
+# appear in.
+DRAWN_FLOOR_KEYS = ("id", "level")
+
 
 def _canonical(obj):
     return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -64,6 +73,11 @@ def plan_digests(plan):
     """(drawn, undrawn) sha256 over the plan, split by what the sheet draws."""
     drawn = {k: plan[k] for k in DRAWN_KEYS if k in plan}
     undrawn = {k: v for k, v in plan.items() if k not in DRAWN_KEYS}
+    if "floors" in drawn:
+        drawn["floors"] = [{k: v for k, v in f.items() if k in DRAWN_FLOOR_KEYS}
+                           for f in drawn["floors"]]
+        undrawn["floors"] = [{k: v for k, v in f.items()
+                              if k not in DRAWN_FLOOR_KEYS} for f in plan["floors"]]
     return (hashlib.sha256(_canonical(drawn)).hexdigest(),
             hashlib.sha256(_canonical(undrawn)).hexdigest())
 

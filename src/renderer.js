@@ -54,24 +54,33 @@
    * height allows, and §12.5 could not see it because both sides of a height
    * check use the scale.
    *
-   * THE EYE HEIGHT IS 1.83 m SINCE ROW 11, and that is the whole of what row
-   * 11 moved about the camera. Kabe ruled six feet on 2026-08-20 ("we should
-   * be a bit higher as a view angle looking down at about a 6ft height");
-   * blueprint §10 carries it as `camera.eye_height_m`; row 3 propagated it
-   * into §5's camera-has-feet assertion; grid canonical was authored at 1.6 m
-   * and never moved, so the shipped meta FAILED §5's own gate by 0.0016 while
-   * the suite stayed green on a test that still said 1.6. Deriving at 1.83
-   * closes it: floor_line_y = horizon_y + 1.83·96/1024 = 0.6515625 and
-   * px_per_m_at_bottom = (1024 − 0.48·1024)/1.83 = 290.9726775956284.
+   * THE EYE HEIGHT IS 1.60 m, AS AN INTERIM RULED BY KABE [HUMAN 2026-08-21,
+   * "Sounds good on the outline"], and every meta this project derives is
+   * derived at it: floor_line_y = horizon_y + 1.60·96/1024 = 0.63 and
+   * px_per_m_at_bottom = (1024 − 0.48·1024)/1.60 = 332.8. §5's camera-has-feet
+   * gate is asserted at that height, so the shipped meta satisfies the gate on
+   * its own pixels rather than on a height it does not draw at — which is the
+   * defect row 11 found (grid canonical was authored at 1.6, the gate had been
+   * propagated to 1.83, and the suite stayed green on a test that still said
+   * 1.6).
    *
-   * What row 11 did NOT adopt is §10's −8° pitch, the other half of the same
-   * ruling: `groundplane.js` has no pitch term, adding one moves every pixel
-   * in the project, and §5 rules that the real camera is measured off row 4's
-   * approved backdrop. The magnitude is on the record rather than left silent
-   * — at the study's implied focal length an −8° pitch moves the horizon down
-   * 49 px, 0.047 of frame height (design/plan-draft/projection.md §7) — and
-   * the direction matters: pitch would pull the frame-bottom floor cut IN,
-   * and taking the height alone pushes it OUT (this fallback: 1.01 m → 1.15 m).
+   * WHY NOT §10's ruled 1.83 m, which row 11 drew for one commit. Kabe ruled
+   * six feet on 2026-08-20 — "we should be a bit higher as a view angle looking
+   * down at about a 6ft height. For better visual presentation" — and that
+   * ruling has two halves, eye 1.83 m AND a −8° downward pitch. `groundplane.js`
+   * has no pitch term; adding one moves every pixel in the project; and §5 rules
+   * that the real camera is measured off row 4's approved backdrop. Taking the
+   * height WITHOUT the pitch pushes the frame-bottom floor cut further from the
+   * viewer's feet (hall/E to 1.98 m) where the pitch would have pulled it in —
+   * the opposite of the presentation the ruling was given for, against the
+   * intention's fifth quality. Shown to Kabe as a rendered pair, `04a` against
+   * `04b`, he took `04b`. The six-foot ruling returns whole with the camera row
+   * 4 measures, which can carry the pitch half too; §10's contract camera is
+   * unchanged and is what backdrops are generated at.
+   *
+   * The pitch magnitude stays on the record rather than going silent: at the
+   * study's implied focal length an −8° pitch moves the horizon down 49 px,
+   * 0.047 of frame height (design/plan-draft/projection.md §7).
    *
    * `px_per_m_at_wall` and `horizon_y` did NOT move. The field of view stays
    * §5's open question for Kabe: 16 m of wall at 3.5 m is a ~133° view against
@@ -84,9 +93,9 @@
    * on the wall are its known-height feature, so its meta can be audited
    * against its pixels like any other. */
   var GRID_META = {
-    floor_line_y: 0.6515625,
+    floor_line_y: 0.63,
     px_per_m_at_wall: 96,
-    px_per_m_at_bottom: 290.9726775956284,
+    px_per_m_at_bottom: 332.8,
     wall_width_m: 16,
     key_tint: "#c8b489",
     image_h_px: 1024,
@@ -272,15 +281,17 @@
     var xb0 = bounded ? X(0, sBottom) : 0;
     var xb1 = bounded ? X(1, sBottom) : W;
     /* THE CEILING, and it is drawn only where a meta says how high the room
-     * is. The plan carries no vertical datum — `design/architecture.md` names
-     * row 4 as its owner, with the measured backdrop — so no meta this project
-     * emits carries `storey_height_m` and nothing ships a ceiling. The device
+     * is. Since row 11's direction verdict [HUMAN 2026-08-21] both floors of
+     * the plan carry `storey_height_m` 2.8, so every bounded facing — enclosed
+     * and corridor — has one; an open space carries no storey height and has
+     * no corners to hang one between, so nothing here fires for it. The device
      * exists because the alternative is a room bounded left and right and
      * unbounded upward: at 96 px/m the frame holds 6.95 m of wall above the
      * floor line, against a c.1660 storey of roughly 2.6–3.0 m, so the corners
-     * run off the top and the room reads as a shaft. Which of the two is
-     * right is a look decision and it is Kabe's; this is what lets the
-     * question be asked against a picture instead of a paragraph. */
+     * ran off the top and the room read as a shaft. 2.8 m is period-plausible
+     * and sits under blueprint §4's standing licence — a value we can change
+     * any time, not a measurement. A meta that omits the field still draws no
+     * ceiling, which is what an unplanned facing gets. */
     var storeyM = (meta.storey_height_m > 0) ? meta.storey_height_m : null;
     var ceilY = storeyM != null ? floorY - storeyM * sWall : 0;
     var wallTop = Math.max(0, ceilY);
@@ -599,11 +610,10 @@
 
     /* THE CORNERS. Two of them, at the ends of the u-domain the staging
      * addresses — `xAtScale(0)` and `xAtScale(1)` at wall scale, which is
-     * what `corner_x0_px`/`corner_x1_px` are — running from the floor line
-     * off the top of frame. There is no ceiling to stop at: the plan carries
-     * no vertical datum (row 4 owns it, with the measured backdrop), and a
-     * corner running out of frame is also what standing in a room looks
-     * like. */
+     * what `corner_x0_px`/`corner_x1_px` are — running from the floor line up
+     * to `wallTop`: the wall-ceiling line where the room has a height, the top
+     * of frame where it does not (an unplanned facing, whose extent nobody has
+     * drawn). */
     if (bounded) {
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -618,13 +628,23 @@
       /* Where the room has a height, the wall-ceiling line is the floor line's
        * twin and the ceiling's own longitudinals fan from it. */
       if (storeyM != null && wallTop > 0) {
-        ctx.save();
-        ceilingFloor();
-        ctx.clip();
+        /* The wall-ceiling line is drawn OUTSIDE the ceiling's clip, exactly
+         * as the wall-floor line is drawn outside anything: it runs corner to
+         * corner along the top of the facing wall and is inside the room by
+         * construction, so it needs no clip — and inside one it was a coin
+         * flip. The clip's edge is the line's own y, so whether the 1 px
+         * stroke survived depended on the fractional part of `ceilY`: at the
+         * 1.83 m camera row 11 briefly drew, 398.4 kept it at full strength;
+         * at the ruled interim's 376.32 the same code left five pixels of it,
+         * and deleting the stroke altogether changed two pixels in the frame.
+         * A stroke whose visibility turns on a rounding is not a mechanism. */
         ctx.beginPath();
         ctx.moveTo(cL, snap(ceilY));
         ctx.lineTo(cR, snap(ceilY));
         ctx.stroke();
+        ctx.save();
+        ceilingFloor();
+        ctx.clip();
         var sCeilJ = Math.max(sBottom, storeyM > 0 ? (H + 2) / storeyM : sBottom);
         var yCeilJ = gp.yAtScale(sCeilJ, meta) - storeyM * sCeilJ;
         ctx.beginPath();

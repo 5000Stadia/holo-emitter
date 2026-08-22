@@ -1,14 +1,20 @@
 # Row 11 — direction package: the room has corners
 
-**This is visual DIRECTION, not verification.** `design/playbook.md` §3.4 [HUMAN, 2026-08-20]:
+**ANSWERED, 2026-08-21.** Kabe: *"Sounds good on the outline"* — the package is blessed, with the
+Navigator's recommendation taken on each of the specific pairs. Every question below carries its
+disposition; the rulings themselves live where they govern (blueprint §§4b/5, `design/architecture.md`),
+not here. **This directory is now the record of the frames the verdict was given against**, kept for
+that reason rather than as a reference set: what ships combines three answers no single frame here
+shows (the 1.60 m eye of `04b`, the ceiling of `05b`, the desk of `08a`), so no image in it is a
+picture of the current build. It graduates nothing to `design/references/`, whose entries are
+pictures of what exists.
+
+**This was visual DIRECTION, not verification.** `design/playbook.md` §3.4 [HUMAN, 2026-08-20]:
 *"better to get my ok on the visual directions as they form then after the fact"* — and its list of
 direction-setting artifacts names **edge/corner treatment** explicitly. Blueprint §5 says the same
 for the painted half: *"how much return looks best is settled by Kabe's eye in the probe loop, then
-written into the prompt sheets and the measured `corner_x*_px` fields."* Row 11 is that treatment
-for the grid, so it comes to you before it is locked rather than after.
-
-**Unapproved.** Delete this directory when the verdict lands; anything approved graduates to
-`design/references/` with its V-stage.
+written into the prompt sheets and the measured `corner_x*_px` fields."* Row 11 was that treatment
+for the grid, so it came before the lock rather than after.
 
 Fourteen captures, the scene canvas element alone at native 1536×1024, cold `file://` load,
 Chromium, no chrome — §12.6's capture spec, the same frame every hash test and the flip test read.
@@ -16,6 +22,9 @@ Grid-mode placeholder art (V1): nothing here is judged on finish. **Six question
 a single glance.
 
 ---
+
+**The bounded room and its corners are approved as shipped**, which is what the three frames below
+were asked about.
 
 ## What changed, in one sentence
 
@@ -42,6 +51,12 @@ check**: does it read as a candlestick standing in front of a bookcase, or as on
 
 ## Question 1 — how high is the camera? `04a` vs `04b`
 
+**ANSWERED: `04b`. Eye 1.60 m ships as the interim.** §10's ruled 1.83 m returns with row 4's
+measured camera, which can honour the −8° pitch half of the same ruling; the height without the
+pitch degrades the floor cut it was given to improve. §5's camera-has-feet gate is asserted at
+1.60 m, so it holds on the pixels that are actually drawn. Recorded in blueprint §5 and §7's
+grid-canonical amendment.
+
 You ruled six feet on 2026-08-20: *"we should be a bit higher as a view angle looking down at about
 a 6ft height. For better visual presentation."* The contract carries both halves of that — eye
 1.83 m **and** a −8° downward pitch. Nothing in this project models pitch, and adding one moves
@@ -64,6 +79,12 @@ and supersedes both. Nothing about this is settled by us.
 
 ## Question 2 — does the room have a ceiling? `05a` vs `05b`
 
+**ANSWERED: `05b`. Yes — 2.8 m, and every enclosed and corridor facing draws its ceiling.**
+`plan.floors[].storey_height_m` carries it on both floors, under §4's standing licence (a value we
+may change, not a measurement). It is un-drawn content for the approval stamp — a plan view draws no
+vertical dimension — so the drawn digest is byte-identical to the plan Kabe signed and the second
+digest reports the change on the sheet's own face. An open space carries no storey height.
+
 The plan carries no room height, so the corners currently run off the top of the frame. At the
 demo's scale the frame holds **6.95 m of wall above the floor**, against a c.1660 storey of roughly
 2.6–3.0 m — so the room is bounded left and right and open upward.
@@ -78,6 +99,11 @@ unaffected — a room height is not something the drawing draws.
 ---
 
 ## Question 3 — the corner does not move with the distance. `06a` vs `06b`
+
+**ANSWERED with 4 and 5 below: the fixed scale stands for the grid era.** The corner is a fact
+about the wall rather than about where you stand, and the model is settled for good by row 4's
+approved backdrop — which is blueprint §5's law already, so no agent picks it. Recorded in
+blueprint §5 and `design/architecture.md`.
 
 You wrote: *"the horizontal corner of the room needs to be determined in location based on the
 distance expected between the player and that wall."* Under the scale this demo has always drawn
@@ -100,6 +126,8 @@ the contract's ~40° — and row 4's approved backdrop is where the real camera 
 
 ## Question 4 — turning changes the shape of the view. `07a` vs `07b`
 
+**ANSWERED with 3: the fixed scale stands; row 4's approved backdrop settles the camera.**
+
 Both frames are the **same standpoint** in the cross passage. The viewer has not moved a step; they
 have turned once.
 
@@ -114,6 +142,8 @@ across two. It is why the two frames feel like different rooms.
 
 ## Question 5 — a near-square room reads as a tunnel
 
+**ANSWERED with 3: the fixed scale stands; row 4's approved backdrop settles the camera.**
+
 Look at `01` again. The study is **5.45 × 4.80 m** — very nearly square. Its far wall is a third of
 the frame and the two side walls are the other two thirds. The arithmetic is exactly right; what it
 produces is a view wide enough that a square room reads long. Same cause again.
@@ -122,6 +152,10 @@ produces is a view wide enough that a square room reads long. Same cause again.
 Whatever you say sets the interim look.
 
 ## Question 6 — where should the desk stand? `08a` (what ships now) vs `08b`
+
+**ANSWERED: `08a` — the north wall, east of the hearth, chair moved with it.** Confirmed as the
+shipped position rather than an interim; the footprints' notes in `plan.json` and
+`design/architecture.md` say so, and nothing is pending on this any more.
 
 The study's chimney breast occupies the middle 2.2 m of the north wall, and the desk was standing
 **inside** it — 0.65 m² of a 0.715 m² footprint, so 91% of the desk was in the masonry, on the wall
@@ -148,8 +182,8 @@ pair moves together or not at all.
 
 ## Three things we are reporting rather than fixing
 
-1. **The desk was standing in the study's chimney breast** — see question 6. Fixed as an interim,
-   waiting on your answer for good, and the plan now refuses any furniture placed inside the
+1. **The desk was standing in the study's chimney breast** — see question 6. Fixed, and confirmed
+   by your answer; the plan now refuses any furniture placed inside the
    building rather than reporting it as a note nobody had to read.
 2. **The furniture's positions were never authored in metres.** The desk, chair, bookcase and
    candlestick were placed on screen first and converted to plan positions afterwards, against the

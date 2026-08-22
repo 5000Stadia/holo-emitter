@@ -355,12 +355,16 @@ const IN_PAGE = () => {
       });
       need(T.rowMean(canvas, exp.eyeRow) > T.rowMean(canvas, exp.plainWallRow) + 20,
         "eye line brighter than plain wall row");
-      need(T.colFraction(canvas, exp.wallCentreCol, 0, exp.eyeRow - 60) > 0.9,
+      /* Wall ink is scanned BETWEEN the wall-ceiling line and the eye line —
+         the room has a ceiling now, so above `ceilRow` there is no wall to
+         find and a scan from y 0 would be asking the ceiling for wall. */
+      const wallY0 = exp.ceilRow + 6, wallY1 = exp.eyeRow - 10;
+      need(T.colFraction(canvas, exp.wallCentreCol, wallY0, wallY1) > 0.9,
         "vertical metre line at wall centre");
       /* THE CORNERS. Two verticals, at the ends of the u-domain the staging
-         addresses, running from the top of frame to the floor line. */
+         addresses, running from the wall-ceiling line to the floor line. */
       exp.cornerCols.forEach((c) => {
-        need(T.colFraction(canvas, Math.round(c), 0, exp.eyeRow - 60) > 0.9,
+        need(T.colFraction(canvas, Math.round(c), wallY0, wallY1) > 0.9,
           "corner vertical at x " + Math.round(c));
       });
       return out;
@@ -406,10 +410,12 @@ export { expect };
  *
  * Literals, never an import — and since row 11 literals of TWO documents:
  *
- *   - the camera, from blueprint §7's grid-canonical amendment and §10's
- *     [HUMAN] six-foot ruling: horizon 0.48, 96 px/m at the wall, 1536×1024,
- *     eye 1.83 m. `floor_line_y` and `px_per_m_at_bottom` are then §5's own
- *     horizon device, written out here as arithmetic rather than copied.
+ *   - the camera, from blueprint §7's grid-canonical amendment and §5's
+ *     [HUMAN 2026-08-21] interim eye ruling: horizon 0.48, 96 px/m at the
+ *     wall, 1536×1024, eye 1.60 m. `floor_line_y` and `px_per_m_at_bottom`
+ *     are then §5's own horizon device, written out here as arithmetic rather
+ *     than copied. §10's ruled 1.83 m is here too, under its own name, because
+ *     it is a different camera with a different job: generation.
  *   - the two per-facing numbers, TYPED BY HAND from the approved
  *     `design/plan-draft/standpoints.tsv` — the sheet Kabe signed, which
  *     plan.spec byte-compares against the approval commit. NOT from
@@ -425,21 +431,34 @@ export const LIT = {
   W: 1536,
   horizon_y: 0.48,
   px_per_m_at_wall: 96,
-  /* [HUMAN, 2026-08-20] "about a 6ft height" — blueprint §10
-     camera.eye_height_m. §10's −8° pitch is modelled by NOTHING in this
-     project; row 11 adopted the height alone and printed the residue. */
-  eye_m: 1.83,
+  /* THE DRAWING CAMERA. [HUMAN 2026-08-21] ruled 1.60 m the interim against a
+     rendered pair: §10's six-foot ruling has a −8° pitch half that NOTHING in
+     this project models, and the height without it pushes the frame-bottom
+     floor cut away from the viewer's feet — the opposite of what the ruling
+     was given for. The ruled height returns with row 4's measured camera. */
+  eye_m: 1.6,
+  /* THE GENERATION CAMERA. [HUMAN, 2026-08-20] "about a 6ft height" —
+     blueprint §10 `camera.eye_height_m`, which backdrops are prompted at and
+     which no pixel in this repo is drawn at. */
+  ruled_eye_m: 1.83,
   /* §5 states the floor twice and both statements must describe one camera:
      the wall-floor line sits eye-height below the horizon at wall scale, and
      the frame bottom is where the same ray meets the ground. */
-  floor_line_y: 0.48 + 1.83 * 96 / 1024,
-  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.83,
+  floor_line_y: 0.48 + 1.6 * 96 / 1024,
+  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.6,
   /* The UNPLANNED-FACING fallback's own wall: 1536 px at 96 px/m is 16.0 m,
      and 3.5 m is the camera distance row 1 drew with. Meaningful only there —
      every facing the plan holds now carries the plan's own numbers. */
   wall_width_m: 1536 / 96,
   camera_wall_m: 3.5,
   k: 336, // the fallback's grid constant = px_per_m_at_wall × camera_wall_m
+  /* Every planned facing's room height [HUMAN 2026-08-21] — `plan.floors[].
+     storey_height_m`, the same on both floors. The wall band therefore runs
+     from the wall-ceiling line down to the floor line, not off the top of
+     frame, and anything looking for wall ink has to look between them. The
+     UNPLANNED-facing fallback has no floor to read a height off, so its wall
+     still runs to y 0. */
+  storey_height_m: 2.8,
 
   /* [wall_width_m, camera_wall_m, facing_type], typed from the approved
      standpoints table. */
@@ -466,6 +485,7 @@ export const LIT = {
     const half = (wall_width_m / 2) * px;
     return {
       key, wall_width_m, camera_wall_m, facing_type,
+      storey_height_m: LIT.storey_height_m,
       px_per_m_at_wall: px,
       floor_line_y: LIT.floor_line_y,
       px_per_m_at_bottom: LIT.px_per_m_at_bottom,
@@ -600,6 +620,11 @@ export function gridExpectations(loc = "study", f = "S") {
     floorSpan: [m.corner_x0_px, m.corner_x1_px],
     cornerCols: [m.corner_x0_px, m.corner_x1_px],
     plainWallRow: 500, // no wall metre-line and not the eye line
-    wallCentreCol: 768 // the m = 0 wall vertical, inside every shipped band
+    wallCentreCol: 768, // the m = 0 wall vertical, inside every shipped band
+    /* The wall-ceiling line: where the facing wall now STOPS going up. Since
+       the ceiling ruling the wall is a band between two lines rather than a
+       plane running off the top of frame, so every scan for wall ink takes
+       its upper bound from here instead of from y 0. */
+    ceilRow: Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall)
   };
 }

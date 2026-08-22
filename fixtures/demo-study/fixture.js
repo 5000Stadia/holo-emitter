@@ -13,7 +13,7 @@
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "9b134818",
+  fp: "572a01e0",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -146,9 +146,9 @@ window.HOLO_FIXTURE = {
   viewstate: { "location": "study", "facing": "N" },
   metas: {
   "study/N": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 5.45,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -173,14 +173,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 506.4,
     "corner_x1_px": 1029.6,
     "focal_px": 345.6,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.1877403846153847,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.0384615384615385,
     "camera_wall_m": 3.6
   },
   "study/E": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 4.8,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -205,14 +205,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 537.6,
     "corner_x1_px": 998.4,
     "focal_px": 392.64,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.349405048076923,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.1798076923076923,
     "camera_wall_m": 4.09
   },
   "study/S": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 5.45,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -237,14 +237,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 506.4,
     "corner_x1_px": 1029.6,
     "focal_px": 345.6,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.1877403846153847,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.0384615384615385,
     "camera_wall_m": 3.6
   },
   "study/W": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 4.8,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -269,14 +269,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 537.6,
     "corner_x1_px": 998.4,
     "focal_px": 392.64,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.349405048076923,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.1798076923076923,
     "camera_wall_m": 4.09
   },
   "hall/N": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 8,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -301,14 +301,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 384,
     "corner_x1_px": 1152,
     "focal_px": 187.2,
-    "storey_height_m": null,
-    "nearest_floor_m": 0.643359375,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 0.5625,
     "camera_wall_m": 1.95
   },
   "hall/E": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 2.6,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -333,14 +333,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 643.2,
     "corner_x1_px": 892.8,
     "focal_px": 576,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.9795673076923077,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.7307692307692306,
     "camera_wall_m": 6
   },
   "hall/S": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 8,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -365,14 +365,14 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 384,
     "corner_x1_px": 1152,
     "focal_px": 187.2,
-    "storey_height_m": null,
-    "nearest_floor_m": 0.643359375,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 0.5625,
     "camera_wall_m": 1.95
   },
   "hall/W": {
-    "floor_line_y": 0.6515625,
+    "floor_line_y": 0.63,
     "px_per_m_at_wall": 96,
-    "px_per_m_at_bottom": 290.9726775956284,
+    "px_per_m_at_bottom": 332.8,
     "wall_width_m": 2.6,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
@@ -397,8 +397,8 @@ window.HOLO_FIXTURE = {
     "corner_x0_px": 643.2,
     "corner_x1_px": 892.8,
     "focal_px": 576,
-    "storey_height_m": null,
-    "nearest_floor_m": 1.9795673076923077,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 1.7307692307692306,
     "camera_wall_m": 6
   }
 }

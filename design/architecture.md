@@ -532,17 +532,25 @@ the picture is not drawn with.
 purpose: a room whose extent nobody has drawn must not claim two corners, so it draws the unbounded
 16 m wall it always drew. Its numbers moved with the camera (below) and nothing else about it did.
 
-**The camera moved by exactly one number.** Every meta is derived at the ruled eye height 1.83 m —
-[HUMAN] 2026-08-20, §10's `camera.eye_height_m`, whose authored home is `replicator/contract.json`.
-`RULED_EYE_M` in the projection is asserted equal to that file, which is the term from outside the
-derivation that lets `assertCameraConsistent` fail at all: row 12 derived the eye height back OUT of
-`GRID_META` and said in its own comment that this made the agreement an identity. `floor_line_y`
-became 0.6515625 and `px_per_m_at_bottom` 290.9726775956284; `px_per_m_at_wall` and `horizon_y` did
-not move, so §5's field-of-view question is untouched. **§10's −8° pitch is still modelled by
-nothing** — 49 px of horizon at the study's implied focal length — and taking the height without it
-pushes the frame-bottom floor cut OUTWARD on six of eight shipped facings (study N/S 1.19 m, study
-E/W 1.35 m, hall E/W **1.98 m**; hall N/S improve to 0.64 m). That is a knowing move against the
-intention's fifth quality; it is in the blueprint, in the row's report and in the batch.
+**Two eye heights, two jobs, and the metas derive from the drawing one.** `INTERIM_EYE_M` = 1.60 m
+is what this project draws at — [HUMAN 2026-08-21], ruled against a rendered pair — so
+`floor_line_y` is 0.63 and `px_per_m_at_bottom` 332.8, and §5's camera-has-feet gate is asserted at
+1.60 too. `RULED_EYE_M` = 1.83 m is §10's GENERATION camera, whose authored home is
+`replicator/contract.json` and which `assertRuledEye` pins to that file; backdrops are prompted at
+it, no pixel here is drawn at it. What row 11 fixed was not the number but the fact that there were
+two of them pretending to be one: grid canonical was authored at 1.6, §5's gate had been propagated
+to 1.83, and the shipped meta failed the blueprint's own assertion by 0.0016 while the suite stayed
+green on a test that still said 1.6. Now the height is a named constant the metas derive FROM — the
+term from outside the meta that lets `assertCameraConsistent` fail at all, where row 12 derived it
+back OUT of `GRID_META` and said in its own comment that this made the agreement an identity.
+**Why the interim.** Row 11 drew 1.83 for one commit and put both frames to Kabe. §10's ruling has
+two halves, eye 1.83 m and a −8° pitch, and **the pitch is modelled by nothing** — 49 px of horizon
+at the study's implied focal length. Taking the height without it pushes the frame-bottom floor cut
+OUTWARD on six of eight shipped facings (study N/S 1.19 m, study E/W 1.35 m, hall E/W **1.98 m**;
+hall N/S improve to 0.64 m), which is a move against the intention's fifth quality by the very
+ruling that was made to serve it. So the six-foot ruling returns whole with row 4's measured camera,
+which can carry the pitch. `px_per_m_at_wall` and `horizon_y` never moved, so §5's field-of-view
+question is untouched either way.
 
 **The wall in view is a list of bands, and that is the whole typed-geometry model.** `wallBands`
 returns no band for an `open` facing, `wall_segments`' bands for a discontinuous one, and one
@@ -609,9 +617,12 @@ changed no scale. And under the pinned scale the corner's x is `768 ± wall_widt
 `camera_wall_m` cancels and two rooms with the same wall at different distances get pixel-identical
 corners — where blueprint §5's [HUMAN] sentence asks the corner to be located "based on the distance
 expected between the player and that wall". A pinned LENS would move it with distance and put no
-corner in frame at these sizes (50 mm is a 2133 px focal; the study's wall would draw 3230 px). That
-is §5's scale-vs-lens question, it gates a named quality, and it is Kabe's. `mechanisms.spec` pins
-the current model with a case that says so, so a silent change of model goes red.
+corner in frame at these sizes (50 mm is a 2133 px focal; the study's wall would draw 3230 px).
+**Ruled [HUMAN 2026-08-21]: the fixed scale stands for the grid era**, and the corner-as-a-fact-about-
+the-wall is what ships; row 4's approved backdrop answers the model for good, which is blueprint
+§5's law already. The bounded-room look and the corner treatment in row 11's frames are approved as
+shipped. `mechanisms.spec` pins the current model with a case that says so, so a silent change of
+model goes red.
 
 **The grid draws no carriers, and the omission is COMPUTED from the plan rather than counted by
 hand.** `apertures` derives openings from `locations[].exits` on the facing being drawn; §11 gives
@@ -630,13 +641,23 @@ The returns' list is attributed BY WALL LINE, so a carrier belonging to the room
 of a shared wall is counted too: an upper bound, which is the honest side to be wrong on for an
 omission ledger.
 
-**A ceiling, drawn only where a document asks for one.** `plan.floors[].storey_height_m` is optional
-and no floor of the shipped plan carries one, so nothing draws a ceiling; the field has a schema, a
-validator clause and ledger cases so that it is settable by a document rather than reachable only
-from the renderer. It exists because a room bounded left and right and unbounded upward reads as a
+**A ceiling, drawn where the document asks for one — and it now asks.** `plan.floors[].storey_height_m`
+is optional in the schema and **both shipped floors carry 2.8 m** [HUMAN 2026-08-21, ruled against
+the rendered pair], so every enclosed and corridor facing draws its ceiling. `storeyHeight` returns
+null for an `open`-typed room: the courtyard and the gardens sit on the `ground` floor like every
+other room, and a floor-level height would hand them a 2.8 m ceiling over open sky — nothing would
+draw it (the ceiling is inside the renderer's `bounded` branch and an open facing has no corners)
+but the meta would be making a claim the document does not hold. The field stays optional because a
+facing no plan holds has no floor to read one off. It lives on the plan rather than in the renderer
+so that it is settable by a document — schema, validator clause and its own ledger cases. It exists
+because a room bounded left and right and unbounded upward reads as a
 shaft — at the pinned scale the frame holds 6.95 m of wall above the floor line against a c.1660
-storey of 2.6–3.0 m — and whether it SHOULD be drawn is a look decision in the direction package
-(question 2), asked against a rendered pair rather than a paragraph. The ceiling is line work: its
+storey of 2.6–3.0 m. 2.8 m is period-plausible and sits under §4's standing licence, not a
+measurement; row 4's approved backdrop may move it. **It is un-drawn content for the approval
+stamp**: a plan view is a horizontal section and draws no vertical dimension, so `draw_plan.py`'s
+`DRAWN_FLOOR_KEYS` keeps storey height out of the drawn digest — which stays byte-identical to the
+plan Kabe signed — and the second digest reports it on the sheet's own face. The ceiling is line
+work: its
 wall-ceiling line, the two junctions, its own fan and its own transverse set, clipped to the room
 exactly as the floor's are and carried to the scale at which the CEILING leaves the frame rather
 than the one at which the floor does — row 11 used the floor's and the ceiling stopped 209 px down,
@@ -708,7 +729,8 @@ Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for 
   Changing an [AI] adoption, not a [HUMAN] value: §7's grid-canonical list took §5's *example*
   numbers wholesale, and §5's block itself is untouched — it illustrates the schema for meta that
   row 4 measures per backdrop.
-- **Still open, and it is Kabe's** — restated at row 11, because the 16 m wall it used to be stated
+- **Ruled for the grid era, and reopened only by row 4's approved backdrop** [HUMAN 2026-08-21] —
+  restated at row 11, because the 16 m wall it used to be stated
   against is no facing the demo draws. Per facing now: the study's 5.45 m wall at 3.60 m is a
   **~131.5°** view, the cross passage's 8.00 m at 1.95 m is **~152.6°**, and its 2.60 m end wall at
   6.00 m is **~106.3°**, all against §10's `focal_mm: 50` (≈40°). Two consequences row 11 made
@@ -717,9 +739,11 @@ Row 1's scale↔y and u-mapping stand; row 2 added depth→y and **one home for 
   camera-has-feet quality is not consistent across a turn; and under the pinned SCALE the corner's
   x is `768 ± wall_width_m × 96 / 2`, so `camera_wall_m` cancels and two rooms with the same wall
   at different standpoints get pixel-identical corners — which is not what blueprint §5's [HUMAN]
-  sentence asks for. The answer gates a **named quality**, not only row 4's meta authoring, and it
-  is in the direction package as questions 3, 5 and 6 with rendered frames. Rows 3 and 7 consume
-  nothing from it.
+  sentence asks for. Put to Kabe with rendered frames as the direction package's questions 3, 4 and
+  5, the answer was that **the fixed scale stands** and the model is settled for good by the
+  approved backdrop of row 4, which is §5's law already — so no agent picks it and no document may
+  say it is still open. It still gates a **named quality**, not only row 4's meta authoring. Rows 3
+  and 7 consume nothing from it.
 
 ## Renderer
 
@@ -1021,26 +1045,31 @@ continuous wall spans the view**. The entrance approach's north view is 32.00 m 
 is the open court mouth; a meta with corners at the frame edges there would be inventing the
 manor's front elevation.
 
-**The camera is an argument, and row 11 pointed it at §10.** `deriveMeta(plan, room, facing, {
-camera })` defaults to `GRID_CAMERA`, which since row 11 carries the RULED eye height 1.83 m read
-from `replicator/contract.json` rather than derived back out of `GRID_META`. Row 12's arrangement
-made the pinned case an **identity, not evidence** and said so; the arrow is now the other way
-round — the eye height is an input, the metas derive from it, and `assertCameraConsistent`
-compares a meta against a number it did not supply, so it can fail. `CONTRACT_CAMERA` now differs
-from `GRID_CAMERA` in exactly one field: §10's −8° pitch, which nothing models. Pitch is unmodelled by everything here —
+**The camera is an argument, and row 11 made it a named constant.** `deriveMeta(plan, room,
+facing, { camera })` defaults to `GRID_CAMERA`, which carries the DRAWING eye height
+`INTERIM_EYE_M` = 1.60 m [HUMAN 2026-08-21] rather than one derived back out of `GRID_META`. Row
+12's arrangement made the pinned case an **identity, not evidence** and said so; the arrow is now
+the other way round — the eye height is an input, the metas derive from it, and
+`assertCameraConsistent` compares a meta against a number it did not supply, so it can fail.
+`CONTRACT_CAMERA` is §10's generation camera and differs from `GRID_CAMERA` in two fields on
+purpose: the ruled 1.83 m eye, held for row 4's measured camera, and the −8° pitch, which nothing
+models. Pitch is unmodelled by everything here —
 `groundplane.js` has no pitch term and adding one moves every shipped pixel — and its magnitude
-is printed rather than left silent: 47 px of horizon shift at the study's implied focal length.
+is printed rather than left silent: 49 px of horizon shift at the study's implied focal length.
 
 **CLOSED BY ROW 11 — the live inconsistency row 12 could not fix.** Row 3 propagated Kabe's
 six-foot ruling into blueprint §5's camera-has-feet assertion; grid canonical was authored against
 1.6 m and had not moved, so the gate failed by 0.0016 while `heights.spec` still implemented 1.6
-and the suite stayed green — the blueprint was red and nothing said so. Row 11 took the option row
-12 named and could not afford ("`floor_line_y` → 0.6516"): every meta is derived at the ruled eye
-height, so the residual is 0 by construction. `plan.spec`'s case is inverted — the gate passes at
-1.83 and the 1.6 m camera it replaced now fails — and the falsifiable half moved to a term outside
-the derivation (the contract's eye height) and to pixels (`geometry.spec` measures the drawn floor
-line and drawn horizon per facing). What row 11 did NOT take is §10's other half, the −8° pitch;
-see *The room, and what a facing's meta is*.
+and the suite stayed green — the blueprint was red and nothing said so. What closes it is ONE eye
+height, derived from and asserted at: every meta comes from `INTERIM_EYE_M` and the gate is applied
+at the same number, so the residual is 0 by construction. Row 11 first closed it at §10's 1.83 m,
+which moved shipped pixels the wrong way for the quality the ruling served, and Kabe ruled the
+1.60 m frame back in as the interim — the residual is 0 either way, because what makes it 0 is that
+there is one height and not two. `plan.spec`'s case says so: the gate passes at 1.60 and §10's
+generation camera fails on the shipped meta. The falsifiable half sits on terms outside the
+derivation — the contract's eye height, checked by `assertRuledEye`, and the pixels themselves
+(`geometry.spec` measures the drawn floor line and drawn horizon per facing). §10's other half, the
+−8° pitch, is what the ruled height is waiting for; see *The room, and what a facing's meta is*.
 
 **The wide-view camera** [AI, under Kabe's ruling (3)]: a facing whose wall in view exceeds the
 16.0 m the pinned frame holds takes `px_per_m_at_wall = 1536 / wall_width_m`, so the wall fills
@@ -1108,8 +1137,10 @@ row 12 could not tell "a human approved this and an agent may not change it" fro
 this badly". Furniture an agent inverse-projected is the second kind. So the check is a hard clause
 now (`plan.object_clear_of_carriers`, with `…_of_stairs` and `objects_do_not_share_floor` beside
 it), and the desk moved east along the north wall, clear of the hearth, on the Navigator's ruling
-and under §4's standing licence — **an interim, superseded by Kabe's answer to the direction
-package's question 6.** `chair1` moved with it, and by the amount that KEEPS THE PAIR rather than by
+and under §4's standing licence. It was an interim awaiting the direction package's question 6, and
+that question is answered: **`08a` — the north wall east of the hearth — is the shipped position,
+confirmed by Kabe's blessing of the package** [HUMAN 2026-08-21], not pending anything.
+`chair1` moved with it, and by the amount that KEEPS THE PAIR rather than by
 the same metres: the two draw at different scales (144 and 113 px/m), so preserving their metre
 offset would have opened their screen gap from 50 px to 118 and broken the authored occlusion chain.
 Both footprints carry their reason on the object. The same paragraph applies to §4b

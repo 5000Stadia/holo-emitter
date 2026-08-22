@@ -25,7 +25,7 @@ import {
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
   inverseProjectPlacement, metaForFacing, facingsContaining, report, rebuildFacings,
-  RULED_EYE_M, assertRuledEye,
+  RULED_EYE_M, INTERIM_EYE_M, assertRuledEye,
   wallRelief, wallReliefReport,
   assertCameraConsistent, needsWideView, pinnedWallInFrame, horizonGate,
   GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
@@ -778,17 +778,19 @@ test.describe("plan ↔ world: the orientation law is geometry now, not prose", 
 /* ------------------------------------------------------------- the camera */
 
 test.describe("the camera the projection runs on", () => {
-  test("is the RULED camera, read from the contract rather than out of the picture", () => {
+  test("is a named constant the metas derive FROM, not one read out of the picture", () => {
     /* Row 12 derived the grid camera's eye height back out of GRID_META and
      * said in its own comment that this made deriveMeta's agreement with
-     * GRID_META "an identity, not evidence". Row 11 turns the arrow round:
-     * the eye height is §10's [HUMAN] six-foot ruling, whose authored home is
-     * replicator/contract.json, and the metas are derived FROM it. */
-    expect(GRID_CAMERA.eye_m).toBe(1.83);
+     * GRID_META "an identity, not evidence". Row 11 turns the arrow round: the
+     * eye height is a constant with a citation and the metas are derived FROM
+     * it. Which constant is Kabe's [HUMAN 2026-08-21] — the interim 1.60 m
+     * ships until row 4 measures a camera that can carry §10's pitch half. */
+    expect(GRID_CAMERA.eye_m).toBe(1.6);
     expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled — see §7
-    expect(RULED_EYE_M).toBe(1.83);
+    expect(INTERIM_EYE_M).toBe(1.6);
+    expect(RULED_EYE_M).toBe(1.83);          // §10's generation camera, untouched
     expect(assertRuledEye()).toEqual([]);
-    expect(GRID_CAMERA.source).toMatch(/§10/);
+    expect(GRID_CAMERA.source).toMatch(/2026-08-21/);
   });
 
   test("and the contract cross-check goes red when the two statements drift apart", () => {
@@ -816,31 +818,33 @@ test.describe("the camera the projection runs on", () => {
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
     expect(assertCameraConsistent({ ...GRID_META, px_per_m_at_bottom: 210 }).length).toBeGreaterThan(0);
     expect(assertCameraConsistent({ ...GRID_META, horizon_y: 0.30 }).length).toBeGreaterThan(0);
-    expect(assertCameraConsistent({ ...GRID_META, floor_line_y: 0.63 }).length).toBeGreaterThan(0);
-    // and at the eye height grid canonical used to carry, it fails too —
-    // which is what it means for the check to read a term from outside.
-    expect(assertCameraConsistent(GRID_META, 1.6).length).toBeGreaterThan(0);
+    expect(assertCameraConsistent({ ...GRID_META, floor_line_y: 0.6515625 }).length).toBeGreaterThan(0);
+    // and at §10's generation eye height it fails too — which is what it
+    // means for the check to read a term from outside the meta.
+    expect(assertCameraConsistent(GRID_META, 1.83).length).toBeGreaterThan(0);
   });
 
   /* Blueprint §5's camera-has-feet gate carried 1.6 m until row 3 propagated
    * Kabe's six-foot ruling into it. Grid canonical was authored against 1.6
    * and, for row 12's whole life, failed the gate by 0.0016 while
-   * heights.spec still implemented 1.6 and the suite stayed green. Row 11
-   * closed it by deriving every meta at the ruled height, and this case is
-   * the inverse of the one it replaces: the gate passes at 1.83 and it is the
-   * OLD camera that now fails. */
-  test("§5's horizon gate passes at the ruled 1.83 m, and the 1.6 m camera it replaced now fails", () => {
+   * heights.spec still implemented 1.6 and the suite stayed green — the
+   * blueprint was red and nothing said so. What closes that is ONE height,
+   * asserted where the pixels are: since [HUMAN 2026-08-21] the drawing camera
+   * is the interim 1.60 m, the gate is asserted at it, and §10's 1.83 m — the
+   * camera nothing here draws at — is the one that fails. The gate is a
+   * check on a meta's self-consistency, so it can only ever hold at one. */
+  test("§5's horizon gate passes at the interim 1.60 m, and §10's generation camera fails on it", () => {
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
-    const at183 = horizonGate(GRID_META, 1.83);
-    expect(at183.passes).toBe(true);
-    expect(at183.residual).toBeCloseTo(0, 12);
     const at16 = horizonGate(GRID_META, 1.6);
-    expect(at16.passes).toBe(false);
-    expect(at16.residual).toBeCloseTo(Math.abs(0.48 - (0.6515625 - 1.6 * 96 / 1024)), 9);
+    expect(at16.passes).toBe(true);
+    expect(at16.residual).toBeCloseTo(0, 12);
+    const at183 = horizonGate(GRID_META, 1.83);
+    expect(at183.passes).toBe(false);
+    expect(at183.residual).toBeCloseTo(Math.abs(0.48 - (0.63 - 1.83 * 96 / 1024)), 9);
     for (const key of ["study/N", "study/E", "hall/N", "hall/E"]) {
       const [loc, f] = key.split("/");
-      const g = horizonGate(deriveMeta(PLAN, loc, f), 1.83);
-      expect(g.passes, `${key} at the ruled eye height`).toBe(true);
+      const g = horizonGate(deriveMeta(PLAN, loc, f), 1.6);
+      expect(g.passes, `${key} at the drawing eye height`).toBe(true);
     }
   });
 
@@ -867,31 +871,39 @@ test.describe("the camera the projection runs on", () => {
        the study its own derived meta, so the shipped cut and the derived one
        are the same number and the substitution the round-4 critic caught
        cannot recur. */
-    expect(feet.reference).toBeCloseTo(3.6 * 96 / ((1024 - 0.48 * 1024) / 1.83), 9);
+    expect(feet.reference).toBeCloseTo(3.6 * 96 / ((1024 - 0.48 * 1024) / 1.6), 9);
     expect(feet.reference).toBeLessThan(1.2);
     // measured from the VIEWER, not from the wall — the complement is the bug
     // this assertion exists to prevent recurring
     expect(deriveMeta(PLAN, "great_hall", "E").nearest_floor_m)
-      .toBeCloseTo(10.95 * 96 / ((1024 - 0.48 * 1024) / 1.83), 9);
+      .toBeCloseTo(10.95 * 96 / ((1024 - 0.48 * 1024) / 1.6), 9);
     expect(feet.over.length).toBe(15);
     expect(feet.over[0].nearest_floor_m).toBeGreaterThan(5);
     expect(readFileSync(join(draftDir, "projection.md"), "utf8")).toMatch(/The camera has feet, and the lens is not one lens/);
   });
 
-  test("the two cameras now differ only in the pitch nothing models", () => {
-    /* Before row 11 the grid camera and §10's contract camera differed in eye
-     * height AND pitch; adopting the ruled height leaves exactly one
-     * difference, and it is the one `groundplane.js` has no term for. Naming
-     * it here keeps the omission a measured quantity rather than a silence:
+  test("the two cameras differ in the height Kabe ruled interim and in the pitch nothing models", () => {
+    /* §10's contract camera is the GENERATION camera and the grid camera is
+     * the DRAWING one, and since [HUMAN 2026-08-21] they differ in both
+     * terms on purpose: the interim eye height, because the six-foot ruling
+     * without its pitch half moves the frame-bottom floor cut the wrong way;
+     * and the pitch itself, which `groundplane.js` has no term for. Naming
+     * both here keeps them measured quantities rather than silences —
      * §10's −8° would move the horizon down 49 px at the study's implied
-     * focal length, which is the direction that would pull the frame-bottom
-     * floor cut back toward the viewer's feet. */
-    expect(CONTRACT_CAMERA.eye_m).toBe(GRID_CAMERA.eye_m);
+     * focal length, the direction that would pull the floor cut back toward
+     * the viewer's feet, which is exactly why the height waits for it. */
+    expect(GRID_CAMERA.eye_m).toBe(INTERIM_EYE_M);
+    expect(CONTRACT_CAMERA.eye_m).toBe(RULED_EYE_M);
     expect(CONTRACT_CAMERA.pitch_deg).toBe(-8);
     expect(GRID_CAMERA.pitch_deg).toBe(0);
     const a = deriveMeta(PLAN, "study", "N", { camera: GRID_CAMERA });
     const b = deriveMeta(PLAN, "study", "N", { camera: CONTRACT_CAMERA });
-    expect(b.floor_line_y).toBeCloseTo(a.floor_line_y, 12); // pitch is unmodelled
+    // the eye height is modelled, so it moves the floor line; the pitch is
+    // not, so nothing else about b differs.
+    expect(b.floor_line_y).toBeGreaterThan(a.floor_line_y);
+    expect(b.floor_line_y - a.floor_line_y)
+      .toBeCloseTo((RULED_EYE_M - INTERIM_EYE_M) * 96 / 1024, 12);
+    expect(b.corner_x0_px).toBeCloseTo(a.corner_x0_px, 12); // pitch is unmodelled
     expect(deriveMeta(PLAN, "study", "N").camera_id).toBe("grid");
   });
 });
@@ -901,7 +913,7 @@ test.describe("the camera the projection runs on", () => {
 test.describe("derived meta geometry, by independent arithmetic", () => {
   /* Expected values written out here from the §5 literals, never imported —
    * §12.5's independence rule. 1536 px canvas, 1024 px image, horizon 0.48,
-   * the ruled eye 1.83 m, pinned 96 px/m. */
+   * the interim eye 1.60 m, pinned 96 px/m. */
   const CANVAS = 1536;
 
   test("study/N — the M0 room, pinned", () => {
@@ -910,8 +922,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(5.45);
     expect(m.px_per_m_at_wall).toBe(96);
     expect(m.camera).toBe("pinned");
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.83 * 96 / 1024, 12);   // 0.6515625
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.83, 9); // 290.97
+    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * 96 / 1024, 12);    // 0.63
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.6, 9); // 332.8
     expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * 96, 9); // 506.4
     expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * 96, 9); // 1029.6
     expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * 96, 9);
@@ -932,8 +944,8 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     expect(m.wall_width_m).toBe(20.4);
     expect(m.camera).toBe("wide");
     expect(m.px_per_m_at_wall).toBeCloseTo(1536 / 20.4, 9);
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.83 * (1536 / 20.4) / 1024, 12);
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.83, 9); // scale-independent
+    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * (1536 / 20.4) / 1024, 12);
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.6, 9); // scale-independent
     expect(m.corner_x0_px).toBeCloseTo(0, 9);
     expect(m.corner_x1_px).toBeCloseTo(1536, 9);
   });
@@ -1430,7 +1442,7 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
     try {
       const rp = join(dir, "src", "renderer.js");
       const src = readFileSync(rp, "utf8");
-      writeFileSync(rp, src.replace("px_per_m_at_bottom: 290.9726775956284", "px_per_m_at_bottom: 210"));
+      writeFileSync(rp, src.replace("px_per_m_at_bottom: 332.8", "px_per_m_at_bottom: 210"));
       let msg = "";
       try { bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study"), "--out", join(dir, "fresh.js")]); }
       catch (e) { msg = String(e.stderr || e.message); }

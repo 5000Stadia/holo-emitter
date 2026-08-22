@@ -250,9 +250,14 @@ and types. It is not the furniture: the sheets draw none, and `plan.objects` was
 out of `staging.json` by an agent after the approval. So the stamp now hashes exactly the drawn
 content and still fires on ANY change to any of it, and a SECOND digest covers the un-drawn
 remainder — a change there does not unapprove the drawing but is printed on the sheet's own face,
-so narrowing the input deletes no evidence. Row 11's one plan edit (`stick1`'s footprint, moved
-under §4's standing licence with its reason recorded on the object) leaves the drawn digest
-byte-identical to the plan Kabe signed, which is the proof it touched nothing he saw.
+so narrowing the input deletes no evidence. Row 11's plan edits — `stick1`'s footprint and the
+desk/chair pair, moved under §4's standing licence with their reasons recorded on the objects, and
+the two floors' `storey_height_m` — leave the drawn digest byte-identical to the plan Kabe signed,
+which is the proof they touched nothing he saw. Storey height needed one further narrowing to be
+honest about that: a floor entry is drawn by its identity and its level, but a plan view is a
+horizontal section and draws no vertical dimension anywhere, so a room height cannot have been part
+of what Kabe looked at. `draw_plan.py`'s `DRAWN_FLOOR_KEYS` says exactly that, and the height lands
+in the second digest, printed on the sheet's own face.
 
 **Live-ingestion shape [HUMAN, 2026-08-21]:** "the methodology for going from a many location
 description via something like pattern buffer / construct projector to overhead map to rooms
@@ -395,9 +400,17 @@ considered shape [AI], binding as structure only — M0 builds none of it live:
 - [AI] `key_dir` is the authored screen-space key direction — "UL" on every M0 facing: backdrops
   are generated so the key reads from upper-left everywhere, matching sprite contract UL45 (gate
   §9.4e covers sprites only; backdrops never pass the ingester, so this field is their light
-  contract). `horizon_y` is the authored horizon at the ruled camera eye height 1.83m (6 ft, [HUMAN] 2026-08-20 — supersedes this note's original 1.6); acceptance asserts
-  |`horizon_y` − (`floor_line_y` − 1.83·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 — the
-  camera-has-feet gate, independent of the calibration it feeds.
+  contract). `horizon_y` is the authored horizon at the eye height this project DRAWS at; acceptance
+  asserts |`horizon_y` − (`floor_line_y` − eye·`px_per_m_at_wall`/`image_h_px`)| ≤ 0.02 — the
+  camera-has-feet gate, independent of the calibration it feeds. **That eye height is 1.60 m as an
+  interim** [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended specifics] —
+  not §10's ruled 1.83 m — and the reason is the ruling's own purpose: Kabe ruled six feet *"for
+  better visual presentation"*, its other half is a −8° downward pitch that nothing here models,
+  and the height without the pitch pushes the frame-bottom floor cut away from the viewer's feet,
+  degrading the presentation it was given to improve (hall/E 1.01 → 1.98 m). The 1.83 m returns
+  whole with the camera row 4 measures off the approved backdrop, which can carry the pitch too;
+  §10's generation camera is unchanged in the meantime. The gate is asserted at whichever height
+  the pixels are drawn at, so it holds honestly rather than by a widened tolerance.
 - [AI] Calibration is auditable against pixels, not just self-consistent: `calibration_px` is the
   measured pixel height of `calibration_ref` in the actual image, and acceptance asserts
   `px_per_m_at_wall` ≈ `calibration_px` / ref height in metres (±3%). A meta whose numbers cannot
@@ -568,14 +581,22 @@ as well as computed from literals. §5's *"side planes converging, open centre"*
 the middle between those converging planes; a passage with no end wall at all is the `open` type,
 which the same band model already draws.
 
-*A ceiling where a document asks for one.* `plan.floors[].storey_height_m` is optional, no floor of
-the shipped plan carries one, and nothing draws a ceiling — the field has a schema, a validator
-clause and its own cases so it is settable by a document rather than reachable only from the
-renderer. It exists because a room bounded left and right and unbounded upward reads as a shaft: at
-the pinned scale the frame holds 6.95 m of wall above the floor line, against a c.1660 storey of
-2.6–3.0 m. Whether the rooms SHOULD have one is a look decision and it is Kabe's, asked in row 11's
-direction package against a rendered pair. Drawn, the ceiling is line work — its wall-ceiling line,
-its two junctions and its own fan, clipped to the room exactly as the floor's are.
+*A ceiling where a document asks for one, and the document now asks.* `plan.floors[].storey_height_m`
+is optional in the schema and **both shipped floors carry 2.8 m** [HUMAN 2026-08-21, "Sounds good on
+the outline", Navigator-recommended specifics: asked against a rendered pair, `05b` over `05a`], so
+every enclosed and corridor facing draws its ceiling. An open space has no storey height and no
+corners to hang one between, so nothing fires for it. The field stays optional because a facing no
+plan holds has no floor to read one off, and it lives on the plan rather than in the renderer so it
+is settable by a document — schema, validator clause and its own ledger cases. It exists because a
+room bounded left and right and unbounded upward reads as a shaft: at the pinned scale the frame
+holds 6.95 m of wall above the floor line, against a c.1660 storey of 2.6–3.0 m. 2.8 m is
+period-plausible and sits under §4's standing licence — a value we may change, not a measurement,
+and row 4's approved backdrop may move it. Drawn, the ceiling is line work — its wall-ceiling line,
+its two junctions and its own fan, clipped to the room exactly as the floor's are. It is **un-drawn
+content** as far as the approval stamp goes: a plan view is a horizontal section and draws no
+vertical dimension, so `draw_plan.py` keeps storey height out of the drawn digest (which is
+byte-identical to the plan Kabe signed) and reports it in the second one, printed on the sheet's own
+face.
 
 *What the grid does NOT draw, computed rather than counted.* §11 gives the carriers to row 4's
 painted backdrops and §4b item 9 gives multi-facing presence to row 15, so a doorway, a window or a
@@ -595,8 +616,14 @@ get pixel-identical corners, where the [HUMAN] sentence above asks for the corne
 distance does drive the returns' convergence, the floor's depth spacing and the frame-bottom cut,
 but not the corner's position. Pinning the LENS instead would move it with distance and would put
 NO corner in frame at these room sizes — 50 mm is a 2133 px focal on this frame, which draws the
-study's wall 3230 px wide. That is §5's open scale-vs-lens question, it gates a named quality, and
-it is Kabe's.
+study's wall 3230 px wide.
+**Ruled [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended specifics]: the
+fixed scale stands for the grid era**, and the question is not reopened by an agent. It is answered
+for good by the same thing that answers everything else about the camera — the approved backdrop of
+row 4, whose measured geometry is this section's law already — so no document may claim the model
+is still an agent's to pick. What ships until then is the corner as a fact about the wall rather
+than about where you stand, with the arithmetic above on the record. The bounded-room and corner
+treatment shown in row 11's direction frames is **approved as shipped**.
 
 ## 6. Sprite record — `record.json`
 
@@ -670,8 +697,8 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     facing the overhead plan holds carries its own §5 meta, derived from `plan.json` by
     `tools/plan-projection.mjs` and baked beside the fixture; this constant is what a facing NO
     PLAN HOLDS resolves to — unestablished space whose extent nobody has drawn. Its 16.0 m wall is
-    meaningful only there. In full: `floor_line_y` **0.6515625**, `px_per_m_at_wall` 96,
-    `px_per_m_at_bottom` **290.9726775956284**, `wall_width_m` 16.0, `horizon_y`
+    meaningful only there. In full: `floor_line_y` **0.63**, `px_per_m_at_wall` 96,
+    `px_per_m_at_bottom` **332.8**, `wall_width_m` 16.0, `horizon_y`
     0.48, `key_dir` "UL", `key_tint` `#c8b489` (deliberately non-identity so the §12.8 tint
     assertion is satisfiable on grid backdrops), `image_h_px` 1024, `calibration_ref` "wall grid
     module, 1.0 m at the wall plane", `calibration_px` 96, at 1536×1024; `camera_wall_m` 3.5;
@@ -680,28 +707,32 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     §5's own example block stays as Kabe's illustration of the schema, to be measured per
     backdrop at row 4. Both documents said different things about `wall_width_m` for a commit,
     which is how a [HUMAN] question came to be stated against numbers that were not shipping.
-  - **[AI, row 11] The eye height is the ruled 1.83 m, and that is the whole of what row 11 moved
-    about the camera.** [HUMAN, 2026-08-20]: *"we should be a bit higher as a view angle looking
-    down at about a 6ft height."* §10 carries it as `camera.eye_height_m`; row 3 propagated it into
-    §5's camera-has-feet assertion; grid canonical was authored at 1.6 m and never moved, so the
-    shipped meta **failed §5's own gate by 0.0016** while `heights.spec` still implemented 1.6 and
-    the suite stayed green. Deriving every meta at 1.83 closes it by construction:
-    `floor_line_y = horizon_y + 1.83 × 96 / 1024` and
-    `px_per_m_at_bottom = (1024 − 0.48 × 1024) / 1.83`. `px_per_m_at_wall` and `horizon_y` did NOT
-    move, so §5's field-of-view question is untouched.
-    Two consequences, printed rather than absorbed. **§10's −8° pitch is not adopted**:
-    `groundplane.js` has no pitch term, adding one moves every pixel in the project, and §5 rules
-    that the real camera is measured off row 4's approved backdrop — its magnitude is 49 px of
-    horizon at the study's implied focal length (`design/plan-draft/projection.md` §7). And the
-    frame-bottom floor cut, which the intention calls *the camera has feet*, moves **outward** on
-    six of the eight shipped facings, because a taller LEVEL camera sees the floor start further
-    away and pitch is the half that would pull it back: study N/S 1.01 → 1.19 m, study E/W
-    1.01 → 1.35 m, hall E/W 1.01 → 1.98 m; hall N/S improve, 1.01 → 0.64 m. That is a knowing
-    move against a named quality and it is on the record here, in the row's report, and in the
-    batch to Kabe.
+  - **[AI, row 11] The eye height every meta is derived at is 1.60 m — the INTERIM Kabe ruled
+    [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended specifics] — and §5's
+    camera-has-feet gate is asserted at it.** What row 11 found was not a wrong number but two
+    of them: §10 carries Kabe's six-foot ruling as `camera.eye_height_m`, row 3 propagated 1.83
+    into §5's gate, grid canonical stayed at the 1.6 m it was authored with, and the shipped meta
+    therefore **failed §5's own gate by 0.0016** while `heights.spec` still implemented 1.6 and
+    the suite stayed green. One height, derived from and asserted at, closes it by construction:
+    `floor_line_y = horizon_y + 1.60 × 96 / 1024` = 0.63 and
+    `px_per_m_at_bottom = (1024 − 0.48 × 1024) / 1.60` = 332.8. `px_per_m_at_wall` and `horizon_y`
+    did NOT move, so §5's field-of-view question is untouched.
+    **Why the interim rather than §10's ruled 1.83 m**, which row 11 drew for one commit and put
+    to Kabe as a rendered pair (`04a` against `04b`; he took `04b`): the six-foot ruling has two
+    halves — eye 1.83 m *and* a −8° downward pitch — and it was given *"for better visual
+    presentation."* `groundplane.js` has no pitch term, adding one moves every pixel in the
+    project, and §5 rules that the real camera is measured off row 4's approved backdrop. Taking
+    the height WITHOUT the pitch moves the frame-bottom floor cut — the intention's *camera has
+    feet* — **outward** on six of the eight shipped facings, where the pitch is the half that
+    would have pulled it in: study N/S 1.01 → 1.19 m, study E/W 1.01 → 1.35 m, hall E/W
+    1.01 → 1.98 m (hall N/S improve, 1.01 → 0.64 m). So the six-foot ruling degrades the floor cut
+    it was given to improve, and it returns whole with row 4's measured camera, which can honour
+    the pitch half too. Until then 1.60 m ships and the gate holds at it honestly. §10's contract
+    camera is untouched: it is what backdrops are generated at, and its 49 px of pitch magnitude
+    at the study's implied focal length stays on the record
+    (`design/plan-draft/projection.md` §7).
   - **`px_per_m_at_bottom` is (image_h − horizon_y·image_h)/eye in grid canonical meta — 332.8 at
-    the 1.6 m eye it was authored with, 290.9726775956284 at the ruled 1.83 m it carries since row
-    11 — and not §5's example 210.** The grid is
+    the 1.60 m eye it is derived at, and not §5's example 210.** The grid is
     synthesized rather than measured, so its meta has to be self-consistent, and §5 states the
     floor twice: as the scale lerp, and as the horizon device that gives `horizon_y` its meaning.
     Both are linear in (y, scale) and both pass through (floor line, `px_per_m_at_wall`); the

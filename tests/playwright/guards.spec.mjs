@@ -846,9 +846,17 @@ async function cornerStrength(page, root) {
     const T = window.__T;
     const vs = { location: "study", facing: "S" };
     const c = T.renderDirect(vs, null, { backdrop_only: true });
-    const cx = Math.round(T.metaOf(vs).corner_x0_px);
+    const m = T.metaOf(vs);
+    const cx = Math.round(m.corner_x0_px);
+    /* The corner runs from the wall-ceiling line to the floor line, so the
+       scan lives between them. The rooms have a storey height [HUMAN
+       2026-08-21]; above it the frame is ceiling and a scan from y 40 would
+       be asking the ceiling whether a corner is drawn. */
+    const floorY = m.floor_line_y * m.image_h_px;
+    const y0 = Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall) + 6;
+    const y1 = Math.floor(floorY) - 45;
     let best = 0;
-    for (let x = cx - 3; x <= cx + 3; x++) best = Math.max(best, T.colFraction(c, x, 40, 400));
+    for (let x = cx - 3; x <= cx + 3; x++) best = Math.max(best, T.colFraction(c, x, y0, y1));
     return best;
   });
 }

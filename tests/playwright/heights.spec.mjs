@@ -295,7 +295,7 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
      * a height check cannot see a floor that puts feet at the wrong depth:
      * both sides use the same number. §5 states the ground twice — the scale
      * lerp, and the horizon device that gives `horizon_y` its meaning
-     * (y = horizon_y·H + eye_height·scale at the ruled eye height 1.83 m). This clause
+     * (y = horizon_y·H + eye_height·scale at the drawing eye height 1.60 m). This clause
      * checks the drawn baseline against the SECOND statement, so the two
      * have to agree. They did not: at §5's example px_per_m_at_bottom of 210
      * the desk's feet were 31 px low and the chair's 86, each object drawn at

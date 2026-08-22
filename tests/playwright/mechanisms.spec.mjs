@@ -1967,7 +1967,11 @@ test.describe("the ground the sprites stand on carries the same key they do", ()
         return t / n;
       };
       const cL = Math.round(meta.corner_x0_px), cR = Math.round(meta.corner_x1_px);
-      const wallRow = 300;
+      /* Inside the WALL BAND. The room has a ceiling [HUMAN 2026-08-21], so
+         the facing wall runs from the wall-ceiling line (y 377 at 2.8 m and
+         96 px/m) down to the floor line (y 645); row 300 is ceiling now and
+         asking it about wall tone would be asking the wrong plane. */
+      const wallRow = 420;
       const floorRow = 900;
       /* Inside the facing wall, away from its metre lines and the glyph. */
       const wall = { left: mean(cL + 6, cL + 110, wallRow), right: mean(cR - 110, cR - 6, wallRow) };
@@ -1982,7 +1986,7 @@ test.describe("the ground the sprites stand on carries the same key they do", ()
       /* The two returns, sampled at the same row and the same distance in
          from their own frame edge, so only the plane differs. */
       const returns = { left: mean(20, 200, wallRow), right: mean(W - 200, W - 20, wallRow) };
-      return { wall, floor, returns, topL: lum(cL + 20, 120), lowL: lum(cL + 20, 560) };
+      return { wall, floor, returns, topL: lum(cL + 20, 390), lowL: lum(cL + 20, 630) };
     });
     expect(res.wall.left - res.wall.right,
       `facing wall: left ${res.wall.left.toFixed(1)} vs right ${res.wall.right.toFixed(1)}`)
@@ -1998,6 +2002,17 @@ test.describe("the ground the sprites stand on carries the same key they do", ()
 });
 
 test.describe("the room has corners, and they are where the plan says", () => {
+  /* Where the facing wall actually IS, in rows. The wall is a band between
+     the wall-ceiling line and the floor line since the rooms gained a storey
+     height [HUMAN 2026-08-21]; above `y0` the frame is ceiling and below `y1`
+     it is floor, so every column scan for a corner vertical lives in here. */
+  const WALL_BAND = (() => {
+    const m = LIT.facing("study", "N");
+    const floorY = m.floor_line_y * m.image_h_px;
+    return { y0: Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall) + 6,
+      y1: Math.floor(floorY) - 45 };
+  })();
+
   /* Row 11's own clause, and the committed replacement for the hand-run
    * cross-commit canvas check: on a row where every frame moves, "every
    * changed pixel changed on purpose" discriminates nothing, and a per-frame
@@ -2010,20 +2025,24 @@ test.describe("the room has corners, and they are where the plan says", () => {
     test(`${key}: two corners, at the ends of the u-domain`, async ({ page }) => {
       await page.goto(appUrl());
       const m = LIT.facing(loc, f);
-      const cols = await page.evaluate(({ loc, f, c0, c1 }) => {
+      const cols = await page.evaluate(({ loc, f, c0, c1, y0, y1 }) => {
         const T = window.__T;
         const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
         /* Find the vertical near each predicted corner and measure WHERE it
            is by its own brightness centroid — a 2 px stroke on a fractional
            coordinate lights three columns, so "the first column above a
            threshold" is systematically a pixel or two to the left of the line
-           it found. The centroid is the line. */
+           it found. The centroid is the line.
+           The scan runs BETWEEN the wall-ceiling line and the floor line: the
+           room has a ceiling since [HUMAN 2026-08-21], so a corner vertical
+           stops at `ceilRow` and a scan starting at y 40 would be measuring
+           the ceiling's own fan instead of the corner. */
         const ctx = c.getContext("2d");
         const bright = (x) => {
-          const d = ctx.getImageData(x, 60, 1, 500).data;
+          const d = ctx.getImageData(x, y0, 1, y1 - y0).data;
           let t = 0;
-          for (let i = 0; i < 500; i++) t += d[i * 4];
-          return t / 500;
+          for (let i = 0; i < y1 - y0; i++) t += d[i * 4];
+          return t / (y1 - y0);
         };
         const locate = (centre) => {
           const lo = Math.round(centre) - 8, hi = Math.round(centre) + 8;
@@ -2036,10 +2055,10 @@ test.describe("the room has corners, and they are where the plan says", () => {
             num += w * (x + 0.5); den += w;
             if (w > peak) peak = w;
           }
-          return { x: den > 0 ? num / den : -1, v: T.colFraction(c, Math.round(centre), 40, 600), peak };
+          return { x: den > 0 ? num / den : -1, v: T.colFraction(c, Math.round(centre), y0, y1), peak };
         };
         return { left: locate(c0), right: locate(c1) };
-      }, { loc, f, c0: m.corner_x0_px, c1: m.corner_x1_px });
+      }, { loc, f, c0: m.corner_x0_px, c1: m.corner_x1_px, ...WALL_BAND });
       expect(cols.left.v, `${key}: a left corner is drawn`).toBeGreaterThan(0.9);
       expect(cols.right.v, `${key}: a right corner is drawn`).toBeGreaterThan(0.9);
       expect(Math.abs(cols.left.x - m.corner_x0_px),
@@ -2063,7 +2082,7 @@ test.describe("the room has corners, and they are where the plan says", () => {
     await page.goto(appUrl());
     const WIDTH = 3.1;                       // in no room of the manor
     const c0 = 768 - WIDTH / 2 * 96, c1 = 768 + WIDTH / 2 * 96;   // 619.2, 916.8
-    const found = await page.evaluate(({ width }) => {
+    const found = await page.evaluate(({ width, y0, y1 }) => {
       const T = window.__T;
       const fx = window.HOLO_FIXTURE;
       const vs = { location: "study", facing: "S" };
@@ -2075,9 +2094,9 @@ test.describe("the room has corners, and they are where the plan says", () => {
       window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
         { backdrop_only: true });
       const cols = [];
-      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 600) > 0.9) cols.push(x);
+      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, y0, y1) > 0.9) cols.push(x);
       return cols;
-    }, { width: WIDTH });
+    }, { width: WIDTH, ...WALL_BAND });
     expect(found.some((x) => Math.abs(x - c0) <= 2), `left corner at ${c0}`).toBe(true);
     expect(found.some((x) => Math.abs(x - c1) <= 2), `right corner at ${c1}`).toBe(true);
     // and NOT where the study's real 5.45 m wall puts them
@@ -2100,7 +2119,7 @@ test.describe("the room has corners, and they are where the plan says", () => {
        corners on wide walls; that is a look decision and it is Kabe's. */
     await page.goto(appUrl());
     const a = LIT.facing("study", "N");      // 5.45 m at 3.60 m
-    const moved = await page.evaluate(({ width }) => {
+    const moved = await page.evaluate(({ width, y0, y1 }) => {
       const T = window.__T;
       const fx = window.HOLO_FIXTURE;
       const vs = { location: "study", facing: "S" };
@@ -2113,9 +2132,9 @@ test.describe("the room has corners, and they are where the plan says", () => {
       window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
         { backdrop_only: true });
       const cols = [];
-      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 600) > 0.9) cols.push(x);
+      for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, y0, y1) > 0.9) cols.push(x);
       return cols;
-    }, { width: a.wall_width_m });
+    }, { width: a.wall_width_m, ...WALL_BAND });
     expect(moved.some((x) => Math.abs(x - a.corner_x0_px) <= 2),
       "the corner is where it was at twice the distance").toBe(true);
   });
