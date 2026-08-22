@@ -2422,6 +2422,12 @@ def main_cand2():
 # ---------------------------------------------------------------------------
 CHAIR_RAIL_M = 0.95                  # blueprint §11's universal anchor
 STACK_M_RANGE = (0.05, 0.14)         # capping above rail; 0.082 m on study/N
+# A floor line detected within this of the frame's bottom edge is the detector
+# running out of picture, not a wall meeting a floor: the wall-floor junction of
+# a room you can stand in leaves floorboards below it. `hall/N` and `hall/S`
+# return 1015 and 1013 of 1024, which is the frame edge with the wall still
+# running.
+FLOOR_EDGE_PX = 20
 SRC3 = {"study/E": "backdrops/source/study-E/cand-3.png",
         "study/S": "backdrops/source/study-S/cand-3.png",
         "study/W": "backdrops/source/study-W/cand-3.png",
@@ -2462,7 +2468,7 @@ def measure3(fac, src):
     delta = (100.0 * (focal - REFERENCE_PX) / REFERENCE_PX) if focal else None
 
     why = []
-    if band or floor_y >= H - 20:
+    if band or floor_y >= H - FLOOR_EDGE_PX:
         why.append(
             "the declared anchor is a height ABOVE THE FLOOR and this frame "
             "paints no floor line - its own prompt forbids one. A prompt that "
