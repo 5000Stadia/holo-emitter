@@ -7,8 +7,9 @@ This file holds what is true of the built thing that those documents do not say.
 ## What exists (rows 1–2: shell, grid, entities, full world behaviour on placeholders)
 
 *Row 11 changed what a facing's geometry IS. The grid draws a bounded room now — corners, side-wall
-returns, a floor that stops where the room does — from a §5 meta derived per facing out of
-`fixtures/demo-study/plan.json`. Read* The room, and what a facing's meta is *below before anything
+returns, a ceiling at the storey height, a floor that stops where the room does — from a §5 meta
+derived per facing out of `fixtures/demo-study/plan.json`. Read* The room, and what a facing's meta
+is *below before anything
 that mentions `GRID_META`: it is the unplanned-facing fallback now, not the geometry of any facing
 the demo draws.*
 

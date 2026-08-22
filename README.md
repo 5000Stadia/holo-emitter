@@ -19,8 +19,9 @@ act — and the button in the corner fills the screen with the picture (a plain 
 takes over wherever the browser withholds real fullscreen).
 
 So far: two rooms on the holodeck grid, four facings each, furnished with stand-in shapes while
-the real art is fabricated. Each is a room with corners — the walls end where the building's own
-plan says they do, and the side walls run back toward you — so the study is a study-sized room and
+the real art is fabricated. Each is a room you stand inside rather than a wall you face: the walls
+end in corners where the building's own plan says they do, the side walls run back toward you, and
+there is a ceiling overhead at the height of the storey — so the study is a study-sized room and
 the cross passage is a passage. Click things — the desk drawer opens (something waits inside), the
 door between the rooms opens and takes you through, and what you pick up rides in the strip at
 the bottom of the page. The words of the room appear beneath the picture as you act.
@@ -114,8 +115,8 @@ the sheet draws. Change something it does not draw — where a candlestick stand
 sheet keeps its approval and says on its own face that something outside the drawing has moved.
 
 The rooms you walk take their shape from this document: how wide each wall is, how far you stand
-from it, and therefore where the corners fall. Move a wall in the plan, re-bake, and the room
-changes on screen.
+from it, how high the storey is, and therefore where the corners fall and where the ceiling sits.
+Move a wall in the plan, re-bake, and the room changes on screen.
 
 The bake will not accept a building whose rooms overlap, whose doors lead nowhere, whose rooms
 cannot be walked to from the front of the house, or that puts a wall where the house does not
