@@ -346,6 +346,36 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
         if (o.via !== null && o.via !== undefined && typeof o.via !== "string") {
           findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} carries via ${JSON.stringify(o.via)} — the id of the entity that fills it, or null [row21:meta.opening_via]`);
         }
+        /* [Row 21, round 5] THE TWO FIELDS THE THROUGH-VIEW IS COMPUTED FROM.
+         * `x/y/w/h` were typed above and these two were not, so a document
+         * whose depth beyond a doorway is the string "eight point six" passed
+         * every clause and the first thing to notice was the renderer's own
+         * throw — at paint time, on the player's screen, through the fault
+         * surface. `beyond_m` may be NULL: a meta that cannot say what lies
+         * beyond an opening says so, and the picture then draws nothing there.
+         * What it may not be is a value that is neither. And an opening that
+         * knows its depth must know its offset, because the transform needs
+         * both: half an answer places the far room on the wrong axis. */
+        const depthTrouble = [];
+        let known = 0;
+        for (const [k, nonNegative] of [["beyond_m", true], ["beyond_offset_m", false]]) {
+          const v = o[k];
+          if (v === null || v === undefined) continue;
+          known++;
+          if (typeof v !== "number" || !isFinite(v) || (nonNegative && v < 0)) {
+            depthTrouble.push(`${k} is ${JSON.stringify(v)}, where the metres through an opening are a finite number${nonNegative ? " that is not behind the camera" : ""} or null`);
+          }
+        }
+        if (known === 1) {
+          depthTrouble.push(o.beyond_m == null
+            ? "it knows where the far room stands across the view and not how far off it is"
+            : "it knows how far the far room is and not where it stands across the view");
+        }
+        /* ONE EMIT SITE, because one token means one place: the arms are
+         * collected and reported together rather than pushed one at a time. */
+        if (depthTrouble.length) {
+          findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} — ${depthTrouble.join("; ")}. The through-view transform needs both or neither [row21:meta.opening_beyond]`);
+        }
         /* NOT checked here: whether the rectangle is in frame. Under a pinned
          * lens a wall runs past the frame and so do its carriers — the cross
          * passage's 8.00 m south wall carries a door 1720 px out — and
@@ -1074,7 +1104,7 @@ export function validate(fixtureDir, records, derivedMetas) {
      * is still the defect this clause exists to catch, and still fires. */
     if (!entA && !entB && plsA.length === 0 && plsB.length === 0) continue;
     if (!entA || !entB || plsA.length === 0 || plsB.length === 0) {
-      findings.push(`staging.json: overlap pair ${pairName} cannot be evaluated — both entities must exist and carry facing placements (§4's named pairs)`);
+      findings.push(`staging.json: overlap pair ${pairName} cannot be evaluated — both entities must exist and carry facing placements (§4's named pairs) [row21:staging.pair_half_missing]`);
       continue;
     }
     let common = null;

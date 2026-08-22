@@ -34,8 +34,9 @@ metres. That makes the prompt and the gate agree about what the ruler is before
 the image exists, which is the one thing neither could check afterwards.
 
   (3) THE PROMPT DECLARED AN ANCHOR AND FORBADE ITS DATUM. Earned by the cand-3
-      round, at row 21's close. Every cand-3 prompt declares blueprint §11's
-      universal anchor -- the wainscot chair-rail at 0.95 m ABOVE THE FLOOR --
+      round, at row 21's close. The seven regenerated cand-3 prompts declare
+      blueprint §11's universal anchor -- the wainscot chair-rail at 0.95 m
+      ABOVE THE FLOOR --
       and `passage-N` and `passage-S` then ask for a frame with "No floor, no
       ceiling, and no corners". A height above a datum the frame does not show
       is not a length in that frame: both came back WITHHELD again, for the same
@@ -94,8 +95,8 @@ FORBIDS_ALL_FEATURES = re.compile(
     r"no\s+visible\s+floor|no\s+ceiling\s+line", re.I)
 # THE ANCHOR LINE, AND THE METRES WHEREVER THEY STAND ON IT. This was
 # `^gate anchor:\s*(.+?),\s*(N)\s*m\b` -- the size had to follow a comma -- and
-# it therefore refused every one of the seven cand-3 prompts, which declare the
-# ruled anchor as "wainscot chair-rail at exactly 0.95m above the floor, running
+# it therefore refused every one of the seven regenerated cand-3 prompts, which
+# declare the ruled anchor as "wainscot chair-rail at exactly 0.95m above the floor, running
 # the full wall". The round meant to test this rule was generated against a tool
 # that rejected a compliant prompt, and the tool's refusal count read as
 # discrimination when it was noise. The line is what the seat writes; the size

@@ -2298,6 +2298,26 @@ test.describe("the schematic is a derived render of the plan", () => {
         expect(moved,
           `these ${round} readings are not what measure.py produces today — the corpus was edited by hand, or a detector moved`)
           .toEqual([]);
+        /* [Round 5] AND THE MARKED FRAMES, which are the measurement's only
+           evidence a human can check. `design/architecture.md` calls them the
+           answer to "a ruler lying on nothing is visible to a human in one look
+           and to no amount of JSON" — and a critic deleted all eight with the
+           suite green, because this compared `.json` and `--out` sent the fresh
+           ones to the scratch directory. Evidence that answers to nothing is
+           not evidence. */
+        if (round === "cand2") {
+          const marks = join(repoRoot, "design", "batches", "row21-promotion", "measured");
+          const freshMarks = join(out, "marked");
+          const drawn = readdirSync(freshMarks).filter((f) => f.endsWith(".png")).sort();
+          expect(drawn.length, "the cand-2 round draws a marked frame per facing").toBe(8);
+          const gone = drawn.filter((n) => !existsSync(join(marks, n)));
+          expect(gone, "these marked frames are not in the batch a human is shown").toEqual([]);
+          const different = drawn.filter((n) =>
+            !readFileSync(join(marks, n)).equals(readFileSync(join(freshMarks, n))));
+          expect(different,
+            "these marked frames are not what the measurement draws today — the lines a human checks the ruler by are of another run")
+            .toEqual([]);
+        }
       } finally {
         rmSync(out, { recursive: true, force: true });
       }
@@ -2329,9 +2349,28 @@ test.describe("the schematic is a derived render of the plan", () => {
       }
       return map;
     };
-    const ledger = readFileSync(join(draftDir, "measured", "misses.jsonl"), "utf8")
-      .trim().split("\n").map((l) => JSON.parse(l)).filter((r) => r._record === "miss");
+    const allLines = readFileSync(join(draftDir, "measured", "misses.jsonl"), "utf8")
+      .trim().split("\n").map((l) => JSON.parse(l));
+    const ledger = allLines.filter((r) => r._record === "miss");
     expect(ledger.length, "the ledger is empty").toBeGreaterThan(0);
+    /* [Round 5] THE HEADER IS PART OF THE LEDGER, and this read past it. It is
+       where the production-law citation and the control claim live, so a file
+       that lost them would still have satisfied every assertion below. */
+    const header = allLines.find((r) => r._record === "header");
+    expect(header, "the ledger carries no header").toBeTruthy();
+    expect(header._law, "the header cites the law the ledger answers to")
+      .toMatch(/production-law\.md clause 2/);
+    expect(header._kinds && Object.keys(header._kinds).sort(),
+      "and names both kinds, because reading one as the other is the failure the class exists to prevent")
+      .toEqual(["generation_miss", "measurement_withheld"]);
+    expect(Object.keys(header._rounds || {}).sort(),
+      "and every round it holds entries for").toEqual(["cand-2", "cand-3"]);
+    /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
+       foreign-round lines through verbatim forever, so an appended line under
+       an invented round name would ride in the file untouched and unread. */
+    expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
+      "the ledger holds an entry for a round the header does not name")
+      .toEqual(["cand-2", "cand-3"]);
 
     for (const [round, args] of [["cand-2", []], ["cand-3", ["--round", "cand3"]]]) {
       const table = verdicts(gate(args));
@@ -2344,8 +2383,33 @@ test.describe("the schematic is a derived render of the plan", () => {
         `${round}: the ledger's facings are not the ones the gate did not admit`)
         .toEqual(gated);
 
+      const corpus = (facing) => {
+        const [loc, f] = facing.split("/");
+        return JSON.parse(readFileSync(join(draftDir, "measured",
+          round === "cand-3" ? "cand3" : ".", `${loc}-${f}.json`), "utf8"));
+      };
       for (const r of rows) {
         const t = table[r.facing];
+        /* [Round 5] THE `measured` BLOCK IS A COPY OF THE CORPUS, so it is
+           checked against the corpus rather than against itself. A critic
+           renamed the ruler to "moon", gave it 9999 px and a scale of 1.0, and
+           the case was green: the ledger's job is to carry what the
+           measurement found, and everything under `verdict` was free text. */
+        const src = corpus(r.facing);
+        const ruler = round === "cand-3" ? src._ruler
+          : (src._rulers || []).find((x) => x.admissible) || null;
+        expect(r.candidate, `${round} ${r.facing}: the ledger names a different image than the measurement did`)
+          .toBe(src._what_this_is.match(/backdrops\/\S+\.png/)[0]);
+        expect(r.measured.px_per_m_at_wall, `${round} ${r.facing}: the ledger's scale is not the measurement's`)
+          .toEqual(src.px_per_m_at_wall);
+        if (ruler) {
+          expect(r.measured.ruler, `${round} ${r.facing}: the ledger names a ruler the measurement did not adopt`)
+            .toBe(ruler.name);
+          expect(r.measured.ruler_px, `${round} ${r.facing}: the ledger's feature pixels are not the measurement's`)
+            .toBeCloseTo(ruler.feature_px, 2);
+          expect(r.measured.ruled_m, `${round} ${r.facing}: the ledger's ruled size is not the measurement's`)
+            .toBeCloseTo(ruler.ruled_m, 5);
+        }
         expect(r.verdict, `${round} ${r.facing}: the ledger's verdict is not the gate's`).toBe(t.verdict);
         if (t.verdict === "WITHHELD") {
           /* WHAT A WITHHELD ENTRY MAY AND MAY NOT SAY. It issues no number in
@@ -2371,8 +2435,29 @@ test.describe("the schematic is a derived render of the plan", () => {
           expect(Math.abs(r.delta_pct - t.delta),
             `${round} ${r.facing}: the ledger says ${r.delta_pct} % where the gate prints ${t.delta} %`)
             .toBeLessThanOrEqual(0.06);
-          expect(String(r.correction || ""), `${round} ${r.facing}: a generation miss carries the arithmetic a re-ask needs`)
-            .toMatch(/px\/m/);
+          /* THE CORRECTION IS ARITHMETIC, NOT A STRING CONTAINING "px/m".
+             [Round 5] The row's target is "miss-ledger entries … with delta
+             re-asks", and the re-ask IS this sentence: the scale the seat has
+             to draw to, the scale it drew, and the factor between them. A
+             critic replaced the whole thing with "nonsense, px/m, whatever"
+             and the case was satisfied. The numbers are parsed back out and
+             checked against the gate's own target. */
+          const c = String(r.correction || "");
+          const said = /draw ([\d.]+)x larger: ([\d.]+) px\/m at the wall plane, not ([\d.]+), at the drawn standpoint of ([\d.]+) m/.exec(c);
+          expect(said,
+            `${round} ${r.facing}: the correction is not a re-ask — it states no factor, no target scale, no measured scale and no standpoint: ${JSON.stringify(c.slice(0, 120))}`)
+            .toBeTruthy();
+          const [, factor, asked, drewSaid, stand] = said.map(Number);
+          const wanted = r.target.target_px_per_m_at_wall;
+          const drew = r.measured.px_per_m_at_wall;
+          expect(asked, `${round} ${r.facing}: the correction asks for ${asked} px/m where the gate's target is ${wanted}`)
+            .toBeCloseTo(wanted, 1);
+          expect(drewSaid, `${round} ${r.facing}: the correction says the wall drew ${drewSaid} px/m where the measurement says ${drew}`)
+            .toBeCloseTo(drew, 1);
+          expect(factor, `${round} ${r.facing}: the factor is not the ratio of the two scales it states`)
+            .toBeCloseTo(wanted / drew, 2);
+          expect(stand, `${round} ${r.facing}: the correction quotes a standpoint the entry does not`)
+            .toBeCloseTo(r.measured.drawn_standpoint_m, 2);
           expect(r.kind, `${round} ${r.facing}: a facing that measured and missed is the painting's miss`)
             .toBe("generation_miss");
         }
@@ -2487,10 +2572,20 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(painted.openings.length, "study/E carries exactly one doorway").toBe(1);
       const o = painted.openings[0];
       expect(o.measured, "the painting's own jambs are what the meta carries").toBe(true);
+      /* ALL FOUR EDGES. [Round 5] This asserted `x` and `w`, so the head and
+         the sill of a painted doorway could come from the PROJECTION while the
+         meta still declared `measured: true` — §11's "the painted opening must
+         coincide with the click target" false in one axis, which is the axis a
+         player's aim is most forgiving about and a sprite's placement is not. */
+      const px = pristine._measured_px;
       expect(o.x, "the opening's left edge is the measured wall-plane jamb")
-        .toBeCloseTo(pristine._measured_px.opening_x0_px, 1);
+        .toBeCloseTo(px.opening_x0_px, 1);
       expect(o.w, "and its width is the measured span")
-        .toBeCloseTo(pristine._measured_px.opening_x1_px - pristine._measured_px.opening_x0_px, 1);
+        .toBeCloseTo(px.opening_x1_px - px.opening_x0_px, 1);
+      expect(o.y, "and its head is the measured one")
+        .toBeCloseTo(px.opening_y0_px, 1);
+      expect(o.h, "and its height runs from that head to the measured threshold")
+        .toBeCloseTo(px.opening_y1_px - px.opening_y0_px, 1);
       /* And the carrier comparison's door arm, which reads the same pixels. */
       const door = painted.measured_room.carriers.find((c) => c.kind === "door");
       expect(door && door.painted_px, "the door carrier is compared against where the plan puts it")
@@ -2560,13 +2655,53 @@ test.describe("the schematic is a derived render of the plan", () => {
       out = execFileSync("python3", [join(draftDir, "measured", "summary_tables.py")],
         { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
     } catch (e) { out = String(e.stdout || ""); }
-    const rows = out.split("\n").filter((l) => /^\| `(study|hall)\//.test(l));
-    expect(rows.length, "summary_tables.py printed no per-facing rows").toBeGreaterThanOrEqual(8);
     const md = readFileSync(join(draftDir, "measured", "SUMMARY.md"), "utf8");
-    const missing = rows.filter((r) => !md.includes(r.trimEnd()));
-    expect(missing,
-      "SUMMARY.md quotes numbers the cand-1 round no longer prints — regenerate it, or the round directories have been crossed")
-      .toEqual([]);
+    /* SECTION BY SECTION, AND IN BOTH DIRECTIONS. [Round 5] This was
+       `printed ⊆ prose` over the whole file, so a fabricated row sat in the
+       document unread. The tool prints its tables under `### A.` headings and
+       the document carries the same headings, so each is compared as a SET
+       against its own section: a row the tool does not print is as much a
+       finding as one the prose has lost. */
+    const sections = (text) => {
+      const out2 = new Map();
+      let key = null;
+      for (const line of text.split("\n")) {
+        const h = /^### ([A-Z])\./.exec(line.trim());
+        if (h) { key = h[1]; out2.set(key, []); continue; }
+        /* EVERY table line of the section, separators aside: the first
+           version took only rows opening with a backtick, which is section A's
+           shape and not D's or G's, so four of the seven tables were compared
+           to nothing. */
+        const t = line.trim();
+        if (key && t.startsWith("|") && !/^\|[\s-]*\|?[\s-]*$/.test(t.replace(/\|/g, "|"))) {
+          if (!/^\|[-\s|]+\|$/.test(t)) out2.get(key).push(t);
+        }
+      }
+      return out2;
+    };
+    const printed = sections(out);
+    const quoted = sections(md);
+    expect([...printed.keys()].length, "summary_tables.py printed no sections")
+      .toBeGreaterThanOrEqual(3);
+    for (const [key, rows] of printed) {
+      expect(rows.length, `section ${key} printed no rows`).toBeGreaterThan(0);
+      expect(quoted.has(key), `SUMMARY.md carries no section ${key}`).toBe(true);
+      const here = quoted.get(key);
+      const lost = rows.filter((r) => !here.includes(r));
+      expect(lost,
+        `SUMMARY.md's section ${key} has lost rows the cand-1 round prints — regenerate it, or the round directories have been crossed`)
+        .toEqual([]);
+    }
+    /* AND SECTION A IS A SET, both ways. It is the per-facing table — the one
+       every other section's prose is read against — and it is the one the tool
+       wholly owns, so a row in it that the tool does not print is a fabricated
+       measurement sitting in the document that exists to stop numbers being
+       retyped. The later sections also carry hand-written analysis tables the
+       tool has no opinion about, which is why only this one is closed in both
+       directions rather than all of them. */
+    expect(quoted.get("A").slice().sort(),
+      "SUMMARY.md's section A carries rows the cand-1 round does not print at all")
+      .toEqual(printed.get("A").slice().sort());
     /* And the promotion corpus says which round it is, so a re-run of another
        round landing on top of it is visible rather than silent. */
     const promo = JSON.parse(readFileSync(join(draftDir, "measured", "study-N.json"), "utf8"));
@@ -2598,12 +2733,28 @@ test.describe("the schematic is a derived render of the plan", () => {
     };
     const rounds = [[], ["--round", "cand3"]];
     blocks.forEach((quoted, i) => {
-      const printed = gate(rounds[i]).split("\n");
+      /* THE WHOLE TABLE, IN BOTH DIRECTIONS. [Round 5] This sliced the tool's
+         output to the length of the quote — `printed.slice(head, head +
+         quoted.length)` — so DELETING the last row of the README's table made
+         the two sequences agree and Kabe was shown a gate table with a failing
+         wall missing, by the guard that exists to stop a stale one. A
+         comparison that reads only as far as the document it is checking is a
+         comparison the document controls. The table is every printed line from
+         the header to the blank line that ends it, and the quote must be that,
+         entire. */
+      const printed = gate(rounds[i]).split("\n").map((l) => l.trimEnd());
       const head = printed.findIndex((l) => l.startsWith("facing"));
       expect(head, `gate.py ${rounds[i].join(" ")} printed no table`).toBeGreaterThanOrEqual(0);
-      const actual = printed.slice(head, head + quoted.length).map((l) => l.trimEnd());
+      let end = head + 1;
+      while (end < printed.length && printed[end].trim() !== "" &&
+             !printed[end].startsWith(" ")) end++;
+      const actual = printed.slice(head, end);
+      const round = i === 0 ? "cand-2" : "cand-3";
+      expect(quoted.length,
+        `the ${round} table in design/batches/row21-promotion/README.md quotes ${quoted.length} lines where gate.py prints ${actual.length} — a row was dropped from what a human is shown`)
+        .toBe(actual.length);
       expect(actual,
-        `design/batches/row21-promotion/README.md quotes a gate table the tool no longer prints (round ${i === 0 ? "cand-2" : "cand-3"}) — re-run gate.py and paste what it says`)
+        `design/batches/row21-promotion/README.md quotes a gate table the tool no longer prints (round ${round}) — re-run gate.py and paste what it says`)
         .toEqual(quoted.map((l) => l.trimEnd()));
     });
     /* [Round 4] AND THE WARN TIER IS PRINTED. The Navigator's ruling of

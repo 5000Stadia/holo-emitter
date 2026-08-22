@@ -2410,7 +2410,10 @@ def main_cand2():
 # chair-rail stands at exactly 0.95 m above the floor on every panelled wall in
 # the manor, deliberately featureless bands included, so that MEASURABILITY IS A
 # PROPERTY OF THE WALL SPECIFICATION rather than of whichever feature a prompt
-# happened to ask for. Every cand-3 prompt declares it as its `Gate anchor:`.
+# happened to ask for. The SEVEN REGENERATED prompts declare it as their
+# `Gate anchor:`; `study-N`'s own cand-3 prompt does not — it is the older
+# art-direction prompt and the lint refuses it, which is the shape of claim
+# this project has to stop making: 'every' is one counterexample from false.
 # This round is that recipe's validation, and three things about it are
 # deliberate:
 #
@@ -2562,8 +2565,8 @@ def cand3_doc(r):
         "feature_px": r["rail_above_floor_px"],
         "what": ("the wainscot chair-rail's undercut shadow above the wall's "
                  "own floor line, against the 0.95 m blueprint §11 rules on "
-                 "every panelled wall in the manor and every cand-3 prompt "
-                 "declares as its `Gate anchor:`."),
+                 "every panelled wall in the manor and the seven regenerated "
+                 "cand-3 prompts declare as their `Gate anchor:`."),
         "stack_capping_px": r["capping_above_floor_px"],
         "only_ruler_because": (
             "the cand-2 tier-1 rulers were read by eye off cand-2 pixels; "

@@ -46,6 +46,52 @@ test.describe("fixtures", () => {
     .filter((d) => existsSync(join(repoRoot, "fixtures", d, "world.json")))
     .sort();
 
+  /* [Row 21, round 5] TWO BAKE REFUSALS THAT HAD NO SUBJECT. Both were
+   * deletable whole with the suite green — `if (false && metaFindings.length)`
+   * and the `source/` skip removed — and both guard the same sentence: the
+   * page is baked from what the gate admitted, and from nothing else. */
+  test("the bake refuses a meta it cannot read, and never bakes a candidate", () => {
+    const dir = stageTree();
+    try {
+      /* A promoted meta that is not readable is the tier-1 resolution's own
+         finding, and the bake is where it has to stop: falling back to the
+         derived meta would check the fixture against a wall the renderer will
+         not draw and report success. */
+      const meta = join(dir, "backdrops", "study", "N.meta.json");
+      const good = readFileSync(meta);
+      writeFileSync(meta, "{ this is not json");
+      let out = "";
+      try {
+        bake(dir, ["--fixture-dir", join(dir, "fixtures", "nav-manor")]);
+        out = "the bake wrote a fixture over an unreadable meta";
+      } catch (e) {
+        out = String(e.stdout || "") + String(e.stderr || "");
+      }
+      expect(out, "an unreadable promoted meta stops the bake, in its own words")
+        .toMatch(/bake refused/);
+      expect(out, "and names the file it could not read rather than falling back to a wall the renderer will not draw")
+        .toMatch(/backdrops\/study\/N\.meta\.json: unreadable/);
+      writeFileSync(meta, good);
+
+      /* AND THE CANDIDATE LANE IS NOT A BACKDROP LANE. A file shaped exactly
+         like a promoted painting, sitting under `backdrops/source/`, must not
+         reach the page: a candidate is not a backdrop until the gate admits
+         it, and the promotion is where the gate is. */
+      const seat = join(dir, "backdrops", "source");
+      mkdirSync(seat, { recursive: true });
+      cpSync(join(repoRoot, "backdrops", "study", "N.png"), join(seat, "N.png"));
+      execFileSync("node", [join(dir, "tools", "bake-backdrops.mjs")],
+        { cwd: dir, encoding: "utf8", stdio: "pipe" });
+      const baked = readFileSync(join(dir, "backdrops", "baked.js"), "utf8");
+      expect(baked, "the bake took a candidate out of the asset seat's lane")
+        .not.toMatch(/"source\//);
+      expect(baked, "and it still holds the one wall the gate admitted")
+        .toMatch(/"study\/N"/);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
   test("bake staleness: every committed fixture.js byte-equals a fresh bake of its own .json truth", () => {
     const worlds = bakedWorlds();
     expect(worlds.length, "the page carries more than one world; both are baked")

@@ -199,10 +199,17 @@ let plan;
       metas[`${loc.id}/${f}`] = m;
     }
   }
-  if (metaFindings.length) {
-    metaFindings.forEach((f) => console.error(`bake refused: ${f}`));
-    process.exit(1);
-  }
+  /* [Round 5] NO SECOND REFUSAL HERE, and this is a narrowing rather than a
+   * gap. `metaFindings` collects what the tier-1 resolution complains about —
+   * a promoted meta that cannot be read — and the bake runs the fixture
+   * validator over these same metas a few lines down, which emits the same
+   * finding and refuses. So a case for a refusal here could never be written:
+   * every input that would trip it is refused first, by name, with the
+   * validator's own count. A mechanism whose deletion no case can measure is a
+   * claim to narrow, not a guard to widen (row 11's ceiling fill went the same
+   * way). What still holds the sentence is `fixtures.spec`'s case: an
+   * unreadable promoted meta stops the bake. */
+  void metaFindings;
 }
 
 function fnv1a32(str) {

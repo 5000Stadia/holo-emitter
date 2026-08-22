@@ -1628,32 +1628,81 @@ alibi**. It reads to the end of the parameter now.
 7. **The plan and the painting still disagree about the hearth, and the fix is allocated.** The
    number is held by test so it cannot drift; **row 22** is the execution row and its full cascade
    is written into its spec-list entry. Nothing is staged on the study's north wall until it lands.
-8. **What round 4's adversary found and this row did not fix**, each recorded rather than smoothed
-   over:
-   - **`THROUGH_DIM` is guarded only by a committed picture.** Setting 0.42 to 0.10 — the dim
-     effectively gone — leaves every measurement green; only the batch's byte-comparison goes red,
-     and any builder silences that by re-capturing. It is a look constant going to Kabe as one, and
-     it also decides the row's headline metric (`near_black === 0` clears by about 1.1 luminance
-     units of 255). Whoever rules the dim should give it a reader that is not a photograph.
+8. **What the adversary found and this row did not fix**, each recorded rather than smoothed over:
    - **A human gate still retires on a sentence an agent can write.** `design/approvals.log`'s
-     verdict column must now be quoted and must not read as a placeholder, and the commit it cites
-     must exist — but a plausible quotation closes the gate, and for the row-20 entry the same edit
-     also switches off both of its batch cases. The ledger is a claim about a person and no check
-     can make it true; what it buys is that the claim has to be made explicitly.
+     verdict column must be quoted, must not read as a placeholder, and must cite a commit that
+     exists — but a plausible quotation closes the gate, and for the row-20 entry the same edit also
+     switches off both of its batch cases. The ledger is a claim about a person and no check can
+     make it true; what it buys is that the claim has to be made explicitly. The representation that
+     would close it is the ledger-wiring work `design/plan-draft/approval.lock` already names.
    - **Three silent `return false` paths in `drawThroughOpening`** (no backdrops map, no destination
      entry, a `cameraDistance` throw) have no subject in either shipped world, so "never void" is
      conditional on none of them firing and nothing says so.
-   - **`bake-fixtures.mjs`'s meta-findings refusal and `bake-backdrops.mjs`'s `source/` skip** are
-     both unexercised; the second is enforced incidentally by a filename regex.
-   - **The §4 named-pair "cannot be evaluated" finding is untokened**, so the ledger's
-     shipped-documents check cannot see it and a bare `continue` silences it.
-   - **`validator.spec`'s typed `MEASURED` px/m map is bound only through band membership**: a
-     wrong value inside the band moves nothing. The corpus it copies is now re-derived by the
-     measurement staleness cases, which is the stronger binding, and this copy should go to it.
+   - **`validator.spec`'s typed `MEASURED` px/m map is bound only through band membership**: a wrong
+     value inside the band moves nothing. The corpus it copies is re-derived by the measurement
+     staleness cases now, which is the stronger binding, and this copy should go to it.
    - **The three through-view ledger cases measure states no shipped world reaches** — a 900 px arch
      onto a room 12 m off, a fabricated three-room chain, a null `beyond_m`. They are genuinely red
      on deletion; their correctness is asserted against the test's own construction until row 15's
      manor makes those states ordinary.
+   - **The prompt lint's clauses are phrase lists, one case per phrase — DEFERRED TO THE CLOCK, and
+     the deferral is written where the fix would be** [Navigator ruling at the close]. Three gaps
+     are recorded as `known_gaps_deferred_to_the_clock` inside every `baked_in` block that names
+     `prompt_lint.py` in `design/plan-draft/measured/misses.jsonl`: every alternative in `RULERS`,
+     `FORBIDS_ALL_FEATURES`, `FORBIDS_FLOOR` and `CORRECTION` can be deleted with one case still
+     green; the datum clause is defeated by four ordinary paraphrases, one of which is the
+     hall/N–hall/S failure wearing a *valid* anchor (a door-height anchor beside "NO floor line"
+     trips nothing at all, though a door's height is measured from the floor); and the cand-3 corpus
+     is linted by no test, so the "0 of 7, unmoved" clock claim has no reader. **The grounds are
+     production law clause 5's own empiricism** — this lint is unclocked apparatus, we author the
+     prompts it lints, and deepening apparatus before its first clock is polishing the thing the law
+     says must first prove itself. **The trigger is in the ledger entries**: the standing-eye wave's
+     first-roll pass rate disappointing, or any generation round showing a lint miss, promotes all
+     three to a fix round.
+
+### What round 5 changed: the half a human reads
+
+Round 4 made the measurement executed rather than trusted; the adversary's next pass found that the
+half a human READS was still unheld, and that is the family worth carrying forward:
+
+- **A guard that reads only as far as the document it checks is a guard the document controls.**
+  The batch's quoted gate table was compared by slicing the tool's output to the length of the
+  quote, so DELETING the last row made the two agree — and Kabe would have been shown a gate table
+  with a failing wall missing, by the guard written to stop a stale one. The comparison runs to the
+  end of the tool's own table now and asserts the line counts match.
+- **The ledger below its four checked fields was free text.** The ruler, its pixels, the scale and
+  the re-ask arithmetic were all unheld: a critic renamed the ruler "moon", gave it 9999 px, and
+  wrote "nonsense, px/m, whatever" as the correction, green. The `measured` block is compared to the
+  round's own corpus JSON (it is a copy of it), and the correction is parsed back into numbers and
+  checked against the gate's target — because "with delta re-asks" in the row's target IS that
+  sentence. The header is read too, which it was not.
+- **The marked frames answered to nothing.** Eight PNGs of every line the measurement used, which
+  this file calls the answer to *"a ruler lying on nothing is visible to a human in one look and to
+  no amount of JSON"* — deletable whole with the suite green, because the byte-compare filtered
+  `.json` and `--out` sent the fresh ones elsewhere. They are byte-compared like the readings now.
+- **`THROUGH_DIM` was guarded by a photograph.** 0.42 → 0.10, the dim effectively gone, and only the
+  batch's pixel comparison went red — which any builder silences by re-capturing. It has a measured
+  reader bound to the sentence Kabe reads: the batch says the room beyond is "dimmed to 58 % of its
+  own brightness", that number is parsed out of his own document, and the render is measured against
+  it in both directions. Measured at the opening's CENTRE, because the reveals are drawn over the
+  far room undimmed and a mean over the whole aperture reads 69 %.
+- **The completeness scan's scope was wrong three times, one level out each time** — a file list,
+  then one directory, then two directories read non-recursively (a tool in `tools/lib/` and a lint
+  in `design/plan-draft/` were both invisible). It walks `src/`, `tools/`, `replicator/` and
+  `design/plan-draft/` to the bottom now. What is not walked is `tests/` and the design documents,
+  and that exclusion is on a different axis from the hole: a test is not an emit site.
+- **Two fields of an opening were typed by nothing.** `x/y/w/h` had four arms; `beyond_m` and
+  `beyond_offset_m` — the two the through-view transform is computed from — had no clause, so a
+  document whose depth is the string "eight point six" shipped and the renderer's own throw was the
+  first thing to notice, at paint time, on the player's screen. `[row21:meta.opening_beyond]`, six
+  arms, including the half-an-answer case: an opening that knows its depth must know its offset.
+- **A promoted opening's vertical half was unasserted**, so the head and sill of a painted doorway
+  could come from the projection while the meta declared `measured: true`.
+- **A duplicate net was narrowed rather than widened.** `bake-fixtures.mjs` collected meta findings
+  and refused on them, but the validator it runs a few lines later emits the same finding first — so
+  no case could ever have been written for it. It is gone, and `fixtures.spec` holds the sentence
+  instead: an unreadable promoted meta stops the bake, and a candidate under `backdrops/source/`
+  never reaches the page.
 
 ### What row 21 hands on, and to whom
 

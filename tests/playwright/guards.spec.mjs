@@ -103,24 +103,38 @@ function tokensOf(findings) {
    one-token-one-site count. Same shape of hole as counting tokens per file
    instead of over their union, and a directory read cannot fall behind the
    directory. */
-const EMITTING_DIRS = [
-  /* Every directory this project emits clause tokens from, with the file
-     extensions that can carry one. Derived WITHIN each directory, so a new
-     tool joins the scan by existing.
+/* WHERE A CLAUSE CAN BE EMITTED FROM, walked to the bottom.
+   [Round 5] This has now been the same hole three times, one level out each
+   time: a hand-typed FILE list (a fifth tool would be invisible), then a
+   directory read of `tools/` alone (row 21 minted three clauses in
+   `design/plan-draft/measured/prompt_lint.py` and every check here was silent),
+   then a hand-typed list of two DIRECTORIES read non-recursively — a critic put
+   an emit site in `tools/lib/` and another in `design/plan-draft/` itself and
+   both were invisible again.
 
-     [Round 4] `design/plan-draft/measured` is here because row 21 minted three
-     tokens in `prompt_lint.py` and the scan was derived from the wrong
-     directory: `tools/` only. A critic appended a fourth token to the lint's
-     own output and every completeness check stayed silent — the set was
-     derived, and derived from a place the row had stopped putting emit sites.
-     A directory read cannot fall behind the directory; it can be pointed at
-     the wrong one. */
-  { dir: "tools", ext: /\.(mjs|js|cjs)$/ },
-  { dir: "design/plan-draft/measured", ext: /\.py$/ }
-];
-const SCANNED = EMITTING_DIRS.flatMap(({ dir, ext }) =>
-  readdirSync(join(repoRoot, dir)).filter((f) => ext.test(f)).map((f) => `${dir}/${f}`))
-  .sort();
+   So the roots are the places this project PRODUCES findings from — its source,
+   its tools, the replicator, the plan machinery — and each is walked to the
+   bottom. What is deliberately not walked is `tests/` and the design documents:
+   a test is not an emit site, and both of those carry the token's shape in
+   prose about the ledger itself. That exclusion is the one typed thing left,
+   and it is typed on a different axis from the hole: a new emit site anywhere
+   under a root is caught, and moving one INTO the test suite would not make it
+   a clause a validator emits. */
+const EMITTING_ROOTS = ["src", "tools", "replicator", "design/plan-draft"];
+const EMITTING_EXT = /\.(mjs|js|cjs|py)$/;
+function walkForSources(rel) {
+  const out = [];
+  const abs = join(repoRoot, rel);
+  if (!existsSync(abs)) return out;
+  for (const e of readdirSync(abs, { withFileTypes: true })) {
+    if (e.name === "__pycache__" || e.name === "node_modules" || e.name === ".git") continue;
+    const child = `${rel}/${e.name}`;
+    if (e.isDirectory()) out.push(...walkForSources(child));
+    else if (EMITTING_EXT.test(e.name)) out.push(child);
+  }
+  return out;
+}
+const SCANNED = [...EMITTING_ROOTS.flatMap(walkForSources), "index.html"].sort();
 
 /* THE ROW PREFIX IS DERIVED TOO, and it is the other typed half a round-5
    critic found. The token grammar was `[row(?:11|20):…]`, so a probe emitting
@@ -223,6 +237,8 @@ export const MECHANISMS = [
   "meta.openings_list",
   "meta.opening_rect",
   "meta.opening_via",
+  "meta.opening_beyond",
+  "staging.pair_half_missing",
   "exit.via_unfilled",
   "exit.opening_offscreen",
   "meta.required_fields",
@@ -299,6 +315,7 @@ export const MECHANISMS = [
   "renderer.through_view_depth",
   "renderer.through_view_finite",
   "renderer.through_view_refuses_nonfinite",
+  "renderer.through_dim",
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
@@ -370,6 +387,24 @@ const DOCUMENT_CASES = {
     not_a_number: () => tokensFromMetas((m) => { m["study/E"].openings = [openingRect({ w: "220" })]; })
   }),
   "meta.opening_via": () => tokensFromMetas((m) => { m["study/E"].openings[0].via = 7; }),
+  "meta.opening_beyond": () => everyArm("meta.opening_beyond", {
+    /* [Round 5] The two fields the through-view is computed from, which were
+       the only ones in an opening nothing typed. A meta may say NOTHING about
+       what is beyond a doorway; what it may not do is say something that is
+       not a distance, or answer half of the pair. */
+    depth_not_a_number: () => tokensFromMetas((m) => {
+      m["study/E"].openings[0].beyond_m = "eight point six";
+    }),
+    depth_not_finite: () => tokensFromMetas((m) => { m["study/E"].openings[0].beyond_m = NaN; }),
+    depth_behind_the_camera: () => tokensFromMetas((m) => { m["study/E"].openings[0].beyond_m = -2; }),
+    offset_not_a_number: () => tokensFromMetas((m) => {
+      m["study/E"].openings[0].beyond_offset_m = { nonsense: true };
+    }),
+    offset_not_finite: () => tokensFromMetas((m) => {
+      m["study/E"].openings[0].beyond_offset_m = Infinity;
+    }),
+    half_an_answer: () => tokensFromMetas((m) => { m["study/E"].openings[0].beyond_offset_m = null; })
+  }),
   /* An exit through neither a leaf nor a doorway. The harness reads an
      unfilled opening as an open one — that is what makes an empty painted room
      walkable — so a typo in `via` would otherwise become a way through a blank
@@ -396,6 +431,18 @@ const DOCUMENT_CASES = {
     below_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = 4000; }); }),
     above_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = -o.h - 10; }); })
   }),
+  /* [Round 5] ONE HALF OF A NAMED PAIR. Row 21 added an exemption above this
+     for a world holding NEITHER half — the painted world stages no furniture —
+     and said in the same breath that a world holding ONE half "is still the
+     defect this clause exists to catch, and still fires". Nothing exercised
+     that, and the finding carried no token, so the ledger's own
+     shipped-documents check could not see it either: a critic replaced the
+     whole push with a bare `continue` and the suite was green. §12.8's
+     occlusion chain is a NAMED pair, and a pair with one member is a chain
+     with one link. */
+  "staging.pair_half_missing": () => tokensOf(validateWithStaging((st) => {
+    delete st.placements.chair1;
+  }, JSON.parse(readFileSync(join(FIXTURE_DIR, "staging.json"), "utf8")))),
   "meta.corner_pairing": () => tokensFromMetas((m) => { m["hall/S"].corner_x1_px = null; }),
   "meta.corner_order": () => tokensFromMetas((m) => {
     const t = m["hall/S"].corner_x0_px;
@@ -854,7 +901,10 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * shipped opening carries a bad `beyond_m`, so the throw's subject has to
      * be built. `"8.6"` is the shape that arrives the day a meta is hand-edited
      * or written by a host that stringified its numbers. */
-    const doctor = (v) => `o.beyond_m = ${JSON.stringify(v)};`;
+    /* The doctor is SOURCE, not JSON: `JSON.stringify(NaN)` is `"null"`, which
+       is the other arm of the clause entirely — a case that meant to test the
+       finding would have tested the silence. */
+    const doctor = (src) => `o.beyond_m = ${src};`;
     const throwsFor = async (root, v) => await page.evaluate(async ({ src, root: r }) => {
       void r;
       const A = window.HOLO_APP;
@@ -882,18 +932,69 @@ test.describe("the clause ledger — renderer mechanisms", () => {
     try {
       await page.goto(navUrl(repoRoot));
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
-      expect(await throwsFor(repoRoot, "8.6"),
+      expect(await throwsFor(repoRoot, '"8.6"'),
         "a distance that is not a number is a finding, not a shrug")
         .toMatch(/beyond_m/);
-      expect(await throwsFor(repoRoot, -3),
+      expect(await throwsFor(repoRoot, '-3'),
         "and neither is a wall behind the camera").toMatch(/beyond_m/);
-      expect(await throwsFor(repoRoot, null),
+      /* [Round 5] AND THE TWO VALUES `!isFinite` EXISTS FOR. The case tried
+         `"8.6"` (caught by `typeof`) and `-3` (caught by `< 0`), so the middle
+         clause of the three was in neither the throwing set nor the silent
+         one: a critic inserted an early `return false` for exactly `NaN` and
+         `Infinity` and the ledger stayed green. */
+      expect(await throwsFor(repoRoot, 'NaN'),
+        "a distance that is not a number at all is a finding").toMatch(/beyond_m/);
+      expect(await throwsFor(repoRoot, 'Infinity'),
+        "and so is one with no end").toMatch(/beyond_m/);
+      expect(await throwsFor(repoRoot, 'null'),
         "while an opening that knows nothing is silent, which is the other arm").toBeNull();
 
       await page.goto(navUrl(dir));
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
-      expect(await throwsFor(dir, "8.6"),
+      expect(await throwsFor(dir, '"8.6"'),
         "with the throw gone the picture skips it in silence").toBeNull();
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_dim", async ({ page }) => {
+    /* [Round 5] THE DIM IS A LOOK DECISION AND IT NEEDED A READER. `THROUGH_DIM`
+     * could be moved from 0.42 to 0.10 — the dim effectively gone — with every
+     * measurement in the suite green; only the batch's pixel comparison went
+     * red, and re-running `capture.mjs` silences that, so the guard on the one
+     * constant a human is being asked to rule was a photograph a builder can
+     * retake.
+     *
+     * WHAT IT IS BOUND TO IS THE SENTENCE KABE READS. The batch says the room
+     * beyond a doorway is "dimmed to 58 % of its own brightness", so that
+     * number is parsed out of his own document and the render is measured
+     * against it — the idiom §5's ±3 % band already uses. Moving the constant
+     * without moving the sentence goes red; moving both is a deliberate act
+     * that changes what a human was shown, which is the point. */
+    const readme = readFileSync(join(repoRoot, "design", "batches", "row21-promotion", "README.md"), "utf8");
+    const ruled = /dimmed to (\d+) % of its own brightness/.exec(readme);
+    expect(ruled, "the batch no longer states how dark the room beyond a doorway is").toBeTruthy();
+    const kept = Number(ruled[1]) / 100;
+
+    const dir = stageWithout("  var THROUGH_DIM = 0.42;", "  var THROUGH_DIM = 0;");
+    try {
+      /* THE CENTRE OF THE OPENING, not the whole rect: the reveals and the
+         soffit are drawn OVER the far room and are not dimmed, so a mean over
+         the whole aperture reads 69 % where the device itself keeps 58 %.
+         Measuring where the far room actually is is the difference between
+         pinning the constant and pinning the sum of the constant and the
+         jambs. */
+      const lit = await throughCentreMean(page, dir);
+      const dimmed = await throughCentreMean(page, repoRoot);
+      expect(lit, "with the dim off the room beyond is drawn at its own brightness").toBeGreaterThan(1);
+      const ratio = dimmed / lit;
+      /* ABSOLUTE, not derived from the constant: a tolerance phrased in terms
+         of the number it pins moves with it. Two points of 255 either side. */
+      expect(ratio,
+        `the room beyond a doorway is drawn at ${(ratio * 100).toFixed(1)} % of its own brightness where the batch tells Kabe ${ruled[1]} %`)
+        .toBeGreaterThan(kept - 0.02);
+      expect(ratio, "and no dimmer than that either").toBeLessThan(kept + 0.02);
     } finally {
       removeTree(dir);
     }
@@ -1368,6 +1469,32 @@ async function secondDoorwayVoid(page, root) {
       if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) n++;
     }
     return n;
+  });
+}
+
+/** [Row 21, round 5] The mean luminance of the central half of `study/E`'s
+ *  doorway — inside the reveals, where what is drawn is the room beyond. */
+async function throughCentreMean(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    const vs = { location: "study", facing: "E" };
+    const meta = A.metaFor(vs);
+    const ap = window.HOLO.renderer.apertures(
+      A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, A.harness.world, A.harness.staging, A.library,
+      A.backdrops, vs, { backdrop_only: true });
+    const x = Math.round(ap.x + ap.w * 0.3), y = Math.round(ap.y + ap.h * 0.3);
+    const w = Math.max(1, Math.round(ap.w * 0.4)), h = Math.max(1, Math.round(ap.h * 0.4));
+    const d = c.getContext("2d").getImageData(x, y, w, h).data;
+    let sum = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    }
+    return sum / (d.length / 4);
   });
 }
 

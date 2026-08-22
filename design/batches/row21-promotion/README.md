@@ -149,7 +149,8 @@ them are now refused before an image is made rather than after
 (`design/plan-draft/measured/prompt_lint.py`): a prompt that forbids the camera change it is asking
 for — five of the seven did, and two walls came back corner-for-corner identical to the round
 before — and a prompt that declares no feature the gate can measure. Whether that moves the
-first-roll pass rate is the next round's answer; the baseline is 0 of 7.
+first-roll pass rate was the next round's to answer, and the next round has answered: it did not.
+The section below is that answer with its numbers.
 
 ## The cand-3 round, which promotes nothing, and what it says about the recipe
 
