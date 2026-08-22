@@ -2128,7 +2128,13 @@ opposites and a missing kind would take the door branch and cut a jamb into open
 plane, and on a level camera the ground plane runs from the threshold's own line up to the horizon
 and no further. So the rect is the mouth's width at the mouth's own distance, from the horizon down
 to the ground at the mouth — 1068 × 57 px on `entrance_approach/N`, full-width × 165 px on
-`entrance_court/S`. No constant and no cap chosen by hand.
+`entrance_court/S`. No constant and no cap chosen by hand. **The one over-claim, named**: on
+`entrance_court/S` the mouth stands 6.75 m out and the court's own far line 26.75 m out, so 42 px of
+that 165 is above the far line and is void rather than the approach's ground. A click there travels.
+Capping the top at the facing's own floor line would fix it there and destroy it on
+`entrance_approach/N`, where the mouth IS the wall line and the ground beyond it is entirely above
+the floor line — the rect would collapse to nothing. So it is left, in a band where nothing else is
+clickable, rather than special-cased by which side of a mouth you happen to be standing on.
 
 **One mark, and it is a line on the ground.** Law (b) forbids an invented enclosure where no
 building stands, so there is no jamb, no reveal, no soffit and no fill — but a 20.4 m `go` target on
