@@ -181,6 +181,28 @@ test.describe("the painted world a visitor opens", () => {
       .toEqual({ location: "hall", facing: "E" });
   });
 
+  test("a world the page does not carry is refused, in the product's voice", async ({ page }) => {
+    /* [Row 21] `?world=` is a reachable surface now, so a typo in it is a
+       reachable state. The page does NOT quietly boot something else — a page
+       that boots a world other than the one it was asked for is the picture
+       lying about the document — and it does not go silently black either. */
+    const errors = [];
+    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    await page.goto(navUrl() + "?world=not-a-world");
+    await page.waitForTimeout(500);
+    const st = await page.evaluate(() => ({
+      lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
+      chevron: getComputedStyle(document.getElementById("chevron-left")).display,
+      app: !!window.HOLO_APP
+    }));
+    expect(st.lines, "the page says what it can and cannot do, as the product")
+      .toEqual(["The projection will not hold. Nothing of this place can be shown."]);
+    expect(st.chevron, "and withdraws controls that were never wired").toBe("none");
+    expect(st.app, "nothing booted").toBe(false);
+    expect(errors.some((e) => /no baked world "not-a-world"/.test(e)),
+      "the developer detail is on the console and nowhere else").toBe(true);
+  });
+
   test("bare wall means nothing: dead space is dead in an empty world too", async ({ page }) => {
     await page.goto(navUrl());
     await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
