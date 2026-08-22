@@ -429,47 +429,53 @@ export { expect };
 export const LIT = {
   H: 1024,
   W: 1536,
-  horizon_y: 0.48,
-  px_per_m_at_wall: 96,
-  /* THE DRAWING CAMERA. [HUMAN 2026-08-21] ruled 1.60 m the interim against a
-     rendered pair: §10's six-foot ruling has a −8° pitch half that NOTHING in
-     this project models, and the height without it pushes the frame-bottom
-     floor cut away from the viewer's feet — the opposite of what the ruling
-     was given for. The ruled height returns with row 4's measured camera. */
-  eye_m: 1.6,
+  /* THE LENS (row 20). Typed here, never imported: `src/groundplane.js` holds
+     the same number and this file is what would go red if it moved. 24 mm on
+     the 36 mm-wide format this frame is, which is exactly 1024 px. */
+  focal_px: 1024,
+  /* THE HORIZON, and it is the lens SHIFT — a level camera with its frame
+     moved, not a tilted one. Measured off the approved backdrops at y 490 of
+     1024 by a vanishing-point vote over three disjoint regions. */
+  horizon_y: 490 / 1024,
+  /* THE DRAWING CAMERA'S EYE HEIGHT, MEASURED (row 20). Blueprint §5 [HUMAN,
+     2026-08-20] rules that the geometry is determined by the orientation of
+     the approved image generation; the approved backdrops arrived and measure
+     1.2316 m, level. This supersedes row 11's 1.60 m interim, which was named
+     an interim awaiting exactly this. */
+  eye_m: 1.2316,
   /* THE GENERATION CAMERA. [HUMAN, 2026-08-20] "about a 6ft height" —
-     blueprint §10 `camera.eye_height_m`, which backdrops are prompted at and
-     which no pixel in this repo is drawn at. */
+     blueprint §10 `camera.eye_height_m`, which backdrops are PROMPTED at and
+     which the generator did not honour. No pixel here is drawn at it. */
   ruled_eye_m: 1.83,
-  /* §5 states the floor twice and both statements must describe one camera:
-     the wall-floor line sits eye-height below the horizon at wall scale, and
-     the frame bottom is where the same ray meets the ground. */
-  floor_line_y: 0.48 + 1.6 * 96 / 1024,
-  px_per_m_at_bottom: (1024 - 0.48 * 1024) / 1.6,
-  /* The UNPLANNED-FACING fallback's own wall: 1536 px at 96 px/m is 16.0 m,
-     and 3.5 m is the camera distance row 1 drew with. Meaningful only there —
-     every facing the plan holds now carries the plan's own numbers. */
-  wall_width_m: 1536 / 96,
-  camera_wall_m: 3.5,
-  k: 336, // the fallback's grid constant = px_per_m_at_wall × camera_wall_m
+  /* The UNPLANNED-FACING fallback's own numbers. Every one is a consequence of
+     the three above and its own camera distance — under a pinned lens nothing
+     about a meta's scale is authored. 16.0 m of wall is now deliberately WIDER
+     than the frame holds (6.0 m at 4.0 m away), so an extent nobody has drawn
+     makes no claim about where its wall ends. */
+  camera_wall_m: 4.0,
+  px_per_m_at_wall: 1024 / 4.0,                    // 256
+  floor_line_y: 490 / 1024 + 1.2316 * (1024 / 4.0) / 1024,
+  px_per_m_at_bottom: (1024 - 490) / 1.2316,
+  wall_width_m: 16,
+  k: 1024,      // px_per_m_at_wall × camera_wall_m — the focal length itself
   /* Every planned facing's room height [HUMAN 2026-08-21] — `plan.floors[].
-     storey_height_m`, the same on both floors. The wall band therefore runs
-     from the wall-ceiling line down to the floor line, not off the top of
-     frame, and anything looking for wall ink has to look between them. The
-     UNPLANNED-facing fallback has no floor to read a height off, so its wall
-     still runs to y 0. */
+     storey_height_m`, the same on both floors. */
   storey_height_m: 2.8,
 
   /* [wall_width_m, camera_wall_m, facing_type], typed from the approved
-     standpoints table. */
+     standpoints table as row 20's standpoint law rebuilt it. study N/S and
+     hall N/S stand at the far side of their rooms because their walls do not
+     fit the frame from the drawn standpoint; study E/W and hall E/W keep the
+     drawn one because theirs do. study/S is 3.85 rather than 4.35 because the
+     chimney breast is behind you on that facing and you cannot stand in it. */
   FACINGS: {
-    "study/N": [5.45, 3.60, "enclosed"],
+    "study/N": [5.45, 4.35, "enclosed"],
     "study/E": [4.80, 4.09, "enclosed"],
-    "study/S": [5.45, 3.60, "enclosed"],
+    "study/S": [5.45, 3.85, "enclosed"],
     "study/W": [4.80, 4.09, "enclosed"],
-    "hall/N": [8.00, 1.95, "enclosed"],
+    "hall/N": [8.00, 2.15, "enclosed"],
     "hall/E": [2.60, 6.00, "corridor"],
-    "hall/S": [8.00, 1.95, "enclosed"],
+    "hall/S": [8.00, 2.15, "enclosed"],
     "hall/W": [2.60, 6.00, "corridor"]
   },
   facingKeys() { return Object.keys(LIT.FACINGS); },
@@ -481,21 +487,29 @@ export const LIT = {
     const row = LIT.FACINGS[key];
     if (!row) throw new Error("no test-side literals for " + key);
     const [wall_width_m, camera_wall_m, facing_type] = row;
-    const px = LIT.px_per_m_at_wall;
+    /* THE LENS: pixels per metre is a consequence of how far away the wall is,
+       not a constant. This is row 20 in one line. */
+    const px = LIT.focal_px / camera_wall_m;
     const half = (wall_width_m / 2) * px;
     return {
       key, wall_width_m, camera_wall_m, facing_type,
       storey_height_m: LIT.storey_height_m,
       px_per_m_at_wall: px,
-      floor_line_y: LIT.floor_line_y,
+      /* And so is the floor line: it sits eye-height below the horizon AT WALL
+         SCALE, so a near wall puts it lower in the frame. Under the pinned
+         scale it was the same number on all eight facings. */
+      floor_line_y: LIT.horizon_y + LIT.eye_m * px / LIT.H,
       px_per_m_at_bottom: LIT.px_per_m_at_bottom,
       horizon_y: LIT.horizon_y,
       image_h_px: LIT.H,
       corner_x0_px: LIT.W / 2 - half,
       corner_x1_px: LIT.W / 2 + half,
       /* The intention's "camera has feet" number: where the floor first
-         appears in front of the viewer. */
-      nearest_floor_m: camera_wall_m * px / LIT.px_per_m_at_bottom
+         appears in front of the viewer. Under a pinned lens it is
+         `f / px_per_m_at_bottom` — the lens and the horizon decide it and the
+         standpoint does not — so it is the SAME on every facing in the manor,
+         where it used to be fifteen different anomalies. */
+      nearest_floor_m: LIT.focal_px / LIT.px_per_m_at_bottom
     };
   }
 };

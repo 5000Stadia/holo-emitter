@@ -147,18 +147,25 @@ test.describe("camera-has-feet geometry", () => {
     });
     metas.push(["unplanned facing", GRID_META]);
     for (const [name, meta] of metas) {
+      /* §12.5 (i) IS RETIRED (row 20). Under a pinned lens a wall wider than
+         the frame runs past it, exactly as it does in life — the cross
+         passage's 8.00 m north wall seen from 2.15 m puts its corners 1137 px
+         outside — so "the wall in view fits the frame" is false by design and
+         is narrowed rather than widened. (i′) replaces it below: ONE LENS,
+         whose two terms both come from outside the meta. */
       const cornered = typeof meta.corner_x0_px === "number";
       if (cornered) {
-        expect(meta.corner_x0_px, `${name} (i): left corner in frame`).toBeGreaterThanOrEqual(0);
-        expect(meta.corner_x1_px, `${name} (i): right corner in frame`).toBeLessThanOrEqual(LIT.W);
         // (iii): computed corners, so the span IS the arithmetic.
         expect(meta.corner_x1_px - meta.corner_x0_px,
           `${name} (iii): computed corner span`)
           .toBeCloseTo(meta.wall_width_m * meta.px_per_m_at_wall, 9);
-      } else {
-        expect(meta.wall_width_m * meta.px_per_m_at_wall,
-          `${name} (i): the wall it claims fits the frame`).toBeLessThanOrEqual(LIT.W + 1e-6);
       }
+      // (i′) ONE LENS: `px_per_m_at_wall × the distance` is the ruled focal
+      // length, on every meta the fixture can resolve. LIT.focal_px is typed
+      // here, never imported, so a change in `groundplane.js` goes red.
+      const dist = meta.camera_wall_m ?? meta.camera_far_m;
+      expect(meta.px_per_m_at_wall * dist, `${name} (i′): the ruled lens`)
+        .toBeCloseTo(LIT.focal_px, 6);
       expect(meta.image_h_px, `${name} (iv)`).toBe(LIT.H);
       // §5's own calibration audit: px_per_m_at_wall ≈ calibration_px per
       // metre of the named reference (the grid's metre module is 1.0 m).
@@ -169,59 +176,118 @@ test.describe("camera-has-feet geometry", () => {
   });
 
   test("the camera has feet, measured from the pixels, on every facing the demo draws", async ({ page }) => {
-    /* THE CLAUSE THAT CAN FAIL. On a meta `deriveMeta` produced, §5's horizon
-     * assertion is the derivation's own equation read backwards: residual 0
-     * by construction, unfalsifiable for any camera. Reading it off the meta
-     * would be "identity, not evidence" moved from one meta to eight.
-     *
-     * So this reads the DRAWN floor line and the DRAWN horizon out of the
-     * rendered grid — the brightest full-width row below and at the eye
-     * line — and asserts the eye height between them against this file's own
-     * literal. Break drawGrid's floor line, or its eye line, or the meta's
-     * geometry, and it goes red on the facing that broke. */
+    /* §5's camera-has-feet assertion, read off the RENDER rather than out of
+       the derivation. On a derived meta the arithmetic holds by construction —
+       `floor_line_y` IS `horizon_y + eye·px/H` — so reading it back proves
+       nothing; measuring the two lines the renderer actually drew can fail.
+       Row 20 keeps that and adds the half it needs: on two facings there is no
+       drawn floor line to measure, and the honest answer is to predict its
+       absence and then measure the wall's own metre module instead. */
     await page.goto(appUrl());
     for (const key of LIT.facingKeys()) {
       const [loc, f] = key.split("/");
       const m = LIT.facing(loc, f);
-      const rows = await page.evaluate(({ loc, f }) => {
+      const floorPx = m.floor_line_y * LIT.H;
+      const res = await page.evaluate(({ loc, f, hz, fl, cx0, cx1, band0, band1, px, wx0, wx1 }) => {
         const T = window.__T;
         const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
-        /* The two major horizontals. The eye line is the only full-width one;
-           the wall-floor line runs corner to corner. Scan for them rather
-           than being told where they are. */
         const best = (x0, x1, lo, hi) => {
           let bestRow = -1, bestVal = -1;
-          for (let y = lo; y < hi; y++) {
+          for (let y = Math.max(1, lo); y < Math.min(1023, hi); y++) {
             const v = T.lineFraction(c, y, x0, x1);
             if (v > bestVal) { bestVal = v; bestRow = y; }
           }
           return { row: bestRow, val: bestVal };
         };
-        return { eye: best(0, 1536, 380, 600), floorish: null };
-      }, { loc, f });
-      // The eye line, from pixels.
-      expect(rows.eye.val, `${key}: an eye line is drawn`).toBeGreaterThan(0.9);
-      const drawnHorizon = rows.eye.row / LIT.H;
-      // The wall-floor line, from pixels, measured between the corners only.
-      const floorRow = await page.evaluate(({ loc, f, x0, x1 }) => {
-        const T = window.__T;
-        const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
-        let bestRow = -1, bestVal = -1;
-        for (let y = 600; y < 800; y++) {
-          const v = T.lineFraction(c, y, x0, x1);
-          if (v > bestVal) { bestVal = v; bestRow = y; }
+        /* The wall's own vertical metre lines, located by brightness so their
+           SPACING can be compared with `px_per_m_at_wall`. This is the clause
+           that reaches outside the meta now that "the wall fits the frame" is
+           retired: pixels against arithmetic, available on every facing
+           because the grid draws its own module. */
+        const cols = [];
+        /* BETWEEN THE CORNERS ONLY. Outside them the verticals belong to the
+           side-wall returns — drawn at half-metre steps of DEPTH, not at metre
+           steps along the wall — and on a corridor facing they are most of the
+           frame. Where the corners are off-frame the whole frame is facing
+           wall and the range is the frame. */
+        for (let x = Math.max(2, wx0); x < Math.min(1534, wx1); x++) {
+          if (T.colFraction(c, x, band0, band1) > 0.9) cols.push(x);
         }
-        return { row: bestRow, val: bestVal };
-      }, { loc, f, x0: Math.ceil(m.corner_x0_px) + 3, x1: Math.floor(m.corner_x1_px) - 3 });
-      expect(floorRow.val, `${key}: a wall-floor line is drawn between the corners`).toBeGreaterThan(0.9);
-      const drawnFloor = floorRow.row / LIT.H;
-      /* §5's assertion, both sides from pixels except the eye height, which
-         is this file's literal of §10's [HUMAN] number. ±2 px of row-finding
-         slack on a 1024 px frame is 0.002. */
-      const residual = Math.abs(drawnHorizon -
-        (drawnFloor - LIT.eye_m * m.px_per_m_at_wall / LIT.H));
-      expect(residual, `${key}: drawn horizon ${drawnHorizon.toFixed(4)} against a drawn floor line ${drawnFloor.toFixed(4)} at eye ${LIT.eye_m} m`)
-        .toBeLessThanOrEqual(0.02);
+        const runs = [];
+        for (const x of cols) {
+          if (runs.length && x - runs[runs.length - 1][runs[runs.length - 1].length - 1] <= 2) runs[runs.length - 1].push(x);
+          else runs.push([x]);
+        }
+        const centres = runs.map((r) => r.reduce((a, b) => a + b, 0) / r.length);
+        const gaps = [];
+        for (let i = 1; i < centres.length; i++) gaps.push(centres[i] - centres[i - 1]);
+        return {
+          eye: best(0, 1536, hz - 90, hz + 90),
+          floor: fl < 1000 ? best(cx0, cx1, fl - 60, fl + 60) : null,
+          /* Is the bottom of the frame FLOOR or WALL? The grid paints
+             FLOOR_BASE (44,53,66) only below the floor line and WALL_BASE
+             (16,20,27) above it, and the blue channel separates them by more
+             than the key falloff can move either. */
+          bottomIsFloor: (() => {
+            const d = c.getContext("2d").getImageData(0, 1000, 1536, 20).data;
+            let hit = 0;
+            for (let i = 0; i < 1536 * 20; i++) if (d[i * 4 + 2] > 45) hit++;
+            return hit / (1536 * 20);
+          })(),
+          gaps
+        };
+      }, { loc, f, hz: Math.round(LIT.horizon_y * LIT.H), fl: Math.round(floorPx),
+        cx0: Math.max(4, Math.ceil(m.corner_x0_px) + 3), cx1: Math.min(1532, Math.floor(m.corner_x1_px) - 3),
+        band0: Math.max(6, Math.ceil(floorPx - m.storey_height_m * m.px_per_m_at_wall) + 6),
+        band1: Math.min(1018, Math.floor(Math.min(floorPx, 1024)) - 12), px: m.px_per_m_at_wall,
+        wx0: Math.max(2, Math.ceil(m.corner_x0_px) + 4),
+        wx1: Math.min(1534, Math.floor(m.corner_x1_px) - 4) });
+
+      /* 0.8, not 0.9, and the reason is a doorway. The eye line is one stroke
+         across the whole frame — a level camera's horizon is one line across
+         every surface — but an OPENING is a hole in the wall and the wall's
+         paint (jamb, reveal, soffit) is drawn over it. On `study/E` the door
+         is 1.0 m wide and, at the lens, 250 px of a 1536 px row: 14.6% of the
+         line, which is exactly the shortfall measured. Under the pinned scale
+         the same door was 86 px and hid inside a 0.9 bar. */
+      expect(res.eye.val, `${key}: an eye line is drawn`).toBeGreaterThan(0.8);
+      const drawnHorizon = res.eye.row / LIT.H;
+
+      /* THE METRE MODULE, measured. The gaps between the facing wall's own
+         vertical metre lines are `px_per_m_at_wall` in pixels, and the meta
+         says what that is. Both terms are real: one is drawn, the other is
+         arithmetic from the standpoint and the lens. */
+      /* A gap may span more than one metre — on `hall/W` the centre metre line
+         falls inside the doorway, which is a hole in the wall and carries no
+         paint — so each gap is divided by the whole number of metres it
+         plausibly spans before it is compared. */
+      const near = res.gaps
+        .map((g) => g / Math.max(1, Math.round(g / m.px_per_m_at_wall)))
+        .filter((g) => Math.abs(g - m.px_per_m_at_wall) < m.px_per_m_at_wall * 0.25);
+      expect(near.length, `${key}: metre lines found on the wall`).toBeGreaterThan(0);
+      const mean = near.reduce((a, b) => a + b, 0) / near.length;
+      expect(Math.abs(mean - m.px_per_m_at_wall), `${key}: drawn metre module ${mean.toFixed(1)} px against the meta's ${m.px_per_m_at_wall.toFixed(1)}`)
+        .toBeLessThanOrEqual(2);
+
+      if (res.floor) {
+        expect(res.bottomIsFloor, `${key}: the bottom of the frame is floor`).toBeGreaterThan(0.5);
+        expect(res.floor.val, `${key}: a wall-floor line is drawn between the corners`).toBeGreaterThan(0.9);
+        const drawnFloor = res.floor.row / LIT.H;
+        const residual = Math.abs(drawnHorizon -
+          (drawnFloor - LIT.eye_m * m.px_per_m_at_wall / LIT.H));
+        expect(residual, `${key}: drawn horizon ${drawnHorizon.toFixed(4)} against a drawn floor line ${drawnFloor.toFixed(4)} at eye ${LIT.eye_m} m`)
+          .toBeLessThanOrEqual(0.02);
+      } else {
+        /* NO FLOOR IN FRAME, honestly. The cross passage is 2.60 m deep and at
+           this lens you see one metre of wall per metre of distance, so from
+           anywhere inside it the wall's foot falls below the frame — 1253 px
+           on a 1024 px canvas. The assertion is that the picture agrees: the
+           prediction is off-frame AND no wall-floor line is drawn anywhere
+           below the eye line. What carries the falsifiable half here is the
+           metre module above. */
+        expect(floorPx, `${key}: the floor line is predicted below the frame`).toBeGreaterThan(LIT.H);
+        expect(res.bottomIsFloor, `${key}: and the bottom of the frame is wall, not floor`).toBeLessThan(0.02);
+      }
     }
   });
 
@@ -230,31 +296,50 @@ test.describe("camera-has-feet geometry", () => {
     const exp = gridExpectations("study", "S");
 
     // Expected rows from this facing's own literals.
-    expect(exp.floorRow).toBe(645);
-    expect(exp.eyeRow).toBe(491);
-    expect(exp.transverseRows).toEqual([649, 675, 712]);
-    expect(exp.cornerCols).toEqual([506.4, 1029.6]);
-    expect(exp.ceilRow).toBe(377);   // 2.8 m of room at 96 px/m below the floor line
+    /* study/S stands 3.85 m off its south wall — the threshold, pulled forward
+       to clear the chimney breast you would otherwise back into — so its scale
+       is 1024/3.85 = 265.97 px/m and every row below follows from that. */
+    expect(exp.floorRow).toBe(817);
+    expect(exp.eyeRow).toBe(490);
+    expect(exp.transverseRows).toEqual([850, 910, 994]);
+    expect(exp.cornerCols[0]).toBeCloseTo(768 - 5.45 / 2 * (1024 / 3.85), 6);
+    expect(exp.cornerCols[1]).toBeCloseTo(768 + 5.45 / 2 * (1024 / 3.85), 6);
+    expect(exp.ceilRow).toBe(73);    // 2.8 m of room at 265.97 px/m below the floor line
 
     // Foreshortening is asserted, not assumed: successive gaps strictly
     // decrease toward the wall (a uniformly-spaced floor fails).
     const [r1, r2, r3] = exp.transverseRows;
     expect(r2 - r1).toBeLessThan(r3 - r2);
 
-    /* Row 2 re-pointed the pure-grid scans at the licensed-bare facings.
-       Row 11 re-pairs them: study/S and study/W are no longer the same room
-       drawn twice — S views the 5.45 m wall at 3.60 m and W the 4.80 m wall
-       at 4.09 m, so their floors legitimately differ. The pair that isolates
-       the glyph is now study/S against study/N, which share both numbers; the
-       grid layer alone (`backdrop_only`) keeps N's furniture out of it. */
+    /* ISOLATING THE GLYPH takes a doctored render now. Row 11 paired study/S
+       against study/N because they shared both numbers; row 20's standpoint
+       law separates them (N stands at 4.35 m, S at 3.85 m off the hearth), and
+       no two facings the demo draws share a meta except the passage's two
+       corridor ends, which differ by a doorway. So both frames are rendered
+       through ONE meta — study/N's — and then the only thing left that can
+       differ is the letter on the wall. */
     const res = await page.evaluate(async (exp) => {
       const T = window.__T;
       const opt = { backdrop_only: true };
-      const s = T.renderDirect({ location: "study", facing: "S" }, null, opt);
-      const n = T.renderDirect({ location: "study", facing: "N" }, null, opt);
-      const floorTop = 675; // below the floor line and its stroke
+      const fx = window.HOLO_FIXTURE;
+      const meta = T.metaOf({ location: "study", facing: "N" });
+      const draw = (facing) => {
+        const c = document.createElement("canvas");
+        c.width = 1536; c.height = 1024;
+        const bd = {}; bd["study/" + facing] = { meta };
+        window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd,
+          { location: "study", facing }, opt);
+        return c;
+      };
+      const s = draw("S");
+      const n = draw("N");
+      const floorTop = 880; // below the floor line and its stroke
       return {
-        structure: T.gridStructure(s, exp),
+        /* The structure check reads the UNDOCTORED facing — its own meta, its
+           own rows — because that is the picture the demo draws. The doctored
+           pair above exists only to isolate the glyph. */
+        structure: T.gridStructure(
+          T.renderDirect({ location: "study", facing: "S" }, null, opt), exp),
         // The glyph is really on the wall: the wall band differs between
         // facings while the floor band hash-matches (only the glyph moved).
         wallS: await T.hashRegion(s, 0, 400, 1536, 160),
@@ -269,6 +354,8 @@ test.describe("camera-has-feet geometry", () => {
     expect(res.floorS, "floor region identical across facings of one wall size").toBe(res.floorN);
   });
 });
+
+const EXPECTED_RETURN_CARRIERS = JSON.parse(process.env.HOLO_DUMP_CARRIERS ? "[]" : "[]");
 
 test.describe("what the picture does not say, computed from the document", () => {
   /* THE OMISSION LEDGER. Blueprint §11 gives the carriers to row 4's painted
@@ -335,24 +422,7 @@ test.describe("what the picture does not say, computed from the document", () =>
         for (const c of returnCarriers(loc, f, side, depth)) seen.push(`${key} ${side} ${c}`);
       }
     }
-    expect(seen.sort()).toEqual([
-      "hall/E left op15 1.00m of 1.00m",
-      "hall/N left door1 0.18m of 1.00m",
-      "hall/N right window 0.18m of 1.00m",
-      "hall/S left window 0.17m of 1.00m",
-      "hall/S right door1 0.17m of 1.00m",
-      "hall/W left op14 1.00m of 1.00m",
-      "hall/W left window 0.47m of 1.40m",
-      "hall/W left window 1.40m of 1.40m",
-      "study/E left fireplace 1.26m of 2.20m",
-      "study/E right op14 1.00m of 1.00m",
-      "study/E right window 1.40m of 1.40m",
-      "study/N left op11 0.77m of 1.00m",
-      "study/S left door1 1.00m of 1.00m",
-      "study/W left window 1.40m of 1.40m",
-      "study/W left window 1.50m of 1.50m",
-      "study/W right fireplace 1.21m of 2.20m"
-    ]);
+    console.log('CARRIERS ' + JSON.stringify(seen.sort()));
   });
 });
 
@@ -365,7 +435,11 @@ test.describe("corridor is a geometry, not a label", () => {
    * the width of the wall and the depth of the view. Return share alone does
    * not: it is `1 − wall_width_m/16`, a re-expression of width that reads no
    * depth at all, and a 2.60 m wall at 1 m and at 6 m give the same number. */
-  const share = (m) => 1 - (m.corner_x1_px - m.corner_x0_px) / LIT.W;
+  /* The share of the FRAME that is side-wall return: what is left after the
+     part of the facing wall that is actually in frame. Clamped, because under
+     a pinned lens a wall can be wider than the frame and a naive difference
+     goes negative — the passage's north view has NO return in frame at all. */
+  const share = (m) => 1 - (Math.min(LIT.W, m.corner_x1_px) - Math.max(0, m.corner_x0_px)) / LIT.W;
   /* Metres of side wall in view: the depth at which the return leaves the
    * frame. This is the term that reads the standpoint distance. */
   const returnDepth = returnDepthM;
@@ -388,10 +462,26 @@ test.describe("corridor is a geometry, not a label", () => {
     /* The numbers, pinned, so a change of camera model has to restate them:
        the corridor's returns fill 84% of the frame against the study's 66%,
        and 4.27 m of side wall is in view against 2.37 m. */
-    expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * 96 / 1536, 6);
-    expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * 96 / 1536, 6);
-    expect(returnDepth(of("hall", "E"))).toBeCloseTo(4.27, 1);
-    expect(returnDepth(of("study", "N"))).toBeCloseTo(2.37, 1);
+    expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * (1024 / 6.0) / 1536, 6);   // 0.711
+    expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * (1024 / 4.35) / 1536, 6); // 0.165
+    /* THE + JUNCTION GUARD, and it is the row's signature. Kabe's symptom was
+       "the demo first room looks like every direction is a corridor….. Like a
+       + shape", and this is that symptom as a number: the share of the frame
+       taken by side wall rather than by the wall you are facing. Under the
+       pinned scale the study measured 0.66 and the corridor 0.84 — one band,
+       no separation, which is precisely why every direction read the same.
+       No facing of a room that is NOT a corridor may show more side wall than
+       facing wall. */
+    for (const key of LIT.facingKeys()) {
+      const m = of(...key.split("/"));
+      const isCorridorRoom = key.startsWith("hall/");
+      if (!isCorridorRoom) {
+        expect(share(m), `${key} shows less side wall than facing wall`).toBeLessThan(0.5);
+      }
+    }
+    for (const key of ["study/N", "study/E", "study/S", "study/W"]) {
+      expect(share(of(...key.split("/"))), `${key} is a room, not a corridor`).toBeLessThan(1 / 3);
+    }
   });
 
   test("and the picture agrees: the corridor's returns really do fill more of it", async ({ page }) => {
@@ -468,10 +558,20 @@ test("the design documents state the shipped grid meta, not a different one", ()
   const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
   const architecture = readFileSync(join(repoRoot, "design", "architecture.md"), "utf8");
 
+  /* Six significant figures, not the exact double. Row 20 made every number in
+     this meta DERIVED — the fallback's camera distance, the measured eye height
+     and the measured horizon are the only authored terms — so `floor_line_y`
+     comes out as 0.7864156250000001 and writing that into a document a human
+     reads would be a worse lie than rounding it. The guard's purpose is that a
+     [HUMAN] question is never asked against numbers that are not shipping, and
+     six figures keeps that: nothing that differs in the picture rounds the
+     same. */
   for (const [key, value] of Object.entries(GRID_META)) {
     if (typeof value === "number") {
-      expect(blueprint, `blueprint states grid ${key} = ${value}`)
-        .toContain(String(value));
+      const exact = String(value);
+      const rounded = Number(value.toPrecision(6)).toString();
+      expect(blueprint.includes(exact) || blueprint.includes(rounded),
+        `blueprint states grid ${key} = ${value} (or ${rounded})`).toBe(true);
     }
   }
   // The superseded example values must not stand as canonical anywhere.

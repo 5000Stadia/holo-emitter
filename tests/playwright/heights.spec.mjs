@@ -44,8 +44,8 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     { id: "desk1", sprite: "desk-joined-oak-1660", vs: { location: "study", facing: "N" } },
     { id: "chair1", sprite: "chair-joined", vs: { location: "study", facing: "N" } },
     { id: "door1", sprite: "door-plank", vs: { location: "study", facing: "E" }, placementIndex: 0 },
-    { id: "shelf1", sprite: "shelf-oak", vs: { location: "hall", facing: "N" } },
-    { id: "stick1", sprite: "candlestick-brass", vs: { location: "hall", facing: "N" } },
+    { id: "shelf1", sprite: "shelf-oak", vs: { location: "hall", facing: "E" } },
+    { id: "stick1", sprite: "candlestick-brass", vs: { location: "hall", facing: "E" } },
     { id: "door1", sprite: "door-plank", vs: { location: "hall", facing: "W" }, placementIndex: 1, label: "door1@hall" }
   ];
 
@@ -242,8 +242,8 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     // V metres above the floor line.
     const P = MF("study", "E").place(
       { attachment: "wall_mounted", u: 0.729166666667, v: V }, rec);
-    const expectedH = rec.dims_m.h * LIT.px_per_m_at_wall;
-    expect(P.s).toBe(LIT.px_per_m_at_wall);
+    const expectedH = rec.dims_m.h * LIT.facing("study", "E").px_per_m_at_wall;
+    expect(P.s).toBeCloseTo(LIT.facing("study", "E").px_per_m_at_wall, 9);
     expect(Math.abs(b.h - expectedH) / expectedH,
       `raised height ${b.h} vs wall-scale ${expectedH}`).toBeLessThanOrEqual(0.05);
     expect(Math.abs(b.y1 + 1 - P.baselineY)).toBeLessThanOrEqual(2);
@@ -306,8 +306,8 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     const cases = [
       { id: "desk1", sprite: "desk-joined-oak-1660", vs: { location: "study", facing: "N" } },
       { id: "chair1", sprite: "chair-joined", vs: { location: "study", facing: "N" } },
-      { id: "shelf1", sprite: "shelf-oak", vs: { location: "hall", facing: "N" } },
-      { id: "stick1", sprite: "candlestick-brass", vs: { location: "hall", facing: "N" } }
+      { id: "shelf1", sprite: "shelf-oak", vs: { location: "hall", facing: "E" } },
+      { id: "stick1", sprite: "candlestick-brass", vs: { location: "hall", facing: "E" } }
     ];
     for (const c of cases) {
       const rec = await record(page, c.sprite);
@@ -315,8 +315,9 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
       const depth = pl.attachment === "floor_against" ? rec.dims_m.d : pl.depth_m;
       // Independent arithmetic: pinhole scale at that depth, then the horizon
       // device — never the lerp, and never an import.
-      const cam = LIT.facing(c.vs.location, c.vs.facing).camera_wall_m;
-      const scale = LIT.px_per_m_at_wall * cam / (cam - depth);
+      const fm = LIT.facing(c.vs.location, c.vs.facing);
+      const cam = fm.camera_wall_m;
+      const scale = fm.px_per_m_at_wall * cam / (cam - depth);
       const expectedBaseline = horizonPx + EYE_M * scale;
       const b = await soloBounds(page, c.id, c.vs);
       expect(b, `${c.id} rendered`).not.toBeNull();
@@ -326,8 +327,11 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     }
     // And the wall-plane end of the same device: an object standing against
     // the wall has its feet exactly on the floor line.
-    expect(horizonPx + EYE_M * LIT.px_per_m_at_wall)
-      .toBeCloseTo(LIT.floor_line_y * LIT.H, 6);
+    for (const key of LIT.facingKeys()) {
+      const m = LIT.facing(...key.split("/"));
+      expect(horizonPx + EYE_M * m.px_per_m_at_wall, `${key} wall-plane end`)
+        .toBeCloseTo(m.floor_line_y * LIT.H, 6);
+    }
   });
 
   test("the implied camera and the written record cannot drift apart", async ({ page }) => {
@@ -344,13 +348,17 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
      * camera — and this goes red. */
     await page.goto(appUrl());
     const meta = await page.evaluate(() => window.HOLO.renderer.GRID_META);
-    const focalPx = meta.px_per_m_at_wall * LIT.camera_wall_m;
+    const focalPx = meta.px_per_m_at_wall * LIT.camera_wall_m;   // = LIT.focal_px, and the row's whole law
     const fovDeg = 2 * Math.atan((LIT.W / 2) / focalPx) * 180 / Math.PI;
     const blueprint = readFileSync(join(repoRoot, "design", "blueprint.md"), "utf8");
     expect(blueprint, "blueprint §5 carries the open camera question")
       .toMatch(/horizontal field of view/i);
-    expect(blueprint, `blueprint §5 states the implied field (${fovDeg.toFixed(1)}°)`)
-      .toContain(`${Math.round(fovDeg)}°`);
+    /* One decimal, not a rounded integer: the ruled lens's field is 73.7° and
+       the blueprint states it to that precision, because "74°" would be a
+       number no document carries and the point of this guard is that the
+       written record and the code state the SAME field. */
+    expect(blueprint, `blueprint §10 states the implied field (${fovDeg.toFixed(1)}°)`)
+      .toContain(`${fovDeg.toFixed(1)}°`);
     expect(blueprint, "and names the contract it disagrees with")
       .toMatch(/focal_mm/);
   });

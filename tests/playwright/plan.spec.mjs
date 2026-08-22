@@ -20,7 +20,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   validatePlan, planWarnings, drawn, ruleStandpoint, measuredDistance,
-  facingOfOpening, FACINGS
+  facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions
 } from "../../tools/validate-plan.mjs";
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
@@ -690,7 +690,11 @@ test.describe("what each facing carries", () => {
     const studyN = wallRelief(PLAN, "study", "N");
     expect(studyN.length).toBe(1);
     expect(studyN[0].kind).toBe("fireplace");
-    expect(studyN[0].depth_m).toBeCloseTo(3.1, 6);
+    /* The hearth's near face is 3.10 m from the ROOM's north wall line and the
+       standpoint is now 4.35 m from it, so the relief is 3.85 m ahead of the
+       viewer and stands 0.50 m proud of the plane. The proud-by figure is a
+       fact about the building; the depth moves with where you stand. */
+    expect(studyN[0].depth_m).toBeCloseTo(3.85, 6);
     expect(studyN[0].proud_by_m).toBeCloseTo(0.5, 6);
     expect(studyN[0].on_axis).toBe(true);
     expect(room(PLAN, "study").facings.N.camera_wall_m).toBe(4.35);  // row 20's threshold standpoint
@@ -712,11 +716,18 @@ test.describe("what each facing carries", () => {
   });
 
   test("a carrier's u is the same domain §4 staging uses", () => {
-    const shelfU = projectPlacement(PLAN, "shelf1", "hall", "N", deriveMeta(PLAN, "hall", "N")).u;
-    const butteryDoor = facingCarriers(PLAN, "hall", "N")[0];
-    // §11's note: "The shelf sits at u = 0.30; the drawn buttery door is at the
-    // far end of the same wall, so they do not fight."
-    expect(butteryDoor.u - shelfU).toBeGreaterThan(0.3);
+    /* The press moved to the passage's EAST end wall at row 20 — forced, not
+       chosen: the passage is 2.60 m deep and its long facings show no floor at
+       the ruled lens, so the shipped validator refuses any placement on them.
+       The carrier it now shares a wall with is `hall/E`'s window, and they DO
+       fight: a 1.00 m press cannot clear a 1.00 m window centred on a 2.60 m
+       wall. That is recorded on the plan object and by `planWarnings`, and it
+       is the prompt sheet's to resolve — this assertion is that the two live in
+       ONE u-domain, which is what makes the collision computable at all. */
+    const shelfU = projectPlacement(PLAN, "shelf1", "hall", "E", deriveMeta(PLAN, "hall", "E")).u;
+    const window_ = facingCarriers(PLAN, "hall", "E")[0];
+    expect(window_.kind).toBe("window");
+    expect(Math.abs(window_.u - shelfU)).toBeLessThan(0.3);
   });
 });
 
@@ -842,9 +853,9 @@ test.describe("the camera the projection runs on", () => {
    * is the interim 1.60 m, the gate is asserted at it, and §10's 1.83 m — the
    * camera nothing here draws at — is the one that fails. The gate is a
    * check on a meta's self-consistency, so it can only ever hold at one. */
-  test("§5's horizon gate passes at the interim 1.60 m, and §10's generation camera fails on it", () => {
+  test("§5's horizon gate passes at the MEASURED drawing height, and §10's generation camera fails on it", () => {
     const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
-    const at16 = horizonGate(GRID_META, 1.6);
+    const at16 = horizonGate(GRID_META, DRAWING_EYE_M);
     expect(at16.passes).toBe(true);
     expect(at16.residual).toBeCloseTo(0, 12);
     const at183 = horizonGate(GRID_META, 1.83);
@@ -883,6 +894,7 @@ test.describe("the camera the projection runs on", () => {
        the study its own derived meta, so the shipped cut and the derived one
        are the same number and the substitution the round-4 critic caught
        cannot recur. */
+    const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
     const expected = FOCAL_PX / GRID_META.px_per_m_at_bottom;
     expect(feet.reference).toBeCloseTo(expected, 9);
     /* ONE NUMBER FOR THE WHOLE MANOR. Under the pinned scale this was fifteen
@@ -931,36 +943,41 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
 
   test("study/N — the M0 room, pinned", () => {
     const m = deriveMeta(PLAN, "study", "N");
-    expect(m.camera_wall_m).toBe(3.6);          // 0.75 × 4.80 m, off the drawing
+    const PX = 1024 / 4.35;                     // the lens, not a pinned scale
+    expect(m.camera_wall_m).toBe(4.35);         // the THRESHOLD standpoint, off the drawing
     expect(m.wall_width_m).toBe(5.45);
-    expect(m.px_per_m_at_wall).toBe(96);
-    expect(m.camera).toBe("pinned");
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * 96 / 1024, 12);    // 0.63
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.6, 9); // 332.8
-    expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * 96, 9); // 506.4
-    expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * 96, 9); // 1029.6
-    expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * 96, 9);
+    expect(m.px_per_m_at_wall).toBeCloseTo(PX, 9);          // 235.402
+    expect(m.camera).toBeUndefined();
+    expect(m.floor_line_y).toBeCloseTo(490 / 1024 + 1.2316 * PX / 1024, 12);  // 0.8478 -> y 868
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 490) / 1.2316, 9);
+    expect(m.corner_x0_px).toBeCloseTo(CANVAS / 2 - 5.45 / 2 * PX, 9);        // 126.5
+    expect(m.corner_x1_px).toBeCloseTo(CANVAS / 2 + 5.45 / 2 * PX, 9);        // 1409.5
+    expect(m.corner_x1_px - m.corner_x0_px).toBeCloseTo(5.45 * PX, 9);
     expect(m.backdrop).toBe("wall");
   });
 
   test("hall/E — a corridor's deep view keeps the pinned frame", () => {
     const m = deriveMeta(PLAN, "hall", "E");
     expect(m.facing_type).toBe("corridor");
-    expect(m.camera_wall_m).toBe(6.0);
+    expect(m.camera_wall_m).toBe(6.0);          // its DRAWN standpoint: the wall fits from there
     expect(m.wall_width_m).toBe(2.6);
-    expect(m.camera).toBe("pinned");
-    expect(m.corner_x0_px).toBeCloseTo(768 - 2.6 / 2 * 96, 9);
+    expect(m.camera).toBeUndefined();
+    expect(m.corner_x0_px).toBeCloseTo(768 - 2.6 / 2 * (1024 / 6.0), 9);  // 546.1
   });
 
-  test("entrance_court/N — the wide-view camera fits the wall exactly", () => {
+  test("entrance_court/N — a wide wall simply runs past the frame now", () => {
+    /* This facing used to take the deleted WIDE camera, whose whole job was to
+       shrink the scale until a 20.4 m wall fitted a 1536 px frame. Under a
+       pinned lens it does not fit and does not need to: the corners fall
+       outside and the wall runs past the edges, which is what standing in a
+       courtyard looks like. */
     const m = deriveMeta(PLAN, "entrance_court", "N");
     expect(m.wall_width_m).toBe(20.4);
-    expect(m.camera).toBe("wide");
-    expect(m.px_per_m_at_wall).toBeCloseTo(1536 / 20.4, 9);
-    expect(m.floor_line_y).toBeCloseTo(0.48 + 1.6 * (1536 / 20.4) / 1024, 12);
-    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 0.48 * 1024) / 1.6, 9); // scale-independent
-    expect(m.corner_x0_px).toBeCloseTo(0, 9);
-    expect(m.corner_x1_px).toBeCloseTo(1536, 9);
+    expect(m.camera).toBeUndefined();
+    expect(m.px_per_m_at_wall).toBeCloseTo(1024 / m.camera_wall_m, 9);
+    expect(m.px_per_m_at_bottom).toBeCloseTo((1024 - 490) / 1.2316, 9); // scale-independent
+    expect(m.corner_x0_px).toBeLessThan(0);
+    expect(m.corner_x1_px).toBeGreaterThan(1536);
   });
 
   test("entrance_court/S — an open facing has no wall, no corners, and a vista", () => {
@@ -1102,9 +1119,19 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
     for (const r of PLAN.rooms) {
       for (const f of FACINGS) {
         const fc = r.facings[f];
-        const want = ruleStandpoint(r.rect, f, PLAN.standpoint_stand_back);
+        /* Row 20: the standpoint law, not the stand-back rule alone. A facing
+           whose wall does not fit the frame from the drawn standpoint stands at
+           the far side of its room instead, and the document says which branch
+           it took. `ruleStandpoint` is still what the `rule` branch returns. */
+        const want = fc.standpoint_source === "drawn" ? fc.standpoint
+          : standpointFor(PLAN, r, f, PLAN.standpoint_stand_back,
+            PLAN.standpoint_threshold_clearance_m).point;
         expect(fc.standpoint.x, `${r.id}/${f} x`).toBeCloseTo(want.x, 9);
         expect(fc.standpoint.y, `${r.id}/${f} y`).toBeCloseTo(want.y, 9);
+        if ((fc.standpoint_source || "rule") === "rule") {
+          const ruled = ruleStandpoint(r.rect, f, PLAN.standpoint_stand_back);
+          expect(fc.standpoint.x, `${r.id}/${f} rule x`).toBeCloseTo(ruled.x, 9);
+        }
         const field = fc.type === "open" ? "camera_far_m" : "camera_wall_m";
         expect(fc[field], `${r.id}/${f} ${field}`)
           .toBe(drawn(measuredDistance(fc.standpoint, f, fc.wall_line)));
@@ -1162,12 +1189,11 @@ test.describe("the projection against the shipped staging", () => {
    * fifth is at offset 0 where u is 0.5 under any wall width at all. */
   test("the four free-standing objects round-trip, and only one still agrees definitionally", () => {
     /* Honesty about what the agreements are worth. Only `shelf1`'s footprint
-     * is still the inverse projection of an earlier staging, so only its
-     * agreement is definitional and says nothing about the plan. The other
-     * three were moved at row 11 under blueprint §4's standing licence — the
-     * candlestick to keep the occlusion pair when the cross passage got its
-     * real camera, the desk and the chair out of the study's chimney breast —
-     * so each is "composed" and carries its own reason. */
+     * was the inverse projection of an earlier staging until row 20, when the
+     * ruled lens left the passage's long facings with no floor in frame and
+     * the shipped validator refused any placement on them. All four are
+     * "composed" now and every one carries its own reason, so the round trip
+     * below is a binding guard and says nothing at all about the plan. */
     const sources = {};
     for (const [id, pl] of Object.entries(STAGING.placements)) {
       if (Array.isArray(pl) || !pl.facing) continue;
@@ -1183,7 +1209,7 @@ test.describe("the projection against the shipped staging", () => {
     expect(sources).toEqual({
       desk1: "composed",
       chair1: "composed",
-      shelf1: "inverse-projected",
+      shelf1: "composed",
       stick1: "composed"
     });
     expect(PLAN.objects.find((o) => o.id === "desk1").note).toMatch(/chimney breast/);
@@ -1270,8 +1296,8 @@ test.describe("the projection against the shipped staging", () => {
 
   test("view angles are derived from the plan, for §10's per-placement request", () => {
     const p = projectPlacement(PLAN, "desk1", "study", "N");
-    // atan2(offset, standpoint distance − depth) = atan2(+1.875, 3.60 − 0.55)
-    expect(p.view_angle_deg).toBeCloseTo(Math.atan2(1.875, 3.05) * 180 / Math.PI, 6);
+    // atan2(offset, standpoint distance − depth) = atan2(+1.875, 4.35 − 0.55)
+    expect(p.view_angle_deg).toBeCloseTo(Math.atan2(1.875, 3.80) * 180 / Math.PI, 6);
     expect(projectPlacement(PLAN, "door1", "hall", "W").view_angle_deg).toBeCloseTo(0, 9);
     for (const r of stagingDivergence(PLAN, STAGING).rows) {
       const [rm, f] = r.facing.split("/");
@@ -1461,7 +1487,12 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
     try {
       const rp = join(dir, "src", "renderer.js");
       const src = readFileSync(rp, "utf8");
-      writeFileSync(rp, src.replace("px_per_m_at_bottom: 332.8", "px_per_m_at_bottom: 210"));
+      /* Break the horizon device in the fallback meta's own derivation: the
+         eye height is what ties `px_per_m_at_bottom` to `floor_line_y`, so
+         halving it makes the two statements of §5's floor disagree. Row 20
+         made every GRID_META number derived, so there is no literal left to
+         swap — which is the point of deriving them. */
+      writeFileSync(rp, src.replace("var eye = gp.DRAWING_EYE_M;", "var eye = gp.DRAWING_EYE_M / 2;"));
       let msg = "";
       try { bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study"), "--out", join(dir, "fresh.js")]); }
       catch (e) { msg = String(e.stderr || e.message); }
