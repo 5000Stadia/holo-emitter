@@ -65,8 +65,9 @@ test.describe("camera-has-feet geometry", () => {
      * the actual is the shipped constant, read through the UMD guard — so
      * drift in GRID_META goes red here, not only in pixel scans.
      *
-     * The eye height is the interim 1.60 m [HUMAN 2026-08-21], and the gate is
-     * asserted AT IT. The defect row 11 found was not the number: it was that
+     * The eye height is the MEASURED 1.08775 m (row 20 read it off the
+     * approved study/N backdrop, which blueprint §5 makes the authority), and
+     * the gate is asserted AT IT. The defect row 11 found was not the number: it was that
      * the meta was authored at 1.6 while §5's gate had been propagated to
      * 1.83, so the shipped meta failed the blueprint's own assertion by 0.0016
      * and `heights.spec` still implemented the assertion at 1.6 — the
@@ -459,9 +460,12 @@ test.describe("corridor is a geometry, not a label", () => {
           .toBeGreaterThan(alley(e));
       }
     }
-    /* The numbers, pinned, so a change of camera model has to restate them:
-       the corridor's returns fill 84% of the frame against the study's 66%,
-       and 4.27 m of side wall is in view against 2.37 m. */
+    /* The numbers, pinned, so a change of camera model has to restate them.
+       AFTER the pinned lens: the corridor's returns fill 71.1 % of the frame
+       against the study's 16.5 %. Before it — the fisheye this row removed —
+       both sat in one band at 84 % and 66 %, which is the whole content of
+       Kabe's "every direction is a corridor". The old pair is quoted here as
+       the before, not asserted; the two expects below are the after. */
     expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * (1024 / 6.0) / 1536, 6);   // 0.711
     expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * (1024 / 4.35) / 1536, 6); // 0.165
     /* THE + JUNCTION GUARD, and it is the row's signature. Kabe's symptom was
@@ -602,7 +606,7 @@ test.describe("corridor is a geometry, not a label", () => {
   });
 });
 
-test("the facing glyph is 0.6 m of wall, and never a fifth of the frame", async ({ page }) => {
+test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async ({ page }) => {
   /* THE GLYPH'S SIZE, MEASURED. It was unguarded: an artifact critic put it
      back to row 2's 1.5 m — 714 px on `hall/N`, 70 % of the frame height, on a
      facing that contains nothing else — and the whole suite stayed green.
@@ -678,7 +682,7 @@ test("the design documents state the shipped grid meta, not a different one", ()
   /* Six significant figures, not the exact double. Row 20 made every number in
      this meta DERIVED — the fallback's camera distance, the measured eye height
      and the measured horizon are the only authored terms — so `floor_line_y`
-     comes out as 0.7864156250000001 and writing that into a document a human
+     comes out as 0.784046875 and writing a full double into a document a human
      reads would be a worse lie than rounding it. The guard's purpose is that a
      [HUMAN] question is never asked against numbers that are not shipping, and
      six figures keeps that: nothing that differs in the picture rounds the

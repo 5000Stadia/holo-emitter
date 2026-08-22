@@ -1214,7 +1214,15 @@
       if (real) {
         manualMaximize = false;
         var p = exitFS();
-        if (p && p.catch) p.catch(function () { manualMaximize = false; syncFullscreenUI(); });
+        /* SYNC ON THE PROMISE, not only on the event. The exit path used to
+           return here and leave the label to `fullscreenchange`; under load a
+           critic caught the button still reading "leave the full screen" after
+           `document.fullscreenElement` was already null — a stale aria-label on
+           the one control a screen-reader user needs to be told the truth
+           about. The event still fires and `syncFullscreenUI` is idempotent,
+           so this is a second chance rather than a replacement. */
+        if (p && p.then) p.then(syncFullscreenUI, function () { manualMaximize = false; syncFullscreenUI(); });
+        else syncFullscreenUI();
         return;
       }
       if (manualMaximize) {
@@ -1223,8 +1231,8 @@
         return;
       }
       var req = requestFS();
-      if (req && req.catch) {
-        req.catch(function () { manualMaximize = true; syncFullscreenUI(); });
+      if (req && req.then) {
+        req.then(syncFullscreenUI, function () { manualMaximize = true; syncFullscreenUI(); });
       } else if (!req) {
         manualMaximize = true;
       }

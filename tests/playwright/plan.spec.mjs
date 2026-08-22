@@ -1676,11 +1676,30 @@ test.describe("the schematic is a derived render of the plan", () => {
     const readme = readFileSync(join(dir, "README.md"), "utf8");
     const m = readme.match(/CAPTURE-SRC\s+([0-9a-f]{7,40})/);
     expect(m, "the batch README must name the src commit its frames were rendered from").toBeTruthy();
-    const changed = execFileSync("git", ["diff", "--name-only", m[1], "HEAD", "--", "src/"],
+    /* src/ AND index.html: the capture loads the page, so the page is as much
+       an input to a frame as the renderer is. Watching only src/ would have
+       let a shell change repaint every capture invisibly. */
+    const changed = execFileSync("git",
+      ["diff", "--name-only", m[1], "HEAD", "--", "src/", "index.html"],
       { cwd: repoRoot, encoding: "utf8" }).trim();
     expect(changed,
       `src/ moved since the batch was captured at ${m[1]} — recapture the batch and update CAPTURE-SRC`)
       .toBe("");
+  });
+
+  /* The batch's two schematics ARE the live sheets — same bytes, not a copy
+     that was true once. A round-4 critic found the batch's pair still printing
+     a drift notice the live sheets no longer carry, because the pictures were
+     older than the drawing that made them. */
+  test("the batch's schematics are the live sheets, byte for byte", () => {
+    const dir = join(repoRoot, "design", "batches", "row20-lens");
+    if (!existsSync(dir)) return;                       // the row closed
+    for (const [batch, live] of [["12-schematic-ground.png", "manor-ground.png"],
+                                 ["13-schematic-upper.png", "manor-upper.png"]]) {
+      expect(readFileSync(join(dir, batch)).equals(readFileSync(join(draftDir, live))),
+        `${batch} is not the sheet the drawing now produces — re-copy it from design/plan-draft/`)
+        .toBe(true);
+    }
   });
 
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {
@@ -1701,7 +1720,14 @@ test.describe("the schematic is a derived render of the plan", () => {
     for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
       const approved = approvedBlob(`design/plan-draft/${f}`).toString("utf8");
       const now = readFileSync(join(draftDir, f), "utf8");
-      const texts = (t) => t.match(/<text[^>]*>[\s\S]*?<\/text>/g) || [];
+      /* The PROVENANCE line is excluded, and deliberately. It is the stamp,
+         not a caption: it restates itself on every render from the lock's
+         state, its font size is fitted to the sheet's own width, and the four
+         tests above already hold it to a much harder standard than "did it
+         move". Judging it here would make the caption clause red for the one
+         string whose whole job is to change when the document does. */
+      const texts = (t) => (t.match(/<text[^>]*>[\s\S]*?<\/text>/g) || [])
+        .filter((el) => !/holo-emitter - overhead plan/.test(el));
       const a = texts(approved), b = texts(now);
       expect(b.length).toBe(a.length);
       const moved = a.map((x, i) => [x, b[i]]).filter(([x, y]) => x !== y);
@@ -1778,12 +1804,131 @@ test.describe("the schematic is a derived render of the plan", () => {
 
 /* --------------------------------------------------------------- the report */
 
+/* THE SHEET'S FACE HAS TO HOLD THE SENTENCE IT PRINTS. §12 says the approval
+ * scope is what "the sheet prints on its own face", and architecture.md says a
+ * stamp that says APPROVED without saying of what is the picture lying about
+ * the document. A round-4 critic measured ink at column 3039 of a 3040-px
+ * render: the stamp ran off the right edge and ended mid-word, in the live
+ * sheets and in the batch. SVG does not wrap, and nothing was looking.
+ *
+ * `draw_plan.py` wraps it now and REFUSES a word wider than the column. This
+ * asks the picture instead of the drawing code, because the drawing code's
+ * width estimate is the thing most likely to be wrong. */
+test.describe("the approval stamp fits inside the paper", () => {
+  const SHEETS = ["manor-ground", "manor-upper"];
+
+  for (const sheet of SHEETS) {
+    test(`${sheet}: no stamp ink reaches the sheet edge`, async ({ page }) => {
+      const png = readFileSync(join(draftDir, `${sheet}.png`)).toString("base64");
+      const ink = await page.evaluate(async (b64) => {
+        const img = new Image();
+        img.src = "data:image/png;base64," + b64;
+        await img.decode();
+        const c = document.createElement("canvas");
+        c.width = img.width; c.height = img.height;
+        const g = c.getContext("2d");
+        g.drawImage(img, 0, 0);
+        /* The stamp block: the SVG puts the title at y 40, the stamp from y 80
+           and the rule under it. At 2x that is roughly rows 140..230. */
+        const band = g.getImageData(0, 140, img.width, 95).data;
+        let lo = img.width, hi = -1;
+        for (let y = 0; y < 95; y++) {
+          for (let x = 0; x < img.width; x++) {
+            const i = (y * img.width + x) * 4;
+            if (band[i] < 230 || band[i + 1] < 230 || band[i + 2] < 230) {
+              if (x < lo) lo = x;
+              if (x > hi) hi = x;
+            }
+          }
+        }
+        return { lo, hi, w: img.width };
+      }, png);
+      expect(ink.hi).toBeGreaterThan(0);          // there IS a stamp
+      /* The sheet's margin is 40 SVG units, 80 device px at 2x. Ink inside the
+         margin on either side means the line was laid out to the paper. */
+      expect(ink.lo, `${sheet}: stamp ink starts left of the margin`).toBeGreaterThanOrEqual(72);
+      expect(ink.w - 1 - ink.hi, `${sheet}: stamp ink runs into the right margin — it is being clipped by the sheet edge`)
+        .toBeGreaterThanOrEqual(72);
+    });
+  }
+
+  test("and the drawing refuses a stamp too long for the column", () => {
+    const src = readFileSync(join(repoRoot, "design", "plan-draft", "draw_plan.py"), "utf8");
+    expect(src).toMatch(/def fit_size_px\(/);
+    expect(src, "fit_size_px must refuse rather than overflow").toMatch(/raise SystemExit/);
+    let refused = false;
+    try {
+      execFileSync("python3", ["-c",
+        "import sys; sys.path.insert(0,'design/plan-draft'); import draw_plan as d; d.fit_size_px('x'*400, 1440, 10, 7.5)"],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      refused = /does not fit/.test(String(e.stderr || e.stdout || e.message));
+    }
+    expect(refused, "a 400-character stamp did not make the drawing refuse").toBe(true);
+  });
+
+  /* The width model the wrap trusts is a table of glyph advances. If the table
+     drifts from the font the SVG actually names, the wrap silently starts
+     lying — so regenerate it from the font and compare, where the font is
+     present. */
+  test("the glyph-advance table still matches DejaVu Sans", () => {
+    let out;
+    try {
+      out = execFileSync("python3", ["-c", `
+from PIL import ImageFont
+import sys; sys.path.insert(0, 'design/plan-draft')
+import draw_plan as d
+f = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 1000)
+bad = [c for c, w in d._ADV.items() if round(f.getlength(chr(c))) != w]
+print(len(bad), bad[:5])
+`], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch {
+      test.skip(true, "PIL or the DejaVu font is not present here");
+      return;
+    }
+    expect(out.trim().startsWith("0 "), `advance table drifted from the font: ${out.trim()}`).toBe(true);
+  });
+});
+
 test.describe("the projection report", () => {
   test("byte-equals a fresh run of the generator", () => {
     const fresh = report(PLAN, STAGING, BY_ENTITY);
     const committed = readFileSync(join(draftDir, "projection.md"), "utf8");
     expect(fresh === committed,
       "stale report — run: node tools/plan-projection.mjs --write").toBe(true);
+  });
+
+  /* THE BYTE-EQUALITY ABOVE COMPARES THE DOCUMENT TO ITSELF, and a round-4
+   * critic showed what that misses: the facing table printed `undefined` in
+   * the camera column of all 88 rows for a whole row, because row 20 deleted
+   * the `camera` meta field while `plan.spec` separately asserted on every
+   * derived meta that the field IS gone. Two statements in one repo, one
+   * asserting a field's absence and one printing it into a document a human
+   * reads, and a generator faithfully reproducing the mistake on every run.
+   * So: at least one assertion about the report's CONTENT that its own
+   * generator cannot satisfy by being consistent. */
+  test("the report prints no absent field — no undefined, NaN or null in any row", () => {
+    const md = readFileSync(join(draftDir, "projection.md"), "utf8");
+    const rows = md.split("\n").filter((l) => l.startsWith("| ") && l.includes(" | "));
+    expect(rows.length).toBeGreaterThan(88);
+    const bad = rows.filter((l) => /\|\s*(undefined|NaN|null)\s*\|/.test(l));
+    expect(bad.slice(0, 3), `${bad.length} table cells print a field that does not exist`).toEqual([]);
+  });
+
+  test("and the standpoint column carries the plan's own tokens, not a stale field", () => {
+    const md = readFileSync(join(draftDir, "projection.md"), "utf8");
+    const header = md.split("\n").find((l) => l.startsWith("| floor | room | facing |"));
+    expect(header).toContain("| standpoint |");
+    const col = header.split("|").map((s) => s.trim()).indexOf("standpoint");
+    const seen = new Set();
+    for (const l of md.split("\n")) {
+      if (!/^\| (ground|upper) \| /.test(l)) continue;
+      seen.add(l.split("|").map((s) => s.trim())[col]);
+    }
+    // every value is a legal token, and the row's own branch is really in there
+    for (const v of seen) expect(["rule", "threshold", "drawn"]).toContain(v);
+    expect(seen.has("threshold"), "the report shows no thresholded standpoint at all").toBe(true);
+    expect(seen.has("rule"), "the report shows no ruled standpoint at all").toBe(true);
   });
 
   /* Round-4 finding F4: almost every pointer into this report resolved to the

@@ -30,7 +30,7 @@
  * watching it go red.
  */
 import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl } from "./helpers.mjs";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
@@ -76,6 +76,18 @@ function tokensOf(findings) {
  * their names. Row 11's first ledger compared two hand-typed lists to each
  * other: deleting a whole case left it green, which is the one thing a
  * completeness check is for. */
+/* THE SCANNED SET IS DERIVED FROM THE DIRECTORY, NOT TYPED. It was a
+   hand-typed list of four paths that happened to be all of `tools/` — but
+   nothing asserted that, so a fifth tool with an emit site would have been
+   invisible to both the "emitted but undeclared" check and the
+   one-token-one-site count. Same shape of hole as counting tokens per file
+   instead of over their union, and a directory read cannot fall behind the
+   directory. */
+const SCANNED = readdirSync(join(repoRoot, "tools"))
+  .filter((f) => f.endsWith(".mjs"))
+  .map((f) => `tools/${f}`)
+  .sort();
+
 const REGISTERED = new Set();
 function ledgerCase(name, body) {
   REGISTERED.add(name);
@@ -83,7 +95,20 @@ function ledgerCase(name, body) {
 }
 
 /* The declared set. Adding a mechanism here without a case below is an
- * absence; a case whose name is not here is a name nobody owns. */
+ * absence; a case whose name is not here is a name nobody owns.
+ *
+ * WHAT THIS LEDGER DOES NOT COUNT, said here rather than discovered. Two of
+ * row 20's headline picture guards — corner honesty (a corner is drawn exactly
+ * when it is honestly in frame, `mechanisms.spec`) and the glyph's size cap
+ * (`geometry.spec`) — are ordinary tests, not ledger mechanisms. Both work and
+ * both were verified red by reverting what they guard, but neither carries a
+ * token and neither is named below, so DELETING THOSE TESTS leaves every
+ * completeness assertion in this file green. They are not counted because
+ * their subject is a measurement of the picture rather than a clause with an
+ * emit site, and the renderer's source scan — the machinery that would let a
+ * picture guard be counted — is row 18's. Two things are true at once: the
+ * ledger is complete over what it declares, and what it declares is not
+ * everything the row relies on. */
 export const MECHANISMS = [
   // the §5 meta schema arm (tools/validate-fixtures.mjs checkMeta) — ONE NAME
   // PER ARM. Row 11's first ledger gave `meta.camera_pairing` four arms and
@@ -126,6 +151,7 @@ export const MECHANISMS = [
   "bake.refuses_lens_drift",
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
+  "meta.one_lens_measured",
   "plan.standpoint_source",
   "plan.standpoint_branch",
   "plan.standpoint_stands_back",
@@ -199,6 +225,16 @@ const DOCUMENT_CASES = {
      replaced §12.5 (i). Doctoring the SCALE alone (not the distance) is what a
      meta authored on a different lens looks like. */
   "meta.one_lens": () => tokensFromMetas((m) => { m["hall/S"].px_per_m_at_wall *= 1.2; }),
+  /* The MEASURED arm, which is the one that can fail on something this project
+     did not compute — and which went a whole row unexercised while its literal
+     tolerance agreed with no document. A measured meta is admitted inside the
+     asset gate's ±3 % band around the approved 1010 px; this one is pushed out
+     of it while staying near enough the ruled lens that the derived arm would
+     have shrugged. */
+  "meta.one_lens_measured": () => tokensFromMetas((m) => {
+    m["hall/S"].measured = true;
+    m["hall/S"].px_per_m_at_wall = 1120 / m["hall/S"].camera_wall_m;   // a 1120 px lens
+  }),
   "meta.image_h": () => tokensFromMetas((m) => { m["hall/S"].image_h_px = 900; }),
   "meta.segment_shape": () => tokensFromMetas((m) => segmented(m, [{ from_m: 2, to_m: 1, kind: "wall" }])),
   "meta.segment_bounds": () => tokensFromMetas((m) => segmented(m, [{ from_m: 0, to_m: 99, kind: "wall" }])),
@@ -1087,8 +1123,7 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
      mints outside the renderer. The renderer's tokens are still covered by
      `MECHANISMS` plus a registered case and NOT by a source scan — that half
      stays row 18's, and saying which half is scanned is the point. */
-  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs",
-    "tools/plan-projection.mjs", "tools/bake-fixtures.mjs"]) {
+  for (const f of SCANNED) {
     const src = readFileSync(join(repoRoot, f), "utf8");
     for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) seen.add(m[1]);
   }
@@ -1102,8 +1137,7 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
      the failure this assertion exists to prevent (`meta.camera_pairing`
      tagging four arms), reachable across files instead of within one. */
   const counts = {};
-  for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs",
-    "tools/plan-projection.mjs", "tools/bake-fixtures.mjs"]) {
+  for (const f of SCANNED) {
     const src = readFileSync(join(repoRoot, f), "utf8");
     for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) {
       counts[m[1]] = (counts[m[1]] || 0) + 1;

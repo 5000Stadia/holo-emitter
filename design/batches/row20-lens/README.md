@@ -1,6 +1,7 @@
 # Row 20 — the lens, and what it did to the two rooms
 
-Fifteen captures and the two redrawn schematics. Every frame is the `#scene` element alone at
+Eleven captures of the shipped build, a BEFORE frame for each of the eight facings, and the two
+redrawn schematics. Every frame is the `#scene` element alone at
 native 1536×1024, cold `file://` load, Chromium, `body.capture` (no chrome), nothing hovered,
 nothing focused, reached by **real intents through the harness** — turn, toggle, go — never by
 writing a viewstate. That is §12.6's capture spec, the same frame every hash test and the flip test
@@ -8,10 +9,13 @@ read.
 
 Placeholder art (V1). Nothing here is judged on finish.
 
-**CAPTURE-SRC 0f98884** — the commit whose `src/` these frames were rendered from. It is machine-read
-by `plan.spec`, which goes red if `src/` moves and the batch does not, because a batch that no longer
-shows what the code draws is worse than no batch: the first version of this one was captured before
-the facing glyph was resized, and every frame in it was a picture of code that had stopped existing.
+**CAPTURE-SRC b9df7ee** — the commit whose `src/` and `index.html` these frames were rendered from.
+It is machine-read by `plan.spec`, which goes red if either moves and the batch does not, because a
+batch that no longer shows what the code draws is worse than no batch: the first version of this one
+was captured before the facing glyph was resized, and every frame in it was a picture of code that
+had stopped existing. `capture.mjs` beside these files is the script that made them — it was in a
+scratch directory when a critic pointed out that an artifact nobody can regenerate is not derived,
+it is just a file.
 
 ---
 
@@ -41,9 +45,14 @@ two pictures. If you look at four, look at these:
 
 ## The eight facings, and the three states
 
-`01`–`08` are the eight. `09` is the study with the drawer open and the key revealed; `10` and `11`
-are the door standing open from the study side and from the passage side. `12` and `13` are the
-redrawn schematics — the standpoints moved, and those two sheets are the drawing that says so.
+`01`–`08` are the eight. `09` is the study with the drawer open and the key revealed. `10` is the
+door standing open from the study side; `11` is the passage side with the leaf SHUT — worth saying
+why, because it was wrong until a critic pushed: you can only reach the passage by opening that
+door, so `08-hall-W` already shows it open and the frame that used to be called
+`11-hall-W-door-open` was the same picture under a name that promised a different one. Shutting it
+on arrival is the state the batch was actually missing. `12` and `13` are the redrawn schematics —
+the standpoints moved, and those two sheets are the drawing that says so; they are byte-identical
+to `design/plan-draft/manor-{ground,upper}.png`, which a test now asserts.
 
 ## The symptom, as a number
 
@@ -60,6 +69,17 @@ The share of the frame taken by **side wall** rather than by the wall you are fa
 Before, the study and the corridor were one band with no separation between them, which is the `+`
 shape stated as arithmetic. After, a room shows a room and a corridor shows a corridor, and a test
 fails if a facing of a room that is not a corridor ever shows more side wall than facing wall.
+
+**And `study/S`'s 5.6 % is the smallest number in that column for a reason you should see rather
+than infer.** It is the one facing where the room only just ends inside the frame: its wall draws
+**94.4 % of the frame width**, leaving **43 px of side wall** on each side against `study/N`'s
+127 px — and `study/N` is the frame you approved, the one the preview notes described as reading
+like a room *because* "a band of side wall stands beside each corner". `study/S` has a band about a
+third that wide. The cause is honest and is not a lens choice: the chimney breast is behind you on
+that facing, so you cannot stand back the full way and the standpoint pulls forward from 4.35 m to
+3.85 m. **Open `03-study-S.png` next to `01-study-N.png`.** If the south wall reads as pressed
+against the glass where the north wall does not, that is a room-shape question — the fireplace, or
+where the room is entered from — and it is yours, not a number an agent may retune.
 
 ---
 

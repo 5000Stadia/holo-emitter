@@ -39,6 +39,17 @@ import { metaForFacing as planMetaForFacing } from "./plan-projection.mjs";
 /* Row 20: the ruled lens, from its one code home. */
 const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_PX;
 
+/* The acceptance band for a MEASURED backdrop meta, and the only home for it.
+ * `design/plan-draft/measured/gate.py` states the same two numbers as the
+ * asset seat's acceptance gate (`REFERENCE_PX`, `BAND`); `plan.spec` asserts
+ * the two files agree, so widening one without the other goes red. */
+export const MEASURED_REFERENCE_PX = 1010.0;   // study/N, measured — the approved camera
+export const MEASURED_BAND = 0.03;             // ±3 %, blueprint §5 / gate.py
+export function measuredLensBand() {
+  return { lo: MEASURED_REFERENCE_PX * (1 - MEASURED_BAND),
+           hi: MEASURED_REFERENCE_PX * (1 + MEASURED_BAND), exact: false };
+}
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 const { GRID_META } = require_("../src/renderer.js");
@@ -360,8 +371,30 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
     const dist = meta.camera_wall_m != null ? meta.camera_wall_m : meta.camera_far_m;
     if (typeof dist === "number") {
       const focal = meta.px_per_m_at_wall * dist;
-      const tol = meta.measured ? 0.05 : 1e-9;
-      if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= tol)) {
+      /* TWO ARMS, AND THE MEASURED ONE IS THE ONE WITH TEETH. A derived meta
+       * must hit the ruled focal exactly. A measured one is a reading off a
+       * painting and cannot, so its band is the SAME band the asset seat's
+       * acceptance gate uses, sourced here rather than invented: a candidate
+       * backdrop is admitted when its implied focal lands within ±3 % of
+       * `study/N`'s measured 1010 px — the one frame Kabe's own probe approved
+       * — and a meta this validator admits must be exactly the set that gate
+       * admits, or the corpus passes one law and fails the other. Before this
+       * was written down the arm read `0.05`, a literal that agreed with no
+       * document, that nothing exercised, and that a critic widened to 0.99
+       * with the whole suite green. `measuredLensBand()` is its one home and
+       * `plan.spec` binds it to `gate.py`'s own two literals. */
+      /* AND THE TWO ARMS CARRY TWO TOKENS, because one token over two arms is
+       * one countable thing over two behaviours and the ledger can only ever
+       * exercise whichever the case happens to reach. That is the
+       * `meta.camera_pairing` failure `guards.spec`'s own header exists to
+       * prevent, and this clause committed it again until a critic widened the
+       * unexercised arm to 0.99 with the suite green. */
+      if (meta.measured) {
+        const band = measuredLensBand();
+        if (!(focal >= band.lo && focal <= band.hi)) {
+          findings.push(`${label}: MEASURED ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% acceptance band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the approved ${MEASURED_REFERENCE_PX} px (§12.5 (i′), blueprint §5) — the painting is not on the project's camera [row20:meta.one_lens_measured]`);
+        }
+      } else if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= 1e-9)) {
         findings.push(`${label}: ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (§12.5 (i′), blueprint §10) — one lens per room, and per manor [row20:meta.one_lens]`);
       }
     }

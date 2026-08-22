@@ -1,0 +1,67 @@
+/* Batch capture — §12.6's capture spec: the scene canvas element alone at
+ * native 1536×1024, cold file:// load, Chromium, no chrome, no hover, focus
+ * blurred (architecture.md's row-10 note: a focus halo paints into #overlay,
+ * which never carried class="chrome"). Every frame is reached by real intents
+ * through the harness, never by writing viewstate.
+ *
+ * usage: node capture.mjs <outDir>
+ */
+import { chromium } from "playwright";
+import { mkdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const outDir = resolve(process.argv[2]);
+mkdirSync(outDir, { recursive: true });
+
+const R = { type: "turn", dir: "right" };
+const OPEN_DOOR = { type: "toggle", entity: "door1" };
+const GO_HALL = { type: "go", exit: "door_study_hall" };
+
+/* Boot is study/N. Turning right cycles N -> E -> S -> W. Crossing east lands
+ * in the hall facing E (passage maintains orientation), and turning right from
+ * there cycles E -> S -> W -> N. */
+const toStudy = (f) => Array(["N", "E", "S", "W"].indexOf(f)).fill(R);
+const toHall = (f) => [R, OPEN_DOOR, GO_HALL]
+  .concat(Array(["E", "S", "W", "N"].indexOf(f)).fill(R));
+
+const FRAMES = [
+  ["01-study-N", toStudy("N")],
+  ["02-study-E", toStudy("E")],
+  ["03-study-S", toStudy("S")],
+  ["04-study-W", toStudy("W")],
+  ["05-hall-N", toHall("N")],
+  ["06-hall-E", toHall("E")],
+  ["07-hall-S", toHall("S")],
+  ["08-hall-W", toHall("W")],
+  ["09-study-N-drawer-open-key", [{ type: "toggle", entity: "desk1" }]],
+  ["10-study-E-door-open", [R, OPEN_DOOR]],
+  /* Every hall frame arrives THROUGH door1, so 08-hall-W already shows the
+     leaf open — frame 11 as written was a byte-identical duplicate under a
+     name that promised a different state. Toggling once on arrival shuts it,
+     which is the state the batch was actually missing. */
+  ["11-hall-W-door-shut", toHall("W").concat([OPEN_DOOR])]
+];
+
+const b = await chromium.launch();
+
+for (const [name, intents] of FRAMES) {
+  const page = await b.newPage({ viewport: { width: 1536, height: 1200 } });
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href);
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  const vs = await page.evaluate((list) => {
+    const A = window.HOLO_APP;
+    for (const it of list) A.dispatch(it);
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    document.body.classList.add("capture");
+    return A.harness.viewstate;
+  }, intents);
+  await page.waitForTimeout(150);
+  await page.locator("#scene").screenshot({ path: join(outDir, name + ".png") });
+  console.log(name, "->", vs.location + "/" + vs.facing);
+  await page.close();
+}
+
+await b.close();
+console.log("captured to", outDir);

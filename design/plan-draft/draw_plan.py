@@ -83,6 +83,58 @@ def plan_digests(plan):
             hashlib.sha256(_canonical(undrawn)).hexdigest())
 
 
+# ------------------------------------------------- the stamp has to FIT
+# A sheet whose provenance line runs off its own right edge is the picture
+# lying about the document by the simple route of not finishing the sentence.
+# An artifact critic found ink at column 3039 of a 3040-px render, the stamp
+# ending mid-word at "moved by row 20'". Nothing caught it because the stamp
+# was one <text> element and SVG does not wrap.
+#
+# ADVANCE, in 1/1000 em, for DejaVu Sans - the first family the <text> names
+# and the one every render here resolves. Generated once from
+# /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf; `plan.spec` regenerates it
+# and compares when PIL and the font are present, so it cannot rot silently.
+# Anything not in the table is charged the widest glyph in it, so an unknown
+# character wraps early rather than overflowing.
+_ADV = {
+32:318,33:401,34:460,35:838,36:636,37:950,38:780,39:275,40:390,41:390,
+42:500,43:838,44:318,45:361,46:318,47:337,48:636,49:636,50:636,51:636,
+52:636,53:636,54:636,55:636,56:636,57:636,58:337,59:337,60:838,61:838,
+62:838,63:531,64:1000,65:684,66:686,67:698,68:770,69:632,70:575,
+71:775,72:752,73:295,74:295,75:656,76:557,77:863,78:748,79:787,80:603,
+81:787,82:695,83:635,84:611,85:732,86:684,87:989,88:685,89:611,90:685,
+91:390,92:337,93:390,94:838,95:500,96:500,97:613,98:635,99:550,
+100:635,101:615,102:352,103:635,104:634,105:278,106:278,107:579,
+108:278,109:974,110:634,111:612,112:635,113:635,114:411,115:521,
+116:392,117:634,118:592,119:818,120:592,121:592,122:525,123:636,
+124:337,125:636,126:838,167:500,177:838,8211:500,8212:1000,8217:318,
+}
+_ADV_MAX = max(_ADV.values())
+
+
+def text_px(s, size):
+    """Rendered advance width of `s` at `size`, in SVG user units."""
+    return sum(_ADV.get(ord(c), _ADV_MAX) for c in s) * size / 1000.0
+
+
+def fit_size_px(s, max_px, size, floor):
+    """The largest font size at or below `size` whose rendered advance fits in
+    `max_px`, in quarter-point steps. Refuses below `floor` rather than
+    printing past the sheet edge - a stamp that runs off the paper stops the
+    sentence mid-word, and an unfinished provenance line is the picture lying
+    about the document by omission."""
+    px = size
+    while px >= floor:
+        if text_px(s, px) <= max_px:
+            return round(px, 2)
+        px -= 0.25
+    raise SystemExit(
+        "draw_plan: the provenance line needs %.0f px at size %s and the sheet "
+        "gives the stamp %.0f px - it does not fit even at the %s floor. "
+        "Shorten it or widen the sheet; it must not run off the edge."
+        % (text_px(s, floor), floor, max_px, floor))
+
+
 def approval_line(plan_path, validated):
     """The provenance line printed under the title.
 
@@ -540,7 +592,15 @@ def build(name, title, sub, rooms, parts, doors, wins, fires, stairs,
     b.o.append('<rect x="0" y="0" width="%d" height="%d" fill="#ffffff"/>' % (W, H))
     b.ptext(40, 40, title, 25, weight="bold")
     b.ptext(40, 62, sub, 11.5, fill="#4a443c")
-    b.ptext(40, 80, PROVENANCE, 10, fill="#6b6257")
+    # THE STAMP IS FITTED TO THE SHEET, and fitted by SIZE rather than by
+    # wrapping, because the header band between the subtitle and the map is one
+    # line deep and a provenance line getting longer must not move a single
+    # drawn thing - or the approval lock trips on the stamp instead of on the
+    # drawing it is guarding. `fit_size_px` returns the largest size at or
+    # below 10 that finishes inside the column, and REFUSES below 7.5 rather
+    # than printing off the right edge, which is what the sheet used to do.
+    b.ptext(40, 80, PROVENANCE, fit_size_px(PROVENANCE, W - 80, 10, 7.5),
+            fill="#6b6257")
     b.pline(40, 90, W - 40, 90, stroke="#2b2620", stroke_width="1.6")
     fit_check(name, b, rooms, parts, stars)
     rows = draw_floor(b, rooms, parts, doors, wins, fires, stairs, gw)

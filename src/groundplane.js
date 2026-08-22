@@ -80,9 +80,11 @@
 
   /* The unplanned-facing fallback's own camera distance. 4.0 m rather than
    * row 1's 3.5: under a pinned lens every other number in that meta is
-   * derived from it, and 4.0 makes them exact decimals a human can check in
-   * the blueprint (256 px/m, floor_line_y 0.88) where 3.5 gives
-   * 292.57142857142856. It is a choice about space nobody has drawn, and
+   * derived from it, and 4.0 makes the scale an exact decimal a human can
+   * check in the blueprint (256 px/m) where 3.5 gives 292.57142857142856.
+   * `floor_line_y` is 0.784047 at the measured eye — no longer a round
+   * number, because the eye stopped being an authored one and became a
+   * measurement off the approved picture. It is a choice about space nobody has drawn, and
    * nothing the demo renders resolves to it. */
   var CAMERA_WALL_M = 4.0;
 

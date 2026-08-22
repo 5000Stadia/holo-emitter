@@ -7,7 +7,7 @@
  * pattern.
  */
 import { test, expect, repoRoot, appUrl, stageTree, removeTree, bake } from "./helpers.mjs";
-import { validate } from "../../tools/validate-fixtures.mjs";
+import { validate, MEASURED_REFERENCE_PX, MEASURED_BAND } from "../../tools/validate-fixtures.mjs";
 import { createRequire } from "node:module";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -490,5 +490,33 @@ test.describe("the overlap check is bound to the renderer's placement", () => {
       groundplane.placeHost = original;
     }
     expect(validate(fixtureDir, records)).toEqual([]);
+  });
+});
+
+/* ONE BAND, TWO FILES, AND THE FILES ARE IN DIFFERENT LANGUAGES. The measured
+ * arm of §12.5 (i′) admits exactly what the asset seat's acceptance gate
+ * admits — a candidate backdrop whose implied focal lands within ±3 % of the
+ * approved study/N's measured 1010 px. `gate.py` is the seat's copy and
+ * `validate-fixtures.mjs` is the project's, and a round-4 critic widened the
+ * project's to 0.99 with the whole suite green because the number lived
+ * nowhere else. Now widening either one alone goes red. */
+test.describe("the measured-lens acceptance band", () => {
+  test("agrees, number for number, with the asset gate that admits the backdrops", () => {
+    const gate = readFileSync(join(repoRoot, "design", "plan-draft", "measured", "gate.py"), "utf8");
+    const ref = gate.match(/^REFERENCE_PX\s*=\s*([0-9.]+)/m);
+    const band = gate.match(/^BAND\s*=\s*([0-9.]+)/m);
+    expect(ref, "gate.py no longer states REFERENCE_PX").toBeTruthy();
+    expect(band, "gate.py no longer states BAND").toBeTruthy();
+    expect(Number(ref[1])).toBe(MEASURED_REFERENCE_PX);
+    expect(Number(band[1])).toBe(MEASURED_BAND);
+  });
+
+  test("and the band is a band, not a shrug — it cannot be widened past the ruled lens", () => {
+    /* A tolerance loose enough to admit any picture is the gate-that-cannot-
+     * fail this project has paid for five times. The band must exclude the
+     * worst lens the eight approved backdrops actually contain (498 px). */
+    expect(MEASURED_BAND).toBeGreaterThan(0);
+    expect(MEASURED_REFERENCE_PX * (1 - MEASURED_BAND)).toBeGreaterThan(498);
+    expect(MEASURED_BAND).toBeLessThan(0.1);
   });
 });

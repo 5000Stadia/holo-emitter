@@ -47,7 +47,8 @@ study is an **8 mm / 131.5°** view. After this row every facing is 1024 px / 73
 the frame, as in life. §12.5's clause (i) — *the wall in view fits the frame* — is therefore false
 by design and is replaced rather than kept (§7.1).
 
-**(d) The nearest visible floor is one number everywhere: 3.077 m.**
+**(d) The nearest visible floor is one number everywhere: 3.077 m.** *[SUPERSEDED by §14's measured
+camera — it is 2.2295 m. The reasoning below stands; the number does not.]*
 `nearest_floor = FOCAL_PX / px_per_m_at_bottom = eye / (1 − horizon_y)`, independent of standpoint.
 See §9.1 — this is the row's largest named cost and the plan's first revision got its repair wrong.
 
@@ -261,7 +262,7 @@ that already has teeth, not by this plan's judgement — and no standpoint insid
 it, and `horizon_y` is not this row's to move (§9.1).
 
 **Where they go: `hall/E`**, the passage's 2.60 m east end wall seen from 6.00 m, where the floor
-runs from 3.077 m to 6.00 m. The footprints, authored here rather than left to the build:
+runs from 3.077 m to 6.00 m *[2.2295 m under §14's measured camera]*. The footprints, authored here rather than left to the build:
 
 | object | plan footprint (m) | attachment | depth from wall | distance | scale | drawn |
 |---|---|---|---|---|---|---|
@@ -452,7 +453,9 @@ overlap and the second door's `u` follows from it), `determinism`, `knowledge`, 
 - **The facing glyph is capped, and its status changes.** It is *"1.5 m tall at wall scale"*; wall
   scale now runs 170 → 476 px/m, so on `hall/N` a 1.5 m mark is **714 px — 70 % of the frame
   height**, and a room with a metre-high letter filling it is a diagram. It becomes
-  `min(1.5 m at wall scale, 0.14 × frame height)` — 143 px, the size it draws at today. **What that
+  `min(1.5 m at wall scale, 0.14 × frame height)`. *[BUILT DIFFERENTLY, per §14: a frame-fraction cap
+  makes the mark chrome wearing the wall's clothes, so what shipped is a flat 0.35 m at wall scale —
+  60 to 167 px, bigger where the wall is closer, which is what paint on a wall does.]* **What that
   costs, said plainly:** on facings where the cap binds, the glyph is a frame-relative mark rather
   than something painted on the wall, which is not what §7 calls it. It is V1 signage that real
   backdrops replace, the cap keeps it from becoming the loudest object in the room, and the
@@ -651,6 +654,33 @@ absorbs what free-look cannot. The black seen through an open door — 4.4 % of 
 6.8× because the lens magnified the doorway — is not this row's to fix and is queued as a row
 candidate the Navigator allocates on this row's close: *through an opening, the destination room's
 content shows*. It ships as honest interim, named in the batch README in those words.
+
+**Round 4 of the artifact critic returned NOT PASS on seven blocking findings, and the family was
+one family.** Every one of them was a statement that had stopped being true and nothing was reading:
+the batch's eleven captures were rendered before the facing glyph was resized and were pictures of
+code that no longer ran; its two schematics still printed a drift notice the live sheets had
+dropped; the approval stamp ran off the sheet's own right edge and ended mid-word, in the live
+sheets too; `projection.md` printed `undefined` in the camera column of all 88 rows because this row
+deleted the field while `plan.spec` separately asserted its absence; and ten more statements about
+the camera — in the shipped renderer's own trailing comments, in the test-side literals file, in
+`architecture.md` and in this spec — still described the pre-adoption camera. Plus `meta.one_lens`,
+the row's headline mechanism, had a second arm that a critic widened to 0.99 with the whole suite
+green, because the measured arm's tolerance was a literal agreeing with no document and no case
+reached it.
+
+**The lesson the row is closing on, and it is not "check the documents".** Every one of those
+survived because the thing that could have caught it was comparing an artifact TO ITSELF. The
+report byte-equalled a fresh run of its own generator. The batch had no relationship to the code at
+all. The stamp was one unwrapped `<text>` and SVG does not measure. The ledger's completeness was
+derived, but only over the arm its case happened to reach. So the fixes are all the same shape —
+give each claim a second, independent reader: `CAPTURE-SRC` plus a committed `capture.mjs` so the
+batch is regenerable and goes red when `src/` or `index.html` outruns it; a byte-equality between
+the batch's schematics and the live sheets; a pixel measurement of the stamp band that fails when
+ink reaches the margin, with `fit_size_px` refusing rather than overflowing and the glyph-advance
+table regenerated from the font it claims; content assertions on the report that its own generator
+cannot satisfy by being self-consistent; a second token and a second case for the measured lens arm,
+with its band sourced from `gate.py`'s own two literals in the other language; and the scanned file
+set derived from the directory instead of typed.
 
 **What the row still owes, in order:** the seven regenerated backdrops through the gate; their
 promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and

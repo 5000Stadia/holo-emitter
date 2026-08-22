@@ -1201,12 +1201,12 @@ export function report(plan, staging, records) {
   P("with a gap, or an `open` facing with a far line is §0's question 3, and it is Kabe's; the");
   P("number is not moved here because it is read off the approved drawing.");
   P();
-  P("| floor | room | facing | type | camera | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |");
+  P("| floor | room | facing | type | standpoint | to wall/far | wall_width_m | px/m at wall | focal px | floor_line_y | nearest floor | corner_x0_px | corner_x1_px | backdrop |");
   P("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const room of plan.rooms) {
     for (const f of FACINGS) {
       const m = deriveMeta(plan, room.id, f);
-      P(`| ${room.floor} | ${room.name} | ${f} | ${m.facing_type} | ${m.camera} | ${fixed(m.camera_wall_m ?? m.camera_far_m, 2)} | ${fixed(m.wall_width_m, 2)} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(m.focal_px, 0)} | ${fixed(m.floor_line_y, 4)} | ${fixed(m.nearest_floor_m, 2)} | ${fixed(m.corner_x0_px, 1)} | ${fixed(m.corner_x1_px, 1)} | ${m.backdrop} |`);
+      P(`| ${room.floor} | ${room.name} | ${f} | ${m.facing_type} | ${(room.facings[f] || {}).standpoint_source || "rule"} | ${fixed(m.camera_wall_m ?? m.camera_far_m, 2)} | ${fixed(m.wall_width_m, 2)} | ${fixed(m.px_per_m_at_wall, 2)} | ${fixed(m.focal_px, 0)} | ${fixed(m.floor_line_y, 4)} | ${fixed(m.nearest_floor_m, 2)} | ${fixed(m.corner_x0_px, 1)} | ${fixed(m.corner_x1_px, 1)} | ${m.backdrop} |`);
     }
   }
   P();

@@ -410,9 +410,11 @@ export { expect };
  *
  * Literals, never an import — and since row 11 literals of TWO documents:
  *
- *   - the camera, from blueprint §7's grid-canonical amendment and §5's
- *     [HUMAN 2026-08-21] interim eye ruling: horizon 0.48, 96 px/m at the
- *     wall, 1536×1024, eye 1.60 m. `floor_line_y` and `px_per_m_at_bottom`
+ *   - the camera: blueprint §7's grid-canonical amendment, and §5's rule
+ *     that the approved image is the geometric authority — so since row 20
+ *     the eye and the horizon are MEASURED off `study/N` rather than
+ *     authored: horizon 524.4/1024, eye 1.08775 m, a 1024 px lens, and
+ *     1536×1024. `floor_line_y` and `px_per_m_at_bottom`
  *     are then §5's own horizon device, written out here as arithmetic rather
  *     than copied. §10's ruled 1.83 m is here too, under its own name, because
  *     it is a different camera with a different job: generation.
@@ -434,8 +436,10 @@ export const LIT = {
      the 36 mm-wide format this frame is, which is exactly 1024 px. */
   focal_px: 1024,
   /* THE HORIZON, and it is the lens SHIFT — a level camera with its frame
-     moved, not a tilted one. Measured off the approved backdrops at y 490 of
-     1024 by a vanishing-point vote over three disjoint regions. */
+     moved, not a tilted one. Measured off the approved `study/N` backdrop at
+     y 524.4 of 1024 by the CEILING-RAMP FIT, which the Navigator ruled in
+     over the vanishing-point vote: the two disagree by up to 66 px across the
+     eight frames and the ramp fit closes at a 0.3 px residual. */
   horizon_y: 524.4 / 1024,
   /* THE DRAWING CAMERA'S EYE HEIGHT, MEASURED (row 20). Blueprint §5 [HUMAN,
      2026-08-20] rules that the geometry is determined by the orientation of

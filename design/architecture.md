@@ -1121,7 +1121,10 @@ across the central `wall_width_m` with cx centre-by-default (768); real measured
   object present** — the `anchor_on` children included, whose pools are derived rather than read
   off a footprint and whose §7 clause ("an on-surface object with no grounding is a sticker") had
   no magnitude gate at all.
-- **The glyph carries real ink and not much voice** — 1.5 m tall at wall scale, stroke weight
+- **The glyph carries real ink and not much voice** — 0.35 m tall at wall scale since row 20
+  (1.5 m was a row-2 number chosen against a FIXED 96 px/m; under a pinned lens wall scale runs
+  170→476 px/m and 1.5 m drew 714 px, 70 % of the frame — a metre-high letter filling a room is
+  the diagram Kabe named), stroke weight
   `gh/18`, alpha 0.45. `turn` is silent by design (§8 gives it no narration key), so on a bare
   facing the glyph is the entire response to pressing an arrow key, and at 1 m and 3 px it moved
   426 of 1.57 M pixels: no response at all on a phone. geometry.spec requires a bare-facing turn

@@ -112,9 +112,15 @@ test.describe("the fullscreen control", () => {
       expect(after.label).toBe("leave the full screen");
       expect(after.fsActive).toBe(true);
       auditClean(after.label);
-      // Exit again through the same control.
+      // Exit again through the same control. WAIT ON THE CONDITION, not on a
+      // timer: a fixed 150 ms passed two runs in three and failed the third
+      // under full-suite load, which reads as flake and was in fact the label
+      // genuinely lagging the state. The product fix is in `index.html`; this
+      // is the measurement fix, and a timer that sometimes passes cannot tell
+      // the two apart.
       await page.click("#fullscreen-toggle");
-      await page.waitForTimeout(150);
+      await page.waitForFunction(() =>
+        !(document.fullscreenElement || document.webkitFullscreenElement), null, { timeout: 5000 });
       const exited = await page.evaluate(() => ({
         granted: !!(document.fullscreenElement || document.webkitFullscreenElement),
         label: document.getElementById("fullscreen-toggle").getAttribute("aria-label")
