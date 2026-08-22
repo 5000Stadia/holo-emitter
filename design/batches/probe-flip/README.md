@@ -1,5 +1,16 @@
 # Row 4 probe — the first composited frame, and why no sprite shipped
 
+> **[AI, superseded in part at row 20.]** This page's camera numbers were the
+> first read of `cand-2` and three of them have since been re-measured and
+> ruled on. The horizon is **524.4**, not 490 — the side-wall/ceiling ramps fit
+> it at 0.3 px residual against a vanishing-point vote's 30 px scatter, and the
+> Navigator ruled the ramp — so the eye height is **1.08775 m**, not 1.232, and
+> the frame-bottom floor cut is **2.23 m**, not 2.36. The gate results, the
+> matte findings and the sticker read below are untouched by any of it. The
+> measurement that supersedes these numbers is `design/plan-draft/measured/`,
+> and it reproduces this page's ceiling line, fireplace opening and
+> `px_per_m_at_wall` exactly.
+
 Four captures of the study looking north, drawn by the shipped `src/renderer.js` onto the
 Kabe-approved backdrop `backdrops/source/study-N/cand-2.png`, with the three generated probe
 sprites matted by the shipped replicator pipeline. §12.6 capture spec: the `#scene` element alone,

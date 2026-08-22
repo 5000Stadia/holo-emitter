@@ -42,15 +42,15 @@
    * `camera.focal_mm`), so `px_per_m_at_wall` is no longer a constant anyone
    * may author: it is `FOCAL_PX / camera_wall_m`. The three inputs are the
    * fallback's own camera distance (4.0 m), the measured drawing eye height
-   * (1.2316 m) and the measured horizon (490 / 1024) — all three named and
+   * (1.08775 m) and the measured horizon (524.4 / 1024) — all three named and
    * argued in `src/groundplane.js`. What comes out, and what blueprint §7
    * states as this constant's one written home:
    *
-   *     px_per_m_at_wall    1024 / 4.0            = 256
-   *     horizon_y           490 / 1024            = 0.4785
-   *     floor_line_y        horizon_y + eye/4     = 0.7864
-   *     px_per_m_at_bottom  (1024 - 490) / eye    = 433.5823
-   *     nearest visible floor  1024 / 433.5823    = 2.3617 m
+   *     px_per_m_at_wall    1024 / 4.0              = 256
+   *     horizon_y           524.4 / 1024            = 0.512109
+   *     floor_line_y        horizon_y + eye/4       = 0.784047
+   *     px_per_m_at_bottom  (1024 - 524.4) / eye     = 459.297
+   *     nearest visible floor  1024 / 459.297       = 2.2295 m
    *
    * `wall_width_m` stays 16.0 and its MEANING changed: it used to be "the wall
    * the frame holds at 96 px/m", which was true only of a pinned scale. Under
@@ -67,18 +67,20 @@
    * its pixels like any other, and the audit passes on its own arithmetic
    * (256 px for a 1.0 m module at 256 px/m).
    *
-   * WHY THE EYE HEIGHT IS 1.2316 AND NOT 1.60 OR §10's 1.83. Blueprint §5
+   * WHY THE EYE HEIGHT IS 1.08775 AND NOT 1.60 OR §10's 1.83. Blueprint §5
    * rules that the geometry is determined by the orientation of the approved
    * image generation; row 11's 1.60 m was named an interim awaiting exactly
    * that measurement; the approved backdrops arrived at row 20 and measure
-   * 1.2316 m with no pitch. §10's contract camera is unchanged and still what
+   * 1.08775 m with no pitch, by the ceiling-ramp horizon the Navigator ruled
+   * on its 0.3 px residual against a vanishing-point vote's 30 px scatter. §10's contract camera is unchanged and still what
    * backdrops are prompted at — the generator was asked for 1.83 m pitched
    * down and drew 1.23 m level, and that divergence is on the record
    * (`design/plan-draft/measured/`), not corrected by an agent.
    *
    * The lower camera is what returns the intention's fifth quality: the
-   * frame-bottom floor cut comes in to 2.36 m, where every 24 mm preview frame
-   * this project drew put it at 3.08 m. */
+   * frame-bottom floor cut comes in to 2.23 m, where every 24 mm preview frame
+   * this project drew put it at 3.08 m and the fisheye it replaces put it at
+   * 1.04 m. */
   var GRID_META = (function () {
     var gp = groundplane();
     var cam = gp.CAMERA_WALL_M;                  // 4.0 m — see groundplane.js
@@ -696,12 +698,13 @@
          per-facing number running 170 → 476 px/m, and 1.5 m of it is 256 px
          on the widest view and 714 px — 70% of the frame height — on the
          nearest wall in the manor. A metre-high letter filling a room is the
-         diagram Kabe named. At 0.6 m the mark draws 102 → 286 px: bigger where
+         diagram Kabe named. At 0.35 m the mark draws 60 → 167 px: bigger where
          the wall is close, which is what something painted on a wall does, and
-         never the loudest object in the frame. §7 calls it in-fiction signage
+         under a fifth of the frame even on the nearest wall the manor has,
+         which is the bar his sentence sets and a size a test measures. §7 calls it in-fiction signage
          on the grid wall and it still is one — capping it in frame fractions
          would have made it chrome wearing the wall's clothes. */
-      var gh = sWall * 0.6;
+      var gh = sWall * 0.35;
       var gw = gh * (2 / 3);
       /* The glyph stands on the largest band in view, and must lie INSIDE it
        * — a mark painted past a corner is signage floating in the side wall.

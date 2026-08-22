@@ -332,6 +332,42 @@ export function standpointFor(plan, room, facing, K, clearanceM) {
   return { point: p, source: "threshold" };
 }
 
+/**
+ * WHAT A FACING SHOWS OF THE ROOM IT IS IN — the three things that say "you
+ * are inside a room" rather than "you are facing a wall": a corner in frame,
+ * the wall-floor line in frame, the wall-ceiling line in frame.
+ *
+ * Row 20's `+` junction guard has two levels. The per-facing one lives in the
+ * tests and asks that no facing of a room that is not a corridor shows more
+ * side wall than facing wall. This is the other: a ROOM must have at least one
+ * facing that shows the room. The unit is the room because that is the honest
+ * one — a 2.60 m passage viewed across its short dimension IS a wall in your
+ * face, and it reads as a passage from the two views a player arrives and
+ * travels on.
+ *
+ * The arithmetic is blueprint §5's own, at the drawn camera: a metre of wall is
+ * `FOCAL_PX / d` pixels, the wall-floor line sits eye-height below the horizon
+ * at that scale, the wall-ceiling line a storey above it, and the corners half
+ * a wall width either side of centre.
+ */
+export function facingShows(plan, room, facing, canvasW = PLAN_CANVAS_W) {
+  const fc = room.facings[facing];
+  const d = fc.camera_wall_m ?? fc.camera_far_m;
+  const px = groundplane.FOCAL_PX / d;
+  const H = 1024;
+  const floorY = groundplane.HORIZON_Y * H + groundplane.DRAWING_EYE_M * px;
+  const fl = (plan.floors || []).find((x) => x.id === room.floor);
+  const storey = (room.type === "open" || !fl) ? null : fl.storey_height_m;
+  const half = fc.wall_width_m * px / 2;
+  const c0 = canvasW / 2 - half, c1 = canvasW / 2 + half;
+  return {
+    corner: fc.type !== "open" && c0 >= 0 && c1 <= canvasW,
+    floor_line: floorY <= H,
+    ceiling_line: storey != null && floorY - storey * px >= 0,
+    floor_line_y_px: floorY
+  };
+}
+
 /** The span of the view along the wall, in world coordinates. */
 export function viewSpan(rect, facing) {
   return (facing === "N" || facing === "S")
@@ -916,6 +952,24 @@ export function validatePlan(plan, world, records) {
     }
   }
 
+  /* EVERY ROOM SHOWS ITSELF FROM SOMEWHERE. Row 20's second-level `+` guard,
+   * and the unit is the room: a facing may honestly be a wall in your face,
+   * but a room all of whose facings are is a room a player can never see the
+   * shape of. Hard, because it is a claim about the building's own metres
+   * against the ruled lens, and a plan that fails it cannot be drawn honestly
+   * from any standpoint inside itself. */
+  for (const room of plan.rooms || []) {
+    if (!room.facings) continue;
+    const any = FACINGS.some((f) => {
+      if (!room.facings[f]) return false;
+      const sh = facingShows(plan, room, f);
+      return sh.corner || sh.floor_line || sh.ceiling_line;
+    });
+    if (!any) {
+      push(`room "${room.id}": no facing of it shows a corner, a wall-floor line or a wall-ceiling line — at the ruled lens this room can never be seen as a room from inside itself [row20:plan.room_reads]`);
+    }
+  }
+
   /* ---- 7c. objects ------------------------------------------------------ */
   const worldLocation = new Map();
   if (isObj(world)) for (const e of world.entities || []) if (e.location) worldLocation.set(e.id, e.location);
@@ -1061,6 +1115,27 @@ export function planWarnings(plan, records, world) {
    * human approved and an agent may not change; furniture an agent placed is
    * not that.
    */
+
+  /* THE FACINGS THAT SHOW NO ROOM, enumerated rather than left to be found in
+   * a picture. Under a pinned lens a facing whose wall is wider than the frame
+   * holds shows neither corner, and one nearer than the nearest visible floor
+   * shows no floor line — the cross passage's two long views are both, and
+   * nothing can be staged on them at any depth. A warning rather than a
+   * finding: the rooms' metres are on the drawing a human approved, so this is
+   * a consequence of them for him to rule on, not a defect in this document.
+   * It exists because hiding two flat walls inside a green suite is exactly
+   * what a warning is for. */
+  for (const room of plan.rooms || []) {
+    if (!room.facings) continue;
+    for (const f of FACINGS) {
+      if (!room.facings[f]) continue;
+      const sh = facingShows(plan, room, f);
+      if (!sh.corner && !sh.floor_line && !sh.ceiling_line) {
+        const fc = room.facings[f];
+        out.push(`room "${room.id}" facing ${f} shows no corner, no wall-floor line and no wall-ceiling line — a ${fc.wall_width_m} m wall seen from ${fc.camera_wall_m ?? fc.camera_far_m} m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth`);
+      }
+    }
+  }
 
   /* A hearth with no flue rising through the floor above it. */
   for (const f of plan.floors || []) {

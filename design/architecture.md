@@ -816,8 +816,11 @@ corridor ordering is kept beside them.
 
 `hall/N` and `hall/S` show **no floor line, no ceiling line and no corner**, and
 this is correct rather than a defect: the passage is 2.60 m deep, at this lens
-you see one metre of wall per metre of distance, and from anywhere inside it the
-wall runs from 0.48 m to 2.63 m with its foot 230 px below the frame. Nothing
+you see roughly one metre of wall per metre of distance, and from anywhere
+inside it the wall's foot falls below the frame — **by 18.5 px at the 2.15 m
+standpoint**, which is a small margin and is stated as one: about 0.04 m of eye
+height would put floor back in view, so this facing's "shows a wall, correctly"
+reading is a fact about the camera as much as about the room. Nothing
 can be staged on them either — the shipped depth bound `scaleAtDepth ≤
 px_per_m_at_bottom` refuses any placement at any depth — which is what forced
 `shelf1` and `stick1` onto `hall/E` (the reasons are on the plan objects). The
@@ -839,20 +842,27 @@ census is a plan warning rather than a hidden fact.
 2. **Objects near the wall draw larger by a different factor per facing** —
    ×1.78 on the passage's ends, ×2.45 and ×2.61 in the study, ×4.96 on the
    passage's long walls. One number for the manor would be false.
-3. **Turning translates the body further than before.** Threshold standpoints
-   put the study's N and S standpoints 3.90 m apart in a 4.80 m room (2.40 m
-   before), the passage's E and W 4.00 m apart. The ruling's own words are *"one
+3. **Turning translates the body further than before, and the number that
+   matters is the 90° one.** The study's standpoints are N (27.675, 10.05),
+   E (26.3125, 12.0), S (27.675, 13.45), W (29.0375, 12.0): **one arrow press
+   moves the viewer 2.38 m or 1.99 m**, a 180° turn 3.40 m, and the passage's
+   E↔W 4.00 m. Before this row the same 90° turns moved 1.81 m and the 180° one
+   2.40 m, so the row made this measurably worse. A player performs the 90°
+   turn and never the 180° one directly, so that is the number to shrink. The ruling's own words are *"one
    lens per room so turning never changes the body"*: the lens half is fixed and
    the position half is worse. §4b item 9's multi-standpoint rooms are row 15's,
    and this is the number that decides them.
 4. **The eye/pitch axis is untouched and still disagrees.** §10 rules eye 1.83 m
-   with −8° pitch for generation and the renderer draws at the measured 1.2316 m
-   level. A backdrop generated at −8° and projected level mis-sites the horizon
+   with −8° pitch for generation and the renderer draws at the measured
+   1.08775 m level. A backdrop generated at −8° and projected level mis-sites the horizon
    by `f·tan 8°` = 144 px. Same class of defect as the focal one, on an axis
    this row is not licensed to move.
-5. **`door1`'s plan/staging divergence is magnified.** The drawing sites it
-   1.1 m south of the study's east-wall centre and the staging centres it; at
-   250 px/m that disagreement is 275 px of picture against 106 px before.
+5. **`door1`'s plan/staging divergence is CLOSED, and this row is where the
+   stale sentence saying otherwise was caught.** Row 11 adopted the
+   projection's own values into `staging.json`, so `door1` on `study/E` is
+   staged at u 0.729166 — 1.100 m off the east wall's centre, exactly where the
+   drawing sites it — and `stagingDivergence` reports nothing. An artifact
+   critic found the sentence still claiming a 275 px disagreement.
 6. **Sprites do not stretch.** A real 24 mm lens elongates an off-axis object by
    up to 1.35× and a pasted sprite will not; `chair1` sits 37.2° off axis.
 7. **The rooms read larger than their metres**, by a factor no reachable lens

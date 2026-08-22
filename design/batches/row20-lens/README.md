@@ -57,6 +57,31 @@ fails if a facing of a room that is not a corridor ever shows more side wall tha
 
 ---
 
+## Before the five: the frames you approved are not the frames that ship
+
+The preview pair you blessed — `01d` and `02b` — licensed two things, and only one of them is
+still exactly what you saw.
+
+**Unchanged, to the pixel.** How wide a metre of wall draws (235.4 px/m in the study, 170.7 in the
+passage), where the corners land (127 and 1409; 546 and 990), and how much of the frame the wall
+fills (83.5 %, 28.9 %). Those are the lens and the standpoint, and both are what you approved.
+
+**Changed, and by a later decision of yours.** Your eight backdrops arrived after those previews
+and were measured. The one your probe blessed turned out to have been painted from a **lower
+camera** than anything this project had drawn — the eye about 1.09 m rather than 1.60 m — and
+blueprint §5 rules that the approved image is the geometric authority, so the project now draws at
+that camera. The consequence is visible: **the floor is 24 % of the study frame where `01d` showed
+15 %**, the ceiling line sits higher, and the frame bottom cuts the floor at **2.23 m** rather than
+3.08 m. It is a better picture by the intention's own fifth quality, and it is not the composition
+you looked at.
+
+**And one thing in it is a question only you can answer.** Intention quality 5 names the eye
+height in your own words — *"contract §10 — 6 ft, pitched slightly down, per Kabe's 2026-08-20
+ruling"*. The camera now drawing is **3 ft 7 in**, measured off a generator that was asked for six
+feet on all eight backdrops and drew about four on every one. Consistency, which the quality asks
+for, is delivered. The height it names is not. Either the picture moves to your number or your
+number moves to the picture, and an agent may not decide which.
+
 ## The five things that are yours
 
 **1. Two of the eight are a wall in your face, and they cannot be anything else.** `05-hall-N.png`
@@ -66,10 +91,13 @@ see that wall from 0.48 m to 2.63 m and nothing else. It is honest, it is what s
 long wall looks like, and nothing can be staged on those two facings at any depth. If it reads
 wrong to you, the lever is the passage's own width on the plan, not the lens.
 
-**2. The floor still starts a step and a half away.** `f / px_per_m_at_bottom` is the same on every
-facing in the manor — **2.23 m**. It was 3.08 m in the preview frames you approved and 1.04 m under
-the old fisheye, so the camera the approved backdrops turned out to be drawn at has bought most of
-it back. The intention's *"rails cut by the frame bottom at your own feet"* is not fully delivered
+**2. The floor still starts two paces away.** `f / px_per_m_at_bottom` is the same on every facing
+in the manor — **2.23 m**. It was 3.08 m in the preview frames you approved and 1.04 m under the
+old fisheye, so the camera the approved backdrops turned out to be drawn at has bought most of it
+back. And one thing this row did not fix: **open a door and you look through it into black.** The
+opening is a hole in the wall with nothing behind it — 4.4 % of the frame on the study side, six
+times the void the old fisheye showed, at exactly the point your eye goes. What goes behind it is
+the next room's own painted wall, and that is the painted world's work rather than the lens's. The intention's *"rails cut by the frame bottom at your own feet"* is not fully delivered
 and no lens shift at this focal length can deliver it; its other half — *"Kabe's reference anchors
 the same way through a near desk surface"* — is what closes the rest, and it belongs to the row
 that stages a near surface.
@@ -83,12 +111,20 @@ carries your 1.00 m window at its centre, and a 1.0 m press cannot clear it on a
 prompt sheet that paints it either sets the sill above the press's head or you re-site the window.
 
 **4. Turning moves you further than it used to.** Standing back to the far side of a room to see
-its corners means the study's north and south standpoints are 3.90 m apart in a 4.80 m room, where
-they used to be 2.40 m. Turning 90° carries your body across the room more than it did. The lens is
+its corners means **one arrow press now carries you 2.4 m** across a 4.8 m room, where it used to
+carry you 1.8 m; the study's opposite standpoints are 3.4 m apart against 2.4 m before, and the
+passage's east and west 4.0 m apart. Turning is the thing a player does most. The lens is
 one lens now; the position is not one position. Rooms with several standpoints are a later row's,
 and this is the number that will decide them.
 
-**5. The schematics say APPROVED and also say what they are waiting for.** `12` and `13` carry a
+**5. And the smallest thing that will annoy you first: the coin.** On a phone the silver coin on
+the passage shelf draws under three CSS pixels and its reachable target is about eleven — a
+fingertip is forty. Miss it by seven pixels and you get the bookcase instead, silently. This row
+made it better (it was seven pixels of target before) and it is the row that was meant to close
+it, because the reason it was left open was the camera question this row answers. It is now a
+question of how big the objects themselves are, which is the asset work.
+
+**6. The schematics say APPROVED and also say what they are waiting for.** `12` and `13` carry a
 stamp reading *"APPROVED 2026-08-21 … AWAITING HIS EYE ON: the standpoint markers and their printed
 distances"*. The anchor rests on your approval of the preview frames `01d` and `02b` — those two
 frames ARE the standpoint rule stated in pictures, one at the threshold and one at the drawn

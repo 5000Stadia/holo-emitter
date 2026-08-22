@@ -25,6 +25,12 @@
 # are the same string, which is the proof that row 11's one plan edit
 # (`stick1`'s footprint) touched nothing he saw.
 #
+# `undrawn` IS RE-ANCHORED WITH `plan`, and row 20 is where that was learned:
+# re-anchoring only the drawn digest leaves the sheet permanently printing
+# "content the sheet does not draw has changed since then", which makes the next
+# undrawn change invisible — the one thing the second digest exists to prevent.
+# An artifact critic found it stuck on.
+#
 # `undrawn` is the second record, and it is why narrowing the input does not
 # delete evidence. It covers everything the sheet does NOT draw. A change there
 # does not unapprove the drawing, but it is printed on the sheet's own face
@@ -65,5 +71,5 @@
 # not close until his word lands.
 #
 plan  ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065  2026-08-21
-undrawn  1aaec76da12d0b253542faa11c0602325cffb668c23aab97d990f7935749bb8f
+undrawn  61d2f004702e88b694a4d71898f64b3f009310045e6668e42635d61b7008ebf6
 pending  the standpoint markers and their printed distances, moved by row 20's standpoint law from the preview frames 01d/02b he approved

@@ -474,8 +474,11 @@ test.describe("corridor is a geometry, not a label", () => {
        facing wall. */
     for (const key of LIT.facingKeys()) {
       const m = of(...key.split("/"));
-      const isCorridorRoom = key.startsWith("hall/");
-      if (!isCorridorRoom) {
+      /* The FACING's own type, from the meta, not the room id's spelling. The
+         clause is written for every facing not typed `corridor`, and
+         `hall/N` and `hall/S` are typed `enclosed` — a prefix test exempted
+         them from a clause they are inside. */
+      if (m.facing_type !== "corridor") {
         expect(share(m), `${key} shows less side wall than facing wall`).toBeLessThan(0.5);
       }
     }
@@ -485,35 +488,149 @@ test.describe("corridor is a geometry, not a label", () => {
   });
 
   test("and the picture agrees: the corridor's returns really do fill more of it", async ({ page }) => {
-    /* The arithmetic above is test-side. This is the same claim read off the
-       render, so the type cannot become a label the drawing ignores. */
+    /* THE PIXEL HALF, and it reads pixels. The version this replaces called
+       `getImageData` and then never touched the result — it compared `x`
+       against the META's corner fields, so it was the arithmetic above written
+       twice, and it passed with `drawGrid` replaced by a no-op. An artifact
+       critic proved that by doing exactly that.
+       What separates a return from the facing wall in the PICTURE is its
+       tone: §7 gives each plane its own, RETURN_LEFT darker than WALL_BASE and
+       RETURN_RIGHT lighter, because with the key at upper-left the left
+       return's face turns away from it and the right return's turns toward it.
+       So a column is classified by which plane's tone it carries, at a row
+       inside the wall band, and the share is counted from that. */
     await page.goto(appUrl());
-    const measured = await page.evaluate((keys) => {
+    const measured = await page.evaluate((rows) => {
       const T = window.__T;
       const out = {};
-      for (const key of keys) {
+      for (const { key, y0, y1 } of rows) {
         const [loc, f] = key.split("/");
         const vs = { location: loc, facing: f };
         const c = T.renderDirect(vs, null, { backdrop_only: true });
-        const m = T.metaOf(vs);
-        const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
-        /* Pixels on a wall row that lie outside the two corners — the
-           returns' share of the facing wall's own band of the frame. */
-        let outside = 0;
-        const y = 200;
+        /* PER COLUMN, THE MEDIAN OVER MANY ROWS of the wall band. One row is
+           not enough: the facing glyph is a 16-px-wide mark a median across
+           columns cannot remove, the metre lines are ink, and a doorway is a
+           hole. Taken down a column instead, all three are a minority of the
+           rows and the plane's own tone is the majority. */
+        const rows = [];
+        for (let k = 0; k < 41; k++) rows.push(Math.round(y0 + (y1 - y0) * (k / 40)));
+        const img = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+        const d = new Uint8ClampedArray(1536 * 4);
         for (let x = 0; x < 1536; x++) {
-          if (x < m.corner_x0_px || x > m.corner_x1_px) outside++;
+          const col = rows.map((ry) => img[(ry * 1536 + x) * 4 + 2]);
+          col.sort((p, q) => p - q);
+          d[x * 4 + 2] = col[20];
         }
-        out[key] = outside / 1536;
+        /* A DOORWAY is a hole in the wall, not a change of plane, and its
+           jamb is a stronger tone step than the corner. Its columns are taken
+           out of the search from the document rather than guessed at. */
+        const A = window.HOLO_APP;
+        const holes = window.HOLO.renderer.apertures(
+          A.harness.world, A.harness.staging, A.library, T.metaOf(vs), vs)
+          .map((a) => [a.x - 12, a.x + a.w + 12]);
+        const clear = (x) => !holes.some(([h0, h1]) => x >= h0 && x <= h1);
+        /* The three plane tones, read off the picture rather than imported:
+           the facing wall is the MODE of the row (it is the largest plane on a
+           room facing and the row crosses it), and a return is any column
+           more than a few levels away from it in the blue channel, which is
+           where the per-plane tones differ most. Grid lines and the glyph are
+           BRIGHTER than every plane, so they are excluded by the same test. */
+        const blues = [];
+        for (let x = 0; x < 1536; x++) blues.push(d[x * 4 + 2]);
+        /* Where the PLANE changes, found as the two strongest steps in the
+           row's own tone profile. The key falloff shades each plane across the
+           frame, so an absolute tone cannot classify a column — but a plane
+           BOUNDARY is a step and the falloff is not.
+           The profile is MEDIAN-filtered first: the wall's own metre lines are
+           one pixel of much brighter ink, and a difference taken across one is
+           a bigger step than any corner. A nine-wide median removes them and
+           leaves the planes. */
+        const med = [];
+        for (let x = 0; x < 1536; x++) {
+          const w = [];
+          for (let k = -4; k <= 4; k++) w.push(blues[Math.min(1535, Math.max(0, x + k))]);
+          w.sort((p, q) => p - q);
+          med.push(w[4]);
+        }
+        const step = (x) => Math.abs(med[x + 6] - med[x - 6]);
+        let bestL = { x: -1, v: 0 }, bestR = { x: -1, v: 0 };
+        for (let x = 8; x < 762; x++) if (clear(x) && step(x) > bestL.v) bestL = { x, v: step(x) };
+        for (let x = 774; x < 1528; x++) if (clear(x) && step(x) > bestR.v) bestR = { x, v: step(x) };
+        const found = bestL.v > 3 && bestR.v > 3;
+        out[key] = {
+          share: found ? 1 - (bestR.x - bestL.x) / 1536 : 0,
+          left: found ? bestL.x : null, right: found ? bestR.x : null
+        };
       }
       return out;
-    }, LIT.facingKeys());
+    }, LIT.facingKeys().map((key) => {
+      const [loc, f] = key.split("/");
+      const m = LIT.facing(loc, f);
+      const floorY = m.floor_line_y * m.image_h_px;
+      /* A row just under this facing's own wall-ceiling line. It has to be
+         inside the wall band, which moves per facing now — and it has to be
+         ABOVE any doorway, because an opening is a hole in the wall and its
+         jamb is a stronger tone step than the corner it would be mistaken
+         for. A 2.0 m door in a 2.8 m storey leaves 0.8 m of wall above its
+         head, so a dozen pixels under the ceiling line is clear of every one. */
+      const y0 = Math.max(4, Math.ceil(floorY - m.storey_height_m * m.px_per_m_at_wall));
+      const y1 = Math.min(1020, Math.floor(Math.min(floorY, 1024)));
+      return { key, y0, y1 };
+    }));
     for (const c of ["hall/E", "hall/W"]) {
       for (const e of LIT.facingKeys().filter((k) => k !== "hall/E" && k !== "hall/W")) {
-        expect(measured[c], `${c} shows more side wall than ${e}`).toBeGreaterThan(measured[e]);
+        expect(measured[c].share, `${c} shows more side wall than ${e}`)
+          .toBeGreaterThan(measured[e].share);
+      }
+    }
+    /* And the DRAWN plane boundaries are the meta's corners, which is what
+       makes this the same claim rather than a second, looser one — and what
+       fails if the drawing stops agreeing with the document. Where the meta
+       puts no corner in frame, the picture must show no plane boundary. */
+    for (const key of LIT.facingKeys()) {
+      const m = LIT.facing(...key.split("/"));
+      const inFrame = m.corner_x0_px >= 0 && m.corner_x1_px <= LIT.W;
+      if (inFrame) {
+        expect(Math.abs(measured[key].left - m.corner_x0_px), `${key}: drawn left plane boundary`)
+          .toBeLessThanOrEqual(8);
+        expect(Math.abs(measured[key].right - m.corner_x1_px), `${key}: drawn right plane boundary`)
+          .toBeLessThanOrEqual(8);
+      } else {
+        expect(measured[key].left, `${key}: no plane boundary where no corner is in frame`).toBeNull();
       }
     }
   });
+});
+
+test("the facing glyph is 0.6 m of wall, and never a fifth of the frame", async ({ page }) => {
+  /* THE GLYPH'S SIZE, MEASURED. It was unguarded: an artifact critic put it
+     back to row 2's 1.5 m — 714 px on `hall/N`, 70 % of the frame height, on a
+     facing that contains nothing else — and the whole suite stayed green.
+     §7 calls it in-fiction signage painted on the grid wall, so its size is
+     geometry: 0.35 m at that facing's own wall scale. It is measured on the
+     passage's two long facings, which share one meta, are both bare, and carry
+     the largest wall scale in the fixture — so their DIFFERENCE is the two
+     letters and nothing else, and it is the worst case for the second clause.
+     That clause is the one Kabe's sentence asks for: "a room with a label on
+     the wall is a diagram" is what 1.5 m fails. */
+  await page.goto(appUrl());
+  const m = LIT.facing("hall", "N");
+  const box = await page.evaluate(() => {
+    const T = window.__T;
+    const a = T.renderDirect({ location: "hall", facing: "N" }, null, { backdrop_only: true });
+    const b = T.renderDirect({ location: "hall", facing: "S" }, null, { backdrop_only: true });
+    return T.diffBounds(a, b);
+  });
+  /* The drawn extent is the letterform plus its own stroke, which is `gh/18`
+     wide and centred on the polyline — so the box is the metre size plus a
+     stroke, never less than it and never much more. */
+  const expected = 0.35 * m.px_per_m_at_wall;
+  const drawn_ = box.y1 - box.y0 + 1;
+  expect(drawn_, `glyph ${drawn_} px against 0.35 m of wall (${expected.toFixed(1)} px)`)
+    .toBeGreaterThanOrEqual(expected - 2);
+  expect(drawn_, `glyph ${drawn_} px is the letterform plus its stroke, not more`)
+    .toBeLessThanOrEqual(expected + expected / 6 + 8);
+  expect(drawn_, "and never a fifth of the frame").toBeLessThan(LIT.H / 5);
 });
 
 test("turning is visible even on a bare wall", async ({ page }) => {

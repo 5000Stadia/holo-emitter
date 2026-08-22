@@ -442,7 +442,7 @@ export const LIT = {
      the approved image generation; the approved backdrops arrived and measure
      1.08775 m, level, by the ceiling-ramp horizon the Navigator ruled on its
      0.3 px residual. This supersedes row 11's 1.60 m interim, which was named
-     an interim awaiting exactly this. */
+     an interim awaiting exactly this measurement. */
   eye_m: 1.08775,
   /* THE GENERATION CAMERA. [HUMAN, 2026-08-20] "about a 6ft height" —
      blueprint §10 `camera.eye_height_m`, which backdrops are PROMPTED at and

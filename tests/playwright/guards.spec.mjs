@@ -130,6 +130,7 @@ export const MECHANISMS = [
   "plan.standpoint_branch",
   "plan.standpoint_stands_back",
   "plan.standpoint_clear",
+  "plan.room_reads",
   // the renderer. The six below `renderer.corner_verticals` are the ones the
   // first ledger did not name, each of which a critic removed with the whole
   // suite green.
@@ -259,6 +260,20 @@ const DOCUMENT_CASES = {
     const r = p.rooms.find((x) => x.id === "study");
     r.facings.N.standpoint = { x: r.facings.N.standpoint.x, y: r.facings.N.standpoint.y + 0.2 };
     r.facings.N.camera_wall_m = drawn(r.facings.N.wall_line - r.facings.N.standpoint.y);
+    return tokensOf(validatePlan(p));
+  },
+  "plan.room_reads": () => {
+    /* A room none of whose facings can show it. The passage is 2.60 m deep and
+       its two long facings already show nothing; making its two SHORT facings
+       just as bad — an 8 m end wall seen from 2.15 m — leaves a room a player
+       could never see the shape of from inside it. */
+    const p = clone(PLAN);
+    const r = p.rooms.find((x) => x.id === "hall");
+    for (const f of ["E", "W"]) {
+      r.facings[f].wall_width_m = 8;
+      r.facings[f].camera_wall_m = 2.15;
+      r.facings[f].standpoint_source = "drawn";
+    }
     return tokensOf(validatePlan(p));
   },
   "plan.standpoint_clear": () => {
@@ -929,10 +944,24 @@ async function ceilingInk(page, root, storey = 2.8) {
 async function glyphBox(page, root) {
   await open_(page, root);
   return await page.evaluate(() => {
-    const T = window.__T;
+    const T = window.__T, fx = window.HOLO_FIXTURE;
     const vs = { location: "hall", facing: "W" };
-    const c = T.renderDirect(vs, null, { backdrop_only: true });
-    const meta = T.metaOf(vs);
+    /* A NARROWER WALL than the passage's own, so the door leaves no room for
+       the glyph beside it. Row 20 shrank the letter to 0.35 m of wall, which
+       on the shipped 2.60 m end wall fits beside the 1.0 m door with 11 px to
+       spare — so the shipped facing no longer exercises the dodge at all, and
+       a case measured there would pass whatever `fitsBand` did. The mechanism
+       is what happens when the sideways dodges do NOT fit, so the meta is
+       doctored until they do not. */
+    const base = T.metaOf(vs);
+    const meta = { ...base, wall_width_m: 1.6,
+      corner_x0_px: 768 - 1.6 / 2 * base.px_per_m_at_wall,
+      corner_x1_px: 768 + 1.6 / 2 * base.px_per_m_at_wall };
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    const bd = {}; bd["hall/W"] = { meta };
+    window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), bd, vs,
+      { backdrop_only: true });
     const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
     /* The glyph is the brightest ink on a bare wall — brighter than the metre
        lines, which is what `ALPHA_GLYPH` 0.45 against `ALPHA_MINOR` 0.25
@@ -1067,13 +1096,20 @@ test("every clause the validators can emit is a mechanism the ledger declares", 
   /* And each token tags exactly ONE emit site, so a case that names a clause
    * is naming one arm — the first ledger let `meta.camera_pairing` tag four
    * and exercised one, which is the failure this file exists to prevent. */
+  /* ACROSS THE UNION OF THE SCANNED FILES, not per file. An artifact critic
+     added a second `meta.one_lens` emit in a DIFFERENT file from the token's
+     own home and the per-file count stayed at one apiece — which is exactly
+     the failure this assertion exists to prevent (`meta.camera_pairing`
+     tagging four arms), reachable across files instead of within one. */
+  const counts = {};
   for (const f of ["tools/validate-fixtures.mjs", "tools/validate-plan.mjs",
     "tools/plan-projection.mjs", "tools/bake-fixtures.mjs"]) {
     const src = readFileSync(join(repoRoot, f), "utf8");
-    const counts = {};
-    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) counts[m[1]] = (counts[m[1]] || 0) + 1;
-    for (const [name, n] of Object.entries(counts)) {
-      expect(n, `${name} tags ${n} emit sites in ${f} — one token, one arm`).toBe(1);
+    for (const m of src.matchAll(/\[row(?:11|20):([a-z_.]+)\]/g)) {
+      counts[m[1]] = (counts[m[1]] || 0) + 1;
     }
+  }
+  for (const [name, n] of Object.entries(counts)) {
+    expect(n, `${name} tags ${n} emit sites across the scanned tools — one token, one arm`).toBe(1);
   }
 });

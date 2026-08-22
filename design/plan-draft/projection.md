@@ -7,28 +7,32 @@ byte-compares a fresh run against this file.
 render. This page is the third thing the plan produces: the projection, and everything
 about it that a person has to rule on rather than a check.
 
-**Nothing here moved the shipped demo.** `fixtures/demo-study/staging.json` is untouched and
-the canvas draws exactly what it drew before.
+**ROW 20 MOVED EVERY PIXEL.** The sentence that stood here — *nothing here moved the
+shipped demo* — was true of row 12 and false the moment the lens was pinned: the scale is
+a per-facing consequence now, the standpoints moved, and `fixtures/demo-study/staging.json`
+carries the passage's two objects on a different facing.
 
 ## 0. What needs Kabe
 
 Each of these is live before row 4's prompt sheets:
 
-1. **Which camera the projection runs on — RULED, as an interim.** The demo's grid camera is
-   eye 1.60 m and level (`GRID_META`); blueprint §10's generation camera is eye **1.83 m**
-   with **−8° pitch** (Kabe's six-foot ruling). Asked against a rendered pair on 2026-08-21,
-   Kabe ruled the 1.60 m frame ships as the interim: the six-foot ruling was given *"for
-   better visual presentation"* and its pitch half is what would deliver that, so the
-   height alone degrades the very thing it was ruled for. §5 rules that the real answer is
-   whatever the backdrop Kabe approves at row 4 measures out to, and that camera can carry
-   the pitch. This report runs on the grid camera; §7 below is the size of the difference.
-2. **Whether `door1` sits where the drawing puts it or where the staging puts it** (§1).
+1. **CLOSED AT ROW 20 — the camera is MEASURED now.** Blueprint §5 rules that the geometry
+   is determined by the orientation of the approved image generation; those generations
+   arrived, and the one Kabe's probe loop blessed measures eye **1.09 m**, level, with its
+   horizon at y 524.4 of 1024 by the ceiling-ramp fit. That is what this report and the
+   renderer both run on. §10's generation camera — eye **1.83 m**, **−8° pitch** — is
+   untouched and is what backdrops are PROMPTED at; the generator was asked for it on all
+   eight and drew 1.1–1.5 m level every time. The size of that difference is below (§7).
+2. **CLOSED AT ROW 11, and the question outlived its answer until row 20 found it.**
+   `staging.json` carries the projection's own values, so `door1` on `study/E` stands
+   1.100 m off the east wall's centre — where the drawing sites it — and the divergence
+   table reports none (§1).
 3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open
    court mouth and not a wall (§3).
 4. **CLOSED BY ROW 20** — the wide-view trigger's two readings are deleted with the
    machinery: a pinned lens clips no wall, so the fork has no subject. Kabe's ruling (3)
    is SUPERSEDED by his own later approval of preview frame `02b`, the 24 mm `hall/E`
-   view, which is narrower than the licence granted. Recorded, not asked again.
+   view, which is narrower than the licence granted. Recorded, not asked again (§5).
 5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted
    into them at row 4, or do the manor's extra exits wait for a later row? The four rulings
    of 2026-08-21 did not reach this one.
@@ -38,10 +42,10 @@ Each of these is live before row 4's prompt sheets:
 8. **CLOSED BY ROW 20** — the frame-bottom floor cut was fifteen anomalies running to
    6.05 m under a pinned scale. Under a pinned lens it is ONE number for the whole
    manor, `f / px_per_m_at_bottom`, because it depends on the lens and the horizon and
-   not on where you stand. What is left is that one number, and it is named residue.
+   not on where you stand. What is left is that one number, and it is named residue (§6).
 9. **CLOSED BY ROW 20** — the implied lens ran 187 px to 2014 px across the manor, a
    factor of eleven. It is `f` = 1024 px on every facing now, bound to blueprint §10's
-   `camera.focal_mm` and refused at the bake if it drifts.
+   `camera.focal_mm` and refused at the bake if it drifts (§6).
 10. **What row 4 measures and what it takes from the plan** — §5 rules the approved image
     the geometric authority, and this row makes the plan one. The per-field table in §8 is
     a proposal, not a ruling.
@@ -49,9 +53,9 @@ Each of these is live before row 4's prompt sheets:
 ## 1. Staging against the plan projection
 
 Blueprint §4b asks the validator to assert *staging ≡ plan projection*. It does, against the
-meta the renderer actually resolves for these two rooms (grid canonical — no backdrop asset
-exists yet, so a 16.0 m wall in frame). One divergence is expected and named; any other is a
-hard failure of the bake.
+meta the renderer actually resolves for these two rooms — the PLAN's own derived meta since
+row 11, each room's real wall at the ruled lens, not the 16.0 m fallback a sentence here
+claimed until row 20. Any divergence at all is a hard failure of the bake.
 
 | entity | facing | attachment | shipped u | projected u | Δu | shipped depth_m | projected depth_m | agrees |
 |---|---|---|---|---|---|---|---|---|
@@ -70,15 +74,18 @@ hard failure of the bake.
   guard — it catches a later edit to either side — and it is not evidence about the plan.
 - `door1` on `hall/W` agrees at u 0.5, and that is **also not evidence**: it stands at offset
   0 from the wall centre, where u is 0.5 under any `wall_width_m` at all.
-- `door1` on `study/E` is the one row that carries information, and it disagrees. Its plan
-  position comes from the drawing, independently of the fixture:
+- `door1` on `study/E` was the one row that carried information, and it disagreed: the
+  drawing sites it 1.100 m off the east wall's centre where the staging centred it. **Row 11
+  adopted the projection's values**, so it agrees now and the whole table is definitional.
+  The guard still catches a later edit to either side, which is what it is for.
 
-Under the plan's own meta (the room's real wall instead of a 16.0 m one) every `u` moves —
+Against the FALLBACK meta a facing no plan holds would resolve to (a 16.0 m wall at 4.0 m),
+every `u` moves —
 and so does every object's drawn size, because `camera_wall_m` moves with it. Both are
 consequences of the plan rather than errors in it, and the second is the one that would
 surprise someone reading only the `u` column:
 
-| entity | facing | u today | u under plan meta | drawn height px today | under plan meta |
+| entity | facing | u under the FALLBACK meta | u under plan meta | drawn height px, fallback | under plan meta |
 |---|---|---|---|---|---|
 | `desk1` | study/N | 0.6172 | 0.8440 | 231.5 | 210.2 |
 | `chair1` | study/N | 0.6139 | 0.8345 | 384.0 | 341.3 |
@@ -327,11 +334,12 @@ the rest, and it belongs to the row that stages a near surface.
 
 Blueprint §10 rules the generation camera at eye **1.83 m** with **−8° pitch** [HUMAN,
 2026-08-20: *"we should be a bit higher as a view angle looking down at about a 6ft
-height"*]. The demo's grid camera is eye 1.60 m and level, and it stays there as an
-**interim** [HUMAN 2026-08-21, ruled against a rendered pair]: the height without its pitch
-pushes the frame-bottom floor cut further from the viewer's feet, which is the opposite of
-what the six-foot ruling was given for. The ruled camera returns whole with row 4's measured
-one. This is the size of the difference, so the fork is a number rather than a worry:
+height"*]. The camera the demo DRAWS at is the one the approved backdrops were painted
+at, measured off their own pixels at row 20: **1.09 m, level**. §5 makes the approved image
+the geometric authority and this is that authority exercised — the generator was asked for
+1.83 m on all eight and drew 1.1–1.5 m every time, so the divergence is a fact about the
+generations rather than a choice, and it is recorded rather than corrected. This is its
+size, so the fork is a number rather than a worry:
 
 | quantity | grid camera (shipped) | contract camera (§10) |
 |---|---|---|
@@ -345,12 +353,12 @@ camera-has-feet assertion — |`horizon_y` − (`floor_line_y` − eye·`px_per_
 `image_h_px`)| ≤ 0.02 — is a check on a meta's self-consistency, so it holds against the
 drawing camera and fails against the other one. Against grid canonical:
 
-- at 1.09 m (the interim camera the demo draws): residual 0.0000 — passes
+- at 1.09 m (the measured camera the demo draws): residual 0.0000 — passes
 - at 1.83 m (§10's generation camera): residual 0.1856 — FAILS
 
 
 **And by how much depends on how wide the wall is**, which is the part that would bite
-silently. The residual is `(1.83 − 1.60) × px_per_m_at_wall / image_h_px`, so it scales
+silently. The residual is `(1.83 − the drawing eye) × px_per_m_at_wall / image_h_px`, so it scales
 with the scale:
 
 | facing | px/m at wall | residual against the 1.83 m gate | verdict |
@@ -416,5 +424,7 @@ the plan — each would have to be fixed by moving something a human approved �
 question for Kabe:
 
 - law (b): "entrance_approach" facing N is typed enclosed, but 20.4 m of its 32 m view has no wall across it (gap at 10–30.4). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.
+- room "hall" facing N shows no corner, no wall-floor line and no wall-ceiling line — a 8 m wall seen from 2.15 m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth
+- room "hall" facing S shows no corner, no wall-floor line and no wall-ceiling line — a 8 m wall seen from 2.15 m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth
 - the hearth in "kitchen" has no stack rising through "upper" above it
 

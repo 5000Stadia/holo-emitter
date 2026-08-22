@@ -194,7 +194,7 @@ export const GRID_CAMERA = cameraFrom({
   horizon_y: groundplane.HORIZON_Y,
   focal_px: FOCAL_PX,
   image_h_px: GRID_META.image_h_px,
-  source: "the camera MEASURED off the approved backdrops (row 20): eye 1.2316 m, level, horizon at y 490 of 1024, on the ruled 24 mm lens — blueprint §5's 'the geometry elements should be determined by the orientation of the approved initial image generation' [HUMAN 2026-08-20], now that the approved generation exists"
+  source: "the camera MEASURED off the approved study/N backdrop (row 20): eye 1.08775 m, level, horizon at y 524.4 of 1024 by the ceiling-ramp fit, on the ruled 24 mm lens — blueprint §5's 'the geometry elements should be determined by the orientation of the approved initial image generation' [HUMAN 2026-08-20], now that the approved generation exists"
 });
 
 /** Blueprint §10's generation camera, for comparison only. Its home is
@@ -1009,29 +1009,33 @@ export function report(plan, staging, records) {
   P("render. This page is the third thing the plan produces: the projection, and everything");
   P("about it that a person has to rule on rather than a check.");
   P();
-  P("**Nothing here moved the shipped demo.** `fixtures/demo-study/staging.json` is untouched and");
-  P("the canvas draws exactly what it drew before.");
+  P("**ROW 20 MOVED EVERY PIXEL.** The sentence that stood here — *nothing here moved the");
+  P("shipped demo* — was true of row 12 and false the moment the lens was pinned: the scale is");
+  P("a per-facing consequence now, the standpoints moved, and `fixtures/demo-study/staging.json`");
+  P("carries the passage's two objects on a different facing.");
   P();
 
   P("## 0. What needs Kabe");
   P();
   P("Each of these is live before row 4's prompt sheets:");
   P();
-  P("1. **Which camera the projection runs on — RULED, as an interim.** The demo's grid camera is");
-  P("   eye 1.60 m and level (`GRID_META`); blueprint §10's generation camera is eye **1.83 m**");
-  P("   with **−8° pitch** (Kabe's six-foot ruling). Asked against a rendered pair on 2026-08-21,");
-  P("   Kabe ruled the 1.60 m frame ships as the interim: the six-foot ruling was given *\"for");
-  P("   better visual presentation\"* and its pitch half is what would deliver that, so the");
-  P("   height alone degrades the very thing it was ruled for. §5 rules that the real answer is");
-  P("   whatever the backdrop Kabe approves at row 4 measures out to, and that camera can carry");
-  P("   the pitch. This report runs on the grid camera; §7 below is the size of the difference.");
-  P("2. **Whether `door1` sits where the drawing puts it or where the staging puts it** (§1).");
+  P("1. **CLOSED AT ROW 20 — the camera is MEASURED now.** Blueprint §5 rules that the geometry");
+  P("   is determined by the orientation of the approved image generation; those generations");
+  P("   arrived, and the one Kabe's probe loop blessed measures eye **1.09 m**, level, with its");
+  P("   horizon at y 524.4 of 1024 by the ceiling-ramp fit. That is what this report and the");
+  P("   renderer both run on. §10's generation camera — eye **1.83 m**, **−8° pitch** — is");
+  P("   untouched and is what backdrops are PROMPTED at; the generator was asked for it on all");
+  P("   eight and drew 1.1–1.5 m level every time. The size of that difference is below (§7).");
+  P("2. **CLOSED AT ROW 11, and the question outlived its answer until row 20 found it.**");
+  P("   `staging.json` carries the projection's own values, so `door1` on `study/E` stands");
+  P("   1.100 m off the east wall's centre — where the drawing sites it — and the divergence");
+  P("   table reports none (§1).");
   P("3. **What the entrance approach's north view is**, given that 20.4 m of its 32 m is the open");
   P("   court mouth and not a wall (§3).");
   P("4. **CLOSED BY ROW 20** — the wide-view trigger's two readings are deleted with the");
   P("   machinery: a pinned lens clips no wall, so the fork has no subject. Kabe's ruling (3)");
   P("   is SUPERSEDED by his own later approval of preview frame `02b`, the 24 mm `hall/E`");
-  P("   view, which is narrower than the licence granted. Recorded, not asked again.");
+  P("   view, which is narrower than the licence granted. Recorded, not asked again (§5).");
   P("5. **D4, still open from the drawing**: do `hall/N` and `hall/S` get door openings prompted");
   P("   into them at row 4, or do the manor's extra exits wait for a later row? The four rulings");
   P("   of 2026-08-21 did not reach this one.");
@@ -1041,10 +1045,10 @@ export function report(plan, staging, records) {
   P("8. **CLOSED BY ROW 20** — the frame-bottom floor cut was fifteen anomalies running to");
   P("   6.05 m under a pinned scale. Under a pinned lens it is ONE number for the whole");
   P("   manor, `f / px_per_m_at_bottom`, because it depends on the lens and the horizon and");
-  P("   not on where you stand. What is left is that one number, and it is named residue.");
+  P("   not on where you stand. What is left is that one number, and it is named residue (§6).");
   P("9. **CLOSED BY ROW 20** — the implied lens ran 187 px to 2014 px across the manor, a");
   P("   factor of eleven. It is `f` = 1024 px on every facing now, bound to blueprint §10's");
-  P("   `camera.focal_mm` and refused at the bake if it drifts.");
+  P("   `camera.focal_mm` and refused at the bake if it drifts (§6).");
   P("10. **What row 4 measures and what it takes from the plan** — §5 rules the approved image");
   P("    the geometric authority, and this row makes the plan one. The per-field table in §8 is");
   P("    a proposal, not a ruling.");
@@ -1053,9 +1057,9 @@ export function report(plan, staging, records) {
   P("## 1. Staging against the plan projection");
   P();
   P("Blueprint §4b asks the validator to assert *staging ≡ plan projection*. It does, against the");
-  P("meta the renderer actually resolves for these two rooms (grid canonical — no backdrop asset");
-  P("exists yet, so a 16.0 m wall in frame). One divergence is expected and named; any other is a");
-  P("hard failure of the bake.");
+  P("meta the renderer actually resolves for these two rooms — the PLAN's own derived meta since");
+  P("row 11, each room's real wall at the ruled lens, not the 16.0 m fallback a sentence here");
+  P("claimed until row 20. Any divergence at all is a hard failure of the bake.");
   P();
   P("| entity | facing | attachment | shipped u | projected u | Δu | shipped depth_m | projected depth_m | agrees |");
   P("|---|---|---|---|---|---|---|---|---|");
@@ -1072,16 +1076,19 @@ export function report(plan, staging, records) {
   P("  guard — it catches a later edit to either side — and it is not evidence about the plan.");
   P("- `door1` on `hall/W` agrees at u 0.5, and that is **also not evidence**: it stands at offset");
   P("  0 from the wall centre, where u is 0.5 under any `wall_width_m` at all.");
-  P("- `door1` on `study/E` is the one row that carries information, and it disagrees. Its plan");
-  P("  position comes from the drawing, independently of the fixture:");
+  P("- `door1` on `study/E` was the one row that carried information, and it disagreed: the");
+  P("  drawing sites it 1.100 m off the east wall's centre where the staging centred it. **Row 11");
+  P("  adopted the projection's values**, so it agrees now and the whole table is definitional.");
+  P("  The guard still catches a later edit to either side, which is what it is for.");
   for (const k of KNOWN_DIVERGENCES) P(`  - \`${k.id}\` @ ${k.facing} — ${k.why}`);
   P();
-  P("Under the plan's own meta (the room's real wall instead of a 16.0 m one) every `u` moves —");
+  P("Against the FALLBACK meta a facing no plan holds would resolve to (a 16.0 m wall at 4.0 m),");
+  P("every `u` moves —");
   P("and so does every object's drawn size, because `camera_wall_m` moves with it. Both are");
   P("consequences of the plan rather than errors in it, and the second is the one that would");
   P("surprise someone reading only the `u` column:");
   P();
-  P("| entity | facing | u today | u under plan meta | drawn height px today | under plan meta |");
+  P("| entity | facing | u under the FALLBACK meta | u under plan meta | drawn height px, fallback | under plan meta |");
   P("|---|---|---|---|---|---|");
   for (const r of div.rows) {
     const [roomId, facing] = r.facing.split("/");
@@ -1264,11 +1271,12 @@ export function report(plan, staging, records) {
   P();
   P("Blueprint §10 rules the generation camera at eye **1.83 m** with **−8° pitch** [HUMAN,");
   P("2026-08-20: *\"we should be a bit higher as a view angle looking down at about a 6ft");
-  P("height\"*]. The demo's grid camera is eye 1.60 m and level, and it stays there as an");
-  P("**interim** [HUMAN 2026-08-21, ruled against a rendered pair]: the height without its pitch");
-  P("pushes the frame-bottom floor cut further from the viewer's feet, which is the opposite of");
-  P("what the six-foot ruling was given for. The ruled camera returns whole with row 4's measured");
-  P("one. This is the size of the difference, so the fork is a number rather than a worry:");
+  P("height\"*]. The camera the demo DRAWS at is the one the approved backdrops were painted");
+  P("at, measured off their own pixels at row 20: **1.09 m, level**. §5 makes the approved image");
+  P("the geometric authority and this is that authority exercised — the generator was asked for");
+  P("1.83 m on all eight and drew 1.1–1.5 m every time, so the divergence is a fact about the");
+  P("generations rather than a choice, and it is recorded rather than corrected. This is its");
+  P("size, so the fork is a number rather than a worry:");
   P();
   P("| quantity | grid camera (shipped) | contract camera (§10) |");
   P("|---|---|---|");
@@ -1289,12 +1297,12 @@ export function report(plan, staging, records) {
     P("`image_h_px`)| ≤ 0.02 — is a check on a meta's self-consistency, so it holds against the");
     P("drawing camera and fails against the other one. Against grid canonical:");
     P("");
-    P(`- at ${fixed(g16.eye_m ?? g16.eye, 2)} m (the interim camera the demo draws): residual ${fixed(g16.residual, 4)} — ${g16.passes ? "passes" : "FAILS"}`);
+    P(`- at ${fixed(g16.eye_m ?? g16.eye, 2)} m (the measured camera the demo draws): residual ${fixed(g16.residual, 4)} — ${g16.passes ? "passes" : "FAILS"}`);
     P(`- at ${fixed(g18.eye, 2)} m (§10's generation camera): residual ${fixed(g18.residual, 4)} — ${g18.passes ? "passes" : "FAILS"}`);
     P("");
     P("");
     P("**And by how much depends on how wide the wall is**, which is the part that would bite");
-    P("silently. The residual is `(1.83 − 1.60) × px_per_m_at_wall / image_h_px`, so it scales");
+    P("silently. The residual is `(1.83 − the drawing eye) × px_per_m_at_wall / image_h_px`, so it scales");
     P("with the scale:");
     P("");
     P("| facing | px/m at wall | residual against the 1.83 m gate | verdict |");

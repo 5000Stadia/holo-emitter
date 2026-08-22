@@ -2095,7 +2095,7 @@ test.describe("the room has corners, and they are where the plan says", () => {
            nothing else, without excluding the glyph by name. */
         const rows = y1 - y0;
         const band = ctx.getImageData(0, y0, 1536, rows).data;
-        const at = (x, i) => band[(i * 1536 + x) * 4];
+        const at = (x, i) => band[(i * 1536 + Math.min(1535, Math.max(0, x))) * 4];
         const fullBand = (x) => {
           let hit = 0;
           for (let i = 0; i < rows; i++) {
@@ -2105,7 +2105,13 @@ test.describe("the room has corners, and they are where the plan says", () => {
           return hit / rows > 0.9;
         };
         let anyVertical = false;
-        for (let x = 6; x < 1528 && !anyVertical; x++) {
+        /* From the FIRST column to the last. An artifact critic clamped the
+           corner x's into the frame — the most natural defensive bug there is
+           — which invents two corner verticals at x 2 and x 1533 on the two
+           facings whose wall runs past the frame, and a scan starting at 6
+           could not see either. The neighbour samples clamp instead of the
+           scan. */
+        for (let x = 0; x < 1536 && !anyVertical; x++) {
           /* TWO adjacent columns, because a corner is a 2 px stroke and the
              wall's own metre lines are 1 px. Without the adjacency this finds
              every metre line on the wall. */

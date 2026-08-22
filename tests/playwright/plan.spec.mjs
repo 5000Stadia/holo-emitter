@@ -583,6 +583,24 @@ test.describe("the plan validator goes red on every check it claims", () => {
     expect(w.join("\n")).toMatch(/has no stack rising through "upper"/);
   });
 
+  test("planWarnings enumerates the facings that show no room at all", () => {
+    /* Row 20: two of the eight facings the demo draws are a wall in your face
+       — the passage is 2.60 m deep, so at the ruled lens neither its corners
+       nor its floor line nor its ceiling line is in frame, and the shipped
+       depth bound refuses any placement on them at any depth. That is honest
+       and it is a look consequence for Kabe, so it is enumerated rather than
+       left to be found in a picture. A warning nothing exercises is a warning
+       that can stop being computed. */
+    const w = planWarnings(PLAN, BY_ENTITY, WORLD);
+    const named = w.filter((x) => /shows no corner, no wall-floor line/.test(x));
+    expect(named.length, named.join("\n")).toBe(2);
+    expect(named.join("\n")).toMatch(/room "hall" facing N/);
+    expect(named.join("\n")).toMatch(/room "hall" facing S/);
+    /* And the study is not among them: all four of its facings show the room
+       they are in, which is the whole of what row 20 bought. */
+    expect(named.join("\n")).not.toMatch(/"study"/);
+  });
+
   test("planWarnings says out loud when the footprint cross-check could not run", () => {
     // The plan-only case §4b item 2 describes: geometry with no world beside
     // it. That is valid, and weaker, and the weakening must be visible.
@@ -1325,7 +1343,7 @@ test.describe("the projection against the shipped staging", () => {
     expect(b.u).not.toBeCloseTo(a.u, 4);
     expect(b.placement.heightPx / a.placement.heightPx).toBeGreaterThan(1.1);
     expect(readFileSync(join(draftDir, "projection.md"), "utf8"))
-      .toMatch(/drawn height px today/);
+      .toMatch(/drawn height px, fallback/);
   });
 });
 

@@ -390,6 +390,20 @@ on **that clause alone**, names it by a stable `[row20:<name>]` token, is regist
 | `row20:renderer.corner_honesty` | corners are drawn exactly when in frame | remove the corner clip in a staged tree, measure the picture |
 | `row20:renderer.glyph_cap` | the glyph's frame-fraction cap (§8) | delete the cap in a staged tree, measure the drawn glyph |
 
+**AMENDED BY §14 — the table above is the plan, and the build differs from it in three ways, each
+recorded rather than quietly dropped.** Built: `meta.one_lens`, `plan.standpoint_source`,
+`plan.standpoint_branch` (which the table does not name — the token had to split, because one
+token tagging two emit sites is the failure this ledger exists to prevent),
+`plan.standpoint_stands_back`, `plan.standpoint_clear`, `plan.room_reads` (§7.2's per-room guard,
+built as a hard clause after an artifact critic found it missing) and `bake.refuses_lens_drift`.
+NOT built: `bake.refuses_foreign_lens`, which turned out to be `meta.one_lens` reached through the
+bake and so a mechanism no case could isolate — narrowed rather than widened;
+`renderer.corner_honesty` and `renderer.glyph_cap`, whose mechanisms are cased in
+`mechanisms.spec` and `geometry.spec` as measured claims about the picture rather than as ledger
+deletions. The glyph is 0.35 m of wall with no cap at all, and its size is measured off the render
+against that number — a cap in frame fractions would have made it chrome wearing the wall's
+clothes.
+
 **What the completeness scan can and cannot see, stated rather than assumed.** Row 18 — the row that
 makes the scan read every emit site — is unbuilt. The existing scan reads
 `tools/validate-fixtures.mjs` and `tools/validate-plan.mjs` only. This row **extends it to
@@ -452,7 +466,12 @@ overlap and the second door's `u` follows from it), `determinism`, `knowledge`, 
 
 ## 9. Residue this row records and does not fix
 
-1. **The nearest visible floor is 3.077 m on every facing, and no lens shift brings it to your
+1. **SUPERSEDED BY §14's measured camera: it is 2.2295 m, not 3.077 m.** What follows was
+   computed at the interim 1.60 m eye and the 0.48 horizon, before the approved backdrops were
+   measured and their own camera adopted (eye 1.08775 m, horizon 524.4/1024). The BOUND below is
+   the part that stays true, and it is why the quality is still not delivered: no lens shift at
+   this focal length reaches a viewer's feet, because its infimum is the eye height itself.
+   **The nearest visible floor is 3.077 m on every facing, and no lens shift brings it to your
    feet.** `nearest_floor = eye / (1 − horizon_y)`, so at f = 1024 its infimum over every horizon a
    picture can use is **the eye height itself, 1.60 m** — 0.45 gives 2.91 m, 0.42 gives 2.76 m, 0.31
    gives 2.32 m. Revision 1 booked this loss against "lens shift at row 4" and that arithmetic does
@@ -470,7 +489,9 @@ overlap and the second door's `u` follows from it), `determinism`, `knowledge`, 
 4. **Sprites do not stretch.** Research §8.6: a real 24 mm lens elongates an off-axis object by up
    to 1.35× and a pasted sprite will not; `chair1` sits 37.2° off axis. §12.5's ±5 % height check
    assumes no stretch. Row 4's prompt sheets are where it is matched or ignored deliberately.
-5. **`chair1`'s contact pool centres 0.4 px inside the frame.** The peak is drawn and the clause has
+5. **WITHDRAWN — computed from a wrong shadow offset, and the lower camera settled it anyway:
+   the chair's pool is bounded by y 616–920, about 104 px inside the frame.** What follows was
+   the claim. **`chair1`'s contact pool centres 0.4 px inside the frame.** The peak is drawn and the clause has
    teeth, but the margin is a fact about the geometry rather than a choice; if row 4's assets move
    it, the clause goes red on the object that broke, which is what it is for.
 6. **Turning translates the body further than before.** Threshold standpoints put the study's N and
@@ -495,10 +516,14 @@ overlap and the second door's `u` follows from it), `determinism`, `knowledge`, 
 
 ## 10. Edges — what this must not touch, and what outside it feels the change
 
-**Must not touch:** `backdrops/`, `library-src/`, `replicator/ingest.py` and every pipeline stage
-(`contract.json`'s camera block and the two prompt blocks' focal prose only), any other spec row,
-any AgentPost mailbox. No push. `world.json`. `horizon_y`, the 1.60 m interim eye height,
-`px_per_m_at_bottom`, §10's `eye_height_m` and `pitch_deg` — all [HUMAN] and outside this row.
+**Must not touch:** `backdrops/`, `library-src/`, `replicator/ingest.py` and every pipeline stage,
+any other spec row, any AgentPost mailbox. No push. `world.json`. §10's `eye_height_m` and
+`pitch_deg` — [HUMAN], and untouched.
+**AMENDED BY §14:** this fence originally also held `horizon_y`, the 1.60 m interim eye height and
+`px_per_m_at_bottom`, on the ground that the frames Kabe approved were rendered at them. All three
+MOVED, under the Navigator's ruling that blueprint §5's approved-image authority governs once the
+approved image exists and is measured. The consequence the fence was protecting is real and is now
+a batch question: the composition of `01d` and `02b` is not the composition that ships.
 
 **Feels the change:** row 4 (measured metas at 24 mm; prompt sheets get the focal only; §12.5 (ii)
 is still the clause with teeth and still does not exist until a backdrop is measured; the feet
