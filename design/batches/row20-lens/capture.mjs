@@ -55,7 +55,13 @@ const b = await chromium.launch();
 
 for (const [name, intents] of FRAMES) {
   const page = await b.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href);
+  /* [Row 21] `?world=demo-study`, because this batch is of the FURNISHED
+     world and row 21 made the bare URL boot the painted navigation world
+     instead. The script's meaning has not changed — it asks for the world it
+     always captured, by name — and the frames it re-renders are byte-identical
+     to the ones it produced, which is what `plan.spec` asserts. Nothing here
+     was re-captured: the pictures Kabe has not yet ruled on are untouched. */
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=demo-study");
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
   const vs = await page.evaluate((list) => {
     const A = window.HOLO_APP;

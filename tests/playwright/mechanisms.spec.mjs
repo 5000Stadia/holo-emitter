@@ -2091,6 +2091,15 @@ test.describe("the room has corners, and they are where the plan says", () => {
     "hall/N", "hall/E", "hall/S", "hall/W"]) {
     const [loc, f] = key.split("/");
     test(`${key}: two corners, at the ends of the u-domain`, async ({ page }) => {
+      const m0 = LIT.facing(loc, f);
+      /* [Row 21] A PAINTED facing draws no grid and therefore no corner
+         verticals: its corners are painted, and they are judged where a
+         painting's corners can be judged — §12.5 (ii) in `geometry.spec`,
+         measured off the image against the metres the plan rules. Skipped
+         VISIBLY rather than returned early, because an early return in a test
+         is a green tick for work nobody did. */
+      test.skip(m0.measured === true,
+        `${key} is painted; §12.5 (ii) judges its corners off the image`);
       await page.goto(appUrl());
       const m = LIT.facing(loc, f);
       const cols = await page.evaluate(({ loc, f, c0, c1, y0, y1 }) => {

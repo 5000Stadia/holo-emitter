@@ -230,6 +230,11 @@
 </style>
 </head>
 <body>
+  <!-- [Row 21] Where the baked paintings are decoded. They are in the document
+       so the browser's load event waits for them and the first frame is of the
+       painting rather than of a grid that flips a frame later; they are hidden
+       because the canvas is the only picture. -->
+  <div id="backdrop-store" hidden aria-hidden="true"></div>
   <div id="stage">
     <canvas id="scene" width="1536" height="1024" role="img" aria-label="what you see"></canvas>
     <canvas id="overlay" width="1536" height="1024"></canvas>
@@ -286,25 +291,36 @@
       var affordances = document.querySelectorAll(".affordance");
       for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
     }
+    /* DEFERRED, not immediate, and [row 21] deferred to the LOAD event rather
+       than to the next task. A missing `<script src>` fires its error BEFORE
+       the page paints, and some of this page's scripts are not on the boot
+       path at all — remove `src/inventory.js` and the room draws, the chevrons
+       work, the view turns, and the apology "Nothing of this place can be
+       shown" prints over a working picture. Waiting lets the paint that is
+       about to happen answer for itself.
+       ONE TASK IS NO LONGER LONG ENOUGH: the first frame waits for the baked
+       paintings to decode, so at the next task a perfectly healthy page has
+       painted nothing yet and this sentence was printing over a room that was
+       about to appear. The load event is exactly the moment the pictures are
+       in — they are elements in the document — and it fires whether or not
+       anything came up, so a page that truly never boots still speaks. */
+    function deferWavers() {
+      if (document.readyState === "complete") setTimeout(wavers, 0);
+      else window.addEventListener("load", function () { setTimeout(wavers, 0); });
+    }
     window.addEventListener("error", function (e) {
       console.error("boot fault:", e && (e.error || e.message));
-      /* DEFERRED, not immediate. A missing `<script src>` fires its error
-         BEFORE the page paints, and some of this page's scripts are not on
-         the boot path at all — remove `src/inventory.js` and the room draws,
-         the chevrons work, the view turns, and the apology "Nothing of this
-         place can be shown" prints over a working picture. Deciding one task
-         later lets the paint that is about to happen answer for itself. */
-      setTimeout(wavers, 0);
+      deferWavers();
     }, true);
     window.addEventListener("DOMContentLoaded", function () {
       // Every script ran, but the app never took: same silence, same answer.
-      if (!window.HOLO_APP) setTimeout(function () {
-        if (!window.HOLO_APP) wavers();
-      }, 0);
+      if (!window.HOLO_APP) deferWavers();
     });
   })();
   </script>
+  <script src="fixtures/nav-manor/fixture.js"></script>
   <script src="fixtures/demo-study/fixture.js"></script>
+  <script src="backdrops/baked.js"></script>
   <script src="src/groundplane.js"></script>
   <script src="src/placeholders.js"></script>
   <script src="src/renderer.js"></script>
@@ -320,7 +336,37 @@
      synchronous updateChrome. */
   (function () {
     "use strict";
-    var fixture = window.HOLO_FIXTURE;
+    /* WHICH WORLD. [Row 21] The page carries more than one baked world and
+       the bare URL — the one a visitor opens — boots the painted navigation
+       world: the manor's two rooms, walkable, empty of objects, painted where
+       a wall has been admitted and holodeck grid where it has not. The
+       furnished demo world §12.1 walks is at `?world=demo-study`, and the
+       README says so, because the storefront is ruled mute and a query
+       parameter nothing names is a room with no door.
+
+       An unknown id is NOT quietly swapped for a working world: a page that
+       boots something other than what it was asked for is the picture lying
+       about the document, and the boot surface below already has the sentence
+       for a view this pattern does not hold. */
+    var DEFAULT_WORLD = "nav-manor";
+    var fixtures = window.HOLO_FIXTURES || {};
+    var wanted = DEFAULT_WORLD;
+    try {
+      var q = /[?&]world=([A-Za-z0-9_-]+)/.exec(window.location.search || "");
+      if (q) wanted = q[1];
+    } catch (ignored) { /* no location to read: the default stands */ }
+    var fixture = fixtures[wanted];
+    var worldFault = !fixture;
+    if (worldFault) {
+      console.error(
+        "BOOT ERROR: no baked world \"" + wanted + "\" — the page carries " +
+        JSON.stringify(Object.keys(fixtures)) + ". Bake it with: " +
+        "node tools/bake-fixtures.mjs --fixture-dir fixtures/" + wanted);
+    }
+    /* `HOLO_FIXTURE` is the world that was BOOTED, set here rather than by the
+       bake, so the name means the world on screen instead of whichever script
+       tag came last. */
+    window.HOLO_FIXTURE = fixture;
     var harness = window.HOLO.harness.create(fixture);
     var scene = document.getElementById("scene");
     var overlay = document.getElementById("overlay");
@@ -345,6 +391,36 @@
       if (Object.prototype.hasOwnProperty.call(bakedMetas, mk)) {
         backdrops[mk] = { meta: bakedMetas[mk] };
       }
+    }
+    /* [Row 21] And the IMAGE half, from `backdrops/baked.js` — the paintings
+       promoted into `backdrops/<location>/<facing>.png`, embedded as data:
+       URIs because a file:// page drawing a file:// image taints the canvas
+       and every hash test reads it back.
+
+       A painting belongs to the BUILDING, not to a fixture: any world standing
+       in this manor's study looking north sees the same north wall, so the map
+       is filled from the promoted set and not from whichever world booted. A
+       facing this world does not name gets no entry, and a facing with no
+       painting keeps its meta and draws the grid — which is the materialization
+       fiction doing exactly what it says: space that has not been established
+       yet is drawn as the holodeck's own scaffold. */
+    var bakedImages = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.images) || {};
+    var imageStore = document.getElementById("backdrop-store");
+    var pendingImages = [];
+    for (var ik in bakedImages) {
+      if (!Object.prototype.hasOwnProperty.call(bakedImages, ik)) continue;
+      if (!backdrops[ik]) continue;
+      var img = new Image();
+      img.alt = "";
+      img.dataset.facing = ik;
+      /* In the document, so the browser's own load event waits for it: the
+         first paint must be of the painting, never of a grid that flips to a
+         painting a frame later. The element is hidden and the canvas is what
+         anyone sees. */
+      if (imageStore) imageStore.appendChild(img);
+      img.src = bakedImages[ik].src;
+      backdrops[ik].image = img;
+      if (!img.complete) pendingImages.push(img);
     }
     function metaFor(vs) {
       var e = backdrops[vs.location + "/" + vs.facing];
@@ -802,10 +878,18 @@
       var ap = apertureAt(p);
       if (ap) {
         var leaf = entityById(ap.via);
-        if (leaf && leaf.state === "open") return { kind: "doorway", aperture: ap };
+        /* [Row 21] AN OPENING WITH NO LEAF IS ALWAYS A WAY THROUGH. Where the
+           world holds a leaf it governs, exactly as before — open, you walk;
+           shut, the click belongs to the door. Where it holds none the doorway
+           is a fact about the building, there is nothing to open, and a click
+           inside it can only mean travel. Without this the painted navigation
+           world had a doorway drawn in its wall, a `go` the harness would have
+           honoured, and no pointer path to it at all. */
+        if (!leaf) return { kind: "doorway", aperture: ap };
+        if (leaf.state === "open") return { kind: "doorway", aperture: ap };
         // A shut leaf fills its own opening, so this only happens where the
         // leaf's own pixels do not reach; the doorway still belongs to it.
-        if (leaf) return { kind: "entity", id: ap.via };
+        return { kind: "entity", id: ap.via };
       }
       var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
       if (near) return { kind: "entity", id: near };
@@ -861,6 +945,12 @@
        has never heard of. M0's one door entity is shared by both exits, so
        this yields one string, not two. */
     function goLabel(leafEntity) {
+      /* [Row 21] A doorway with no leaf in it is named for what it is. The
+         leaf's own noun is what names this control where a leaf exists — a
+         plank door is the thing you walk through — and where the building
+         carries the opening alone there is no object to name, only the way
+         through. */
+      if (!leafEntity) return "walk through the doorway";
       var noun = nounOf(leafEntity);
       return noun ? "walk through the " + noun : NOUN_FALLBACK;
     }
@@ -923,16 +1013,19 @@
         }
       }
 
-      /* The go-control: present only when the on-facing exit's leaf is
-         open, mirroring resolve()'s own doorway branch exactly — a shut
-         leaf has no separate opening-target there either, and neither does
-         this. */
+      /* The go-control: present whenever a pointer could travel here, which
+         is resolve()'s own doorway branch exactly — a shut leaf has no
+         separate opening-target there and has none here either, and [row 21]
+         an opening with NO leaf is always a way through, so it always has
+         one. Row 10's rule is that every intent a pointer can emit is
+         reachable by keyboard alone, and an empty painted room would
+         otherwise be walkable by mouse and by nothing else. */
       var apList = window.HOLO.renderer.apertures(
         harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
       for (var j = 0; j < apList.length; j++) {
         var ap = apList[j];
         var leaf = entityById(ap.via);
-        if (!leaf || leaf.state !== "open") continue;
+        if (leaf && leaf.state !== "open") continue;
         var goBtn = document.createElement("button");
         goBtn.type = "button";
         goBtn.className = "entity-control chrome";
@@ -1309,13 +1402,41 @@
          facing. */
       backdrops: backdrops, metaFor: metaFor
     };
-    harness.subscribe(paint);
-    harness.redraw();
-    updateChrome(null);
-    /* After the first paint, so a page that faulted on the way up shows its
-       own fault line last rather than this one. `halted` is set by fault(). */
-    if (bootFault && !halted) {
-      appendNarration("The projection was set to a view this pattern does not hold.");
+    function bootPaint() {
+      harness.subscribe(paint);
+      harness.redraw();
+      updateChrome(null);
+      /* After the first paint, so a page that faulted on the way up shows its
+         own fault line last rather than this one. `halted` is set by fault(). */
+      if ((bootFault || worldFault) && !halted) {
+        appendNarration("The projection was set to a view this pattern does not hold.");
+      }
+    }
+    if (pendingImages.length === 0) {
+      bootPaint();
+    } else {
+      /* The first frame waits for the paintings, and only for them. A painting
+         that will not decode is a corrupt bake, and what the page does then is
+         drop it and draw the grid: the room reads as unestablished, which is
+         the one honest thing a picture can say when it cannot show what the
+         document holds, and the developer detail goes to the console. The
+         accepted deviation is that a visitor cannot tell that from an
+         intentionally unpainted wall — the same shape as the stale-bake
+         deviation, and the same mitigation: the suite, before a push. */
+      var left = pendingImages.length;
+      var settle = function (ev) {
+        if (ev && ev.type === "error") {
+          var key = ev.target && ev.target.dataset ? ev.target.dataset.facing : "?";
+          console.error("BACKDROP ERROR: the baked painting for " + key +
+            " did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs");
+          if (backdrops[key]) delete backdrops[key].image;
+        }
+        if (--left === 0) bootPaint();
+      };
+      for (var pi = 0; pi < pendingImages.length; pi++) {
+        pendingImages[pi].addEventListener("load", settle);
+        pendingImages[pi].addEventListener("error", settle);
+      }
     }
   })();
   </script>

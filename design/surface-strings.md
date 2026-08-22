@@ -301,12 +301,13 @@ id | surface | state | verdict | observed | adjudicator | string
 75 | entity-control aria-label | note1, takeable, not yet held | PASS | yes | row8-10-artifact-critic | take the vellum notebook
 76 | entity-control aria-label | coin1, takeable, not yet held | PASS | yes | row8-10-artifact-critic | take the silver coin
 77 | entity-control go-control aria-label | door1 open, on the facing of either exit it serves — one shared leaf, one string, named from the leaf's own record rather than a per-exit lookup | PASS | yes | row8-10-artifact-critic | walk through the plank door
+80 | entity-control go-control aria-label | an exit through an opening no leaf fills — the doorway as a fact about the building, which is what the painted navigation world walks through [row 21] | PASS | yes | row21-painted-promotion | walk through the doorway
 78 | #scene aria-label | always | PASS | yes | row8-10-artifact-critic | what you see
 79 | entity-control aria-label | a bound entity's record has no usable noun (degenerate case; forced by a doctored record, not reachable on the shipped tree in ordinary play) | PASS | yes | row8-10-artifact-critic | something here
 ```
 
 ```COUNT
-STRINGS 77
+STRINGS 78
 STATES 36
 ```
 
@@ -505,6 +506,8 @@ index.html | inventory fault: <detail>
 index.html | boot fault: <detail>
 index.html | render fault: <detail>
 index.html | BOOT ERROR: viewstate <json> names no location/facing in world.json — every turn will be refused. Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs
+index.html | BOOT ERROR: no baked world "<id>" — the page carries <list>. Bake it with: node tools/bake-fixtures.mjs --fixture-dir fixtures/<id>
+index.html | BACKDROP ERROR: the baked painting for <facing> did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs
 index.html | entity control: record has no usable noun: <sprite> (entity <id>)
 index.html | entity-controls fault: <detail>
 src/harness.js | missing narration: <key>

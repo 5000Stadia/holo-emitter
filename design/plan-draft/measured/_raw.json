@@ -2,7 +2,7 @@
   "study/N": {
     "facing": "study/N",
     "src": "backdrops/source/study-N/cand-2.png",
-    "cfg_calib": "fireplace",
+    "cfg_calib": null,
     "measured": {
       "wall_ceiling_line_y_px": 81,
       "wall_floor_line_y_px": 777,
@@ -422,7 +422,7 @@
         "cv": 1.027
       }
     ],
-    "corner_ref_strength": 70.4,
+    "corner_ref_strength": null,
     "corner_vertical_edge_x0": 139,
     "corner_vertical_edge_x1": 1390,
     "ceiling_ramp_vp": {
@@ -452,15 +452,253 @@
         "edge_px": 1675
       }
     },
-    "calib_px": 209,
-    "ppm": 232.22222222222223,
+    "calib_px": 209.0,
+    "ppm": 232.222,
+    "rulers": [
+      {
+        "name": "fireplace",
+        "tier": 1,
+        "feature_px": 209.0,
+        "ruled_m": 0.9,
+        "px_per_m_at_wall": 232.222,
+        "implied_focal_px": 1010.2,
+        "delta_pct": 0.02,
+        "admissible": true,
+        "what": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+        "note": "This is the calibration the approved frame was blessed at and the reference 1010 px is defined by it, so its delta is 0 by construction and is a CONTROL, not a verdict."
+      },
+      {
+        "name": "module_dado_rail",
+        "tier": 2,
+        "feature_px": 213.0,
+        "ruled_m": 0.91723,
+        "px_per_m_at_wall": 232.222,
+        "implied_focal_px": 1010.2,
+        "delta_pct": 0.02,
+        "admissible": false,
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names.",
+        "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
+      },
+      {
+        "name": "module_capping",
+        "tier": 2,
+        "feature_px": 232.0,
+        "ruled_m": 0.99904,
+        "px_per_m_at_wall": 232.222,
+        "implied_focal_px": 1010.2,
+        "delta_pct": 0.02,
+        "admissible": false,
+        "what": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings.",
+        "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
+      },
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 1247.0,
+        "ruled_m": 5.45,
+        "px_per_m_at_wall": 228.807,
+        "implied_focal_px": 995.3,
+        "delta_pct": -1.45,
+        "admissible": false,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 696.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 248.571,
+        "implied_focal_px": 1081.3,
+        "delta_pct": 7.06,
+        "admissible": false,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      }
+    ],
+    "primary": {
+      "name": "fireplace",
+      "tier": 1,
+      "feature_px": 209.0,
+      "ruled_m": 0.9,
+      "px_per_m_at_wall": 232.222,
+      "implied_focal_px": 1010.2,
+      "delta_pct": 0.02,
+      "admissible": true,
+      "what": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+      "note": "This is the calibration the approved frame was blessed at and the reference 1010 px is defined by it, so its delta is 0 by construction and is a CONTROL, not a verdict."
+    },
+    "verdict": "PASS",
+    "withheld_because": [],
+    "ruler_agreement_pct": null,
+    "module": {
+      "band": [
+        500,
+        640
+      ],
+      "cols": [
+        200,
+        1400
+      ],
+      "band_median_luma": 38.31,
+      "capping_y_px": 545,
+      "dado_rail_y_px": 564,
+      "capping_above_floor_px": 232,
+      "dado_rail_above_floor_px": 213,
+      "profile": [
+        48.41,
+        46.7,
+        48.63,
+        47.0,
+        48.42,
+        46.52,
+        48.44,
+        46.35,
+        47.91,
+        46.24,
+        49.42,
+        41.82,
+        33.59,
+        40.49,
+        40.06,
+        38.82,
+        43.81,
+        45.78,
+        43.26,
+        39.14,
+        44.46,
+        44.03,
+        44.99,
+        42.85,
+        43.78,
+        41.8,
+        42.37,
+        40.9,
+        41.98,
+        40.28,
+        40.63,
+        38.66,
+        39.07,
+        37.07,
+        37.09,
+        32.52,
+        28.17,
+        42.66,
+        35.14,
+        27.89,
+        31.08,
+        29.26,
+        27.61,
+        42.1,
+        44.2,
+        18.58,
+        19.61,
+        35.91,
+        38.57,
+        34.29,
+        36.23,
+        34.08,
+        35.5,
+        33.9,
+        35.15,
+        34.0,
+        31.25,
+        33.44,
+        22.24,
+        23.51,
+        30.62,
+        26.9,
+        51.72,
+        37.35,
+        10.5,
+        14.11,
+        22.41,
+        47.29,
+        29.42,
+        12.23,
+        29.55,
+        36.86,
+        36.56,
+        36.64,
+        40.38,
+        38.0,
+        38.74,
+        38.49,
+        39.82,
+        36.54,
+        37.67,
+        39.69,
+        19.11,
+        37.48,
+        52.74,
+        29.99,
+        22.93,
+        23.83,
+        24.22,
+        34.2,
+        45.31,
+        26.58,
+        27.05,
+        34.74,
+        36.48,
+        36.33,
+        38.23,
+        36.61,
+        37.82,
+        36.27,
+        38.27,
+        36.73,
+        38.24,
+        36.85,
+        38.53,
+        37.18,
+        38.71,
+        37.23,
+        39.31,
+        37.87,
+        39.08,
+        39.49,
+        41.46,
+        36.3,
+        38.08,
+        37.19,
+        38.51,
+        37.2,
+        39.36,
+        37.91,
+        39.43,
+        37.98,
+        39.53,
+        38.02,
+        39.56,
+        37.93,
+        39.41,
+        38.31,
+        40.42,
+        39.23,
+        40.85,
+        39.63,
+        41.2,
+        41.56,
+        45.17,
+        38.48,
+        39.46,
+        39.66,
+        40.93,
+        39.27,
+        41.03
+      ],
+      "profile_first_row": 500
+    },
+    "bays": null,
+    "wall_band_audit": null,
     "derived": {
-      "eye_height_m": 1.2014354066985646,
-      "storey_height_m": 2.9971291866028706,
-      "px_per_m_at_bottom": 437.8096375945838,
-      "nearest_visible_floor_m": 2.3389160769188786,
-      "implied_camera_wall_m": 4.40956937799043,
-      "implied_wall_width_m": 5.369856459330143
+      "eye_height_m": 1.2014365563986185,
+      "storey_height_m": 2.9971320546718228,
+      "px_per_m_at_bottom": 437.80921863799284,
+      "nearest_visible_floor_m": 2.338918315118223,
+      "implied_camera_wall_m": 4.409573597678084,
+      "implied_wall_width_m": 5.369861597953682
     },
     "light": {
       "key_dir_measured": "L",
@@ -499,7 +737,7 @@
       "fireplace_opening_x0_px": 341,
       "fireplace_opening_x1_px": 550,
       "fireplace_opening_width_px": 209,
-      "how_fireplace_opening": "Row-gradient edges of the stone jambs' INNER faces, stable across y 600-720 and unchanged when the band is moved to 560-600 or 650-700: the strongest column steps in x 250-650 fall at 341|342 (95.7) and 550|551 (79.1), with the case's outer mouldings at 315 (97.9), 332, 566 and 605. Clear opening = 551 - 342 = 209 px. This reproduces the study-N draft's 341..550 / 209 px exactly.",
+      "how_fireplace_opening": "Unchanged from the cand-1 run, which read this same image: the strongest column steps in x 250-650 fall at 341|342 and 550|551, the case's outer mouldings at 315, 332, 566 and 605. Clear opening 551 - 342 = 209 px.",
       "column_edge_candidates": [
         [
           315,
@@ -534,344 +772,404 @@
           42.5
         ]
       ]
+    },
+    "raw_ceiling_line_y_px": 81,
+    "raw_floor_line_y_px": 777,
+    "control": {
+      "passed": true,
+      "expected": {
+        "wall_ceiling_line_y_px": 81,
+        "wall_floor_line_y_px": 777,
+        "corner_x0_px": 142,
+        "corner_x1_px": 1389,
+        "fireplace_opening_width_px": 209,
+        "px_per_m_at_wall": 232.222
+      },
+      "measured": {
+        "wall_ceiling_line_y_px": 81,
+        "wall_floor_line_y_px": 777,
+        "corner_x0_px": 142,
+        "corner_x1_px": 1389,
+        "fireplace_opening_width_px": 209,
+        "px_per_m_at_wall": 232.222
+      },
+      "per_field": [
+        {
+          "field": "wall_ceiling_line_y_px",
+          "committed": 81,
+          "measured": 81,
+          "delta": 0
+        },
+        {
+          "field": "wall_floor_line_y_px",
+          "committed": 777,
+          "measured": 777,
+          "delta": 0
+        },
+        {
+          "field": "corner_x0_px",
+          "committed": 142,
+          "measured": 142,
+          "delta": 0
+        },
+        {
+          "field": "corner_x1_px",
+          "committed": 1389,
+          "measured": 1389,
+          "delta": 0
+        },
+        {
+          "field": "fireplace_opening_width_px",
+          "committed": 209,
+          "measured": 209,
+          "delta": 0
+        },
+        {
+          "field": "px_per_m_at_wall",
+          "committed": 232.222,
+          "measured": 232.222,
+          "delta": 0.0
+        }
+      ],
+      "_why": "The control is the one approved frame measured by the same code as everything else. If it has moved, the code has changed what it reads and every verdict in the run is VOID - an agent measuring a picture several ways until one agrees with its expectation is this project's oldest defect, and this is the cheapest thing that stops it. What it does NOT prove: that the seven re-tuned window sets are looking at the features they name. That is what each facing's second ruler is for."
     }
   },
   "study/E": {
     "facing": "study/E",
-    "src": "backdrops/source/study-E/cand-1.png",
-    "cfg_calib": "door_h",
+    "src": "backdrops/source/study-E/cand-2.png",
+    "cfg_calib": null,
     "measured": {
-      "wall_ceiling_line_y_px": 110,
-      "wall_floor_line_y_px": 778,
-      "horizon_y_px": 514,
-      "horizon_x_px": 798,
+      "wall_ceiling_line_y_px": 111,
+      "wall_floor_line_y_px": 779,
+      "horizon_y_px": 496,
+      "horizon_x_px": 797,
       "corner_x0_px": 171,
       "corner_x1_px": 1365,
-      "dado_rail_top_y_px": 570,
-      "dado_rail_above_floor_px": 208,
+      "dado_rail_top_y_px": 564,
+      "dado_rail_above_floor_px": 215,
       "corner_midpoint_px": 768.0,
-      "opening_x0_px": 660,
-      "opening_x1_px": 874,
+      "opening_x0_px": 658,
+      "opening_x1_px": 873,
       "opening_y0_px": 308,
-      "opening_y1_px": 778,
-      "opening_width_px": 214,
-      "opening_height_px": 470,
-      "opening_aspect_h_over_w": 2.196
+      "opening_y1_px": 779,
+      "opening_width_px": 215,
+      "opening_height_px": 471,
+      "opening_aspect_h_over_w": 2.191
     },
     "ceil_cands": [
       {
-        "y": 111,
-        "strength": 61.7,
+        "y": 112,
+        "strength": 67.5,
         "horiz": 1.0,
-        "cv": 0.132
-      },
-      {
-        "y": 117,
-        "strength": 22.9,
-        "horiz": 0.992,
-        "cv": 0.647
+        "cv": 0.13
       },
       {
         "y": 237,
-        "strength": 18.23,
-        "horiz": 0.723,
-        "cv": 1.395
+        "strength": 20.72,
+        "horiz": 0.722,
+        "cv": 1.439
+      },
+      {
+        "y": 139,
+        "strength": 16.84,
+        "horiz": 0.952,
+        "cv": 0.733
+      },
+      {
+        "y": 118,
+        "strength": 15.67,
+        "horiz": 0.955,
+        "cv": 0.534
       },
       {
         "y": 145,
-        "strength": 15.49,
-        "horiz": 0.986,
-        "cv": 0.611
-      },
-      {
-        "y": 261,
-        "strength": 14.68,
-        "horiz": 0.716,
-        "cv": 1.492
-      },
-      {
-        "y": 138,
-        "strength": 14.25,
-        "horiz": 0.971,
-        "cv": 0.522
-      },
-      {
-        "y": 311,
-        "strength": 13.83,
-        "horiz": 0.666,
-        "cv": 1.506
+        "strength": 14.86,
+        "horiz": 0.962,
+        "cv": 0.66
       },
       {
         "y": 168,
-        "strength": 12.92,
-        "horiz": 0.738,
-        "cv": 1.014
+        "strength": 14.72,
+        "horiz": 0.74,
+        "cv": 0.852
       },
       {
-        "y": 253,
-        "strength": 10.05,
-        "horiz": 0.701,
-        "cv": 1.401
+        "y": 308,
+        "strength": 14.43,
+        "horiz": 0.71,
+        "cv": 1.679
+      },
+      {
+        "y": 261,
+        "strength": 11.98,
+        "horiz": 0.689,
+        "cv": 1.495
       },
       {
         "y": 243,
-        "strength": 9.22,
-        "horiz": 0.693,
-        "cv": 1.362
+        "strength": 9.33,
+        "horiz": 0.696,
+        "cv": 1.41
       },
       {
-        "y": 176,
-        "strength": 8.65,
-        "horiz": 0.624,
-        "cv": 0.899
+        "y": 253,
+        "strength": 9.25,
+        "horiz": 0.706,
+        "cv": 1.445
       },
       {
-        "y": 128,
-        "strength": 7.52,
-        "horiz": 0.713,
-        "cv": 1.392
+        "y": 130,
+        "strength": 8.16,
+        "horiz": 0.716,
+        "cv": 1.676
+      },
+      {
+        "y": 175,
+        "strength": 5.05,
+        "horiz": 0.617,
+        "cv": 1.067
       }
     ],
     "floor_cands": [
       {
-        "y": 747,
-        "strength": 78.37,
-        "horiz": 0.995,
-        "cv": 0.461
+        "y": 748,
+        "strength": 71.08,
+        "horiz": 1.0,
+        "cv": 0.695
       },
       {
-        "y": 739,
-        "strength": 77.02,
-        "horiz": 0.784,
-        "cv": 0.68
-      },
-      {
-        "y": 571,
-        "strength": 65.88,
-        "horiz": 0.962,
-        "cv": 0.565
+        "y": 740,
+        "strength": 66.77,
+        "horiz": 0.884,
+        "cv": 0.796
       },
       {
         "y": 565,
-        "strength": 65.16,
-        "horiz": 0.733,
-        "cv": 0.775
-      },
-      {
-        "y": 711,
-        "strength": 49.57,
-        "horiz": 0.635,
-        "cv": 0.974
-      },
-      {
-        "y": 586,
-        "strength": 47.26,
-        "horiz": 0.784,
-        "cv": 0.646
-      },
-      {
-        "y": 548,
-        "strength": 41.66,
-        "horiz": 0.766,
-        "cv": 0.769
-      },
-      {
-        "y": 718,
-        "strength": 39.82,
-        "horiz": 0.764,
-        "cv": 0.638
-      },
-      {
-        "y": 594,
-        "strength": 34.8,
-        "horiz": 0.641,
-        "cv": 0.927
-      },
-      {
-        "y": 540,
-        "strength": 27.55,
-        "horiz": 0.631,
-        "cv": 0.945
-      },
-      {
-        "y": 779,
-        "strength": 16.2,
-        "horiz": 0.89,
-        "cv": 0.456
-      },
-      {
-        "y": 901,
-        "strength": 16.0,
-        "horiz": 0.736,
-        "cv": 1.086
-      },
-      {
-        "y": 906,
-        "strength": 15.76,
-        "horiz": 0.743,
-        "cv": 1.073
-      },
-      {
-        "y": 913,
-        "strength": 15.53,
-        "horiz": 0.739,
-        "cv": 1.211
-      },
-      {
-        "y": 940,
-        "strength": 15.44,
-        "horiz": 0.746,
-        "cv": 1.03
-      },
-      {
-        "y": 877,
-        "strength": 15.12,
-        "horiz": 0.734,
-        "cv": 1.23
-      },
-      {
-        "y": 935,
-        "strength": 15.1,
-        "horiz": 0.719,
-        "cv": 1.076
-      },
-      {
-        "y": 871,
-        "strength": 14.85,
-        "horiz": 0.716,
-        "cv": 1.077
-      },
-      {
-        "y": 896,
-        "strength": 14.79,
-        "horiz": 0.749,
-        "cv": 1.137
-      },
-      {
-        "y": 921,
-        "strength": 14.77,
-        "horiz": 0.741,
-        "cv": 1.103
-      },
-      {
-        "y": 890,
-        "strength": 14.61,
-        "horiz": 0.744,
-        "cv": 1.124
-      },
-      {
-        "y": 883,
-        "strength": 14.53,
-        "horiz": 0.709,
-        "cv": 1.222
-      },
-      {
-        "y": 953,
-        "strength": 14.32,
-        "horiz": 0.731,
-        "cv": 1.023
-      },
-      {
-        "y": 947,
-        "strength": 14.29,
-        "horiz": 0.736,
-        "cv": 1.077
-      },
-      {
-        "y": 860,
-        "strength": 14.18,
-        "horiz": 0.757,
-        "cv": 1.14
-      },
-      {
-        "y": 927,
-        "strength": 13.83,
-        "horiz": 0.723,
-        "cv": 1.117
-      },
-      {
-        "y": 851,
-        "strength": 13.79,
-        "horiz": 0.714,
-        "cv": 1.147
-      },
-      {
-        "y": 971,
-        "strength": 13.32,
-        "horiz": 0.723,
+        "strength": 50.91,
+        "horiz": 0.821,
         "cv": 1.031
       },
       {
-        "y": 963,
-        "strength": 13.31,
-        "horiz": 0.756,
-        "cv": 1.054
+        "y": 588,
+        "strength": 47.09,
+        "horiz": 0.751,
+        "cv": 0.749
       },
       {
-        "y": 865,
-        "strength": 13.3,
+        "y": 570,
+        "strength": 45.7,
+        "horiz": 0.942,
+        "cv": 0.73
+      },
+      {
+        "y": 718,
+        "strength": 43.49,
+        "horiz": 0.678,
+        "cv": 1.233
+      },
+      {
+        "y": 548,
+        "strength": 34.24,
+        "horiz": 0.743,
+        "cv": 0.776
+      },
+      {
+        "y": 712,
+        "strength": 34.13,
+        "horiz": 0.613,
+        "cv": 1.187
+      },
+      {
+        "y": 593,
+        "strength": 30.6,
+        "horiz": 0.654,
+        "cv": 0.981
+      },
+      {
+        "y": 540,
+        "strength": 20.38,
+        "horiz": 0.631,
+        "cv": 0.992
+      },
+      {
+        "y": 910,
+        "strength": 11.5,
         "horiz": 0.733,
-        "cv": 1.179
+        "cv": 1.211
       },
       {
-        "y": 977,
-        "strength": 12.87,
-        "horiz": 0.736,
-        "cv": 1.037
+        "y": 941,
+        "strength": 11.44,
+        "horiz": 0.728,
+        "cv": 1.113
       },
       {
-        "y": 842,
-        "strength": 12.69,
-        "horiz": 0.738,
+        "y": 922,
+        "strength": 11.4,
+        "horiz": 0.708,
+        "cv": 1.244
+      },
+      {
+        "y": 901,
+        "strength": 11.07,
+        "horiz": 0.731,
+        "cv": 1.297
+      },
+      {
+        "y": 888,
+        "strength": 10.99,
+        "horiz": 0.718,
+        "cv": 1.345
+      },
+      {
+        "y": 955,
+        "strength": 10.85,
+        "horiz": 0.713,
+        "cv": 1.167
+      },
+      {
+        "y": 949,
+        "strength": 10.64,
+        "horiz": 0.754,
+        "cv": 1.256
+      },
+      {
+        "y": 877,
+        "strength": 10.57,
+        "horiz": 0.714,
+        "cv": 1.326
+      },
+      {
+        "y": 917,
+        "strength": 10.45,
+        "horiz": 0.698,
+        "cv": 1.338
+      },
+      {
+        "y": 893,
+        "strength": 10.44,
+        "horiz": 0.709,
+        "cv": 1.331
+      },
+      {
+        "y": 883,
+        "strength": 10.44,
+        "horiz": 0.703,
+        "cv": 1.401
+      },
+      {
+        "y": 927,
+        "strength": 10.41,
+        "horiz": 0.731,
+        "cv": 1.159
+      },
+      {
+        "y": 779,
+        "strength": 10.33,
+        "horiz": 0.929,
+        "cv": 0.512
+      },
+      {
+        "y": 935,
+        "strength": 10.25,
+        "horiz": 0.731,
+        "cv": 1.234
+      },
+      {
+        "y": 961,
+        "strength": 10.06,
+        "horiz": 0.713,
+        "cv": 1.253
+      },
+      {
+        "y": 864,
+        "strength": 9.81,
+        "horiz": 0.741,
+        "cv": 1.404
+      },
+      {
+        "y": 985,
+        "strength": 9.8,
+        "horiz": 0.733,
+        "cv": 1.219
+      },
+      {
+        "y": 971,
+        "strength": 9.67,
+        "horiz": 0.726,
+        "cv": 1.097
+      },
+      {
+        "y": 979,
+        "strength": 9.46,
+        "horiz": 0.741,
+        "cv": 1.139
+      },
+      {
+        "y": 859,
+        "strength": 9.42,
+        "horiz": 0.734,
+        "cv": 1.435
+      },
+      {
+        "y": 871,
+        "strength": 9.4,
+        "horiz": 0.748,
+        "cv": 1.409
+      },
+      {
+        "y": 854,
+        "strength": 9.34,
+        "horiz": 0.731,
+        "cv": 1.378
+      },
+      {
+        "y": 966,
+        "strength": 9.15,
+        "horiz": 0.706,
+        "cv": 1.268
+      },
+      {
+        "y": 991,
+        "strength": 9.1,
+        "horiz": 0.741,
+        "cv": 1.172
+      },
+      {
+        "y": 1003,
+        "strength": 9.01,
+        "horiz": 0.724,
+        "cv": 1.135
+      },
+      {
+        "y": 844,
+        "strength": 8.56,
+        "horiz": 0.673,
+        "cv": 1.408
+      },
+      {
+        "y": 997,
+        "strength": 8.53,
+        "horiz": 0.739,
+        "cv": 1.137
+      },
+      {
+        "y": 1009,
+        "strength": 8.12,
+        "horiz": 0.726,
         "cv": 1.148
       },
       {
-        "y": 958,
-        "strength": 12.15,
-        "horiz": 0.711,
-        "cv": 1.078
+        "y": 849,
+        "strength": 7.91,
+        "horiz": 0.733,
+        "cv": 1.361
       },
       {
-        "y": 987,
-        "strength": 12.04,
-        "horiz": 0.719,
-        "cv": 1.01
-      },
-      {
-        "y": 826,
-        "strength": 11.9,
-        "horiz": 0.736,
-        "cv": 1.136
-      },
-      {
-        "y": 837,
-        "strength": 11.79,
-        "horiz": 0.738,
-        "cv": 1.154
-      },
-      {
-        "y": 1001,
-        "strength": 11.65,
-        "horiz": 0.721,
-        "cv": 1.015
-      },
-      {
-        "y": 995,
-        "strength": 11.39,
-        "horiz": 0.718,
-        "cv": 1.096
-      },
-      {
-        "y": 831,
-        "strength": 11.1,
-        "horiz": 0.736,
-        "cv": 1.2
-      },
-      {
-        "y": 1007,
-        "strength": 10.69,
-        "horiz": 0.752,
-        "cv": 1.021
+        "y": 839,
+        "strength": 7.26,
+        "horiz": 0.726,
+        "cv": 1.397
       }
     ],
     "floor_window": {
@@ -880,650 +1178,101 @@
         790
       ],
       "window_profile": [
-        15.28,
-        14.28,
-        14.48,
-        13.72,
-        14.3,
-        13.5,
-        18.86,
-        11.9,
-        1.49,
-        17.68,
-        21.99,
-        19.18,
-        21.54,
-        21.22,
-        23.94,
-        23.5,
-        25.5,
-        25.15,
-        26.86,
-        27.02,
-        28.72
+        13.43,
+        12.26,
+        12.1,
+        11.13,
+        11.29,
+        10.83,
+        10.71,
+        13.03,
+        10.96,
+        0.64,
+        8.52,
+        17.59,
+        17.3,
+        18.27,
+        20.3,
+        20.91,
+        22.9,
+        23.63,
+        24.82,
+        24.86,
+        26.69
       ],
       "window_profile_first_row": 770,
-      "automatic_lowest_true_horizontal": 746
+      "automatic_lowest_true_horizontal": null
     },
     "rail_cands": [
       {
-        "y": 571,
-        "strength": 65.88,
-        "horiz": 0.962,
-        "cv": 0.565
+        "y": 565,
+        "strength": 50.91,
+        "horiz": 0.821,
+        "cv": 1.031
       },
       {
-        "y": 586,
-        "strength": 47.26,
-        "horiz": 0.784,
-        "cv": 0.646
+        "y": 588,
+        "strength": 47.09,
+        "horiz": 0.751,
+        "cv": 0.749
+      },
+      {
+        "y": 573,
+        "strength": 36.31,
+        "horiz": 0.91,
+        "cv": 0.558
       },
       {
         "y": 548,
-        "strength": 41.66,
-        "horiz": 0.766,
-        "cv": 0.769
-      },
-      {
-        "y": 594,
-        "strength": 34.8,
-        "horiz": 0.641,
-        "cv": 0.927
+        "strength": 34.24,
+        "horiz": 0.743,
+        "cv": 0.776
       },
       {
         "y": 540,
-        "strength": 27.55,
+        "strength": 20.38,
         "horiz": 0.631,
-        "cv": 0.945
-      },
-      {
-        "y": 561,
-        "strength": 17.52,
-        "horiz": 0.849,
-        "cv": 0.494
-      },
-      {
-        "y": 509,
-        "strength": 3.7,
-        "horiz": 0.688,
-        "cv": 1.045
-      },
-      {
-        "y": 491,
-        "strength": 3.67,
-        "horiz": 0.673,
-        "cv": 1.15
-      },
-      {
-        "y": 527,
-        "strength": 3.6,
-        "horiz": 0.693,
-        "cv": 1.033
-      },
-      {
-        "y": 483,
-        "strength": 3.57,
-        "horiz": 0.669,
-        "cv": 1.029
-      }
-    ],
-    "corner_ref_strength": 61.1,
-    "corner_vertical_edge_x0": 168,
-    "corner_vertical_edge_x1": 1367,
-    "ceiling_ramp_vp": {
-      "x": 749.8,
-      "y": 536.6,
-      "left_slope": 0.7428,
-      "right_slope": -0.6991,
-      "left_n": 61,
-      "left_resid_px": 0.3,
-      "right_n": 61,
-      "right_resid_px": 0.29
-    },
-    "votes": {
-      "floor": {
-        "x": 826,
-        "y": 516,
-        "edge_px": 30000
-      },
-      "ceiling": {
-        "x": 734,
-        "y": 507,
-        "edge_px": 11316
-      },
-      "side_walls": {
-        "x": 756,
-        "y": 518,
-        "edge_px": 2508
-      }
-    },
-    "calib_px": 470,
-    "ppm": 235.0,
-    "derived": {
-      "eye_height_m": 1.123404255319149,
-      "storey_height_m": 2.842553191489362,
-      "px_per_m_at_bottom": 453.9772727272727,
-      "nearest_visible_floor_m": 2.2556195244055073,
-      "implied_camera_wall_m": 4.357446808510638,
-      "implied_wall_width_m": 5.080851063829787
-    },
-    "light": {
-      "key_dir_measured": "R",
-      "key_dir_brightest_x": 1525,
-      "key_dir_brightest_y": 996,
-      "key_tint": "#c88f5e",
-      "key_tint_patch": [
-        1325,
-        1535,
-        40,
-        102
-      ],
-      "key_tint_patch_mean_rgb": [
-        31.39,
-        22.43,
-        14.78
-      ],
-      "key_tint_alternates": {
-        "floor_under_brightest": "#b4b9c8",
-        "floor_bottom_strip": "#c8a184",
-        "mid_wall_right": "#c8b6ad",
-        "mid_wall_left": "#c87b3c",
-        "brightest_21x21_patch": "#a2b1c8"
-      },
-      "brightest_21x21_patch_centre_px": [
-        1525,
-        996
-      ],
-      "sobel_bright_side_deg_whole_frame": 107.19,
-      "sobel_bright_side_deg_wall_band": 159.45,
-      "left_third_minus_right_third_luminance_whole_frame": -5.114,
-      "left_third_minus_right_third_luminance_wall_band": -0.335
-    },
-    "opening": {
-      "opening_x0_px": 660,
-      "opening_x1_px": 874,
-      "opening_y0_px": 308,
-      "opening_y1_px": 778,
-      "opening_width_px": 214,
-      "opening_height_px": 470,
-      "opening_aspect_h_over_w": 2.196,
-      "how_opening_x0": "The left jamb's front stone face runs flat at luminance ~74 out to x 657, lifts to a lit arris at 658-659 (111, 139) and falls to a one-pixel shadow line at 660 (17); the opening's lit reveal begins at 661 (147) and the dark passage at 666 (1). The WALL-PLANE edge is the shadow line: 660. Column-gradient confirmation: the strongest edge in x 645-680 is at 660|661, strength 130.9, measured over rows 400-700.",
-      "how_opening_x1": "Mirror image: the opening's lit reveal ends at 872 (64), a shadow line falls at 873-874 (35, 17), and the right jamb's front face runs flat at ~90 from 875. WALL-PLANE edge 874. The much stronger column edge at 917|918 (147.4) is the case's OUTER edge against the panelling and is not the opening.",
-      "how_opening_y0": "Reading down the opening's own columns (x 680-900): the stone face above holds ~65 to y 307, a shadow line falls at 308 (19.7), a lit arris follows at 309-310 (58.8, 72.4), then the soffit of the reveal runs 312-320 at ~28 before the dark passage at 321 (12.5). WALL-PLANE head is the shadow line: 308. 321 is the BACK of the reveal, 13 px of wall thickness.",
-      "how_opening_y1": "The threshold is the wall-floor line itself, 778: the stone jambs' plinths stand on the floor and their feet are read at the same row as the skirting's, within 1 px.",
-      "column_edge_candidates": [
-        [
-          918,
-          148.4
-        ],
-        [
-          661,
-          130.0
-        ],
-        [
-          953,
-          104.7
-        ],
-        [
-          875,
-          66.2
-        ],
-        [
-          929,
-          62.5
-        ],
-        [
-          617,
-          53.5
-        ],
-        [
-          868,
-          47.0
-        ],
-        [
-          960,
-          42.0
-        ],
-        [
-          570,
-          39.6
-        ],
-        [
-          592,
-          37.4
-        ]
-      ]
-    },
-    "fire": null
-  },
-  "study/S": {
-    "facing": "study/S",
-    "src": "backdrops/source/study-S/cand-1.png",
-    "cfg_calib": "dado",
-    "measured": {
-      "wall_ceiling_line_y_px": 103,
-      "wall_floor_line_y_px": 731,
-      "horizon_y_px": 442,
-      "horizon_x_px": 761,
-      "corner_x0_px": 179,
-      "corner_x1_px": 1355,
-      "dado_rail_top_y_px": 554,
-      "dado_rail_above_floor_px": 177,
-      "corner_midpoint_px": 767.0
-    },
-    "ceil_cands": [
-      {
-        "y": 356,
-        "strength": 88.05,
-        "horiz": 0.556,
-        "cv": 0.885
-      },
-      {
-        "y": 377,
-        "strength": 69.56,
-        "horiz": 0.591,
-        "cv": 1.173
-      },
-      {
-        "y": 200,
-        "strength": 68.86,
-        "horiz": 0.556,
-        "cv": 1.191
-      },
-      {
-        "y": 104,
-        "strength": 61.34,
-        "horiz": 1.0,
-        "cv": 0.102
-      },
-      {
-        "y": 111,
-        "strength": 45.61,
-        "horiz": 0.721,
-        "cv": 0.519
-      },
-      {
-        "y": 165,
-        "strength": 38.72,
-        "horiz": 0.622,
-        "cv": 0.822
-      },
-      {
-        "y": 369,
-        "strength": 34.05,
-        "horiz": 0.585,
-        "cv": 1.057
-      },
-      {
-        "y": 187,
-        "strength": 31.56,
-        "horiz": 0.572,
-        "cv": 0.94
-      },
-      {
-        "y": 270,
-        "strength": 20.29,
-        "horiz": 0.69,
-        "cv": 1.977
-      },
-      {
-        "y": 132,
-        "strength": 20.18,
-        "horiz": 0.896,
-        "cv": 0.354
-      },
-      {
-        "y": 350,
-        "strength": 18.3,
-        "horiz": 0.58,
-        "cv": 1.427
-      },
-      {
-        "y": 118,
-        "strength": 18.17,
-        "horiz": 0.654,
-        "cv": 0.652
-      }
-    ],
-    "floor_cands": [
-      {
-        "y": 707,
-        "strength": 35.28,
-        "horiz": 0.992,
-        "cv": 0.21
-      },
-      {
-        "y": 699,
-        "strength": 23.16,
-        "horiz": 0.87,
-        "cv": 0.343
-      },
-      {
-        "y": 628,
-        "strength": 22.09,
-        "horiz": 0.677,
-        "cv": 0.746
-      },
-      {
-        "y": 674,
-        "strength": 18.3,
-        "horiz": 0.572,
-        "cv": 0.9
-      },
-      {
-        "y": 921,
-        "strength": 18.3,
-        "horiz": 0.758,
-        "cv": 1.064
-      },
-      {
-        "y": 875,
-        "strength": 17.97,
-        "horiz": 0.764,
-        "cv": 1.218
-      },
-      {
-        "y": 899,
-        "strength": 17.94,
-        "horiz": 0.747,
-        "cv": 1.078
-      },
-      {
-        "y": 885,
-        "strength": 17.62,
-        "horiz": 0.722,
-        "cv": 1.119
-      },
-      {
-        "y": 869,
-        "strength": 17.43,
-        "horiz": 0.726,
-        "cv": 1.144
-      },
-      {
-        "y": 937,
-        "strength": 17.33,
-        "horiz": 0.741,
-        "cv": 1.013
-      },
-      {
-        "y": 911,
-        "strength": 17.32,
-        "horiz": 0.739,
-        "cv": 1.09
-      },
-      {
-        "y": 905,
-        "strength": 17.31,
-        "horiz": 0.739,
-        "cv": 1.122
-      },
-      {
-        "y": 680,
-        "strength": 17.27,
-        "horiz": 0.655,
-        "cv": 0.812
-      },
-      {
-        "y": 893,
-        "strength": 17.01,
-        "horiz": 0.738,
-        "cv": 1.118
-      },
-      {
-        "y": 857,
-        "strength": 16.91,
-        "horiz": 0.735,
-        "cv": 1.238
-      },
-      {
-        "y": 931,
-        "strength": 16.78,
-        "horiz": 0.729,
-        "cv": 0.96
-      },
-      {
-        "y": 847,
-        "strength": 16.72,
-        "horiz": 0.753,
-        "cv": 1.345
-      },
-      {
-        "y": 957,
-        "strength": 16.61,
-        "horiz": 0.735,
-        "cv": 0.996
-      },
-      {
-        "y": 943,
-        "strength": 16.48,
-        "horiz": 0.729,
-        "cv": 0.974
-      },
-      {
-        "y": 949,
-        "strength": 16.34,
-        "horiz": 0.716,
-        "cv": 1.037
-      },
-      {
-        "y": 839,
-        "strength": 16.33,
-        "horiz": 0.721,
-        "cv": 1.375
-      },
-      {
-        "y": 863,
-        "strength": 16.21,
-        "horiz": 0.746,
-        "cv": 1.234
-      },
-      {
-        "y": 880,
-        "strength": 15.89,
-        "horiz": 0.735,
-        "cv": 1.296
-      },
-      {
-        "y": 833,
-        "strength": 15.88,
-        "horiz": 0.716,
-        "cv": 1.393
-      },
-      {
-        "y": 825,
-        "strength": 15.48,
-        "horiz": 0.736,
-        "cv": 1.428
-      },
-      {
-        "y": 963,
-        "strength": 15.33,
-        "horiz": 0.723,
-        "cv": 1.013
-      },
-      {
-        "y": 916,
-        "strength": 15.19,
-        "horiz": 0.719,
-        "cv": 1.184
-      },
-      {
-        "y": 812,
-        "strength": 15.1,
-        "horiz": 0.731,
-        "cv": 1.387
-      },
-      {
-        "y": 820,
-        "strength": 15.01,
-        "horiz": 0.75,
-        "cv": 1.426
-      },
-      {
-        "y": 797,
-        "strength": 14.98,
-        "horiz": 0.754,
-        "cv": 1.359
-      },
-      {
-        "y": 852,
-        "strength": 14.94,
-        "horiz": 0.738,
-        "cv": 1.344
-      },
-      {
-        "y": 973,
-        "strength": 14.7,
-        "horiz": 0.749,
-        "cv": 0.963
-      },
-      {
-        "y": 926,
-        "strength": 14.64,
-        "horiz": 0.718,
-        "cv": 1.142
-      },
-      {
-        "y": 979,
-        "strength": 14.15,
-        "horiz": 0.718,
-        "cv": 0.987
-      },
-      {
-        "y": 807,
-        "strength": 14.06,
-        "horiz": 0.744,
-        "cv": 1.422
-      },
-      {
-        "y": 792,
-        "strength": 13.97,
-        "horiz": 0.738,
-        "cv": 1.297
-      },
-      {
-        "y": 633,
-        "strength": 13.96,
-        "horiz": 0.598,
-        "cv": 0.911
-      },
-      {
-        "y": 991,
-        "strength": 13.85,
-        "horiz": 0.716,
         "cv": 0.992
       },
       {
-        "y": 985,
-        "strength": 13.85,
-        "horiz": 0.732,
-        "cv": 0.985
+        "y": 596,
+        "strength": 13.16,
+        "horiz": 0.571,
+        "cv": 0.97
       },
       {
-        "y": 784,
-        "strength": 13.66,
-        "horiz": 0.748,
-        "cv": 1.26
-      }
-    ],
-    "floor_window": {
-      "window": [
-        724,
-        740
-      ],
-      "window_profile": [
-        9.67,
-        8.57,
-        8.75,
-        7.83,
-        7.41,
-        8.52,
-        7.72,
-        0.71,
-        5.37,
-        8.94,
-        7.61,
-        8.15,
-        9.26,
-        9.1,
-        10.37,
-        10.6,
-        11.89
-      ],
-      "window_profile_first_row": 724,
-      "automatic_lowest_true_horizontal": 706
-    },
-    "rail_cands": [
-      {
-        "y": 555,
-        "strength": 5.2,
-        "horiz": 0.91,
-        "cv": 0.391
-      },
-      {
-        "y": 536,
-        "strength": 2.66,
-        "horiz": 0.672,
-        "cv": 1.061
-      },
-      {
-        "y": 575,
-        "strength": 2.64,
-        "horiz": 0.761,
-        "cv": 0.947
-      },
-      {
-        "y": 635,
-        "strength": 1.29,
-        "horiz": 0.687,
-        "cv": 1.321
-      },
-      {
-        "y": 583,
-        "strength": 1.19,
-        "horiz": 0.657,
-        "cv": 1.697
-      },
-      {
-        "y": 547,
-        "strength": 1.05,
-        "horiz": 0.701,
-        "cv": 0.737
-      },
-      {
-        "y": 497,
-        "strength": 1.03,
-        "horiz": 0.746,
-        "cv": 0.836
-      },
-      {
-        "y": 483,
-        "strength": 0.97,
-        "horiz": 0.746,
-        "cv": 0.937
-      },
-      {
-        "y": 615,
-        "strength": 0.96,
-        "horiz": 0.716,
-        "cv": 0.88
+        "y": 557,
+        "strength": 2.76,
+        "horiz": 0.699,
+        "cv": 0.99
       },
       {
         "y": 511,
-        "strength": 0.96,
-        "horiz": 0.657,
-        "cv": 0.998
+        "strength": 2.27,
+        "horiz": 0.799,
+        "cv": 1.371
+      },
+      {
+        "y": 481,
+        "strength": 2.1,
+        "horiz": 0.772,
+        "cv": 1.143
+      },
+      {
+        "y": 497,
+        "strength": 1.93,
+        "horiz": 0.759,
+        "cv": 1.183
       }
     ],
-    "corner_ref_strength": 60.1,
-    "corner_vertical_edge_x0": 178,
-    "corner_vertical_edge_x1": 1357,
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 168,
+    "corner_vertical_edge_x1": 1366,
     "ceiling_ramp_vp": {
-      "x": 774.4,
-      "y": 503.3,
-      "left_slope": 0.6784,
-      "right_slope": -0.6949,
+      "x": 752.6,
+      "y": 536.8,
+      "left_slope": 0.7382,
+      "right_slope": -0.7016,
       "left_n": 61,
       "left_resid_px": 0.3,
       "right_n": 61,
@@ -1531,395 +1280,1380 @@
     },
     "votes": {
       "floor": {
-        "x": 756,
-        "y": 423,
+        "x": 818,
+        "y": 491,
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 772,
-        "y": 479,
-        "edge_px": 12682
+        "x": 748,
+        "y": 500,
+        "edge_px": 11360
       },
       "side_walls": {
-        "x": 760,
-        "y": 499,
-        "edge_px": 2127
+        "x": 764,
+        "y": 532,
+        "edge_px": 2329
       }
     },
-    "calib_px": 177,
-    "ppm": 196.66666666666666,
+    "calib_px": 471.0,
+    "ppm": 235.5,
+    "rulers": [
+      {
+        "name": "door_height",
+        "tier": 1,
+        "feature_px": 471.0,
+        "ruled_m": 2.0,
+        "px_per_m_at_wall": 235.5,
+        "implied_focal_px": 963.2,
+        "delta_pct": -4.63,
+        "admissible": true,
+        "what": "the painted door opening's height at the wall plane, head shadow line to threshold, against the 1.00 x 2.00 m opening blueprint \u00a711 rules and the facing's own prompt restates. The LONGER dimension of the two, which is the committed method's choice and carries the smaller relative reading error."
+      },
+      {
+        "name": "door_width",
+        "tier": 1,
+        "feature_px": 215.0,
+        "ruled_m": 1.0,
+        "px_per_m_at_wall": 215.0,
+        "implied_focal_px": 879.4,
+        "delta_pct": -12.94,
+        "admissible": true,
+        "what": "the same opening's width at the wall plane, jamb shadow line to jamb shadow line, against the ruled 1.00 m. Read as a separate ruler so the aspect the painting actually drew is visible instead of averaged away."
+      },
+      {
+        "name": "module_capping",
+        "tier": 2,
+        "feature_px": 231.0,
+        "ruled_m": 0.99904,
+        "px_per_m_at_wall": 231.221,
+        "implied_focal_px": 945.7,
+        "delta_pct": -6.37,
+        "admissible": true,
+        "what": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings."
+      },
+      {
+        "name": "module_dado_rail",
+        "tier": 2,
+        "feature_px": 207.0,
+        "ruled_m": 0.91723,
+        "px_per_m_at_wall": 225.681,
+        "implied_focal_px": 923.0,
+        "delta_pct": -8.61,
+        "admissible": true,
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names."
+      },
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 1194.0,
+        "ruled_m": 4.8,
+        "px_per_m_at_wall": 248.75,
+        "implied_focal_px": 1017.4,
+        "delta_pct": 0.73,
+        "admissible": false,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 668.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 238.571,
+        "implied_focal_px": 975.8,
+        "delta_pct": -3.39,
+        "admissible": false,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      }
+    ],
+    "primary": {
+      "name": "door_height",
+      "tier": 1,
+      "feature_px": 471.0,
+      "ruled_m": 2.0,
+      "px_per_m_at_wall": 235.5,
+      "implied_focal_px": 963.2,
+      "delta_pct": -4.63,
+      "admissible": true,
+      "what": "the painted door opening's height at the wall plane, head shadow line to threshold, against the 1.00 x 2.00 m opening blueprint \u00a711 rules and the facing's own prompt restates. The LONGER dimension of the two, which is the committed method's choice and carries the smaller relative reading error."
+    },
+    "verdict": "FAIL",
+    "withheld_because": [],
+    "ruler_agreement_pct": 9.04,
+    "module": {
+      "band": [
+        500,
+        640
+      ],
+      "cols": [
+        200,
+        1400
+      ],
+      "band_median_luma": 28.51,
+      "capping_y_px": 548,
+      "dado_rail_y_px": 572,
+      "capping_above_floor_px": 231,
+      "dado_rail_above_floor_px": 207,
+      "profile": [
+        32.93,
+        32.57,
+        33.31,
+        32.84,
+        33.62,
+        33.08,
+        33.78,
+        33.08,
+        33.39,
+        32.56,
+        32.99,
+        32.04,
+        32.43,
+        31.43,
+        31.87,
+        31.22,
+        31.79,
+        31.3,
+        31.86,
+        31.42,
+        32.15,
+        31.58,
+        32.19,
+        31.7,
+        32.08,
+        31.46,
+        31.74,
+        30.81,
+        31.3,
+        30.49,
+        30.96,
+        30.56,
+        31.13,
+        29.79,
+        30.59,
+        29.94,
+        29.56,
+        27.48,
+        26.43,
+        19.08,
+        30.57,
+        23.39,
+        23.43,
+        23.59,
+        21.76,
+        19.85,
+        27.8,
+        33.27,
+        13.1,
+        20.0,
+        31.79,
+        30.85,
+        32.48,
+        31.98,
+        32.61,
+        31.72,
+        31.66,
+        30.26,
+        30.31,
+        28.51,
+        28.93,
+        26.99,
+        11.21,
+        15.13,
+        18.86,
+        51.61,
+        39.02,
+        8.88,
+        10.39,
+        11.45,
+        39.06,
+        26.85,
+        8.54,
+        30.3,
+        32.53,
+        31.22,
+        32.51,
+        32.04,
+        33.04,
+        32.37,
+        32.76,
+        31.83,
+        32.0,
+        30.73,
+        31.55,
+        21.65,
+        19.26,
+        45.78,
+        19.14,
+        13.47,
+        15.61,
+        14.39,
+        18.8,
+        35.92,
+        19.25,
+        21.4,
+        28.87,
+        27.75,
+        30.27,
+        30.32,
+        32.5,
+        28.39,
+        28.34,
+        27.79,
+        28.16,
+        27.55,
+        27.91,
+        27.33,
+        27.63,
+        26.59,
+        27.02,
+        26.68,
+        27.17,
+        26.78,
+        27.34,
+        26.65,
+        27.21,
+        26.59,
+        27.24,
+        26.71,
+        27.22,
+        26.77,
+        26.81,
+        26.17,
+        26.64,
+        25.91,
+        26.38,
+        25.89,
+        26.48,
+        25.97,
+        26.59,
+        26.09,
+        26.62,
+        26.03,
+        26.56,
+        26.02,
+        26.29,
+        25.75,
+        26.12,
+        25.23,
+        25.32
+      ],
+      "profile_first_row": 500
+    },
+    "bays": null,
+    "wall_band_audit": null,
     "derived": {
-      "eye_height_m": 1.4694915254237289,
-      "storey_height_m": 3.193220338983051,
-      "px_per_m_at_bottom": 396.0553633217993,
-      "nearest_visible_floor_m": 2.5854971168967325,
-      "implied_camera_wall_m": 5.20677966101695,
-      "implied_wall_width_m": 5.979661016949152
+      "eye_height_m": 1.2016985138004246,
+      "storey_height_m": 2.8365180467091293,
+      "px_per_m_at_bottom": 439.3780918727915,
+      "nearest_visible_floor_m": 2.3305668146432477,
+      "implied_camera_wall_m": 4.348195329087049,
+      "implied_wall_width_m": 5.070063694267516
     },
     "light": {
-      "key_dir_measured": "C",
-      "key_dir_brightest_x": 774,
-      "key_dir_brightest_y": 242,
-      "key_tint": "#c8a88e",
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1525,
+      "key_dir_brightest_y": 999,
+      "key_tint": "#c89a6e",
       "key_tint_patch": [
-        574,
-        974,
-        33,
-        95
+        1325,
+        1535,
+        41,
+        103
       ],
       "key_tint_patch_mean_rgb": [
-        133.01,
-        111.89,
-        94.39
+        31.32,
+        24.07,
+        17.17
       ],
       "key_tint_alternates": {
-        "floor_under_brightest": "#bbbcc8",
-        "floor_bottom_strip": "#c8a79c",
-        "mid_wall_right": "#c8bab6",
-        "mid_wall_left": "#c8bbb6",
-        "brightest_21x21_patch": "#c2c5c8"
+        "floor_under_brightest": "#aab3c8",
+        "floor_bottom_strip": "#c8a286",
+        "mid_wall_right": "#c8c0bf",
+        "mid_wall_left": "#c87834",
+        "brightest_21x21_patch": "#99acc8"
       },
       "brightest_21x21_patch_centre_px": [
-        774,
-        242
+        1525,
+        999
       ],
-      "sobel_bright_side_deg_whole_frame": 125.49,
-      "sobel_bright_side_deg_wall_band": -119.79,
-      "left_third_minus_right_third_luminance_whole_frame": 3.03,
-      "left_third_minus_right_third_luminance_wall_band": 1.688
+      "sobel_bright_side_deg_whole_frame": 98.34,
+      "sobel_bright_side_deg_wall_band": 37.01,
+      "left_third_minus_right_third_luminance_whole_frame": -3.071,
+      "left_third_minus_right_third_luminance_wall_band": 2.645
     },
-    "opening": null,
-    "fire": null
+    "opening": {
+      "opening_x0_px": 658,
+      "opening_x1_px": 873,
+      "opening_y0_px": 308,
+      "opening_y1_px": 779,
+      "opening_width_px": 215,
+      "opening_height_px": 471,
+      "opening_aspect_h_over_w": 2.191,
+      "how_opening_x0": "Re-read on the cand-2 pixels over rows 400-700. The left jamb's stone front face runs flat at ~72 out to x 656, a lit arris catches at 657 (156.6), the wall-plane corner falls into shadow at 658 (63.5), the jamb's own reveal - visible because the camera stands to the RIGHT of this jamb - runs 659-664 (98, 124, 83, 79, 87) and the dark passage begins at 665 (2.5). WALL-PLANE edge is the shadow line: 658.",
+      "how_opening_x1": "Mirror image, and the reveal falls on the other side of the edge exactly as a wall of finite thickness requires: the opening runs dark to 866, the right jamb's reveal is lit at 867-872 (23, 69, 56, 54, 60, 53), the wall-plane corner falls to shadow at 873 (12.1), a lit arris follows at 874-875 (52, 126) and the front face holds ~104 from 876. WALL-PLANE edge 873. The much stronger column edge at 917 is the case's OUTER moulding against the panelling and is not the opening - that is the edge a strongest-edge detector would take.",
+      "how_opening_y0": "Down the opening's own columns (x 680-860): the stone face above holds ~70 to y 306, a lit arris at 307 (82.6), the wall-plane shadow line at 308 (19.5), lit reveal 309-310 (79.7, 67.4), then the soffit 312-320 at ~20-27 and the dark passage at 321 (0.1). WALL-PLANE head is the shadow line: 308. 321 is the BACK of the reveal, 13 px of wall thickness.",
+      "how_opening_y1": "The threshold is the wall-floor line itself, 779: the jamb plinths stand on the floor and their feet read at the same row as the skirting's shadow seam, which bottoms at 779 (0.6) in the 770-790 bracket.",
+      "column_edge_candidates": [
+        [
+          917,
+          126.6
+        ],
+        [
+          658,
+          92.9
+        ],
+        [
+          875,
+          73.3
+        ],
+        [
+          951,
+          72.1
+        ],
+        [
+          665,
+          62.8
+        ],
+        [
+          616,
+          59.5
+        ],
+        [
+          569,
+          52.5
+        ],
+        [
+          959,
+          49.1
+        ],
+        [
+          868,
+          48.0
+        ],
+        [
+          926,
+          47.7
+        ]
+      ]
+    },
+    "fire": null,
+    "raw_ceiling_line_y_px": 111,
+    "raw_floor_line_y_px": 779
   },
-  "study/W": {
-    "facing": "study/W",
-    "src": "backdrops/source/study-W/cand-1.png",
-    "cfg_calib": "dado",
+  "study/S": {
+    "facing": "study/S",
+    "src": "backdrops/source/study-S/cand-2.png",
+    "cfg_calib": null,
     "measured": {
-      "wall_ceiling_line_y_px": 82,
-      "wall_floor_line_y_px": 777,
-      "horizon_y_px": 465,
-      "horizon_x_px": 753,
-      "corner_x0_px": 142,
-      "corner_x1_px": 1385,
-      "dado_rail_top_y_px": 563,
-      "dado_rail_above_floor_px": 214,
-      "corner_midpoint_px": 763.5
+      "wall_ceiling_line_y_px": 97,
+      "wall_floor_line_y_px": 754,
+      "horizon_y_px": 451,
+      "horizon_x_px": 748,
+      "corner_x0_px": 151,
+      "corner_x1_px": 1381,
+      "dado_rail_top_y_px": 572,
+      "dado_rail_above_floor_px": 182,
+      "corner_midpoint_px": 766.0
     },
     "ceil_cands": [
       {
-        "y": 83,
-        "strength": 54.4,
+        "y": 360,
+        "strength": 107.32,
+        "horiz": 0.591,
+        "cv": 0.832
+      },
+      {
+        "y": 196,
+        "strength": 83.65,
+        "horiz": 0.549,
+        "cv": 1.116
+      },
+      {
+        "y": 354,
+        "strength": 74.2,
+        "horiz": 0.532,
+        "cv": 1.063
+      },
+      {
+        "y": 381,
+        "strength": 68.99,
+        "horiz": 0.563,
+        "cv": 1.104
+      },
+      {
+        "y": 98,
+        "strength": 54.78,
         "horiz": 1.0,
-        "cv": 0.14
+        "cv": 0.213
       },
       {
-        "y": 117,
-        "strength": 25.75,
-        "horiz": 1.0,
-        "cv": 0.426
+        "y": 372,
+        "strength": 39.39,
+        "horiz": 0.562,
+        "cv": 1.048
       },
       {
-        "y": 89,
-        "strength": 24.65,
-        "horiz": 1.0,
-        "cv": 0.448
+        "y": 162,
+        "strength": 38.92,
+        "horiz": 0.661,
+        "cv": 0.864
       },
       {
-        "y": 149,
-        "strength": 14.18,
-        "horiz": 0.636,
-        "cv": 0.884
+        "y": 183,
+        "strength": 34.38,
+        "horiz": 0.587,
+        "cv": 0.931
       },
       {
-        "y": 142,
-        "strength": 14.11,
-        "horiz": 0.74,
-        "cv": 0.984
+        "y": 147,
+        "strength": 27.53,
+        "horiz": 0.713,
+        "cv": 0.785
       },
       {
-        "y": 110,
-        "strength": 12.66,
-        "horiz": 0.995,
-        "cv": 0.344
+        "y": 106,
+        "strength": 27.43,
+        "horiz": 0.662,
+        "cv": 0.815
       },
       {
-        "y": 102,
-        "strength": 6.78,
-        "horiz": 0.673,
-        "cv": 1.23
+        "y": 270,
+        "strength": 20.69,
+        "horiz": 0.64,
+        "cv": 2.125
       },
       {
-        "y": 96,
-        "strength": 5.82,
-        "horiz": 0.771,
-        "cv": 1.428
-      },
-      {
-        "y": 25,
-        "strength": 4.24,
-        "horiz": 0.755,
-        "cv": 0.76
-      },
-      {
-        "y": 44,
-        "strength": 4.16,
-        "horiz": 0.756,
-        "cv": 0.85
-      },
-      {
-        "y": 11,
-        "strength": 4.12,
-        "horiz": 0.745,
-        "cv": 0.779
-      },
-      {
-        "y": 19,
-        "strength": 4.08,
-        "horiz": 0.763,
-        "cv": 0.781
+        "y": 127,
+        "strength": 19.05,
+        "horiz": 0.878,
+        "cv": 0.523
       }
     ],
     "floor_cands": [
       {
-        "y": 743,
-        "strength": 51.33,
-        "horiz": 1.0,
-        "cv": 0.612
+        "y": 623,
+        "strength": 134.84,
+        "horiz": 0.761,
+        "cv": 0.504
       },
       {
-        "y": 564,
-        "strength": 45.13,
-        "horiz": 1.0,
-        "cv": 0.565
+        "y": 728,
+        "strength": 30.72,
+        "horiz": 0.973,
+        "cv": 0.252
       },
       {
-        "y": 738,
-        "strength": 43.3,
-        "horiz": 0.982,
-        "cv": 0.579
+        "y": 701,
+        "strength": 22.88,
+        "horiz": 0.702,
+        "cv": 0.686
       },
       {
-        "y": 584,
-        "strength": 40.63,
-        "horiz": 0.772,
-        "cv": 0.615
+        "y": 644,
+        "strength": 19.98,
+        "horiz": 0.738,
+        "cv": 0.673
       },
       {
-        "y": 569,
-        "strength": 33.83,
-        "horiz": 1.0,
-        "cv": 0.541
-      },
-      {
-        "y": 716,
-        "strength": 31.41,
-        "horiz": 0.735,
-        "cv": 1.075
-      },
-      {
-        "y": 708,
-        "strength": 29.6,
-        "horiz": 0.636,
-        "cv": 1.062
-      },
-      {
-        "y": 748,
-        "strength": 26.89,
-        "horiz": 0.97,
-        "cv": 0.806
-      },
-      {
-        "y": 544,
-        "strength": 26.44,
-        "horiz": 0.733,
-        "cv": 0.852
-      },
-      {
-        "y": 590,
-        "strength": 21.45,
-        "horiz": 0.66,
-        "cv": 0.9
-      },
-      {
-        "y": 559,
-        "strength": 20.79,
-        "horiz": 0.985,
-        "cv": 0.51
-      },
-      {
-        "y": 539,
-        "strength": 17.43,
-        "horiz": 0.651,
-        "cv": 1.066
-      },
-      {
-        "y": 779,
-        "strength": 16.2,
-        "horiz": 0.941,
-        "cv": 0.375
+        "y": 720,
+        "strength": 15.33,
+        "horiz": 0.895,
+        "cv": 0.45
       },
       {
         "y": 931,
-        "strength": 10.69,
-        "horiz": 0.736,
-        "cv": 1.136
-      },
-      {
-        "y": 919,
-        "strength": 10.44,
-        "horiz": 0.725,
-        "cv": 1.162
+        "strength": 15.18,
+        "horiz": 0.714,
+        "cv": 1.334
       },
       {
         "y": 897,
-        "strength": 10.07,
-        "horiz": 0.755,
-        "cv": 1.123
-      },
-      {
-        "y": 875,
-        "strength": 9.98,
-        "horiz": 0.745,
-        "cv": 1.148
-      },
-      {
-        "y": 925,
-        "strength": 9.92,
-        "horiz": 0.74,
-        "cv": 1.237
-      },
-      {
-        "y": 905,
-        "strength": 9.82,
-        "horiz": 0.743,
-        "cv": 1.17
-      },
-      {
-        "y": 941,
-        "strength": 9.78,
-        "horiz": 0.731,
-        "cv": 1.135
-      },
-      {
-        "y": 889,
-        "strength": 9.59,
-        "horiz": 0.723,
-        "cv": 1.203
-      },
-      {
-        "y": 913,
-        "strength": 9.58,
-        "horiz": 0.739,
-        "cv": 1.259
-      },
-      {
-        "y": 852,
-        "strength": 9.57,
-        "horiz": 0.747,
-        "cv": 1.265
+        "strength": 14.47,
+        "horiz": 0.709,
+        "cv": 1.521
       },
       {
         "y": 955,
-        "strength": 9.54,
-        "horiz": 0.733,
-        "cv": 1.109
+        "strength": 14.3,
+        "horiz": 0.72,
+        "cv": 1.15
       },
       {
-        "y": 947,
-        "strength": 9.49,
-        "horiz": 0.737,
-        "cv": 1.121
+        "y": 909,
+        "strength": 14.29,
+        "horiz": 0.706,
+        "cv": 1.421
       },
       {
-        "y": 884,
-        "strength": 9.39,
-        "horiz": 0.728,
-        "cv": 1.307
+        "y": 919,
+        "strength": 14.18,
+        "horiz": 0.71,
+        "cv": 1.374
       },
       {
-        "y": 961,
-        "strength": 9.39,
+        "y": 889,
+        "strength": 13.57,
+        "horiz": 0.736,
+        "cv": 1.604
+      },
+      {
+        "y": 903,
+        "strength": 13.56,
         "horiz": 0.722,
-        "cv": 1.187
+        "cv": 1.517
       },
       {
-        "y": 857,
-        "strength": 9.33,
+        "y": 883,
+        "strength": 13.55,
+        "horiz": 0.713,
+        "cv": 1.58
+      },
+      {
+        "y": 943,
+        "strength": 13.53,
         "horiz": 0.718,
-        "cv": 1.222
+        "cv": 1.243
+      },
+      {
+        "y": 925,
+        "strength": 13.45,
+        "horiz": 0.719,
+        "cv": 1.426
       },
       {
         "y": 971,
-        "strength": 9.27,
-        "horiz": 0.734,
-        "cv": 1.137
+        "strength": 13.3,
+        "horiz": 0.718,
+        "cv": 1.199
+      },
+      {
+        "y": 937,
+        "strength": 13.08,
+        "horiz": 0.725,
+        "cv": 1.356
+      },
+      {
+        "y": 961,
+        "strength": 13.07,
+        "horiz": 0.728,
+        "cv": 1.271
+      },
+      {
+        "y": 877,
+        "strength": 12.94,
+        "horiz": 0.731,
+        "cv": 1.64
+      },
+      {
+        "y": 949,
+        "strength": 12.91,
+        "horiz": 0.709,
+        "cv": 1.295
+      },
+      {
+        "y": 979,
+        "strength": 12.64,
+        "horiz": 0.706,
+        "cv": 1.19
+      },
+      {
+        "y": 857,
+        "strength": 12.5,
+        "horiz": 0.714,
+        "cv": 1.681
       },
       {
         "y": 865,
-        "strength": 9.17,
-        "horiz": 0.748,
-        "cv": 1.316
+        "strength": 12.48,
+        "horiz": 0.742,
+        "cv": 1.64
       },
       {
-        "y": 870,
-        "strength": 9.15,
-        "horiz": 0.729,
-        "cv": 1.279
-      },
-      {
-        "y": 936,
-        "strength": 8.88,
-        "horiz": 0.746,
-        "cv": 1.225
+        "y": 629,
+        "strength": 12.44,
+        "horiz": 0.941,
+        "cv": 0.303
       },
       {
         "y": 966,
-        "strength": 8.6,
-        "horiz": 0.727,
-        "cv": 1.153
+        "strength": 12.44,
+        "horiz": 0.705,
+        "cv": 1.27
       },
       {
-        "y": 977,
-        "strength": 8.59,
-        "horiz": 0.75,
-        "cv": 1.157
-      },
-      {
-        "y": 843,
-        "strength": 8.57,
-        "horiz": 0.748,
-        "cv": 1.286
-      },
-      {
-        "y": 989,
-        "strength": 8.17,
-        "horiz": 0.746,
-        "cv": 1.213
-      },
-      {
-        "y": 983,
-        "strength": 8.01,
-        "horiz": 0.726,
-        "cv": 1.129
-      },
-      {
-        "y": 999,
-        "strength": 7.99,
-        "horiz": 0.732,
-        "cv": 1.124
-      },
-      {
-        "y": 838,
-        "strength": 7.96,
+        "y": 871,
+        "strength": 12.32,
         "horiz": 0.721,
+        "cv": 1.721
+      },
+      {
+        "y": 914,
+        "strength": 12.14,
+        "horiz": 0.711,
+        "cv": 1.641
+      },
+      {
+        "y": 987,
+        "strength": 12.03,
+        "horiz": 0.726,
+        "cv": 1.13
+      },
+      {
+        "y": 849,
+        "strength": 11.73,
+        "horiz": 0.709,
+        "cv": 1.682
+      },
+      {
+        "y": 1003,
+        "strength": 11.7,
+        "horiz": 0.702,
+        "cv": 1.181
+      },
+      {
+        "y": 993,
+        "strength": 11.34,
+        "horiz": 0.728,
+        "cv": 1.202
+      },
+      {
+        "y": 695,
+        "strength": 10.65,
+        "horiz": 0.557,
+        "cv": 0.936
+      },
+      {
+        "y": 840,
+        "strength": 10.62,
+        "horiz": 0.755,
+        "cv": 1.643
+      },
+      {
+        "y": 998,
+        "strength": 10.61,
+        "horiz": 0.712,
+        "cv": 1.31
+      },
+      {
+        "y": 1009,
+        "strength": 10.56,
+        "horiz": 0.705,
+        "cv": 1.216
+      },
+      {
+        "y": 835,
+        "strength": 9.99,
+        "horiz": 0.735,
+        "cv": 1.622
+      },
+      {
+        "y": 829,
+        "strength": 9.86,
+        "horiz": 0.751,
+        "cv": 1.646
+      },
+      {
+        "y": 819,
+        "strength": 9.49,
+        "horiz": 0.741,
+        "cv": 1.499
+      },
+      {
+        "y": 814,
+        "strength": 8.91,
+        "horiz": 0.76,
+        "cv": 1.508
+      },
+      {
+        "y": 824,
+        "strength": 8.9,
+        "horiz": 0.742,
+        "cv": 1.66
+      }
+    ],
+    "floor_window": {
+      "window": [
+        745,
+        765
+      ],
+      "window_profile": [
+        8.98,
+        8.47,
+        7.45,
+        7.29,
+        6.53,
+        6.5,
+        5.88,
+        6.77,
+        5.16,
+        0.43,
+        4.06,
+        5.5,
+        5.65,
+        6.64,
+        6.73,
+        7.62,
+        7.74,
+        8.49,
+        8.55,
+        9.05,
+        9.09
+      ],
+      "window_profile_first_row": 745,
+      "automatic_lowest_true_horizontal": 727
+    },
+    "rail_cands": [
+      {
+        "y": 573,
+        "strength": 8.71,
+        "horiz": 0.793,
+        "cv": 0.646
+      },
+      {
+        "y": 548,
+        "strength": 6.89,
+        "horiz": 0.683,
+        "cv": 0.931
+      },
+      {
+        "y": 597,
+        "strength": 5.78,
+        "horiz": 0.634,
+        "cv": 1.374
+      },
+      {
+        "y": 565,
+        "strength": 3.1,
+        "horiz": 0.756,
+        "cv": 0.655
+      },
+      {
+        "y": 700,
+        "strength": 2.95,
+        "horiz": 0.695,
+        "cv": 1.055
+      },
+      {
+        "y": 588,
+        "strength": 2.5,
+        "horiz": 0.659,
+        "cv": 1.158
+      },
+      {
+        "y": 605,
+        "strength": 1.84,
+        "horiz": 0.585,
+        "cv": 2.381
+      },
+      {
+        "y": 539,
+        "strength": 1.11,
+        "horiz": 0.707,
+        "cv": 0.797
+      },
+      {
+        "y": 484,
+        "strength": 1.0,
+        "horiz": 0.549,
+        "cv": 1.594
+      },
+      {
+        "y": 639,
+        "strength": 0.95,
+        "horiz": 0.598,
+        "cv": 1.143
+      }
+    ],
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 147,
+    "corner_vertical_edge_x1": 1393,
+    "ceiling_ramp_vp": {
+      "x": 744.5,
+      "y": 524.9,
+      "left_slope": 0.7261,
+      "right_slope": -0.6773,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29
+    },
+    "votes": {
+      "floor": {
+        "x": 754,
+        "y": 430,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 732,
+        "y": 497,
+        "edge_px": 11427
+      },
+      "side_walls": {
+        "x": 742,
+        "y": 505,
+        "edge_px": 2143
+      }
+    },
+    "calib_px": null,
+    "ppm": null,
+    "rulers": [
+      {
+        "name": "window_bays",
+        "tier": 1,
+        "feature_px": 242.0,
+        "ruled_m": 0.9,
+        "px_per_m_at_wall": 268.889,
+        "implied_focal_px": 1035.2,
+        "delta_pct": 2.5,
+        "admissible": false,
+        "what": "the mean of the three window bays, each measured between its outer mullion centre-lines against the 0.90 m the facing's own prompt rules 'so this is a ruled-size measurement anchor'. Trustworthy only if the three were drawn equal.",
+        "instances_px": [
+          235.5,
+          255.0,
+          235.5
+        ],
+        "instance_spread_pct": 8.06,
+        "inadmissible_because": "instance spread exceeds the band"
+      },
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 1230.0,
+        "ruled_m": 5.45,
+        "px_per_m_at_wall": 225.688,
+        "implied_focal_px": 868.9,
+        "delta_pct": -13.97,
+        "admissible": false,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 657.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 234.643,
+        "implied_focal_px": 903.4,
+        "delta_pct": -10.56,
+        "admissible": false,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      }
+    ],
+    "primary": null,
+    "verdict": "WITHHELD",
+    "withheld_because": [
+      "the tier-1 anchor was not drawn to rule: its 3 instances measure 235.5/255.0/235.5 px for one ruled size, a spread of 8.1 % against a 3 % band, on a wall parallel to the image plane where a perspective projection has one scale and equal features must project equally. Picking one instance would pick the verdict.",
+      "no admissible ruler at tiers 1-3. Tier 2 is not available on this facing. The module has to be read IN THE WALL PLANE, and the south wall is glazed: it carries no dado rail. The cand-1 run read the rail on the side-wall RETURNS instead, which is a receding surface at a different scale, so that reading is not a wall-plane ruler and is not offered as one here."
+    ],
+    "ruler_agreement_pct": null,
+    "module": null,
+    "bays": {
+      "light_runs": [
+        [
+          312,
+          366
+        ],
+        [
+          390,
+          444
+        ],
+        [
+          469,
+          523
+        ],
+        [
+          650,
+          704
+        ],
+        [
+          729,
+          793
+        ],
+        [
+          818,
+          876
+        ],
+        [
+          1008,
+          1062
+        ],
+        [
+          1087,
+          1140
+        ],
+        [
+          1164,
+          1220
+        ]
+      ],
+      "bays": [
+        {
+          "lights": [
+            [
+              312,
+              366
+            ],
+            [
+              390,
+              444
+            ],
+            [
+              469,
+              523
+            ]
+          ],
+          "light_widths_px": [
+            55,
+            55,
+            55
+          ],
+          "light_centres_px": [
+            339.0,
+            417.0,
+            496.0
+          ],
+          "width_px": 235.5
+        },
+        {
+          "lights": [
+            [
+              650,
+              704
+            ],
+            [
+              729,
+              793
+            ],
+            [
+              818,
+              876
+            ]
+          ],
+          "light_widths_px": [
+            55,
+            65,
+            59
+          ],
+          "light_centres_px": [
+            677.0,
+            761.0,
+            847.0
+          ],
+          "width_px": 255.0
+        },
+        {
+          "lights": [
+            [
+              1008,
+              1062
+            ],
+            [
+              1087,
+              1140
+            ],
+            [
+              1164,
+              1220
+            ]
+          ],
+          "light_widths_px": [
+            55,
+            54,
+            57
+          ],
+          "light_centres_px": [
+            1035.0,
+            1113.5,
+            1192.0
+          ],
+          "width_px": 235.5
+        }
+      ],
+      "bay_widths_px": [
+        235.5,
+        255.0,
+        235.5
+      ],
+      "bay_width_spread_pct": 8.06,
+      "how": "The glass is the only unambiguous edge on this wall: leaded panes read 150-160 against oak below 100, so the light openings are found as the runs of columns whose mean luminance over rows 300-500 exceeds 120. Nine runs are found, three per bay. A bay's width between its OUTER mullion centre-lines is then 1.5 x the span from its first light's centre to its last light's centre - that identity holds for any bay of three equal lights on equal mullion pitch, which is what the prompt demanded, and it uses only the glass edges rather than the jamb faces, whose visible width changes with where the bay sits relative to the camera."
+    },
+    "wall_band_audit": null,
+    "derived": {
+      "eye_height_m": null,
+      "storey_height_m": null,
+      "px_per_m_at_bottom": null,
+      "nearest_visible_floor_m": null,
+      "implied_camera_wall_m": null,
+      "implied_wall_width_m": null
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 763,
+      "key_dir_brightest_y": 217,
+      "key_tint": "#c8ae96",
+      "key_tint_patch": [
+        563,
+        963,
+        27,
+        89
+      ],
+      "key_tint_patch_mean_rgb": [
+        175.42,
+        152.78,
+        131.8
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#bbbfc8",
+        "floor_bottom_strip": "#c8b2a8",
+        "mid_wall_right": "#c8bdb7",
+        "mid_wall_left": "#c8bcb3",
+        "brightest_21x21_patch": "#c1c4c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        763,
+        217
+      ],
+      "sobel_bright_side_deg_whole_frame": 118.9,
+      "sobel_bright_side_deg_wall_band": -139.92,
+      "left_third_minus_right_third_luminance_whole_frame": 6.892,
+      "left_third_minus_right_third_luminance_wall_band": 5.538
+    },
+    "opening": null,
+    "fire": null,
+    "raw_ceiling_line_y_px": 97,
+    "raw_floor_line_y_px": 754
+  },
+  "study/W": {
+    "facing": "study/W",
+    "src": "backdrops/source/study-W/cand-2.png",
+    "cfg_calib": null,
+    "measured": {
+      "wall_ceiling_line_y_px": 83,
+      "wall_floor_line_y_px": 780,
+      "horizon_y_px": 431,
+      "horizon_x_px": 826,
+      "corner_x0_px": 142,
+      "corner_x1_px": 1388,
+      "dado_rail_top_y_px": 569,
+      "dado_rail_above_floor_px": 211,
+      "corner_midpoint_px": 765.0
+    },
+    "ceil_cands": [
+      {
+        "y": 84,
+        "strength": 65.1,
+        "horiz": 1.0,
+        "cv": 0.129
+      },
+      {
+        "y": 117,
+        "strength": 23.2,
+        "horiz": 1.0,
+        "cv": 0.671
+      },
+      {
+        "y": 144,
+        "strength": 15.15,
+        "horiz": 0.748,
+        "cv": 1.007
+      },
+      {
+        "y": 90,
+        "strength": 14.38,
+        "horiz": 0.992,
+        "cv": 0.456
+      },
+      {
+        "y": 151,
+        "strength": 10.37,
+        "horiz": 0.636,
+        "cv": 0.938
+      },
+      {
+        "y": 103,
+        "strength": 7.11,
+        "horiz": 0.732,
+        "cv": 1.611
+      },
+      {
+        "y": 138,
+        "strength": 5.44,
+        "horiz": 0.728,
+        "cv": 1.234
+      },
+      {
+        "y": 97,
+        "strength": 3.46,
+        "horiz": 0.782,
+        "cv": 1.187
+      },
+      {
+        "y": 46,
+        "strength": 3.31,
+        "horiz": 0.677,
+        "cv": 0.951
+      },
+      {
+        "y": 27,
+        "strength": 3.2,
+        "horiz": 0.69,
+        "cv": 0.914
+      },
+      {
+        "y": 35,
+        "strength": 3.08,
+        "horiz": 0.691,
+        "cv": 0.909
+      },
+      {
+        "y": 9,
+        "strength": 2.98,
+        "horiz": 0.712,
+        "cv": 0.913
+      }
+    ],
+    "floor_cands": [
+      {
+        "y": 745,
+        "strength": 60.47,
+        "horiz": 0.988,
+        "cv": 0.568
+      },
+      {
+        "y": 738,
+        "strength": 44.83,
+        "horiz": 0.97,
+        "cv": 0.809
+      },
+      {
+        "y": 570,
+        "strength": 37.56,
+        "horiz": 0.999,
+        "cv": 0.777
+      },
+      {
+        "y": 564,
+        "strength": 36.23,
+        "horiz": 0.958,
+        "cv": 0.931
+      },
+      {
+        "y": 587,
+        "strength": 35.1,
+        "horiz": 0.758,
+        "cv": 0.829
+      },
+      {
+        "y": 717,
+        "strength": 31.15,
+        "horiz": 0.673,
+        "cv": 1.042
+      },
+      {
+        "y": 547,
+        "strength": 30.67,
+        "horiz": 0.768,
+        "cv": 0.795
+      },
+      {
+        "y": 711,
+        "strength": 24.61,
+        "horiz": 0.65,
+        "cv": 1.407
+      },
+      {
+        "y": 539,
+        "strength": 20.35,
+        "horiz": 0.65,
+        "cv": 1.072
+      },
+      {
+        "y": 592,
+        "strength": 18.88,
+        "horiz": 0.653,
+        "cv": 1.154
+      },
+      {
+        "y": 750,
+        "strength": 8.71,
+        "horiz": 0.741,
+        "cv": 0.792
+      },
+      {
+        "y": 933,
+        "strength": 8.45,
+        "horiz": 0.718,
+        "cv": 1.211
+      },
+      {
+        "y": 925,
+        "strength": 7.93,
+        "horiz": 0.7,
+        "cv": 1.395
+      },
+      {
+        "y": 919,
+        "strength": 7.59,
+        "horiz": 0.72,
+        "cv": 1.28
+      },
+      {
+        "y": 941,
+        "strength": 7.54,
+        "horiz": 0.739,
+        "cv": 1.218
+      },
+      {
+        "y": 949,
+        "strength": 7.53,
+        "horiz": 0.703,
+        "cv": 1.22
+      },
+      {
+        "y": 901,
+        "strength": 7.51,
+        "horiz": 0.704,
+        "cv": 1.391
+      },
+      {
+        "y": 780,
+        "strength": 7.41,
+        "horiz": 0.868,
+        "cv": 0.662
+      },
+      {
+        "y": 909,
+        "strength": 7.37,
+        "horiz": 0.718,
+        "cv": 1.325
+      },
+      {
+        "y": 879,
+        "strength": 7.11,
+        "horiz": 0.697,
+        "cv": 1.329
+      },
+      {
+        "y": 887,
+        "strength": 7.08,
+        "horiz": 0.724,
+        "cv": 1.322
+      },
+      {
+        "y": 973,
+        "strength": 7.06,
+        "horiz": 0.723,
+        "cv": 1.317
+      },
+      {
+        "y": 979,
+        "strength": 6.97,
+        "horiz": 0.731,
+        "cv": 1.142
+      },
+      {
+        "y": 955,
+        "strength": 6.94,
+        "horiz": 0.737,
+        "cv": 1.25
+      },
+      {
+        "y": 963,
+        "strength": 6.8,
+        "horiz": 0.703,
+        "cv": 1.241
+      },
+      {
+        "y": 855,
+        "strength": 6.76,
+        "horiz": 0.74,
+        "cv": 1.461
+      },
+      {
+        "y": 869,
+        "strength": 6.6,
+        "horiz": 0.702,
+        "cv": 1.532
+      },
+      {
+        "y": 895,
+        "strength": 6.55,
+        "horiz": 0.746,
+        "cv": 1.371
+      },
+      {
+        "y": 987,
+        "strength": 6.38,
+        "horiz": 0.705,
+        "cv": 1.375
+      },
+      {
+        "y": 861,
+        "strength": 6.38,
+        "horiz": 0.721,
+        "cv": 1.384
+      },
+      {
+        "y": 914,
+        "strength": 6.37,
+        "horiz": 0.719,
+        "cv": 1.461
+      },
+      {
+        "y": 968,
+        "strength": 6.29,
+        "horiz": 0.708,
+        "cv": 1.473
+      },
+      {
+        "y": 874,
+        "strength": 6.13,
+        "horiz": 0.713,
+        "cv": 1.491
+      },
+      {
+        "y": 845,
+        "strength": 6.13,
+        "horiz": 0.728,
+        "cv": 1.328
+      },
+      {
+        "y": 993,
+        "strength": 6.01,
+        "horiz": 0.727,
         "cv": 1.281
       },
       {
-        "y": 831,
-        "strength": 7.28,
-        "horiz": 0.725,
-        "cv": 1.329
+        "y": 1005,
+        "strength": 5.89,
+        "horiz": 0.748,
+        "cv": 1.341
+      },
+      {
+        "y": 999,
+        "strength": 5.64,
+        "horiz": 0.74,
+        "cv": 1.246
+      },
+      {
+        "y": 850,
+        "strength": 5.39,
+        "horiz": 0.71,
+        "cv": 1.619
+      },
+      {
+        "y": 839,
+        "strength": 5.33,
+        "horiz": 0.729,
+        "cv": 1.386
+      },
+      {
+        "y": 833,
+        "strength": 5.12,
+        "horiz": 0.714,
+        "cv": 1.459
       }
     ],
     "floor_window": {
@@ -1928,2197 +2662,2508 @@
         790
       ],
       "window_profile": [
-        14.43,
-        13.78,
-        13.85,
-        13.54,
-        12.99,
-        13.68,
-        17.5,
-        4.38,
-        4.66,
-        20.82,
-        17.42,
-        14.81,
-        16.5,
-        16.17,
-        18.14,
-        17.44,
-        18.79,
-        18.38,
-        19.62,
-        19.8,
-        21.64
+        12.35,
+        11.5,
+        11.6,
+        11.19,
+        11.05,
+        10.1,
+        10.41,
+        9.78,
+        11.72,
+        8.51,
+        1.21,
+        8.29,
+        14.39,
+        12.15,
+        13.33,
+        13.27,
+        14.31,
+        14.51,
+        16.0,
+        16.09,
+        17.0
       ],
       "window_profile_first_row": 770,
-      "automatic_lowest_true_horizontal": 778
+      "automatic_lowest_true_horizontal": null
     },
     "rail_cands": [
       {
-        "y": 564,
-        "strength": 45.13,
-        "horiz": 1.0,
-        "cv": 0.565
+        "y": 570,
+        "strength": 37.56,
+        "horiz": 0.999,
+        "cv": 0.777
       },
       {
-        "y": 584,
-        "strength": 40.63,
-        "horiz": 0.772,
-        "cv": 0.615
+        "y": 587,
+        "strength": 35.1,
+        "horiz": 0.758,
+        "cv": 0.829
       },
       {
-        "y": 544,
-        "strength": 26.44,
-        "horiz": 0.733,
-        "cv": 0.852
+        "y": 547,
+        "strength": 30.67,
+        "horiz": 0.768,
+        "cv": 0.795
       },
       {
-        "y": 592,
-        "strength": 17.22,
-        "horiz": 0.645,
-        "cv": 0.989
+        "y": 539,
+        "strength": 20.35,
+        "horiz": 0.65,
+        "cv": 1.072
       },
       {
-        "y": 536,
-        "strength": 11.18,
-        "horiz": 0.599,
-        "cv": 0.923
+        "y": 595,
+        "strength": 11.0,
+        "horiz": 0.606,
+        "cv": 1.108
       },
       {
-        "y": 574,
-        "strength": 4.4,
-        "horiz": 0.763,
-        "cv": 0.822
+        "y": 562,
+        "strength": 10.65,
+        "horiz": 0.93,
+        "cv": 0.486
       },
       {
-        "y": 556,
-        "strength": 4.31,
-        "horiz": 0.787,
-        "cv": 0.753
+        "y": 579,
+        "strength": 2.19,
+        "horiz": 0.703,
+        "cv": 1.002
       },
       {
-        "y": 507,
-        "strength": 2.62,
-        "horiz": 0.721,
-        "cv": 1.435
+        "y": 483,
+        "strength": 1.83,
+        "horiz": 0.754,
+        "cv": 1.146
       },
       {
-        "y": 481,
-        "strength": 2.55,
-        "horiz": 0.693,
-        "cv": 0.965
+        "y": 513,
+        "strength": 1.76,
+        "horiz": 0.742,
+        "cv": 1.123
       },
       {
-        "y": 495,
-        "strength": 2.55,
+        "y": 623,
+        "strength": 1.68,
         "horiz": 0.718,
-        "cv": 0.922
+        "cv": 1.406
       }
     ],
-    "corner_ref_strength": 56.0,
-    "corner_vertical_edge_x0": 142,
-    "corner_vertical_edge_x1": 1387,
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 140,
+    "corner_vertical_edge_x1": 1390,
     "ceiling_ramp_vp": {
-      "x": 767.9,
-      "y": 531.5,
-      "left_slope": 0.7239,
-      "right_slope": -0.7345,
-      "left_n": 61,
-      "left_resid_px": 0.29,
+      "x": 769.4,
+      "y": 534.4,
+      "left_slope": 0.7255,
+      "right_slope": -0.736,
+      "left_n": 60,
+      "left_resid_px": 0.31,
       "right_n": 61,
-      "right_resid_px": 0.29
+      "right_resid_px": 0.3
     },
     "votes": {
       "floor": {
-        "x": 748,
-        "y": 452,
+        "x": 772,
+        "y": 457,
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 770,
-        "y": 503,
-        "edge_px": 8241
+        "x": 1050,
+        "y": 309,
+        "edge_px": 7655
       },
       "side_walls": {
-        "x": 760,
-        "y": 525,
-        "edge_px": 1574
+        "x": 762,
+        "y": 509,
+        "edge_px": 1754
       }
     },
-    "calib_px": 214,
-    "ppm": 237.77777777777777,
+    "calib_px": 233.0,
+    "ppm": 233.223,
+    "rulers": [
+      {
+        "name": "module_capping",
+        "tier": 2,
+        "feature_px": 233.0,
+        "ruled_m": 0.99904,
+        "px_per_m_at_wall": 233.223,
+        "implied_focal_px": 953.9,
+        "delta_pct": -5.56,
+        "admissible": true,
+        "what": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings."
+      },
+      {
+        "name": "module_dado_rail",
+        "tier": 2,
+        "feature_px": 214.0,
+        "ruled_m": 0.91723,
+        "px_per_m_at_wall": 233.312,
+        "implied_focal_px": 954.2,
+        "delta_pct": -5.52,
+        "admissible": true,
+        "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names."
+      },
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 1246.0,
+        "ruled_m": 4.8,
+        "px_per_m_at_wall": 259.583,
+        "implied_focal_px": 1061.7,
+        "delta_pct": 5.12,
+        "admissible": false,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-2 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 697.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 248.929,
+        "implied_focal_px": 1018.1,
+        "delta_pct": 0.8,
+        "admissible": false,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-2 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      }
+    ],
+    "primary": {
+      "name": "module_capping",
+      "tier": 2,
+      "feature_px": 233.0,
+      "ruled_m": 0.99904,
+      "px_per_m_at_wall": 233.223,
+      "implied_focal_px": 953.9,
+      "delta_pct": -5.56,
+      "admissible": true,
+      "what": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings."
+    },
+    "verdict": "FAIL",
+    "withheld_because": [],
+    "ruler_agreement_pct": 0.04,
+    "module": {
+      "band": [
+        500,
+        640
+      ],
+      "cols": [
+        200,
+        1400
+      ],
+      "band_median_luma": 30.29,
+      "capping_y_px": 547,
+      "dado_rail_y_px": 566,
+      "capping_above_floor_px": 233,
+      "dado_rail_above_floor_px": 214,
+      "profile": [
+        34.55,
+        34.05,
+        34.71,
+        34.21,
+        34.96,
+        34.37,
+        34.94,
+        34.18,
+        34.72,
+        34.0,
+        34.36,
+        33.45,
+        33.8,
+        32.7,
+        32.9,
+        31.93,
+        32.3,
+        31.68,
+        32.24,
+        31.69,
+        32.51,
+        31.85,
+        32.51,
+        31.99,
+        32.58,
+        32.09,
+        32.72,
+        32.1,
+        32.74,
+        32.06,
+        32.51,
+        31.74,
+        32.19,
+        31.41,
+        31.7,
+        30.13,
+        30.89,
+        22.83,
+        18.73,
+        39.12,
+        21.86,
+        22.21,
+        23.61,
+        23.92,
+        19.65,
+        30.22,
+        41.56,
+        8.35,
+        14.84,
+        28.61,
+        28.51,
+        29.35,
+        30.57,
+        29.67,
+        30.37,
+        28.97,
+        29.26,
+        28.44,
+        26.17,
+        27.4,
+        20.37,
+        9.32,
+        17.99,
+        9.66,
+        47.86,
+        40.33,
+        0.68,
+        2.45,
+        16.22,
+        47.36,
+        3.7,
+        15.19,
+        23.51,
+        26.34,
+        31.95,
+        32.09,
+        33.81,
+        32.18,
+        32.4,
+        31.61,
+        32.08,
+        30.78,
+        30.56,
+        29.72,
+        12.41,
+        20.08,
+        52.98,
+        17.16,
+        10.35,
+        13.26,
+        15.68,
+        16.3,
+        35.88,
+        18.56,
+        18.84,
+        29.06,
+        29.07,
+        31.09,
+        32.52,
+        33.13,
+        32.68,
+        31.26,
+        31.72,
+        31.12,
+        31.54,
+        31.0,
+        31.61,
+        30.85,
+        31.44,
+        30.6,
+        30.88,
+        30.05,
+        30.41,
+        29.82,
+        30.29,
+        29.55,
+        30.18,
+        29.62,
+        30.3,
+        29.71,
+        30.2,
+        29.58,
+        30.03,
+        29.1,
+        29.48,
+        28.71,
+        29.25,
+        28.7,
+        29.35,
+        28.93,
+        29.77,
+        29.48,
+        30.14,
+        29.39,
+        29.9,
+        29.25,
+        29.6,
+        28.92,
+        29.35,
+        28.59,
+        29.12
+      ],
+      "profile_first_row": 500
+    },
+    "bays": null,
+    "wall_band_audit": null,
     "derived": {
-      "eye_height_m": 1.3121495327102803,
-      "storey_height_m": 2.9228971962616823,
-      "px_per_m_at_bottom": 426.01851851851853,
-      "nearest_visible_floor_m": 2.4036513801347534,
-      "implied_camera_wall_m": 4.3065420560747665,
-      "implied_wall_width_m": 5.227570093457944
+      "eye_height_m": 1.4964218794887296,
+      "storey_height_m": 2.98855601720242,
+      "px_per_m_at_bottom": 396.27862177650434,
+      "nearest_visible_floor_m": 2.5840404799265753,
+      "implied_camera_wall_m": 4.390647577640284,
+      "implied_wall_width_m": 5.3425262516990175
     },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 10,
       "key_dir_brightest_y": 992,
-      "key_tint": "#c8986f",
+      "key_tint": "#c89465",
       "key_tint_patch": [
         0,
         210,
-        12,
-        74
+        13,
+        75
       ],
       "key_tint_patch_mean_rgb": [
-        45.74,
-        34.7,
-        25.4
+        40.99,
+        30.32,
+        20.76
       ],
       "key_tint_alternates": {
-        "floor_under_brightest": "#a7b1c8",
-        "floor_bottom_strip": "#c8a084",
-        "mid_wall_right": "#c87635",
-        "mid_wall_left": "#c5bfc8",
-        "brightest_21x21_patch": "#a9b6c8"
+        "floor_under_brightest": "#a4b0c8",
+        "floor_bottom_strip": "#c89573",
+        "mid_wall_right": "#c86f2d",
+        "mid_wall_left": "#aeb5c8",
+        "brightest_21x21_patch": "#a6b5c8"
       },
       "brightest_21x21_patch_centre_px": [
         10,
         992
       ],
-      "sobel_bright_side_deg_whole_frame": 106.84,
-      "sobel_bright_side_deg_wall_band": -66.47,
-      "left_third_minus_right_third_luminance_whole_frame": 14.425,
-      "left_third_minus_right_third_luminance_wall_band": 4.117
+      "sobel_bright_side_deg_whole_frame": 91.79,
+      "sobel_bright_side_deg_wall_band": 86.68,
+      "left_third_minus_right_third_luminance_whole_frame": 13.45,
+      "left_third_minus_right_third_luminance_wall_band": 4.057
     },
     "opening": null,
-    "fire": null
+    "fire": null,
+    "raw_ceiling_line_y_px": 83,
+    "raw_floor_line_y_px": 780
   },
   "hall/N": {
     "facing": "hall/N",
-    "src": "backdrops/source/passage-N/cand-1.png",
-    "cfg_calib": "dado",
+    "src": "backdrops/source/passage-N/cand-2.png",
+    "cfg_calib": null,
     "measured": {
-      "wall_ceiling_line_y_px": 64,
-      "wall_floor_line_y_px": 812,
-      "horizon_y_px": 425,
-      "horizon_x_px": 776,
+      "wall_ceiling_line_y_px": null,
+      "wall_floor_line_y_px": null,
+      "horizon_y_px": null,
+      "horizon_x_px": null,
       "corner_x0_px": null,
       "corner_x1_px": null,
-      "dado_rail_top_y_px": 582,
-      "dado_rail_above_floor_px": 230
-    },
-    "ceil_cands": [
-      {
-        "y": 65,
-        "strength": 73.54,
-        "horiz": 1.0,
-        "cv": 0.132
-      },
-      {
-        "y": 100,
-        "strength": 15.17,
-        "horiz": 0.937,
-        "cv": 0.668
-      },
-      {
-        "y": 94,
-        "strength": 13.08,
-        "horiz": 0.988,
-        "cv": 0.556
-      },
-      {
-        "y": 72,
-        "strength": 11.1,
-        "horiz": 0.985,
-        "cv": 0.307
-      },
-      {
-        "y": 126,
-        "strength": 10.5,
-        "horiz": 0.728,
-        "cv": 0.83
-      },
-      {
-        "y": 133,
-        "strength": 9.04,
-        "horiz": 0.632,
-        "cv": 0.847
-      },
-      {
-        "y": 11,
-        "strength": 4.27,
-        "horiz": 0.748,
-        "cv": 0.753
-      },
-      {
-        "y": 19,
-        "strength": 4.01,
-        "horiz": 0.766,
-        "cv": 0.771
-      },
-      {
-        "y": 27,
-        "strength": 3.93,
-        "horiz": 0.763,
-        "cv": 0.771
-      },
-      {
-        "y": 87,
-        "strength": 3.79,
-        "horiz": 0.857,
-        "cv": 0.564
-      },
-      {
-        "y": 33,
-        "strength": 3.75,
-        "horiz": 0.763,
-        "cv": 0.785
-      },
-      {
-        "y": 41,
-        "strength": 3.73,
-        "horiz": 0.764,
-        "cv": 0.76
-      }
-    ],
-    "floor_cands": [
-      {
-        "y": 777,
-        "strength": 40.93,
-        "horiz": 0.984,
-        "cv": 0.545
-      },
-      {
-        "y": 772,
-        "strength": 37.78,
-        "horiz": 0.993,
-        "cv": 0.501
-      },
-      {
-        "y": 604,
-        "strength": 33.65,
-        "horiz": 0.754,
-        "cv": 0.782
-      },
-      {
-        "y": 742,
-        "strength": 33.27,
-        "horiz": 0.628,
-        "cv": 0.908
-      },
-      {
-        "y": 749,
-        "strength": 26.25,
-        "horiz": 0.722,
-        "cv": 0.93
-      },
-      {
-        "y": 782,
-        "strength": 22.0,
-        "horiz": 0.934,
-        "cv": 0.753
-      },
-      {
-        "y": 609,
-        "strength": 18.84,
-        "horiz": 0.678,
-        "cv": 0.853
-      },
-      {
-        "y": 813,
-        "strength": 17.61,
-        "horiz": 0.954,
-        "cv": 0.345
-      },
-      {
-        "y": 973,
-        "strength": 10.73,
-        "horiz": 0.743,
-        "cv": 1.116
-      },
-      {
-        "y": 939,
-        "strength": 10.66,
-        "horiz": 0.727,
-        "cv": 1.092
-      },
-      {
-        "y": 957,
-        "strength": 10.51,
-        "horiz": 0.738,
-        "cv": 1.096
-      },
-      {
-        "y": 755,
-        "strength": 10.46,
-        "horiz": 0.761,
-        "cv": 0.668
-      },
-      {
-        "y": 949,
-        "strength": 10.35,
-        "horiz": 0.739,
-        "cv": 1.066
-      },
-      {
-        "y": 968,
-        "strength": 10.09,
-        "horiz": 0.724,
-        "cv": 1.15
-      },
-      {
-        "y": 979,
-        "strength": 9.98,
-        "horiz": 0.752,
-        "cv": 1.097
-      },
-      {
-        "y": 933,
-        "strength": 9.92,
-        "horiz": 0.746,
-        "cv": 1.133
-      },
-      {
-        "y": 924,
-        "strength": 9.9,
-        "horiz": 0.726,
-        "cv": 1.141
-      },
-      {
-        "y": 1003,
-        "strength": 9.84,
-        "horiz": 0.742,
-        "cv": 1.052
-      },
-      {
-        "y": 903,
-        "strength": 9.83,
-        "horiz": 0.733,
-        "cv": 1.145
-      },
-      {
-        "y": 909,
-        "strength": 9.79,
-        "horiz": 0.729,
-        "cv": 1.153
-      },
-      {
-        "y": 963,
-        "strength": 9.75,
-        "horiz": 0.713,
-        "cv": 1.13
-      },
-      {
-        "y": 917,
-        "strength": 9.7,
-        "horiz": 0.731,
-        "cv": 1.148
-      },
-      {
-        "y": 987,
-        "strength": 9.63,
-        "horiz": 0.731,
-        "cv": 1.075
-      },
-      {
-        "y": 995,
-        "strength": 9.52,
-        "horiz": 0.729,
-        "cv": 1.057
-      },
-      {
-        "y": 944,
-        "strength": 9.42,
-        "horiz": 0.729,
-        "cv": 1.094
-      },
-      {
-        "y": 893,
-        "strength": 9.07,
-        "horiz": 0.738,
-        "cv": 1.212
-      },
-      {
-        "y": 1009,
-        "strength": 9.01,
-        "horiz": 0.734,
-        "cv": 1.052
-      },
-      {
-        "y": 898,
-        "strength": 8.84,
-        "horiz": 0.738,
-        "cv": 1.191
-      },
-      {
-        "y": 888,
-        "strength": 8.62,
-        "horiz": 0.736,
-        "cv": 1.154
-      },
-      {
-        "y": 883,
-        "strength": 8.5,
-        "horiz": 0.749,
-        "cv": 1.185
-      },
-      {
-        "y": 874,
-        "strength": 8.29,
-        "horiz": 0.742,
-        "cv": 1.282
-      },
-      {
-        "y": 861,
-        "strength": 8.06,
-        "horiz": 0.75,
-        "cv": 1.293
-      },
-      {
-        "y": 867,
-        "strength": 7.6,
-        "horiz": 0.751,
-        "cv": 1.327
-      },
-      {
-        "y": 856,
-        "strength": 7.2,
-        "horiz": 0.732,
-        "cv": 1.213
-      },
-      {
-        "y": 851,
-        "strength": 6.97,
-        "horiz": 0.718,
-        "cv": 1.299
-      },
-      {
-        "y": 845,
-        "strength": 6.89,
-        "horiz": 0.758,
-        "cv": 1.321
-      },
-      {
-        "y": 835,
-        "strength": 6.24,
-        "horiz": 0.753,
-        "cv": 1.19
-      },
-      {
-        "y": 840,
-        "strength": 6.1,
-        "horiz": 0.738,
-        "cv": 1.26
-      },
-      {
-        "y": 828,
-        "strength": 5.38,
-        "horiz": 0.737,
-        "cv": 1.256
-      },
-      {
-        "y": 823,
-        "strength": 4.34,
-        "horiz": 0.752,
-        "cv": 1.265
-      }
-    ],
-    "floor_window": {
-      "window": [
-        802,
-        822
-      ],
-      "window_profile": [
-        15.21,
-        13.8,
-        13.27,
-        11.9,
-        12.4,
-        12.02,
-        12.93,
-        12.34,
-        15.63,
-        10.39,
-        1.78,
-        19.37,
-        22.96,
-        18.98,
-        20.54,
-        19.3,
-        20.83,
-        20.51,
-        22.32,
-        21.95,
-        23.36
-      ],
-      "window_profile_first_row": 802,
-      "automatic_lowest_true_horizontal": 812
-    },
-    "rail_cands": [
-      {
-        "y": 583,
-        "strength": 40.97,
-        "horiz": 0.994,
-        "cv": 0.558
-      },
-      {
-        "y": 604,
-        "strength": 33.65,
-        "horiz": 0.754,
-        "cv": 0.782
-      },
-      {
-        "y": 554,
-        "strength": 24.76,
-        "horiz": 0.641,
-        "cv": 0.901
-      },
-      {
-        "y": 562,
-        "strength": 18.69,
-        "horiz": 0.72,
-        "cv": 0.809
-      },
-      {
-        "y": 612,
-        "strength": 14.43,
-        "horiz": 0.621,
-        "cv": 0.872
-      },
-      {
-        "y": 574,
-        "strength": 3.34,
-        "horiz": 0.727,
-        "cv": 0.97
-      },
-      {
-        "y": 596,
-        "strength": 3.3,
-        "horiz": 0.719,
-        "cv": 0.929
-      },
-      {
-        "y": 511,
-        "strength": 2.76,
-        "horiz": 0.707,
-        "cv": 1.008
-      },
-      {
-        "y": 637,
-        "strength": 2.71,
-        "horiz": 0.718,
-        "cv": 1.086
-      },
-      {
-        "y": 625,
-        "strength": 2.7,
-        "horiz": 0.721,
-        "cv": 1.117
-      }
-    ],
-    "corner_ref_strength": 68.4,
-    "corner_vertical_edge_x0": null,
-    "corner_vertical_edge_x1": null,
-    "ceiling_ramp_vp": null,
-    "votes": {
-      "floor": {
-        "x": 776,
-        "y": 425,
-        "edge_px": 28450
-      }
-    },
-    "calib_px": 230,
-    "ppm": 255.55555555555554,
-    "derived": {
-      "eye_height_m": 1.5143478260869565,
-      "storey_height_m": 2.9269565217391307,
-      "px_per_m_at_bottom": 395.54981337927074,
-      "nearest_visible_floor_m": 2.588801625898236,
-      "implied_camera_wall_m": 4.006956521739131,
-      "implied_wall_width_m": null
-    },
-    "light": {
-      "key_dir_measured": "R",
-      "key_dir_brightest_x": 1374,
-      "key_dir_brightest_y": 10,
-      "key_tint": "#c8b6a2",
-      "key_tint_patch": [
-        1174,
-        1535,
-        0,
-        56
-      ],
-      "key_tint_patch_mean_rgb": [
-        114.95,
-        104.8,
-        92.92
-      ],
-      "key_tint_alternates": {
-        "floor_under_brightest": "#c8b4ac",
-        "floor_bottom_strip": "#c8936a",
-        "mid_wall_right": "#c5c1c8",
-        "mid_wall_left": "#c87025",
-        "brightest_21x21_patch": "#c8bdae"
-      },
-      "brightest_21x21_patch_centre_px": [
-        1374,
-        10
-      ],
-      "sobel_bright_side_deg_whole_frame": 97.45,
-      "sobel_bright_side_deg_wall_band": 136.08,
-      "left_third_minus_right_third_luminance_whole_frame": -16.521,
-      "left_third_minus_right_third_luminance_wall_band": -13.043
-    },
-    "opening": null,
-    "fire": null
-  },
-  "hall/E": {
-    "facing": "hall/E",
-    "src": "backdrops/source/passage-E/cand-1.png",
-    "cfg_calib": "dado",
-    "measured": {
-      "wall_ceiling_line_y_px": 237,
-      "wall_floor_line_y_px": 677,
-      "horizon_y_px": 496,
-      "horizon_x_px": 770,
-      "corner_x0_px": 592,
-      "corner_x1_px": 942,
-      "dado_rail_top_y_px": 541,
-      "dado_rail_above_floor_px": 136,
-      "corner_midpoint_px": 767.0
-    },
-    "ceil_cands": [
-      {
-        "y": 238,
-        "strength": 36.77,
-        "horiz": 1.0,
-        "cv": 0.109
-      },
-      {
-        "y": 297,
-        "strength": 29.46,
-        "horiz": 0.745,
-        "cv": 1.965
-      },
-      {
-        "y": 270,
-        "strength": 29.03,
-        "horiz": 0.766,
-        "cv": 1.739
-      },
-      {
-        "y": 420,
-        "strength": 25.31,
-        "horiz": 0.819,
-        "cv": 1.959
-      },
-      {
-        "y": 414,
-        "strength": 21.02,
-        "horiz": 0.763,
-        "cv": 1.9
-      },
-      {
-        "y": 289,
-        "strength": 14.72,
-        "horiz": 0.692,
-        "cv": 1.43
-      },
-      {
-        "y": 260,
-        "strength": 14.7,
-        "horiz": 0.875,
-        "cv": 0.668
-      },
-      {
-        "y": 333,
-        "strength": 8.38,
-        "horiz": 0.754,
-        "cv": 3.206
-      },
-      {
-        "y": 341,
-        "strength": 7.93,
-        "horiz": 0.757,
-        "cv": 3.311
-      },
-      {
-        "y": 278,
-        "strength": 7.77,
-        "horiz": 0.679,
-        "cv": 1.669
-      },
-      {
-        "y": 377,
-        "strength": 7.68,
-        "horiz": 0.754,
-        "cv": 3.263
-      },
-      {
-        "y": 253,
-        "strength": 7.61,
-        "horiz": 0.922,
-        "cv": 0.789
-      }
-    ],
-    "floor_cands": [
-      {
-        "y": 893,
-        "strength": 18.89,
-        "horiz": 0.755,
-        "cv": 0.883
-      },
-      {
-        "y": 780,
-        "strength": 18.53,
-        "horiz": 0.74,
-        "cv": 1.004
-      },
-      {
-        "y": 859,
-        "strength": 16.99,
-        "horiz": 0.729,
-        "cv": 0.884
-      },
-      {
-        "y": 829,
-        "strength": 16.92,
-        "horiz": 0.75,
-        "cv": 0.891
-      },
-      {
-        "y": 785,
-        "strength": 16.85,
-        "horiz": 0.724,
-        "cv": 0.996
-      },
-      {
-        "y": 887,
-        "strength": 16.81,
-        "horiz": 0.776,
-        "cv": 0.912
-      },
-      {
-        "y": 749,
-        "strength": 16.7,
-        "horiz": 0.766,
-        "cv": 0.959
-      },
-      {
-        "y": 760,
-        "strength": 16.5,
-        "horiz": 0.781,
-        "cv": 1.064
-      },
-      {
-        "y": 766,
-        "strength": 16.45,
-        "horiz": 0.776,
-        "cv": 1.033
-      },
-      {
-        "y": 899,
-        "strength": 16.4,
-        "horiz": 0.714,
-        "cv": 0.904
-      },
-      {
-        "y": 875,
-        "strength": 16.35,
-        "horiz": 0.729,
-        "cv": 1.0
-      },
-      {
-        "y": 867,
-        "strength": 16.29,
-        "horiz": 0.771,
-        "cv": 0.787
-      },
-      {
-        "y": 841,
-        "strength": 16.26,
-        "horiz": 0.766,
-        "cv": 1.012
-      },
-      {
-        "y": 813,
-        "strength": 16.15,
-        "horiz": 0.734,
-        "cv": 0.816
-      },
-      {
-        "y": 796,
-        "strength": 15.69,
-        "horiz": 0.76,
-        "cv": 0.99
-      },
-      {
-        "y": 881,
-        "strength": 15.63,
-        "horiz": 0.771,
-        "cv": 0.8
-      },
-      {
-        "y": 851,
-        "strength": 15.53,
-        "horiz": 0.76,
-        "cv": 0.891
-      },
-      {
-        "y": 775,
-        "strength": 15.52,
-        "horiz": 0.719,
-        "cv": 1.109
-      },
-      {
-        "y": 807,
-        "strength": 15.43,
-        "horiz": 0.703,
-        "cv": 1.01
-      },
-      {
-        "y": 821,
-        "strength": 15.11,
-        "horiz": 0.771,
-        "cv": 0.955
-      },
-      {
-        "y": 732,
-        "strength": 14.89,
-        "horiz": 0.745,
-        "cv": 0.999
-      },
-      {
-        "y": 835,
-        "strength": 14.84,
-        "horiz": 0.755,
-        "cv": 0.889
-      },
-      {
-        "y": 755,
-        "strength": 14.8,
-        "horiz": 0.714,
-        "cv": 1.012
-      },
-      {
-        "y": 846,
-        "strength": 14.37,
-        "horiz": 0.719,
-        "cv": 1.009
-      },
-      {
-        "y": 801,
-        "strength": 14.21,
-        "horiz": 0.729,
-        "cv": 0.997
-      },
-      {
-        "y": 744,
-        "strength": 14.13,
-        "horiz": 0.734,
-        "cv": 0.993
-      },
-      {
-        "y": 791,
-        "strength": 13.77,
-        "horiz": 0.703,
-        "cv": 0.868
-      },
-      {
-        "y": 718,
-        "strength": 13.41,
-        "horiz": 0.786,
-        "cv": 0.806
-      },
-      {
-        "y": 726,
-        "strength": 13.38,
-        "horiz": 0.755,
-        "cv": 0.821
-      },
-      {
-        "y": 739,
-        "strength": 12.98,
-        "horiz": 0.74,
-        "cv": 1.063
-      },
-      {
-        "y": 712,
-        "strength": 12.64,
-        "horiz": 0.75,
-        "cv": 0.83
-      },
-      {
-        "y": 657,
-        "strength": 10.93,
-        "horiz": 0.969,
-        "cv": 0.283
-      },
-      {
-        "y": 707,
-        "strength": 8.64,
-        "horiz": 0.76,
-        "cv": 0.95
-      },
-      {
-        "y": 702,
-        "strength": 6.74,
-        "horiz": 0.75,
-        "cv": 0.901
-      },
-      {
-        "y": 696,
-        "strength": 5.83,
-        "horiz": 0.76,
-        "cv": 0.826
-      },
-      {
-        "y": 639,
-        "strength": 5.29,
-        "horiz": 0.708,
-        "cv": 0.573
-      },
-      {
-        "y": 563,
-        "strength": 4.82,
-        "horiz": 0.703,
-        "cv": 0.684
-      },
-      {
-        "y": 651,
-        "strength": 4.23,
-        "horiz": 0.818,
-        "cv": 0.41
-      },
-      {
-        "y": 691,
-        "strength": 3.86,
-        "horiz": 0.677,
-        "cv": 0.97
-      },
-      {
-        "y": 677,
-        "strength": 3.33,
-        "horiz": 0.792,
-        "cv": 0.457
-      }
-    ],
-    "floor_window": {
-      "window": [
-        664,
-        692
-      ],
-      "window_profile": [
-        7.05,
-        6.38,
-        6.86,
-        6.45,
-        6.28,
-        5.66,
-        5.8,
-        5.02,
-        5.3,
-        4.82,
-        4.92,
-        5.21,
-        4.89,
-        1.57,
-        3.04,
-        3.69,
-        4.0,
-        4.01,
-        4.98,
-        5.19,
-        6.72,
-        7.74,
-        10.15,
-        11.45,
-        14.47,
-        16.1,
-        19.39,
-        21.45,
-        25.03
-      ],
-      "window_profile_first_row": 664,
-      "automatic_lowest_true_horizontal": 656
-    },
-    "rail_cands": [
-      {
-        "y": 542,
-        "strength": 17.01,
-        "horiz": 0.953,
-        "cv": 0.442
-      },
-      {
-        "y": 558,
-        "strength": 12.18,
-        "horiz": 0.719,
-        "cv": 0.647
-      },
-      {
-        "y": 533,
-        "strength": 8.78,
-        "horiz": 0.755,
-        "cv": 0.58
-      },
-      {
-        "y": 525,
-        "strength": 2.3,
-        "horiz": 0.755,
-        "cv": 0.763
-      },
-      {
-        "y": 485,
-        "strength": 1.61,
-        "horiz": 0.792,
-        "cv": 0.842
-      },
-      {
-        "y": 509,
-        "strength": 1.56,
-        "horiz": 0.76,
-        "cv": 0.867
-      },
-      {
-        "y": 499,
-        "strength": 1.52,
-        "horiz": 0.771,
-        "cv": 1.082
-      },
-      {
-        "y": 517,
-        "strength": 1.34,
-        "horiz": 0.771,
-        "cv": 0.803
-      },
-      {
-        "y": 593,
-        "strength": 1.32,
-        "horiz": 0.818,
-        "cv": 0.693
-      },
-      {
-        "y": 605,
-        "strength": 1.3,
-        "horiz": 0.776,
-        "cv": 0.87
-      }
-    ],
-    "corner_ref_strength": 38.9,
-    "corner_vertical_edge_x0": 581,
-    "corner_vertical_edge_x1": 951,
-    "ceiling_ramp_vp": {
-      "x": 771.4,
-      "y": 448.8,
-      "left_slope": 1.2026,
-      "right_slope": -1.2599,
-      "left_n": 61,
-      "left_resid_px": 0.3,
-      "right_n": 61,
-      "right_resid_px": 0.34
-    },
-    "votes": {
-      "floor": {
-        "x": 770,
-        "y": 532,
-        "edge_px": 30000
-      },
-      "ceiling": {
-        "x": 774,
-        "y": 455,
-        "edge_px": 25929
-      },
-      "side_walls": {
-        "x": 752,
-        "y": 491,
-        "edge_px": 6145
-      }
-    },
-    "calib_px": 136,
-    "ppm": 151.11111111111111,
-    "derived": {
-      "eye_height_m": 1.1977941176470588,
-      "storey_height_m": 2.911764705882353,
-      "px_per_m_at_bottom": 440.8103130755065,
-      "nearest_visible_floor_m": 2.322994652406417,
-      "implied_camera_wall_m": 6.776470588235294,
-      "implied_wall_width_m": 2.316176470588235
-    },
-    "light": {
-      "key_dir_measured": "C",
-      "key_dir_brightest_x": 769,
-      "key_dir_brightest_y": 316,
-      "key_tint": "#c8baa6",
-      "key_tint_patch": [
-        602,
-        932,
-        167,
-        229
-      ],
-      "key_tint_patch_mean_rgb": [
-        131.0,
-        121.87,
-        109.01
-      ],
-      "key_tint_alternates": {
-        "floor_under_brightest": "#bcc0c8",
-        "floor_bottom_strip": "#c8ae9c",
-        "mid_wall_right": "#c8c6c4",
-        "mid_wall_left": "#c8c5c1",
-        "brightest_21x21_patch": "#c3c6c8"
-      },
-      "brightest_21x21_patch_centre_px": [
-        769,
-        316
-      ],
-      "sobel_bright_side_deg_whole_frame": 126.51,
-      "sobel_bright_side_deg_wall_band": 6.04,
-      "left_third_minus_right_third_luminance_whole_frame": -1.74,
-      "left_third_minus_right_third_luminance_wall_band": -4.135
-    },
-    "opening": null,
-    "fire": null
-  },
-  "hall/S": {
-    "facing": "hall/S",
-    "src": "backdrops/source/passage-S/cand-1.png",
-    "cfg_calib": "dado",
-    "measured": {
-      "wall_ceiling_line_y_px": 46,
-      "wall_floor_line_y_px": 880,
-      "horizon_y_px": 503,
-      "horizon_x_px": 796,
-      "corner_x0_px": null,
-      "corner_x1_px": null,
-      "dado_rail_top_y_px": 620,
-      "dado_rail_above_floor_px": 260
+      "dado_rail_top_y_px": null,
+      "dado_rail_above_floor_px": null
     },
     "ceil_cands": [
       {
         "y": 47,
-        "strength": 96.27,
-        "horiz": 1.0,
-        "cv": 0.112
+        "strength": 9.58,
+        "horiz": 0.669,
+        "cv": 0.729
       },
       {
-        "y": 172,
-        "strength": 26.62,
-        "horiz": 0.757,
-        "cv": 0.592
+        "y": 38,
+        "strength": 9.51,
+        "horiz": 0.752,
+        "cv": 0.829
       },
       {
-        "y": 53,
-        "strength": 18.67,
-        "horiz": 1.0,
-        "cv": 0.387
+        "y": 32,
+        "strength": 7.17,
+        "horiz": 0.811,
+        "cv": 0.501
       },
       {
-        "y": 88,
-        "strength": 17.21,
-        "horiz": 0.995,
-        "cv": 0.4
+        "y": 24,
+        "strength": 1.88,
+        "horiz": 0.806,
+        "cv": 0.873
       },
       {
-        "y": 81,
-        "strength": 12.1,
-        "horiz": 0.975,
-        "cv": 0.343
+        "y": 16,
+        "strength": 1.76,
+        "horiz": 0.816,
+        "cv": 0.929
       },
       {
-        "y": 409,
-        "strength": 10.98,
-        "horiz": 0.682,
-        "cv": 1.021
+        "y": 54,
+        "strength": 1.53,
+        "horiz": 0.75,
+        "cv": 0.733
       },
       {
-        "y": 415,
-        "strength": 10.47,
-        "horiz": 0.689,
-        "cv": 0.996
+        "y": 199,
+        "strength": 1.47,
+        "horiz": 0.753,
+        "cv": 0.95
       },
       {
-        "y": 369,
-        "strength": 10.34,
-        "horiz": 0.698,
-        "cv": 1.017
+        "y": 193,
+        "strength": 1.44,
+        "horiz": 0.744,
+        "cv": 0.937
       },
       {
-        "y": 397,
-        "strength": 10.31,
-        "horiz": 0.673,
-        "cv": 1.039
+        "y": 187,
+        "strength": 1.42,
+        "horiz": 0.731,
+        "cv": 0.959
       },
       {
-        "y": 385,
-        "strength": 10.29,
-        "horiz": 0.686,
-        "cv": 1.075
+        "y": 179,
+        "strength": 1.41,
+        "horiz": 0.74,
+        "cv": 0.931
       },
       {
-        "y": 337,
-        "strength": 10.06,
-        "horiz": 0.678,
-        "cv": 1.06
+        "y": 171,
+        "strength": 1.37,
+        "horiz": 0.741,
+        "cv": 0.918
       },
       {
-        "y": 377,
-        "strength": 10.05,
-        "horiz": 0.688,
-        "cv": 1.074
+        "y": 145,
+        "strength": 1.35,
+        "horiz": 0.741,
+        "cv": 0.917
       }
     ],
     "floor_cands": [
       {
-        "y": 829,
-        "strength": 39.79,
-        "horiz": 1.0,
-        "cv": 0.31
+        "y": 1001,
+        "strength": 37.24,
+        "horiz": 0.995,
+        "cv": 0.244
       },
       {
-        "y": 841,
-        "strength": 39.11,
-        "horiz": 0.994,
-        "cv": 0.411
-      },
-      {
-        "y": 807,
-        "strength": 26.43,
-        "horiz": 0.831,
-        "cv": 0.575
-      },
-      {
-        "y": 836,
-        "strength": 25.87,
-        "horiz": 0.936,
-        "cv": 0.594
-      },
-      {
-        "y": 881,
-        "strength": 22.84,
-        "horiz": 0.94,
-        "cv": 0.415
-      },
-      {
-        "y": 797,
-        "strength": 20.25,
-        "horiz": 0.669,
-        "cv": 0.755
-      },
-      {
-        "y": 1003,
-        "strength": 10.35,
-        "horiz": 0.741,
-        "cv": 1.077
-      },
-      {
-        "y": 956,
-        "strength": 10.11,
-        "horiz": 0.716,
-        "cv": 1.204
-      },
-      {
-        "y": 981,
-        "strength": 10.05,
-        "horiz": 0.748,
-        "cv": 1.136
-      },
-      {
-        "y": 976,
-        "strength": 10.03,
-        "horiz": 0.725,
-        "cv": 1.154
-      },
-      {
-        "y": 990,
-        "strength": 9.91,
-        "horiz": 0.723,
-        "cv": 1.192
-      },
-      {
-        "y": 966,
-        "strength": 9.86,
-        "horiz": 0.722,
-        "cv": 1.162
-      },
-      {
-        "y": 1009,
-        "strength": 9.85,
-        "horiz": 0.721,
-        "cv": 1.155
-      },
-      {
-        "y": 997,
-        "strength": 9.72,
-        "horiz": 0.731,
-        "cv": 1.147
-      },
-      {
-        "y": 950,
-        "strength": 9.31,
-        "horiz": 0.737,
-        "cv": 1.229
-      },
-      {
-        "y": 971,
-        "strength": 9.28,
-        "horiz": 0.727,
-        "cv": 1.07
-      },
-      {
-        "y": 940,
-        "strength": 8.93,
-        "horiz": 0.742,
-        "cv": 1.218
+        "y": 988,
+        "strength": 35.14,
+        "horiz": 0.995,
+        "cv": 0.319
       },
       {
         "y": 961,
-        "strength": 8.9,
-        "horiz": 0.74,
-        "cv": 1.179
-      },
-      {
-        "y": 932,
-        "strength": 8.78,
-        "horiz": 0.718,
-        "cv": 1.271
-      },
-      {
-        "y": 802,
-        "strength": 8.32,
-        "horiz": 0.703,
-        "cv": 0.745
+        "strength": 23.33,
+        "horiz": 0.83,
+        "cv": 0.479
       },
       {
         "y": 945,
-        "strength": 8.18,
-        "horiz": 0.735,
-        "cv": 1.202
+        "strength": 19.78,
+        "horiz": 0.652,
+        "cv": 0.834
       },
       {
-        "y": 924,
-        "strength": 8.11,
-        "horiz": 0.753,
-        "cv": 1.163
-      },
-      {
-        "y": 916,
-        "strength": 7.25,
-        "horiz": 0.722,
-        "cv": 1.236
-      },
-      {
-        "y": 908,
-        "strength": 6.41,
-        "horiz": 0.707,
-        "cv": 1.283
-      },
-      {
-        "y": 900,
-        "strength": 6.24,
-        "horiz": 0.752,
-        "cv": 1.279
-      },
-      {
-        "y": 894,
-        "strength": 4.92,
-        "horiz": 0.727,
-        "cv": 1.44
-      },
-      {
-        "y": 862,
-        "strength": 4.73,
-        "horiz": 0.72,
-        "cv": 1.074
-      },
-      {
-        "y": 856,
-        "strength": 4.71,
-        "horiz": 0.73,
-        "cv": 0.986
-      },
-      {
-        "y": 816,
-        "strength": 4.66,
+        "y": 955,
+        "strength": 17.19,
         "horiz": 0.732,
-        "cv": 0.879
+        "cv": 0.851
       },
       {
-        "y": 823,
-        "strength": 4.0,
-        "horiz": 0.748,
-        "cv": 0.837
+        "y": 996,
+        "strength": 14.24,
+        "horiz": 0.886,
+        "cv": 0.526
       },
       {
-        "y": 889,
-        "strength": 3.99,
-        "horiz": 0.702,
-        "cv": 1.475
+        "y": 983,
+        "strength": 6.18,
+        "horiz": 0.813,
+        "cv": 0.597
       },
       {
-        "y": 851,
-        "strength": 3.84,
-        "horiz": 0.738,
-        "cv": 0.941
+        "y": 974,
+        "strength": 5.22,
+        "horiz": 0.718,
+        "cv": 0.881
       },
       {
-        "y": 846,
-        "strength": 3.32,
-        "horiz": 0.73,
-        "cv": 0.86
+        "y": 968,
+        "strength": 3.95,
+        "horiz": 0.781,
+        "cv": 0.838
       },
       {
-        "y": 868,
-        "strength": 3.2,
+        "y": 1014,
+        "strength": 3.24,
+        "horiz": 0.704,
+        "cv": 0.871
+      },
+      {
+        "y": 1006,
+        "strength": 2.78,
+        "horiz": 0.744,
+        "cv": 0.852
+      },
+      {
+        "y": 950,
+        "strength": 2.66,
+        "horiz": 0.75,
+        "cv": 1.13
+      },
+      {
+        "y": 939,
+        "strength": 2.04,
+        "horiz": 0.733,
+        "cv": 0.819
+      },
+      {
+        "y": 875,
+        "strength": 1.99,
         "horiz": 0.71,
-        "cv": 1.072
+        "cv": 0.906
       },
       {
-        "y": 876,
-        "strength": 2.88,
-        "horiz": 0.715,
-        "cv": 0.921
-      },
-      {
-        "y": 701,
-        "strength": 2.46,
-        "horiz": 0.7,
-        "cv": 0.966
-      },
-      {
-        "y": 715,
-        "strength": 2.46,
-        "horiz": 0.69,
-        "cv": 1.01
-      },
-      {
-        "y": 735,
-        "strength": 2.37,
-        "horiz": 0.694,
+        "y": 863,
+        "strength": 1.98,
+        "horiz": 0.708,
         "cv": 0.913
       },
       {
-        "y": 709,
-        "strength": 2.33,
-        "horiz": 0.72,
-        "cv": 0.988
+        "y": 851,
+        "strength": 1.96,
+        "horiz": 0.698,
+        "cv": 0.947
       },
       {
-        "y": 721,
-        "strength": 2.27,
-        "horiz": 0.738,
-        "cv": 0.938
+        "y": 885,
+        "strength": 1.94,
+        "horiz": 0.778,
+        "cv": 0.918
+      },
+      {
+        "y": 869,
+        "strength": 1.92,
+        "horiz": 0.755,
+        "cv": 0.983
+      },
+      {
+        "y": 857,
+        "strength": 1.88,
+        "horiz": 0.764,
+        "cv": 0.952
+      },
+      {
+        "y": 893,
+        "strength": 1.88,
+        "horiz": 0.759,
+        "cv": 0.939
+      },
+      {
+        "y": 899,
+        "strength": 1.84,
+        "horiz": 0.753,
+        "cv": 0.928
+      },
+      {
+        "y": 907,
+        "strength": 1.83,
+        "horiz": 0.765,
+        "cv": 0.936
+      },
+      {
+        "y": 925,
+        "strength": 1.83,
+        "horiz": 0.728,
+        "cv": 0.887
+      },
+      {
+        "y": 913,
+        "strength": 1.82,
+        "horiz": 0.766,
+        "cv": 0.905
+      },
+      {
+        "y": 931,
+        "strength": 1.8,
+        "horiz": 0.766,
+        "cv": 0.879
+      },
+      {
+        "y": 919,
+        "strength": 1.76,
+        "horiz": 0.759,
+        "cv": 0.987
+      },
+      {
+        "y": 880,
+        "strength": 1.55,
+        "horiz": 0.748,
+        "cv": 1.005
       }
     ],
     "floor_window": {
       "window": [
-        870,
-        892
+        995,
+        1015
       ],
       "window_profile": [
-        15.68,
-        16.04,
-        16.71,
-        15.16,
-        16.18,
-        16.21,
+        40.78,
+        26.56,
+        6.07,
+        2.72,
+        1.11,
+        3.24,
+        40.48,
+        41.17,
+        11.78,
+        15.41,
+        17.69,
+        16.74,
+        15.73,
         17.65,
-        17.87,
-        25.73,
-        14.04,
-        1.76,
-        24.57,
-        36.57,
-        24.99,
-        23.89,
-        21.11,
-        21.53,
-        20.02,
-        21.65,
-        20.93,
-        22.5,
-        21.39,
-        22.83
+        16.7,
+        16.15,
+        15.59,
+        17.02,
+        15.85,
+        16.05,
+        16.4
       ],
-      "window_profile_first_row": 870,
-      "automatic_lowest_true_horizontal": 880
+      "window_profile_first_row": 995,
+      "automatic_lowest_true_horizontal": 1000
     },
     "rail_cands": [
       {
-        "y": 621,
-        "strength": 46.94,
-        "horiz": 0.756,
-        "cv": 0.569
+        "y": 689,
+        "strength": 28.45,
+        "horiz": 0.982,
+        "cv": 0.425
       },
       {
-        "y": 606,
-        "strength": 21.68,
-        "horiz": 0.712,
-        "cv": 1.095
+        "y": 712,
+        "strength": 27.16,
+        "horiz": 0.804,
+        "cv": 0.577
       },
       {
-        "y": 797,
-        "strength": 20.25,
-        "horiz": 0.669,
-        "cv": 0.755
+        "y": 641,
+        "strength": 25.07,
+        "horiz": 0.665,
+        "cv": 0.787
       },
       {
-        "y": 577,
-        "strength": 14.56,
-        "horiz": 0.738,
-        "cv": 0.896
+        "y": 724,
+        "strength": 22.86,
+        "horiz": 0.668,
+        "cv": 0.732
       },
       {
-        "y": 568,
-        "strength": 13.91,
-        "horiz": 0.694,
-        "cv": 0.975
+        "y": 655,
+        "strength": 18.22,
+        "horiz": 0.829,
+        "cv": 0.528
       },
       {
-        "y": 598,
-        "strength": 13.83,
-        "horiz": 0.735,
-        "cv": 0.839
+        "y": 676,
+        "strength": 17.06,
+        "horiz": 0.993,
+        "cv": 0.298
       },
       {
-        "y": 632,
-        "strength": 13.57,
-        "horiz": 0.688,
-        "cv": 0.803
+        "y": 732,
+        "strength": 6.37,
+        "horiz": 0.617,
+        "cv": 1.041
       },
       {
-        "y": 547,
-        "strength": 11.31,
-        "horiz": 0.661,
-        "cv": 1.023
+        "y": 704,
+        "strength": 3.97,
+        "horiz": 0.719,
+        "cv": 0.993
       },
       {
-        "y": 560,
-        "strength": 11.27,
-        "horiz": 0.677,
-        "cv": 1.19
+        "y": 664,
+        "strength": 3.44,
+        "horiz": 0.719,
+        "cv": 0.93
       },
       {
-        "y": 589,
-        "strength": 10.43,
-        "horiz": 0.704,
-        "cv": 1.053
+        "y": 505,
+        "strength": 2.25,
+        "horiz": 0.702,
+        "cv": 1.017
       }
     ],
-    "corner_ref_strength": 94.5,
-    "corner_vertical_edge_x0": null,
-    "corner_vertical_edge_x1": null,
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 764,
+    "corner_vertical_edge_x1": 907,
     "ceiling_ramp_vp": null,
-    "votes": {
-      "floor": {
-        "x": 796,
-        "y": 503,
-        "edge_px": 18357
-      }
+    "votes": {},
+    "calib_px": null,
+    "ppm": null,
+    "rulers": [],
+    "primary": null,
+    "verdict": "WITHHELD",
+    "withheld_because": [
+      "no admissible ruler at tiers 1-3. This facing paints no floor line, no ceiling line, no corner and no feature of ruled size, which is exactly what its prompt demanded; see _wall_band_audit."
+    ],
+    "ruler_agreement_pct": null,
+    "module": null,
+    "bays": null,
+    "wall_band_audit": {
+      "strongest_true_horizontal_in_top_band": {
+        "y": 47,
+        "strength": 9.58,
+        "horiz": 0.669,
+        "cv": 0.729
+      },
+      "strongest_true_horizontal_in_bottom_band": {
+        "y": 1001,
+        "strength": 37.24,
+        "horiz": 0.995,
+        "cv": 0.244
+      },
+      "top_band_candidates": [
+        {
+          "y": 47,
+          "strength": 9.58,
+          "horiz": 0.669,
+          "cv": 0.729
+        },
+        {
+          "y": 38,
+          "strength": 9.51,
+          "horiz": 0.752,
+          "cv": 0.829
+        },
+        {
+          "y": 30,
+          "strength": 2.04,
+          "horiz": 0.719,
+          "cv": 0.786
+        },
+        {
+          "y": 16,
+          "strength": 1.76,
+          "horiz": 0.816,
+          "cv": 0.929
+        }
+      ],
+      "bottom_band_candidates": [
+        {
+          "y": 1001,
+          "strength": 37.24,
+          "horiz": 0.995,
+          "cv": 0.244
+        },
+        {
+          "y": 988,
+          "strength": 35.14,
+          "horiz": 0.995,
+          "cv": 0.319
+        },
+        {
+          "y": 961,
+          "strength": 23.33,
+          "horiz": 0.83,
+          "cv": 0.479
+        },
+        {
+          "y": 945,
+          "strength": 19.78,
+          "horiz": 0.652,
+          "cv": 0.834
+        }
+      ],
+      "mean_luma_top_40_rows": 9.34,
+      "mean_luma_bottom_40_rows": 19.97,
+      "mean_luma_middle_40_rows": 34.15,
+      "reading": "A wall-ceiling junction on the four study facings measures a step of 55-67 at a horizontality of 0.97-1.00 with plaster above it at a mean luma of 84-155. Here the strongest true horizontal in the top band and the strongest in the bottom band are the panelling's own rails, the frame's top 40 rows are dark oak, and the corner scan run at any candidate ceiling row returns a different pair of columns each time - which is what a corner detector does when there is no corner. No floor line, no ceiling line, no corner, no feature of ruled size: nothing on this facing can be converted into px_per_m_at_wall, and none is."
     },
-    "calib_px": 260,
-    "ppm": 288.88888888888886,
     "derived": {
-      "eye_height_m": 1.3050000000000002,
-      "storey_height_m": 2.886923076923077,
-      "px_per_m_at_bottom": 399.2337164750957,
-      "nearest_visible_floor_m": 2.564913627639156,
-      "implied_camera_wall_m": 3.544615384615385,
+      "eye_height_m": null,
+      "storey_height_m": null,
+      "px_per_m_at_bottom": null,
+      "nearest_visible_floor_m": null,
+      "implied_camera_wall_m": null,
       "implied_wall_width_m": null
     },
     "light": {
-      "key_dir_measured": "L",
-      "key_dir_brightest_x": 152,
-      "key_dir_brightest_y": 10,
-      "key_tint": "#c8baa8",
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1513,
+      "key_dir_brightest_y": 384,
+      "key_tint": "#c88c55",
       "key_tint_patch": [
-        0,
-        352,
+        1313,
+        1535,
         0,
         38
       ],
       "key_tint_patch_mean_rgb": [
-        129.59,
-        120.39,
-        108.76
+        16.07,
+        11.22,
+        6.79
       ],
       "key_tint_alternates": {
-        "floor_under_brightest": "#c8bcbe",
-        "floor_bottom_strip": "#c89775",
-        "mid_wall_right": "#c86115",
-        "mid_wall_left": "#c1bfc8",
-        "brightest_21x21_patch": "#c8bcad"
+        "floor_under_brightest": "#c8a488",
+        "floor_bottom_strip": "#c87a3f",
+        "mid_wall_right": "#c8b9b9",
+        "mid_wall_left": "#c86d20",
+        "brightest_21x21_patch": "#a9b2c8"
       },
       "brightest_21x21_patch_centre_px": [
-        152,
-        10
+        1513,
+        384
       ],
-      "sobel_bright_side_deg_whole_frame": 86.28,
-      "sobel_bright_side_deg_wall_band": 97.57,
-      "left_third_minus_right_third_luminance_whole_frame": 25.941,
-      "left_third_minus_right_third_luminance_wall_band": 25.393
+      "sobel_bright_side_deg_whole_frame": 169.41,
+      "sobel_bright_side_deg_wall_band": -174.66,
+      "left_third_minus_right_third_luminance_whole_frame": -12.236,
+      "left_third_minus_right_third_luminance_wall_band": -12.849
     },
     "opening": null,
-    "fire": null
+    "fire": null,
+    "raw_ceiling_line_y_px": 46,
+    "raw_floor_line_y_px": 999
   },
-  "hall/W": {
-    "facing": "hall/W",
-    "src": "backdrops/source/passage-W/cand-1.png",
-    "cfg_calib": "door_h",
+  "hall/E": {
+    "facing": "hall/E",
+    "src": "backdrops/source/passage-E/cand-2.png",
+    "cfg_calib": null,
     "measured": {
-      "wall_ceiling_line_y_px": 293,
-      "wall_floor_line_y_px": 649,
-      "horizon_y_px": 490,
-      "horizon_x_px": 757,
-      "corner_x0_px": 576,
-      "corner_x1_px": 945,
-      "dado_rail_top_y_px": 527,
-      "dado_rail_above_floor_px": 122,
-      "corner_midpoint_px": 760.5,
-      "opening_x0_px": 698,
-      "opening_x1_px": 825,
-      "opening_y0_px": 377,
-      "opening_y1_px": 649,
-      "opening_width_px": 127,
-      "opening_height_px": 272,
-      "opening_aspect_h_over_w": 2.142
+      "wall_ceiling_line_y_px": 333,
+      "wall_floor_line_y_px": 644,
+      "horizon_y_px": 506,
+      "horizon_x_px": 769,
+      "corner_x0_px": 654,
+      "corner_x1_px": 885,
+      "dado_rail_top_y_px": 543,
+      "dado_rail_above_floor_px": 101,
+      "corner_midpoint_px": 769.5
     },
     "ceil_cands": [
       {
-        "y": 294,
-        "strength": 40.98,
-        "horiz": 1.0,
-        "cv": 0.058
+        "y": 334,
+        "strength": 16.71,
+        "horiz": 0.818,
+        "cv": 0.517
       },
       {
-        "y": 377,
-        "strength": 31.87,
-        "horiz": 0.616,
-        "cv": 1.038
+        "y": 327,
+        "strength": 5.85,
+        "horiz": 0.833,
+        "cv": 0.588
       },
       {
-        "y": 402,
-        "strength": 26.72,
-        "horiz": 0.694,
-        "cv": 1.359
+        "y": 321,
+        "strength": 4.71,
+        "horiz": 0.856,
+        "cv": 0.788
       },
       {
-        "y": 310,
-        "strength": 15.12,
-        "horiz": 0.855,
-        "cv": 0.419
+        "y": 313,
+        "strength": 4.52,
+        "horiz": 0.727,
+        "cv": 1.179
       },
       {
-        "y": 325,
-        "strength": 10.49,
-        "horiz": 0.769,
-        "cv": 0.65
+        "y": 344,
+        "strength": 3.59,
+        "horiz": 0.75,
+        "cv": 0.588
       },
       {
-        "y": 395,
-        "strength": 8.78,
-        "horiz": 0.647,
-        "cv": 1.157
+        "y": 270,
+        "strength": 3.38,
+        "horiz": 0.652,
+        "cv": 0.932
       },
       {
-        "y": 366,
-        "strength": 7.22,
-        "horiz": 0.616,
-        "cv": 1.105
+        "y": 361,
+        "strength": 3.33,
+        "horiz": 0.727,
+        "cv": 0.659
       },
       {
-        "y": 232,
-        "strength": 6.56,
-        "horiz": 0.746,
-        "cv": 0.696
+        "y": 296,
+        "strength": 3.32,
+        "horiz": 0.667,
+        "cv": 0.826
       },
       {
-        "y": 214,
-        "strength": 6.37,
-        "horiz": 0.769,
-        "cv": 0.737
+        "y": 307,
+        "strength": 3.29,
+        "horiz": 0.742,
+        "cv": 0.962
       },
       {
-        "y": 253,
-        "strength": 6.35,
-        "horiz": 0.763,
-        "cv": 0.651
+        "y": 254,
+        "strength": 3.25,
+        "horiz": 0.72,
+        "cv": 1.003
       },
       {
-        "y": 182,
-        "strength": 6.07,
-        "horiz": 0.772,
-        "cv": 0.793
+        "y": 276,
+        "strength": 3.24,
+        "horiz": 0.697,
+        "cv": 0.827
       },
       {
-        "y": 196,
-        "strength": 5.96,
-        "horiz": 0.746,
-        "cv": 0.8
+        "y": 157,
+        "strength": 3.22,
+        "horiz": 0.682,
+        "cv": 1.001
       }
     ],
     "floor_cands": [
       {
-        "y": 528,
-        "strength": 24.53,
-        "horiz": 0.968,
-        "cv": 0.324
-      },
-      {
-        "y": 630,
-        "strength": 14.58,
-        "horiz": 0.952,
-        "cv": 0.395
-      },
-      {
-        "y": 862,
-        "strength": 13.66,
-        "horiz": 0.674,
-        "cv": 1.002
-      },
-      {
-        "y": 899,
-        "strength": 12.54,
-        "horiz": 0.727,
-        "cv": 0.937
-      },
-      {
-        "y": 614,
-        "strength": 11.88,
-        "horiz": 0.658,
-        "cv": 0.714
-      },
-      {
-        "y": 893,
-        "strength": 11.85,
-        "horiz": 0.733,
-        "cv": 0.772
-      },
-      {
-        "y": 541,
-        "strength": 11.84,
-        "horiz": 0.679,
-        "cv": 0.684
-      },
-      {
-        "y": 885,
-        "strength": 10.79,
-        "horiz": 0.786,
-        "cv": 0.758
-      },
-      {
-        "y": 876,
-        "strength": 9.87,
-        "horiz": 0.797,
-        "cv": 0.869
-      },
-      {
-        "y": 852,
-        "strength": 9.81,
-        "horiz": 0.727,
-        "cv": 0.922
-      },
-      {
-        "y": 867,
-        "strength": 9.76,
-        "horiz": 0.738,
-        "cv": 0.889
-      },
-      {
-        "y": 857,
-        "strength": 9.38,
-        "horiz": 0.743,
-        "cv": 0.942
-      },
-      {
-        "y": 840,
-        "strength": 9.36,
-        "horiz": 0.797,
-        "cv": 0.972
-      },
-      {
-        "y": 822,
-        "strength": 8.9,
-        "horiz": 0.706,
-        "cv": 0.991
-      },
-      {
-        "y": 845,
-        "strength": 8.87,
-        "horiz": 0.717,
-        "cv": 0.93
-      },
-      {
-        "y": 810,
-        "strength": 8.63,
-        "horiz": 0.733,
-        "cv": 0.934
-      },
-      {
-        "y": 687,
-        "strength": 8.46,
-        "horiz": 0.754,
-        "cv": 1.17
-      },
-      {
-        "y": 833,
-        "strength": 8.25,
-        "horiz": 0.807,
-        "cv": 0.886
-      },
-      {
-        "y": 827,
-        "strength": 8.16,
-        "horiz": 0.743,
-        "cv": 0.758
-      },
-      {
-        "y": 623,
-        "strength": 8.12,
-        "horiz": 0.968,
-        "cv": 0.345
-      },
-      {
-        "y": 672,
-        "strength": 8.09,
-        "horiz": 0.743,
-        "cv": 1.102
-      },
-      {
-        "y": 680,
-        "strength": 8.03,
-        "horiz": 0.668,
-        "cv": 1.128
+        "y": 730,
+        "strength": 14.91,
+        "horiz": 0.72,
+        "cv": 0.977
       },
       {
         "y": 799,
-        "strength": 7.92,
-        "horiz": 0.711,
-        "cv": 0.984
-      },
-      {
-        "y": 815,
-        "strength": 7.9,
-        "horiz": 0.69,
-        "cv": 0.908
-      },
-      {
-        "y": 805,
-        "strength": 7.73,
-        "horiz": 0.738,
-        "cv": 0.973
-      },
-      {
-        "y": 781,
-        "strength": 7.73,
-        "horiz": 0.754,
-        "cv": 0.985
-      },
-      {
-        "y": 751,
-        "strength": 7.53,
-        "horiz": 0.722,
-        "cv": 1.263
-      },
-      {
-        "y": 773,
-        "strength": 7.47,
-        "horiz": 0.738,
-        "cv": 1.081
-      },
-      {
-        "y": 664,
-        "strength": 7.34,
-        "horiz": 0.738,
-        "cv": 1.185
-      },
-      {
-        "y": 762,
-        "strength": 7.27,
-        "horiz": 0.727,
-        "cv": 1.161
-      },
-      {
-        "y": 792,
-        "strength": 7.26,
-        "horiz": 0.77,
-        "cv": 0.921
-      },
-      {
-        "y": 695,
-        "strength": 7.25,
-        "horiz": 0.749,
-        "cv": 1.141
+        "strength": 14.73,
+        "horiz": 0.697,
+        "cv": 1.025
       },
       {
         "y": 737,
-        "strength": 7.22,
-        "horiz": 0.733,
-        "cv": 1.207
+        "strength": 14.59,
+        "horiz": 0.735,
+        "cv": 0.938
       },
       {
-        "y": 701,
-        "strength": 6.96,
-        "horiz": 0.674,
-        "cv": 1.275
+        "y": 743,
+        "strength": 14.29,
+        "horiz": 0.705,
+        "cv": 0.842
       },
       {
-        "y": 787,
-        "strength": 6.93,
-        "horiz": 0.69,
-        "cv": 0.99
-      },
-      {
-        "y": 767,
-        "strength": 6.92,
-        "horiz": 0.722,
-        "cv": 1.125
-      },
-      {
-        "y": 756,
-        "strength": 6.62,
-        "horiz": 0.717,
-        "cv": 1.257
-      },
-      {
-        "y": 732,
-        "strength": 6.54,
-        "horiz": 0.759,
-        "cv": 1.27
-      },
-      {
-        "y": 710,
-        "strength": 6.3,
-        "horiz": 0.711,
-        "cv": 1.024
+        "y": 722,
+        "strength": 14.23,
+        "horiz": 0.765,
+        "cv": 0.944
       },
       {
         "y": 715,
-        "strength": 6.29,
-        "horiz": 0.749,
-        "cv": 1.172
+        "strength": 14.16,
+        "horiz": 0.712,
+        "cv": 0.944
+      },
+      {
+        "y": 843,
+        "strength": 14.14,
+        "horiz": 0.72,
+        "cv": 0.993
+      },
+      {
+        "y": 753,
+        "strength": 14.04,
+        "horiz": 0.773,
+        "cv": 1.131
+      },
+      {
+        "y": 793,
+        "strength": 13.77,
+        "horiz": 0.705,
+        "cv": 0.96
+      },
+      {
+        "y": 769,
+        "strength": 13.66,
+        "horiz": 0.727,
+        "cv": 0.999
+      },
+      {
+        "y": 859,
+        "strength": 13.62,
+        "horiz": 0.758,
+        "cv": 1.136
+      },
+      {
+        "y": 827,
+        "strength": 13.59,
+        "horiz": 0.689,
+        "cv": 1.052
+      },
+      {
+        "y": 703,
+        "strength": 13.58,
+        "horiz": 0.773,
+        "cv": 0.88
+      },
+      {
+        "y": 777,
+        "strength": 13.42,
+        "horiz": 0.682,
+        "cv": 0.954
+      },
+      {
+        "y": 696,
+        "strength": 13.19,
+        "horiz": 0.765,
+        "cv": 0.831
+      },
+      {
+        "y": 805,
+        "strength": 13.08,
+        "horiz": 0.735,
+        "cv": 1.019
+      },
+      {
+        "y": 849,
+        "strength": 13.07,
+        "horiz": 0.742,
+        "cv": 1.103
+      },
+      {
+        "y": 782,
+        "strength": 13.05,
+        "horiz": 0.773,
+        "cv": 1.071
+      },
+      {
+        "y": 759,
+        "strength": 12.95,
+        "horiz": 0.727,
+        "cv": 1.001
+      },
+      {
+        "y": 875,
+        "strength": 12.92,
+        "horiz": 0.689,
+        "cv": 0.87
+      },
+      {
+        "y": 832,
+        "strength": 12.75,
+        "horiz": 0.758,
+        "cv": 1.234
+      },
+      {
+        "y": 748,
+        "strength": 12.58,
+        "horiz": 0.765,
+        "cv": 1.026
+      },
+      {
+        "y": 899,
+        "strength": 12.5,
+        "horiz": 0.72,
+        "cv": 0.93
+      },
+      {
+        "y": 813,
+        "strength": 12.35,
+        "horiz": 0.674,
+        "cv": 1.092
+      },
+      {
+        "y": 821,
+        "strength": 12.08,
+        "horiz": 0.742,
+        "cv": 1.031
+      },
+      {
+        "y": 709,
+        "strength": 12.02,
+        "horiz": 0.75,
+        "cv": 0.926
+      },
+      {
+        "y": 865,
+        "strength": 11.99,
+        "horiz": 0.727,
+        "cv": 0.943
+      },
+      {
+        "y": 787,
+        "strength": 11.94,
+        "horiz": 0.765,
+        "cv": 1.175
+      },
+      {
+        "y": 883,
+        "strength": 11.76,
+        "horiz": 0.758,
+        "cv": 0.802
+      },
+      {
+        "y": 764,
+        "strength": 11.59,
+        "horiz": 0.689,
+        "cv": 1.209
+      },
+      {
+        "y": 690,
+        "strength": 11.5,
+        "horiz": 0.78,
+        "cv": 0.758
+      },
+      {
+        "y": 682,
+        "strength": 11.43,
+        "horiz": 0.705,
+        "cv": 0.756
+      },
+      {
+        "y": 838,
+        "strength": 11.42,
+        "horiz": 0.712,
+        "cv": 1.104
+      },
+      {
+        "y": 891,
+        "strength": 10.58,
+        "horiz": 0.773,
+        "cv": 0.929
+      },
+      {
+        "y": 854,
+        "strength": 10.44,
+        "horiz": 0.773,
+        "cv": 0.903
+      },
+      {
+        "y": 870,
+        "strength": 10.1,
+        "horiz": 0.78,
+        "cv": 1.097
+      },
+      {
+        "y": 676,
+        "strength": 8.96,
+        "horiz": 0.758,
+        "cv": 0.706
+      },
+      {
+        "y": 670,
+        "strength": 7.24,
+        "horiz": 0.697,
+        "cv": 0.759
+      },
+      {
+        "y": 630,
+        "strength": 5.62,
+        "horiz": 0.697,
+        "cv": 0.73
+      },
+      {
+        "y": 664,
+        "strength": 5.4,
+        "horiz": 0.712,
+        "cv": 0.902
       }
     ],
     "floor_window": {
       "window": [
-        638,
-        662
+        635,
+        655
       ],
       "window_profile": [
-        13.95,
-        12.8,
-        13.51,
-        13.08,
-        13.31,
-        11.59,
-        11.43,
-        10.58,
-        9.7,
-        10.92,
-        8.63,
-        2.89,
-        7.4,
-        8.6,
-        10.18,
-        11.47,
-        14.29,
-        15.06,
-        17.54,
-        18.01,
-        20.31,
-        20.37,
-        22.59,
-        22.03,
-        25.22
+        5.03,
+        5.02,
+        4.35,
+        4.48,
+        4.0,
+        4.1,
+        3.53,
+        3.85,
+        3.02,
+        1.63,
+        2.36,
+        2.86,
+        2.55,
+        3.24,
+        3.28,
+        4.49,
+        5.23,
+        7.22,
+        8.71,
+        11.91,
+        14.23
       ],
-      "window_profile_first_row": 638,
-      "automatic_lowest_true_horizontal": 629
+      "window_profile_first_row": 635,
+      "automatic_lowest_true_horizontal": null
     },
     "rail_cands": [
       {
-        "y": 528,
-        "strength": 24.53,
-        "horiz": 0.968,
-        "cv": 0.324
+        "y": 544,
+        "strength": 6.22,
+        "horiz": 0.879,
+        "cv": 0.505
       },
       {
-        "y": 614,
-        "strength": 11.88,
-        "horiz": 0.658,
-        "cv": 0.714
+        "y": 554,
+        "strength": 3.83,
+        "horiz": 0.735,
+        "cv": 0.664
       },
       {
-        "y": 541,
-        "strength": 11.84,
-        "horiz": 0.679,
-        "cv": 0.684
+        "y": 617,
+        "strength": 3.25,
+        "horiz": 0.697,
+        "cv": 0.772
       },
       {
-        "y": 517,
-        "strength": 9.87,
-        "horiz": 0.727,
-        "cv": 0.601
+        "y": 536,
+        "strength": 2.2,
+        "horiz": 0.78,
+        "cv": 0.778
       },
       {
-        "y": 457,
-        "strength": 1.89,
-        "horiz": 0.791,
-        "cv": 1.625
+        "y": 479,
+        "strength": 0.88,
+        "horiz": 0.598,
+        "cv": 2.328
       },
       {
-        "y": 475,
-        "strength": 1.8,
-        "horiz": 0.845,
-        "cv": 1.037
+        "y": 523,
+        "strength": 0.87,
+        "horiz": 0.689,
+        "cv": 0.789
       },
       {
-        "y": 567,
-        "strength": 1.74,
-        "horiz": 0.813,
-        "cv": 0.888
+        "y": 577,
+        "strength": 0.84,
+        "horiz": 0.629,
+        "cv": 0.896
       },
       {
-        "y": 549,
-        "strength": 1.69,
-        "horiz": 0.749,
-        "cv": 1.066
+        "y": 487,
+        "strength": 0.83,
+        "horiz": 0.697,
+        "cv": 0.779
       },
       {
-        "y": 505,
-        "strength": 1.67,
-        "horiz": 0.749,
-        "cv": 1.429
+        "y": 511,
+        "strength": 0.81,
+        "horiz": 0.652,
+        "cv": 0.847
       },
       {
-        "y": 483,
-        "strength": 1.66,
-        "horiz": 0.765,
-        "cv": 1.056
+        "y": 569,
+        "strength": 0.81,
+        "horiz": 0.659,
+        "cv": 0.896
       }
     ],
-    "corner_ref_strength": 41.6,
-    "corner_vertical_edge_x0": 586,
-    "corner_vertical_edge_x1": 934,
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 665,
+    "corner_vertical_edge_x1": 897,
     "ceiling_ramp_vp": {
-      "x": 759.9,
-      "y": 476.6,
-      "left_slope": 1.0162,
-      "right_slope": -1.0107,
-      "left_n": 61,
-      "left_resid_px": 0.29,
+      "x": 683.6,
+      "y": 370.0,
+      "left_slope": 1.3694,
+      "right_slope": -0.3085,
+      "left_n": 60,
+      "left_resid_px": 0.3,
       "right_n": 61,
-      "right_resid_px": 0.33
+      "right_resid_px": 15.8
     },
     "votes": {
       "floor": {
-        "x": 756,
-        "y": 503,
+        "x": 768,
+        "y": 521,
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 760,
-        "y": 469,
-        "edge_px": 16067
+        "x": 770,
+        "y": 490,
+        "edge_px": 30000
       },
       "side_walls": {
-        "x": 740,
-        "y": 457,
-        "edge_px": 1691
+        "x": 770,
+        "y": 507,
+        "edge_px": 4494
       }
     },
-    "calib_px": 272,
-    "ppm": 136.0,
+    "calib_px": 231.0,
+    "ppm": 88.846,
+    "rulers": [
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 231.0,
+        "ruled_m": 2.6,
+        "px_per_m_at_wall": 88.846,
+        "implied_focal_px": 533.1,
+        "delta_pct": -47.22,
+        "admissible": true,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 311.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 111.071,
+        "implied_focal_px": 666.4,
+        "delta_pct": -34.02,
+        "admissible": true,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control."
+      }
+    ],
+    "primary": {
+      "name": "plan_wall_width",
+      "tier": 3,
+      "feature_px": 231.0,
+      "ruled_m": 2.6,
+      "px_per_m_at_wall": 88.846,
+      "implied_focal_px": 533.1,
+      "delta_pct": -47.22,
+      "admissible": true,
+      "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed."
+    },
+    "verdict": "FAIL",
+    "withheld_because": [],
+    "ruler_agreement_pct": 22.23,
+    "module": null,
+    "bays": null,
+    "wall_band_audit": null,
     "derived": {
-      "eye_height_m": 1.1691176470588236,
-      "storey_height_m": 2.6176470588235294,
-      "px_per_m_at_bottom": 456.75471698113205,
-      "nearest_visible_floor_m": 2.2419035029742234,
-      "implied_camera_wall_m": 7.529411764705882,
-      "implied_wall_width_m": 2.713235294117647
+      "eye_height_m": 1.553249442856178,
+      "storey_height_m": 3.500438961799068,
+      "px_per_m_at_bottom": 333.4944057971015,
+      "nearest_visible_floor_m": 3.070516273136537,
+      "implied_camera_wall_m": 11.525561083222655,
+      "implied_wall_width_m": null
     },
     "light": {
       "key_dir_measured": "C",
-      "key_dir_brightest_x": 814,
-      "key_dir_brightest_y": 536,
-      "key_tint": "#c88953",
+      "key_dir_brightest_x": 778,
+      "key_dir_brightest_y": 734,
+      "key_tint": "#c8b59c",
       "key_tint_patch": [
-        614,
-        935,
-        223,
-        285
+        664,
+        875,
+        263,
+        325
       ],
       "key_tint_patch_mean_rgb": [
-        128.51,
-        88.26,
-        53.1
+        121.75,
+        109.99,
+        94.85
       ],
       "key_tint_alternates": {
-        "floor_under_brightest": "#c88247",
-        "floor_bottom_strip": "#c89c79",
-        "mid_wall_right": "#c86c27",
-        "mid_wall_left": "#c86f2f",
-        "brightest_21x21_patch": "#c88d47"
+        "floor_under_brightest": "#bfc1c8",
+        "floor_bottom_strip": "#c8b09d",
+        "mid_wall_right": "#c8c5c0",
+        "mid_wall_left": "#c8c5c1",
+        "brightest_21x21_patch": "#c0c3c8"
       },
       "brightest_21x21_patch_centre_px": [
-        814,
-        536
+        778,
+        734
       ],
-      "sobel_bright_side_deg_whole_frame": 121.25,
-      "sobel_bright_side_deg_wall_band": -126.01,
-      "left_third_minus_right_third_luminance_whole_frame": 3.681,
-      "left_third_minus_right_third_luminance_wall_band": 4.398
+      "sobel_bright_side_deg_whole_frame": 103.61,
+      "sobel_bright_side_deg_wall_band": 172.2,
+      "left_third_minus_right_third_luminance_whole_frame": -1.277,
+      "left_third_minus_right_third_luminance_wall_band": -3.378
+    },
+    "opening": null,
+    "fire": null,
+    "raw_ceiling_line_y_px": 333,
+    "raw_floor_line_y_px": 644
+  },
+  "hall/S": {
+    "facing": "hall/S",
+    "src": "backdrops/source/passage-S/cand-2.png",
+    "cfg_calib": null,
+    "measured": {
+      "wall_ceiling_line_y_px": null,
+      "wall_floor_line_y_px": null,
+      "horizon_y_px": null,
+      "horizon_x_px": null,
+      "corner_x0_px": null,
+      "corner_x1_px": null,
+      "dado_rail_top_y_px": null,
+      "dado_rail_above_floor_px": null
+    },
+    "ceil_cands": [
+      {
+        "y": 164,
+        "strength": 20.15,
+        "horiz": 0.676,
+        "cv": 0.654
+      },
+      {
+        "y": 170,
+        "strength": 14.99,
+        "horiz": 0.71,
+        "cv": 0.728
+      },
+      {
+        "y": 198,
+        "strength": 8.72,
+        "horiz": 0.707,
+        "cv": 1.136
+      },
+      {
+        "y": 189,
+        "strength": 7.67,
+        "horiz": 0.698,
+        "cv": 1.089
+      },
+      {
+        "y": 19,
+        "strength": 7.31,
+        "horiz": 0.82,
+        "cv": 0.504
+      },
+      {
+        "y": 183,
+        "strength": 7.19,
+        "horiz": 0.691,
+        "cv": 1.087
+      },
+      {
+        "y": 11,
+        "strength": 6.92,
+        "horiz": 0.745,
+        "cv": 0.527
+      },
+      {
+        "y": 177,
+        "strength": 6.63,
+        "horiz": 0.694,
+        "cv": 1.066
+      },
+      {
+        "y": 66,
+        "strength": 5.1,
+        "horiz": 0.641,
+        "cv": 0.768
+      },
+      {
+        "y": 55,
+        "strength": 5.08,
+        "horiz": 0.69,
+        "cv": 0.741
+      },
+      {
+        "y": 49,
+        "strength": 2.98,
+        "horiz": 0.796,
+        "cv": 1.497
+      },
+      {
+        "y": 40,
+        "strength": 1.67,
+        "horiz": 0.779,
+        "cv": 0.994
+      }
+    ],
+    "floor_cands": [
+      {
+        "y": 915,
+        "strength": 2.09,
+        "horiz": 0.708,
+        "cv": 0.958
+      },
+      {
+        "y": 873,
+        "strength": 2.07,
+        "horiz": 0.722,
+        "cv": 1.072
+      },
+      {
+        "y": 859,
+        "strength": 2.07,
+        "horiz": 0.708,
+        "cv": 0.951
+      },
+      {
+        "y": 923,
+        "strength": 2.07,
+        "horiz": 0.752,
+        "cv": 1.02
+      },
+      {
+        "y": 891,
+        "strength": 2.04,
+        "horiz": 0.706,
+        "cv": 0.933
+      },
+      {
+        "y": 939,
+        "strength": 2.02,
+        "horiz": 0.705,
+        "cv": 0.933
+      },
+      {
+        "y": 883,
+        "strength": 2.02,
+        "horiz": 0.727,
+        "cv": 0.933
+      },
+      {
+        "y": 865,
+        "strength": 2.01,
+        "horiz": 0.73,
+        "cv": 0.957
+      },
+      {
+        "y": 897,
+        "strength": 2.0,
+        "horiz": 0.746,
+        "cv": 0.927
+      },
+      {
+        "y": 931,
+        "strength": 1.99,
+        "horiz": 0.704,
+        "cv": 0.933
+      },
+      {
+        "y": 853,
+        "strength": 1.97,
+        "horiz": 0.74,
+        "cv": 0.952
+      },
+      {
+        "y": 903,
+        "strength": 1.97,
+        "horiz": 0.788,
+        "cv": 0.989
+      },
+      {
+        "y": 955,
+        "strength": 1.96,
+        "horiz": 0.75,
+        "cv": 0.991
+      },
+      {
+        "y": 909,
+        "strength": 1.89,
+        "horiz": 0.776,
+        "cv": 0.937
+      },
+      {
+        "y": 945,
+        "strength": 1.84,
+        "horiz": 0.794,
+        "cv": 0.925
+      },
+      {
+        "y": 961,
+        "strength": 1.83,
+        "horiz": 0.757,
+        "cv": 0.981
+      },
+      {
+        "y": 971,
+        "strength": 1.74,
+        "horiz": 0.765,
+        "cv": 0.954
+      },
+      {
+        "y": 983,
+        "strength": 1.68,
+        "horiz": 0.756,
+        "cv": 0.947
+      },
+      {
+        "y": 1003,
+        "strength": 1.65,
+        "horiz": 0.749,
+        "cv": 0.917
+      },
+      {
+        "y": 977,
+        "strength": 1.65,
+        "horiz": 0.767,
+        "cv": 0.934
+      },
+      {
+        "y": 989,
+        "strength": 1.61,
+        "horiz": 0.773,
+        "cv": 0.962
+      },
+      {
+        "y": 950,
+        "strength": 1.58,
+        "horiz": 0.742,
+        "cv": 1.005
+      },
+      {
+        "y": 878,
+        "strength": 1.58,
+        "horiz": 0.753,
+        "cv": 0.922
+      },
+      {
+        "y": 997,
+        "strength": 1.58,
+        "horiz": 0.753,
+        "cv": 1.004
+      },
+      {
+        "y": 966,
+        "strength": 1.45,
+        "horiz": 0.736,
+        "cv": 0.962
+      },
+      {
+        "y": 1011,
+        "strength": 1.42,
+        "horiz": 0.742,
+        "cv": 0.879
+      }
+    ],
+    "floor_window": {
+      "window": [
+        995,
+        1015
+      ],
+      "window_profile": [
+        17.73,
+        18.45,
+        17.56,
+        18.31,
+        17.56,
+        18.43,
+        17.41,
+        17.99,
+        17.18,
+        17.66,
+        16.74,
+        17.36,
+        16.43,
+        16.96,
+        16.02,
+        16.64,
+        16.02,
+        16.83,
+        16.19,
+        16.82,
+        16.11
+      ],
+      "window_profile_first_row": 995,
+      "automatic_lowest_true_horizontal": null
+    },
+    "rail_cands": [
+      {
+        "y": 742,
+        "strength": 47.77,
+        "horiz": 0.964,
+        "cv": 0.33
+      },
+      {
+        "y": 763,
+        "strength": 40.84,
+        "horiz": 1.0,
+        "cv": 0.164
+      },
+      {
+        "y": 734,
+        "strength": 30.23,
+        "horiz": 0.771,
+        "cv": 0.544
+      },
+      {
+        "y": 797,
+        "strength": 20.31,
+        "horiz": 0.652,
+        "cv": 0.75
+      },
+      {
+        "y": 750,
+        "strength": 16.36,
+        "horiz": 0.918,
+        "cv": 0.494
+      },
+      {
+        "y": 788,
+        "strength": 16.04,
+        "horiz": 0.778,
+        "cv": 0.612
+      },
+      {
+        "y": 641,
+        "strength": 11.29,
+        "horiz": 0.73,
+        "cv": 1.013
+      },
+      {
+        "y": 585,
+        "strength": 11.25,
+        "horiz": 0.724,
+        "cv": 1.041
+      },
+      {
+        "y": 555,
+        "strength": 11.13,
+        "horiz": 0.72,
+        "cv": 1.017
+      },
+      {
+        "y": 669,
+        "strength": 10.93,
+        "horiz": 0.713,
+        "cv": 1.112
+      }
+    ],
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 232,
+    "corner_vertical_edge_x1": 1300,
+    "ceiling_ramp_vp": null,
+    "votes": {},
+    "calib_px": null,
+    "ppm": null,
+    "rulers": [],
+    "primary": null,
+    "verdict": "WITHHELD",
+    "withheld_because": [
+      "no admissible ruler at tiers 1-3. This facing paints no floor line, no ceiling line, no corner and no feature of ruled size, which is exactly what its prompt demanded; see _wall_band_audit."
+    ],
+    "ruler_agreement_pct": null,
+    "module": null,
+    "bays": null,
+    "wall_band_audit": {
+      "strongest_true_horizontal_in_top_band": {
+        "y": 164,
+        "strength": 20.15,
+        "horiz": 0.676,
+        "cv": 0.654
+      },
+      "strongest_true_horizontal_in_bottom_band": {
+        "y": 915,
+        "strength": 2.09,
+        "horiz": 0.708,
+        "cv": 0.958
+      },
+      "top_band_candidates": [
+        {
+          "y": 164,
+          "strength": 20.15,
+          "horiz": 0.676,
+          "cv": 0.654
+        },
+        {
+          "y": 198,
+          "strength": 8.72,
+          "horiz": 0.707,
+          "cv": 1.136
+        },
+        {
+          "y": 189,
+          "strength": 7.67,
+          "horiz": 0.698,
+          "cv": 1.089
+        },
+        {
+          "y": 19,
+          "strength": 7.31,
+          "horiz": 0.82,
+          "cv": 0.504
+        }
+      ],
+      "bottom_band_candidates": [
+        {
+          "y": 915,
+          "strength": 2.09,
+          "horiz": 0.708,
+          "cv": 0.958
+        },
+        {
+          "y": 873,
+          "strength": 2.07,
+          "horiz": 0.722,
+          "cv": 1.072
+        },
+        {
+          "y": 859,
+          "strength": 2.07,
+          "horiz": 0.708,
+          "cv": 0.951
+        },
+        {
+          "y": 923,
+          "strength": 2.07,
+          "horiz": 0.752,
+          "cv": 1.02
+        }
+      ],
+      "mean_luma_top_40_rows": 7.7,
+      "mean_luma_bottom_40_rows": 16.49,
+      "mean_luma_middle_40_rows": 47.34,
+      "reading": "A wall-ceiling junction on the four study facings measures a step of 55-67 at a horizontality of 0.97-1.00 with plaster above it at a mean luma of 84-155. Here the strongest true horizontal in the top band and the strongest in the bottom band are the panelling's own rails, the frame's top 40 rows are dark oak, and the corner scan run at any candidate ceiling row returns a different pair of columns each time - which is what a corner detector does when there is no corner. No floor line, no ceiling line, no corner, no feature of ruled size: nothing on this facing can be converted into px_per_m_at_wall, and none is."
+    },
+    "derived": {
+      "eye_height_m": null,
+      "storey_height_m": null,
+      "px_per_m_at_bottom": null,
+      "nearest_visible_floor_m": null,
+      "implied_camera_wall_m": null,
+      "implied_wall_width_m": null
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 10,
+      "key_dir_brightest_y": 438,
+      "key_tint": "#c88958",
+      "key_tint_patch": [
+        0,
+        210,
+        93,
+        155
+      ],
+      "key_tint_patch_mean_rgb": [
+        25.6,
+        17.57,
+        11.31
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8ae82",
+        "floor_bottom_strip": "#c87033",
+        "mid_wall_right": "#c85f10",
+        "mid_wall_left": "#c5bfc8",
+        "brightest_21x21_patch": "#9bacc8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        10,
+        438
+      ],
+      "sobel_bright_side_deg_whole_frame": 45.46,
+      "sobel_bright_side_deg_wall_band": 36.13,
+      "left_third_minus_right_third_luminance_whole_frame": 17.826,
+      "left_third_minus_right_third_luminance_wall_band": 20.29
+    },
+    "opening": null,
+    "fire": null,
+    "raw_ceiling_line_y_px": 163,
+    "raw_floor_line_y_px": 1009
+  },
+  "hall/W": {
+    "facing": "hall/W",
+    "src": "backdrops/source/passage-W/cand-2.png",
+    "cfg_calib": null,
+    "measured": {
+      "wall_ceiling_line_y_px": 340,
+      "wall_floor_line_y_px": 638,
+      "horizon_y_px": 506,
+      "horizon_x_px": 768,
+      "corner_x0_px": 618,
+      "corner_x1_px": 915,
+      "dado_rail_top_y_px": 536,
+      "dado_rail_above_floor_px": 102,
+      "corner_midpoint_px": 766.5,
+      "opening_x0_px": 709,
+      "opening_x1_px": 825,
+      "opening_y0_px": 426,
+      "opening_y1_px": 638,
+      "opening_width_px": 116,
+      "opening_height_px": 212,
+      "opening_aspect_h_over_w": 1.828
+    },
+    "ceil_cands": [
+      {
+        "y": 341,
+        "strength": 20.02,
+        "horiz": 1.0,
+        "cv": 0.179
+      },
+      {
+        "y": 403,
+        "strength": 5.16,
+        "horiz": 0.565,
+        "cv": 2.933
+      },
+      {
+        "y": 333,
+        "strength": 4.54,
+        "horiz": 0.891,
+        "cv": 0.571
+      },
+      {
+        "y": 365,
+        "strength": 4.38,
+        "horiz": 0.88,
+        "cv": 0.442
+      },
+      {
+        "y": 281,
+        "strength": 3.9,
+        "horiz": 0.761,
+        "cv": 0.779
+      },
+      {
+        "y": 264,
+        "strength": 3.79,
+        "horiz": 0.793,
+        "cv": 0.741
+      },
+      {
+        "y": 327,
+        "strength": 3.79,
+        "horiz": 0.761,
+        "cv": 0.911
+      },
+      {
+        "y": 307,
+        "strength": 3.53,
+        "horiz": 0.717,
+        "cv": 0.921
+      },
+      {
+        "y": 355,
+        "strength": 3.48,
+        "horiz": 1.0,
+        "cv": 0.346
+      },
+      {
+        "y": 294,
+        "strength": 3.39,
+        "horiz": 0.793,
+        "cv": 0.664
+      },
+      {
+        "y": 234,
+        "strength": 3.2,
+        "horiz": 0.728,
+        "cv": 0.793
+      },
+      {
+        "y": 270,
+        "strength": 3.15,
+        "horiz": 0.728,
+        "cv": 0.916
+      }
+    ],
+    "floor_cands": [
+      {
+        "y": 537,
+        "strength": 12.5,
+        "horiz": 0.728,
+        "cv": 0.582
+      },
+      {
+        "y": 619,
+        "strength": 11.35,
+        "horiz": 0.859,
+        "cv": 0.447
+      },
+      {
+        "y": 529,
+        "strength": 8.57,
+        "horiz": 0.717,
+        "cv": 0.647
+      },
+      {
+        "y": 893,
+        "strength": 8.05,
+        "horiz": 0.75,
+        "cv": 1.035
+      },
+      {
+        "y": 874,
+        "strength": 7.69,
+        "horiz": 0.696,
+        "cv": 1.054
+      },
+      {
+        "y": 900,
+        "strength": 7.21,
+        "horiz": 0.783,
+        "cv": 0.928
+      },
+      {
+        "y": 807,
+        "strength": 6.87,
+        "horiz": 0.728,
+        "cv": 0.889
+      },
+      {
+        "y": 819,
+        "strength": 6.85,
+        "horiz": 0.772,
+        "cv": 0.991
+      },
+      {
+        "y": 831,
+        "strength": 6.81,
+        "horiz": 0.707,
+        "cv": 0.776
+      },
+      {
+        "y": 862,
+        "strength": 6.72,
+        "horiz": 0.685,
+        "cv": 0.817
+      },
+      {
+        "y": 667,
+        "strength": 6.57,
+        "horiz": 0.783,
+        "cv": 1.116
+      },
+      {
+        "y": 887,
+        "strength": 6.54,
+        "horiz": 0.783,
+        "cv": 0.687
+      },
+      {
+        "y": 839,
+        "strength": 6.5,
+        "horiz": 0.685,
+        "cv": 1.053
+      },
+      {
+        "y": 844,
+        "strength": 6.5,
+        "horiz": 0.728,
+        "cv": 1.11
+      },
+      {
+        "y": 777,
+        "strength": 6.36,
+        "horiz": 0.772,
+        "cv": 1.243
+      },
+      {
+        "y": 724,
+        "strength": 6.28,
+        "horiz": 0.739,
+        "cv": 1.08
+      },
+      {
+        "y": 747,
+        "strength": 6.27,
+        "horiz": 0.641,
+        "cv": 0.982
+      },
+      {
+        "y": 783,
+        "strength": 6.17,
+        "horiz": 0.717,
+        "cv": 0.882
+      },
+      {
+        "y": 869,
+        "strength": 6.12,
+        "horiz": 0.793,
+        "cv": 1.123
+      },
+      {
+        "y": 825,
+        "strength": 5.93,
+        "horiz": 0.761,
+        "cv": 1.079
+      },
+      {
+        "y": 547,
+        "strength": 5.93,
+        "horiz": 0.728,
+        "cv": 0.675
+      },
+      {
+        "y": 813,
+        "strength": 5.88,
+        "horiz": 0.772,
+        "cv": 1.024
+      },
+      {
+        "y": 857,
+        "strength": 5.79,
+        "horiz": 0.75,
+        "cv": 1.009
+      },
+      {
+        "y": 715,
+        "strength": 5.76,
+        "horiz": 0.761,
+        "cv": 1.066
+      },
+      {
+        "y": 759,
+        "strength": 5.71,
+        "horiz": 0.772,
+        "cv": 1.053
+      },
+      {
+        "y": 791,
+        "strength": 5.68,
+        "horiz": 0.75,
+        "cv": 0.878
+      },
+      {
+        "y": 674,
+        "strength": 5.64,
+        "horiz": 0.793,
+        "cv": 1.125
+      },
+      {
+        "y": 611,
+        "strength": 5.52,
+        "horiz": 0.739,
+        "cv": 0.631
+      },
+      {
+        "y": 710,
+        "strength": 5.46,
+        "horiz": 0.783,
+        "cv": 1.09
+      },
+      {
+        "y": 680,
+        "strength": 5.44,
+        "horiz": 0.815,
+        "cv": 1.074
+      },
+      {
+        "y": 687,
+        "strength": 5.42,
+        "horiz": 0.761,
+        "cv": 0.895
+      },
+      {
+        "y": 881,
+        "strength": 5.36,
+        "horiz": 0.685,
+        "cv": 0.82
+      },
+      {
+        "y": 735,
+        "strength": 5.36,
+        "horiz": 0.707,
+        "cv": 0.962
+      },
+      {
+        "y": 851,
+        "strength": 5.28,
+        "horiz": 0.783,
+        "cv": 1.127
+      },
+      {
+        "y": 798,
+        "strength": 5.08,
+        "horiz": 0.739,
+        "cv": 1.055
+      },
+      {
+        "y": 771,
+        "strength": 5.03,
+        "horiz": 0.772,
+        "cv": 1.088
+      },
+      {
+        "y": 695,
+        "strength": 4.92,
+        "horiz": 0.815,
+        "cv": 1.229
+      },
+      {
+        "y": 701,
+        "strength": 4.86,
+        "horiz": 0.739,
+        "cv": 1.063
+      },
+      {
+        "y": 753,
+        "strength": 4.81,
+        "horiz": 0.815,
+        "cv": 1.111
+      },
+      {
+        "y": 765,
+        "strength": 4.78,
+        "horiz": 0.75,
+        "cv": 1.0
+      }
+    ],
+    "floor_window": {
+      "window": [
+        628,
+        650
+      ],
+      "window_profile": [
+        15.11,
+        14.53,
+        14.98,
+        13.83,
+        13.41,
+        11.7,
+        11.47,
+        10.16,
+        10.32,
+        8.69,
+        4.15,
+        6.0,
+        9.21,
+        11.03,
+        14.7,
+        16.55,
+        19.57,
+        21.1,
+        24.17,
+        24.77,
+        28.13,
+        29.5,
+        30.81
+      ],
+      "window_profile_first_row": 628,
+      "automatic_lowest_true_horizontal": null
+    },
+    "rail_cands": [
+      {
+        "y": 537,
+        "strength": 12.5,
+        "horiz": 0.728,
+        "cv": 0.582
+      },
+      {
+        "y": 619,
+        "strength": 11.35,
+        "horiz": 0.859,
+        "cv": 0.447
+      },
+      {
+        "y": 529,
+        "strength": 8.57,
+        "horiz": 0.717,
+        "cv": 0.647
+      },
+      {
+        "y": 547,
+        "strength": 5.93,
+        "horiz": 0.728,
+        "cv": 0.675
+      },
+      {
+        "y": 611,
+        "strength": 5.52,
+        "horiz": 0.739,
+        "cv": 0.631
+      },
+      {
+        "y": 479,
+        "strength": 1.84,
+        "horiz": 0.739,
+        "cv": 0.833
+      },
+      {
+        "y": 491,
+        "strength": 1.75,
+        "horiz": 0.815,
+        "cv": 1.127
+      },
+      {
+        "y": 501,
+        "strength": 1.7,
+        "horiz": 0.783,
+        "cv": 1.366
+      },
+      {
+        "y": 555,
+        "strength": 1.63,
+        "horiz": 0.717,
+        "cv": 0.867
+      },
+      {
+        "y": 454,
+        "strength": 1.54,
+        "horiz": 0.772,
+        "cv": 1.176
+      }
+    ],
+    "corner_ref_strength": null,
+    "corner_vertical_edge_x0": 622,
+    "corner_vertical_edge_x1": 911,
+    "ceiling_ramp_vp": {
+      "x": 765.6,
+      "y": 490.6,
+      "left_slope": 1.0489,
+      "right_slope": -1.0329,
+      "left_n": 61,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.31
+    },
+    "votes": {
+      "floor": {
+        "x": 770,
+        "y": 517,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 764,
+        "y": 488,
+        "edge_px": 15902
+      },
+      "side_walls": {
+        "x": 776,
+        "y": 479,
+        "edge_px": 1456
+      }
+    },
+    "calib_px": 212.0,
+    "ppm": 106.0,
+    "rulers": [
+      {
+        "name": "door_height",
+        "tier": 1,
+        "feature_px": 212.0,
+        "ruled_m": 2.0,
+        "px_per_m_at_wall": 106.0,
+        "implied_focal_px": 636.0,
+        "delta_pct": -37.03,
+        "admissible": true,
+        "what": "the painted door opening's height at the wall plane, head shadow line to threshold, against the 1.00 x 2.00 m opening blueprint \u00a711 rules and the facing's own prompt restates. The LONGER dimension of the two, which is the committed method's choice and carries the smaller relative reading error."
+      },
+      {
+        "name": "door_width",
+        "tier": 1,
+        "feature_px": 116.0,
+        "ruled_m": 1.0,
+        "px_per_m_at_wall": 116.0,
+        "implied_focal_px": 696.0,
+        "delta_pct": -31.09,
+        "admissible": true,
+        "what": "the same opening's width at the wall plane, jamb shadow line to jamb shadow line, against the ruled 1.00 m. Read as a separate ruler so the aspect the painting actually drew is visible instead of averaged away."
+      },
+      {
+        "name": "plan_wall_width",
+        "tier": 3,
+        "feature_px": 297.0,
+        "ruled_m": 2.6,
+        "px_per_m_at_wall": 114.231,
+        "implied_focal_px": 685.4,
+        "delta_pct": -32.14,
+        "admissible": false,
+        "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      },
+      {
+        "name": "plan_storey",
+        "tier": 3,
+        "feature_px": 298.0,
+        "ruled_m": 2.8,
+        "px_per_m_at_wall": 106.429,
+        "implied_focal_px": 638.6,
+        "delta_pct": -36.78,
+        "admissible": false,
+        "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+        "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+      }
+    ],
+    "primary": {
+      "name": "door_height",
+      "tier": 1,
+      "feature_px": 212.0,
+      "ruled_m": 2.0,
+      "px_per_m_at_wall": 106.0,
+      "implied_focal_px": 636.0,
+      "delta_pct": -37.03,
+      "admissible": true,
+      "what": "the painted door opening's height at the wall plane, head shadow line to threshold, against the 1.00 x 2.00 m opening blueprint \u00a711 rules and the facing's own prompt restates. The LONGER dimension of the two, which is the committed method's choice and carries the smaller relative reading error."
+    },
+    "verdict": "FAIL",
+    "withheld_because": [],
+    "ruler_agreement_pct": 9.01,
+    "module": null,
+    "bays": null,
+    "wall_band_audit": null,
+    "derived": {
+      "eye_height_m": 1.2452830188679245,
+      "storey_height_m": 2.811320754716981,
+      "px_per_m_at_bottom": 415.969696969697,
+      "nearest_visible_floor_m": 2.4617177824724994,
+      "implied_camera_wall_m": 9.660377358490566,
+      "implied_wall_width_m": 2.80188679245283
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 810,
+      "key_dir_brightest_y": 602,
+      "key_tint": "#c88142",
+      "key_tint_patch": [
+        628,
+        905,
+        270,
+        332
+      ],
+      "key_tint_patch_mean_rgb": [
+        125.66,
+        80.79,
+        41.7
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c87632",
+        "floor_bottom_strip": "#c88857",
+        "mid_wall_right": "#c86b27",
+        "mid_wall_left": "#c86d29",
+        "brightest_21x21_patch": "#c89352"
+      },
+      "brightest_21x21_patch_centre_px": [
+        810,
+        602
+      ],
+      "sobel_bright_side_deg_whole_frame": 128.56,
+      "sobel_bright_side_deg_wall_band": -117.39,
+      "left_third_minus_right_third_luminance_whole_frame": 1.528,
+      "left_third_minus_right_third_luminance_wall_band": 1.172
     },
     "opening": {
-      "opening_x0_px": 698,
+      "opening_x0_px": 709,
       "opening_x1_px": 825,
-      "opening_y0_px": 377,
-      "opening_y1_px": 649,
-      "opening_width_px": 127,
-      "opening_height_px": 272,
-      "opening_aspect_h_over_w": 2.142,
-      "how_opening_x0": "The left jamb's front stone face runs flat at ~85 out to x 697-698, a shadow line falls at 699 (45), and the reveal - brilliantly lit here because the study's fire is behind it - runs 700-703 (99, 191, 170, 152) before the opening's interior at 704 (28). WALL-PLANE edge 698.",
-      "how_opening_x1": "Mirror: the reveal runs 820-823 (177, 169, 163, 186), a shadow line falls at 824-825 (67, 31), and the right jamb's front face holds ~80 from 826. WALL-PLANE edge 825. Note this door is 3 px off-centre to the left of the frame (centre 761.5 against 768).",
-      "how_opening_y0": "Down the opening's columns (x 720-800): the case above the opening sits in shadow at ~20 to y 374, a darker line at 376 (13), then the brightly lit soffit 378-401 (71..98) and the opening's dark head at 402 (2). WALL-PLANE head 376-377; 377 adopted.",
-      "how_opening_y1": "The threshold is the wall-floor line of the end wall, 649. The floor runs continuously through the opening here, so there is no step to read inside it; the jamb plinths' feet are the witness and they sit on 648-649.",
+      "opening_y0_px": 426,
+      "opening_y1_px": 638,
+      "opening_width_px": 116,
+      "opening_height_px": 212,
+      "opening_aspect_h_over_w": 1.828,
+      "how_opening_x0": "Over rows 450-600: the left jamb's stone front face holds ~90 from x 695 to 708, the wall-plane corner falls to 48 at 709, and the reveal - brilliant here because the study's fire is behind it - runs 710-713 (145, 200, 213, 96) before the opening's interior at 714. WALL-PLANE edge 709. The cand-1 window would have looked at 698, where cand-2 paints the dark panelling BEFORE the case.",
+      "how_opening_x1": "Mirror: the opening's interior runs to 820, the right jamb's reveal is lit at 821-824 (155, 177, 181, 154), the wall-plane corner falls to 38 at 825 and the front face holds ~82 from 826 to 840. WALL-PLANE edge 825. The opening's centre is therefore 767.0 against a frame centre of 767.5: this door is centred to half a pixel.",
+      "how_opening_y0": "Down the opening's columns (x 730-810): the lintel face is lit at ~70-113 from y 403 to 425 and the opening's head falls to 11 at 426 and stays below 11. WALL-PLANE head 426.",
+      "how_opening_y1": "The floor runs continuously through this opening, so the threshold is the end wall's own floor line. It is read at 638 and it is read there FOUR times independently - on the left jamb's plinth columns (23), on the right jamb's (17), on the end-wall panelling left of the case (5) and right of it (2) - every one of them bottoming at the same row.",
       "column_edge_candidates": [
         [
-          824,
-          128.0
+          713,
+          130.2
         ],
         [
-          704,
-          127.6
+          825,
+          122.9
         ],
         [
-          843,
-          74.0
+          841,
+          79.5
         ],
         [
-          804,
-          69.5
+          694,
+          77.2
         ],
         [
-          681,
-          63.6
+          799,
+          37.4
         ],
         [
-          770,
-          54.0
+          816,
+          33.4
         ],
         [
-          758,
-          53.6
+          762,
+          25.6
         ],
         [
-          857,
-          38.6
+          740,
+          24.2
         ],
         [
-          698,
-          36.9
+          725,
+          22.5
         ],
         [
-          666,
-          28.5
+          772,
+          16.6
         ]
       ]
     },
-    "fire": null
+    "fire": null,
+    "raw_ceiling_line_y_px": 340,
+    "raw_floor_line_y_px": 638
   }
 }

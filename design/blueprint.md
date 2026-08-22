@@ -1150,6 +1150,23 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
   both rooms too, which §11's symmetry device does not cover: the leaf's origin is fixed in the
   record. Making it per-facing needs somewhere in §4 to say which side the leaf swings — a
   schema addition, so Kabe's call, carried into row 4's batch note with the leaf question.
+- [AI, row 21] **Every backdrop prompt declares its own gate anchor, and no prompt forbids the
+  correction it asks for.** Two rules, both earned by the cand-2 round, in which none of the seven
+  regenerated walls was admitted and three could not even be given a verdict:
+  - *Declare the ruler.* The prompt carries a `Gate anchor:` line naming the feature the
+    acceptance gate will measure and its ruled size in metres — *"Gate anchor: the door opening's
+    height at the wall plane, 2.00 m"*. A wall with no feature of ruled size in it cannot be
+    admitted however well it is painted, because nothing in the picture can be turned into a
+    scale; `hall/N` and `hall/S` were prompted with *"NO floor line … NO corners in frame"* on a
+    wall with *"no feature, carrier, opening, or decoration"*, the paintings obeyed exactly, and
+    both are WITHHELD in the miss ledger for want of a ruler our own prompt forbade.
+  - *Do not forbid the correction.* Five of the seven carried `Avoid: changing the camera scale`
+    in one paragraph and *"move the camera closer until the wall spans about 1346 px"* in the
+    next. The negative won every time: `study/E` and `study/W` came back corner-for-corner
+    identical to the round before them.
+  Both are enforced by `design/plan-draft/measured/prompt_lint.py`, which refuses a prompt rather
+  than leaving the rule to a reader — the production law's own remedy, a cause baked in
+  algorithmically rather than left in a transcript.
 - [AI, row 2] **The painted door opening must coincide with the door leaf's §4 placement
   rectangle.** The page's "walk through" target is that rectangle, computed from the leaf's
   placement; grid mode draws its own opening there, and a real backdrop paints one. If the two

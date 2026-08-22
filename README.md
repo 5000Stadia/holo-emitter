@@ -18,16 +18,23 @@ chevrons. Everything clickable is reachable by keyboard alone too — Tab to it,
 act — and the button in the corner fills the screen with the picture (a plain in-page fallback
 takes over wherever the browser withholds real fullscreen).
 
-So far: two rooms on the holodeck grid, four facings each, furnished with stand-in shapes while
-the real art is fabricated. Each is a room you stand inside rather than a wall you face: the walls
-end in corners where the building's own plan says they do, the side walls run back toward you, and
-there is a ceiling overhead at the height of the storey — so the study is a study-sized room and
-the cross passage is a passage. Everything is drawn through one lens, a 24 mm one, the same on
-every direction you can turn to; before that each direction had a lens of its own and they ran
-from a fisheye to a portrait lens, which made every wall of the study look like the end of a
-corridor. Click things — the desk drawer opens (something waits inside), the
-door between the rooms opens and takes you through, and what you pick up rides in the strip at
-the bottom of the page. The words of the room appear beneath the picture as you act.
+So far: two rooms, four facings each, and the first of them painted. The study's north wall —
+the hearth with a fire in it — is a real room now; every other direction is still the holodeck
+grid, which is what unestablished space looks like from inside the emitter. Each is a room you
+stand inside rather than a wall you face: the walls end in corners where the building's own plan
+says they do, the side walls run back toward you, and there is a ceiling overhead at the height of
+the storey — so the study is a study-sized room and the cross passage is a passage. Everything is
+drawn through one lens, a 24 mm one, the same in every direction you can turn to; before that each
+direction had a lens of its own and they ran from a fisheye to a portrait lens, which made every
+wall of the study look like the end of a corridor. Walk east through the doorway and the passage
+is already visible through it — an opening shows the room on the other side of it, not a black
+rectangle. The words of the room appear beneath the picture as you go.
+
+The painted rooms are empty while the furniture is being made: nothing in them can be picked up or
+opened yet. The furnished world — the desk whose drawer opens on something, the door with a latch,
+the things that ride in the strip at the bottom of the page — is one link away, at
+[`index.html?world=demo-study`](https://5000stadia.github.io/holo-emitter/?world=demo-study),
+standing in with drawn shapes until the real objects arrive.
 
 ## Tests
 
@@ -79,14 +86,25 @@ file itself is wrong, and **5** means the object is outside what the settings we
 
 ## Editing the world
 
-The world lives in `fixtures/demo-study/*.json` (`world.json` is truth, `staging.json` is
-presentation, `viewstate.json` is where you boot). Browsers cannot fetch JSON from `file://`
-pages, so the fixtures are baked into `fixtures/demo-study/fixture.js` — after editing any
-fixture JSON, run:
+There are two worlds in the page and the link picks between them: `fixtures/nav-manor/` is the
+painted one you arrive in, and `fixtures/demo-study/` is the furnished one at `?world=demo-study`.
+Each holds the same four documents (`world.json` is truth, `staging.json` is presentation,
+`narration.json` is what the room says, `viewstate.json` is where you boot). Browsers cannot fetch
+JSON from `file://` pages, so each world is baked into a `fixture.js` beside it — after editing any
+fixture JSON, run the bake for that world:
 
 ```
-node tools/bake-fixtures.mjs
+node tools/bake-fixtures.mjs                                   # the furnished world
+node tools/bake-fixtures.mjs --fixture-dir fixtures/nav-manor   # the painted one
 ```
+
+The paintings themselves are baked the same way and for the same reason:
+`backdrops/<room>/<facing>.png` is the picture, and `node tools/bake-backdrops.mjs` embeds the
+promoted ones into `backdrops/baked.js` so the page can draw them with nothing to fetch. A wall
+only gets there once it has been measured and admitted — `python3
+design/plan-draft/measured/measure.py` measures the candidates, `gate.py` prints the verdict, and
+`node tools/promote-backdrop.mjs --facing study/N --candidate <png>` refuses any candidate the gate
+did not admit.
 
 The bake checks the fixtures first and refuses to bake an invalid world (a coordinate in
 `world.json`, a world fact in `staging.json`, a reference that resolves nowhere, a missing

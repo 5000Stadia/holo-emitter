@@ -29,7 +29,7 @@
  * Every case in this module was written by breaking the thing it guards and
  * watching it go red.
  */
-import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl } from "./helpers.mjs";
+import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl, navUrl } from "./helpers.mjs";
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -58,6 +58,24 @@ function tokensFromMetas(doctor) {
   const metas = shippedMetas();
   doctor(metas);
   return tokensOf(validate(FIXTURE_DIR, RECORDS, metas));
+}
+
+/* [Row 21] The same, on the NAVIGATION fixture — the world whose doorways are
+ * building facts rather than leaves. Two clauses can only be reached from a
+ * world that stages no leaf, and this is the shipped one that does not. */
+const NAV_DIR = join(repoRoot, "fixtures", "nav-manor");
+const NAV_WORLD = JSON.parse(readFileSync(join(NAV_DIR, "world.json"), "utf8"));
+function navMetas() {
+  const out = {};
+  for (const loc of NAV_WORLD.locations) {
+    for (const f of loc.facings) out[`${loc.id}/${f}`] = metaForFacing(PLAN, loc.id, f);
+  }
+  return out;
+}
+function tokensFromNavMetas(doctor) {
+  const metas = navMetas();
+  doctor(metas);
+  return tokensOf(validate(NAV_DIR, RECORDS, metas));
 }
 
 function tokensOf(findings) {
@@ -144,6 +162,13 @@ export const MECHANISMS = [
   // PER ARM. Row 11's first ledger gave `meta.camera_pairing` four arms and
   // exercised one, which is the failure this file's header says it exists to
   // prevent, committed by the file itself.
+  /* [Row 21] The doorway as a fact about the building, and the two ways a
+     world can name a way through that is neither. */
+  "meta.openings_list",
+  "meta.opening_rect",
+  "meta.opening_via",
+  "exit.via_unfilled",
+  "exit.opening_offscreen",
   "meta.required_fields",
   "meta.unknown_key",
   "meta.storey_height",
@@ -202,6 +227,9 @@ export const MECHANISMS = [
   "renderer.corner_verticals",
   "renderer.glyph_stays_on_the_band",
   "renderer.eye_line_needs_a_surface",
+  /* [Row 21] The doorway as a fact about the building, and the room behind it. */
+  "renderer.building_fact_opening",
+  "renderer.through_view",
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
@@ -213,10 +241,16 @@ export const MECHANISMS = [
 
 /** name -> a function returning the set of clause tokens it tripped. */
 const DOCUMENT_CASES = {
-  "meta.required_fields": () => tokensFromMetas((m) => { delete m["study/N"].key_tint; }),
-  "meta.unknown_key": () => tokensFromMetas((m) => { m["study/N"].floor_line = 0.63; }),
-  "meta.storey_height": () => tokensFromMetas((m) => { m["study/N"].storey_height_m = 0.4; }),
-  "meta.facing_type": () => tokensFromMetas((m) => { m["study/N"].facing_type = "outdoors"; }),
+  /* [Row 21] study/W, not study/N. These four doctor the DERIVED meta map the
+     bake hands the validator, and study/N is painted now: its meta is resolved
+     from `backdrops/study/N.meta.json` before the map is consulted, so
+     doctoring the map left the clause untripped and the case green-by-absence.
+     study/W is the same shape of facing with no painting on it. The painted
+     tier has its own case below. */
+  "meta.required_fields": () => tokensFromMetas((m) => { delete m["study/W"].key_tint; }),
+  "meta.unknown_key": () => tokensFromMetas((m) => { m["study/W"].floor_line = 0.63; }),
+  "meta.storey_height": () => tokensFromMetas((m) => { m["study/W"].storey_height_m = 0.4; }),
+  "meta.facing_type": () => tokensFromMetas((m) => { m["study/W"].facing_type = "outdoors"; }),
   "meta.open_needs_far": () => tokensFromMetas((m) => {
     m["hall/S"] = openLike(m["hall/S"]);
     delete m["hall/S"].camera_far_m;
@@ -230,6 +264,37 @@ const DOCUMENT_CASES = {
   }),
   "meta.walled_needs_wall": () => tokensFromMetas((m) => { delete m["hall/S"].camera_wall_m; }),
   "meta.walled_rejects_far": () => tokensFromMetas((m) => { m["hall/S"].camera_far_m = 9; }),
+  /* [Row 21] The opening's own shape. A meta opening is two things at once —
+     the hole the renderer cuts where no leaf is staged, and the rectangle the
+     page accepts a `go` click inside — so a malformed one is either a doorway
+     nobody can see or a click target over solid paint. */
+  "meta.openings_list": () => tokensFromMetas((m) => { m["study/E"].openings = "op13"; }),
+  "meta.opening_rect": () => tokensFromMetas((m) => {
+    m["study/E"].openings = [{ id: "op13", via: "door1", x: 900, y: 300, w: 0, h: 500,
+      beyond_m: 8.6, beyond_offset_m: 1.1 }];
+  }),
+  "meta.opening_via": () => tokensFromMetas((m) => { m["study/E"].openings[0].via = 7; }),
+  /* An exit through neither a leaf nor a doorway. The harness reads an
+     unfilled opening as an open one — that is what makes an empty painted room
+     walkable — so a typo in `via` would otherwise become a way through a blank
+     wall, refused by nothing. Doctored on the NAVIGATION fixture, because that
+     is the world whose doorways are building facts: in the furnished world the
+     leaf answers for the exit and this clause is never reached. */
+  "exit.via_unfilled": () => tokensFromNavMetas((m) => {
+    for (const key of Object.keys(m)) {
+      for (const o of (m[key].openings || [])) o.via = null;
+    }
+  }),
+  /* And an exit through a doorway that is off the frame: a way through nobody
+     can see or click. The cross passage's own north wall carries one 1720 px
+     out, which is why an off-frame opening is a real state of this document
+     and not a contrived one — what is contrived here is only that an EXIT
+     walks through it. */
+  "exit.opening_offscreen": () => tokensFromNavMetas((m) => {
+    for (const key of Object.keys(m)) {
+      for (const o of (m[key].openings || [])) o.x = 4000;
+    }
+  }),
   "meta.corner_pairing": () => tokensFromMetas((m) => { m["hall/S"].corner_x1_px = null; }),
   "meta.corner_order": () => tokensFromMetas((m) => {
     const t = m["hall/S"].corner_x0_px;
@@ -515,13 +580,56 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * and a full plank leaf — on a facing whose meta says there is no wall
      * there at all. */
     const dir = stageWithout(
-      "        if (!spannedByBand(place.x0, place.x1, bandsHere, meta)) continue;",
+      "        if (!spannedByBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;",
       "        // guard removed by the ledger");
     try {
       expect(await apertureCountOnOpenMeta(page, dir),
         "with the guard gone a doorway is painted in open void").toBeGreaterThan(0);
       expect(await apertureCountOnOpenMeta(page, repoRoot),
         "and the shipped renderer paints none").toBe(0);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.building_fact_opening", async ({ page }) => {
+    /* [Row 21] A doorway with no leaf in it. The navigation world stages no
+     * entities at all, so its two exits have nothing to derive an opening
+     * from except the facing's own §5 meta — which is what makes an empty
+     * painted room walkable. With the branch gone the wall has no hole in it,
+     * the page has no `go` target, and the two rooms are unreachable from each
+     * other with the whole suite otherwise green. */
+    const dir = stageWithout(
+      "            if (mo[oi].via && mo[oi].via === exit.via) {",
+      "            if (false) {");
+    try {
+      expect(await navApertureCount(page, dir),
+        "with the branch gone the navigation world's doorway is not in the wall").toBe(0);
+      expect(await navApertureCount(page, repoRoot),
+        "and the shipped renderer cuts exactly one").toBe(1);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_view", async ({ page }) => {
+    /* [Row 21] Through an opening, the destination room — never void. What
+     * stood here before was a dark fill: 92,061 pixels of the study's own
+     * doorway darker than luminance 12, which is the picture saying VOID where
+     * the document holds a passage. With the device gone they come back, and
+     * the count is what this case measures. */
+    const dir = stageWithout(
+      "      drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options);",
+      "      void drawThroughOpening;");
+    try {
+      const broken = await apertureVoid(page, dir);
+      const clean = await apertureVoid(page, repoRoot);
+      expect(broken.near_black,
+        "with the device gone the doorway is void again").toBeGreaterThan(50000);
+      expect(clean.near_black,
+        "and the shipped renderer leaves no void in it at all").toBe(0);
+      expect(clean.mean - broken.mean,
+        "the room beyond is lighter than the void it replaced").toBeGreaterThan(5);
     } finally {
       removeTree(dir);
     }
@@ -848,6 +956,45 @@ async function bandCounts(page, root) {
     for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 400) > 0.9) n++;
     return { verticals: n };
   }, OPEN_META_WITH_CONTINUOUS_FIELDS);
+}
+
+/** [Row 21] Apertures the NAVIGATION world cuts on study/E — where no leaf is
+ *  staged, so the only thing that can put a hole in the wall is the meta. */
+async function navApertureCount(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    const vs = { location: "study", facing: "E" };
+    return window.HOLO.renderer.apertures(
+      fx.world, fx.staging, A.library, A.metaFor(vs), vs).length;
+  });
+}
+
+/** [Row 21] How dark it is inside that doorway. */
+async function apertureVoid(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP;
+    const vs = { location: "study", facing: "E" };
+    const meta = A.metaFor(vs);
+    const ap = window.HOLO.renderer.apertures(
+      A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, A.harness.world, A.harness.staging, A.library,
+      A.backdrops, vs, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(
+      Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+    let n = 0, sum = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const L = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      sum += L;
+      if (L < 12) n++;
+    }
+    return { near_black: n, mean: sum / (d.length / 4) };
+  });
 }
 
 /** Apertures returned for study/E under a given meta. */

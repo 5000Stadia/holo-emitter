@@ -289,7 +289,16 @@ const COLLECT = () => {
     }
     for (const p of ["::before", "::after"]) {
       const c = getComputedStyle(el, p).content;
-      if (c && c !== "none" && c !== "normal") out.push(c.replace(/^"|"$/g, ""));
+      if (!c || c === "none" || c === "normal") continue;
+      /* [Row 21] An ENGINE ARTEFACT, not a string this product wrote: Firefox
+         answers `-moz-alt-content` for the ::before of every <img>, and row 21
+         puts the decoded paintings in the document (hidden) so the load event
+         waits for them. The value is a keyword the engine substitutes for the
+         alt text, it renders nothing, and it is the same shape as the ARIA
+         keywords filtered above. Filtered by VALUE rather than by element, so
+         it cannot become a hole a real string hides in. */
+      if (c === "-moz-alt-content") continue;
+      out.push(c.replace(/^"|"$/g, ""));
     }
   }
   return out;

@@ -1,4 +1,4 @@
-import { test, expect, appUrl, LIT, repoRoot, gridExpectations } from "./helpers.mjs";
+import { test, expect, appUrl, LIT, repoRoot, gridExpectations, navUrl } from "./helpers.mjs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -189,6 +189,70 @@ test.describe("camera-has-feet geometry", () => {
       const [loc, f] = key.split("/");
       const m = LIT.facing(loc, f);
       const floorPx = m.floor_line_y * LIT.H;
+      /* [ROW 21] A PAINTED FACING DRAWS NO GRID, so the module below has
+         nothing to measure — the picture is a painting and its metre lines are
+         panel joints nobody ruled. What replaces it is §12.5's clause (ii),
+         which has had no subject since row 11 wrote it and now has one: the
+         corners MEASURED off the image against `wall_width_m ×
+         px_per_m_at_wall`, pixels against arithmetic, where each term comes
+         from a different place — the span off the painting, the metres off the
+         plan Kabe approved, the scale off the painting's own calibration
+         feature. Plus the same camera-has-feet residual, read off the drawn
+         floor line the way it is read on every other facing: the strongest
+         horizontal step in the painting near where the meta says the wall
+         meets the floor.
+
+         THE SCOPING IS ASSERTED, not assumed: a facing is judged by the
+         painted clauses if and only if its meta says it was measured, and the
+         set of measured facings is itself pinned below, so a promotion that
+         quietly stopped being measured would move a facing out of both
+         branches and be caught. */
+      if (m.measured) {
+        const painted = await page.evaluate(({ loc, f, fl, cx0, cx1 }) => {
+          const T = window.__T;
+          const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
+          const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+          const lum = (x, y) => {
+            const i = (y * 1536 + x) * 4;
+            return 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+          };
+          let bestRow = -1, bestVal = -1;
+          for (let y = Math.max(1, fl - 25); y <= Math.min(1022, fl + 25); y++) {
+            let acc = 0;
+            for (let x = cx0; x <= cx1; x += 2) acc += Math.abs(lum(x, y) - lum(x, y - 1));
+            const v = acc / ((cx1 - cx0) / 2);
+            if (v > bestVal) { bestVal = v; bestRow = y; }
+          }
+          /* And it is a PAINTING, not the grid: the grid's own floor base
+             colour appears nowhere in it. */
+          let gridPixels = 0;
+          for (let y = 900; y < 1000; y++) {
+            for (let x = 200; x < 1300; x += 3) {
+              const i = (y * 1536 + x) * 4;
+              if (d[i] === 44 && d[i + 1] === 53 && d[i + 2] === 66) gridPixels++;
+            }
+          }
+          return { row: bestRow, val: bestVal, gridPixels };
+        }, { loc, f, fl: Math.round(floorPx), cx0: Math.ceil(m.corner_x0_px) + 4, cx1: Math.floor(m.corner_x1_px) - 4 });
+
+        expect(painted.gridPixels, `${key}: the painting is a painting, not the grid's own floor`).toBe(0);
+        expect(Math.abs(painted.row - Math.round(floorPx)),
+          `${key}: the painted wall-floor line is drawn at ${painted.row}, the meta says ${Math.round(floorPx)}`)
+          .toBeLessThanOrEqual(3);
+        /* §12.5 (ii). The tolerance is the calibration audit's own ±3 %,
+           blueprint §5's, which is also the band the asset gate admits on. */
+        const span = m.corner_x1_px - m.corner_x0_px;
+        const implied = m.wall_width_m * m.px_per_m_at_wall;
+        expect(Math.abs(span - implied) / implied,
+          `${key}: corners measured ${span.toFixed(0)} px apart against the ${implied.toFixed(0)} px its ${m.wall_width_m} m wall implies at ${m.px_per_m_at_wall.toFixed(2)} px/m`)
+          .toBeLessThanOrEqual(0.03);
+        /* And the camera-has-feet residual on the painting's own two lines. */
+        const residual = Math.abs(m.horizon_y -
+          (painted.row / LIT.H - LIT.eye_m * m.px_per_m_at_wall / LIT.H));
+        expect(residual, `${key}: measured horizon ${m.horizon_y.toFixed(4)} against a drawn floor line ${(painted.row / LIT.H).toFixed(4)} at eye ${LIT.eye_m} m`)
+          .toBeLessThanOrEqual(0.02);
+        continue;
+      }
       const res = await page.evaluate(({ loc, f, hz, fl, cx0, cx1, band0, band1, px, wx0, wx1 }) => {
         const T = window.__T;
         const c = T.renderDirect({ location: loc, facing: f }, null, { backdrop_only: true });
@@ -467,7 +531,19 @@ test.describe("corridor is a geometry, not a label", () => {
        Kabe's "every direction is a corridor". The old pair is quoted here as
        the before, not asserted; the two expects below are the after. */
     expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * (1024 / 6.0) / 1536, 6);   // 0.711
-    expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * (1024 / 4.35) / 1536, 6); // 0.165
+    /* [Row 21] study/N is PAINTED, so its scale is measured off the painting
+       rather than derived from the lens: 232.222 px/m against the 235.402 the
+       ruled 1024 px lens at its drawn 4.35 m gives — 1.35 % less, which widens
+       the side-wall share from 0.165 to 0.188. Both numbers are written out
+       here because the pair is the whole content of the difference between a
+       painted facing and a derived one, and neither is read off the code. */
+    expect(share(of("study", "N"))).toBeCloseTo(1 - (1389 - 142) / 1536, 6);        // 0.188, corners MEASURED
+    expect(1 - 5.45 * (1024 / 4.35) / 1536).toBeCloseTo(0.16475, 4);                // 0.165 as the lens would draw it
+    /* The gap between those two is 1.5 % of a wall span and it is the whole
+       measurement residual: 1247 px of corner-to-corner painting against the
+       1265.6 px a 5.45 m wall at 232.222 px/m implies. §12.5 (ii) is the
+       clause that judges it, on the render, and its tolerance is blueprint
+       §5's ±3 %. */
     /* THE + JUNCTION GUARD, and it is the row's signature. Kabe's symptom was
        "the demo first room looks like every direction is a corridor….. Like a
        + shape", and this is that symptom as a number: the share of the frame
@@ -593,6 +669,13 @@ test.describe("corridor is a geometry, not a label", () => {
        puts no corner in frame, the picture must show no plane boundary. */
     for (const key of LIT.facingKeys()) {
       const m = LIT.facing(...key.split("/"));
+      /* [Row 21] A PAINTED facing has no drawn planes to classify: §7's three
+         plane tones are the grid's, and a painting's own tones are a painter's
+         business. Its corners are judged instead by §12.5 (ii) — measured off
+         the image against the metres the plan rules — in the camera-has-feet
+         test above. Skipped by the meta's own `measured` flag, so the two
+         branches partition the facings rather than overlapping. */
+      if (m.measured) continue;
       const inFrame = m.corner_x0_px >= 0 && m.corner_x1_px <= LIT.W;
       if (inFrame) {
         expect(Math.abs(measured[key].left - m.corner_x0_px), `${key}: drawn left plane boundary`)
@@ -604,6 +687,124 @@ test.describe("corridor is a geometry, not a label", () => {
       }
     }
   });
+});
+
+/* [ROW 21] WHAT SHOWS THROUGH THE DOORWAY IS THE NEXT ROOM, AT THE DISTANCE
+ * THE DOCUMENT PUTS IT.
+ *
+ * "Never void" is met by any non-black fill, so a check that measured
+ * darkness would pass a destination frame pasted at any scale at all — and
+ * the scale is exactly what is easy to get wrong: the first cut of this
+ * device used the ratio of the two standpoint distances, which assumes the
+ * far camera stands IN the doorway and draws the next room 26 % too large.
+ *
+ * So the reader is geometric. The passage's east end wall stands
+ * `4.09 + 8.60 = 12.69 m` from the study's east standpoint — the study's own
+ * standpoint distance plus the metres between the two wall lines the approved
+ * plan draws (study east wall at x 30.40, hall east wall at x 39.00) — and a
+ * floor point at distance D draws at `horizon + focal × eye / D` under the
+ * pinned lens. That is 612 px, computed here from four typed numbers and
+ * measured off the render inside the doorway. At the wrong scale it lands at
+ * 635, and 23 px is a fifth of the opening. */
+test("through the doorway, the next room stands at the distance the plan puts it", async ({ page }) => {
+  /* THE NAVIGATION WORLD, which is the one a visitor opens and the one whose
+     doorways are building facts: no leaf stands in this opening, so what is
+     behind it is visible without opening anything. In the furnished world the
+     same device runs behind an OPEN leaf and is asserted there, in
+     `walkthrough.spec` — a shut door shows no room, which is its own clause. */
+  await page.goto(navUrl());
+  const HERE = LIT.facing("study", "E");
+  /* Four typed numbers, all off the approved plan, none off the code:
+     the metres from the study's east wall to the passage's east end wall
+     (x 30.40 -> x 39.00), the passage's ruled width, and the metres the
+     passage's own view axis lies to the right of the study's east standpoint
+     (its standpoint y 10.90 against the study's 12.00). */
+  const BEYOND_M = 8.60;
+  const CORRIDOR_W_M = 2.60;
+  const AXIS_OFFSET_M = 1.10;
+  const D = HERE.camera_wall_m + BEYOND_M;                    // 12.69 m from this camera
+  const scaleThere = LIT.focal_px / D;                        // px per metre at that wall
+  const predictedCorner = LIT.W / 2 + (AXIS_OFFSET_M + CORRIDOR_W_M / 2) * scaleThere;
+  const res = await page.evaluate(() => {
+    const A = window.HOLO_APP, T = window.__T;
+    const vs = { location: "study", facing: "E" };
+    const meta = A.metaFor(vs);
+    const ap = window.HOLO.renderer.apertures(
+      A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+    const c = T.renderDirect(vs, null, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    const lum = (x, y) => {
+      const i = (y * 1536 + x) * 4;
+      return 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    };
+    /* Inside the opening and clear of the wall's own thickness: the near
+       reveal is 14 % of the opening's width and the far one 8.4 %, and both
+       are drawn OVER the room beyond, being nearer than it. */
+    const x0 = Math.round(ap.x + ap.w * 0.16), x1 = Math.round(ap.x + ap.w * 0.90);
+    /* Rows inside the FAR room's own wall band. Its floor line is 100 px up
+       from this room's — that is what standing 12.69 m away rather than
+       4.09 m does — so a column mean taken to the bottom of the opening
+       averages the far corner's ink with the far room's floor and loses it. */
+    const y0 = Math.round(ap.y + ap.h * 0.15), y1 = Math.round(ap.y + ap.h * 0.55);
+    const colMean = (x) => {
+      let sacc = 0;
+      for (let y = y0; y < y1; y++) sacc += lum(x, y);
+      return sacc / (y1 - y0);
+    };
+    /* The far room's own corner vertical: the brightest column in the opening.
+       §7 draws a corner at ALPHA_MAJOR and the wall's metre lines at
+       ALPHA_MINOR, so the corner wins by a wide margin even under the
+       through-view's dim — 65 against 40 and 30 for the two metre lines
+       beside it. */
+    let bestX = -1, bestVal = -1;
+    for (let x = x0; x <= x1; x++) {
+      const v = colMean(x);
+      if (v > bestVal) { bestVal = v; bestX = x; }
+    }
+    /* And the far wall's FOOT, read in the few columns of it that are not
+       hidden by the near jamb — a horizontal step where the far room's wall
+       meets its floor. Two independent features of one placement: one fixes
+       the horizontal scale, the other the vertical. */
+    let bestRow = -1, bestStep = -1;
+    for (let y = 560; y < 700; y++) {
+      let acc = 0;
+      for (let x = bestX - 8; x < bestX; x++) acc += Math.abs(lum(x, y) - lum(x, y - 1));
+      const v = acc / 8;
+      if (v > bestStep) { bestStep = v; bestRow = y; }
+    }
+    return { x: bestX, val: bestVal, row: bestRow, step: bestStep,
+      beyond_m: ap.beyond_m, offset: ap.beyond_offset_m };
+  });
+
+  /* The meta's own two numbers are the plan's, and they are what the renderer
+     reads: if they moved, the picture would move with them and this test would
+     be measuring the same mistake twice. Typed above, asserted here. */
+  expect(res.beyond_m, "the meta carries the metres to the far wall").toBeCloseTo(BEYOND_M, 6);
+  expect(res.offset, "and the metres its axis lies off this one").toBeCloseTo(AXIS_OFFSET_M, 6);
+  expect(res.val, "the far room's own corner is drawn inside the doorway").toBeGreaterThan(30);
+  expect(Math.abs(res.x - predictedCorner),
+    `the passage's far corner is drawn at x ${res.x}, and a ${CORRIDOR_W_M} m wall ${D.toFixed(2)} m away puts it at ${predictedCorner.toFixed(1)}`)
+    .toBeLessThanOrEqual(3);
+  /* WHAT THIS NUMBER IS FOR. The device's first cut scaled the destination by
+     the ratio of the two standpoint distances — 6.00 / (4.09 + 6.00) — which
+     is the transform you get by assuming the far camera stands in the doorway.
+     It draws the next room 26 % too large and puts this corner at x 1012, a
+     fifth of the opening away from where it belongs. A check that measured
+     darkness inside the doorway would have passed it. */
+  expect(Math.abs(1011.7 - predictedCorner),
+    "and the transform that assumes the far camera stands in the doorway is 50 px out")
+    .toBeGreaterThan(40);
+
+  /* THE VERTICAL HALF. A floor point at distance D draws at
+     `horizon + focal × eye / D` under the pinned lens, and the far room's own
+     wall-floor junction is such a point: 612 px, computed from the same four
+     numbers. This is what makes the floor beyond continue the floor here
+     instead of starting a second camera at the sill. */
+  const predictedFoot = LIT.horizon_y * LIT.H + LIT.focal_px * LIT.eye_m / D;
+  expect(res.step, "the far wall's foot is drawn inside the doorway").toBeGreaterThan(8);
+  expect(Math.abs(res.row - predictedFoot),
+    `the far room's floor line is drawn at ${res.row}, and a wall ${D.toFixed(2)} m away puts its foot at ${predictedFoot.toFixed(1)}`)
+    .toBeLessThanOrEqual(3);
 });
 
 test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async ({ page }) => {

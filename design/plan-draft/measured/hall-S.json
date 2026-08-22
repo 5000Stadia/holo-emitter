@@ -1,30 +1,38 @@
 {
-  "_what_this_is": "DRAFT \u00a75 meta for hall/S, measured off backdrops/source/passage-S/cand-1.png. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels by design/plan-draft/measured/measure.py; the only assumed quantity is the real-world size named in calibration_ref, and calibration_confidence says how far it can be trusted.",
+  "_what_this_is": "DRAFT \u00a75 meta for hall/S, measured off backdrops/source/passage-S/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
+  "_role": "The tapestry wall band. Same instruction as hall/N and the same obedience; the tapestry has no ruled size.",
+  "verdict": "WITHHELD",
   "facing_type": "wall_band",
   "image_h_px": 1024,
-  "floor_line_y": 0.859375,
-  "horizon_y": 0.491211,
-  "px_per_m_at_wall": 288.889,
-  "px_per_m_at_bottom": 399.23,
+  "floor_line_y": null,
+  "horizon_y": null,
+  "px_per_m_at_wall": null,
+  "px_per_m_at_bottom": null,
   "wall_width_m": null,
-  "camera_wall_m": 3.5446,
+  "camera_wall_m": null,
   "corner_x0_px": null,
   "corner_x1_px": null,
-  "key_tint": "#c8baa8",
-  "key_dir": "L-ABOVE",
-  "key_dir_reading": "The brightest 21x21 patch sits at (152, 10): left third of the frame, above the measured horizon at y 503. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
-  "calibration_ref": "the panelling's dado-rail top, taken at 0.90 m above the floor line. The tapestry is the only other feature and has no ruled size.",
-  "calibration_px": 260,
-  "calibration_confidence": "MEDIUM-LOW in the module (+-7 %); the reading is strong (46.9) though the tapestry covers the rail across the middle third, so the horizontality only reaches 0.76.",
+  "key_tint": "#c88958",
+  "key_dir": "L-NO-HORIZON",
+  "calibration_ref": null,
+  "calibration_px": null,
+  "calibration_tier": null,
+  "_rulers": [],
+  "_ruler_rule": "Fixed before the answers. tier 1 a ruled-size feature painted in the wall plane (door opening 1.00 x 2.00 m, longer dimension read; fireplace opening 0.90 m; window bay 0.90 m between outer mullion centre-lines); tier 2 the panelling module transferred from the approved frame of the SAME room (study only); tier 3 the plan's own ruled wall width, admissible only where no tier 1 or 2 ruler exists and only with the circularity stated; otherwise WITHHELD. The adopted ruler is the first ADMISSIBLE entry of _rulers; the rest are measured and printed so the reading can be overturned.",
+  "_ruler_agreement_pct": null,
+  "_ruler_control": "This facing's own control is its second ruler, because study/N proves only that the code has not changed, not that THIS facing's re-tuned windows are looking at the features they name. IT HAS AT MOST ONE ADMISSIBLE RULER, so there is no cross-check: any number here rests on one re-tuned detector window and on nothing else, and is a direction rather than a magnitude.",
+  "_withheld_because": [
+    "no admissible ruler at tiers 1-3. This facing paints no floor line, no ceiling line, no corner and no feature of ruled size, which is exactly what its prompt demanded; see _wall_band_audit."
+  ],
   "_measured_px": {
-    "wall_ceiling_line_y_px": 46,
-    "wall_floor_line_y_px": 880,
-    "horizon_y_px": 503,
-    "horizon_x_px": 796,
+    "wall_ceiling_line_y_px": null,
+    "wall_floor_line_y_px": null,
+    "horizon_y_px": null,
+    "horizon_x_px": null,
     "corner_x0_px": null,
     "corner_x1_px": null,
-    "dado_rail_top_y_px": 620,
-    "dado_rail_above_floor_px": 260
+    "dado_rail_top_y_px": null,
+    "dado_rail_above_floor_px": null
   },
   "_how_each_was_measured": {
     "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
@@ -40,489 +48,483 @@
   "_candidates": {
     "wall_ceiling_line": [
       {
-        "y": 47,
-        "strength": 96.27,
-        "horiz": 1.0,
-        "cv": 0.112
+        "y": 164,
+        "strength": 20.15,
+        "horiz": 0.676,
+        "cv": 0.654
       },
       {
-        "y": 172,
-        "strength": 26.62,
-        "horiz": 0.757,
-        "cv": 0.592
+        "y": 170,
+        "strength": 14.99,
+        "horiz": 0.71,
+        "cv": 0.728
       },
       {
-        "y": 53,
-        "strength": 18.67,
-        "horiz": 1.0,
-        "cv": 0.387
+        "y": 198,
+        "strength": 8.72,
+        "horiz": 0.707,
+        "cv": 1.136
       },
       {
-        "y": 88,
-        "strength": 17.21,
-        "horiz": 0.995,
-        "cv": 0.4
-      },
-      {
-        "y": 81,
-        "strength": 12.1,
-        "horiz": 0.975,
-        "cv": 0.343
-      },
-      {
-        "y": 409,
-        "strength": 10.98,
-        "horiz": 0.682,
-        "cv": 1.021
-      },
-      {
-        "y": 415,
-        "strength": 10.47,
-        "horiz": 0.689,
-        "cv": 0.996
-      },
-      {
-        "y": 369,
-        "strength": 10.34,
+        "y": 189,
+        "strength": 7.67,
         "horiz": 0.698,
-        "cv": 1.017
+        "cv": 1.089
       },
       {
-        "y": 397,
-        "strength": 10.31,
-        "horiz": 0.673,
-        "cv": 1.039
+        "y": 19,
+        "strength": 7.31,
+        "horiz": 0.82,
+        "cv": 0.504
       },
       {
-        "y": 385,
-        "strength": 10.29,
-        "horiz": 0.686,
-        "cv": 1.075
+        "y": 183,
+        "strength": 7.19,
+        "horiz": 0.691,
+        "cv": 1.087
       },
       {
-        "y": 337,
-        "strength": 10.06,
-        "horiz": 0.678,
-        "cv": 1.06
+        "y": 11,
+        "strength": 6.92,
+        "horiz": 0.745,
+        "cv": 0.527
       },
       {
-        "y": 377,
-        "strength": 10.05,
-        "horiz": 0.688,
-        "cv": 1.074
+        "y": 177,
+        "strength": 6.63,
+        "horiz": 0.694,
+        "cv": 1.066
+      },
+      {
+        "y": 66,
+        "strength": 5.1,
+        "horiz": 0.641,
+        "cv": 0.768
+      },
+      {
+        "y": 55,
+        "strength": 5.08,
+        "horiz": 0.69,
+        "cv": 0.741
+      },
+      {
+        "y": 49,
+        "strength": 2.98,
+        "horiz": 0.796,
+        "cv": 1.497
+      },
+      {
+        "y": 40,
+        "strength": 1.67,
+        "horiz": 0.779,
+        "cv": 0.994
       }
     ],
     "wall_floor_line": [
       {
-        "y": 829,
-        "strength": 39.79,
-        "horiz": 1.0,
-        "cv": 0.31
+        "y": 915,
+        "strength": 2.09,
+        "horiz": 0.708,
+        "cv": 0.958
       },
       {
-        "y": 841,
-        "strength": 39.11,
-        "horiz": 0.994,
-        "cv": 0.411
-      },
-      {
-        "y": 807,
-        "strength": 26.43,
-        "horiz": 0.831,
-        "cv": 0.575
-      },
-      {
-        "y": 836,
-        "strength": 25.87,
-        "horiz": 0.936,
-        "cv": 0.594
-      },
-      {
-        "y": 881,
-        "strength": 22.84,
-        "horiz": 0.94,
-        "cv": 0.415
-      },
-      {
-        "y": 797,
-        "strength": 20.25,
-        "horiz": 0.669,
-        "cv": 0.755
-      },
-      {
-        "y": 1003,
-        "strength": 10.35,
-        "horiz": 0.741,
-        "cv": 1.077
-      },
-      {
-        "y": 956,
-        "strength": 10.11,
-        "horiz": 0.716,
-        "cv": 1.204
-      },
-      {
-        "y": 981,
-        "strength": 10.05,
-        "horiz": 0.748,
-        "cv": 1.136
-      },
-      {
-        "y": 976,
-        "strength": 10.03,
-        "horiz": 0.725,
-        "cv": 1.154
-      },
-      {
-        "y": 990,
-        "strength": 9.91,
-        "horiz": 0.723,
-        "cv": 1.192
-      },
-      {
-        "y": 966,
-        "strength": 9.86,
+        "y": 873,
+        "strength": 2.07,
         "horiz": 0.722,
-        "cv": 1.162
-      },
-      {
-        "y": 1009,
-        "strength": 9.85,
-        "horiz": 0.721,
-        "cv": 1.155
-      },
-      {
-        "y": 997,
-        "strength": 9.72,
-        "horiz": 0.731,
-        "cv": 1.147
-      },
-      {
-        "y": 950,
-        "strength": 9.31,
-        "horiz": 0.737,
-        "cv": 1.229
-      },
-      {
-        "y": 971,
-        "strength": 9.28,
-        "horiz": 0.727,
-        "cv": 1.07
-      },
-      {
-        "y": 940,
-        "strength": 8.93,
-        "horiz": 0.742,
-        "cv": 1.218
-      },
-      {
-        "y": 961,
-        "strength": 8.9,
-        "horiz": 0.74,
-        "cv": 1.179
-      },
-      {
-        "y": 932,
-        "strength": 8.78,
-        "horiz": 0.718,
-        "cv": 1.271
-      },
-      {
-        "y": 802,
-        "strength": 8.32,
-        "horiz": 0.703,
-        "cv": 0.745
-      },
-      {
-        "y": 945,
-        "strength": 8.18,
-        "horiz": 0.735,
-        "cv": 1.202
-      },
-      {
-        "y": 924,
-        "strength": 8.11,
-        "horiz": 0.753,
-        "cv": 1.163
-      },
-      {
-        "y": 916,
-        "strength": 7.25,
-        "horiz": 0.722,
-        "cv": 1.236
-      },
-      {
-        "y": 908,
-        "strength": 6.41,
-        "horiz": 0.707,
-        "cv": 1.283
-      },
-      {
-        "y": 900,
-        "strength": 6.24,
-        "horiz": 0.752,
-        "cv": 1.279
-      },
-      {
-        "y": 894,
-        "strength": 4.92,
-        "horiz": 0.727,
-        "cv": 1.44
-      },
-      {
-        "y": 862,
-        "strength": 4.73,
-        "horiz": 0.72,
-        "cv": 1.074
-      },
-      {
-        "y": 856,
-        "strength": 4.71,
-        "horiz": 0.73,
-        "cv": 0.986
-      },
-      {
-        "y": 816,
-        "strength": 4.66,
-        "horiz": 0.732,
-        "cv": 0.879
-      },
-      {
-        "y": 823,
-        "strength": 4.0,
-        "horiz": 0.748,
-        "cv": 0.837
-      },
-      {
-        "y": 889,
-        "strength": 3.99,
-        "horiz": 0.702,
-        "cv": 1.475
-      },
-      {
-        "y": 851,
-        "strength": 3.84,
-        "horiz": 0.738,
-        "cv": 0.941
-      },
-      {
-        "y": 846,
-        "strength": 3.32,
-        "horiz": 0.73,
-        "cv": 0.86
-      },
-      {
-        "y": 868,
-        "strength": 3.2,
-        "horiz": 0.71,
         "cv": 1.072
       },
       {
-        "y": 876,
-        "strength": 2.88,
-        "horiz": 0.715,
-        "cv": 0.921
+        "y": 859,
+        "strength": 2.07,
+        "horiz": 0.708,
+        "cv": 0.951
       },
       {
-        "y": 701,
-        "strength": 2.46,
-        "horiz": 0.7,
-        "cv": 0.966
+        "y": 923,
+        "strength": 2.07,
+        "horiz": 0.752,
+        "cv": 1.02
       },
       {
-        "y": 715,
-        "strength": 2.46,
-        "horiz": 0.69,
-        "cv": 1.01
+        "y": 891,
+        "strength": 2.04,
+        "horiz": 0.706,
+        "cv": 0.933
       },
       {
-        "y": 735,
-        "strength": 2.37,
-        "horiz": 0.694,
-        "cv": 0.913
+        "y": 939,
+        "strength": 2.02,
+        "horiz": 0.705,
+        "cv": 0.933
       },
       {
-        "y": 709,
-        "strength": 2.33,
-        "horiz": 0.72,
-        "cv": 0.988
+        "y": 883,
+        "strength": 2.02,
+        "horiz": 0.727,
+        "cv": 0.933
       },
       {
-        "y": 721,
-        "strength": 2.27,
-        "horiz": 0.738,
-        "cv": 0.938
+        "y": 865,
+        "strength": 2.01,
+        "horiz": 0.73,
+        "cv": 0.957
+      },
+      {
+        "y": 897,
+        "strength": 2.0,
+        "horiz": 0.746,
+        "cv": 0.927
+      },
+      {
+        "y": 931,
+        "strength": 1.99,
+        "horiz": 0.704,
+        "cv": 0.933
+      },
+      {
+        "y": 853,
+        "strength": 1.97,
+        "horiz": 0.74,
+        "cv": 0.952
+      },
+      {
+        "y": 903,
+        "strength": 1.97,
+        "horiz": 0.788,
+        "cv": 0.989
+      },
+      {
+        "y": 955,
+        "strength": 1.96,
+        "horiz": 0.75,
+        "cv": 0.991
+      },
+      {
+        "y": 909,
+        "strength": 1.89,
+        "horiz": 0.776,
+        "cv": 0.937
+      },
+      {
+        "y": 945,
+        "strength": 1.84,
+        "horiz": 0.794,
+        "cv": 0.925
+      },
+      {
+        "y": 961,
+        "strength": 1.83,
+        "horiz": 0.757,
+        "cv": 0.981
+      },
+      {
+        "y": 971,
+        "strength": 1.74,
+        "horiz": 0.765,
+        "cv": 0.954
+      },
+      {
+        "y": 983,
+        "strength": 1.68,
+        "horiz": 0.756,
+        "cv": 0.947
+      },
+      {
+        "y": 1003,
+        "strength": 1.65,
+        "horiz": 0.749,
+        "cv": 0.917
+      },
+      {
+        "y": 977,
+        "strength": 1.65,
+        "horiz": 0.767,
+        "cv": 0.934
+      },
+      {
+        "y": 989,
+        "strength": 1.61,
+        "horiz": 0.773,
+        "cv": 0.962
+      },
+      {
+        "y": 950,
+        "strength": 1.58,
+        "horiz": 0.742,
+        "cv": 1.005
+      },
+      {
+        "y": 878,
+        "strength": 1.58,
+        "horiz": 0.753,
+        "cv": 0.922
+      },
+      {
+        "y": 997,
+        "strength": 1.58,
+        "horiz": 0.753,
+        "cv": 1.004
+      },
+      {
+        "y": 966,
+        "strength": 1.45,
+        "horiz": 0.736,
+        "cv": 0.962
+      },
+      {
+        "y": 1011,
+        "strength": 1.42,
+        "horiz": 0.742,
+        "cv": 0.879
       }
     ],
     "wall_floor_line_hand_read_window": {
       "window": [
-        870,
-        892
+        995,
+        1015
       ],
       "window_profile": [
-        15.68,
-        16.04,
-        16.71,
-        15.16,
-        16.18,
-        16.21,
-        17.65,
-        17.87,
-        25.73,
-        14.04,
-        1.76,
-        24.57,
-        36.57,
-        24.99,
-        23.89,
-        21.11,
-        21.53,
-        20.02,
-        21.65,
-        20.93,
-        22.5,
-        21.39,
-        22.83
+        17.73,
+        18.45,
+        17.56,
+        18.31,
+        17.56,
+        18.43,
+        17.41,
+        17.99,
+        17.18,
+        17.66,
+        16.74,
+        17.36,
+        16.43,
+        16.96,
+        16.02,
+        16.64,
+        16.02,
+        16.83,
+        16.19,
+        16.82,
+        16.11
       ],
-      "window_profile_first_row": 870,
-      "automatic_lowest_true_horizontal": 880
+      "window_profile_first_row": 995,
+      "automatic_lowest_true_horizontal": null
     },
     "dado_rail": [
       {
-        "y": 621,
-        "strength": 46.94,
-        "horiz": 0.756,
-        "cv": 0.569
+        "y": 742,
+        "strength": 47.77,
+        "horiz": 0.964,
+        "cv": 0.33
       },
       {
-        "y": 606,
-        "strength": 21.68,
-        "horiz": 0.712,
-        "cv": 1.095
+        "y": 763,
+        "strength": 40.84,
+        "horiz": 1.0,
+        "cv": 0.164
+      },
+      {
+        "y": 734,
+        "strength": 30.23,
+        "horiz": 0.771,
+        "cv": 0.544
       },
       {
         "y": 797,
-        "strength": 20.25,
-        "horiz": 0.669,
-        "cv": 0.755
+        "strength": 20.31,
+        "horiz": 0.652,
+        "cv": 0.75
       },
       {
-        "y": 577,
-        "strength": 14.56,
-        "horiz": 0.738,
-        "cv": 0.896
+        "y": 750,
+        "strength": 16.36,
+        "horiz": 0.918,
+        "cv": 0.494
       },
       {
-        "y": 568,
-        "strength": 13.91,
-        "horiz": 0.694,
-        "cv": 0.975
+        "y": 788,
+        "strength": 16.04,
+        "horiz": 0.778,
+        "cv": 0.612
       },
       {
-        "y": 598,
-        "strength": 13.83,
-        "horiz": 0.735,
-        "cv": 0.839
+        "y": 641,
+        "strength": 11.29,
+        "horiz": 0.73,
+        "cv": 1.013
       },
       {
-        "y": 632,
-        "strength": 13.57,
-        "horiz": 0.688,
-        "cv": 0.803
+        "y": 585,
+        "strength": 11.25,
+        "horiz": 0.724,
+        "cv": 1.041
       },
       {
-        "y": 547,
-        "strength": 11.31,
-        "horiz": 0.661,
-        "cv": 1.023
+        "y": 555,
+        "strength": 11.13,
+        "horiz": 0.72,
+        "cv": 1.017
       },
       {
-        "y": 560,
-        "strength": 11.27,
-        "horiz": 0.677,
-        "cv": 1.19
-      },
-      {
-        "y": 589,
-        "strength": 10.43,
-        "horiz": 0.704,
-        "cv": 1.053
+        "y": 669,
+        "strength": 10.93,
+        "horiz": 0.713,
+        "cv": 1.112
       }
     ]
   },
+  "_panelling_module": null,
+  "_window_bays": null,
+  "_wall_band_audit": {
+    "strongest_true_horizontal_in_top_band": {
+      "y": 164,
+      "strength": 20.15,
+      "horiz": 0.676,
+      "cv": 0.654
+    },
+    "strongest_true_horizontal_in_bottom_band": {
+      "y": 915,
+      "strength": 2.09,
+      "horiz": 0.708,
+      "cv": 0.958
+    },
+    "top_band_candidates": [
+      {
+        "y": 164,
+        "strength": 20.15,
+        "horiz": 0.676,
+        "cv": 0.654
+      },
+      {
+        "y": 198,
+        "strength": 8.72,
+        "horiz": 0.707,
+        "cv": 1.136
+      },
+      {
+        "y": 189,
+        "strength": 7.67,
+        "horiz": 0.698,
+        "cv": 1.089
+      },
+      {
+        "y": 19,
+        "strength": 7.31,
+        "horiz": 0.82,
+        "cv": 0.504
+      }
+    ],
+    "bottom_band_candidates": [
+      {
+        "y": 915,
+        "strength": 2.09,
+        "horiz": 0.708,
+        "cv": 0.958
+      },
+      {
+        "y": 873,
+        "strength": 2.07,
+        "horiz": 0.722,
+        "cv": 1.072
+      },
+      {
+        "y": 859,
+        "strength": 2.07,
+        "horiz": 0.708,
+        "cv": 0.951
+      },
+      {
+        "y": 923,
+        "strength": 2.07,
+        "horiz": 0.752,
+        "cv": 1.02
+      }
+    ],
+    "mean_luma_top_40_rows": 7.7,
+    "mean_luma_bottom_40_rows": 16.49,
+    "mean_luma_middle_40_rows": 47.34,
+    "reading": "A wall-ceiling junction on the four study facings measures a step of 55-67 at a horizontality of 0.97-1.00 with plaster above it at a mean luma of 84-155. Here the strongest true horizontal in the top band and the strongest in the bottom band are the panelling's own rails, the frame's top 40 rows are dark oak, and the corner scan run at any candidate ceiling row returns a different pair of columns each time - which is what a corner detector does when there is no corner. No floor line, no ceiling line, no corner, no feature of ruled size: nothing on this facing can be converted into px_per_m_at_wall, and none is."
+  },
   "_corner_evidence": {
-    "mid_wall_reference_step_strength": 94.5,
-    "vertical_edge_confirming_x0": null,
-    "vertical_edge_confirming_x1": null
+    "rule": "cand-2 rule: the ceiling-line step must collapse below 30 % of its median over the 80 columns on the WALL side of the candidate, for 10 consecutive columns. The cand-1 rule compared against the frame's middle instead and put study/W's left corner 64 px inside the real one.",
+    "vertical_edge_confirming_x0": 232,
+    "vertical_edge_confirming_x1": 1300
   },
   "_horizon_votes": {
-    "per_region": {
-      "floor": {
-        "x": 796,
-        "y": 503,
-        "edge_px": 18357
-      }
-    },
-    "adopted_y": 503,
-    "adopted_x": 796,
+    "per_region": {},
+    "adopted_y": null,
+    "adopted_x": null,
     "adopted_rule": "edge-pixel-weighted mean of the regions that voted",
     "ceiling_ramp_intersection": null
   },
   "_derived": {
-    "eye_height_m": 1.305,
-    "storey_height_m": 2.8869,
-    "px_per_m_at_bottom": 399.2337,
-    "nearest_visible_floor_m": 2.5649,
-    "implied_camera_wall_m": 3.5446,
+    "eye_height_m": null,
+    "storey_height_m": null,
+    "px_per_m_at_bottom": null,
+    "nearest_visible_floor_m": null,
+    "implied_camera_wall_m": null,
     "implied_wall_width_m": null
   },
   "_light": {
     "key_dir_measured": "L",
-    "key_dir_brightest_x": 152,
-    "key_dir_brightest_y": 10,
-    "key_tint": "#c8baa8",
+    "key_dir_brightest_x": 10,
+    "key_dir_brightest_y": 438,
+    "key_tint": "#c88958",
     "key_tint_patch": [
       0,
-      352,
-      0,
-      38
+      210,
+      93,
+      155
     ],
     "key_tint_patch_mean_rgb": [
-      129.59,
-      120.39,
-      108.76
+      25.6,
+      17.57,
+      11.31
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c8bcbe",
-      "floor_bottom_strip": "#c89775",
-      "mid_wall_right": "#c86115",
-      "mid_wall_left": "#c1bfc8",
-      "brightest_21x21_patch": "#c8bcad"
+      "floor_under_brightest": "#c8ae82",
+      "floor_bottom_strip": "#c87033",
+      "mid_wall_right": "#c85f10",
+      "mid_wall_left": "#c5bfc8",
+      "brightest_21x21_patch": "#9bacc8"
     },
     "brightest_21x21_patch_centre_px": [
-      152,
-      10
+      10,
+      438
     ],
-    "sobel_bright_side_deg_whole_frame": 86.28,
-    "sobel_bright_side_deg_wall_band": 97.57,
-    "left_third_minus_right_third_luminance_whole_frame": 25.941,
-    "left_third_minus_right_third_luminance_wall_band": 25.393
+    "sobel_bright_side_deg_whole_frame": 45.46,
+    "sobel_bright_side_deg_wall_band": 36.13,
+    "left_third_minus_right_third_luminance_whole_frame": 17.826,
+    "left_third_minus_right_third_luminance_wall_band": 20.29
   },
   "_plan": {
     "camera_wall_m": 1.95,
     "wall_width_m": 8.0,
     "storey_m": 2.8,
     "camera_wall_m_in_standpoints_tsv_now": 2.15,
-    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 2.15 m for this facing. Nothing measured off the pixels depends on either value."
+    "_note": "The cand-2 round compares against standpoints.tsv as it stands NOW (2.15 m for this facing), because that is the distance gate.py multiplies by."
   },
-  "_flags": [
-    "No corner in frame, as demanded. Same single-region horizon vote as hall/N.",
-    "The tapestry is drawn as instructed - flat, no rod, no fringe - and it covers the dado rail across the middle third, which is why the rail's horizontality only reaches 0.76 here.",
-    "The only facing of the eight that reads UPPER-LEFT: brightest patch at (152, 10), left third and far above the horizon, and the left-third-minus-right-third luminance is +25.9, the largest positive tilt in the set. The sprite contract's UL45 would sit correctly in this frame and in no other.",
-    "IMPLIED FOCAL LENGTH 563 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-45.0 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 1.95 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
-    "EYE HEIGHT 1.305 m against the 1.83 m every prompt asked for (-0.525 m). STOREY 2.887 m against the ruled 2.80 m (+3.1 %). CAMERA 3.54 m from the wall against the plan's 1.95 m (+81.8 %).",
-    "No corner in frame either side, so no implied wall width. The wall runs past both frame edges and none was invented.",
-    "LIGHT does not read UL45. Brightest 21x21 patch at (152, 10) - left third of the frame, above the measured horizon. Gate (e)'s Sobel bright-side estimator returns 86.3 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is +25.94 on the whole frame and +25.39 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require.",
-    "No doorway is painted on this facing. Checked: the only two openings in the eight are study/E's and hall/W's, which are the two sides of the same door between the study and the cross passage."
-  ]
+  "_module_m": {
+    "capping": 0.9990440182239408,
+    "dado_rail": 0.9172257581107732,
+    "_from": "study/N cand-2, the approved frame: capping 232 px and dado rail 213 px above its floor line at 232.222 px/m.",
+    "_spec": "design/specs/21-painted-promotion.md \u00a71 names this module as 213 px at 232.222 px/m => 0.9172 m; this run reproduces it from the pixels rather than being told it."
+  },
+  "_prompt_forbids": [
+    "floor line",
+    "visible floor",
+    "ceiling line",
+    "visible ceiling",
+    "corners in frame",
+    "side walls",
+    "vanishing point",
+    "receding planes",
+    "doorway",
+    "window",
+    "fireplace"
+  ],
+  "_raw_detector_output_before_wall_band_suppression": {
+    "wall_ceiling_line_y_px": 163,
+    "wall_floor_line_y_px": 1009,
+    "_why": "A wall-band facing has no ceiling line and no floor line, so the emitted values are null. These are what the detectors returned anyway, kept because they are the numbers the cand-1 harness reported as if they meant something."
+  }
 }

@@ -7,7 +7,22 @@ import { execFileSync } from "node:child_process";
 
 export const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
+/* THE WORLD A SPEC OPENS, and why it is written down here.
+ *
+ * [Row 21] The page carries two baked worlds and the bare URL boots the
+ * painted navigation one — that is what the live link serves. Every spec
+ * written before this row is about the FURNISHED world: the drawer, the key,
+ * the chair refusal, the two staged overlap pairs. So `appUrl` asks for that
+ * world by name, and the specs that are about what a visitor actually opens
+ * use `navUrl` (no query at all), which is the only URL nobody has to
+ * remember. A spec that says nothing gets the world it was written against;
+ * the default the product ships is tested deliberately rather than by
+ * accident. */
 export const appUrl = (root = repoRoot) =>
+  pathToFileURL(join(root, "index.html")).href + "?world=demo-study";
+
+/** The bare URL — the painted navigation world, exactly as a visitor opens it. */
+export const navUrl = (root = repoRoot) =>
   pathToFileURL(join(root, "index.html")).href;
 
 /** Viewport for every pointer-driven spec (plan §8): the canvas displays at
@@ -23,6 +38,18 @@ export function stageTree() {
   for (const p of ["index.html", "src", "fixtures", "tools"]) {
     cpSync(join(repoRoot, p), join(dir, p), { recursive: true });
   }
+  /* [Row 21] The promoted paintings and their metas. Both halves are needed
+     and for different reasons: `backdrops/<loc>/<facing>.meta.json` is a BAKE
+     input (the meta resolution's first tier), so a staged tree without it
+     bakes a different fixture.js from the committed one; and
+     `backdrops/baked.js` is a script the page loads, so a staged tree without
+     it fires the boot handler's missing-module fault and every test in that
+     tree reads an apology instead of a room. `source/` is the asset seat's
+     lane — candidates, not backdrops — and is 20 MB of it, so it stays. */
+  cpSync(join(repoRoot, "backdrops"), join(dir, "backdrops"), {
+    recursive: true,
+    filter: (src) => !src.split(/[\\/]/).includes("source")
+  });
   /* Row 11: the bake asserts its ruled eye height against blueprint §10's
      authored home, `replicator/contract.json`, so that file is a bake input
      now and a staged tree without it refuses for a reason that has nothing to
@@ -485,6 +512,39 @@ export const LIT = {
   },
   facingKeys() { return Object.keys(LIT.FACINGS); },
 
+  /* [Row 21] THE FACINGS THAT ARE PAINTED, and their numbers are MEASURED, so
+     they cannot be computed from the lens the way the rest of this block is.
+     Typed by hand from the committed `backdrops/<loc>/<facing>.meta.json` —
+     which `tools/promote-backdrop.mjs` generates from
+     `design/plan-draft/measured/<loc>-<facing>.json`, and which is a
+     measurement of a painting rather than an answer from the code these tests
+     check. Exactly the same rule as the standpoints above: typed from the
+     committed artifact, so a re-measurement that moves the camera turns this
+     file red instead of sliding through.
+
+     What actually moved when study/N was promoted, and it is worth seeing in
+     one place: the scale, by −1.35 % (the painting draws 232.222 px/m where
+     the ruled lens at the drawn 4.35 m would draw 235.402), and the corners
+     with it. The floor line moved by 0.007 px and the horizon and the
+     frame-bottom scale did not move at all — because the drawing camera was
+     MEASURED OFF THIS PAINTING at row 20, so the picture and the arithmetic
+     were already the same camera. The 1.35 % is the measurement's own residual
+     against the ruled 1024 px lens, and it is inside blueprint §5's ±3 %
+     acceptance band by 1.65 points. */
+  MEASURED: {
+    "study/N": {
+      px_per_m_at_wall: 232.222,
+      floor_line_y: 0.758789,
+      horizon_y: 0.512109,
+      px_per_m_at_bottom: 459.3,
+      corner_x0_px: 142,
+      corner_x1_px: 1389,
+      nearest_floor_m: 2.2295,
+      calibration_px: 209,
+      measured: true
+    }
+  },
+
   /** The meta a shipped facing must have, computed here from the two typed
    *  numbers and the camera — never read off the code. */
   facing(loc, f) {
@@ -514,9 +574,31 @@ export const LIT = {
          `f / px_per_m_at_bottom` — the lens and the horizon decide it and the
          standpoint does not — so it is the SAME on every facing in the manor,
          where it used to be fifteen different anomalies. */
-      nearest_floor_m: LIT.focal_px / LIT.px_per_m_at_bottom
+      nearest_floor_m: LIT.focal_px / LIT.px_per_m_at_bottom,
+      measured: false,
+      /* What the LENS says this facing's scale would be, kept beside the
+         measured one so a test can say how far the painting is from the ruled
+         camera without re-deriving it. On a facing with no painting the two
+         are the same number by construction. */
+      derived_px_per_m_at_wall: px
     };
   }
+};
+
+/* A painted facing's meta is its measurement, overlaid on the derivation. The
+   overlay is here rather than inside `facing()` so the derived answer stays
+   readable beside it: what is measured, what is the building's, and where they
+   differ, all in one place. */
+const _facing = LIT.facing.bind(LIT);
+/** The meta a facing's geometry IMPLIES — the lens, the standpoint, the plan —
+ *  with no painting in it. This is what `plan-projection` derives and what
+ *  `projection.md` prints, and it stays reachable because a painted facing has
+ *  both numbers and a reader needs to be able to name which one it means. */
+LIT.derivedFacing = (loc, f) => _facing(loc, f);
+LIT.facing = function (loc, f) {
+  const m = _facing(loc, f);
+  const over = LIT.MEASURED[m.key];
+  return over ? Object.assign(m, over) : m;
 };
 
 /* Test-side re-implementation of the ground-plane math from a meta's own

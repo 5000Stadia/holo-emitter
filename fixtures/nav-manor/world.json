@@ -1,0 +1,16 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    { "id": "study", "facings": ["N","E","S","W"],
+      "exits": [ { "id": "door_study_hall", "from": "study", "facing": "E",
+                   "to": "hall", "arrive_facing": "E", "via": "door1" } ] },
+    { "id": "hall", "facings": ["N","E","S","W"],
+      "exits": [ { "id": "door_hall_study", "from": "hall", "facing": "W",
+                   "to": "study", "arrive_facing": "W", "via": "door1" } ] }
+  ],
+  "entities": [],
+  "relations": [],
+  "knowledge": {
+    "player": []
+  }
+}

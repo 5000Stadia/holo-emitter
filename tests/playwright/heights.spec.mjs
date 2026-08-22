@@ -336,6 +336,22 @@ test.describe("§12.5 — rendered geometry against grid canonical meta", () => 
     // the wall has its feet exactly on the floor line.
     for (const key of LIT.facingKeys()) {
       const m = LIT.facing(...key.split("/"));
+      if (m.measured) {
+        /* [Row 21] On a PAINTED facing these two are not one statement written
+           twice: the floor line is read off the painting and the scale off the
+           painting's own calibration feature, while the eye height is the
+           project's, measured at row 20 off this same frame and since then a
+           constant every other facing is derived from. They agree to half a
+           thousandth of a pixel — which is the strongest single piece of
+           evidence in the row that the picture and the arithmetic are one
+           camera, and it would be worth nothing if it were asserted to the
+           float, because then it would only be saying that one number came
+           from the other. */
+        expect(Math.abs(horizonPx + EYE_M * m.px_per_m_at_wall - m.floor_line_y * LIT.H),
+          `${key} wall-plane end, measured against the project's own eye height`)
+          .toBeLessThanOrEqual(0.5);
+        continue;
+      }
       expect(horizonPx + EYE_M * m.px_per_m_at_wall, `${key} wall-plane end`)
         .toBeCloseTo(m.floor_line_y * LIT.H, 6);
     }

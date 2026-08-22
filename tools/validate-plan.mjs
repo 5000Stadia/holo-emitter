@@ -1048,7 +1048,24 @@ export function validatePlan(plan, world, records) {
     }
     {
       const rec = records && records[o.id];
-      if (!rec && records) push(`object "${o.id}": no §6 record — nothing binds this footprint to an object of a known size`);
+      /* [Row 21] The record map is keyed by ENTITY id, so it can only hold a
+       * record for an object the world beside the plan actually names. A world
+       * that holds the entity and cannot produce its record is the defect this
+       * clause was written for and still fires — and so does a world that
+       * stages other furniture and not this piece, which is a disagreement
+       * between two documents about what the room contains.
+       *
+       * What is NOT a finding is a world that stages NOTHING AT ALL: the
+       * navigation world is the manor with no furniture in it, so no footprint
+       * in the plan can be bound to anything and the check is unavailable
+       * rather than failed. `planWarnings` says how many went unjudged, so the
+       * weaker run is never silently weaker. The discriminator is the world's
+       * own emptiness, not this object's absence, because "the plan draws a
+       * desk this world does not hold" means one thing in a furnished world
+       * and another in an empty one. */
+      if (!rec && records && (worldLocation.has(o.id) || worldLocation.size > 0)) {
+        push(`object "${o.id}": no §6 record — nothing binds this footprint to an object of a known size`);
+      }
       if (rec && rec.dims_m) {
         const w = o.footprint.x1 - o.footprint.x0, d = o.footprint.y1 - o.footprint.y0;
         const ok = (Math.abs(w - rec.dims_m.w) < 1e-6 && Math.abs(d - rec.dims_m.d) < 1e-6) ||
@@ -1103,6 +1120,17 @@ export function planWarnings(plan, records, world) {
   /* The check that did not run. Plan-only validation is legitimate (§4b item
    * 2's host emits geometry with no world beside it) but it is weaker, and the
    * weakening has to be visible rather than inferred from a shorter list. */
+  /* [Row 21] And the same sentence for the objects a supplied world does not
+   * name: the plan draws furniture, this world stages none of it, so those
+   * footprints went unjudged. Saying how many is what keeps "unavailable" from
+   * reading as "checked". */
+  if ((plan.objects || []).length && records && isObj(world)) {
+    const held = new Set((world.entities || []).map((e) => e.id));
+    const orphans = plan.objects.filter((o) => !held.has(o.id));
+    if (orphans.length) {
+      out.push(`${orphans.length} object footprint(s) — ${orphans.map((o) => o.id).join(", ")} — were NOT cross-checked against their §6 dims: the world beside this plan names no such entity, so the plan draws furniture this world does not stage`);
+    }
+  }
   if ((plan.objects || []).length && !records) {
     out.push(`${plan.objects.length} object footprint(s) were NOT cross-checked against their §6 dims — no records were supplied, which is the plan-only case; run with a world beside the plan for the full check`);
   }

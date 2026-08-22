@@ -372,8 +372,21 @@
       if (exit.from !== viewstate.location || exit.facing !== viewstate.facing) {
         return refuse(envelope, "go", id, OUTCOME.REFUSED_UNREACHABLE);
       }
+      /* [Row 21] A doorway with no leaf is an opening, and an opening is
+       * always open. `exit.via` names the thing that fills the doorway; where
+       * the world holds no such entity the doorway is a fact about the
+       * BUILDING — the wall has a hole in it, the backdrop paints it, and the
+       * §5 meta carries its rectangle — so there is nothing to refuse on.
+       * Where the world DOES hold the leaf, it governs exactly as before.
+       *
+       * A typo in `via` reads as an unfilled doorway here, which is why the
+       * fixture validator refuses an exit whose `via` resolves to neither a
+       * staged transition entity nor an opening the facing's meta carries.
+       * This module is the stand-in for a transport that ships unvalidated
+       * worlds, so its own rule is the simple one and the document's rule is
+       * where the typo is caught. */
       var door = findEntity(world, exit.via);
-      if (!door || door.state !== "open") {
+      if (door && door.state !== "open") {
         return refuse(envelope, "go", id, OUTCOME.REFUSED_CLOSED);
       }
       viewstate.location = exit.to;
@@ -486,7 +499,15 @@
       for (var x = 0; x < exits.length; x++) {
         var exit = exits[x];
         keys.push("go." + exit.id + "." + OUTCOME.ARRIVE);
-        keys.push("go." + exit.id + "." + OUTCOME.REFUSED_CLOSED);
+        /* The predicate is the one `handleGo` reads, not a resemblance to it:
+         * a refusal on a shut door can only be emitted where a leaf entity
+         * exists to be shut. [Row 21] An exit through an unfilled opening —
+         * the navigation world's two — can never emit it, and enumerating it
+         * anyway would demand an authored line for something that cannot
+         * happen. */
+        if (findEntity(world, exit.via)) {
+          keys.push("go." + exit.id + "." + OUTCOME.REFUSED_CLOSED);
+        }
         for (var s = 0; s < standpoints.length; s++) {
           if (standpoints[s] !== exit.from + "/" + exit.facing) {
             keys.push("go." + exit.id + "." + OUTCOME.REFUSED_UNREACHABLE);

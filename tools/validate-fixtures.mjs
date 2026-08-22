@@ -69,6 +69,7 @@ const harness = require_("../src/harness.js");
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CANVAS_W = 1536;
+const CANVAS_H = 1024;
 
 /* §4's named overlap pairs: co-staged on one facing, projected screen
  * x-spans AND y-spans intersect. */
@@ -205,7 +206,7 @@ const META_KEYS = [
  * plan; keeping the plan read out of this function is what lets the CLI, the
  * bake and the tests hand in the same map the page was baked with.
  */
-function metaForFacing(facingStr, findings, derived) {
+export function metaForFacing(facingStr, findings, derived) {
   const parts = String(facingStr).split("/");
   if (parts.length === 2) {
     const p = join(ROOT, "backdrops", parts[0], parts[1] + ".meta.json");
@@ -228,12 +229,27 @@ function metaForFacing(facingStr, findings, derived) {
 }
 
 /**
+ * [Row 21] Where a fixture's plan lives: its own `plan.json`, or the
+ * repo-relative path in its `plan.ref`. The navigation fixture walks the same
+ * manor the demo fixture does, and a second copy of that plan would be a
+ * second home for a fact — so it points instead. One home for the resolution
+ * rule too: the bake imports this rather than repeating it.
+ */
+export function resolvePlanPath(fixtureDir) {
+  const own = join(fixtureDir, "plan.json");
+  if (existsSync(own)) return own;
+  const ref = join(fixtureDir, "plan.ref");
+  if (existsSync(ref)) return join(ROOT, readFileSync(ref, "utf8").trim());
+  return own;
+}
+
+/**
  * Tier 2 of the meta resolution: every facing the world names, projected from
  * the fixture's own plan. The bake writes exactly this map into fixture.js,
  * so the validator, the page and the renderer all read one geometry.
  */
 function derivedMetasFor(fixtureDir, world, findings) {
-  const planFile = join(fixtureDir, "plan.json");
+  const planFile = resolvePlanPath(fixtureDir);
   if (!existsSync(planFile)) {
     findings.push("plan.json: missing — the plan is the fixture's spatial source (blueprint §4b), and without it every facing falls back to the unplanned-facing meta");
     return {};
@@ -305,6 +321,37 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
         findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m overlaps the one before it [row11:meta.segment_order]`);
       }
       prev = seg.to_m;
+    }
+  }
+  /* [Row 21] `openings` is the doorway as a fact about the BUILDING: the
+   * rectangle a player walks through, in scene pixels, derived from the plan
+   * on a synthesized facing and measured off the painting on a real one. It is
+   * the aperture where no leaf is staged AND the `go` target, so a malformed
+   * entry is a hole in a wall nobody can see or a click target over solid
+   * paint — §11's "the painted opening must coincide with the click target"
+   * read as a schema. */
+  if (meta.openings !== undefined) {
+    if (!Array.isArray(meta.openings)) {
+      findings.push(`${label}: openings is ${JSON.stringify(meta.openings)}, not a list of rectangles [row21:meta.openings_list]`);
+    } else {
+      for (const o of meta.openings) {
+        if (!isObj(o) || ["x", "y", "w", "h"].some((k) => typeof o[k] !== "number" || !isFinite(o[k])) ||
+            !(o.w > 0) || !(o.h > 0)) {
+          findings.push(`${label}: opening ${JSON.stringify(o)} is not a rectangle with a width and a height [row21:meta.opening_rect]`);
+          continue;
+        }
+        if (o.via !== null && o.via !== undefined && typeof o.via !== "string") {
+          findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} carries via ${JSON.stringify(o.via)} — the id of the entity that fills it, or null [row21:meta.opening_via]`);
+        }
+        /* NOT checked here: whether the rectangle is in frame. Under a pinned
+         * lens a wall runs past the frame and so do its carriers — the cross
+         * passage's 8.00 m south wall carries a door 1720 px out — and
+         * refusing that would refuse the honest picture, exactly as row 20's
+         * retired (i) would have. What must be in frame is the opening an EXIT
+         * uses, because that one is a `go` target a player has to be able to
+         * reach; that clause is on the exit, where the world says which
+         * openings are doors you may walk through. */
+      }
     }
   }
   if (type !== null && !FACING_TYPES.includes(type)) {
@@ -755,8 +802,31 @@ export function validate(fixtureDir, records, derivedMetas) {
   /* Exits: via -> entity, to/from -> locations, arrive_facing in target
    * facings, facing in from-location facings. */
   for (const [exId, ex] of exits) {
+    /* [Row 21] `via` names the thing you pass through, and there are exactly
+     * two kinds. A LEAF is an entity, staged where the exits name it, and the
+     * clause below still holds it to that. An OPENING is a fact about the
+     * building — a hole in the wall no entity fills — and it is carried by the
+     * facing's own §5 meta, derived from the plan for a synthesized facing and
+     * measured off the painting for a real one. An empty painted room is
+     * walkable because of the second kind.
+     *
+     * Naming NEITHER is the finding, and it has to be, because the harness
+     * reads an unfilled opening as an open one: without this clause a typo in
+     * `via` would become a doorway the player walks through in a blank wall.
+     * The two arms carry two tokens, because one token over two behaviours is
+     * one countable thing the ledger can only ever exercise on whichever arm
+     * its case reaches. */
     if (!entities.has(ex.via)) {
-      findings.push(`world.json: exit "${exId}" via "${ex.via}" names no entity`);
+      const fs2 = ex.from + "/" + ex.facing;
+      const m = metaForFacing(fs2, findings, derived);
+      const holes = (m && m.openings) || [];
+      const hole = holes.find((o) => o && o.via === ex.via);
+      if (!hole) {
+        findings.push(`world.json: exit "${exId}" via "${ex.via}" names no entity, and ${fs2}'s meta carries no opening for it — an exit through neither a leaf nor a doorway [row21:exit.via_unfilled]`);
+      } else if (hole.x + hole.w <= 0 || hole.x >= CANVAS_W ||
+                 hole.y + hole.h <= 0 || hole.y >= CANVAS_H) {
+        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, which is off the ${CANVAS_W}×${CANVAS_H} frame — a way through nobody can see or click [row21:exit.opening_offscreen]`);
+      }
     }
     const fromLoc = locations.get(ex.from);
     const toLoc = locations.get(ex.to);
@@ -970,6 +1040,12 @@ export function validate(fixtureDir, records, derivedMetas) {
     const entB = entities.get(b);
     const plsA = a in placements ? placementList(placements[a]).filter((p) => isObj(p) && !isAnchorPlacement(p)) : [];
     const plsB = b in placements ? placementList(placements[b]).filter((p) => isObj(p) && !isAnchorPlacement(p)) : [];
+    /* [Row 21] A world that holds NEITHER half of a pair is not a world the
+     * pair is about — the navigation world stages no furniture at all, and
+     * demanding a chair×desk from it would be this validator insisting every
+     * fixture be the demo fixture. A world holding ONE half and not the other
+     * is still the defect this clause exists to catch, and still fires. */
+    if (!entA && !entB && plsA.length === 0 && plsB.length === 0) continue;
     if (!entA || !entB || plsA.length === 0 || plsB.length === 0) {
       findings.push(`staging.json: overlap pair ${pairName} cannot be evaluated — both entities must exist and carry facing placements (§4's named pairs)`);
       continue;

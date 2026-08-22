@@ -1,11 +1,21 @@
 # Approvals ledger — every human gate verdict, recorded where checks can read it.
 # Format: date | scope | verbatim word | commit context
 # Navigator-maintained; a gate's mechanical check may assert against this file.
+#
+# [Row 21] AND ONE NOW DOES, which is what this file was stood up for. A batch
+# entry names its own directory in the scope column, and the last column is the
+# commit the verdict was given against — `pending-close` or `-` while it is
+# still open. `plan.spec` reads that: while an entry is open the batch it names
+# must still be in the tree AND `approval.lock` must still carry its `pending`
+# line, so the gate retires when a VERDICT is recorded here and not when a
+# directory stops existing. Deleting the batch and the line together used to
+# report five passes; now it reports a ledger entry with nothing under it.
 
 2026-08-19 | solo form + method | "solo approved, exactly as you framed it" | 0b4eb13
 2026-08-21 | manor schematic APPROVED + 4 rulings (garden wall, court, wide-view camera, straight stairs) | "aproval on the schematic" | 9059605
 2026-08-21 | style seed | "Warm" | 1982bff
 2026-08-21 | study-N backdrops, all three | "All are fine they are near identical they all get my approval" | b784186
 2026-08-21 | fullscreen | "Full screen os fine for now" | 8c0338c
-2026-08-22 | row-20 batch verdict + eye fork | "Whatever looks good" (delegated to Navigator judgment) | pending-close
+2026-08-22 | row-20 batch verdict + eye fork (design/batches/row20-lens) | "Whatever looks good" (delegated to Navigator judgment) | pending-close
 2026-08-22 | camera A/B (low vs standing eye) | AWAITING KABE | -
+2026-08-22 | row-21 painted promotion batch (design/batches/row21-promotion) | AWAITING KABE | -

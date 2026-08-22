@@ -14,7 +14,8 @@ that mentions `GRID_META`: it is the unplanned-facing fallback now, not the geom
 the demo draws.*
 
 ```
-index.html                      scene canvas 1536×1024 + overlay + chevrons + narration log +
+index.html                      boots ?world=<id> (default nav-manor) + scene canvas 1536×1024 +
+                                overlay + chevrons + narration log +
                                 inventory strip + go-fade veil + boot/fault surfaces +
                                 bootstrap (point→meaning, click→intent, hover)
 src/renderer.js                 pure draw §7 steps 1–6; layout / apertures / stamp / hitTest
@@ -26,7 +27,13 @@ src/groundplane.js              scale(y) ↔ y, depth→y, xAtU/xAtScale, placeH
 src/placeholders.js             procedural placeholder library: complete §6 records + painters
 src/inventory.js                inventory strip: a projection of held_by relations
 design/surface-strings.md       every string the surface can show — the audit voice.spec parses
-fixtures/demo-study/*.json      world / staging / narration / viewstate (§3–4; truth)
+fixtures/demo-study/*.json      world / staging / narration / viewstate (§3–4; truth) — FURNISHED
+fixtures/nav-manor/*.json       the same four, EMPTY: the painted walkable world the link boots
+fixtures/nav-manor/plan.ref     one line: the plan this fixture is projected from (no second copy)
+backdrops/<loc>/<facing>.png    a PROMOTED painting + its measured .meta.json (row 21; study/N)
+backdrops/baked.js              GENERATED: the promoted paintings as data: URIs (tools/bake-backdrops.mjs)
+tools/promote-backdrop.mjs      candidate + measurement -> backdrops/<loc>/<facing>.{png,meta.json}
+design/plan-draft/measured/     measure.py --round cand2 | gate.py | prompt_lint.py | misses.jsonl
 fixtures/demo-study/plan.json   the manor in metres (§4b) — the spatial source, presentation-side
 fixtures/demo-study/fixture.js  GENERATED from the .json files (see the bake; the plan is NOT baked)
 tools/bake-fixtures.mjs         the bake — calls both validators and refuses an invalid fixture
@@ -38,7 +45,9 @@ tests/playwright/               config + helpers + specs; run: npx playwright te
 ```
 
 Not built yet: the replicator (row 3), real backdrops and sprites (row 4+), row 9 (the speaker
-layer). Nothing exists under `backdrops/`, `library/`, or `library-src/`. Rows 7, 8 and 10 (the
+layer). Nothing exists under `library/`; `backdrops/` holds the asset seat's candidates and, since
+row 21, ONE promoted painting (`backdrops/study/N.png` + `.meta.json`) — read *The painted
+promotion (row 21)* below before anything that mentions a backdrop. Rows 7, 8 and 10 (the
 storefront sweep, fullscreen, keyboard/assistive access + reduced motion) are done.
 
 ## The file:// constraint and the bake
@@ -524,7 +533,7 @@ asset.
 ## The room, and what a facing's meta is (row 11)
 
 **Three tiers, one resolution rule, used by four consumers.** A facing's §5 meta is a measured
-`backdrops/<loc>/<facing>.meta.json` if one exists (row 4's; none yet), else the plan's derived meta
+`backdrops/<loc>/<facing>.meta.json` if one exists (row 21 promoted the first, `study/N`), else the plan's derived meta
 (`tools/plan-projection.mjs` `metaForFacing`/`deriveMeta`), else `GRID_META`. The bake computes the
 middle tier for every facing the world names and writes it into `fixture.js` as
 `HOLO_FIXTURE.metas`; `index.html` turns that into the renderer's `backdrops` map as `{ meta }`
@@ -1018,9 +1027,319 @@ text, so the hand-offs are recorded here where they survive its close:
   integration/sprite phase and it wants the meta-carried opening above. **What
   row 20 shipped is honest interim, not a defect hidden**: what the code draws
   today is a dark aperture, and the batch README says so in those words rather
-  than letting a reviewer discover it.
+  than letting a reviewer discover it. **BUILT AT ROW 21**, with the destination
+  drawn through `render` itself so a painted room and a drawn one arrive by one
+  path.
 - **Rows 18 and 19**: eight more ledger tokens, and row 19's carrier work partly
   reached here for standpoints only (`plan.standpoint_clear`).
+
+## The painted promotion (row 21) — one wall, two worlds, and a doorway with a room behind it
+
+**One wall of eight is painted, and that is the row's whole corpus.** `study/N` — the frame Kabe
+approved on 2026-08-21 — is promoted to `backdrops/study/N.png` with a measured
+`backdrops/study/N.meta.json`. The other seven candidates were measured and none was admitted; the
+verdicts and their diagnosed causes are below. Everything else about the row follows from that one
+promotion and from what an empty painted room needs in order to be walkable.
+
+### The gate, and what it refused
+
+`design/plan-draft/measured/measure.py --round cand2` (the default; `--round cand1` still
+reproduces the committed cand-1 run byte-for-byte) measures all eight candidates, and `gate.py`
+prints the verdict: a candidate is admitted when its `px_per_m_at_wall` times its own DRAWN
+standpoint distance lands within ±3 % of `study/N`'s measured 1010 px.
+
+```
+facing      standpt       px/m     TARGET   focal px   verdict
+hall/E         6.00      88.85      168.3        533   FAIL  -47.2%
+hall/N         2.15          -      469.8          -   WITHHELD
+hall/S         2.15          -      469.8          -   WITHHELD
+hall/W         6.00     106.00      168.3        636   FAIL  -37.0%
+study/E        4.09     235.50      246.9        963   FAIL   -4.6%
+study/N        4.35     232.22      232.2       1010   PASS
+study/S        3.85          -      262.3          -   WITHHELD
+study/W        4.09     233.22      246.9        954   FAIL   -5.6%
+```
+
+**WITHHELD IS NOT FAIL AND MAY NOT BE QUOTED AS ONE.** A FAIL is a fact about a painting and
+carries a delta the asset seat can act on. A WITHHELD is a fact about our own measurement — nothing
+in that frame can be turned into a scale — and carries `blocked_on` instead of a re-ask, because a
+re-ask sent against a number nobody could measure sends the seat chasing a defect that is on our
+side. `gate.py` prints them differently and `misses.jsonl` types them (`generation_miss` /
+`measurement_withheld`); a null `px_per_m_at_wall` is what a withheld facing writes, and reading
+that as a zero is the failure this distinction exists to prevent.
+
+**The ruler is chosen by a rule fixed before the answer.** Tier 1 is a ruled-size feature painted in
+the wall plane (a door opening at 1.00 × 2.00 m, the fireplace at 0.90 m, a window bay at 0.90 m);
+tier 2 is the panelling module transferred from the approved frame of the SAME room; tier 3 is the
+plan's own ruled wall width, adopted only with the circularity said out loud. Every ruler a facing
+admits is measured and recorded in its JSON, a FAIL is issued only where EVERY admissible ruler
+fails, and where the rulers straddle the band the verdict is WITHHELD — because then the choice of
+ruler would choose the verdict. That is what makes the control mean something: `study/N` measured by
+the same code returns its committed numbers exactly (ceiling 81, floor 777, corners 142/1389,
+fireplace 209 px, 232.222 px/m), which proves the code reads what it always read, and the
+per-facing cross-ruler agreement is what says whether a RE-TUNED window is looking at the feature it
+names. `design/batches/row21-promotion/measured/<loc>-<facing>-marked.png` is each frame with every
+line the measurement used drawn on it — a ruler lying on nothing is visible to a human in one look
+and to no amount of JSON.
+
+**Numbers this row overturned in the round-20 record**, all of them by re-measuring: `study/W`'s
+left corner was 208 under the cand-1 corner rule and is 144 (the 25 %-of-mid-wall threshold fails on
+a dimly lit wall half; the cand-2 rule uses a local reference and reproduces the control exactly);
+`study/S`'s three window bays are 235.5 / 255.0 / 235.5 px, not the 20 % spread first read by hand;
+`hall/W`'s jambs are 709/825, the 709 being the wall-plane corner where the hand read the reveal's
+inner edge.
+
+### The miss ledger, and the two causes now refused before an image is made
+
+`design/plan-draft/measured/misses.jsonl` — one JSON object per line, header first, seven entries —
+supersedes `miss-ledger.json`, which is deleted: the machine-readable file is the one home.
+`design/production-law.md` clause 2 is what it answers to, and clause 3 is why
+`design/plan-draft/measured/prompt_lint.py` exists. Two causes, both properties of the PROMPTS
+rather than of the generator, both mechanical:
+
+- **The prompt contradicted itself about the camera.** Five of the seven carry `Avoid: changing the
+  camera scale` in one paragraph and *"move the camera closer until the wall spans about 1346 px"*
+  in the next. The negative won every time — `study/E` and `study/W` came back corner-for-corner
+  identical to the round before them (1194 px and 1246 px), and `study/E`'s door head sits at y 308
+  in both rounds.
+- **The prompt left the gate nothing to measure.** `hall/N` and `hall/S` were prompted with *"NO
+  floor line … NO corners in frame"* on a wall with *"no feature, carrier, opening, or
+  decoration"*. The paintings obeyed perfectly and are unmeasurable by construction.
+
+The lint refuses a prompt carrying either, and requires every prompt to declare its own
+`Gate anchor: <feature>, <size> m`. Measured over this round: 5 of 7 contradict, 7 of 7 declare no
+anchor, 2 of 7 ask for a frame the gate can never measure. **It is not yet clocked as an
+improvement and says so** — the metric is the FIRST-ROLL PASS RATE, its baseline is 0 of 7, and the
+next round is what says whether these clauses moved it. Blueprint §11 carries the rule as product
+law; the lint is its enforcement.
+
+### The promoted meta, and what is measured versus what is the building's
+
+`tools/promote-backdrop.mjs --facing study/N --candidate <png>` writes both files and is the only
+way a painting gets into `backdrops/<loc>/`. It **refuses a candidate the gate did not admit**, in
+the validator's own words, so "admitted" is decided by the measurement and never by whoever ran the
+promotion. It is a generator, not a hand: re-running it is a byte no-op, and re-measuring and
+re-running it moves the meta with the measurement. That is also what makes the promotion cheap to
+reverse if the camera A/B on `design/approvals.log`'s open line ever picks the standing eye.
+
+Measured off the painting: `floor_line_y` (777 px), `horizon_y` (the **ceiling-ramp** intersection,
+524.4 px — the instrument the Navigator ruled at row 20, not the vanishing-point vote's 498),
+`px_per_m_at_wall` 232.222, the corners 142/1389, `key_tint`, `key_dir`, `calibration_ref/px`.
+Taken from the plan: `wall_width_m` 5.45, `camera_wall_m` 4.35, `storey_height_m`, `facing_type`,
+`wall_segments`, and where the doorways stand. `measured: true`, `provisional: false`.
+
+**What that costs and what it buys.** The measured scale is 1.35 % under what the ruled lens at the
+drawn 4.35 m would give (235.402), so promoting a facing moves its corners ~16 px and every drawn
+height on it by that fraction. `LIT.MEASURED` in `tests/playwright/helpers.mjs` carries those
+numbers, typed by hand from the committed meta exactly as the standpoints are typed from the
+approved sheet, and `LIT.derivedFacing` still returns what the lens alone implies — a painted facing
+has two answers and a reader has to be able to name which one it means. `projection.md`'s facing
+table is judged against the DERIVED one, because that report is the plan's projection and not a
+description of a painting.
+
+**Two lenses in one room, and it is named rather than hidden**: the study's north wall is now on the
+measured 1010 px camera while its other three are on the ruled 1024 px one. That is 1.4 %, it is
+inside the band blueprint §5 admits, and it is the shape of the defect row 20 removed arriving one
+facing at a time. It closes when the room is wholly painted; until then a room may be half-promoted
+and this paragraph is the record that it was a decision.
+
+### `key_dir` on a painted facing is what the painting does, not what §5 hoped
+
+The promoted meta carries `key_dir: "L-BELOW"`, not §5's `"UL"`. The brightest patch in the approved
+frame is the hearth fire — left of centre and below the horizon — and that is the light a sprite
+standing in that room has to match. Writing `"UL"` would have told row 4's sprite lane to light
+against the painting. Nothing in the renderer reads the field; the sprite lane does.
+
+### Two worlds, and which one the link boots
+
+`index.html` boots `?world=<id>`, defaulting to **`nav-manor`** — the painted, walkable, EMPTY
+world: the manor's two rooms, four facings each, no entities at all. The furnished demo world is at
+`?world=demo-study`, and the README names that link, because the storefront is ruled mute and a
+query parameter nothing names is a room with no door. [Navigator ruling, 2026-08-22, on the human's
+own milestone direction — *"just do empty rooms for now… master the schematic to empty room
+navigation first"* — with the interactable showcase returning as the sprite phase's first live
+push.]
+
+The bake registers each world under its directory name in `window.HOLO_FIXTURES`; `HOLO_FIXTURE` is
+set by the PAGE to the world it actually booted, so that name means the world on screen rather than
+whichever script tag came last. An unknown `?world=` boots nothing and takes the existing
+product-voiced boot surface — a page that boots something other than what it was asked for is the
+picture lying about the document. `tests/playwright/helpers.mjs`'s `appUrl` appends
+`?world=demo-study` so every spec written before this row keeps the world it was written against;
+`navUrl` is the bare URL and `nav-walkthrough.spec.mjs` is what walks it.
+
+**A fixture may carry `plan.ref`** — one line naming the plan it is projected from — instead of its
+own `plan.json`. The manor plan has one home and the navigation fixture does not copy it. The bake
+refuses a fixture with neither, and `resolvePlanPath` in `tools/validate-fixtures.mjs` is the one
+home of that resolution.
+
+**The bake resolves the MEASURED tier now.** It used to bake `metaForFacing` from
+`plan-projection.mjs`, which knows only tiers 2 and 3 — so a promoted painting's own geometry
+reached the validator and never reached the page, and the picture would have been drawn with
+numbers nobody measured. The bake calls the validator's `metaForFacing`, which is the one home of
+the three-tier rule.
+
+**The paintings reach the page as data: URIs.** A `file://` page drawing a `file://` image taints
+the canvas in Chromium and every hash test reads the canvas back. `tools/bake-backdrops.mjs` writes
+`backdrops/baked.js` from the PROMOTED pngs only — never from `backdrops/source/`, because a
+candidate is not a backdrop until it is gated. The page puts each decoded image in a hidden
+`#backdrop-store` **in the document**, so the browser's own load event waits for it and the first
+frame is of the painting rather than a grid that flips a frame later. Two consequences worth
+knowing: the boot handler's "nothing of this place can be shown" is deferred to the LOAD event now
+rather than to the next task, because a healthy page has painted nothing at the next task; and a
+painting that will not decode drops to the grid with the detail on the console, which is the same
+accepted deviation as a stale bake and has the same mitigation. **Cost, measured**: 2.6 MB of PNG
+becomes 3.4 MB of base64, so eight facings would be ~27 MB of JavaScript parsed before the first
+paint. The lever for the row that promotes the rest is a lossy encode (a q92 JPEG is about a
+seventh), and taking it means deciding whether the flip test may judge a picture the repository does
+not hold. Named here rather than sprung on that row.
+
+### The doorway is a fact about the building
+
+Until this row the only thing that knew where a doorway was in the picture was the door LEAF's §4
+placement — so a room with no leaf staged in it had no doorway at all, which is exactly what an
+empty painted room is. `deriveMeta` emits `openings[]` per facing now: `{ id, via, x, y, w, h,
+beyond_m, beyond_offset_m }` in scene pixels, the x-extent through `groundplane.xAtScale` from the
+plan's own opening rect at WALL scale (the near face — the face a player aims at and the face the
+leaf's placement is computed at), and the height from blueprint §11's ruled 2.00 m door opening.
+That constant lives in `plan-projection.mjs` as `DOOR_OPENING_HEIGHT_M` **because the plan carries
+no vertical datum** and adding one would move the drawn digest of the plan Kabe approved.
+
+`apertures()` resolves per exit, in this order and no other:
+
+1. the staged leaf's placement rectangle where the world holds a leaf — unchanged, and still
+   knowledge-filtered, because a leaf is an entity and a door the player has not been told about
+   must leave no hole;
+2. otherwise the facing meta's opening for that `via` — a building fact, and **not**
+   knowledge-filtered, because the wall has the hole whether or not the player knows anything and a
+   painted backdrop shows it either way. Filtering it would make the picture contradict the painting
+   it is drawn from.
+
+The discriminator is whether the WORLD holds an entity of that id, not whether one is staged, so the
+demo world's knowledge-filter case is untouched. `handleGo` refuses on a leaf that is not open and
+permits passage through an opening no entity fills; `resolve` in `index.html` returns `doorway` for
+an unfilled opening (without this the painted world had a hole in its wall, a `go` the harness would
+have honoured, and no pointer path to it); the keyboard go-control follows the same rule, so an
+empty painted room is not walkable by mouse alone. A typo in `via` cannot become a way through a
+blank wall: the fixture validator refuses an exit whose `via` resolves to neither a staged
+transition entity nor an opening the facing's meta carries (`[row21:exit.via_unfilled]`), and one
+whose opening is off the frame (`[row21:exit.opening_offscreen]`).
+
+`enumerateNarrationDomain` no longer enumerates `go.<exit>.refused_closed` where no leaf exists —
+the predicate is the one `handleGo` reads, so the navigation world is not asked to author a line for
+a refusal it cannot emit.
+
+### Through an opening, the destination room — never void
+
+The row's one real rendering task. What stood here was a dark fill: **92,061 pixels of the study's
+own doorway darker than luminance 12, and none now** (`backdrop_only`, the meta opening's own rect).
+That is the picture saying VOID where the document holds a passage, which makes it product truth
+rather than polish.
+
+One device serves painted and synthesized facings alike, because it draws the destination through
+`render` itself: the destination facing's own picture — its painting if it has one, its grid if it
+does not, and whatever the document stands in it — scaled and clipped into the opening. Three things
+decide the transform, and all three come from documents:
+
+- **the scale** is `d_dest / (d_here + beyond_m)`: the destination's own wall stands that far from
+  THIS camera and its painting draws that wall at `d_dest`. It is NOT the ratio of the two
+  standpoint distances, which assumes the far camera stands in the doorway and draws the next room
+  **26 % too large** — 6.00/(4.09+6.00) against 6.00/12.69.
+- **the horizontal placement** is the destination's own view axis, `beyond_offset_m` to the side of
+  this one, at the far wall's own scale.
+- **the vertical placement** is horizon onto horizon. Both cameras are level and at one eye height,
+  so a floor point at any distance lands on the same row in both frames — which is what stops the
+  sill reading as a step.
+
+The far room is smaller than the hole it is seen through, so its frame does not cover the opening;
+its edges are extended into the remainder rather than left as void, because the floor beyond does
+continue toward you and a hard edge where a picture ran out would be a claim nobody made. It is
+dimmed to 58 % (`THROUGH_DIM` 0.42), which is a look decision made by a constant and goes to Kabe in
+the batch as one.
+
+**A shut door shows no room**: the leaf is a sprite with its own alpha and does not fill its
+placement rectangle to the pixel, so a lit room drawn behind a closed leaf leaks around its edges.
+**`no_through` stops the recursion at one room** — looking through a door never draws the door
+beyond it — and it is also the switch the ledger case flips to measure the void the device replaced.
+Every other option is inherited by the inner render, so a flip pair's backdrop-only half is
+backdrop-only on both sides of the wall.
+
+**What guards it is geometric, not dark.** "Never void" is met by any non-black fill, so a check
+that measured darkness would pass a destination pasted at any scale at all. `geometry.spec` predicts
+the passage's far corner at x 961.7 and its floor line at y 612.2 from four typed numbers — the
+study's standpoint distance, the 8.60 m between the two wall lines, the passage's ruled 2.60 m
+width, and its axis offset of 1.10 m — and measures both off the render. The wrong transform puts
+that corner at x 1012, a fifth of the opening away.
+
+**Named limits.** The destination is a frame drawn from ANOTHER standpoint, so only its scale,
+its axis and its horizon are made true: the parallax within it is the destination camera's, not
+this one's. Nothing is drawn through two doorways deep. Both are consequences of pasting a frame
+rather than re-projecting a room, and re-projecting one needs geometry no §5 meta carries.
+
+### What the tests now say about a painted facing, and where the two branches part
+
+Every clause that reads the GRID's own structure is scoped by `meta.measured`, and the scoping is
+asserted rather than assumed:
+
+- §12.8's grid clause moved to `study/W` — until a painting existed it could not discriminate, since
+  every facing rendered the grid — and gained its converse: a facing WITH a backdrop asset renders
+  the painting, measured as a different picture from the grid the same facing would draw.
+- §12.5's camera-has-feet test branches: a painted facing has no drawn metre module, so what runs on
+  it is **(ii)** — the corners MEASURED off the image against `wall_width_m × px_per_m_at_wall`,
+  1247 px against 1265.6, a 1.5 % residual inside the ±3 % the calibration audit allows — plus the
+  same camera-has-feet residual read off the painting's own floor line, found at y 777 by luminance
+  step. Clause (ii) had had no subject since row 11 wrote it.
+- `mechanisms.spec`'s per-facing corner test SKIPS a painted facing, visibly, rather than returning
+  early.
+- `heights.spec`'s wall-plane identity is an equality on a derived facing (it is one statement
+  written twice) and a half-thousandth-of-a-pixel agreement on a painted one, where the floor line
+  is read off the painting and the eye height comes from outside it.
+- `guards.spec`'s four doctored-meta cases moved from `study/N` to `study/W`: doctoring the derived
+  map cannot reach a facing whose meta is resolved from a file, so those cases had gone
+  green-by-absence.
+- `stageTree` and `stagePlanTree` copy `backdrops/` (never `source/`): the metas are a bake input and
+  `baked.js` is a script the page loads, so a staged tree without them bakes a different fixture and
+  fires the missing-module fault.
+
+### The row-20 batch, and the gate that retires on a verdict
+
+`design/batches/row20-lens/`'s eleven AFTER frames are pictures **today's build does not draw** —
+six of them moved when `study/N` was painted and the doorway gained a room behind it. Re-capturing
+them would replace evidence a human has not ruled on with evidence he has never seen, so they are
+re-rendered from `ROW20_COMMIT` (`b0422ac`, the row-20 closing commit) exactly as that batch's own
+BEFORE frames are re-rendered from the build before the lens. Its `capture.mjs` gained
+`?world=demo-study` — the world it always captured, now asked for by name.
+
+**Round 7's G2 is closed.** The `pending` gate no longer retires when a directory stops existing: an
+entry in `design/approvals.log` whose last column reads `pending-close` or `-` is a gate that has
+had no word, and `plan.spec` requires that while such an entry stands, the batch it names is in the
+tree with pictures in it AND `approval.lock` carries its `pending` line. Retiring the gate means
+writing down what a human actually said and the commit he said it against — a claim about a person,
+which is the one thing an agent cannot satisfy by deleting a file. Row 21's own batch has its entry,
+reading AWAITING.
+
+### Residue, named
+
+1. **Seven walls are unadmitted and the world shows grid on them.** That is the materialization
+   fiction doing what it says, and the README says so in the player's voice — but a room in two
+   materials (fine oil realism on one wall, holodeck grid on three) is a LOOK, and the look is
+   Kabe's. It is question 6 in the batch.
+2. **The painted world is empty.** Nothing in it can be picked up, opened or refused, so the
+   intention's *contact* and *occlusion chains* have no subject in the thing the link serves. The
+   batch says so rather than letting an empty room read as a passing one.
+3. **The near-field anchor is still missing.** Residue item 1 of row 20 stands: the nearest visible
+   floor is 2.23 m on every facing and the near-surface device that would close *the camera has
+   feet* is still forbidden by the depth bound. The first painted frame is where a human first asks
+   "am I standing somewhere", and it has no near anchor in it.
+4. **`backdrops/baked.js` is a second copy of the pixels**, 3.4 MB beside a 2.6 MB PNG, both
+   committed to a public repository forever. The staleness test is the mitigation for their
+   agreement; the size is the fork named above.
+5. **The promotion rides an open human gate** — the camera A/B between the promoted low-eye cand-2
+   and `cand-4-standing-eye.png`. If the standing eye wins, this is a re-run of
+   `promote-backdrop.mjs` against a new candidate plus a regeneration batch, not a rewrite.
+6. **`prompt_lint.py` is apparatus until the next round clocks it.** The production law's fifth
+   clause presumes a change that moves neither accuracy nor speed is not an improvement; this one
+   has an argument and a baseline (0 of 7) and no result yet.
 
 ## Ground plane (`src/groundplane.js`)
 
@@ -2010,7 +2329,11 @@ meta at the RULED eye height, the ruled eye asserted against `replicator/contrac
 frame clauses (i)–(iv) over every meta the fixture can resolve, **the camera-has-feet gate measured
 from the drawn floor line and drawn horizon on all eight facings** — the clause that can fail where
 reading the derivation back cannot — and the grid scans re-pointed per facing);
-`shell` carries the new reserve/viewport numbers (row 1's stale "window width" title is dead).
+`shell` carries the new reserve/viewport numbers (row 1's stale "window width" title is dead);
+`nav-walkthrough` (row 21: the world the BARE URL boots, which no other spec opens — the painting on
+screen and not a grid, four facings by real arrow keys, the doorway clicked through in both
+directions, dead space still dead in an empty world, and the same two things in a hand at 390×844
+with the opening measured in CSS pixels against the 44 px platform minimum).
 
 **A GUARD'S TEETH ARE PROVEN BY A CRITIC FAILING TO BREAK IT, NOT BY ITS AUTHOR WATCHING ONE
 MUTATION GO RED.** [felt, row 11] This is the fourth bite of the same family on this project and the
@@ -2176,8 +2499,9 @@ out when it did not.
   with its date, his verbatim word, its scope and the commit it was given against, and the row-20
   batch's own entry sits in it reading `pending-close`. That file is G2's root. The lock's
   requirement becomes a POSITIVE assertion against it — the gate retires when the ledger records a
-  verdict, not when a directory stops existing — and **wiring this check to that file is row 21's**,
-  named here because the ledger is the root and this check is its first consumer.
+  verdict, not when a directory stops existing — and **wiring this check to that file was row 21's**;
+  **DONE THERE**: `plan.spec` reads the ledger's batch entries, and while one is open the batch it
+  names must be in the tree with pictures in it and the lock must carry its `pending` line.
 - **[Round 7, G5] Nothing distinguishes an agent editing blueprint §5's number from Kabe ruling
   it.** Moving `MEASURED_BAND`, `gate.py`'s `BAND` and the blueprint sentence together is green, and
   correctly so: the blueprint is the ruling document and reading the law from it is the right

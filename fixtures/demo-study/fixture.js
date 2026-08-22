@@ -2,18 +2,21 @@
 // The one truth lives in the sibling .json files (world.json, staging.json,
 // narration.json, viewstate.json). Edit those, then regenerate this file:
 //
-//     node tools/bake-fixtures.mjs
+//     node tools/bake-fixtures.mjs --fixture-dir fixtures/demo-study
 //
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
 //
 // `metas` is DERIVED, not authored: the §5 backdrop meta of every facing the
-// world names, projected from fixtures/demo-study/plan.json through
+// world names, projected from this fixture's plan (its own plan.json, or the
+// one its plan.ref points at) through
 // tools/plan-projection.mjs (blueprint §4b). Its one home is the plan; edit
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
-window.HOLO_FIXTURE = {
-  fp: "24966c50",
+window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
+window.HOLO_FIXTURES["demo-study"] = {
+  id: "demo-study",
+  fp: "ee44cd4a",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -146,20 +149,19 @@ window.HOLO_FIXTURE = {
   viewstate: { "location": "study", "facing": "N" },
   metas: {
   "study/N": {
-    "floor_line_y": 0.7621668462643678,
-    "px_per_m_at_wall": 235.40229885057474,
-    "px_per_m_at_bottom": 459.2967133992186,
+    "floor_line_y": 0.758789,
+    "px_per_m_at_wall": 232.222,
+    "px_per_m_at_bottom": 459.3,
     "wall_width_m": 5.45,
-    "key_tint": "#c8b489",
+    "key_tint": "#c89663",
     "image_h_px": 1024,
-    "horizon_y": 0.512109375,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 235.40229885057474,
+    "horizon_y": 0.512109,
+    "key_dir": "L-BELOW",
+    "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+    "calibration_px": 209,
+    "camera_wall_m": 4.35,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -167,13 +169,16 @@ window.HOLO_FIXTURE = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 126.52873563218384,
-    "corner_x1_px": 1409.4712643678163,
-    "focal_px": 1024,
+    "corner_x0_px": 142,
+    "corner_x1_px": 1389,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 4.35
+    "camera_id": "measured:backdrops/source/study-N/cand-2.png",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1010.2,
+    "nearest_floor_m": 2.2295,
+    "openings": []
   },
   "study/E": {
     "floor_line_y": 0.7780629202322739,
@@ -203,7 +208,19 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 4.09
+    "camera_wall_m": 4.09,
+    "openings": [
+      {
+        "id": "op13",
+        "via": "door1",
+        "x": 918.2200488997555,
+        "y": 296.00293398533006,
+        "w": 250.36674816625919,
+        "h": 500.73349633251837,
+        "beyond_m": 8.6,
+        "beyond_offset_m": 1.1
+      }
+    ]
   },
   "study/S": {
     "floor_line_y": 0.7946418425324675,
@@ -233,7 +250,8 @@ window.HOLO_FIXTURE = {
     "focal_px": 1023.9999999999999,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 3.85
+    "camera_wall_m": 3.85,
+    "openings": []
   },
   "study/W": {
     "floor_line_y": 0.7780629202322739,
@@ -263,7 +281,8 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 4.09
+    "camera_wall_m": 4.09,
+    "openings": []
   },
   "hall/N": {
     "floor_line_y": 1.0180396075581395,
@@ -293,7 +312,19 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 2.15
+    "camera_wall_m": 2.15,
+    "openings": [
+      {
+        "id": "op15",
+        "via": null,
+        "x": 1482.4186046511627,
+        "y": 89.91441860465113,
+        "w": 476.279069767442,
+        "h": 952.5581395348837,
+        "beyond_m": 5.3,
+        "beyond_offset_m": 0
+      }
+    ]
   },
   "hall/E": {
     "floor_line_y": 0.6934010416666666,
@@ -323,7 +354,8 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 6
+    "camera_wall_m": 6,
+    "openings": []
   },
   "hall/S": {
     "floor_line_y": 1.0180396075581395,
@@ -353,7 +385,19 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 2.15
+    "camera_wall_m": 2.15,
+    "openings": [
+      {
+        "id": "op14",
+        "via": null,
+        "x": 1720.5581395348836,
+        "y": 89.91441860465113,
+        "w": 476.2790697674418,
+        "h": 952.5581395348837,
+        "beyond_m": 9,
+        "beyond_offset_m": 0
+      }
+    ]
   },
   "hall/W": {
     "floor_line_y": 0.6934010416666666,
@@ -383,7 +427,19 @@ window.HOLO_FIXTURE = {
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.2294955964771814,
-    "camera_wall_m": 6
+    "camera_wall_m": 6,
+    "openings": [
+      {
+        "id": "op13",
+        "via": "door1",
+        "x": 682.6666666666666,
+        "y": 368.7093333333333,
+        "w": 170.66666666666674,
+        "h": 341.3333333333333,
+        "beyond_m": 6.05,
+        "beyond_offset_m": 1.1
+      }
+    ]
   }
 }
 };

@@ -171,6 +171,15 @@ function stagePlanTree() {
   const dir = mkdtempSync(join(tmpdir(), "holo-plan-"));
   mkdirSync(join(dir, "design"));
   for (const p of ["src", "tools", "fixtures"]) cpSync(join(repoRoot, p), join(dir, p), { recursive: true });
+  /* [Row 21] The promoted metas are a bake input — the meta resolution's first
+     tier — so a tree without them bakes a different fixture.js from the
+     committed one, and the "untouched by any of it" case would fail for a
+     reason that has nothing to do with the plan. `source/` is the asset seat's
+     20 MB lane and is not copied. */
+  cpSync(join(repoRoot, "backdrops"), join(dir, "backdrops"), {
+    recursive: true,
+    filter: (src) => !src.split(/[\\/]/).includes("source")
+  });
   cpSync(draftDir, join(dir, "design", "plan-draft"), { recursive: true });
   /* Row 11: the bake reads blueprint §10's ruled eye height out of the
      orientation contract, so it is a bake input. */
@@ -1785,6 +1794,62 @@ test.describe("the schematic is a derived render of the plan", () => {
       .toBe(!!scope);
   });
 
+  /* [ROW 21] AND THE GATE RETIRES ON A VERDICT, NOT ON A DIRECTORY.
+   *
+   * Round 7's G2, recorded at the row-20 close and left open with its root
+   * named: `rm -r design/batches/row20-lens/`, delete the `pending` line,
+   * re-run the drawing, and the suite reported 568 passed over two sheets
+   * printing a bare APPROVED above a drawing nobody had seen. Coupling the
+   * batch to the line made that twice as expensive and did not change its
+   * shape, because both halves are things an agent can delete. What cannot be
+   * deleted into compliance is a POSITIVE record: `design/approvals.log` is a
+   * committed ledger of every human gate verdict, and an entry whose last
+   * column still reads `pending-close` or `-` is a gate that has had no word.
+   *
+   * So the three move together. While the ledger says a batch is open, the
+   * batch must be in the tree and the lock must carry its line; retiring it
+   * means writing down what a human actually said, with the commit it was said
+   * against — which is a claim about a person and not about a file. */
+  const APPROVALS = join(repoRoot, "design", "approvals.log");
+  function openBatchGates() {
+    const out = [];
+    for (const line of readFileSync(APPROVALS, "utf8").split("\n")) {
+      if (line.startsWith("#") || !line.includes("|")) continue;
+      const col = line.split("|").map((c) => c.trim());
+      if (col.length < 4) continue;
+      const dir = /\((design\/batches\/[a-z0-9-]+)\)/.exec(col[1]);
+      if (!dir) continue;
+      out.push({ scope: col[1], word: col[2], commit: col[3], dir: dir[1],
+        open: col[3] === "pending-close" || col[3] === "-" });
+    }
+    return out;
+  }
+
+  test("a batch gate is open until the approvals ledger records a verdict", () => {
+    const gates = openBatchGates();
+    expect(gates.length,
+      "design/approvals.log carries no batch entry at all — the ledger is where a human gate's verdict lives")
+      .toBeGreaterThanOrEqual(2);
+    for (const g of gates) {
+      if (!g.open) continue;
+      expect(existsSync(join(repoRoot, g.dir)),
+        `${g.dir} is named by an OPEN entry in design/approvals.log, so the frames it names must still be in the tree`)
+        .toBe(true);
+      expect(readdirSync(join(repoRoot, g.dir)).filter((f) => f.endsWith(".png")).length,
+        `${g.dir} is an open human gate with no pictures in it`)
+        .toBeGreaterThan(0);
+    }
+    /* And the row-20 lock's own line is that gate's second half: while its
+       ledger entry is open the sheets must keep printing what the approval
+       does not cover. */
+    const row20 = gates.find((g) => g.dir.endsWith("row20-lens"));
+    expect(row20, "the ledger has lost the row-20 batch entry").toBeTruthy();
+    expect(!!pendingScope(), row20.open
+      ? "the ledger still calls the row-20 batch open, so approval.lock must still carry its `pending` line"
+      : "the ledger records a verdict on the row-20 batch, so the `pending` line may go — and must, or the sheets claim a gate that has closed")
+      .toBe(row20.open);
+  });
+
   test("git is available — the approved artifact is read from history, not from a literal", () => {
     expect(execFileSync("git", ["rev-parse", "--short", APPROVAL_COMMIT],
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(APPROVAL_COMMIT);
@@ -1812,7 +1877,7 @@ test.describe("the schematic is a derived render of the plan", () => {
    *
    * It costs one browser and eleven page loads, and it is the only assertion
    * in this file that can tell Kabe he is looking at this build. */
-  test("the batch IS what the code draws — every frame re-rendered and compared", async () => {
+  test("the batch IS what the build that made it drew — every frame re-rendered and compared", async () => {
     test.setTimeout(180_000);
     test.skip(!pendingScope(), "the batch has been retired: approval.lock carries no `pending` line");
     const dir = BATCH_DIR;
@@ -1824,9 +1889,24 @@ test.describe("the schematic is a derived render of the plan", () => {
       "the batch must carry the script that made it — an artifact nobody can regenerate is not derived")
       .toBe(true);
 
+    /* [Row 21] AGAINST THE TREE THAT DREW THEM, which is what this batch's own
+       BEFORE frames have done since row 20 and what its AFTER frames now have
+       to do too. Row 21 paints `study/N` and puts the next room behind every
+       open door, so six of these eleven frames are pictures today's build does
+       not draw — and re-capturing them would replace the evidence a human has
+       not yet ruled on with evidence he has never seen. The guard's claim
+       narrows honestly with the facts: not "these frames are what the code
+       draws" but "these frames are what the build that made them drew, and
+       here is that build". `ROW20_COMMIT` is the row-20 closing commit, and it
+       moves only when a human has ruled on a new set of pictures. */
+    const tree = mkdtempSync(join(tmpdir(), "holo-row20-tree-"));
     const out = mkdtempSync(join(tmpdir(), "holo-batch-"));
     try {
-      const log = execFileSync("node", [script, out], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW20_COMMIT,
+        "index.html", "src", "fixtures", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node", [script, out, tree], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
       const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
       expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(8);
       const stale = [];
@@ -1836,7 +1916,7 @@ test.describe("the schematic is a derived render of the plan", () => {
         if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
       }
       expect(stale,
-        "these batch frames are not what the code draws — re-run design/batches/row20-lens/capture.mjs into the batch")
+        `these batch frames are not what ${ROW20_COMMIT} drew — the build that made them is the only thing that can answer for them`)
         .toEqual([]);
       /* And every capture the script makes is IN the batch, so a frame cannot
          be quietly dropped from the set a human is asked to look at. */
@@ -1863,6 +1943,7 @@ test.describe("the schematic is a derived render of the plan", () => {
           .toBe(`${m[1]}/${m[2]}`);
       }
     } finally {
+      rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
   });
@@ -1884,6 +1965,10 @@ test.describe("the schematic is a derived render of the plan", () => {
    * come back byte-identical or they are not what they claim to be. No digest
    * is stored, and nothing is read out of the document being guarded. */
   const BEFORE_COMMIT = "ff095d9";   // the last build before the lens was pinned
+  /* [Row 21] The row-20 closing commit — the build that drew this batch's
+     eleven AFTER frames. Kabe's word on them is still outstanding, so the
+     pictures may not move; what moves is where they are re-drawn from. */
+  const ROW20_COMMIT = "b0422ac";
   const BEFORE_FACINGS = ["01-study-N", "02-study-E", "03-study-S", "04-study-W",
     "05-hall-N", "06-hall-E", "07-hall-S", "08-hall-W"];
 
@@ -1918,6 +2003,57 @@ test.describe("the schematic is a derived render of the plan", () => {
         .toEqual([]);
     } finally {
       rmSync(tree, { recursive: true, force: true });
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 21] AND THE PAINTED BATCH ANSWERS FOR ITSELF THE SAME WAY. Every
+   * future batch copies this shape: the script that made the frames is
+   * committed beside them, the suite re-runs it, and an artifact nobody can
+   * regenerate is not derived — it is just a file. This one re-renders against
+   * TODAY's build, because these are pictures of what the link serves now; the
+   * row-20 batch re-renders against the build that drew it, because those are
+   * pictures of a build that has been superseded and whose verdict is still
+   * outstanding. */
+  const ROW21_DIR = join(repoRoot, "design", "batches", "row21-promotion");
+
+  test("the row-21 batch IS what the code draws — every frame re-rendered and compared", async () => {
+    test.setTimeout(180_000);
+    expect(existsSync(join(ROW21_DIR, "capture.mjs")),
+      "the batch must carry the script that made it").toBe(true);
+    const out = mkdtempSync(join(tmpdir(), "holo-row21-"));
+    try {
+      const log = execFileSync("node", [join(ROW21_DIR, "capture.mjs"), out],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(8);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(ROW21_DIR, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale,
+        "these batch frames are not what the code draws — re-run design/batches/row21-promotion/capture.mjs into the batch")
+        .toEqual([]);
+      const committedFrames = readdirSync(ROW21_DIR)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
+      expect(committedFrames, "a frame the script draws is missing from the set a human is shown")
+        .toEqual(fresh);
+      /* And each frame is of what its name promises: the script prints the
+         viewstate it actually reached, so renaming a row of FRAMES cannot be
+         green by construction. */
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(?:demo-)?(study|hall)-([NESW])(?:-|$)/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
+    } finally {
       rmSync(out, { recursive: true, force: true });
     }
   });
@@ -2351,7 +2487,12 @@ test.describe("the projection report", () => {
       const c = line.split("|").map((x) => x.trim());
       if (!/^(STUDY|CROSS PASSAGE)$/.test(c[iRoom])) continue;
       const loc = c[iRoom] === "STUDY" ? "study" : "hall";
-      const lit = LIT.facing(loc, c[iFacing]);
+      /* [Row 21] The DERIVED literals, deliberately: `projection.md` is the
+         plan's own projection report and prints what the plan implies, so a
+         painted facing's measured corners are not what this table is about.
+         Naming which of the two a reader means is the whole point of keeping
+         both. */
+      const lit = LIT.derivedFacing(loc, c[iFacing]);
       if (lit.corner_x0_px == null) continue;
       seen.push(`${loc}/${c[iFacing]}`);
       expect(Number(c[i0]), `${loc}/${c[iFacing]} corner_x0_px: the report prints ${c[i0]}, the approved sheet gives ${lit.corner_x0_px.toFixed(1)}`)

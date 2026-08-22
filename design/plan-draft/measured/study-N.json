@@ -1,5 +1,7 @@
 {
-  "_what_this_is": "DRAFT \u00a75 meta for study/N, measured off backdrops/source/study-N/cand-2.png. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels by design/plan-draft/measured/measure.py; the only assumed quantity is the real-world size named in calibration_ref, and calibration_confidence says how far it can be trusted.",
+  "_what_this_is": "DRAFT \u00a75 meta for study/N, measured off backdrops/source/study-N/cand-2.png by design/plan-draft/measured/measure.py --round cand2. Not a shipped backdrops/<loc>/<facing>.meta.json: nothing consumes it. Every _px value was read off the pixels; the only assumed quantities are the ruled real-world sizes named in _rulers, and _rulers carries every ruler this facing can bear, not only the one adopted.",
+  "_role": "THE CONTROL. The one Kabe-approved frame (APPROVED.md, design/approvals.log 2026-08-21). Its windows are the cand-1 run's, unchanged, because it is the same image; what is new is that the cand-2 corner rule and the cand-2 ruler machinery are run over it and have to return the committed numbers.",
+  "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
   "floor_line_y": 0.758789,
@@ -12,10 +14,75 @@
   "corner_x1_px": 1389,
   "key_tint": "#c89663",
   "key_dir": "L-BELOW",
-  "key_dir_reading": "The brightest 21x21 patch sits at (451, 696): left third of the frame, below the measured horizon at y 498. This is the honest direction; the Sobel and third-tilt statistics beside it in _light frequently disagree with it, and where they do the frame has two lights.",
-  "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m wide at the wall plane",
-  "calibration_px": 209,
-  "calibration_confidence": "MEDIUM-HIGH. 0.90 m is an inference, not a ruling: it is the size at which this opening's 209 px agree with the panelling module and with a 2.8-3.0 m storey. The brief's '~1.4 m' is refuted here exactly as the draft refutes it (1.4 m puts the storey at 4.66 m). A chamber fireplace, not a hall one.",
+  "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+  "calibration_px": 209.0,
+  "calibration_tier": 1,
+  "_rulers": [
+    {
+      "name": "fireplace",
+      "tier": 1,
+      "feature_px": 209.0,
+      "ruled_m": 0.9,
+      "px_per_m_at_wall": 232.222,
+      "implied_focal_px": 1010.2,
+      "delta_pct": 0.02,
+      "admissible": true,
+      "what": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+      "note": "This is the calibration the approved frame was blessed at and the reference 1010 px is defined by it, so its delta is 0 by construction and is a CONTROL, not a verdict."
+    },
+    {
+      "name": "module_dado_rail",
+      "tier": 2,
+      "feature_px": 213.0,
+      "ruled_m": 0.91723,
+      "px_per_m_at_wall": 232.222,
+      "implied_focal_px": 1010.2,
+      "delta_pct": 0.02,
+      "admissible": false,
+      "what": "the dado rail's undercut shadow, transferred from study/N the same way. This is the module design/specs/21-painted-promotion.md \u00a71 names.",
+      "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
+    },
+    {
+      "name": "module_capping",
+      "tier": 2,
+      "feature_px": 232.0,
+      "ruled_m": 0.99904,
+      "px_per_m_at_wall": 232.222,
+      "implied_focal_px": 1010.2,
+      "delta_pct": 0.02,
+      "admissible": false,
+      "what": "the top of the dado capping, transferred from study/N as a fixed number of metres above the floor line. A shadow line, read by one rule over one column span on both facings.",
+      "inadmissible_because": "On the control this ruler is the DEFINITION of the module - its metre size is derived from this very reading - so its delta is 0 by construction and it is evidence about no image."
+    },
+    {
+      "name": "plan_wall_width",
+      "tier": 3,
+      "feature_px": 1247.0,
+      "ruled_m": 5.45,
+      "px_per_m_at_wall": 228.807,
+      "implied_focal_px": 995.3,
+      "delta_pct": -1.45,
+      "admissible": false,
+      "what": "the measured corner span taken at the wall width the PLAN rules. Circular: adopting it means implied_wall_width_m cannot be reported, because it was assumed.",
+      "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+    },
+    {
+      "name": "plan_storey",
+      "tier": 3,
+      "feature_px": 696.0,
+      "ruled_m": 2.8,
+      "px_per_m_at_wall": 248.571,
+      "implied_focal_px": 1081.3,
+      "delta_pct": 7.06,
+      "admissible": false,
+      "what": "the measured ceiling-to-floor span taken at the plan's ruled 2.80 m storey. Circular in the same way, and biased besides - see _ruler_control.",
+      "inadmissible_because": "tier 3, and this facing carries a tier-1 ruler. The priority rule was fixed before the answers were known: a size the painting was ASKED to draw outranks the plan asserted onto the painting. Measured and printed so nothing is hidden."
+    }
+  ],
+  "_ruler_rule": "Fixed before the answers. tier 1 a ruled-size feature painted in the wall plane (door opening 1.00 x 2.00 m, longer dimension read; fireplace opening 0.90 m; window bay 0.90 m between outer mullion centre-lines); tier 2 the panelling module transferred from the approved frame of the SAME room (study only); tier 3 the plan's own ruled wall width, admissible only where no tier 1 or 2 ruler exists and only with the circularity stated; otherwise WITHHELD. The adopted ruler is the first ADMISSIBLE entry of _rulers; the rest are measured and printed so the reading can be overturned.",
+  "_ruler_agreement_pct": null,
+  "_ruler_control": "The approved frame is the run's control and its own rulers are circular by construction: the reference 1010 px is defined by its fireplace reading and the transferred module is defined by its dado. What it does prove is that the code reads the same pixels the same way - see _control.",
+  "_withheld_because": [],
   "_measured_px": {
     "wall_ceiling_line_y_px": 81,
     "wall_floor_line_y_px": 777,
@@ -448,8 +515,169 @@
       }
     ]
   },
+  "_panelling_module": {
+    "band": [
+      500,
+      640
+    ],
+    "cols": [
+      200,
+      1400
+    ],
+    "band_median_luma": 38.31,
+    "capping_y_px": 545,
+    "dado_rail_y_px": 564,
+    "capping_above_floor_px": 232,
+    "dado_rail_above_floor_px": 213,
+    "profile": [
+      48.41,
+      46.7,
+      48.63,
+      47.0,
+      48.42,
+      46.52,
+      48.44,
+      46.35,
+      47.91,
+      46.24,
+      49.42,
+      41.82,
+      33.59,
+      40.49,
+      40.06,
+      38.82,
+      43.81,
+      45.78,
+      43.26,
+      39.14,
+      44.46,
+      44.03,
+      44.99,
+      42.85,
+      43.78,
+      41.8,
+      42.37,
+      40.9,
+      41.98,
+      40.28,
+      40.63,
+      38.66,
+      39.07,
+      37.07,
+      37.09,
+      32.52,
+      28.17,
+      42.66,
+      35.14,
+      27.89,
+      31.08,
+      29.26,
+      27.61,
+      42.1,
+      44.2,
+      18.58,
+      19.61,
+      35.91,
+      38.57,
+      34.29,
+      36.23,
+      34.08,
+      35.5,
+      33.9,
+      35.15,
+      34.0,
+      31.25,
+      33.44,
+      22.24,
+      23.51,
+      30.62,
+      26.9,
+      51.72,
+      37.35,
+      10.5,
+      14.11,
+      22.41,
+      47.29,
+      29.42,
+      12.23,
+      29.55,
+      36.86,
+      36.56,
+      36.64,
+      40.38,
+      38.0,
+      38.74,
+      38.49,
+      39.82,
+      36.54,
+      37.67,
+      39.69,
+      19.11,
+      37.48,
+      52.74,
+      29.99,
+      22.93,
+      23.83,
+      24.22,
+      34.2,
+      45.31,
+      26.58,
+      27.05,
+      34.74,
+      36.48,
+      36.33,
+      38.23,
+      36.61,
+      37.82,
+      36.27,
+      38.27,
+      36.73,
+      38.24,
+      36.85,
+      38.53,
+      37.18,
+      38.71,
+      37.23,
+      39.31,
+      37.87,
+      39.08,
+      39.49,
+      41.46,
+      36.3,
+      38.08,
+      37.19,
+      38.51,
+      37.2,
+      39.36,
+      37.91,
+      39.43,
+      37.98,
+      39.53,
+      38.02,
+      39.56,
+      37.93,
+      39.41,
+      38.31,
+      40.42,
+      39.23,
+      40.85,
+      39.63,
+      41.2,
+      41.56,
+      45.17,
+      38.48,
+      39.46,
+      39.66,
+      40.93,
+      39.27,
+      41.03
+    ],
+    "profile_first_row": 500
+  },
+  "_window_bays": null,
+  "_wall_band_audit": null,
   "_corner_evidence": {
-    "mid_wall_reference_step_strength": 70.4,
+    "rule": "cand-2 rule: the ceiling-line step must collapse below 30 % of its median over the 80 columns on the WALL side of the candidate, for 10 consecutive columns. The cand-1 rule compared against the frame's middle instead and put study/W's left corner 64 px inside the real one.",
     "vertical_edge_confirming_x0": 139,
     "vertical_edge_confirming_x1": 1390
   },
@@ -488,7 +716,7 @@
   "_derived": {
     "eye_height_m": 1.2014,
     "storey_height_m": 2.9971,
-    "px_per_m_at_bottom": 437.8096,
+    "px_per_m_at_bottom": 437.8092,
     "nearest_visible_floor_m": 2.3389,
     "implied_camera_wall_m": 4.4096,
     "implied_wall_width_m": 5.3699
@@ -530,53 +758,72 @@
     "wall_width_m": 5.45,
     "storey_m": 2.8,
     "camera_wall_m_in_standpoints_tsv_now": 4.35,
-    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 4.35 m for this facing. Nothing measured off the pixels depends on either value."
+    "_note": "The cand-2 round compares against standpoints.tsv as it stands NOW (4.35 m for this facing), because that is the distance gate.py multiplies by."
   },
-  "_flags": [
-    "The one facing with a prior measurement. _control_vs_study_N_meta_draft is the reproduction test and it passes: ceiling 0 px, floor +1 px, corners -5/+1 px, fireplace opening 0 px, px_per_m_at_wall identical to three decimals. The only material delta is the horizon, +8 px.",
-    "px_per_m_at_wall x implied_wall_width_m = 1247 px, 81 % of the 1536 canvas, not the canvas width - the draft flags this and it is still true. Both corners are in frame, so the corner span IS the u-domain.",
-    "HORIZON, TWO ANSWERS. The vanishing-point vote adopts y 498; the side-wall ceiling junctions, fitted to a residual of 0.30 px over 61 columns each side and intersected, put the principal point at y 524.4. That is a +26 px disagreement, +0.114 m of eye height. Both are measurements of the same frame, so the frame is not internally consistent: its ceiling geometry and its floor/edge statistics do not share a vanishing point. The vote is adopted because it is the method the draft lays down and because it draws on three disjoint regions; the ramp figure is the sharper single number and is recorded so the Navigator can choose.",
-    "IMPLIED FOCAL LENGTH 836 px against the 1024 px a 24 mm-equivalent lens on a 1536 px frame would give (-18.4 %). px_per_m_at_wall x implied_camera_wall_m is 1024 by construction, so this is px_per_m_at_wall x THE PLAN'S standpoint of 3.60 m for this facing - i.e. how far the drawn camera is from where the plan stands it, expressed as a lens.",
-    "EYE HEIGHT 1.201 m against the 1.83 m every prompt asked for (-0.629 m). STOREY 2.997 m against the ruled 2.80 m (+7.0 %). CAMERA 4.41 m from the wall against the plan's 3.60 m (+22.5 %).",
-    "WALL WIDTH 5.37 m from the corner span against the plan's 5.45 m (-1.5 %).",
-    "LIGHT does not read UL45. Brightest 21x21 patch at (451, 696) - left third of the frame, below the measured horizon. Gate (e)'s Sobel bright-side estimator returns 86.8 deg on the whole frame against the 115.5 deg a constructed UL45 control gives. Left-third-minus-right-third luminance is -13.53 on the whole frame and -2.66 on the wall band, against the +2.0 that mechanisms.spec.mjs's light clause and gate (e)'s min_third_tilt both require.",
-    "No doorway is painted on this facing. Checked: the only two openings in the eight are study/E's and hall/W's, which are the two sides of the same door between the study and the cross passage."
-  ],
-  "_control_vs_study_N_meta_draft": {
-    "_why": "study/N cand-2 is the one facing already measured, in design/plan-draft/study-N-meta-draft.json. This pipeline was built without tuning toward those numbers; the deltas below are the evidence that it reads the same pixels the same way, or the evidence that it does not.",
-    "wall_ceiling_line_y_px": {
-      "draft": 81,
-      "measured": 81,
-      "delta": 0
+  "_module_m": {
+    "capping": 0.9990440182239408,
+    "dado_rail": 0.9172257581107732,
+    "_from": "study/N cand-2, the approved frame: capping 232 px and dado rail 213 px above its floor line at 232.222 px/m.",
+    "_spec": "design/specs/21-painted-promotion.md \u00a71 names this module as 213 px at 232.222 px/m => 0.9172 m; this run reproduces it from the pixels rather than being told it."
+  },
+  "_prompt_forbids": null,
+  "_raw_detector_output_before_wall_band_suppression": null,
+  "_control": {
+    "passed": true,
+    "expected": {
+      "wall_ceiling_line_y_px": 81,
+      "wall_floor_line_y_px": 777,
+      "corner_x0_px": 142,
+      "corner_x1_px": 1389,
+      "fireplace_opening_width_px": 209,
+      "px_per_m_at_wall": 232.222
     },
-    "wall_floor_line_y_px": {
-      "draft": 776,
-      "measured": 777,
-      "delta": 1
+    "measured": {
+      "wall_ceiling_line_y_px": 81,
+      "wall_floor_line_y_px": 777,
+      "corner_x0_px": 142,
+      "corner_x1_px": 1389,
+      "fireplace_opening_width_px": 209,
+      "px_per_m_at_wall": 232.222
     },
-    "horizon_y_px": {
-      "draft": 490,
-      "measured": 498,
-      "delta": 8
-    },
-    "corner_x0_px": {
-      "draft": 147,
-      "measured": 142,
-      "delta": -5
-    },
-    "corner_x1_px": {
-      "draft": 1388,
-      "measured": 1389,
-      "delta": 1
-    },
-    "fireplace_opening": {
-      "draft": "341..550, 209 px",
-      "measured": "341..550, 209 px",
-      "delta_width_px": 0
-    },
-    "px_per_m_at_wall": {
-      "draft": 232.222,
-      "measured": 232.222
-    }
+    "per_field": [
+      {
+        "field": "wall_ceiling_line_y_px",
+        "committed": 81,
+        "measured": 81,
+        "delta": 0
+      },
+      {
+        "field": "wall_floor_line_y_px",
+        "committed": 777,
+        "measured": 777,
+        "delta": 0
+      },
+      {
+        "field": "corner_x0_px",
+        "committed": 142,
+        "measured": 142,
+        "delta": 0
+      },
+      {
+        "field": "corner_x1_px",
+        "committed": 1389,
+        "measured": 1389,
+        "delta": 0
+      },
+      {
+        "field": "fireplace_opening_width_px",
+        "committed": 209,
+        "measured": 209,
+        "delta": 0
+      },
+      {
+        "field": "px_per_m_at_wall",
+        "committed": 232.222,
+        "measured": 232.222,
+        "delta": 0.0
+      }
+    ],
+    "_why": "The control is the one approved frame measured by the same code as everything else. If it has moved, the code has changed what it reads and every verdict in the run is VOID - an agent measuring a picture several ways until one agrees with its expectation is this project's oldest defect, and this is the cheapest thing that stops it. What it does NOT prove: that the seven re-tuned window sets are looking at the features they name. That is what each facing's second ruler is for."
   }
 }

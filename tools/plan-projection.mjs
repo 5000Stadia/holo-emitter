@@ -407,6 +407,84 @@ function storeyHeight(plan, room) {
   return (fl && fl.storey_height_m != null) ? fl.storey_height_m : null;
 }
 
+/* Blueprint §11's ruled door opening, and the one home for it on this side of
+ * the project: "a stone-cased DOOR OPENING exactly 1.00 metre wide by 2.00
+ * metres tall" is what every backdrop prompt asks for and what the plan's own
+ * 1.00 m opening rects are drawn to. The width comes from the plan rect; only
+ * the height is stated here, because the plan has no vertical datum. */
+export const DOOR_OPENING_HEIGHT_M = 2.00;
+
+/**
+ * The door openings on a facing, as scene-pixel rectangles — the building's
+ * own holes, ready for `apertures()` to hand to a `go` target and a renderer.
+ * `via` is the world entity that fills the opening where one does (the plan's
+ * `entity` field); an opening no entity fills carries null, and is still a
+ * hole in a wall.
+ */
+export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
+  const width = meta.wall_width_m;
+  if (!(width > 0)) return [];
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const s = meta.px_per_m_at_wall;
+  const baseY = meta.floor_line_y * meta.image_h_px;
+  const [rx, ry] = RIGHT[facing];
+  const out = [];
+  for (const c of facingCarriers(plan, roomId, facing)) {
+    if (c.kind !== "door") continue;
+    /* Through `groundplane.xAtScale`, never a private inverse of it: the
+     * corner verticals, the staging u-domain and this rectangle are one
+     * arithmetic, which is the shape row 2 paid for twice.
+     *
+     * At WALL scale, so the rectangle is the opening's NEAR face — the wall
+     * plane, which is the face a player aims at and the face the door leaf's
+     * own placement is computed at. The plan's rect spans the wall's
+     * thickness; the far face of the same opening is smaller and is the
+     * reveal, which the renderer draws as thickness rather than as the
+     * target. */
+    const x0 = groundplane.xAtScale(c.from_m / width, s, meta, canvasW);
+    const x1 = groundplane.xAtScale(c.to_m / width, s, meta, canvasW);
+    const h = DOOR_OPENING_HEIGHT_M * s;
+    const o = {
+      id: c.id,
+      via: c.entity ?? null,
+      x: Math.min(x0, x1), y: baseY - h,
+      w: Math.abs(x1 - x0), h,
+      beyond_m: null, beyond_offset_m: null
+    };
+    /* WHAT LIES BEYOND, in the two numbers a picture of it needs.
+     *
+     * A renderer showing the destination room through this hole is pasting a
+     * frame drawn from ANOTHER standpoint, and two terms decide where that
+     * frame belongs: how far the destination's own wall stands from THIS
+     * camera (`beyond_m`, measured from this wall plane, so the renderer adds
+     * its own standpoint distance), and how far the destination's view axis
+     * lies to the side of this one (`beyond_offset_m`, signed the way `u` is).
+     * Without them a renderer can only guess, and the guess this row started
+     * with — the ratio of the two standpoint distances — draws the far room
+     * 26 % too large, because the destination camera does not stand in the
+     * doorway. They live here because they are plan facts, and nothing else
+     * in the running page knows where two rooms stand relative to each other.
+     *
+     * The destination FACING is this one: blueprint §3's orientation law makes
+     * `arrive_facing` continue the direction of travel, and the fixture
+     * validator refuses a world where it does not. */
+    const other = (c.joins || (plan.openings || []).find((p) => p.id === c.id)?.joins || [])
+      .find((r) => r !== roomId);
+    if (other) {
+      const dest = (plan.rooms || []).find((r) => r.id === other);
+      const dfc = dest && dest.facings && dest.facings[facing];
+      if (dfc && typeof dfc.wall_line === "number") {
+        o.beyond_m = round6(Math.abs(dfc.wall_line - fc.wall_line));
+        const a = fc.standpoint, b = dfc.standpoint;
+        if (a && b) o.beyond_offset_m = round6((b.x - a.x) * rx + (b.y - a.y) * ry);
+      }
+    }
+    out.push(o);
+  }
+  return out;
+}
+
 export function deriveMeta(plan, roomId, facing, opts = {}) {
   const camera = opts.camera || GRID_CAMERA;
   const room = roomOf(plan, roomId);
@@ -494,6 +572,24 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     meta.camera_wall_m = fc.camera_wall_m;
   }
   meta.nearest_floor_m = nearestFloorM(meta);
+  /* [Row 21] THE DOORWAY IS A FACT ABOUT THE BUILDING. Until now the only
+   * thing that knew where a doorway was in the picture was the door LEAF's §4
+   * placement, so a room with no leaf staged in it had no doorway at all —
+   * which is exactly what an empty painted room is. The meta carries the
+   * opening's own rectangle now: derived from the plan here, and measured off
+   * the painting in a `backdrops/<loc>/<facing>.meta.json`. That is what makes
+   * §11's "the painted opening must coincide with the click target" true by
+   * construction instead of by prompt discipline (blueprint §11; row 20's
+   * hand-off, ratified in principle there and built here).
+   *
+   * The height is the one number the plan cannot give: a plan view is a
+   * horizontal section and the document carries no vertical datum (the gap is
+   * named in architecture.md, with row 4 owning the fix). Blueprint §11 rules
+   * the door openings at 1.00 × 2.00 m and every generated backdrop prompt
+   * restates it, so that is where this constant comes from — and it lives in
+   * code rather than as a new `plan.json` field precisely because adding one
+   * would move the drawn digest of the plan Kabe approved. */
+  meta.openings = openingsForFacing(plan, roomId, facing, meta, canvasW);
   if (walls.continuous) {
     /* The corners are the ends of the u-domain at the wall plane, so they are
      * `xAtScale(0)` and `xAtScale(1)` — the renderer's own u-mapping, called,
@@ -515,8 +611,10 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
  * stagingDivergence. Three tiers, in order:
  *
  *   1. a MEASURED backdrop meta, `backdrops/<loc>/<facing>.meta.json`
- *      (row 4's; none exists yet, and reading it is the fixture validator's
- *      job because it is the seat that owns that file's findings);
+ *      (row 21 promoted the first one, `backdrops/study/N.meta.json`;
+ *      reading it is the fixture validator's job because it is the seat that
+ *      owns that file's findings, and the bake calls THAT resolution rather
+ *      than this function so the page and the validator see one geometry);
  *   2. the PLAN's derived meta, where the plan holds the room (row 11);
  *   3. the unplanned-facing fallback, `GRID_META`.
  *

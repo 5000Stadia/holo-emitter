@@ -70,14 +70,19 @@ test.describe("determinism and purity", () => {
 
   test("§12.8 grid clause: a facing with no backdrop asset renders the grid deterministically and structurally", async ({ page }) => {
     await page.goto(appUrl());
-    /* study/N carries the desk and the chair, so the grid's own structure is
-       read under `backdrop_only` — the layer §7 puts the doorway in, and the
-       one row 11's corners belong to. */
-    const exp = gridExpectations("study", "N");
+    /* study/W, because [row 21] study/N is PAINTED now and this clause is
+       about the facing that has no asset. Until a painting existed the clause
+       could not discriminate — every facing rendered the grid, so "renders the
+       grid" was true of a renderer that had never heard of a backdrop. The
+       facing that does have one is asserted beside it, below. study/W is a
+       bare wall with both corners in frame, which is the structure this reads
+       under `backdrop_only` — the layer §7 puts the doorway in, and the one
+       row 11's corners belong to. */
+    const exp = gridExpectations("study", "W");
     const res = await page.evaluate(async (exp) => {
       const opt = { backdrop_only: true };
-      const c1 = window.__T.renderDirect({ location: "study", facing: "N" }, null, opt);
-      const c2 = window.__T.renderDirect({ location: "study", facing: "N" }, null, opt);
+      const c1 = window.__T.renderDirect({ location: "study", facing: "W" }, null, opt);
+      const c2 = window.__T.renderDirect({ location: "study", facing: "W" }, null, opt);
       return {
         h1: await window.__T.hashCanvas(c1),
         h2: await window.__T.hashCanvas(c2),
@@ -86,6 +91,49 @@ test.describe("determinism and purity", () => {
     }, exp);
     expect(res.h1, "grid renders deterministically").toBe(res.h2);
     expect(res.structure.failures, "grid is structurally the grid, not a non-blank smear").toEqual([]);
+  });
+
+  /* [Row 21] THE OTHER HALF OF THE SAME CLAUSE, and it did not exist until a
+     painting did: a facing that HAS a backdrop asset must render the painting,
+     not the grid. Read as pixels rather than as a promise — the painted frame
+     carries none of the grid's structure (no eye line across the full width,
+     no corner verticals where the grid would stand them) and it is not the
+     grid's own picture. A renderer that ignored `entry.image` would pass every
+     clause this project had before this row. */
+  test("§12.8 painted clause: a facing WITH a backdrop asset renders the painting, not the grid", async ({ page }) => {
+    await page.goto(appUrl());
+    const exp = gridExpectations("study", "N");
+    const res = await page.evaluate(async (exp) => {
+      const opt = { backdrop_only: true };
+      const painted = window.__T.renderDirect({ location: "study", facing: "N" }, null, opt);
+      const meta = window.HOLO_APP.metaFor({ location: "study", facing: "N" });
+      const grid = document.createElement("canvas");
+      grid.width = painted.width; grid.height = painted.height;
+      /* The same facing drawn with its image withheld: the grid it WOULD have
+         drawn. Same meta, same document, one difference. */
+      window.HOLO.renderer.render(grid, window.HOLO_APP.harness.world,
+        window.HOLO_APP.harness.staging, window.HOLO_APP.library,
+        { "study/N": { meta: meta } }, { location: "study", facing: "N" }, opt);
+      const px = (c) => c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+      const a = px(painted), b = px(grid);
+      let diff = 0;
+      for (let i = 0; i < a.length; i += 4) {
+        if (Math.abs(a[i] - b[i]) > 8 || Math.abs(a[i + 1] - b[i + 1]) > 8) diff++;
+      }
+      return {
+        diff,
+        total: a.length / 4,
+        paintedIsPainted: window.HOLO_APP.metaFor({ location: "study", facing: "N" }).measured === true,
+        structure: window.__T.gridStructure(painted, exp)
+      };
+    }, exp);
+    expect(res.paintedIsPainted, "study/N resolves to the MEASURED backdrop meta").toBe(true);
+    expect(res.diff / res.total,
+      "the painted frame is a different picture from the grid the same facing would draw")
+      .toBeGreaterThan(0.5);
+    expect(res.structure.failures.length,
+      "and it is not the grid's own structure: no eye line, no corner verticals where the grid stands them")
+      .toBeGreaterThan(0);
   });
 
   test("purity: same inputs into two canvases hash equal; inputs are not mutated", async ({ page }) => {

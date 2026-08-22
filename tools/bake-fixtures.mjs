@@ -19,7 +19,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { validate } from "./validate-fixtures.mjs";
+import { validate, resolvePlanPath, metaForFacing as resolveFacingMeta } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
 import {
   stagingDivergence, assertCameraConsistent, assertRuledEye, assertRuledLens,
@@ -68,11 +68,17 @@ for (const name of FILES) {
 // The plan is REQUIRED and it is read FIRST, before any other refusal: a
 // missing plan.json must produce its own named refusal rather than surfacing
 // as a validator finding about geometry that could not be resolved.
+//
+// [Row 21] A fixture may instead carry `plan.ref`, one line holding the
+// repo-relative path of the plan it is projected from. The manor plan has ONE
+// home, and the navigation fixture that walks the same manor must not carry a
+// second copy of it to go stale; a pointer is the cheapest thing that keeps
+// the fact in one place. Neither file is still a named refusal.
 let plan;
 {
-  const planFile = join(fixtureDir, "plan.json");
+  const planFile = resolvePlanPath(fixtureDir);
   if (!existsSync(planFile)) {
-    console.error(`bake refused: no plan.json in ${fixtureDir} — the plan is the fixture's spatial source (blueprint §4b)`);
+    console.error(`bake refused: no plan.json or plan.ref in ${fixtureDir} — the plan is the fixture's spatial source (blueprint §4b)`);
     process.exit(1);
   }
   try {
@@ -169,10 +175,21 @@ let plan;
    * says the default stands "only because nothing consumes a derived meta
    * yet". This bake is something consuming them, so a wide facing cannot ship
    * until that reading is ruled. None of M0's eight is wide. */
+  /* [Row 21] Tier 1 belongs in this map too. `metaForFacing` in
+   * `tools/plan-projection.mjs` derives a facing's geometry FROM THE PLAN; the
+   * resolution RULE — a measured `backdrops/<loc>/<facing>.meta.json` first,
+   * the derived meta next, the unplanned-facing fallback last — has one home,
+   * in the fixture validator, and the bake calls it rather than repeating two
+   * of its three tiers. Before this the bake baked the derived meta for every
+   * facing, so a promoted painting's own measured geometry reached the
+   * validator and never reached the page: the picture would have been drawn
+   * with numbers nobody measured. */
   metas = {};
+  const metaFindings = [];
   for (const loc of parsed.world.locations || []) {
     for (const f of loc.facings || []) {
-      const m = metaForFacing(plan, loc.id, f);
+      const m = resolveFacingMeta(`${loc.id}/${f}`, metaFindings,
+        { [`${loc.id}/${f}`]: metaForFacing(plan, loc.id, f) });
       /* ONE LENS is refused by `tools/validate-fixtures.mjs`'s
        * `meta.one_lens`, which the bake runs over exactly these metas before
        * it writes anything — so a second check here would be a mechanism no
@@ -181,6 +198,10 @@ let plan;
        * [HUMAN] field: `assertRuledLens`, above, beside `assertRuledEye`. */
       metas[`${loc.id}/${f}`] = m;
     }
+  }
+  if (metaFindings.length) {
+    metaFindings.forEach((f) => console.error(`bake refused: ${f}`));
+    process.exit(1);
   }
 }
 
@@ -195,21 +216,32 @@ function fnv1a32(str) {
 const metasText = JSON.stringify(metas, null, 2);
 const fp = fnv1a32(FILES.map((n) => texts[n]).concat([metasText]).join("\n"));
 
+/* [Row 21] The page carries more than one baked world — the painted
+ * navigation world it boots by default, and the furnished demo world §12.1
+ * walks — so each bake registers itself under its own directory name and the
+ * page chooses. `window.HOLO_FIXTURE` is NOT set here: it is set by
+ * `index.html` to the fixture that was actually booted, so that name means one
+ * thing (the world on screen) instead of "whichever script tag came last". */
+const fixtureId = fixtureDir.replace(/\\/g, "/").replace(/\/+$/, "").split("/").pop();
+
 const out = `// GENERATED FILE — DO NOT EDIT.
 // The one truth lives in the sibling .json files (world.json, staging.json,
 // narration.json, viewstate.json). Edit those, then regenerate this file:
 //
-//     node tools/bake-fixtures.mjs
+//     node tools/bake-fixtures.mjs --fixture-dir ${"fixtures/" + fixtureId}
 //
 // This file exists only because file:// pages cannot fetch JSON (§12.7).
 // A stale bake fails the test suite (bake-staleness test).
 //
 // \`metas\` is DERIVED, not authored: the §5 backdrop meta of every facing the
-// world names, projected from fixtures/demo-study/plan.json through
+// world names, projected from this fixture's plan (its own plan.json, or the
+// one its plan.ref points at) through
 // tools/plan-projection.mjs (blueprint §4b). Its one home is the plan; edit
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
-window.HOLO_FIXTURE = {
+window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
+window.HOLO_FIXTURES[${JSON.stringify(fixtureId)}] = {
+  id: ${JSON.stringify(fixtureId)},
   fp: "${fp}",
   world: ${texts.world},
   staging: ${texts.staging},

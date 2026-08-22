@@ -1,0 +1,32 @@
+{
+  "floor_line_y": 0.758789,
+  "px_per_m_at_wall": 232.222,
+  "px_per_m_at_bottom": 459.3,
+  "wall_width_m": 5.45,
+  "key_tint": "#c89663",
+  "image_h_px": 1024,
+  "horizon_y": 0.512109,
+  "key_dir": "L-BELOW",
+  "calibration_ref": "the fireplace opening, inner stone jamb to inner stone jamb, taken at 0.90 m. Not a ruling but an inference, and the one the approved frame was blessed at: the brief's '~1.4 m' puts this room's storey at 4.66 m and is refuted by the picture.",
+  "calibration_px": 209,
+  "camera_wall_m": 4.35,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 5.45,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 142,
+  "corner_x1_px": 1389,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source/study-N/cand-2.png",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1010.2,
+  "nearest_floor_m": 2.2295,
+  "openings": []
+}

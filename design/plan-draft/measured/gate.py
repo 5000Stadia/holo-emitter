@@ -74,6 +74,16 @@ def main(argv):
             continue
         m = json.load(open(path))
         ppm = m["px_per_m_at_wall"]
+        if ppm is None:
+            # WITHHELD [row 21]. A facing whose measurement could not issue a
+            # number is not a facing that failed: it is one nothing measured.
+            # The two must not print alike, and neither may be quoted as the
+            # other -- a FAIL carries a delta the asset seat can act on, and a
+            # WITHHELD carries `blocked_on` in misses.jsonl instead. Reading a
+            # null here as a zero, or crashing on it, is how a withheld facing
+            # would come to be re-asked against a number nobody measured.
+            rows.append((fac, d, None, None, "WITHHELD"))
+            continue
         focal = ppm * d
         delta = (focal - REFERENCE_PX) / REFERENCE_PX
         worst = max(worst, abs(delta))
@@ -86,13 +96,18 @@ def main(argv):
     for fac, d, ppm, focal, verdict in rows:
         if d is None:
             print("%-9s %9s %10s %10s %10s   %s" % (fac, "-", "-", "-", "-", verdict))
+        elif ppm is None:
+            print("%-9s %9.2f %10s %10.1f %10s   %s"
+                  % (fac, d, "-", REFERENCE_PX / d, "-", verdict))
         else:
             print("%-9s %9.2f %10.2f %10.1f %10.0f   %s"
                   % (fac, d, ppm, REFERENCE_PX / d, focal, verdict))
     bad = [r for r in rows if not r[4].startswith("PASS")]
-    print("\n%d of %d admitted; the ruled lens is %.0f px and the reference is "
-          "%.1f%% from it." % (len(rows) - len(bad), len(rows), RULED_PX,
-                               abs(REFERENCE_PX - RULED_PX) / RULED_PX * 100))
+    withheld = [r for r in rows if r[4] == "WITHHELD"]
+    print("\n%d of %d admitted, %d withheld (no verdict is possible from those "
+          "pixels); the ruled lens is %.0f px and the reference is %.1f%% from "
+          "it." % (len(rows) - len(bad), len(rows), len(withheld), RULED_PX,
+                  abs(REFERENCE_PX - RULED_PX) / RULED_PX * 100))
     return 1 if bad else 0
 
 

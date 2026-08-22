@@ -830,32 +830,88 @@
       for (var x = 0; x < exits.length; x++) {
         var exit = exits[x];
         if (exit.facing !== viewstate.facing) continue;
-        if (!known[exit.via]) continue;
-        var placement = (staging.placements || {})[exit.via];
-        if (!placement) continue;
-        var list = (Object.prototype.toString.call(placement) === "[object Array]")
-          ? placement : [placement];
-        var fp = null;
-        for (var i = 0; i < list.length; i++) {
-          if (list[i].facing === facingKey) { fp = list[i]; break; }
-        }
-        if (!fp) continue;
         var entity = null;
         for (var e = 0; e < world.entities.length; e++) {
           if (world.entities[e].id === exit.via) { entity = world.entities[e]; break; }
         }
-        var lib = entity ? library[entity.sprite] : null;
-        if (!lib) continue;
-        var place = gp.placeHost(fp, lib.record, meta, CANVAS_W);
-        if (!place) continue;
-        if (!spannedByBand(place.x0, place.x1, bandsHere, meta)) continue;
+        var rect = null;
+        var source = null;
+        var open_ = true;
+        var beyond = null;
+        if (entity) {
+          /* A LEAF IS AN ENTITY, and everything that follows from that holds:
+           * the opening is derived from its own §4 placement, and it is
+           * knowledge-filtered, because a door the player has not been told
+           * about must leave no hole. */
+          if (!known[exit.via]) continue;
+          var placement = (staging.placements || {})[exit.via];
+          if (!placement) continue;
+          var list = (Object.prototype.toString.call(placement) === "[object Array]")
+            ? placement : [placement];
+          var fp = null;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].facing === facingKey) { fp = list[i]; break; }
+          }
+          if (!fp) continue;
+          var lib = library[entity.sprite];
+          if (!lib) continue;
+          var place = gp.placeHost(fp, lib.record, meta, CANVAS_W);
+          if (!place) continue;
+          rect = { x: place.x0, y: place.y0, w: place.x1 - place.x0, h: place.y1 - place.y0 };
+          source = "leaf";
+          open_ = entity.state === "open";
+        } else {
+          /* [Row 21] A DOORWAY WITH NO LEAF IS ARCHITECTURE — a hole in the
+           * wall, carried by the facing's own §5 meta (derived from the plan
+           * for a synthesized facing, measured off the painting for a real
+           * one). It is NOT knowledge-filtered, and that is not an exemption
+           * from the intention's rule: the wall has the hole whether or not
+           * the player knows anything, the backdrop paints it either way, and
+           * filtering it would make the picture contradict the painting it is
+           * drawn from. What stays filtered is every ENTITY, which is what the
+           * rule is about.
+           *
+           * An exit whose `via` matches no leaf and no opening gets no
+           * aperture here and no `go` target on the page; the fixture
+           * validator refuses that world, so it is a typo's refusal rather
+           * than a silent hole in a wall. */
+          var mo = meta && meta.openings;
+          for (var oi = 0; mo && oi < mo.length; oi++) {
+            if (mo[oi].via && mo[oi].via === exit.via) {
+              rect = { x: mo[oi].x, y: mo[oi].y, w: mo[oi].w, h: mo[oi].h };
+              source = "building";
+              beyond = mo[oi];
+              break;
+            }
+          }
+          if (!rect) continue;
+        }
+        if (!spannedByBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;
+        /* WHAT LIES BEYOND is a fact about the building either way, so a
+         * leaf-derived aperture reads it off the same meta opening the
+         * building-fact path uses: the leaf says where the hole is drawn, the
+         * building says what stands on the other side of it. A meta that
+         * carries no opening for this exit leaves both numbers null and the
+         * renderer draws no room beyond — silence, never a guess. */
+        if (!beyond) {
+          var mo2 = (meta && meta.openings) || [];
+          for (var ob = 0; ob < mo2.length; ob++) {
+            if (mo2[ob].via && mo2[ob].via === exit.via) { beyond = mo2[ob]; break; }
+          }
+        }
         out.push({
           exit: exit.id,
           via: exit.via,
-          x: place.x0,
-          y: place.y0,
-          w: place.x1 - place.x0,
-          h: place.y1 - place.y0
+          to: exit.to,
+          arrive_facing: exit.arrive_facing,
+          source: source,
+          open: open_,
+          beyond_m: beyond ? beyond.beyond_m : null,
+          beyond_offset_m: beyond ? beyond.beyond_offset_m : null,
+          x: rect.x,
+          y: rect.y,
+          w: rect.w,
+          h: rect.h
         });
       }
     }
@@ -896,7 +952,126 @@
     return { x: a.x - j, y: a.y - j, w: a.w + 2 * j, h: a.h + j };
   }
 
-  function drawApertures(ctx, list, meta) {
+  /* [Row 21] THROUGH AN OPENING, THE DESTINATION ROOM — never void.
+   *
+   * What stood here before was a dark fill: the aperture was a hole in the
+   * wall with nothing behind it, 69,120 near-black pixels on `study/E`, 4.4 %
+   * of the frame. That is the picture saying VOID where the document holds a
+   * room, which makes it product truth rather than polish.
+   *
+   * The device is one for painted and synthesized facings alike: draw the
+   * destination facing's OWN picture — its painted backdrop if it has one,
+   * else its grid drawn from its own §5 meta — scaled by
+   * `d_dest / (d_here + d_dest)`, positioned so the two horizons coincide and
+   * the destination's centre falls on the opening's, clipped to the opening,
+   * and dimmed. The scale is the pinhole's: the far room's wall stands at this
+   * room's standpoint distance PLUS its own, so it draws by that ratio
+   * smaller. Aligning the horizons is what makes the floor beyond continue the
+   * floor here rather than start a second, unrelated camera.
+   *
+   * WHICH facing: the exit's `arrive_facing` in the room it leads to. What you
+   * see through the door is what you will be looking at once you have walked
+   * through it — the same room, the same camera, one step later.
+   *
+   * TWO NARROWINGS, both deliberate and both stated rather than discovered:
+   * the destination is drawn WITHOUT its own apertures, so looking through one
+   * doorway never draws a second behind it; and nothing staged in the
+   * destination room is drawn either, because entities are knowledge-filtered
+   * per standpoint and compositing another room's sprites through a hole would
+   * put the filter in two places. What shows through is the ROOM — its walls,
+   * its floor, its light — which is what the void was lying about. */
+  var THROUGH_DIM = 0.42;
+
+  function drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options) {
+    /* A SHUT DOOR SHOWS NO ROOM. The leaf is a sprite with its own alpha and
+     * it does not fill its placement rectangle to the pixel, so a lit room
+     * drawn behind a closed leaf leaks around its edges — which is the picture
+     * asserting a way through that the document has shut. */
+    if (a.open === false) return false;
+    if (!backdrops || !a.to || !a.arrive_facing) return false;
+    var entry = backdrops[a.to + "/" + a.arrive_facing];
+    if (!entry || !entry.meta) return false;
+    if (!(a.beyond_m >= 0)) return false;   // a meta that cannot say what is beyond says nothing
+    var destMeta = entry.meta;
+    var W = CANVAS_W, H = Math.round(meta.image_h_px);
+    var gp = groundplane();
+    var dHere, dDest;
+    try {
+      dHere = gp.cameraDistance(meta);
+      dDest = gp.cameraDistance(destMeta);
+    } catch (err) {
+      return false;               // a meta anchored to neither plane: say nothing
+    }
+    /* THE TRANSFORM IS A PINHOLE'S, and both terms come from the document.
+     * The destination's own wall stands `dHere + beyond_m` from this camera
+     * and its painting draws that wall at `dDest`, so the frame scales by
+     * their ratio — NOT by `dDest / (dHere + dDest)`, which assumes the far
+     * camera stands in the doorway and draws the next room 26 % too large in
+     * this manor. The destination's view axis is `beyond_offset_m` to the side
+     * of this one, which at the far wall's own scale is where its centre
+     * belongs. Vertically the horizons coincide: both cameras are level and at
+     * one eye height, so a floor point at any distance lands on the same row
+     * in both frames and the floor beyond continues the floor here — that
+     * agreement is what stops the sill reading as a step. */
+    var D = dHere + a.beyond_m;
+    var k = dDest / D;
+    var off = makeCanvas(doc, W, H);
+    /* The destination's WHOLE picture — its painting or its grid, and whatever
+     * the document stands in it — through the real renderer, because the world
+     * places a bookcase in that passage and a doorway that showed an empty one
+     * would deny it. One call rather than two branches: a painted destination
+     * and a drawn one differ inside `render`, and a second copy of that
+     * decision here is a second place for them to stop agreeing.
+     *
+     * `no_through` stops the recursion at one room: looking through a door
+     * never draws the door beyond it. Every other option is inherited, so a
+     * flip pair's backdrop-only half is backdrop-only on both sides of the
+     * wall and a sprite seen through a doorway is judged like any other. */
+    var innerOpts = {
+      no_through: true,
+      backdrop_only: !!(options && options.backdrop_only),
+      tint: options ? options.tint : undefined,
+      shadows: options ? options.shadows : undefined,
+      parts: options ? options.parts : undefined,
+      part_t: options ? options.part_t : undefined
+    };
+    render(off, world, staging, library, backdrops,
+      { location: a.to, facing: a.arrive_facing }, innerOpts);
+    var hHere = meta.horizon_y * meta.image_h_px;
+    var hDest = destMeta.horizon_y * destMeta.image_h_px;
+    var sDest = destMeta.px_per_m_at_wall;
+    var dx = W / 2 + k * ((a.beyond_offset_m || 0) * sDest - W / 2);
+    var dy = hHere - k * hDest;
+    var dw = W * k, dh = H * k;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(a.x, a.y, a.w, a.h);
+    ctx.clip();
+    /* The far room is smaller than the hole it is seen through, so its frame
+     * does not cover the opening — and the strip left over is the floor at
+     * your own feet and the wall beside your shoulder, which the destination's
+     * own frame simply does not contain. Its edges are extended into that
+     * strip rather than left as void: the floor beyond does continue toward
+     * you, and a hard edge where a picture ran out would be a claim about the
+     * room that nobody made. */
+    ctx.drawImage(off, 0, H - 1, W, 1, dx, dy + dh, dw, Math.max(0, a.y + a.h - (dy + dh)));
+    ctx.drawImage(off, 0, 0, W, 1, dx, a.y, dw, Math.max(0, dy - a.y));
+    ctx.drawImage(off, 0, 0, 1, H, a.x, dy, Math.max(0, dx - a.x), dh);
+    ctx.drawImage(off, W - 1, 0, 1, H, dx + dw, dy, Math.max(0, a.x + a.w - (dx + dw)), dh);
+    ctx.drawImage(off, dx, dy, dw, dh);
+    /* Dimmed, because it is another room seen from outside it through a hole
+     * in a wall — and because at full brightness the opening reads as a second
+     * frame pasted into the first rather than as depth. The amount is a look
+     * decision made by a constant, and it goes to Kabe in the row's batch as
+     * one. */
+    ctx.globalAlpha = THROUGH_DIM;
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(a.x, a.y, a.w, a.h);
+    ctx.restore();
+    return true;
+  }
+
+  function drawApertures(ctx, list, meta, world, staging, library, backdrops, doc, options) {
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
       ctx.save();
@@ -923,6 +1098,14 @@
        * nothing about the room beyond. */
       ctx.fillStyle = BEYOND_WALL;
       ctx.fillRect(a.x, a.y, a.w, a.h);
+      /* And over it, the room that is actually there. The fill above stays as
+       * the ground the through-view is composited onto and as what remains
+       * where the document names no destination — an aperture to nowhere is a
+       * world the validator refuses, so this is a floor under the device, not
+       * a second device. */
+      if (!(options && options.no_through)) {
+        drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options);
+      }
 
       var reveal = Math.max(3, a.w * 0.14);
       var soffit = Math.max(2, a.w * 0.09);
@@ -1347,6 +1530,10 @@
    *   tint:    false — skip the tint pass
    *   parts:   false — force every part to t = 0
    *   part_t:  { entityId: t } — per-entity part mid-states
+   *   no_through: true — draw no room beyond an opening (row 21). Set by the
+   *     through-view itself on the frame it draws INSIDE an opening, so the
+   *     recursion stops at one room; a caller may set it to render the void
+   *     the device replaced, which is what its ledger case measures against.
    */
   function render(target, world, staging, library, backdrops, viewstate, options) {
     options = options || {};
@@ -1358,10 +1545,24 @@
     var ctx = target.getContext("2d");
     ctx.clearRect(0, 0, W, H);
 
+    var doc0 = target.ownerDocument ||
+      (typeof document !== "undefined" ? document : null);
+
     // Step 1: backdrop or grid (row 1, unchanged).
     if (!options.no_backdrop) {
       if (entry && entry.image) {
         ctx.drawImage(entry.image, 0, 0, W, H);
+        /* [Row 21] A painted facing paints its own doorway, its own jamb and
+         * its own reveals — §11 requires the painted opening to coincide with
+         * the click target, and the meta's measured `openings` is what makes
+         * that true by construction. What the painting cannot hold is the room
+         * on the other side, which is a fact about the world rather than about
+         * this wall: the destination shows through the measured rectangle. */
+        var painted = options.no_through ? []
+          : apertures(world, staging, library, meta, viewstate);
+        for (var ai = 0; ai < painted.length; ai++) {
+          drawThroughOpening(ctx, painted[ai], meta, world, staging, library, backdrops, doc0, options);
+        }
       } else {
         // The doorway belongs to the wall, not to the entity pass: it is
         // backdrop content (§11) and so must be inside backdrop_only, or a
@@ -1369,7 +1570,7 @@
         // openings first so it can stand its facing glyph clear of them.
         var openings = apertures(world, staging, library, meta, viewstate);
         drawGrid(ctx, meta, viewstate.facing, W, H, openings);
-        drawApertures(ctx, openings, meta);
+        drawApertures(ctx, openings, meta, world, staging, library, backdrops, doc0, options);
       }
     }
     if (options.backdrop_only) return target;
@@ -1378,8 +1579,7 @@
     var list = layout(world, staging, library, meta, viewstate);
     if (list.length === 0) return target;
 
-    var doc = target.ownerDocument ||
-      (typeof document !== "undefined" ? document : null);
+    var doc = doc0;
 
     for (var i = 0; i < list.length; i++) {
       var e = list[i];
