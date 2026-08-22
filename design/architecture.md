@@ -1704,6 +1704,58 @@ half a human READS was still unheld, and that is the family worth carrying forwa
   instead: an unreadable promoted meta stops the bake, and a candidate under `backdrops/source/`
   never reaches the page.
 
+### Residue the row closes with: the adversary's last pass, deferred to the clock
+
+A final scoped pass at `62e8414` verified every fix of the two rounds before it — the marked-frame
+byte-compare, the both-direction gate-table compare, the isolated `--out`, and the reasoning behind
+deleting the bake's duplicate refusal (`metaForFacing` emits exactly one finding, and the validator
+the bake runs re-resolves the same metas and emits it first, so the second refusal was unreachable).
+It then found **nine more blockers, every one the same family one layer deeper**, and the Navigator
+ruled the boundary at the row's close: one recheck, then close, because the founding-law-critical
+surface — the two gate tables, the marked frames, and everything a human is shown in the direction
+gates — is now genuinely held, and **what remains is apparatus self-consistency, which is exactly
+what the clock-deferral mechanism exists for**.
+
+They are recorded, verbatim and machine-readable, as `_record: "apparatus_gap"` lines in
+`design/plan-draft/measured/misses.jsonl`, each with the grounds and this promotion trigger: **they
+fix as a batch the first time the ledger machinery is load-bearing for a real decision — the
+standing-eye wave's first re-ask cycle — and S2 and S3 are named FIRST in that batch, because a
+deferral ledger nobody reads is the one irony the production law cannot carry.** In short:
+
+- **S1** — the re-ask's TARGET scale is a free number as long as the correction sentence agrees with
+  it: nothing anchors `target.target_px_per_m_at_wall` to the gate's own printed TARGET column, so
+  the asset seat can be sent to 300 px/m where the gate wants 168.3 with every assertion agreeing
+  with itself.
+- **S2** — the deferral records themselves are unread: deleting `baked_in` from every entry, and
+  with it all seven deferral blocks, leaves the suite green.
+- **S3** — `status` can be flipped to `closed` with no cause baked in, which is production law
+  clause 3's whole subject.
+- **S4** — five more ledger fields are free text, `rulers[]` among them — the list this file calls
+  *"what says whether a RE-TUNED window is looking at the feature it names"* — and it can be
+  deleted whole.
+- **S5** — the token scan's roots miss `design/batches/row21-promotion/capture.mjs`, a script the
+  suite itself executes. Fourth level of the same hole.
+- **S6** — the batch's evidence directory may hold marked frames no run produced (the compare is
+  one-directional).
+- **S7** — `SUMMARY.md` is closed both ways in section A only; the tool prints rows in sections B–G
+  that a reader takes as measured.
+- **S8** — `staging.pair_half_missing`, minted this round, has four arms and one case, and did not
+  use the `everyArm` helper this round built for exactly that.
+- **S9** — the batch's prose numbers still have no reader: the 92,061-pixel void count the row's
+  "never void" headline rests on, and the lint's own 5-of-8 discrimination count. The cand-3 corpus
+  is linted by no test, so that sentence has no way to be true or false.
+- **S10** (not blocking) — a tightening that would REFUSE a legal document passes unnoticed:
+  `beyond_offset_m` is signed (a doorway left of the view axis is negative) and no shipped opening
+  exercises the permission. The same shape as the comma that refused seven compliant prompts.
+- **S11** (the builder's own, examined by no critic) — `index.html` decodes `?world=` inside a try
+  whose catch leaves the DEFAULT world standing, so a malformed escape boots the painted world in
+  silence. The same class as the prefix match that was fixed.
+
+**One thing was fixed rather than recorded, because the record depended on it**: `write_misses`
+wiped every `apparatus_gap` line on the first re-measurement — round 2's own finding (a generator
+destroying the law's evidence) arriving one record type later. Every record that is not a miss or
+the header is carried through verbatim now.
+
 ### What row 21 hands on, and to whom
 
 The spec list is the one home of targets and a closing row may not edit another row's text, so the

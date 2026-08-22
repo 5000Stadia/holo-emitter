@@ -2083,7 +2083,7 @@ def write_misses(raw, round_name="cand-2", records=None):
     # definition of an open miss. Carried forward per facing instead, along
     # with `status`: a miss's measurement is this script's, its disposition is
     # not.
-    carried, foreign = {}, []
+    carried, foreign, other = {}, [], []
     if os.path.exists(path):
         with open(path) as fh:
             for line in fh:
@@ -2093,6 +2093,18 @@ def write_misses(raw, round_name="cand-2", records=None):
                 try:
                     prev = json.loads(line)
                 except ValueError:
+                    continue
+                if prev.get("_record") not in ("miss", "header"):
+                    # EVERY OTHER RECORD SURVIVES THIS RUN. [Row 21, the close]
+                    # The ledger holds apparatus gaps as well as misses now --
+                    # findings about the machinery that judges the paintings,
+                    # deferred to the clock with the trigger that promotes them
+                    # -- and this script knows only what the pixels say. It
+                    # wiped them on the first re-measurement, which is round
+                    # 2's own finding (`baked_in` erased by its own generator)
+                    # arriving one record type later: the law's evidence must
+                    # not live in a file whose generator destroys it.
+                    other.append(prev)
                     continue
                 if prev.get("_record") != "miss" or not prev.get("facing"):
                     continue
@@ -2240,8 +2252,12 @@ def write_misses(raw, round_name="cand-2", records=None):
             rec["baked_in"] = carried[rec["facing"]]["baked_in"]
         lines.append(rec)
     lines.extend(foreign)
-    head, misses = lines[0], sorted(
-        lines[1:], key=lambda x: (x.get("round", "cand-2"), x["facing"]))
+    lines.extend(other)
+    head = lines[0]
+    misses = sorted([x for x in lines[1:] if x.get("_record") == "miss"],
+                    key=lambda x: (x.get("round", "cand-2"), x["facing"]))
+    misses += sorted([x for x in lines[1:] if x.get("_record") != "miss"],
+                     key=lambda x: (x.get("_record", ""), str(x.get("id", ""))))
     with open(path, "w") as fh:
         for rec in [head] + misses:
             fh.write(json.dumps(rec) + "\n")

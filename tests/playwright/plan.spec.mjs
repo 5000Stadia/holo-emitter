@@ -2232,7 +2232,9 @@ test.describe("the schematic is a derived render of the plan", () => {
    * The universal-anchor round is recipe validation and promotes nothing —
    * blueprint §11 rules the wainscot chair-rail at 0.95 m on every panelled
    * wall so that measurability is a property of the WALL SPEC rather than of
-   * whichever feature a prompt asked for, and every cand-3 prompt declares it.
+   * whichever feature a prompt asked for, and the seven REGENERATED cand-3
+   * prompts declare it — `study-N`'s own cand-3 prompt does not, being the
+   * older art-direction one, and the lint refuses it.
    * What the round is quoted for in `design/batches/row21-promotion/README.md`
    * is a MEMBERSHIP claim — nothing is admitted — and this is its reader.
    * Asserting the membership rather than the band is the shape row 20 paid for
