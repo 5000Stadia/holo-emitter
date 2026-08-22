@@ -39,7 +39,7 @@ import { createRequire } from "node:module";
 import {
   RIGHT, NORMAL, FACINGS, BUILT_KINDS, ALL_WALL_KINDS, drawn,
   validatePlan, planWarnings, builtOnWallLine, viewSpan,
-  facingGeometry, ruleStandpoint, measuredDistance, standpointFor
+  facingGeometry, ruleStandpoint, measuredDistance, standpointFor, facingOfOpening
 } from "./validate-plan.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -447,6 +447,7 @@ export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W
     const h = DOOR_OPENING_HEIGHT_M * s;
     const o = {
       id: c.id,
+      kind: "door",
       via: c.entity ?? null,
       x: Math.min(x0, x1), y: baseY - h,
       w: Math.abs(x1 - x0), h,
@@ -482,8 +483,310 @@ export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W
     }
     out.push(o);
   }
+  out.push(...thresholdsForFacing(plan, roomId, facing, meta, canvasW));
   return out;
 }
+
+/**
+ * [Row 15] AN OPEN THRESHOLD IS THE ABSENCE OF A WALL, AND IT IS WALKABLE.
+ *
+ * The manor's entrance approach reaches the rest of the building through one
+ * thing only: `op_court_mouth`, a 20.4 m `open_edge` between the approach and
+ * the court. It is not a door — there is no lintel, no jamb and no leaf — so
+ * `facingCarriers` does not see it and `openingsForFacing` above cannot derive
+ * it. Without it one plan room is unreachable on foot.
+ *
+ * What it is, geometrically: the line where one outdoor space ends and the
+ * next begins, standing on the room's own boundary along the viewing axis. It
+ * carries no head, because nothing spans it. So the rectangle a player aims at
+ * is the ground BEYOND it: everything past the threshold lies on the ground
+ * plane, and on a level camera the ground plane runs from the threshold's own
+ * line up to the horizon and no further. That is the whole derivation — the
+ * mouth's own width at the mouth's own distance, from the horizon down to the
+ * ground at the mouth — and it needs no constant of its own.
+ *
+ * The renderer DRAWS NOTHING for it. Blueprint §4b law (b): where no building
+ * stands the ground runs open to its far line, and the picture already shows
+ * exactly that — a gap in the band list on a walled facing, and open ground on
+ * an `open` one. A jamb, a fill or a pasted far room would be an invented
+ * enclosure, or an [AI] appearance becoming the established look by default
+ * where ruling (1) gives the vista to a generated backdrop.
+ */
+export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const span = viewSpan(room.rect, facing);
+  const [normalAxis, sign] = NORMAL[facing];
+  const [rx, ry] = RIGHT[facing];
+  const alongRight = span.axis === "x" ? rx : ry;
+  const width = span.hi - span.lo;
+  const toView = (v) => alongRight > 0 ? v - span.lo : span.hi - v;
+  const out = [];
+  if (!(width > 0)) return out;
+  /* The edge of THIS room in the direction being looked at. A threshold stands
+   * on it — which is what distinguishes the mouth in front of you from the one
+   * behind you in the same 20 m of open ground. */
+  const edge = sign > 0 ? room.rect[normalAxis + "1"] : room.rect[normalAxis + "0"];
+  for (const o of plan.openings || []) {
+    if (o.floor !== room.floor || o.kind !== "open_edge") continue;
+    if (!(o.joins || []).includes(roomId)) continue;
+    if (!o.rect) continue;
+    const line = o.rect[normalAxis + "0"];
+    if (Math.abs(line - o.rect[normalAxis + "1"]) > EPS) continue;   // not an edge
+    if (Math.abs(line - edge) > EPS) continue;                       // not this facing's
+    const lo = Math.max(span.lo, o.rect[span.axis + "0"]);
+    const hi = Math.min(span.hi, o.rect[span.axis + "1"]);
+    if (!(hi - lo > EPS)) continue;
+    const d = measuredDistance(fc.standpoint, facing, line);
+    /* [Row 19] A NON-FINITE PROJECTION IS A FINDING, NEVER A SILENT SKIP. A
+     * mouth at or behind the standpoint has no scale, and returning one anyway
+     * is how a clean-validated plan hands the renderer a negative pixels-per-
+     * metre. The plan validator refuses such a document by name; here the
+     * arithmetic simply must not be attempted. */
+    if (!(d > EPS) || !isFinite(d)) continue;
+    const s = groundplane.FOCAL_PX / d;
+    const a = toView(lo) / width, b = toView(hi) / width;
+    const u0 = Math.min(a, b), u1 = Math.max(a, b);
+    const x0 = groundplane.xAtScale(u0, s, meta, canvasW);
+    const x1 = groundplane.xAtScale(u1, s, meta, canvasW);
+    const yTop = meta.horizon_y * meta.image_h_px;
+    const yBottom = groundplane.yAtScale(s, meta);
+    if (!isFinite(x0) || !isFinite(x1) || !isFinite(yBottom) || !(yBottom > yTop)) continue;
+    out.push({
+      id: o.id,
+      kind: "threshold",
+      via: o.entity ?? null,
+      x: Math.min(x0, x1), y: yTop,
+      w: Math.abs(x1 - x0), h: yBottom - yTop,
+      /* NOTHING IS DRAWN THROUGH A THRESHOLD, so it says nothing about what is
+       * beyond it. `beyond_m: null` is the meta's own way of saying that, and
+       * `drawThroughOpening` reads it as silence rather than as a guess. */
+      beyond_m: null, beyond_offset_m: null
+    });
+  }
+  return out;
+}
+
+/**
+ * [Row 15] A STAIR IS A FACT ABOUT THE BUILDING, exactly as a doorway is.
+ *
+ * Row 21 gave the doorway a rectangle in the meta so an empty painted room
+ * could be walked out of. A flight is the same kind of fact and it is the
+ * second thing an empty manor needs: `world.json`'s stair exits name a flight,
+ * and until this row nothing in the picture or in the meta knew one existed —
+ * so a `go` target would have sat on featureless floor, in a page whose own
+ * rule is that dead space is dead.
+ *
+ * The flight appears on ONE facing of each room it joins: the direction of
+ * travel. `up` out of the lower room, `down` out of the upper one, which are
+ * opposite, so the aperture is always on the facing the exit is staged on and
+ * `crossCheckWorld` is already asserting that agreement.
+ *
+ * Its geometry, all of it from the plan:
+ *   - the run is along the viewing axis, the width across it;
+ *   - `t` runs 0 at the end nearest the viewer to 1 at the far end;
+ *   - height is `+rise·t` going up and `−rise·t` going down, where the rise is
+ *     the storey the flight passes through — the LOWER room's floor's own
+ *     `storey_height_m`, which is one definition true from both ends.
+ *
+ * `poly` is the outline the renderer draws and the page hit-tests, in scene
+ * pixels: up one stringer, across the top tread, down the other. A bounding
+ * rectangle would answer "climb the stair" for a click on the bare floor
+ * beside it, and this project's resolver has been wrong in that direction
+ * before.
+ */
+export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const span = viewSpan(room.rect, facing);
+  const [normalAxis, sign] = NORMAL[facing];
+  const [rx, ry] = RIGHT[facing];
+  const alongRight = span.axis === "x" ? rx : ry;
+  const width = span.hi - span.lo;
+  const toView = (v) => alongRight > 0 ? v - span.lo : span.hi - v;
+  const out = [];
+  if (!(width > 0)) return out;
+  let cam;
+  try { cam = groundplane.cameraDistance(meta); } catch (e) { return out; }
+  const H = meta.image_h_px;
+  for (const st of plan.stairs || []) {
+    const joins = st.joins || [];
+    if (!joins.includes(roomId)) continue;
+    const direction = joins[0] === roomId ? "up" : "down";
+    if ((direction === "up" ? st.up : st.down) !== facing) continue;
+    if (!st.rect) continue;
+    const lower = (plan.rooms || []).find((r) => r.id === joins[0]);
+    const fl = lower && (plan.floors || []).find((f) => f.id === lower.floor);
+    const rise = fl && fl.storey_height_m != null ? fl.storey_height_m : null;
+    const treads = Number.isInteger(st.treads) && st.treads > 0 ? st.treads : null;
+    if (rise == null || treads == null) continue;
+    /* The two ends of the run, and their depth from this facing's wall line —
+     * `far` is the one in the direction being looked at. */
+    const far = sign > 0 ? st.rect[normalAxis + "1"] : st.rect[normalAxis + "0"];
+    const near = sign > 0 ? st.rect[normalAxis + "0"] : st.rect[normalAxis + "1"];
+    const dFar = Math.abs(fc.wall_line - far);
+    const dNear = Math.abs(fc.wall_line - near);
+    const a = toView(st.rect[span.axis + "0"]) / width;
+    const b = toView(st.rect[span.axis + "1"]) / width;
+    const u0 = Math.min(a, b), u1 = Math.max(a, b);
+    const sgn = direction === "up" ? 1 : -1;
+
+    /* Every point the flight draws, in scene pixels. A tread at or behind the
+     * camera has no projection at all — `back_stair`'s bottom step stands
+     * 5.00 m from a wall its viewer is 4.09 m from — and a scale computed
+     * there is the negative pixels-per-metre row 19 exists to refuse. Skipped
+     * by name, never divided anyway. */
+    const at = (t, heightM) => {
+      const d = dNear + (dFar - dNear) * t;
+      if (!(d < cam - EPS) || !(d >= -EPS)) return null;
+      const s = groundplane.scaleAtDepth(d, meta);
+      if (!isFinite(s) || !(s > 0)) return null;
+      /* Through `groundplane.yAtHeight`, the ONE home of a raised point. A
+       * private `yAtScale(s) − h·s` here would be the third private copy of
+       * this module's arithmetic in this project's history. */
+      const y = groundplane.yAtHeight(d, heightM, meta);
+      const x0 = groundplane.xAtScale(u0, s, meta, canvasW);
+      const x1 = groundplane.xAtScale(u1, s, meta, canvasW);
+      if (![y, x0, x1].every(isFinite)) return null;
+      return { t, d, s, y, x0: Math.min(x0, x1), x1: Math.max(x0, x1) };
+    };
+    /* THE FOOTPRINT ON THE FLOOR — the flight's own plan position, which is
+     * the well seen from above and the ground under the treads seen from
+     * below. It is what a descending flight leaves in the picture: at this
+     * eye height the steps themselves drop below the frame within a metre,
+     * and the opening in the floor is the honest and the reachable thing. */
+    const floorQuad = [];
+    const steps = [];
+    /* THE WELL: the flight's own footprint lifted to the storey height — the
+     * hole it needs in the ceiling above it. The ceiling is line work drawn
+     * across the whole room, so without this a flight rising 2.8 m runs into
+     * an unbroken plane and the picture asserts an enclosure the document has
+     * no aperture in. The plan carries no floor opening and this row may not
+     * add one (a new field moves the drawn digest), so the well is DERIVED
+     * from the two things the plan does hold: the flight's rect and its
+     * floor's storey height. */
+    const wellQuad = [];
+    /* BOUNDED, and bounded by the frame rather than by the camera. The depth
+     * guard alone admits a tread one nanometre in front of the standpoint,
+     * whose scale is 10^9 and whose y is 35,000 — a polygon a hit test walks
+     * and a canvas strokes for nothing. One frame of slack either side keeps
+     * the outline's on-screen part whole and truncates the rest. */
+    const inReach = (p) => p && p.y > -H && p.y < 2 * H;
+    for (let i = 0; i <= treads; i++) {
+      const t = i / treads;
+      const onFloor = at(t, 0);
+      if (inReach(onFloor)) floorQuad.push(onFloor);
+      const p = at(t, sgn * rise * t);
+      if (inReach(p)) steps.push(p);
+      const w = at(t, rise);
+      if (inReach(w)) wellQuad.push(w);
+    }
+    if (!floorQuad.length && !steps.length) continue;
+    const ring = (list) => {
+      const r = [];
+      for (const p of list) r.push([p.x0, p.y]);
+      for (let i = list.length - 1; i >= 0; i--) r.push([list[i].x1, list[i].y]);
+      return r;
+    };
+    const pts = ring(steps);
+    const floorPts = ring(floorQuad);
+    const wellPts = direction === "up" ? ring(wellQuad) : [];
+    const all = pts.concat(floorPts);
+    const xs = all.map((p) => p[0]), ys = all.map((p) => p[1]);
+    const x = Math.max(0, Math.min(...xs)), xe = Math.min(canvasW, Math.max(...xs));
+    const y = Math.max(0, Math.min(...ys)), ye = Math.min(H, Math.max(...ys));
+    if (!(xe > x) || !(ye > y)) continue;
+    out.push({
+      id: st.id,
+      kind: "stair",
+      via: null,
+      direction,
+      treads,
+      rise_m: rise,
+      u0: round6(u0), u1: round6(u1),
+      depth_near_m: round6(dNear), depth_far_m: round6(dFar),
+      x, y, w: xe - x, h: ye - y,
+      /* The drawn outline: the tread noses where any are in frame, else the
+       * footprint on the floor. What the page hit-tests. */
+      /* THE OUTLINE A PLAYER AIMS AT. The tread noses where any of them are in
+       * the frame, and the footprint on the floor where none are — which is a
+       * descending flight at this eye height: from `stair_landing/S` every one
+       * of its fifteen visible steps draws below y 1399 on a 1024 px canvas,
+       * and the only thing of the stair in the picture is the well it opens in
+       * the floor. Choosing by "are there steps" rather than "are there steps
+       * IN FRAME" gave a hit region entirely off the canvas. */
+      poly: (pts.length >= 3 && pts.some((p) => p[1] > -EPS && p[1] < H)
+        ? pts : floorPts).map((p) => [round6(p[0]), round6(p[1])]),
+      floor_poly: floorPts.map((p) => [round6(p[0]), round6(p[1])]),
+      /* Empty on a DESCENDING flight: it opens the floor you are standing on,
+       * not the ceiling over your head, and the floor is drawn as line work
+       * clipped to the room already — the flight's own footprint outline IS
+       * that opening. Only a rising flight needs the plane above it cut. */
+      well_poly: wellPts.map((p) => [round6(p[0]), round6(p[1])]),
+      beyond_m: null, beyond_offset_m: null
+    });
+  }
+  return out;
+}
+
+/**
+ * [Row 15] EVERY WAY THROUGH THE BUILDING, AND WHICH OF THEM A STANDPOINT CAN
+ * SEE — one computation, read by the fixture validator's completeness clause
+ * and printed as a plan warning, so the exemption and the census cannot part.
+ *
+ * `world` scopes it: an opening is judged only where the world names BOTH
+ * rooms it joins, which is §4b item 3's materialization ladder (a world may
+ * name a subset of the plan) and row 12's one-directional cross-check
+ * unchanged. Pass no world and every opening is judged.
+ *
+ * Returns `{ walkable, offscreen }`, each entry `{ id, from, to, facing }`.
+ * An `offscreen` entry is a way through the building that its own standpoint
+ * cannot see: the cross passage is 8.00 m long and the pinned lens shows
+ * 3.2 m of it from the drawn standpoint, so the kitchen's door lands 185 px
+ * past the right edge of the frame. That is a fact about where the standpoint
+ * law puts the body, not about the document, and §4b item 9's multi-standpoint
+ * rooms are its fix — which is drawn content and a human's. It may not become
+ * a widened tolerance: the fixture validator's off-frame clause refuses a `go` target
+ * nobody can reach, and softening it to admit this corpus is the move this
+ * project has refused five times.
+ */
+export function waysThrough(plan, world, canvasW = CANVAS_W) {
+  const named = world && Array.isArray(world.locations)
+    ? new Set(world.locations.map((l) => l.id)) : null;
+  const rooms = new Map((plan.rooms || []).map((r) => [r.id, r]));
+  const walkable = [], offscreen = [];
+  const consider = (id, from, to, facing) => {
+    if (named && (!named.has(from) || !named.has(to))) return;
+    if (!rooms.has(from) || !rooms.has(to)) return;
+    if (facing == null) return;
+    let m;
+    try { m = deriveMeta(plan, from, facing, { canvasW }); } catch (e) { return; }
+    const hole = groundplane.openingFor(m, id);
+    const entry = { id, from, to, facing };
+    if (!hole) return;
+    const off = hole.x + hole.w <= 0 || hole.x >= canvasW;
+    (off ? offscreen : walkable).push(entry);
+  };
+  for (const o of plan.openings || []) {
+    const [a, b] = o.joins || [];
+    if (!a || !b) continue;
+    const id = o.entity ?? o.id;
+    consider(id, a, b, facingOfOpeningLocal(plan, o, a));
+    consider(id, b, a, facingOfOpeningLocal(plan, o, b));
+  }
+  for (const st of plan.stairs || []) {
+    const [a, b] = st.joins || [];
+    if (!a || !b) continue;
+    consider(st.id, a, b, st.up);
+    consider(st.id, b, a, st.down);
+  }
+  return { walkable, offscreen };
+}
+
+/* `facingOfOpening` lives in the plan validator, which this module already
+ * imports for its geometry helpers. Named locally only to keep the import
+ * list at the top of the file the one place it is read. */
+const facingOfOpeningLocal = (plan, o, roomId) => facingOfOpening(plan, o, roomId);
 
 export function deriveMeta(plan, roomId, facing, opts = {}) {
   const camera = opts.camera || GRID_CAMERA;
@@ -601,6 +904,10 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     meta.corner_x0_px = groundplane.xAtScale(0, pxAtWall, meta, canvasW);
     meta.corner_x1_px = groundplane.xAtScale(1, pxAtWall, meta, canvasW);
   }
+  /* [Row 15] The flights, AFTER the corners: `xAtScale` reads them where they
+   * exist, and a flight runs deep into the room, which is exactly where the
+   * two u-domains would part company if the corners were not set yet. */
+  meta.stairs = stairsForFacing(plan, roomId, facing, meta, canvasW);
   return meta;
 }
 
@@ -686,6 +993,32 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
   const s = attachment === "wall_mounted"
     ? m.px_per_m_at_wall
     : groundplane.scaleAtDepth(depth_m, m);
+  /* [Row 19] A PROJECTION THAT IS NOT A PICTURE IS A FINDING, NEVER A NUMBER
+   * THE CALLER PAINTS WITH.
+   *
+   * This is the site the row's own citation names: an artifact critic put a
+   * desk on `study/N`'s standpoint, a clean-validated plan came back green,
+   * and THIS function returned `scale_px_per_m: -1152`. Nothing between here
+   * and a prompt sheet, a variant manifest or a staged `u` would have noticed
+   * — a negative pixels-per-metre is a number like any other until something
+   * draws with it.
+   *
+   * `-1152` is FINITE, so the row's own words ("a non-finite projection")
+   * are narrower than the defect they cite; the bound is finite AND positive,
+   * which is what a scale is. An object whose baseline stands at or beyond the
+   * camera has no projection at all, and the honest answer is a refusal rather
+   * than the arithmetic's own sign.
+   *
+   * It refuses here rather than in the plan validator because a plan-side
+   * clause is either vacuous or wrong on the approved corpus: the study's
+   * standpoints stand the viewer level with the desk and the chair, off to one
+   * side and out of frame, so those footprints straddle the camera depth on
+   * facings nobody projects them onto. `facingsContaining` below excludes such
+   * a facing from the manifest for exactly that reason, and `planWarnings`
+   * counts what it excluded, so the exclusion is printed rather than silent. */
+  if (!isFinite(s) || !(s > 0)) {
+    throw new Error(`plan-projection: "${objectId}" on ${roomId}/${facing} has its baseline ${depth_m.toFixed(3)} m from the wall line and the camera at ${(fc.camera_wall_m ?? fc.camera_far_m)} m, so it projects at ${String(s)} px/m — an object at or beyond the camera has no picture, and a scale that is not a positive finite number is a finding rather than a number to draw with [row19:plan.object_projects_finitely]`);
+  }
   const centreX = groundplane.xAtScale(0.5, s, m, canvasW);
   const targetX = centreX + offset_m * s;
   const xAt0 = groundplane.xAtScale(0, s, m, canvasW);
@@ -806,7 +1139,20 @@ export function facingsContaining(plan, objectId) {
     const fp = obj.footprint;
     const across = fp[span.axis + "1"] > span.lo + EPS && fp[span.axis + "0"] < span.hi - EPS;
     const along = fp[axis + "1"] > lo + EPS && fp[axis + "0"] < hi - EPS;
-    if (across && along) out.push(f);
+    /* [Row 19] AND ITS BASELINE IS IN FRONT OF THE CAMERA. An object's ground
+     * contact nearest the viewer is what everything downstream projects at —
+     * `projectPlacement`'s `footprintDepth`, the variant manifest's derived
+     * angle, row 4's prompt sheet — so an object the viewer stands LEVEL with
+     * belongs to no picture from that standpoint however much of its footprint
+     * overlaps the band. Two of the shipped four are in that state on one
+     * facing each (the study's standpoints stand back to clear its chimney and
+     * land beside the desk and the chair), and without this the manifest would
+     * have asked row 4 for a chair at −3413 px/m. `planWarnings` counts them,
+     * so the exclusion is printed rather than silent. */
+    const cam = fc.camera_wall_m ?? fc.camera_far_m;
+    const inFront = typeof cam !== "number" ||
+      footprintDepth(fc, f, fp) < cam - EPS;
+    if (across && along && inFront) out.push(f);
   }
   return out;
 }

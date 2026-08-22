@@ -679,8 +679,16 @@
       // against a repeated `go` landing on ANY doorway within it, not only
       // the one just used, so it is a double-click guard and not a lock on
       // travel generally.
-      lastGo = (intent && intent.type === "go" && envelope.events.length > 0)
-        ? Date.now() : null;
+      /* [Row 15] AND IT IS ARMED BY A CLICK, NOT BY A TRAVEL. This line used
+         to arm the window on ANY successful `go`, the keyboard control's
+         included — so pressing Enter on a go-control and then clicking a
+         doorway within 400 ms had the click silently swallowed, which is a
+         pointer guard eating a gesture no pointer made. The manor's own
+         walkthrough found it, because it is the first route that drives the
+         two input paths one after the other. The window is armed where the
+         echo happens, in the canvas click handler; every other intent still
+         ends it here. */
+      lastGo = null;
       /* Row 10, reduced motion: an instant CUT, not a shortened fade. Under
          the preference the whole veil sequence is skipped — no black, no
          hold, no transition — and the repaint simply happens, exactly as a
@@ -838,14 +846,58 @@
     /* The doorway opening the player is facing, if the point is inside it —
        the `go` target. Derived from the document by the renderer, so the
        picture and the affordance agree. */
-    function apertureAt(p) {
-      var list = window.HOLO.renderer.apertures(
+    /* [Row 15] A FLIGHT IS A QUAD ON A RECEDING PLANE, not a rectangle. Its
+       bounding box takes in bare floor beside it, and answering "climb the
+       stair" for a click on bare floor is the same overshoot that once let the
+       notebook answer clicks 85 px away on bare wall. Where an aperture
+       carries its own outline, the outline decides. */
+    function insidePoly(poly, x, y) {
+      var inside = false;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+        if ((yi > y) !== (yj > y) &&
+            x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+      }
+      return inside;
+    }
+    function apertureHolds(a, x, y, marginPx) {
+      var m = marginPx || 0;
+      if (!(x >= a.x - m && x < a.x + a.w + m && y >= a.y - m && y < a.y + a.h + m)) return false;
+      if (a.poly && a.poly.length >= 3 && m === 0) return insidePoly(a.poly, x, y);
+      return true;
+    }
+    function apertureList() {
+      return window.HOLO.renderer.apertures(
         harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
+    }
+    function apertureAt(p) {
+      var list = apertureList();
       for (var i = 0; i < list.length; i++) {
-        var a = list[i];
-        if (p.x >= a.x && p.x < a.x + a.w && p.y >= a.y && p.y < a.y + a.h) return a;
+        if (apertureHolds(list[i], p.x, p.y, 0)) return list[i];
       }
       return null;
+    }
+    /* [Row 15] THE TOLERANCE RING REACHES A WAY THROUGH. §7's amendment is "a
+       widening tolerance ring for targets too small to hit exactly", and it
+       reached takeables and (through the leaf) a door, but never an opening.
+       Measured over the manor's 55 exits at 390×844: twenty-eight are under
+       the 44 CSS px platform minimum and the smallest is 17 × 34, because the
+       standpoint law stands the entrance court's viewer 15.30 m off its own
+       wall. A near miss on a 17 px doorway used to land on nothing.
+
+       Last, and only where nothing exact is under the point, so it cannot eat
+       an entity — the same order §7 fixes for the takeable ring, for the same
+       reason. Among candidates the SMALLEST wins, because a big aperture
+       (a 20 m court mouth) must not claim the margin around a small one. */
+    function nearAperture(p, marginPx) {
+      var list = apertureList();
+      var best = null;
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        if (!apertureHolds(a, p.x, p.y, marginPx)) continue;
+        if (!best || a.w * a.h < best.w * best.h) best = a;
+      }
+      return best;
     }
 
     /* What one point means, resolved once for both hover and click, in the
@@ -908,6 +960,13 @@
       }
       var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
       if (near) return { kind: "entity", id: near };
+      /* [Row 15] and last of all, a way through that is too small to hit
+         exactly — after everything, so it eats nothing. */
+      var nearAp = nearAperture(p, TAKEABLE_MARGIN_CSS * k);
+      if (nearAp) {
+        var nearLeaf = entityById(nearAp.via);
+        if (!nearLeaf || nearLeaf.state === "open") return { kind: "doorway", aperture: nearAp };
+      }
       return { kind: "none" };
     }
 
@@ -959,13 +1018,25 @@
        the day a world arrives over the future wire carrying exits this page
        has never heard of. M0's one door entity is shared by both exits, so
        this yields one string, not two. */
-    function goLabel(leafEntity) {
+    function goLabel(leafEntity, aperture) {
       /* [Row 21] A doorway with no leaf in it is named for what it is. The
          leaf's own noun is what names this control where a leaf exists — a
          plank door is the thing you walk through — and where the building
          carries the opening alone there is no object to name, only the way
-         through. */
-      if (!leafEntity) return "walk through the doorway";
+         through.
+         [Row 15] And a way through is not always a doorway. A control's
+         accessible name is the shortest true name of what it does, so a
+         flight and a threshold are named for themselves rather than all
+         three being called a doorway — which would be the one string on the
+         page that is false of the thing under it. */
+      if (!leafEntity) {
+        var kind = aperture && aperture.kind;
+        if (kind === "stair") {
+          return aperture.direction === "down" ? "go down the stair" : "climb the stair";
+        }
+        if (kind === "threshold") return "cross the threshold";
+        return "walk through the doorway";
+      }
       var noun = nounOf(leafEntity);
       return noun ? "walk through the " + noun : NOUN_FALLBACK;
     }
@@ -1046,7 +1117,7 @@
         goBtn.className = "entity-control chrome";
         goBtn.setAttribute("data-target-id", ap.exit);
         goBtn.setAttribute("data-go", "1");
-        goBtn.setAttribute("aria-label", goLabel(leaf));
+        goBtn.setAttribute("aria-label", goLabel(leaf, ap));
         positionControl(goBtn, ap);
         (function (exitId) {
           goBtn.addEventListener("click", function () { dispatch({ type: "go", exit: exitId }); });
@@ -1123,7 +1194,12 @@
            the two halves of an echo (the two rooms' exits), so the window
            is what identifies it, not the target. */
         var echo = lastGo && (Date.now() - lastGo) < DOUBLE_CLICK_MS;
-        if (!echo) dispatch({ type: "go", exit: r.aperture.exit });
+        if (!echo) {
+          var env = dispatch({ type: "go", exit: r.aperture.exit });
+          // Armed only by a click that actually travelled, so the echo window
+          // belongs to the gesture that can echo.
+          if (env && env.events && env.events.length) lastGo = Date.now();
+        }
         return;
       }
       if (r.kind !== "entity") return;
@@ -1154,9 +1230,24 @@
       overlayCtx.save();
       overlayCtx.strokeStyle = HILITE;
       overlayCtx.lineWidth = OUTLINE_PX;
-      overlayCtx.strokeRect(
-        a.x + OUTLINE_PX / 2, a.y + OUTLINE_PX / 2,
-        a.w - OUTLINE_PX, a.h - OUTLINE_PX);
+      /* [Row 15] The highlight traces what the resolver claims. A doorway's
+         shape IS the rectangle in the wall; a flight's is its own outline, and
+         a rectangle around it would promise the bare floor beside it — the
+         same divergence between the halo and the hit region that made an
+         entity's rectangle read as an editor selecting an asset. */
+      if (a.poly && a.poly.length >= 3) {
+        overlayCtx.beginPath();
+        for (var i = 0; i < a.poly.length; i++) {
+          if (i === 0) overlayCtx.moveTo(a.poly[i][0], a.poly[i][1]);
+          else overlayCtx.lineTo(a.poly[i][0], a.poly[i][1]);
+        }
+        overlayCtx.closePath();
+        overlayCtx.stroke();
+      } else {
+        overlayCtx.strokeRect(
+          a.x + OUTLINE_PX / 2, a.y + OUTLINE_PX / 2,
+          a.w - OUTLINE_PX, a.h - OUTLINE_PX);
+      }
       overlayCtx.restore();
     }
 

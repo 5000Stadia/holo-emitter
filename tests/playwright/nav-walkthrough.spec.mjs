@@ -304,3 +304,207 @@ test.describe("the same world in a hand", () => {
       .toBeLessThan(0.4);
   });
 });
+
+/* ------------------------------------------------------------------------ */
+/* [Row 15] THE MANOR, WALKED — by real clicks and real arrow keys.          */
+/* ------------------------------------------------------------------------ */
+
+/** Turn with the arrow keys until the room faces `f`, the way a player does. */
+async function faceWithKeys(page, f) {
+  for (let i = 0; i < 5; i++) {
+    const at = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+    if (at === f) return true;
+    await page.keyboard.press("ArrowRight");
+  }
+  return false;
+}
+
+/** The go-control for `exit`, reached by Tab alone and pressed. */
+async function walkByKeyboard(page, exit) {
+  for (let i = 0; i < 14; i++) {
+    await page.keyboard.press("Tab");
+    const hit = await page.evaluate((id) => {
+      const a = document.activeElement;
+      return !!(a && a.getAttribute("data-go") === "1" && a.getAttribute("data-target-id") === id);
+    }, exit);
+    if (hit) { await page.keyboard.press("Enter"); return true; }
+  }
+  return false;
+}
+
+/** Click the middle of an exit's own aperture. */
+async function walkByClick(page, exit) {
+  /* A HUMAN'S PAUSE BETWEEN TWO DOORWAY CLICKS. The double-click echo guard
+     swallows a second doorway click inside 400 ms — deliberately, because one
+     gesture must not walk through two rooms with the middle one never seen —
+     and a test that clicks its way round a manor as fast as the harness will
+     take it is not a player. The wait is the guard's own window, and driving
+     the route without it is how the guard's cost was measured. */
+  await page.waitForTimeout(420);
+  const ap = await page.evaluate((id) => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    const vs = A.harness.viewstate;
+    const a = window.HOLO.renderer.apertures(
+      fx.world, fx.staging, A.library, A.metaFor(vs), vs).find((x) => x.exit === id);
+    if (!a) return null;
+    /* The middle of what the resolver actually claims: for a flight that is
+       its own outline, whose bounding box takes in bare floor beside it. */
+    if (a.poly && a.poly.length >= 4) {
+      const half = a.poly.length / 2;
+      const i = Math.floor(half / 2);
+      return { x: (a.poly[i][0] + a.poly[a.poly.length - 1 - i][0]) / 2,
+        y: (a.poly[i][1] + a.poly[a.poly.length - 1 - i][1]) / 2 };
+    }
+    return { x: a.x + a.w / 2, y: a.y + a.h / 2 };
+  }, exit);
+  if (!ap) return null;
+  await clickCanvasPoint(page, ap);
+  return ap;
+}
+
+/* Entrance → great hall → study wing → upstairs → and back. Every leg names
+   how it is driven, because the two halves are not variants of one another:
+   row 10's rule is that every intent a pointer can emit is reachable by
+   keyboard alone, and a flight and a threshold are two aperture kinds that
+   rule had never covered. */
+const ROUTE = [
+  ["way_entrance_approach_entrance_court", "N", "key"],    // the open threshold, in
+  ["door_entrance_court_great_hall", "N", "click"],
+  ["door_great_hall_back_stair", "E", "click"],
+  ["stair_back_stair_back_stair_head", "E", "key"],        // UP a flight, by keyboard
+  ["door_back_stair_head_long_gallery", "E", "click"],
+  ["door_long_gallery_muniment_room", "W", "click"],
+  ["door_muniment_room_solar", "W", "click"],
+  ["door_solar_stair_landing", "W", "click"],
+  ["stair_stair_landing_great_stair_hall", "S", "key"],    // DOWN a flight, by keyboard
+  ["door_great_stair_hall_great_hall", "E", "click"],
+  ["door_great_hall_entrance_court", "S", "click"],
+  ["way_entrance_court_entrance_approach", "S", "click"]   // the open threshold, out
+];
+
+/** Walk a list of exits through the harness, turning to face each one — the
+ *  way a player would, and the only way `handleGo` admits. Used to POSITION
+ *  the page; the route under test is driven by real events. */
+async function driveTo(page, exits) {
+  return await page.evaluate((list) => {
+    const A = window.HOLO_APP;
+    const refused = [];
+    for (const id of list) {
+      const vs = A.harness.viewstate;
+      const ex = (A.harness.world.locations.find((l) => l.id === vs.location).exits || [])
+        .find((e) => e.id === id);
+      if (!ex) { refused.push(`${id}: not an exit of ${vs.location}`); continue; }
+      let guard = 0;
+      while (A.harness.viewstate.facing !== ex.facing && guard++ < 4) {
+        A.harness.dispatch({ type: "turn", dir: "right" });
+      }
+      if (!A.harness.dispatch({ type: "go", exit: id }).events.length) {
+        refused.push(`${id}: refused from ${JSON.stringify(vs)}`);
+      }
+    }
+    return refused;
+  }, exits);
+}
+
+/* From the study, out through the service range and the great hall to the
+   court and the approach — the manor's own front. `op14` is the one opening
+   no standpoint can see (the cross passage is 8.00 m long and the lens shows
+   3.2 m of it), so the kitchen is entered from the court and not from the
+   passage, which is what the plan warning says out loud. */
+const TO_THE_FRONT = ["door_study_hall", "door_hall_buttery_pantry",
+  "door_buttery_pantry_servants_hall", "door_servants_hall_back_stair",
+  "door_back_stair_great_hall", "door_great_hall_entrance_court",
+  "way_entrance_court_entrance_approach"];
+
+test.describe("the manor, walked", () => {
+  test.use({ viewport: POINTER_VIEWPORT });
+
+  test("entrance to great hall to the wings, upstairs and back — real clicks and real keys", async ({ page }) => {
+    test.setTimeout(180_000);
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    /* Start where a visitor starts and walk OUT to the approach first, so the
+       route begins at the manor's own front. */
+    expect(await driveTo(page, TO_THE_FRONT), "the way out to the front walks").toEqual([]);
+    expect((await state(page)).viewstate.location,
+      "the route starts on the approach, outside the manor's front").toBe("entrance_approach");
+
+    const trouble = [];
+    for (const [exit, facing, how] of ROUTE) {
+      const before = (await state(page)).viewstate;
+      if (!(await faceWithKeys(page, facing))) { trouble.push(`${exit}: could not face ${facing}`); break; }
+      const ok = how === "key" ? await walkByKeyboard(page, exit) : !!(await walkByClick(page, exit));
+      if (!ok) { trouble.push(`${exit}: no ${how} path from ${JSON.stringify(before)}`); break; }
+      const s = await state(page);
+      if (s.viewstate.location === before.location) {
+        trouble.push(`${exit}: the ${how} did not travel (still in ${before.location})`);
+        break;
+      }
+      /* THE ORIENTATION LAW, on every passage including both flights: you
+         arrive facing the way you went. */
+      if (s.viewstate.facing !== facing) {
+        trouble.push(`${exit}: left facing ${facing} and arrived facing ${s.viewstate.facing}`);
+      }
+      /* And the room says its own name, in the player's voice, off the real
+         pane rather than out of a JSON file. */
+      const line = s.narration[s.narration.length - 1] || "";
+      if (!line || /[_A-Z]{2}/.test(line)) trouble.push(`${exit}: arrival line is ${JSON.stringify(line)}`);
+    }
+    expect(trouble).toEqual([]);
+    const end = await state(page);
+    expect(end.viewstate.location, "and the walk ends where it began").toBe("entrance_approach");
+    /* Two floors and three aperture kinds — two flights, two open thresholds
+       and eight doorways — with one line of prose per arrival. */
+    expect(end.narration.length, "one line of prose per arrival on the route")
+      .toBeGreaterThanOrEqual(ROUTE.length);
+  });
+
+  test("a flight and a threshold are named for themselves, not all called a doorway", async ({ page }) => {
+    /* A control's accessible name is the shortest true name of what it does.
+       Calling a flight and a 20 m court mouth "the doorway" would be the one
+       string on the page that is false of the thing under it. Read off the
+       controls the page actually builds, standing in each room. */
+    const seen = [];
+    for (const [route, facing] of [
+      [["door_study_hall", "door_hall_buttery_pantry", "door_buttery_pantry_servants_hall",
+        "door_servants_hall_back_stair"], "E"],
+      [TO_THE_FRONT.slice(0, 6), "S"]
+    ]) {
+      await page.goto(navUrl());
+      await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+      expect(await driveTo(page, route), `positioning for ${facing}`).toEqual([]);
+      await faceWithKeys(page, facing);
+      seen.push(...await page.evaluate(() =>
+        [...document.querySelectorAll("#entity-controls button[data-go]")]
+          .map((b) => b.getAttribute("aria-label"))));
+    }
+    expect(seen, "a flight is climbed and a mouth is crossed; neither is 'the doorway'")
+      .toEqual(expect.arrayContaining(["climb the stair", "cross the threshold"]));
+  });
+
+  test("and the same walk in a hand, at 390x844", async ({ page }) => {
+    /* THE OTHER SIZE, and it is not decoration: 28 of the manor's 55 exits are
+       narrower than the 44 CSS px platform minimum on this screen, because the
+       standpoint law stands the entrance court's viewer 15.30 m off its own
+       wall. What makes them reachable is the tolerance ring, and the only way
+       to know it does is to aim at them here. */
+    test.setTimeout(180_000);
+    await page.setViewportSize(PHONE);
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    expect(await driveTo(page, TO_THE_FRONT), "the way out to the front walks").toEqual([]);
+    const trouble = [];
+    for (const [exit, facing, how] of ROUTE) {
+      const before = (await state(page)).viewstate;
+      await faceWithKeys(page, facing);
+      const ok = how === "key" ? await walkByKeyboard(page, exit) : !!(await walkByClick(page, exit));
+      const s2 = await state(page);
+      if (!ok || s2.viewstate.location === before.location) {
+        trouble.push(`${exit}: no ${how} path in a hand, from ${JSON.stringify(before)}`);
+        break;
+      }
+    }
+    expect(trouble, "every way through the manor is reachable on a phone").toEqual([]);
+    expect((await state(page)).viewstate.location).toBe("entrance_approach");
+  });
+});

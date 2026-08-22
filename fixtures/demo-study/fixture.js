@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "4f947c8a",
+  fp: "11cb0692",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -238,6 +238,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "openings": [
       {
         "id": "op13",
+        "kind": "door",
         "via": "door1",
         "x": 918.2200488997555,
         "y": 321.5503667481662,
@@ -246,7 +247,8 @@ window.HOLO_FIXTURES["demo-study"] = {
         "beyond_m": 8.6,
         "beyond_offset_m": 1.1
       }
-    ]
+    ],
+    "stairs": []
   },
   "study/S": {
     "floor_line_y": 0.8210422585227273,
@@ -277,7 +279,8 @@ window.HOLO_FIXTURES["demo-study"] = {
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.4330026109660574,
     "camera_wall_m": 3.85,
-    "openings": []
+    "openings": [],
+    "stairs": []
   },
   "study/W": {
     "floor_line_y": 0.731445,
@@ -351,6 +354,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "openings": [
       {
         "id": "op15",
+        "kind": "door",
         "via": null,
         "x": 1482.4186046511627,
         "y": 136.9799999999999,
@@ -359,7 +363,8 @@ window.HOLO_FIXTURES["demo-study"] = {
         "beyond_m": 5.3,
         "beyond_offset_m": 0
       }
-    ]
+    ],
+    "stairs": []
   },
   "hall/E": {
     "floor_line_y": 0.7109361979166666,
@@ -390,7 +395,8 @@ window.HOLO_FIXTURES["demo-study"] = {
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 6,
-    "openings": []
+    "openings": [],
+    "stairs": []
   },
   "hall/S": {
     "floor_line_y": 1.0640020893895348,
@@ -424,6 +430,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "openings": [
       {
         "id": "op14",
+        "kind": "door",
         "via": null,
         "x": 1720.5581395348836,
         "y": 136.9799999999999,
@@ -432,7 +439,8 @@ window.HOLO_FIXTURES["demo-study"] = {
         "beyond_m": 9,
         "beyond_offset_m": 0
       }
-    ]
+    ],
+    "stairs": []
   },
   "hall/W": {
     "floor_line_y": 0.7109361979166666,
@@ -466,6 +474,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "openings": [
       {
         "id": "op13",
+        "kind": "door",
         "via": "door1",
         "x": 682.6666666666666,
         "y": 386.6653333333333,
@@ -474,7 +483,8 @@ window.HOLO_FIXTURES["demo-study"] = {
         "beyond_m": 6.05,
         "beyond_offset_m": 1.1
       }
-    ]
+    ],
+    "stairs": []
   }
 }
 };

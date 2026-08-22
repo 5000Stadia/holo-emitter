@@ -873,6 +873,30 @@ export function validatePlan(plan, world, records) {
     if (!Number.isInteger(s.treads) || s.treads < 10 || s.treads > 30) {
       push(`stair "${s.id}": treads is ${JSON.stringify(s.treads)} — a flight between two storeys is 10–30; the plan carries no storey height to check a rise against`);
     }
+    /* [Row 15] AND THE TRAVEL DIRECTIONS ANSWER TO THE DRAWING.
+     *
+     * `up` and `down` are the only thing the world cross-check has to check a
+     * stair exit's facing against, and `architecture.md` records them among
+     * the fields that "have only the code's own mutation tests" — unanchored
+     * to the approved sheet. One wrong token and the world is authored to
+     * agree with it, the cross-check passes, and climbing that stair turns
+     * the player around.
+     *
+     * Two halves of it can be anchored to drawn geometry and are: they must be
+     * OPPOSITE, and the flight's own longer axis must be the axis they name —
+     * the run of a flight is the direction it travels. What cannot be anchored
+     * is which END is the top, because the two rooms a flight joins are
+     * stacked and have identical rects; that residual is named here rather
+     * than left to be discovered. */
+    if (rectOk(s.rect) && FACINGS.includes(s.up)) {
+      const runAxis = (s.up === "N" || s.up === "S") ? "y" : "x";
+      const across = runAxis === "y" ? "x" : "y";
+      const runLen = s.rect[runAxis + "1"] - s.rect[runAxis + "0"];
+      const wideLen = s.rect[across + "1"] - s.rect[across + "0"];
+      if (!(runLen > wideLen)) {
+        push(`stair "${s.id}": it travels ${s.up}/${s.down}, so its run is its ${runAxis} extent — ${runLen} m against ${wideLen} m across, which is a flight drawn sideways to the way it is climbed [row15:plan.stair_directions]`);
+      }
+    }
     for (const room of [a, b]) {
       if (rectOk(s.rect) && !contains(room.rect, s.rect)) push(`stair "${s.id}": its flight is not inside "${room.id}"`);
     }
@@ -1003,11 +1027,45 @@ export function validatePlan(plan, world, records) {
      * `desk1` sat with 91% of its footprint in the study's hearth, on the
      * facing row 4 generates first, reported as a warning nobody had to act
      * on. A room's free floor is the room minus what is built into it. */
+    /* [Row 19] THE CARRIERS, ALL THREE OF THEM, AND ONE FAULT MAKES ONE
+     * FINDING.
+     *
+     * Row 11 gave furniture a hearth to keep out of and a flight to keep off.
+     * Row 11's own round-6 residue named the two it had not: a doorway's
+     * threshold, and the point the viewer stands on. The second is what the
+     * artifact critic reached for — a desk on `study/N`'s standpoint — and a
+     * clean-validated plan then handed the projection a `scale_px_per_m` of
+     * −1152, because the desk stood at the camera.
+     *
+     * PRECEDENCE, written before the ledger cases were constructed, and
+     * extending row 20's rule that a standpoint in masonry takes precedence
+     * over the branch and placement clauses. One object can be in a hearth ON
+     * a standpoint straddling a threshold, and the ledger requires each case
+     * to trip its clause and NOTHING else — so without a stated order the
+     * cases would be built by picking constructions that happen not to
+     * collide, which is the author proving the case he wrote. The first fault
+     * is the one that explains the rest: an object standing where the viewer
+     * stands necessarily projects badly. */
+    let fault = null;
+    const carrier = (s) => { if (!fault) fault = s; };
+    for (const room2 of [room]) {
+      if (!room2.facings || !rectOk(o.footprint)) break;
+      for (const f of FACINGS) {
+        const fc = room2.facings[f];
+        if (!fc || !fc.standpoint) continue;
+        const p = fc.standpoint;
+        if (p.x >= o.footprint.x0 - 1e-9 && p.x <= o.footprint.x1 + 1e-9 &&
+            p.y >= o.footprint.y0 - 1e-9 && p.y <= o.footprint.y1 + 1e-9) {
+          carrier(`object "${o.id}": its footprint covers "${o.room}"'s ${f} standpoint (${p.x}, ${p.y}) — a viewer stands on floor the room has left, and an object at the camera has no projection at all [row19:plan.object_clear_of_standpoints]`);
+          break;
+        }
+      }
+    }
     for (const fire of plan.fireplaces || []) {
       if (fire.floor !== o.floor || !rectOk(fire.rect) || !rectOk(o.footprint)) continue;
       const a = overlapArea(fire.rect, o.footprint);
       if (a > 1e-9) {
-        push(`object "${o.id}": ${a.toFixed(3)} m² of its footprint is inside the chimney breast of "${fire.room}" — furniture stands on the floor a room has left, not in its masonry [row11:plan.object_clear_of_carriers]`);
+        carrier(`object "${o.id}": ${a.toFixed(3)} m² of its footprint is inside the chimney breast of "${fire.room}" — furniture stands on the floor a room has left, not in its masonry [row11:plan.object_clear_of_carriers]`);
       }
     }
     for (const st of plan.stairs || []) {
@@ -1015,16 +1073,46 @@ export function validatePlan(plan, world, records) {
       const room = byId.get(o.room);
       if (!room || !st.joins.includes(o.room)) continue;
       if (overlapArea(st.rect, o.footprint) > 1e-9) {
-        push(`object "${o.id}": its footprint is on the "${st.id}" flight [row11:plan.object_clear_of_stairs]`);
+        carrier(`object "${o.id}": its footprint is on the "${st.id}" flight [row11:plan.object_clear_of_stairs]`);
+      }
+    }
+    /* THE SECOND CARRIER: a doorway's own threshold. An opening's rect is the
+     * hole through the wall's thickness and the floor a player crosses to use
+     * it; a press standing in it is a door that cannot be opened, drawn by a
+     * plan nothing refused. Both kinds count — a door and an open edge — and
+     * only openings on this object's own floor that its own room abuts. */
+    for (const op of plan.openings || []) {
+      if (op.floor !== o.floor || !rectOk(o.footprint) || !op.rect) continue;
+      if (!(op.joins || []).includes(o.room)) continue;
+      const a = overlapArea(op.rect, o.footprint);
+      if (a > 1e-9) {
+        carrier(`object "${o.id}": ${a.toFixed(3)} m² of its footprint stands in the "${op.id}" threshold — a doorway is floor a player crosses, not floor furniture stands on [row19:plan.object_clear_of_thresholds]`);
       }
     }
     for (const other of plan.objects || []) {
       if (other.id <= o.id || other.floor !== o.floor) continue;
       if (!rectOk(other.footprint) || !rectOk(o.footprint)) continue;
       if (overlapArea(other.footprint, o.footprint) > 1e-9) {
-        push(`objects "${o.id}" and "${other.id}" occupy the same floor area [row11:plan.objects_do_not_share_floor]`);
+        carrier(`objects "${o.id}" and "${other.id}" occupy the same floor area [row11:plan.objects_do_not_share_floor]`);
       }
     }
+    /* THE THIRD OF ROW 19'S CARRIER CLAUSES IS NOT HERE, and where it is and
+     * why is worth reading before adding one.
+     *
+     * The finitely-projects clause lives in `tools/plan-projection.mjs`,
+     * inside `projectPlacement` — at the site
+     * that produces the number, not beside the document. A plan-side version
+     * of it is either vacuous or wrong, and the corpus says which: the study's
+     * standpoints stand the viewer LEVEL with the desk and the chair, off to
+     * one side, so on `study/W` and `study/S` those two objects straddle the
+     * camera depth while sitting well outside the frame. A clause that refused
+     * that would refuse the approved plan for a picture nobody draws; a clause
+     * narrowed to objects across the viewing axis is unreachable, because an
+     * object across the axis at camera depth necessarily covers the standpoint
+     * and the clause above fires first. What is genuinely wrong is a
+     * PROJECTION that returns a scale nothing can paint with, which is exactly
+     * what the row's own citation describes, and that has one site. */
+    if (fault) push(fault);
 
     /* A composed footprint is one a human licence moved off its derived
      * value; without the reason beside it the next re-derivation cannot tell
@@ -1165,6 +1253,69 @@ export function planWarnings(plan, records, world) {
     }
   }
 
+  /* [Row 15] THE `+` JUNCTION GUARD, MANOR-WIDE.
+   *
+   * Row 20 built it from Kabe's own verbatim symptom — *"the demo first room
+   * looks like every direction is a corridor….. Like a + shape"* — and pinned
+   * it over the eight facings the demo world renders. This row makes eighty
+   * more render, so the guard runs over all of them: the share of the frame
+   * taken by side-wall RETURN rather than by the wall you are facing, and no
+   * facing of a room that is not a corridor may show more of the first than of
+   * the second.
+   *
+   * A WARNING, on this document's own precedent. Eight facings of the approved
+   * manor exceed it — the garden room's and the closet chamber's flanks at
+   * 64 %, the entrance court's at 61 %, the privy garden's at 76 % — and every
+   * one is a narrow room viewed along its long axis from a standpoint the
+   * approved drawing places. A validator that refused them would refuse the
+   * plan Kabe signed; one that could not see them is why nobody would ever
+   * find them. The facing's type is his to rule, exactly as law (b)'s warning
+   * above says of the entrance approach. */
+  for (const room of plan.rooms || []) {
+    if (!room.facings) continue;
+    for (const f of FACINGS) {
+      const fc = room.facings[f];
+      if (!fc || fc.type === "corridor" || fc.type === "open") continue;
+      if (!(fc.wall_width_m > 0)) continue;
+      const d = fc.camera_wall_m ?? fc.camera_far_m;
+      if (!(d > 0)) continue;
+      const wallPx = fc.wall_width_m * groundplane.FOCAL_PX / d;
+      const share = 1 - Math.min(1, wallPx / PLAN_CANVAS_W);
+      if (share > 0.5) {
+        out.push(`room "${room.id}" facing ${f} is typed ${fc.type} and shows ${(share * 100).toFixed(0)} % side wall against ${(100 - share * 100).toFixed(0)} % facing wall — its ${fc.wall_width_m} m wall seen from ${d} m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule`);
+      }
+    }
+  }
+
+  /* [Row 19] AND THE FACINGS AN OBJECT IS EXCLUDED FROM because the viewer
+   * stands level with it. `facingsContaining` is §4b item 9's own primitive —
+   * "an object belongs to every facing whose view contains it" — and it drops
+   * a facing whose camera stands at or in front of the object's own baseline,
+   * because there is no projection there to derive an angle or a scale from.
+   * An exclusion nobody prints is a hole; this is where it is printed. */
+  for (const o of plan.objects || []) {
+    const room = byId.get(o.room);
+    if (!room || !room.facings || !rectOk(o.footprint)) continue;
+    const level = [];
+    for (const f of FACINGS) {
+      const fc = room.facings[f];
+      if (!fc) continue;
+      const cam = fc.camera_wall_m ?? fc.camera_far_m;
+      const [axis] = NORMAL[f];
+      const span = viewSpan(room.rect, f);
+      const across = o.footprint[span.axis + "1"] > span.lo + EPS && o.footprint[span.axis + "0"] < span.hi - EPS;
+      const lo = Math.min(fc.standpoint[axis], fc.wall_line);
+      const hi = Math.max(fc.standpoint[axis], fc.wall_line);
+      const along = o.footprint[axis + "1"] > lo + EPS && o.footprint[axis + "0"] < hi - EPS;
+      const dNear = Math.max(Math.abs(fc.wall_line - o.footprint[axis + "0"]),
+        Math.abs(fc.wall_line - o.footprint[axis + "1"]));
+      if (across && along && typeof cam === "number" && !(dNear < cam - EPS)) level.push(f);
+    }
+    if (level.length) {
+      out.push(`object "${o.id}": the ${o.room} viewer stands level with it on ${level.join(", ")} — its own ground edge is at or behind those cameras, so it belongs to no picture from them and §4b item 9's variant manifest does not enumerate them`);
+    }
+  }
+
   /* A hearth with no flue rising through the floor above it. */
   for (const f of plan.floors || []) {
     const above = (plan.floors || []).find((g) => g.level === f.level + 1);
@@ -1195,6 +1346,16 @@ function crossCheckWorld(plan, world, byId) {
   if (!isObj(world) || !Array.isArray(world.locations)) return ["world.json: no locations to cross-check against the plan"];
   const openingsByEntity = new Map();
   for (const o of plan.openings) if (o && o.entity) openingsByEntity.set(o.entity, o);
+  /* [Row 15] AND BY THE PLAN'S OWN NAME FOR THE HOLE. Exactly one of the
+   * manor's twenty-six openings carries an `entity` — the study's `door1` —
+   * so a world that may only address a leaf can walk through one of them. The
+   * alternative, writing an `entity` onto the other twenty-five, moves the
+   * drawn digest of the drawing Kabe approved and demands a human redline for
+   * a change no human asked for. An entity wins over an id where both would
+   * match, because a leaf governs the hole it stands in;
+   * `groundplane.openingFor` is the same order on the renderer's side. */
+  const openingsById = new Map();
+  for (const o of plan.openings) if (o && o.id) openingsById.set(o.id, o);
   /* Row 12's own row text: "stairs as exits". A stair is addressed by its own
    * id — it carries no leaf entity — and its travel directions ARE the
    * orientation law's, so the check is the stair's `up`/`down` rather than a
@@ -1232,9 +1393,9 @@ function crossCheckWorld(plan, world, byId) {
         }
         continue;
       }
-      const op = openingsByEntity.get(exit.via);
+      const op = openingsByEntity.get(exit.via) || openingsById.get(exit.via);
       if (!op) {
-        out.push(`plan/world: exit "${exit.id}" travels via "${exit.via}", which is neither a plan opening's entity nor a stair`);
+        out.push(`plan/world: exit "${exit.id}" travels via "${exit.via}", which is neither a plan opening's entity, a plan opening, nor a stair`);
         continue;
       }
       const joins = [...op.joins].sort().join("|");

@@ -23,7 +23,7 @@ import { validate, resolvePlanPath, metaForFacing as resolveFacingMeta } from ".
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
 import {
   stagingDivergence, assertCameraConsistent, assertRuledEye, assertRuledLens,
-  metaForFacing
+  metaForFacing, waysThrough
 } from "./plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -161,6 +161,14 @@ let plan;
   }
   if (div.unexpected.length || div.missing.length) process.exit(1);
   for (const w of planWarnings(plan, byEntity, parsed.world)) console.error(`plan warning: ${w}`);
+  /* [Row 15] AND THE WAYS THROUGH THE BUILDING NO STANDPOINT CAN SEE. The
+   * fixture validator exempts these from its completeness clause — an opening
+   * wholly off the frame cannot be a `go` target, and requiring an exit
+   * through it would force `exit.opening_offscreen` to be widened. An
+   * exemption nobody prints is a hole; this is where it is printed. */
+  for (const w of waysThrough(plan, parsed.world).offscreen) {
+    console.error(`plan warning: the plan draws a way from "${w.from}" to "${w.to}" through "${w.id}" that ${w.from}/${w.facing}'s own standpoint cannot see — its opening falls wholly off the frame, so no exit walks it and the room is entered another way (§4b item 9's multi-standpoint rooms are the fix, and they are drawn content)`);
+  }
 
   /* Row 11: the §5 meta of every facing the world names, derived from the
    * plan and baked beside the fixture. The page hands these to the renderer as

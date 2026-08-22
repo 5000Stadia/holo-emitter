@@ -558,7 +558,7 @@ const WORLD_MUTATIONS = [
     /arrives facing S — blueprint §3/i,
     () => withStairExit({ arrive_facing: "S" })],
   ["an exit that travels via nothing the plan knows",
-    /travels via "trapdoor", which is neither a plan opening's entity nor a stair/i,
+    /travels via "trapdoor", which is neither a plan opening's entity, a plan opening, nor a stair/i,
     () => withStairExit({ via: "trapdoor" })],
   ["a door exit between two rooms the opening does not join",
     /but opening "op13" joins/i,
@@ -829,7 +829,7 @@ test.describe("plan ↔ world: the orientation law is geometry now, not prose", 
   test("an exit whose via names no plan opening is caught", () => {
     const w = clone(WORLD);
     w.locations[0].exits[0].via = "trapdoor";
-    expect(validatePlan(PLAN, w, BY_ENTITY).join("\n")).toMatch(/neither a plan opening's entity nor a stair/);
+    expect(validatePlan(PLAN, w, BY_ENTITY).join("\n")).toMatch(/neither a plan opening's entity, a plan opening, nor a stair/);
   });
 
   /* A location the plan has not drawn is a warning, not a finding: world.json
@@ -2993,6 +2993,54 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(actual,
       "design/batches/standing-eye-wave/README.md quotes a gate table the tool no longer prints — re-run gate.py --round cand6 and paste what it says")
       .toEqual(blocks[0].map((l) => l.trimEnd()));
+  });
+
+  /* [Row 15] AND THE MANOR BATCH, the same shape, against TODAY's build —
+   * these are pictures of what the link serves now, so the build that answers
+   * for them is the one running. An artifact nobody can regenerate is not
+   * derived; it is just a file. */
+  const ROW15_DIR = join(repoRoot, "design", "batches", "row15-manor");
+
+  test("the row-15 batch IS what the code draws — every frame re-rendered and compared", async ({ browserName }) => {
+    test.setTimeout(240_000);
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
+    expect(existsSync(join(ROW15_DIR, "capture.mjs")),
+      "the batch must carry the script that made it").toBe(true);
+    const out = mkdtempSync(join(tmpdir(), "holo-row15-"));
+    try {
+      const log = execFileSync("node", [join(ROW15_DIR, "capture.mjs"), out],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(12);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(ROW15_DIR, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale,
+        "these batch frames are not what the code draws — re-run design/batches/row15-manor/capture.mjs into the batch")
+        .toEqual([]);
+      const committedFrames = readdirSync(ROW15_DIR)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
+      expect(committedFrames, "a frame the script draws is missing from the set a human is shown")
+        .toEqual(fresh);
+      /* And each frame is of what its name promises: the script prints the
+         viewstate it actually reached, so renaming a row of FRAMES cannot be
+         green by construction. */
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(?:demo-)?([a-z_]+)-([NESW])(?:-|$)/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
   });
 
   /* The batch's two schematics ARE the live sheets — same bytes, not a copy

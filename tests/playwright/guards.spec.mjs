@@ -37,7 +37,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
 import { validatePlan, drawn } from "../../tools/validate-plan.mjs";
-import { deriveMeta, metaForFacing } from "../../tools/plan-projection.mjs";
+import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
 const FIXTURE_DIR = join(repoRoot, "fixtures", "demo-study");
@@ -320,7 +320,25 @@ export const MECHANISMS = [
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
   "renderer.ceiling_reaches_the_frame",
-  "renderer.ceiling_clipped_to_the_room"
+  "renderer.ceiling_clipped_to_the_room",
+  /* [Row 15] The manor: the two ways through a building that are not a leaf
+     in a doorway, and the two halves of "the plan draws it, the world walks
+     it" that had no clause at all. */
+  "meta.opening_kind",
+  "meta.stairs_list",
+  "plan.stair_directions",
+  "exit.opening_unwalked",
+  "world.rooms_unreachable",
+  "renderer.stair_flight",
+  "renderer.stairwell_clears_the_ceiling",
+  "renderer.threshold_line",
+  "renderer.threshold_needs_no_band",
+  /* [Row 19] Carrier clearance completed. */
+  "plan.object_clear_of_thresholds",
+  "plan.object_clear_of_standpoints",
+  "plan.object_projects_finitely",
+  "staging.wall_mounted_over_storey",
+  "meta.opening_over_storey"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -420,9 +438,16 @@ const DOCUMENT_CASES = {
      wall, refused by nothing. Doctored on the NAVIGATION fixture, because that
      is the world whose doorways are building facts: in the furnished world the
      leaf answers for the exit and this clause is never reached. */
+  /* [Row 15] BOTH NAMES, because an exit resolves against the entity that
+     fills a hole OR the plan's own name for it — 25 of the manor's 26
+     openings carry no entity and neither of its stairs ever will. Blanking
+     `via` alone left every exit resolving by `id` and the clause could not
+     fire; blanking both is what "the meta carries no way through for it"
+     actually means now. */
   "exit.via_unfilled": () => tokensFromNavMetas((m) => {
     for (const key of Object.keys(m)) {
-      for (const o of (m[key].openings || [])) o.via = null;
+      for (const o of (m[key].openings || [])) { o.via = null; o.id = null; }
+      for (const s of (m[key].stairs || [])) s.id = null;
     }
   }),
   /* And an exit through a doorway that is off the frame: a way through nobody
@@ -606,8 +631,157 @@ const DOCUMENT_CASES = {
     p.objects.find((o) => o.id === "stick1").footprint =
       clone(p.objects.find((o) => o.id === "shelf1").footprint);
     return tokensOf(validatePlan(p));
-  }
+  },
+
+  /* ---- [Row 15] the manor's two other ways through a building ---------- */
+
+  "meta.opening_kind": () => everyArm("meta.opening_kind", {
+    /* Two arms because the renderer's two branches are opposites: an unknown
+       kind takes the door branch and cuts a jamb into open ground, and a
+       MISSING one does the same in silence. */
+    unknown: () => tokensFromMetas((m) => { m["study/E"].openings[0].kind = "archway"; }),
+    absent: () => tokensFromMetas((m) => { delete m["study/E"].openings[0].kind; })
+  }),
+  "meta.stairs_list": () => everyArm("meta.stairs_list", {
+    not_a_list: () => tokensFromMetas((m) => { m["study/W"].stairs = "up"; }),
+    /* A flight is three things at once — the click target, the outline the
+       grid strokes and the hover halo traces, and the well the ceiling is cut
+       out of — so each is its own way to be wrong. */
+    no_rectangle: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ w: 0 })]; }),
+    no_direction: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ direction: "sideways" })]; }),
+    no_rise: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ rise_m: 0 })]; }),
+    no_treads: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ treads: 2.5 })]; }),
+    no_outline: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ poly: [] })]; }),
+    broken_ring: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
+    point_not_a_point: () => tokensFromMetas((m) => { m["study/W"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; })
+  }),
+  "plan.stair_directions": () => {
+    /* The flight kept where it is drawn and told it is climbed ACROSS its own
+       run: 1.6 m of travel against 4.8 m of width. `up` and `down` stay
+       opposite, so the clause that checks THAT does not fire beside this one —
+       the two say different things and the ledger requires each case to
+       isolate one. */
+    const p = clone(PLAN);
+    const st = p.stairs.find((s) => s.id === "great_stair");
+    st.up = "E"; st.down = "W";
+    return tokensOf(validatePlan(p));
+  },
+  "exit.opening_unwalked": () => tokensOf(validateNavWorld((w) => {
+    /* The plan draws a way and the world stops opening it. Without this
+       clause the two documents could disagree by omission: a manor with a
+       door in every wall and a world that walks four of them is green, and
+       the picture holds rooms nobody can enter. */
+    const loc = w.locations.find((l) => l.id === "library");
+    loc.exits = loc.exits.filter((e) => e.to !== "garden_room");
+  })),
+  "world.rooms_unreachable": () => tokensOf(validateNavWorld((w) => {
+    /* Connectivity is not implied by the clause above: a wing whose every
+       opening is walked and which joins nothing else satisfies it and is
+       unreachable.
+       The construction has to strand a room WITHOUT leaving a plan way
+       unwalked, or the two clauses fire together and neither case is evidence
+       about its own. Cutting a room's doors does both. So this adds a room the
+       PLAN does not draw — §4b item 3's materialization ladder puts a conjured
+       location on screen as grid before any geometry exists for it — with no
+       way in. The plan has nothing to say about it, `exit.opening_unwalked`
+       stays silent, and no walk from the boot viewstate reaches it. */
+    w.locations.push({ id: "zz_conjured", facings: ["N", "E", "S", "W"], exits: [] });
+  })),
+
+  /* ---- [Row 19] carrier clearance completed ---------------------------- */
+
+  "plan.object_clear_of_standpoints": () => {
+    /* THE ARTIFACT CRITIC'S OWN CONSTRUCTION, verbatim in effect: a desk on
+       `study/N`'s standpoint. Before this clause the plan validated clean and
+       `projectPlacement` returned `scale_px_per_m: -1152`. */
+    const p = clone(PLAN);
+    const sp = p.rooms.find((r) => r.id === "study").facings.N.standpoint;
+    p.objects.find((o) => o.id === "desk1").footprint =
+      { x0: sp.x - 0.405, x1: sp.x + 0.405, y0: sp.y - 0.275, y1: sp.y + 0.275 };
+    return tokensOf(validatePlan(p));
+  },
+  "plan.object_clear_of_thresholds": () => {
+    /* A press standing in the study's own doorway. `op13` is the one opening
+       in the manor with a leaf, and its rect is the hole through the wall's
+       thickness — floor a player crosses, not floor furniture stands on. */
+    const p = clone(PLAN);
+    const op = p.openings.find((o) => o.id === "op13");
+    p.objects.find((o) => o.id === "desk1").footprint =
+      { x0: op.rect.x0 - 0.2, x1: op.rect.x0 + 0.3, y0: op.rect.y0 + 0.1, y1: op.rect.y0 + 0.6 };
+    return tokensOf(validatePlan(p));
+  },
+  "plan.object_projects_finitely": () => {
+    /* THE PROJECTION'S OWN REFUSAL, at the site that produces the number.
+       This is the second half of the critic's construction and it is where
+       `-1152` was actually returned: the plan validator's own clause above
+       removes the footprint that reaches it, and this one refuses whatever
+       else does — a staged object whose baseline stands at the camera, which
+       is a state a doctored staging or a solver-authored plan can produce
+       without covering a standpoint. */
+    const p = clone(PLAN);
+    const room = p.rooms.find((r) => r.id === "study");
+    const cam = room.facings.N.camera_wall_m;
+    const line = room.facings.N.wall_line;
+    /* Its baseline exactly AT the camera: the singularity itself, where the
+       scale is not merely negative but infinite. */
+    p.objects.find((o) => o.id === "desk1").footprint =
+      { x0: 26.0, x1: 26.8, y0: line - cam, y1: line - cam + 0.55 };
+    let tokens = new Set();
+    try {
+      projectPlacement(p, "desk1", "study", "N");
+    } catch (e) {
+      tokens = tokensOf([e.message]);
+    }
+    return tokens;
+  },
+  "meta.opening_over_storey": () => tokensFromNavMetas((m) => {
+    /* Blueprint §11 rules every door opening at 2.00 m and the plan gives its
+       floors 2.80; a room a document drops to 1.85 m has a door through its
+       own ceiling, and nothing compared the two numbers. The storey is moved
+       rather than the opening, because the storey is the field an agent
+       actually sets.
+       On the NAVIGATION world, because the demo world's only two facings with
+       an opening are the two `door1` hangs on — so lowering their storey trips
+       `staging.wall_mounted_over_storey` in the same breath, and neither case
+       would then be evidence about its own clause. The painted world stages
+       nothing, so no staging clause can fire beside this one. */
+    m["great_hall/S"].storey_height_m = 1.85;
+  }),
+  "staging.wall_mounted_over_storey": () => tokensOf(validateWithStaging((st) => {
+    /* `door1` is 2.00 m tall and hangs at `v: 0` in a 2.80 m room. Raised a
+       metre it stands 3.00 m to its head — through the ceiling — and row 11's
+       clauses, which bound a wall placement sideways and never upward, all
+       stay green. */
+    for (const pl of st.placements.door1) pl.v = 1.0;
+  }, JSON.parse(readFileSync(join(FIXTURE_DIR, "staging.json"), "utf8"))))
 };
+
+/** A well-formed §5 meta flight, with one field spoiled. */
+const flight = (over) => ({
+  id: "great_stair", kind: "stair", via: null, direction: "up", treads: 17,
+  rise_m: 2.8, u0: 0.1, u1: 0.3, depth_near_m: 5, depth_far_m: 0.2,
+  x: 10, y: 200, w: 300, h: 700,
+  poly: [[10, 200], [10, 900], [310, 900], [310, 200]],
+  floor_poly: [[10, 700], [10, 900], [310, 900], [310, 700]],
+  well_poly: [[10, 100], [10, 300], [310, 300], [310, 100]],
+  beyond_m: null, beyond_offset_m: null, ...over
+});
+
+/** The navigation world, doctored on disk, through the real validator. */
+function validateNavWorld(doctor) {
+  const dir = mkdtempSync(join(tmpdir(), "holo-navworld-"));
+  try {
+    const w = clone(NAV_WORLD);
+    doctor(w);
+    for (const f of ["staging.json", "narration.json", "viewstate.json", "plan.ref"]) {
+      writeFileSync(join(dir, f), readFileSync(join(NAV_DIR, f), "utf8"));
+    }
+    writeFileSync(join(dir, "world.json"), JSON.stringify(w, null, 2) + "\n");
+    return validate(dir, RECORDS);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 
 /** The same facing, retyped as open: no wall, a far line instead. */
 function openLike(m) {
@@ -763,9 +937,12 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * painted room walkable. With the branch gone the wall has no hole in it,
      * the page has no `go` target, and the two rooms are unreachable from each
      * other with the whole suite otherwise green. */
+    /* [Row 15] The marker moved when the lookup got its one home: the branch
+     * is `groundplane.openingFor` now, so what this case removes is the CALL,
+     * which is the whole of the building-fact path. */
     const dir = stageWithout(
-      "            if (mo[oi].via && mo[oi].via === exit.via) {",
-      "            if (false) {");
+      "          var found = gp.openingFor(meta, exit.via);",
+      "          var found = null;");
     try {
       expect(await navApertureCount(page, dir),
         "with the branch gone the navigation world's doorway is not in the wall").toBe(0);
@@ -1313,6 +1490,94 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       removeTree(dir);
     }
   });
+
+  /* ---- [Row 15] the manor's building facts, in the picture -------------- */
+
+  ledgerCase("renderer.stair_flight", async ({ page }) => {
+    /* THE FLIGHT IS DRAWN, and this is what makes its `go` target honest. A
+     * stair is a fact about the building exactly as a doorway is; without the
+     * drawing the page offers "climb the stair" over featureless floor, in a
+     * resolver whose own rule is that dead space is dead. Measured as ink on
+     * the ground plane of the room the flight stands in. */
+    const dir = stageWithout(
+      "    var flights = meta.stairs || [];",
+      "    var flights = [];");
+    try {
+      const clean = await stairInk(page, repoRoot);
+      const broken = await stairInk(page, dir);
+      expect(clean.ink, "the flight draws real ink on the stair hall's own facing")
+        .toBeGreaterThan(400);
+      expect(clean.ink - broken.ink, "with the flights gone the picture holds no stair at all")
+        .toBeGreaterThan(400);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.stairwell_clears_the_ceiling", async ({ page }) => {
+    /* A STAIRWELL IS A HOLE IN THE CEILING. `great_stair`'s top tread lands
+     * some fifteen pixels above this room's ceiling line, so without the well
+     * the picture shows a staircase running into an unbroken plane — the
+     * inverse of "never void", one storey up. The plan has no floor aperture
+     * and this row may not add one, so the well is derived from the flight's
+     * own rect and its floor's storey height and the ceiling's line work is
+     * clipped out of it. Measured as ceiling ink INSIDE the well's rectangle. */
+    const dir = stageWithout(
+      '        if (anyWell) ctx.clip("evenodd");',
+      "        if (false) ctx.clip();");
+    try {
+      const clean = await stairInk(page, repoRoot);
+      const broken = await stairInk(page, dir);
+      expect(broken.inWell - clean.inWell, "ceiling lines painted straight across the stairwell")
+        .toBeGreaterThan(20);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.threshold_line", async ({ page }) => {
+    /* THE ONE MARK A THRESHOLD GETS. Law (b) forbids an invented enclosure
+     * where no building stands, so the court mouth gets no jamb, no reveal and
+     * no fill — but a 20.4 m `go` target on featureless ground is the same
+     * defect the flights above are drawn to avoid. A line on the ground, at
+     * the position the plan holds, is what the law does permit and what the
+     * grid already draws every half metre. */
+    const dir = stageWithout(
+      '      if (mth.kind !== "threshold") continue;',
+      "      if (true) continue;");
+    try {
+      const clean = await thresholdInk(page, repoRoot);
+      const broken = await thresholdInk(page, dir);
+      expect(clean.onLine, "the mouth's own ground line is drawn").toBeGreaterThan(200);
+      expect(clean.onLine - broken.onLine, "and it is the threshold that draws it")
+        .toBeGreaterThan(200);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.threshold_needs_no_band", async ({ page }) => {
+    /* LAW (b), READ IN THE OTHER DIRECTION. A doorway needs a band to be a
+     * hole in; a threshold needs the ABSENCE of one, or it is a way through a
+     * standing wall. The two tests are opposites and one function is not the
+     * other: with the threshold sent through the doorway's test, the entrance
+     * approach's court mouth — 20.4 m of gap between two wing fronts — has no
+     * band spanning it, so the only way out of the approach disappears and one
+     * room of the manor becomes unreachable with the whole suite green. */
+    const dir = stageWithout(
+      '        } else if (kind === "threshold") {\n' +
+      "          if (crossesAnyBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;",
+      '        } else if (kind === "threshold") {\n' +
+      "          if (!spannedByBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;");
+    try {
+      const clean = await thresholdApertures(page, repoRoot);
+      const broken = await thresholdApertures(page, dir);
+      expect(clean, "the approach's only way in is an aperture").toBe(1);
+      expect(broken, "and the doorway's own band test destroys it").toBe(0);
+    } finally {
+      removeTree(dir);
+    }
+  });
 });
 
 /* ------------------------------------------------------------- measurements */
@@ -1336,6 +1601,132 @@ async function bandCounts(page, root) {
     for (let x = 1; x < 1536; x++) if (T.colFraction(c, x, 40, 400) > 0.9) n++;
     return { verticals: n };
   }, OPEN_META_WITH_CONTINUOUS_FIELDS);
+}
+
+/* [Row 15] THE STAIR HALL, RENDERED. `great_stair_hall/N` is the manor's
+ * ascending flight seen from the room it climbs out of: 17 treads over 4.8 m
+ * of run and 2.8 m of rise, ending against a ceiling this room also draws.
+ * Two measurements, because the flight and the well it opens are two
+ * mechanisms — the ink the flight lays on the ground plane, and the ink INSIDE
+ * the well, which must be none. */
+async function stairInk(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    const vs = { location: "great_stair_hall", facing: "N" };
+    const meta = A.metaFor(vs);
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, fx.world, fx.staging, A.library,
+      { [`${vs.location}/${vs.facing}`]: { meta } }, vs, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    const fl = (meta.stairs || [])[0];
+    if (!fl) return { ink: 0, inWell: 0 };
+    /* The windows are read OFF THE META, so they follow the geometry instead
+       of being a typed box that stops meaning anything when the camera moves. */
+    const xs = (fl.well_poly || []).map((p) => p[0]);
+    const ys = (fl.well_poly || []).map((p) => p[1]);
+    const wx0 = Math.max(0, Math.ceil(Math.min(...xs))) + 4;
+    const wx1 = Math.min(1535, Math.floor(Math.max(...xs))) - 4;
+    const wy0 = Math.max(0, Math.ceil(Math.min(...ys))) + 4;
+    const wy1 = Math.min(1023, Math.floor(Math.max(...ys))) - 4;
+    /* INK, not floor. The grid's own floor fill is #2c3542 — 163 over three
+       channels — so a threshold of 120 counts every floor pixel in the window
+       and measures the window rather than the drawing. Line work is the
+       facing's `key_tint` at major alpha and clears 300 comfortably. */
+    const lit = (x, y) => {
+      const i = (y * 1536 + x) << 2;
+      return d[i] + d[i + 1] + d[i + 2] > 300;
+    };
+    let ink = 0, inWell = 0;
+    for (let y = Math.max(0, Math.floor(fl.y)); y < Math.min(1024, Math.ceil(fl.y + fl.h)); y++) {
+      for (let x = Math.max(0, Math.floor(fl.x)); x < Math.min(1536, Math.ceil(fl.x + fl.w)); x++) {
+        if (lit(x, y)) ink++;
+      }
+    }
+    /* THE WELL IS ITS OWN WINDOW, not a corner of the flight's. It is the
+       footprint lifted a storey, so it lies ABOVE the flight — on this facing
+       most of it is off the top-left of the frame and only y 0..174 of it is
+       in the picture at all, which is exactly the band the ceiling's fan runs
+       through. Scanning it inside the flight's rectangle measured one row. */
+    /* And it is measured against the VOID, not against the floor. The well's
+       on-frame part lies above the wall-ceiling line, where the base is
+       `BEYOND_WALL` (#080b10, 35 over three channels) and the ceiling's own
+       fan and transverse set are drawn at minor alpha — about 155. The
+       flight's threshold of 300 is the floor's; this one is the void's. */
+    for (let y = wy0; y <= wy1; y++) {
+      for (let x = wx0; x <= wx1; x++) {
+        const i = (y * 1536 + x) << 2;
+        if (d[i] + d[i + 1] + d[i + 2] > 90) inWell++;
+      }
+    }
+    return { ink, inWell };
+  });
+}
+
+/* [Row 15] THE COURT MOUTH, RENDERED. `entrance_approach/N` is 32 m of view
+ * with 20.4 m of it unbuilt — the manor's one open threshold, and the only way
+ * its entrance approach joins the rest of the building. Ink is counted PER
+ * COLUMN on the mouth's own ground line, so a two-pixel stroke does not read
+ * as twice the line. */
+async function thresholdInk(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    /* ON THE COURT'S SIDE, and the reason is worth keeping. From the entrance
+       APPROACH the mouth stands at that facing's own wall line, so its ground
+       line falls exactly on the wall-floor line the grid already draws and the
+       threshold's stroke is coincident with it — the mark is there, and it is
+       not this mechanism's. From the COURT the mouth is 6.75 m in front of an
+       open facing whose far line is 26.75 m off, so the line is at y 689 with
+       the far line at y 566 and nothing else draws it. */
+    const vs = { location: "entrance_court", facing: "S" };
+    const meta = A.metaFor(vs);
+    const c = document.createElement("canvas");
+    c.width = 1536; c.height = 1024;
+    window.HOLO.renderer.render(c, fx.world, fx.staging, A.library,
+      { [`${vs.location}/${vs.facing}`]: { meta } }, vs, { backdrop_only: true });
+    const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+    const th = (meta.openings || []).find((o) => o.kind === "threshold");
+    if (!th) return { onLine: 0 };
+    /* A CONTRAST, not a threshold: the floor this line is drawn on is itself
+       lit (#2c3542, 163 over three channels) and the grid rules a transverse
+       line every half metre, so "is there ink here" answers yes across the
+       whole picture. What discriminates is the line's own stroke against the
+       floor four pixels either side of it. */
+    const yLine = Math.round(th.y + th.h);
+    const x0 = Math.max(2, Math.ceil(th.x) + 2);
+    const x1 = Math.min(1533, Math.floor(th.x + th.w) - 2);
+    let onLine = 0;
+    for (let x = x0; x < x1; x++) {
+      let here = 0, beside = 0;
+      for (let y = yLine - 1; y <= yLine + 1; y++) {
+        const i = (y * 1536 + x) << 2;
+        here = Math.max(here, d[i] + d[i + 1] + d[i + 2]);
+      }
+      for (const y of [yLine - 4, yLine + 4]) {
+        const i = (y * 1536 + x) << 2;
+        beside = Math.max(beside, d[i] + d[i + 1] + d[i + 2]);
+      }
+      if (here - beside > 40) onLine++;
+    }
+    return { onLine };
+  });
+}
+
+/** [Row 15] How many ways out of the entrance approach the renderer admits.
+ *  One, and it is the court mouth. */
+async function thresholdApertures(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => !!window.HOLO_APP);
+  return await page.evaluate(() => {
+    const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+    const vs = { location: "entrance_approach", facing: "N" };
+    return window.HOLO.renderer.apertures(
+      fx.world, fx.staging, A.library, A.metaFor(vs), vs).length;
+  });
 }
 
 /** [Row 21] Apertures the NAVIGATION world cuts on study/E — where no leaf is

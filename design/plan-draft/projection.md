@@ -426,5 +426,15 @@ question for Kabe:
 - law (b): "entrance_approach" facing N is typed enclosed, but 20.4 m of its 32 m view has no wall across it (gap at 10–30.4). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.
 - room "hall" facing N shows no corner, no wall-floor line and no wall-ceiling line — a 8 m wall seen from 2.15 m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth
 - room "hall" facing S shows no corner, no wall-floor line and no wall-ceiling line — a 8 m wall seen from 2.15 m at the ruled lens is a wall in your face, and nothing can be staged on it at any depth
+- room "garden_room" facing E is typed enclosed and shows 64 % side wall against 36 % facing wall — its 3.55 m wall seen from 6.6 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "garden_room" facing W is typed enclosed and shows 64 % side wall against 36 % facing wall — its 3.55 m wall seen from 6.6 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "entrance_court" facing E is typed enclosed and shows 61 % side wall against 39 % facing wall — its 9 m wall seen from 15.3 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "entrance_court" facing W is typed enclosed and shows 61 % side wall against 39 % facing wall — its 9 m wall seen from 15.3 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "privy_garden" facing E is typed enclosed and shows 76 % side wall against 24 % facing wall — its 5.55 m wall seen from 15.3 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "privy_garden" facing W is typed enclosed and shows 76 % side wall against 24 % facing wall — its 5.55 m wall seen from 15.3 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "closet_chamber" facing E is typed enclosed and shows 64 % side wall against 36 % facing wall — its 3.55 m wall seen from 6.6 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- room "closet_chamber" facing W is typed enclosed and shows 64 % side wall against 36 % facing wall — its 3.55 m wall seen from 6.6 m fills less than half the frame, which is the "+ junction" reading Kabe named; the facing's type is his to rule
+- object "desk1": the study viewer stands level with it on W — its own ground edge is at or behind those cameras, so it belongs to no picture from them and §4b item 9's variant manifest does not enumerate them
+- object "chair1": the study viewer stands level with it on S — its own ground edge is at or behind those cameras, so it belongs to no picture from them and §4b item 9's variant manifest does not enumerate them
 - the hearth in "kitchen" has no stack rising through "upper" above it
 

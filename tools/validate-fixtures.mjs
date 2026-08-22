@@ -34,7 +34,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
-import { metaForFacing as planMetaForFacing } from "./plan-projection.mjs";
+import { metaForFacing as planMetaForFacing, waysThrough } from "./plan-projection.mjs";
 
 /* Row 20: the ruled lens, from its one code home. */
 const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_PX;
@@ -191,6 +191,13 @@ const META_REQUIRED = [
   "calibration_ref", "calibration_px"
 ];
 const FACING_TYPES = ["enclosed", "open", "corridor"];
+/* [Row 15] The two ways a §5 meta says a wall can be passed. A `door` is a
+ * hole cut through a band that stands; a `threshold` is the line where a band
+ * does not stand at all — the manor's court mouth, 20.4 m of it, and the only
+ * way its entrance approach joins the rest of the building. Flights are the
+ * third way through and live in `meta.stairs`, because a flight is not a hole
+ * in a plane and nothing about the wall governs it. */
+const OPENING_KINDS = ["door", "threshold"];
 /* Every key a §5 meta may carry. `validate-plan.mjs` has had strict key
  * whitelists since row 12 for exactly this reason and the meta arm arrived
  * without one: an unknown key rode straight through, so a meta could carry a
@@ -208,6 +215,9 @@ const META_KEYS = [
   // re-derived from the meta alone once rounds have their own directories
   "measured_round",
   "focal_px", "nearest_floor_m",
+  // [row 15] the flights standing in this view — a fact about the building,
+  // like `openings`, and what an empty manor needs in order to have an upstairs
+  "stairs",
   // [row 21] the room the PAINTING depicts, beside the room the plan rules —
   // informational, warn-tier, and never read by the renderer
   "measured_room",
@@ -362,6 +372,30 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
         if (o.via !== null && o.via !== undefined && typeof o.via !== "string") {
           findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} carries via ${JSON.stringify(o.via)} — the id of the entity that fills it, or null [row21:meta.opening_via]`);
         }
+        /* [Row 15] AND WHICH KIND OF WAY THROUGH IT IS, because the renderer
+         * branches on it and the branches are opposites: a `door` must fall
+         * inside a band that is built and is drawn with a jamb, reveals and
+         * the room beyond; a `threshold` must fall where nothing is built and
+         * is drawn with nothing at all. A missing or misspelled kind would
+         * take the door branch by default and cut a jamb into open ground. */
+        if (!OPENING_KINDS.includes(o.kind)) {
+          findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} is kind ${JSON.stringify(o.kind)}, not one of ${OPENING_KINDS.join(" | ")} — the renderer draws a jamb through one and nothing through the other [row15:meta.opening_kind]`);
+        }
+        /* [Row 19] A DOOR IS NOT TALLER THAN ITS OWN ROOM. Blueprint §11 rules
+         * every door opening at 1.00 × 2.00 m and the projection states that
+         * height in code, because the plan carries no vertical datum; the
+         * room's height comes from `plan.floors[].storey_height_m`, a separate
+         * document field an agent may set. Nothing compared them, so a 2.00 m
+         * head in a 1.85 m storey was a door through the ceiling that every
+         * clause admitted. A `threshold` is exempt by construction: it has no
+         * head, which is what makes it a threshold. */
+        if (o.kind === "door" && typeof meta.storey_height_m === "number" &&
+            isFinite(meta.storey_height_m) && meta.px_per_m_at_wall > 0) {
+          const headM = o.h / meta.px_per_m_at_wall;
+          if (headM > meta.storey_height_m + 1e-6) {
+            findings.push(`${label}: opening ${JSON.stringify(o.id ?? o)} stands ${headM.toFixed(3)} m to its head in a room the plan gives ${meta.storey_height_m} m — a door taller than its own storey goes through the ceiling [row19:meta.opening_over_storey]`);
+          }
+        }
         /* [Row 21, round 5] THE TWO FIELDS THE THROUGH-VIEW IS COMPUTED FROM.
          * `x/y/w/h` were typed above and these two were not, so a document
          * whose depth beyond a doorway is the string "eight point six" passed
@@ -401,6 +435,59 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
          * reach; that clause is on the exit, where the world says which
          * openings are doors you may walk through. */
       }
+    }
+  }
+  /* [Row 15] THE FLIGHTS THIS VIEW HOLDS. A stair entry is three things at
+   * once — the rectangle the page accepts a `go` click inside, the outline the
+   * grid strokes and the hover halo traces, and the well the ceiling is cut
+   * out of — so a malformed one is a climb nobody can reach, a flight drawn as
+   * a smear, or a ceiling with a hole in the wrong place. Every arm is
+   * collected and reported through ONE emit site, because one token means one
+   * place. */
+  if (meta.stairs !== undefined) {
+    const flightTrouble = [];
+    if (!Array.isArray(meta.stairs)) {
+      flightTrouble.push(`stairs is ${JSON.stringify(meta.stairs)}, not a list of flights`);
+    } else {
+      for (const s of meta.stairs) {
+        const bad = [];
+        if (!isObj(s)) bad.push("it is not an object");
+        else {
+          if (["x", "y", "w", "h"].some((k) => typeof s[k] !== "number" || !isFinite(s[k])) ||
+              !(s.w > 0) || !(s.h > 0)) bad.push("its rectangle is not a rectangle with a width and a height");
+          if (s.direction !== "up" && s.direction !== "down") {
+            bad.push(`direction is ${JSON.stringify(s.direction)}, and a flight is climbed or descended`);
+          }
+          if (!(typeof s.rise_m === "number" && isFinite(s.rise_m) && s.rise_m > 0)) {
+            bad.push(`rise_m is ${JSON.stringify(s.rise_m)}, where a storey is a finite height`);
+          }
+          if (!(Number.isInteger(s.treads) && s.treads > 0)) {
+            bad.push(`treads is ${JSON.stringify(s.treads)}`);
+          }
+          for (const k of ["poly", "floor_poly", "well_poly"]) {
+            const r = s[k];
+            if (!Array.isArray(r)) { bad.push(`${k} is not a ring of points`); continue; }
+            /* `well_poly` is EMPTY on a descending flight, by design: it opens
+             * the floor you stand on, not the ceiling over your head. An empty
+             * ring is legal; a ring of one point, or of non-numbers, is not. */
+            if (r.length && r.length < 3) bad.push(`${k} has ${r.length} point(s), which is not a ring`);
+            if (r.some((pt) => !Array.isArray(pt) || pt.length !== 2 ||
+                pt.some((n) => typeof n !== "number" || !isFinite(n)))) {
+              bad.push(`${k} carries a point that is not two finite numbers`);
+            }
+          }
+          if (Array.isArray(s.poly) && s.poly.length < 3) {
+            bad.push("poly is empty — a flight with no outline is a click target over bare floor");
+          }
+        }
+        if (bad.length) flightTrouble.push(`flight ${JSON.stringify((s && s.id) ?? s)} — ${bad.join("; ")}`);
+      }
+    }
+    /* ONE EMIT SITE, because one token means one place — the shape row 21's
+     * `meta.opening_beyond` settled on and the reason the ledger can say which
+     * arm fired. */
+    if (flightTrouble.length) {
+      findings.push(`${label}: ${flightTrouble.join(" | ")} [row15:meta.stairs_list]`);
     }
   }
   if (type !== null && !FACING_TYPES.includes(type)) {
@@ -604,6 +691,17 @@ export function validate(fixtureDir, records, derivedMetas) {
    * page was baked with — the check and the picture then read one object. The
    * default reads the fixture's own plan, which is what the CLI does. */
   const derived = derivedMetas || derivedMetasFor(fixtureDir, world, findings);
+  /* [Row 15] The plan itself, for the completeness half below — which asks
+   * what the plan DRAWS that the world never opens, a question no per-exit
+   * clause can answer. Read through `resolvePlanPath`, the one home of where a
+   * fixture's plan lives. */
+  let plan = null;
+  {
+    const planFile = resolvePlanPath(fixtureDir);
+    if (existsSync(planFile)) {
+      try { plan = JSON.parse(readFileSync(planFile, "utf8")); } catch (e) { plan = null; }
+    }
+  }
 
   /* Every facing the world names resolves to a meta, and every one of them is
    * checked — not only the ones something happens to be staged on. A bare
@@ -892,10 +990,14 @@ export function validate(fixtureDir, records, derivedMetas) {
     if (!entities.has(ex.via)) {
       const fs2 = ex.from + "/" + ex.facing;
       const m = metaForFacing(fs2, findings, derived);
-      const holes = (m && m.openings) || [];
-      const hole = holes.find((o) => o && o.via === ex.via);
+      /* [Row 15] Through `groundplane.openingFor`, which is the ONE home of
+       * what an exit's `via` names — an entity that fills a hole, or the
+       * plan's own name for the hole, the threshold or the flight. Two copies
+       * of a lookup is how the renderer and this file would come to disagree
+       * about which walls have ways through them. */
+      const hole = groundplane.openingFor(m, ex.via);
       if (!hole) {
-        findings.push(`world.json: exit "${exId}" via "${ex.via}" names no entity, and ${fs2}'s meta carries no opening for it — an exit through neither a leaf nor a doorway [row21:exit.via_unfilled]`);
+        findings.push(`world.json: exit "${exId}" via "${ex.via}" names no entity, and ${fs2}'s meta carries no opening, threshold or flight for it — an exit through nothing the building holds [row21:exit.via_unfilled]`);
       } else if (hole.x + hole.w <= 0 || hole.x >= CANVAS_W ||
                  hole.y + hole.h <= 0 || hole.y >= CANVAS_H) {
         findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, which is off the ${CANVAS_W}×${CANVAS_H} frame — a way through nobody can see or click [row21:exit.opening_offscreen]`);
@@ -922,6 +1024,58 @@ export function validate(fixtureDir, records, derivedMetas) {
      * than left for a builder's eye. */
     if (ex.arrive_facing !== ex.facing) {
       findings.push(`world.json: exit "${exId}" arrive_facing "${ex.arrive_facing}" does not continue the direction of travel (facing "${ex.facing}") — blueprint §3`);
+    }
+  }
+
+  /* ---- [Row 15] the completeness half, which was missing ----------------
+   *
+   * Row 12's cross-check binds every exit the world names to the plan. It says
+   * nothing about an opening the plan DRAWS and the world never opens, so the
+   * two documents could disagree by omission: a manor with a door in every
+   * wall and a world that walks through four of them would be green, and the
+   * picture would hold rooms a player cannot enter.
+   *
+   * SCOPE, stated once and derived from the world's own location set: an
+   * opening or a flight must be walkable in BOTH directions whenever the world
+   * names BOTH rooms it joins. `demo-study` names two of the manor's rooms and
+   * stays green as a consequence of that rule rather than by an exception
+   * carved for it, which is §4b item 3's materialization ladder — a world may
+   * name a subset of the plan and is judged on the subset.
+   *
+   * The exemption is COMPUTED, not carved: a way through whose opening falls
+   * wholly off the frame from the standpoint that would view it cannot be a
+   * `go` target at all (`exit.opening_offscreen` refuses one, correctly), so
+   * requiring an exit through it would force that clause to be widened —
+   * which is the move this project has refused five times. `waysThrough`
+   * computes both lists in one place, and the plan warning prints the exempt
+   * ones so the hole is visible rather than silent. */
+  if (isObj(world) && Array.isArray(world.locations) && plan) {
+    const ways = waysThrough(plan, world, CANVAS_W);
+    const have = new Set();
+    for (const [, ex] of exits) have.add(`${ex.via}|${ex.from}|${ex.to}`);
+    for (const w of ways.walkable) {
+      if (!have.has(`${w.id}|${w.from}|${w.to}`)) {
+        findings.push(`world.json: the plan draws a way from "${w.from}" to "${w.to}" through "${w.id}", on ${w.from}/${w.facing}, and no exit walks it — the picture holds a room the player cannot enter [row15:exit.opening_unwalked]`);
+      }
+    }
+    /* And the graph is CONNECTED, which the clause above does not imply: a
+     * wing whose every opening is walked and which joins nothing else would
+     * satisfy it and be unreachable. Walked from the boot viewstate, because
+     * that is where a player actually starts. */
+    const boot = isObj(viewstate) && typeof viewstate.location === "string"
+      ? viewstate.location : (world.locations[0] || {}).id;
+    const byId = new Map(world.locations.map((l) => [l.id, l]));
+    const seen = new Set([boot]);
+    const queue = [boot];
+    while (queue.length) {
+      const here = byId.get(queue.shift());
+      for (const ex of (here && here.exits) || []) {
+        if (!seen.has(ex.to) && byId.has(ex.to)) { seen.add(ex.to); queue.push(ex.to); }
+      }
+    }
+    const marooned = world.locations.map((l) => l.id).filter((id) => !seen.has(id));
+    if (marooned.length) {
+      findings.push(`world.json: no walk from "${boot}" reaches ${marooned.map((m) => `"${m}"`).join(", ")} — the world holds rooms a player cannot get to [row15:world.rooms_unreachable]`);
     }
   }
 
@@ -1282,6 +1436,22 @@ export function validate(fixtureDir, records, derivedMetas) {
           });
           if (!inBand) {
             findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing} at x [${span.x0.toFixed(1)}, ${span.x1.toFixed(1)}], where the wall in view is built only in ${JSON.stringify(meta.wall_segments.map((s) => [s.from_m, s.to_m]))} m — law (b): a wall exists only where the building stands [row11:staging.wall_mounted_off_band]`);
+          }
+        }
+        /* [Row 19] AND IT DOES NOT HANG THROUGH THE CEILING. Row 11 bounded a
+         * wall placement sideways — inside the room, on a band that stands —
+         * and never upward: `v` is metres above the wall floor line and
+         * nothing compared `v` plus the object's own height against the room
+         * the plan gives it. A 2.00 m door in a 1.85 m room is a finding, and
+         * it was not one. The bound is the DECLARED storey height, so a facing
+         * whose plan gives it none (an open space, an unplanned facing) is not
+         * judged rather than judged against a guess. */
+        const storey = meta.storey_height_m;
+        const h = rec.dims_m && rec.dims_m.h;
+        if (typeof storey === "number" && isFinite(storey) && typeof h === "number") {
+          const top = (pl.v || 0) + h;
+          if (top > storey + 1e-9) {
+            findings.push(`staging.json: placement "${id}" is wall_mounted on ${pl.facing} at v ${pl.v || 0} m and is ${h} m tall, so its head stands ${top.toFixed(3)} m above the floor in a room the plan gives ${storey} m — it hangs through the ceiling [row19:staging.wall_mounted_over_storey]`);
           }
         }
       }

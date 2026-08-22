@@ -210,6 +210,20 @@
     ctx.stroke();
   }
 
+  /* [Row 15] A closed ring of scene-pixel points, as the §5 meta carries a
+   * flight's outline. Not `strokePolylines`: that one maps a normalized glyph
+   * into a box, and these points are already where they belong. */
+  function strokeRing(ctx, ring) {
+    if (!ring || ring.length < 3) return;
+    ctx.beginPath();
+    for (var i = 0; i < ring.length; i++) {
+      if (i === 0) ctx.moveTo(ring[i][0], ring[i][1]);
+      else ctx.lineTo(ring[i][0], ring[i][1]);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+
   /**
    * The wall in view, as a list of bands in the §4 u-domain. Row 11's whole
    * typed-geometry model is this one function: `enclosed`, `corridor` and
@@ -240,6 +254,22 @@
   /* Is this screen x-span inside a single built band of the wall in view?
    * Bands are given in the §4 u-domain; a span straddling two bands is not
    * inside either, which is the point — the gap between them is not wall. */
+  /* [Row 15] THE OTHER HALF OF THE SAME LAW. A doorway needs a band to be a
+   * hole in; a THRESHOLD is the absence of a band and needs the opposite —
+   * nothing built may stand across it, or it is a way through a wall. Blueprint
+   * §4b law (b) states one sentence and these two functions are its two
+   * directions. */
+  function crossesAnyBand(x0, x1, bands, meta) {
+    var gp = groundplane();
+    for (var i = 0; i < bands.length; i++) {
+      var b0 = gp.xAtScale(bands[i].u0, meta.px_per_m_at_wall, meta, CANVAS_W);
+      var b1 = gp.xAtScale(bands[i].u1, meta.px_per_m_at_wall, meta, CANVAS_W);
+      var lo = Math.min(b0, b1), hi = Math.max(b0, b1);
+      if (x0 < hi - 0.5 && x1 > lo + 0.5) return true;
+    }
+    return false;
+  }
+
   function spannedByBand(x0, x1, bands, meta) {
     var gp = groundplane();
     for (var i = 0; i < bands.length; i++) {
@@ -625,6 +655,34 @@
       /* Where the room has a height, the wall-ceiling line is the floor line's
        * twin and the ceiling's own longitudinals fan from it. */
       if (storeyM != null && wallTop > 0) {
+        /* [Row 15] A STAIRWELL IS A HOLE IN THE CEILING, and the ceiling is
+         * line work, so the hole costs one clip path and no new appearance.
+         * `great_stair`'s top tread lands at y ≈ 174 against this room's
+         * ceiling line at y ≈ 187: without this the picture shows a staircase
+         * running into an unbroken plane, which is the picture asserting an
+         * enclosure the document has no aperture in — the inverse of "never
+         * void" and the same defect one storey up.
+         *
+         * The well is `meta.stairs[].well_poly`, the flight's own footprint
+         * lifted to the storey height, DERIVED from the two things the plan
+         * holds (the flight's rect and its floor's height) because the plan
+         * carries no floor opening and this row may not add a field to it.
+         * Even-odd against the whole frame, so everything below is drawn
+         * everywhere except through the well. */
+        var wells = meta.stairs || [];
+        ctx.save();
+        var anyWell = false;
+        ctx.beginPath();
+        ctx.rect(0, 0, W, H);
+        for (var wi = 0; wi < wells.length; wi++) {
+          var wp = wells[wi].well_poly;
+          if (!wp || wp.length < 3) continue;
+          anyWell = true;
+          ctx.moveTo(wp[0][0], wp[0][1]);
+          for (var wj = 1; wj < wp.length; wj++) ctx.lineTo(wp[wj][0], wp[wj][1]);
+          ctx.closePath();
+        }
+        if (anyWell) ctx.clip("evenodd");
         /* The wall-ceiling line is drawn OUTSIDE the ceiling's clip, exactly
          * as the wall-floor line is drawn outside anything: it runs corner to
          * corner along the top of the facing wall and is inside the room by
@@ -683,7 +741,83 @@
         }
         ctx.globalAlpha = ALPHA_MAJOR;
         ctx.restore();
+        ctx.restore();   // the stairwell clip
       }
+    }
+
+    /* [Row 15] THE THRESHOLD'S OWN LINE ON THE GROUND, and it is the only mark
+     * a threshold gets.
+     *
+     * Blueprint §4b law (b) forbids an invented enclosure where no building
+     * stands, so a mouth gets no jamb, no reveal, no soffit and no fill. What
+     * the law does not forbid is a line on the ground — the grid already draws
+     * a transverse ground line every half metre — and without one the manor's
+     * 20.4 m court mouth would be a `go` target on featureless ground, which is
+     * the very thing the flights above are drawn to avoid. So the line where
+     * this space ends and the next begins is drawn, at the position the plan
+     * holds, and nothing else is. */
+    var mouths = meta.openings || [];
+    for (var mi = 0; mi < mouths.length; mi++) {
+      var mth = mouths[mi];
+      if (mth.kind !== "threshold") continue;
+      ctx.save();
+      ctx.strokeStyle = meta.key_tint;
+      ctx.globalAlpha = ALPHA_MAJOR;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(Math.max(0, mth.x), snap(mth.y + mth.h));
+      ctx.lineTo(Math.min(W, mth.x + mth.w), snap(mth.y + mth.h));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    /* [Row 15] THE FLIGHTS. A stair is a fact about the building exactly as a
+     * doorway is, and the grid draws it for the same reason it draws the
+     * doorway's jamb: a `go` target on featureless floor is the picture
+     * failing to say what the document holds, in a page whose own rule is that
+     * dead space is dead.
+     *
+     * It is drawn from `meta.stairs` rather than from the aperture list — from
+     * the BUILDING rather than from the world — because a flight standing in a
+     * room is visible whether or not you may climb it, and drawing it shows no
+     * void. That is the one place this differs from an unwalked doorway, whose
+     * hole would show void where the document holds a room, and which is
+     * therefore painted as plain wall.
+     *
+     * Two things are drawn and they answer two different views. The footprint
+     * on the FLOOR is the flight's own plan position — the well seen from
+     * above, the ground under the steps seen from below — and it is all that
+     * survives on a descending flight, whose steps drop below the frame within
+     * a metre at this eye height. The tread NOSES are the flight itself, each
+     * at its own depth and its own height, which is what makes an ascending
+     * one read as a climb rather than as a rectangle. */
+    var flights = meta.stairs || [];
+    for (var si = 0; si < flights.length; si++) {
+      var fl = flights[si];
+      ctx.save();
+      ctx.strokeStyle = meta.key_tint;
+      ctx.globalAlpha = ALPHA_MINOR;
+      ctx.lineWidth = 1;
+      strokeRing(ctx, fl.floor_poly);
+      ctx.globalAlpha = ALPHA_MAJOR;
+      ctx.lineWidth = 2;
+      strokeRing(ctx, fl.poly);
+      /* Every nosing, drawn where the polygon's two stringers already say it
+       * is: the outline is the noses' own left and right ends, so the rungs
+       * between them need no second derivation of the geometry. */
+      var n = fl.poly.length / 2;
+      if (fl.poly.length >= 4 && n === Math.floor(n)) {
+        ctx.globalAlpha = ALPHA_MINOR;
+        ctx.lineWidth = 1;
+        for (var ti = 0; ti < n; ti++) {
+          var L = fl.poly[ti], Rr = fl.poly[fl.poly.length - 1 - ti];
+          ctx.beginPath();
+          ctx.moveTo(L[0], snap(L[1]));
+          ctx.lineTo(Rr[0], snap(Rr[1]));
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
     }
 
     // Facing glyph: in-fiction signage, 1m tall at wall scale, centred on
@@ -838,6 +972,9 @@
         var source = null;
         var open_ = true;
         var beyond = null;
+        var kind = "door";
+        var poly = null;
+        var direction = null;
         if (entity) {
           /* A LEAF IS AN ENTITY, and everything that follows from that holds:
            * the opening is derived from its own §4 placement, and it is
@@ -875,36 +1012,47 @@
            * aperture here and no `go` target on the page; the fixture
            * validator refuses that world, so it is a typo's refusal rather
            * than a silent hole in a wall. */
-          var mo = meta && meta.openings;
-          for (var oi = 0; mo && oi < mo.length; oi++) {
-            if (mo[oi].via && mo[oi].via === exit.via) {
-              rect = { x: mo[oi].x, y: mo[oi].y, w: mo[oi].w, h: mo[oi].h };
-              source = "building";
-              beyond = mo[oi];
-              break;
-            }
-          }
-          if (!rect) continue;
+          /* [Row 15] Through `groundplane.openingFor`, the ONE home of what an
+           * exit's `via` names — the entity that fills a hole, or the plan's
+           * own name for the hole, the threshold or the flight. 25 of the
+           * manor's 26 openings carry no entity and neither of its stairs ever
+           * will, so a leaf-or-nothing lookup made all but one of the building
+           * unwalkable. */
+          var found = gp.openingFor(meta, exit.via);
+          if (!found) continue;
+          rect = { x: found.x, y: found.y, w: found.w, h: found.h };
+          source = "building";
+          beyond = found;
+          kind = found.kind || "door";
+          poly = found.poly || null;
+          direction = found.direction || null;
         }
-        if (!spannedByBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;
+        /* WHAT A WAY THROUGH NEEDS OF THE WALL, per kind, and it is law (b)
+         * read in both directions. A doorway must fall inside a band that is
+         * actually built. A threshold must fall where NOTHING is built — a
+         * mouth across a standing wall is a hole nobody cut. A flight stands on
+         * the floor and asks the wall for nothing at all. */
+        if (kind === "door") {
+          if (!spannedByBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;
+        } else if (kind === "threshold") {
+          if (crossesAnyBand(rect.x, rect.x + rect.w, bandsHere, meta)) continue;
+        }
         /* WHAT LIES BEYOND is a fact about the building either way, so a
          * leaf-derived aperture reads it off the same meta opening the
          * building-fact path uses: the leaf says where the hole is drawn, the
          * building says what stands on the other side of it. A meta that
          * carries no opening for this exit leaves both numbers null and the
          * renderer draws no room beyond — silence, never a guess. */
-        if (!beyond) {
-          var mo2 = (meta && meta.openings) || [];
-          for (var ob = 0; ob < mo2.length; ob++) {
-            if (mo2[ob].via && mo2[ob].via === exit.via) { beyond = mo2[ob]; break; }
-          }
-        }
+        if (!beyond) beyond = gp.openingFor(meta, exit.via);
         out.push({
           exit: exit.id,
           via: exit.via,
           to: exit.to,
           arrive_facing: exit.arrive_facing,
           source: source,
+          kind: kind,
+          poly: poly,
+          direction: direction,
           open: open_,
           beyond_m: beyond ? beyond.beyond_m : null,
           beyond_offset_m: beyond ? beyond.beyond_offset_m : null,
@@ -1100,6 +1248,20 @@
   function drawApertures(ctx, list, meta, world, staging, library, backdrops, doc, options) {
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
+      /* [Row 15] ONLY A DOORWAY IS A HOLE IN A WALL.
+       *
+       * A THRESHOLD draws nothing at all. It is the absence of a wall, and the
+       * picture already shows exactly that — a gap between the bands on a
+       * walled facing, open ground on an `open` one. A jamb or a fill there
+       * would be the invented enclosure blueprint §4b law (b) forbids, and a
+       * far room pasted into it would make an [AI] appearance the established
+       * look where ruling (1) gives an open far line to a generated vista.
+       *
+       * A STAIR is drawn by the grid, from `meta.stairs`, because it is
+       * building geometry standing on the floor rather than a hole cut through
+       * a plane — and because it must appear on a facing whose backdrop is
+       * synthesized whether or not any exit climbs it. */
+      if (a.kind && a.kind !== "door") continue;
       ctx.save();
       ctx.beginPath();
       ctx.rect(a.x, a.y, a.w, a.h);

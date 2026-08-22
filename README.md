@@ -18,9 +18,12 @@ chevrons. Everything clickable is reachable by keyboard alone too — Tab to it,
 act — and the button in the corner fills the screen with the picture (a plain in-page fallback
 takes over wherever the browser withholds real fullscreen).
 
-So far: two rooms, four facings each, and the first of them painted. The study's north wall —
-the hearth with a fire in it — is a real room now; every other direction is still the holodeck
-grid, which is what unestablished space looks like from inside the emitter. Each is a room you
+So far: the whole house is walkable, and one wall of it is painted. Twenty-two rooms, courts and
+gardens over two floors; you can walk from the gravel outside the front, in through the court, the
+great hall and the service range, up either stair, along the long gallery and back, without meeting
+a wall the plan does not hold. The study's north wall — the hearth with a fire in it — is a real
+room; every other direction is still the holodeck grid, which is what unestablished space looks
+like from inside the emitter. Each is a room you
 stand inside rather than a wall you face: the walls end in corners where the building's own plan
 says they do, the side walls run back toward you, and there is a ceiling overhead at the height of
 the storey — so the study is a study-sized room and the cross passage is a passage. Everything is
@@ -28,10 +31,13 @@ drawn through one lens, a 24 mm one, the same in every direction you can turn to
 direction had a lens of its own and they ran from a fisheye to a portrait lens, which made every
 wall of the study look like the end of a corridor. Walk east through the doorway and the passage
 is already visible through it — an opening shows the room on the other side of it, not a black
-rectangle. The words of the room appear beneath the picture as you go.
+rectangle. A stair is drawn where the house has one, tread by tread, and you climb it by clicking
+it; where two outdoor spaces meet there is no door at all, only the line on the ground where one
+ends and the other begins, and you walk across it. The words of the room appear beneath the picture
+as you go, and every room says its own name.
 
-The painted rooms are empty while the furniture is being made: nothing in them can be picked up or
-opened yet. The furnished world — the desk whose drawer opens on something, the door with a latch,
+The house is empty while the furniture is being made: nothing in it can be picked up or opened
+yet. The furnished world — the desk whose drawer opens on something, the door with a latch,
 the things that ride in the strip at the bottom of the page — is one link away, at
 [`index.html?world=demo-study`](https://5000stadia.github.io/holo-emitter/?world=demo-study).
 Go there to see what the world *does*, not what it looks like: its objects are flat stand-in
@@ -89,7 +95,8 @@ file itself is wrong, and **5** means the object is outside what the settings we
 ## Editing the world
 
 There are two worlds in the page and the link picks between them: `fixtures/nav-manor/` is the
-painted one you arrive in, and `fixtures/demo-study/` is the furnished one at `?world=demo-study`.
+whole empty manor you arrive in, and `fixtures/demo-study/` is the two furnished rooms at
+`?world=demo-study`.
 Each holds the same four documents (`world.json` is truth, `staging.json` is presentation,
 `narration.json` is what the room says, `viewstate.json` is where you boot). Browsers cannot fetch
 JSON from `file://` pages, so each world is baked into a `fixture.js` beside it — after editing any
@@ -115,8 +122,8 @@ the browser console when it loads; if it did not change after your edit, the bak
 
 ## The map
 
-`fixtures/demo-study/plan.json` is the building itself, in metres: a two-storey manor of
-twenty-two rooms, courts and gardens, with the two rooms you can walk today sited inside it. It
+`fixtures/demo-study/plan.json` is the building itself, in metres: the two-storey manor of
+twenty-two rooms, courts and gardens you walk. It
 says where every wall, door, window, hearth and stair stands, and where you are standing when you
 look at each one. The drawings in `design/plan-draft/` are made from it, not the other way round:
 

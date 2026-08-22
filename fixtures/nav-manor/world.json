@@ -1,12 +1,688 @@
 {
   "schema": "holo-emitter/0.1",
   "locations": [
-    { "id": "study", "facings": ["N","E","S","W"],
-      "exits": [ { "id": "door_study_hall", "from": "study", "facing": "E",
-                   "to": "hall", "arrive_facing": "E", "via": "door1" } ] },
-    { "id": "hall", "facings": ["N","E","S","W"],
-      "exits": [ { "id": "door_hall_study", "from": "hall", "facing": "W",
-                   "to": "study", "arrive_facing": "W", "via": "door1" } ] }
+    {
+      "id": "back_stair",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_back_stair_great_hall",
+          "from": "back_stair",
+          "facing": "W",
+          "to": "great_hall",
+          "arrive_facing": "W",
+          "via": "op11"
+        },
+        {
+          "id": "door_back_stair_servants_hall",
+          "from": "back_stair",
+          "facing": "E",
+          "to": "servants_hall",
+          "arrive_facing": "E",
+          "via": "op12"
+        },
+        {
+          "id": "stair_back_stair_back_stair_head",
+          "from": "back_stair",
+          "facing": "E",
+          "to": "back_stair_head",
+          "arrive_facing": "E",
+          "via": "back_stair_flight"
+        }
+      ]
+    },
+    {
+      "id": "back_stair_head",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_back_stair_head_long_gallery",
+          "from": "back_stair_head",
+          "facing": "E",
+          "to": "long_gallery",
+          "arrive_facing": "E",
+          "via": "op24"
+        },
+        {
+          "id": "door_back_stair_head_solar",
+          "from": "back_stair_head",
+          "facing": "W",
+          "to": "solar",
+          "arrive_facing": "W",
+          "via": "op23"
+        },
+        {
+          "id": "stair_back_stair_head_back_stair",
+          "from": "back_stair_head",
+          "facing": "W",
+          "to": "back_stair",
+          "arrive_facing": "W",
+          "via": "back_stair_flight"
+        }
+      ]
+    },
+    {
+      "id": "buttery_pantry",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_buttery_pantry_hall",
+          "from": "buttery_pantry",
+          "facing": "S",
+          "to": "hall",
+          "arrive_facing": "S",
+          "via": "op15"
+        },
+        {
+          "id": "door_buttery_pantry_servants_hall",
+          "from": "buttery_pantry",
+          "facing": "N",
+          "to": "servants_hall",
+          "arrive_facing": "N",
+          "via": "op16"
+        }
+      ]
+    },
+    {
+      "id": "closet_chamber",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_closet_chamber_guest_chamber",
+          "from": "closet_chamber",
+          "facing": "S",
+          "to": "guest_chamber",
+          "arrive_facing": "S",
+          "via": "op20"
+        }
+      ]
+    },
+    {
+      "id": "dining_parlour",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_dining_parlour_entrance_court",
+          "from": "dining_parlour",
+          "facing": "E",
+          "to": "entrance_court",
+          "arrive_facing": "E",
+          "via": "op03"
+        },
+        {
+          "id": "door_dining_parlour_great_stair_hall",
+          "from": "dining_parlour",
+          "facing": "N",
+          "to": "great_stair_hall",
+          "arrive_facing": "N",
+          "via": "op06"
+        }
+      ]
+    },
+    {
+      "id": "entrance_approach",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_entrance_approach_entrance_court",
+          "from": "entrance_approach",
+          "facing": "N",
+          "to": "entrance_court",
+          "arrive_facing": "N",
+          "via": "op_court_mouth"
+        }
+      ]
+    },
+    {
+      "id": "entrance_court",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_entrance_court_dining_parlour",
+          "from": "entrance_court",
+          "facing": "W",
+          "to": "dining_parlour",
+          "arrive_facing": "W",
+          "via": "op03"
+        },
+        {
+          "id": "door_entrance_court_great_hall",
+          "from": "entrance_court",
+          "facing": "N",
+          "to": "great_hall",
+          "arrive_facing": "N",
+          "via": "op01"
+        },
+        {
+          "id": "door_entrance_court_kitchen",
+          "from": "entrance_court",
+          "facing": "E",
+          "to": "kitchen",
+          "arrive_facing": "E",
+          "via": "op02"
+        },
+        {
+          "id": "way_entrance_court_entrance_approach",
+          "from": "entrance_court",
+          "facing": "S",
+          "to": "entrance_approach",
+          "arrive_facing": "S",
+          "via": "op_court_mouth"
+        }
+      ]
+    },
+    {
+      "id": "garden_room",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_garden_room_library",
+          "from": "garden_room",
+          "facing": "S",
+          "to": "library",
+          "arrive_facing": "S",
+          "via": "op08"
+        },
+        {
+          "id": "door_garden_room_privy_garden",
+          "from": "garden_room",
+          "facing": "E",
+          "to": "privy_garden",
+          "arrive_facing": "E",
+          "via": "op09"
+        }
+      ]
+    },
+    {
+      "id": "great_hall",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_great_hall_back_stair",
+          "from": "great_hall",
+          "facing": "E",
+          "to": "back_stair",
+          "arrive_facing": "E",
+          "via": "op11"
+        },
+        {
+          "id": "door_great_hall_entrance_court",
+          "from": "great_hall",
+          "facing": "S",
+          "to": "entrance_court",
+          "arrive_facing": "S",
+          "via": "op01"
+        },
+        {
+          "id": "door_great_hall_great_stair_hall",
+          "from": "great_hall",
+          "facing": "W",
+          "to": "great_stair_hall",
+          "arrive_facing": "W",
+          "via": "op04"
+        },
+        {
+          "id": "door_great_hall_library",
+          "from": "great_hall",
+          "facing": "W",
+          "to": "library",
+          "arrive_facing": "W",
+          "via": "op05"
+        },
+        {
+          "id": "door_great_hall_privy_garden",
+          "from": "great_hall",
+          "facing": "N",
+          "to": "privy_garden",
+          "arrive_facing": "N",
+          "via": "op10"
+        }
+      ]
+    },
+    {
+      "id": "great_stair_hall",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_great_stair_hall_dining_parlour",
+          "from": "great_stair_hall",
+          "facing": "S",
+          "to": "dining_parlour",
+          "arrive_facing": "S",
+          "via": "op06"
+        },
+        {
+          "id": "door_great_stair_hall_great_hall",
+          "from": "great_stair_hall",
+          "facing": "E",
+          "to": "great_hall",
+          "arrive_facing": "E",
+          "via": "op04"
+        },
+        {
+          "id": "door_great_stair_hall_library",
+          "from": "great_stair_hall",
+          "facing": "N",
+          "to": "library",
+          "arrive_facing": "N",
+          "via": "op07"
+        },
+        {
+          "id": "stair_great_stair_hall_stair_landing",
+          "from": "great_stair_hall",
+          "facing": "N",
+          "to": "stair_landing",
+          "arrive_facing": "N",
+          "via": "great_stair"
+        }
+      ]
+    },
+    {
+      "id": "guest_chamber",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_guest_chamber_closet_chamber",
+          "from": "guest_chamber",
+          "facing": "N",
+          "to": "closet_chamber",
+          "arrive_facing": "N",
+          "via": "op20"
+        },
+        {
+          "id": "door_guest_chamber_stair_landing",
+          "from": "guest_chamber",
+          "facing": "S",
+          "to": "stair_landing",
+          "arrive_facing": "S",
+          "via": "op19"
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_hall_buttery_pantry",
+          "from": "hall",
+          "facing": "N",
+          "to": "buttery_pantry",
+          "arrive_facing": "N",
+          "via": "op15"
+        },
+        {
+          "id": "door_hall_study",
+          "from": "hall",
+          "facing": "W",
+          "to": "study",
+          "arrive_facing": "W",
+          "via": "door1"
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_kitchen_entrance_court",
+          "from": "kitchen",
+          "facing": "W",
+          "to": "entrance_court",
+          "arrive_facing": "W",
+          "via": "op02"
+        },
+        {
+          "id": "door_kitchen_hall",
+          "from": "kitchen",
+          "facing": "N",
+          "to": "hall",
+          "arrive_facing": "N",
+          "via": "op14"
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_library_garden_room",
+          "from": "library",
+          "facing": "N",
+          "to": "garden_room",
+          "arrive_facing": "N",
+          "via": "op08"
+        },
+        {
+          "id": "door_library_great_hall",
+          "from": "library",
+          "facing": "E",
+          "to": "great_hall",
+          "arrive_facing": "E",
+          "via": "op05"
+        },
+        {
+          "id": "door_library_great_stair_hall",
+          "from": "library",
+          "facing": "S",
+          "to": "great_stair_hall",
+          "arrive_facing": "S",
+          "via": "op07"
+        }
+      ]
+    },
+    {
+      "id": "long_gallery",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_long_gallery_back_stair_head",
+          "from": "long_gallery",
+          "facing": "W",
+          "to": "back_stair_head",
+          "arrive_facing": "W",
+          "via": "op24"
+        },
+        {
+          "id": "door_long_gallery_muniment_room",
+          "from": "long_gallery",
+          "facing": "W",
+          "to": "muniment_room",
+          "arrive_facing": "W",
+          "via": "op25"
+        }
+      ]
+    },
+    {
+      "id": "master_bedchamber",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_master_bedchamber_stair_landing",
+          "from": "master_bedchamber",
+          "facing": "N",
+          "to": "stair_landing",
+          "arrive_facing": "N",
+          "via": "op18"
+        }
+      ]
+    },
+    {
+      "id": "muniment_room",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_muniment_room_long_gallery",
+          "from": "muniment_room",
+          "facing": "E",
+          "to": "long_gallery",
+          "arrive_facing": "E",
+          "via": "op25"
+        },
+        {
+          "id": "door_muniment_room_solar",
+          "from": "muniment_room",
+          "facing": "W",
+          "to": "solar",
+          "arrive_facing": "W",
+          "via": "op22"
+        }
+      ]
+    },
+    {
+      "id": "privy_garden",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_privy_garden_garden_room",
+          "from": "privy_garden",
+          "facing": "W",
+          "to": "garden_room",
+          "arrive_facing": "W",
+          "via": "op09"
+        },
+        {
+          "id": "door_privy_garden_great_hall",
+          "from": "privy_garden",
+          "facing": "S",
+          "to": "great_hall",
+          "arrive_facing": "S",
+          "via": "op10"
+        },
+        {
+          "id": "door_privy_garden_servants_hall",
+          "from": "privy_garden",
+          "facing": "E",
+          "to": "servants_hall",
+          "arrive_facing": "E",
+          "via": "op17"
+        }
+      ]
+    },
+    {
+      "id": "servants_hall",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_servants_hall_back_stair",
+          "from": "servants_hall",
+          "facing": "W",
+          "to": "back_stair",
+          "arrive_facing": "W",
+          "via": "op12"
+        },
+        {
+          "id": "door_servants_hall_buttery_pantry",
+          "from": "servants_hall",
+          "facing": "S",
+          "to": "buttery_pantry",
+          "arrive_facing": "S",
+          "via": "op16"
+        },
+        {
+          "id": "door_servants_hall_privy_garden",
+          "from": "servants_hall",
+          "facing": "W",
+          "to": "privy_garden",
+          "arrive_facing": "W",
+          "via": "op17"
+        }
+      ]
+    },
+    {
+      "id": "solar",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_solar_back_stair_head",
+          "from": "solar",
+          "facing": "E",
+          "to": "back_stair_head",
+          "arrive_facing": "E",
+          "via": "op23"
+        },
+        {
+          "id": "door_solar_muniment_room",
+          "from": "solar",
+          "facing": "E",
+          "to": "muniment_room",
+          "arrive_facing": "E",
+          "via": "op22"
+        },
+        {
+          "id": "door_solar_stair_landing",
+          "from": "solar",
+          "facing": "W",
+          "to": "stair_landing",
+          "arrive_facing": "W",
+          "via": "op21"
+        }
+      ]
+    },
+    {
+      "id": "stair_landing",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_stair_landing_guest_chamber",
+          "from": "stair_landing",
+          "facing": "N",
+          "to": "guest_chamber",
+          "arrive_facing": "N",
+          "via": "op19"
+        },
+        {
+          "id": "door_stair_landing_master_bedchamber",
+          "from": "stair_landing",
+          "facing": "S",
+          "to": "master_bedchamber",
+          "arrive_facing": "S",
+          "via": "op18"
+        },
+        {
+          "id": "door_stair_landing_solar",
+          "from": "stair_landing",
+          "facing": "E",
+          "to": "solar",
+          "arrive_facing": "E",
+          "via": "op21"
+        },
+        {
+          "id": "stair_stair_landing_great_stair_hall",
+          "from": "stair_landing",
+          "facing": "S",
+          "to": "great_stair_hall",
+          "arrive_facing": "S",
+          "via": "great_stair"
+        }
+      ]
+    },
+    {
+      "id": "study",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_study_hall",
+          "from": "study",
+          "facing": "E",
+          "to": "hall",
+          "arrive_facing": "E",
+          "via": "door1"
+        }
+      ]
+    }
   ],
   "entities": [],
   "relations": [],

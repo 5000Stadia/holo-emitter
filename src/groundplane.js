@@ -219,6 +219,38 @@
     return yAtScale(scaleAtDepth(depthM, meta), meta);
   }
 
+  /**
+   * [Row 15] A POINT AT A HEIGHT, at a depth — the one thing this module could
+   * not do, and what a flight of stairs is made of.
+   *
+   * Everything before this row sat on the ground: `yAtDepth` is the floor at
+   * `depth_m`, and a `wall_mounted` object's height is read at WALL scale
+   * because the ground-plane lerp describes the floor and reading it at a
+   * raised baseline shrinks the object by the amount it was raised (row 2 paid
+   * 30 % at v = 1.0 for that). Neither answers "where does a point `h` metres
+   * above the floor, `d` metres in front of the wall, draw".
+   *
+   * Under row 20's pinned lens it is one line. A floor point at distance `D`
+   * from the camera draws at `y = horizon + eye·f/D` and at scale `f/D`, so a
+   * point `h` above it draws `h·(f/D)` higher:
+   *
+   *     y = horizon + (eye − h) · scale
+   *
+   * and `yAtScale` already IS `horizon + eye·scale` in this model, so the term
+   * subtracted is exactly `h · scaleAtDepth(d)`. Written here rather than
+   * inline in the renderer because this project has twice paid for a private
+   * copy of geometry that lives in this file, and because it is the term a
+   * displacement test can move.
+   *
+   * A point at eye height draws ON the horizon and one above it draws above,
+   * with the spacing between equal steps WIDENING as they rise — which is what
+   * a staircase does and what a staircase painted flat on the floor does not.
+   */
+  function yAtHeight(depthM, heightM, meta) {
+    var s = scaleAtDepth(depthM, meta);
+    return yAtScale(s, meta) - heightM * s;
+  }
+
   /* Has this meta been told where its wall ends? */
   function hasCorners(meta) {
     return meta != null &&
@@ -275,6 +307,46 @@
 
   function xAtU(u, y, meta, canvasW) {
     return xAtScale(u, scaleAtY(y, meta), meta, canvasW);
+  }
+
+  /**
+   * [Row 15] WHAT AN EXIT'S `via` NAMES, resolved in one place.
+   *
+   * `world.json`'s exits say what you pass through, and there are three kinds
+   * of thing that can be named. A LEAF is an entity, and the caller resolves
+   * that first because a door the player has not been told about must leave no
+   * hole (row 21). The other two are facts about the BUILDING and live in the
+   * facing's own §5 meta:
+   *
+   *   - an opening whose `via` is that entity — a hole a leaf fills;
+   *   - an opening, threshold or stair addressed by the PLAN'S OWN NAME for
+   *     it (`id`), because 25 of the manor's 26 openings carry no entity and
+   *     both of its stairs never will.
+   *
+   * The alternative — writing an `entity` onto every opening in `plan.json` —
+   * moves the drawn digest of the drawing Kabe approved, which is a redline
+   * that ends at a human, for a change no human asked for.
+   *
+   * `via` keeps meaning "the entity that fills it, or null" and `id` keeps
+   * meaning "the plan's name for this hole", so a meta still reports the two
+   * doorways in the cross passage that no exit walks through as geometry with
+   * `via: null`. The ORDER is fixed: an id that is also an entity id resolves
+   * to the entity, because a leaf governs the hole it stands in.
+   *
+   * The renderer and the fixture validator both call this. Two copies of a
+   * lookup is how row 2 paid twice for a private inverse of `xAtScale`.
+   */
+  function openingFor(meta, via) {
+    if (!meta || via == null) return null;
+    var list = (meta.openings || []).concat(meta.stairs || []);
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i] && list[i].via != null && list[i].via === via) return list[i];
+    }
+    for (i = 0; i < list.length; i++) {
+      if (list[i] && list[i].id === via) return list[i];
+    }
+    return null;
   }
 
   /**
@@ -345,9 +417,11 @@
     yAtScale: yAtScale,
     scaleAtDepth: scaleAtDepth,
     yAtDepth: yAtDepth,
+    yAtHeight: yAtHeight,
     xAtU: xAtU,
     xAtScale: xAtScale,
     uDomain: uDomain,
+    openingFor: openingFor,
     hasCorners: hasCorners,
     wallSpanPxAtWall: wallSpanPxAtWall,
     wallCentrePx: wallCentrePx,
