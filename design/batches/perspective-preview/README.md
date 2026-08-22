@@ -3,11 +3,11 @@
 **This is a preview, not a change.** Nothing in `src/`, in the tests, in the schema or in the plan
 was touched to make these frames. The renderer already takes every geometric fact it draws from a
 facing's meta — how many pixels a metre of wall is, where the wall meets the floor, where the two
-corners fall — so a lens-pinned world is nothing but **different numbers in that meta**. These five
+corners fall — so a lens-pinned world is nothing but **different numbers in that meta**. These six
 captures fed the shipped render path those numbers and photographed the result. The demo on the
 Pages URL is unaffected and still draws exactly what it drew yesterday.
 
-Five captures, the scene canvas element alone at native 1536×1024, cold `file://` load, Chromium,
+Six captures, the scene canvas element alone at native 1536×1024, cold `file://` load, Chromium,
 no chrome — §12.6's capture spec, the same frame every hash test and the flip test read. Grid-mode
 placeholder art (V1): nothing here is judged on finish.
 
@@ -55,6 +55,31 @@ frame from the approved standpoint.** 24 mm gets to within a hair of it; 25.4 mm
 tighter crop of the same idea. If both corners have to be in frame, the lever is where you stand,
 not what lens you use — which is the second open question below.
 
+## `01d` — the study again, same 24 mm lens, standing in the doorway
+
+`01d-studyN-24mm-threshold.png`
+
+Same room, same 24 mm lens as `01b`. The only thing that changed is **where you are standing**: back
+to 4.35 m from the north wall, which is roughly 0.45 m off the south wall — *in the doorway*, which
+is blueprint shape item 9's own convention ([HUMAN, 2026-08-21]: *"when we go through the door first
+we should be standing IN the door right?"*) rather than the drawn standpoint rule's 3.60 m.
+
+**This is the frame that answers question one without answering it.** Both corners are in view and
+comfortably so — 127 and 1409 in a 1536-wide frame — with a band of side wall standing beside each
+one, so the room reads as a room rather than as a wall that happens to end. The whole 5.45 m wall is
+in view (83.5% of the frame width), the ceiling line sits at y 209 and the floor line at y 868, and
+the floor recovers to **15.2% of the frame** — double `01b`'s. The desk and chair come back inside
+the picture whole, and their occlusion pair — the thing `01b` cropped away — reads again.
+
+The nearest visible floor does **not** improve: 3.08 m, exactly as in `01b` and `02b`. That distance
+is `focal ÷ px_per_m_at_bottom` and depends only on the lens and the horizon, never on where you
+stand, so no standpoint anywhere in the manor buys it back. Only more horizon shift or a wider lens
+does.
+
+So the two levers are not interchangeable. **The lens decides how much floor is under your feet; the
+standpoint decides whether the room has corners.** `01b` and `01d` are the same lens and only the
+second one is a room.
+
 ## Pair 2 — the cross passage, looking east (the arrival view)
 
 `02a-hallE-shipped.png` · `02b-hallE-24mm.png`
@@ -84,6 +109,7 @@ draws today, where the study is a short view and 24 mm is *wider*.
 | `01a` study/N | 8 mm (f 346 px) | 131.5° | 96 | 34.1% | 100% | 506 / 1030 — **both in** | 37.0% | 1.04 m |
 | `01b` study/N | 24 mm (f 1024 px) | 73.7° | 284.4 | 100% | 99.1% | −7 / 1543 — **both just out** | 7.6% | 3.08 m |
 | `01c` study/N | 25.4 mm (f 1088 px) | 70.4° | 302.2 | 100% | 93.3% | −56 / 1592 — **both out** | 4.8% | 3.27 m |
+| `01d` study/N, from the threshold at 4.35 m | 24 mm (f 1024 px) | 73.7° | 235.4 | 83.5% | 100% | 127 / 1409 — **both in, with room to spare** | 15.2% | 3.08 m |
 | `02a` hall/E | 13.5 mm (f 576 px) | 106.3° | 96 | 16.3% | 100% | 643 / 893 — **both in** | 37.0% | 1.73 m |
 | `02b` hall/E | 24 mm (f 1024 px) | 73.7° | 170.7 | 28.9% | 100% | 546 / 990 — **both in** | 25.3% | 3.08 m |
 
@@ -123,8 +149,15 @@ approved, so it is yours to move or leave:
 > the job instead. **The standpoint rule is costing more room-read than the lens is.** It is on
 > the approved drawing, so it is Kabe's.
 
-`01b` is the frame that makes the second question concrete: seven pixels of corner and 7.6% of floor
-are both bought back by standing 0.70 m further into the room, without touching the lens at all.
+`01d` is the frame that makes the second question concrete, and it is stronger than the research
+predicted: standing at the threshold instead of at the drawn standpoint — 4.35 m instead of 3.60 m,
+0.75 m further back — buys back **both corners with side wall beside them** and **doubles the
+floor**, at the same 24 mm lens, in the same room, with nothing else changed. Put `01b` and `01d`
+side by side: that difference is the standpoint rule alone. The research's sentence *"the standpoint
+rule is costing more room-read than the lens is"* is a picture now.
+
+The one thing standing back does not buy is the near floor edge — 3.08 m in both. That number is set
+by the lens and the horizon shift and by nothing else.
 
 ---
 
@@ -133,11 +166,14 @@ are both bought back by standing 0.70 m further into the room, without touching 
 The metas were derived by the project's own `tools/plan-projection.mjs` for the shipped frames and,
 for the lens frames, by taking that same derived meta and replacing `px_per_m_at_wall` with
 `f / camera_wall_m` — then re-deriving `floor_line_y`, the nearest visible floor and the corner
-positions with blueprint §5's own equations at the interim eye height of 1.60 m. `horizon_y` was
+positions with blueprint §5's own equations at the interim eye height of 1.60 m. `01d` additionally
+replaces `camera_wall_m` itself with 4.35 m, which is what moving the standpoint *is* in this
+document: every object's drawn size and every grid line follows it, because the depth model reads
+that one field. `horizon_y` was
 left alone: it is the lens shift, not a scale, and pinning the lens does not move it. The floor line
 in every frame was then re-measured **off the captured pixels** (the median wall/floor luminance
 step across every column inside the facing band) and agrees with the arithmetic to within 6 px in
-all five — the detector reads a few pixels high by construction, and the residual is constant.
+all six — the detector reads a few pixels high by construction, and the residual is constant.
 
 `01c` is labelled 25.4 mm because that is Presto's lens, but a focal length of 1088 px on a
 1536-px-wide frame is 25.5 mm and 70.4°, not 70.6° — Presto's exact number is 1084 px. The 0.2°
