@@ -1007,6 +1007,20 @@ Test corpus: the two existing 1660s desk generations. Both must pass matting + g
 
 Every generated sprite and backdrop prompt appends the relevant block. Ingester gate (e) checks arrivals against `light.key`.
 
+**The lens, ruled [HUMAN, 2026-08-21: "If so full steam ahead, lets build this thing"] on the
+research at `design/plan-draft/perspective-research.md` and the preview frames:** interiors
+render at a pinned LENS, not a pinned scale — f = 1024 px on the 1536-frame (24 mm equivalent,
+hFOV 73.7°; Presto's shipped 70.6°, archviz's 73.7° ceiling, and the study's own 74.2°
+requirement converge there), `px_per_m_at_wall = 1024 / camera_wall_m`, one lens per room so
+turning never changes the body. Standpoints move to the thresholds (shape item 9's own
+convention) — a drawn change: the sheets re-render and `approval.lock` re-anchors citing Kabe's
+approval of preview frames 01d/02b. §10's `focal_mm` becomes 24 for generation. The
+player-experienced symptom this kills, verbatim [HUMAN]: "the demo first room looks like every
+direction is a corridor….. That looks like a cross junction of long hall rooms or something and
+user is in the middle. Like a + shape." Residue named for row 4: the nearest visible floor sits
+at ~3 m under any honest lens — the feet return via lens-shift and near-surface anchoring at
+the probe.
+
 **Per-placement view angle [HUMAN, 2026-08-21]:** "Due to perspective some things will be angles
 to various angles, so when generated the request should include its location horizontally across
 the screen with a flat wall facing background to maintain angle persecutive. The saved element
