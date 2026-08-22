@@ -266,9 +266,13 @@ amend each; `classes` is the amendment path — a threshold may be extended for 
 control covered, when a control of that class lands in the same commit, and may **never** move
 because a real arriving image failed. That fork is the Navigator's.
 
-`contract.identity()` hashes the gate and ingest blocks into `provenance.contract.thresholds_sha256`,
-so a record is traceable to the exact threshold set that admitted it — a version string alone does
-not move when `classes` does.
+`contract.identity()` hashes the gate, ingest, classes AND **camera** blocks into
+`provenance.contract.thresholds_sha256`, so a record is traceable to the exact threshold set that
+admitted it — a version string alone does not move when `classes` does, and `camera.turn_deg` is an
+input to the `dims` verdict. **Row 20 is the first row to move that digest from the camera side**:
+changing `camera.focal_mm` from 50 to 24 invalidated the corpus desk's record, which was re-emitted
+by the documented invocation rather than left claiming conformance to a contract that had changed.
+A sentence here used to say the digest covered only gates/ingest/classes; it did not.
 
 ### Per-image rules, not pixel counts
 

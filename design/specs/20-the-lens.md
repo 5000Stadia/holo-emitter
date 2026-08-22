@@ -204,8 +204,12 @@ is re-anchored — see §12 for exactly what that stamp will and will not be all
   [HUMAN] home for the generation camera, which the ruling moves. `prompt_block` and
   `backdrop_block` say "50mm" in prose and are corrected in the same change, because a backdrop
   generated at 50 mm and projected at 24 mm is the defect this row exists to remove. Nothing else
-  in `replicator/` is touched; `contract.identity()` hashes only `gates`/`ingest`/`classes`, so no
-  emitted record's `thresholds_sha256` moves and the 182 Python tests are unaffected.
+  in `replicator/` is touched — but `contract.identity()` hashes the **camera** block too
+  (`camera.turn_deg` is an input to the `dims` verdict), so the corpus desk's record cites a
+  contract that has changed and is **re-emitted by its own documented invocation**. A record left
+  claiming conformance to a contract it no longer matches is exactly what that digest exists to
+  prevent, and `architecture.md` carried a sentence saying the camera was outside it, which was
+  false.
 - **Code home:** `src/groundplane.js` — `FOCAL_MM = 24`, `FRAME_W_MM = 36`, `FOCAL_PX = 1024`
   (the frame is exactly the 36×24 mm format, so `FOCAL_MM × 1536/36` is exact), plus
   `pxPerMAtWall(d)` and `focalPx(meta)`. It is the module both the browser and Node already import

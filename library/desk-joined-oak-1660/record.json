@@ -183,7 +183,7 @@
     "contract": {
       "ingest_schema": "replicator-ingest/0.1",
       "schema": "orientation-contract/0.1",
-      "thresholds_sha256": "e39c016a71c5d575"
+      "thresholds_sha256": "0d25f77166255374"
     },
     "derived": {
       "anchors": {
