@@ -501,27 +501,59 @@ test.describe("reachability is a hand, not a graph", () => {
       "exits narrower than the 44 CSS px platform minimum").toBe(29);
   });
 
-  test("a near miss on a narrow doorway lands on the doorway, not on nothing", async ({ page }) => {
+  test("a near miss on the narrowest doorway lands on it, and bare wall still means nothing", async ({ page }) => {
+    /* BOTH DIRECTIONS, because the pointing ring has been wrong in both before:
+       too little (a ring that widened nothing for the key) and too much (a
+       notebook answering clicks 85 px away on bare wall). Driven through
+       `HOLO_APP.resolve` — the shipped resolver, not the piece it calls, which
+       is the guard row 20 had to move after consulting `apertures` directly
+       left the exact defect it was written against green. */
     await page.goto(navUrl());
     await page.waitForFunction(() => !!window.HOLO_APP);
     const r = await page.evaluate(() => {
       const A = window.HOLO_APP;
-      /* The entrance court's west door: 17 CSS px wide on this screen, the
-         narrowest in the manor. Aimed at a point just outside its own drawn
-         rectangle — the miss a finger makes. */
-      A.harness.dispatch({ type: "go", exit: "door_study_hall" });
-      return true;
-    });
-    expect(r).toBe(true);
-    const hit = await page.evaluate(() => {
-      const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
-      const vs = { location: "entrance_court", facing: "W" };
+      /* Stand in the entrance court, facing its west door — 17 CSS px wide on
+         a phone and the narrowest way through the manor. Positioned by
+         intents, because the resolver reads the LIVE viewstate. */
+      for (const id of ["door_study_hall", "door_hall_buttery_pantry",
+        "door_buttery_pantry_servants_hall", "door_servants_hall_back_stair",
+        "door_back_stair_great_hall", "door_great_hall_entrance_court"]) {
+        const vs = A.harness.viewstate;
+        const ex = (A.harness.world.locations.find((l) => l.id === vs.location).exits || [])
+          .find((e) => e.id === id);
+        let g = 0;
+        while (A.harness.viewstate.facing !== ex.facing && g++ < 4) {
+          A.harness.dispatch({ type: "turn", dir: "right" });
+        }
+        A.harness.dispatch({ type: "go", exit: id });
+      }
+      let g = 0;
+      while (A.harness.viewstate.facing !== "W" && g++ < 4) A.harness.dispatch({ type: "turn", dir: "right" });
+      const vs = A.harness.viewstate;
       const ap = window.HOLO.renderer.apertures(
-        fx.world, fx.staging, A.library, A.metaFor(vs), vs)[0];
-      A.harness.viewstate;   // the resolver reads the live viewstate, so drive it there
-      return { x: ap.x, y: ap.y, w: ap.w, h: ap.h };
+        A.harness.world, A.harness.staging, A.library, A.metaFor(vs), vs)
+        .find((x) => x.exit === "door_entrance_court_dining_parlour");
+      if (!ap) return { at: vs, ap: null };
+      const k = document.getElementById("scene").getBoundingClientRect().width / 1536;
+      const cy = ap.y + ap.h / 2;
+      return {
+        at: vs, ap: { w: ap.w, cssW: ap.w * k },
+        inside: A.resolve({ x: ap.x + ap.w / 2, y: cy }),
+        /* A finger's slop past the jamb — inside the 4 CSS px margin at this
+           display scale, which is several canvas pixels. */
+        justOutside: A.resolve({ x: ap.x + ap.w + 2 / k, y: cy }),
+        /* And well clear of it: bare wall, which must still mean nothing. */
+        bareWall: A.resolve({ x: ap.x + ap.w + 60 / k, y: cy }),
+        bareFloor: A.resolve({ x: 768, y: 1000 })
+      };
     });
-    expect(hit.w).toBeGreaterThan(0);
+    expect(r.ap, `standing at ${JSON.stringify(r.at)} there is a west door`).toBeTruthy();
+    expect(r.inside.kind, "the middle of the opening travels").toBe("doorway");
+    expect(r.justOutside.kind, "and a finger's slop past its jamb still travels").toBe("doorway");
+    expect(r.justOutside.aperture && r.justOutside.aperture.exit,
+      "to the same way through, not to another one").toBe("door_entrance_court_dining_parlour");
+    expect(r.bareWall.kind, "bare wall well clear of it still means nothing").toBe("none");
+    expect(r.bareFloor.kind, "and so does bare floor").toBe("none");
   });
 });
 

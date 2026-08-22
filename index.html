@@ -894,6 +894,12 @@
       var best = null;
       for (var i = 0; i < list.length; i++) {
         var a = list[i];
+        /* NOT AROUND AN OUTLINE. A margin is measured from a RECTANGLE, and a
+           flight's rectangle takes in the bare floor beside it — which is the
+           overshoot this ring has already been wrong in once. A flight needs no
+           forgiveness either: the manor's narrowest draws 143 CSS px across on a
+           phone, where its narrowest doorway draws 17. */
+        if (a.poly && a.poly.length >= 3) continue;
         if (!apertureHolds(a, p.x, p.y, marginPx)) continue;
         if (!best || a.w * a.h < best.w * best.h) best = a;
       }

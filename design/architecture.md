@@ -2306,7 +2306,26 @@ them. Printed by the bake, carried into `projection.md` §10, batched.
 6. **112 lines of arrival and refusal prose are held by a distinctness test they satisfy by
    construction.** Every line names both rooms, so pairwise distinctness proves nothing about taste.
    The whole transcript is in the batch as `TRANSCRIPT.md` for a human to read in one sitting.
-7. **`design/batches/row21-promotion/`'s `08-hall-N.png` was RE-CAPTURED.** The manor world names
+7. **A turn costs half a second on a slow phone, on the worst facing, and here are the numbers.**
+   Row 21's through-view is a full extra render of the destination per open doorway, and the manor
+   is the first world where one facing carries two. Measured through `renderer.render` directly at
+   390×844, mean of five, with the destination drawn:
+
+   | facing | ×1 | ×4 CPU | ×6 CPU |
+   |---|---|---|---|
+   | `great_hall/W` — two doorways | 74.4 ms | 276.2 ms | **538.9 ms** |
+   | `great_stair_hall/N` — a doorway and a flight | 44.0 ms | 140.5 ms | 218.1 ms |
+   | `back_stair/E` — a doorway and a rising flight | 37.9 ms | 138.4 ms | 246.5 ms |
+   | `study/N` — the painting, nothing through it | 1.3 ms | 3.6 ms | 12.6 ms |
+
+   Per TURN, not per frame, and the page repaints only on a non-empty envelope. The flight's line
+   work is not the cost — `study/N` draws a painting in 1.3 ms and `back_stair/E` draws a flight and
+   one destination in 37.9 — the per-doorway full-frame scratch is, exactly as row 21's own bullet
+   already said. The fix is the same one that bullet names and this row did not take: bound the
+   scratch to the opening's own rect rather than the frame, which must not move a hash. **Cold first
+   paint at 390×844 from `file://` is 395 ms** with 149 kB of manor fixture and the one painting's
+   base64 beside it.
+8. **`design/batches/row21-promotion/`'s `08-hall-N.png` was RE-CAPTURED.** The manor world names
    `op15` as an exit, so the cross passage's north wall gains a doorway sliver and that frame is a
    picture of a build that no longer exists. Re-capturing is that batch's own designed behaviour —
    its frames are "pictures of what the link serves now" — and it is said here rather than left for

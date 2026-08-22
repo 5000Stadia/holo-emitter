@@ -2359,3 +2359,110 @@ test("anything shaped like a ledger token IS one — the grammar is read, not on
     "these read as ledger tokens and do not parse as one, so every completeness check above is silent about them")
     .toEqual([]);
 });
+
+/* ------------------------------------------------------------------ [Row 19]
+ * THE NUMBERS, PINNED FROM BOTH SIDES.
+ *
+ * A ledger case proves a clause FIRES; only a boundary test pins the number it
+ * fires at. Row 20 paid for that twice in consecutive critic rounds on one
+ * clause: a case doctors its input far outside the tolerance to prove the
+ * clause exists at all, so it stays red under any widening short of its own
+ * delta, and `meta.one_lens` was widened by 10^8 with the whole suite green.
+ *
+ * Phrased in ABSOLUTE terms, never as a fraction of the value being pinned:
+ * "TOL x 4 is refused" is true for every value of TOL, so a test written that
+ * way moves with the number it is meant to hold and survives the exact
+ * widening it exists to catch.
+ *
+ * Three of row 19's five clauses carry a real number. The other two are
+ * containment predicates whose only boundary is a geometric epsilon, and a
+ * boundary case there pins nothing a critic could widen — so what they get is
+ * an ADJACENCY case instead: touching is clear, overlapping is not.
+ */
+test.describe("row 19's bounds, from both sides", () => {
+  const NAV_STAGING = join(repoRoot, "fixtures", "demo-study", "staging.json");
+
+  test("a wall-mounted head at 2.79 m in a 2.80 m storey is admitted, and at 2.81 m it is not", () => {
+    /* `door1` is 2.00 m tall in a room the plan gives 2.80 m, so `v` is the
+       lever: 0.79 leaves its head 1 cm under the ceiling and 0.81 puts it 1 cm
+       through. Both numbers are the room's, not the clause's. */
+    const staging = JSON.parse(readFileSync(NAV_STAGING, "utf8"));
+    const under = tokensOf(validateWithStaging((st) => {
+      for (const pl of st.placements.door1) pl.v = 0.79;
+    }, clone(staging)));
+    expect([...under], "a head 1 cm under the ceiling hangs in the room").toEqual([]);
+    const over = tokensOf(validateWithStaging((st) => {
+      for (const pl of st.placements.door1) pl.v = 0.81;
+    }, clone(staging)));
+    expect([...over], "and 1 cm through it does not").toEqual(["staging.wall_mounted_over_storey"]);
+  });
+
+  test("a 2.00 m door head is admitted in a 2.01 m storey and refused in a 1.99 m one", () => {
+    /* Blueprint §11 rules every door opening at 2.00 m and the projection
+       states that height in code because the plan has no vertical datum. The
+       storey is the document field an agent can set, so the storey is what
+       moves — one centimetre either side of the ruled head. */
+    expect([...tokensFromNavMetas((m) => { m["great_hall/S"].storey_height_m = 2.01; })],
+      "a door 1 cm under its own ceiling stands in the room").toEqual([]);
+    expect([...tokensFromNavMetas((m) => { m["great_hall/S"].storey_height_m = 1.99; })],
+      "and 1 cm over it goes through the ceiling").toEqual(["meta.opening_over_storey"]);
+  });
+
+  test("a baseline 1 cm in front of the camera projects, and 1 cm behind it does not", () => {
+    /* The singularity is the camera itself, and the clause's number IS the
+       camera distance — nothing here is a tolerance anyone could widen, which
+       is why the case straddles the distance rather than a delta round it. */
+    const room = PLAN.rooms.find((r) => r.id === "study");
+    const cam = room.facings.N.camera_wall_m;
+    const line = room.facings.N.wall_line;
+    /* `depth` is the BASELINE — the object's ground edge nearest the camera,
+       which is `footprintDepth`'s own max and what everything downstream
+       projects at. The footprint is laid so that edge sits exactly there. */
+    const at = (depth) => {
+      const p = clone(PLAN);
+      p.objects.find((o) => o.id === "desk1").footprint =
+        { x0: 26.0, x1: 26.8, y0: line - depth, y1: line - depth + 0.55 };
+      try {
+        return { scale: projectPlacement(p, "desk1", "study", "N").scale_px_per_m };
+      } catch (e) {
+        return { tokens: [...tokensOf([e.message])] };
+      }
+    };
+    const infront = at(cam - 0.01);
+    expect(infront.scale, "a baseline 1 cm in front of the camera has a picture")
+      .toBeGreaterThan(0);
+    expect(Number.isFinite(infront.scale)).toBe(true);
+    const behind = at(cam + 0.01);
+    expect(behind.tokens, "and 1 cm behind it has none, by name")
+      .toEqual(["plan.object_projects_finitely"]);
+  });
+
+  test("a footprint touching a threshold is clear of it; a millimetre over it is not", () => {
+    /* A CONTAINMENT PREDICATE HAS NO TOLERANCE TO PIN, so what is asserted is
+       the adjacency: furniture may stand against a doorway and may not stand
+       in it. Same for a standpoint. */
+    const op = PLAN.openings.find((o) => o.id === "op13");
+    const press = (x0) => {
+      const p = clone(PLAN);
+      p.objects.find((o) => o.id === "desk1").footprint =
+        { x0, x1: x0 + 0.5, y0: op.rect.y0 + 0.1, y1: op.rect.y0 + 0.6 };
+      return [...tokensOf(validatePlan(p))];
+    };
+    expect(press(op.rect.x0 - 0.5), "standing against the jamb is standing in the room").toEqual([]);
+    expect(press(op.rect.x0 - 0.499), "a millimetre into the doorway is not")
+      .toEqual(["plan.object_clear_of_thresholds"]);
+  });
+
+  test("a footprint beside a standpoint is clear of it; over it is not", () => {
+    const sp = PLAN.rooms.find((r) => r.id === "study").facings.N.standpoint;
+    const desk = (dx) => {
+      const p = clone(PLAN);
+      p.objects.find((o) => o.id === "desk1").footprint =
+        { x0: sp.x + dx, x1: sp.x + dx + 0.81, y0: sp.y - 0.275, y1: sp.y + 0.275 };
+      return [...tokensOf(validatePlan(p))];
+    };
+    expect(desk(0.001), "a millimetre clear of where the viewer stands").toEqual([]);
+    expect(desk(-0.001), "and a millimetre over it")
+      .toEqual(["plan.object_clear_of_standpoints"]);
+  });
+});
