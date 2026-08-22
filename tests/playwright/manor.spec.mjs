@@ -361,6 +361,41 @@ test.describe("the picture, on every facing the manor renders", () => {
     for (let i = 1; i < got.length; i++) gaps.push(got[i] - got[i - 1]);
     expect(gaps[gaps.length - 1], "the steps nearest the viewer are the widest apart")
       .toBeGreaterThan(gaps[0]);
+
+    /* AND THE PICTURE DRAWS IT THERE. Everything above is arithmetic against a
+       document; this is the row where the document meets the canvas. The
+       predicted top tread's row is measured off the render and required to
+       carry ink, and a row a quarter of the flight's height below it — which
+       the prediction says is between treads — is required not to. Without the
+       second half a renderer that filled the flight's whole rectangle would
+       pass the first. */
+    const ink = await page.evaluate(({ topY, gapY }) => {
+      const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
+      const vs = { location: "great_stair_hall", facing: "N" };
+      const meta = A.metaFor(vs);
+      const fl = meta.stairs[0];
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      window.HOLO.renderer.render(c, fx.world, fx.staging, A.library,
+        { "great_stair_hall/N": { meta } }, vs, { backdrop_only: true });
+      const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+      const rowInk = (y) => {
+        let n = 0;
+        const x0 = Math.max(0, Math.ceil(fl.x) + 2), x1 = Math.min(1536, Math.floor(fl.x + fl.w) - 2);
+        for (let yy = Math.max(0, Math.round(y) - 1); yy <= Math.min(1023, Math.round(y) + 1); yy++) {
+          for (let x = x0; x < x1; x++) {
+            const i = (yy * 1536 + x) << 2;
+            if (d[i] + d[i + 1] + d[i + 2] > 90) n++;
+          }
+        }
+        return n;
+      };
+      return { onTread: rowInk(topY), between: rowInk(gapY) };
+    }, { topY: want[0], gapY: (want[0] + want[1]) / 2 });
+    expect(ink.onTread, "the row the plan puts the top tread on carries ink")
+      .toBeGreaterThan(20);
+    expect(ink.between, "and the row between two treads carries less of it")
+      .toBeLessThan(ink.onTread);
   });
 
   /* NEVER VOID, AND NOT CONDITIONALLY. `drawThroughOpening` carries three
