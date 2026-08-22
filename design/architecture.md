@@ -2284,6 +2284,36 @@ the approved drawing places. A WARNING, on this document's own precedent: a vali
 them would refuse the plan Kabe signed, and one that could not see them is why nobody would find
 them. Printed by the bake, carried into `projection.md` §10, batched.
 
+### What rows 15 and 19 hand on, and to whom
+
+The spec list is the one home of targets and a closing row may not edit another row's text, so the
+hand-offs live here.
+
+- **Row 22 moves numbers this row bakes, and re-running two scripts is the whole cascade.** It moves
+  the study's hearth and `study/S`'s standpoint from 3.85 m to 4.35 m; the manor's derived metas,
+  `standpoints.tsv` and `projection.md` follow. Nothing in rows 15/19 types a camera or a standpoint
+  literal — `manor.spec` reads its expected side out of `standpoints.tsv`, the approved sheet — so
+  what row 22 owes this row is `node tools/bake-fixtures.mjs --fixture-dir fixtures/nav-manor`,
+  `node tools/plan-projection.mjs --write`, and `node design/batches/row15-manor/capture.mjs
+  design/batches/row15-manor`. That last one is why the batch carries its own script. **What row 22
+  must NOT do** is re-capture `design/batches/row21-promotion/` or `design/batches/standing-eye-wave/`
+  — both re-render from their own closing commits, because they are evidence a human has not ruled
+  on. The rebase onto the standing-eye camera was exactly this cascade and it cost four commands.
+- **Row 4's asset lane inherits an 88-facing worklist that is now observable.** Every facing has a
+  derived meta the page renders with, so a prompt sheet can be written against a picture that
+  exists, and `manor.spec`'s per-facing census says which carriers each wall holds and does not draw.
+- **Row 24 (allocated at this close) owns wayfinding**, and with it the screen-reader silence that
+  row 21 recorded on seven of eight facings and this row multiplies to ~86 of 88.
+- **§4b item 9 has no owner.** Row 15 declined multi-standpoint rooms and "arrive IN the door" by
+  Navigator ruling, on the ground that standpoints are drawn content; the evidence it owed them is
+  the arrival displacement above. Nothing else claims them, and `architecture.md` used to hand them
+  to row 15 in three places, all corrected.
+- **Kabe has three open batches**, and they answer to different builds on purpose:
+  `design/batches/row20-lens/` (from `b0422ac`), `row21-promotion/` (from `ad82ede`), and
+  `standing-eye-wave/` and `row15-manor/` (from today's build). `design/approvals.log` carries an
+  open entry for each and `plan.spec` requires an open entry's batch to be in the tree with pictures
+  in it.
+
 ### What did NOT move, measured rather than claimed
 
 This repository has no committed cross-commit canvas guard — row 11 narrowed the promise to the
