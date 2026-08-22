@@ -22,3 +22,11 @@ pixel-per-metre targets in every wall prompt; feature-poor walls unmeasurable �
 anchors (0.90 m window bays); studio shadows breaking gate (h) → flat-ground/no-shadow contract
 lines; proportion drift → dimensions-as-ratios stated in prompts; slide-geometry dead ends →
 two-state pairs for shallow-drawer furniture.
+
+5. **An improvement must clock as one** [HUMAN, 2026-08-22, verbatim]: "be wary of improvements
+   actual improvement by clocking its improved accuracy, or speed, if the improvement doesn't
+   improve either it should be considered if it is an ACTUAL improvement." Every baked-in change
+   carries its before/after numbers — first-roll pass rate, gate-failure rate, or wall-clock —
+   measured, not asserted. A change that moves neither accuracy nor speed is presumed NOT an
+   improvement: it is apparatus, and apparatus must argue for its life or be removed. The ledger
+   records the clock beside the fix.
