@@ -49,15 +49,49 @@ for (const e of WORLD.entities) if (RECORDS[e.sprite]) BY_ENTITY[e.id] = RECORDS
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const room = (p, id) => p.rooms.find((r) => r.id === id);
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
-/* The schematic's DRAWN geometry: every <text> removed, and every element the
- * sheet marks `sheet-chrome`. The chrome class covers the header rule and
- * nothing else — it moves when the provenance stamp takes a second line, and a
- * stamp getting longer must not read as "the drawing Kabe approved changed".
- * Kept deliberately narrow: one class, applied at one place in `draw_plan.py`,
- * so it cannot become a way to hide a wall. */
-const geometryOnly = (svgText) => svgText
-  .replace(/<text[^>]*>[\s\S]*?<\/text>/g, "")
-  .replace(/<[a-z]+[^>]*class="sheet-chrome"[^>]*\/>/g, "");
+/* THE HEADER BAND, found in the sheet rather than named by a class.
+ *
+ * `draw_plan.py` marks the rule under the title `sheet-chrome`, and the first
+ * version of this normalisation stripped elements carrying that class. That
+ * made the comparison ASYMMETRIC: the approved blob in git predates the class,
+ * so the rule survived normalisation on one side and vanished on the other,
+ * and four cases reported that Kabe's approved geometry had moved when nothing
+ * drawn had moved at all — the stamp had merely taken a second line and pushed
+ * the rule down with it. A normalisation only one side of a comparison can
+ * satisfy is not a normalisation, and a marker introduced on one side of a
+ * frozen comparison can never be one.
+ *
+ * So the band is read off whichever sheet is in front of us: the full-width
+ * horizontal rule under the title, wherever it sits. That rule and the title,
+ * subtitle and provenance stamp above it are the sheet's chrome. Nothing the
+ * plan draws can reach there — `draw_plan.py` starts the map below the rule
+ * and `fit_check` refuses a plan that does not fit under it — so excluding the
+ * band cannot hide a wall, and "the geometry hash moves when a room moves"
+ * below is what proves the exclusion is not vacuous. */
+const headerRule = (svgText) => {
+  const m = /<line x1="40\.00" y1="([\d.]+)" x2="1480\.00" y2="\1"[^>]*\/>/.exec(svgText);
+  if (!m) throw new Error("the sheet prints no header rule, so its chrome band cannot be found");
+  return { el: m[0], y: Number(m[1]) };
+};
+
+/* The provenance stamp's own lines, however many it wraps to: the header-band
+ * texts drawn in the stamp's colour above the rule. Read as a set, so a stamp
+ * that grows a line is still one stamp to every reader below. */
+const stampLines = (svgText) => {
+  const ruleY = headerRule(svgText).y;
+  return (svgText.match(/<text[^>]*>[\s\S]*?<\/text>/g) || []).filter((el) => {
+    const m = /<text x="40\.00" y="([\d.]+)"[^>]*fill="#6b6257"/.exec(el);
+    return m && Number(m[1]) < ruleY;
+  });
+};
+
+const stampText = (svgText) => stampLines(svgText)
+  .map((el) => el.replace(/<[^>]*>/g, "")).join(" ")
+  .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+
+const geometryOnly = (svgText) =>
+  svgText.replace(/<text[^>]*>[\s\S]*?<\/text>/g, "")
+    .split(headerRule(svgText).el).join("");
 
 function python(args, cwd) {
   try {
@@ -1668,8 +1702,12 @@ test.describe("the schematic is a derived render of the plan", () => {
    * The suite's "no hash literals" rule is about CANVAS hashes across browser
    * engines. There is no engine here, and nothing else in the row ties the
    * derived render to a human's yes. */
-  /* RE-ANCHORED AT ROW 20 to d87335f, the commit carrying the redrawn sheets
-   * and the standpoint table. What moved in the drawing is the standpoints:
+  /* RE-ANCHORED AT ROW 20 to f50e20e, the commit carrying the redrawn sheets
+   * and the standpoint table. (It first read d87335f, which carried the same
+   * geometry under an earlier provenance string; the literal moved forward
+   * with that string and this comment did not, which is the stale-sentence
+   * family and is corrected here.) What moved in the drawing is the
+   * standpoints:
    * every facing whose viewed wall does not fit the frame from its drawn
    * standpoint now stands at the far side of its room, 0.45 m off the wall
    * behind it, pulled forward where a hearth or a flight is in the way. No
@@ -1685,7 +1723,16 @@ test.describe("the schematic is a derived render of the plan", () => {
    * rather than left to this comment: `approval.lock` carries a `pending`
    * line, so the stamp reads "APPROVED … AWAITING HIS EYE ON: the standpoint
    * markers and their printed distances". The sheets are in the row's batch,
-   * and the row does not close until his word lands. */
+   * and the row does not close until his word lands.
+   *
+   * AND THE ANCHOR DOES NOT MOVE AGAIN FOR A STAMP. Round 5 made the stamp
+   * wrap to a second line, which pushed the header rule down and changed the
+   * sheets' bytes; the reflex fix is to walk this literal forward to whatever
+   * commit carries the new file, and that reflex is what would hollow the case
+   * out — an anchor an agent re-points every time the artifact moves proves
+   * nothing about the artifact. `geometryOnly` above absorbs chrome on BOTH
+   * sides instead, so this literal moves only when the DRAWING moves and Kabe
+   * has said yes to the new one. */
   const APPROVAL_COMMIT = "f50e20e";
 
   function approvedBlob(path) {
@@ -1797,10 +1844,16 @@ test.describe("the schematic is a derived render of the plan", () => {
       "the pending line must name the drawn content the anchor rests on by inference").toBeGreaterThan(20);
     for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
       const svg = readFileSync(join(draftDir, f), "utf8");
-      expect(svg, `${f}: the stamp prints APPROVED without printing what it does not cover`)
+      /* Read from the stamp's LINES joined, not from the raw file: the stamp
+         wraps, so a `pending` clause whose wrap point falls inside the first
+         forty characters would fail a raw `toContain` on a sheet that is
+         printing it perfectly. A guard that does not know its subject wraps is
+         the same defect in a smaller costume. */
+      const stamp = stampText(svg);
+      expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
         .toContain("AWAITING HIS EYE ON");
-      expect(svg, `${f}: the stamp must name the pending scope, not merely the words`)
-        .toContain(pending[1].trim().slice(0, 40));
+      expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
+        .toContain(pending[1].trim());
     }
   });
 
@@ -1822,14 +1875,26 @@ test.describe("the schematic is a derived render of the plan", () => {
     for (const f of ["manor-ground.svg", "manor-upper.svg"]) {
       const approved = approvedBlob(`design/plan-draft/${f}`).toString("utf8");
       const now = readFileSync(join(draftDir, f), "utf8");
-      /* The PROVENANCE line is excluded, and deliberately. It is the stamp,
+      /* The PROVENANCE stamp is excluded, and deliberately. It is the stamp,
          not a caption: it restates itself on every render from the lock's
          state, its font size is fitted to the sheet's own width, and the four
          tests above already hold it to a much harder standard than "did it
          move". Judging it here would make the caption clause red for the one
-         string whose whole job is to change when the document does. */
-      const texts = (t) => (t.match(/<text[^>]*>[\s\S]*?<\/text>/g) || [])
-        .filter((el) => !/holo-emitter - overhead plan/.test(el));
+         string whose whole job is to change when the document does.
+
+         Excluded by its BAND, not by matching its first line's wording. The
+         earlier filter matched "holo-emitter - overhead plan", which only the
+         stamp's FIRST line carries — so the day the stamp wrapped, its
+         continuation line arrived in the caption set as an extra element, the
+         counts stopped matching and this case went red over a stamp that had
+         moved exactly as designed. */
+      const texts = (t) => {
+        const stamp = stampLines(t);
+        expect(stamp.length,
+          "the sheet prints no provenance stamp in its header band").toBeGreaterThan(0);
+        return (t.match(/<text[^>]*>[\s\S]*?<\/text>/g) || [])
+          .filter((el) => !stamp.includes(el));
+      };
       const a = texts(approved), b = texts(now);
       expect(b.length).toBe(a.length);
       const moved = a.map((x, i) => [x, b[i]]).filter(([x, y]) => x !== y);

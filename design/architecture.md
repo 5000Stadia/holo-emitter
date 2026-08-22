@@ -1626,6 +1626,21 @@ it. Re-anchoring is two manual steps (the lock's hash, then `APPROVAL_COMMIT`) a
 manual on purpose: an agent that could move them could approve its own drawing. The full order is
 in `design/plan-draft/README.md`.
 
+**[Row 20] What that byte-comparison normalises away is the sheet's HEADER BAND, and the band is
+read off each sheet rather than named by a marker.** The title, the subtitle, the provenance stamp
+and the full-width rule under them are chrome: the stamp shrinks to fit the column, wraps to a
+second line when the lock's `pending` clause grows, and pushes the rule down when it does — and
+none of that is the drawing Kabe approved. `plan.spec`'s `geometryOnly` therefore drops every
+`<text>` and the header rule, located by pattern in whichever sheet it is handed. The first version
+instead dropped elements carrying a `sheet-chrome` class that `draw_plan.py` had just started
+emitting, which is a normalisation only ONE side of the comparison can satisfy: the approved blob
+in git predates the class, so the rule survived on one side and vanished on the other and four
+cases went red claiming the approved geometry had moved when nothing drawn had moved at all. The
+reflex repair — walk `APPROVAL_COMMIT` forward to the commit carrying the new file — is the one
+that must not be taken, because an anchor an agent re-points whenever the artifact moves proves
+nothing about the artifact. **A frozen comparison is normalised on both sides or not at all, and
+its anchor moves only when the drawing moves and a human has said yes to the new one.**
+
 **Picture data keyed by document ids has a fallback, and the artboard has a refusal.**
 `STAIR_LABEL_POS` is keyed by stair id; renaming a stair in a perfectly valid plan used to kill
 the render with a raw `KeyError`, so it now falls back to the flight's own centre and says so on
