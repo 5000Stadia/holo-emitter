@@ -15,7 +15,7 @@
  */
 import { test, expect, repoRoot, appUrl, stageTree, removeTree, bake, equipContext }
   from "./helpers.mjs";
-import { readFileSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, rmSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const AUDIT = join(repoRoot, "design", "surface-strings.md");
@@ -138,11 +138,23 @@ test.describe("the audit itself", () => {
        the building's, so an audit that read one file would have called the
        other's line a stranger. Every line of every world is enumerated
        verbatim, and every enumerated line is some world's. */
-    const WORLDS = ["demo-study", "nav-manor"].map((id) => ({
-      id,
-      lines: JSON.parse(readFileSync(
-        join(repoRoot, "fixtures", id, "narration.json"), "utf8")).lines
-    }));
+    /* [Round 4] AND THE WORLD LIST IS READ OFF THE TREE, like the bake's and
+       the validator's. It was these two ids, typed — so a critic copied
+       `nav-manor` to a third world, put "Player entered room hall. Debug build
+       7." in its narration, baked it, and the whole suite stayed green: the
+       bake baked it, the clause ledger validated it, and the one check whose
+       subject is what a player can be shown never opened it. A world is a
+       directory with a `narration.json` in it. */
+    const WORLDS = readdirSync(join(repoRoot, "fixtures"))
+      .filter((id) => existsSync(join(repoRoot, "fixtures", id, "narration.json")))
+      .sort()
+      .map((id) => ({
+        id,
+        lines: JSON.parse(readFileSync(
+          join(repoRoot, "fixtures", id, "narration.json"), "utf8")).lines
+      }));
+    expect(WORLDS.length, "the page carries more than one world; the audit reads every one")
+      .toBeGreaterThanOrEqual(2);
     const covered = new Set();
     for (const r of STRINGS) {
       const key = r.state.split(" ")[0];

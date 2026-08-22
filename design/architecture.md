@@ -45,11 +45,18 @@ design/plan-draft/              the schematic, DERIVED from plan.json + the proj
 tests/playwright/               config + helpers + specs; run: npx playwright test -c tests/playwright
 ```
 
-Not built yet: the replicator (row 3), real backdrops and sprites (row 4+), row 9 (the speaker
-layer). Nothing exists under `library/`; `backdrops/` holds the asset seat's candidates and, since
-row 21, ONE promoted painting (`backdrops/study/N.png` + `.meta.json`) — read *The painted
-promotion (row 21)* below before anything that mentions a backdrop. Rows 7, 8 and 10 (the
-storefront sweep, fullscreen, keyboard/assistive access + reduced motion) are done.
+Not built yet: real sprites and the remaining seven backdrops (row 4), row 9 (the speaker layer),
+row 15's manor. **The replicator is built** — row 3 shipped the ingester, `replicator/` holds it,
+and *The replicator (`replicator/`), and what row 4 inherits* below is its account; a sentence here
+said otherwise for several rows and it was wrong. `library/` holds exactly one ingested record —
+`desk-joined-oak-1660`, the corpus desk — and **the page does not read it**: no bake binds
+`library/` yet, the procedural `src/placeholders.js` record of the same id is authoritative until
+row 4's, and this file said "nothing exists under `library/`" while three of its files sat in git.
+`backdrops/` holds the asset
+seat's candidates and, since row 21, ONE promoted painting (`backdrops/study/N.png` +
+`.meta.json`) — read *The painted promotion (row 21)* below before anything that mentions a
+backdrop. Rows 7, 8, 10, 13, 20 and 21 are closed; the open list is `design/intention.md`'s spec
+table, which is the one home of what is left.
 
 ## The file:// constraint and the bake
 
@@ -1548,6 +1555,50 @@ entries now carry a `round` field — a run rewrites only its own round's lines 
 others through verbatim, because "the pass rate rising over time" is a claim about rounds beside
 each other and a ledger that kept one round could not carry it.
 
+### What round 4 changed: twelve guards that were not guarding anything
+
+A scoped adversary was pointed at every check this row added or changed, with one instruction —
+delete or weaken what each guards and confirm it goes red. Twelve did not, and the pattern across
+them is worth more than the list: **five of the thirteen repairs the round before had made left the
+next escape open.** The families:
+
+- **Two of the row's three target clauses rested on nothing.** `misses.jsonl` — the production law's
+  own artifact, required by the row text — was read by no test at all and could be deleted with the
+  suite green. And `measure.py`, 1400 lines of it changed in this row, was executed by no test: a
+  critic moved the CONTROL, the committed pixel values that void every verdict in a run when they
+  shift, and nothing noticed. Both are derived now: the ledger's entry set, verdicts, kinds and
+  deltas are taken from a live `gate.py` run and must agree with it, and each round's corpus must
+  byte-equal a fresh `measure.py --round <r> --out <scratch>` (which is what `--out` is for, and
+  what a round writing over another round's home made impossible before).
+- **Every refusal in `promote-backdrop.mjs` was uncased** — all six, including round 3's own
+  `_source_sha256` fix — because the only test that ran the tool promoted the one candidate that
+  passes everything. There is a case per refusal now, each asserting the tool's own words.
+- **A clause with several arms emits one token from one site**, so both completeness checks pass
+  while a case exercises a single arm. `meta.building_fields` compared six fields and was cased on
+  one; `meta.opening_rect` had four arms and was cased on one; `exit.opening_offscreen` refused four
+  edges and was cased on one. `everyArm` in `guards.spec` asserts each arm trips the clause BY
+  ITSELF.
+- **A mechanism with no subject in either shipped world can be deleted whole.** The painted-opening
+  arm of the promotion and the non-finite `beyond_m` throw both had none. The subjects are built now
+  — `study/E` promoted in a scratch tree at a scale the band admits, and an opening whose meta says
+  something that is not a distance.
+- **A hand-typed list beside two derived ones.** Round 3 derived the world set from the tree in
+  `fixtures.spec` and `guards.spec` and left `voice.spec`'s typed: a critic added a third world
+  whose narration read *"Player entered room hall. Debug build 7."*, baked it, and the audit — the
+  one check whose subject is what a player can be shown — never opened it.
+- **A gate can lie in the other direction too.** Round 3 made an EMPTY `gate.py` stdout red; a
+  WRONG one stayed green, and a critic had it print a WITHHELD facing as `FAIL -100.0%` — the exact
+  confusion the WITHHELD class exists to prevent, since a FAIL is a fact about a painting and
+  carries a re-ask. Two guards now catch it: the ledger must agree with the gate's verdicts, and
+  both tables the batch quotes to Kabe are compared line for line with what the tool prints.
+
+**And one product defect, found by looking rather than by mutating**: `?world=` was matched by an
+unanchored pattern, so `?world=nav-manor.evil` booted the painted world and `?world=demo-study.evil`
+the furnished one — a page booting something other than what it was asked for, which is the one
+thing that paragraph in `index.html` says it must never do. The test written for it only ever asked
+for ids made entirely of the characters the pattern's own class admits, so **the grammar was its own
+alibi**. It reads to the end of the parameter now.
+
 ### Residue, named
 
 1. **Seven walls are unadmitted and the world shows grid on them.** That is the materialization
@@ -1577,6 +1628,32 @@ each other and a ledger that kept one round could not carry it.
 7. **The plan and the painting still disagree about the hearth, and the fix is allocated.** The
    number is held by test so it cannot drift; **row 22** is the execution row and its full cascade
    is written into its spec-list entry. Nothing is staged on the study's north wall until it lands.
+8. **What round 4's adversary found and this row did not fix**, each recorded rather than smoothed
+   over:
+   - **`THROUGH_DIM` is guarded only by a committed picture.** Setting 0.42 to 0.10 — the dim
+     effectively gone — leaves every measurement green; only the batch's byte-comparison goes red,
+     and any builder silences that by re-capturing. It is a look constant going to Kabe as one, and
+     it also decides the row's headline metric (`near_black === 0` clears by about 1.1 luminance
+     units of 255). Whoever rules the dim should give it a reader that is not a photograph.
+   - **A human gate still retires on a sentence an agent can write.** `design/approvals.log`'s
+     verdict column must now be quoted and must not read as a placeholder, and the commit it cites
+     must exist — but a plausible quotation closes the gate, and for the row-20 entry the same edit
+     also switches off both of its batch cases. The ledger is a claim about a person and no check
+     can make it true; what it buys is that the claim has to be made explicitly.
+   - **Three silent `return false` paths in `drawThroughOpening`** (no backdrops map, no destination
+     entry, a `cameraDistance` throw) have no subject in either shipped world, so "never void" is
+     conditional on none of them firing and nothing says so.
+   - **`bake-fixtures.mjs`'s meta-findings refusal and `bake-backdrops.mjs`'s `source/` skip** are
+     both unexercised; the second is enforced incidentally by a filename regex.
+   - **The §4 named-pair "cannot be evaluated" finding is untokened**, so the ledger's
+     shipped-documents check cannot see it and a bare `continue` silences it.
+   - **`validator.spec`'s typed `MEASURED` px/m map is bound only through band membership**: a
+     wrong value inside the band moves nothing. The corpus it copies is now re-derived by the
+     measurement staleness cases, which is the stronger binding, and this copy should go to it.
+   - **The three through-view ledger cases measure states no shipped world reaches** — a 900 px arch
+     onto a room 12 m off, a fabricated three-room chain, a null `beyond_m`. They are genuinely red
+     on deletion; their correctness is asserted against the test's own construction until row 15's
+     manor makes those states ordinary.
 
 ### What row 21 hands on, and to whom
 
@@ -2732,12 +2809,25 @@ or it is a finding by itself. **And the matcher that finds them carries no typed
 own**: the first version was `/\[row\d*:?([^\]\n]{0,80})…/` and a critic escaped it twice, once
 with an uppercase prefix and once with a 94-character body — each escape the exact shape the case
 was written to close, one level out. It is `/\[row\d/gi` now, the opening shape alone, and the rest
-of the line is the case's problem rather than the pattern's. **The regress has one step left and it
-is the digit**, verified by the critic who closed the other two: `[row:meta.noDigit]`,
-`[rowXX:meta.foo]`, and a tag assembled at runtime (`` `[row${N}:meta.sneaky]` ``) are all invisible
-to the strict scan, the count and the loose case alike. None is a way anyone would write an emit
-tag, which is why it is recorded here rather than fixed — but the record must not say this bottomed
-out when it did not.
+of the line is the case's problem rather than the pattern's. **The last step was the digit, and row
+21 paid for leaving it recorded rather than fixed.** This paragraph used to say `[row:meta.noDigit]`,
+`[rowXX:meta.foo]` and a tag assembled at runtime were "not a way anyone would write an emit tag" —
+and a critic wrote one, `` `[row${ZZROW}:meta.zz_sneaky]` ``, inside `validate-fixtures.mjs` itself,
+landing back in the neither-declared-nor-undeclared state the case exists to abolish. **What
+separates a tag from prose is not a digit but a SPACE**: this codebase annotates with `[Row 21]` and
+`[row 21, round 3]` everywhere and tags with `[row21:name]`, so the hunt is `/\[row(?![ \t])/gi` —
+`[row` not followed by whitespace — and everything it finds must parse. A recorded hole is a hole.
+
+**AND A DERIVED SET CAN BE DERIVED FROM THE WRONG PLACE.** The same scan read `tools/` because that
+was where every emit site had been; row 21 then minted three clauses in
+`design/plan-draft/measured/prompt_lint.py` — a validator like any other, refusing an artifact
+before it is made rather than after — and every completeness check in `guards.spec` was silent about
+them, including when a critic appended a fourth. `EMITTING_DIRS` names the directories and derives
+the files within each, and the four `prompt.*` clauses are declared mechanisms with ledger cases
+like every other clause. `prompt.unmeasurable_by_design` is the one case that asserts a PAIR: its
+own precondition is that the prompt has no usable anchor, which is another clause's finding, so
+what makes it evidence is the discrimination beside it — the same forbidding frame with a ruler in
+it trips neither.
 
 **Findings recorded rather than fixed, and here is why.**
 

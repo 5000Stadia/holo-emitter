@@ -1,4 +1,4 @@
-import { test, expect, appUrl, gridExpectations } from "./helpers.mjs";
+import { test, expect, appUrl, navUrl, gridExpectations } from "./helpers.mjs";
 
 test.describe("determinism and purity", () => {
   test("direct render, both rooms: all eight viewstates hash-stable; page path adds nothing", async ({ page }, testInfo) => {
@@ -40,6 +40,49 @@ test.describe("determinism and purity", () => {
     const h2 = await page2.evaluate(() => window.__T.hashScene());
     await page2.close();
     expect(h2).toBe(h1);
+  });
+
+  /* [Row 21, round 4] AND THE WORLD THE LINK ACTUALLY SERVES. Every case in
+   * this file opens `appUrl()`, which since row 21 means `?world=demo-study` —
+   * so the painted, empty world the BARE URL boots had no §12.2 coverage at
+   * all, on a row whose done clause asks for §12.2 green on the painted metas.
+   * It was satisfied through the furnished world, where `study/N` is also
+   * painted; that is true and it is not the same claim. Two cold loads, all
+   * eight facings, and the same purity assertion the demo world answers to. */
+  test("§12.2 first clause on the painted world the bare URL boots", async ({ page, context }) => {
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    const facings = async (p) => await p.evaluate(async () => {
+      const out = {};
+      for (const location of ["study", "hall"]) {
+        for (const facing of ["N", "E", "S", "W"]) {
+          const h1 = await window.__T.hashCanvas(window.__T.renderDirect({ location, facing }));
+          const h2 = await window.__T.hashCanvas(window.__T.renderDirect({ location, facing }));
+          out[location + "/" + facing] = [h1, h2];
+        }
+      }
+      out.boot = [await window.__T.hashScene(), null];
+      return out;
+    });
+    const first = await facings(page);
+    for (const [key, [h1, h2]] of Object.entries(first)) {
+      if (h2 !== null) expect(h1, `${key} renders hash-stable in the painted world`).toBe(h2);
+    }
+    expect(first.boot[0], "the booted canvas is a direct render of the same inputs")
+      .toBe(first["study/N"][0]);
+    const page2 = await context.newPage();
+    await page2.goto(navUrl());
+    await page2.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    const second = await facings(page2);
+    await page2.close();
+    for (const key of Object.keys(first)) {
+      expect(second[key][0], `${key} is a different picture on a second cold load`)
+        .toBe(first[key][0]);
+    }
+    /* And the painting is genuinely in it: the one admitted wall must not hash
+       equal to the grid its own room draws on every other facing. */
+    expect(first["study/N"][0], "study/N is painted and study/W is not")
+      .not.toBe(first["study/W"][0]);
   });
 
   test("§12.2 first clause, extended (row 2): swap and mid-part states hash equal across two fresh loads", async ({ page, context }) => {

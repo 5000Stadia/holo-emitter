@@ -2162,6 +2162,30 @@ test.describe("the schematic is a derived render of the plan", () => {
         "an anchor at a size this project does not rule would have the prompt and the gate measuring different lengths")
         .toMatch(/row21:prompt\.no_gate_anchor/);
 
+      /* [Round 4] EVERY RULED SIZE, not the two the synthetic prompts happen
+         to declare. A critic moved the door's ruled WIDTH from 1.00 m to
+         9.99 m and nothing said so, so the lint and blueprint §11 could drift
+         apart on exactly the axis this clause exists to hold together. Each
+         ruler is asserted from both sides: its own size passes, a size the
+         project does not rule for it is refused. */
+      for (const [what, ruled, wrong] of [
+        ["the door opening's height at the wall plane", 2.00, 2.20],
+        ["the door opening's width", 1.00, 9.99],
+        ["the fireplace opening, jamb to jamb", 0.90, 1.40],
+        ["a window bay between its outer mullion centres", 0.90, 1.10],
+        ["the wainscot chair-rail above the floor", 0.95, 1.20],
+        ["the cross passage's end wall", 2.60, 3.00]
+      ]) {
+        const okF = join(dir, "ruler-ok.prompt.txt");
+        const badF = join(dir, "ruler-bad.prompt.txt");
+        writeFileSync(okF, `Gate anchor: ${what}, ${ruled.toFixed(2)} m\nGeometry: the floor line is in frame.\n`);
+        writeFileSync(badF, `Gate anchor: ${what}, ${wrong.toFixed(2)} m\nGeometry: the floor line is in frame.\n`);
+        expect(lint([okF]), `${what} at its ruled ${ruled} m is an anchor`)
+          .not.toMatch(/row21:prompt\.no_gate_anchor/);
+        expect(lint([badF]), `${what} at ${wrong} m is the prompt and the gate measuring different lengths`)
+          .toMatch(/row21:prompt\.no_gate_anchor/);
+      }
+
       /* [The close] AND THE OTHER FAILURE OF A GATE: REFUSING COMPLIANT WORK.
          The parser required the metres to follow a comma, so all seven cand-3
          prompts — which declare the ruled anchor as "at exactly 0.95m above the
@@ -2240,6 +2264,285 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(control.measured.dado_rail_above_floor_px).toBe(213);
   });
 
+  /* [ROW 21, round 4] THE MEASUREMENT IS EXECUTED, NOT TRUSTED.
+   *
+   * 1400 lines of `measure.py` changed in this row and no test ran a single
+   * one of them: a critic moved the CONTROL — the committed pixel values that
+   * make every verdict in a run void when they shift — and the whole suite
+   * stayed green. Everything the promoted meta is derived from lives in the
+   * JSONs this script writes, and until now nothing re-derived them, so a hand
+   * edit to the corpus was indistinguishable from a measurement.
+   *
+   * The shape is the one this project already uses for `fixture.js`,
+   * `backdrops/baked.js` and the promoted meta: run the generator into a
+   * scratch directory and byte-compare. It costs half a minute per round and
+   * it is what makes the control, the ruler priority, the three WITHHELD
+   * triggers and `_source_sha256` executed code rather than committed prose.
+   * Chromium only — a claim about a Python script has no engine. */
+  for (const [round, dir] of [["cand2", ""], ["cand3", "cand3"], ["cand1", "cand1"]]) {
+    test(`the ${round} measurement re-runs byte-identical to its committed corpus`, async ({ browserName }) => {
+      test.setTimeout(180_000);
+      test.skip(browserName !== "chromium", "a claim about a Python script has no engine");
+      const out = mkdtempSync(join(tmpdir(), `holo-measure-${round}-`));
+      try {
+        execFileSync("python3",
+          [join(draftDir, "measured", "measure.py"), "--round", round, "--out", out],
+          { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+        const committed = join(draftDir, "measured", dir);
+        const fresh = join(out, dir);
+        const names = readdirSync(committed).filter((f) => f.endsWith(".json") && f !== "misses.jsonl");
+        expect(names.length, `${round} writes no per-facing JSON`).toBeGreaterThanOrEqual(8);
+        const moved = names.filter((n) =>
+          !existsSync(join(fresh, n)) ||
+          !readFileSync(join(fresh, n)).equals(readFileSync(join(committed, n))));
+        expect(moved,
+          `these ${round} readings are not what measure.py produces today — the corpus was edited by hand, or a detector moved`)
+          .toEqual([]);
+      } finally {
+        rmSync(out, { recursive: true, force: true });
+      }
+    });
+  }
+
+  /* [ROW 21, round 4] THE MISS LEDGER IS THE GATE'S OWN VERDICTS, ENTRY FOR
+   * ENTRY. The row's target requires "miss-ledger entries per the production
+   * law for every gate failure with delta re-asks", and a critic deleted
+   * `misses.jsonl` outright with the suite green: nothing read it. A ledger
+   * compared against a committed copy of itself would be no better, so every
+   * number here is taken from a live `gate.py` run and the ledger has to
+   * agree with it — including the distinction the whole class exists for, that
+   * a FAIL carries a delta and a correction and a WITHHELD carries neither and
+   * a `blocked_on` instead. */
+  test("the miss ledger holds one entry per gate verdict, with the gate's own numbers", () => {
+    const gate = (args) => {
+      try {
+        return execFileSync("python3", [join(draftDir, "measured", "gate.py"), ...args],
+          { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { return String(e.stdout || ""); }
+    };
+    /** facing -> {verdict, delta} straight off the tool's table. */
+    const verdicts = (out) => {
+      const map = {};
+      for (const line of out.split("\n")) {
+        const m = /^((?:study|hall)\/[NESW])\s+\S+\s+(\S+)\s+\S+\s+\S+\s+(PASS|FAIL|WITHHELD|NOT GATED)\s*([-+][\d.]+)?%?/.exec(line);
+        if (m) map[m[1]] = { verdict: m[3], delta: m[4] === undefined ? null : Number(m[4]) };
+      }
+      return map;
+    };
+    const ledger = readFileSync(join(draftDir, "measured", "misses.jsonl"), "utf8")
+      .trim().split("\n").map((l) => JSON.parse(l)).filter((r) => r._record === "miss");
+    expect(ledger.length, "the ledger is empty").toBeGreaterThan(0);
+
+    for (const [round, args] of [["cand-2", []], ["cand-3", ["--round", "cand3"]]]) {
+      const table = verdicts(gate(args));
+      expect(Object.keys(table).length, `gate.py ${args.join(" ")} printed no facings`).toBe(8);
+      const rows = ledger.filter((r) => (r.round || "cand-2") === round);
+      const gated = Object.entries(table)
+        .filter(([, v]) => v.verdict !== "PASS" && v.verdict !== "NOT GATED")
+        .map(([f]) => f).sort();
+      expect(rows.map((r) => r.facing).sort(),
+        `${round}: the ledger's facings are not the ones the gate did not admit`)
+        .toEqual(gated);
+
+      for (const r of rows) {
+        const t = table[r.facing];
+        expect(r.verdict, `${round} ${r.facing}: the ledger's verdict is not the gate's`).toBe(t.verdict);
+        if (t.verdict === "WITHHELD") {
+          /* WHAT A WITHHELD ENTRY MAY AND MAY NOT SAY. It issues no number in
+             any field — that is the whole class — and it carries `blocked_on`,
+             what has to change before a verdict is possible. Its `kind` is NOT
+             forced to `measurement_withheld`: `study/S` is withheld because
+             the PAINTING drew one ruled feature at three different widths, so
+             its cause is the generator's and its entry says so, while still
+             issuing nothing. The failure this guards is a withheld facing
+             carrying a delta an asset seat would then chase. */
+          expect(r.delta_pct, `${round} ${r.facing}: a withheld facing carries no delta — a number nobody could measure must not become a re-ask`)
+            .toBeNull();
+          expect(r.measured.px_per_m_at_wall, `${round} ${r.facing}: a withheld facing issues no scale`).toBeNull();
+          expect(r.measured.implied_focal_px, `${round} ${r.facing}: nor a focal length`).toBeNull();
+          expect(String(r.blocked_on || ""), `${round} ${r.facing}: a withheld facing carries what has to change instead of a correction`)
+            .not.toHaveLength(0);
+        } else {
+          expect(r.kind, `${round} ${r.facing}: a facing that measured and missed is a generation miss`)
+            .toBe("generation_miss");
+          /* Half a printed digit: the gate prints one decimal and the ledger
+             keeps two, so agreement is "the ledger rounds to what the gate
+             says" and not float equality. */
+          expect(Math.abs(r.delta_pct - t.delta),
+            `${round} ${r.facing}: the ledger says ${r.delta_pct} % where the gate prints ${t.delta} %`)
+            .toBeLessThanOrEqual(0.06);
+          expect(String(r.correction || ""), `${round} ${r.facing}: a generation miss carries the arithmetic a re-ask needs`)
+            .toMatch(/px\/m/);
+          expect(r.kind, `${round} ${r.facing}: a facing that measured and missed is the painting's miss`)
+            .toBe("generation_miss");
+        }
+        /* And the type can never be the softer one on a facing that DID
+           measure: `measurement_withheld` is a claim about our own instrument
+           and it is false wherever the gate issued a number. */
+        if (r.kind === "measurement_withheld") {
+          expect(t.verdict, `${round} ${r.facing}: typed as our measurement's failure on a facing the gate gave a verdict for`)
+            .toBe("WITHHELD");
+        }
+        expect(String(r.why || "").length, `${round} ${r.facing}: a miss with no diagnosed cause is not a ledger entry (production law clause 2)`)
+          .toBeGreaterThan(40);
+      }
+    }
+  });
+
+  /* [ROW 21, round 4] EVERY REFUSAL THE PROMOTION CLAIMS, RUN.
+   *
+   * `promote-backdrop.mjs` says of itself that the gate "is not advisory here"
+   * and that admitted "is decided by the measurement and never by whoever ran
+   * the promotion" — and a critic disabled EVERY ONE of its six refusals with
+   * the suite green, because the only case that ran the tool promoted the one
+   * candidate that passes them all. The round-3 `_source_sha256` fix was among
+   * them: the guard against dressing a repainted picture in an old
+   * measurement's numbers had no case of its own. */
+  test("the promotion refuses every input its own words say it refuses", () => {
+    const tree = stagePromotionTree("study/N", "backdrops/source/study-N/cand-2.png");
+    const measured = join(tree, "design", "plan-draft", "measured", "study-N.json");
+    const pristine = readFileSync(measured, "utf8");
+    const promote = (args) => {
+      try {
+        const out = execFileSync("node", [join(tree, "tools", "promote-backdrop.mjs"), ...args],
+          { cwd: tree, encoding: "utf8", stdio: "pipe" });
+        return { code: 0, out };
+      } catch (e) {
+        return { code: e.status, out: String(e.stdout || "") + String(e.stderr || "") };
+      }
+    };
+    const OK = ["--facing", "study/N", "--candidate", "backdrops/source/study-N/cand-2.png"];
+    const doctor = (fn) => {
+      const m = JSON.parse(pristine);
+      fn(m);
+      writeFileSync(measured, JSON.stringify(m, null, 2) + "\n");
+    };
+    try {
+      expect(promote(OK).code, "the admitted candidate still promotes").toBe(0);
+
+      doctor((m) => { m.px_per_m_at_wall = 200; });
+      let r = promote(OK);
+      expect(r.code, "a candidate outside blueprint §5's band is refused").not.toBe(0);
+      expect(r.out).toMatch(/outside the ±3% band/);
+
+      doctor((m) => { m.px_per_m_at_wall = null; });
+      r = promote(OK);
+      expect(r.code, "a WITHHELD measurement is not a verdict").not.toBe(0);
+      expect(r.out).toMatch(/no px_per_m_at_wall/);
+
+      doctor((m) => { delete m._horizon_votes.ceiling_ramp_intersection; });
+      r = promote(OK);
+      expect(r.code, "the ruled horizon instrument is not optional").not.toBe(0);
+      expect(r.out).toMatch(/ceiling-ramp horizon/);
+
+      doctor((m) => { m._source_sha256 = "0".repeat(64); });
+      r = promote(OK);
+      expect(r.code, "a measurement of other bytes than the candidate's is refused").not.toBe(0);
+      expect(r.out).toMatch(/not the image .* was measured off/);
+
+      doctor((m) => { delete m._source_sha256; });
+      r = promote(OK);
+      expect(r.code, "and a measurement that never recorded its bytes is refused too").not.toBe(0);
+      expect(r.out).toMatch(/carries no _source_sha256/);
+
+      writeFileSync(measured, pristine);
+      r = promote(["--facing", "study/N", "--candidate", "backdrops/source/study-N/cand-3.png"]);
+      expect(r.code, "a candidate the measurement's own header does not name is refused").not.toBe(0);
+      expect(r.out).toMatch(/measured off a different image/);
+
+      /* A measurement whose facing the plan does not hold: the same reading
+         under a name the building has no wall for. */
+      cpSync(measured, join(tree, "design", "plan-draft", "measured", "study-Z.json"));
+      r = promote(["--facing", "study/Z", "--candidate", "backdrops/source/study-N/cand-2.png"]);
+      expect(r.code, "a facing the plan does not hold is refused").not.toBe(0);
+      expect(r.out).toMatch(/holds no facing/);
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 21, round 4] THE PAINTED DOORWAY IS THE META'S OPENING, AND THE ARM
+   * THAT MAKES IT SO HAD NO SUBJECT. `study/N` paints no doorway, so the code
+   * that makes §11's "the painted opening must coincide with the click target"
+   * TRUE BY CONSTRUCTION — and the door-carrier comparison beside it — could
+   * both be deleted whole with the suite green. The subject is the facing the
+   * product reaches next: `study/E`, whose measurement carries the painted
+   * jambs, promoted in a scratch tree at a scale the band admits. */
+  test("a painted opening becomes the meta's own, and its absence the projected one", () => {
+    const tree = stagePromotionTree("study/E", "backdrops/source/study-E/cand-2.png");
+    const measured = join(tree, "design", "plan-draft", "measured", "study-E.json");
+    const pristine = JSON.parse(readFileSync(measured, "utf8"));
+    const IN_BAND = 1010 / 4.09;          // study/E's drawn standpoint
+    const promote = () => execFileSync("node",
+      [join(tree, "tools", "promote-backdrop.mjs"), "--facing", "study/E",
+        "--candidate", "backdrops/source/study-E/cand-2.png"],
+      { cwd: tree, encoding: "utf8", stdio: "pipe" });
+    const written = () => JSON.parse(readFileSync(join(tree, "backdrops", "study", "E.meta.json"), "utf8"));
+    try {
+      const withPainted = JSON.parse(JSON.stringify(pristine));
+      withPainted.px_per_m_at_wall = IN_BAND;
+      writeFileSync(measured, JSON.stringify(withPainted, null, 2) + "\n");
+      promote();
+      const painted = written();
+      expect(painted.openings.length, "study/E carries exactly one doorway").toBe(1);
+      const o = painted.openings[0];
+      expect(o.measured, "the painting's own jambs are what the meta carries").toBe(true);
+      expect(o.x, "the opening's left edge is the measured wall-plane jamb")
+        .toBeCloseTo(pristine._measured_px.opening_x0_px, 1);
+      expect(o.w, "and its width is the measured span")
+        .toBeCloseTo(pristine._measured_px.opening_x1_px - pristine._measured_px.opening_x0_px, 1);
+      /* And the carrier comparison's door arm, which reads the same pixels. */
+      const door = painted.measured_room.carriers.find((c) => c.kind === "door");
+      expect(door && door.painted_px, "the door carrier is compared against where the plan puts it")
+        .toEqual([pristine._measured_px.opening_x0_px, pristine._measured_px.opening_x1_px]);
+
+      /* THE DISCRIMINATION: the same wall with no measured jambs falls back to
+         the projection, and says so. Without this the case would pass on a
+         promotion that ignored the measurement entirely. */
+      const withoutPainted = JSON.parse(JSON.stringify(withPainted));
+      delete withoutPainted._measured_px.opening_x0_px;
+      delete withoutPainted._measured_px.opening_x1_px;
+      writeFileSync(measured, JSON.stringify(withoutPainted, null, 2) + "\n");
+      promote();
+      const projected = written();
+      expect(projected.openings[0].measured, "with no painted jambs the opening is the plan's projection").toBe(false);
+      expect(Math.abs(projected.openings[0].x - painted.openings[0].x),
+        "and the two answers are different pixels — otherwise this case proves nothing")
+        .toBeGreaterThan(2);
+      expect(projected.measured_room.carriers.find((c) => c.kind === "door").painted_px,
+        "and the carrier comparison has nothing painted to compare").toBeNull();
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
+    }
+  });
+
+  /** A tree the promotion can run in: its tools, the plan, the measurement
+   *  corpus, and the one candidate under test. `stageTree` does not carry
+   *  `design/` or `backdrops/source/` — the first is not the page's and the
+   *  second is 20 MB of the asset seat's lane. */
+  function stagePromotionTree(facing, candidate) {
+    const dir = mkdtempSync(join(tmpdir(), "holo-promote-"));
+    cpSync(join(repoRoot, "tools"), join(dir, "tools"), { recursive: true });
+    /* `validate-plan.mjs` requires `../src/groundplane.js` through the UMD
+       guard, so the placement arithmetic is the renderer's own here too. */
+    cpSync(join(repoRoot, "src"), join(dir, "src"), { recursive: true });
+    mkdirSync(join(dir, "fixtures", "demo-study"), { recursive: true });
+    cpSync(join(repoRoot, "fixtures", "demo-study", "plan.json"),
+      join(dir, "fixtures", "demo-study", "plan.json"));
+    mkdirSync(join(dir, "design", "plan-draft", "measured"), { recursive: true });
+    for (const f of readdirSync(join(draftDir, "measured")).filter((n) => n.endsWith(".json"))) {
+      cpSync(join(draftDir, "measured", f), join(dir, "design", "plan-draft", "measured", f));
+    }
+    const [loc] = facing.split("/");
+    const srcDir = candidate.slice(0, candidate.lastIndexOf("/"));
+    mkdirSync(join(dir, srcDir), { recursive: true });
+    for (const f of readdirSync(join(repoRoot, srcDir)).filter((n) => n.endsWith(".png"))) {
+      cpSync(join(repoRoot, srcDir, f), join(dir, srcDir, f));
+    }
+    void loc;
+    return dir;
+  }
+
   /* [ROW 21, the close] EACH ROUND'S DATA LIVES WHERE ITS PROSE SAYS IT DOES.
    *
    * `SUMMARY.md` is the row-20 record and its tables are the cand-1 round's,
@@ -2303,6 +2606,18 @@ test.describe("the schematic is a derived render of the plan", () => {
         `design/batches/row21-promotion/README.md quotes a gate table the tool no longer prints (round ${i === 0 ? "cand-2" : "cand-3"}) — re-run gate.py and paste what it says`)
         .toEqual(quoted.map((l) => l.trimEnd()));
     });
+    /* [Round 4] AND THE WARN TIER IS PRINTED. The Navigator's ruling of
+       2026-08-22 admits the room-the-painting-depicts comparison as warn-tier
+       precisely so "the number has to be visible when the next round is
+       judged" — and a critic deleted the whole block with the suite green,
+       which would have made it visible to nobody. It never touches the exit
+       code and it is not asserted as a verdict; what is asserted is that it
+       still reaches the page. */
+    const promotionRound = gate([]);
+    expect(promotionRound, "the warn tier no longer prints the room the painting depicts")
+      .toMatch(/warn \(the ROOM the painting depicts/);
+    expect(promotionRound, "and the storey it paints against the one the plan rules")
+      .toMatch(/storey [\d.]+ m painted against [\d.]+ m ruled/);
   });
 
   test("the cand-2 corpus is the lint's clock baseline, and the numbers are read not quoted", () => {

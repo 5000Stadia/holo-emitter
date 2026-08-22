@@ -30,7 +30,9 @@
  * watching it go red.
  */
 import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl, navUrl } from "./helpers.mjs";
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
@@ -101,9 +103,23 @@ function tokensOf(findings) {
    one-token-one-site count. Same shape of hole as counting tokens per file
    instead of over their union, and a directory read cannot fall behind the
    directory. */
-const SCANNED = readdirSync(join(repoRoot, "tools"))
-  .filter((f) => /\.(mjs|js|cjs)$/.test(f))
-  .map((f) => `tools/${f}`)
+const EMITTING_DIRS = [
+  /* Every directory this project emits clause tokens from, with the file
+     extensions that can carry one. Derived WITHIN each directory, so a new
+     tool joins the scan by existing.
+
+     [Round 4] `design/plan-draft/measured` is here because row 21 minted three
+     tokens in `prompt_lint.py` and the scan was derived from the wrong
+     directory: `tools/` only. A critic appended a fourth token to the lint's
+     own output and every completeness check stayed silent — the set was
+     derived, and derived from a place the row had stopped putting emit sites.
+     A directory read cannot fall behind the directory; it can be pointed at
+     the wrong one. */
+  { dir: "tools", ext: /\.(mjs|js|cjs)$/ },
+  { dir: "design/plan-draft/measured", ext: /\.py$/ }
+];
+const SCANNED = EMITTING_DIRS.flatMap(({ dir, ext }) =>
+  readdirSync(join(repoRoot, dir)).filter((f) => ext.test(f)).map((f) => `${dir}/${f}`))
   .sort();
 
 /* THE ROW PREFIX IS DERIVED TOO, and it is the other typed half a round-5
@@ -133,8 +149,46 @@ const TOKEN_RE = /\[row(\d+):([a-z_.]+)\]/g;
    landing back in the "neither declared nor undeclared" state this case exists
    to abolish. There is nothing left to type narrower than the thing it hunts:
    an opening bracket, `row`, a digit, and then the rest of that line is the
-   case's problem rather than the pattern's. */
-const TOKEN_LOOSE_RE = /\[row\d/gi;
+   case's problem rather than the pattern's.
+
+   AND THE DIGIT IS GONE TOO, which is the step `design/architecture.md` said
+   was still open and a round-4 critic walked straight through: a token
+   ASSEMBLED AT RUNTIME — `` `[row${ROW}:meta.sneaky]` `` — spells `[row$`, so
+   a pattern requiring a digit next saw nothing, and the clause was neither
+   declared nor undeclared nor malformed. `[row:x]` and `[rowXX:x]` are the
+   same hole. What separates a tag from the prose annotation this codebase
+   writes everywhere (`[Row 21]`, `[row 21, round 3]`) is not a digit but a
+   SPACE: a tag has none. So the hunt is `[row` NOT followed by whitespace, and
+   everything it finds must parse. */
+const TOKEN_LOOSE_RE = /\[row(?![ \t])/gi;
+
+/* A CLAUSE WITH SEVERAL ARMS NEEDS A CASE PER ARM. [Row 21, round 4] The
+   ledger's rule is "a case that fails on that clause alone", and this row
+   proved the other half of it is just as load-bearing: a clause that compares
+   six fields, or refuses four edges, emits ONE token from ONE site, so both
+   completeness checks are satisfied by a case that exercises a single arm —
+   and five of the six can then be deleted with the suite green. `everyArm`
+   asserts each arm trips the clause BY ITSELF, and returns the union so the
+   registered case still reads as one clause. */
+function everyArm(name, arms) {
+  const union = new Set();
+  for (const [arm, doctor] of Object.entries(arms)) {
+    const tripped = [...doctor()].sort();
+    expect(tripped,
+      `${name}: the ${arm} arm alone must trip this clause and nothing else`)
+      .toEqual([name]);
+    for (const t of tripped) union.add(t);
+  }
+  return union;
+}
+
+/** A well-formed meta opening, with one field spoiled. */
+const openingRect = (over) => ({ id: "op13", via: "door1", x: 900, y: 300, w: 220,
+  h: 500, beyond_m: 8.6, beyond_offset_m: 1.1, ...over });
+
+function forEachOpening(metas, fn) {
+  for (const key of Object.keys(metas)) for (const o of (metas[key].openings || [])) fn(o);
+}
 
 const REGISTERED = new Set();
 function ledgerCase(name, body) {
@@ -206,6 +260,14 @@ export const MECHANISMS = [
   "plan.objects_do_not_share_floor",
   // the bake
   "bake.refuses_lens_drift",
+  /* [Round 4] The prompt lint's clauses. They live in
+     `design/plan-draft/measured/prompt_lint.py`, which is a validator like any
+     other — it refuses an artifact before it is made — and the row that minted
+     them left them outside every completeness check in this file. */
+  "prompt.no_gate_anchor",
+  "prompt.contradictory_scale",
+  "prompt.unmeasurable_by_design",
+  "prompt.anchor_datum_forbidden",
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
@@ -236,6 +298,7 @@ export const MECHANISMS = [
   "renderer.through_view_corners",
   "renderer.through_view_depth",
   "renderer.through_view_finite",
+  "renderer.through_view_refuses_nonfinite",
   "renderer.jamb_stands_proud",
   "renderer.typed_depth_anchor",
   "renderer.ceiling_lines",
@@ -279,14 +342,32 @@ const DOCUMENT_CASES = {
      lives in is resolved BEFORE the derived map — so these two doctor the
      DERIVED side, which is the same comparison from the other end and the only
      one a doctored map can reach. */
-  "meta.building_fields": () => tokensFromMetas((m) => { m["study/N"].storey_height_m = 2.5; }),
+  "meta.building_fields": () => everyArm("meta.building_fields", {
+    /* ONE TOKEN OVER SIX FIELDS IS SIX ARMS, and the emit site is inside a
+       loop so the one-token-one-site count passes at 1 whatever the list
+       holds. A critic cut `BUILDING` down to `["storey_height_m"]` — the one
+       field this case doctored — and the whole suite stayed green, which would
+       have let a promoted painting re-rule `wall_width_m`, the field the
+       u-domain and every staged placement read. */
+    wall_width_m: () => tokensFromMetas((m) => { m["study/N"].wall_width_m = 9.9; }),
+    camera_wall_m: () => tokensFromMetas((m) => { m["study/N"].camera_wall_m = 1.1; }),
+    camera_far_m: () => tokensFromMetas((m) => { m["study/N"].camera_far_m = 3.3; }),
+    storey_height_m: () => tokensFromMetas((m) => { m["study/N"].storey_height_m = 2.5; }),
+    facing_type: () => tokensFromMetas((m) => { m["study/N"].facing_type = "corridor"; }),
+    wall_continuous: () => tokensFromMetas((m) => { m["study/N"].wall_continuous = false; })
+  }),
   "meta.building_segments": () => tokensFromMetas((m) => {
     m["study/N"].wall_segments = [{ from_m: 0, to_m: 1, kind: "wall" }];
   }),
   "meta.openings_list": () => tokensFromMetas((m) => { m["study/E"].openings = "op13"; }),
-  "meta.opening_rect": () => tokensFromMetas((m) => {
-    m["study/E"].openings = [{ id: "op13", via: "door1", x: 900, y: 300, w: 0, h: 500,
-      beyond_m: 8.6, beyond_offset_m: 1.1 }];
+  "meta.opening_rect": () => everyArm("meta.opening_rect", {
+    /* Four arms, and the case exercised one. A `NaN` x reaches `apertures()`
+       and the page's `go` hit-test; a zero-height opening is a doorway with no
+       door in it. */
+    zero_width: () => tokensFromMetas((m) => { m["study/E"].openings = [openingRect({ w: 0 })]; }),
+    zero_height: () => tokensFromMetas((m) => { m["study/E"].openings = [openingRect({ h: 0 })]; }),
+    not_finite: () => tokensFromMetas((m) => { m["study/E"].openings = [openingRect({ x: NaN })]; }),
+    not_a_number: () => tokensFromMetas((m) => { m["study/E"].openings = [openingRect({ w: "220" })]; })
   }),
   "meta.opening_via": () => tokensFromMetas((m) => { m["study/E"].openings[0].via = 7; }),
   /* An exit through neither a leaf nor a doorway. The harness reads an
@@ -305,10 +386,15 @@ const DOCUMENT_CASES = {
      out, which is why an off-frame opening is a real state of this document
      and not a contrived one — what is contrived here is only that an EXIT
      walks through it. */
-  "exit.opening_offscreen": () => tokensFromNavMetas((m) => {
-    for (const key of Object.keys(m)) {
-      for (const o of (m[key].openings || [])) o.x = 4000;
-    }
+  "exit.opening_offscreen": () => everyArm("exit.opening_offscreen", {
+    /* Four edges, and the case pushed the opening off ONE of them. A critic
+       dropped the vertical half of the clause and the suite stayed green: an
+       exit through a doorway above or below the frame is a way through nobody
+       can see or click, exactly as one past the side is. */
+    off_right: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.x = 4000; }); }),
+    off_left: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.x = -o.w - 10; }); }),
+    below_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = 4000; }); }),
+    above_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = -o.h - 10; }); })
   }),
   "meta.corner_pairing": () => tokensFromMetas((m) => { m["hall/S"].corner_x1_px = null; }),
   "meta.corner_order": () => tokensFromMetas((m) => {
@@ -753,6 +839,61 @@ test.describe("the clause ledger — renderer mechanisms", () => {
         .toBeLessThan(20000);
       expect(clean, "and the shipped renderer says nothing rather than guessing")
         .toBeGreaterThan(50000);
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  ledgerCase("renderer.through_view_refuses_nonfinite", async ({ page }) => {
+    /* [Round 4] THE OTHER ARM OF THE SAME FIX, and it had no case. The clause
+     * has two halves and they are different rules: an opening whose meta says
+     * NOTHING about what is beyond it (`null`) draws nothing and is silent —
+     * the case above — while one that says something that is not a distance is
+     * a FINDING, never a silent skip. That is row 19's rule applied here, and
+     * reverting it to the silent `return false` left the suite green: no
+     * shipped opening carries a bad `beyond_m`, so the throw's subject has to
+     * be built. `"8.6"` is the shape that arrives the day a meta is hand-edited
+     * or written by a host that stringified its numbers. */
+    const doctor = (v) => `o.beyond_m = ${JSON.stringify(v)};`;
+    const throwsFor = async (root, v) => await page.evaluate(async ({ src, root: r }) => {
+      void r;
+      const A = window.HOLO_APP;
+      const vs = { location: "study", facing: "E" };
+      const meta = JSON.parse(JSON.stringify(A.metaFor(vs)));
+      // eslint-disable-next-line no-new-func
+      (new Function("o", src))(meta.openings[0]);
+      const bd = {};
+      for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+      bd["study/E"] = { meta };
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      try {
+        window.HOLO.renderer.render(c, A.harness.world, A.harness.staging, A.library, bd, vs,
+          { backdrop_only: true });
+        return null;
+      } catch (e) { return String(e.message || e); }
+    }, { src: doctor(v), root });
+    const dir = stageWithout(
+      '      if (a.beyond_m !== null && a.beyond_m !== undefined) {\n' +
+      '        throw new Error("renderer: opening " + a.exit + " carries beyond_m " +\n' +
+      '          JSON.stringify(a.beyond_m) + " — a distance to the far wall must be a finite number");\n' +
+      '      }',
+      "      void a;");
+    try {
+      await page.goto(navUrl(repoRoot));
+      await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+      expect(await throwsFor(repoRoot, "8.6"),
+        "a distance that is not a number is a finding, not a shrug")
+        .toMatch(/beyond_m/);
+      expect(await throwsFor(repoRoot, -3),
+        "and neither is a wall behind the camera").toMatch(/beyond_m/);
+      expect(await throwsFor(repoRoot, null),
+        "while an opening that knows nothing is silent, which is the other arm").toBeNull();
+
+      await page.goto(navUrl(dir));
+      await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+      expect(await throwsFor(dir, "8.6"),
+        "with the throw gone the picture skips it in silence").toBeNull();
     } finally {
       removeTree(dir);
     }
@@ -1533,6 +1674,82 @@ const SEGMENTED_META_FOR_STUDY_E = (() => {
 })();
 
 /* --------------------------------------------------------------- the ledger */
+
+/* THE PROMPT LINT IS A VALIDATOR, so its clauses are ledger mechanisms.
+ *
+ * It refuses an artifact BEFORE it is made rather than after, which is the
+ * production law's own remedy — a cause baked in algorithmically rather than
+ * left in a transcript — and that is the same job the fixture validator does
+ * one step later. Its behavioural discrimination against real and adversarial
+ * prompts lives in `plan.spec`; what these four owe is the ledger's own
+ * property: each clause fires ALONE on an input that commits exactly its
+ * fault. */
+test.describe("the clause ledger — prompt-lint mechanisms", () => {
+  const LINT = join(repoRoot, "design", "plan-draft", "measured", "prompt_lint.py");
+
+  function lintTokens(lines) {
+    const dir = mkdtempSync(join(tmpdir(), "holo-lintcase-"));
+    const f = join(dir, "case.prompt.txt");
+    try {
+      writeFileSync(f, lines.join("\n") + "\n");
+      let out = "";
+      try {
+        out = execFileSync("python3", [LINT, f], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+      expect(out, "the lint did not run").toMatch(/prompt\(s\) refused/);
+      return [...tokensOf([out])].sort();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  const GOOD_ANCHOR = "Gate anchor: the door opening's height at the wall plane, 2.00 m";
+
+  ledgerCase("prompt.no_gate_anchor", () => {
+    expect(lintTokens([
+      "Asset type: backdrop candidate for the study east facing",
+      "Geometry: the wall is centred and both corners are in frame."
+    ]), "a prompt that names no ruler leaves the gate to find one in the picture")
+      .toEqual(["prompt.no_gate_anchor"]);
+  });
+
+  ledgerCase("prompt.contradictory_scale", () => {
+    expect(lintTokens([
+      GOOD_ANCHOR,
+      "Targeted correction: move the camera closer until the wall spans about 1346 pixels.",
+      "Avoid: changing the camera scale, fisheye, rim light."
+    ]), "a re-ask that forbids the correction it asks for is not a re-ask")
+      .toEqual(["prompt.contradictory_scale"]);
+  });
+
+  ledgerCase("prompt.unmeasurable_by_design", () => {
+    /* THIS ONE FIRES AS A PAIR, by construction rather than by accident: its
+       own precondition is that the prompt has no usable anchor, which is what
+       `prompt.no_gate_anchor` says. Asserting the pair is the honest exclusivity
+       for a clause whose subject includes another clause's; what makes the case
+       evidence is the discrimination below — the same forbidding frame with a
+       ruler in it trips neither. */
+    expect(lintTokens([
+      "Asset type: a flat wall band",
+      "Hard camera geometry: NO ceiling line. NO corners in frame.",
+      "Critical constraints: no feature, carrier, opening, or decoration."
+    ]), "a frame with nothing of ruled size in it can never be admitted")
+      .toEqual(["prompt.no_gate_anchor", "prompt.unmeasurable_by_design"]);
+    expect(lintTokens([
+      GOOD_ANCHOR,
+      "Hard camera geometry: NO ceiling line. NO corners in frame."
+    ]), "and the same frame with a declared ruler in it is measurable")
+      .toEqual([]);
+  });
+
+  ledgerCase("prompt.anchor_datum_forbidden", () => {
+    expect(lintTokens([
+      "Gate anchor: wainscot chair-rail at exactly 0.95m above the floor, running the full wall",
+      "Geometry: No floor, no ceiling, and no corners appear."
+    ]), "a height above a floor the frame forbids is not a length in that frame")
+      .toEqual(["prompt.anchor_datum_forbidden"]);
+  });
+});
 
 test("the ledger is complete: every declared mechanism has a case, and every case a mechanism", () => {
   /* THE STRUCTURAL HALF, and row 11 built it wrong the first time: `cased` was

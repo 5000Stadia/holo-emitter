@@ -2701,7 +2701,25 @@ def main():
                     help="cand2 (default) is row 21's promotion round; cand1 "
                          "reproduces row 20's; cand3 gates the universal-anchor "
                          "round, which promotes nothing.")
+    # WRITE SOMEWHERE ELSE, so a run can be COMPARED rather than trusted. Every
+    # number the promoted meta is derived from lives in the JSONs this script
+    # writes, and until row 21's close nothing re-derived them: a critic moved
+    # the control's committed pixel values and the whole suite stayed green,
+    # because 1400 lines of measurement were executed by no test at all. The
+    # suite runs this into a scratch directory and byte-compares, which is the
+    # same staleness shape `fixture.js`, `baked.js` and the promoted meta
+    # already answer to.
+    ap.add_argument("--out", default=None, metavar="DIR",
+                    help="write the round's artifacts here instead of beside "
+                         "this script (marked frames go to DIR/marked).")
     args = ap.parse_args()
+    global OUT, MARKED
+    if args.out:
+        OUT = os.path.abspath(args.out)
+        MARKED = os.path.join(OUT, "marked")
+        for d in (OUT, MARKED):
+            if not os.path.isdir(d):
+                os.makedirs(d)
     if args.round == "cand1":
         main_cand1()
         return 0

@@ -203,6 +203,29 @@ test.describe("the painted world a visitor opens", () => {
       "the developer detail is on the console and nowhere else").toBe(true);
   });
 
+  test("and an id that merely BEGINS with a world's name is not that world", async ({ page }) => {
+    /* [Round 4] The pattern was unanchored at its tail, so `?world=` matched a
+       PREFIX: `nav-manor.evil` booted the painted world and `demo-study.evil`
+       booted the furnished one, in silence. The case above could never see it,
+       because it only ever asked for an id made entirely of the characters the
+       pattern's own class admits — the grammar was its own alibi. These two
+       ask for names the page does not carry, in the shape that walked through
+       it. */
+    for (const id of ["nav-manor.evil", "demo-study.evil", "nav-manor "]) {
+      await page.goto(navUrl() + "?world=" + encodeURIComponent(id));
+      await page.waitForTimeout(300);
+      const st = await page.evaluate(() => ({
+        app: !!window.HOLO_APP,
+        booted: window.HOLO_FIXTURE ? true : false,
+        lines: [...document.querySelectorAll("#narration p")].map((p) => p.textContent)
+      }));
+      expect(st.app, `"${id}" booted something — the page carries no such world`).toBe(false);
+      expect(st.booted, `"${id}" resolved to a fixture`).toBe(false);
+      expect(st.lines, `"${id}" is refused in the product's voice like any other unknown id`)
+        .toEqual(["The projection will not hold. Nothing of this place can be shown."]);
+    }
+  });
+
   test("bare wall means nothing: dead space is dead in an empty world too", async ({ page }) => {
     await page.goto(navUrl());
     await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);

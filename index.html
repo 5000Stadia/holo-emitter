@@ -352,8 +352,18 @@
     var fixtures = window.HOLO_FIXTURES || {};
     var wanted = DEFAULT_WORLD;
     try {
-      var q = /[?&]world=([A-Za-z0-9_-]+)/.exec(window.location.search || "");
-      if (q) wanted = q[1];
+      /* THE VALUE IS THE WHOLE VALUE, and the anchors are the point. This
+         pattern was unanchored at its tail, so it matched a PREFIX: `?world=
+         nav-manor.evil` booted `nav-manor` and `?world=demo-study.evil` booted
+         the furnished world, both in silence — a page booting something other
+         than what it was asked for, which is the one thing the paragraph above
+         says it must never do. The test written for it only ever passed ids
+         made entirely of the characters this class admits, so the grammar was
+         its own alibi. Read to the end of the parameter (`&` or the end of the
+         string) and take it whole; an id carrying anything else is unknown and
+         takes the boot surface, exactly as a misspelling does. */
+      var q = /[?&]world=([^&]*)/.exec(window.location.search || "");
+      if (q) wanted = decodeURIComponent(q[1]);
     } catch (ignored) { /* no location to read: the default stands */ }
     var fixture = fixtures[wanted];
     if (!fixture) {
