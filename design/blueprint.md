@@ -1160,6 +1160,14 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
     scale; `hall/N` and `hall/S` were prompted with *"NO floor line … NO corners in frame"* on a
     wall with *"no feature, carrier, opening, or decoration"*, the paintings obeyed exactly, and
     both are WITHHELD in the miss ledger for want of a ruler our own prompt forbade.
+  - *And every wall carries one by construction* [Navigator ruling, 2026-08-22, on the cand-3
+    re-ask]: **the wainscot chair-rail stands at exactly 0.95 m above the floor on every panelled
+    wall in the manor**, deliberately featureless bands included. It is period-honest joinery, it
+    is measurable on any wall that has panelling at all, and it makes MEASURABILITY A PROPERTY OF
+    THE WALL SPECIFICATION rather than of whichever feature a prompt happened to ask for — which
+    is what the WITHHELD class was telling us. The 0.90 m panelling module measured on the cand-1
+    corpus was an inference from four facings that disagreed by ±7 %; this is a ruled dimension the
+    paintings are asked for, and it supersedes that inference wherever a wall is painted to it.
   - *Do not forbid the correction.* Five of the seven carried `Avoid: changing the camera scale`
     in one paragraph and *"move the camera closer until the wall spans about 1346 px"* in the
     next. The negative won every time: `study/E` and `study/W` came back corner-for-corner

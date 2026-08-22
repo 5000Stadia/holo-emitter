@@ -566,6 +566,43 @@ test.describe("the door, from the pointer", () => {
     expect(s.lastEnvelope.intent).toEqual({ type: "go", exit: "door_study_hall" });
   });
 
+  /* [ROW 21] A SHUT DOOR SHOWS NO ROOM. The leaf is a sprite with its own alpha
+   * and it does not fill its placement rectangle to the pixel, so drawing the
+   * lit room beyond it regardless would leak a slice of the next room around
+   * the edges of a door the document has shut — the picture asserting a way
+   * through that the world does not hold. Measured inside the opening: with the
+   * door shut the passage behind it is not there, and opening it brings it. */
+  test("the room beyond appears when the door opens, and not before", async ({ page }) => {
+    await page.goto(appUrl());
+    await page.keyboard.press("ArrowRight");
+    const read = () => page.evaluate(() => {
+      const A = window.HOLO_APP, T = window.__T;
+      const vs = A.harness.viewstate;
+      const meta = T.metaOf(vs);
+      const ap = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+      /* The LIVE world, not the baked one: `renderDirect` renders
+         `HOLO_FIXTURE`, where the door is still shut whatever the player has
+         done, and this case is about what the player has done. */
+      const c = T.renderW(A.harness.world, A.harness.staging, vs, { backdrop_only: true });
+      const d = c.getContext("2d").getImageData(
+        Math.round(ap.x), Math.round(ap.y), Math.round(ap.w), Math.round(ap.h)).data;
+      let sum = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      }
+      return { mean: sum / (d.length / 4), state: A.harness.world.entities.find((e) => e.id === "door1").state };
+    });
+    const shut = await read();
+    expect(shut.state, "the door starts shut").toBe("closed");
+    await openTheDoor(page);
+    const open = await read();
+    expect(open.state).toBe("open");
+    expect(open.mean - shut.mean,
+      `the passage shows through an opened door: ${shut.mean.toFixed(1)} -> ${open.mean.toFixed(1)} mean luminance inside the opening`)
+      .toBeGreaterThan(3);
+  });
+
   test("clicking the opening of a SHUT door toggles it, and never travels", async ({ page }) => {
     await page.goto(appUrl());
     await page.keyboard.press("ArrowRight");

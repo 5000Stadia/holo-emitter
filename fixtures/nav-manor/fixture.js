@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "731d5bcb",
+  fp: "6305b777",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -82,6 +82,12 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "backdrop": "wall",
     "focal_px": 1010.2,
     "nearest_floor_m": 2.2295,
+    "measured_room": {
+      "storey_height_m": 2.997,
+      "wall_width_m": 5.37,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.45
+    },
     "openings": []
   },
   "study/E": {

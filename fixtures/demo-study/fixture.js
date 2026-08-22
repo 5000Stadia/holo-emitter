@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "ee44cd4a",
+  fp: "1176f82c",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -178,6 +178,12 @@ window.HOLO_FIXTURES["demo-study"] = {
     "backdrop": "wall",
     "focal_px": 1010.2,
     "nearest_floor_m": 2.2295,
+    "measured_room": {
+      "storey_height_m": 2.997,
+      "wall_width_m": 5.37,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.45
+    },
     "openings": []
   },
   "study/E": {

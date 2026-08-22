@@ -192,6 +192,9 @@ const META_KEYS = [
   // painted backdrop (row 20) or derived from the plan
   "camera_id", "provisional", "measured", "backdrop",
   "focal_px", "nearest_floor_m",
+  // [row 21] the room the PAINTING depicts, beside the room the plan rules —
+  // informational, warn-tier, and never read by the renderer
+  "measured_room",
   // row 20: the painted doorway, measured off the backdrop. Where a meta
   // carries this, the aperture a player walks through IS the painted opening
   // and §11's "the painted opening must coincide with the click target" is

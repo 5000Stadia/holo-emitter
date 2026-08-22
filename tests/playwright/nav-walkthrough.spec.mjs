@@ -154,6 +154,33 @@ test.describe("the painted world a visitor opens", () => {
       .toBe("You pass back into the study, where ink and oak dust close about you again.");
   });
 
+  test("the doorway is reachable by keyboard alone, and it is named for what it is", async ({ page }) => {
+    /* Row 10's law: every intent a pointer can emit is reachable by keyboard
+       alone. [Row 21] The go-control used to be built only where a LEAF stood
+       open in the opening, so an empty painted room would have been walkable
+       by mouse and by nothing else — and its name comes from the leaf's own
+       noun, which an unfilled doorway does not have. */
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    await page.keyboard.press("ArrowRight");
+    const labels = await page.evaluate(() =>
+      [...document.querySelectorAll("#entity-controls button")]
+        .map((b) => b.getAttribute("aria-label")));
+    expect(labels, "one control, for the one thing on this facing you can do")
+      .toEqual(["walk through the doorway"]);
+    let focused = null;
+    for (let i = 0; i < 12; i++) {
+      await page.keyboard.press("Tab");
+      focused = await page.evaluate(() =>
+        document.activeElement && document.activeElement.getAttribute("aria-label"));
+      if (focused === "walk through the doorway") break;
+    }
+    expect(focused, "the doorway takes focus by Tab alone").toBe("walk through the doorway");
+    await page.keyboard.press("Enter");
+    expect((await state(page)).viewstate, "and Enter walks through it")
+      .toEqual({ location: "hall", facing: "E" });
+  });
+
   test("bare wall means nothing: dead space is dead in an empty world too", async ({ page }) => {
     await page.goto(navUrl());
     await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);

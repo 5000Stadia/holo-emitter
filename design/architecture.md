@@ -1143,6 +1143,22 @@ inside the band blueprint §5 admits, and it is the shape of the defect row 20 r
 facing at a time. It closes when the room is wholly painted; until then a room may be half-promoted
 and this paragraph is the record that it was a decision.
 
+### The room the painting depicts is not quite the room the plan rules, and that is WARN-TIER
+
+`study/N` paints a **3.00 m storey against a ruled 2.80** and a **5.37 m wall against a ruled
+5.45**; `study/E` and `study/W` draw the room's east and west walls 5.07 m and 5.34 m wide against
+a ruled 4.80. The promoted meta records both halves — the plan's numbers in the fields the renderer
+reads, the painting's own in `measured_room`, which nothing reads — and `gate.py` prints them under
+a `warn` heading that never touches its exit code.
+
+**Ruled WARN-TIER by the Navigator, 2026-08-22, on three grounds**: a per-facing MEASURED meta
+already reconciles scale and sprites, so nothing composited missizes (px_per_m is read off the
+painting, not assumed); the plan stays truth for topology; and the cross-facing disagreement at the
+corners is below perception at this V-stage. It may not become a failing clause until it has been
+clocked against the production law's fifth clause. **What it is for meanwhile**: a camera re-ask
+that fixes only the camera keeps every one of these, so the number has to be visible when the next
+round is judged.
+
 ### `key_dir` on a painted facing is what the painting does, not what §5 hoped
 
 The promoted meta carries `key_dir: "L-BELOW"`, not §5's `"UL"`. The brightest patch in the approved

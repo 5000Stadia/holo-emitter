@@ -102,6 +102,43 @@ def main(argv):
         else:
             print("%-9s %9.2f %10.2f %10.1f %10.0f   %s"
                   % (fac, d, ppm, REFERENCE_PX / d, focal, verdict))
+    # ---------------------------------------------------------- WARN tier
+    # THE ROOM THE PAINTING DEPICTS, against the room the plan rules. This
+    # never fails and never will until it has been clocked: the Navigator
+    # ruled it WARN-TIER on 2026-08-22, on the grounds that a per-facing
+    # MEASURED meta already reconciles scale and sprites (nothing composited
+    # missizes, because px_per_m is read off the painting), the plan stays
+    # truth for topology, and the cross-facing disagreement at the corners is
+    # below perception at the current V-stage. It is printed because the
+    # approved study/N paints a 3.00 m storey against a ruled 2.80 and the
+    # study's side walls draw ~5.1-5.3 m against a ruled 4.80 -- a camera
+    # re-ask that fixes only the camera keeps every one of those.
+    warns = []
+    for fac, d in sorted(dist.items()):
+        if want and fac not in want:
+            continue
+        loc, f = fac.split("/")
+        path = os.path.join(HERE, "%s-%s.json" % (loc, f))
+        if not os.path.exists(path):
+            continue
+        m = json.load(open(path))
+        der = m.get("_derived") or {}
+        plan = m.get("_plan") or {}
+        st, wd = der.get("storey_height_m"), der.get("implied_wall_width_m")
+        ruled_st = plan.get("storey_m")
+        ruled_wd = plan.get("wall_width_m")
+        if st and ruled_st:
+            warns.append("%-9s storey %.2f m painted against %.2f m ruled (%+.1f%%)"
+                         % (fac, st, ruled_st, 100 * (st - ruled_st) / ruled_st))
+        if wd and ruled_wd:
+            warns.append("%-9s wall   %.2f m painted against %.2f m ruled (%+.1f%%)"
+                         % (fac, wd, ruled_wd, 100 * (wd - ruled_wd) / ruled_wd))
+    if warns:
+        print("\nwarn (the ROOM the painting depicts, never a verdict -- ruled "
+              "warn-tier 2026-08-22 and unclocked):")
+        for w in warns:
+            print("  " + w)
+
     bad = [r for r in rows if not r[4].startswith("PASS")]
     withheld = [r for r in rows if r[4] == "WITHHELD"]
     print("\n%d of %d admitted, %d withheld (no verdict is possible from those "

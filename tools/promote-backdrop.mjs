@@ -139,8 +139,29 @@ const meta = {
   backdrop: fc.type === "open" ? "vista" : "wall",
   focal_px: round(focal, 1),
   nearest_floor_m: null,
+  /* THE ROOM THE PAINTING DEPICTS, beside the room the plan rules — recorded
+   * because they disagree and the disagreement must not live only in a gate's
+   * printout. `study/N` paints a 3.00 m storey against a ruled 2.80 and a
+   * 5.37 m wall against a ruled 5.45. The fields the renderer reads stay the
+   * PLAN's, because topology and the metres a sprite is sized in are the
+   * building's; these two are the painting's own, and they are informational.
+   * Ruled WARN-TIER by the Navigator 2026-08-22: a measured meta reconciles
+   * scale and sprites by construction, so nothing composited missizes, and the
+   * clause may not become a failure until it has been clocked. */
+  measured_room: {
+    storey_height_m: round(m._derived.storey_height_m, 3),
+    wall_width_m: m._derived.implied_wall_width_m == null ? null
+      : round(m._derived.implied_wall_width_m, 3),
+    ruled_storey_height_m: meta_storey_ruled(),
+    ruled_wall_width_m: fc.wall_width_m
+  },
   openings: []
 };
+function meta_storey_ruled() {
+  const r = (plan.rooms || []).find((x) => x.id === loc);
+  const f2 = (plan.floors || []).find((x) => x.id === (r && r.floor));
+  return (f2 && f2.storey_height_m != null) ? f2.storey_height_m : null;
+}
 
 /* The building's own half, taken from the plan rather than from the painting:
  * a wall's width, a room's height and where its doorways stand are facts the
