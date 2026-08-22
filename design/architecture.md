@@ -2300,9 +2300,14 @@ them. Printed by the bake, carried into `projection.md` §10, batched.
    Allocated as its own row rather than absorbed here.
 4. **The screen-reader silence covers ~86 of 88 facings now.** Row 21 recorded it on seven of eight;
    this row multiplies it and hands it to **row 10** with its new size named in that row's text.
-5. **Arrival is still at the far side of the destination room.** §4b item 9's [HUMAN] *"you arrive
-   IN the door"* is deferred by Navigator ruling (above); what this row owes it is the evidence, and
-   the arrival displacement per exit is in the batch.
+5. **Arrival is still at the far side of the destination room, and here is the number that will
+   decide it.** §4b item 9's [HUMAN] *"you arrive IN the door"* is deferred by Navigator ruling
+   (above); what this row owes it is the evidence. Measured from each opening's own centre to the
+   standpoint it arrives at, over the 53 ways through that have a rect: median **2.23 m**, minimum
+   0.45 m, maximum **5.46 m**, with six over 5 m — all six into a court or a garden. So the manor
+   does not teleport a player across a hall (the standpoint law stands back to clear masonry, not to
+   the far wall), and on a large room the door is a body's length or two behind the shoulder with
+   only the arrival line saying so. That is the size of the thing item 9 would fix.
 6. **112 lines of arrival and refusal prose are held by a distinctness test they satisfy by
    construction.** Every line names both rooms, so pairwise distinctness proves nothing about taste.
    The whole transcript is in the batch as `TRANSCRIPT.md` for a human to read in one sitting.

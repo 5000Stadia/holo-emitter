@@ -68,8 +68,12 @@ facings over 12 m, 10 over 15 m**). Two consequences you can see and one you can
 - eight facings show more side wall than facing wall and read as corridor ends although their rooms
   are not corridors: `garden_room/E,W` and `closet_chamber/E,W` at 64 %, `entrance_court/E,W` at
   61 %, `privy_garden/E,W` at 76 %. Every one is a narrow room seen along its long axis;
-- and arrival puts you at the FAR side of the room you enter, so walking into the great hall crosses
-  it instantly and leaves the door 8.85 m behind your shoulder.
+- and arrival puts you at the FAR side of the room you enter. Measured over the 53 ways through
+  that have a rect to measure from: you land a median **2.23 m** past the opening you came through,
+  and on six of them more than 5 m (worst 5.5 m, into the privy garden). Nobody is teleported across
+  a hall — the standpoint law pulls back to clear masonry, not to the far wall — but on a big room
+  the door is a body's length or two behind your shoulder, and the arrival line is the only thing
+  that says so.
 
 A cap on the stand-back is a rule for the document and it is yours to set. So is the alternative,
 which is §4b item 9's several standpoints per room — that one moves the drawn plan and would come
