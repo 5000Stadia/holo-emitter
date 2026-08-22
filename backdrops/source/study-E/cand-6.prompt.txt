@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: gameplay backdrop for the study east wall
+Input images: Image 1 is the canonical reference for the standing-adult-eye camera, level horizon, perspective feel, style, materials, palette, lighting, and fine oil finish. Image 2 is an architecture and composition reference for this east wall only.
+Primary request: Generate the east wall of the same empty circa-1660 English manor study.
+Camera and composition: 1536x1024 landscape. Place the camera exactly 4.09m straight back from the east wall, at the same 1.65m standing eye height, perfectly level orientation, horizon, field of view, and floor-to-wall perspective as Image 1. Show the complete east wall with both room corners and substantial side-wall returns visible.
+Architecture: A pale stone-cased doorway stands in the wall. Its clear opening is exactly 1.0m wide and exactly 2.0m tall. It has no door leaf, and a dark passage is visible beyond.
+Measurement anchor: The wainscot chair-rail is exactly 0.95m above the floor and reads clearly as the wall's measuring line, aligned across every exposed wall surface from corner to corner and on both sides of the doorway.
+Style and materials: Match Image 1 exactly: dark hand-finished oak paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, pale carved stone, fine oil realism, tactile material grain, restrained cool ambient light, subtle warm spill, and calm seventeenth-century atmosphere.
+Constraints: The room is completely empty of furniture, loose props, people, text, signs, and decorative clutter. No watermark or border.

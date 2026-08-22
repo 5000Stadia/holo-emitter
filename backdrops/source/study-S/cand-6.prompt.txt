@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: gameplay backdrop for the study south wall
+Input images: Image 1 is the canonical reference for the standing-adult-eye camera, level horizon, perspective feel, style, materials, palette, lighting, and fine oil finish. Image 2 is an architecture and composition reference for this south wall only.
+Primary request: Generate the south wall of the same empty circa-1660 English manor study.
+Camera and composition: 1536x1024 landscape. Place the camera exactly 3.85m straight back from the south wall, at the same 1.65m standing eye height, perfectly level orientation, horizon, field of view, and floor-to-wall perspective as Image 1. Show the complete south wall with both room corners and substantial side-wall returns visible.
+Architecture: Build exactly three equal architectural window bays and no additional bay. Each bay spans exactly 0.90m between its mullion centres. Give all three bays identical width, height, sill line, mullion rhythm, and leaded glazing. A continuous architectural window-seat sill runs beneath them. Cool daylight enters through the glass.
+Measurement anchor: The wainscot chair-rail is exactly 0.95m above the floor and reads clearly as the wall's measuring line, aligned across the full wall and continuously legible below the window-seat sill.
+Style and materials: Match Image 1 exactly: dark hand-finished oak paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, historic leaded glass, fine oil realism, tactile material grain, restrained cool daylight, and calm seventeenth-century atmosphere.
+Constraints: The room is completely empty of furniture, loose props, people, text, signs, and decorative clutter. The window-seat sill is built architecture. No watermark or border.

@@ -1,0 +1,9 @@
+Use case: historical-scene
+Asset type: gameplay backdrop looking west down the passage
+Input images: Image 1 is the canonical reference for the standing-adult-eye camera, level horizon, perspective feel, style, materials, palette, lighting, and fine oil finish. Image 2 is an architecture and composition reference for this westward corridor view only.
+Primary request: Generate the westward view down the same empty circa-1660 English manor passage.
+Camera and composition: 1536x1024 landscape. Center the camera in the corridor exactly 6.0m from the west end wall, at the same 1.65m standing eye height and perfectly level orientation as Image 1. Preserve Image 1's horizon and natural rectilinear perspective feel. The corridor is exactly 2.6m wide. Show the west end wall, both long side walls converging naturally toward it, and clearly visible ceiling and floor.
+Architecture and light: A pale stone-cased open doorway stands in the west end wall with no door leaf. Warm firelight spills through the opening and travels across the oak floor, while the passage remains restrained and atmospheric.
+Measurement anchor: The wainscot chair-rail is exactly 0.95m above the floor and reads clearly as the measuring line on both converging side walls and the exposed portions of the end wall, with consistent alignment through the perspective.
+Style and materials: Match Image 1 exactly: dark hand-finished oak paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, pale carved stone, fine oil realism, tactile material grain, localized amber firelight, and calm seventeenth-century atmosphere.
+Constraints: The passage is completely empty of furniture, loose props, people, text, signs, and decorative clutter. No watermark or border.
