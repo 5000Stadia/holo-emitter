@@ -1263,6 +1263,15 @@ blank wall: the fixture validator refuses an exit whose `via` resolves to neithe
 transition entity nor an opening the facing's meta carries (`[row21:exit.via_unfilled]`), and one
 whose opening is off the frame (`[row21:exit.opening_offscreen]`).
 
+**A meta carries every door the plan puts on that facing, and the renderer cuts a hole only where
+the WORLD says there is a way through.** The cross passage's north wall carries `op15` and its south
+wall `op14`, neither of which any exit names; they appear in the meta as geometry with `via: null`
+and are painted as plain wall, which is row 11's omission census unchanged (`geometry.spec` computes
+that list from the plan and pins it, so a carrier the plan gains cannot quietly become blank wall).
+Neither reading of the alternative is available: cutting them would show void through a doorway the
+document cannot walk you through, and dropping them from the meta would lose the fact that the
+building has them.
+
 `enumerateNarrationDomain` no longer enumerates `go.<exit>.refused_closed` where no leaf exists —
 the predicate is the one `handleGo` reads, so the navigation world is not asked to author a line for
 a refusal it cannot emit.
