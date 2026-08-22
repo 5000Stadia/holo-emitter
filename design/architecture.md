@@ -2110,7 +2110,12 @@ or it is a finding by itself. **And the matcher that finds them carries no typed
 own**: the first version was `/\[row\d*:?([^\]\n]{0,80})…/` and a critic escaped it twice, once
 with an uppercase prefix and once with a 94-character body — each escape the exact shape the case
 was written to close, one level out. It is `/\[row\d/gi` now, the opening shape alone, and the rest
-of the line is the case's problem rather than the pattern's.
+of the line is the case's problem rather than the pattern's. **The regress has one step left and it
+is the digit**, verified by the critic who closed the other two: `[row:meta.noDigit]`,
+`[rowXX:meta.foo]`, and a tag assembled at runtime (`` `[row${N}:meta.sneaky]` ``) are all invisible
+to the strict scan, the count and the loose case alike. None is a way anyone would write an emit
+tag, which is why it is recorded here rather than fixed — but the record must not say this bottomed
+out when it did not.
 
 **Findings recorded rather than fixed, and here is why.**
 
@@ -2140,16 +2145,33 @@ of the line is the case's problem rather than the pattern's.
   as expensive to switch off and made the skips visible, which is real, but the shape is unchanged:
   the row's own target — *"the row closes on Kabe's word on that batch"* — has no representation any
   check can read. **The representation is coming and it is not this row's to build**: the Navigator
-  is standing up `design/approvals.log`, a committed ledger of every human gate verdict with its
-  date, his verbatim word, its scope and the commit it was given against. Once it exists the lock's
-  requirement becomes a POSITIVE assertion — the gate retires when the ledger records a verdict, not
-  when a directory stops existing — and wiring this check to it is inherited by the promotion row.
+  stood up **`design/approvals.log` at `078aee0`** — a committed ledger of every human gate verdict
+  with its date, his verbatim word, its scope and the commit it was given against, and the row-20
+  batch's own entry sits in it reading `pending-close`. That file is G2's root. The lock's
+  requirement becomes a POSITIVE assertion against it — the gate retires when the ledger records a
+  verdict, not when a directory stops existing — and **wiring this check to that file is row 21's**,
+  named here because the ledger is the root and this check is its first consumer.
 - **[Round 7, G5] Nothing distinguishes an agent editing blueprint §5's number from Kabe ruling
   it.** Moving `MEASURED_BAND`, `gate.py`'s `BAND` and the blueprint sentence together is green, and
   correctly so: the blueprint is the ruling document and reading the law from it is the right
   architecture. Recorded because the parse also makes that sentence's exact markdown
   (`**±3 % of 1010 px**`) load-bearing without the blueprint saying so, and because the same
   approvals ledger is what would eventually distinguish the two edits.
+- **[Round 7, H1] A derived caption reproduces an error as faithfully as a truth.** The first
+  derived clause counted over the whole manor and said *"of the 88 facings this sheet draws"*, while
+  `manor-ground` draws 56 and `manor-upper` 32 — so both sheets printed a number that was false for
+  the paper in the reader's hands, and the byte-check guaranteed the lock reproduced it. Deriving a
+  claim removes the author's ability to negate it; it does not make the claim true, and for one
+  commit it removed everyone's ability to notice. **The words are scoped to the manor now, so they
+  are true wherever they are printed** — the alternative, a per-sheet count off the `floor` column,
+  stays available and is what to reach for if the clause ever names something a sheet holds only
+  part of. The lock's own commentary carried a *"Forty-two of the manor's eighty-eight"* beside it
+  that was no baseline's answer, so every facing count that file states, anywhere in it, is now the
+  computed one.
+- **[Round 7] `walkthrough.spec`'s highlight-stall case is timing-sensitive on Firefox.** It failed
+  once during a 2.8-minute run of a suite that normally takes 1.6, on a machine loaded by a parallel
+  capture, and passed alone and in two clean full runs after. Pre-existing, outside row 20, recorded
+  because a red suite was seen and a green one must not be reported in its place.
 - **[Round 7, G6] The batch README's BEFORE column of *"the symptom, as a number"* is unread.**
   `geometry.spec` asserts the after values and says honestly of the before ones that they are
   *"quoted here as the before, not asserted"* — but the batch quotes them to Kabe in a table. The

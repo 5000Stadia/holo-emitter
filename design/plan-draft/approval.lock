@@ -60,10 +60,14 @@
 # What changed in the drawing: every facing whose viewed wall does not fit the
 # frame from its drawn standpoint now stands at the far side of its room
 # instead - 0.45 m off the wall behind it, pulled forward where a hearth or a
-# stair flight is in the way. Forty-two of the manor's eighty-eight standpoints
-# moved, all of them BACKWARD, and their printed distances moved with them.
-# Nothing else the sheets draw changed: no wall, no opening, no window, no
-# hearth, no stair, no room.
+# stair flight is in the way. The printed distances moved with the standpoints,
+# on 38 of the manor's 88 facings - and that count is the one the `pending`
+# line below carries, because it is the same computation. It read "Forty-two of
+# the manor's eighty-eight" until a critic checked it against every plausible
+# baseline and got 38 from all of them: a number typed into a comment, read by
+# nothing, eighteen lines above a derived line that disagreed with it. Nothing
+# else the sheets draw changed: no wall, no opening, no window, no hearth, no
+# stair, no room.
 #
 # The authority: Kabe's approval of the perspective preview frames on
 # 2026-08-21 - "If so full steam ahead, lets build this thing" - which blessed
@@ -88,4 +92,4 @@
 #
 plan  ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065  2026-08-21
 undrawn  61d2f004702e88b694a4d71898f64b3f009310045e6668e42635d61b7008ebf6
-pending  the standpoint distances on 38 of the 88 facings this sheet draws, changed since the sheet he approved
+pending  the standpoint distances on 38 of the manor's 88 facings, changed since the sheet he approved

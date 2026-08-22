@@ -2027,8 +2027,18 @@ test.describe("the schematic is a derived render of the plan", () => {
       if (differs) moved.push(fam);
     }
     if (!moved.length) return { moved, sentence: null };
+    /* "the manor's N facings", never "this sheet draws". The count is over the
+       whole table and BOTH sheets print the clause, so a per-sheet phrasing is
+       false on both of them: manor-ground draws 56 facings, manor-upper 32,
+       and a person holding the ground sheet was being told it drew 88. The
+       derivation removed the author's ability to negate the caption and, for
+       one commit, everyone's ability to notice it was inaccurate — a byte-check
+       reproduces an error as faithfully as a truth. Either the count is scoped
+       to the sheet or the words are true wherever they are printed; this takes
+       the second, and the test compares against the same scoping the sheet
+       prints. */
     const sentence = `${moved.map((f) => f.said).join(" and ")} on `
-      + `${changedRows.size} of the ${now.length - 1} facings this sheet draws, `
+      + `${changedRows.size} of the manor's ${now.length - 1} facings, `
       + `changed since the sheet he approved`;
     return { moved, sentence };
   }
@@ -2050,6 +2060,24 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(scope,
       `approval.lock's \`pending\` line is not the derived scope. Write exactly:\n\npending  ${d.sentence}\n\nand re-run draw_plan.py and render.sh. The line is computed from standpoints.tsv against ${SEEN_SHEET_COMMIT}, not composed — a clause a person writes is a clause a person can negate.`)
       .toBe(d.sentence);
+
+    /* AND THE LOCK'S OWN PROSE MAY NOT CONTRADICT IT. The commentary above the
+       clause read "Forty-two of the manor's eighty-eight standpoints moved" —
+       forty-two is not any baseline's answer (38 against every pre-row-20
+       commit, 0 against every post-row-20 one), and it sat eighteen lines above
+       a derived line saying 38, in the file whose new paragraph argues that
+       human-authored prose cannot carry the claim. Any count of facings this
+       file states, anywhere in it, is the computed one. */
+    const lock = readFileSync(join(draftDir, "approval.lock"), "utf8");
+    const counted = [...lock.matchAll(/(\d+) of the manor's (\d+) facings/g)]
+      .map((m) => `${m[1]} of the manor's ${m[2]} facings`);
+    expect(counted.length,
+      "approval.lock states no facing count at all — the clause itself carries one, so this comparison has lost its subject")
+      .toBeGreaterThan(0);
+    for (const c of counted) {
+      expect(d.sentence, `approval.lock states "${c}", which is not what the delta computes`)
+        .toContain(c);
+    }
   });
 
   test("the derived drawing's geometry is Kabe's approved geometry, unchanged", () => {
