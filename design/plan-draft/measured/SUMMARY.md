@@ -125,34 +125,50 @@ sizes, and column `conf` says how much to trust each.
 
 ### C. Implied focal length
 
-| facing | px/m at wall | plan standpoint m | px/m x standpoint | vs 1024 px |
-|---|---|---|---|---|
-| `study/N` | 232.22 | 3.60 | **836** | -18.4 % |
-| `study/E` | 235.00 | 4.09 | **961** | -6.1 % |
-| `study/S` | 196.67 | 3.60 | **708** | -30.9 % |
-| `study/W` | 237.78 | 4.09 | **973** | -5.0 % |
-| `hall/N` | 255.56 | 1.95 | **498** | -51.3 % |
-| `hall/E` | 151.11 | 6.00 | **907** | -11.5 % |
-| `hall/S` | 288.89 | 1.95 | **563** | -45.0 % |
-| `hall/W` | 136.00 | 6.00 | **816** | -20.3 % |
+| facing | px/m at wall | standpoint AS RULED FOR THIS RUN m | px/m x that | vs 1024 px | standpoint IN standpoints.tsv NOW m | px/m x that | vs 1024 px |
+|---|---|---|---|---|---|---|---|
+| `study/N` | 232.22 | 3.60 | **836** | -18.4 % | 4.35 | **1010** | -1.4 % |
+| `study/E` | 235.00 | 4.09 | **961** | -6.1 % | 4.09 | **961** | -6.1 % |
+| `study/S` | 196.67 | 3.60 | **708** | -30.9 % | 3.85 | **757** | -26.1 % |
+| `study/W` | 237.78 | 4.09 | **973** | -5.0 % | 4.09 | **973** | -5.0 % |
+| `hall/N` | 255.56 | 1.95 | **498** | -51.3 % | 2.15 | **549** | -46.3 % |
+| `hall/E` | 151.11 | 6.00 | **907** | -11.5 % | 6.00 | **907** | -11.5 % |
+| `hall/S` | 288.89 | 1.95 | **563** | -45.0 % | 2.15 | **621** | -39.3 % |
+| `hall/W` | 136.00 | 6.00 | **816** | -20.3 % | 6.00 | **816** | -20.3 % |
 
-spread 498..973 px, mean 783, sd 166
+as ruled: spread 498..973 px, mean 783, sd 166
+
+against standpoints.tsv as it stands now: spread 549..1010 px, mean 824, sd 159
 
 `px_per_m_at_wall × implied_camera_wall_m` is 1024 by construction, so the
-column above is `px_per_m_at_wall ×` **the plan's** standpoint instead. Read it
-as: *how far the drawn camera is from where the plan stands it, expressed as a
-lens.* **Every one of the eight is short of 1024, i.e. every wall is drawn
-smaller — further away — than the plan's standpoint asks.** The four study
-facings land 708–973 px; the passage lands 498–907. Two families:
+columns above are `px_per_m_at_wall ×` **the plan's** standpoint instead. Read
+them as: *how far the drawn camera is from where the plan stands it, expressed
+as a lens.*
 
-- **The two axial corridor views** (`hall/E` 907, `hall/W` 816) are the closest
-  the passage gets, and they are still 11 % and 20 % short — the end wall is
-  drawn from 6.8 m and 7.5 m against the ruled 6.00 m.
-- **The two transverse passage views** (`hall/N` 498, `hall/S` 563) are the
-  worst in the set by a wide margin. The prompt stood the camera **1.95 m** from
-  an 8 m wall; the pixels put it at **4.01 m** and **3.54 m**. Those two frames
-  are not close-up transverse views at all — they are ordinary room views of a
-  panelled wall. See §4 item 3.
+**`standpoints.tsv` was rewritten while this run was in progress** — commit
+385b1db, "the lens pinned, the standpoint law" — and four of the eight moved:
+study/N 3.60 → 4.35, study/S 3.60 → 3.85, hall/N and hall/S 1.95 → 2.15. The
+measurement was ruled against the first set, so both are reported. Nothing read
+off the pixels changes; only the comparison does. The per-facing JSONs carry
+both in `_plan`.
+
+**Every one of the eight is short of 1024 on either standpoint set, i.e. every
+wall is drawn smaller — further away — than the plan stands the camera.** Two
+families, and the new standpoints narrow the gap without closing it:
+
+- **The study is close, and `study/N` is now nearly exact.** Against the new
+  4.35 m standpoint `study/N` gives **1010 px, 1.4 % from 1024** — the pinned
+  lens and this backdrop agree. `study/E` and `study/W` are 5–6 % short on
+  either set. Only `study/S` is badly out (708 / 757 px), and its scale is the
+  set's least certain (§5).
+- **The two axial corridor views** (`hall/E` 907, `hall/W` 816) are 11 % and
+  20 % short — the end wall is drawn from 6.8 m and 7.5 m against the ruled
+  6.00 m.
+- **The two transverse passage views** (`hall/N` 498/549, `hall/S` 563/621) are
+  the worst in the set by a wide margin. The prompt stood the camera **1.95 m**
+  from an 8 m wall (the file now says 2.15 m); the pixels put it at **4.01 m**
+  and **3.54 m**. Those two frames are not close-up transverse views at all —
+  they are ordinary room views of a panelled wall. See §4 item 3.
 
 ### D. Eye height
 

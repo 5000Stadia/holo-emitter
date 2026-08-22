@@ -1568,7 +1568,25 @@ test.describe("the schematic is a derived render of the plan", () => {
    * The suite's "no hash literals" rule is about CANVAS hashes across browser
    * engines. There is no engine here, and nothing else in the row ties the
    * derived render to a human's yes. */
-  const APPROVAL_COMMIT = "9059605";
+  /* RE-ANCHORED AT ROW 20 to d87335f, the commit carrying the redrawn sheets
+   * and the standpoint table. What moved in the drawing is the standpoints:
+   * every facing whose viewed wall does not fit the frame from its drawn
+   * standpoint now stands at the far side of its room, 0.45 m off the wall
+   * behind it, pulled forward where a hearth or a flight is in the way. No
+   * wall, opening, window, hearth, stair or room moved.
+   *
+   * The authority is Kabe's approval of the perspective preview frames on
+   * 2026-08-21 — "If so full steam ahead, lets build this thing" — which
+   * blessed `01d` (the study's north view FROM THE THRESHOLD, 4.35 m) and
+   * `02b` (the passage's east view from its DRAWN standpoint, 6.00 m). Those
+   * two frames are the standpoint law stated in pictures.
+   *
+   * And what that authority does NOT cover is printed on the sheet's own face
+   * rather than left to this comment: `approval.lock` carries a `pending`
+   * line, so the stamp reads "APPROVED … AWAITING HIS EYE ON: the standpoint
+   * markers and their printed distances". The sheets are in the row's batch,
+   * and the row does not close until his word lands. */
+  const APPROVAL_COMMIT = "d87335f";
 
   function approvedBlob(path) {
     return execFileSync("git", ["show", `${APPROVAL_COMMIT}:${path}`],
@@ -1602,6 +1620,11 @@ test.describe("the schematic is a derived render of the plan", () => {
       const a = texts(approved), b = texts(now);
       expect(b.length).toBe(a.length);
       const moved = a.map((x, i) => [x, b[i]]).filter(([x, y]) => x !== y);
+      /* Zero until the next redline. Row 20's re-anchor points at the commit
+         that carries these sheets, so the approved blob IS this render; the
+         bound stays at two because the clause is about what a REDLINE may
+         change, and the two captions row 12 corrected are the precedent it was
+         written from. */
       expect(moved.length, `${f}: more than the caption strings moved`).toBeLessThanOrEqual(2);
       for (const [x] of moved) expect(x).toMatch(/DRAFT for redline|checked by the drawing/);
     }

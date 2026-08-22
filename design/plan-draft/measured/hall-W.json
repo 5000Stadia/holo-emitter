@@ -505,7 +505,9 @@
   "_plan": {
     "camera_wall_m": 6.0,
     "wall_width_m": 2.6,
-    "storey_m": 2.8
+    "storey_m": 2.8,
+    "camera_wall_m_in_standpoints_tsv_now": 6.0,
+    "_note": "camera_wall_m here is the standpoint this run was ruled to compare against. standpoints.tsv was rewritten mid-run (commit 385b1db) and now says 6.00 m for this facing. Nothing measured off the pixels depends on either value."
   },
   "_flags": [
     "The second of the two door facings. The wall-plane opening is 698..825 x 377..649 and that rectangle is the click target.",
