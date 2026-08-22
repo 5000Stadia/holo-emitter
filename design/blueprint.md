@@ -1087,6 +1087,20 @@ tool prints the per-facing scale target (1010 ÷ that facing's own drawn standpo
 generates to. Widening the law to admit the corpus would have been calibrating a gate on the
 corpus it judges, which `contract.json`'s own amendment rule forbids.
 
+**11b. Request precision escalates from text to shown geometry [HUMAN, 2026-08-22]:** "if those
+specifications are text only there may be too much interpretive requirements... The request
+method, if it needs to be more precise than what is being returned, needs to be presented with
+more accurate precision that is effective for that image generation. Both a text description
+and a reference image, that looks similar to the hollow grid, but may even have elements that
+we need that have a text word in a certain space. For example, the word bird in a place where
+we would want to see a bird. There are multiple techniques - if we are not getting good results
+we should experiment with a multitude of different request techniques starting with the
+simplest case example so we can refine the methodologies." Implementation seam: the shipped
+renderer already draws every facing's exact geometry - the scaffold is a grid capture with the
+plan's carriers stamped as labeled rects; adjacent scaffolds derive from one plan, so seams
+agree by construction. The measured record grounding the rule: numeric text asks went 0-for-21;
+image-reference asks are undefeated. Row 23 runs the technique matrix.
+
 **Per-placement view angle [HUMAN, 2026-08-21]:** "Due to perspective some things will be angles
 to various angles, so when generated the request should include its location horizontally across
 the screen with a flat wall facing background to maintain angle persecutive. The saved element
