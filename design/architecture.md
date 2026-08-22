@@ -2284,6 +2284,18 @@ the approved drawing places. A WARNING, on this document's own precedent: a vali
 them would refuse the plan Kabe signed, and one that could not see them is why nobody would find
 them. Printed by the bake, carried into `projection.md` §10, batched.
 
+### What did NOT move, measured rather than claimed
+
+This repository has no committed cross-commit canvas guard — row 11 narrowed the promise to the
+geometry half and said so — so "no existing facing's pixels moved" is a claim only a measurement can
+carry. It was made by hand, the way rows 7, 8 and 10 made theirs: `git archive` the parent commit
+(`ec47470`, the standing-eye wave) into a temp tree, capture the furnished world's eight facings
+from it and from this tree through the same script, and compare bytes. **All eight are identical.**
+
+That is the honest scope of the claim: the demo world's pictures are untouched, and the manor's own
+`hall/N` DID move (it gains a doorway sliver, because the manor world walks through `op15`) — which
+is a facing of the NAVIGATION world, not of the two rooms §12 accepts on.
+
 ### Residue, named
 
 1. **An outdoor wall has no top.** `storeyHeight` returns null for an `open`-typed room, so the
