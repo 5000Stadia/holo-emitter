@@ -85,16 +85,16 @@
     var gp = groundplane();
     var cam = gp.CAMERA_WALL_M;                  // 4.0 m — see groundplane.js
     var px = gp.pxPerMAtWall(cam);               // 1024 / 4.0 = 256
-    var eye = gp.DRAWING_EYE_M;                  // 1.2316 m, measured
-    var hy = gp.HORIZON_Y;                       // 490 / 1024
+    var eye = gp.DRAWING_EYE_M;                  // 1.08775 m, measured
+    var hy = gp.HORIZON_Y;                       // 524.4 / 1024 = 0.51211
     return {
-      floor_line_y: hy + eye * px / 1024,        // 0.7864
+      floor_line_y: hy + eye * px / 1024,        // 0.784047
       px_per_m_at_wall: px,                      // 256
-      px_per_m_at_bottom: (1024 - hy * 1024) / eye,  // 433.5823
+      px_per_m_at_bottom: (1024 - hy * 1024) / eye,  // 459.2967
       wall_width_m: 16,
       key_tint: "#c8b489",
       image_h_px: 1024,
-      horizon_y: hy,                             // 0.4785
+      horizon_y: hy,                             // 0.51211
       key_dir: "UL",
       calibration_ref: "wall grid module, 1.0 m at the wall plane",
       calibration_px: px,                        // 256

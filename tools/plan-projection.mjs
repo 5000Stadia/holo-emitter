@@ -130,7 +130,15 @@ export function assertRuledLens(contractPath = join(ROOT, "replicator", "contrac
 export const RULED_EYE_M = 1.83;
 
 /**
- * The height this project DRAWS at, until row 4 measures the real camera.
+ * SUPERSEDED, AND KEPT AS THE RECORD OF WHY. This alias now resolves to the
+ * MEASURED camera below — row 20 measured the approved backdrops and blueprint
+ * §5 makes the approved image the geometric authority, so the interim this
+ * block describes has been replaced by the thing it was waiting for. Read the
+ * next block for what actually ships; read this one for the reasoning that put
+ * an interim here in the first place, which is still the reasoning that says
+ * why §10's 1.83 m is not simply adopted. Everything below is past tense.
+ *
+ * It was the height this project drew at until the real camera was measured.
  *
  * [HUMAN 2026-08-21, "Sounds good on the outline", Navigator-recommended
  * specifics] — row 11's direction package asked the question against a rendered
@@ -141,9 +149,9 @@ export const RULED_EYE_M = 1.83;
  * cut FURTHER out (hall/E to 1.98 m), which is the opposite of what the ruling
  * was for, and the floor cut at your feet is the intention's fifth quality. So
  * the six-foot ruling returns whole, with the measured camera that can carry
- * the pitch half too; until then the drawing camera is the 1.60 m it has always
- * been and §5's horizon gate is asserted at that height rather than at one the
- * pixels do not honour.
+ * the pitch half too; until then the drawing camera was the 1.60 m it had
+ * always been and §5's horizon gate was asserted at that height rather than at
+ * one the pixels did not honour. That measurement is now in — see below.
  *
  * `RULED_EYE_M` above is untouched: it is §10's GENERATION camera, the height
  * row 4's backdrops are prompted at, and `assertRuledEye` still pins it to the
@@ -439,10 +447,13 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     camera_id: camera.id,
     /* PROVISIONAL, always, and machine-readably. Blueprint §5 rules that the
      * geometry elements are determined by the orientation of the approved
-     * image generation, which does not exist until row 4; §10's ruled camera
-     * is 1.83 m at −8° and this is derived at the interim 1.60 m the demo
-     * draws with [HUMAN 2026-08-21, direction question 1]; and the
-     * camera is now the MEASURED one (row 20). **[Row 11] The repo DOES
+     * image generation. Those generations now exist and were measured, so this
+     * is derived at the MEASURED eye of the approved study/N backdrop (row 20)
+     * rather than at row 11's interim; §10's ruled camera is still 1.83 m at
+     * −8° and is still the GENERATION camera, which the pictures did not
+     * honour. It stays provisional because the pitch half remains unmodelled
+     * and seven of the eight backdrops have not yet been regenerated to the
+     * ruled lens. **[Row 11] The repo DOES
      * consume these** — the bake emits one per facing the world names and the
      * page renders with them. What the bake refuses on is no longer the
      * wide-view reading (deleted) but the LENS: a derived meta whose

@@ -820,8 +820,9 @@ test.describe("the camera the projection runs on", () => {
      * said in its own comment that this made deriveMeta's agreement with
      * GRID_META "an identity, not evidence". Row 11 turns the arrow round: the
      * eye height is a constant with a citation and the metas are derived FROM
-     * it. Which constant is Kabe's [HUMAN 2026-08-21] — the interim 1.60 m
-     * ships until row 4 measures a camera that can carry §10's pitch half. */
+     * it. Which constant is Kabe's [HUMAN 2026-08-21]; row 20 measured the
+     * approved study/N backdrop's own camera and blueprint §5 makes that image
+     * the authority, so the interim it was awaiting has arrived and shipped. */
     expect(GRID_CAMERA.eye_m).toBe(DRAWING_EYE_M);
     expect(DRAWING_EYE_M).toBe(1.08775);     // MEASURED off the approved study/N backdrop (row 20)
     expect(GRID_CAMERA.pitch_deg).toBe(0);   // §10's −8° is unmodelled, and absent from the approved image
@@ -835,6 +836,45 @@ test.describe("the camera the projection runs on", () => {
     expect(GRID_CAMERA.source).toMatch(/MEASURED/);
     expect(GRID_CAMERA.source).toContain(String(GRID_CAMERA.eye_m));
     expect(GRID_CAMERA.source).toContain(String(Math.round(GRID_CAMERA.horizon_y * 1024 * 10) / 10));
+  });
+
+  /* THE SAME DEFECT ONE LAYER DOWN, and this is its third appearance in one
+   * row. `GRID_META`'s block annotates every line with the number it evaluates
+   * to — which is the only reason a reader can check the arithmetic by eye —
+   * and those comments went on reading 1.2316, 490, 0.7864, 433.5823 and
+   * 0.4785 for a whole commit after the measured camera landed. Nothing could
+   * see it: a comment is not a field. So the comments are now READ AS CLAIMS.
+   * The last number in each trailing comment is the value that line produces,
+   * to whatever precision it is written at, and drift in either direction goes
+   * red. Red-verified by editing one digit. */
+  test("the GRID_META block's arithmetic comments are read as claims about the meta", () => {
+    const src = readFileSync(join(repoRoot, "src", "renderer.js"), "utf8");
+    const start = src.indexOf("var GRID_META = (function ()");
+    expect(start).toBeGreaterThan(-1);
+    const block = src.slice(start, src.indexOf("})();", start));
+    const { GRID_META } = require(join(repoRoot, "src", "renderer.js"));
+    const claims = [
+      ["var cam = gp.CAMERA_WALL_M;", GRID_META.camera_wall_m],
+      ["var px = gp.pxPerMAtWall(cam);", GRID_META.px_per_m_at_wall],
+      ["var eye = gp.DRAWING_EYE_M;", DRAWING_EYE_M],
+      ["var hy = gp.HORIZON_Y;", GRID_META.horizon_y],
+      ["floor_line_y:", GRID_META.floor_line_y],
+      ["px_per_m_at_bottom:", GRID_META.px_per_m_at_bottom],
+      ["horizon_y: hy,", GRID_META.horizon_y]
+    ];
+    for (const [needle, actual] of claims) {
+      const line = block.split("\n").find((l) => l.includes(needle));
+      expect(line, `${needle} is gone from the GRID_META block`).toBeTruthy();
+      const comment = line.slice(line.indexOf("//") + 2);
+      expect(line.includes("//"), `${needle} lost the comment that states its value`).toBe(true);
+      const nums = comment.match(/-?\d+(?:\.\d+)?/g);
+      expect(nums, `${needle}'s comment states no number`).toBeTruthy();
+      const claim = nums[nums.length - 1];
+      const dp = (claim.split(".")[1] || "").length;
+      expect(Math.abs(Number(claim) - actual),
+        `${needle} is annotated ${claim} and evaluates to ${actual}`)
+        .toBeLessThanOrEqual(0.5 * Math.pow(10, -dp) + 1e-12);
+    }
   });
 
   test("and the contract cross-check goes red when the two statements drift apart", () => {

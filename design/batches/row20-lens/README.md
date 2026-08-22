@@ -23,8 +23,9 @@ Your sentence for it, which is what the row was built against:
 > *"the demo first room looks like every direction is a corridor….. That looks like a cross
 > junction of long hall rooms or something and user is in the middle. Like a + shape."*
 
-Four pairs carry the before/after. **Open `01-study-N-BEFORE.png` and `01-study-N.png` side by
-side first** — that is the whole row in two pictures.
+All eight facings carry a before/after pair — `NN-<facing>-BEFORE.png` beside `NN-<facing>.png`.
+**Open `01-study-N-BEFORE.png` and `01-study-N.png` side by side first** — that is the whole row in
+two pictures. If you look at four, look at these:
 
 | pair | before | after |
 |---|---|---|
