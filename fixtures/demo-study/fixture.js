@@ -13,7 +13,7 @@
 // the plan, re-bake. The page hands these to the renderer as backdrop entries
 // carrying a meta and no image.
 window.HOLO_FIXTURE = {
-  fp: "23d9dec0",
+  fp: "85d58bc1",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -51,13 +51,13 @@ window.HOLO_FIXTURE = {
     "desk1": {
       "facing": "study/N",
       "attachment": "floor_against",
-      "u": 0.438348623853,
+      "u": 0.844036697248,
       "mirror": false
     },
     "chair1": {
       "facing": "study/N",
       "attachment": "floor_free",
-      "u": 0.515266055046,
+      "u": 0.834495412844,
       "depth_m": 1.2
     },
     "door1": [

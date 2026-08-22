@@ -2717,26 +2717,28 @@
       "floor": "ground",
       "room": "study",
       "footprint": {
-        "x0": 26.689,
-        "x1": 27.989,
+        "x0": 28.9,
+        "x1": 30.2,
         "y0": 13.85,
         "y1": 14.4
       },
       "attachment": "floor_against",
-      "source": "inverse-projected"
+      "source": "composed",
+      "note": "Row 11, under blueprint §4's standing licence, ruled by the Navigator; INTERIM - Kabe's answer to the direction package's question 7 supersedes it. Moved east along the north wall, out of the study's chimney breast: the inverse-projected footprint put 91% of the desk (0.65 of 0.715 m²) inside the hearth, on the facing row 4 generates first and the one the drawer, the key reveal and the chair overlap all happen on. A plan that puts furniture inside its own masonry contradicts itself, and the picture would have said so the day a backdrop painted the fireplace. x 28.9-30.2 clears the hearth (26.6-28.8) and stays 0.2 m off the east wall. chair1 moved with it by the same screen offset, which is why its note reads the same."
     },
     {
       "id": "chair1",
       "floor": "ground",
       "room": "study",
       "footprint": {
-        "x0": 27.4582,
-        "x1": 28.0582,
+        "x0": 29.198,
+        "x1": 29.798,
         "y0": 13.2,
         "y1": 13.75
       },
       "attachment": "floor_free",
-      "source": "inverse-projected"
+      "source": "composed",
+      "note": "Row 11, under blueprint §4's standing licence, ruled by the Navigator; INTERIM, superseded by Kabe's answer to direction question 7. Moved with desk1 out of the chimney breast, and moved by the amount that KEEPS THE PAIR: the chair and the desk draw at different scales (144 and 113 px/m), so preserving their metre offset would have opened their screen gap from 50 px to 118 and broken the authored occlusion chain (intention quality 3). The offset that holds it is 1.823 m right of the wall centre, which is where this footprint puts it."
     },
     {
       "id": "shelf1",

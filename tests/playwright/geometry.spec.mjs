@@ -1,14 +1,63 @@
 import { test, expect, appUrl, LIT, repoRoot, gridExpectations } from "./helpers.mjs";
-import {
-  deriveMeta, RULED_EYE_M, assertRuledEye, assertCameraConsistent
-} from "../../tools/plan-projection.mjs";
-import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createRequire } from "node:module";
+import {
+  deriveMeta, RULED_EYE_M, assertRuledEye, assertCameraConsistent, facingCarriers
+} from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
 const PLAN = JSON.parse(
   readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
+const WORLD = JSON.parse(
+  readFileSync(join(repoRoot, "fixtures", "demo-study", "world.json"), "utf8"));
+
+/* How deep into the room a facing's side-wall returns actually SHOW, in
+ * metres from the wall line. The return leaves the frame through whichever
+ * edge it reaches first — the bottom (`px_per_m_at_bottom`) or the side — so
+ * the visible extent takes the SMALLER of the two scales. (The renderer keeps
+ * DRAWING to the larger, which is a different question: lines that exit
+ * sideways still have to reach the edge.) */
+function returnDepthM(m) {
+  const sEdge = 2 * (1536 / 2) * m.px_per_m_at_wall / (m.corner_x1_px - m.corner_x0_px);
+  const sExit = Math.min(m.px_per_m_at_bottom, sEdge);
+  return m.camera_wall_m * (1 - m.px_per_m_at_wall / sExit);
+}
+
+/* Carriers standing on the two walls a facing's returns show, and how much of
+ * each is inside the depth the return reaches. Computed from the plan's own
+ * rects rather than from `world.json`'s exits, which is how row 11's first
+ * enumeration came to list three door slivers and miss a fireplace. */
+function returnCarriers(loc, f, side, depth) {
+  const RING = ["N", "E", "S", "W"];
+  const room = PLAN.rooms.find((r) => r.id === loc);
+  const adj = RING[(RING.indexOf(f) + (side === "right" ? 1 : 3)) % 4];
+  const recede = (f === "N" || f === "S") ? "y" : "x";
+  const trans = recede === "y" ? "x" : "y";
+  const wallLine = room.facings[f].wall_line;
+  const returnLine = room.facings[adj].wall_line;
+  const EPS = 1e-6;
+  const out = [];
+  const all = [].concat(
+    (PLAN.openings || []).map((o) => ({ kind: "door", id: o.entity || o.id, rect: o.rect, floor: o.floor })),
+    (PLAN.windows || []).map((w) => ({ kind: "window", id: "window", rect: w.rect, floor: w.floor })),
+    (PLAN.fireplaces || []).map((x) => ({ kind: "fireplace", id: "fireplace", rect: x.rect, floor: x.floor })));
+  for (const c of all) {
+    if (c.floor !== room.floor) continue;
+    /* On the wall this return shows? Its transverse extent has to touch that
+       wall's own line. */
+    if (Math.abs(c.rect[trans + "0"] - returnLine) > EPS &&
+        Math.abs(c.rect[trans + "1"] - returnLine) > EPS) continue;
+    const d0 = Math.abs(wallLine - c.rect[recede + "0"]);
+    const d1 = Math.abs(wallLine - c.rect[recede + "1"]);
+    const near = Math.min(d0, d1), far = Math.max(d0, d1);
+    if (near >= depth) continue;
+    const shown = Math.min(far, depth) - near;
+    if (shown <= EPS) continue;
+    out.push(`${c.id} ${shown.toFixed(2)}m of ${(far - near).toFixed(2)}m`);
+  }
+  return out;
+}
 
 test.describe("camera-has-feet geometry", () => {
   test("§5's horizon device holds on the unplanned-facing meta at the RULED eye height", () => {
@@ -202,6 +251,162 @@ test.describe("camera-has-feet geometry", () => {
     expect(res.structure.failures).toEqual([]);
     expect(res.wallS, "wall region differs between facings (glyph)").not.toBe(res.wallN);
     expect(res.floorS, "floor region identical across facings of one wall size").toBe(res.floorN);
+  });
+});
+
+test.describe("what the picture does not say, computed from the document", () => {
+  /* THE OMISSION LEDGER. Blueprint §11 gives the carriers to row 4's painted
+   * backdrops and §4b item 9 gives multi-facing presence to row 15, so grid
+   * mode draws neither — a doorway, a window or a hearth the plan holds in
+   * view is painted as plain wall. That is defensible: the grid is §7's
+   * unestablished space, and it is far LESS divergence than the endless wall
+   * it replaces, which ran one room's north wall across the whole frame and
+   * drew no side walls at all.
+   *
+   * What is not defensible is claiming the omission is smaller than it is.
+   * Row 11 first enumerated it BY HAND, from `world.json`'s exits, and got the
+   * returns only — three door slivers. Computed from the PLAN's own carriers
+   * it is five of eight facings and includes the study's fireplace, which is
+   * 40% of the wall the demo opens on. This is that computation, pinned: a
+   * carrier the plan gains cannot quietly become blank wall, and the honest
+   * number is in the documents rather than a smaller one. */
+  const carriersOf = (loc, f) => facingCarriers(PLAN, loc, f);
+
+  test("every carrier the plan holds on a facing wall, and the picture draws none of them", () => {
+    const drawn = [];   // what the grid DOES draw: the exits of this facing
+    const blank = [];
+    for (const key of LIT.facingKeys()) {
+      const [loc, f] = key.split("/");
+      const exits = new Set((WORLD.locations.find((l) => l.id === loc).exits || [])
+        .filter((e) => e.facing === f).map((e) => e.via));
+      for (const c of carriersOf(loc, f)) {
+        const shown = c.kind === "door" && c.entity && exits.has(c.entity);
+        (shown ? drawn : blank).push(`${key} ${c.kind}${c.entity ? " " + c.entity : ""} ${c.width_m.toFixed(2)}m`);
+      }
+    }
+    /* Pinned. Two doors the world names are drawn as openings; everything
+       else the plan holds on a facing wall is painted as plain wall. */
+    expect(drawn.sort()).toEqual([
+      "hall/W door door1 1.00m",
+      "study/E door door1 1.00m"
+    ]);
+    expect(blank.sort()).toEqual([
+      "hall/E window 1.00m",
+      "hall/N door 1.00m",
+      "hall/S door 1.00m",
+      "study/N fireplace 2.20m",
+      "study/S window 1.40m",
+      "study/S window 1.40m"
+    ]);
+  });
+
+  test("and the returns' own omissions, which row 11 first counted as three", () => {
+    /* A carrier on an ADJACENT wall, inside the part of that wall a return
+       actually shows. Nothing walkable is lost — the harness requires the
+       exit's own facing — but the plane is painted unbroken.
+       Row 11 enumerated this by hand from `world.json`'s exits and listed
+       three door slivers. Computed from the plan's own rects it is sixteen,
+       and it includes the study's fireplace seen edge-on from two facings.
+       Attribution is BY WALL LINE, so a carrier belonging to the room on the
+       other side of a shared wall is counted too — that makes the list an
+       upper bound rather than an exact census, and an upper bound is the
+       honest side to be wrong on for an omission ledger. */
+    const seen = [];
+    for (const key of LIT.facingKeys()) {
+      const [loc, f] = key.split("/");
+      const depth = returnDepthM(LIT.facing(loc, f));
+      for (const side of ["left", "right"]) {
+        for (const c of returnCarriers(loc, f, side, depth)) seen.push(`${key} ${side} ${c}`);
+      }
+    }
+    expect(seen.sort()).toEqual([
+      "hall/E left op15 1.00m of 1.00m",
+      "hall/N left door1 0.18m of 1.00m",
+      "hall/N right window 0.18m of 1.00m",
+      "hall/S left window 0.17m of 1.00m",
+      "hall/S right door1 0.17m of 1.00m",
+      "hall/W left op14 1.00m of 1.00m",
+      "hall/W left window 0.22m of 1.40m",
+      "hall/W left window 1.40m of 1.40m",
+      "study/E left fireplace 1.14m of 2.20m",
+      "study/E right op14 1.00m of 1.00m",
+      "study/E right window 1.40m of 1.40m",
+      "study/N left op11 0.77m of 1.00m",
+      "study/S left door1 1.00m of 1.00m",
+      "study/W left window 1.40m of 1.40m",
+      "study/W left window 1.50m of 1.50m",
+      "study/W right fireplace 1.09m of 2.20m"
+    ]);
+  });
+});
+
+test.describe("corridor is a geometry, not a label", () => {
+  /* Row 11's plan and blueprint §5 both claim this and neither had a test:
+   * "the row asserts this rather than claiming it". The claim is that what
+   * separates §5's *"side planes converging, open centre"* from an enclosed
+   * room is arithmetic already in the approved drawing rather than a second
+   * code path — so the assertion has to read a quantity that depends on BOTH
+   * the width of the wall and the depth of the view. Return share alone does
+   * not: it is `1 − wall_width_m/16`, a re-expression of width that reads no
+   * depth at all, and a 2.60 m wall at 1 m and at 6 m give the same number. */
+  const share = (m) => 1 - (m.corner_x1_px - m.corner_x0_px) / LIT.W;
+  /* Metres of side wall in view: the depth at which the return leaves the
+   * frame. This is the term that reads the standpoint distance. */
+  const returnDepth = returnDepthM;
+  const alley = (m) => returnDepth(m) / m.wall_width_m;
+
+  test("the corridor facings are the deepest and narrowest views, by both terms", () => {
+    const of = (loc, f) => LIT.facing(loc, f);
+    const corridor = ["hall/E", "hall/W"].map((k) => of(...k.split("/")));
+    const enclosed = LIT.facingKeys().filter((k) => !k.startsWith("hall/E") && !k.startsWith("hall/W"))
+      .map((k) => of(...k.split("/")));
+    for (const c of corridor) {
+      expect(c.facing_type, `${c.key} is typed corridor`).toBe("corridor");
+      for (const e of enclosed) {
+        expect(share(c), `${c.key} returns fill more of the frame than ${e.key}`)
+          .toBeGreaterThan(share(e));
+        expect(alley(c), `${c.key} is a deeper, narrower view than ${e.key}`)
+          .toBeGreaterThan(alley(e));
+      }
+    }
+    /* The numbers, pinned, so a change of camera model has to restate them:
+       the corridor's returns fill 84% of the frame against the study's 66%,
+       and 5.03 m of side wall is in view against 2.37 m. */
+    expect(share(of("hall", "E"))).toBeCloseTo(1 - 2.6 * 96 / 1536, 6);
+    expect(share(of("study", "N"))).toBeCloseTo(1 - 5.45 * 96 / 1536, 6);
+    expect(returnDepth(of("hall", "E"))).toBeCloseTo(4.02, 1);
+    expect(returnDepth(of("study", "N"))).toBeCloseTo(2.37, 1);
+  });
+
+  test("and the picture agrees: the corridor's returns really do fill more of it", async ({ page }) => {
+    /* The arithmetic above is test-side. This is the same claim read off the
+       render, so the type cannot become a label the drawing ignores. */
+    await page.goto(appUrl());
+    const measured = await page.evaluate((keys) => {
+      const T = window.__T;
+      const out = {};
+      for (const key of keys) {
+        const [loc, f] = key.split("/");
+        const vs = { location: loc, facing: f };
+        const c = T.renderDirect(vs, null, { backdrop_only: true });
+        const m = T.metaOf(vs);
+        const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+        /* Pixels on a wall row that lie outside the two corners — the
+           returns' share of the facing wall's own band of the frame. */
+        let outside = 0;
+        const y = 200;
+        for (let x = 0; x < 1536; x++) {
+          if (x < m.corner_x0_px || x > m.corner_x1_px) outside++;
+        }
+        out[key] = outside / 1536;
+      }
+      return out;
+    }, LIT.facingKeys());
+    for (const c of ["hall/E", "hall/W"]) {
+      for (const e of LIT.facingKeys().filter((k) => k !== "hall/E" && k !== "hall/W")) {
+        expect(measured[c], `${c} shows more side wall than ${e}`).toBeGreaterThan(measured[e]);
+      }
+    }
   });
 });
 

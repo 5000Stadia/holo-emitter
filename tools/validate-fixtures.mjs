@@ -240,6 +240,7 @@ function derivedMetasFor(fixtureDir, world, findings) {
  */
 function checkMeta(label, meta, findings, canvasW, canvasH) {
   if (!isObj(meta)) { findings.push(`${label}: not a meta object`); return; }
+  const type = meta.facing_type === undefined ? null : meta.facing_type;
   for (const k of META_REQUIRED) {
     if (meta[k] == null) {
       findings.push(`${label}: §5 field "${k}" is missing — the renderer resolves one meta or the fallback, never a blend, so a partial meta reaches the paint as undefined [row11:meta.required_fields]`);
@@ -262,30 +263,29 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
     for (const seg of meta.wall_segments) {
       if (!isObj(seg) || typeof seg.from_m !== "number" || typeof seg.to_m !== "number" ||
           !(seg.from_m < seg.to_m)) {
-        findings.push(`${label}: wall_segments entry ${JSON.stringify(seg)} is not a band with two ends [row11:meta.segments_sane]`);
+        findings.push(`${label}: wall_segments entry ${JSON.stringify(seg)} is not a band with two ends [row11:meta.segment_shape]`);
         continue;
       }
       if (seg.from_m < -1e-6 || seg.to_m > meta.wall_width_m + 1e-6) {
-        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m runs outside the ${meta.wall_width_m} m in view [row11:meta.segments_sane]`);
+        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m runs outside the ${meta.wall_width_m} m in view [row11:meta.segment_bounds]`);
       }
       if (seg.from_m < prev - 1e-6) {
-        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m overlaps the one before it [row11:meta.segments_sane]`);
+        findings.push(`${label}: wall_segments band ${seg.from_m}–${seg.to_m} m overlaps the one before it [row11:meta.segment_order]`);
       }
       prev = seg.to_m;
     }
   }
-  const type = meta.facing_type === undefined ? null : meta.facing_type;
   if (type !== null && !FACING_TYPES.includes(type)) {
     findings.push(`${label}: facing_type ${JSON.stringify(type)} is not one of ${FACING_TYPES.join(" | ")} or null (blueprint §5) [row11:meta.facing_type]`);
   }
   const hasWall = meta.camera_wall_m != null;
   const hasFar = meta.camera_far_m != null;
   if (type === "open") {
-    if (!hasFar) findings.push(`${label}: an open facing must carry camera_far_m — it views a drawn ground line, not a surface [row11:meta.camera_pairing]`);
-    if (hasWall) findings.push(`${label}: an open facing carries camera_wall_m — the field name is the mechanism (§5): a depth model handed a far line as a wall distance puts a horizon where a wall goes [row11:meta.camera_pairing]`);
+    if (!hasFar) findings.push(`${label}: an open facing must carry camera_far_m — it views a drawn ground line, not a surface [row11:meta.open_needs_far]`);
+    if (hasWall) findings.push(`${label}: an open facing carries camera_wall_m — the field name is the mechanism (§5): a depth model handed a far line as a wall distance puts a horizon where a wall goes [row11:meta.open_rejects_wall]`);
   } else {
-    if (!hasWall) findings.push(`${label}: facing_type ${JSON.stringify(type)} must carry camera_wall_m [row11:meta.camera_pairing]`);
-    if (hasFar) findings.push(`${label}: facing_type ${JSON.stringify(type)} carries camera_far_m — only an open facing has a far line instead of a wall plane [row11:meta.camera_pairing]`);
+    if (!hasWall) findings.push(`${label}: facing_type ${JSON.stringify(type)} must carry camera_wall_m [row11:meta.walled_needs_wall]`);
+    if (hasFar) findings.push(`${label}: facing_type ${JSON.stringify(type)} carries camera_far_m — only an open facing has a far line instead of a wall plane [row11:meta.walled_rejects_far]`);
   }
   const c0 = meta.corner_x0_px, c1 = meta.corner_x1_px;
   const cornered = typeof c0 === "number" && typeof c1 === "number";
@@ -293,15 +293,26 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
     findings.push(`${label}: one corner without the other — a wall has two ends or none [row11:meta.corner_pairing]`);
   }
   if (cornered && !(c0 < c1)) {
-    findings.push(`${label}: corner_x0_px ${c0} is not left of corner_x1_px ${c1} [row11:meta.corner_pairing]`);
+    findings.push(`${label}: corner_x0_px ${c0} is not left of corner_x1_px ${c1} [row11:meta.corner_order]`);
   }
   if (type === "open" && cornered) {
     findings.push(`${label}: an open facing carries corners — law (b): where no building stands the ground runs open to its far line, and a corner there would be an invented enclosure [row11:meta.open_no_corners]`);
   }
-  if (meta.wall_continuous === false && cornered) {
+  /* An open facing with corners is `meta.open_no_corners`'s violation, not
+   * this one — one violation, one clause, or the ledger cannot isolate
+   * either. */
+  if (type !== "open" && meta.wall_continuous === false && cornered) {
     findings.push(`${label}: a discontinuous wall carries corners — a view that is part building and part open ground has segments, not two corners [row11:meta.segmented_no_corners]`);
   }
-  if (meta.wall_continuous === false &&
+  /* An OPEN facing legitimately has no bands — that is what open means, and
+   * `deriveMeta` emits `wall_continuous: false` with empty segments for one.
+   * This clause is about a WALLED view that is part building and part open
+   * ground: there, the bands are the only thing that says where the building
+   * is. Row 11 shipped it without the exemption, so the schema refused the
+   * very metas its own open branch produces — invisible because no facing M0
+   * ships is open, and found by the ledger's exclusivity check the moment a
+   * case built a valid one. */
+  if (type !== "open" && meta.wall_continuous === false &&
       !(Array.isArray(meta.wall_segments) && meta.wall_segments.length > 0)) {
     findings.push(`${label}: wall_continuous is false but wall_segments says nothing is built — law (b) needs the bands, or nothing can say where the building is [row11:meta.segments_present]`);
   }
@@ -310,12 +321,12 @@ function checkMeta(label, meta, findings, canvasW, canvasH) {
   }
   /* §12.5's frame clause, the one that reaches outside the meta. */
   if (cornered) {
-    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits]`);
-    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits]`);
+    if (!(c0 >= 0)) findings.push(`${label}: corner_x0_px ${c0} is off the left of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits_left]`);
+    if (!(c1 <= canvasW)) findings.push(`${label}: corner_x1_px ${c1} is off the right of a ${canvasW}px frame (§12.5 (i)) [row11:meta.frame_fits_right]`);
   } else if (typeof meta.wall_width_m === "number" && typeof meta.px_per_m_at_wall === "number") {
     const spanned = meta.wall_width_m * meta.px_per_m_at_wall;
     if (spanned > canvasW + 1e-6) {
-      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits [row11:meta.frame_fits]`);
+      findings.push(`${label}: the wall it claims is ${spanned.toFixed(1)}px wide in a ${canvasW}px frame (§12.5 (i)) — the document could only address the part of it that fits [row11:meta.frame_fits_uncornered]`);
     }
   }
   if (meta.image_h_px != null && meta.image_h_px !== canvasH) {

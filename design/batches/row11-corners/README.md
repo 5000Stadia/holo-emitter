@@ -25,7 +25,7 @@ test read. Grid-mode placeholder art (V1); nothing here is judged on finish.
 | `09-study-E-door-open` | the leaf swung, the opening walkable |
 | `10-hall-W-door-open` | the same door from the other room |
 | `11-study-N-drawer-open-key` | the drawer open, the key revealed |
-| `*-BEFORE` | `01`, `06` and `09` as they were at the parent commit (e58e3f7) |
+| `*-BEFORE` | `01`, `06` and `09` as they were at the parent commit (e58e3f7) — note the desk in `01-BEFORE` sits in the middle of the wall, which is where the fireplace is |
 
 ## What changed, and what licenses it
 
@@ -90,12 +90,16 @@ facing it broke.
 
 ## Known, and in front of you rather than at the probe
 
-- **The desk stands in the study's chimney breast** — 0.65 m² of overlap, visible in `01`, on the
-  facing row 4 generates first. A plan finding that pre-dates this row; row 11 only makes it
-  visible.
-- **A doorway on a side wall is drawn as blank wall.** From `03-study-S` you would see the hall door
-  in the left-hand wall and the grid shows plain wall there (and a thumb's width of it on `05` and
-  `07`). Nothing walkable is lost — the door works from the facing it is on — and it is far less
-  wrong than the old picture, which had no side walls at all. Row 15 owns it.
+- **The desk and chair moved out of the study's chimney breast**, and that is why `01` and `11` look
+  different from anything you have seen before: the desk was standing with 91% of its footprint
+  inside the fireplace. Interim, on the Navigator's ruling — the direction package's question 7 is
+  where you settle it — and the plan refuses that class of placement now instead of noting it.
+- **The grid paints no fireplaces, windows or side-wall doorways.** Five of these eight frames show
+  plain wall where the building's own plan holds something: the study's fireplace is 2.2 m of the
+  north wall in `01`, `03` has two windows, `06` has one dead centre, and the passage's north and
+  south walls each carry a door. Sixteen more appear edge-on in the side walls. Nothing walkable is
+  lost — every door still works from the facing it is on — and it is far less wrong than the old
+  picture, which had no side walls at all. Row 4's painted backdrops are where they arrive; the full
+  list is computed from the plan and held by a test, so none of them can quietly go missing.
 - **The rooms have no ceiling.** The corners run off the top of frame: the plan carries no room
   height. That is the direction package's question 2, with a rendered pair.

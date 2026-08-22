@@ -140,11 +140,36 @@ async function runScript(page, opts = {}) {
     });
     expect(JSON.stringify(chairOutline), "chair outline differs from desk outline")
       .not.toBe(JSON.stringify(deskOutline));
-    // Move back over the desk, then turn with the cursor stationary: the
-    // overlay must be blank after the paint (stale-outline hazard).
+    /* Move back over the desk, then turn with the cursor stationary: the
+       overlay must be blank after the paint (stale-outline hazard).
+       The point has to be one that is BARE on the facing turned to, or the
+       overlay is legitimately not blank and the test measures the wrong
+       thing. Row 11 moved the desk east along the north wall and its first
+       hit point landed inside the study/E door leaf's rectangle, so the point
+       is now chosen clear of it — which is a fact about where the door hangs,
+       not about the desk, so it is derived rather than typed. */
+    const barePt = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const layout = window.__T.currentLayout();
+      const desk = layout.find((e) => e.id === "desk1");
+      const b = window.__T.entryBBox(desk);
+      const leaf = window.HOLO.renderer.apertures(
+        A.harness.world, A.harness.staging, A.library,
+        window.__T.metaOf({ location: "study", facing: "E" }),
+        { location: "study", facing: "E" })[0];
+      for (let dx = Math.floor(b.w) - 2; dx > 0; dx -= 2) {
+        for (let dy = 2; dy < b.h; dy += 2) {
+          const x = Math.floor(b.x + dx), y = Math.floor(b.y + dy);
+          if (leaf && x >= leaf.x - 8 && x <= leaf.x + leaf.w + 8) continue;
+          if (window.HOLO.renderer.hitTest(layout, A.library, x, y) === "desk1") return { x, y };
+        }
+      }
+      return null;
+    });
+    expect(barePt, "a desk point clear of the next facing's doorway").not.toBeNull();
     await page.mouse.move(
-      box.x + (deskPt.x * box.width) / 1536,
-      box.y + (deskPt.y * box.height) / 1024);
+      box.x + (barePt.x * box.width) / 1536,
+      box.y + (barePt.y * box.height) / 1024);
     await page.keyboard.press("ArrowRight");
     expect(await page.evaluate(() => window.__T.isOverlayBlank()),
       "overlay blank after a turn with a stationary cursor").toBe(true);

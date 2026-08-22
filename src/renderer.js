@@ -130,9 +130,6 @@
    * falloff's own direction WITHIN each of them. */
   var RETURN_LEFT = "#0a0d12";
   var RETURN_RIGHT = "#1a202b";
-  /* The ceiling, where a meta gives the room a height. Darker than the wall:
-   * a key from upper-left rakes across a ceiling rather than facing it. */
-  var CEILING_BASE = "#080a0e";
   var ALPHA_MINOR = 0.25;
   var ALPHA_MAJOR = 0.55;
   var ALPHA_GLYPH = 0.45;
@@ -315,6 +312,35 @@
       ctx.lineTo(-far, H + far);
       ctx.closePath();
     }
+    /* Everything ABOVE a line — the mirror of belowLine. */
+    function aboveLine(ax, ay, bx, by) {
+      var far = 1e5;
+      var m2 = (by - ay) / ((bx - ax) || 1e-9);
+      var yAt = function (x) { return ay + m2 * (x - ax); };
+      ctx.beginPath();
+      ctx.moveTo(-far, yAt(-far));
+      ctx.lineTo(far, yAt(far));
+      ctx.lineTo(far, -far);
+      ctx.lineTo(-far, -far);
+      ctx.closePath();
+    }
+    /* THE CEILING THE ROOM ACTUALLY HAS — the floor's mirror, and clipped for
+     * the same reason. It is the region above the wall-ceiling line between
+     * the corners AND above both side-wall ceiling junctions; three clips
+     * compose to it. Row 11 shipped the ceiling's own fan unclipped for a
+     * commit and its longitudinals painted straight across both returns and
+     * across the void wedge above them, which is the floor's own bug drawn
+     * upside down. */
+    function ceilingFloor() { ceilingRegion(); }
+    function ceilingRegion() {
+      ctx.beginPath();
+      ctx.rect(-1e5, -1e5, 2e5, 1e5 + ceilY);
+      ctx.clip();
+      aboveLine(cL, ceilY, X(0, sBottom), H - storeyM * sBottom);
+      ctx.clip();
+      aboveLine(cR, ceilY, X(1, sBottom), H - storeyM * sBottom);
+      ctx.clip();
+    }
     function ceilingCut(side) {
       if (storeyM == null) return;
       var u = side === 0 ? 0 : 1;
@@ -385,13 +411,13 @@
       ctx.fillStyle = RETURN_RIGHT;
       ctx.fillRect(0, 0, W, H);
       ctx.restore();
-      /* The ceiling plane, where the room has a height: a fifth surface,
-       * darker than the wall because nothing lights it from below, with the
-       * floor's own fan mirrored across the eye line. */
-      if (storeyM != null && wallTop > 0) {
-        ctx.fillStyle = CEILING_BASE;
-        ctx.fillRect(0, 0, W, Math.ceil(wallTop));
-      }
+      /* No ceiling PLANE fill. A ceiling is drawn here the way the walls and
+       * the floor are — by its own grid — and the fill it used to carry was
+       * `#080a0e` over a void base of `#080b10`, two tones apart in one
+       * channel: measured through the real draw path it moved nothing a
+       * detector could name, so the mechanism was a fill nobody could see and
+       * a case nobody could write. The ceiling's content is its line work
+       * below (`renderer.ceiling_lines`), which is measurable and cased. */
     }
 
     /* The key falls on the ground too. Every sprite carries UL45 and every
@@ -555,10 +581,19 @@
       ctx.lineTo(W, snap(floorY));
       ctx.stroke();
     }
-    ctx.beginPath();
-    ctx.moveTo(0, snap(eyeY));
-    ctx.lineTo(W, snap(eyeY));
-    ctx.stroke();
+    /* The eye line is a camera fact and runs the full width — across the
+     * facing wall, both returns and the floor alike, because a level camera's
+     * horizon is one line across every surface in the frame. Where there is no
+     * surface it is not drawn: on a facing with no band the region above the
+     * far line is unestablished void, and a major stroke through it would be a
+     * horizon asserted where the document holds nothing, next to a rule that
+     * says an open facing draws "the ground, and no wall". */
+    if (bands.length) {
+      ctx.beginPath();
+      ctx.moveTo(0, snap(eyeY));
+      ctx.lineTo(W, snap(eyeY));
+      ctx.stroke();
+    }
 
     /* THE CORNERS. Two of them, at the ends of the u-domain the staging
      * addresses — `xAtScale(0)` and `xAtScale(1)` at wall scale, which is
@@ -581,6 +616,9 @@
       /* Where the room has a height, the wall-ceiling line is the floor line's
        * twin and the ceiling's own longitudinals fan from it. */
       if (storeyM != null && wallTop > 0) {
+        ctx.save();
+        ceilingFloor();
+        ctx.clip();
         ctx.beginPath();
         ctx.moveTo(cL, snap(ceilY));
         ctx.lineTo(cR, snap(ceilY));
@@ -601,6 +639,7 @@
           ctx.stroke();
         }
         ctx.globalAlpha = ALPHA_MAJOR;
+        ctx.restore();
       }
     }
 
@@ -978,6 +1017,23 @@
       if (!place) {
         throw new Error("unknown attachment \"" + facingPlacement.attachment +
           "\" staging entity " + entity.id);
+      }
+      /* NOTHING HANGS ON A WALL THAT IS NOT THERE. Blueprint §5 law (b): a
+       * wall exists only where the building stands, so a `wall_mounted`
+       * entity whose span is not on a built band is not in this view.
+       *
+       * This is in LAYOUT rather than beside `apertures` on purpose. Row 11's
+       * first pass put the guard on the aperture alone and the picture still
+       * drew the plank: the hole vanished and the door stayed, 11,415 opaque
+       * pixels standing in open void, hit-tested, hover-highlighted and
+       * toggleable, because the leaf, the opening, the hit region and the
+       * keyboard control are four separate code paths reading the same
+       * document. One read, here, is what makes them agree — `hitTest` and
+       * the page's resolver both walk this list, and `apertures` asks the
+       * same question of the same bands. */
+      if (facingPlacement.attachment === "wall_mounted" &&
+          !spannedByBand(place.x0, place.x1, wallBands(meta), meta)) {
+        continue;
       }
       var baselineY = place.baselineY;
       var f = place.f;

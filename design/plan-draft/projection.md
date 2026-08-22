@@ -49,8 +49,8 @@ hard failure of the bake.
 
 | entity | facing | attachment | shipped u | projected u | Δu | shipped depth_m | projected depth_m | agrees |
 |---|---|---|---|---|---|---|---|---|
-| `desk1` | study/N | floor_against | 0.4383 | 0.4383 | 0.0000 | — | 0.55 | yes |
-| `chair1` | study/N | floor_free | 0.5153 | 0.5153 | 0.0000 | 1.20 | 1.20 | yes |
+| `desk1` | study/N | floor_against | 0.8440 | 0.8440 | 0.0000 | — | 0.55 | yes |
+| `chair1` | study/N | floor_free | 0.8345 | 0.8345 | 0.0000 | 1.20 | 1.20 | yes |
 | `door1` | study/E | wall_mounted | 0.7292 | 0.7292 | 0.0000 | — | — | yes |
 | `door1` | hall/W | wall_mounted | 0.5000 | 0.5000 | 0.0000 | — | — | yes |
 | `shelf1` | hall/N | floor_against | 0.3950 | 0.3950 | 0.0000 | — | 0.30 | yes |
@@ -74,8 +74,8 @@ surprise someone reading only the `u` column:
 
 | entity | facing | u today | u under plan meta | drawn height px today | under plan meta |
 |---|---|---|---|---|---|
-| `desk1` | study/N | 0.4790 | 0.4383 | 88.8 | 88.4 |
-| `chair1` | study/N | 0.5052 | 0.5153 | 153.4 | 151.2 |
+| `desk1` | study/N | 0.6172 | 0.8440 | 88.8 | 88.4 |
+| `chair1` | study/N | 0.6139 | 0.8345 | 153.4 | 151.2 |
 | `door1` | study/E | 0.5688 | 0.7292 | 192.0 | 192.0 |
 | `door1` | hall/W | 0.5000 | 0.5000 | 192.0 | 192.0 |
 | `shelf1` | hall/N | 0.4475 | 0.3950 | 189.0 | 204.2 |
@@ -100,8 +100,8 @@ board from.
 
 | entity | facing | offset from centre | standpoint distance | view_angle_deg |
 |---|---|---|---|---|
-| `desk1` | study/N | -0.336 m | 3.05 m | -6.29 |
-| `chair1` | study/N | 0.083 m | 2.40 m | 1.99 |
+| `desk1` | study/N | 1.875 m | 3.05 m | 31.58 |
+| `chair1` | study/N | 1.823 m | 2.40 m | 37.22 |
 | `door1` | study/E | 1.100 m | 4.09 m | 15.05 |
 | `door1` | hall/W | 0.000 m | 6.00 m | 0.00 |
 | `shelf1` | hall/N | -0.840 m | 1.65 m | -26.98 |
@@ -473,6 +473,5 @@ the plan — each would have to be fixed by moving something a human approved �
 question for Kabe:
 
 - law (b): "entrance_approach" facing N is typed enclosed, but 20.4 m of its 32 m view has no wall across it (gap at 10–30.4). The derived meta carries the built segments rather than one invented wall; the facing's type is Kabe's to rule.
-- object "desk1" stands in the chimney breast of "study" — 0.65 m² of overlap
 - the hearth in "kitchen" has no stack rising through "upper" above it
 

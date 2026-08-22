@@ -530,7 +530,11 @@ corners is a claim a segmented view cannot make. A facing NO PLAN HOLDS carries 
 and null corners and draws the unbounded wall §7's fallback meta describes.
 
 *What an `open` facing renders, and what it deliberately does not.* The ground, and no wall — no
-corner verticals, no wall grid, and no invented sky band. What its far line should LOOK like is
+corner verticals, no wall grid, no invented sky band, and no eye line: a level camera's horizon is
+one line across every surface, and a major stroke through unestablished void asserts a horizon the
+document does not hold. Nothing hangs on that facing either — a `wall_mounted` entity whose span is
+not on a built band is not in the view, checked in `layout` so the leaf, the opening, the hit region
+and the keyboard control all read it once. What its far line should LOOK like is
 row 4's, with ruling (1)'s scenic-vista backdrop; an [AI] appearance invented here would become the
 established look by default. No M0 facing is open; the case exists so the renderer does not
 hard-wire a wall, and its test asserts absence rather than blessing an appearance.
@@ -556,10 +560,30 @@ tell them apart.
 `door1` stands on one of them, so the [HUMAN] parenthetical's "enclosed only" is what changed
 rather than the promise: corridor arrived as a meta entry with no renderer rewrite, exactly as
 promised. What makes a corridor read as one is arithmetic already in the drawing rather than a
-second code path: the returns fill 84 % of `hall/E`'s frame against 66 % of `study/N`'s, and the
-side wall visible along it runs 5.03 m of depth against the study's 2.37 m. §5's *"side planes
-converging, open centre"* is the deep view down the middle between those converging planes; a
-passage with no end wall at all is the `open` type, which the same band model already draws.
+second code path, and it is asserted on TWO terms because one will not do: return share alone is
+`1 − wall_width_m / 16`, a re-expression of width that reads no depth, so beside it runs the metres
+of side wall in view. The corridor facings exceed every enclosed one on both — 84 % of frame against
+the study's 66 %, and 4.02 m of side wall against 2.37 m — and the same claim is read off the render
+as well as computed from literals. §5's *"side planes converging, open centre"* is the deep view down
+the middle between those converging planes; a passage with no end wall at all is the `open` type,
+which the same band model already draws.
+
+*A ceiling where a document asks for one.* `plan.floors[].storey_height_m` is optional, no floor of
+the shipped plan carries one, and nothing draws a ceiling — the field has a schema, a validator
+clause and its own cases so it is settable by a document rather than reachable only from the
+renderer. It exists because a room bounded left and right and unbounded upward reads as a shaft: at
+the pinned scale the frame holds 6.95 m of wall above the floor line, against a c.1660 storey of
+2.6–3.0 m. Whether the rooms SHOULD have one is a look decision and it is Kabe's, asked in row 11's
+direction package against a rendered pair. Drawn, the ceiling is line work — its wall-ceiling line,
+its two junctions and its own fan, clipped to the room exactly as the floor's are.
+
+*What the grid does NOT draw, computed rather than counted.* §11 gives the carriers to row 4's
+painted backdrops and §4b item 9 gives multi-facing presence to row 15, so a doorway, a window or a
+hearth the plan holds in view is painted as plain wall. The enumeration of that is derived from
+`plan.json` per facing and pinned by test — **five of eight facings on the wall the player is looking
+at**, including the study's fireplace at 2.20 m of a 5.45 m wall, plus sixteen more on the returns.
+Row 11 first wrote that list by hand from `world.json`'s exits and got three door slivers; a
+carrier the plan gains cannot now become blank wall in silence.
 
 *What the corners make visible, and do not settle.* At the pinned 96 px/m a 5.45 m study wall is
 523 px of a 1536 px frame, so about two thirds of a study frame is side wall — an implied ~131°

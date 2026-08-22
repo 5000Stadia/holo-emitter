@@ -72,8 +72,11 @@ test.describe("the fixture validator (§2–§8 split, refs, pairs, §12.9)", ()
       (s) => { s.placements.chair1.facing = "hall/N"; }, /location|chair1/i],
     ["known entity staged nowhere", "staging",
       (s) => { delete s.placements.shelf1; }, /shelf1/i],
+    /* Row 11 moved the pair east, so u 0.9 is now BESIDE the desk rather than
+       away from it. u 0.5 puts the chair back at the room's centre, which is
+       where the desk no longer is. */
     ["parted overlap pair (u)", "staging",
-      (s) => { s.placements.chair1.u = 0.9; }, /overlap|chair1/i],
+      (s) => { s.placements.chair1.u = 0.5; }, /overlap|chair1/i],
     ["parted overlap pair (depth/y-span)", "staging",
       (s) => { s.placements.stick1.depth_m = 1.6; }, /overlap|stick1/i],
     ["missing narration key", "narration",

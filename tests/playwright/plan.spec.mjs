@@ -197,9 +197,15 @@ test.describe("plan.json", () => {
     expect(room(PLAN, "hall").name).toBe("CROSS PASSAGE");
   });
 
-  test("the three true-but-unfixable facts are reported as warnings, not hidden and not blocking", () => {
+  test("the true-but-unfixable facts are reported as warnings, not hidden and not blocking", () => {
+    /* Two, not three, since row 11. `desk1` standing in the study's chimney
+     * breast was the third, and it was never in this class: a warning is for
+     * something a human approved and an agent may not change, and furniture an
+     * agent inverse-projected is not that. It is a hard clause now
+     * (`plan.object_clear_of_carriers`, exercised in the ledger) and the desk
+     * has moved out of the hearth. */
     const w = planWarnings(PLAN, BY_ENTITY).join("\n");
-    expect(w).toMatch(/desk1.*chimney breast of "study"/);
+    expect(w).not.toMatch(/chimney breast/);
     expect(w).toMatch(/entrance_approach.*facing N.*no wall across it/);
     expect(w).toMatch(/hearth in "kitchen" has no stack/);
     // and they are warnings: the plan still validates.
@@ -562,30 +568,18 @@ test.describe("the plan validator goes red on every check it claims", () => {
     });
   }
 
-  /* The two object warnings, and the one that says a check did not run. A
-   * warning nothing exercises is a warning that can stop being computed. */
-  test("planWarnings names an object standing in a hearth and a stack that stops", () => {
+  /* The warning that says a check did not run. A warning nothing exercises is
+   * a warning that can stop being computed.
+   *
+   * The three OBJECT warnings that used to live here — an object in a hearth,
+   * two objects in each other, an object on a stair flight — are hard clauses
+   * since row 11, with cases in `tests/playwright/guards.spec.mjs`. They were
+   * warnings because row 12 could not tell "a human approved this and an agent
+   * may not change it" from "an agent placed this badly", and the study's desk
+   * spent two rows 91% inside its own fireplace as a result. */
+  test("planWarnings still names the stack that stops, which nobody may fix", () => {
     const w = planWarnings(PLAN, BY_ENTITY, WORLD);
-    expect(w.join("\n")).toMatch(/stands in the chimney breast of "study"/);
     expect(w.join("\n")).toMatch(/has no stack rising through "upper"/);
-  });
-
-  test("planWarnings names two objects standing in each other", () => {
-    const p = clone(PLAN);
-    const [a, b] = [p.objects.find((o) => o.id === "desk1"), p.objects.find((o) => o.id === "chair1")];
-    b.footprint = { ...a.footprint };
-    expect(planWarnings(p, BY_ENTITY, WORLD).join("\n")).toMatch(/occupy the same floor/i);
-  });
-
-  test("planWarnings names an object standing in a stair flight", () => {
-    const p = clone(PLAN);
-    const st = p.stairs[0];
-    p.objects.push({
-      id: "chest1", floor: "ground", room: st.joins[0], source: "drawing",
-      attachment: "floor_against",
-      footprint: { x0: st.rect.x0 + 0.1, x1: st.rect.x0 + 0.7, y0: st.rect.y0 + 0.1, y1: st.rect.y0 + 0.5 }
-    });
-    expect(planWarnings(p, BY_ENTITY, WORLD).join("\n")).toMatch(/stair/i);
   });
 
   test("planWarnings says out loud when the footprint cross-check could not run", () => {
@@ -1133,12 +1127,14 @@ test.describe("the projection against the shipped staging", () => {
   /* Honesty about what the agreements are worth. Four of the six are
    * definitional (their plan positions came out of this staging), and the
    * fifth is at offset 0 where u is 0.5 under any wall width at all. */
-  test("the four free-standing objects round-trip, and three of them agree definitionally", () => {
-    /* Honesty about what the agreements are worth: three of these footprints
-     * were inverse-projected out of an earlier staging, so their agreement is
-     * definitional and says nothing about the plan. `stick1` is the one that
-     * is not — row 11 moved it under blueprint §4's standing licence, so its
-     * source is "composed" and it carries the reason. */
+  test("the four free-standing objects round-trip, and only one still agrees definitionally", () => {
+    /* Honesty about what the agreements are worth. Only `shelf1`'s footprint
+     * is still the inverse projection of an earlier staging, so only its
+     * agreement is definitional and says nothing about the plan. The other
+     * three were moved at row 11 under blueprint §4's standing licence — the
+     * candlestick to keep the occlusion pair when the cross passage got its
+     * real camera, the desk and the chair out of the study's chimney breast —
+     * so each is "composed" and carries its own reason. */
     const sources = {};
     for (const [id, pl] of Object.entries(STAGING.placements)) {
       if (Array.isArray(pl) || !pl.facing) continue;
@@ -1152,11 +1148,13 @@ test.describe("the projection against the shipped staging", () => {
       }
     }
     expect(sources).toEqual({
-      desk1: "inverse-projected",
-      chair1: "inverse-projected",
+      desk1: "composed",
+      chair1: "composed",
       shelf1: "inverse-projected",
       stick1: "composed"
     });
+    expect(PLAN.objects.find((o) => o.id === "desk1").note).toMatch(/chimney breast/);
+    expect(PLAN.objects.find((o) => o.id === "chair1").note).toMatch(/keeps the pair/i);
     const stick = PLAN.objects.find((o) => o.id === "stick1");
     expect(stick.note, "a composed value carries its why").toMatch(/§4/);
     expect(stick.note).toMatch(/occlusion chain/);
@@ -1239,8 +1237,8 @@ test.describe("the projection against the shipped staging", () => {
 
   test("view angles are derived from the plan, for §10's per-placement request", () => {
     const p = projectPlacement(PLAN, "desk1", "study", "N");
-    // atan2(offset, standpoint distance − depth) = atan2(−0.336, 3.60 − 0.55)
-    expect(p.view_angle_deg).toBeCloseTo(Math.atan2(-0.336, 3.05) * 180 / Math.PI, 6);
+    // atan2(offset, standpoint distance − depth) = atan2(+1.875, 3.60 − 0.55)
+    expect(p.view_angle_deg).toBeCloseTo(Math.atan2(1.875, 3.05) * 180 / Math.PI, 6);
     expect(projectPlacement(PLAN, "door1", "hall", "W").view_angle_deg).toBeCloseTo(0, 9);
     for (const r of stagingDivergence(PLAN, STAGING).rows) {
       const [rm, f] = r.facing.split("/");
@@ -1396,7 +1394,10 @@ test.describe("the bake refuses a fixture whose plan does not hold up", () => {
     try {
       const fx = join(dir, "fixtures", "demo-study");
       const st = readJson(join(fx, "staging.json"));
-      st.placements.desk1.u = 0.48;   // small enough to keep every fixture check green
+      /* Small enough to keep every OTHER fixture check green: a nudge that
+         leaves the desk inside its room and still overlapping the chair, so
+         the only thing that can notice is the plan projection itself. */
+      st.placements.desk1.u = st.placements.desk1.u + 0.004;
       writeFileSync(join(fx, "staging.json"), JSON.stringify(st, null, 2) + "\n");
       let msg = "";
       try { bake(dir, ["--fixture-dir", fx, "--out", join(dir, "fresh.js")]); }

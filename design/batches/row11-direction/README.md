@@ -123,29 +123,36 @@ produces is a view wide enough that a square room reads long. Same cause again.
 **These three are one question, and it is the one row 4's approved backdrop answers for good.**
 Whatever you say sets the interim look.
 
-## Question 7 — where should the desk stand? `08a` vs `08b`
+## Question 7 — where should the desk stand? `08a` (what ships now) vs `08b`
 
-The study's chimney breast occupies the middle 2.2 m of the north wall, and the desk currently
-stands inside it — 0.65 m² of desk in the masonry. You cannot see it today because the grid paints
-no hearth; you would see it the day row 4's backdrop paints one. Two places it could go instead:
+The study's chimney breast occupies the middle 2.2 m of the north wall, and the desk was standing
+**inside** it — 0.65 m² of a 0.715 m² footprint, so 91% of the desk was in the masonry, on the wall
+the demo opens on and the one the drawer, the key and the chair all belong to. You could not see it,
+because the grid paints no hearth; you would have seen it the day row 4's backdrop painted one.
 
-- **`08a` — the north wall, east of the hearth.** Plan x 28.9–30.2, i.e. 1.88 m right of that
-  wall's centre. Nearest the room's east window. **Note the cost, which the frame shows:** the
-  chair stays where it is, so the desk-and-chair pair stops overlapping. If you like this, the
-  chair moves with it.
-- **`08b` — the west wall**, centred (plan x 24.95–25.50). `08c` is what the boot view becomes if
-  the desk leaves it: the room you first see is bare but for the chair.
+A plan that puts furniture inside its own building contradicts itself, so rather than wait, **`08a`
+is what ships today, as an interim**: the desk moved east along the north wall, clear of the hearth
+(plan x 28.9–30.2), with the chair moved to keep the pair. **Your answer replaces it**, and the
+alternative is rendered so the choice is a glance:
 
-Neither is chosen. Both are a footprint in the plan and a line of staging; whichever you point at
-takes about a minute.
+- **`08a` — the north wall, east of the hearth.** What every other frame in both batches shows.
+- **`08b` — the west wall**, desk and chair together. `08c` is what the room you first see becomes
+  if they leave the north wall: bare.
+
+If neither is right, say where and it is a footprint in the plan and a line of staging.
+
+One thing the frames taught us that a description would have hidden: moving the desk without moving
+the chair breaks their overlap. They draw at different distances from you, so keeping the same gap
+in metres opens the gap on screen from 50 pixels to 118, and the chair stops crossing the desk. The
+pair moves together or not at all.
 
 ---
 
 ## Three things we are reporting rather than fixing
 
-1. **The desk stands in the study's chimney breast** — 0.65 m² of overlap, on the very facing row 4
-   generates first (`01`). It has been in the plan since the plan existed; row 11 only makes it
-   visible. Question 7 above is the fix, waiting on your finger.
+1. **The desk was standing in the study's chimney breast** — see question 7. Fixed as an interim,
+   waiting on your answer for good, and the plan now refuses any furniture placed inside the
+   building rather than reporting it as a note nobody had to read.
 2. **The furniture's positions were never authored in metres.** The desk, chair, bookcase and
    candlestick were placed on screen first and converted to plan positions afterwards, against the
    old 16 m wall. Their metre positions are legal and unremarkable but nobody chose them as metres;

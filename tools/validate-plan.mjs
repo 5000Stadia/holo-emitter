@@ -793,6 +793,35 @@ export function validatePlan(plan, world, records) {
     if (!OBJECT_SOURCES.includes(o.source)) {
       push(`object "${o.id}": source ${JSON.stringify(o.source)} is not one of ${OBJECT_SOURCES.join(" | ")} — a later re-derivation has to know which values it may regenerate`);
     }
+    /* FURNITURE STANDS ON FREE FLOOR, not inside the building. Row 11's own
+     * "every directly-staged placement lies inside the room at its own scale"
+     * was scoped to the room POLYGON, and a chimney breast is inside that — so
+     * `desk1` sat with 91% of its footprint in the study's hearth, on the
+     * facing row 4 generates first, reported as a warning nobody had to act
+     * on. A room's free floor is the room minus what is built into it. */
+    for (const fire of plan.fireplaces || []) {
+      if (fire.floor !== o.floor || !rectOk(fire.rect) || !rectOk(o.footprint)) continue;
+      const a = overlapArea(fire.rect, o.footprint);
+      if (a > 1e-9) {
+        push(`object "${o.id}": ${a.toFixed(3)} m² of its footprint is inside the chimney breast of "${fire.room}" — furniture stands on the floor a room has left, not in its masonry [row11:plan.object_clear_of_carriers]`);
+      }
+    }
+    for (const st of plan.stairs || []) {
+      if (!rectOk(st.rect) || !rectOk(o.footprint)) continue;
+      const room = byId.get(o.room);
+      if (!room || !st.joins.includes(o.room)) continue;
+      if (overlapArea(st.rect, o.footprint) > 1e-9) {
+        push(`object "${o.id}": its footprint is on the "${st.id}" flight [row11:plan.object_clear_of_stairs]`);
+      }
+    }
+    for (const other of plan.objects || []) {
+      if (other.id <= o.id || other.floor !== o.floor) continue;
+      if (!rectOk(other.footprint) || !rectOk(o.footprint)) continue;
+      if (overlapArea(other.footprint, o.footprint) > 1e-9) {
+        push(`objects "${o.id}" and "${other.id}" occupy the same floor area [row11:plan.objects_do_not_share_floor]`);
+      }
+    }
+
     /* A composed footprint is one a human licence moved off its derived
      * value; without the reason beside it the next re-derivation cannot tell
      * a decision from a stale number, which is the whole point of the token. */
@@ -874,28 +903,14 @@ export function planWarnings(plan, records, world) {
     out.push(`${plan.objects.length} object footprint(s) were NOT cross-checked against their §6 dims — no records were supplied, which is the plan-only case; run with a world beside the plan for the full check`);
   }
 
-  /* Objects standing in things. The plan is the first artifact that can see
-   * these at all — the grid draws no hearth. */
-  for (const o of plan.objects || []) {
-    if (!rectOk(o.footprint)) continue;
-    for (const fire of plan.fireplaces || []) {
-      if (fire.floor === o.floor && rectOk(fire.rect) && overlapArea(fire.rect, o.footprint) > 0) {
-        out.push(`object "${o.id}" stands in the chimney breast of "${fire.room}" — ${fmt(overlapArea(fire.rect, o.footprint))} m² of overlap`);
-      }
-    }
-    for (const s of plan.stairs || []) {
-      const room = byId.get(o.room);
-      if (room && s.joins.includes(o.room) && rectOk(s.rect) && overlapArea(s.rect, o.footprint) > 0) {
-        out.push(`object "${o.id}" stands on the "${s.id}" flight`);
-      }
-    }
-    for (const other of plan.objects || []) {
-      if (other.id <= o.id || other.floor !== o.floor || !rectOk(other.footprint)) continue;
-      if (overlapArea(other.footprint, o.footprint) > 0) {
-        out.push(`objects "${o.id}" and "${other.id}" occupy the same floor area`);
-      }
-    }
-  }
+  /* Objects standing in things WAS a set of warnings here. Row 11 promoted it
+   * to a hard clause in validatePlan (`plan.object_clear_of_carriers` and
+   * `plan.objects_do_not_share_floor`), because a warning nobody had to act on
+   * is how the study's desk came to sit 91% inside its own hearth for two
+   * rows, on the facing row 4 generates first. A warning is for something a
+   * human approved and an agent may not change; furniture an agent placed is
+   * not that.
+   */
 
   /* A hearth with no flue rising through the floor above it. */
   for (const f of plan.floors || []) {

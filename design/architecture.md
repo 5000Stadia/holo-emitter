@@ -551,6 +551,17 @@ meta knows the two corners of a single full-span band (`bounded`). So `enclosed`
 `open` select data, never a branch in the drawing — which is the checkable form of row 11's promise
 that the other two types are "a meta entry later, not a renderer rewrite".
 
+**Nothing hangs on a wall that is not there, and the read is in ONE place.** Blueprint §5 law (b)
+gives a `wall_mounted` entity no wall to hang on where no band is built, and row 11's first pass put
+that guard on `apertures` alone: the hole vanished and the plank stayed — 11,415 opaque pixels of
+door standing in open void, hit-tested, hover-highlighted and toggleable. The leaf, the opening, the
+hit region and the keyboard control are four code paths reading one document, so the guard is in
+`layout`, which `hitTest`, the page's resolver and the controls all walk, and `apertures` asks the
+same question of the same bands. The check is per OPENING, not per facing: on a part-built view the
+opening must fall inside a band that is actually built, which is law (b) at the resolution the law
+is written at — and that half had no case until a critic widened its tolerance and watched the whole
+suite stay green.
+
 **What the drawing does, region by region.** Above the floor line: the void base, then each band's
 wall over it. Below: the floor base, then the two returns painted over both halves of their own
 region (they span above and below the floor line). The return polygon is TRACED rather than
@@ -581,10 +592,16 @@ dodges land outside a corner. Where there is no band at all (`open`) it is centr
 
 **Corridor is not nominal after this row, and not enclosed wearing a label.** The approved plan types
 the cross passage's two ends `corridor` and `door1` stands on one, so M0 ships enclosed AND corridor.
-What separates them is arithmetic already in the drawing rather than a second code path, and it is
-asserted: the returns fill 84 % of `hall/E`'s frame against 66 % of `study/N`'s, and the side wall
-visible along it runs 5.03 m of depth against 2.37 m. §5's "open centre" is the deep view between
-converging planes; a passage with no end wall is the `open` type, which the same bands already draw.
+What separates them is arithmetic already in the drawing rather than a second code path — and row 11
+claimed that twice before writing the test, which the artifact critic caught. `geometry.spec` asserts
+it now, on **two** terms, because one is not enough: return share alone is `1 − wall_width_m/16`, a
+re-expression of width that reads no depth at all, so a 2.60 m wall at 1 m and at 6 m give the same
+number. Beside it runs the metres of side wall in view — the depth at which the return leaves the
+frame — which is the term that reads the standpoint. The corridor facings exceed every enclosed one
+on both: 84 % of frame against the study's 66 %, and 4.02 m of side wall against 2.37 m. And the
+same claim is read off the render as well as computed test-side, so the type cannot become a label
+the drawing ignores. §5's "open centre" is the deep view between converging planes; a passage with
+no end wall at all is the `open` type, which the same bands already draw.
 
 **What the corners make visible and do not settle.** 5.45 m at 96 px/m is 523 px of a 1536 px frame,
 so two thirds of a study frame is side wall — an implied ~131° view against §10's 50 mm. Row 11
@@ -596,15 +613,34 @@ corner in frame at these sizes (50 mm is a 2133 px focal; the study's wall would
 is §5's scale-vs-lens question, it gates a named quality, and it is Kabe's. `mechanisms.spec` pins
 the current model with a case that says so, so a silent change of model goes red.
 
-**The returns are featureless, and what that omits is computed rather than waved away.** `apertures`
-derives openings from `locations[].exits` on the facing being DRAWN; multi-facing presence is §4b
-item 9's and row 15's. So a doorway on an adjacent wall, visible in a return, is painted as blank
-wall. Nothing interactive is lost — the harness requires the exit's own facing — and it is strictly
-less divergence than the endless wall, which ran the north wall across the whole frame and drew no
-side walls at all. But the plan holds carriers the returns do not show, and the row's report and the
-batch name them: `study/S` shows the full 1.00 m of `door1`'s opening in its left return, `hall/N`
-and `hall/S` a 0.18 m sliver each, and the study's east/west views cross the north and south walls'
-windows and the chimney breast's relief.
+**The grid draws no carriers, and the omission is COMPUTED from the plan rather than counted by
+hand.** `apertures` derives openings from `locations[].exits` on the facing being drawn; §11 gives
+the carriers to row 4's painted backdrops and §4b item 9 gives multi-facing presence to row 15. So a
+doorway, a window or a hearth the plan holds in view is painted as plain wall. That is defensible —
+the grid is §7's unestablished space, and it is far LESS divergence than the endless wall it
+replaces, which ran one room's north wall across the whole frame and drew no side walls at all.
+**What is not defensible is claiming the omission is smaller than it is**, and row 11's first
+enumeration did: written by hand from `world.json`'s exits it listed three door slivers in the
+returns. Computed from the plan's own carriers it is **five of eight facings on the wall the player
+is looking at** — the study's fireplace is 2.20 m of a 5.45 m wall, `hall/E`'s window is dead centre
+of a 2.60 m end wall, `study/S` has two windows, and the passage's north and south walls each carry
+a door the world does not name — plus **sixteen** more on the returns. `geometry.spec` computes both
+lists from `plan.json` and pins them, so a carrier the plan gains cannot quietly become blank wall.
+The returns' list is attributed BY WALL LINE, so a carrier belonging to the room on the other side
+of a shared wall is counted too: an upper bound, which is the honest side to be wrong on for an
+omission ledger.
+
+**A ceiling, drawn only where a document asks for one.** `plan.floors[].storey_height_m` is optional
+and no floor of the shipped plan carries one, so nothing draws a ceiling; the field has a schema, a
+validator clause and ledger cases so that it is settable by a document rather than reachable only
+from the renderer. It exists because a room bounded left and right and unbounded upward reads as a
+shaft — at the pinned scale the frame holds 6.95 m of wall above the floor line against a c.1660
+storey of 2.6–3.0 m — and whether it SHOULD be drawn is a look decision in the direction package
+(question 2), asked against a rendered pair rather than a paragraph. The ceiling is line work: its
+wall-ceiling line, the two junctions and its own fan, clipped to the room exactly as the floor's are.
+It has no plane FILL, and that is the narrowing rather than an omission — the fill was `#080a0e`
+over a void base of `#080b10`, which measured through the real draw path moved nothing a detector
+could name.
 
 **The depth band a room can stage in narrows with its camera.** The validator bounds `depth_m` by
 `scaleAtDepth ≤ px_per_m_at_bottom`; at `hall/N`'s 1.95 m standpoint the maximum legal depth is
@@ -1056,11 +1092,21 @@ refuses that.
 **What the agreement is worth, after adoption: nothing, about the plan.** All six rows now agree
 definitionally where before exactly one carried information. The guard still catches a later edit
 to either side, and `plan.spec` says so in the case's own name.
-**Two things adoption absorbed and did not fix**, both reported rather than waved away: three of
-the four furniture footprints were inverse-projected out of the OLD 16 m-wall staging, so adopting
-their projection keeps each object at a metre offset nobody authored as metres; and `desk1`'s
-footprint overlaps the study's chimney breast by 0.65 m² — a `planWarnings` finding that pre-dates
-this row, on the facing row 4 generates first. The same paragraph applies to §4b
+**What adoption absorbed, and what row 11 then had to undo.** The four furniture footprints were
+inverse-projected out of the OLD 16 m-wall staging, so adopting their projection kept each object at
+a metre offset nobody had authored as metres. One of them was not merely unauthored but wrong:
+`desk1` stood with **91 % of its footprint (0.65 of 0.715 m²) inside the study's chimney breast**, on
+the facing row 4 generates first and the one the drawer, the key reveal and the chair×desk pair all
+happen on. It had been a `planWarnings` entry since row 12 — a warning nobody had to act on, because
+row 12 could not tell "a human approved this and an agent may not change it" from "an agent placed
+this badly". Furniture an agent inverse-projected is the second kind. So the check is a hard clause
+now (`plan.object_clear_of_carriers`, with `…_of_stairs` and `objects_do_not_share_floor` beside
+it), and the desk moved east along the north wall, clear of the hearth, on the Navigator's ruling
+and under §4's standing licence — **an interim, superseded by Kabe's answer to the direction
+package's question 7.** `chair1` moved with it, and by the amount that KEEPS THE PAIR rather than by
+the same metres: the two draw at different scales (144 and 113 px/m), so preserving their metre
+offset would have opened their screen gap from 50 px to 118 and broken the authored occlusion chain.
+Both footprints carry their reason on the object. The same paragraph applies to §4b
 item 10's **solver**: this row builds the document, the validators and the derived render — the
 grammar and the solver that would author a plan from a description are not built here and have
 no owner yet.
@@ -1561,19 +1607,40 @@ from the drawn floor line and drawn horizon on all eight facings** — the claus
 reading the derivation back cannot — and the grid scans re-pointed per facing);
 `shell` carries the new reserve/viewport numbers (row 1's stale "window width" title is dead).
 
+**A GUARD'S TEETH ARE PROVEN BY A CRITIC FAILING TO BREAK IT, NOT BY ITS AUTHOR WATCHING ONE
+MUTATION GO RED.** [felt, row 11] This is the fourth bite of the same family on this project and the
+sentence is the scar. Row 11 built the ledger below, verified it by disabling one function and
+watching ten cases go red, and reported the family closed. The next artifact critic took it apart in
+four ways: the completeness check compared two hand-typed lists to each other, so deleting a whole
+case left it green; the clause tokens were coarser than the clauses, so four unexercised arms could
+be deleted in one edit; it asserted membership and never exclusivity, so "fails on that clause
+alone" was prose; and six more mechanisms it never named survived deletion with 1032 tests green.
+The author's mutation proves the case he wrote. Only a critic's proves the ones he did not.
+
 **THE CLAUSE LEDGER IS THE STANDING REQUIREMENT** (row 11, on the Navigator's ruling, after this
 family cost a round for the third time on this project). Row 3 answered it on the Python side with
 `replicator/tests/test_clause_guards.py`; `tests/playwright/guards.spec.mjs` is the same shape on
 the browser side. **Any new validator arm, and any new renderer mechanism, arrives with a case in
 the ledger** — a case that fails on that clause alone and names it, plus an entry in the ledger's
 declared `MECHANISMS` list, so a mechanism added without a case shows up as an absence rather than
-as silence. Two things make it work: every clause carries a stable `[row11:<name>]`-style token in
-the finding it emits, so a case names what fired instead of matching prose that will be reworded;
-and a document-side case doctors an INPUT while a renderer-side case stages the tree, deletes the
-mechanism and measures the picture. This is not a habit to remember — it is the shape the next row
-copies. Row 11's own first pass shipped six mechanisms held by nothing (the whole meta-schema arm,
-the `open` suppression, the bake's wide-camera refusal, both plan clauses, the floor's clip and the
-returns' grid), and the reason none of them surfaced is that nothing was counting.
+as silence. **Four things make it work, and the first ledger had only the second:**
+1. **Completeness is derived, not typed.** `ledgerCase(name, body)` registers each case as it is
+   defined, and the completeness test compares `MECHANISMS` against the cases that EXIST. Delete a
+   case and its name disappears from the set.
+2. **One token, one arm.** Every clause carries a stable `[row11:<name>]` token in the finding it
+   emits, so a case names what fired rather than matching prose someone will reword — and a test
+   reads the tokens out of the validator SOURCE and requires each to tag exactly one emit site and
+   to be declared. A clause added without a name is as invisible as a mechanism added without a
+   case.
+3. **Exclusivity, not membership.** A case asserts the tripped set EQUALS `[name]`. Isolating the
+   clause is what makes the case evidence about it; row 11's first ledger asserted only that the
+   name was among the clauses that fired, and three of its cases were tripping a second.
+4. **Renderer mechanisms are broken in a staged tree and measured in the picture**, because a
+   document cannot reach them. A document-side case doctors an input instead.
+This is not a habit to remember — it is the shape the next row copies. **A mechanism whose deletion
+a case cannot measure is a claim to narrow, not a guard to widen**: row 11 removed the ceiling's
+plane fill for exactly that reason — `#080a0e` over a void base of `#080b10` moved nothing a
+detector could name, so the fill was a mechanism nobody could see and a case nobody could write.
 
 **A check that stays green when what it guards is deleted is a finding**, and this row learned it
 twice: the first fix pass shipped five mechanisms held by nothing. Every guard listed above was
