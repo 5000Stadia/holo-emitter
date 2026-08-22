@@ -631,6 +631,27 @@ to admit the corpus. The three sub-rulings that came with it — the ceiling-ram
 approved camera as the project's, the measured door rectangle as the click target with width ruling
 and aspect warn-only — are applied and in the documents.
 
+**The one fork an agent may not decide, and it is the batch's first question.** Adopting the
+approved camera put the eye at 1.08775 m — 3 ft 7 in — where intention quality 5 names *"6 ft"* in
+Kabe's own words. Both cannot be true. The batch puts it to him as two worlds rather than two
+numbers: KEEP THE PICTURE, in which the intention's parenthetical amends to the measured camera and
+the 6-ft ruling is recorded as superseded by his own approved image under §5's authority chain; or
+ENFORCE SIX FEET, in which every backdrop regenerates with the eye fought upward against a generator
+that has drawn about four feet on all eight asks, for an unknown number of re-rolls. The Navigator
+recommends the first, because the quality's substance is consistency of eye height and rooms that
+read right and measurement delivers both, while the number was a means to *"better visual
+presentation"*. **`design/intention.md` is untouched pending his word** — the amendment is his to
+authorise, not a consequence an agent may apply.
+
+**Two residue items sharpened after the build, both in the batch.** The turning translation
+(§9 item 6) measured out at 2.38 m per 90° press against 1.81 m before, and it is now recorded
+BESIDE the standpoint law in `architecture.md` as that law's known cost, with the mitigation path
+named: multi-standpoint rooms make body positions explicit instead of derived, and node travel
+absorbs what free-look cannot. The black seen through an open door — 4.4 % of the frame, magnified
+6.8× because the lens magnified the doorway — is not this row's to fix and is queued as a row
+candidate the Navigator allocates on this row's close: *through an opening, the destination room's
+content shows*. It ships as honest interim, named in the batch README in those words.
+
 **What the row still owes, in order:** the seven regenerated backdrops through the gate; their
 promotion to `backdrops/<loc>/<facing>.png` with measured metas; the navigation boot fixture and
 the doorway-as-a-building-fact that an empty painted room needs to be walkable; the batch of the

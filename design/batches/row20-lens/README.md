@@ -75,12 +75,28 @@ that camera. The consequence is visible: **the floor is 24 % of the study frame 
 3.08 m. It is a better picture by the intention's own fifth quality, and it is not the composition
 you looked at.
 
-**And one thing in it is a question only you can answer.** Intention quality 5 names the eye
-height in your own words — *"contract §10 — 6 ft, pitched slightly down, per Kabe's 2026-08-20
-ruling"*. The camera now drawing is **3 ft 7 in**, measured off a generator that was asked for six
-feet on all eight backdrops and drew about four on every one. Consistency, which the quality asks
-for, is delivered. The height it names is not. Either the picture moves to your number or your
-number moves to the picture, and an agent may not decide which.
+## Question 1, and it is the only one that blocks: two worlds, pick one
+
+Your intention names the eye height in your own words — *"contract §10 — 6 ft, pitched slightly
+down"*. The camera now drawing is **3 ft 7 in**. It got there by measurement: the generator was
+asked for six feet on all eight backdrops and drew about four on every single one, and blueprint §5
+says the approved image is the geometric authority. So this is not a number to correct. It is a
+choice between two worlds, and only you can make it.
+
+**(i) KEEP THE PICTURE.** The world you are looking at in these frames. Eye ~1.09 m, the floor
+starting 2.23 m ahead, the same camera on all eight facings, nothing regenerates, the batch is
+finished art direction. The cost: the intention's parenthetical amends to the measured camera, and
+your 6-ft ruling is recorded as superseded by your own approved image — which is the authority
+chain you yourself set when you ruled that the approved image IS the camera.
+
+**(ii) ENFORCE SIX FEET.** Your number stands in the intention untouched. The cost: every backdrop
+regenerates with the eye fought upward against a generator that has drawn about four feet on all
+eight asks so far, for an unknown number of re-rolls, and nothing ships until they land.
+
+**The Navigator's recommendation is (i)**, and the reason is what quality 5 is actually for: its
+substance is CONSISTENCY of eye height and rooms that read right, and measurement delivers both.
+The number was always a means to *"better visual presentation"* — which the approved frames already
+are. Your word decides. Nothing ships before it either way.
 
 ## The five things that are yours
 
@@ -99,10 +115,13 @@ delivered, and no lens shift at this focal length can deliver it; its other half
 reference anchors the same way through a near desk surface"* — is what closes the rest, and it
 belongs to the row that stages a near surface.
 
-**And one thing this row made worse before the painted world fixes it: open a door and you look
-through it into black.** The opening is a hole in the wall with nothing behind it — 4.4 % of the
-frame on the study side, about six times the void the old fisheye showed, at exactly the point your
-eye goes (`10-study-E-door-open.png`). What belongs behind it is the next room's own painted wall.
+**And one thing this row made worse, which the next row is already lined up to fix: open a door and
+you look through it into black.** The opening is a hole in the wall with nothing behind it — 4.4 %
+of the frame on the study side, about six times the void the old fisheye showed, at exactly the
+point your eye goes (`10-study-E-door-open.png`). That black is what the shipped code draws today
+and this batch shows it rather than hiding it. What belongs there is the next room's own painted
+wall, and *"through an opening, the destination room's content shows"* is queued as its own row the
+moment this one closes.
 
 **3. The passage's furniture moved to its east end wall, and it was forced.** The bookcase and the
 candlestick stood against the passage's north wall, which now has no floor to stand on — the
@@ -116,8 +135,12 @@ prompt sheet that paints it either sets the sill above the press's head or you r
 its corners means **one arrow press now carries you 2.4 m** across a 4.8 m room, where it used to
 carry you 1.8 m; the study's opposite standpoints are 3.4 m apart against 2.4 m before, and the
 passage's east and west 4.0 m apart. Turning is the thing a player does most. The lens is
-one lens now; the position is not one position. Rooms with several standpoints are a later row's,
-and this is the number that will decide them.
+one lens now; the position is not one position, and the trade was taken with eyes open: without
+standing back, neither frame you approved reproduces. The fix is not a lens change. It is rooms
+that name several standpoints outright — so where you stand is a stated fact of the room rather
+than something a rule works out from a wall — plus the fiction of travelling between them, which
+absorbs the step that a free-look camera cannot hide. That is a later row, and this is the number
+that will decide it.
 
 **5. And the smallest thing that will annoy you first: the coin.** On a phone the silver coin on
 the passage shelf draws under three CSS pixels and its reachable target is about eleven — a

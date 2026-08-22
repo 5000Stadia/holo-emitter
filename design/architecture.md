@@ -772,6 +772,19 @@ a `threshold` standpoint (an agent computed it) and a warning for a `rule` or
 **precedence** over the branch and placement clauses: one fault, one finding,
 which is what lets the ledger isolate it.
 
+**The law's known cost, named here beside the law rather than only in the
+residue list**: standing back moves the body. One 90° arrow press now carries the
+viewer 2.38 m across a 4.80 m study where it carried 1.81 m before, and the
+passage's E↔W standpoints are 4.00 m apart. The ruling this law serves says *"one
+lens per room so turning never changes the body"* — the lens half is delivered
+and the position half is measurably worse, and the trade was taken knowingly:
+without it neither approved preview frame reproduces. **The mitigation path is
+recorded and is not a lens change**: §4b item 9's multi-standpoint rooms make
+body positions EXPLICIT — several named standpoints per room, each with its own
+drawn distance — rather than implicit in a rule that derives one position from a
+wall's fit; and the fiction of travelling between nodes absorbs the displacement
+that free-look cannot hide. Residue item 3 carries the full table of numbers.
+
 ### What §12.5 lost, and what stands in its place
 
 **Clause (i) is retired** — *the wall in view fits the frame*, and its
@@ -929,6 +942,16 @@ text, so the hand-offs are recorded here where they survive its close:
   opening must coincide with the click target"* true by construction instead of
   by prompt discipline, and it is what an empty painted room needs in order to
   be walkable. Ratified in principle; unbuilt.
+- **A row candidate the Navigator holds for allocation the moment row 20's close
+  frees the spec list**: *through an opening, the destination room's content
+  shows*. The picture must not say VOID where a room stands, which makes it
+  product truth rather than polish, and the lens sharpened it — the black through
+  an open door went from about 10,000 px to 69,120 px, 4.4 % of the frame,
+  because magnifying the doorway magnified what is behind it. It boards from the
+  integration/sprite phase and it wants the meta-carried opening above. **For
+  this row it is honest interim, not a defect to hide**: what the shipped code
+  draws today is a dark aperture, and the batch README says so in those words
+  rather than letting a reviewer discover it.
 - **Rows 18 and 19**: eight more ledger tokens, and row 19's carrier work partly
   reached here for standpoints only (`plan.standpoint_clear`).
 
@@ -1928,7 +1951,12 @@ as silence. **Four things make it work, and the first ledger had only the second
    emits, so a case names what fired rather than matching prose someone will reword — and a test
    reads the tokens out of the validator SOURCE and requires each to tag exactly one emit site and
    to be declared. A clause added without a name is as invisible as a mechanism added without a
-   case.
+   case. **And the count is CROSS-FILE, which row 20 learned the hard way.** The scan originally
+   counted emit sites per file, so once the clause set grew past one validator the same token in
+   two different files passed a rule whose entire purpose is that one token means one place. A
+   case naming that token then proves nothing about which of the two fired — the exclusivity in
+   (3) stays intact while the evidence under it quietly does not. **Whenever the scan's set of
+   source files grows, the dedup has to be over their union and never per member.**
 3. **Exclusivity, not membership.** A case asserts the tripped set EQUALS `[name]`. Isolating the
    clause is what makes the case evidence about it; row 11's first ledger asserted only that the
    name was among the clauses that fired, and three of its cases were tripping a second.
