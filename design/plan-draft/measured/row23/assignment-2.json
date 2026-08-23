@@ -1,0 +1,73 @@
+{
+  "_what_this_is": "The technique-(4) rolls' id map. A SECOND file rather than an edit: assignment.json was committed before any candidate existed and scaffold.spec asserts its blob has never changed since, so an extension that appended to it would break the one discipline that makes the map trustworthy.",
+  "_trigger": "Dispatched on the NULL trigger in design/specs/23-plan.md §4.5 - the separation report found no separation at all on either wall (carrier lean spread 0, p = 1.000 both walls).",
+  "_half_inheritance": "study/N's left return, floor and ceiling inherit study/W's promoted pixels; the right return stays grid because study/E is admitted and not promoted. Stated on the scaffold's own legend and in the packet.",
+  "_lens_arm_is_in_the_first_file": "P4's four ids were reserved in assignment.json when it was written; only their technique was undecided, and §5.6's rule has now picked it.",
+  "lens_technique_decided": {
+    "rule": "design/specs/23-plan.md §5.6",
+    "winner": "t3",
+    "variant": "VA",
+    "admitted_counts": [
+      [
+        "t3",
+        3
+      ],
+      [
+        "t1",
+        2
+      ],
+      [
+        "t2",
+        2
+      ]
+    ],
+    "_note": "the rule names a technique; the variant is its first declared one, which is the only deterministic extension"
+  },
+  "_generated": "2026-08-23",
+  "rolls": [
+    {
+      "id": "b912746e",
+      "wall": "study/N",
+      "technique": "t4",
+      "variant": null,
+      "roll": 1,
+      "camera": "page",
+      "scaffold": "content-scaffold",
+      "candidate": "backdrops/source/study-N/row23-b912746e.png",
+      "prompt": "backdrops/source/study-N/row23-b912746e.prompt.txt"
+    },
+    {
+      "id": "f8c180d2",
+      "wall": "study/N",
+      "technique": "t4",
+      "variant": null,
+      "roll": 2,
+      "camera": "page",
+      "scaffold": "content-scaffold",
+      "candidate": "backdrops/source/study-N/row23-f8c180d2.png",
+      "prompt": "backdrops/source/study-N/row23-f8c180d2.prompt.txt"
+    },
+    {
+      "id": "ad04dc51",
+      "wall": "study/N",
+      "technique": "t4",
+      "variant": null,
+      "roll": 3,
+      "camera": "page",
+      "scaffold": "content-scaffold",
+      "candidate": "backdrops/source/study-N/row23-ad04dc51.png",
+      "prompt": "backdrops/source/study-N/row23-ad04dc51.prompt.txt"
+    },
+    {
+      "id": "0cbdea31",
+      "wall": "study/N",
+      "technique": "t4",
+      "variant": null,
+      "roll": 4,
+      "camera": "page",
+      "scaffold": "content-scaffold",
+      "candidate": "backdrops/source/study-N/row23-0cbdea31.png",
+      "prompt": "backdrops/source/study-N/row23-0cbdea31.prompt.txt"
+    }
+  ]
+}

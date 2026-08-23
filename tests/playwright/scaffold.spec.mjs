@@ -515,8 +515,14 @@ test.describe("row 23 — the scaffold generator", () => {
    * check is BLOB IMMUTABILITY at the commit that introduced it, not commit
    * ordering — ordering can be satisfied by a rebase. It arms itself when P1
    * writes the file. */
-  test("assignment.json has never changed since it was added", async () => {
-    const rel = "design/plan-draft/measured/row23/assignment.json";
+  /* BOTH MAPS, and the second exists BECAUSE of this case. Technique (4) needed
+   * four more ids after the first twenty-eight had been measured, and appending
+   * them to `assignment.json` would have broken the one discipline that makes a
+   * map trustworthy — so the extension is a second file with the same rule
+   * rather than an edit to a file that may not change. */
+  for (const rel of ["design/plan-draft/measured/row23/assignment.json",
+    "design/plan-draft/measured/row23/assignment-2.json"]) {
+  test(`${rel.split("/").pop()} has never changed since it was added`, async () => {
     if (!existsSync(join(repoRoot, rel))) {
       test.info().annotations.push({
         type: "pending",
@@ -534,6 +540,7 @@ test.describe("row 23 — the scaffold generator", () => {
       `${rel} has changed since the commit that introduced it — the technique map cannot be edited once readings exist`)
       .toBe(then);
   });
+  }
 
   /* --------------------------------------------------------------- §7.13 */
   /* THE ROW-26 HANDSHAKE, MECHANICAL. A note in a spec file is deleted with
