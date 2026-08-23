@@ -50,6 +50,78 @@ const SHEET = (() => {
 /** The plan's own room ids, keyed by the NAME the approved sheet prints. */
 const ROOM_BY_NAME = new Map(PLAN.rooms.map((r) => [r.name, r.id]));
 
+/* WALK THERE; DO NOT ASSERT FROM THE DOOR-MAT.
+ *
+ * Several of this file's first-draft cases computed all eighty-eight facings
+ * analytically, never left the boot facing, and then asserted a property of
+ * "the page" — a property that could only ever be false somewhere they had
+ * not gone. A recheck reinstated the exact defect one of them was written for
+ * and the whole suite stayed green. So a claim about what the PAGE DOES now
+ * stands on the facing it is about, reached by real intents, with the go veil
+ * given time to settle. */
+async function standAt(page, room, facing) {
+  const path = await page.evaluate(({ room }) => {
+    const A = window.HOLO_APP, W = A.harness.world;
+    const start = A.harness.viewstate.location;
+    const prev = new Map([[start, null]]);
+    const q = [start];
+    while (q.length) {
+      const cur = q.shift();
+      if (cur === room) break;
+      for (const ex of (W.locations.find((l) => l.id === cur).exits || [])) {
+        if (!prev.has(ex.to)) { prev.set(ex.to, [cur, ex.id]); q.push(ex.to); }
+      }
+    }
+    if (!prev.has(room)) throw new Error(`no walked route to ${room}`);
+    const out = [];
+    for (let c = room; prev.get(c); c = prev.get(c)[0]) out.unshift(prev.get(c)[1]);
+    return out;
+  }, { room });
+  for (const id of path) {
+    const want = await page.evaluate((id) => {
+      const A = window.HOLO_APP, W = A.harness.world;
+      return (W.locations.find((l) => l.id === A.harness.viewstate.location).exits || [])
+        .find((e) => e.id === id).facing;
+    }, id);
+    for (let i = 0; i < 4; i++) {
+      const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+      if (f === want) break;
+      await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
+      await page.waitForTimeout(120);
+    }
+    await page.evaluate((id) => window.HOLO_APP.dispatch({ type: "go", exit: id }), id);
+    await page.waitForTimeout(450);
+  }
+  for (let i = 0; i < 4; i++) {
+    const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+    if (f === facing) break;
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
+    await page.waitForTimeout(150);
+  }
+  const at = await page.evaluate(() =>
+    window.HOLO_APP.harness.viewstate.location + "/" + window.HOLO_APP.harness.viewstate.facing);
+  expect(at, "the walk arrived where the case says it stands").toBe(`${room}/${facing}`);
+}
+
+/** Every way through THIS facing, with the visible centre of each in client px. */
+async function waysOnScreen(page) {
+  return page.evaluate(() => {
+    const A = window.HOLO_APP;
+    const cv = document.getElementById("scene");
+    const r = cv.getBoundingClientRect();
+    return A.apertureList().filter((a) => a.exit).map((a) => {
+      const x0 = Math.max(0, a.x), x1 = Math.min(cv.width, a.x + a.w);
+      const y0 = Math.max(0, a.y), y1 = Math.min(cv.height, a.y + a.h);
+      return {
+        exit: a.exit,
+        visible: x1 > x0 && y1 > y0,
+        cx: r.left + ((x0 + x1) / 2) * (r.width / cv.width),
+        cy: r.top + ((y0 + y1) / 2) * (r.height / cv.height)
+      };
+    });
+  });
+}
+
 test.describe("the whole manor is one document, checked facing by facing", () => {
   test("every room the world names is a room the plan draws, all four facings", () => {
     expect(NAV.locations.length, "the manor's rooms").toBe(PLAN.rooms.length);
@@ -294,8 +366,25 @@ test.describe("the picture, on every facing the manor renders", () => {
           /* A CORNER IS DRAWN IFF THE META HAS ONE IN FRAME, in both
              directions: found where the meta says one is, and absent 14 px to
              either side of it. */
+          /* AND A CORNER BEHIND A STAIRCASE IS NOT DRAWN, because a staircase
+             is opaque and stands in front of it. That is the one place this
+             drawing occludes anything and it is the point of the flight being
+             a solid: before it was, the room's own corner and floor grid read
+             straight THROUGH the body of the stair, which is the picture
+             denying a thing the document holds. A corner the flight's own mass
+             covers is therefore exempt — computed from the mass, so the
+             exemption moves if the geometry does. */
+          const covered = (x) => (meta.stairs || []).some((fl2) =>
+            (fl2.mass_poly || []).concat(fl2.treads_poly || []).some((poly) => {
+              if (poly.length < 3) return false;
+              const xs = poly.map((q) => q[0]);
+              const ys = poly.map((q) => q[1]);
+              return x >= Math.min(...xs) - 3 && x <= Math.max(...xs) + 3 &&
+                Math.max(...ys) > floorY - 90 && Math.min(...ys) < floorY - 10;
+            }));
           for (const [name, cx] of [["x0", meta.corner_x0_px], ["x1", meta.corner_x1_px]]) {
             if (cx == null || cx < 8 || cx > w - 9) continue;
+            if (covered(Math.round(cx))) continue;
             const col = (x) => {
               let sum = 0;
               for (let yy = Math.max(0, floorY - 90); yy < Math.min(h, floorY - 10); yy++) {
@@ -353,10 +442,12 @@ test.describe("the picture, on every facing the manor renders", () => {
       const A = window.HOLO_APP;
       const vs = { location: "great_stair_hall", facing: "N" };
       const fl = (A.metaFor(vs).stairs || [])[0];
-      /* The noses themselves, off `treads_poly` — `poly` is the hit region's
-         convex hull and says nothing about where any one tread is. */
-      const ys = fl.treads_poly.map((q) => q[0][1]);
-      ys.push(fl.treads_poly[fl.treads_poly.length - 1][3][1]);
+      /* The noses, off the list that says they are noses — `poly` is the hit
+         region's convex hull and says nothing about where any one tread is,
+         and `treads_poly` now carries two faces per step (the going and the
+         riser), so its quads outnumber the treads and only half of them begin
+         at a nose. */
+      const ys = fl.noses.map((seg) => seg[0][1]);
       return ys.sort((a2, b2) => a2 - b2);
     });
     expect(got.length, "every tread the frame can hold").toBe(want.length);
@@ -374,11 +465,12 @@ test.describe("the picture, on every facing the manor renders", () => {
 
     /* AND THE PICTURE DRAWS IT THERE. Everything above is arithmetic against a
        document; this is the row where the document meets the canvas. The
-       predicted top tread's row is measured off the render and required to
-       carry ink, and a row a quarter of the flight's height below it — which
-       the prediction says is between treads — is required not to. Without the
-       second half a renderer that filled the flight's whole rectangle would
-       pass the first. */
+       predicted top tread's row is measured off the render and required to be
+       BRIGHTER than a row between two treads. Without the second half a
+       renderer that filled the flight's whole rectangle would pass the first —
+       and since this row the flight IS filled, which is why the comparison is
+       of brightness between two rows of the same solid rather than of ink
+       against void. */
     const ink = await page.evaluate(({ topY, gapY }) => {
       const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
       const vs = { location: "great_stair_hall", facing: "N" };
@@ -389,23 +481,30 @@ test.describe("the picture, on every facing the manor renders", () => {
       window.HOLO.renderer.render(c, fx.world, fx.staging, A.library,
         { "great_stair_hall/N": { meta } }, vs, { backdrop_only: true });
       const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
+      /* THE MEAN OF THE ROW, not a count of lit pixels. The flight is a SOLID
+         now, so every row inside it is lit and a count cannot tell the row a
+         nose is drawn on from the riser face below it — both came to 939. What
+         distinguishes them is the nose LINE, stroked in the key tint over the
+         flight's own tone, so the discriminating quantity is how bright the
+         row is and not whether it is lit at all. */
       const rowInk = (y) => {
-        let n = 0;
+        let sum = 0, n = 0;
         const x0 = Math.max(0, Math.ceil(fl.x) + 2), x1 = Math.min(1536, Math.floor(fl.x + fl.w) - 2);
         for (let yy = Math.max(0, Math.round(y) - 1); yy <= Math.min(1023, Math.round(y) + 1); yy++) {
           for (let x = x0; x < x1; x++) {
             const i = (yy * 1536 + x) << 2;
-            if (d[i] + d[i + 1] + d[i + 2] > 90) n++;
+            sum += d[i] + d[i + 1] + d[i + 2]; n++;
           }
         }
-        return n;
+        return n ? sum / n : 0;
       };
       return { onTread: rowInk(topY), between: rowInk(gapY) };
     }, { topY: want[0], gapY: (want[0] + want[1]) / 2 });
     expect(ink.onTread, "the row the plan puts the top tread on carries ink")
-      .toBeGreaterThan(20);
-    expect(ink.between, "and the row between two treads carries less of it")
-      .toBeLessThan(ink.onTread);
+      .toBeGreaterThan(90);
+    expect(ink.onTread - ink.between,
+      "and the row between two treads is darker, so the noses are drawn and not merely the body")
+      .toBeGreaterThan(5);
   });
 
   /* NEVER VOID, AND NOT CONDITIONALLY. `drawThroughOpening` carries three
@@ -446,19 +545,32 @@ test.describe("the picture, on every facing the manor renders", () => {
             const dt = ctx.getImageData(0, 0, w, h).data;
             let lit = 0, tot = 0;
             const tx0 = Math.max(0, Math.ceil(ap.x)), tx1 = Math.min(w, Math.floor(ap.x + ap.w));
-            for (let y = Math.max(0, Math.ceil(ap.y)); y < Math.min(h, Math.floor(ap.y + ap.h)); y++) {
+            /* THE BAND THE GROUND BEYOND MUST OCCUPY: from the horizon — which
+               is where the far line of any open place lands — down to the
+               mouth's own sill. The mouth's rectangle is taller than this now,
+               because an `open_edge` has no lintel and the hole runs to the top
+               of the frame; but what is above the horizon through a gap is the
+               far building's face or the unpainted sky, and neither is this
+               clause's business. What IS its business is that the GROUND of the
+               place beyond is drawn where it must be. */
+            const bandTop = Math.max(0, Math.ceil(meta.horizon_y * h));
+            for (let y = bandTop; y < Math.min(h, Math.floor(ap.y + ap.h)); y++) {
               for (let x = tx0; x < tx1; x++) {
                 const i = ((y * w + x) << 2);
                 tot++;
                 if (dt[i] + dt[i + 1] + dt[i + 2] > 90) lit++;
               }
             }
-            /* On the approach's side the mouth stands at that facing's own
-               wall line and everything past it is unestablished void — the
-               vista is row 4's — so what is asserted there is that the mouth's
-               own ground line is drawn. On the court's side the ground beyond
-               it is in the picture and most of the rectangle is lit. */
-            if (tot > 400 && lit === 0) voids.push(`${ex.id}: its mouth is wholly unlit`);
+            /* A FRACTION, LIKE THE DOOR BRANCH BESIDE IT.
+               This asked only that ONE pixel be lit. The manor's front way in
+               answered with 1,068 of 65,148 — 1.6 %, a single hairline lying
+               on the wall-floor line — and passed, which is a guard that
+               cannot fail in the family row 18 exists to kill. What must be
+               through a mouth is the GROUND of the place beyond it, which is
+               a plane and not a line. */
+            if (tot > 400 && lit / tot < 0.08) {
+              voids.push(`${ex.id}: only ${(100 * lit / tot).toFixed(1)} % of its mouth is lit`);
+            }
             continue;
           }
           if (ap.kind !== "door") continue;
@@ -877,5 +989,197 @@ test.describe("§12.2 over a manor route, in both engines", () => {
        frame forever would pass every clause above. */
     expect(new Set(a.out).size, "and the manor is not one room repeated")
       .toBeGreaterThan(ROUTE.length);
+  });
+});
+
+/* WHAT THE FOURTH EXAMINATION FOUND, WRITTEN FROM THE DEFECT.
+ *
+ * Every case below was reinstated-and-confirmed-red the other way round: the
+ * defect was put BACK into the shipped code, and the case had to fail. That
+ * is the only order that answers the fault these four share — a guard written
+ * from its own fix, measured where its own fix is what runs. */
+test.describe("the stair, the chrome and the width, measured where they broke", () => {
+  /* THE FLIGHT IS ON EVERY FACING IT CAN HONESTLY BE ON, PER FACING.
+   *
+   * A total cannot substitute: the defect this replaces emitted a flight on
+   * one facing of each stair room and a sum over the manor still looked
+   * plausible. The census is per facing and pinned whole, so restricting
+   * `stairsForFacing` to the travel facing — which is the exact line a recheck
+   * used to reinstate the original finding with 1328 tests passing — moves
+   * eight of these sixteen entries and cannot pass. */
+  test("a flight is drawn from every side of it you can honestly see, facing by facing", () => {
+    /* Derived by the same call the bake makes, which `fixtures.spec`'s
+       staleness case pins byte-for-byte to what ships. */
+    const metas = {};
+    const census = {};
+    for (const room of ["great_stair_hall", "stair_landing", "back_stair", "back_stair_head"]) {
+      for (const f of FACINGS) {
+        const m = deriveMeta(PLAN, room, f);
+        metas[`${room}/${f}`] = m;
+        census[`${room}/${f}`] = m && m.stairs ? m.stairs.length : 0;
+      }
+    }
+    /* THE FOUR ZEROES ARE THE FOUR STANDPOINTS THE PLAN PUTS INSIDE A FLIGHT.
+       On those the run lies at and behind the eye and the only part in front
+       is the tread underfoot, nearer than a hand's breadth and below the
+       frame — so the honest picture is no flight, and the plan warning now
+       says so in those words instead of claiming a drawing that is not
+       there. Every other facing of every stair room carries its flight. */
+    expect(census).toEqual({
+      "great_stair_hall/N": 1, "great_stair_hall/E": 0,
+      "great_stair_hall/S": 1, "great_stair_hall/W": 1,
+      "stair_landing/N": 1, "stair_landing/E": 0,
+      "stair_landing/S": 1, "stair_landing/W": 1,
+      "back_stair/N": 0, "back_stair/E": 1,
+      "back_stair/S": 1, "back_stair/W": 1,
+      "back_stair_head/N": 0, "back_stair_head/E": 1,
+      "back_stair_head/S": 1, "back_stair_head/W": 1
+    });
+    /* AND EVERY ONE OF THEM HAS A BODY. `mass_poly` was gated on two
+       independently frame-culled lists having equal length, which emptied it
+       on eight of the twelve — including all four facings a player climbs
+       from, where the treads then floated with nothing joining them to their
+       own footprint. */
+    const bodiless = [];
+    for (const [k, n] of Object.entries(census)) {
+      if (!n) continue;
+      const s = metas[k].stairs[0];
+      if (!s.mass_poly || !s.mass_poly.length) bodiless.push(k);
+    }
+    expect(bodiless, "a flight with no solid is two rails and a floor grid through them")
+      .toEqual([]);
+  });
+
+  /* THE FLIGHT IS A SOLID, AND IT IS SOLID AGAINST THE PLANE BEHIND IT.
+   *
+   * Measured on `great_stair_hall/W` — the flight seen ACROSS its own run,
+   * standing against a wall, which is the facing where the old drawing
+   * collapsed to a single hairline covering 0.33 % of the frame at five
+   * levels of contrast. Contrast and coverage both, because either alone
+   * passed the old drawing: it had a tone (invisible) and it had ink (a
+   * line). */
+  test("a flight seen across its run is a body, not a line", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    await standAt(page, "great_stair_hall", "W");
+    const m = await page.evaluate(() => {
+      const A = window.HOLO_APP;
+      const cv = document.getElementById("scene");
+      const ctx = cv.getContext("2d");
+      const d = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      const vs = A.harness.viewstate;
+      const fl = A.metaFor(vs).stairs[0];
+      const inside = (poly, x, y) => {
+        let c = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const [xi, yi] = poly[i], [xj, yj] = poly[j];
+          if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+        }
+        return c;
+      };
+      const bodies = (fl.mass_poly || []).concat(fl.treads_poly || []);
+      let n = 0, sum = 0, rn = 0, rsum = 0;
+      for (let y = 0; y < cv.height; y += 2) {
+        for (let x = 0; x < cv.width; x += 2) {
+          let hit = false;
+          for (const b of bodies) if (b.length > 2 && inside(b, x, y)) { hit = true; break; }
+          const i = (y * cv.width + x) * 4;
+          const lum = d[i] + d[i + 1] + d[i + 2];
+          if (hit) { n++; sum += lum; } else { rn++; rsum += lum; }
+        }
+      }
+      return { pct: (n * 4 * 100) / (cv.width * cv.height),
+        body: sum / Math.max(1, n), frame: rsum / Math.max(1, rn) };
+    });
+    /* A seventeen-tread flight 4.4 m dead ahead, 4.8 m long and 2.8 m tall,
+       occupies a real part of the view. The old drawing gave 0.33 %. */
+    expect(m.pct, "the share of the frame the flight's own body covers")
+      .toBeGreaterThan(8);
+    /* AND IT READS AGAINST WHAT IS BEHIND IT. Summed over r+g+b, so a bound
+       of 60 is twenty levels a channel — the magnitude bar §12.8 already sets
+       for a thing being visibly there. The old drawing gave about fifteen,
+       five levels a channel, through which the wall's own grid was legible. */
+    expect(m.body - m.frame, "how far the flight's body stands off the plane behind it")
+      .toBeGreaterThan(60);
+  });
+
+  /* A CHEVRON DOES NOT EAT A DOORWAY.
+   *
+   * `hall/N`'s doorway runs off the frame and its visible sliver sits under
+   * the right chevron at every viewport. A real click at the exact middle of
+   * the only part of it a person can see turned the viewer east instead of
+   * walking them through — the picture showing a way and the click meaning
+   * something else. Both viewports, because the phone is where the chrome
+   * takes the largest share of a small target. */
+  for (const vp of [{ name: "desktop", size: POINTER_VIEWPORT }, { name: "a phone", size: PHONE }]) {
+    test(`a click in the middle of a visible doorway walks through it, on ${vp.name}`, async ({ page }) => {
+      test.setTimeout(120_000);
+      await page.setViewportSize(vp.size);
+      await page.goto(navUrl());
+      await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+      await standAt(page, "hall", "N");
+      const ways = await waysOnScreen(page);
+      const way = ways.find((w) => w.exit === "door_hall_buttery_pantry");
+      expect(way && way.visible, "the cross passage's north doorway is on the frame").toBe(true);
+      /* Named, so the case says what it is about: the chrome IS over it, and
+         the point of the fix is that being over it is no longer being in the
+         way. If a later layout moves the chevron off this doorway the case
+         still holds — it asserts the walk, not the eclipse. */
+      const over = await page.evaluate(({ x, y }) => {
+        const el = document.elementFromPoint(x, y);
+        return el ? (el.id || el.tagName) : "none";
+      }, { x: way.cx, y: way.cy });
+      const before = await page.evaluate(() => window.HOLO_APP.harness.viewstate.location);
+      await page.mouse.click(way.cx, way.cy);
+      await page.waitForTimeout(500);
+      const after = await page.evaluate(() => window.HOLO_APP.harness.viewstate.location);
+      expect({ over, before, after },
+        "a click on a doorway a person can see is a walk through it")
+        .toEqual({ over, before: "hall", after: "buttery_pantry" });
+    });
+  }
+
+  /* THE PAGE IS NO WIDER THAN THE WINDOW *ON THE FACING THAT MADE IT WIDER*.
+   *
+   * The check this replaces read `scrollWidth` inside an evaluate that never
+   * navigated: it stood on the boot facing, where no aperture runs off the
+   * frame, and so could not see the defect on any value of the code. Removing
+   * the clamp entirely left it green. `hall/N` is the one facing in the manor
+   * whose aperture rect exceeds the canvas, so that is where it is read. */
+  test("the page does not grow sideways where an aperture runs off the frame", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize(PHONE);
+    await page.goto(navUrl());
+    await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+    await standAt(page, "hall", "N");
+    const r = await page.evaluate(() => {
+      const lefts = [...document.querySelectorAll("#entity-controls [style*='left']")]
+        .map((b) => parseFloat(b.style.left));
+      return { doc: document.documentElement.scrollWidth,
+        win: document.documentElement.clientWidth,
+        maxLeft: lefts.length ? Math.max(...lefts) : 0,
+        controls: lefts.length };
+    });
+    expect(r.controls, "hall/N carries the control whose position was the fault")
+      .toBeGreaterThan(0);
+    expect(r.maxLeft, "no control is placed outside the stage").toBeLessThanOrEqual(100);
+    expect(r.doc, "the page is no wider than the window, standing here")
+      .toBeLessThanOrEqual(r.win);
+    /* AND THE ARROW KEY IS CONSUMED. Nothing asserted this half at all: with
+       the document no longer over-wide there is nothing left to scroll, so a
+       missing `preventDefault` is invisible to a scroll measurement and has to
+       be asked of the event itself. */
+    const prevented = await page.evaluate(() => new Promise((res) => {
+      window.addEventListener("keydown", function h(e) {
+        if (e.key !== "ArrowRight") return;
+        window.removeEventListener("keydown", h, true);
+        res(e.defaultPrevented);
+      }, false);
+      document.dispatchEvent(new KeyboardEvent("keydown",
+        { key: "ArrowRight", bubbles: true, cancelable: true }));
+    }));
+    expect(prevented, "an arrow key that turns the room does not also scroll the page")
+      .toBe(true);
   });
 });

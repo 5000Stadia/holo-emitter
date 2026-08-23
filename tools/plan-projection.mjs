@@ -39,7 +39,8 @@ import { createRequire } from "node:module";
 import {
   RIGHT, NORMAL, FACINGS, BUILT_KINDS, ALL_WALL_KINDS, drawn,
   validatePlan, planWarnings, builtOnWallLine, viewSpan,
-  facingGeometry, ruleStandpoint, measuredDistance, standpointFor, facingOfOpening
+  facingGeometry, ruleStandpoint, measuredDistance, standpointFor, facingOfOpening,
+  projectionFault, MIN_STANDOFF_M
 } from "./validate-plan.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -549,20 +550,48 @@ export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS
     const u0 = Math.min(a, b), u1 = Math.max(a, b);
     const x0 = groundplane.xAtScale(u0, s, meta, canvasW);
     const x1 = groundplane.xAtScale(u1, s, meta, canvasW);
-    const yTop = meta.horizon_y * meta.image_h_px;
+    /* THE HOLE IS AS TALL AS THE OPENING, AND AN `open_edge` HAS NO LINTEL.
+     *
+     * This used to run from the HORIZON down to the ground at the mouth — a
+     * band a few dozen pixels deep — on the reasoning that a threshold draws
+     * nothing and needs only somewhere to be clicked. But a facing typed
+     * `enclosed` draws its wall across the WHOLE view, including the 20.4 m of
+     * it the plan says is a gap between two wing fronts, and a sliver at the
+     * foot of that wall does not cut it. The manor's own front way in
+     * therefore rendered as a flat black plane: the picture drawing a wall
+     * exactly where the document holds an opening, which is §4b law (b)
+     * broken by the drawing rather than by the type.
+     *
+     * A gap between two buildings is open from the ground to the sky, so the
+     * hole runs from the top of the frame to the ground at the mouth, and the
+     * ceiling band goes with it — there is no ceiling over a courtyard. */
+    const yTop = 0;
     const yBottom = groundplane.yAtScale(s, meta);
     if (!isFinite(x0) || !isFinite(x1) || !isFinite(yBottom) || !(yBottom > yTop)) continue;
-    out.push({
+    const t = {
       id: o.id,
       kind: "threshold",
       via: o.entity ?? null,
       x: Math.min(x0, x1), y: yTop,
       w: Math.abs(x1 - x0), h: yBottom - yTop,
-      /* NOTHING IS DRAWN THROUGH A THRESHOLD, so it says nothing about what is
-       * beyond it. `beyond_m: null` is the meta's own way of saying that, and
-       * `drawThroughOpening` reads it as silence rather than as a guess. */
+      /* AND WHAT IS BEYOND IT IS THE GROUND, in the same two numbers a doorway
+       * carries. These were `null` — "the meta says nothing about what is
+       * beyond, so neither does the picture" — which is the right rule for an
+       * invented VISTA and the wrong one for a floor plane the document holds
+       * and the destination's own facing already draws. */
       beyond_m: null, beyond_offset_m: null
-    });
+    };
+    const other = (o.joins || []).find((r) => r !== roomId);
+    if (other) {
+      const dest = (plan.rooms || []).find((r) => r.id === other);
+      const dfc = dest && dest.facings && dest.facings[facing];
+      if (dfc && typeof dfc.wall_line === "number") {
+        t.beyond_m = round6(Math.abs(dfc.wall_line - fc.wall_line));
+        const a2 = fc.standpoint, b2 = dfc.standpoint;
+        if (a2 && b2) t.beyond_offset_m = round6((b2.x - a2.x) * rx + (b2.y - a2.y) * ry);
+      }
+    }
+    out.push(t);
   }
   return out;
 }
@@ -630,6 +659,30 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
   };
   const inReach = (p) => p && p.y > -H && p.y < 2 * H && p.x > -6 * canvasW && p.x < 6 * canvasW;
 
+  /* A HAND'S BREADTH IN FRONT OF THE EYE. `project` refuses at the eye itself,
+   * where the scale is unbounded; a segment that merely CROSSES that plane is a
+   * different case, and dropping it whole is what left four of the manor's
+   * facings — the four whose standpoint the plan puts INSIDE a staircase —
+   * drawing no flight at all, while the plan warning and the batch README both
+   * told the reader the flight was drawn around them. A tread with one end
+   * behind you is not invisible; it is a tread you can see part of. */
+  const NEAR_M = 0.4;
+  const depthOf = (pt) => Math.abs(line - pt[normalAxis]);
+  const clipSeg = (q0, q1, heightM) => {
+    const lim = cam - NEAR_M;
+    const d0 = depthOf(q0), d1 = depthOf(q1);
+    if (d0 >= lim && d1 >= lim) return null;
+    let a = q0, b = q1;
+    if (d0 >= lim || d1 >= lim) {
+      const t = (lim - d0) / (d1 - d0);
+      if (!(t > 0 && t < 1)) return null;
+      const cut = { x: q0.x + (q1.x - q0.x) * t, y: q0.y + (q1.y - q0.y) * t };
+      if (d0 >= lim) a = cut; else b = cut;
+    }
+    const A = project(a.x, a.y, heightM), B = project(b.x, b.y, heightM);
+    return (A && B) ? [A, B] : null;
+  };
+
   for (const st of plan.stairs || []) {
     const joins = st.joins || [];
     if (!joins.includes(roomId)) continue;
@@ -652,33 +705,48 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
     const w0 = st.rect[across + "0"], w1 = st.rect[across + "1"];
     /* Height above THIS room's floor: a flight climbed out of this room rises,
      * and the same flight seen from the landing above it descends. */
-    const sgn = direction === "up" ? 1 : -1;
-    const base = direction === "up" ? 0 : -rise;
-    const at = (t, w) => {
-      const along = foot + (head - foot) * t;
-      const h = base + sgn * rise * t * (direction === "up" ? 1 : 1);
-      const pt = runAxis === "y" ? { x: w, y: along } : { x: along, y: w };
-      return project(pt.x, pt.y, direction === "up" ? rise * t : rise * t - rise);
-    };
-
+    /* EVERY RANK IS KEPT WITH ITS INDEX. The nose of tread `i` and the floor
+     * point directly under it are two projections of one plan point, and they
+     * are filtered for reach INDEPENDENTLY: a nose can leave the frame while
+     * its own foot stays on it, and on a tall flight seen from its foot most of
+     * them do. Joining them by POSITION IN A LIST is therefore wrong, and
+     * requiring the two lists to be the same length — which is what this did
+     * before — threw the flight's whole body away whenever a single tread was
+     * clipped. That deleted the mass on all four facings a player climbs from,
+     * leaving the treads floating with nothing joining them to their own
+     * footprint. The index is what makes the solid survive the clipping. */
     const steps = [], floorQuad = [], wellQuad = [];
+    const stepAt = new Map(), floorAt = new Map(), riseAt = new Map();
     for (let i = 0; i <= treads; i++) {
       const t = i / treads;
       const along = foot + (head - foot) * t;
       const p0 = runAxis === "y" ? { x: w0, y: along } : { x: along, y: w0 };
       const p1 = runAxis === "y" ? { x: w1, y: along } : { x: along, y: w1 };
       const hStep = direction === "up" ? rise * t : rise * t - rise;
-      const a0 = project(p0.x, p0.y, hStep), a1 = project(p1.x, p1.y, hStep);
-      if (inReach(a0) && inReach(a1)) steps.push([a0, a1]);
-      const f0 = project(p0.x, p0.y, 0), f1 = project(p1.x, p1.y, 0);
-      if (inReach(f0) && inReach(f1)) floorQuad.push([f0, f1]);
+      const seg = clipSeg(p0, p1, hStep);
+      if (seg && inReach(seg[0]) && inReach(seg[1])) { steps.push(seg); stepAt.set(i, seg); }
+      /* THE FOOT OF RISER `i`: tread `i`'s own plan position, at the height of
+       * the tread BELOW it. A staircase's profile is not the line joining its
+       * noses — that is a ramp, and drawing it as one is what made a
+       * seventeen-tread flight read as a wedge with a straight top. The profile
+       * alternates: along the going at one height, up the riser to the next.
+       * This is the point that turn happens at, and without it there are no
+       * steps in the picture at all. */
+      if (i > 0) {
+        const hPrev = direction === "up" ? rise * ((i - 1) / treads)
+          : rise * ((i - 1) / treads) - rise;
+        const rs = clipSeg(p0, p1, hPrev);
+        if (rs && inReach(rs[0]) && inReach(rs[1])) riseAt.set(i, rs);
+      }
+      const fs = clipSeg(p0, p1, 0);
+      if (fs && inReach(fs[0]) && inReach(fs[1])) { floorQuad.push(fs); floorAt.set(i, fs); }
       /* THE WELL is the flight's footprint lifted a storey — the hole it needs
        * in the ceiling above it. Only a rising flight cuts the plane over your
        * head; a descending one opens the floor you stand on, which the floor's
        * own line work is already clipped to the room. */
       if (direction === "up") {
-        const g0 = project(p0.x, p0.y, rise), g1 = project(p1.x, p1.y, rise);
-        if (inReach(g0) && inReach(g1)) wellQuad.push([g0, g1]);
+        const gs = clipSeg(p0, p1, rise);
+        if (gs && inReach(gs[0]) && inReach(gs[1])) wellQuad.push(gs);
       }
     }
     if (!floorQuad.length && !steps.length) continue;
@@ -695,10 +763,53 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
      * the centre of the frame. Filled, that is two triangles; stroked, it is a
      * wire. A tread is a quadrilateral at any angle, so the treads are what is
      * carried and what is drawn. */
+    /* AND THEY ARE JOINED ONLY WHERE THEY ARE ADJACENT. Two survivors with a
+     * dropped tread between them are not neighbours, and a quad drawn across
+     * the gap is a plane the building does not have. Consecutive in the list is
+     * not consecutive on the stair, so the runs are cut at every break. */
+    const runsOf = (keys) => {
+      const ks = keys.slice().sort((a, b) => a - b);
+      const runs = [];
+      let cur = [];
+      for (const k of ks) {
+        if (cur.length && k !== cur[cur.length - 1] + 1) { runs.push(cur); cur = []; }
+        cur.push(k);
+      }
+      if (cur.length) runs.push(cur);
+      return runs;
+    };
+    /* THE NOSES, NAMED. The leading edge of each tread is what makes a climb
+     * read as a climb, and it is the one line of a flight that means something
+     * on its own. It used to be recovered from `treads_poly` by taking each
+     * quad's first edge, which was true only while a quad was a tread; now
+     * that a step is TWO faces — the going you walk on and the riser your toe
+     * meets — that inference reads the foot of every riser as a nose as well.
+     * A list whose meaning has to be reconstructed from its neighbours' parity
+     * is a list that will be read wrongly, so the noses are carried. */
+    const noses = [];
+    for (const run of runsOf([...stepAt.keys()])) {
+      for (const k of run) {
+        const s = stepAt.get(k);
+        noses.push([[round6(s[0].x), round6(s[0].y)], [round6(s[1].x), round6(s[1].y)]]);
+      }
+    }
     const quads = [];
-    for (let i = 0; i + 1 < steps.length; i++) {
-      quads.push([steps[i][0], steps[i][1], steps[i + 1][1], steps[i + 1][0]]
-        .map((q) => [round6(q.x), round6(q.y)]));
+    for (const run of runsOf([...stepAt.keys()])) {
+      for (let j = 0; j + 1 < run.length; j++) {
+        const k = run[j], kn = run[j + 1];
+        const s0 = stepAt.get(k), s1 = stepAt.get(kn), rs = riseAt.get(kn);
+        if (rs) {
+          /* THE GOING — the top of tread `k`, level, from its own nose forward
+           * to the foot of the next riser — and then THE RISER, the vertical
+           * face a climber's toe meets. Two faces per step, which is what a
+           * step is. Joining nose to nose instead draws the sloping plane
+           * BETWEEN them: a ramp with a line on it. */
+          quads.push([s0[0], s0[1], rs[1], rs[0]].map((q) => [round6(q.x), round6(q.y)]));
+          quads.push([rs[0], rs[1], s1[1], s1[0]].map((q) => [round6(q.x), round6(q.y)]));
+        } else {
+          quads.push([s0[0], s0[1], s1[1], s1[0]].map((q) => [round6(q.x), round6(q.y)]));
+        }
+      }
     }
     /* And the HIT REGION is the convex hull of the treads — a shape the page
      * can test a point against, which a bow-tie is not. */
@@ -720,12 +831,19 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
      * noses above, the floor below. Without it a flight seen across its own
      * run collapses to two nearly-coincident diagonals with the room's floor
      * grid running through them. One polygon per stringer, each built from
-     * points already computed: up the noses, back along the floor. */
+     * points already computed: up the noses, back along the floor.
+     *
+     * Built from WHATEVER SURVIVES: every rank whose nose and whose own foot
+     * are both in reach, in adjacent runs, one polygon per stringer per run.
+     * A flight climbing out of the frame keeps the body of the part you can
+     * see, which is the part you are standing at. */
     const mass = [];
-    if (steps.length >= 2 && floorQuad.length === steps.length) {
+    const both = [...stepAt.keys()].filter((k) => floorAt.has(k));
+    for (const run of runsOf(both)) {
+      if (run.length < 2) continue;
       for (const side of [0, 1]) {
-        const top = steps.map((st2) => [round6(st2[side].x), round6(st2[side].y)]);
-        const bot = floorQuad.map((f2) => [round6(f2[side].x), round6(f2[side].y)]);
+        const top = run.map((k) => { const s = stepAt.get(k); return [round6(s[side].x), round6(s[side].y)]; });
+        const bot = run.map((k) => { const f = floorAt.get(k); return [round6(f[side].x), round6(f[side].y)]; });
         mass.push(top.concat(bot.slice().reverse()));
       }
     }
@@ -746,12 +864,22 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
       treads,
       rise_m: rise,
       x, y, w: xe - x, h: ye - y,
-      /* THE OUTLINE A PLAYER AIMS AT: the treads' own convex hull where any of
-       * them are in the frame, the footprint on the floor where none are —
-       * which is a descending flight at this eye height, whose steps drop
-       * below the frame within a metre and leave only the well in the floor. */
-      poly: (stepPts.length >= 6 && onFrame(stepPts)) ? hull(stepPts) : floorRing,
+      /* THE OUTLINE A PLAYER AIMS AT: the convex hull of the flight's WHOLE
+       * visible body — the noses and the footprint they stand on together —
+       * where any of it is in the frame, and the footprint alone where no nose
+       * is, which is a descending flight at this eye height whose steps drop
+       * below the frame within a metre and leave only the well in the floor.
+       *
+       * The noses alone are not it. On a flight climbing away from you they
+       * bunch into a patch high on the far wall, and a player standing AT THE
+       * FOOT of the stair, aiming at the bottom step beside them, missed it
+       * entirely: the only place a click climbed was a corner of the frame
+       * nowhere near the stair. The body a person aims at reaches the floor. */
+      poly: (stepPts.length >= 6 && onFrame(stepPts))
+        ? hull(stepPts.concat(floorRing))
+        : floorRing,
       treads_poly: quads,
+      noses: noses,
       mass_poly: mass,
       floor_poly: floorRing,
       well_poly: wellRing,
@@ -1047,9 +1175,22 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
    * side and out of frame, so those footprints straddle the camera depth on
    * facings nobody projects them onto. `facingsContaining` below excludes such
    * a facing from the manifest for exactly that reason, and `planWarnings`
-   * counts what it excluded, so the exclusion is printed rather than silent. */
+   * prints EXACTLY the set it excluded — the two now read one predicate,
+   * `projectionFault`, because their two copies had already drifted: six pairs
+   * of the shipped plan were refused here and two were printed there. */
   if (!isFinite(s) || !(s > 0)) {
     throw new Error(`plan-projection: "${objectId}" on ${roomId}/${facing} has its baseline ${depth_m.toFixed(3)} m from the wall line and the camera at ${(fc.camera_wall_m ?? fc.camera_far_m)} m, so it projects at ${String(s)} px/m — an object at or beyond the camera has no picture, and a scale that is not a positive finite number is a finding rather than a number to draw with [row19:projection.refuses_nonfinite]`);
+  }
+  /* [Row 19] AND A SCALE CAN BE FINITE, POSITIVE AND STILL NOT A PICTURE.
+   * The clause above reads the arithmetic's own sign; this one reads the
+   * distance that produced it. The shipped plan stands the hall's south camera
+   * 0.10 m from a 1.00 m press, which projects at 10,240 px/m on a 1,536 px
+   * canvas — a number that passes every test above and describes no press. The
+   * bound is a hand's breadth, stated in metres in one place, and the same
+   * predicate keeps it out of the variant manifest and prints it in the bake
+   * log, so no consumer sees it and no reader is left unaware of it. */
+  if (attachment !== "wall_mounted" && projectionFault(fc, facing, rect) === "at_the_eye") {
+    throw new Error(`plan-projection: "${objectId}" on ${roomId}/${facing} stands ${((fc.camera_wall_m ?? fc.camera_far_m) - depth_m).toFixed(3)} m in front of the camera, nearer than the ruled ${MIN_STANDOFF_M} m, and projects at ${s.toFixed(0)} px/m on a ${canvasW} px canvas — finite, positive, and not a picture of the thing [row19:projection.refuses_at_the_eye]`);
   }
   const centreX = groundplane.xAtScale(0.5, s, m, canvasW);
   const targetX = centreX + offset_m * s;
@@ -1181,9 +1322,9 @@ export function facingsContaining(plan, objectId) {
      * land beside the desk and the chair), and without this the manifest would
      * have asked row 4 for a chair at −3413 px/m. `planWarnings` counts them,
      * so the exclusion is printed rather than silent. */
-    const cam = fc.camera_wall_m ?? fc.camera_far_m;
-    const inFront = typeof cam !== "number" ||
-      footprintDepth(fc, f, fp) < cam - EPS;
+    /* One predicate with the refusal and the report, so a facing the manifest
+       lists is a facing something can actually be drawn on. */
+    const inFront = projectionFault(fc, f, fp) === null;
     if (across && along && inFront) out.push(f);
   }
   return out;

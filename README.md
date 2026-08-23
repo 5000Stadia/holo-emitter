@@ -18,14 +18,14 @@ chevrons. Everything clickable is reachable by keyboard alone too — Tab to it,
 act — and the button in the corner fills the screen with the picture (a plain in-page fallback
 takes over wherever the browser withholds real fullscreen).
 
-So far: the whole house is walkable, and one wall of it is painted. Twenty-two rooms, courts and
+So far: the whole house is walkable, and two walls of it are painted. Twenty-two rooms, courts and
 gardens over two floors; you can walk from the gravel outside the front, in through the court, the
 great hall and the service range, up either stair, along the long gallery and back. One doorway of
 the fifty-six is not walkable from one side — the cross passage is eight metres long and from the
 middle of it the kitchen door is off the edge of what you can see — so the kitchen is entered from
-the court instead, and the page says so when the world is baked. The study's north wall — the hearth with a fire in it — is a real
-room; every other direction is still the holodeck grid, which is what unestablished space looks
-like from inside the emitter. Each is a room you
+the court instead, and the page says so when the world is baked. The study's north wall — the hearth with a fire in it — and its
+west wall are real rooms; every other direction is still the holodeck grid, which is what
+unestablished space looks like from inside the emitter. Each is a room you
 stand inside rather than a wall you face: the walls end in corners where the building's own plan
 says they do, the side walls run back toward you, and there is a ceiling overhead at the height of
 the storey — so the study is a study-sized room and the cross passage is a passage. Everything is
@@ -33,10 +33,13 @@ drawn through one lens, a 24 mm one, the same in every direction you can turn to
 direction had a lens of its own and they ran from a fisheye to a portrait lens, which made every
 wall of the study look like the end of a corridor. Walk east through the doorway and the passage
 is already visible through it — an opening shows the room on the other side of it, not a black
-rectangle. A stair is drawn where the house has one, tread by tread, from
-whichever side of it you are standing on, and you climb it by clicking it; where two outdoor spaces
-meet there is no door at all, only the line on the ground where one ends and the other begins, and
-you walk across it. The words of the room appear beneath the picture as you go, and every room
+rectangle. A stair is drawn where the house has one, tread by tread and solid
+enough to stand in front of the wall behind it, from every side of it you can see it from — and
+you climb it by clicking it. On four facings you see none, and those are the four where the plan
+stands you ON the staircase: the flight is then behind you and under your feet, and the honest
+picture of a step you are standing on is no picture at all. Where two outdoor spaces
+meet there is no door at all, only the line on the ground where one ends and the other begins, the
+ground of the far one showing through the gap, and you walk across it. The words of the room appear beneath the picture as you go, and every room
 names itself as you come into it.
 
 The house is empty while the furniture is being made: nothing in it can be picked up or opened

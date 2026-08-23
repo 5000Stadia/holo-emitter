@@ -125,10 +125,23 @@
    * a product mode (§7), not placeholder art. Still darker than the wall:
    * unestablished space, lit from nowhere. */
   var FLOOR_BASE = "#2c3542";
-  /* [Row 15] A flight's own tone: between the wall it stands off and the floor
-   * it stands on, so a staircase reads as fabric in the room rather than as a
-   * hole in it or as a patch of floor lifted up. */
-  var STAIR_BASE = "#1b222c";
+  /* [Row 15] A flight's own tone. This was first set BETWEEN the wall it
+   * stands off (#10141b) and the floor it stands on (#2c3542), on the reasoning
+   * that a staircase should read as fabric in the room rather than as a hole in
+   * it. Between two tones 28 levels apart is about eleven levels from each,
+   * which is not a separation, and drawn at the 0.55 alpha the fill was
+   * inheriting it came out FIVE levels from the wall — invisible, with the
+   * wall's grid showing through it.
+   *
+   * A flight is the one piece of building fabric that stands OFF every plane
+   * and in front of them, so it is lighter than both rather than between them:
+   * a solid catching the light, in a frame where the planes are unlit space.
+   * (74,88,112) is 30 levels above the floor's brightest channel and 58 above
+   * the wall's, which survives the frame-wide key falloff at either corner. */
+  var STAIR_BASE = "#4a5870";
+  /* The near room's own sill line, at the foot of a threshold's mouth: one
+     pixel the through-view is not allowed to paint over. */
+  var SILL_PX = 2;
   /* The two side-wall returns (row 11). One lighting model with the rest of
    * the frame: a per-plane facing tone, then the frame-wide key falloff over
    * it. With the key at upper-left (`key_dir: "UL"`, and every sprite shaded
@@ -820,6 +833,14 @@
        * building fabric that stands off a wall. */
       var quads = fl.treads_poly || [];
       var mass = fl.mass_poly || [];
+      /* A SOLID IS OPAQUE BY ITS OWN DECLARATION. This fill inherited whatever
+       * alpha the line work before it happened to leave — 0.55 — and a body
+       * drawn at 0.55 in a tone eleven levels off the wall behind it lands five
+       * levels off it, which is nothing, and lets the wall's own grid read
+       * straight through the thing that is supposed to be standing in front of
+       * it. An occluder that does not occlude is the picture saying "nothing is
+       * here" where the document holds a staircase. */
+      ctx.globalAlpha = 1;
       ctx.fillStyle = STAIR_BASE;
       /* The two closed strings first — the flight's own mass, stepped along
        * the top and standing on the floor — then the treads over them. */
@@ -832,21 +853,21 @@
       ctx.globalAlpha = ALPHA_MINOR;
       ctx.lineWidth = 1;
       strokeRing(ctx, fl.floor_poly);
-      /* And every nose, which is what makes a climb read as a climb. */
+      /* And every nose, which is what makes a climb read as a climb — from the
+       * list that says it is a nose. Reading the first edge of every quad
+       * drew the foot of each riser as well, which is not an edge of anything
+       * a climber can see. */
       ctx.globalAlpha = ALPHA_MAJOR;
       ctx.lineWidth = 2;
-      for (var qj = 0; qj < quads.length; qj++) {
+      var noses = fl.noses || [];
+      for (var qj = 0; qj < noses.length; qj++) {
         ctx.beginPath();
-        ctx.moveTo(quads[qj][0][0], quads[qj][0][1]);
-        ctx.lineTo(quads[qj][1][0], quads[qj][1][1]);
+        ctx.moveTo(noses[qj][0][0], noses[qj][0][1]);
+        ctx.lineTo(noses[qj][1][0], noses[qj][1][1]);
         ctx.stroke();
       }
       if (quads.length) {
         var last = quads[quads.length - 1];
-        ctx.beginPath();
-        ctx.moveTo(last[3][0], last[3][1]);
-        ctx.lineTo(last[2][0], last[2][1]);
-        ctx.stroke();
         /* The two stringers, so the flight has edges as well as rungs. */
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -1118,7 +1139,11 @@
        * would need an ordinal and the manor has none — and a string nobody can
        * reach may not be enumerated in the audit, so naming a case that does
        * not exist would be a row no sweep could ever see. Recorded as a limit
-       * rather than answered: the eight facings that carry two carry two. */
+       * rather than answered: the FOUR facings that carry two carry two —
+       * great_hall/W, long_gallery/W, servants_hall/W and solar/E. (This
+       * said eight, counting the four walls that carry a doorway AND a
+       * stair; `siblings` counts doorways, because a stair is named by
+       * climbing and never needs a hand.) */
       unfilled[oj2].hand = unfilled.length !== 2 ? null : (oj2 === 0 ? "left" : "right");
     }
     return out;
@@ -1319,7 +1344,46 @@
        * building geometry standing on the floor rather than a hole cut through
        * a plane — and because it must appear on a facing whose backdrop is
        * synthesized whether or not any exit climbs it. */
-      if (a.kind && a.kind !== "door") continue;
+      /* [Row 15, corrected] A THRESHOLD DRAWS THE GROUND THROUGH ITSELF.
+       *
+       * The paragraph above is right that a threshold has no jamb, no reveal
+       * and no soffit — there is no wall there to have a thickness — and right
+       * that an invented far ROOM would be the [AI] appearance ruling (1)
+       * reserves for a generated vista. It was wrong to conclude that a
+       * threshold therefore draws NOTHING. On the manor's own front way in,
+       * `entrance_approach/N`, "nothing" came to 1,068 lit pixels in a
+       * 1068 x 61 band — one hairline lying exactly on the wall-floor line it
+       * could not be told apart from — under five hundred pixels of flat
+       * black. The document holds a 20.4 m opening onto a court; the picture
+       * said unestablished void, and the click travelled through it anyway.
+       *
+       * What goes through the gap is the GROUND, which is not invented: the
+       * destination's own floor plane, drawn by the destination's own facing,
+       * which on an open one is ground to its far line and nothing above it —
+       * §4b law (b) and row 15's minimal-honest rule unchanged, seen through a
+       * mouth instead of from inside it. It is the same composite a doorway
+       * onto that same court already makes a few metres east, and the
+       * never-void case already demands the ground be there in that one. */
+      var isThreshold = a.kind === "threshold";
+      if (a.kind && a.kind !== "door" && !isThreshold) continue;
+      if (isThreshold) {
+        if (!(options && options.no_through)) {
+          ctx.save();
+          ctx.beginPath();
+          /* THE SILL LINE IS THE NEAR ROOM'S, so the mouth is composited ABOVE
+           * it and not over it. The mouth's own mark on the ground — the line
+           * that says the floor you are standing on ends here and another
+           * begins — is drawn by the grid, and a through-view clipped to the
+           * whole rectangle painted the far room's floor straight over its
+           * last row and rubbed it out. One pixel, and it is the pixel that
+           * distinguishes this ground from that one. */
+          ctx.rect(a.x, a.y, a.w, Math.max(0, a.h - SILL_PX));
+          ctx.clip();
+          drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options);
+          ctx.restore();
+        }
+        continue;
+      }
       ctx.save();
       ctx.beginPath();
       ctx.rect(a.x, a.y, a.w, a.h);

@@ -36,7 +36,7 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
-import { validatePlan, drawn } from "../../tools/validate-plan.mjs";
+import { validatePlan, drawn, MIN_STANDOFF_M } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -339,6 +339,7 @@ export const MECHANISMS = [
   "plan.object_clear_of_standpoints",
   "plan.object_projects_finitely",
   "projection.refuses_nonfinite",
+  "projection.refuses_at_the_eye",
   "staging.wall_mounted_over_storey",
   "meta.opening_over_storey"
 ];
@@ -747,6 +748,29 @@ const DOCUMENT_CASES = {
     }
     return new Set();
   },
+  "projection.refuses_at_the_eye": () => {
+    /* A SCALE CAN BE FINITE, POSITIVE AND STILL NOT A PICTURE. The clause
+       above reads the arithmetic's sign; this one reads the distance that
+       produced it, and the shipped plan already carried a case — a 1.00 m
+       press 0.10 m from the hall's south camera, drawing at 10,240 px/m on a
+       1,536 px canvas. Constructed here rather than cited, so the case is
+       about the clause and not about one fixture: the desk is stood a
+       hand's breadth INSIDE the ruled stand-off, where the sign is positive
+       and every bound the row first wrote is satisfied. */
+    const p = clone(PLAN);
+    const room = p.rooms.find((r) => r.id === "study");
+    const cam = room.facings.N.camera_wall_m;
+    const line = room.facings.N.wall_line;
+    /* Near edge 0.10 m in front of the eye — inside the ruled 0.25 m. */
+    p.objects.find((o) => o.id === "desk1").footprint =
+      { x0: 26.0, x1: 26.8, y0: line - cam + 0.10, y1: line - cam + 0.64 };
+    try {
+      projectPlacement(p, "desk1", "study", "N");
+    } catch (e) {
+      return tokensOf([e.message]);
+    }
+    return new Set();
+  },
   "meta.opening_over_storey": () => tokensFromNavMetas((m) => {
     /* Blueprint §11 rules every door opening at 2.00 m and the plan gives its
        floors 2.80; a room a document drops to 1.85 m has a door through its
@@ -972,9 +996,15 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * doorway darker than luminance 12, which is the picture saying VOID where
      * the document holds a passage. With the device gone they come back, and
      * the count is what this case measures. */
+    /* The DOORWAY'S call, named with enough of its surroundings to be one
+       site: a mouth has its own call to the same function four lines up, and
+       a bare marker matched that one instead — silently breaking the clause
+       this case is not about and leaving the one it IS about intact. */
     const dir = stageWithout(
-      "      drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options);",
-      "      void drawThroughOpening;");
+      "      if (!(options && options.no_through)) {\n" +
+      "        drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options);\n" +
+      "      }\n\n      var reveal",
+      "      void drawThroughOpening;\n\n      var reveal");
     try {
       const broken = await apertureVoid(page, dir);
       const clean = await apertureVoid(page, repoRoot);
@@ -1576,19 +1606,33 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * law (b) forbids the invented enclosure that would be; and because the
      * device CLIPS to the rectangle before it fills, drawing it over a
      * threshold does not merely add a frame, it blots out the ground that was
-     * there. Measured on `entrance_court/S`, where the mouth stands in front
-     * of open ground rather than in a gap between two wing fronts: the lit
-     * area inside the mouth's own rectangle falls from 205,824 px to 1,536 —
-     * the ground beyond the threshold replaced by a framed dark panel. */
+     * there. Measured on `entrance_approach/N` — the manor's own front way in,
+     * whose mouth stands wholly on the frame so its edges can be looked at —
+     * in the BAND THE NEAR REVEAL WOULD OCCUPY: a threshold shows the court
+     * beyond through it, and a doorway paints an opaque jamb face over it.
+     *
+     * It used to measure the whole rectangle, on the reasoning that a
+     * threshold drew nothing at all and a doorway's dark fill would therefore
+     * blot out everything. That reasoning went when the mouth learned to
+     * composite the ground beyond it — both paths now draw the ground, and a
+     * whole-rectangle count stopped telling them apart. The mechanism did not
+     * change; what distinguishes it did. */
+    /* The one line that sends a mouth down its own path instead of the
+       doorway's. With it false a threshold falls through into `drawApertures`'
+       wall-thickness block and is given a jamb, two reveals and a soffit. */
     const dir = stageWithout(
-      '      if (a.kind && a.kind !== "door") continue;',
-      "      if (false) continue;");
+      "      if (isThreshold) {",
+      "      if (false) {");
     try {
       const clean = await thresholdGround(page, repoRoot);
       const broken = await thresholdGround(page, dir);
-      expect(clean, "the ground beyond the mouth is drawn").toBeGreaterThan(100000);
-      expect(broken, "and the doorway's own thickness would blot it out")
-        .toBeLessThan(clean / 10);
+      expect(clean, "the ground beyond the mouth is drawn at its edge").toBeGreaterThan(0);
+      /* BRIGHTER, not darker: the near reveal is the jamb face turned toward
+         the upper-left key, so a wall thickness invented at a gap between two
+         buildings does not darken the ground there — it lights it, which is
+         the invented enclosure law (b) forbids, announcing itself. */
+      expect(broken - clean, "and the doorway's own thickness would cover it")
+        .toBeGreaterThan(20);
     } finally {
       removeTree(dir);
     }
@@ -1744,7 +1788,14 @@ async function thresholdInk(page, root) {
         const i = (y * 1536 + x) << 2;
         here = Math.max(here, d[i] + d[i + 1] + d[i + 2]);
       }
-      for (const y of [yLine - 4, yLine + 4]) {
+      /* BELOW ONLY. Four pixels ABOVE the sill is no longer this room's floor:
+         it is the GROUND OF THE PLACE BEYOND, composited through the mouth, and
+         it is lit. Comparing the line against both sides therefore measured
+         the line against another room's floor and found no line — which is a
+         measurement changing its meaning under the drawing, not a mark going
+         missing. What the sill line is for is telling this ground from that
+         one, so it is read against the ground it stands on. */
+      for (const y of [yLine + 4]) {
         const i = (y * 1536 + x) << 2;
         beside = Math.max(beside, d[i] + d[i + 1] + d[i + 2]);
       }
@@ -1762,7 +1813,7 @@ async function thresholdGround(page, root) {
   await page.waitForFunction(() => !!window.HOLO_APP);
   return await page.evaluate(() => {
     const A = window.HOLO_APP, fx = window.HOLO_FIXTURE;
-    const vs = { location: "entrance_court", facing: "S" };
+    const vs = { location: "entrance_approach", facing: "N" };
     const meta = A.metaFor(vs);
     const c = document.createElement("canvas");
     c.width = 1536; c.height = 1024;
@@ -1771,15 +1822,25 @@ async function thresholdGround(page, root) {
     const d = c.getContext("2d").getImageData(0, 0, 1536, 1024).data;
     const th = (meta.openings || []).find((o) => o.kind === "threshold");
     if (!th) return 0;
-    let lit = 0;
-    const x0 = Math.max(0, Math.ceil(th.x)), x1 = Math.min(1536, Math.floor(th.x + th.w));
+    /* THE EDGE OF THE MOUTH, which is where a wall's thickness would be.
+       Both paths now composite the ground beyond a mouth — that is the point
+       of the through-view — so the lit area INSIDE the rectangle no longer
+       separates them. What separates them is the frame a doorway carries and
+       a gap between two buildings does not: a near reveal, a far reveal and a
+       soffit, all opaque, all laid over the edges of the very ground they are
+       supposed to be a hole onto. Measured in the band `drawApertures` puts
+       the near reveal in — `max(3, w * 0.14)` inside the left edge. */
+    const reveal = Math.max(3, th.w * 0.14);
+    let sum = 0, n = 0;
+    const x0 = Math.max(0, Math.ceil(th.x));
+    const x1 = Math.min(1536, Math.floor(th.x + reveal));
     for (let y = Math.max(0, Math.ceil(th.y)); y < Math.min(1024, Math.floor(th.y + th.h)); y++) {
       for (let x = x0; x < x1; x++) {
         const i = (y * 1536 + x) << 2;
-        if (d[i] + d[i + 1] + d[i + 2] > 90) lit++;
+        sum += d[i] + d[i + 1] + d[i + 2]; n++;
       }
     }
-    return lit;
+    return n ? sum / n : 0;
   });
 }
 
@@ -2475,7 +2536,7 @@ test.describe("row 19's bounds, from both sides", () => {
       "and 1 cm over it goes through the ceiling").toEqual(["meta.opening_over_storey"]);
   });
 
-  test("a baseline 1 cm in front of the camera projects, and 1 cm behind it does not", () => {
+  test("a baseline is refused behind the camera, refused at it, and projects a hand's breadth clear of it", () => {
     /* The singularity is the camera itself, and the clause's number IS the
        camera distance — nothing here is a tolerance anyone could widen, which
        is why the case straddles the distance rather than a delta round it. */
@@ -2495,13 +2556,26 @@ test.describe("row 19's bounds, from both sides", () => {
         return { tokens: [...tokensOf([e.message])] };
       }
     };
-    const infront = at(cam - 0.01);
-    expect(infront.scale, "a baseline 1 cm in front of the camera has a picture")
-      .toBeGreaterThan(0);
-    expect(Number.isFinite(infront.scale)).toBe(true);
+    /* TWO BOUNDARIES, NOT ONE, and the case straddles both by a centimetre.
+       The camera itself is where the arithmetic dies; the ruled stand-off is
+       where the arithmetic lives and the PICTURE dies — a scale finite,
+       positive and describing nothing, which the row's first bound admitted
+       and the shipped plan already contained (a 1 m press 0.10 m from the
+       hall's south camera, at 10,240 px/m). Each side is named by its own
+       clause, so which bound moved is legible from the failure. */
     const behind = at(cam + 0.01);
-    expect(behind.tokens, "and 1 cm behind it has none, by name")
+    expect(behind.tokens, "1 cm behind the camera has no picture, by name")
       .toEqual(["projection.refuses_nonfinite"]);
+    const atEye = at(cam - 0.01);
+    expect(atEye.tokens, "and 1 cm in front of it has none either, by its own name")
+      .toEqual(["projection.refuses_at_the_eye"]);
+    const inside = at(cam - MIN_STANDOFF_M + 0.01);
+    expect(inside.tokens, "1 cm inside the ruled stand-off is still refused")
+      .toEqual(["projection.refuses_at_the_eye"]);
+    const clear = at(cam - MIN_STANDOFF_M - 0.01);
+    expect(clear.scale, "and 1 cm clear of it projects")
+      .toBeGreaterThan(0);
+    expect(Number.isFinite(clear.scale), "finitely").toBe(true);
   });
 
   test("a footprint touching a threshold is clear of it; a millimetre over it is not", () => {

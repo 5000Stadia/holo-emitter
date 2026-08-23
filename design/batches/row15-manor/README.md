@@ -13,7 +13,7 @@ else answers a question underneath one of them.
 | `02-master_bedchamber-N` | the ordinary case, eleven of which the manor holds | eleven rooms will look like this until they are painted |
 | `03-long_gallery-N` | a corridor-typed room at manor length | the gallery runs 22 m; its wall is wider than the frame |
 | `04-back_stair-E-flight-up` | a flight, drawn tread by tread, climbing away | the stair is the thing you click to go up |
-| `05-back_stair-N-turned-from-the-flight` | the SAME room, turned one press | the flight is drawn from every side you can see it from — turn, and it is still there, side-on |
+| `05-back_stair-N-turned-from-the-flight` | the SAME room, turned one press | and here it is GONE, honestly: this standpoint stands you ON the flight, so the run is behind you and under your feet, and the only tread in front of you is nearer than a hand's breadth and below the frame. Four of the manor's 88 facings are like this. The caption here used to read "the flight is drawn from every side you can see it from — turn, and it is still there", pointing you at this empty box and telling you the opposite of what it shows |
 | `06-back_stair_head-W-flight-down` | the same flight from the landing above | going down, the steps fall below the frame within a metre; what is left is the well they open in the floor |
 | `07-entrance_court-S-open` | an open facing: ground to a far line, no wall | and the line across the ground is the court mouth |
 | `08-entrance_approach-N-threshold` | standing outside the front, looking in | two wing fronts, and 20.4 m of gap between them that you walk through |

@@ -479,6 +479,51 @@ function abutting(rooms, opening) {
 
 /** The facing on which `roomId` sees `opening` — exported because the world
  * cross-check and row 15's topology both need exactly this. */
+/**
+ * [Row 19] THE ONE HOME OF "IS THERE AN HONEST PICTURE OF THIS, FROM HERE?"
+ *
+ * `projectPlacement` refuses a placement by throwing; `planWarnings` prints
+ * the facings a variant manifest therefore does not enumerate. Those two had
+ * drifted apart, each carrying its own copy of the condition: six (object,
+ * facing) pairs of the SHIPPED plan were refused and only two were printed,
+ * because the report's copy also required the footprint to overlap the
+ * standpoint-to-wall band and four of the six do not. A refusal nobody prints
+ * is exactly the silent skip row 19 exists to abolish, committed by row 19's
+ * own report. One predicate, both callers, and the sets are equal by
+ * construction rather than by inspection.
+ *
+ * Returns null when the projection is honest, or the reason it is not.
+ *
+ * @param {object} fc     the facing record (standpoint, wall_line, camera)
+ * @param {string} facing N|E|S|W
+ * @param {object} rect   the object's plan footprint
+ */
+export const MIN_STANDOFF_M = 0.25;
+export function projectionFault(fc, facing, rect) {
+  const cam = fc.camera_wall_m ?? fc.camera_far_m;
+  if (typeof cam !== "number") return null;
+  const line = fc.wall_line;
+  if (typeof line !== "number") return null;
+  const a = facing === "N" ? rect.y1 : facing === "S" ? rect.y0
+    : facing === "E" ? rect.x1 : rect.x0;
+  const b = facing === "N" ? rect.y0 : facing === "S" ? rect.y1
+    : facing === "E" ? rect.x0 : rect.x1;
+  const dNear = Math.max(Math.abs(line - a), Math.abs(line - b));
+  const standoff = cam - dNear;
+  /* AT OR BEHIND THE EYE: no projection exists, and the arithmetic's own sign
+   * (a negative pixels-per-metre) is not an answer. */
+  if (!(standoff > EPS)) return "at_or_behind";
+  /* AND NEARER THAN A HAND'S BREADTH IS NOT A PICTURE EITHER. The row's stated
+   * bound — finite and positive — is narrower than the class it was written
+   * for: the shipped plan puts a 1.00 m press 0.10 m from the hall's south
+   * camera, which projects at 10,240 px/m on a 1,536 px canvas. That is finite
+   * and positive and it is not a picture of a press; it is a wall of press.
+   * Something a hand's breadth from the eye has no view angle worth deriving
+   * and no variant worth asking row 4 for. */
+  if (standoff < MIN_STANDOFF_M - EPS) return "at_the_eye";
+  return null;
+}
+
 export function facingOfOpening(plan, opening, roomId) {
   const rooms = (plan.rooms || []).filter((r) => r.floor === opening.floor && rectOk(r.rect));
   const side = abutting(rooms, opening).find((s) => s.id === roomId);
@@ -1311,7 +1356,14 @@ export function planWarnings(plan, records, world) {
         const p2 = fc.standpoint;
         if (p2.x >= st.rect.x0 - EPS && p2.x <= st.rect.x1 + EPS &&
             p2.y >= st.rect.y0 - EPS && p2.y <= st.rect.y1 + EPS) {
-          out.push(`room "${room.id}" facing ${f}: its standpoint (${p2.x}, ${p2.y}) stands ON the "${st.id}" flight — the drawing puts the viewer partway up a staircase, and the picture draws the flight around them; it is on the approved sheet, so it is reported rather than moved`);
+          /* THE SENTENCE MUST MATCH THE PICTURE. This used to end "and the
+           * picture draws the flight around them". It does not, and never did:
+           * a standpoint inside a flight puts the whole run at and behind the
+           * eye except for the tread underfoot, which is within a hand's
+           * breadth of the camera and below the frame. A document claiming a
+           * drawing that is not there is the row's own quality running
+           * backwards, and it was aimed at the reader of the bake log. */
+          out.push(`room "${room.id}" facing ${f}: its standpoint (${p2.x}, ${p2.y}) stands ON the "${st.id}" flight — the drawing puts the viewer partway up a staircase, so the flight lies at and behind the eye and THIS FACING DRAWS NO FLIGHT: the only part in front of you is the tread under your feet, nearer than a hand's breadth and below the frame. It is on the approved sheet, so it is reported rather than moved`);
         }
       }
     }
@@ -1360,23 +1412,24 @@ export function planWarnings(plan, records, world) {
   for (const o of plan.objects || []) {
     const room = byId.get(o.room);
     if (!room || !room.facings || !rectOk(o.footprint)) continue;
-    const level = [];
+    /* EVERY FACING THE PROJECTION REFUSES, not the subset this file used to
+       recompute for itself. The `across`/`along` gates were the reason four of
+       the six shipped refusals were never printed: an object OUTSIDE the
+       standpoint-to-wall band is still an object `projectPlacement` throws on,
+       and the throw was the only place it was said. */
+    const level = [], atEye = [];
     for (const f of FACINGS) {
       const fc = room.facings[f];
       if (!fc) continue;
-      const cam = fc.camera_wall_m ?? fc.camera_far_m;
-      const [axis] = NORMAL[f];
-      const span = viewSpan(room.rect, f);
-      const across = o.footprint[span.axis + "1"] > span.lo + EPS && o.footprint[span.axis + "0"] < span.hi - EPS;
-      const lo = Math.min(fc.standpoint[axis], fc.wall_line);
-      const hi = Math.max(fc.standpoint[axis], fc.wall_line);
-      const along = o.footprint[axis + "1"] > lo + EPS && o.footprint[axis + "0"] < hi - EPS;
-      const dNear = Math.max(Math.abs(fc.wall_line - o.footprint[axis + "0"]),
-        Math.abs(fc.wall_line - o.footprint[axis + "1"]));
-      if (across && along && typeof cam === "number" && !(dNear < cam - EPS)) level.push(f);
+      const fault = projectionFault(fc, f, o.footprint);
+      if (fault === "at_or_behind") level.push(f);
+      else if (fault === "at_the_eye") atEye.push(f);
     }
     if (level.length) {
       out.push(`object "${o.id}": the ${o.room} viewer stands level with it on ${level.join(", ")} — its own ground edge is at or behind those cameras, so it belongs to no picture from them and §4b item 9's variant manifest does not enumerate them`);
+    }
+    if (atEye.length) {
+      out.push(`object "${o.id}": the ${o.room} viewer stands within ${MIN_STANDOFF_M} m of it on ${atEye.join(", ")} — its projection is finite and positive and still not a picture of it (a 1 m object at 0.1 m draws 10,240 px/m on a 1,536 px canvas), so §4b item 9's variant manifest does not enumerate those facings either`);
     }
   }
 

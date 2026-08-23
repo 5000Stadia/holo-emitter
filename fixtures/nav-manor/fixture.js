@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "988fe5ac",
+  fp: "16800300",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -720,7 +720,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_back_stair_great_hall.refused_unreachable": "The way from the back stair into the great hall is not before you.",
     "go.door_back_stair_head_long_gallery.arrive": "You leave the back stair head and come into the long gallery. The gallery runs off further than a room has any right to, and your steps run off with it. The doorway stands open behind you.",
     "go.door_back_stair_head_long_gallery.refused_unreachable": "No passage from the back stair head to the long gallery stands where you are looking.",
-    "go.door_back_stair_head_solar.arrive": "The back stair head gives onto the solar, and you step through into it. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.",
+    "go.door_back_stair_head_solar.arrive": "The back stair head gives onto the solar, and you step through into it. The great chamber over the hall, and it runs away from you further than it should. The doorway stands open behind you.",
     "go.door_back_stair_head_solar.refused_unreachable": "The back stair head does not open into the solar from here.",
     "go.door_back_stair_servants_hall.arrive": "You pass from the back stair into the servants' hall. Low and plain, with the day's work sounding somewhere beyond it. The doorway stands open behind you.",
     "go.door_back_stair_servants_hall.refused_unreachable": "That way — the back stair to the servants' hall — lies elsewhere in the house.",
@@ -730,11 +730,11 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_buttery_pantry_servants_hall.refused_unreachable": "The door between the buttery and pantry and the servants' hall is not the one before you.",
     "go.door_closet_chamber_guest_chamber.arrive": "Out of the closet chamber, you come into the guest chamber. Made ready and not lived in; nothing here has been disturbed. The doorway stands open behind you.",
     "go.door_closet_chamber_guest_chamber.refused_unreachable": "The way from the closet chamber into the guest chamber is not before you.",
-    "go.door_dining_parlour_entrance_court.arrive": "You leave the dining parlour and come into the entrance court. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.",
+    "go.door_dining_parlour_entrance_court.arrive": "You leave the dining parlour and come into the entrance court. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
     "go.door_dining_parlour_entrance_court.refused_unreachable": "No passage from the dining parlour to the entrance court stands where you are looking.",
-    "go.door_dining_parlour_great_stair_hall.arrive": "The dining parlour gives onto the great stair hall, and you step through into it. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.",
+    "go.door_dining_parlour_great_stair_hall.arrive": "The dining parlour gives onto the great stair hall, and you step through into it. The stair goes up out of the dark, and your voice goes up with it. The doorway stands open behind you.",
     "go.door_dining_parlour_great_stair_hall.refused_unreachable": "The dining parlour does not open into the great stair hall from here.",
-    "go.door_entrance_court_dining_parlour.arrive": "You pass from the entrance court into the dining parlour. Panelling to the shoulder, and the air of a room kept for company. The doorway stands open behind you.",
+    "go.door_entrance_court_dining_parlour.arrive": "You pass from the entrance court into the dining parlour. A room kept for company, and the air in it is still. The doorway stands open behind you.",
     "go.door_entrance_court_dining_parlour.refused_unreachable": "That way — the entrance court to the dining parlour — lies elsewhere in the house.",
     "go.door_entrance_court_great_hall.arrive": "You cross out of the entrance court and into the great hall. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.",
     "go.door_entrance_court_great_hall.refused_unreachable": "You are not at the passage between the entrance court and the great hall.",
@@ -742,19 +742,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_entrance_court_kitchen.refused_unreachable": "The door between the entrance court and the kitchen is not the one before you.",
     "go.door_garden_room_library.arrive": "Out of the garden room, you come into the library. Paper and leather in the air, and a stillness that seems to be listening. The doorway stands open behind you.",
     "go.door_garden_room_library.refused_unreachable": "The way from the garden room into the library is not before you.",
-    "go.door_garden_room_privy_garden.arrive": "You leave the garden room and come into the privy garden. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.",
+    "go.door_garden_room_privy_garden.arrive": "You leave the garden room and come into the privy garden. Walled close against the world, and quiet enough to hear yourself in. The doorway stands open behind you.",
     "go.door_garden_room_privy_garden.refused_unreachable": "No passage from the garden room to the privy garden stands where you are looking.",
     "go.door_great_hall_back_stair.arrive": "The great hall gives onto the back stair, and you step through into it. The walls draw close, plastered and plain, and the air smells of tallow. The doorway stands open behind you.",
     "go.door_great_hall_back_stair.refused_unreachable": "The great hall does not open into the back stair from here.",
-    "go.door_great_hall_entrance_court.arrive": "You pass from the great hall into the entrance court. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.",
+    "go.door_great_hall_entrance_court.arrive": "You pass from the great hall into the entrance court. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
     "go.door_great_hall_entrance_court.refused_unreachable": "That way — the great hall to the entrance court — lies elsewhere in the house.",
-    "go.door_great_hall_great_stair_hall.arrive": "You cross out of the great hall and into the great stair hall. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.",
+    "go.door_great_hall_great_stair_hall.arrive": "You cross out of the great hall and into the great stair hall. The stair goes up out of the dark, and your voice goes up with it. The doorway stands open behind you.",
     "go.door_great_hall_great_stair_hall.refused_unreachable": "You are not at the passage between the great hall and the great stair hall.",
     "go.door_great_hall_library.arrive": "The great hall lets you go, and the library takes you. Paper and leather in the air, and a stillness that seems to be listening. The doorway stands open behind you.",
     "go.door_great_hall_library.refused_unreachable": "The door between the great hall and the library is not the one before you.",
-    "go.door_great_hall_privy_garden.arrive": "Out of the great hall, you come into the privy garden. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.",
+    "go.door_great_hall_privy_garden.arrive": "Out of the great hall, you come into the privy garden. Walled close against the world, and quiet enough to hear yourself in. The doorway stands open behind you.",
     "go.door_great_hall_privy_garden.refused_unreachable": "The way from the great hall into the privy garden is not before you.",
-    "go.door_great_stair_hall_dining_parlour.arrive": "You leave the great stair hall and come into the dining parlour. Panelling to the shoulder, and the air of a room kept for company. The doorway stands open behind you.",
+    "go.door_great_stair_hall_dining_parlour.arrive": "You leave the great stair hall and come into the dining parlour. A room kept for company, and the air in it is still. The doorway stands open behind you.",
     "go.door_great_stair_hall_dining_parlour.refused_unreachable": "No passage from the great stair hall to the dining parlour stands where you are looking.",
     "go.door_great_stair_hall_great_hall.arrive": "The great stair hall gives onto the great hall, and you step through into it. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.",
     "go.door_great_stair_hall_great_hall.refused_unreachable": "The great stair hall does not open into the great hall from here.",
@@ -768,7 +768,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_hall_buttery_pantry.refused_unreachable": "The way from the cross passage into the buttery and pantry is not before you.",
     "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.",
     "go.door_hall_study.refused_unreachable": "The way to the study is not before you; you must come to it first.",
-    "go.door_kitchen_entrance_court.arrive": "The kitchen gives onto the entrance court, and you step through into it. Open sky, gravel underfoot, and three fronts of the house standing round you. The doorway stands open behind you.",
+    "go.door_kitchen_entrance_court.arrive": "The kitchen gives onto the entrance court, and you step through into it. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
     "go.door_kitchen_entrance_court.refused_unreachable": "The kitchen does not open into the entrance court from here.",
     "go.door_kitchen_hall.arrive": "You come out of the kitchen into the cross passage. The air is cooler here, and moves. The passage runs away east and west, and the door you came by is not on either wall.",
     "go.door_kitchen_hall.refused_unreachable": "That way — the kitchen to the cross passage — lies elsewhere in the house.",
@@ -776,7 +776,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_library_garden_room.refused_unreachable": "You are not at the passage between the library and the garden room.",
     "go.door_library_great_hall.arrive": "The library lets you go, and the great hall takes you. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.",
     "go.door_library_great_hall.refused_unreachable": "The door between the library and the great hall is not the one before you.",
-    "go.door_library_great_stair_hall.arrive": "Out of the library, you come into the great stair hall. The stair goes up out of the dark, and the whole height of the house stands above you. The doorway stands open behind you.",
+    "go.door_library_great_stair_hall.arrive": "Out of the library, you come into the great stair hall. The stair goes up out of the dark, and your voice goes up with it. The doorway stands open behind you.",
     "go.door_library_great_stair_hall.refused_unreachable": "The way from the library into the great stair hall is not before you.",
     "go.door_long_gallery_back_stair_head.arrive": "You leave the long gallery and come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The doorway stands open behind you.",
     "go.door_long_gallery_back_stair_head.refused_unreachable": "No passage from the long gallery to the back stair head stands where you are looking.",
@@ -786,7 +786,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_master_bedchamber_stair_landing.refused_unreachable": "That way — the master bedchamber to the stair landing — lies elsewhere in the house.",
     "go.door_muniment_room_long_gallery.arrive": "You cross out of the muniment room and into the long gallery. The gallery runs off further than a room has any right to, and your steps run off with it. The doorway stands open behind you.",
     "go.door_muniment_room_long_gallery.refused_unreachable": "You are not at the passage between the muniment room and the long gallery.",
-    "go.door_muniment_room_solar.arrive": "The muniment room lets you go, and the solar takes you. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.",
+    "go.door_muniment_room_solar.arrive": "The muniment room lets you go, and the solar takes you. The great chamber over the hall, and it runs away from you further than it should. The doorway stands open behind you.",
     "go.door_muniment_room_solar.refused_unreachable": "The door between the muniment room and the solar is not the one before you.",
     "go.door_privy_garden_garden_room.arrive": "Out of the privy garden, you come into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.",
     "go.door_privy_garden_garden_room.refused_unreachable": "The way from the privy garden into the garden room is not before you.",
@@ -798,7 +798,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_servants_hall_back_stair.refused_unreachable": "That way — the servants' hall to the back stair — lies elsewhere in the house.",
     "go.door_servants_hall_buttery_pantry.arrive": "You cross out of the servants' hall and into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.",
     "go.door_servants_hall_buttery_pantry.refused_unreachable": "You are not at the passage between the servants' hall and the buttery and pantry.",
-    "go.door_servants_hall_privy_garden.arrive": "The servants' hall lets you go, and the privy garden takes you. Clipped box and turned earth, walled close against the world. The doorway stands open behind you.",
+    "go.door_servants_hall_privy_garden.arrive": "The servants' hall lets you go, and the privy garden takes you. Walled close against the world, and quiet enough to hear yourself in. The doorway stands open behind you.",
     "go.door_servants_hall_privy_garden.refused_unreachable": "The door between the servants' hall and the privy garden is not the one before you.",
     "go.door_solar_back_stair_head.arrive": "Out of the solar, you come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The doorway stands open behind you.",
     "go.door_solar_back_stair_head.refused_unreachable": "The way from the solar into the back stair head is not before you.",
@@ -810,7 +810,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_stair_landing_guest_chamber.refused_unreachable": "That way — the stair landing to the guest chamber — lies elsewhere in the house.",
     "go.door_stair_landing_master_bedchamber.arrive": "You cross out of the stair landing and into the master bedchamber. The hush that sleeps in a room by day, and a floor that does not creak. The doorway stands open behind you.",
     "go.door_stair_landing_master_bedchamber.refused_unreachable": "You are not at the passage between the stair landing and the master bedchamber.",
-    "go.door_stair_landing_solar.arrive": "The stair landing lets you go, and the solar takes you. The great chamber over the hall, and the boards run long under you. The doorway stands open behind you.",
+    "go.door_stair_landing_solar.arrive": "The stair landing lets you go, and the solar takes you. The great chamber over the hall, and it runs away from you further than it should. The doorway stands open behind you.",
     "go.door_stair_landing_solar.refused_unreachable": "The door between the stair landing and the solar is not the one before you.",
     "go.door_study_hall.arrive": "You step through into the cross passage. The air is cooler here, and moves. The doorway stands open behind you.",
     "go.door_study_hall.refused_unreachable": "The way to the cross passage does not open from where you stand.",
@@ -820,9 +820,9 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.stair_back_stair_head_back_stair.refused_unreachable": "The stair from the back stair head down to the back stair is not before you.",
     "go.stair_great_stair_hall_stair_landing.arrive": "You pass from the great stair hall into the stair landing. The stair-head, and the house below sounding faintly up the well. The stair falls away behind you.",
     "go.stair_great_stair_hall_stair_landing.refused_unreachable": "The stair from the great stair hall up to the stair landing is not before you.",
-    "go.stair_stair_landing_great_stair_hall.arrive": "You cross out of the stair landing and into the great stair hall. The stair goes up out of the dark, and the whole height of the house stands above you. The stair rises behind you.",
+    "go.stair_stair_landing_great_stair_hall.arrive": "You cross out of the stair landing and into the great stair hall. The stair goes up out of the dark, and your voice goes up with it. The stair rises behind you.",
     "go.stair_stair_landing_great_stair_hall.refused_unreachable": "The stair from the stair landing down to the great stair hall is not before you.",
-    "go.way_entrance_approach_entrance_court.arrive": "The entrance approach lets you go, and the entrance court takes you. Open sky, gravel underfoot, and three fronts of the house standing round you. The court mouth stands open behind you.",
+    "go.way_entrance_approach_entrance_court.arrive": "The entrance approach lets you go, and the entrance court takes you. The air moves here, and the house stands back from you on every side but one. The court mouth stands open behind you.",
     "go.way_entrance_approach_entrance_court.refused_unreachable": "The mouth of the court between the entrance approach and the entrance court is not before you.",
     "go.way_entrance_court_entrance_approach.arrive": "Out of the entrance court, you come into the entrance approach. The gravel runs away south, and the house stands off at its own distance. The court mouth stands open behind you.",
     "go.way_entrance_court_entrance_approach.refused_unreachable": "The mouth of the court between the entrance court and the entrance approach is not before you.",
@@ -946,16 +946,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             1357.131076
           ],
           [
-            2444.069057,
-            1357.131076
+            2666.959952,
+            1757.042259
           ],
           [
-            1808.461665,
-            805.610635
+            1522.381351,
+            1757.042259
           ],
           [
-            1003.770596,
-            107.375248
+            1254.7258,
+            1320.302237
+          ],
+          [
+            1052.701105,
+            990.653666
+          ],
+          [
+            969.192412,
+            854.390515
           ]
         ],
         "treads_poly": [
@@ -970,6 +978,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1808.461665,
+              1041.983265
+            ],
+            [
+              3387.093157,
+              1041.983265
+            ]
+          ],
+          [
+            [
+              3387.093157,
+              1041.983265
+            ],
+            [
+              1808.461665,
+              1041.983265
+            ],
+            [
+              1808.461665,
               805.610635
             ],
             [
@@ -988,6 +1014,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1522.381351,
+              728.757741
+            ],
+            [
+              2666.959952,
+              728.757741
+            ]
+          ],
+          [
+            [
+              2666.959952,
+              728.757741
+            ],
+            [
+              1522.381351,
+              728.757741
+            ],
+            [
+              1522.381351,
               557.376987
             ],
             [
@@ -1006,6 +1050,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1359.692452,
+              550.631833
+            ],
+            [
+              2257.432724,
+              550.631833
+            ]
+          ],
+          [
+            [
+              2257.432724,
+              550.631833
+            ],
+            [
+              1359.692452,
+              550.631833
+            ],
+            [
+              1359.692452,
               416.21083
             ],
             [
@@ -1024,6 +1086,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1254.7258,
+              435.705245
+            ],
+            [
+              1993.206325,
+              435.705245
+            ]
+          ],
+          [
+            [
+              1993.206325,
+              435.705245
+            ],
+            [
+              1254.7258,
+              435.705245
+            ],
+            [
+              1254.7258,
               325.130621
             ],
             [
@@ -1042,6 +1122,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1181.390108,
+              355.410973
+            ],
+            [
+              1808.602686,
+              355.410973
+            ]
+          ],
+          [
+            [
+              1808.602686,
+              355.410973
+            ],
+            [
+              1181.390108,
+              355.410973
+            ],
+            [
+              1181.390108,
               261.49679
             ],
             [
@@ -1060,6 +1158,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1127.259892,
+              296.14452
+            ],
+            [
+              1672.343866,
+              296.14452
+            ]
+          ],
+          [
+            [
+              1672.343866,
+              296.14452
+            ],
+            [
+              1127.259892,
+              296.14452
+            ],
+            [
+              1127.259892,
               214.527669
             ],
             [
@@ -1078,6 +1194,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1085.664234,
+              250.601988
+            ],
+            [
+              1567.637553,
+              250.601988
+            ]
+          ],
+          [
+            [
+              1567.637553,
+              250.601988
+            ],
+            [
+              1085.664234,
+              250.601988
+            ],
+            [
+              1085.664234,
               178.43486
             ],
             [
@@ -1096,6 +1230,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1052.701105,
+              214.511099
+            ],
+            [
+              1484.661403,
+              214.511099
+            ]
+          ],
+          [
+            [
+              1484.661403,
+              214.511099
+            ],
+            [
+              1052.701105,
+              214.511099
+            ],
+            [
+              1052.701105,
               149.832551
             ],
             [
@@ -1114,6 +1266,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1025.935827,
+              185.206152
+            ],
+            [
+              1417.286736,
+              185.206152
+            ]
+          ],
+          [
+            [
+              1417.286736,
+              185.206152
+            ],
+            [
+              1025.935827,
+              185.206152
+            ],
+            [
+              1025.935827,
               126.608155
             ],
             [
@@ -1132,6 +1302,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1003.770596,
+              160.937736
+            ],
+            [
+              1361.4915,
+              160.937736
+            ]
+          ],
+          [
+            [
+              1361.4915,
+              160.937736
+            ],
+            [
+              1003.770596,
+              160.937736
+            ],
+            [
+              1003.770596,
               107.375248
             ],
             [
@@ -1147,6 +1335,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               1003.770596,
               107.375248
+            ],
+            [
+              985.113367,
+              140.510184
+            ],
+            [
+              1314.52675,
+              140.510184
+            ]
+          ],
+          [
+            [
+              1314.52675,
+              140.510184
+            ],
+            [
+              985.113367,
+              140.510184
             ],
             [
               985.113367,
@@ -1168,6 +1374,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               969.192412,
+              123.078543
+            ],
+            [
+              1274.449864,
+              123.078543
+            ]
+          ],
+          [
+            [
+              1274.449864,
+              123.078543
+            ],
+            [
+              969.192412,
+              123.078543
+            ],
+            [
+              969.192412,
               77.371545
             ],
             [
@@ -1176,7 +1400,320 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              4987.070385,
+              1357.131076
+            ],
+            [
+              2444.069057,
+              1357.131076
+            ]
+          ],
+          [
+            [
+              3387.093157,
+              805.610635
+            ],
+            [
+              1808.461665,
+              805.610635
+            ]
+          ],
+          [
+            [
+              2666.959952,
+              557.376987
+            ],
+            [
+              1522.381351,
+              557.376987
+            ]
+          ],
+          [
+            [
+              2257.432724,
+              416.21083
+            ],
+            [
+              1359.692452,
+              416.21083
+            ]
+          ],
+          [
+            [
+              1993.206325,
+              325.130621
+            ],
+            [
+              1254.7258,
+              325.130621
+            ]
+          ],
+          [
+            [
+              1808.602686,
+              261.49679
+            ],
+            [
+              1181.390108,
+              261.49679
+            ]
+          ],
+          [
+            [
+              1672.343866,
+              214.527669
+            ],
+            [
+              1127.259892,
+              214.527669
+            ]
+          ],
+          [
+            [
+              1567.637553,
+              178.43486
+            ],
+            [
+              1085.664234,
+              178.43486
+            ]
+          ],
+          [
+            [
+              1484.661403,
+              149.832551
+            ],
+            [
+              1052.701105,
+              149.832551
+            ]
+          ],
+          [
+            [
+              1417.286736,
+              126.608155
+            ],
+            [
+              1025.935827,
+              126.608155
+            ]
+          ],
+          [
+            [
+              1361.4915,
+              107.375248
+            ],
+            [
+              1003.770596,
+              107.375248
+            ]
+          ],
+          [
+            [
+              1314.52675,
+              91.186255
+            ],
+            [
+              985.113367,
+              91.186255
+            ]
+          ],
+          [
+            [
+              1274.449864,
+              77.371545
+            ],
+            [
+              969.192412,
+              77.371545
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              2666.959952,
+              557.376987
+            ],
+            [
+              2257.432724,
+              416.21083
+            ],
+            [
+              1993.206325,
+              325.130621
+            ],
+            [
+              1808.602686,
+              261.49679
+            ],
+            [
+              1672.343866,
+              214.527669
+            ],
+            [
+              1567.637553,
+              178.43486
+            ],
+            [
+              1484.661403,
+              149.832551
+            ],
+            [
+              1417.286736,
+              126.608155
+            ],
+            [
+              1361.4915,
+              107.375248
+            ],
+            [
+              1314.52675,
+              91.186255
+            ],
+            [
+              1274.449864,
+              77.371545
+            ],
+            [
+              1274.449864,
+              854.390515
+            ],
+            [
+              1314.52675,
+              880.369121
+            ],
+            [
+              1361.4915,
+              910.812572
+            ],
+            [
+              1417.286736,
+              946.980114
+            ],
+            [
+              1484.661403,
+              990.653666
+            ],
+            [
+              1567.637553,
+              1044.440398
+            ],
+            [
+              1672.343866,
+              1112.313037
+            ],
+            [
+              1808.602686,
+              1200.638618
+            ],
+            [
+              1993.206325,
+              1320.302237
+            ],
+            [
+              2257.432724,
+              1491.578856
+            ],
+            [
+              2666.959952,
+              1757.042259
+            ]
+          ],
+          [
+            [
+              1522.381351,
+              557.376987
+            ],
+            [
+              1359.692452,
+              416.21083
+            ],
+            [
+              1254.7258,
+              325.130621
+            ],
+            [
+              1181.390108,
+              261.49679
+            ],
+            [
+              1127.259892,
+              214.527669
+            ],
+            [
+              1085.664234,
+              178.43486
+            ],
+            [
+              1052.701105,
+              149.832551
+            ],
+            [
+              1025.935827,
+              126.608155
+            ],
+            [
+              1003.770596,
+              107.375248
+            ],
+            [
+              985.113367,
+              91.186255
+            ],
+            [
+              969.192412,
+              77.371545
+            ],
+            [
+              969.192412,
+              854.390515
+            ],
+            [
+              985.113367,
+              880.369121
+            ],
+            [
+              1003.770596,
+              910.812572
+            ],
+            [
+              1025.935827,
+              946.980114
+            ],
+            [
+              1052.701105,
+              990.653666
+            ],
+            [
+              1085.664234,
+              1044.440398
+            ],
+            [
+              1127.259892,
+              1112.313037
+            ],
+            [
+              1181.390108,
+              1200.638618
+            ],
+            [
+              1254.7258,
+              1320.302237
+            ],
+            [
+              1359.692452,
+              1491.578856
+            ],
+            [
+              1522.381351,
+              1757.042259
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             2666.959952,
@@ -1410,16 +1947,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
             1041.585957
           ],
           [
-            1443.246377,
-            877.228116
-          ],
-          [
-            158.226769,
-            95.042268
-          ],
-          [
-            77.913043,
-            46.155652
+            -245.106383,
+            1041.585957
           ]
         ],
         "treads_poly": [
@@ -1430,6 +1959,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1759.319149,
+              1041.585957
+            ],
+            [
+              1641.411765,
+              1041.585957
+            ],
+            [
+              1362.932651,
+              877.228116
+            ]
+          ],
+          [
+            [
+              1362.932651,
+              877.228116
+            ],
+            [
+              1641.411765,
               1041.585957
             ],
             [
@@ -1452,6 +1999,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1523.50438,
+              969.816245
+            ],
+            [
+              1282.618926,
+              828.3415
+            ]
+          ],
+          [
+            [
+              1282.618926,
+              828.3415
+            ],
+            [
+              1523.50438,
+              969.816245
+            ],
+            [
+              1523.50438,
               898.046533
             ],
             [
@@ -1470,6 +2035,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1405.596996,
+              898.046533
+            ],
+            [
+              1202.3052,
+              779.454885
+            ]
+          ],
+          [
+            [
+              1202.3052,
+              779.454885
+            ],
+            [
+              1405.596996,
+              898.046533
+            ],
+            [
+              1405.596996,
               826.276821
             ],
             [
@@ -1488,6 +2071,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1287.689612,
+              826.276821
+            ],
+            [
+              1121.991475,
+              730.568269
+            ]
+          ],
+          [
+            [
+              1121.991475,
+              730.568269
+            ],
+            [
+              1287.689612,
+              826.276821
+            ],
+            [
+              1287.689612,
               754.507109
             ],
             [
@@ -1506,6 +2107,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1169.782228,
+              754.507109
+            ],
+            [
+              1041.677749,
+              681.681654
+            ]
+          ],
+          [
+            [
+              1041.677749,
+              681.681654
+            ],
+            [
+              1169.782228,
+              754.507109
+            ],
+            [
+              1169.782228,
               682.737397
             ],
             [
@@ -1524,6 +2143,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1051.874844,
+              682.737397
+            ],
+            [
+              961.364024,
+              632.795038
+            ]
+          ],
+          [
+            [
+              961.364024,
+              632.795038
+            ],
+            [
+              1051.874844,
+              682.737397
+            ],
+            [
+              1051.874844,
               610.967685
             ],
             [
@@ -1542,6 +2179,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               933.967459,
+              610.967685
+            ],
+            [
+              881.050298,
+              583.908423
+            ]
+          ],
+          [
+            [
+              881.050298,
+              583.908423
+            ],
+            [
+              933.967459,
+              610.967685
+            ],
+            [
+              933.967459,
               539.197972
             ],
             [
@@ -1560,6 +2215,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               816.060075,
+              539.197972
+            ],
+            [
+              800.736573,
+              535.021807
+            ]
+          ],
+          [
+            [
+              800.736573,
+              535.021807
+            ],
+            [
+              816.060075,
+              539.197972
+            ],
+            [
+              816.060075,
               467.42826
             ],
             [
@@ -1578,6 +2251,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               698.152691,
+              467.42826
+            ],
+            [
+              720.422847,
+              486.135192
+            ]
+          ],
+          [
+            [
+              720.422847,
+              486.135192
+            ],
+            [
+              698.152691,
+              467.42826
+            ],
+            [
+              698.152691,
               395.658548
             ],
             [
@@ -1596,6 +2287,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               580.245307,
+              395.658548
+            ],
+            [
+              640.109122,
+              437.248576
+            ]
+          ],
+          [
+            [
+              640.109122,
+              437.248576
+            ],
+            [
+              580.245307,
+              395.658548
+            ],
+            [
+              580.245307,
               323.888836
             ],
             [
@@ -1614,6 +2323,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               462.337922,
+              323.888836
+            ],
+            [
+              559.795396,
+              388.361961
+            ]
+          ],
+          [
+            [
+              559.795396,
+              388.361961
+            ],
+            [
+              462.337922,
+              323.888836
+            ],
+            [
+              462.337922,
               252.119124
             ],
             [
@@ -1632,6 +2359,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               344.430538,
+              252.119124
+            ],
+            [
+              479.481671,
+              339.475345
+            ]
+          ],
+          [
+            [
+              479.481671,
+              339.475345
+            ],
+            [
+              344.430538,
+              252.119124
+            ],
+            [
+              344.430538,
               180.349412
             ],
             [
@@ -1650,6 +2395,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               226.523154,
+              180.349412
+            ],
+            [
+              399.167945,
+              290.58873
+            ]
+          ],
+          [
+            [
+              399.167945,
+              290.58873
+            ],
+            [
+              226.523154,
+              180.349412
+            ],
+            [
+              226.523154,
               108.5797
             ],
             [
@@ -1668,6 +2431,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               108.61577,
+              108.5797
+            ],
+            [
+              318.85422,
+              241.702114
+            ]
+          ],
+          [
+            [
+              318.85422,
+              241.702114
+            ],
+            [
+              108.61577,
+              108.5797
+            ],
+            [
+              108.61577,
               36.809987
             ],
             [
@@ -1686,6 +2467,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -9.291615,
+              36.809987
+            ],
+            [
+              238.540494,
+              192.815499
+            ]
+          ],
+          [
+            [
+              238.540494,
+              192.815499
+            ],
+            [
+              -9.291615,
+              36.809987
+            ],
+            [
+              -9.291615,
               -34.959725
             ],
             [
@@ -1700,6 +2499,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -9.291615,
+              -34.959725
+            ],
+            [
+              -127.198999,
+              -34.959725
+            ],
+            [
+              158.226769,
+              143.928883
+            ]
+          ],
+          [
+            [
+              158.226769,
+              143.928883
+            ],
+            [
+              -127.198999,
               -34.959725
             ],
             [
@@ -1722,11 +2539,211 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -245.106383,
+              -106.729437
+            ],
+            [
+              77.913043,
+              95.042268
+            ]
+          ],
+          [
+            [
+              77.913043,
+              95.042268
+            ],
+            [
+              -245.106383,
+              -106.729437
+            ],
+            [
+              -245.106383,
               -178.499149
             ],
             [
               77.913043,
               46.155652
+            ]
+          ]
+        ],
+        "noses": [
+          [
+            [
+              1443.246377,
+              877.228116
+            ],
+            [
+              1759.319149,
+              1041.585957
+            ]
+          ],
+          [
+            [
+              1362.932651,
+              828.3415
+            ],
+            [
+              1641.411765,
+              969.816245
+            ]
+          ],
+          [
+            [
+              1282.618926,
+              779.454885
+            ],
+            [
+              1523.50438,
+              898.046533
+            ]
+          ],
+          [
+            [
+              1202.3052,
+              730.568269
+            ],
+            [
+              1405.596996,
+              826.276821
+            ]
+          ],
+          [
+            [
+              1121.991475,
+              681.681654
+            ],
+            [
+              1287.689612,
+              754.507109
+            ]
+          ],
+          [
+            [
+              1041.677749,
+              632.795038
+            ],
+            [
+              1169.782228,
+              682.737397
+            ]
+          ],
+          [
+            [
+              961.364024,
+              583.908423
+            ],
+            [
+              1051.874844,
+              610.967685
+            ]
+          ],
+          [
+            [
+              881.050298,
+              535.021807
+            ],
+            [
+              933.967459,
+              539.197972
+            ]
+          ],
+          [
+            [
+              800.736573,
+              486.135192
+            ],
+            [
+              816.060075,
+              467.42826
+            ]
+          ],
+          [
+            [
+              720.422847,
+              437.248576
+            ],
+            [
+              698.152691,
+              395.658548
+            ]
+          ],
+          [
+            [
+              640.109122,
+              388.361961
+            ],
+            [
+              580.245307,
+              323.888836
+            ]
+          ],
+          [
+            [
+              559.795396,
+              339.475345
+            ],
+            [
+              462.337922,
+              252.119124
+            ]
+          ],
+          [
+            [
+              479.481671,
+              290.58873
+            ],
+            [
+              344.430538,
+              180.349412
+            ]
+          ],
+          [
+            [
+              399.167945,
+              241.702114
+            ],
+            [
+              226.523154,
+              108.5797
+            ]
+          ],
+          [
+            [
+              318.85422,
+              192.815499
+            ],
+            [
+              108.61577,
+              36.809987
+            ]
+          ],
+          [
+            [
+              238.540494,
+              143.928883
+            ],
+            [
+              -9.291615,
+              -34.959725
+            ]
+          ],
+          [
+            [
+              158.226769,
+              95.042268
+            ],
+            [
+              -127.198999,
+              -106.729437
+            ]
+          ],
+          [
+            [
+              77.913043,
+              46.155652
+            ],
+            [
+              -245.106383,
+              -178.499149
             ]
           ]
         ],
@@ -2397,20 +3414,20 @@ window.HOLO_FIXTURES["nav-manor"] = {
             858.9
           ],
           [
-            254.593407,
-            858.9
+            528.425209,
+            917.01997
           ],
           [
-            213.363128,
-            835.570391
+            477.733211,
+            999.735327
           ],
           [
-            164.932422,
-            808.166515
+            -26.760705,
+            1822.930227
           ],
           [
-            -158.767795,
-            625.005018
+            -1232.604534,
+            1822.930227
           ]
         ],
         "treads_poly": [
@@ -2425,6 +3442,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               547.664804,
+              885.626257
+            ],
+            [
+              213.363128,
+              885.626257
+            ]
+          ],
+          [
+            [
+              213.363128,
+              885.626257
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              547.664804,
               835.570391
             ],
             [
@@ -2443,6 +3478,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               528.425209,
+              862.593242
+            ],
+            [
+              164.932422,
+              862.593242
+            ]
+          ],
+          [
+            [
+              164.932422,
+              862.593242
+            ],
+            [
+              528.425209,
+              862.593242
+            ],
+            [
+              528.425209,
               808.166515
             ],
             [
@@ -2461,6 +3514,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               505.50416,
+              835.152912
+            ],
+            [
+              107.234609,
+              835.152912
+            ]
+          ],
+          [
+            [
+              107.234609,
+              835.152912
+            ],
+            [
+              505.50416,
+              835.152912
+            ],
+            [
+              505.50416,
               775.518968
             ],
             [
@@ -2479,6 +3550,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               477.733211,
+              801.90644
+            ],
+            [
+              37.328427,
+              801.90644
+            ]
+          ],
+          [
+            [
+              37.328427,
+              801.90644
+            ],
+            [
+              477.733211,
+              801.90644
+            ],
+            [
+              477.733211,
               735.963477
             ],
             [
@@ -2497,6 +3586,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               443.390947,
+              760.793004
+            ],
+            [
+              -49.119342,
+              760.793004
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              760.793004
+            ],
+            [
+              443.390947,
+              760.793004
+            ],
+            [
+              443.390947,
               687.048148
             ],
             [
@@ -2515,6 +3622,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               399.831972,
+              708.645624
+            ],
+            [
+              -158.767795,
+              708.645624
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              708.645624
+            ],
+            [
+              399.831972,
+              708.645624
+            ],
+            [
+              399.831972,
               625.005018
             ],
             [
@@ -2533,6 +3658,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               342.770889,
+              640.333962
+            ],
+            [
+              -302.404313,
+              640.333962
+            ]
+          ],
+          [
+            [
+              -302.404313,
+              640.333962
+            ],
+            [
+              342.770889,
+              640.333962
+            ],
+            [
+              342.770889,
               543.730189
             ],
             [
@@ -2551,6 +3694,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               264.778309,
+              546.963796
+            ],
+            [
+              -498.730463,
+              546.963796
+            ]
+          ],
+          [
+            [
+              -498.730463,
+              546.963796
+            ],
+            [
+              264.778309,
+              546.963796
+            ],
+            [
+              264.778309,
               432.641627
             ],
             [
@@ -2569,6 +3730,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               151.75,
+              411.65
+            ],
+            [
+              -783.25,
+              411.65
+            ]
+          ],
+          [
+            [
+              -783.25,
+              411.65
+            ],
+            [
+              151.75,
+              411.65
+            ],
+            [
+              151.75,
               271.65
             ],
             [
@@ -2584,6 +3763,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               151.75,
               271.65
+            ],
+            [
+              -26.760705,
+              197.942821
+            ],
+            [
+              -1232.604534,
+              197.942821
+            ]
+          ],
+          [
+            [
+              -1232.604534,
+              197.942821
+            ],
+            [
+              -26.760705,
+              197.942821
             ],
             [
               -26.760705,
@@ -2605,6 +3802,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -350.865248,
+              -190.064539
+            ],
+            [
+              -2048.453901,
+              -190.064539
+            ]
+          ],
+          [
+            [
+              -2048.453901,
+              -190.064539
+            ],
+            [
+              -350.865248,
+              -190.064539
+            ],
+            [
+              -350.865248,
               -444.248936
             ],
             [
@@ -2613,7 +3828,310 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              254.593407,
+              858.9
+            ],
+            [
+              564.043956,
+              858.9
+            ]
+          ],
+          [
+            [
+              213.363128,
+              835.570391
+            ],
+            [
+              547.664804,
+              835.570391
+            ]
+          ],
+          [
+            [
+              164.932422,
+              808.166515
+            ],
+            [
+              528.425209,
+              808.166515
+            ]
+          ],
+          [
+            [
+              107.234609,
+              775.518968
+            ],
+            [
+              505.50416,
+              775.518968
+            ]
+          ],
+          [
+            [
+              37.328427,
+              735.963477
+            ],
+            [
+              477.733211,
+              735.963477
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              687.048148
+            ],
+            [
+              443.390947,
+              687.048148
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              625.005018
+            ],
+            [
+              399.831972,
+              625.005018
+            ]
+          ],
+          [
+            [
+              -302.404313,
+              543.730189
+            ],
+            [
+              342.770889,
+              543.730189
+            ]
+          ],
+          [
+            [
+              -498.730463,
+              432.641627
+            ],
+            [
+              264.778309,
+              432.641627
+            ]
+          ],
+          [
+            [
+              -783.25,
+              271.65
+            ],
+            [
+              151.75,
+              271.65
+            ]
+          ],
+          [
+            [
+              -1232.604534,
+              17.388665
+            ],
+            [
+              -26.760705,
+              17.388665
+            ]
+          ],
+          [
+            [
+              -2048.453901,
+              -444.248936
+            ],
+            [
+              -350.865248,
+              -444.248936
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              254.593407,
+              858.9
+            ],
+            [
+              213.363128,
+              835.570391
+            ],
+            [
+              164.932422,
+              808.166515
+            ],
+            [
+              107.234609,
+              775.518968
+            ],
+            [
+              37.328427,
+              735.963477
+            ],
+            [
+              -49.119342,
+              687.048148
+            ],
+            [
+              -158.767795,
+              625.005018
+            ],
+            [
+              -302.404313,
+              543.730189
+            ],
+            [
+              -498.730463,
+              432.641627
+            ],
+            [
+              -783.25,
+              271.65
+            ],
+            [
+              -1232.604534,
+              17.388665
+            ],
+            [
+              -1232.604534,
+              1822.930227
+            ],
+            [
+              -783.25,
+              1531.65
+            ],
+            [
+              -498.730463,
+              1347.218979
+            ],
+            [
+              -302.404313,
+              1219.956604
+            ],
+            [
+              -158.767795,
+              1126.848658
+            ],
+            [
+              -49.119342,
+              1055.772428
+            ],
+            [
+              37.328427,
+              999.735327
+            ],
+            [
+              107.234609,
+              954.420799
+            ],
+            [
+              164.932422,
+              917.01997
+            ],
+            [
+              213.363128,
+              885.626257
+            ],
+            [
+              254.593407,
+              858.9
+            ]
+          ],
+          [
+            [
+              564.043956,
+              858.9
+            ],
+            [
+              547.664804,
+              835.570391
+            ],
+            [
+              528.425209,
+              808.166515
+            ],
+            [
+              505.50416,
+              775.518968
+            ],
+            [
+              477.733211,
+              735.963477
+            ],
+            [
+              443.390947,
+              687.048148
+            ],
+            [
+              399.831972,
+              625.005018
+            ],
+            [
+              342.770889,
+              543.730189
+            ],
+            [
+              264.778309,
+              432.641627
+            ],
+            [
+              151.75,
+              271.65
+            ],
+            [
+              -26.760705,
+              17.388665
+            ],
+            [
+              -26.760705,
+              1822.930227
+            ],
+            [
+              151.75,
+              1531.65
+            ],
+            [
+              264.778309,
+              1347.218979
+            ],
+            [
+              342.770889,
+              1219.956604
+            ],
+            [
+              399.831972,
+              1126.848658
+            ],
+            [
+              443.390947,
+              1055.772428
+            ],
+            [
+              477.733211,
+              999.735327
+            ],
+            [
+              505.50416,
+              954.420799
+            ],
+            [
+              528.425209,
+              917.01997
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              564.043956,
+              858.9
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             254.593407,
@@ -2888,11 +4406,15 @@ window.HOLO_FIXTURES["nav-manor"] = {
           ],
           [
             1361.4915,
-            1017.937549
+            910.812572
           ],
           [
             1672.343866,
-            1602.014147
+            1112.313037
+          ],
+          [
+            2666.959952,
+            1757.042259
           ],
           [
             1808.602686,
@@ -2919,6 +4441,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1127.259892,
+              1683.630999
+            ],
+            [
+              1672.343866,
+              1683.630999
+            ]
+          ],
+          [
+            [
+              1672.343866,
+              1683.630999
+            ],
+            [
+              1127.259892,
+              1683.630999
+            ],
+            [
+              1127.259892,
               1602.014147
             ],
             [
@@ -2937,6 +4477,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1085.664234,
+              1477.443166
+            ],
+            [
+              1567.637553,
+              1477.443166
+            ]
+          ],
+          [
+            [
+              1567.637553,
+              1477.443166
+            ],
+            [
+              1085.664234,
+              1477.443166
+            ],
+            [
+              1085.664234,
               1405.276038
             ],
             [
@@ -2955,6 +4513,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1052.701105,
+              1314.046402
+            ],
+            [
+              1484.661403,
+              1314.046402
+            ]
+          ],
+          [
+            [
+              1484.661403,
+              1314.046402
+            ],
+            [
+              1052.701105,
+              1314.046402
+            ],
+            [
+              1052.701105,
               1249.367855
             ],
             [
@@ -2973,6 +4549,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1025.935827,
+              1181.372103
+            ],
+            [
+              1417.286736,
+              1181.372103
+            ]
+          ],
+          [
+            [
+              1417.286736,
+              1181.372103
+            ],
+            [
+              1025.935827,
+              1181.372103
+            ],
+            [
+              1025.935827,
               1122.774106
             ],
             [
@@ -2991,6 +4585,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1003.770596,
+              1071.500037
+            ],
+            [
+              1361.4915,
+              1071.500037
+            ]
+          ],
+          [
+            [
+              1361.4915,
+              1071.500037
+            ],
+            [
+              1003.770596,
+              1071.500037
+            ],
+            [
+              1003.770596,
               1017.937549
             ],
             [
@@ -3006,6 +4618,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               1003.770596,
               1017.937549
+            ],
+            [
+              985.113367,
+              979.016979
+            ],
+            [
+              1314.52675,
+              979.016979
+            ]
+          ],
+          [
+            [
+              1314.52675,
+              979.016979
+            ],
+            [
+              985.113367,
+              979.016979
             ],
             [
               985.113367,
@@ -3027,6 +4657,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               969.192412,
+              900.097513
+            ],
+            [
+              1274.449864,
+              900.097513
+            ]
+          ],
+          [
+            [
+              1274.449864,
+              900.097513
+            ],
+            [
+              969.192412,
+              900.097513
+            ],
+            [
+              969.192412,
               854.390515
             ],
             [
@@ -3035,7 +4683,222 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              1808.602686,
+              1858.037897
+            ],
+            [
+              1181.390108,
+              1858.037897
+            ]
+          ],
+          [
+            [
+              1672.343866,
+              1602.014147
+            ],
+            [
+              1127.259892,
+              1602.014147
+            ]
+          ],
+          [
+            [
+              1567.637553,
+              1405.276038
+            ],
+            [
+              1085.664234,
+              1405.276038
+            ]
+          ],
+          [
+            [
+              1484.661403,
+              1249.367855
+            ],
+            [
+              1052.701105,
+              1249.367855
+            ]
+          ],
+          [
+            [
+              1417.286736,
+              1122.774106
+            ],
+            [
+              1025.935827,
+              1122.774106
+            ]
+          ],
+          [
+            [
+              1361.4915,
+              1017.937549
+            ],
+            [
+              1003.770596,
+              1017.937549
+            ]
+          ],
+          [
+            [
+              1314.52675,
+              929.69305
+            ],
+            [
+              985.113367,
+              929.69305
+            ]
+          ],
+          [
+            [
+              1274.449864,
+              854.390515
+            ],
+            [
+              969.192412,
+              854.390515
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              1808.602686,
+              1858.037897
+            ],
+            [
+              1672.343866,
+              1602.014147
+            ],
+            [
+              1567.637553,
+              1405.276038
+            ],
+            [
+              1484.661403,
+              1249.367855
+            ],
+            [
+              1417.286736,
+              1122.774106
+            ],
+            [
+              1361.4915,
+              1017.937549
+            ],
+            [
+              1314.52675,
+              929.69305
+            ],
+            [
+              1274.449864,
+              854.390515
+            ],
+            [
+              1274.449864,
+              854.390515
+            ],
+            [
+              1314.52675,
+              880.369121
+            ],
+            [
+              1361.4915,
+              910.812572
+            ],
+            [
+              1417.286736,
+              946.980114
+            ],
+            [
+              1484.661403,
+              990.653666
+            ],
+            [
+              1567.637553,
+              1044.440398
+            ],
+            [
+              1672.343866,
+              1112.313037
+            ],
+            [
+              1808.602686,
+              1200.638618
+            ]
+          ],
+          [
+            [
+              1181.390108,
+              1858.037897
+            ],
+            [
+              1127.259892,
+              1602.014147
+            ],
+            [
+              1085.664234,
+              1405.276038
+            ],
+            [
+              1052.701105,
+              1249.367855
+            ],
+            [
+              1025.935827,
+              1122.774106
+            ],
+            [
+              1003.770596,
+              1017.937549
+            ],
+            [
+              985.113367,
+              929.69305
+            ],
+            [
+              969.192412,
+              854.390515
+            ],
+            [
+              969.192412,
+              854.390515
+            ],
+            [
+              985.113367,
+              880.369121
+            ],
+            [
+              1003.770596,
+              910.812572
+            ],
+            [
+              1025.935827,
+              946.980114
+            ],
+            [
+              1052.701105,
+              990.653666
+            ],
+            [
+              1085.664234,
+              1044.440398
+            ],
+            [
+              1127.259892,
+              1112.313037
+            ],
+            [
+              1181.390108,
+              1200.638618
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             2666.959952,
@@ -3184,16 +5047,12 @@ window.HOLO_FIXTURES["nav-manor"] = {
             877.228116
           ],
           [
-            158.226769,
-            926.114731
+            1443.246377,
+            877.228116
           ],
           [
-            318.85422,
-            1023.887962
-          ],
-          [
-            1202.3052,
-            1561.640733
+            1759.319149,
+            1041.585957
           ],
           [
             1405.596996,
@@ -3224,6 +5083,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1287.689612,
+              2046.361927
+            ],
+            [
+              1121.991475,
+              1561.640733
+            ]
+          ],
+          [
+            [
+              1121.991475,
+              1561.640733
+            ],
+            [
+              1287.689612,
+              2046.361927
+            ],
+            [
+              1287.689612,
               1974.592215
             ],
             [
@@ -3242,6 +5119,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1169.782228,
+              1974.592215
+            ],
+            [
+              1041.677749,
+              1512.754118
+            ]
+          ],
+          [
+            [
+              1041.677749,
+              1512.754118
+            ],
+            [
+              1169.782228,
+              1974.592215
+            ],
+            [
+              1169.782228,
               1902.822503
             ],
             [
@@ -3260,6 +5155,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1051.874844,
+              1902.822503
+            ],
+            [
+              961.364024,
+              1463.867502
+            ]
+          ],
+          [
+            [
+              961.364024,
+              1463.867502
+            ],
+            [
+              1051.874844,
+              1902.822503
+            ],
+            [
+              1051.874844,
               1831.052791
             ],
             [
@@ -3278,6 +5191,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               933.967459,
+              1831.052791
+            ],
+            [
+              881.050298,
+              1414.980887
+            ]
+          ],
+          [
+            [
+              881.050298,
+              1414.980887
+            ],
+            [
+              933.967459,
+              1831.052791
+            ],
+            [
+              933.967459,
               1759.283079
             ],
             [
@@ -3296,6 +5227,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               816.060075,
+              1759.283079
+            ],
+            [
+              800.736573,
+              1366.094271
+            ]
+          ],
+          [
+            [
+              800.736573,
+              1366.094271
+            ],
+            [
+              816.060075,
+              1759.283079
+            ],
+            [
+              816.060075,
               1687.513367
             ],
             [
@@ -3314,6 +5263,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               698.152691,
+              1687.513367
+            ],
+            [
+              720.422847,
+              1317.207656
+            ]
+          ],
+          [
+            [
+              720.422847,
+              1317.207656
+            ],
+            [
+              698.152691,
+              1687.513367
+            ],
+            [
+              698.152691,
               1615.743655
             ],
             [
@@ -3332,6 +5299,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               580.245307,
+              1615.743655
+            ],
+            [
+              640.109122,
+              1268.32104
+            ]
+          ],
+          [
+            [
+              640.109122,
+              1268.32104
+            ],
+            [
+              580.245307,
+              1615.743655
+            ],
+            [
+              580.245307,
               1543.973942
             ],
             [
@@ -3350,6 +5335,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               462.337922,
+              1543.973942
+            ],
+            [
+              559.795396,
+              1219.434425
+            ]
+          ],
+          [
+            [
+              559.795396,
+              1219.434425
+            ],
+            [
+              462.337922,
+              1543.973942
+            ],
+            [
+              462.337922,
               1472.20423
             ],
             [
@@ -3368,6 +5371,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               344.430538,
+              1472.20423
+            ],
+            [
+              479.481671,
+              1170.547809
+            ]
+          ],
+          [
+            [
+              479.481671,
+              1170.547809
+            ],
+            [
+              344.430538,
+              1472.20423
+            ],
+            [
+              344.430538,
               1400.434518
             ],
             [
@@ -3386,6 +5407,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               226.523154,
+              1400.434518
+            ],
+            [
+              399.167945,
+              1121.661194
+            ]
+          ],
+          [
+            [
+              399.167945,
+              1121.661194
+            ],
+            [
+              226.523154,
+              1400.434518
+            ],
+            [
+              226.523154,
               1328.664806
             ],
             [
@@ -3404,6 +5443,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               108.61577,
+              1328.664806
+            ],
+            [
+              318.85422,
+              1072.774578
+            ]
+          ],
+          [
+            [
+              318.85422,
+              1072.774578
+            ],
+            [
+              108.61577,
+              1328.664806
+            ],
+            [
+              108.61577,
               1256.895094
             ],
             [
@@ -3422,6 +5479,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -9.291615,
+              1256.895094
+            ],
+            [
+              238.540494,
+              1023.887962
+            ]
+          ],
+          [
+            [
+              238.540494,
+              1023.887962
+            ],
+            [
+              -9.291615,
+              1256.895094
+            ],
+            [
+              -9.291615,
               1185.125382
             ],
             [
@@ -3436,6 +5511,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -9.291615,
+              1185.125382
+            ],
+            [
+              -127.198999,
+              1185.125382
+            ],
+            [
+              158.226769,
+              975.001347
+            ]
+          ],
+          [
+            [
+              158.226769,
+              975.001347
+            ],
+            [
+              -127.198999,
               1185.125382
             ],
             [
@@ -3458,6 +5551,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -245.106383,
+              1113.35567
+            ],
+            [
+              77.913043,
+              926.114731
+            ]
+          ],
+          [
+            [
+              77.913043,
+              926.114731
+            ],
+            [
+              -245.106383,
+              1113.35567
+            ],
+            [
+              -245.106383,
               1041.585957
             ],
             [
@@ -3466,7 +5577,404 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              1202.3052,
+              1561.640733
+            ],
+            [
+              1405.596996,
+              2046.361927
+            ]
+          ],
+          [
+            [
+              1121.991475,
+              1512.754118
+            ],
+            [
+              1287.689612,
+              1974.592215
+            ]
+          ],
+          [
+            [
+              1041.677749,
+              1463.867502
+            ],
+            [
+              1169.782228,
+              1902.822503
+            ]
+          ],
+          [
+            [
+              961.364024,
+              1414.980887
+            ],
+            [
+              1051.874844,
+              1831.052791
+            ]
+          ],
+          [
+            [
+              881.050298,
+              1366.094271
+            ],
+            [
+              933.967459,
+              1759.283079
+            ]
+          ],
+          [
+            [
+              800.736573,
+              1317.207656
+            ],
+            [
+              816.060075,
+              1687.513367
+            ]
+          ],
+          [
+            [
+              720.422847,
+              1268.32104
+            ],
+            [
+              698.152691,
+              1615.743655
+            ]
+          ],
+          [
+            [
+              640.109122,
+              1219.434425
+            ],
+            [
+              580.245307,
+              1543.973942
+            ]
+          ],
+          [
+            [
+              559.795396,
+              1170.547809
+            ],
+            [
+              462.337922,
+              1472.20423
+            ]
+          ],
+          [
+            [
+              479.481671,
+              1121.661194
+            ],
+            [
+              344.430538,
+              1400.434518
+            ]
+          ],
+          [
+            [
+              399.167945,
+              1072.774578
+            ],
+            [
+              226.523154,
+              1328.664806
+            ]
+          ],
+          [
+            [
+              318.85422,
+              1023.887962
+            ],
+            [
+              108.61577,
+              1256.895094
+            ]
+          ],
+          [
+            [
+              238.540494,
+              975.001347
+            ],
+            [
+              -9.291615,
+              1185.125382
+            ]
+          ],
+          [
+            [
+              158.226769,
+              926.114731
+            ],
+            [
+              -127.198999,
+              1113.35567
+            ]
+          ],
+          [
+            [
+              77.913043,
+              877.228116
+            ],
+            [
+              -245.106383,
+              1041.585957
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              1202.3052,
+              1561.640733
+            ],
+            [
+              1121.991475,
+              1512.754118
+            ],
+            [
+              1041.677749,
+              1463.867502
+            ],
+            [
+              961.364024,
+              1414.980887
+            ],
+            [
+              881.050298,
+              1366.094271
+            ],
+            [
+              800.736573,
+              1317.207656
+            ],
+            [
+              720.422847,
+              1268.32104
+            ],
+            [
+              640.109122,
+              1219.434425
+            ],
+            [
+              559.795396,
+              1170.547809
+            ],
+            [
+              479.481671,
+              1121.661194
+            ],
+            [
+              399.167945,
+              1072.774578
+            ],
+            [
+              318.85422,
+              1023.887962
+            ],
+            [
+              238.540494,
+              975.001347
+            ],
+            [
+              158.226769,
+              926.114731
+            ],
+            [
+              77.913043,
+              877.228116
+            ],
+            [
+              77.913043,
+              877.228116
+            ],
+            [
+              158.226769,
+              877.228116
+            ],
+            [
+              238.540494,
+              877.228116
+            ],
+            [
+              318.85422,
+              877.228116
+            ],
+            [
+              399.167945,
+              877.228116
+            ],
+            [
+              479.481671,
+              877.228116
+            ],
+            [
+              559.795396,
+              877.228116
+            ],
+            [
+              640.109122,
+              877.228116
+            ],
+            [
+              720.422847,
+              877.228116
+            ],
+            [
+              800.736573,
+              877.228116
+            ],
+            [
+              881.050298,
+              877.228116
+            ],
+            [
+              961.364024,
+              877.228116
+            ],
+            [
+              1041.677749,
+              877.228116
+            ],
+            [
+              1121.991475,
+              877.228116
+            ],
+            [
+              1202.3052,
+              877.228116
+            ]
+          ],
+          [
+            [
+              1405.596996,
+              2046.361927
+            ],
+            [
+              1287.689612,
+              1974.592215
+            ],
+            [
+              1169.782228,
+              1902.822503
+            ],
+            [
+              1051.874844,
+              1831.052791
+            ],
+            [
+              933.967459,
+              1759.283079
+            ],
+            [
+              816.060075,
+              1687.513367
+            ],
+            [
+              698.152691,
+              1615.743655
+            ],
+            [
+              580.245307,
+              1543.973942
+            ],
+            [
+              462.337922,
+              1472.20423
+            ],
+            [
+              344.430538,
+              1400.434518
+            ],
+            [
+              226.523154,
+              1328.664806
+            ],
+            [
+              108.61577,
+              1256.895094
+            ],
+            [
+              -9.291615,
+              1185.125382
+            ],
+            [
+              -127.198999,
+              1113.35567
+            ],
+            [
+              -245.106383,
+              1041.585957
+            ],
+            [
+              -245.106383,
+              1041.585957
+            ],
+            [
+              -127.198999,
+              1041.585957
+            ],
+            [
+              -9.291615,
+              1041.585957
+            ],
+            [
+              108.61577,
+              1041.585957
+            ],
+            [
+              226.523154,
+              1041.585957
+            ],
+            [
+              344.430538,
+              1041.585957
+            ],
+            [
+              462.337922,
+              1041.585957
+            ],
+            [
+              580.245307,
+              1041.585957
+            ],
+            [
+              698.152691,
+              1041.585957
+            ],
+            [
+              816.060075,
+              1041.585957
+            ],
+            [
+              933.967459,
+              1041.585957
+            ],
+            [
+              1051.874844,
+              1041.585957
+            ],
+            [
+              1169.782228,
+              1041.585957
+            ],
+            [
+              1287.689612,
+              1041.585957
+            ],
+            [
+              1405.596996,
+              1041.585957
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             1443.246377,
@@ -3775,6 +6283,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               547.664804,
+              1736.575978
+            ],
+            [
+              213.363128,
+              1736.575978
+            ]
+          ],
+          [
+            [
+              213.363128,
+              1736.575978
+            ],
+            [
+              547.664804,
+              1736.575978
+            ],
+            [
+              547.664804,
               1686.520112
             ],
             [
@@ -3793,6 +6319,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               528.425209,
+              1787.847608
+            ],
+            [
+              164.932422,
+              1787.847608
+            ]
+          ],
+          [
+            [
+              164.932422,
+              1787.847608
+            ],
+            [
+              528.425209,
+              1787.847608
+            ],
+            [
+              528.425209,
               1733.420881
             ],
             [
@@ -3811,6 +6355,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               505.50416,
+              1848.92995
+            ],
+            [
+              107.234609,
+              1848.92995
+            ]
+          ],
+          [
+            [
+              107.234609,
+              1848.92995
+            ],
+            [
+              505.50416,
+              1848.92995
+            ],
+            [
+              505.50416,
               1789.296007
             ],
             [
@@ -3829,6 +6391,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               477.733211,
+              1922.936799
+            ],
+            [
+              37.328427,
+              1922.936799
+            ]
+          ],
+          [
+            [
+              37.328427,
+              1922.936799
+            ],
+            [
+              477.733211,
+              1922.936799
+            ],
+            [
+              477.733211,
               1856.993836
             ],
             [
@@ -3844,6 +6424,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               477.733211,
               1856.993836
+            ],
+            [
+              443.390947,
+              2014.455556
+            ],
+            [
+              -49.119342,
+              2014.455556
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              2014.455556
+            ],
+            [
+              443.390947,
+              2014.455556
             ],
             [
               443.390947,
@@ -3873,7 +6471,196 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              254.593407,
+              1646.592308
+            ],
+            [
+              564.043956,
+              1646.592308
+            ]
+          ],
+          [
+            [
+              213.363128,
+              1686.520112
+            ],
+            [
+              547.664804,
+              1686.520112
+            ]
+          ],
+          [
+            [
+              164.932422,
+              1733.420881
+            ],
+            [
+              528.425209,
+              1733.420881
+            ]
+          ],
+          [
+            [
+              107.234609,
+              1789.296007
+            ],
+            [
+              505.50416,
+              1789.296007
+            ]
+          ],
+          [
+            [
+              37.328427,
+              1856.993836
+            ],
+            [
+              477.733211,
+              1856.993836
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              1940.7107
+            ],
+            [
+              443.390947,
+              1940.7107
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              2046.895333
+            ],
+            [
+              399.831972,
+              2046.895333
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              254.593407,
+              1646.592308
+            ],
+            [
+              213.363128,
+              1686.520112
+            ],
+            [
+              164.932422,
+              1733.420881
+            ],
+            [
+              107.234609,
+              1789.296007
+            ],
+            [
+              37.328427,
+              1856.993836
+            ],
+            [
+              -49.119342,
+              1940.7107
+            ],
+            [
+              -158.767795,
+              2046.895333
+            ],
+            [
+              -158.767795,
+              1126.848658
+            ],
+            [
+              -49.119342,
+              1055.772428
+            ],
+            [
+              37.328427,
+              999.735327
+            ],
+            [
+              107.234609,
+              954.420799
+            ],
+            [
+              164.932422,
+              917.01997
+            ],
+            [
+              213.363128,
+              885.626257
+            ],
+            [
+              254.593407,
+              858.9
+            ]
+          ],
+          [
+            [
+              564.043956,
+              1646.592308
+            ],
+            [
+              547.664804,
+              1686.520112
+            ],
+            [
+              528.425209,
+              1733.420881
+            ],
+            [
+              505.50416,
+              1789.296007
+            ],
+            [
+              477.733211,
+              1856.993836
+            ],
+            [
+              443.390947,
+              1940.7107
+            ],
+            [
+              399.831972,
+              2046.895333
+            ],
+            [
+              399.831972,
+              1126.848658
+            ],
+            [
+              443.390947,
+              1055.772428
+            ],
+            [
+              477.733211,
+              999.735327
+            ],
+            [
+              505.50416,
+              954.420799
+            ],
+            [
+              528.425209,
+              917.01997
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              564.043956,
+              858.9
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             254.593407,
@@ -4454,11 +7241,11 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "threshold",
         "via": null,
         "x": 254.690537084399,
-        "y": 526.1,
+        "y": 0,
         "w": 1068.5217391304348,
-        "h": 61.96378516624043,
-        "beyond_m": null,
-        "beyond_offset_m": null
+        "h": 588.0637851662405,
+        "beyond_m": 9,
+        "beyond_offset_m": 0.4
       }
     ],
     "stairs": []
@@ -4662,11 +7449,11 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "threshold",
         "via": null,
         "x": -779.3777777777777,
-        "y": 526.1,
+        "y": 0,
         "w": 3094.7555555555555,
-        "h": 179.46548148148156,
-        "beyond_m": null,
-        "beyond_offset_m": null
+        "h": 705.5654814814816,
+        "beyond_m": 0,
+        "beyond_offset_m": 0.4
       }
     ],
     "stairs": []
@@ -5134,24 +7921,32 @@ window.HOLO_FIXTURES["nav-manor"] = {
             194.9384
           ],
           [
-            185.969605,
-            272.605532
+            317.44,
+            768.3784
           ],
           [
-            140.170492,
-            299.661705
+            225.541076,
+            817.794958
           ],
           [
-            86.548043,
-            331.339573
+            22.910506,
+            926.754942
+          ],
+          [
+            -148.210526,
+            1018.771388
+          ],
+          [
+            -267.07027,
+            1082.685514
           ],
           [
             -1383.550562,
-            1199.811461
+            1683.047416
           ],
           [
-            -2177.969231,
-            1669.120308
+            -2948.314607,
+            1683.047416
           ]
         ],
         "treads_poly": [
@@ -5166,6 +7961,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -1383.550562,
+              1360.890112
+            ],
+            [
+              -2948.314607,
+              1360.890112
+            ]
+          ],
+          [
+            [
+              -2948.314607,
+              1360.890112
+            ],
+            [
+              -1383.550562,
+              1360.890112
+            ],
+            [
+              -1383.550562,
               1199.811461
             ],
             [
@@ -5184,6 +7997,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -926.584071,
+              1056.722301
+            ],
+            [
+              -2159.00885,
+              1056.722301
+            ]
+          ],
+          [
+            [
+              -2159.00885,
+              1056.722301
+            ],
+            [
+              -926.584071,
+              1056.722301
+            ],
+            [
+              -926.584071,
               929.855044
             ],
             [
@@ -5202,6 +8033,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -629.722628,
+              859.124234
+            ],
+            [
+              -1646.248175,
+              859.124234
+            ]
+          ],
+          [
+            [
+              -1646.248175,
+              859.124234
+            ],
+            [
+              -629.722628,
+              859.124234
+            ],
+            [
+              -629.722628,
               754.481898
             ],
             [
@@ -5220,6 +8069,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -421.36646,
+              720.437391
+            ],
+            [
+              -1286.360248,
+              720.437391
+            ]
+          ],
+          [
+            [
+              -1286.360248,
+              720.437391
+            ],
+            [
+              -421.36646,
+              720.437391
+            ],
+            [
+              -421.36646,
               631.393913
             ],
             [
@@ -5238,6 +8105,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -267.07027,
+              617.734162
+            ],
+            [
+              -1019.848649,
+              617.734162
+            ]
+          ],
+          [
+            [
+              -1019.848649,
+              617.734162
+            ],
+            [
+              -267.07027,
+              617.734162
+            ],
+            [
+              -267.07027,
               540.24227
             ],
             [
@@ -5256,6 +8141,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -148.210526,
+              538.618278
+            ],
+            [
+              -814.545455,
+              538.618278
+            ]
+          ],
+          [
+            [
+              -814.545455,
+              538.618278
+            ],
+            [
+              -148.210526,
+              538.618278
+            ],
+            [
+              -148.210526,
               470.024976
             ],
             [
@@ -5274,6 +8177,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -53.83691,
+              475.800944
+            ],
+            [
+              -651.536481,
+              475.800944
+            ]
+          ],
+          [
+            [
+              -651.536481,
+              475.800944
+            ],
+            [
+              -53.83691,
+              475.800944
+            ],
+            [
+              -53.83691,
               414.273047
             ],
             [
@@ -5292,6 +8213,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               22.910506,
+              424.716031
+            ],
+            [
+              -518.972763,
+              424.716031
+            ]
+          ],
+          [
+            [
+              -518.972763,
+              424.716031
+            ],
+            [
+              22.910506,
+              424.716031
+            ],
+            [
+              22.910506,
               368.93393
             ],
             [
@@ -5310,6 +8249,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               86.548043,
+              382.357367
+            ],
+            [
+              -409.053381,
+              382.357367
+            ]
+          ],
+          [
+            [
+              -409.053381,
+              382.357367
+            ],
+            [
+              86.548043,
+              382.357367
+            ],
+            [
+              86.548043,
               331.339573
             ],
             [
@@ -5328,6 +8285,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               140.170492,
+              346.664984
+            ],
+            [
+              -316.432787,
+              346.664984
+            ]
+          ],
+          [
+            [
+              -316.432787,
+              346.664984
+            ],
+            [
+              140.170492,
+              346.664984
+            ],
+            [
+              140.170492,
               299.661705
             ],
             [
@@ -5346,6 +8321,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               185.969605,
+              316.18
+            ],
+            [
+              -237.325228,
+              316.18
+            ]
+          ],
+          [
+            [
+              -237.325228,
+              316.18
+            ],
+            [
+              185.969605,
+              316.18
+            ],
+            [
+              185.969605,
               272.605532
             ],
             [
@@ -5364,6 +8357,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               225.541076,
+              289.840283
+            ],
+            [
+              -168.974504,
+              289.840283
+            ]
+          ],
+          [
+            [
+              -168.974504,
+              289.840283
+            ],
+            [
+              225.541076,
+              289.840283
+            ],
+            [
+              225.541076,
               249.228385
             ],
             [
@@ -5382,6 +8393,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               260.074271,
+              266.854164
+            ],
+            [
+              -109.32626,
+              266.854164
+            ]
+          ],
+          [
+            [
+              -109.32626,
+              266.854164
+            ],
+            [
+              260.074271,
+              266.854164
+            ],
+            [
+              260.074271,
               228.827639
             ],
             [
@@ -5397,6 +8426,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               260.074271,
               228.827639
+            ],
+            [
+              290.473815,
+              246.619501
+            ],
+            [
+              -56.817955,
+              246.619501
+            ]
+          ],
+          [
+            [
+              -56.817955,
+              246.619501
+            ],
+            [
+              290.473815,
+              246.619501
             ],
             [
               290.473815,
@@ -5418,6 +8465,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               317.44,
+              228.670165
+            ],
+            [
+              -10.24,
+              228.670165
+            ]
+          ],
+          [
+            [
+              -10.24,
+              228.670165
+            ],
+            [
+              317.44,
+              228.670165
+            ],
+            [
+              317.44,
               194.9384
             ],
             [
@@ -5426,7 +8491,414 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              -4320.492308,
+              1669.120308
+            ],
+            [
+              -2177.969231,
+              1669.120308
+            ]
+          ],
+          [
+            [
+              -2948.314607,
+              1199.811461
+            ],
+            [
+              -1383.550562,
+              1199.811461
+            ]
+          ],
+          [
+            [
+              -2159.00885,
+              929.855044
+            ],
+            [
+              -926.584071,
+              929.855044
+            ]
+          ],
+          [
+            [
+              -1646.248175,
+              754.481898
+            ],
+            [
+              -629.722628,
+              754.481898
+            ]
+          ],
+          [
+            [
+              -1286.360248,
+              631.393913
+            ],
+            [
+              -421.36646,
+              631.393913
+            ]
+          ],
+          [
+            [
+              -1019.848649,
+              540.24227
+            ],
+            [
+              -267.07027,
+              540.24227
+            ]
+          ],
+          [
+            [
+              -814.545455,
+              470.024976
+            ],
+            [
+              -148.210526,
+              470.024976
+            ]
+          ],
+          [
+            [
+              -651.536481,
+              414.273047
+            ],
+            [
+              -53.83691,
+              414.273047
+            ]
+          ],
+          [
+            [
+              -518.972763,
+              368.93393
+            ],
+            [
+              22.910506,
+              368.93393
+            ]
+          ],
+          [
+            [
+              -409.053381,
+              331.339573
+            ],
+            [
+              86.548043,
+              331.339573
+            ]
+          ],
+          [
+            [
+              -316.432787,
+              299.661705
+            ],
+            [
+              140.170492,
+              299.661705
+            ]
+          ],
+          [
+            [
+              -237.325228,
+              272.605532
+            ],
+            [
+              185.969605,
+              272.605532
+            ]
+          ],
+          [
+            [
+              -168.974504,
+              249.228385
+            ],
+            [
+              225.541076,
+              249.228385
+            ]
+          ],
+          [
+            [
+              -109.32626,
+              228.827639
+            ],
+            [
+              260.074271,
+              228.827639
+            ]
+          ],
+          [
+            [
+              -56.817955,
+              210.868878
+            ],
+            [
+              290.473815,
+              210.868878
+            ]
+          ],
+          [
+            [
+              -10.24,
+              194.9384
+            ],
+            [
+              317.44,
+              194.9384
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              -2948.314607,
+              1199.811461
+            ],
+            [
+              -2159.00885,
+              929.855044
+            ],
+            [
+              -1646.248175,
+              754.481898
+            ],
+            [
+              -1286.360248,
+              631.393913
+            ],
+            [
+              -1019.848649,
+              540.24227
+            ],
+            [
+              -814.545455,
+              470.024976
+            ],
+            [
+              -651.536481,
+              414.273047
+            ],
+            [
+              -518.972763,
+              368.93393
+            ],
+            [
+              -409.053381,
+              331.339573
+            ],
+            [
+              -316.432787,
+              299.661705
+            ],
+            [
+              -237.325228,
+              272.605532
+            ],
+            [
+              -168.974504,
+              249.228385
+            ],
+            [
+              -109.32626,
+              228.827639
+            ],
+            [
+              -56.817955,
+              210.868878
+            ],
+            [
+              -10.24,
+              194.9384
+            ],
+            [
+              -10.24,
+              768.3784
+            ],
+            [
+              -56.817955,
+              782.878853
+            ],
+            [
+              -109.32626,
+              799.225517
+            ],
+            [
+              -168.974504,
+              817.794958
+            ],
+            [
+              -237.325228,
+              839.073617
+            ],
+            [
+              -316.432787,
+              863.701049
+            ],
+            [
+              -409.053381,
+              892.535302
+            ],
+            [
+              -518.972763,
+              926.754942
+            ],
+            [
+              -651.536481,
+              968.02412
+            ],
+            [
+              -814.545455,
+              1018.771388
+            ],
+            [
+              -1019.848649,
+              1082.685514
+            ],
+            [
+              -1286.360248,
+              1165.654783
+            ],
+            [
+              -1646.248175,
+              1277.693577
+            ],
+            [
+              -2159.00885,
+              1437.324071
+            ],
+            [
+              -2948.314607,
+              1683.047416
+            ]
+          ],
+          [
+            [
+              -1383.550562,
+              1199.811461
+            ],
+            [
+              -926.584071,
+              929.855044
+            ],
+            [
+              -629.722628,
+              754.481898
+            ],
+            [
+              -421.36646,
+              631.393913
+            ],
+            [
+              -267.07027,
+              540.24227
+            ],
+            [
+              -148.210526,
+              470.024976
+            ],
+            [
+              -53.83691,
+              414.273047
+            ],
+            [
+              22.910506,
+              368.93393
+            ],
+            [
+              86.548043,
+              331.339573
+            ],
+            [
+              140.170492,
+              299.661705
+            ],
+            [
+              185.969605,
+              272.605532
+            ],
+            [
+              225.541076,
+              249.228385
+            ],
+            [
+              260.074271,
+              228.827639
+            ],
+            [
+              290.473815,
+              210.868878
+            ],
+            [
+              317.44,
+              194.9384
+            ],
+            [
+              317.44,
+              768.3784
+            ],
+            [
+              290.473815,
+              782.878853
+            ],
+            [
+              260.074271,
+              799.225517
+            ],
+            [
+              225.541076,
+              817.794958
+            ],
+            [
+              185.969605,
+              839.073617
+            ],
+            [
+              140.170492,
+              863.701049
+            ],
+            [
+              86.548043,
+              892.535302
+            ],
+            [
+              22.910506,
+              926.754942
+            ],
+            [
+              -53.83691,
+              968.02412
+            ],
+            [
+              -148.210526,
+              1018.771388
+            ],
+            [
+              -267.07027,
+              1082.685514
+            ],
+            [
+              -421.36646,
+              1165.654783
+            ],
+            [
+              -629.722628,
+              1277.693577
+            ],
+            [
+              -926.584071,
+              1437.324071
+            ],
+            [
+              -1383.550562,
+              1683.047416
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             -2948.314607,
@@ -5792,20 +9264,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             -589.614783
           ],
           [
-            3462.517312,
-            80.25332
+            5192.77592,
+            1903.602609
           ],
           [
-            2705.054173,
-            373.50451
+            3329.712375,
+            1903.602609
           ],
           [
-            1744.389668,
-            745.42493
+            2707.118987,
+            1568.817165
           ],
           [
-            1623.208791,
-            792.34
+            1556.828012,
+            950.274336
+          ],
+          [
+            1295.878704,
+            809.954776
           ]
         ],
         "treads_poly": [
@@ -5820,6 +9296,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1295.878704,
+              809.954776
+            ],
+            [
+              1679.790489,
+              809.954776
+            ]
+          ],
+          [
+            [
+              1679.790489,
+              809.954776
+            ],
+            [
+              1295.878704,
+              809.954776
+            ],
+            [
+              1295.878704,
               770.434445
             ],
             [
@@ -5838,6 +9332,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1333.278229,
+              787.745225
+            ],
+            [
+              1744.389668,
+              787.745225
+            ]
+          ],
+          [
+            [
+              1744.389668,
+              787.745225
+            ],
+            [
+              1333.278229,
+              787.745225
+            ],
+            [
+              1333.278229,
               745.42493
             ],
             [
@@ -5856,6 +9368,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1376.381255,
+              762.148674
+            ],
+            [
+              1818.840349,
+              762.148674
+            ]
+          ],
+          [
+            [
+              1818.840349,
+              762.148674
+            ],
+            [
+              1376.381255,
+              762.148674
+            ],
+            [
+              1376.381255,
               716.601414
             ],
             [
@@ -5874,6 +9404,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1426.600172,
+              732.32638
+            ],
+            [
+              1905.582115,
+              732.32638
+            ]
+          ],
+          [
+            [
+              1905.582115,
+              732.32638
+            ],
+            [
+              1426.600172,
+              732.32638
+            ],
+            [
+              1426.600172,
               683.019415
             ],
             [
@@ -5892,6 +9440,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1485.85567,
+              697.137751
+            ],
+            [
+              2007.932521,
+              697.137751
+            ]
+          ],
+          [
+            [
+              2007.932521,
+              697.137751
+            ],
+            [
+              1485.85567,
+              697.137751
+            ],
+            [
+              1485.85567,
               643.394545
             ],
             [
@@ -5910,6 +9476,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1556.828012,
+              654.991123
+            ],
+            [
+              2130.521112,
+              654.991123
+            ]
+          ],
+          [
+            [
+              2130.521112,
+              654.991123
+            ],
+            [
+              1556.828012,
+              654.991123
+            ],
+            [
+              1556.828012,
               595.93448
             ],
             [
@@ -5928,6 +9512,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1643.373714,
+              603.59632
+            ],
+            [
+              2280.009143,
+              603.59632
+            ]
+          ],
+          [
+            [
+              2280.009143,
+              603.59632
+            ],
+            [
+              1643.373714,
+              603.59632
+            ],
+            [
+              1643.373714,
               538.06032
             ],
             [
@@ -5946,6 +9548,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1751.250321,
+              539.534249
+            ],
+            [
+              2466.341463,
+              539.534249
+            ]
+          ],
+          [
+            [
+              2466.341463,
+              539.534249
+            ],
+            [
+              1751.250321,
+              539.534249
+            ],
+            [
+              1751.250321,
               465.921926
             ],
             [
@@ -5964,6 +9584,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1889.452416,
+              457.463514
+            ],
+            [
+              2705.054173,
+              457.463514
+            ]
+          ],
+          [
+            [
+              2705.054173,
+              457.463514
+            ],
+            [
+              1889.452416,
+              457.463514
+            ],
+            [
+              1889.452416,
               373.50451
             ],
             [
@@ -5982,6 +9620,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               2072.858603,
+              348.548518
+            ],
+            [
+              3021.846678,
+              348.548518
+            ]
+          ],
+          [
+            [
+              3021.846678,
+              348.548518
+            ],
+            [
+              2072.858603,
+              348.548518
+            ],
+            [
+              2072.858603,
               250.858569
             ],
             [
@@ -6000,6 +9656,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               2327.983707,
+              197.043544
+            ],
+            [
+              3462.517312,
+              197.043544
+            ]
+          ],
+          [
+            [
+              3462.517312,
+              197.043544
+            ],
+            [
+              2327.983707,
+              197.043544
+            ],
+            [
+              2327.983707,
               80.25332
             ],
             [
@@ -6015,6 +9689,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               2327.983707,
               80.25332
+            ],
+            [
+              2707.118987,
+              -28.104354
+            ],
+            [
+              4117.387342,
+              -28.104354
+            ]
+          ],
+          [
+            [
+              4117.387342,
+              -28.104354
+            ],
+            [
+              2707.118987,
+              -28.104354
             ],
             [
               2707.118987,
@@ -6036,10 +9728,170 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               3329.712375,
+              -397.828829
+            ],
+            [
+              5192.77592,
+              -397.828829
+            ]
+          ],
+          [
+            [
+              5192.77592,
+              -397.828829
+            ],
+            [
+              3329.712375,
+              -397.828829
+            ],
+            [
+              3329.712375,
               -589.614783
             ],
             [
               5192.77592,
+              -589.614783
+            ]
+          ]
+        ],
+        "noses": [
+          [
+            [
+              1623.208791,
+              792.34
+            ],
+            [
+              1263.120879,
+              792.34
+            ]
+          ],
+          [
+            [
+              1679.790489,
+              770.434445
+            ],
+            [
+              1295.878704,
+              770.434445
+            ]
+          ],
+          [
+            [
+              1744.389668,
+              745.42493
+            ],
+            [
+              1333.278229,
+              745.42493
+            ]
+          ],
+          [
+            [
+              1818.840349,
+              716.601414
+            ],
+            [
+              1376.381255,
+              716.601414
+            ]
+          ],
+          [
+            [
+              1905.582115,
+              683.019415
+            ],
+            [
+              1426.600172,
+              683.019415
+            ]
+          ],
+          [
+            [
+              2007.932521,
+              643.394545
+            ],
+            [
+              1485.85567,
+              643.394545
+            ]
+          ],
+          [
+            [
+              2130.521112,
+              595.93448
+            ],
+            [
+              1556.828012,
+              595.93448
+            ]
+          ],
+          [
+            [
+              2280.009143,
+              538.06032
+            ],
+            [
+              1643.373714,
+              538.06032
+            ]
+          ],
+          [
+            [
+              2466.341463,
+              465.921926
+            ],
+            [
+              1751.250321,
+              465.921926
+            ]
+          ],
+          [
+            [
+              2705.054173,
+              373.50451
+            ],
+            [
+              1889.452416,
+              373.50451
+            ]
+          ],
+          [
+            [
+              3021.846678,
+              250.858569
+            ],
+            [
+              2072.858603,
+              250.858569
+            ]
+          ],
+          [
+            [
+              3462.517312,
+              80.25332
+            ],
+            [
+              2327.983707,
+              80.25332
+            ]
+          ],
+          [
+            [
+              4117.387342,
+              -173.279038
+            ],
+            [
+              2707.118987,
+              -173.279038
+            ]
+          ],
+          [
+            [
+              5192.77592,
+              -589.614783
+            ],
+            [
+              3329.712375,
               -589.614783
             ]
           ]
@@ -6567,24 +10419,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
             149.78
           ],
           [
-            1216,
-            250.132
-          ],
-          [
-            1167.811765,
-            278.241804
-          ],
-          [
-            975.058824,
-            390.68102
-          ],
-          [
-            493.176471,
-            671.779059
-          ],
-          [
-            396.8,
-            727.998667
+            1378.909091,
+            801.416364
           ]
         ],
         "treads_poly": [
@@ -6595,6 +10431,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               261.818182,
+              801.416364
+            ],
+            [
+              327.529412,
+              801.416364
+            ],
+            [
+              444.988235,
+              727.998667
+            ]
+          ],
+          [
+            [
+              444.988235,
+              727.998667
+            ],
+            [
+              327.529412,
               801.416364
             ],
             [
@@ -6617,6 +10471,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               393.240642,
+              763.084813
+            ],
+            [
+              493.176471,
+              699.888863
+            ]
+          ],
+          [
+            [
+              493.176471,
+              699.888863
+            ],
+            [
+              393.240642,
+              763.084813
+            ],
+            [
+              393.240642,
               724.753262
             ],
             [
@@ -6635,6 +10507,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               458.951872,
+              724.753262
+            ],
+            [
+              541.364706,
+              671.779059
+            ]
+          ],
+          [
+            [
+              541.364706,
+              671.779059
+            ],
+            [
+              458.951872,
+              724.753262
+            ],
+            [
+              458.951872,
               686.421711
             ],
             [
@@ -6653,6 +10543,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               524.663102,
+              686.421711
+            ],
+            [
+              589.552941,
+              643.669255
+            ]
+          ],
+          [
+            [
+              589.552941,
+              643.669255
+            ],
+            [
+              524.663102,
+              686.421711
+            ],
+            [
+              524.663102,
               648.09016
             ],
             [
@@ -6671,6 +10579,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               590.374332,
+              648.09016
+            ],
+            [
+              637.741176,
+              615.559451
+            ]
+          ],
+          [
+            [
+              637.741176,
+              615.559451
+            ],
+            [
+              590.374332,
+              648.09016
+            ],
+            [
+              590.374332,
               609.75861
             ],
             [
@@ -6689,6 +10615,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               656.085561,
+              609.75861
+            ],
+            [
+              685.929412,
+              587.449647
+            ]
+          ],
+          [
+            [
+              685.929412,
+              587.449647
+            ],
+            [
+              656.085561,
+              609.75861
+            ],
+            [
+              656.085561,
               571.427059
             ],
             [
@@ -6707,6 +10651,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               721.796791,
+              571.427059
+            ],
+            [
+              734.117647,
+              559.339843
+            ]
+          ],
+          [
+            [
+              734.117647,
+              559.339843
+            ],
+            [
+              721.796791,
+              571.427059
+            ],
+            [
+              721.796791,
               533.095508
             ],
             [
@@ -6725,6 +10687,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               787.508021,
+              533.095508
+            ],
+            [
+              782.305882,
+              531.230039
+            ]
+          ],
+          [
+            [
+              782.305882,
+              531.230039
+            ],
+            [
+              787.508021,
+              533.095508
+            ],
+            [
+              787.508021,
               494.763957
             ],
             [
@@ -6743,6 +10723,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               853.219251,
+              494.763957
+            ],
+            [
+              830.494118,
+              503.120235
+            ]
+          ],
+          [
+            [
+              830.494118,
+              503.120235
+            ],
+            [
+              853.219251,
+              494.763957
+            ],
+            [
+              853.219251,
               456.432406
             ],
             [
@@ -6761,6 +10759,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               918.930481,
+              456.432406
+            ],
+            [
+              878.682353,
+              475.010431
+            ]
+          ],
+          [
+            [
+              878.682353,
+              475.010431
+            ],
+            [
+              918.930481,
+              456.432406
+            ],
+            [
+              918.930481,
               418.100856
             ],
             [
@@ -6779,6 +10795,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               984.641711,
+              418.100856
+            ],
+            [
+              926.870588,
+              446.900627
+            ]
+          ],
+          [
+            [
+              926.870588,
+              446.900627
+            ],
+            [
+              984.641711,
+              418.100856
+            ],
+            [
+              984.641711,
               379.769305
             ],
             [
@@ -6797,6 +10831,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1050.352941,
+              379.769305
+            ],
+            [
+              975.058824,
+              418.790824
+            ]
+          ],
+          [
+            [
+              975.058824,
+              418.790824
+            ],
+            [
+              1050.352941,
+              379.769305
+            ],
+            [
+              1050.352941,
               341.437754
             ],
             [
@@ -6815,6 +10867,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1116.064171,
+              341.437754
+            ],
+            [
+              1023.247059,
+              390.68102
+            ]
+          ],
+          [
+            [
+              1023.247059,
+              390.68102
+            ],
+            [
+              1116.064171,
+              341.437754
+            ],
+            [
+              1116.064171,
               303.106203
             ],
             [
@@ -6833,6 +10903,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1181.775401,
+              303.106203
+            ],
+            [
+              1071.435294,
+              362.571216
+            ]
+          ],
+          [
+            [
+              1071.435294,
+              362.571216
+            ],
+            [
+              1181.775401,
+              303.106203
+            ],
+            [
+              1181.775401,
               264.774652
             ],
             [
@@ -6851,6 +10939,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1247.486631,
+              264.774652
+            ],
+            [
+              1119.623529,
+              334.461412
+            ]
+          ],
+          [
+            [
+              1119.623529,
+              334.461412
+            ],
+            [
+              1247.486631,
+              264.774652
+            ],
+            [
+              1247.486631,
               226.443102
             ],
             [
@@ -6865,6 +10971,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1247.486631,
+              226.443102
+            ],
+            [
+              1313.197861,
+              226.443102
+            ],
+            [
+              1167.811765,
+              306.351608
+            ]
+          ],
+          [
+            [
+              1167.811765,
+              306.351608
+            ],
+            [
+              1313.197861,
               226.443102
             ],
             [
@@ -6887,11 +11011,211 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1378.909091,
+              188.111551
+            ],
+            [
+              1216,
+              278.241804
+            ]
+          ],
+          [
+            [
+              1216,
+              278.241804
+            ],
+            [
+              1378.909091,
+              188.111551
+            ],
+            [
+              1378.909091,
               149.78
             ],
             [
               1216,
               250.132
+            ]
+          ]
+        ],
+        "noses": [
+          [
+            [
+              396.8,
+              727.998667
+            ],
+            [
+              261.818182,
+              801.416364
+            ]
+          ],
+          [
+            [
+              444.988235,
+              699.888863
+            ],
+            [
+              327.529412,
+              763.084813
+            ]
+          ],
+          [
+            [
+              493.176471,
+              671.779059
+            ],
+            [
+              393.240642,
+              724.753262
+            ]
+          ],
+          [
+            [
+              541.364706,
+              643.669255
+            ],
+            [
+              458.951872,
+              686.421711
+            ]
+          ],
+          [
+            [
+              589.552941,
+              615.559451
+            ],
+            [
+              524.663102,
+              648.09016
+            ]
+          ],
+          [
+            [
+              637.741176,
+              587.449647
+            ],
+            [
+              590.374332,
+              609.75861
+            ]
+          ],
+          [
+            [
+              685.929412,
+              559.339843
+            ],
+            [
+              656.085561,
+              571.427059
+            ]
+          ],
+          [
+            [
+              734.117647,
+              531.230039
+            ],
+            [
+              721.796791,
+              533.095508
+            ]
+          ],
+          [
+            [
+              782.305882,
+              503.120235
+            ],
+            [
+              787.508021,
+              494.763957
+            ]
+          ],
+          [
+            [
+              830.494118,
+              475.010431
+            ],
+            [
+              853.219251,
+              456.432406
+            ]
+          ],
+          [
+            [
+              878.682353,
+              446.900627
+            ],
+            [
+              918.930481,
+              418.100856
+            ]
+          ],
+          [
+            [
+              926.870588,
+              418.790824
+            ],
+            [
+              984.641711,
+              379.769305
+            ]
+          ],
+          [
+            [
+              975.058824,
+              390.68102
+            ],
+            [
+              1050.352941,
+              341.437754
+            ]
+          ],
+          [
+            [
+              1023.247059,
+              362.571216
+            ],
+            [
+              1116.064171,
+              303.106203
+            ]
+          ],
+          [
+            [
+              1071.435294,
+              334.461412
+            ],
+            [
+              1181.775401,
+              264.774652
+            ]
+          ],
+          [
+            [
+              1119.623529,
+              306.351608
+            ],
+            [
+              1247.486631,
+              226.443102
+            ]
+          ],
+          [
+            [
+              1167.811765,
+              278.241804
+            ],
+            [
+              1313.197861,
+              188.111551
+            ]
+          ],
+          [
+            [
+              1216,
+              250.132
+            ],
+            [
+              1378.909091,
+              149.78
             ]
           ]
         ],
@@ -9107,20 +13431,16 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "h": 255.62159999999994,
         "poly": [
           [
-            -1019.848649,
-            1857.604432
+            -2948.314607,
+            1683.047416
           ],
           [
-            -814.545455,
-            1636.1111
+            -409.053381,
+            892.535302
           ],
           [
-            -237.325228,
-            1013.371489
-          ],
-          [
-            -56.817955,
-            818.629476
+            -109.32626,
+            799.225517
           ],
           [
             -10.24,
@@ -9137,6 +13457,10 @@ window.HOLO_FIXTURES["nav-manor"] = {
           [
             -267.07027,
             1857.604432
+          ],
+          [
+            -1019.848649,
+            1857.604432
           ]
         ],
         "treads_poly": [
@@ -9151,6 +13475,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -148.210526,
+              1704.704402
+            ],
+            [
+              -814.545455,
+              1704.704402
+            ]
+          ],
+          [
+            [
+              -814.545455,
+              1704.704402
+            ],
+            [
+              -148.210526,
+              1704.704402
+            ],
+            [
+              -148.210526,
               1636.1111
             ],
             [
@@ -9169,6 +13511,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               -53.83691,
+              1521.775193
+            ],
+            [
+              -651.536481,
+              1521.775193
+            ]
+          ],
+          [
+            [
+              -651.536481,
+              1521.775193
+            ],
+            [
+              -53.83691,
+              1521.775193
+            ],
+            [
+              -53.83691,
               1460.247296
             ],
             [
@@ -9187,6 +13547,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               22.910506,
+              1373.011751
+            ],
+            [
+              -518.972763,
+              1373.011751
+            ]
+          ],
+          [
+            [
+              -518.972763,
+              1373.011751
+            ],
+            [
+              22.910506,
+              1373.011751
+            ],
+            [
+              22.910506,
               1317.22965
             ],
             [
@@ -9205,6 +13583,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               86.548043,
+              1249.659858
+            ],
+            [
+              -409.053381,
+              1249.659858
+            ]
+          ],
+          [
+            [
+              -409.053381,
+              1249.659858
+            ],
+            [
+              86.548043,
+              1249.659858
+            ],
+            [
+              86.548043,
               1198.642064
             ],
             [
@@ -9223,6 +13619,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               140.170492,
+              1145.720721
+            ],
+            [
+              -316.432787,
+              1145.720721
+            ]
+          ],
+          [
+            [
+              -316.432787,
+              1145.720721
+            ],
+            [
+              140.170492,
+              1145.720721
+            ],
+            [
+              140.170492,
               1098.717443
             ],
             [
@@ -9241,6 +13655,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               185.969605,
+              1056.945957
+            ],
+            [
+              -237.325228,
+              1056.945957
+            ]
+          ],
+          [
+            [
+              -237.325228,
+              1056.945957
+            ],
+            [
+              185.969605,
+              1056.945957
+            ],
+            [
+              185.969605,
               1013.371489
             ],
             [
@@ -9259,6 +13691,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               225.541076,
+              980.24255
+            ],
+            [
+              -168.974504,
+              980.24255
+            ]
+          ],
+          [
+            [
+              -168.974504,
+              980.24255
+            ],
+            [
+              225.541076,
+              980.24255
+            ],
+            [
+              225.541076,
               939.630652
             ],
             [
@@ -9277,6 +13727,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               260.074271,
+              913.305093
+            ],
+            [
+              -109.32626,
+              913.305093
+            ]
+          ],
+          [
+            [
+              -109.32626,
+              913.305093
+            ],
+            [
+              260.074271,
+              913.305093
+            ],
+            [
+              260.074271,
               875.278568
             ],
             [
@@ -9292,6 +13760,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               260.074271,
               875.278568
+            ],
+            [
+              290.473815,
+              854.3801
+            ],
+            [
+              -56.817955,
+              854.3801
+            ]
+          ],
+          [
+            [
+              -56.817955,
+              854.3801
+            ],
+            [
+              290.473815,
+              854.3801
             ],
             [
               290.473815,
@@ -9313,6 +13799,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               317.44,
+              802.110165
+            ],
+            [
+              -10.24,
+              802.110165
+            ]
+          ],
+          [
+            [
+              -10.24,
+              802.110165
+            ],
+            [
+              317.44,
+              802.110165
+            ],
+            [
+              317.44,
               768.3784
             ],
             [
@@ -9321,7 +13825,300 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              -1019.848649,
+              1857.604432
+            ],
+            [
+              -267.07027,
+              1857.604432
+            ]
+          ],
+          [
+            [
+              -814.545455,
+              1636.1111
+            ],
+            [
+              -148.210526,
+              1636.1111
+            ]
+          ],
+          [
+            [
+              -651.536481,
+              1460.247296
+            ],
+            [
+              -53.83691,
+              1460.247296
+            ]
+          ],
+          [
+            [
+              -518.972763,
+              1317.22965
+            ],
+            [
+              22.910506,
+              1317.22965
+            ]
+          ],
+          [
+            [
+              -409.053381,
+              1198.642064
+            ],
+            [
+              86.548043,
+              1198.642064
+            ]
+          ],
+          [
+            [
+              -316.432787,
+              1098.717443
+            ],
+            [
+              140.170492,
+              1098.717443
+            ]
+          ],
+          [
+            [
+              -237.325228,
+              1013.371489
+            ],
+            [
+              185.969605,
+              1013.371489
+            ]
+          ],
+          [
+            [
+              -168.974504,
+              939.630652
+            ],
+            [
+              225.541076,
+              939.630652
+            ]
+          ],
+          [
+            [
+              -109.32626,
+              875.278568
+            ],
+            [
+              260.074271,
+              875.278568
+            ]
+          ],
+          [
+            [
+              -56.817955,
+              818.629476
+            ],
+            [
+              290.473815,
+              818.629476
+            ]
+          ],
+          [
+            [
+              -10.24,
+              768.3784
+            ],
+            [
+              317.44,
+              768.3784
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              -1019.848649,
+              1857.604432
+            ],
+            [
+              -814.545455,
+              1636.1111
+            ],
+            [
+              -651.536481,
+              1460.247296
+            ],
+            [
+              -518.972763,
+              1317.22965
+            ],
+            [
+              -409.053381,
+              1198.642064
+            ],
+            [
+              -316.432787,
+              1098.717443
+            ],
+            [
+              -237.325228,
+              1013.371489
+            ],
+            [
+              -168.974504,
+              939.630652
+            ],
+            [
+              -109.32626,
+              875.278568
+            ],
+            [
+              -56.817955,
+              818.629476
+            ],
+            [
+              -10.24,
+              768.3784
+            ],
+            [
+              -10.24,
+              768.3784
+            ],
+            [
+              -56.817955,
+              782.878853
+            ],
+            [
+              -109.32626,
+              799.225517
+            ],
+            [
+              -168.974504,
+              817.794958
+            ],
+            [
+              -237.325228,
+              839.073617
+            ],
+            [
+              -316.432787,
+              863.701049
+            ],
+            [
+              -409.053381,
+              892.535302
+            ],
+            [
+              -518.972763,
+              926.754942
+            ],
+            [
+              -651.536481,
+              968.02412
+            ],
+            [
+              -814.545455,
+              1018.771388
+            ],
+            [
+              -1019.848649,
+              1082.685514
+            ]
+          ],
+          [
+            [
+              -267.07027,
+              1857.604432
+            ],
+            [
+              -148.210526,
+              1636.1111
+            ],
+            [
+              -53.83691,
+              1460.247296
+            ],
+            [
+              22.910506,
+              1317.22965
+            ],
+            [
+              86.548043,
+              1198.642064
+            ],
+            [
+              140.170492,
+              1098.717443
+            ],
+            [
+              185.969605,
+              1013.371489
+            ],
+            [
+              225.541076,
+              939.630652
+            ],
+            [
+              260.074271,
+              875.278568
+            ],
+            [
+              290.473815,
+              818.629476
+            ],
+            [
+              317.44,
+              768.3784
+            ],
+            [
+              317.44,
+              768.3784
+            ],
+            [
+              290.473815,
+              782.878853
+            ],
+            [
+              260.074271,
+              799.225517
+            ],
+            [
+              225.541076,
+              817.794958
+            ],
+            [
+              185.969605,
+              839.073617
+            ],
+            [
+              140.170492,
+              863.701049
+            ],
+            [
+              86.548043,
+              892.535302
+            ],
+            [
+              22.910506,
+              926.754942
+            ],
+            [
+              -53.83691,
+              968.02412
+            ],
+            [
+              -148.210526,
+              1018.771388
+            ],
+            [
+              -267.07027,
+              1082.685514
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             -2948.314607,
@@ -9674,6 +14471,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1295.878704,
+              1481.8004
+            ],
+            [
+              1679.790489,
+              1481.8004
+            ]
+          ],
+          [
+            [
+              1679.790489,
+              1481.8004
+            ],
+            [
+              1295.878704,
+              1481.8004
+            ],
+            [
+              1295.878704,
               1442.280069
             ],
             [
@@ -9692,6 +14507,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1333.278229,
+              1507.190244
+            ],
+            [
+              1744.389668,
+              1507.190244
+            ]
+          ],
+          [
+            [
+              1744.389668,
+              1507.190244
+            ],
+            [
+              1333.278229,
+              1507.190244
+            ],
+            [
+              1333.278229,
               1464.869948
             ],
             [
@@ -9710,6 +14543,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1376.381255,
+              1536.452089
+            ],
+            [
+              1818.840349,
+              1536.452089
+            ]
+          ],
+          [
+            [
+              1818.840349,
+              1536.452089
+            ],
+            [
+              1376.381255,
+              1536.452089
+            ],
+            [
+              1376.381255,
               1490.904829
             ],
             [
@@ -9728,6 +14579,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1426.600172,
+              1570.544781
+            ],
+            [
+              1905.582115,
+              1570.544781
+            ]
+          ],
+          [
+            [
+              1905.582115,
+              1570.544781
+            ],
+            [
+              1426.600172,
+              1570.544781
+            ],
+            [
+              1426.600172,
               1521.237816
             ],
             [
@@ -9746,6 +14615,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1485.85567,
+              1610.77224
+            ],
+            [
+              2007.932521,
+              1610.77224
+            ]
+          ],
+          [
+            [
+              2007.932521,
+              1610.77224
+            ],
+            [
+              1485.85567,
+              1610.77224
+            ],
+            [
+              1485.85567,
               1557.029035
             ],
             [
@@ -9764,6 +14651,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1556.828012,
+              1658.954047
+            ],
+            [
+              2130.521112,
+              1658.954047
+            ]
+          ],
+          [
+            [
+              2130.521112,
+              1658.954047
+            ],
+            [
+              1556.828012,
+              1658.954047
+            ],
+            [
+              1556.828012,
               1599.897405
             ],
             [
@@ -9782,6 +14687,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1643.373714,
+              1717.70832
+            ],
+            [
+              2280.009143,
+              1717.70832
+            ]
+          ],
+          [
+            [
+              2280.009143,
+              1717.70832
+            ],
+            [
+              1643.373714,
+              1717.70832
+            ],
+            [
+              1643.373714,
               1652.17232
             ],
             [
@@ -9800,6 +14723,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1751.250321,
+              1790.943748
+            ],
+            [
+              2466.341463,
+              1790.943748
+            ]
+          ],
+          [
+            [
+              2466.341463,
+              1790.943748
+            ],
+            [
+              1751.250321,
+              1790.943748
+            ],
+            [
+              1751.250321,
               1717.331425
             ],
             [
@@ -9815,6 +14756,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             [
               1751.250321,
               1717.331425
+            ],
+            [
+              1889.452416,
+              1884.766589
+            ],
+            [
+              2705.054173,
+              1884.766589
+            ]
+          ],
+          [
+            [
+              2705.054173,
+              1884.766589
+            ],
+            [
+              1889.452416,
+              1884.766589
             ],
             [
               1889.452416,
@@ -9836,6 +14795,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               2072.858603,
+              2009.277649
+            ],
+            [
+              3021.846678,
+              2009.277649
+            ]
+          ],
+          [
+            [
+              3021.846678,
+              2009.277649
+            ],
+            [
+              2072.858603,
+              2009.277649
+            ],
+            [
+              2072.858603,
               1911.5877
             ],
             [
@@ -9844,7 +14821,300 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ]
           ]
         ],
-        "mass_poly": [],
+        "noses": [
+          [
+            [
+              1623.208791,
+              1422.493846
+            ],
+            [
+              1263.120879,
+              1422.493846
+            ]
+          ],
+          [
+            [
+              1679.790489,
+              1442.280069
+            ],
+            [
+              1295.878704,
+              1442.280069
+            ]
+          ],
+          [
+            [
+              1744.389668,
+              1464.869948
+            ],
+            [
+              1333.278229,
+              1464.869948
+            ]
+          ],
+          [
+            [
+              1818.840349,
+              1490.904829
+            ],
+            [
+              1376.381255,
+              1490.904829
+            ]
+          ],
+          [
+            [
+              1905.582115,
+              1521.237816
+            ],
+            [
+              1426.600172,
+              1521.237816
+            ]
+          ],
+          [
+            [
+              2007.932521,
+              1557.029035
+            ],
+            [
+              1485.85567,
+              1557.029035
+            ]
+          ],
+          [
+            [
+              2130.521112,
+              1599.897405
+            ],
+            [
+              1556.828012,
+              1599.897405
+            ]
+          ],
+          [
+            [
+              2280.009143,
+              1652.17232
+            ],
+            [
+              1643.373714,
+              1652.17232
+            ]
+          ],
+          [
+            [
+              2466.341463,
+              1717.331425
+            ],
+            [
+              1751.250321,
+              1717.331425
+            ]
+          ],
+          [
+            [
+              2705.054173,
+              1800.807584
+            ],
+            [
+              1889.452416,
+              1800.807584
+            ]
+          ],
+          [
+            [
+              3021.846678,
+              1911.5877
+            ],
+            [
+              2072.858603,
+              1911.5877
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              1623.208791,
+              1422.493846
+            ],
+            [
+              1679.790489,
+              1442.280069
+            ],
+            [
+              1744.389668,
+              1464.869948
+            ],
+            [
+              1818.840349,
+              1490.904829
+            ],
+            [
+              1905.582115,
+              1521.237816
+            ],
+            [
+              2007.932521,
+              1557.029035
+            ],
+            [
+              2130.521112,
+              1599.897405
+            ],
+            [
+              2280.009143,
+              1652.17232
+            ],
+            [
+              2466.341463,
+              1717.331425
+            ],
+            [
+              2705.054173,
+              1800.807584
+            ],
+            [
+              3021.846678,
+              1911.5877
+            ],
+            [
+              3021.846678,
+              1227.758058
+            ],
+            [
+              2705.054173,
+              1129.135549
+            ],
+            [
+              2466.341463,
+              1054.820513
+            ],
+            [
+              2280.009143,
+              996.81232
+            ],
+            [
+              2130.521112,
+              950.274336
+            ],
+            [
+              2007.932521,
+              912.110572
+            ],
+            [
+              1905.582115,
+              880.247274
+            ],
+            [
+              1818.840349,
+              853.243193
+            ],
+            [
+              1744.389668,
+              830.06552
+            ],
+            [
+              1679.790489,
+              809.954776
+            ],
+            [
+              1623.208791,
+              792.34
+            ]
+          ],
+          [
+            [
+              1263.120879,
+              1422.493846
+            ],
+            [
+              1295.878704,
+              1442.280069
+            ],
+            [
+              1333.278229,
+              1464.869948
+            ],
+            [
+              1376.381255,
+              1490.904829
+            ],
+            [
+              1426.600172,
+              1521.237816
+            ],
+            [
+              1485.85567,
+              1557.029035
+            ],
+            [
+              1556.828012,
+              1599.897405
+            ],
+            [
+              1643.373714,
+              1652.17232
+            ],
+            [
+              1751.250321,
+              1717.331425
+            ],
+            [
+              1889.452416,
+              1800.807584
+            ],
+            [
+              2072.858603,
+              1911.5877
+            ],
+            [
+              2072.858603,
+              1227.758058
+            ],
+            [
+              1889.452416,
+              1129.135549
+            ],
+            [
+              1751.250321,
+              1054.820513
+            ],
+            [
+              1643.373714,
+              996.81232
+            ],
+            [
+              1556.828012,
+              950.274336
+            ],
+            [
+              1485.85567,
+              912.110572
+            ],
+            [
+              1426.600172,
+              880.247274
+            ],
+            [
+              1376.381255,
+              853.243193
+            ],
+            [
+              1333.278229,
+              830.06552
+            ],
+            [
+              1295.878704,
+              809.954776
+            ],
+            [
+              1263.120879,
+              792.34
+            ]
+          ]
+        ],
         "floor_poly": [
           [
             1623.208791,
@@ -10010,19 +15280,11 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "poly": [
           [
             261.818182,
-            1453.052727
+            801.416364
           ],
           [
             396.8,
-            1205.865333
-          ],
-          [
-            444.988235,
-            1177.755529
-          ],
-          [
-            1071.435294,
-            812.328078
+            727.998667
           ],
           [
             1216,
@@ -10035,6 +15297,10 @@ window.HOLO_FIXTURES["nav-manor"] = {
           [
             393.240642,
             1376.389626
+          ],
+          [
+            261.818182,
+            1453.052727
           ]
         ],
         "treads_poly": [
@@ -10045,6 +15311,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               261.818182,
+              1453.052727
+            ],
+            [
+              327.529412,
+              1453.052727
+            ],
+            [
+              444.988235,
+              1205.865333
+            ]
+          ],
+          [
+            [
+              444.988235,
+              1205.865333
+            ],
+            [
+              327.529412,
               1453.052727
             ],
             [
@@ -10067,6 +15351,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               393.240642,
+              1414.721176
+            ],
+            [
+              493.176471,
+              1177.755529
+            ]
+          ],
+          [
+            [
+              493.176471,
+              1177.755529
+            ],
+            [
+              393.240642,
+              1414.721176
+            ],
+            [
+              393.240642,
               1376.389626
             ],
             [
@@ -10085,6 +15387,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               458.951872,
+              1376.389626
+            ],
+            [
+              541.364706,
+              1149.645725
+            ]
+          ],
+          [
+            [
+              541.364706,
+              1149.645725
+            ],
+            [
+              458.951872,
+              1376.389626
+            ],
+            [
+              458.951872,
               1338.058075
             ],
             [
@@ -10103,6 +15423,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               524.663102,
+              1338.058075
+            ],
+            [
+              589.552941,
+              1121.535922
+            ]
+          ],
+          [
+            [
+              589.552941,
+              1121.535922
+            ],
+            [
+              524.663102,
+              1338.058075
+            ],
+            [
+              524.663102,
               1299.726524
             ],
             [
@@ -10121,6 +15459,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               590.374332,
+              1299.726524
+            ],
+            [
+              637.741176,
+              1093.426118
+            ]
+          ],
+          [
+            [
+              637.741176,
+              1093.426118
+            ],
+            [
+              590.374332,
+              1299.726524
+            ],
+            [
+              590.374332,
               1261.394973
             ],
             [
@@ -10139,6 +15495,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               656.085561,
+              1261.394973
+            ],
+            [
+              685.929412,
+              1065.316314
+            ]
+          ],
+          [
+            [
+              685.929412,
+              1065.316314
+            ],
+            [
+              656.085561,
+              1261.394973
+            ],
+            [
+              656.085561,
               1223.063422
             ],
             [
@@ -10157,6 +15531,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               721.796791,
+              1223.063422
+            ],
+            [
+              734.117647,
+              1037.20651
+            ]
+          ],
+          [
+            [
+              734.117647,
+              1037.20651
+            ],
+            [
+              721.796791,
+              1223.063422
+            ],
+            [
+              721.796791,
               1184.731872
             ],
             [
@@ -10175,6 +15567,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               787.508021,
+              1184.731872
+            ],
+            [
+              782.305882,
+              1009.096706
+            ]
+          ],
+          [
+            [
+              782.305882,
+              1009.096706
+            ],
+            [
+              787.508021,
+              1184.731872
+            ],
+            [
+              787.508021,
               1146.400321
             ],
             [
@@ -10193,6 +15603,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               853.219251,
+              1146.400321
+            ],
+            [
+              830.494118,
+              980.986902
+            ]
+          ],
+          [
+            [
+              830.494118,
+              980.986902
+            ],
+            [
+              853.219251,
+              1146.400321
+            ],
+            [
+              853.219251,
               1108.06877
             ],
             [
@@ -10211,6 +15639,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               918.930481,
+              1108.06877
+            ],
+            [
+              878.682353,
+              952.877098
+            ]
+          ],
+          [
+            [
+              878.682353,
+              952.877098
+            ],
+            [
+              918.930481,
+              1108.06877
+            ],
+            [
+              918.930481,
               1069.737219
             ],
             [
@@ -10229,6 +15675,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               984.641711,
+              1069.737219
+            ],
+            [
+              926.870588,
+              924.767294
+            ]
+          ],
+          [
+            [
+              926.870588,
+              924.767294
+            ],
+            [
+              984.641711,
+              1069.737219
+            ],
+            [
+              984.641711,
               1031.405668
             ],
             [
@@ -10247,6 +15711,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1050.352941,
+              1031.405668
+            ],
+            [
+              975.058824,
+              896.65749
+            ]
+          ],
+          [
+            [
+              975.058824,
+              896.65749
+            ],
+            [
+              1050.352941,
+              1031.405668
+            ],
+            [
+              1050.352941,
               993.074118
             ],
             [
@@ -10265,6 +15747,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1116.064171,
+              993.074118
+            ],
+            [
+              1023.247059,
+              868.547686
+            ]
+          ],
+          [
+            [
+              1023.247059,
+              868.547686
+            ],
+            [
+              1116.064171,
+              993.074118
+            ],
+            [
+              1116.064171,
               954.742567
             ],
             [
@@ -10283,6 +15783,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1181.775401,
+              954.742567
+            ],
+            [
+              1071.435294,
+              840.437882
+            ]
+          ],
+          [
+            [
+              1071.435294,
+              840.437882
+            ],
+            [
+              1181.775401,
+              954.742567
+            ],
+            [
+              1181.775401,
               916.411016
             ],
             [
@@ -10301,6 +15819,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1247.486631,
+              916.411016
+            ],
+            [
+              1119.623529,
+              812.328078
+            ]
+          ],
+          [
+            [
+              1119.623529,
+              812.328078
+            ],
+            [
+              1247.486631,
+              916.411016
+            ],
+            [
+              1247.486631,
               878.079465
             ],
             [
@@ -10315,6 +15851,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1247.486631,
+              878.079465
+            ],
+            [
+              1313.197861,
+              878.079465
+            ],
+            [
+              1167.811765,
+              784.218275
+            ]
+          ],
+          [
+            [
+              1167.811765,
+              784.218275
+            ],
+            [
+              1313.197861,
               878.079465
             ],
             [
@@ -10337,11 +15891,211 @@ window.HOLO_FIXTURES["nav-manor"] = {
             ],
             [
               1378.909091,
+              839.747914
+            ],
+            [
+              1216,
+              756.108471
+            ]
+          ],
+          [
+            [
+              1216,
+              756.108471
+            ],
+            [
+              1378.909091,
+              839.747914
+            ],
+            [
+              1378.909091,
               801.416364
             ],
             [
               1216,
               727.998667
+            ]
+          ]
+        ],
+        "noses": [
+          [
+            [
+              396.8,
+              1205.865333
+            ],
+            [
+              261.818182,
+              1453.052727
+            ]
+          ],
+          [
+            [
+              444.988235,
+              1177.755529
+            ],
+            [
+              327.529412,
+              1414.721176
+            ]
+          ],
+          [
+            [
+              493.176471,
+              1149.645725
+            ],
+            [
+              393.240642,
+              1376.389626
+            ]
+          ],
+          [
+            [
+              541.364706,
+              1121.535922
+            ],
+            [
+              458.951872,
+              1338.058075
+            ]
+          ],
+          [
+            [
+              589.552941,
+              1093.426118
+            ],
+            [
+              524.663102,
+              1299.726524
+            ]
+          ],
+          [
+            [
+              637.741176,
+              1065.316314
+            ],
+            [
+              590.374332,
+              1261.394973
+            ]
+          ],
+          [
+            [
+              685.929412,
+              1037.20651
+            ],
+            [
+              656.085561,
+              1223.063422
+            ]
+          ],
+          [
+            [
+              734.117647,
+              1009.096706
+            ],
+            [
+              721.796791,
+              1184.731872
+            ]
+          ],
+          [
+            [
+              782.305882,
+              980.986902
+            ],
+            [
+              787.508021,
+              1146.400321
+            ]
+          ],
+          [
+            [
+              830.494118,
+              952.877098
+            ],
+            [
+              853.219251,
+              1108.06877
+            ]
+          ],
+          [
+            [
+              878.682353,
+              924.767294
+            ],
+            [
+              918.930481,
+              1069.737219
+            ]
+          ],
+          [
+            [
+              926.870588,
+              896.65749
+            ],
+            [
+              984.641711,
+              1031.405668
+            ]
+          ],
+          [
+            [
+              975.058824,
+              868.547686
+            ],
+            [
+              1050.352941,
+              993.074118
+            ]
+          ],
+          [
+            [
+              1023.247059,
+              840.437882
+            ],
+            [
+              1116.064171,
+              954.742567
+            ]
+          ],
+          [
+            [
+              1071.435294,
+              812.328078
+            ],
+            [
+              1181.775401,
+              916.411016
+            ]
+          ],
+          [
+            [
+              1119.623529,
+              784.218275
+            ],
+            [
+              1247.486631,
+              878.079465
+            ]
+          ],
+          [
+            [
+              1167.811765,
+              756.108471
+            ],
+            [
+              1313.197861,
+              839.747914
+            ]
+          ],
+          [
+            [
+              1216,
+              727.998667
+            ],
+            [
+              1378.909091,
+              801.416364
             ]
           ]
         ],

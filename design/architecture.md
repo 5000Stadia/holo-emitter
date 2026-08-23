@@ -2097,12 +2097,21 @@ tested against and a bow-tie is not. Filled in `STAIR_BASE`, the mass stops the 
 where the stair stands in front of it — the one place this drawing occludes anything, and the one
 piece of building fabric that stands off a wall.
 
-**Two of the manor's standpoints stand ON a flight**, which the drawing puts there and this row does
+**Four of the manor's standpoints stand ON a flight**, which the drawing puts there and this row does
 not move: `back_stair/N`, `back_stair_head/N`, `great_stair_hall/E` and `stair_landing/E`. Row 20
 computed that and hung the list on a PROPERTY of `validatePlan` that nothing read — not the bake,
 not a spec, not a batch — and a warning nobody prints is not "reported". `planWarnings` recomputes
-and prints them now, because this row is the one that makes it matter: the flight is drawn, and the
-viewer is standing in it.
+and prints them now, because this row is the one that makes it matter.
+
+And what it prints had to be corrected before it could be believed. The sentence ended "and the
+picture draws the flight around them"; the picture does not, and never did. A standpoint inside a
+flight puts the whole run at or behind the eye except the tread underfoot, which is nearer than the
+ruled stand-off and below the frame — so those four facings honestly draw NO flight, and the warning
+now says that. The batch README carried the same untruth in the other direction, captioning the
+frame of `back_stair/N` — an empty box — with "the flight is drawn from every side you can see it
+from — turn, and it is still there". That caption was pointed at Kabe, at the picture that refutes
+it. **A document claiming a drawing that is not there is this row's own quality running backwards,**
+and it appeared three times in one row: in the warning, in the batch README and in the README.
 
 **`up`/`down` are anchored to the drawing as far as a plan view can anchor them.**
 `[row15:plan.stair_directions]` requires the flight rect's LONGER axis to be the axis they name.
@@ -2209,14 +2218,28 @@ take it is not a player.
   `scale_px_per_m: -1152`.
 - `[row19:plan.object_clear_of_thresholds]` — a footprint in a door's or an open edge's own rect. A
   doorway is floor a player crosses.
-- `[row19:plan.object_projects_finitely]` — **in `projectPlacement`, at the site that produces the
-  number**, not beside the document. `-1152` is FINITE, so the row's own words are narrower than the
-  defect they cite; the bound is finite AND positive. A plan-side version is either vacuous or wrong
-  on the approved corpus: the study's standpoints stand the viewer LEVEL with the desk and the chair,
-  off to one side and out of frame, so those two footprints straddle the camera depth on facings
-  nobody projects them onto. A clause refusing that would refuse the approved plan; one narrowed to
-  objects across the viewing axis is unreachable, because an object across the axis at camera depth
-  necessarily covers the standpoint and the clause above fires first.
+- `[row19:plan.object_projects_finitely]` — beside the document, reading the FRUSTUM: an object is
+  refused when the view actually contains it and it has no projection. This paragraph used to argue
+  the opposite — "**in `projectPlacement`, at the site that produces the number**, not beside the
+  document … a plan-side version is either vacuous or wrong on the approved corpus" — which is the
+  position the code reversed when the plan-side clause was made frustum-based and the approved plan
+  stayed green. The document was left arguing against the file it documents.
+  `-1152` is FINITE, so the row's own words are narrower than the defect they cite; the bound is
+  finite AND positive.
+- `[row19:projection.refuses_nonfinite]` — and the same refusal AT the site that produces the number,
+  in `projectPlacement`, which is where `-1152` was actually returned. One token per site, so which
+  of the two moved is legible from a failure.
+- `[row19:projection.refuses_at_the_eye]` — **and finite-and-positive is still not enough.** The
+  shipped plan stands the hall's south camera 0.10 m from a 1.00 m press, which projects at
+  10,240 px/m on a 1,536 px canvas: a number passing every bound above and describing no press. The
+  ruled stand-off is `MIN_STANDOFF_M = 0.25`, a hand's breadth, and it is stated once.
+
+  The refusal and the REPORT of it now read one predicate, `projectionFault`. They had drifted:
+  `projectPlacement` refused six (object, facing) pairs of the shipped plan and `planWarnings`
+  printed two, because the report kept its own copy of the condition and that copy also demanded the
+  footprint overlap the standpoint-to-wall band — which four of the six do not. **A refusal nobody
+  prints is exactly the silent skip row 19 exists to abolish, committed by row 19's own report.**
+  Seven pairs are refused now and seven are printed, and they are the same seven by construction.
 - `[row19:staging.wall_mounted_over_storey]` — `v` plus the record's own height above the facing's
   declared storey. **The critic's second construction** — a 2.0 m door in a 1.85 m room.
 - `[row19:meta.opening_over_storey]` — the same bound on the building: a door opening's ruled 2.00 m
@@ -2378,6 +2401,24 @@ matters more than the instance.
   17-px doorway the entrance court's stand-back produces, and deleting the ring turns it red. This
   is the fifth time this project has shipped a guard that guards nothing, and the shape was the
   usual one: the case was written from the fix rather than from the defect.
+
+  **And then it was the sixth, and the sixth is the one worth keeping.** Two of the eight fixes this
+  row made in answer to its own artifact critic — the flight on every facing, and the clamp on an
+  off-frame control — shipped with cases that could not see the defect they were written for. Both
+  were caught by a recheck that reinstated the original defect and watched the suite stay green.
+  The lesson is not "write better cases". It is structural, and it is Kabe's own formulation, put
+  into the record at his instruction:
+
+  > **An author's delete-and-confirm-red is insufficient BECAUSE the author chooses where to
+  > measure.** — Kabe
+
+  Breaking your own mechanism and watching your own case go red proves only that the case is
+  connected to the mechanism. It cannot prove the case is pointed at the FACING, the viewport or the
+  moment where the defect lives, because the same understanding that misplaced the measurement
+  chooses where to break. That is why the fix for a delete-green guard is never a better assertion
+  at the same coordinates: it is standing somewhere else. Every case in `manor.spec`'s closing
+  block walks to the facing it is about by real intents before it measures anything, and the block
+  says so in its own comment.
 - **A sentence that lied to a player.** `op14` cannot be walked from the passage side (below), so
   arriving in the passage FROM the kitchen there is no way back on that wall — and the arrival line,
   like all fifty-five, ended "The doorway stands open behind you." Fifty-four were true. That one
@@ -2395,8 +2436,88 @@ matters more than the instance.
   the document became 1721 px wide, and — because the turn handler never called `preventDefault` —
   one ArrowRight both turned the room and scrolled the picture 40 px, on a phone taking the newest
   narration line half off the screen with it. Controls are clamped inside the stage and the key is
-  consumed. `manor.spec` asserts `scrollWidth <= clientWidth` at 390×844, which is the check that
-  would have caught it.
+  consumed. The check written for it did **not** catch it: `manor.spec` asserted
+  `scrollWidth <= clientWidth` at 390×844 from inside an evaluate that never navigated, so it stood
+  on the boot facing where no aperture runs off the frame, and removing the clamp entirely left it
+  green. It stands on `hall/N` now, reached by real intents, and the `preventDefault` half — which
+  nothing asserted at all, and which a width measurement cannot see once the width is correct — is
+  asked of the event itself.
+
+### What the recheck found, and what a fourth round cost
+
+The row's third examination — a recheck of the commit that answered the artifact critic — returned
+FAIL, and the budget was three. Kabe authorised a fourth on a stated principle: the entrance
+rendering black, a staircase rendering as a hairline and a chevron stealing doorway walks are all
+PLAYER-FACING truth, "the class where *important elements take as long as they take* and the budget
+bows". What follows is what that round changed, each item measured rather than asserted.
+
+**The flight was a wire pretending to be a solid, and then a ramp pretending to be a stair.**
+Three separate faults, found in that order:
+
+1. `mass_poly` — the body — was gated on `steps.length >= 2 && floorQuad.length === steps.length`,
+   an equality between two lists filtered for reach INDEPENDENTLY. Any single clipped tread deleted
+   the whole body, which emptied it on eight of the twelve facings that carry a flight **including
+   all four a player climbs from**. On `back_stair/E` the treads then floated at y 77–1357 with the
+   flight's own footprint at y 854–1757 and nothing joining them: a wedge of steps up by the ceiling
+   and an unrelated quadrilateral on the floor. Every rank is now kept WITH ITS INDEX and the body is
+   built from whatever survives, in runs of adjacent treads. Twelve of twelve carry a body.
+2. The fill inherited `globalAlpha` — 0.55, left by the line-work block before it — and was never set.
+   At `#1b222c` over `#10141b` that put the flight **five levels of 255** from the wall behind it,
+   with the wall's own grid legible straight through the thing that is supposed to be standing in
+   front of it. The fill declares its own opacity now, and `STAIR_BASE` was moved from BETWEEN the
+   wall and the floor (about eleven levels from each, which is not a separation) to `#4a5870`, above
+   both — a solid catching the light in a frame where the planes are unlit space. Measured on
+   `great_stair_hall/W`: the body reads 275 against the frame's 116, summed over three channels.
+3. And with a body, it was a RAMP. The mass's top edge ran nose to nose — a straight diagonal — so a
+   seventeen-tread flight had no steps in it at all. A staircase's profile alternates: along the
+   going at one height, up the riser to the next. The foot of each riser is now projected and
+   carried, a step is TWO faces, and the noses are carried under their own name because a list whose
+   meaning must be recovered from its neighbours' parity will be read wrongly — as it already was,
+   by the case that counted treads.
+
+`great_stair_hall/W` went from **0.33 % of the frame at five levels of contrast** to 23.1 % at forty.
+It is a staircase you can count the steps of.
+
+**A chevron was eating four ways through the building.** A real click at the exact middle of the only
+visible part of `hall/N`'s doorway turned the viewer east, at both viewports; on a phone the right
+chevron covered 26 % of the great hall's garden door. The chevrons are chrome laid over the picture
+at 6 % opacity — the room shows THROUGH them — so a person clicking a doorway they can plainly see is
+asking to walk through it, whatever is layered over the pixels. A chevron now asks the picture first:
+a point inside a way through dispatches that way, and only a point over no way at all turns the room.
+The test is the aperture polygon and not `resolve()` generally, so a chevron cannot become a way of
+picking up a teacup.
+
+**The manor's front way in was drawing a wall across its own opening.** `entrance_approach/N` came to
+1,068 lit pixels in a 1068 × 61 band — one hairline lying exactly on the wall-floor line it could not
+be told apart from — under five hundred pixels of flat black. Two things were wrong. The facing is
+typed `enclosed`, so the grid drew its wall across the whole view including the 20.4 m the plan says
+is a gap between two wing fronts; and the mouth's rectangle ran only from the horizon to the sill, a
+sliver at the foot of that wall. An `open_edge` has no lintel, so the hole now runs from the top of
+the frame to the ground, taking the ceiling band with it — there is no ceiling over a courtyard. And
+a threshold now composites the GROUND beyond it, which is not an invented vista but the destination's
+own floor plane drawn by the destination's own facing. The sill line is the near room's and the
+through-view is clipped above it, because that one pixel is what distinguishes this ground from that.
+
+The clause that accepted the black rectangle asked only that ONE pixel be lit. It asks for a fraction
+now, like the door branch beside it, measured in the band the ground beyond must occupy.
+
+**And row 19 was still skipping silently, in its own report.** `projectPlacement` refused six
+(object, facing) pairs of the shipped plan; `planWarnings` printed two. Both carried their own copy
+of the condition and the report's copy also demanded the footprint overlap the standpoint-to-wall
+band, which four of the six do not — so four refusals were made and never said. Worse, both files
+carried the comment "planWarnings counts what it excluded, so the exclusion is printed rather than
+silent", which was false as written in both. One predicate now, `projectionFault`, read by the
+refusal, by the report and by the variant manifest. A seventh pair joined them: `shelf1` on `hall/S`
+projects at 10,240 px/m — finite, positive, and not a picture of a press — which nothing refused
+because the row's stated bound was narrower than the class it was written for.
+
+**Five sentences that were false about the running thing.** The plan warning claiming the picture
+draws a flight it does not draw; the batch README captioning an empty frame with the opposite of what
+it shows, aimed at Kabe; the README's "one wall of it is painted" (two are) and its "a stair is drawn
+… from whichever side of it you are standing on" (four facings draw none, honestly); and this
+document's own claim that a check "would have caught it" when removing what it guards left it green.
+Each is corrected in place and each says what it used to say, because a correction that erases the
+error teaches nothing.
 
 ### Residue, named
 

@@ -1395,11 +1395,37 @@
       }
     });
 
-    document.getElementById("chevron-left").addEventListener("click", function () {
-      dispatch({ type: "turn", dir: "left" });
+    /* [Row 15] A CHEVRON YIELDS TO A WAY THROUGH UNDERNEATH IT.
+     *
+     * The chevrons are chrome laid over the picture — 6 % opaque, so the room
+     * shows THROUGH them — and they sit at the frame's edges at eye height,
+     * which is exactly where a doorway on a side wall is drawn. At the manor's
+     * scale that stopped being theoretical: a real click at the exact middle of
+     * the only visible part of the cross passage's north doorway TURNED THE
+     * VIEWER EAST instead of walking them through it, at both viewports, and on
+     * a phone the right chevron covered a quarter of the great hall's garden
+     * door. Four ways through the building were behind a button that meant
+     * something else.
+     *
+     * A person clicking a doorway they can plainly see is asking to walk
+     * through it, whatever is layered over the pixels. So the chevron asks the
+     * picture first: a point inside a way through dispatches that way, and only
+     * a point that is over no way at all turns the room. The test is the
+     * APERTURE POLYGON — a definite walkable target — and not `resolve()`
+     * generally, because a chevron should not become a way of picking up a
+     * teacup. Where nothing is behind it, which is the ordinary case on 84 of
+     * the 88 facings, it turns exactly as before. */
+    function turnOrGoThrough(dir, e) {
+      var ap = null;
+      try { ap = apertureAt(canvasPoint(e)); } catch (err) { ap = null; }
+      if (ap && ap.exit) { dispatch({ type: "go", exit: ap.exit }); return; }
+      dispatch({ type: "turn", dir: dir });
+    }
+    document.getElementById("chevron-left").addEventListener("click", function (e) {
+      turnOrGoThrough("left", e);
     });
-    document.getElementById("chevron-right").addEventListener("click", function () {
-      dispatch({ type: "turn", dir: "right" });
+    document.getElementById("chevron-right").addEventListener("click", function (e) {
+      turnOrGoThrough("right", e);
     });
 
     /* Row 8: fullscreen. One state (real OS fullscreen OR the in-page
@@ -1526,7 +1552,12 @@
       console.error(
         "BOOT ERROR: viewstate " + JSON.stringify(boot) +
         " names no location/facing in world.json — every turn will be refused. " +
-        "Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs");
+        /* THE WORLD THAT ACTUALLY BOOTED, not the one this page shipped with.
+           The line fourteen lines above learned this; this one had not, and
+           told a reader of the manor's console to go and edit the study. */
+        "Fix fixtures/" + fixture.id + "/viewstate.json and run: " +
+        "node tools/bake-fixtures.mjs" +
+          (fixture.id === "demo-study" ? "" : " --fixture-dir fixtures/" + fixture.id));
     }
     window.HOLO_APP = {
       harness: harness, paints: 0, library: library, dispatch: dispatch,
@@ -1538,6 +1569,11 @@
          means travel, but a test that reaches for `hitAtPoint` expecting the
          page's routing will assert the wrong thing. */
       hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve,
+      /* [Row 15] The whole aperture list, so a test can ask where every way
+         through this facing is drawn and put a real click in the middle of
+         it. Without this a pointer test has to guess at coordinates, which is
+         how four ways through ended up behind a button nothing noticed. */
+      apertureList: apertureList,
       /* The page's own meta resolution, exposed because a test that reaches
          for GRID_META on a facing the plan holds is asking about geometry the
          picture is not drawn with. Since row 11 that is every shipped
