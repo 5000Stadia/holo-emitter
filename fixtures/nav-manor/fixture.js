@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "7dbb8725",
+  fp: "81da1014",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -3398,11 +3398,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             809.3
           ],
           "plan_centre_px": 691.4,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            608,
+            767
+          ],
+          "painted_centre_px": 687.5,
+          "centre_delta_px": -3.9,
+          "centre_delta_m": -0.017,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -3411,13 +3414,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op11",
         "kind": "door",
         "via": null,
-        "x": 565.89,
-        "y": 330.42,
-        "w": 258.31,
-        "h": 471.58,
+        "x": 608,
+        "y": 298,
+        "w": 159,
+        "h": 504,
         "beyond_m": 14.95,
         "beyond_offset_m": -2.575,
-        "measured": false
+        "measured": true
       }
     ]
   },
@@ -5921,11 +5924,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             880.6
           ],
           "plan_centre_px": 768,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            659,
+            858
+          ],
+          "painted_centre_px": 758.5,
+          "centre_delta_px": -9.5,
+          "centre_delta_m": -0.042,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -5934,13 +5940,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op16",
         "kind": "door",
         "via": null,
-        "x": 691,
-        "y": 355.47,
-        "w": 150,
-        "h": 450.53,
+        "x": 659,
+        "y": 305,
+        "w": 199,
+        "h": 501,
         "beyond_m": 7.4,
         "beyond_offset_m": 0,
-        "measured": false
+        "measured": true
       }
     ]
   },
@@ -6022,11 +6028,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             442.7
           ],
           "plan_centre_px": 334.3,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            247,
+            413
+          ],
+          "painted_centre_px": 330,
+          "centre_delta_px": -4.3,
+          "centre_delta_m": -0.02,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -6035,13 +6044,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op15",
         "kind": "door",
         "via": null,
-        "x": 372.94,
-        "y": 352.32,
-        "w": 158.63,
-        "h": 433.68,
+        "x": 247,
+        "y": 286,
+        "w": 166,
+        "h": 500,
         "beyond_m": 2.95,
         "beyond_offset_m": 1.43,
-        "measured": false
+        "measured": true
       }
     ]
   },
@@ -6340,11 +6349,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             830.3
           ],
           "plan_centre_px": 752.4,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            715,
+            807
+          ],
+          "painted_centre_px": 761,
+          "centre_delta_px": 8.6,
+          "centre_delta_m": 0.055,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -6353,13 +6365,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op03",
         "kind": "door",
         "via": null,
-        "x": 673.16,
-        "y": 409.42,
-        "w": 159.74,
-        "h": 311.58,
+        "x": 715,
+        "y": 376,
+        "w": 92,
+        "h": 345,
         "beyond_m": 21,
         "beyond_offset_m": -0.1,
-        "measured": false
+        "measured": true
       }
     ]
   },
@@ -7037,19 +7049,20 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "great_hall/W": {
-    "floor_line_y": 0.625977,
-    "px_per_m_at_wall": 92.632,
-    "px_per_m_at_bottom": 439.77,
+    "floor_line_y": 0.6218060609303653,
+    "px_per_m_at_wall": 93.51598173515983,
+    "px_per_m_at_bottom": 420.8791208791208,
     "wall_width_m": 9.3,
-    "key_tint": "#c8ac8c",
+    "key_tint": "#c8b489",
     "image_h_px": 1024,
-    "horizon_y": 0.526172,
-    "key_dir": "L-BELOW",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 88,
-    "camera_wall_m": 10.95,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 93.51598173515983,
     "facing_type": "enclosed",
-    "wall_continuous": true,
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
     "wall_segments": [
       {
         "from_m": 0,
@@ -7057,79 +7070,38 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "corner_x0_px": 201,
-    "corner_x1_px": 1327,
+    "wall_continuous": true,
+    "corner_x0_px": 333.15068493150676,
+    "corner_x1_px": 1202.8493150684933,
+    "focal_px": 1024,
     "storey_height_m": 2.8,
-    "camera_id": "measured:backdrops/source/great_hall-W/row23-bc41649a.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1014.3,
-    "nearest_floor_m": 2.3065,
-    "measured_room": {
-      "storey_height_m": 5.085,
-      "wall_width_m": 12.156,
-      "ruled_storey_height_m": 2.8,
-      "ruled_wall_width_m": 9.3,
-      "carriers": [
-        {
-          "kind": "door",
-          "id": "op04",
-          "plan_px": [
-            466.9,
-            559.6
-          ],
-          "plan_centre_px": 513.3,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
-        },
-        {
-          "kind": "door",
-          "id": "op05",
-          "plan_px": [
-            930.1,
-            1022.7
-          ],
-          "plan_centre_px": 976.4,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
-        }
-      ]
-    },
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 10.95,
     "openings": [
       {
         "id": "op04",
         "kind": "door",
         "via": null,
-        "x": 370.51,
-        "y": 455.74,
-        "w": 121.08,
-        "h": 185.26,
+        "x": 464.0730593607305,
+        "y": 449.6974429223744,
+        "w": 93.51598173515987,
+        "h": 187.03196347031965,
         "beyond_m": 9.4,
-        "beyond_offset_m": -2.875,
-        "measured": false
+        "beyond_offset_m": -2.875
       },
       {
         "id": "op05",
         "kind": "door",
         "via": null,
-        "x": 975.88,
-        "y": 455.74,
-        "w": 121.08,
-        "h": 185.26,
+        "x": 931.6529680365297,
+        "y": 449.6974429223744,
+        "w": 93.51598173515981,
+        "h": 187.03196347031965,
         "beyond_m": 9.4,
-        "beyond_offset_m": 3.525,
-        "measured": false
+        "beyond_offset_m": 3.525
       }
-    ]
+    ],
+    "stairs": []
   },
   "great_stair_hall/N": {
     "floor_line_y": 0.74126953125,
@@ -11742,11 +11714,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             1029.6
           ],
           "plan_centre_px": 955.9,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            947,
+            1116
+          ],
+          "painted_centre_px": 1031.5,
+          "centre_delta_px": 75.6,
+          "centre_delta_m": 0.513,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -11755,30 +11730,31 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op05",
         "kind": "door",
         "via": null,
-        "x": 891.71,
-        "y": 403.26,
-        "w": 173.18,
-        "h": 294.74,
+        "x": 947,
+        "y": 294,
+        "w": 169,
+        "h": 404,
         "beyond_m": 15.2,
         "beyond_offset_m": 3.525,
-        "measured": false
+        "measured": true
       }
     ]
   },
   "library/S": {
-    "floor_line_y": 0.719727,
-    "px_per_m_at_wall": 172.632,
-    "px_per_m_at_bottom": 438.43,
+    "floor_line_y": 0.7109361979166666,
+    "px_per_m_at_wall": 170.66666666666666,
+    "px_per_m_at_bottom": 420.8791208791208,
     "wall_width_m": 8.8,
-    "key_tint": "#c8945c",
+    "key_tint": "#c8b489",
     "image_h_px": 1024,
-    "horizon_y": 0.537695,
-    "key_dir": "L-ABOVE",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 164,
-    "camera_wall_m": 6,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 170.66666666666666,
     "facing_type": "enclosed",
-    "wall_continuous": true,
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
     "wall_segments": [
       {
         "from_m": 0,
@@ -11786,67 +11762,27 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "corner_x0_px": 135,
-    "corner_x1_px": 1434,
+    "wall_continuous": true,
+    "corner_x0_px": 17.066666666666606,
+    "corner_x1_px": 1518.9333333333334,
+    "focal_px": 1024,
     "storey_height_m": 2.8,
-    "camera_id": "measured:backdrops/source/library-S/row23-4a2e1e8a.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1035.8,
-    "nearest_floor_m": 2.3625,
-    "measured_room": {
-      "storey_height_m": 3.678,
-      "wall_width_m": 7.525,
-      "ruled_storey_height_m": 2.8,
-      "ruled_wall_width_m": 8.8,
-      "carriers": [
-        {
-          "kind": "fireplace",
-          "id": null,
-          "plan_px": [
-            250.1,
-            595.4
-          ],
-          "plan_centre_px": 422.7,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
-        },
-        {
-          "kind": "door",
-          "id": "op07",
-          "plan_px": [
-            768,
-            940.6
-          ],
-          "plan_centre_px": 854.3,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
-        }
-      ]
-    },
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 6,
     "openings": [
       {
         "id": "op07",
         "kind": "door",
         "via": null,
-        "x": 784.5,
-        "y": 391.74,
-        "w": 147.61,
-        "h": 345.26,
+        "x": 768,
+        "y": 386.6653333333333,
+        "w": 170.66666666666674,
+        "h": 341.3333333333333,
         "beyond_m": 6,
-        "beyond_offset_m": 0,
-        "measured": false
+        "beyond_offset_m": 0
       }
-    ]
+    ],
+    "stairs": []
   },
   "library/W": {
     "floor_line_y": 0.698242,
@@ -12487,11 +12423,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             768
           ],
           "plan_centre_px": 641.7,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            592,
+            810
+          ],
+          "painted_centre_px": 701,
+          "centre_delta_px": 59.3,
+          "centre_delta_m": 0.235,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -12500,30 +12439,31 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op22",
         "kind": "door",
         "via": null,
-        "x": 524.04,
-        "y": 303.74,
-        "w": 251.46,
-        "h": 505.26,
+        "x": 592,
+        "y": 276,
+        "w": 218,
+        "h": 533,
         "beyond_m": 14.95,
         "beyond_offset_m": 2.25,
-        "measured": false
+        "measured": true
       }
     ]
   },
   "privy_garden/N": {
-    "floor_line_y": 0.750977,
-    "px_per_m_at_wall": 198.947,
-    "px_per_m_at_bottom": 361.97,
+    "floor_line_y": 0.7457303155637256,
+    "px_per_m_at_wall": 200.78431372549022,
+    "px_per_m_at_bottom": 420.8791208791208,
     "wall_width_m": 20.4,
-    "key_tint": "#c8c4c0",
+    "key_tint": "#c8b489",
     "image_h_px": 1024,
-    "horizon_y": 0.44707,
-    "key_dir": "L-ABOVE",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 189,
-    "camera_wall_m": 5.1,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 200.78431372549022,
     "facing_type": "enclosed",
-    "wall_continuous": true,
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
     "wall_segments": [
       {
         "from_m": 0,
@@ -12531,25 +12471,15 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "corner_x0_px": 143,
-    "corner_x1_px": 1415,
+    "wall_continuous": true,
+    "corner_x0_px": -1280,
+    "corner_x1_px": 2816,
+    "focal_px": 1024,
     "storey_height_m": null,
-    "camera_id": "measured:backdrops/source/privy_garden-N/row23-11d58c22.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1014.6,
-    "nearest_floor_m": 2.8031,
-    "measured_room": {
-      "storey_height_m": 3.267,
-      "wall_width_m": 6.394,
-      "ruled_storey_height_m": 2.8,
-      "ruled_wall_width_m": 20.4,
-      "carriers": []
-    },
-    "openings": []
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 5.1,
+    "openings": [],
+    "stairs": []
   },
   "privy_garden/E": {
     "floor_line_y": 0.5910897926879085,
@@ -12948,11 +12878,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             600.4
           ],
           "plan_centre_px": 552.5,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            408,
+            543
+          ],
+          "painted_centre_px": 475.5,
+          "centre_delta_px": -77,
+          "centre_delta_m": -0.804,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         },
         {
           "kind": "door",
@@ -12962,11 +12895,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             1079.3
           ],
           "plan_centre_px": 1031.4,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            975,
+            1114
+          ],
+          "painted_centre_px": 1044.5,
+          "centre_delta_px": 13.1,
+          "centre_delta_m": 0.137,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -12975,25 +12911,25 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op23",
         "kind": "door",
         "via": null,
-        "x": 431.66,
-        "y": 451.42,
-        "w": 121.4,
-        "h": 191.58,
+        "x": 408,
+        "y": 382,
+        "w": 135,
+        "h": 261,
         "beyond_m": 5.8,
         "beyond_offset_m": -2.575,
-        "measured": false
+        "measured": true
       },
       {
         "id": "op22",
         "kind": "door",
         "via": null,
-        "x": 1038.65,
-        "y": 451.42,
-        "w": 121.4,
-        "h": 191.58,
+        "x": 975,
+        "y": 382,
+        "w": 139,
+        "h": 261,
         "beyond_m": 5.8,
         "beyond_offset_m": 2.25,
-        "measured": false
+        "measured": true
       }
     ]
   },
@@ -13075,11 +13011,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
             550.1
           ],
           "plan_centre_px": 501.7,
-          "painted_px": null,
-          "painted_centre_px": null,
-          "centre_delta_px": null,
-          "centre_delta_m": null,
-          "painted_feature": null
+          "painted_px": [
+            420,
+            577
+          ],
+          "painted_centre_px": 498.5,
+          "centre_delta_px": -3.2,
+          "centre_delta_m": -0.033,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
         }
       ]
     },
@@ -13088,13 +13027,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "id": "op21",
         "kind": "door",
         "via": null,
-        "x": 401.17,
-        "y": 451.32,
-        "w": 114.41,
-        "h": 193.68,
+        "x": 420,
+        "y": 382,
+        "w": 157,
+        "h": 263,
         "beyond_m": 9.4,
         "beyond_offset_m": -2.875,
-        "measured": false
+        "measured": true
       }
     ]
   },

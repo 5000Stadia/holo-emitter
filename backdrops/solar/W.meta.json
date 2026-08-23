@@ -44,11 +44,14 @@
           550.1
         ],
         "plan_centre_px": 501.7,
-        "painted_px": null,
-        "painted_centre_px": null,
-        "centre_delta_px": null,
-        "centre_delta_m": null,
-        "painted_feature": null
+        "painted_px": [
+          420,
+          577
+        ],
+        "painted_centre_px": 498.5,
+        "centre_delta_px": -3.2,
+        "centre_delta_m": -0.033,
+        "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
       }
     ]
   },
@@ -57,13 +60,13 @@
       "id": "op21",
       "kind": "door",
       "via": null,
-      "x": 401.17,
-      "y": 451.32,
-      "w": 114.41,
-      "h": 193.68,
+      "x": 420,
+      "y": 382,
+      "w": 157,
+      "h": 263,
       "beyond_m": 9.4,
       "beyond_offset_m": -2.875,
-      "measured": false
+      "measured": true
     }
   ]
 }

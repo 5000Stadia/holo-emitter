@@ -97,7 +97,25 @@ def promote_reading(key, cand_rel, e, side, ref, reading):
     os.makedirs(d, exist_ok=True)
     path = os.path.join(d, "%s-%s.json" % (loc, f))
     json.dump(doc, open(path, "w"), indent=2)
+    door_reading(path, cand_rel, loc)
     return path, None
+
+
+def door_reading(doc_path, cand_rel, loc):
+    """[Row 27] And where this frame's ways through are, added to the reading.
+
+    A door's rectangle is measured off the painting, never projected onto it
+    (blueprint §11's click-coincidence, the row-22 precedent), and it is
+    measured HERE for the same reason every other number is: the promotion tool
+    reads a measurement and writes a document, so a door read at promotion time
+    would be a number no measurement ever took. `promote-backdrop.mjs` refuses
+    a door-bearing facing whose reading has no `openings` at all rather than
+    projecting one quietly, so this call is not optional and its absence is
+    loud.
+    """
+    import door_measure
+    plan = json.load(open(os.path.join(ROOT, "fixtures", "demo-study", "plan.json")))
+    return door_measure.patch(doc_path, os.path.join(ROOT, cand_rel), loc, plan)
 
 
 def _bake():
@@ -348,13 +366,91 @@ def sweep(manifest, state, do_promote=True):
     return promoted, failed, parked, waiting
 
 
+def recheck_doors(state):
+    """[Row 27] Every already-promoted door-bearing wall, re-read and re-decided.
+
+    The twenty-two walls of the first production harvest were promoted with
+    their openings PROJECTED from the plan, which is the defect the Captain
+    walked into. This puts each of them back through the instrument as it now
+    stands: the doors are measured off the painting, the promotion is re-run
+    from the same candidate and the same round, and a wall whose ways through
+    cannot be read — or read as something that is not a doorway — is TAKEN BACK
+    OUT of the store with its reason written into the run state. It goes back
+    to the holodeck grid, which is what unestablished space renders as and is
+    honest; a painted wall whose door is somewhere else is not.
+
+    It is idempotent: a wall that passes is re-derived to the same bytes.
+    """
+    walls = []
+    for loc in sorted(os.listdir(os.path.join(ROOT, "backdrops"))):
+        d = os.path.join(ROOT, "backdrops", loc)
+        if loc == "source" or not os.path.isdir(d):
+            continue
+        for f in sorted(os.listdir(d)):
+            if not f.endswith(".meta.json"):
+                continue
+            meta = json.load(open(os.path.join(d, f)))
+            if not any(o.get("kind") == "door" for o in meta.get("openings", [])):
+                continue
+            walls.append(("%s/%s" % (loc, f[0]), loc, f[0], meta))
+    kept, demoted = [], []
+    for key, loc, fac, meta in walls:
+        cand = str(meta.get("camera_id", "")).replace("measured:", "")
+        rnd = meta.get("measured_round") or ""
+        doc = os.path.join(HERE, *([rnd] if rnd else []), "%s-%s.json" % (loc, fac))
+        if not cand or not os.path.exists(doc):
+            demoted.append((key, "the meta names no candidate, or its measurement is gone"))
+            continue
+        found, _note = door_reading(doc, cand, loc)
+        r = subprocess.run(
+            ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
+             "--facing", key, "--candidate", cand]
+            + (["--round", rnd] if rnd else [])
+            + (["--reference", meta["camera_reference"]] if meta.get("camera_reference") else []),
+            cwd=ROOT, capture_output=True, text=True)
+        if r.returncode == 0:
+            kept.append((key, len([f for f in found]), r.stdout.strip().split("\n")[-1]))
+        else:
+            why = [ln for ln in (r.stdout + r.stderr).strip().split("\n") if ln.strip()]
+            demoted.append((key, why[-1] if why else "promote-backdrop refused without a word"))
+            for p in (os.path.join(ROOT, "backdrops", loc, fac + ".png"),
+                      os.path.join(ROOT, "backdrops", loc, fac + ".meta.json")):
+                if os.path.exists(p):
+                    os.remove(p)
+            st = state["walls"].setdefault(key, {"attempts": 0})
+            st["status"] = "held"
+            st["correction"] = (
+                "row 27: demoted to grid. The promotion now measures each painted "
+                "way through off the picture (§11's click target must coincide with "
+                "the painted opening) and this wall's does not survive it — "
+                + demoted[-1][1])
+    bad = _bake()
+    return kept, demoted, bad
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--watch", action="store_true",
                     help="keep sweeping; arrivals are processed as they land")
     ap.add_argument("--interval", type=int, default=45)
     ap.add_argument("--no-promote", action="store_true")
+    ap.add_argument("--recheck-doors", action="store_true",
+                    help="row 27: re-measure and re-decide every promoted "
+                         "door-bearing wall against the painted-door rule")
     a = ap.parse_args()
+
+    if a.recheck_doors:
+        state = load_state()
+        kept, demoted, bad = recheck_doors(state)
+        save_state(state)
+        for key, n, line in kept:
+            print("  %-24s KEPT      %d painted way(s) through | %s" % (key, n, line))
+        for key, why in demoted:
+            print("  %-24s DEMOTED   %s" % (key, why))
+        print("%s  %d kept, %d demoted to grid%s"
+              % (time.strftime("%H:%M:%S"), len(kept), len(demoted),
+                 ("; BAKE REFUSED: " + bad) if bad else ""))
+        return 1 if bad else 0
 
     if not os.path.exists(MANIFEST):
         print("row23-run: no manifest - run "

@@ -70,7 +70,27 @@
     "wall_ceiling_line_y_px": 119,
     "corner_x0_px": 199,
     "corner_x1_px": 1316,
-    "horizon_y_px": 501.5
+    "horizon_y_px": 501.5,
+    "openings": [
+      {
+        "x0_px": 947,
+        "x1_px": 1116,
+        "y0_px": 294,
+        "y1_px": 698,
+        "width_px": 169,
+        "width_m": 1.147,
+        "centre_px": 1031.5,
+        "head_m": 2.741,
+        "void_luminance": 1.86,
+        "wall_luminance": 18.33,
+        "threshold": 11,
+        "threshold_span": [
+          3,
+          18
+        ],
+        "stability": 16
+      }
+    ]
   },
   "_windows": {
     "floor": [
@@ -152,5 +172,21 @@
     "implied_camera_wall_m": 6.9486
   },
   "_withheld_because": [],
-  "_round": "manor"
+  "_round": "manor",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      447,
+      654
+    ],
+    "wall_band_px": [
+      199,
+      1316
+    ],
+    "wall_median_luminance": 18.33,
+    "min_enumerated_px": 59,
+    "min_head_m": 1.4,
+    "storey_m": 2.8,
+    "candidates_before_head_test": 1
+  }
 }

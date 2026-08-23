@@ -2924,7 +2924,7 @@ test.describe("the schematic is a derived render of the plan", () => {
    * both be deleted whole with the suite green. The subject is the facing the
    * product reaches next: `study/E`, whose measurement carries the painted
    * jambs, promoted in a scratch tree at a scale the band admits. */
-  test("a painted opening becomes the meta's own, and its absence the projected one", () => {
+  test("a painted opening becomes the meta's own, and its absence a refusal", () => {
     const tree = stagePromotionTree("study/E", "backdrops/source/study-E/cand-2.png");
     const measured = join(tree, "design", "plan-draft", "measured", "study-E.json");
     const pristine = JSON.parse(readFileSync(measured, "utf8"));
@@ -2934,9 +2934,23 @@ test.describe("the schematic is a derived render of the plan", () => {
         "--candidate", "backdrops/source/study-E/cand-2.png"],
       { cwd: tree, encoding: "utf8", stdio: "pipe" });
     const written = () => JSON.parse(readFileSync(join(tree, "backdrops", "study", "E.meta.json"), "utf8"));
+    /* [Row 27] THE ONE HOME MOVED, and the hand reading came with it.
+       `_measured_px.opening_*` was a pair of fields only two facings in the
+       corpus ever carried, read by hand; `_measured_px.openings` is the list
+       `door_measure.py` writes on every facing, and it is now the only place a
+       promotion looks. This shapes THIS wall's hand reading — the same four
+       numbers, unchanged — into that list, so the case still asserts the hand's
+       pixels and not the detector's. */
+    const handReading = (px) => [{
+      x0_px: px.opening_x0_px, x1_px: px.opening_x1_px,
+      y0_px: px.opening_y0_px, y1_px: px.opening_y1_px,
+      width_px: px.opening_x1_px - px.opening_x0_px,
+      centre_px: (px.opening_x0_px + px.opening_x1_px) / 2
+    }];
     try {
       const withPainted = JSON.parse(JSON.stringify(pristine));
       withPainted.px_per_m_at_wall = IN_BAND;
+      withPainted._measured_px.openings = handReading(pristine._measured_px);
       writeFileSync(measured, JSON.stringify(withPainted, null, 2) + "\n");
       promote();
       const painted = written();
@@ -2962,21 +2976,27 @@ test.describe("the schematic is a derived render of the plan", () => {
       expect(door && door.painted_px, "the door carrier is compared against where the plan puts it")
         .toEqual([pristine._measured_px.opening_x0_px, pristine._measured_px.opening_x1_px]);
 
-      /* THE DISCRIMINATION: the same wall with no measured jambs falls back to
-         the projection, and says so. Without this the case would pass on a
-         promotion that ignored the measurement entirely. */
+      /* THE DISCRIMINATION, AND ROW 27 MOVED IT. It used to be "with no
+         painted jambs the opening falls back to the plan's projection", which
+         is exactly the behaviour the Captain walked into on twenty-two manor
+         walls: the picture drew a doorway in one place and the page accepted
+         the click in another. There is no fallback any more. A painted wall
+         whose way through cannot be read is NOT PROMOTABLE — it goes back to
+         the holodeck grid — so the discrimination is the refusal, and it names
+         its clause. */
       const withoutPainted = JSON.parse(JSON.stringify(withPainted));
-      delete withoutPainted._measured_px.opening_x0_px;
-      delete withoutPainted._measured_px.opening_x1_px;
+      withoutPainted._measured_px.openings = [];
       writeFileSync(measured, JSON.stringify(withoutPainted, null, 2) + "\n");
-      promote();
-      const projected = written();
-      expect(projected.openings[0].measured, "with no painted jambs the opening is the plan's projection").toBe(false);
-      expect(Math.abs(projected.openings[0].x - painted.openings[0].x),
-        "and the two answers are different pixels — otherwise this case proves nothing")
-        .toBeGreaterThan(2);
-      expect(projected.measured_room.carriers.find((c) => c.kind === "door").painted_px,
-        "and the carrier comparison has nothing painted to compare").toBeNull();
+      let out = "";
+      expect(() => { try { promote(); } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); throw e; } },
+        "a painted wall whose way through cannot be read is not promotable").toThrow();
+      expect(out, "and the refusal names the clause it refused on")
+        .toMatch(/row27:door\.unmeasured_exit/);
+      expect(out).toMatch(/a player would click on paint/);
+      /* And nothing was written over the promotion that passed: the meta on
+         disk is still the measured one, because a refused promotion writes no
+         files at all. */
+      expect(written().openings[0].measured, "a refusal leaves the store alone").toBe(true);
     } finally {
       rmSync(tree, { recursive: true, force: true });
     }
