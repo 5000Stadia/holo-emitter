@@ -487,6 +487,25 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
           if (Array.isArray(s.poly) && s.poly.length < 3) {
             bad.push("poly is empty — a flight with no outline is a click target over bare floor");
           }
+          /* [ROW 26] AND IT SAYS HOW BIG IT WOULD BE IF THE FRAME LET IT.
+           * `x/y/w/h` on a flight are already the intersection with the canvas,
+           * so they cannot say how much of the flight the frame ate — which is
+           * how row 26's usability clause came to be arithmetically incapable
+           * of firing on a staircase. `raw_w`/`raw_h` are the unclamped extent
+           * and the clause reads them; a meta that omits them, or claims a body
+           * SMALLER than the part of it on screen, would send the clause back
+           * to comparing a number with itself. */
+          for (const k of ["raw_w", "raw_h"]) {
+            if (typeof s[k] !== "number" || !isFinite(s[k]) || !(s[k] > 0)) {
+              bad.push(`${k} is ${JSON.stringify(s[k])} — a flight states the extent it would draw before the frame cut it`);
+            }
+          }
+          if (typeof s.raw_w === "number" && typeof s.w === "number" && s.raw_w < s.w - 1e-6) {
+            bad.push(`raw_w ${s.raw_w} is narrower than the ${s.w} px of it on the frame`);
+          }
+          if (typeof s.raw_h === "number" && typeof s.h === "number" && s.raw_h < s.h - 1e-6) {
+            bad.push(`raw_h ${s.raw_h} is shorter than the ${s.h} px of it on the frame`);
+          }
         }
         if (bad.length) flightTrouble.push(`flight ${JSON.stringify((s && s.id) ?? s)} — ${bad.join("; ")}`);
       }

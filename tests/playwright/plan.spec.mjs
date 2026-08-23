@@ -18,6 +18,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { validate as validateFixture } from "../../tools/validate-fixtures.mjs";
 import {
   validatePlan, planWarnings, drawn, ruleStandpoint, measuredDistance,
   facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions,
@@ -1424,6 +1425,60 @@ test.describe("law (a)'s third question: where along the wall the body stands", 
           .toBeCloseTo(b.u, 12);
       }
     }
+  });
+
+  /* A FLIGHT THE FRAME ATE, WHICH THIS CLAUSE COULD NOT SEE UNTIL AN ARTIFACT
+     CRITIC BUILT IT. Row 26 shipped `usablyInFrame` comparing a flight's
+     on-frame width against the flight's OWN RECT — and `stairsForFacing` clamps
+     that rect to the canvas, so the comparison was a number against itself and
+     a three-pixel wedge passed. The construction below is the critic's, kept
+     whole rather than paraphrased into a doctored meta: move `great_stair` to
+     its room's west edge and `op18` to 8.18–9.18, and row 26's OWN slide law —
+     whose census is doors and is blind to flights — carries the staircase off
+     the frame by the letter of the law.
+
+     It runs the WHOLE chain, plan through fixture, because every link of it was
+     green when the defect shipped: the plan validates, the metas derive, the
+     bake is clean, and the finding is the only thing that was missing. */
+  test("a flight the frame has eaten is a finding, not a green plan", () => {
+    const p = clone(PLAN);
+    const st = p.stairs.find((x) => x.id === "great_stair");
+    st.rect = { ...st.rect, x0: 0.6, x1: 2.2 };
+    const op18 = p.openings.find((o) => o.id === "op18");
+    op18.rect = { ...op18.rect, x0: 8.18, x1: 9.18 };
+    const r = room(p, "stair_landing");
+    for (const f of FACINGS) {
+      const sp = standpointFor(p, r, f, p.standpoint_stand_back,
+        p.standpoint_threshold_clearance_m);
+      r.facings[f].standpoint = sp.point;
+      if (sp.source === "rule") delete r.facings[f].standpoint_source;
+      else r.facings[f].standpoint_source = sp.source;
+    }
+    /* The document is legal — that is the point. Nothing upstream refuses it. */
+    expect(validatePlan(p, WORLD, BY_ENTITY), "the doctored plan is a legal plan").toEqual([]);
+    /* The row's own law slid the facing, on a door, and took the flight with it. */
+    expect(r.facings.S.standpoint.x, "the slide fired on the door census").not.toBe(5.7);
+    const m = deriveMeta(p, "stair_landing", "S");
+    const flight = m.stairs.find((x) => x.id === "great_stair");
+    expect(flight.raw_w, "the flight states the body it would draw").toBeGreaterThan(1000);
+    expect(flight.w / flight.raw_w, "and almost none of it survives the frame").toBeLessThan(0.05);
+    expect(usablyInFrame(flight, PLAN_CANVAS_W, PLAN_CANVAS_H),
+      "a flight reduced to a wedge at the frame edge is not usably in frame").toBe(false);
+
+    /* AND THE FIXTURE VALIDATOR SAYS SO, over the manor world that walks it. */
+    const navDir = join(repoRoot, "fixtures", "nav-manor");
+    const nav = readJson(join(navDir, "world.json"));
+    const metas = {};
+    for (const loc of nav.locations) {
+      for (const f of loc.facings) {
+        try { metas[`${loc.id}/${f}`] = metaForFacing(p, loc.id, f); } catch (e) { /* unplanned */ }
+      }
+    }
+    const found = validateFixture(navDir, RECORDS, metas)
+      .filter((x) => x.includes("[row26:exit.opening_unusable]") && x.includes("great_stair"));
+    expect(found.length,
+      "the manor walks this flight and a player cannot reach it — that is a finding")
+      .toBeGreaterThan(0);
   });
 
   /* THE REFUSAL, ON PLANS BUILT HERE — never on the shipped one, which slides

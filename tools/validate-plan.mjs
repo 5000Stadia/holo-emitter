@@ -344,12 +344,32 @@ export const MIN_USABLE_APERTURE_PX = 116;
  * is this clause's subject. A FRACTION of the declared width was tried and
  * rejected: the court mouth is 3095 px wide and shows 1536 of itself, so any
  * fraction bar above 49.6 % refuses a threshold that works today.
+ *
+ * WHAT "DECLARED" MEANS, AND THE BUG THAT TAUGHT IT. A door and a threshold
+ * state their own rectangle and let it run off the frame, so `w` is a real
+ * claim about the building. A FLIGHT does not: `stairsForFacing` clamps its
+ * `x/y/w/h` to the canvas before anything else sees them, so `w` IS the
+ * on-frame width and `onW >= min(w, bar)` reads `onW >= onW` — true for a
+ * three-pixel wedge at the frame edge. This clause shipped in exactly that
+ * state and an artifact critic defeated it: it pushed a staircase 98.7 % off
+ * frame (3930 px of drawn body down to a 50 px sliver, 4.2 % of it clickable,
+ * 12.7 CSS px on a phone) and every check in the project stayed green.
+ *
+ * So the comparison is against `raw_w`/`raw_h` where the shape carries them —
+ * the flight's extent BEFORE the clamp, emitted beside the clamped rect from
+ * the same numbers — and against `w`/`h` where it does not. The bar is what a
+ * hand needs; what it is measured against has to be what the building draws,
+ * not what the frame left of it. A meta that drops those fields, or claims a
+ * body narrower than the part of it on screen, is refused by
+ * `[row15:meta.stairs_list]` rather than falling quietly back to the defect.
  */
 export function usablyInFrame(rect, canvasW = PLAN_CANVAS_W, canvasH = PLAN_CANVAS_H) {
   const onW = Math.max(0, Math.min(rect.x + rect.w, canvasW) - Math.max(rect.x, 0));
   const onH = Math.max(0, Math.min(rect.y + rect.h, canvasH) - Math.max(rect.y, 0));
-  return onW >= Math.min(rect.w, MIN_USABLE_APERTURE_PX) - 1e-9 &&
-         onH >= Math.min(rect.h, MIN_USABLE_APERTURE_PX) - 1e-9;
+  const drawnW = typeof rect.raw_w === "number" ? Math.max(rect.raw_w, rect.w) : rect.w;
+  const drawnH = typeof rect.raw_h === "number" ? Math.max(rect.raw_h, rect.h) : rect.h;
+  return onW >= Math.min(drawnW, MIN_USABLE_APERTURE_PX) - 1e-9 &&
+         onH >= Math.min(drawnH, MIN_USABLE_APERTURE_PX) - 1e-9;
 }
 
 /**

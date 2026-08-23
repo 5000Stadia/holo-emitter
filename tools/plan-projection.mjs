@@ -879,6 +879,24 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
       treads,
       rise_m: rise,
       x, y, w: xe - x, h: ye - y,
+      /* [ROW 26] AND THE SAME BODY BEFORE THE CLAMP, because the four numbers
+       * above are ALREADY the intersection with the frame and a clause that
+       * asks "how much of this is on screen" would be asking `w >= w`.
+       *
+       * That is not hypothetical: row 26's own `usablyInFrame` shipped unable
+       * to fire on a flight for exactly this reason, and an artifact critic
+       * defeated it by pushing a staircase 98.7 % off the frame — 3930 px of
+       * drawn body reduced to a 50 px wedge, 12.7 CSS px on a phone, with the
+       * plan valid, both fixtures valid and every guard green. A rectangle that
+       * has already been cut to the frame cannot report being cut.
+       *
+       * `raw_w` / `raw_h` are the flight's own extent, from the same `xs`/`ys`
+       * the clamp is computed from, so there is no second derivation to drift.
+       * A DOOR needs none of this: `openingsForFacing` states the opening's own
+       * rectangle and lets it run off the frame, which is why its declared
+       * width is a real claim and this one was not. */
+      raw_w: Math.max(...xs) - Math.min(...xs),
+      raw_h: Math.max(...ys) - Math.min(...ys),
       /* THE OUTLINE A PLAYER AIMS AT: the convex hull of the flight's WHOLE
        * visible body — the noses and the footprint they stand on together —
        * where any of it is in the frame, and the footprint alone where no nose

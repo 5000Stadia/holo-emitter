@@ -499,7 +499,26 @@ const DOCUMENT_CASES = {
     })),
     sliver_bottom: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
       o.y = CANVAS_H - (MIN_USABLE_APERTURE_PX - 1);
-    }))
+    })),
+    /* AND A FLIGHT, WHICH IS WHY THIS ARM EXISTS AT ALL. Every arm above
+       doctors an OPENING, and that is exactly how row 26 shipped a clause
+       arithmetically incapable of firing on a staircase: `stairsForFacing`
+       clamps a flight's rect to the canvas before anyone sees it, so the
+       comparison read `onW >= onW` and a three-pixel wedge passed. An artifact
+       critic found it by construction — a flight carried 98.7 % off the frame
+       with the plan valid, both fixtures valid and 318 guard cases green.
+       A ledger whose arms all doctor the same shape can only ever prove the
+       clause reaches that shape. */
+    a_flight_the_frame_ate: () => tokensFromNavMetas((m) => {
+      for (const key of Object.keys(m)) {
+        for (const s of (m[key].stairs || [])) {
+          /* The body it would draw is left alone; only what survives the frame
+             shrinks, which is what a flight run off the edge looks like. */
+          s.x = CANVAS_W - (MIN_USABLE_APERTURE_PX - 1);
+          s.w = MIN_USABLE_APERTURE_PX - 1;
+        }
+      }
+    })
   }),
   /* [Round 5] ONE HALF OF A NAMED PAIR. Row 21 added an exemption above this
      for a world holding NEITHER half — the painted world stages no furniture —
