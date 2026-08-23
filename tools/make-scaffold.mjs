@@ -1090,6 +1090,76 @@ asks you to judge a result: generate, save to the named paths, and report the pa
 
 
 /* ------------------------------------------------------------------ */
+/* The generic wall prompt — what the manor run actually dispatches     */
+/* ------------------------------------------------------------------ */
+/* The two experiment walls had their sentences written by hand because there
+ * were two of them. Eighty-six do not, and a production recipe that needs a
+ * human to write a paragraph per wall is not a recipe. Every clause below is
+ * derived from the plan's own carriers and the facing's own meta, so a wall
+ * that moves in the plan re-emits with it.
+ *
+ * THE RULED SIZES ARE THE GATE'S OWN. A prompt may only declare a dimension the
+ * acceptance gate can measure, at the size this project rules it — `prompt_lint`
+ * refuses anything else, and it is the whole reason `Gate anchor:` exists. */
+const CARRIER_SENTENCE = {
+  door: (w) => `The door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.`,
+  window: (w) => `The leaded window opening is exactly ${w.toFixed(2)} m wide.`,
+  fireplace: (w) => `The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide.`
+};
+const ROOM_MATERIALS = {
+  chamber: "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards",
+  hall: "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor",
+  corridor: "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards",
+  open: "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot"
+};
+
+export function manorPrompt(plan, key, meta, rects) {
+  const [loc, f] = key.split("/");
+  const room = plan.rooms.find((r) => r.id === loc);
+  const side = { N: "north", E: "east", S: "south", W: "west" }[f];
+  const mat = ROOM_MATERIALS[room.archetype] || ROOM_MATERIALS[room.type] || ROOM_MATERIALS.chamber;
+  const name = (room.name || room.id).toLowerCase();
+  const ruled = rects.map((r) => {
+    const fn = CARRIER_SENTENCE[r.kind];
+    return fn ? fn((r.x1 - r.x0) / meta.px_per_m_at_wall) : null;
+  }).filter(Boolean);
+  const L = [];
+  L.push("Use case: historical-scene");
+  L.push(`Asset type: gameplay backdrop for the ${side} wall of the ${name}, circa-1660 English manor`);
+  L.push("Input images: Image 1 is the exact reference for painted style, medium, materials,");
+  L.push("  palette, period detail and light quality. Image 2 is a geometric layout diagram of");
+  L.push("  the wall to be painted: it is a technical drawing, not artwork to imitate.");
+  L.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
+  L.push(`Primary request: Paint the ${side} wall of the empty ${name} of a circa-1660 English manor,`);
+  L.push("  matching Image 1's finish and Image 2's geometry exactly.");
+  L.push("Gate anchor: the wainscot chair-rail above the floor, 0.95 m.");
+  L.push("Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The");
+  L.push("  camera is level, with zero upward or downward tilt. The wall-floor line, the room");
+  L.push("  corners, the side-wall returns and the amount of visible floor all land where Image 2");
+  L.push(`  puts them, to the pixel. One metre of wall at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
+  L.push("  The floor is visible and runs to the bottom edge of frame.");
+  L.push("Architecture and measurement anchors: A clearly legible wainscot chair-rail runs");
+  L.push("  continuously corner to corner at exactly 0.95 m above the floor, on every exposed");
+  L.push("  wall surface including the side-wall returns.");
+  for (const r of ruled) L.push("  " + r);
+  if (rects.length) {
+    L.push(`  Each feature stands where Image 2's box for it stands, filling that box's width.`);
+  } else {
+    L.push("  This wall carries no opening and no fireplace: it is unbroken panelling, and the");
+    L.push("  chair-rail is the one ruled feature in it.");
+  }
+  L.push("  Make these dimensions physically coherent and unmistakable in the architecture.");
+  L.push(`Materials and period detail: ${mat}.`);
+  L.push("Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm");
+  L.push("  browns, cool ambient light, gentle natural falloff.");
+  L.push("Constraints: the room is completely empty of furniture, loose props, people and");
+  L.push("  clutter. Image 2 contains grid lines, a large letter and annotation text; these are");
+  L.push("  diagram marks identifying the wall, and the painted room contains no line, letter,");
+  L.push("  word, number, label, watermark or border of any kind.");
+  return L.join("\n") + "\n";
+}
+
+/* ------------------------------------------------------------------ */
 /* The manor, in one pass                                              */
 /* ------------------------------------------------------------------ */
 /* [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go
@@ -1134,11 +1204,72 @@ export function manorFacings(plan) {
   return out;
 }
 
+/** A manor wall has no measured no-label baseline — only the two experiment
+ *  walls do — so its carrier window is the stamped box dilated by the wall's own
+ *  ruled carrier width. Derived, stated, and never borrowed from another wall. */
+function tolFor(meta, rects) {
+  if (!rects.length) return 0;
+  const widest = Math.max(...rects.map((r) => r.x1 - r.x0));
+  return Math.round(widest);
+}
+
 async function emitManor(outDir, opts) {
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const all = manorFacings(plan);
-  const todo = all.filter((x) => !x.promoted && !x.fenced)
-    .slice(0, opts.limit || undefined);
+
+  /* THE WORKLIST IS DERIVED BY LOOKING, NEVER BY ASSUMING.
+   * [HUMAN, 2026-08-23] "Also make sure we algorithmicly skip art already
+   * existing in the library."
+   *
+   * ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. That is the same
+   * doctrine the content contract already runs on one tier up — a side wall is
+   * not re-imagined, it is inherited from the neighbour that already exists,
+   * and typed materials are reused per room rather than re-asked per facing.
+   * Reuse is a property of the store, so it is checked against the store: a
+   * facing is skipped because a file is there, not because a list said so.
+   *
+   * Three states are outstanding work and everything else is not:
+   *   PROMOTED   backdrops/<loc>/<F>.png AND its meta exist -> read, never re-made
+   *   RETURNED   a candidate PNG is already on disk -> the MEASURE loop's, not
+   *              the seat's; dispatching it again would pay twice for one wall
+   *   SPENT      the retry budget is exhausted -> parked, and re-emitting would
+   *              quietly restart a count that exists to stop
+   *
+   * Re-running this at any moment is therefore idempotent, and every skip is
+   * recorded WITH ITS REASON, because a silent skip is indistinguishable from a
+   * wall nobody noticed. */
+  const state = existsSync(join(outDir, "run-state.json"))
+    ? JSON.parse(readFileSync(join(outDir, "run-state.json"), "utf8")) : { walls: {} };
+  const skipped = [];
+  const outstanding = [];
+  for (const x of all) {
+    if (x.fenced) {
+      skipped.push({ ...x, skipped: `fenced: row ${x.fenced} moves this standpoint` });
+      continue;
+    }
+    const png = join(ROOT, "backdrops", x.room, `${x.facing}.png`);
+    const meta = join(ROOT, "backdrops", x.room, `${x.facing}.meta.json`);
+    if (existsSync(png) && existsSync(meta)) {
+      skipped.push({ ...x, skipped: `exists: backdrops/${x.room}/${x.facing}.png` });
+      continue;
+    }
+    const already = readdirSync(join(ROOT, sourceDirFor(x.key)), { withFileTypes: true })
+      .filter((d) => d.isFile() && /^row23-[0-9a-f]{8}\.png$/.test(d.name))
+      .map((d) => `${sourceDirFor(x.key)}/${d.name}`);
+    if (already.length) {
+      skipped.push({ ...x, skipped: `returned, unmeasured: ${already.length} candidate(s) on disk`,
+        returns: already,
+        _routed: "the measure loop, not the seat - dispatching this again pays twice for one wall" });
+      continue;
+    }
+    const w = state.walls[x.key];
+    if (w && (w.status === "parked" || w.status === "promoted")) {
+      skipped.push({ ...x, skipped: `${w.status}: ${w.why || "recorded in run-state.json"}` });
+      continue;
+    }
+    outstanding.push(x);
+  }
+  const todo = outstanding.slice(0, opts.limit || undefined);
   mkdirSync(outDir, { recursive: true });
 
   const browser = await chromium.launch();
@@ -1180,12 +1311,35 @@ async function emitManor(outDir, opts) {
         prompt: `${sourceDirFor(fac.key)}/row23-${id}.prompt.txt`
       });
     }
+    /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
+       from is a row in a table; what makes the run one order is that every
+       entry is complete where it stands. */
+    const text = manorPrompt(plan, fac.key, meta, rects);
+    writeFileSync(join(dir, "prompt.txt"), text);
+    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
+    for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
+    writeFileSync(join(dir, "PACKET.md"),
+      `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
+      `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
+      `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
+      `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
+      ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
+      `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
+      `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
+      `${rects.length ? rects.map((r) => r.kind).join(" + ") : "no carrier — unbroken panelling"}.\n` +
+      `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     entries.push({
       ...fac,
       packet: join(dir).slice(ROOT.length + 1),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       px_per_m_at_wall: meta.px_per_m_at_wall,
       camera_wall_m: meta.camera_wall_m,
+      floor_line_y: meta.floor_line_y,
+      horizon_y: meta.horizon_y,
+      corner_x0_px: meta.corner_x0_px, corner_x1_px: meta.corner_x1_px,
+      storey_height_m: meta.storey_height_m, wall_width_m: meta.wall_width_m,
+      brackets: brackets(meta, rects, tolFor(meta, rects)),
       implied_focal_px: round(groundplane.focalPx(meta), 1),
       stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
       chair_rail_y: cr.y,
@@ -1200,19 +1354,26 @@ async function emitManor(outDir, opts) {
     _what_this_is: "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
     _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete.",
     _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+    _reuse_rule: "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
     _technique: opts.technique || "t2",
     _generated: new Date().toISOString().slice(0, 10),
     facings_in_plan: all.length,
-    already_painted: all.filter((x) => x.promoted).map((x) => x.key),
-    fenced: all.filter((x) => x.fenced).map((x) => ({ key: x.key, row: x.fenced })),
     emitted: entries.filter((e) => !e.skipped).length,
-    entries
+    skipped: skipped.length,
+    skipped_entries: skipped,
+    entries: entries.concat(skipped)
   };
   const mp = join(outDir, "manifest.json");
   writeFileSync(mp, JSON.stringify(manifest, null, 2) + "\n");
   console.log(`\nmanifest  ${mp.slice(ROOT.length + 1)}`);
-  console.log(`          ${manifest.emitted} facings emitted of ${all.length} in the plan `
-    + `(${manifest.already_painted.length} already painted, ${manifest.fenced.length} fenced)`);
+  console.log(`          ${manifest.emitted} emitted of ${all.length} in the plan; `
+    + `${skipped.length} skipped, each with its reason:`);
+  const why = {};
+  for (const k of skipped) {
+    const head = k.skipped.split(":")[0];
+    why[head] = (why[head] || 0) + 1;
+  }
+  for (const [k, n] of Object.entries(why)) console.log(`            ${n} ${k}`);
   return manifest;
 }
 

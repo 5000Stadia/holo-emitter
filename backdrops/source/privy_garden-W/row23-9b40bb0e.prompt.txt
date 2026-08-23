@@ -1,0 +1,27 @@
+Use case: historical-scene
+Asset type: gameplay backdrop for the west wall of the privy garden, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted style, medium, materials,
+  palette, period detail and light quality. Image 2 is a geometric layout diagram of
+  the wall to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the west wall of the empty privy garden of a circa-1660 English manor,
+  matching Image 1's finish and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The
+  camera is level, with zero upward or downward tilt. The wall-floor line, the room
+  corners, the side-wall returns and the amount of visible floor all land where Image 2
+  puts them, to the pixel. One metre of wall at the wall plane spans 67 pixels.
+  The floor is visible and runs to the bottom edge of frame.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs
+  continuously corner to corner at exactly 0.95 m above the floor, on every exposed
+  wall surface including the side-wall returns.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials and period detail: weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.
+Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the room is completely empty of furniture, loose props, people and
+  clutter. Image 2 contains grid lines, a large letter and annotation text; these are
+  diagram marks identifying the wall, and the painted room contains no line, letter,
+  word, number, label, watermark or border of any kind.

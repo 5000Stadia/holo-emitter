@@ -536,6 +536,34 @@ measured to produce, under the identical measure, read at run time and never typ
 `study/N` they overlap almost entirely. So **`study/E`'s arm is the headline discriminator** and
 `study/N`'s is reported beside it as the weaker corroboration it is.
 
+**BUILT, AND THE ARM DID NOT SURVIVE CONTACT — this is the row's second finding.** Two detector
+mistakes were caught by controlling against frames whose answers the corpus already holds, before
+any candidate was scored:
+
+- The first draft took the strongest luminance step inside each band and read `study/N`'s floor line
+  **16 px low — a 12 % error in the implied focal length**. `measure.py` already encodes which
+  lower-band feature is the floor and which are the skirting cap, the board seams and the base
+  rails; the rules are now **injected** and this round supplies only the windows. `study/N` reads
+  floor 749, rail-above 179, focal 819.6, eye 1.183 — identical to the committed corpus.
+- The carrier detector took the strongest admissible edge pair and put `study/E`'s door at
+  **907…1113 where that painting draws it at 673…860** — it would have scored a 217 px miss as a
+  17 px hit. It now enumerates every admissible pair and **refuses** where the best two disagree by
+  more than the arm can resolve (8 % of the arm's own scale), which is the corpus's own straddle
+  trigger.
+
+**The consequence is that the edge-pair arm is unread on all 24 rolls.** On a panelled wall two
+admissible pairs always disagree. That is the honest output of a detector that will not invent
+obedience, and it means `adherence_raw` has no index anywhere — N5's rule applied to every roll
+rather than to a few.
+
+**So the arm is a two-hypothesis lean, and both hypotheses are declared before any candidate
+exists**: the edges the scaffold asks for, and the edges the unlabelled ask already produced on that
+wall (`study/N`'s stone case at 330…569 from row 22, `study/E`'s door at 673…860 from the wave).
+Nothing is searched for and nothing is chosen — the column-edge energy at each declared pair is
+summed and the answer is which one the painting put its edges at. On the control frames it reads
+`study/E`'s known-reflex painting at **−1.08 toward reflex**, decisively, and `study/N` at **+0.24**
+— the blindness §5.5 predicted for that wall, now measured rather than argued.
+
 **(N13) The detector story differs by wall, and that difference IS the argument for the second
 wall.** `study/E`'s door opening is an existing tier-1 ruler with existing detection
 (`opening_x0_px`, `opening_y0_px`, `column_edge_candidates`). `study/N`'s stone-case outer moulding

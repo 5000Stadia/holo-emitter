@@ -1,0 +1,344 @@
+{
+  "walls": {
+    "great_hall/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_hall/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_hall/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_hall/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "study/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "hall/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "hall/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "hall/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "hall/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "kitchen/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "kitchen/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "kitchen/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "kitchen/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "buttery_pantry/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "buttery_pantry/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "buttery_pantry/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "buttery_pantry/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "servants_hall/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "servants_hall/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "servants_hall/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "servants_hall/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "dining_parlour/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "dining_parlour/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "dining_parlour/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "dining_parlour/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_stair_hall/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_stair_hall/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_stair_hall/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "great_stair_hall/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "library/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "library/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "library/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "library/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "garden_room/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "garden_room/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "garden_room/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "garden_room/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_court/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_court/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_court/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_court/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "privy_garden/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "privy_garden/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "privy_garden/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "privy_garden/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_approach/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_approach/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_approach/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "entrance_approach/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "solar/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "solar/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "solar/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "solar/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "muniment_room/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "muniment_room/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "muniment_room/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "muniment_room/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair_head/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair_head/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair_head/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "back_stair_head/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "long_gallery/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "long_gallery/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "long_gallery/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "long_gallery/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "master_bedchamber/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "master_bedchamber/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "master_bedchamber/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "master_bedchamber/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "stair_landing/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "stair_landing/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "stair_landing/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "stair_landing/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "guest_chamber/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "guest_chamber/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "guest_chamber/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "guest_chamber/W": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "closet_chamber/N": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "closet_chamber/E": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "closet_chamber/S": {
+      "attempts": 0,
+      "status": "waiting"
+    },
+    "closet_chamber/W": {
+      "attempts": 0,
+      "status": "waiting"
+    }
+  }
+}

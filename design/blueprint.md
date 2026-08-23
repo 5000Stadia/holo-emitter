@@ -1130,6 +1130,29 @@ tier); only the facing wall remains grid-and-labels to paint. Generation becomes
 room-filling: each wall inherits the room. Row 23's matrix gains technique (4),
 content-scaffold, tested against the same ground truth. Row 23 runs the technique matrix.
 
+**[Row 23, 2026-08-23 — what the matrix measured, and what "wins" would have meant.]** Three
+techniques, four rolls each, on two walls with known ground truth: 24 paintings. **No technique
+separated from any other.** The carrier lean — which of two positions a painting put its edges at,
+the one the label asked for or the one the unlabelled ask already produced — came back 1/1/1 on
+`study/E` and 3/3/3 on `study/N`, a spread of zero on both, at P(this | the three are identical) =
+**1.000**. The camera arm separated no better (0.535 and 0.915). *The labels moved nothing this
+instrument could see.* The run-off was declined for that reason rather than spent.
+
+Four things that result does NOT license, each earned the hard way and each binding on the manor
+run. **(a)** It is not a finding that shown geometry fails: every cell of the matrix carried the
+same scaffold, so what was varied was the LABELS ON it, not the escalation from text to image —
+§11b's own record stands, numeric text asks 0-for-21, image-reference asks undefeated. **(b)** It
+was an OBEDIENCE test against a hearth position §5 already rules wrong, so "wins" would have meant
+*gets obeyed*, never *paints the better room*. **(c)** The carrier's edge-pair detector is unread on
+all 24 — on a panelled wall two admissible edge pairs always disagree, and a detector that picks
+between them invents obedience (it scored a measured 217 px miss as a 17 px hit before it was made
+to refuse). What the arm rests on is a two-hypothesis lean whose hypotheses were both fixed before
+any candidate existed. **(d)** Geometry cannot see whether an obeyed room reads as a room or as a
+diagram obeyed; that question goes to Kabe on the batch's look sheet, and it is why no recipe is
+crowned by code. The production recipe is `tools/make-scaffold.mjs --emit-packet`, and which
+technique it defaults to is a labelled human judgement recorded in
+`design/batches/row23-scaffold/README.md`.
+
 **Per-placement view angle [HUMAN, 2026-08-21]:** "Due to perspective some things will be angles
 to various angles, so when generated the request should include its location horizontally across
 the screen with a flat wall facing background to maintain angle persecutive. The saved element
