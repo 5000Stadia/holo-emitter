@@ -915,15 +915,29 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
  * unchanged. Pass no world and every opening is judged.
  *
  * Returns `{ walkable, offscreen }`, each entry `{ id, from, to, facing }`.
- * An `offscreen` entry is a way through the building that its own standpoint
- * cannot see: the cross passage is 8.00 m long and the pinned lens shows
- * 3.2 m of it from the drawn standpoint, so the kitchen's door lands 185 px
- * past the right edge of the frame. That is a fact about where the standpoint
- * law puts the body, not about the document, and §4b item 9's multi-standpoint
- * rooms are its fix — which is drawn content and a human's. It may not become
- * a widened tolerance: the fixture validator's off-frame clause refuses a `go` target
- * nobody can reach, and softening it to admit this corpus is the move this
- * project has refused five times.
+ * An `offscreen` entry is a way through the building that falls WHOLLY off the
+ * frame from its own standpoint, so no exit can walk it and the completeness
+ * clause does not ask for one.
+ *
+ * [ROW 26] THE CROSS PASSAGE IS NO LONGER IN THAT LIST, AND THE PARAGRAPH THAT
+ * SAID IT WOULD ALWAYS BE IS GONE. It used to read that `op14` landing 185 px
+ * past the right edge was "a fact about where the standpoint law puts the body,
+ * not about the document", with §4b item 9's multi-standpoint rooms named as
+ * its only fix. The first half was true and the second was not: the standpoint
+ * law can be told where along a wall to stand, which is row 26's third branch,
+ * and the passage's two doors are in frame from one body each. Item 9 stays
+ * reserved for the great rooms.
+ *
+ * THIS TEST STAYS LOOSE, AND ROW 26 DELIBERATELY LEFT IT SO. Row 26 tightened
+ * what an EXIT may walk through (`[row26:exit.opening_unusable]`: a way through
+ * must be usably in frame, not merely not-wholly-off), and it would have been
+ * easy to bring this exemption along with it. It must not be: an exemption that
+ * grew would stop asking for exits through slivers, and a sliver nobody walks
+ * would become invisible instead of becoming `[row15:exit.opening_unwalked]`.
+ * The two clauses disagreeing is not a deadlock — a walked sliver is refused
+ * and a slid standpoint fixes it; an unwalked sliver is demanded and an exit
+ * fixes it — and both remedies are real. What may never happen is either of
+ * them SOFTENING, which is the move this project has refused six times.
  */
 export function waysThrough(plan, world, canvasW = CANVAS_W) {
   const named = world && Array.isArray(world.locations)
@@ -1048,6 +1062,34 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
     meta.far_line = fc.far_line;
   } else {
     meta.camera_wall_m = fc.camera_wall_m;
+  }
+  /* [Row 26] WHERE THE EYE STANDS ALONG THE WALL, and it is set HERE — before
+   * the openings and before the corners — for a reason worth a sentence. Both
+   * of those go through `groundplane.xAtScale`, which is what reads this
+   * field; set it after them and the doorway rectangles and the corner
+   * verticals are computed from a meta that does not know the body has moved,
+   * the standpoint in the document slides, the picture does not, and every
+   * assertion about the STANDPOINT still passes. A silent no-op that satisfies
+   * its own test is the shape this project has paid for repeatedly.
+   *
+   * Read off the drawn standpoint rather than taken from `standpointFor`'s
+   * return, so a `drawn` standpoint — §4b item 9's reserved multi-standpoint
+   * rooms — gets a true picture the day one is authored, without this function
+   * having to know which branch put the body there.
+   *
+   * ABSENT WHERE IT IS ZERO. Eighty-six of the manor's eighty-eight facings
+   * stand on their room's own axis; emitting `eye_offset_m: 0` on all of them
+   * would move every baked meta's bytes to say nothing. */
+  if (fc.standpoint) {
+    const eyeSpan = viewSpan(room.rect, facing);
+    const eyeRight = eyeSpan.axis === "x" ? RIGHT[facing][0] : RIGHT[facing][1];
+    const raw = (fc.standpoint[eyeSpan.axis] - (eyeSpan.lo + eyeSpan.hi) / 2) * eyeRight;
+    /* Snapped to the drawing's precision only where it IS a whole centimetre
+     * and the double is merely noisy about it (35.93 − 35 is not exactly 0.93).
+     * A standpoint someone drew at a genuine 1.234 m keeps its 1.234: rounding
+     * that would draw a picture a centimetre away from the document. */
+    const eyeOffset = Math.abs(raw - drawn(raw)) < 1e-9 ? drawn(raw) : raw;
+    if (eyeOffset !== 0) meta.eye_offset_m = eyeOffset;
   }
   meta.nearest_floor_m = nearestFloorM(meta);
   /* [Row 21] THE DOORWAY IS A FACT ABOUT THE BUILDING. Until now the only
