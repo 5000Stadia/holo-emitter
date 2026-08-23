@@ -91,3 +91,8 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   always-on sweeping (tmux watch loop) deletes the 37-min p50 pickup latency; in force
   since 2026-08-24, the ledger will show it. No regression this tick; 58 holds await the
   row-32 instrument, not sweep time.
+- 2026-08-24 tick 2: nominal; loop alive, third coat measuring on arrival with the new
+  eye-line corrections visible in retry text. One analyzer sharpening worth building:
+  the all-time queue p50 (generate->measure 9.58h) is dominated by the pre-loop backfill
+  era and masks live health - report trailing-window (6h) queue latencies beside all-time
+  so a live regression cannot hide under history, and history cannot alarm a healthy present.
