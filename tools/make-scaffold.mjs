@@ -56,7 +56,8 @@ import { facingCarriers, openingsForFacing, deriveMeta } from "./plan-projection
  * material sentence, every window sentence and the STAMPED ANCHOR LABEL below
  * come out of it, so a room can only be asked for the study's panelling if the
  * plan says it is that kind of room. */
-import { voiceFor, windowLines, hangingsFor, ANCHOR_M } from "./room-voices.mjs";
+import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
+  from "./room-voices.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -1207,8 +1208,19 @@ export function manorPrompt(plan, key, meta, rects, correction) {
   L.push(`Asset type: gameplay backdrop for the ${side} ${SURFACE} of the ${name}, circa-1660 English manor`);
   if (correction) {
     /* FIRST, BECAUSE IT IS THE REASON THIS ASK EXISTS. Verbatim from
-     * run-state.json: the measurement's own words, never a paraphrase. */
-    L.push(`Correction on a previous attempt at this exact wall: ${correction}`);
+     * run-state.json — the measurement's own words, never a paraphrase.
+     *
+     * EXCEPT WHERE THE WORDS THEMSELVES ARE THE DEFECT. `privy_garden/N`'s
+     * correction is Kabe's veto, and to say what went wrong it names "interior
+     * oak panelling and a chair-rail" — on the one wall those words were
+     * vetoed from. Carrying it put them straight back in front of the
+     * generator, and the lint refused the packet, correctly. So an outdoor
+     * wall carries its correction only when the correction can be said without
+     * naming interior fabric; otherwise it carries the forward half and the
+     * verbatim reason goes to PACKET.md and `retries.json`, where a reader
+     * needs it and no generator reads it. */
+    const say = (out && !carryableOutdoors(correction)) ? REDACTED_CORRECTION : correction;
+    L.push(`Correction on a previous attempt at this exact wall: ${say}`);
     L.push("  Everything else below still holds; this correction is the change being asked for.");
   }
   L.push("Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality");
@@ -1597,6 +1609,13 @@ async function emitRetries(outDir, opts) {
     writeFileSync(join(dir, "PACKET.md"),
       `# ${w.key} — RE-ASK ${attempt} (technique ${opts.technique || "t2"}, labelled scaffold)\n\n` +
       `> **Why this wall is being asked again**\n>\n> ${w.correction}\n\n` +
+      (voice.outdoor && !carryableOutdoors(w.correction)
+        ? `**The prompt does not quote that sentence.** This is an outdoor facing, and the sentence ` +
+          `names interior fabric — which is the very thing it is vetoing. Putting those words in the ` +
+          `prompt would put them in front of the generator on the one wall they were vetoed from, and ` +
+          `\`prompt_lint.py\` refuses a packet that does. The prompt carries the forward half instead; ` +
+          `the reason lives here.\n\n`
+        : "") +
       `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +

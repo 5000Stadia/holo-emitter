@@ -594,6 +594,41 @@ export function windowLines(voice, windows, roomName, surfaceWord) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Interior fabric, in an outdoor prompt                               */
+/* ------------------------------------------------------------------ */
+/* THE SECOND COPY OF `prompt_lint.py`'s INTERIOR_FABRIC, and it exists because
+ * the emitter has to be able to REFUSE ITS OWN SENTENCE before it writes it.
+ *
+ * It was earned immediately. The re-ask for `privy_garden/N` carries its
+ * correction verbatim, and that correction is Kabe's own veto — which, to say
+ * what went wrong, names "interior oak panelling and a chair-rail". Carried
+ * into the prompt it put both words in front of the generator on the very wall
+ * they were vetoed from, and the lint refused the packet. The lint was right:
+ * an outdoor prompt may not name interior fabric AT ALL, not even inside a
+ * quotation of why the last attempt failed.
+ *
+ * So a correction reaches the prompt only when it is a forward-facing
+ * instruction the prompt can act on; the verbatim text always reaches PACKET.md
+ * and `retries.json`, where a reader needs it and no generator reads it. The
+ * lint stays the authority — if these two word lists ever drift apart, the lint
+ * refuses the packet and the suite goes red, which is the handshake. */
+export const INTERIOR_FABRIC =
+  /panell?ing|panell?ed|wainscot\w*|chair[- ]?rail|\bdado\b|floorboards?|plaster ceiling|ceiling joists?|\bskirting\b|\bhearth\b|\bfireplace\b/i;
+
+/** Whether a sentence may be carried into an OUTDOOR wall's prompt. */
+export function carryableOutdoors(sentence) {
+  return !INTERIOR_FABRIC.test(sentence || "");
+}
+
+/* What replaces a correction that cannot be carried: the forward half of it,
+ * saying that the earlier attempt is superseded by what follows, in words the
+ * clause permits. The reason itself is in the packet. */
+export const REDACTED_CORRECTION =
+  "the previous attempt at this wall was rejected because it did not paint this place as the " +
+  "materials and the anchor below describe it. Those words replace anything the earlier attempt " +
+  "showed; follow them exactly.";
+
+/* ------------------------------------------------------------------ */
 /* Self-check                                                          */
 /* ------------------------------------------------------------------ */
 

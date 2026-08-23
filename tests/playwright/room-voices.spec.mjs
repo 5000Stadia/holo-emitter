@@ -25,13 +25,14 @@
  */
 import { test, expect } from "@playwright/test";
 import { repoRoot } from "./helpers.mjs";
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import {
   VOICES, ANCHORS, ROOM_VOICE, ANCHOR_M, voiceFor, resolveAll,
-  lightsFor, transomFor, surroundFor, windowLines
+  lightsFor, transomFor, surroundFor, windowLines,
+  carryableOutdoors, REDACTED_CORRECTION
 } from "../../tools/room-voices.mjs";
 import { manorPrompt, scaffoldRects, chairRail, assertLabelChars } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
@@ -313,6 +314,75 @@ test.describe("row 29 — per-room material voices", () => {
     const got = voiceFor(future, "brewhouse", "N");
     expect(got.voice.id).toBe("service");
     expect(got.via).toMatch(/^archetype/);
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* THE RE-ASK, AND THE ONE SENTENCE THAT CANNOT BE QUOTED.
+     `privy_garden/N`'s correction is Kabe's veto, and to say what went wrong it
+     names "interior oak panelling and a chair-rail" — on the one wall those
+     words were vetoed from. Carried verbatim it put them back in front of the
+     generator, and the lint refused the packet the first time it was emitted. */
+  test("a correction is carried verbatim unless the words are the defect", () => {
+    const state = JSON.parse(readFileSync(join(repoRoot, "design", "batches",
+      "row23-scaffold", "manor", "run-state.json"), "utf8"));
+    const build = (key) => {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      return manorPrompt(PLAN, key, meta, rects, state.walls[key].correction);
+    };
+    /* A measured scale correction is forward-facing and goes through whole. */
+    const gh = state.walls["great_hall/E"].correction;
+    expect(carryableOutdoors(gh)).toBe(true);
+    expect(build("great_hall/E"), "a measured correction was not carried verbatim").toContain(gh);
+    /* The veto is not, and the prompt must not contain it. */
+    const veto = state.walls["privy_garden/N"].correction;
+    expect(veto, "the veto no longer names interior fabric — this case has gone blind")
+      .toMatch(/panelling|chair-rail/i);
+    expect(carryableOutdoors(veto)).toBe(false);
+    const pg = build("privy_garden/N");
+    expect(pg, "the veto's own words were carried into the wall they were vetoed from")
+      .not.toMatch(/panell?ing|chair[- ]?rail|wainscot/i);
+    expect(pg, "the re-ask does not say it is one").toMatch(/^Correction on a previous attempt/m);
+    expect(pg).toContain(REDACTED_CORRECTION);
+  });
+
+  test("every retry packet on disk carries its room's voice and passes the lint", () => {
+    const p = join(repoRoot, "design", "batches", "row23-scaffold", "manor", "retries.json");
+    if (!existsSync(p)) {
+      test.info().annotations.push({ type: "pending",
+        description: "no retries have been emitted yet — this case arms itself when they are" });
+      return;
+    }
+    const r = JSON.parse(readFileSync(p, "utf8"));
+    expect(r.entries.length, "retries.json holds no packets").toBeGreaterThan(0);
+    const files = [];
+    for (const e of r.entries) {
+      const [loc, f] = e.key.split("/");
+      expect(e.voice.id, `${e.key}'s packet was cut at a voice its room does not resolve to`)
+        .toBe(voiceFor(PLAN, loc, f).voice.id);
+      const prompt = join(repoRoot, e.packet, "prompt.txt");
+      expect(existsSync(prompt), `${e.packet} has no prompt.txt`).toBe(true);
+      /* THE VERBATIM REASON IS ALWAYS IN THE PACKET, even where the prompt may
+         not quote it — a reader needs it and no generator reads it. */
+      expect(readFileSync(join(repoRoot, e.packet, "PACKET.md"), "utf8"),
+        `${e.packet}'s PACKET.md does not carry the correction that caused the re-ask`)
+        .toContain(e.correction);
+      files.push(prompt);
+      /* And beside every candidate, which is where the measurement looks. */
+      for (const roll of e.rolls) {
+        expect(existsSync(join(repoRoot, roll.prompt)),
+          `${roll.prompt} is missing — a return would land with no prompt beside it`).toBe(true);
+        files.push(join(repoRoot, roll.prompt));
+      }
+    }
+    let out = "";
+    try {
+      out = execFileSync("python3", [LINT, ...files], { encoding: "utf8", cwd: repoRoot });
+    } catch (e) {
+      throw new Error(`prompt_lint refused an emitted retry packet:\n${String(e.stdout || "")}`);
+    }
+    expect(out).toMatch(/\n0 of \d+ prompt\(s\) refused\./);
   });
 
   test("windowLines says nothing at all when the plan draws no window", () => {
