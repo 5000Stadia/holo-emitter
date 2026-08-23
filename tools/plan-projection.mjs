@@ -929,11 +929,11 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
  * reserved for the great rooms.
  *
  * THIS TEST STAYS LOOSE, AND ROW 26 DELIBERATELY LEFT IT SO. Row 26 tightened
- * what an EXIT may walk through (`[row26:exit.opening_unusable]`: a way through
+ * what an EXIT may walk through (row 26's `exit.opening_unusable` clause: a way through
  * must be usably in frame, not merely not-wholly-off), and it would have been
  * easy to bring this exemption along with it. It must not be: an exemption that
  * grew would stop asking for exits through slivers, and a sliver nobody walks
- * would become invisible instead of becoming `[row15:exit.opening_unwalked]`.
+ * would become invisible instead of becoming row 15's `exit.opening_unwalked`.
  * The two clauses disagreeing is not a deadlock — a walked sliver is refused
  * and a slid standpoint fixes it; an unwalked sliver is demanded and an exit
  * fixes it — and both remedies are real. What may never happen is either of

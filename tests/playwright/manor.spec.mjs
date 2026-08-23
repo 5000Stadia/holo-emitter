@@ -202,7 +202,11 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
       "guest_chamber/S": 1,
       "guest_chamber/W": 2,
       "hall/E": 1,
-      "hall/S": 1,
+      /* [Row 26] `hall/S` used to carry one blank doorway — `op14`, drawn in
+         the wall and walked by nobody, because from the passage's centre it
+         projected wholly off the frame. The lateral slide brought it in and the
+         completeness clause then demanded its exit, so it is a way through the
+         player uses and no longer something the picture does not say. */
       "kitchen/E": 1,
       "kitchen/S": 2,
       "library/S": 1,
@@ -249,22 +253,30 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
     ]);
   });
 
-  /* THE WAYS THROUGH, AND THE ONE EXEMPTION, both computed. The completeness
+  /* THE WAYS THROUGH, AND NOW THERE IS NO EXEMPTION AT ALL. The completeness
      clause requires an exit in both directions for every opening and flight
      joining two named rooms; the exemption is an opening its own standpoint
-     cannot see, and it is not a hand-carved hole — the cross passage is 8.00 m
-     long and the pinned lens shows 3.2 m of it, so the kitchen's door lands
-     185 px past the frame. */
-  test("every way the plan draws is walked, and the exemptions are named", () => {
+     cannot see.
+
+     [ROW 26] THE MANOR'S ONE EXEMPT WAY IS GONE, and the sentence that used to
+     stand here is gone with it: `op14` landed 185 px past the frame because the
+     standpoint law stood the viewer at the centre of an 8.00 m passage whose
+     doors are near one end, and the law now slides the body along its own wall.
+     `hall/S` sees the kitchen's door whole, the completeness clause demanded its
+     exit, and the manor walks 56. The list is asserted EMPTY rather than deleted
+     — an exemption that quietly reappears is exactly the hole this pair of
+     assertions exists to keep visible. */
+  test("every way the plan draws is walked, and no way is exempt", () => {
     const ways = waysThrough(PLAN, NAV);
     const have = new Set();
     for (const l of NAV.locations) for (const e of l.exits || []) have.add(`${e.via}|${e.from}|${e.to}`);
     expect(ways.walkable.filter((w) => !have.has(`${w.id}|${w.from}|${w.to}`)), "unwalked").toEqual([]);
     expect(ways.offscreen.map((w) => `${w.id} ${w.from}→${w.to} on ${w.from}/${w.facing}`))
-      .toEqual(["op14 hall→kitchen on hall/S"]);
-    /* And the exempted room is still reachable another way, which is the whole
-       reason the exemption is admissible rather than a hole in the building. */
-    expect(have.has("op02|entrance_court|kitchen")).toBe(true);
+      .toEqual([]);
+    /* And the door that WAS exempt is walked from both sides now, which is the
+       whole of what row 26 bought the player here. */
+    expect(have.has("op14|hall|kitchen")).toBe(true);
+    expect(have.has("op14|kitchen|hall")).toBe(true);
   });
 
   test("the plan and the manor world are green together", () => {

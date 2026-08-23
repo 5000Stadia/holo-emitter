@@ -36,7 +36,8 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
-import { validatePlan, drawn, MIN_STANDOFF_M } from "../../tools/validate-plan.mjs";
+import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
+  PLAN_CANVAS_W as CANVAS_W, PLAN_CANVAS_H as CANVAS_H } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -241,6 +242,9 @@ export const MECHANISMS = [
   "staging.pair_half_missing",
   "exit.via_unfilled",
   "exit.opening_offscreen",
+  /* [row 26] and the sliver the clause above passes: a way through with less of
+     itself on the frame than a hand can hit unaided */
+  "exit.opening_unusable",
   "meta.required_fields",
   "meta.unknown_key",
   "meta.storey_height",
@@ -467,6 +471,35 @@ const DOCUMENT_CASES = {
     off_left: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.x = -o.w - 10; }); }),
     below_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = 4000; }); }),
     above_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = -o.h - 10; }); })
+  }),
+  /* [ROW 26] AND THE SLIVER, WHICH THE CLAUSE ABOVE PASSED BY 54 PX. `op15` —
+     the player's only way out of the boot pair — drew 476 px of doorway with 54
+     of them on the frame, 8 % of it clickable, and the off-frame clause said
+     yes because the rectangle was not WHOLLY off. That is a different behaviour
+     from "nobody can see it" and it carries its own token, exactly as
+     `exit.via_unfilled`'s two arms do.
+
+     FOUR EDGES AGAIN, and for the reason the arms above already record: a
+     critic dropped the vertical half of that clause and the suite stayed green.
+     A doorway with a hand's-width of itself below the top edge is as unreachable
+     as one past the side, and neither is caught by the other's arm.
+
+     Each arm leaves MIN_USABLE_APERTURE_PX − 1 px of the opening on the frame,
+     so it fails this clause and passes the one above — which is what makes the
+     two tokens distinguishable rather than one clause with two spellings. */
+  "exit.opening_unusable": () => everyArm("exit.opening_unusable", {
+    sliver_right: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.x = CANVAS_W - (MIN_USABLE_APERTURE_PX - 1);
+    })),
+    sliver_left: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.x = MIN_USABLE_APERTURE_PX - 1 - o.w;
+    })),
+    sliver_top: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.y = MIN_USABLE_APERTURE_PX - 1 - o.h;
+    })),
+    sliver_bottom: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.y = CANVAS_H - (MIN_USABLE_APERTURE_PX - 1);
+    }))
   }),
   /* [Round 5] ONE HALF OF A NAMED PAIR. Row 21 added an exemption above this
      for a world holding NEITHER half — the painted world stages no furniture —

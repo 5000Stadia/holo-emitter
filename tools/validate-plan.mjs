@@ -501,7 +501,8 @@ function withoutInterval(intervals, a, b) {
  * AND WHEN NOTHING SATISFIES IT, THE BODY DOES NOT MOVE. No partial slide: a
  * partial slide is a picture that improves without satisfying the law, and it
  * would hide the very finding the law exists to raise. The facing keeps the
- * centred standpoint and `[row26:exit.opening_unusable]` reports the door that
+ * centred standpoint and row 26's `exit.opening_unusable` clause reports the
+ * door that
  * a world walks and a hand cannot reach.
  */
 function slideAlongWall(plan, room, facing, chosen, clearanceM, canvasW = PLAN_CANVAS_W) {

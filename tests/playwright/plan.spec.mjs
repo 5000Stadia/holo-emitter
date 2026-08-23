@@ -1248,21 +1248,33 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
   test("all 88 facings agree with the approved standpoints.tsv", () => {
     const lines = readFileSync(join(draftDir, "standpoints.tsv"), "utf8").trim().split("\n");
     const header = lines.shift().split("\t");
-    expect(header.slice(0, 7)).toEqual([
-      "floor", "room", "room_type", "facing", "facing_type", "camera_wall_m", "wall_width_m"]);
+    /* [Row 26] The table answers the standpoint law's two questions now, so it
+       carries the lateral offset beside the distance — and this case checks it
+       against the derived meta's own `eye_offset_m`, which is the number the
+       PICTURE is drawn from. A sheet whose table said one thing while the
+       renderer stood somewhere else is precisely the split the table exists to
+       make impossible. */
+    expect(header.slice(0, 8)).toEqual([
+      "floor", "room", "room_type", "facing", "facing_type", "camera_wall_m",
+      "standpoint_offset_m", "wall_width_m"]);
     expect(lines.length).toBe(88);
-    let checked = 0;
+    let checked = 0, slid = 0;
     for (const line of lines) {
-      const [floor, name, roomType, facing, facingType, cam, ww] = line.split("\t");
+      const [floor, name, roomType, facing, facingType, cam, off, ww] = line.split("\t");
       const r = PLAN.rooms.find((x) => x.floor === floor && x.name === name);
       expect(r, `${floor}/${name}`).toBeTruthy();
       expect(r.type).toBe(roomType);
       const m = deriveMeta(PLAN, r.id, facing);
       expect(m.facing_type, `${name}/${facing} type`).toBe(facingType);
       expect((m.camera_wall_m ?? m.camera_far_m).toFixed(2), `${name}/${facing} camera_wall_m`).toBe(cam);
+      expect((m.eye_offset_m || 0).toFixed(2), `${name}/${facing} standpoint_offset_m`).toBe(off);
       expect(m.wall_width_m.toFixed(2), `${name}/${facing} wall_width_m`).toBe(ww);
+      if (Number(off) !== 0) slid++;
       checked++;
     }
+    /* And the manor's two slid facings are named in the table rather than
+       hiding inside a column of zeroes. */
+    expect(slid, "the cross passage's two long facings, and nothing else in the manor").toBe(2);
     expect(checked).toBe(88);
   });
 
@@ -2995,20 +3007,38 @@ test.describe("the schematic is a derived render of the plan", () => {
       .toEqual(blocks[0].map((l) => l.trimEnd()));
   });
 
-  /* [Row 15] AND THE MANOR BATCH, the same shape, against TODAY's build —
-   * these are pictures of what the link serves now, so the build that answers
-   * for them is the one running. An artifact nobody can regenerate is not
-   * derived; it is just a file. */
+  /* [Row 15] AND THE MANOR BATCH, the same shape. An artifact nobody can
+   * regenerate is not derived; it is just a file.
+   *
+   * [ROW 26] FROM THE BUILD THAT DREW THEM, WHICH IS ROW 15'S OWN HAND-OFF
+   * COMMIT AND NOT HEAD. Row 26 slid the cross passage's two long standpoints,
+   * so `10-hall-N-no-floor-line.png` is a picture today's build does not draw.
+   * The reflex is to re-capture it — and that would replace evidence Kabe has
+   * never ruled on (this batch is AWAITING KABE in `design/approvals.log`) with
+   * evidence he has never seen, which is the objection `architecture.md`'s
+   * residue item 8 already records and which the row-21 batch above was pinned
+   * for. Same treatment, deliberately copied rather than generalised: the
+   * capture script takes an app root and this one is a checkout of
+   * `ROW15_COMMIT`. It moves when a human has ruled on a new set of pictures
+   * and at no other time. Row 26's own batch carries the AFTER. */
   const ROW15_DIR = join(repoRoot, "design", "batches", "row15-manor");
+  const ROW15_COMMIT = "1ea511c";
 
   test("the row-15 batch IS what the code draws — every frame re-rendered and compared", async ({ browserName }) => {
     test.setTimeout(240_000);
     test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     expect(existsSync(join(ROW15_DIR, "capture.mjs")),
       "the batch must carry the script that made it").toBe(true);
+    expect(execFileSync("git", ["rev-parse", "--short", ROW15_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(ROW15_COMMIT);
+    const tree = mkdtempSync(join(tmpdir(), "holo-row15-tree-"));
     const out = mkdtempSync(join(tmpdir(), "holo-row15-"));
     try {
-      const log = execFileSync("node", [join(ROW15_DIR, "capture.mjs"), out],
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW15_COMMIT,
+        "index.html", "src", "fixtures", "backdrops", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node", [join(ROW15_DIR, "capture.mjs"), out, tree],
         { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
       const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
       expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(12);
@@ -3019,7 +3049,7 @@ test.describe("the schematic is a derived render of the plan", () => {
         if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
       }
       expect(stale,
-        "these batch frames are not what the code draws — re-run design/batches/row15-manor/capture.mjs into the batch")
+        `these batch frames are not what ${ROW15_COMMIT} drew — the build that made them is the only thing that can answer for them`)
         .toEqual([]);
       const committedFrames = readdirSync(ROW15_DIR)
         .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
@@ -3039,6 +3069,7 @@ test.describe("the schematic is a derived render of the plan", () => {
           .toBe(`${m[1]}/${m[2]}`);
       }
     } finally {
+      rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
   });
@@ -3085,10 +3116,27 @@ test.describe("the schematic is a derived render of the plan", () => {
          printing it perfectly. A guard that does not know its subject wraps is
          the same defect in a smaller costume. */
       const stamp = stampText(svg);
-      expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
-        .toContain("AWAITING HIS EYE ON");
-      expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
-        .toContain(scope);
+      /* [ROW 26] TWO STATES SATISFY THIS, AND ONLY TWO. The sheet either
+         claims an approval — and then it must print, in the same breath, the
+         drawn content that approval does not cover — or it claims none at all,
+         which UNAPPROVED REVISION does more loudly than any pending clause
+         could: it names the digest it was drawn from, the digest Kabe signed,
+         and that the sheet goes back to him. Row 26 slid two standpoints, so
+         the sheets are in the second state.
+         What is refused is the same thing as before: a stamp that says
+         APPROVED and stops there. The disjunction is asserted rather than the
+         `pending` requirement being dropped for the unapproved case, because
+         "the sheet is currently unapproved" is not a licence to stop printing
+         scope the day it is approved again. */
+      const unapproved = stamp.includes("UNAPPROVED REVISION");
+      expect(unapproved || stamp.includes("APPROVED"),
+        `${f}: the stamp claims neither an approval nor the lack of one`).toBe(true);
+      if (!unapproved) {
+        expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
+          .toContain("AWAITING HIS EYE ON");
+        expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
+          .toContain(scope);
+      }
     }
   });
 
@@ -3128,22 +3176,41 @@ test.describe("the schematic is a derived render of the plan", () => {
   /* Each drawn family the sheet prints, the column that carries it, and the
      words the derived clause uses for it. Only families that MOVED appear, so
      the clause cannot be satisfied by naming everything. */
+  /* [Row 26] `absentBaseline` is what the sheet was drawing before a column
+     existed. The standpoint law asks two questions now — how far back, and
+     where along the wall — and the second one arrived as a NEW column, which
+     the comparison below used to treat as "I no longer know what I am
+     comparing" and go red with nothing to do about it. A column that did not
+     exist was not silent: every standpoint stood on its room's own axis, which
+     is 0.00, so the baseline is a fact and not a convenience. Without it the
+     sheet would keep naming only the distances while two markers had moved
+     sideways — the exact narrowing this clause exists to prevent, arriving by
+     omission instead of by prose. */
   const FAMILIES = [
     { column: "camera_wall_m", said: "the standpoint distances" },
+    { column: "standpoint_offset_m", said: "the standpoints' own lateral slides",
+      absentBaseline: "0.00" },
     { column: "wall_width_m", said: "the wall widths" },
     { column: "room_type", said: "the room types" },
     { column: "facing_type", said: "the facing types" }
   ];
 
   function scopeFromDelta(then, now) {
-    const head = then[0];
     const moved = [], changedRows = new Set();
     for (const fam of FAMILIES) {
-      const i = head.indexOf(fam.column);
-      if (i < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
+      const j = now[0].indexOf(fam.column);
+      if (j < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
+      /* Each side read through ITS OWN header: a column inserted in the middle
+         would otherwise line the new table's values up against the old table's
+         neighbours and report every row as changed. */
+      const i = then[0].indexOf(fam.column);
+      if (i < 0 && fam.absentBaseline === undefined) {
+        return { error: `standpoints.tsv gained a ${fam.column} column since ${SEEN_SHEET_COMMIT} and this comparison has no baseline for it` };
+      }
       let differs = then.length !== now.length;
       for (let r = 1; r < Math.min(then.length, now.length); r++) {
-        if (then[r][i] !== now[r][i]) { differs = true; changedRows.add(r); }
+        const was = i < 0 ? fam.absentBaseline : then[r][i];
+        if (was !== now[r][j]) { differs = true; changedRows.add(r); }
       }
       if (differs) moved.push(fam);
     }
@@ -3171,8 +3238,18 @@ test.describe("the schematic is a derived render of the plan", () => {
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(SEEN_SHEET_COMMIT);
 
     const { then, now } = standpointDelta();
-    expect(now[0], "the standpoint table's columns changed; this comparison no longer knows what it is comparing")
+    /* [Row 26] A column may be ADDED — a drawn family the sheet did not have —
+       but not removed and not renamed, and an added one is only accepted where
+       a family declares what the sheet was drawing before it existed. Blanket
+       equality here made a new family a red case with no remedy, which is a
+       guard telling its reader to give up rather than what to do. */
+    expect(then[0].filter((c) => now[0].includes(c)),
+      "a column left the standpoint table or was renamed; this comparison no longer knows what it is comparing")
       .toEqual(then[0]);
+    expect(now[0].filter((c) => !then[0].includes(c) &&
+        !FAMILIES.some((f) => f.column === c && f.absentBaseline !== undefined)),
+      "the standpoint table gained a column that no family declares a baseline for — the sheet would be drawing something the pending clause cannot name")
+      .toEqual([]);
     const d = scopeFromDelta(then, now);
     expect(d.error).toBeUndefined();
     expect(d.sentence,
