@@ -153,9 +153,16 @@ test.describe("fixtures", () => {
            one reads the cand-2 corpus — a different painting's numbers — and
            the refusal that catches it is `_source_sha256`, which would make
            this case red for the wrong reason. */
+        /* AND THE CAMERA IT WAS ADMITTED AGAINST, for the same reason and off
+           the same meta: a manor wall is painted to order at the ruled 1024 px
+           lens and a study wall was measured against the approved 819.6, so
+           re-running the tool without naming which would refuse the manor half
+           of the corpus at the wrong centre — a red case that says nothing
+           about staleness. */
         execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
           "--facing", `${loc}/${facing}`, "--candidate", candidate,
-          ...(meta.measured_round ? ["--round", meta.measured_round] : [])],
+          ...(meta.measured_round ? ["--round", meta.measured_round] : []),
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
           { cwd: dir, encoding: "utf8", stdio: "pipe" });
         expect(readFileSync(join(dir, "backdrops", loc, `${facing}.meta.json`), "utf8"),
           `backdrops/${loc}/${facing}.meta.json is not what promote-backdrop.mjs writes — a field was edited by hand, or the measurement moved and the promotion was not re-run`)
