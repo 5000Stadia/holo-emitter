@@ -43,7 +43,7 @@
  * 27's ruling and is not decided here.
  */
 import { chromium } from "playwright";
-import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -649,6 +649,11 @@ async function main() {
   const argv = process.argv.slice(2);
   const key = argv[0];
   const argOf = (f, d) => { const i = argv.indexOf(f); return i !== -1 ? argv[i + 1] : d; };
+  if (argv.includes("--emit-final")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold")));
+    await emitFinal(out);
+    return;
+  }
   if (argv.includes("--emit-manor")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
     await emitManor(out, {
@@ -1085,6 +1090,76 @@ asks you to judge a result: generate, save to the named paths, and report the pa
 
 
 /* ------------------------------------------------------------------ */
+/* The generic wall prompt — what the manor run actually dispatches     */
+/* ------------------------------------------------------------------ */
+/* The two experiment walls had their sentences written by hand because there
+ * were two of them. Eighty-six do not, and a production recipe that needs a
+ * human to write a paragraph per wall is not a recipe. Every clause below is
+ * derived from the plan's own carriers and the facing's own meta, so a wall
+ * that moves in the plan re-emits with it.
+ *
+ * THE RULED SIZES ARE THE GATE'S OWN. A prompt may only declare a dimension the
+ * acceptance gate can measure, at the size this project rules it — `prompt_lint`
+ * refuses anything else, and it is the whole reason `Gate anchor:` exists. */
+const CARRIER_SENTENCE = {
+  door: (w) => `The door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.`,
+  window: (w) => `The leaded window opening is exactly ${w.toFixed(2)} m wide.`,
+  fireplace: (w) => `The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide.`
+};
+const ROOM_MATERIALS = {
+  chamber: "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards",
+  hall: "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor",
+  corridor: "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards",
+  open: "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot"
+};
+
+export function manorPrompt(plan, key, meta, rects) {
+  const [loc, f] = key.split("/");
+  const room = plan.rooms.find((r) => r.id === loc);
+  const side = { N: "north", E: "east", S: "south", W: "west" }[f];
+  const mat = ROOM_MATERIALS[room.archetype] || ROOM_MATERIALS[room.type] || ROOM_MATERIALS.chamber;
+  const name = (room.name || room.id).toLowerCase();
+  const ruled = rects.map((r) => {
+    const fn = CARRIER_SENTENCE[r.kind];
+    return fn ? fn((r.x1 - r.x0) / meta.px_per_m_at_wall) : null;
+  }).filter(Boolean);
+  const L = [];
+  L.push("Use case: historical-scene");
+  L.push(`Asset type: gameplay backdrop for the ${side} wall of the ${name}, circa-1660 English manor`);
+  L.push("Input images: Image 1 is the exact reference for painted style, medium, materials,");
+  L.push("  palette, period detail and light quality. Image 2 is a geometric layout diagram of");
+  L.push("  the wall to be painted: it is a technical drawing, not artwork to imitate.");
+  L.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
+  L.push(`Primary request: Paint the ${side} wall of the empty ${name} of a circa-1660 English manor,`);
+  L.push("  matching Image 1's finish and Image 2's geometry exactly.");
+  L.push("Gate anchor: the wainscot chair-rail above the floor, 0.95 m.");
+  L.push("Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The");
+  L.push("  camera is level, with zero upward or downward tilt. The wall-floor line, the room");
+  L.push("  corners, the side-wall returns and the amount of visible floor all land where Image 2");
+  L.push(`  puts them, to the pixel. One metre of wall at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
+  L.push("  The floor is visible and runs to the bottom edge of frame.");
+  L.push("Architecture and measurement anchors: A clearly legible wainscot chair-rail runs");
+  L.push("  continuously corner to corner at exactly 0.95 m above the floor, on every exposed");
+  L.push("  wall surface including the side-wall returns.");
+  for (const r of ruled) L.push("  " + r);
+  if (rects.length) {
+    L.push(`  Each feature stands where Image 2's box for it stands, filling that box's width.`);
+  } else {
+    L.push("  This wall carries no opening and no fireplace: it is unbroken panelling, and the");
+    L.push("  chair-rail is the one ruled feature in it.");
+  }
+  L.push("  Make these dimensions physically coherent and unmistakable in the architecture.");
+  L.push(`Materials and period detail: ${mat}.`);
+  L.push("Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm");
+  L.push("  browns, cool ambient light, gentle natural falloff.");
+  L.push("Constraints: the room is completely empty of furniture, loose props, people and");
+  L.push("  clutter. Image 2 contains grid lines, a large letter and annotation text; these are");
+  L.push("  diagram marks identifying the wall, and the painted room contains no line, letter,");
+  L.push("  word, number, label, watermark or border of any kind.");
+  return L.join("\n") + "\n";
+}
+
+/* ------------------------------------------------------------------ */
 /* The manor, in one pass                                              */
 /* ------------------------------------------------------------------ */
 /* [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go
@@ -1129,11 +1204,72 @@ export function manorFacings(plan) {
   return out;
 }
 
+/** A manor wall has no measured no-label baseline — only the two experiment
+ *  walls do — so its carrier window is the stamped box dilated by the wall's own
+ *  ruled carrier width. Derived, stated, and never borrowed from another wall. */
+function tolFor(meta, rects) {
+  if (!rects.length) return 0;
+  const widest = Math.max(...rects.map((r) => r.x1 - r.x0));
+  return Math.round(widest);
+}
+
 async function emitManor(outDir, opts) {
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const all = manorFacings(plan);
-  const todo = all.filter((x) => !x.promoted && !x.fenced)
-    .slice(0, opts.limit || undefined);
+
+  /* THE WORKLIST IS DERIVED BY LOOKING, NEVER BY ASSUMING.
+   * [HUMAN, 2026-08-23] "Also make sure we algorithmicly skip art already
+   * existing in the library."
+   *
+   * ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. That is the same
+   * doctrine the content contract already runs on one tier up — a side wall is
+   * not re-imagined, it is inherited from the neighbour that already exists,
+   * and typed materials are reused per room rather than re-asked per facing.
+   * Reuse is a property of the store, so it is checked against the store: a
+   * facing is skipped because a file is there, not because a list said so.
+   *
+   * Three states are outstanding work and everything else is not:
+   *   PROMOTED   backdrops/<loc>/<F>.png AND its meta exist -> read, never re-made
+   *   RETURNED   a candidate PNG is already on disk -> the MEASURE loop's, not
+   *              the seat's; dispatching it again would pay twice for one wall
+   *   SPENT      the retry budget is exhausted -> parked, and re-emitting would
+   *              quietly restart a count that exists to stop
+   *
+   * Re-running this at any moment is therefore idempotent, and every skip is
+   * recorded WITH ITS REASON, because a silent skip is indistinguishable from a
+   * wall nobody noticed. */
+  const state = existsSync(join(outDir, "run-state.json"))
+    ? JSON.parse(readFileSync(join(outDir, "run-state.json"), "utf8")) : { walls: {} };
+  const skipped = [];
+  const outstanding = [];
+  for (const x of all) {
+    if (x.fenced) {
+      skipped.push({ ...x, skipped: `fenced: row ${x.fenced} moves this standpoint` });
+      continue;
+    }
+    const png = join(ROOT, "backdrops", x.room, `${x.facing}.png`);
+    const meta = join(ROOT, "backdrops", x.room, `${x.facing}.meta.json`);
+    if (existsSync(png) && existsSync(meta)) {
+      skipped.push({ ...x, skipped: `exists: backdrops/${x.room}/${x.facing}.png` });
+      continue;
+    }
+    const already = readdirSync(join(ROOT, sourceDirFor(x.key)), { withFileTypes: true })
+      .filter((d) => d.isFile() && /^row23-[0-9a-f]{8}\.png$/.test(d.name))
+      .map((d) => `${sourceDirFor(x.key)}/${d.name}`);
+    if (already.length) {
+      skipped.push({ ...x, skipped: `returned, unmeasured: ${already.length} candidate(s) on disk`,
+        returns: already,
+        _routed: "the measure loop, not the seat - dispatching this again pays twice for one wall" });
+      continue;
+    }
+    const w = state.walls[x.key];
+    if (w && (w.status === "parked" || w.status === "promoted")) {
+      skipped.push({ ...x, skipped: `${w.status}: ${w.why || "recorded in run-state.json"}` });
+      continue;
+    }
+    outstanding.push(x);
+  }
+  const todo = outstanding.slice(0, opts.limit || undefined);
   mkdirSync(outDir, { recursive: true });
 
   const browser = await chromium.launch();
@@ -1175,12 +1311,35 @@ async function emitManor(outDir, opts) {
         prompt: `${sourceDirFor(fac.key)}/row23-${id}.prompt.txt`
       });
     }
+    /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
+       from is a row in a table; what makes the run one order is that every
+       entry is complete where it stands. */
+    const text = manorPrompt(plan, fac.key, meta, rects);
+    writeFileSync(join(dir, "prompt.txt"), text);
+    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
+    for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
+    writeFileSync(join(dir, "PACKET.md"),
+      `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
+      `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
+      `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
+      `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
+      ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
+      `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
+      `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
+      `${rects.length ? rects.map((r) => r.kind).join(" + ") : "no carrier — unbroken panelling"}.\n` +
+      `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     entries.push({
       ...fac,
       packet: join(dir).slice(ROOT.length + 1),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       px_per_m_at_wall: meta.px_per_m_at_wall,
       camera_wall_m: meta.camera_wall_m,
+      floor_line_y: meta.floor_line_y,
+      horizon_y: meta.horizon_y,
+      corner_x0_px: meta.corner_x0_px, corner_x1_px: meta.corner_x1_px,
+      storey_height_m: meta.storey_height_m, wall_width_m: meta.wall_width_m,
+      brackets: brackets(meta, rects, tolFor(meta, rects)),
       implied_focal_px: round(groundplane.focalPx(meta), 1),
       stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
       chair_rail_y: cr.y,
@@ -1195,20 +1354,375 @@ async function emitManor(outDir, opts) {
     _what_this_is: "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
     _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete.",
     _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+    _reuse_rule: "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
     _technique: opts.technique || "t2",
     _generated: new Date().toISOString().slice(0, 10),
     facings_in_plan: all.length,
-    already_painted: all.filter((x) => x.promoted).map((x) => x.key),
-    fenced: all.filter((x) => x.fenced).map((x) => ({ key: x.key, row: x.fenced })),
     emitted: entries.filter((e) => !e.skipped).length,
-    entries
+    skipped: skipped.length,
+    skipped_entries: skipped,
+    entries: entries.concat(skipped)
   };
   const mp = join(outDir, "manifest.json");
   writeFileSync(mp, JSON.stringify(manifest, null, 2) + "\n");
   console.log(`\nmanifest  ${mp.slice(ROOT.length + 1)}`);
-  console.log(`          ${manifest.emitted} facings emitted of ${all.length} in the plan `
-    + `(${manifest.already_painted.length} already painted, ${manifest.fenced.length} fenced)`);
+  console.log(`          ${manifest.emitted} emitted of ${all.length} in the plan; `
+    + `${skipped.length} skipped, each with its reason:`);
+  const why = {};
+  for (const k of skipped) {
+    const head = k.skipped.split(":")[0];
+    why[head] = (why[head] || 0) + 1;
+  }
+  for (const [k, n] of Object.entries(why)) console.log(`            ${n} ${k}`);
   return manifest;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Technique (4) — the content scaffold                                */
+/* ------------------------------------------------------------------ */
+/* Blueprint §11b, extended the same day [HUMAN, 2026-08-22]: "it allows the
+ * sidewalls to be already generated by those individual wall facing. And the
+ * ceiling and floor to be specific to the flooring and ceiling type" — the
+ * scaffold escalates from LAYOUT to CONTENT CONTRACT. A side-wall return stops
+ * being grid and becomes the neighbouring facing's own approved pixels, so the
+ * seam agrees by inheritance rather than by instruction; floor and ceiling
+ * carry the room's typed materials.
+ *
+ * WHAT IS HONESTLY AVAILABLE TODAY, AND WHAT IS NOT. `study/N`'s two neighbours
+ * are `study/W` (promoted, painted at the standing camera) and `study/E`
+ * (admitted but NOT promoted, so the world still draws it as grid). Only the
+ * LEFT return can inherit real pixels. That is half of what §11b describes, it
+ * is stated on the scaffold's own legend and in the packet rather than being
+ * quietly presented as the whole technique, and it is why this packet is
+ * dispatched only on the NULL trigger.
+ *
+ * The floor and ceiling swatches come from `study/W` too — the same ROOM, a
+ * different wall. Taking them from `study/N`'s own approved reference would
+ * hand the generator the answer it is being tested on, which is the same
+ * anti-leak rule §4.0 applies to the style seed.
+ *
+ * THE PROJECTION IS COLUMN-SLICED AND SAYS SO. The return's ceiling and floor
+ * lines are the rays from the horizon through the corner, which is what they
+ * geometrically are; the neighbour's wall field is sampled across them column by
+ * column. It is not a full homography and this is an approximation — named
+ * here, on the legend, and in the packet, because an approximation a reader has
+ * to discover is a defect and one they are told about is a boundary.
+ */
+export const CONTENT_PAGE = function (arg) {
+  const { framePng, neighbourPng, meta, corner, horizon, floorY, ceilY, note } = arg;
+  return new Promise(function (resolve) {
+    const base = new Image(), nb = new Image();
+    let left = 2;
+    const go = function () {
+      if (--left) return;
+      const cv = document.createElement("canvas");
+      cv.width = 1536; cv.height = 1024;
+      const ctx = cv.getContext("2d");
+      ctx.drawImage(base, 0, 0);
+
+      /* The neighbour's own wall field, between its corners. */
+      const nx0 = neighbourPng.corner_x0, nx1 = neighbourPng.corner_x1;
+      const nTop = neighbourPng.ceil_y, nBot = neighbourPng.floor_y;
+
+      /* ---- the LEFT return, column by column ---- */
+      const ray = function (throughY, x) {
+        const t = (x - horizon.x) / (corner.x0 - horizon.x);
+        return horizon.y + t * (throughY - horizon.y);
+      };
+      for (let x = 0; x < corner.x0; x++) {
+        const yTop = ray(ceilY, x), yBot = ray(floorY, x);
+        if (!(yBot > yTop)) continue;
+        /* Nearest wall at the frame edge, the corner at the corner. */
+        const u = x / Math.max(1, corner.x0);
+        const sx = nx0 + u * (nx1 - nx0);
+        ctx.drawImage(nb, sx, nTop, Math.max(1, (nx1 - nx0) / corner.x0), nBot - nTop,
+          x, yTop, 1, yBot - yTop);
+      }
+
+      /* ---- the floor and the ceiling, the room's own materials ---- */
+      const band = function (srcY0, srcY1, dstY0, dstY1) {
+        if (dstY1 <= dstY0) return;
+        ctx.drawImage(nb, nx0, srcY0, nx1 - nx0, Math.max(1, srcY1 - srcY0),
+          0, dstY0, 1536, dstY1 - dstY0);
+      };
+      band(nBot + 4, 1023, floorY, 1023);
+      band(0, Math.max(1, nTop - 4), 0, ceilY);
+
+      /* ---- THE LEGEND IS RE-STAMPED, because the floor band just erased it ----
+         The inherited floor runs to the bottom edge of frame, which is exactly
+         where the legend sits, so the first run of this mode produced a content
+         scaffold whose own face no longer said which half was inherited. The
+         packet said it; the image did not, and the image is what a painter
+         looks at. */
+      const lg = note.legend;
+      const DIM = "#9fc4e0";
+      ctx.fillStyle = "rgba(6,8,12,0.82)";
+      ctx.fillRect(lg.x - 6, lg.y - 6, lg.w + 12, lg.h + 12);
+      ctx.strokeStyle = DIM;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(lg.x, lg.y, lg.w, lg.h);
+      let ly = lg.y + 12;
+      for (const line of lg.lines) {
+        const h = lg.text_h, w = h * 0.62, gap = h * 0.26;
+        ctx.strokeStyle = DIM;
+        ctx.lineWidth = Math.max(2, Math.round(h / 9));
+        ctx.lineJoin = "round"; ctx.lineCap = "round";
+        let cx = lg.x + 12;
+        for (const ch of line) {
+          const strokes = note.G[ch] || [];
+          ctx.beginPath();
+          for (let i = 0; i < strokes.length; i++) {
+            const ln = strokes[i];
+            for (let j = 0; j < ln.length; j++) {
+              const px = cx + ln[j][0] * w, py = ly + ln[j][1] * h;
+              if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+          }
+          ctx.stroke();
+          cx += w + gap;
+        }
+        ly += lg.line_h;
+      }
+      resolve(cv.toDataURL("image/png"));
+    };
+    base.onload = go; nb.onload = go;
+    base.src = framePng; nb.src = neighbourPng.data;
+  });
+};
+
+async function emitContentScaffold(outDir) {
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const side = JSON.parse(readFileSync(
+    join(outDir, "study-N.scaffold.json"), "utf8"));
+  const meta = side.meta_used;
+  const nbMeta = JSON.parse(readFileSync(join(ROOT, "backdrops", "study", "W.meta.json"), "utf8"));
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+
+  const { rects } = scaffoldRects(plan, "study", "N", meta);
+  const cr = chairRail(meta);
+  const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING");
+  legend.lines.push("INHERITED - LEFT RETURN, FLOOR AND CEILING ARE STUDY WEST PIXELS");
+  legend.lines.push("NOT INHERITED - RIGHT RETURN IS GRID, ITS NEIGHBOUR IS NOT PROMOTED");
+  legend.h = 26 * legend.lines.length + 22;
+  legend.y = CANVAS_H - legend.h - 24;
+  legend.w = round(24 + Math.max(...legend.lines.map((l) => textBox(l, legend.text_h))), 2);
+  for (const l of legend.lines) assertLabelChars(l, "the content legend");
+
+  const scafPng = await renderPng(page, "study/N", meta, "scaffold",
+    { rects, chair_rail: cr, legend });
+  const nbData = "data:image/png;base64," +
+    readFileSync(join(ROOT, "backdrops", "study", "W.png")).toString("base64");
+
+  const contentPng = await page.evaluate(CONTENT_PAGE, {
+    framePng: scafPng,
+    neighbourPng: {
+      data: nbData,
+      corner_x0: nbMeta.corner_x0_px, corner_x1: nbMeta.corner_x1_px,
+      ceil_y: Math.round(nbMeta.floor_line_y * 1024 - nbMeta.storey_height_m * nbMeta.px_per_m_at_wall),
+      floor_y: Math.round(nbMeta.floor_line_y * 1024)
+    },
+    meta,
+    corner: { x0: meta.corner_x0_px, x1: meta.corner_x1_px },
+    horizon: { x: groundplane.wallCentrePx(meta, CANVAS_W), y: meta.horizon_y * meta.image_h_px },
+    floorY: meta.floor_line_y * meta.image_h_px,
+    ceilY: meta.floor_line_y * meta.image_h_px - meta.storey_height_m * meta.px_per_m_at_wall,
+    note: { legend, G }
+  });
+  await browser.close();
+
+  const dir = join(outDir, "packets", "study-N", "t4");
+  mkdirSync(dir, { recursive: true });
+  const img = join(dir, "study-N-content-scaffold.png");
+  writePng(contentPng, img);
+  copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+  return { dir, img, side, meta };
+}
+
+
+/* ------------------------------------------------------------------ */
+/* P4 and P6 — the last eight rolls, as one order                       */
+/* ------------------------------------------------------------------ */
+
+/** §5.6's entrant rule, applied rather than chosen. */
+export function entrantTechnique(reportRows) {
+  const by = {};
+  for (const r of reportRows) {
+    if (!r.tech || r.tech === "lens") continue;
+    by[r.tech] = by[r.tech] || { admitted: 0, idx: [] };
+    if (r.verdict === "PASS") by[r.tech].admitted += 1;
+    if (r.adh != null) by[r.tech].idx.push(r.adh);
+  }
+  const med = (a) => a.length ? a.slice().sort((x, y) => x - y)[a.length >> 1] : null;
+  const ranked = Object.entries(by).sort((a, b) => {
+    if (b[1].admitted !== a[1].admitted) return b[1].admitted - a[1].admitted;
+    const ma = med(a[1].idx), mb = med(b[1].idx);
+    if (ma != null && mb != null && ma !== mb) return mb - ma;
+    if (ma != null && mb == null) return -1;
+    if (mb != null && ma == null) return 1;
+    return a[0] < b[0] ? -1 : 1;
+  });
+  return { winner: ranked[0][0], table: by, ranked: ranked.map(([t, v]) => [t, v.admitted]) };
+}
+
+async function emitFinal(outDir) {
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const assign = JSON.parse(readFileSync(
+    join(ROOT, "design", "plan-draft", "measured", "row23", "assignment.json"), "utf8"));
+
+  /* ---- §5.6's rule, on study/N's own measured rolls ---- */
+  const readDir = join(ROOT, "design", "plan-draft", "measured", "row23");
+  const rows = [];
+  for (const f of readdirSync(readDir)) {
+    if (!f.endsWith(".json") || f.startsWith("assignment")) continue;
+    const d = JSON.parse(readFileSync(join(readDir, f), "utf8"));
+    const cell = assign.rolls.find((r) => r.id === d.id);
+    if (!cell || cell.wall !== "study/N") continue;
+    rows.push({ tech: cell.technique, verdict: d.verdict,
+      adh: (d.score && d.score.indexed) ? d.score.adherence_raw : null });
+  }
+  const pick = entrantTechnique(rows);
+  const T = TECHNIQUES.find((t) => t.id === pick.winner);
+  /* The rule names a TECHNIQUE; t3 carries two variants and the rule is silent
+     on which, so it is extended the only way that stays deterministic — the
+     first variant in the declared order. Recorded, not decided at dispatch. */
+  const variant = T.variants[0];
+
+  /* ================= P4 — the lens arm ================= */
+  const lensSide = JSON.parse(readFileSync(
+    join(outDir, "lens", "study-N.scaffold.json"), "utf8"));
+  const lensDir = join(outDir, "packets", "study-N", "lens");
+  mkdirSync(lensDir, { recursive: true });
+  copyFileSync(join(ROOT, STYLE_SEED), join(lensDir, "style-seed-warm.png"));
+  copyFileSync(join(outDir, "lens", "study-N-scaffold.png"),
+    join(lensDir, "study-N-scaffold-derived.png"));
+  const lensText = promptFor("study/N", lensSide, T, variant);
+  writeFileSync(join(lensDir, "prompt.txt"), lensText);
+  for (const r of assign.lens) writeFileSync(join(ROOT, r.prompt), lensText);
+
+  writeFileSync(join(lensDir, "PACKET.md"), `# Packet — study/N, THE LENS ARM (4 rolls)
+
+**This packet is the same wall at a DIFFERENT CAMERA, and that is the whole point.**
+Every other row-23 packet showed a scaffold drawn at the camera the approved painting was
+made at — an **819.6 px** lens, 188 px per metre. This one is drawn at the camera the
+project's own law rules: a **1024 px** lens, **235 px per metre**. The two differ by 20 %,
+and which of them the manor finishes painting at is an open question with a human's name on
+it. These four frames are the numbers that question gets answered with.
+
+So: reproduce **Image 2's** camera, not the camera of anything you have painted before.
+
+## Attach, in this order
+
+1. \`style-seed-warm.png\` — **Image 1**, the style reference.
+2. \`study-N-scaffold-derived.png\` — **Image 2**, the layout scaffold at the ruled lens.
+
+Then send \`prompt.txt\` verbatim.
+
+## The rolls
+
+| roll | save the image to |
+|---|---|
+${assign.lens.map((r) => `| ${r.roll} | \`${r.candidate}\` |`).join("\n")}
+
+The prompt files are already on disk beside them. Do not rewrite them.
+
+## Which technique this is, and why
+
+The technique was **not chosen** — it was picked by the rule written down before any
+candidate returned (\`design/specs/23-plan.md\` §5.6: highest admitted count, then highest
+median adherence, then technique index). On \`study/N\` the admitted counts were
+${pick.ranked.map(([t, k]) => `${t} ${k}`).join(", ")} of 4, so **${pick.winner}** carries the lens
+arm${variant ? `, and its first declared variant (${variant}) carries it` : ""}.
+
+## The fence
+
+Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`. Generate, save, report the paths.
+`);
+
+  /* ================= P6 — technique (4) ================= */
+  const c = await emitContentScaffold(outDir);
+  const t4 = { id: "t4", image2: "content-scaffold", labelled: true, variants: [null],
+    what: "content scaffold - inherited side-wall and material pixels" };
+  const t4Rolls = [];
+  for (let i = 1; i <= 4; i++) {
+    const id = rollId("study/N", "t4", null, i);
+    t4Rolls.push({ id, wall: "study/N", technique: "t4", variant: null, roll: i,
+      camera: "page", scaffold: "content-scaffold",
+      candidate: `${sourceDirFor("study/N")}/row23-${id}.png`,
+      prompt: `${sourceDirFor("study/N")}/row23-${id}.prompt.txt` });
+  }
+  const t4Text = promptFor("study/N", c.side, t4, null) +
+    "Inherited content: Image 2's LEFT side-wall return, its floor and its ceiling are not " +
+    "diagram - they are real painted pixels from the adjoining west wall of this same room. " +
+    "Continue them exactly: the same oak, the same boards, the same plaster, the same light, " +
+    "carried across the corner without a seam. The RIGHT return is still diagram, because the " +
+    "wall beyond it has not been painted yet; paint it to match the left.\n";
+  writeFileSync(join(c.dir, "prompt.txt"), t4Text);
+  for (const r of t4Rolls) writeFileSync(join(ROOT, r.prompt), t4Text);
+
+  writeFileSync(join(c.dir, "PACKET.md"), `# Packet — study/N, technique t4 (content scaffold)
+
+**Image 2 is half diagram and half painting, and the difference is the technique.** Its left
+side-wall return, its floor and its ceiling are real pixels lifted from the adjoining west
+wall of this same room — the seam is meant to agree because it *is* the neighbour, not
+because a sentence asked it to. The facing wall and the right return are still diagram.
+
+## Attach, in this order
+
+1. \`style-seed-warm.png\` — **Image 1**, the style reference.
+2. \`study-N-content-scaffold.png\` — **Image 2**.
+
+Then send \`prompt.txt\` verbatim.
+
+## The rolls
+
+| roll | save the image to |
+|---|---|
+${t4Rolls.map((r) => `| ${r.roll} | \`${r.candidate}\` |`).join("\n")}
+
+## What is inherited and what is not — stated, not implied
+
+- **Left return, floor, ceiling** — \`backdrops/study/W.png\`, promoted, painted at the
+  standing camera. Real pixels.
+- **Right return** — still grid. Its neighbour \`study/E\` is admitted but **not promoted**,
+  so there are no approved pixels to inherit. This packet is therefore **half** of what
+  blueprint §11b describes, and it says so rather than presenting itself as the whole
+  technique.
+- **The projection is column-sliced, not a full homography.** The return's ceiling and floor
+  lines are the rays from the horizon through the corner, which is what they geometrically
+  are, and the neighbour's wall field is sampled across them column by column. It is an
+  approximation. You are told, so you can paint through it rather than reproduce it.
+- **The floor and ceiling swatches are the WEST wall's**, not this wall's own reference — a
+  room's materials, not the answer to the question this frame is asking.
+
+## The fence
+
+Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`. Generate, save, report the paths.
+`);
+
+  /* ---- the assignment EXTENSION, a second file because the first may not change ---- */
+  const ext = join(ROOT, "design", "plan-draft", "measured", "row23", "assignment-2.json");
+  writeFileSync(ext, JSON.stringify({
+    _what_this_is: "The technique-(4) rolls' id map. A SECOND file rather than an edit: assignment.json was committed before any candidate existed and scaffold.spec asserts its blob has never changed since, so an extension that appended to it would break the one discipline that makes the map trustworthy.",
+    _trigger: "Dispatched on the NULL trigger in design/specs/23-plan.md §4.5 - the separation report found no separation at all on either wall (carrier lean spread 0, p = 1.000 both walls).",
+    _half_inheritance: "study/N's left return, floor and ceiling inherit study/W's promoted pixels; the right return stays grid because study/E is admitted and not promoted. Stated on the scaffold's own legend and in the packet.",
+    _lens_arm_is_in_the_first_file: "P4's four ids were reserved in assignment.json when it was written; only their technique was undecided, and §5.6's rule has now picked it.",
+    lens_technique_decided: { rule: "design/specs/23-plan.md §5.6", winner: pick.winner,
+      variant, admitted_counts: pick.ranked,
+      _note: "the rule names a technique; the variant is its first declared one, which is the only deterministic extension" },
+    _generated: "2026-08-23",
+    rolls: t4Rolls
+  }, null, 2) + "\n");
+
+  console.log(`P4 lens arm   ${lensDir.slice(ROOT.length + 1)}   technique ${pick.winner}${variant ? "/" + variant : ""} by rule (admitted ${pick.ranked.map(([t, k]) => t + " " + k).join(", ")})`);
+  for (const r of assign.lens) console.log(`   roll ${r.roll}  ${r.id}  -> ${r.candidate}`);
+  console.log(`P6 technique4 ${c.dir.slice(ROOT.length + 1)}`);
+  for (const r of t4Rolls) console.log(`   roll ${r.roll}  ${r.id}  -> ${r.candidate}`);
+  console.log(`extension     ${ext.slice(ROOT.length + 1)}`);
 }
 
 /* THE ENTRY POINT LIVES AT THE END OF THE FILE, and has to: `main` reads the

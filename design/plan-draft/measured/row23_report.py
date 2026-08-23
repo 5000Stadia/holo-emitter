@@ -45,12 +45,93 @@ def load():
         cell[r["id"]] = r
     for r in a["lens"]:
         cell[r["id"]] = dict(r, technique="lens")
+    # THE EXTENSION IS A SECOND FILE, and it is read here for the same reason it
+    # is a second file: assignment.json was committed before any candidate
+    # existed and may never change, so technique (4)'s ids arrived beside it
+    # rather than inside it.
+    ext = os.path.join(READINGS, "assignment-2.json")
+    if os.path.exists(ext):
+        for r in json.load(open(ext)).get("rolls", []):
+            cell[r["id"]] = r
     read = {}
     for f in sorted(os.listdir(READINGS)):
-        if f.endswith(".json") and f != "assignment.json":
+        if f.endswith(".json") and not f.startswith("assignment"):
             d = json.load(open(os.path.join(READINGS, f)))
             read[d["id"]] = d
     return cell, read
+
+
+
+def write_clock(rows):
+    """Production law clause 4's acceptance metric, as a ledger record.
+
+    THE CLOCK IS WRITTEN HERE AND NOT BY `measure.py`, and that is the blinding
+    working rather than an inconvenience: a first-roll pass rate is per
+    TECHNIQUE, so computing it needs the map — and the map is deliberately not
+    in the room where frames are measured. The measurement writes readings; this
+    file, which owns the join, writes the clock.
+
+    AND IT SAYS OUT LOUD THAT IT IS NOT LIKE-FOR-LIKE. The wave's 0-of-7,
+    0-of-7, 2-of-7 are SEVEN DIFFERENT WALLS at one roll each; row 23's rates
+    are four rolls of one wall, twice over. A number set beside another number
+    reads as comparable whatever the prose around it says, so the record carries
+    the reason it is not.
+    """
+    path = os.path.join(HERE, "misses.jsonl")
+    if not os.path.exists(path):
+        return None
+    first = defaultdict(dict)
+    for r in rows:
+        if r["tech"] in (None, "lens"):
+            continue
+        first[(r["wall"], r["tech"])][r.get("roll") or 0] = r["verdict"]
+    per = {}
+    for (wall, tech), byroll in sorted(first.items()):
+        adm = sum(1 for v in byroll.values() if v == "PASS")
+        per["%s %s" % (wall, tech)] = "%d of %d admitted" % (adm, len(byroll))
+    rec = {
+        "_record": "clock", "round": "row23",
+        "_law": "design/production-law.md clause 4 - the acceptance metric is the "
+                "FIRST-ROLL PASS RATE RISING OVER TIME - and clause 5, an improvement "
+                "must clock as one.",
+        "per_cell": per,
+        "camera_admitted_overall": "%d of %d"
+                                   % (sum(1 for r in rows if r["verdict"] == "PASS"), len(rows)),
+        "carrier_arm_indexed": "%d of %d - the edge-pair detector refuses wherever two "
+                               "admissible pairs disagree about the answer, and on a panelled "
+                               "wall they always do"
+                               % (sum(1 for r in rows if r["adh"] is not None), len(rows)),
+        "_not_comparable_because":
+            "the standing-eye wave's 0 of 7, 0 of 7 and 2 of 7 are SEVEN DIFFERENT WALLS at "
+            "one roll each, measured against one camera. These are four rolls of each of TWO "
+            "walls, measured against two different kinds of ground truth (study/N's is "
+            "Kabe-ruled, study/E's is an admitted candidate). The rates are not on the same "
+            "axis and must not be read as a trend.",
+        "_what_it_clocked":
+            "NOTHING, on the row's own question. The separation report finds no separation at "
+            "all between the three techniques on either wall - carrier lean spread 0, "
+            "p = 1.000 - so the scaffold's labels moved nothing that this instrument can see. "
+            "Production law clause 5: a change that moves neither accuracy nor speed is "
+            "apparatus, and apparatus must argue for its life.",
+        "_generated": "2026-08-23",
+    }
+    kept = []
+    for line in open(path):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            prev = json.loads(line)
+        except ValueError:
+            continue
+        if prev.get("_record") == "clock" and prev.get("round") == "row23":
+            continue                     # a clock is rewritten by its own round
+        kept.append(prev)
+    kept.append(rec)
+    with open(path, "w") as fh:
+        for k in kept:
+            fh.write(json.dumps(k) + "\n")
+    return rec
 
 
 def main():
@@ -84,7 +165,7 @@ def main():
         car = d.get("carriers") or [{}]
         h = (car[0] or {}).get("hypothesis") or {}
         rows.append(dict(wall=c.get("wall"), tech=c.get("technique"),
-                         variant=c.get("variant"), id=rid,
+                         variant=c.get("variant"), id=rid, roll=c.get("roll"),
                          verdict=d.get("verdict"),
                          lean=h.get("leans"), margin=h.get("log_margin"),
                          adh=sc.get("adherence_raw") if sc.get("indexed") else None,
@@ -144,6 +225,12 @@ def main():
     print("  labels: every cell asked for the same camera. The carrier lean is the")
     print("  one the labels move, and study/E is the wall where the ask and the")
     print("  reflex are opposite acts rather than nearly the same one.")
+    c = write_clock(rows)
+    if c:
+        print("\nCLOCK written to misses.jsonl: %s | %s"
+              % (c["camera_admitted_overall"] + " admitted on the camera",
+                 c["carrier_arm_indexed"].split(" - ")[0] + " indexed on the carrier"))
+
     print("\nNO CROWN IS DECLARED HERE. See design/specs/23-plan.md §5.5: the")
     print("recommended recipe is a labelled judgment on this table plus Kabe's look.")
     return 0

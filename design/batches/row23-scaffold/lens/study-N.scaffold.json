@@ -1,0 +1,156 @@
+{
+  "_what_this_is": "The scaffold for study/N: the shipped renderer's own grid frame for this facing with the plan's carriers stamped into it, and every number the stamping used.",
+  "facing": "study/N",
+  "camera": "derived",
+  "meta_source": "derived:tools/plan-projection.mjs deriveMeta (INJECTED - the page never holds a derived meta for a promoted facing)",
+  "meta_used": {
+    "floor_line_y": 0.7857235542385058,
+    "px_per_m_at_wall": 235.40229885057474,
+    "px_per_m_at_bottom": 420.8791208791208,
+    "wall_width_m": 5.45,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 235.40229885057474,
+    "facing_type": "enclosed",
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 5.45,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 126.52873563218384,
+    "corner_x1_px": 1409.4712643678163,
+    "focal_px": 1024,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 4.35,
+    "openings": [],
+    "stairs": []
+  },
+  "reading": null,
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "1ffe66a4c02c916db1d7cea876b9d93346364a15a4d5344b5bc90a79fa4783b2",
+  "groundplane_sha256": "7e5217511b751eb0a20582e2982de9905797b984c2085dca6794896114d60957",
+  "git_commit": "39c20cbcbd068c3980143729f11484a59d15b76e",
+  "horizontal_spaces": {
+    "_which_is_stamped": "ruler - wallCentrePx + (m - wall_width_m/2) x px_per_m_at_wall, which is what drawGrid draws its own metre lines in",
+    "ruler_span_px": 1282.94,
+    "aperture_span_px": 1282.94,
+    "divergence_pct": 0,
+    "_why": "a measured meta's corner span is the PAINTING's wall; the ruled width is the plan's. Where they differ, a door's click target and its scored width are different rectangles - row 27's ruling.",
+    "anchor": "wall centre (groundplane.wallCentrePx). A corner-anchored stamp would move every carrier and is not what the renderer draws."
+  },
+  "stamped": [
+    {
+      "kind": "fireplace",
+      "id": null,
+      "from_m": 1.65,
+      "to_m": 3.85,
+      "x0": 514.94,
+      "x1": 1032.83,
+      "y0": 427.94,
+      "y1": 804.58,
+      "label": "FIREPLACE",
+      "sub": "BREAST 2.20 M · FIREBOX 0.90 M",
+      "ruled": [
+        "breast width"
+      ],
+      "convention": [
+        "height above floor"
+      ],
+      "ticks": [
+        667.95,
+        879.82
+      ],
+      "label_rect": {
+        "x": 605.37,
+        "y": 441.94,
+        "w": 337.04,
+        "h": 44
+      },
+      "note_rect": {
+        "x": 486.35,
+        "y": 386.14,
+        "w": 575.08,
+        "h": 22
+      }
+    }
+  ],
+  "apertures_recorded_not_stamped": [],
+  "chair_rail": {
+    "y": 580.95,
+    "x0": 126.52873563218384,
+    "x1": 1409.4712643678163,
+    "ruled_m": 0.95
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 804.58091954023,
+      "half_width": 22.28,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 580.948735632184,
+      "half_width": 17.89,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 145.45448275862077,
+      "half_width": 52.73,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "x0": 190.87,
+        "x1": 1356.9,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 324.07,
+    "rail_columns": [
+      [
+        126.52873563218384,
+        514
+      ],
+      [
+        1033,
+        1409.4712643678163
+      ]
+    ]
+  },
+  "carrier_reflex_baseline_px": 324.07,
+  "legend_box": {
+    "x": 24,
+    "y": 848,
+    "w": 917.7,
+    "h": 152,
+    "text_h": 15,
+    "line_h": 26,
+    "lines": [
+      "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
+      "RULED - CHAIR-RAIL 0.95 M · CARRIER WIDTHS · DOOR HEAD 2.00 M",
+      "CONVENTION - CARRIER HEIGHTS ABOVE FLOOR · WINDOW SILL AND HEAD",
+      "SCALE - ONE METRE OF WALL SPANS 235 PIXELS AT THE WALL PLANE",
+      "CAMERA - DERIVED FROM THE PLAN - INJECTED"
+    ]
+  },
+  "glyph_set": "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/-·%×",
+  "outputs": {
+    "frame": "design/batches/row23-scaffold/lens/study-N-frame.png",
+    "scaffold": "design/batches/row23-scaffold/lens/study-N-scaffold.png",
+    "frame_sha256": "739bc4fd68789372f3ceab62fbde0d698870a41be36c83b6152bc88f90a7c2e2",
+    "scaffold_sha256": "e121a5e6715220a5afe060690b80e89413e4bbdd855e80e97363bb818b10937e"
+  }
+}
