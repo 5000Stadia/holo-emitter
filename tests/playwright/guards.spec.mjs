@@ -288,6 +288,13 @@ export const MECHANISMS = [
   "prompt.contradictory_scale",
   "prompt.unmeasurable_by_design",
   "prompt.anchor_datum_forbidden",
+  /* Row 29's voice clauses, minted from the Captain's first walk of the painted
+     manor. Each one is one of his findings turned into a refusal that happens
+     before an image exists, which is what `design/production-law.md` clause 6
+     asks of a fix: the next map gets it for free. */
+  "prompt.interior_fabric_outdoors",
+  "prompt.voice_incoherent",
+  "prompt.heraldry_unrationed",
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
@@ -2481,6 +2488,68 @@ test.describe("the clause ledger — prompt-lint mechanisms", () => {
       "Geometry: No floor, no ceiling, and no corners appear."
     ]), "a height above a floor the frame forbids is not a length in that frame")
       .toEqual(["prompt.anchor_datum_forbidden"]);
+  });
+
+  /* ---- row 29: the Captain's walk, as three refusals ---- */
+
+  ledgerCase("prompt.interior_fabric_outdoors", () => {
+    /* [HUMAN, 2026-08-24, verbatim] "exterior garden has interior wall
+       outside". privy_garden/N was promoted with oak panelling and a
+       chair-rail in an open garden, and demoted the same day. */
+    expect(lintTokens([
+      "Use case: historical-scene, exterior",
+      "Asset type: gameplay backdrop for the north side of the privy garden",
+      "Gate anchor: the stone string-course above the ground, 0.95 m.",
+      "Materials: dark oak wall panelling with a chair-rail."
+    ]), "an outdoor facing asked for interior fabric")
+      .toEqual(["prompt.interior_fabric_outdoors"]);
+    expect(lintTokens([
+      "Use case: historical-scene, exterior",
+      "Asset type: gameplay backdrop for the north side of the privy garden",
+      "Gate anchor: the stone string-course above the ground, 0.95 m.",
+      "Materials: weathered red brick in English bond on a coursed stone plinth."
+    ]), "and the same facing asked for garden fabric is not refused")
+      .toEqual([]);
+  });
+
+  ledgerCase("prompt.voice_incoherent", () => {
+    /* [HUMAN, same walk] "is every room in this house parlor walls?" A prompt
+       whose declared anchor is not the chair-rail is a room with no wainscot
+       in it, and naming panelling there is the study's paragraph leaking. */
+    expect(lintTokens([
+      "Use case: historical-scene, interior",
+      "Asset type: gameplay backdrop for the north wall of the kitchen",
+      "Gate anchor: the plain oak hanging rail above the floor, 0.95 m.",
+      "Materials: dark hand-finished oak wall panelling."
+    ]), "a kitchen asked for the study's panelling")
+      .toEqual(["prompt.voice_incoherent"]);
+    expect(lintTokens([
+      "Use case: historical-scene, interior",
+      "Asset type: gameplay backdrop for the north wall of the study",
+      "Gate anchor: the wainscot chair-rail above the floor, 0.95 m.",
+      "Materials: dark hand-finished oak wall panelling."
+    ]), "and a panelled room that declares the chair-rail is not refused")
+      .toEqual([]);
+  });
+
+  ledgerCase("prompt.heraldry_unrationed", () => {
+    /* [HUMAN, same walk] "this same window everywhere? With the ensignias on
+       it?" Painted arms are the great hall's, and at most one shield in the
+       principal parlour. */
+    expect(lintTokens([
+      "Use case: historical-scene, interior",
+      "Asset type: gameplay backdrop for the north wall of the kitchen",
+      "Gate anchor: the plain oak hanging rail above the floor, 0.95 m.",
+      "Armorial glass: set the family arms in the window head."
+    ]), "a scullery asked for painted arms")
+      .toEqual(["prompt.heraldry_unrationed"]);
+    expect(lintTokens([
+      "Use case: historical-scene, interior",
+      "Asset type: gameplay backdrop for the south wall of the great hall",
+      "Gate anchor: the wainscot chair-rail above the floor, 0.95 m.",
+      "Armorial glass: set the family arms in the window head."
+    ]), "and the one room entitled to them is not refused")
+      .toEqual([]);
   });
 });
 

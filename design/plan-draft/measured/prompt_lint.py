@@ -105,10 +105,15 @@ FORBIDS_ALL_FEATURES = re.compile(
 ANCHOR_LINE = re.compile(r"^gate anchor:\s*(.+)$", re.I | re.M)
 ANCHOR_SIZE = re.compile(r"([0-9]*\.?[0-9]+)\s*(?:m\b|metres?\b|meters?\b)", re.I)
 # A height above a datum the frame does not show is not a length in that frame.
+# GROUND COUNTS AS A DATUM TOO (row 29). An outdoor facing has no floor; its
+# anchor is a masonry course measured above the GROUND, and the same reasoning
+# applies word for word -- so both the datum and its prohibition are read in
+# either vocabulary rather than the outdoor half slipping past unchecked.
 FORBIDS_FLOOR = re.compile(
     r"no\s+floor\b|no\s+floor\s+line|no\s+visible\s+floor|"
-    r"floor\s+is\s+not\s+visible|without\s+a\s+floor\s+line", re.I)
-ANCHOR_ON_FLOOR = re.compile(r"above\s+(?:the\s+)?floor", re.I)
+    r"floor\s+is\s+not\s+visible|without\s+a\s+floor\s+line|"
+    r"no\s+ground\s+line|no\s+visible\s+ground|ground\s+is\s+not\s+visible", re.I)
+ANCHOR_ON_FLOOR = re.compile(r"above\s+(?:the\s+)?(?:floor|ground)", re.I)
 
 # THE RULERS THE GATE ACTUALLY HAS, and their ruled sizes in metres. A `Gate
 # anchor:` line that names something else, or names one of these at the wrong
@@ -123,9 +128,62 @@ RULERS = [
     (re.compile(r"\bbay\b|mullion", re.I), 0.90, "a window bay between its outer mullion centres"),
     (re.compile(r"chair[- ]?rail|wainscot|dado", re.I), 0.95,
      "the wainscot chair-rail above the floor (blueprint §11's universal anchor)"),
+    # ROW 29's VOICED ANCHORS. [HUMAN, 2026-08-24] "is every room in this house
+    # parlor walls?" -- a c.1660 kitchen, buttery or servants' hall has no
+    # wainscot and no chair-rail, and a garden wall has neither. But
+    # `row23_lib.py` measures ONE horizontal, at `rail_above / 0.95`, and that
+    # divisor is the instrument's. So the voices do not move the ruled height:
+    # they rename the FEATURE at it, and these are the names
+    # `tools/room-voices.mjs` may use. Every one is a real continuous horizontal
+    # that kind of room really carried, and every one is 0.95 m, because a
+    # prompt naming a ruler the gate is not measuring is the same defect as a
+    # prompt naming none.
+    (re.compile(r"hanging rail|peg[- ]?rail|utensil rail", re.I), 0.95,
+     "the plain oak hanging rail above the floor (a service room's one "
+     "continuous horizontal, at the chair-rail's ruled height)"),
+    (re.compile(r"string[- ]?course|plinth course", re.I), 0.95,
+     "the stone string-course above the ground (a garden or court wall's "
+     "plinth capping, at the chair-rail's ruled height)"),
+    (re.compile(r"\bcoping\b", re.I), 0.95,
+     "the boundary wall coping above the ground (what closes an open facing, "
+     "at the chair-rail's ruled height)"),
     (re.compile(r"end wall|corridor width|passage width", re.I), 2.60,
      "the cross passage's end wall"),
 ]
+
+# ---------------------------------------------------------------- row 29
+# THE VOICE CLAUSES. `design/production-law.md` clause 6: a correction lands in
+# the emitter, a gate or the instrument, never in a per-run paragraph. Kabe's
+# two walk findings are gates here, so a future map cannot repeat them however
+# its prompts are written.
+#
+#   (4) AN EXTERIOR PROMPT THAT ASKS FOR INTERIOR FABRIC. [HUMAN, 2026-08-24,
+#       verbatim] "exterior garden has interior wall outside". `privy_garden/N`
+#       was promoted with oak panelling and a chair-rail in an open garden and
+#       was vetoed and demoted the same day. Every prompt now declares its side
+#       of the door on its `Use case:` line, and an exterior one may not name
+#       interior fabric at all -- not even to forbid it, because a prompt that
+#       says "no panelling" has still put the word in front of the generator.
+#
+#   (5) A NON-PANELLED ROOM THAT ASKS FOR PANELLING. [HUMAN, same walk] "is
+#       every room in this house parlor walls?" A prompt whose declared anchor
+#       is NOT the wainscot chair-rail is a room with no wainscot in it, and
+#       naming panelling there is the study's paragraph leaking into the
+#       scullery again.
+#
+#   (6) HERALDRY OUT OF ITS RATION. [HUMAN, same walk] "this same window
+#       everywhere? With the ensignias on it?" Armorial glass in 1660 is the
+#       great hall's, and at most one shield in the principal parlour. A prompt
+#       that asks for it anywhere else is refused.
+INTERIOR_FABRIC = re.compile(
+    r"panell?ing|panell?ed|wainscot\w*|chair[- ]?rail|\bdado\b|"
+    r"floorboards?|plaster ceiling|ceiling joists?|\bskirting\b|"
+    r"\bhearth\b|\bfireplace\b", re.I)
+PANELLING = re.compile(r"panell?ing|panell?ed|wainscot\w*|chair[- ]?rail", re.I)
+EXTERIOR_USE = re.compile(r"^use case:[^\n]*\bexterior\b", re.I | re.M)
+ARMORIAL_LINE = re.compile(r"^armorial glass:[^\n]*$", re.I | re.M)
+ASSET_TYPE = re.compile(r"^asset type:[^\n]*$", re.I | re.M)
+ENTITLED_TO_ARMS = re.compile(r"great hall|parlour|parlor", re.I)
 
 
 def anchor_problem(text, m):
@@ -191,6 +249,42 @@ def lint(path):
             "back WITHHELD a second time, at cand-3, under the very rule "
             "written to stop it [row21:prompt.anchor_datum_forbidden]"
             % FORBIDS_FLOOR.search(text).group(0))
+    # ---- row 29's voice clauses -------------------------------------------
+    if EXTERIOR_USE.search(text):
+        hit = INTERIOR_FABRIC.search(text)
+        if hit:
+            out.append(
+                "declares an EXTERIOR scene on its `Use case:` line and then "
+                "names interior fabric (%r). This is Kabe's veto as a clause: "
+                "'exterior garden has interior wall outside' -- privy_garden/N "
+                "was promoted with oak panelling and a chair-rail in an open "
+                "garden and demoted the same day. An outdoor facing's prompt "
+                "may not name interior fabric at all, not even to forbid it "
+                "[row29:prompt.interior_fabric_outdoors]" % hit.group(0))
+    elif not problem and m and not PANELLING.search(m.group(1)):
+        hit = PANELLING.search(text)
+        if hit:
+            out.append(
+                "declares `%s` -- an anchor that is not the wainscot chair-rail, "
+                "so this is a room with no wainscot in it -- and then names %r "
+                "anyway. That is the study's own material paragraph leaking into "
+                "a room that never had it: 'is every room in this house parlor "
+                "walls?' [row29:prompt.voice_incoherent]"
+                % (m.group(0).strip(), hit.group(0)))
+    arms = ARMORIAL_LINE.search(text)
+    if arms:
+        asset = ASSET_TYPE.search(text)
+        where = asset.group(0) if asset else ""
+        if not ENTITLED_TO_ARMS.search(where):
+            out.append(
+                "asks for armorial glass (%r) on a wall whose `%s` names neither "
+                "the great hall nor a parlour. Painted arms in a c.1660 house are "
+                "the hall's display of lineage and at most one shield in the "
+                "principal parlour; everywhere else the glass is plain quarrels. "
+                "Unrationed, it is also the repetition Kabe saw: 'this same "
+                "window everywhere? With the ensignias on it?' "
+                "[row29:prompt.heraldry_unrationed]"
+                % (arms.group(0)[:60], where.strip() or "Asset type:"))
     return out, (m.group(0) if m else None)
 
 
