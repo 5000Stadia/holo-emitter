@@ -258,23 +258,112 @@ meta.storey_height_m = (room.type === "open" || !fl) ? null : (fl.storey_height_
  * field that has no business carrying it. */
 meta.nearest_floor_m = round(nearestFloorM(meta), 4);
 
-/* THE DOORWAY, measured where the painting has one. `measure.py` reads the
- * painted opening's wall-plane rectangle off the pixels for the two facings
- * that carry a door; where it has, that rectangle is the opening — which is
- * what makes §11's "the painted opening must coincide with the click target"
- * true by construction. What the painting cannot say is what stands beyond it,
- * so the two `beyond_*` metres come from the plan, matched by the entity that
- * fills the opening. */
+/* THE DOORWAY, WHERE THE PAINTING PUT IT — row 27, and the reason this row
+ * became urgent on the day the Captain first walked the painted manor: "library
+ * door doesnt match up", "Multiple doors dont match up".
+ *
+ * Until this row the rectangle came off the PLAN projected through this meta,
+ * and row 23 had already proved the painter ignores a position label: the door
+ * arrives near the wall's middle wherever the drawing rules it. So on every
+ * door-bearing promoted wall the painted door and the clickable hole stood
+ * apart — and blueprint §11's law, "the painted opening must coincide with the
+ * click target", was false on the shipped corpus. It is not only the click: the
+ * renderer composites the destination room INTO this rectangle over a painted
+ * backdrop (`drawThroughOpening`), so a rectangle beside the painted door pastes
+ * the far room onto solid paint.
+ *
+ * WHAT GOVERNS. Blueprint §5 makes the approved image the geometric authority
+ * and row 22 is the precedent — the plan amends to the painting. So on a
+ * promoted wall the PAINTED door governs its own rectangle, and
+ * `design/plan-draft/measured/door_measure.py` is the instrument that reads it:
+ * the void's own stable edges, the lintel, and the wall's measured floor line.
+ * Every candidate it can see arrives here; NOTHING about the plan reaches the
+ * detector, so a wall whose painting disobeys reads as disobedient rather than
+ * as obedient.
+ *
+ * WHAT DOES NOT MOVE. The world's exits: `library -> great_hall` is still
+ * `library -> great_hall`, `id`, `via`, `kind` and the two `beyond_*` metres
+ * are the plan's exactly as before. Only WHERE the hole is on the picture is
+ * the painting's.
+ *
+ * WHICH SPACE THE COMPARISON IS MADE IN. A measured meta holds two horizontal
+ * scales that diverge by up to 33 % across this corpus — the corner span a
+ * click target lives in (§11) and `px_per_m_at_wall`, the ruler the camera gate
+ * measures with. The width below is judged in the FIRST, because that is the
+ * space the rectangle it is judging lives in; the second is printed beside it
+ * so the divergence stays visible. */
 const planned = openingsForFacing(plan, loc, facing, meta);
+const plannedDoors = planned.filter((p) => p.kind === "door");
+const painted = m._measured_px && Array.isArray(m._measured_px.openings)
+  ? m._measured_px.openings : null;
+const refusals = [];
+/* Assigned by id, so the loop that writes the openings and the loop that writes
+ * the carrier record read one answer rather than each computing its own. */
+const assigned = new Map();
+if (plannedDoors.length && painted === null) {
+  console.error(`promote refused: ${measuredFile} carries no door reading, and the plan puts ${plannedDoors.length} way(s) through this facing. Run design/plan-draft/measured/door_measure.py --facing ${facingArg}${roundDir ? ` --round ${roundDir}` : ""} first — a promoted door's rectangle is measured off the painting, never projected onto it.`);
+  process.exit(1);
+}
+if (plannedDoors.length) {
+  /* THE ASSIGNMENT IS ORDER-PRESERVING BY CONSTRUCTION. Which painted hole is
+   * which doorway is not a free choice: doorways keep their order along a wall
+   * however far the painter slides them, so the assignment is the increasing
+   * run of candidates that costs the least total displacement, found by
+   * dynamic programming rather than by a nearest-neighbour walk that can cross
+   * two doors over each other on a wall that carries two. */
+  const doorsByX = [...plannedDoors].sort((a, b) => (a.x + a.w / 2) - (b.x + b.w / 2));
+  const cands = [...painted].sort((a, b) => a.centre_px - b.centre_px);
+  const n = doorsByX.length, k = cands.length;
+  const INF = Infinity;
+  const cost = Array.from({ length: n + 1 }, () => new Array(k + 1).fill(INF));
+  const back = Array.from({ length: n + 1 }, () => new Array(k + 1).fill(-1));
+  for (let j = 0; j <= k; j++) cost[0][j] = 0;
+  for (let i = 1; i <= n; i++) {
+    for (let j = i; j <= k; j++) {
+      const c = cost[i - 1][j - 1] +
+        Math.abs(cands[j - 1].centre_px - (doorsByX[i - 1].x + doorsByX[i - 1].w / 2));
+      const skip = cost[i][j - 1];
+      if (c <= skip) { cost[i][j] = c; back[i][j] = j - 1; }
+      else { cost[i][j] = skip; back[i][j] = back[i][j - 1]; }
+    }
+  }
+  if (cost[n][k] === INF) {
+    refusals.push(`${facingArg}: the plan rules ${n} way(s) through this wall and the painting shows ${k} — a doorway the world walks through with no hole in the picture is not promotable, because a player would click on paint [row27:door.unmeasured_exit]`);
+  } else {
+    let j = k;
+    for (let i = n; i >= 1; i--) {
+      const pick = back[i][j];
+      assigned.set(doorsByX[i - 1].id, cands[pick]);
+      j = pick;
+    }
+  }
+}
+/* THE PAINTED HOLE MUST PLAUSIBLY BE A DOORWAY. Blueprint §11 rules every
+ * opening in this building at 1.00 m wide; the ruled rectangle at the corner
+ * span's own scale is what that is in pixels on this wall. A reading is
+ * admitted between HALF and ONE AND A HALF of it, and the band is that wide on
+ * purpose and for a stated reason: what is measured is the VOID, whose edges
+ * are the reveal's on the inside and the architrave's on the outside, and §11
+ * rules neither — so this is a floor on doorway-ness ("is that a way a person
+ * walks through") and not a scale tolerance. Half a ruled leaf is 0.50 m, which
+ * nobody walks through; one and a half is 1.50 m, wider than any single-leaf
+ * opening the plan draws anywhere in the manor. The SCALE of the wall is
+ * already gated, at ±8 %, by the lens band above; asking this reading to carry
+ * a second scale verdict would score the architrave as a camera error. */
+const RULED_DOOR_M = 1.00;
+const DOORWAY_BAND = [0.50, 1.50];
+const apertureScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
+                       fc.wall_width_m > 0)
+  ? (meta.corner_x1_px - meta.corner_x0_px) / fc.wall_width_m : ppm;
+for (const [id, cand] of assigned) {
+  const ruledPx = RULED_DOOR_M * apertureScale;
+  const ratio = cand.width_px / ruledPx;
+  if (ratio < DOORWAY_BAND[0] || ratio > DOORWAY_BAND[1]) {
+    refusals.push(`${facingArg}: the way through the painting shows for "${id}" is ${cand.width_px} px — ${ratio.toFixed(2)}× the ${ruledPx.toFixed(1)} px blueprint §11's 1.00 m opening spans at this wall's corner scale (${apertureScale.toFixed(1)} px/m; its ruler reads ${ppm.toFixed(1)}), outside ${DOORWAY_BAND[0]}–${DOORWAY_BAND[1]}× — that is not a doorway, whatever else it is [row27:door.painted_width]`);
+  }
+}
 for (const p of planned) {
-  const measuredRect = (typeof m._measured_px?.opening_x0_px === "number" && planned.length === 1)
-    ? {
-        x: m._measured_px.opening_x0_px,
-        y: m._measured_px.opening_y0_px,
-        w: m._measured_px.opening_x1_px - m._measured_px.opening_x0_px,
-        h: m._measured_px.opening_y1_px - m._measured_px.opening_y0_px
-      }
-    : null;
+  const cand = assigned.get(p.id) || null;
   meta.openings.push({
     id: p.id,
     /* [Standing-eye wave] THE KIND COMES ACROSS TOO, and until this row nothing
@@ -288,14 +377,33 @@ for (const p of planned) {
      * it: what a way through IS is a fact about the building. */
     kind: p.kind,
     via: p.via,
-    x: round(measuredRect ? measuredRect.x : p.x, 2),
-    y: round(measuredRect ? measuredRect.y : p.y, 2),
-    w: round(measuredRect ? measuredRect.w : p.w, 2),
-    h: round(measuredRect ? measuredRect.h : p.h, 2),
+    x: round(cand ? cand.x0_px : p.x, 2),
+    y: round(cand ? cand.y0_px : p.y, 2),
+    w: round(cand ? cand.width_px : p.w, 2),
+    h: round(cand ? (cand.y1_px - cand.y0_px) : p.h, 2),
     beyond_m: p.beyond_m,
     beyond_offset_m: p.beyond_offset_m,
-    measured: !!measuredRect
+    measured: !!cand
   });
+}
+/* AND NO TWO WAYS THROUGH ARE THE SAME PIXELS. Two rectangles that overlap are
+ * one hole the page will hand to two exits, and the second one is unreachable:
+ * whichever `go` target is hit-tested first eats the click, and a player who
+ * can see two doors can walk through one. The check is over every opening this
+ * meta carries and not only the measured ones, because a measured hole sliding
+ * onto a projected threshold is the same defect from the other side. */
+for (let a = 0; a < meta.openings.length; a++) {
+  for (let b = a + 1; b < meta.openings.length; b++) {
+    const A = meta.openings[a], B = meta.openings[b];
+    const lo = Math.max(A.x, B.x), hi = Math.min(A.x + A.w, B.x + B.w);
+    if (hi > lo && Math.min(A.y + A.h, B.y + B.h) > Math.max(A.y, B.y)) {
+        refusals.push(`${facingArg}: openings "${A.id}" (${A.x}..${round(A.x + A.w, 1)}) and "${B.id}" (${B.x}..${round(B.x + B.w, 1)}) share ${round(hi - lo, 1)} px of this wall — one hole cannot be two ways through, and the second one is a control nobody can reach [row27:door.painted_overlap]`);
+    }
+  }
+}
+if (refusals.length) {
+  for (const r of refusals) console.error("promote refused: " + r);
+  process.exit(1);
 }
 
 /* [F1] WHERE THE PLAN PUTS THIS WALL'S CARRIERS, AND WHERE THE PAINTING PUT
@@ -328,9 +436,14 @@ for (const c of facingCarriers(plan, loc, facing)) {
   if (c.kind === "fireplace" && typeof mp.fireplace_opening_x0_px === "number") {
     entry.painted_px = [mp.fireplace_opening_x0_px, mp.fireplace_opening_x1_px];
     entry.painted_feature = "the fireplace OPENING (the plan holds the whole breast, which is wider)";
-  } else if (c.kind === "door" && typeof mp.opening_x0_px === "number") {
-    entry.painted_px = [mp.opening_x0_px, mp.opening_x1_px];
-    entry.painted_feature = "the painted door opening at the wall plane";
+  } else if (c.kind === "door" && assigned.has(c.id)) {
+    /* [Row 27] Off the SAME assignment the opening above was written from, so
+     * the record of the disagreement and the rectangle that resolves it cannot
+     * come apart. Before this row a door carrier could only be recorded on the
+     * two facings `measure.py` had a hand reading for. */
+    const a = assigned.get(c.id);
+    entry.painted_px = [a.x0_px, a.x1_px];
+    entry.painted_feature = "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)";
   }
   if (entry.painted_px) {
     entry.painted_centre_px = round((entry.painted_px[0] + entry.painted_px[1]) / 2, 1);

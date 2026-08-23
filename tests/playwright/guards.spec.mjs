@@ -30,10 +30,11 @@
  * watching it go red.
  */
 import { test, expect, repoRoot, stageTree, removeTree, bake, appUrl, navUrl } from "./helpers.mjs";
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync,
+  mkdirSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
 import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
@@ -345,7 +346,16 @@ export const MECHANISMS = [
   "projection.refuses_nonfinite",
   "projection.refuses_at_the_eye",
   "staging.wall_mounted_over_storey",
-  "meta.opening_over_storey"
+  "meta.opening_over_storey",
+  /* [Row 27] The promotion's own three, and they are a validator's clauses in
+     everything but the file they live in: `tools/promote-backdrop.mjs` refuses
+     to put a wall into the world when the way through the PAINTING shows
+     cannot be squared with the way through the plan rules. They were minted the
+     day the Captain walked the painted manor and found the click target beside
+     the door. */
+  "door.painted_width",
+  "door.painted_overlap",
+  "door.unmeasured_exit"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -2684,5 +2694,102 @@ test.describe("row 19's bounds, from both sides", () => {
     expect(desk(0.01), "a centimetre in front of where the viewer stands").toEqual([]);
     expect(desk(-0.01), "and a centimetre over it")
       .toEqual(["plan.object_clear_of_standpoints"]);
+  });
+});
+
+/* ------------------------------------------------- the promotion's own three
+ *
+ * [Row 27] `tools/promote-backdrop.mjs` decides whether a painted wall goes
+ * into the world, so its refusals are clauses like any other and belong in
+ * this ledger. All three are about ONE thing: on a promoted wall the painted
+ * door governs its own rectangle (blueprint §11's click-coincidence, row 22's
+ * precedent), and a wall whose painted way through cannot be squared with the
+ * way through the plan rules is not promotable — it goes back to the holodeck
+ * grid, which is what unestablished space honestly renders as.
+ *
+ * Each case stages the tree, copies in ONE promoted wall's candidate and its
+ * measurement, spoils exactly one thing in the door reading and runs the real
+ * tool. Nothing here re-implements the guard.
+ */
+test.describe("the clause ledger — the promotion's painted-door mechanisms", () => {
+  /** Run the real promotion over a doctored door reading; return its tokens. */
+  function promoteTokens(key, doctor) {
+    const dir = stageTree();
+    try {
+      const [loc, fac] = key.split("/");
+      const meta = JSON.parse(readFileSync(
+        join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+      /* The candidate this meta names — `stageTree` leaves `backdrops/source/`
+         behind on purpose, so the one image this promotion reads comes over by
+         itself, exactly as `fixtures.spec`'s staleness case does it. */
+      const cand = String(meta.camera_id).replace(/^measured:/, "");
+      mkdirSync(dirname(join(dir, cand)), { recursive: true });
+      cpSync(join(repoRoot, cand), join(dir, cand));
+      const docRel = join("design", "plan-draft", "measured",
+        meta.measured_round || "", `${loc}-${fac}.json`);
+      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+      const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
+      doctor(doc);
+      writeFileSync(join(dir, docRel), JSON.stringify(doc, null, 2) + "\n");
+      let out = "";
+      try {
+        execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+          "--facing", key, "--candidate", cand,
+          ...(meta.measured_round ? ["--round", meta.measured_round] : []),
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+      return [...tokensOf([out])].sort();
+    } finally {
+      removeTree(dir);
+    }
+  }
+
+  test("the undoctored reading promotes clean", () => {
+    /* The discrimination every case below needs: the same wall, the same tool,
+       nothing spoiled, no clause. Without it a case could go green because the
+       promotion refuses this wall for some other reason entirely. */
+    expect(promoteTokens("library/E", () => {}),
+      "library/E's painted door is measured and its promotion is granted").toEqual([]);
+  });
+
+  ledgerCase("door.painted_width", () => {
+    /* Half of blueprint §11's ruled 1.00 m opening is 0.50 m, which is not a
+       way a person walks through. The reading keeps its place on the wall and
+       loses its size, so nothing else can fire: the rectangle stays where the
+       painting put it and stays clear of every other opening. */
+    expect(promoteTokens("library/E", (d) => {
+      const o = d._measured_px.openings[0];
+      o.width_px = 40;
+      o.x1_px = o.x0_px + 40;
+    }), "a 40 px hole in a wall whose ruled door spans 173 is not a doorway")
+      .toEqual(["door.painted_width"]);
+  });
+
+  ledgerCase("door.painted_overlap", () => {
+    /* `solar/E` is one of the two facings in the corpus that carries TWO ways
+       through, which is what this clause needs: one hole handed to two exits
+       leaves the second one unreachable, because whichever `go` target is
+       hit-tested first eats the click. Both readings keep a plausible doorway
+       width so the width clause stays silent. */
+    expect(promoteTokens("solar/E", (d) => {
+      const [a, b] = d._measured_px.openings;
+      const w = b.x1_px - b.x0_px;
+      b.x0_px = a.x0_px + 92;
+      b.x1_px = b.x0_px + w;
+      b.centre_px = b.x0_px + w / 2;
+    }), "two ways through cannot be the same pixels")
+      .toEqual(["door.painted_overlap"]);
+  });
+
+  ledgerCase("door.unmeasured_exit", () => {
+    /* A reading that found nothing is not a wall without doors: the plan rules
+       a way through here and the world walks it, so a promotion granted on this
+       reading would hand the player a click target over solid paint. The list is
+       EMPTIED rather than removed — a missing list is the tool's other refusal,
+       "this measurement never looked", which is a different sentence. */
+    expect(promoteTokens("library/E", (d) => { d._measured_px.openings = []; }),
+      "a doorway the world walks through with no hole in the picture")
+      .toEqual(["door.unmeasured_exit"]);
   });
 });
