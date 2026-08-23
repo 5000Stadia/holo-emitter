@@ -122,7 +122,8 @@ def manor_rows():
     return rows
 
 
-def main():
+def main(argv=()):
+    controls_only = "--controls" in argv
     print("ROW 32 HOLDOUT — the new corner rule, predicting blind\n")
     print("A. the study controls (committed corners, plaster ceilings)")
     print("   %-9s %11s %11s %11s   %s" %
@@ -141,6 +142,8 @@ def main():
               (r["key"], r["want"][0], r["want"][1], r["old"][0], r["old"][1],
                r["new"][0], r["new"][1], d0, d1))
     print("   worst control error: %d px\n" % worst)
+    if controls_only:
+        return 0
 
     print("B. the promoted manor walls (old instrument's corners; the column "
           "that matters is dHORIZON)")
@@ -181,4 +184,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
