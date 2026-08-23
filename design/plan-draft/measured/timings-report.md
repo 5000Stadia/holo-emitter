@@ -82,3 +82,12 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
 ## The question this is here to ask
 
 [HUMAN, 2026-08-24] "how can this be faster while maintaining quality" — and quality is the constraint, not the casualty: no gate is weakened for speed, and these clocks sit BESIDE the pass rates in `misses.jsonl` per production law clause 5. The numbers above answer the first half; the second half is the gates' own, and neither is allowed to move the other.
+
+## Row-30 audit trail — speed answers with numbers (standing, Kabe's tick question)
+
+- 2026-08-24 tick: `generate.roll` is 99.9% of wall-clock at p50 41.9 min BECAUSE the seat
+  paints serially through a 170-image order. Lever 1: parallel generation (second seat
+  instance or intra-seat parallel calls) divides p50 directly; no gate touched. Lever 2:
+  always-on sweeping (tmux watch loop) deletes the 37-min p50 pickup latency; in force
+  since 2026-08-24, the ledger will show it. No regression this tick; 58 holds await the
+  row-32 instrument, not sweep time.
