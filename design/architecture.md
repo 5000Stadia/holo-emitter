@@ -3369,6 +3369,77 @@ y 11.0–12.0 was labelled *Solar ↔ Long Gallery* in the drawing's source and 
 The names were never drawn, so the render is byte-identical either way. Found by the promoted
 validator on its first run; recorded in `projection.md` §9.
 
+## The scaffold generator (`tools/make-scaffold.mjs`) — row 23
+
+Blueprint §11b's "annotated spatial scaffold": a facing's exact grid frame with the plan's carriers
+stamped into it as labelled rects, so a generation request shows geometry instead of describing it.
+One tool, reused by the manor run on every unpainted facing.
+
+**The frame is not drawn here.** It is `src/renderer.js`'s own `render()`, invoked in a real page
+over the real baked world into a detached canvas. The tool contributes one thing to the picture: the
+label pass. `tests/playwright/scaffold.spec.mjs` checks the two halves separately, because they are
+two different claims.
+
+**Two renders, and they must not be confused.** `nav-manor` stages no objects, so no aperture
+carries a leaf and every doorway draws the room beyond it (`study/E` shows 8.6 m of passage). A
+scaffold shows a doorway and not the room through it, so it renders with `{ backdrop_only: true,
+no_through: true }` while the page renders with `{}`. The hash comparison against the live `#scene`
+therefore uses a THIRD render — `--verify`, at the page's own `{}` — and the difference between
+verify and scaffold is asserted to lie inside the aperture rects (from `HOLO_APP.apertureList`,
+dilated 1 px for antialiasing at fractional clip edges).
+
+**Metas, and which are injected.** `--camera page` takes the meta the page holds: measured on a
+promoted facing, derived on an unpainted one, and this is the only column the hash test can verify.
+`--camera derived` and `--camera reading` compute a meta in node and inject it, which the page would
+never hold for a promoted facing — `deriveMeta` is node-only and never reaches the browser. The
+injection is proved faithful on `study/E`, whose page meta IS the derived meta, so the injected and
+native paths must produce identical buffers. `metaFromReading` re-implements
+`promote-backdrop.mjs`'s recipe (pixels off the painting, metres off the plan) and is pinned to it
+by a test: fed the `cand5ref` reading it must reproduce the committed `backdrops/study/N.meta.json`
+field for field. The tool never writes a promoted meta and cannot promote anything.
+
+**One horizontal space for every metric mark, and the renderer is its authority.** `drawGrid` draws
+its own metre lines at `wallCentrePx + m × px_per_m_at_wall`, so a carrier stamped that way lands on
+the grid lines of its own scaffold. The other mapping — `groundplane.xAtScale`, spanning `u` across
+the measured CORNER span — is where a promoted wall's click target lives. On a measured meta whose
+painting is wider than the plan rules they differ: 13.25 % on `study/N`, 18.34 % on `study/E`,
+26.0 % on `study/W`. **Doors are stamped in ruler space like everything else**, because a scaffold is
+a request whose obedience the gate scores and an instruction the gate punishes for being obeyed is
+not an instruction; the aperture rect is recorded beside it. Which rectangle a PROMOTED door answers
+to is row 27. The anchor is the wall CENTRE, not a corner — a corner-anchored stamp moves `study/N`'s
+hearth 68 px, 21 % of that wall's carrier tolerance.
+
+**Labels are stroked polylines, never `fillText`.** `renderer.js`'s GLYPHS table exists because font
+rasterisation is environment-fragile, and a `fillText` scaffold could not be re-rendered anywhere but
+the machine that made it. `make-scaffold` extends that idiom with a full A–Z/0–9/punctuation table
+and `assertLabelChars` refuses a label carrying anything outside it — which fired twice during the
+build, on an apostrophe and on a comma, rather than letting either fall back to a font.
+
+**Every rect is declared before the page opens.** Carrier boxes, their label and note rects, the
+firebox ticks, the chair-rail band and the legend are all computed in node, rounded at creation, and
+written into `<loc>-<facing>.scaffold.json`. The confinement test diffs the bare frame against the
+labelled scaffold and refuses any differing pixel outside their union — it caught the legend box
+overhanging its own frame by six pixels, which is what a declared-rect check is for. The legend's
+width is derived from its own longest line for the same reason.
+
+**Detector brackets are derived, not chosen**, and live in the sidecar before any image exists:
+`floor_window` is ±8 % of the floor-to-horizon separation (which IS `eye × px_per_m_at_wall`),
+`rail_band` ±8 % of the anchor's own height above the floor line, `ceiling_band` ±8 % of the
+ceiling-to-floor span, and `carrier_window` the stamped box dilated by that wall's own measured
+reflex-versus-plan separation (324.4 px on `study/N`, 226.1 px on `study/E`, both read from the
+corpus rather than typed). The band is `MEASURED_BAND`, imported: the round may not bring its own.
+
+**Pixels never cross the playwright bridge.** A frame is 6.3 MB of RGBA and marshalling it to node
+costs minutes per facing; every comparison happens inside the page and returns a small verdict, and
+PNGs are written through the page's encoder and decoded back in the page. Nothing compares PNG
+bytes, which is what `plan.spec`'s render-lock case is actually about.
+
+**The row-26 fence.** `PENDING_ROWS = { "hall/N": 26, "hall/S": 26 }` refuses those two facings by
+name, because row 26 slides their standpoints and a scaffold cut for them now is stale the day it
+lands. Row 26's closing commit deletes the two entries, and a test reads `design/intention.md`'s
+spec table and goes red if the fence outlives its row — the handshake is mechanical rather than a
+note in a spec file that is deleted along with the spec file.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went

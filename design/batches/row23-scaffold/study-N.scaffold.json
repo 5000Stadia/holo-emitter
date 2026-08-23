@@ -1,0 +1,182 @@
+{
+  "_what_this_is": "The scaffold for study/N: the shipped renderer's own grid frame for this facing with the plan's carriers stamped into it, and every number the stamping used.",
+  "facing": "study/N",
+  "camera": "page",
+  "meta_source": "page",
+  "meta_used": {
+    "floor_line_y": 0.731445,
+    "px_per_m_at_wall": 188.421,
+    "px_per_m_at_bottom": 420.88,
+    "wall_width_m": 5.45,
+    "key_tint": "#c8986f",
+    "image_h_px": 1024,
+    "horizon_y": 0.51377,
+    "key_dir": "R-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own prompt declares it as the measurement anchor",
+    "calibration_px": 179,
+    "camera_wall_m": 4.35,
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 5.45,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": 188,
+    "corner_x1_px": 1351,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source/study-N/cand-5-reference.png",
+    "measured_round": "cand5ref",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 819.6,
+    "nearest_floor_m": 1.9474,
+    "measured_room": {
+      "storey_height_m": 3.349,
+      "wall_width_m": 6.172,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.45,
+      "carriers": [
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            565.4,
+            980
+          ],
+          "plan_centre_px": 772.7,
+          "painted_px": [
+            379,
+            550
+          ],
+          "painted_centre_px": 464.5,
+          "centre_delta_px": -308.2,
+          "centre_delta_m": -1.636,
+          "painted_feature": "the fireplace OPENING (the plan holds the whole breast, which is wider)"
+        }
+      ]
+    },
+    "openings": []
+  },
+  "reading": null,
+  "plan_drawn_digest": "ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065",
+  "renderer_sha256": "1ffe66a4c02c916db1d7cea876b9d93346364a15a4d5344b5bc90a79fa4783b2",
+  "groundplane_sha256": "0275c88cfb193b2bb8dd99028430d75dd5618dbdac02f351d63fb5aa0c539fea",
+  "git_commit": "1d15e62b6cafc2d04d2c688a69f1ae91fdd1437b",
+  "horizontal_spaces": {
+    "_which_is_stamped": "ruler - wallCentrePx + (m - wall_width_m/2) x px_per_m_at_wall, which is what drawGrid draws its own metre lines in",
+    "ruler_span_px": 1026.89,
+    "aperture_span_px": 1163,
+    "divergence_pct": 13.25,
+    "_why": "a measured meta's corner span is the PAINTING's wall; the ruled width is the plan's. Where they differ, a door's click target and its scored width are different rectangles - row 27's ruling.",
+    "anchor": "wall centre (groundplane.wallCentrePx). A corner-anchored stamp would move every carrier and is not what the renderer draws."
+  },
+  "stamped": [
+    {
+      "kind": "fireplace",
+      "id": null,
+      "from_m": 1.65,
+      "to_m": 3.85,
+      "x0": 566.95,
+      "x1": 981.47,
+      "y0": 447.53,
+      "y1": 749,
+      "label": "FIREPLACE",
+      "sub": "BREAST 2.20 M · FIREBOX 0.90 M",
+      "ruled": [
+        "breast width"
+      ],
+      "convention": [
+        "height above floor"
+      ],
+      "ticks": [
+        689.42,
+        859
+      ],
+      "label_rect": {
+        "x": 605.69,
+        "y": 461.53,
+        "w": 337.04,
+        "h": 44
+      },
+      "note_rect": {
+        "x": 486.67,
+        "y": 405.73,
+        "w": 575.08,
+        "h": 22
+      }
+    }
+  ],
+  "apertures_recorded_not_stamped": [],
+  "chair_rail": {
+    "y": 570,
+    "x0": 188,
+    "x1": 1351,
+    "ruled_m": 0.95
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 748.99968,
+      "half_width": 17.83,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 569.99973,
+      "half_width": 14.32,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 221.42088,
+      "half_width": 42.21,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "x0": 242.55,
+        "x1": 1305.87,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 324.4,
+    "rail_columns": [
+      [
+        188,
+        566
+      ],
+      [
+        982,
+        1351
+      ]
+    ]
+  },
+  "carrier_reflex_baseline_px": 324.4,
+  "legend_box": {
+    "x": 24,
+    "y": 848,
+    "w": 917.7,
+    "h": 152,
+    "text_h": 15,
+    "line_h": 26,
+    "lines": [
+      "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
+      "RULED - CHAIR-RAIL 0.95 M · CARRIER WIDTHS · DOOR HEAD 2.00 M",
+      "CONVENTION - CARRIER HEIGHTS ABOVE FLOOR · WINDOW SILL AND HEAD",
+      "SCALE - ONE METRE OF WALL SPANS 188 PIXELS AT THE WALL PLANE",
+      "CAMERA - THE META THIS PAGE HOLDS FOR THIS FACING"
+    ]
+  },
+  "glyph_set": "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/-·%×",
+  "outputs": {
+    "frame": "design/batches/row23-scaffold/study-N-frame.png",
+    "scaffold": "design/batches/row23-scaffold/study-N-scaffold.png",
+    "frame_sha256": "b571fc86ea716654381e1452edee835bb0d471cb0e616376c441b410262f150a",
+    "scaffold_sha256": "db7096916e423f71e9b974f6ee439e3058e019eabda636b678810b2a4072254d"
+  }
+}

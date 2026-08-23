@@ -1,0 +1,151 @@
+{
+  "_what_this_is": "The scaffold for study/E: the shipped renderer's own grid frame for this facing with the plan's carriers stamped into it, and every number the stamping used.",
+  "facing": "study/E",
+  "camera": "reading",
+  "meta_source": "reading:cand6 (INJECTED - admitted, not promoted; its camera is its OWN reading and is never the Kabe-ruled reference)",
+  "meta_used": {
+    "floor_line_y": 0.740234,
+    "px_per_m_at_wall": 204.211,
+    "px_per_m_at_bottom": 437.95,
+    "wall_width_m": 4.8,
+    "key_tint": "#c89971",
+    "image_h_px": 1024,
+    "horizon_y": 0.513281,
+    "key_dir": "R-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own prompt declares it as the measurement anchor",
+    "calibration_px": 194,
+    "camera_wall_m": 4.09,
+    "facing_type": "enclosed",
+    "corner_x0_px": 188,
+    "corner_x1_px": 1348,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source/study-E/cand-6.png",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "openings": []
+  },
+  "reading": "design/plan-draft/measured/cand6/study-E.json",
+  "plan_drawn_digest": "ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065",
+  "renderer_sha256": "1ffe66a4c02c916db1d7cea876b9d93346364a15a4d5344b5bc90a79fa4783b2",
+  "groundplane_sha256": "0275c88cfb193b2bb8dd99028430d75dd5618dbdac02f351d63fb5aa0c539fea",
+  "git_commit": "1d15e62b6cafc2d04d2c688a69f1ae91fdd1437b",
+  "horizontal_spaces": {
+    "_which_is_stamped": "ruler - wallCentrePx + (m - wall_width_m/2) x px_per_m_at_wall, which is what drawGrid draws its own metre lines in",
+    "ruler_span_px": 980.21,
+    "aperture_span_px": 1160,
+    "divergence_pct": 18.34,
+    "_why": "a measured meta's corner span is the PAINTING's wall; the ruled width is the plan's. Where they differ, a door's click target and its scored width are different rectangles - row 27's ruling.",
+    "anchor": "wall centre (groundplane.wallCentrePx). A corner-anchored stamp would move every carrier and is not what the renderer draws."
+  },
+  "stamped": [
+    {
+      "kind": "door",
+      "id": "op13",
+      "from_m": 3,
+      "to_m": 4,
+      "x0": 890.53,
+      "x1": 1094.74,
+      "y0": 349.58,
+      "y1": 758,
+      "label": "DOOR",
+      "sub": "OPENING 1.00 M × 2.00 M HIGH",
+      "ruled": [
+        "width",
+        "head height"
+      ],
+      "convention": [],
+      "ticks": null,
+      "label_rect": {
+        "x": 920.91,
+        "y": 363.58,
+        "w": 143.44,
+        "h": 44
+      },
+      "note_rect": {
+        "x": 724.46,
+        "y": 307.78,
+        "w": 536.36,
+        "h": 22
+      }
+    }
+  ],
+  "apertures_recorded_not_stamped": [
+    {
+      "id": "op13",
+      "via": "door1",
+      "x": 913,
+      "y": 349.5776159999999,
+      "w": 241.66666666666674,
+      "h": 408.422
+    }
+  ],
+  "chair_rail": {
+    "y": 564,
+    "x0": 188,
+    "x1": 1348,
+    "ruled_m": 0.95
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 757.999616,
+      "half_width": 18.59,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 563.999166,
+      "half_width": 15.52,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 186.20881599999996,
+      "half_width": 45.74,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "door",
+        "id": "op13",
+        "x0": 664.39,
+        "x1": 1320.88,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 226.13,
+    "rail_columns": [
+      [
+        188,
+        890
+      ],
+      [
+        1095,
+        1348
+      ]
+    ]
+  },
+  "carrier_reflex_baseline_px": 226.13,
+  "legend_box": {
+    "x": 24,
+    "y": 848,
+    "w": 917.7,
+    "h": 152,
+    "text_h": 15,
+    "line_h": 26,
+    "lines": [
+      "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
+      "RULED - CHAIR-RAIL 0.95 M · CARRIER WIDTHS · DOOR HEAD 2.00 M",
+      "CONVENTION - CARRIER HEIGHTS ABOVE FLOOR · WINDOW SILL AND HEAD",
+      "SCALE - ONE METRE OF WALL SPANS 204 PIXELS AT THE WALL PLANE",
+      "CAMERA - MEASURED READING CAND6 - INJECTED, ADMITTED NOT PROMOTED"
+    ]
+  },
+  "glyph_set": "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ.,/-·%×",
+  "outputs": {
+    "frame": "design/batches/row23-scaffold/study-E-frame.png",
+    "scaffold": "design/batches/row23-scaffold/study-E-scaffold.png",
+    "frame_sha256": "c8456406854193fcff5e75ff366f0d0c5d50c09779e453a8ba34d975faf42808",
+    "scaffold_sha256": "e95c54b1e2690c261e80059a09d6fdef44e45c26a8f3eedc40c9372fbfb9386c"
+  }
+}
