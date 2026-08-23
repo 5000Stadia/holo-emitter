@@ -46,6 +46,21 @@ sys.path.insert(0, HERE)
 MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
 MANIFEST = os.path.join(MANOR, "manifest.json")
 STATE = os.path.join(MANOR, "run-state.json")
+RETRIES_FILE = os.path.join(MANOR, "retries.json")
+
+
+def _load_retries():
+    """key -> retry rolls, from --emit-retries' own record. Empty when absent."""
+    if not os.path.exists(RETRIES_FILE):
+        return {}
+    doc = json.load(open(RETRIES_FILE))
+    out = {}
+    for e in doc.get("entries", []):
+        out.setdefault(e["key"], []).extend(e.get("rolls", []))
+    return out
+
+
+RETRIES = _load_retries()
 OUT = os.path.join(HERE, "manor")
 
 #: The experiment's own walls. Promotion here would overwrite the ground truth
@@ -216,7 +231,17 @@ def sweep(manifest, state, do_promote=True):
                       % (key, loc, fac_f))
             continue
 
-        arrivals = [r for r in e["rolls"]
+        # THE RETRY ROLLS ARE ARRIVALS TOO. `--emit-retries` cuts re-ask
+        # packets with fresh opaque ids recorded in retries.json — a set this
+        # sweep predates; without this merge the whole second coat lands
+        # invisible (found live, 2026-08-24: 30 returned corrections and the
+        # sweep read none of them). The manifest's geometry cfg still governs:
+        # the voiced scaffolds move labels, never geometry, and every anchor
+        # stamps at the same row — the voice table's own test pins that.
+        all_rolls = list(e["rolls"])
+        for rr in RETRIES.get(key, []):
+            all_rolls.append(rr)
+        arrivals = [r for r in all_rolls
                     if os.path.exists(os.path.join(ROOT, r["candidate"]))]
         if not arrivals:
             waiting.append(key)
