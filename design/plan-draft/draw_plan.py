@@ -285,9 +285,18 @@ def _room(r):
     sp = []
     for f in ("N", "E", "S", "W"):
         fc = r["facings"][f]
+        # [Row 26] AND WHERE ALONG THE WALL IT STANDS. The standpoint law asks
+        # two questions now - how far back, and where along the wall - and the
+        # sheet's own table carried only the first. Signed the way `u` is:
+        # positive is to the viewer's right. It is read out of the document
+        # like the distance beside it, never recomputed here.
+        cross, right = ("x", 1 if f == "N" else -1) if f in ("N", "S") \
+            else ("y", -1 if f == "E" else 1)
+        mid = ((x0 + x1) / 2.0) if cross == "x" else ((y0 + y1) / 2.0)
         sp.append(dict(f=f, p=(fc["standpoint"]["x"], fc["standpoint"]["y"]),
                        dist=fc.get("camera_wall_m", fc.get("camera_far_m")),
                        ftype=fc["type"],
+                       offset=(fc["standpoint"][cross] - mid) * right,
                        wall_w=fc["wall_width_m"], line=fc["wall_line"],
                        note=fc.get("note", "")))
     lab = LABEL.get(r["id"], {})
@@ -536,7 +545,7 @@ def draw_floor(b, rooms, parts, doors, wins, fires, stairs, garden_wall):
                 b.text(px + 0.28, py, tag, size=8.6, fill=C_CAM,
                        weight="bold", dy=3, anchor="start")
             rows.append((r["name"], r["typ"], f, sp["ftype"], dist,
-                         sp["wall_w"], sp["note"]))
+                         sp["offset"], sp["wall_w"], sp["note"]))
     return rows
 
 
@@ -733,11 +742,14 @@ def main():
     print(pg); print(pu)
     with open(os.path.join(OUT, "standpoints.tsv"), "w") as fh:
         fh.write("floor\troom\troom_type\tfacing\tfacing_type\t"
-                 "camera_wall_m\twall_width_m\tnote\n")
+                 "camera_wall_m\tstandpoint_offset_m\twall_width_m\tnote\n")
         for fl, rows in (("ground", rg), ("upper", ru)):
-            for (rn, rt, f, ft, dist, ww, note) in rows:
-                fh.write("%s\t%s\t%s\t%s\t%s\t%.2f\t%.2f\t%s\n"
-                         % (fl, rn, rt, f, ft, dist, ww, note))
+            for (rn, rt, f, ft, dist, off, ww, note) in rows:
+                # `off or 0.0` because a facing standing on its room's own axis
+                # can produce -0.0, which prints as "-0.00" and would read as a
+                # slide the drawing does not hold.
+                fh.write("%s\t%s\t%s\t%s\t%s\t%.2f\t%.2f\t%.2f\t%s\n"
+                         % (fl, rn, rt, f, ft, dist, off or 0.0, ww, note))
     print("plan:", plan_path)
 
 

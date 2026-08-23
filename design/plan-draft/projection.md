@@ -202,9 +202,9 @@ number is not moved here because it is read off the approved drawing.
 | ground | BACK STAIR | E | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
 | ground | BACK STAIR | S | enclosed | threshold | 3.70 | 5.45 | 276.76 | 1024 | 0.8335 | 2.43 | 13.8 | 1522.2 | wall |
 | ground | BACK STAIR | W | enclosed | rule | 4.09 | 4.15 | 250.37 | 1024 | 0.8030 | 2.43 | 248.5 | 1287.5 | wall |
-| ground | CROSS PASSAGE | N | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | N | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1580.1 | 2230.2 | wall |
 | ground | CROSS PASSAGE | E | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.7109 | 2.43 | 546.1 | 989.9 | wall |
-| ground | CROSS PASSAGE | S | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1137.1 | 2673.1 | wall |
+| ground | CROSS PASSAGE | S | enclosed | threshold | 2.15 | 8.00 | 476.28 | 1024 | 1.0640 | 2.43 | -1818.2 | 1992.0 | wall |
 | ground | CROSS PASSAGE | W | corridor | rule | 6.00 | 2.60 | 170.67 | 1024 | 0.7109 | 2.43 | 546.1 | 989.9 | wall |
 | ground | KITCHEN | N | enclosed | rule | 6.49 | 8.00 | 157.78 | 1024 | 0.6960 | 2.43 | 136.9 | 1399.1 | wall |
 | ground | KITCHEN | E | enclosed | rule | 6.00 | 8.65 | 170.67 | 1024 | 0.7109 | 2.43 | 29.9 | 1506.1 | wall |
