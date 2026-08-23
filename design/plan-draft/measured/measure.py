@@ -2103,7 +2103,7 @@ def write_misses(raw, round_name="cand-2", records=None):
                     # choose between. Every other round's clock is carried
                     # through with everything else.
                     continue
-                if prev.get("_record") not in ("miss", "header"):
+                if prev.get("_record") not in ("miss", "roll", "header"):
                     # EVERY OTHER RECORD SURVIVES THIS RUN. [Row 21, the close]
                     # The ledger holds apparatus gaps as well as misses now --
                     # findings about the machinery that judges the paintings,
@@ -2115,12 +2115,17 @@ def write_misses(raw, round_name="cand-2", records=None):
                     # not live in a file whose generator destroys it.
                     other.append(prev)
                     continue
-                if prev.get("_record") != "miss" or not prev.get("facing"):
+                if prev.get("_record") not in ("miss", "roll") or not prev.get("facing"):
                     continue
                 if prev.get("round", "cand-2") != round_name:
                     foreign.append(prev)
                     continue
-                carried[prev["facing"]] = {
+                # [Row 23] THE CARRY KEY GAINS THE CANDIDATE. It was the facing
+                # alone, and row 23 puts twenty-four rolls on TWO facings - so
+                # sixteen of them shared one key and overwrote each other's
+                # disposition in silence. A line with no candidate keeps the old
+                # key exactly, so no round before this one moves.
+                carried[(prev["facing"], prev.get("candidate"))] = {
                     "baked_in": prev.get("baked_in"),
                     "status": prev.get("status", "open"),
                 }
@@ -2139,7 +2144,17 @@ def write_misses(raw, round_name="cand-2", records=None):
         _gate="design/plan-draft/measured/gate.py. A candidate is admitted when "
               "px_per_m_at_wall x the facing's DRAWN standpoint lands within "
               "+/-3 % of study/N's measured 1010 px. Blueprint §5.",
-        _kinds={"generation_miss": "the PAINTING missed. Carries a delta and a "
+        _kinds={"scaffold_feature_absent": "[row 23] the feature the SCAFFOLD "
+                                           "declares is not inside the band the "
+                                           "standing licence allows. A fact about "
+                                           "the painting, and it counts against its "
+                                           "cell. Distinct from "
+                                           "measurement_withheld, which kept its "
+                                           "exact meaning rather than being widened "
+                                           "- a machine-readable kind that has "
+                                           "quietly changed what it asserts is "
+                                           "worse than a missing one.",
+                "generation_miss": "the PAINTING missed. Carries a delta and a "
                                    "correction the asset seat can act on.",
                 "measurement_withheld": "WE cannot measure the painting. "
                                         "Carries no delta and no re-ask - it "
@@ -2158,6 +2173,17 @@ def write_misses(raw, round_name="cand-2", records=None):
                            "the round's own question is whether the recipe "
                            "puts the features where the approved composition "
                            "has them.",
+                 "row23": "THE TECHNIQUE MATRIX. Three request techniques on TWO "
+                          "walls with known ground truth - study/N (the Kabe-ruled "
+                          "camera, whose carrier arm is nearly blind because "
+                          "obedience and reflex-centring coincide there) and "
+                          "study/E (the carrier probe: its plan door sits 1.100 m "
+                          "off centre and the measured reflex puts it dead centre, "
+                          "so the two are OPPOSITE acts). Every detector window is "
+                          "derived from the SCAFFOLD's own geometry and a scaffold "
+                          "is per WALL, so the configuration cannot vary by "
+                          "technique even in principle. A PASS is a `roll` record, "
+                          "not a miss.",
                  "cand-6": "THE STANDING-EYE WAVE. [HUMAN 2026-08-22, "
                            "design/approvals.log at 964188d] \"B\" - the "
                            "standing eye - so every wall is regenerated "
@@ -2216,8 +2242,8 @@ def write_misses(raw, round_name="cand-2", records=None):
             delta_pct=(prim["delta_pct"] if r["ppm"] else None),
             trust=None, robustness=None, why=info["why"],
             correction=None, blocked_on=info.get("blocked_on"),
-            status=carried.get(fac, {}).get("status", "open"),
-            baked_in=carried.get(fac, {}).get("baked_in"))
+            status=carried.get((fac, r["src"]), carried.get((fac, None), {})).get("status", "open"),
+            baked_in=carried.get((fac, r["src"]), carried.get((fac, None), {})).get("baked_in"))
 
         adm = [x for x in r["rulers"] if x["admissible"]]
         if adm:
@@ -2270,19 +2296,23 @@ def write_misses(raw, round_name="cand-2", records=None):
         # survives a re-measurement, whichever round wrote it. A record that is
         # not a miss (the standing-eye wave's `clock`) names no facing and
         # carries no disposition.
-        if rec.get("_record") != "miss":
+        if rec.get("_record") not in ("miss", "roll"):
             lines.append(rec)
             continue
-        if rec["facing"] in carried:
-            rec["status"] = carried[rec["facing"]]["status"]
-            rec["baked_in"] = carried[rec["facing"]]["baked_in"]
+        key = (rec["facing"], rec.get("candidate"))
+        if key not in carried:
+            key = (rec["facing"], None)
+        if key in carried:
+            rec["status"] = carried[key]["status"]
+            rec["baked_in"] = carried[key]["baked_in"]
         lines.append(rec)
     lines.extend(foreign)
     lines.extend(other)
     head = lines[0]
-    misses = sorted([x for x in lines[1:] if x.get("_record") == "miss"],
-                    key=lambda x: (x.get("round", "cand-2"), x["facing"]))
-    misses += sorted([x for x in lines[1:] if x.get("_record") != "miss"],
+    misses = sorted([x for x in lines[1:] if x.get("_record") in ("miss", "roll")],
+                    key=lambda x: (x.get("round", "cand-2"), x["facing"],
+                                   x.get("candidate") or ""))
+    misses += sorted([x for x in lines[1:] if x.get("_record") not in ("miss", "roll")],
                      key=lambda x: (x.get("_record", ""), str(x.get("id", ""))))
     with open(path, "w") as fh:
         for rec in [head] + misses:
@@ -3622,10 +3652,265 @@ def main_cand6():
     return 0 if ctl["passed"] else 1
 
 
+
+
+# ====================================================================== row 23
+# THE TECHNIQUE MATRIX. Its machinery is `row23_lib.py`, beside `measure_lib.py`
+# and for the same reason: the shared detectors have one home and this round's
+# own judgement has another.
+#
+# THE JOIN HAPPENS AT TABLE TIME AND NOWHERE ELSE. This function measures files
+# by their opaque id and never opens `assignment.json`. A measurement that knew
+# which technique it was reading would be the free parameter this whole round is
+# built to remove, and keeping the map out of this file is what makes that
+# structural rather than careful.
+
+ROW23_WALLS = ["study/N", "study/E"]
+ROW23_BATCH = os.path.join(ROOT, "design", "batches", "row23-scaffold")
+
+
+def row23_sidecar(fac):
+    loc, f = fac.split("/")
+    p = os.path.join(ROW23_BATCH, "%s-%s.scaffold.json" % (loc, f))
+    if not os.path.exists(p):
+        return None
+    return json.load(open(p))
+
+
+def row23_reference(fac):
+    """The camera THIS WALL's candidates are read against, read never typed.
+
+    study/N answers to the Kabe-ruled reference set. study/E answers to its OWN
+    admitted cand-6 reading, which is a weaker kind of ground truth and says so
+    in every record it appears in rather than being blurred into the other.
+    """
+    if fac == "study/N":
+        ref = read_reference()
+        if not ref:
+            return None
+        return dict(focal_px=ref["focal_px"], eye_m=ref["eye_m"],
+                    horizon_y_px=ref["horizon_y_px"], band=BAND6,
+                    source="design/plan-draft/measured/cand5ref/study-N.json",
+                    authority="the Kabe-ruled standing camera reference "
+                              "[HUMAN 2026-08-22, approvals.log at 964188d]")
+    p = os.path.join(HERE, "cand6", "study-E.json")
+    if not os.path.exists(p):
+        return None
+    m = json.load(open(p))
+    return dict(focal_px=m["implied_focal_px"], eye_m=m["eye_height_m"],
+                horizon_y_px=m["_measured_px"]["horizon_y_px"], band=BAND6,
+                source="design/plan-draft/measured/cand6/study-E.json",
+                authority="study/E's OWN admitted cand-6 reading (+1.9 % focal, "
+                          "-3.8 % eye). ADMITTED, NOT PROMOTED, and NOT the "
+                          "Kabe-ruled reference - a weaker ground truth, named "
+                          "as one wherever it is used.")
+
+
+def row23_returns(fac):
+    """Every candidate on disk for this wall, by opaque id, in any order.
+
+    ARRIVALS ARE PROCESSED IN WHATEVER ORDER THEY LAND. The manor run dispatches
+    as one order rather than as sequential waves [HUMAN 2026-08-23: "To the
+    degree we hope to one pass parallel all assets created few turns each to
+    full completion"], so this is a directory watch and not a queue: whatever is
+    here is measured, whatever is not is reported missing, and re-running after
+    more arrive costs only the new ones a reader has to look at.
+    """
+    import glob
+    loc, f = fac.split("/")
+    d = os.path.join(ROOT, "backdrops", "source", "%s-%s" % (SRC_DIR.get(loc, loc), f))
+    out = {}
+    for p in sorted(glob.glob(os.path.join(d, "row23-*.png"))):
+        rid = os.path.basename(p)[len("row23-"):-len(".png")]
+        out[rid] = p
+    return out
+
+
+SRC_DIR = {"study": "study", "hall": "passage"}
+
+
+def row23_marked(rid, fac, path, cfg, r, out_dir):
+    """The frame with every line the measurement used drawn on it.
+
+    A ruler lying on nothing is visible to a human in one look and to no amount
+    of JSON — and in this round there is a second thing only a picture shows:
+    whether the window a carrier was hunted in actually contains the carrier.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    im = Image.open(path).convert("RGB")
+    dr = ImageDraw.Draw(im)
+    try:
+        font = ImageFont.load_default(size=17)
+        big = ImageFont.load_default(size=21)
+    except TypeError:
+        font = big = ImageFont.load_default()
+    FL, RA, CE, ASK, GOT, WIN = ((124, 252, 0), (255, 235, 59), (0, 229, 255),
+                                 (255, 255, 255), (255, 0, 200), (255, 149, 0))
+    px = r.get("_measured_px", {})
+
+    def hline(y, c, label, x=8):
+        if y is None:
+            return
+        dr.line([(0, y), (W - 1, y)], fill=c, width=2)
+        dr.text((x, y + 3), label, fill=c, font=font)
+
+    hline(px.get("wall_floor_line_y_px"), FL, "floor y=%s" % px.get("wall_floor_line_y_px"))
+    hline(px.get("chair_rail_y_px"), RA, "chair-rail y=%s (the gate anchor)" % px.get("chair_rail_y_px"), x=520)
+    hline(px.get("wall_ceiling_line_y_px"), CE, "ceiling y=%s" % px.get("wall_ceiling_line_y_px"), x=1000)
+
+    for c, spec in zip(r.get("carriers", []), cfg["carriers"]):
+        dr.rectangle([spec["window"][0], spec["y0"], spec["window"][1], spec["y1"]],
+                     outline=WIN, width=2)
+        dr.text((spec["window"][0] + 5, spec["y1"] + 6),
+                "window searched for the %s (the stamped box dilated by %.0f px, "
+                "this wall's own measured reflex separation)"
+                % (c["kind"], cfg["carrier_tolerance_px"]), fill=WIN, font=font)
+        dr.rectangle([c["asked_x0"], spec["y0"], c["asked_x1"], spec["y1"]],
+                     outline=ASK, width=3)
+        dr.text((c["asked_x0"] + 5, spec["y0"] - 22), "the scaffold asked here", fill=ASK, font=font)
+        if c.get("found"):
+            dr.rectangle([c["x0"], spec["y0"], c["x1"], spec["y1"]], outline=GOT, width=3)
+            dr.text((c["x0"] + 5, spec["y0"] + 6),
+                    "painted %s: edges %.0f..%.0f, %.0f px from the ask"
+                    % (c["kind"], c["x0"], c["x1"], c["edge_delta_px"]), fill=GOT, font=font)
+
+    head = ["%s   row23   %s   %s" % (rid, fac, r.get("verdict"))]
+    if r.get("implied_focal_px"):
+        head.append("focal %.0f px (%+.1f %%)   eye %.4f m (%+.1f %%)   ppm %.2f"
+                    % (r["implied_focal_px"], r["delta_focal_pct"],
+                       r["eye_height_m"], r["delta_eye_pct"], r["px_per_m_at_wall"]))
+    for a in (r.get("_absent") or [])[:2]:
+        head.append("ABSENT: " + (a[:96] + "..." if len(a) > 96 else a))
+    dr.rectangle([0, 0, W - 1, 26 * len(head) + 12], fill=(0, 0, 0))
+    for i, line in enumerate(head):
+        dr.text((10, 8 + 26 * i), line, fill=(255, 255, 255), font=big)
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir)
+    p = os.path.join(out_dir, "%s-marked.png" % rid)
+    im.save(p)
+    return p
+
+
+def main_row23():
+    import row23_lib
+    out = os.path.join(OUT, "row23")
+    if not os.path.isdir(out):
+        os.makedirs(out)
+    marked_dir = (os.path.join(out, "marked") if OUT != HERE
+                  else os.path.join(ROW23_BATCH, "measured"))
+
+    ctl = wave_control()
+    print("CONTROL backdrops/source/study-N/cand-2.png through this round's "
+          "shared detectors: %s" % ("PASSED" if ctl["passed"] else "*** MOVED ***"))
+    if not ctl["passed"]:
+        print("\n*** THE CONTROL HAS MOVED. THE ROUND IS VOID. ***\n")
+        return 1
+
+    records, rows = [], []
+    for fac in ROW23_WALLS:
+        side = row23_sidecar(fac)
+        if side is None:
+            print("row23: %s has no committed scaffold - run make-scaffold first" % fac)
+            return 1
+        ref = row23_reference(fac)
+        if ref is None:
+            print("row23: %s has no camera reference to read against" % fac)
+            return 1
+        cfg = row23_lib.cfg_from_sidecar(side)
+        found = row23_returns(fac)
+        print("\n%s   %d candidate(s) on disk   reference %s"
+              % (fac, len(found), ref["source"]))
+        print("   %s" % ref["authority"])
+        if not found:
+            print("   (nothing to measure yet)")
+            continue
+        for rid, path in found.items():
+            r = row23_lib.measure_candidate(
+                path, side, cfg, ref,
+                dict(pick_floor=pick_floor, module_in_bands=module_in_bands))
+            sc = row23_lib.score(r, side, ref)
+            doc = dict(
+                _what_this_is="The row-23 reading for one returned candidate, by "
+                              "its OPAQUE id. This file does not know which "
+                              "technique produced it: the join to "
+                              "assignment.json happens at table time.",
+                id=rid, facing=fac, candidate=os.path.relpath(path, ROOT),
+                _source_sha256=hashlib.sha256(open(path, "rb").read()).hexdigest(),
+                scaffold=side["outputs"]["scaffold"],
+                scaffold_sha256=side["outputs"]["scaffold_sha256"],
+                reference=ref, score=sc, _control=ctl, **r)
+            json.dump(doc, open(os.path.join(out, "%s.json" % rid), "w"), indent=2)
+            row23_marked(rid, fac, path, cfg, r, marked_dir)
+            rows.append(doc)
+            records.append(row23_record(doc, side, ref))
+            print("   %-8s %-7s focal %-7s eye %-8s carrier %-8s %s"
+                  % (rid, r["verdict"],
+                     r.get("implied_focal_px") or "-",
+                     r.get("eye_height_m") or "-",
+                     (("%.1f px" % r["carriers"][0]["edge_delta_px"])
+                      if r.get("carriers") and r["carriers"][0].get("found") else "absent"),
+                     ("adh %.3f" % sc["adherence_raw"]) if sc.get("indexed") else "no index"))
+
+    if records:
+        write_misses(None, round_name="row23", records=records)
+    print("\nreadings: %s/" % os.path.relpath(out, ROOT))
+    print("marked:   %s/" % os.path.relpath(marked_dir, ROOT))
+    return 0
+
+
+def row23_record(doc, side, ref):
+    """One ledger line, in this round's own vocabulary.
+
+    A PASS is `_record: "roll"` and not a miss, because a ledger whose every
+    line is a miss cannot answer "is this getting better" — which is production
+    law clause 4's whole acceptance metric.
+    """
+    kind = doc.get("kind")
+    rec = dict(
+        _record=("roll" if doc["verdict"] == "PASS" else "miss"),
+        round="row23", facing=doc["facing"], candidate=doc["candidate"],
+        id=doc["id"], verdict=doc["verdict"],
+        gate="design/plan-draft/measured/gate.py --round row23",
+        reference=ref["source"], reference_authority=ref["authority"],
+        measured=dict(px_per_m_at_wall=doc.get("px_per_m_at_wall"),
+                      implied_focal_px=doc.get("implied_focal_px"),
+                      eye_height_m=doc.get("eye_height_m")),
+        target=dict(focal_px=ref["focal_px"], eye_m=ref["eye_m"],
+                    band_pct=ref["band"] * 100),
+        delta_pct=doc.get("delta_focal_pct"),
+        carriers=[dict(kind=c["kind"], found=c.get("found"),
+                       edge_delta_px=c.get("edge_delta_px"))
+                  for c in doc.get("carriers", [])],
+        score=doc.get("score"),
+        status="open", baked_in=None)
+    if kind:
+        rec["kind"] = kind
+    if doc["verdict"] == "ABSENT":
+        rec["blocked_on"] = None
+        rec["why"] = ("the feature the scaffold declares is not inside the band the "
+                      "standing licence allows. This is a fact about the PAINTING "
+                      "and it counts against its cell - it is not the wave's "
+                      "`measurement_withheld`, which is a fact about our own optics "
+                      "and counts against nothing.")
+        rec["_absent"] = doc.get("_absent")
+    elif doc["verdict"] == "WITHHELD":
+        rec["kind"] = "measurement_withheld"
+        rec["blocked_on"] = doc.get("blocked_on")
+    elif doc["verdict"] == "FAIL":
+        ppm = doc.get("px_per_m_at_wall")
+        want = ref["focal_px"] / side["meta_used"]["camera_wall_m"]
+        rec["why"] = "the painting missed the camera the scaffold declares."
+        rec["correction"] = ("the wall must draw %.3fx larger: %.1f px/m at the wall "
+                             "plane, not %.1f" % (want / ppm, want, ppm)) if ppm else None
+    else:
+        rec["why"] = "admitted: the camera this frame was painted at is the camera it was shown."
+    return rec
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--round",
-                    choices=["cand1", "cand2", "cand3", "cand5ref", "cand6"],
+                    choices=["cand1", "cand2", "cand3", "cand5ref", "cand6", "row23"],
                     default="cand2",
                     help="cand2 (default) is row 21's promotion round; cand1 "
                          "reproduces row 20's; cand3 gates the universal-anchor "
@@ -3660,6 +3945,8 @@ def main():
         return main_cand5ref()
     if args.round == "cand6":
         return main_cand6()
+    if args.round == "row23":
+        return main_row23()
     return main_cand2()
 
 

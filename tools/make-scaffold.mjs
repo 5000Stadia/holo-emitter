@@ -649,6 +649,16 @@ async function main() {
   const argv = process.argv.slice(2);
   const key = argv[0];
   const argOf = (f, d) => { const i = argv.indexOf(f); return i !== -1 ? argv[i + 1] : d; };
+  if (argv.includes("--emit-manor")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    await emitManor(out, {
+      technique: argOf("--technique", "t2"),
+      rolls: Number(argOf("--rolls", "2")),
+      retries: Number(argOf("--retries", "2")),
+      limit: argOf("--limit") ? Number(argOf("--limit")) : 0
+    });
+    return;
+  }
   if (argv.includes("--emit-packets")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold")));
     const r = emitPackets(out);
@@ -1071,6 +1081,134 @@ ruler is the wainscot chair-rail at 0.95 m above the floor line.
 Write only under \`backdrops/\` and \`library-src/\`. Never \`src/\`, never \`design/\`. Nothing here
 asks you to judge a result: generate, save to the named paths, and report the paths back.
 `;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* The manor, in one pass                                              */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go
+ * from schematic/description to full assets. To the degree we hope to one pass
+ * parallel all assets created few turns each to full completion."
+ *
+ * So the manor is not a sequence of waves. `--emit-manor` walks every facing the
+ * plan holds, cuts its scaffold, writes its packet, and emits ONE manifest that
+ * is the whole order — dispatched at once, painted in parallel, with a capped
+ * number of retries per wall rather than a queue that has to be drained in
+ * order.
+ *
+ * THREE THINGS THE MANIFEST IS SHAPED BY, all of them consequences of that:
+ *
+ *   1. ARRIVALS ARE UNORDERED. Every return path is absolute and unique, and
+ *      the measurement is a directory watch: `measure.py --round row23` reads
+ *      whatever is on disk and reports what is not. Nothing waits for a wave to
+ *      complete, and re-running after more land costs only the new ones.
+ *   2. A WALL CARRIES ITS OWN ACCEPTANCE. Each entry names the reference its
+ *      candidates are read against and the retry cap, so a failing wall retries
+ *      itself without consulting anything global.
+ *   3. ONE BROWSER FOR THE WHOLE RUN. Eighty-six facings at one page launch
+ *      each is most of an hour of process startup; the manor mode opens the
+ *      page once and renders every facing through it.
+ */
+
+/** Every facing the plan holds, with what is already painted marked. */
+export function manorFacings(plan) {
+  const out = [];
+  for (const room of plan.rooms) {
+    for (const f of Object.keys(room.facings || {})) {
+      const key = `${room.id}/${f}`;
+      const promoted = existsSync(join(ROOT, "backdrops", room.id, `${f}.meta.json`));
+      out.push({
+        key, room: room.id, facing: f, floor: room.floor, type: room.type,
+        promoted,
+        fenced: PENDING_ROWS[key] || null,
+        carriers: facingCarriers(plan, room.id, f).map((c) => c.kind)
+      });
+    }
+  }
+  return out;
+}
+
+async function emitManor(outDir, opts) {
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const all = manorFacings(plan);
+  const todo = all.filter((x) => !x.promoted && !x.fenced)
+    .slice(0, opts.limit || undefined);
+  mkdirSync(outDir, { recursive: true });
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+
+  const entries = [];
+  for (const fac of todo) {
+    const [loc, f] = fac.key.split("/");
+    let meta;
+    try {
+      meta = await page.evaluate((k) => {
+        const e = window.HOLO_APP.backdrops[k];
+        return e && e.meta ? e.meta : null;
+      }, fac.key);
+    } catch (e) { meta = null; }
+    if (!meta) {
+      entries.push({ ...fac, skipped: "the page holds no meta for this facing" });
+      continue;
+    }
+    const { rects } = scaffoldRects(plan, loc, f, meta);
+    const cr = chairRail(meta);
+    const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING");
+    const marks = { rects, chair_rail: cr, legend };
+    const framePng = await renderPng(page, fac.key, meta, "scaffold", null);
+    const scafPng = await renderPng(page, fac.key, meta, "scaffold", marks);
+    const dir = join(outDir, `${loc}-${f}`);
+    mkdirSync(dir, { recursive: true });
+    writePng(framePng, join(dir, "frame.png"));
+    writePng(scafPng, join(dir, "scaffold.png"));
+
+    const ids = [];
+    for (let i = 1; i <= (opts.rolls || 2); i++) {
+      const id = rollId(fac.key, opts.technique || "t2", null, i);
+      ids.push({
+        roll: i, id,
+        candidate: `${sourceDirFor(fac.key)}/row23-${id}.png`,
+        prompt: `${sourceDirFor(fac.key)}/row23-${id}.prompt.txt`
+      });
+    }
+    entries.push({
+      ...fac,
+      packet: join(dir).slice(ROOT.length + 1),
+      scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      px_per_m_at_wall: meta.px_per_m_at_wall,
+      camera_wall_m: meta.camera_wall_m,
+      implied_focal_px: round(groundplane.focalPx(meta), 1),
+      stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
+      chair_rail_y: cr.y,
+      rolls: ids,
+      retry_cap: opts.retries || 2
+    });
+    console.log(`  ${fac.key.padEnd(24)} ${rects.length} carrier(s)  ${ids.length} roll(s)`);
+  }
+  await browser.close();
+
+  const manifest = {
+    _what_this_is: "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
+    _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete.",
+    _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+    _technique: opts.technique || "t2",
+    _generated: new Date().toISOString().slice(0, 10),
+    facings_in_plan: all.length,
+    already_painted: all.filter((x) => x.promoted).map((x) => x.key),
+    fenced: all.filter((x) => x.fenced).map((x) => ({ key: x.key, row: x.fenced })),
+    emitted: entries.filter((e) => !e.skipped).length,
+    entries
+  };
+  const mp = join(outDir, "manifest.json");
+  writeFileSync(mp, JSON.stringify(manifest, null, 2) + "\n");
+  console.log(`\nmanifest  ${mp.slice(ROOT.length + 1)}`);
+  console.log(`          ${manifest.emitted} facings emitted of ${all.length} in the plan `
+    + `(${manifest.already_painted.length} already painted, ${manifest.fenced.length} fenced)`);
+  return manifest;
 }
 
 /* THE ENTRY POINT LIVES AT THE END OF THE FILE, and has to: `main` reads the

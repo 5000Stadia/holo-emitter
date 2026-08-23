@@ -1,0 +1,136 @@
+{
+  "_what_this_is": "The row-23 reading for one returned candidate, by its OPAQUE id. This file does not know which technique produced it: the join to assignment.json happens at table time.",
+  "id": "40f613b0",
+  "facing": "study/N",
+  "candidate": "backdrops/source/study-N/row23-40f613b0.png",
+  "_source_sha256": "57a5615f27bb5a58f4f4299cf9cd632b2090db87345f78cd7a9c8c5eb93f9618",
+  "scaffold": "design/batches/row23-scaffold/study-N-scaffold.png",
+  "scaffold_sha256": "db7096916e423f71e9b974f6ee439e3058e019eabda636b678810b2a4072254d",
+  "reference": {
+    "focal_px": 819.6,
+    "eye_m": 1.183,
+    "horizon_y_px": 526.1,
+    "band": 0.08,
+    "source": "design/plan-draft/measured/cand5ref/study-N.json",
+    "authority": "the Kabe-ruled standing camera reference [HUMAN 2026-08-22, approvals.log at 964188d]"
+  },
+  "score": {
+    "indexed": false,
+    "why": "the declared carrier was not found in its own window"
+  },
+  "_control": {
+    "passed": true,
+    "per_field": [
+      {
+        "field": "wall_floor_line_y_px",
+        "committed": 777,
+        "measured": 777,
+        "delta": 0
+      },
+      {
+        "field": "dado_rail_y_px",
+        "committed": 564,
+        "measured": 564,
+        "delta": 0
+      },
+      {
+        "field": "dado_rail_above_floor_px",
+        "committed": 213,
+        "measured": 213,
+        "delta": 0
+      },
+      {
+        "field": "capping_above_floor_px",
+        "committed": 232,
+        "measured": 232,
+        "delta": 0
+      }
+    ],
+    "measured": {
+      "wall_floor_line_y_px": 777,
+      "dado_rail_y_px": 564,
+      "dado_rail_above_floor_px": 213,
+      "capping_above_floor_px": 232
+    },
+    "expected": {
+      "wall_floor_line_y_px": 777,
+      "dado_rail_y_px": 564,
+      "dado_rail_above_floor_px": 213,
+      "capping_above_floor_px": 232
+    },
+    "_why": "The reference frame is new and cannot be its own control. What has to hold is that the detectors still read the frame row 21 promoted the way the promotion did - floor line 777, chair rail 213 px above it - so cand-2's study/N goes through this round's own `pick_floor` and `module_in_bands` every run. If these have moved, the code has changed what it reads and the reference set is VOID."
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 735,
+    "chair_rail_y_px": 573,
+    "dado_rail_above_floor_px": 162,
+    "capping_above_floor_px": 162
+  },
+  "_windows": {
+    "floor": [
+      731,
+      766
+    ],
+    "rail": [
+      555,
+      584
+    ],
+    "ceiling": [
+      179,
+      263
+    ],
+    "columns": [
+      [
+        188,
+        566
+      ],
+      [
+        982,
+        1351
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "fireplace",
+      "asked_x0": 566.95,
+      "asked_x1": 981.47,
+      "ruled_m": 2.2,
+      "window": [
+        242,
+        1305
+      ],
+      "hypothesis": {
+        "ask_px": [
+          567.0,
+          981.5
+        ],
+        "reflex_px": [
+          330.4,
+          569.2
+        ],
+        "half_width_px": 6.0,
+        "energy_at_ask": 404.28,
+        "energy_at_reflex": 211.67,
+        "share_at_ask": 0.0677,
+        "share_at_reflex": 0.0355,
+        "log_margin": 0.647,
+        "leans": "ask",
+        "_why": "both hypotheses are declared before any candidate exists - the ask from the scaffold's sidecar, the reflex from this wall's own measured no-label painting - so neither can be tuned toward the answer and nothing is searched for."
+      },
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 510..971 (34 px from the ask) and another admissible pair sits 560..980 (4 px from the ask), which disagree by more than the 26 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 170.526,
+  "implied_focal_px": 741.8,
+  "eye_height_m": 1.225,
+  "_absent": [
+    "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 510..971 (34 px from the ask) and another admissible pair sits 560..980 (4 px from the ask), which disagree by more than the 26 px this arm can resolve"
+  ],
+  "delta_focal_pct": -9.49,
+  "delta_eye_pct": 3.55,
+  "verdict": "FAIL",
+  "kind": "generation_miss"
+}
