@@ -63,6 +63,11 @@ import { createRequire } from "node:module";
  * parameters, exactly as `tools/plan-projection.mjs` says of `CANVAS_W`. */
 const groundplane = createRequire(import.meta.url)("../src/groundplane.js");
 export const PLAN_CANVAS_W = 1536;
+/* [Row 26] The other half of the same pinned §5 viewport. The frame has two
+ * edges a way through can fall past and the vertical pair had to be added to
+ * `exit.opening_offscreen` once already, so the height is named here rather
+ * than left for the next clause to rediscover. */
+export const PLAN_CANVAS_H = 1024;
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -283,10 +288,90 @@ export function wallFitsFrame(wallWidthM, distanceM, canvasW = PLAN_CANVAS_W) {
 }
 
 /**
+ * [ROW 26] WHAT A HAND CAN REACH AT THE EDGE OF THE FRAME — two numbers, both
+ * derived from row 2's pointing tolerance, and neither of them a feeling.
+ *
+ * Row 2's tolerance is two constants in `index.html` (minted at 84400cc, "a
+ * doorway with thickness, and forgiveness for any small target"):
+ *
+ *   TAKEABLE_MARGIN_CSS = 4   the forgiveness RING's width — "a takeable owns
+ *                             its own drawn rectangle plus a hand's-width
+ *                             margin, and nothing beyond it"
+ *   SMALL_TARGET_CSS = 24     "Below this, in CSS pixels, a target is one a
+ *                             hand cannot hit exactly and the forgiveness
+ *                             applies. Above it the object is big enough to
+ *                             answer for itself."
+ *
+ * WHAT CONNECTS THEM TO A FRAME EDGE: at a clipped edge the ring is worth
+ * nothing. `canvasPoint` maps a pointer event into canvas coordinates and
+ * there are no pointer events outside the canvas element, so the half of the
+ * ring lying past the edge can never be clicked. A clipped aperture does not
+ * get row 2's forgiveness on the clipped side, and so must satisfy row 2's
+ * UNFORGIVEN test instead.
+ *
+ * The conversion: `#stage` is `min(100%, (100svh − 7.6rem) × 1536/1024)`, so on
+ * a portrait phone the stage IS the viewport width and 1 CSS px is
+ * 1536/stageCssWidth canvas px. 320 is the narrowest width this product is
+ * driven at anywhere in its own suite TODAY (voice.spec's 320×700 and 320×568)
+ * — not a declared support floor, and named as today's narrowest rather than
+ * as a promise.
+ *
+ *   FRAME_MARGIN_PX        = ceil(4 × 1536/320)  = 20
+ *   MIN_USABLE_APERTURE_PX = ceil(24 × 1536/320) = 116
+ *
+ * TWO HONESTIES, because a derived number can still be derived from the wrong
+ * thing. (1) SMALL_TARGET_CSS was authored for a TAKEABLE, not a doorway;
+ * applying it to an aperture is an ANALOGY — the same hand, the same screen,
+ * the same question "can a finger land on this exactly" — and it is written
+ * here as an analogy rather than as a law row 2 already stated about doorways.
+ * (2) Nothing in the manor turns on the exact values: the slide census is
+ * invariant to FRAME_MARGIN_PX anywhere in [16, 52] and to
+ * MIN_USABLE_APERTURE_PX in [95, 308]. What turns on them is only that the
+ * numbers have a source, which `plan.spec.mjs` holds them to by re-reading
+ * both CSS constants out of index.html and re-computing these ceilings.
+ */
+export const FRAME_MARGIN_PX = 20;
+export const MIN_USABLE_APERTURE_PX = 116;
+
+/**
+ * [ROW 26] Is this way through USABLY in frame — enough of it on screen for a
+ * hand to land on it without the forgiveness the frame edge cannot give?
+ *
+ * `min(declared, bar)` and not the bar alone, deliberately: this refuses a
+ * doorway the FRAME has eaten and does not refuse one that is honestly small
+ * because you are standing 15.30 m from it. Ten of the manor's doors draw
+ * under 24 CSS px on a phone; every one of them is unclipped and none of them
+ * is this clause's subject. A FRACTION of the declared width was tried and
+ * rejected: the court mouth is 3095 px wide and shows 1536 of itself, so any
+ * fraction bar above 49.6 % refuses a threshold that works today.
+ */
+export function usablyInFrame(rect, canvasW = PLAN_CANVAS_W, canvasH = PLAN_CANVAS_H) {
+  const onW = Math.max(0, Math.min(rect.x + rect.w, canvasW) - Math.max(rect.x, 0));
+  const onH = Math.max(0, Math.min(rect.y + rect.h, canvasH) - Math.max(rect.y, 0));
+  return onW >= Math.min(rect.w, MIN_USABLE_APERTURE_PX) - 1e-9 &&
+         onH >= Math.min(rect.h, MIN_USABLE_APERTURE_PX) - 1e-9;
+}
+
+/**
  * The point the standpoint law puts a facing at, and which branch produced it.
  * Returns `{ point, source }` with source "rule" or "threshold".
+ *
+ * TWO QUESTIONS, ASKED IN ORDER, and the order is the law's own: how far back
+ * do you stand (`distanceStandpoint`, rows 20's two branches), and then where
+ * along the wall do you stand (`slideAlongWall`, row 26's third). The second
+ * moves the cross-axis coordinate ONLY, so `camera_wall_m` is decided by the
+ * first and is never touched by the second.
+ *
+ * The distance half has four ways out and every one of them funnels through
+ * the slide here, rather than returning past it — a branch you can leave by a
+ * path that skips it is a branch that will be skipped.
  */
 export function standpointFor(plan, room, facing, K, clearanceM) {
+  return slideAlongWall(plan, room, facing,
+    distanceStandpoint(plan, room, facing, K, clearanceM), clearanceM);
+}
+
+function distanceStandpoint(plan, room, facing, K, clearanceM) {
   const fc = room.facings[facing];
   const rule = ruleStandpoint(room.rect, facing, K);
   const open = fc && fc.type === "open";
@@ -330,6 +415,152 @@ export function standpointFor(plan, room, facing, K, clearanceM) {
     }
   }
   return { point: p, source: "threshold" };
+}
+
+/** [Row 26] The doors this facing views, as offsets in metres from the eye,
+ * signed the way `u` is. A door only: a flight is a solid on the floor whose
+ * rect is already clamped to the frame, and a threshold is the absence of a
+ * wall — neither is a hole in the plane in front of you, and §4.1's own
+ * measurements say no lateral slide could contain either. */
+function doorsInView(plan, room, facing, standpoint) {
+  const span = viewSpan(room.rect, facing);
+  const cross = span.axis;
+  const [rx, ry] = RIGHT[facing];
+  const rdir = cross === "x" ? rx : ry;
+  const held = new Set((plan.rooms || []).map((r) => r.id));
+  const out = [];
+  for (const o of plan.openings || []) {
+    if (o.kind !== "door" || !rectOk(o.rect)) continue;
+    const [a, b] = o.joins || [];
+    if (!a || !b || !held.has(a) || !held.has(b)) continue;
+    if (facingOfOpening(plan, o, room.id) !== facing) continue;
+    const e0 = (o.rect[cross + "0"] - standpoint[cross]) * rdir;
+    const e1 = (o.rect[cross + "1"] - standpoint[cross]) * rdir;
+    out.push({ id: o.id, lo_m: Math.min(e0, e1), hi_m: Math.max(e0, e1) });
+  }
+  return out;
+}
+
+/** Remove `[a, b]` from a union of closed intervals. */
+function withoutInterval(intervals, a, b) {
+  const out = [];
+  for (const [lo, hi] of intervals) {
+    if (b <= lo + 1e-9 || a >= hi - 1e-9) { out.push([lo, hi]); continue; }
+    if (a > lo + 1e-9) out.push([lo, a]);
+    if (b < hi - 1e-9) out.push([b, hi]);
+  }
+  return out;
+}
+
+/**
+ * [ROW 26] THE THIRD BRANCH OF THE STANDPOINT LAW: WHERE ALONG THE WALL.
+ *
+ * Rows 20's two branches decide how far back the body stands. Neither of them
+ * ever asked where along the wall it stands, and the answer was always the
+ * room's own cross-axis centre — which is right until a room's doors are not
+ * at its centre. The cross passage is 8.00 m long and both its doors sit near
+ * one end: from the middle, `op15` projects 476 px wide at x 1482 of 1536, so
+ * a player saw a 54 px sliver of the only way out of the boot pair, and `op14`
+ * did not appear at all. That is not a fact about the document; it is a fact
+ * about where the law put the body, and this is the clause that moves it.
+ *
+ * THE CENSUS IS DOORS (see `doorsInView`), and it is the PLAN's own, never a
+ * world's: `plan.json` serves two worlds, so a world-scoped trigger would ask
+ * one drawn document for two different standpoints on one facing — and it is
+ * circular exactly where the defect is, because `op14` is unwalked *because*
+ * it is off frame.
+ *
+ * THE FEASIBLE SET INCLUDES THE STANDABLE BAND. There is no post-hoc clamp: a
+ * slide computed first and clamped afterwards is a slide that satisfies
+ * neither constraint. `t` is the picture's shift in canvas px — equivalently
+ * `δ = t/s` metres of body along `RIGHT[facing]` — and:
+ *
+ *   - each door contributes the shifts that put the WHOLE of it in frame with
+ *     `FRAME_MARGIN_PX` beyond each jamb, so row 2's ring exists on both sides
+ *     of it;
+ *   - the standable band contributes the room's own cross span inset by the
+ *     same clearance the threshold branch uses, less any masonry standing at
+ *     this standpoint's own depth.
+ *
+ * THERE IS NO "TOO WIDE TO FIT" ARM, and the reason is a number. An earlier
+ * draft carried one, for a way through wider than the frame can hold. The
+ * widest door this plan projects is 476.3 px; `w + 2·FRAME_MARGIN_PX >
+ * canvasW` needs a margin above (1536 − 476.3)/2 = 529.9 px, which is 26× the
+ * derived 20. An arm that cannot fire is this project's six-bite family, so
+ * the arm is gone: a door wide enough to empty its own interval refuses
+ * through the branch below, like any other infeasible facing.
+ *
+ * THE SLIDE IS QUANTISED, THE COORDINATE IS NOT. The drawing prints two
+ * decimals and the document holds the number the drawing prints — but
+ * `plan.json`'s standpoints are not two-decimal numbers today (`hall/N`'s y is
+ * 10.049999999999999), so rounding the COORDINATE would move a facing that is
+ * not sliding at all. The slide is the least-magnitude whole centimetre inside
+ * the feasible set, and it is added to the coordinate the distance branch
+ * produced.
+ *
+ * AND WHEN NOTHING SATISFIES IT, THE BODY DOES NOT MOVE. No partial slide: a
+ * partial slide is a picture that improves without satisfying the law, and it
+ * would hide the very finding the law exists to raise. The facing keeps the
+ * centred standpoint and `[row26:exit.opening_unusable]` reports the door that
+ * a world walks and a hand cannot reach.
+ */
+function slideAlongWall(plan, room, facing, chosen, clearanceM, canvasW = PLAN_CANVAS_W) {
+  const fc = room.facings[facing];
+  const open = fc && fc.type === "open";
+  const geo = facingGeometry(room.rect, facing, open ? fc.far_line : undefined);
+  const d = measuredDistance(chosen.point, facing, geo.wallLine);
+  if (!(d > EPS)) return chosen;
+  const s = groundplane.FOCAL_PX / d;
+
+  const doors = doorsInView(plan, room, facing, chosen.point);
+  if (!doors.length) return chosen;
+
+  /* The fit interval, in metres of body along RIGHT. A door at eye-offset
+   * [lo, hi] draws at [canvasW/2 + lo·s, canvasW/2 + hi·s]; moving the body
+   * δ to the right moves the picture δ·s to the left. */
+  let dLo = -Infinity, dHi = Infinity;
+  for (const h of doors) {
+    const L = canvasW / 2 + h.lo_m * s, R = canvasW / 2 + h.hi_m * s;
+    dLo = Math.max(dLo, (R - canvasW + FRAME_MARGIN_PX) / s);
+    dHi = Math.min(dHi, (L - FRAME_MARGIN_PX) / s);
+  }
+  if (dLo <= 1e-9 && dHi >= -1e-9) return chosen;   // every door already fits
+
+  const span = viewSpan(room.rect, facing);
+  const cross = span.axis, normal = cross === "x" ? "y" : "x";
+  const [rx, ry] = RIGHT[facing];
+  const rdir = cross === "x" ? rx : ry;
+  const p0 = chosen.point[cross];
+
+  /* The standable band, in the same coordinate. Masonry counts only where it
+   * stands at THIS standpoint's own depth: the normal-axis test is strict
+   * containment and is deliberately NOT inflated by the clearance, because a
+   * threshold standpoint stands exactly `clearanceM` in front of the wall band
+   * behind it and inflating the test would forbid it its own floor. */
+  let bands = [[span.lo + clearanceM, span.hi - clearanceM]];
+  for (const o of standpointObstructions(plan, room)) {
+    if (chosen.point[normal] <= o.rect[normal + "0"] + 1e-9) continue;
+    if (chosen.point[normal] >= o.rect[normal + "1"] - 1e-9) continue;
+    bands = withoutInterval(bands, o.rect[cross + "0"] - clearanceM, o.rect[cross + "1"] + clearanceM);
+  }
+
+  const Q = Math.pow(10, -DRAWN_DP);
+  let best = null;
+  for (const [a, b] of bands) {
+    const e0 = (a - p0) * rdir, e1 = (b - p0) * rdir;
+    const lo = Math.max(dLo, Math.min(e0, e1)), hi = Math.min(dHi, Math.max(e0, e1));
+    if (lo > hi + 1e-9) continue;
+    /* The least-magnitude whole centimetre inside this interval. */
+    let cand = null;
+    if (lo <= 1e-9 && hi >= -1e-9) cand = 0;
+    else if (lo > 0) { const k = Math.ceil(lo / Q - 1e-6); if (k * Q <= hi + 1e-9) cand = drawn(k * Q); }
+    else { const k = Math.floor(hi / Q + 1e-6); if (k * Q >= lo - 1e-9) cand = drawn(k * Q); }
+    if (cand === null) continue;
+    if (best === null || Math.abs(cand) < Math.abs(best) - 1e-12 ||
+        (Math.abs(cand) <= Math.abs(best) + 1e-12 && cand < best)) best = cand;
+  }
+  if (best === null || best === 0) return chosen;
+  return { point: { ...chosen.point, [cross]: p0 + best * rdir }, source: chosen.source };
 }
 
 /**
@@ -770,7 +1001,17 @@ export function validatePlan(plan, world, records) {
         if (want.source !== src) {
           push(`room "${r.id}" facing ${f}: standpoint_source "${src}" but the law puts it at the "${want.source}" standpoint — a ${fc.wall_width_m} m wall ${wallFitsFrame(fc.wall_width_m, measuredDistance(ruleStandpoint(r.rect, f, K), f, geo.wallLine)) ? "fits" : "does not fit"} the frame from the drawn standpoint; mark it standpoint_source "drawn" if it is deliberate [row20:plan.standpoint_branch]`);
         } else if (Math.abs(fc.standpoint.x - want.point.x) > 1e-9 || Math.abs(fc.standpoint.y - want.point.y) > 1e-9) {
-          push(`room "${r.id}" facing ${f}: standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) is not the "${src}" one (${want.point.x}, ${want.point.y}) — stand-back ${K} of the room's own dimension, threshold clearance ${C} m off the wall behind [row20:plan.standpoint_stands_back]`);
+          /* [Row 26] AND WHICH OF THE TWO QUESTIONS IT GOT WRONG. The law now
+           * decides a distance and then a position along the wall, and a
+           * message naming only the stand-back would describe a slid facing as
+           * a stand-back that never moved sideways — a finding that sends its
+           * reader to the wrong half of the law. */
+          const crossAxis = (f === "N" || f === "S") ? "x" : "y";
+          const slid = Math.abs(fc.standpoint[crossAxis] - want.point[crossAxis]) > 1e-9;
+          const why = slid
+            ? `the law slides this facing along its own wall to bring every door the plan draws on it fully in frame with ${FRAME_MARGIN_PX} px of margin, then stands back ${K} of the room's own dimension (threshold clearance ${C} m off the wall behind)`
+            : `stand-back ${K} of the room's own dimension, threshold clearance ${C} m off the wall behind`;
+          push(`room "${r.id}" facing ${f}: standpoint (${fc.standpoint.x}, ${fc.standpoint.y}) is not the "${src}" one (${want.point.x}, ${want.point.y}) — ${why} [row20:plan.standpoint_stands_back]`);
         }
       }
       /* Law (a), always: the printed number IS the measured distance from the
