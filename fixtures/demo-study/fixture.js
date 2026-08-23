@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "68c79899",
+  fp: "e5736853",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -173,6 +173,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "corner_x1_px": 1351,
     "storey_height_m": 2.8,
     "camera_id": "measured:backdrops/source/study-N/cand-5-reference.png",
+    "camera_reference": "measured",
     "measured_round": "cand5ref",
     "provisional": false,
     "measured": true,
@@ -307,6 +308,7 @@ window.HOLO_FIXTURES["demo-study"] = {
     "corner_x1_px": 1351,
     "storey_height_m": 2.8,
     "camera_id": "measured:backdrops/source/study-W/cand-6.png",
+    "camera_reference": "measured",
     "measured_round": "cand6",
     "provisional": false,
     "measured": true,
