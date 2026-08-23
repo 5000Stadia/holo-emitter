@@ -3639,6 +3639,91 @@ the stricter of the two, so a misspelling refuses a manor wall loudly rather tha
 wall quietly. `validator.spec` pins the ruled centre from both sides, reads it off
 `groundplane.FOCAL_PX` rather than typing 1024, and asserts the two centres are genuinely two.
 
+## The painted door governs (row 27) — where a way through is, on a promoted wall
+
+**The defect, and how it shipped.** Row 21 gave a promoted meta an `openings` list and made the
+renderer composite the destination room INTO it (`drawThroughOpening`). Where that list came from
+was never really settled: `promote-backdrop.mjs` used a measured rectangle when
+`_measured_px.opening_x0_px` happened to exist AND the facing carried exactly one opening — true
+for `study/E` and `hall/W`, whose doors `measure.py` had read by hand — and PROJECTED the plan's
+rectangle otherwise. The manor harvest promoted eleven door-bearing walls through the second
+branch. Row 23 had already proved the painter ignores a position label, so on all eleven the
+painted door and the clickable hole stood apart, by up to 0.513 m of wall on `library/E`. Blueprint
+§11 forbids exactly that, and it was false on every one of them until the Captain walked the
+building and said so.
+
+**What governs.** §11's click-coincidence plus row 22's precedent (blueprint §5 makes the approved
+image the geometric authority; the plan amends to the painting). On a promoted wall the painted
+door governs its own rectangle. The world does not move — `id`, `via`, `kind`, `beyond_m`,
+`beyond_offset_m` stay the plan's, and `plan.json` is untouched, because this is a per-promotion
+amendment and not a redline on the drawing.
+
+**Row 27's own fork, answered.** A measured meta holds two horizontal scales — the corner span a
+click target lives in and `px_per_m_at_wall`, the ruler the gate measures with — diverging up to
+33 % across this corpus. The width comparison is made in the CORNER SPAN, because that is the space
+the rectangle being judged lives in; the ruler figure is printed beside it in every refusal so the
+divergence is visible rather than resolved into silence.
+
+**The instrument** (`design/plan-draft/measured/door_measure.py`). A painted doorway in this corpus
+is a void — the space beyond is unlit relative to the wall plane, and it is what the renderer
+pastes the destination room into, so it is the thing to measure. Per column, the median luminance
+over the middle 70 % of a ruled door's height; then every darkness cut from 1 to the wall's own
+median in turn, keeping the runs whose edges do not move across many cuts (1-D maximal stability).
+A panel groove or a shadowed corner drifts with the cut; a hole in a wall does not. The head is the
+void's top moved onto the lintel's own step; the foot is the wall's measured floor line, the
+convention `read_opening` used. NOTHING about the plan reaches the detector, so a painting that
+disobeys reads as disobedient — row 23's first draft scored a 217 px miss as a 17 px hit by
+searching for the width it expected.
+
+*What was tried and rejected:* strongest-vertical-edge-pair refinement around the void, which is
+row 23's `carrier_edges` shape. On the control frame it moved a reading that was 1 px out to 47 px
+out, onto the outer moulding — the two-rectangles trap `measure.py`'s `read_opening` docstring
+names. The void has one of it.
+
+**The control.** `study/E` cand-6's door, read by hand off one-pixel luminance profiles during the
+standing-eye wave: x 673..860, head y 310. The detector reads 673..861, head 310, with nothing
+about that reading in its inputs. `tests/playwright/doors.spec.mjs` holds it at ±6 px.
+
+**Where the reading lives.** In the measurement document, not in the promotion — `promotion_doc`'s
+rule, so re-running a promotion cannot produce a number no measurement took and `fixtures.spec`'s
+staleness case stays a check on the document. `row23_run.promote_reading` calls it, so the
+production sweep carries it; `--recheck-doors` re-runs it over the standing corpus.
+
+**The three clauses**, all in `promote-backdrop.mjs`, all with ledger arms in `guards.spec`:
+
+- `[row27:door.painted_width]` — a painted way through is admitted between **half and one and a
+  half** of §11's ruled 1.00 m opening at the wall's corner scale. The derivation is doorway-ness,
+  not scale: 0.50 m is narrower than anyone walks through and 1.50 m is wider than any single-leaf
+  opening the plan draws. It is wide on purpose because what is measured is the VOID, whose edges
+  are the reveal's inside and the architrave's outside, and §11 rules neither; the wall's SCALE is
+  already gated at ±8 % by `measuredLensBand` in the same tool.
+- `[row27:door.painted_overlap]` — two openings sharing pixels is one hole handed to two exits, and
+  the second is unreachable because whichever `go` target is hit-tested first eats the click.
+- `[row27:door.unmeasured_exit]` — the plan rules a way through this wall and the painting shows
+  none for it. There is NO FALLBACK to the projection any more; that fallback is the defect.
+
+**Which hole is which doorway** is an order-preserving minimum-displacement assignment (a DP over
+the two sorted lists), because doorways keep their order along a wall however far the painter
+slides them, and a nearest-neighbour walk can cross two doors over each other on a wall carrying
+two.
+
+**What the re-check did to the corpus.** Ten promoted door-bearing facings, eleven doors. Eight
+facings kept and re-derived with measured rectangles; two demoted to grid: `library/S` (its
+doorway has a lit room behind it, so there is no void to read) and `great_hall/W` (two 1.00 m doors
+at 92.6 px/m on a 9.3 m wall — the stable runs it does show are 0.36 and 0.47 of a ruled door, and
+the one candidate that is door-shaped fails the head test). Promoted corpus 23 → 21 paintings.
+Reasons are in `design/batches/row23-scaffold/manor/run-state.json`; before/after captures are in
+`design/batches/row27-doors/`.
+
+**Residue.** (a) The two demoted walls need re-asks; the prompt sheet should ask for an unlit
+space beyond every door opening, because a lit room behind a doorway is what makes it unreadable.
+(b) The detector under-measures a void whose opening contains a lit surface — `back_stair/W` reads
+0.62 and `dining_parlour/E` 0.58 of the ruled width — so those click targets sit INSIDE the painted
+door rather than filling it. That never mis-claims and §11 is satisfied, but the through-view
+leaves a rim of painted void around it. (c) `hall/W`'s hand reading in the cand-2 corpus is still
+in `_measured_px.opening_*`; nothing reads those fields any more, and a promotion of that wall
+would go through `door_measure.py` like every other.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went
