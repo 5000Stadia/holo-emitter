@@ -3255,6 +3255,77 @@ test.describe("the schematic is a derived render of the plan", () => {
     }
   });
 
+  /* [ROW 26] AND THE ROW'S OWN BATCH, which is of TWO builds: the passage as
+   * the site drew it and the passage after the slide. The BEFORE half is drawn
+   * from the commit the row started at — the same `git archive` route the
+   * row-21 batch above uses — because a picture of "before" rendered by
+   * today's code would not be a picture of before at all. */
+  const ROW26_DIR = join(repoRoot, "design", "batches", "row26-gate");
+  const ROW26_BEFORE_COMMIT = "65678c0";
+
+  test("the row-26 batch IS what the two builds draw — every frame re-rendered and compared", async ({ browserName }) => {
+    test.setTimeout(240_000);
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
+    expect(existsSync(join(ROW26_DIR, "capture.mjs")),
+      "the batch must carry the script that made it").toBe(true);
+    expect(execFileSync("git", ["rev-parse", "--short", ROW26_BEFORE_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(ROW26_BEFORE_COMMIT);
+    const tree = mkdtempSync(join(tmpdir(), "holo-row26-tree-"));
+    const out = mkdtempSync(join(tmpdir(), "holo-row26-"));
+    try {
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW26_BEFORE_COMMIT,
+        "index.html", "src", "fixtures", "backdrops", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node",
+        [join(ROW26_DIR, "capture.mjs"), out, repoRoot, tree],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(4);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(ROW26_DIR, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale, "these batch frames are not what the two builds draw").toEqual([]);
+      const committedFrames = readdirSync(ROW26_DIR)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
+      expect(committedFrames, "a frame the script draws is missing from the set a human is shown")
+        .toEqual(fresh);
+      /* Each frame is of what its name promises, and the BEFORE/AFTER pairs are
+         of the SAME facing — a pair that drifted apart would be an argument
+         about two different walls. */
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(?:BEFORE-)?([a-z_]+)-([NESW])$/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
+      const pairs = fresh.filter((f) => f.includes("BEFORE"))
+        .map((f) => f.replace(/^\d\d-BEFORE-/, ""));
+      for (const tail of pairs) {
+        expect(fresh.some((f) => !f.includes("BEFORE") && f.endsWith("-" + tail)),
+          `${tail} is shown BEFORE with nothing to compare it to`).toBe(true);
+      }
+      /* AND THE PAIR IS NOT THE SAME PICTURE TWICE. A capture script that
+         silently drew both halves from one build would produce a batch whose
+         every frame is "what the code draws" and whose argument is empty. */
+      for (const tail of ["hall-N.png", "hall-S.png"]) {
+        const before = readFileSync(join(ROW26_DIR, "01-BEFORE-" + tail));
+        const after = readFileSync(join(ROW26_DIR, "02-" + tail));
+        expect(before.equals(after), `${tail}: the two builds drew the same picture`).toBe(false);
+      }
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
   /* The batch's two schematics ARE the live sheets — same bytes, not a copy
      that was true once. A round-4 critic found the batch's pair still printing
      a drift notice the live sheets no longer carry, because the pictures were
