@@ -30,3 +30,15 @@ two-state pairs for shallow-drawer furniture.
    measured, not asserted. A change that moves neither accuracy nor speed is presumed NOT an
    improvement: it is apparatus, and apparatus must argue for its life or be removed. The ledger
    records the clock beside the fix.
+
+## 6. Solutions fold into the generation method [HUMAN, 2026-08-24]
+
+Kabe, verbatim, after the first walk of the painted manor: "Your solutions need to fold into
+the generation method for future builds." This is clause 2 said from the product side, and it
+is the acceptance test for every fix the walk produced: a correction lands in the EMITTER (the
+prompt derived from the plan's own room types, windows and facings), in a GATE (a clause the
+validator or the promotion loop applies to every wall forever), or in the INSTRUMENT (the
+measurement that decides) — never in a hand-retouched artifact, never in a per-run prompt
+paragraph a future build would have to remember. The question asked of any fix at review:
+"does the NEXT map, with none of this conversation in context, get this for free?" If not,
+the miss is still open.
