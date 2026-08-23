@@ -1,0 +1,141 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 885,
+    "chair_rail_y_px": 585,
+    "dado_rail_above_floor_px": 300,
+    "capping_above_floor_px": 300
+  },
+  "_windows": {
+    "floor": [
+      884,
+      946
+    ],
+    "rail": [
+      577,
+      627
+    ],
+    "ceiling": [
+      0,
+      67
+    ],
+    "columns": [
+      [
+        0,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 315.789,
+  "implied_focal_px": 982.1,
+  "eye_height_m": 1.1365,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 65,
+    "ceiling_candidates": [
+      {
+        "y": 66,
+        "strength": 14.82,
+        "horiz": 0.736,
+        "cv": 0.748
+      },
+      {
+        "y": 57,
+        "strength": 7.68,
+        "horiz": 0.773,
+        "cv": 0.631
+      },
+      {
+        "y": 13,
+        "strength": 4.12,
+        "horiz": 0.721,
+        "cv": 1.087
+      },
+      {
+        "y": 21,
+        "strength": 3.94,
+        "horiz": 0.726,
+        "cv": 1.121
+      },
+      {
+        "y": 27,
+        "strength": 3.92,
+        "horiz": 0.71,
+        "cv": 1.158
+      },
+      {
+        "y": 33,
+        "strength": 3.74,
+        "horiz": 0.693,
+        "cv": 1.144
+      },
+      {
+        "y": 39,
+        "strength": 3.52,
+        "horiz": 0.732,
+        "cv": 1.185
+      },
+      {
+        "y": 45,
+        "strength": 3.17,
+        "horiz": 0.7,
+        "cv": 1.158
+      },
+      {
+        "y": 51,
+        "strength": 2.72,
+        "horiz": 0.743,
+        "cv": 1.192
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 340,
+      "key_dir_brightest_y": 498,
+      "key_tint": "#c88f57",
+      "key_tint_patch": [
+        140,
+        540,
+        0,
+        57
+      ],
+      "key_tint_patch_mean_rgb": [
+        38.22,
+        27.27,
+        16.68
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89f7c",
+        "floor_bottom_strip": "#c88f5f",
+        "mid_wall_right": "#c8a278",
+        "mid_wall_left": "#c89c6c",
+        "brightest_21x21_patch": "#c8b9a8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        340,
+        498
+      ],
+      "sobel_bright_side_deg_whole_frame": 118.42,
+      "sobel_bright_side_deg_wall_band": 119.18,
+      "left_third_minus_right_third_luminance_whole_frame": 19.845,
+      "left_third_minus_right_third_luminance_wall_band": 16.509
+    },
+    "storey_height_m": 2.5967,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 65, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -4.09,
+  "delta_eye_pct": -3.93,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "c08999db",
+  "candidate": "backdrops/source/back_stair_head-N/row23-c08999db.png"
+}

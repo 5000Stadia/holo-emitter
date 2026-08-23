@@ -1,0 +1,184 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 720,
+    "chair_rail_y_px": 573,
+    "dado_rail_above_floor_px": 147,
+    "capping_above_floor_px": 154
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        267,
+        1268
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 154.737,
+  "implied_focal_px": 1021.3,
+  "eye_height_m": 1.2531,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 136,
+    "ceiling_candidates": [
+      {
+        "y": 137,
+        "strength": 40.82,
+        "horiz": 0.974,
+        "cv": 0.278
+      },
+      {
+        "y": 167,
+        "strength": 29.07,
+        "horiz": 0.942,
+        "cv": 0.479
+      },
+      {
+        "y": 176,
+        "strength": 22.0,
+        "horiz": 0.867,
+        "cv": 0.446
+      },
+      {
+        "y": 203,
+        "strength": 15.83,
+        "horiz": 0.786,
+        "cv": 0.774
+      },
+      {
+        "y": 144,
+        "strength": 11.08,
+        "horiz": 0.905,
+        "cv": 0.406
+      },
+      {
+        "y": 40,
+        "strength": 8.08,
+        "horiz": 0.739,
+        "cv": 0.786
+      },
+      {
+        "y": 32,
+        "strength": 7.78,
+        "horiz": 0.728,
+        "cv": 0.801
+      },
+      {
+        "y": 18,
+        "strength": 7.71,
+        "horiz": 0.747,
+        "cv": 0.791
+      },
+      {
+        "y": 24,
+        "strength": 7.5,
+        "horiz": 0.725,
+        "cv": 0.789
+      },
+      {
+        "y": 10,
+        "strength": 7.47,
+        "horiz": 0.738,
+        "cv": 0.776
+      },
+      {
+        "y": 52,
+        "strength": 7.19,
+        "horiz": 0.751,
+        "cv": 0.812
+      },
+      {
+        "y": 46,
+        "strength": 6.97,
+        "horiz": 0.761,
+        "cv": 0.771
+      }
+    ],
+    "corner_x0_px": 237,
+    "corner_x1_px": 1334,
+    "ramp": {
+      "x": 1476.1,
+      "y": 30.5,
+      "left_slope": 0.0082,
+      "right_slope": -0.6616,
+      "left_n": 50,
+      "left_resid_px": 9.48,
+      "right_n": 61,
+      "right_resid_px": 0.3
+    },
+    "votes": {
+      "floor": {
+        "x": 1130,
+        "y": 659,
+        "edge_px": 10130
+      },
+      "ceiling": {
+        "x": 1044,
+        "y": 312,
+        "edge_px": 14427
+      },
+      "side_walls": {
+        "x": 858,
+        "y": 407,
+        "edge_px": 1492
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 186,
+      "key_dir_brightest_y": 996,
+      "key_tint": "#c8914e",
+      "key_tint_patch": [
+        247,
+        386,
+        66,
+        128
+      ],
+      "key_tint_patch_mean_rgb": [
+        60.84,
+        44.01,
+        23.83
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c87f34",
+        "floor_bottom_strip": "#c88f5f",
+        "mid_wall_right": "#c86919",
+        "mid_wall_left": "#c89667",
+        "brightest_21x21_patch": "#c8af99"
+      },
+      "brightest_21x21_patch_centre_px": [
+        186,
+        996
+      ],
+      "sobel_bright_side_deg_whole_frame": 87.24,
+      "sobel_bright_side_deg_wall_band": 129.61,
+      "left_third_minus_right_third_luminance_whole_frame": 9.481,
+      "left_third_minus_right_third_luminance_wall_band": -0.471
+    },
+    "storey_height_m": 3.7741,
+    "implied_wall_width_m": 7.0895,
+    "eye_height_m": 4.456,
+    "withheld_because": [
+      "the horizon this painting's own side walls converge on (y 30.5) puts the eye at 4.456 m above its own floor line at the scale its own chair-rail declares (154.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
+    ]
+  },
+  "delta_focal_pct": -0.27,
+  "delta_eye_pct": 5.92,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "5dfe4cfe",
+  "candidate": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png"
+}

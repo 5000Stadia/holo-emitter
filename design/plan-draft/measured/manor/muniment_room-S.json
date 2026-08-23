@@ -1,0 +1,173 @@
+{
+  "_source_sha256": "855f69b109e5349ecfaa781de2793243757dbdf24b43a7b4c7c2bd137c852cee",
+  "_what_this_is": "The manor production reading for muniment_room/S, measured off backdrops/source/muniment_room-S/row23-7bcf46be.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.797852,
+  "horizon_y": 0.50918,
+  "px_per_m_at_wall": 247.368,
+  "px_per_m_at_bottom": 420.59,
+  "implied_focal_px": 952.4,
+  "eye_height_m": 1.195,
+  "storey_height_m": 2.8904,
+  "drawn_standpoint_m": 3.85,
+  "delta_focal_pct": -7.0,
+  "delta_eye_pct": -0.59,
+  "band_pct": 8.0,
+  "wall_width_m": 4.8228,
+  "camera_wall_m": 3.85,
+  "corner_x0_px": 174,
+  "corner_x1_px": 1367,
+  "key_tint": "#c89253",
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 235,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "chair_rail",
+    "ruled_m": 0.95,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 1158,
+        "y": 695,
+        "edge_px": 8500
+      },
+      "ceiling": {
+        "x": 794,
+        "y": 482,
+        "edge_px": 9994
+      },
+      "side_walls": {
+        "x": 718,
+        "y": 433,
+        "edge_px": 3625
+      }
+    },
+    "adopted_y": 521.4,
+    "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+    "ceiling_ramp_intersection": {
+      "x": 782.7,
+      "y": 521.4,
+      "left_slope": 0.6937,
+      "right_slope": -0.7397,
+      "left_n": 58,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.29
+    }
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 817,
+    "chair_rail_y_px": 582,
+    "dado_rail_above_floor_px": 235,
+    "capping_above_floor_px": 235,
+    "wall_ceiling_line_y_px": 102,
+    "corner_x0_px": 174,
+    "corner_x1_px": 1367,
+    "horizon_y_px": 521.4
+  },
+  "_windows": {
+    "floor": [
+      815,
+      865
+    ],
+    "rail": [
+      567,
+      608
+    ],
+    "ceiling": [
+      36,
+      155
+    ],
+    "columns": [
+      [
+        43,
+        282
+      ],
+      [
+        655,
+        894
+      ],
+      [
+        1267,
+        1492
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [
+    {
+      "kind": "window",
+      "asked_x0": 282.6,
+      "asked_x1": 654.96,
+      "ruled_m": 1.4,
+      "window": [
+        -89,
+        1026
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 572..940 (287 px from the ask) and another admissible pair sits 491..940 (247 px from the ask), which disagree by more than the 30 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 894.34,
+      "asked_x1": 1266.7,
+      "ruled_m": 1.4,
+      "window": [
+        522,
+        1638
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 572..940 (325 px from the ask) and another admissible pair sits 594..1050 (259 px from the ask), which disagree by more than the 30 px this arm can resolve"
+    }
+  ],
+  "_light": {
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 559,
+    "key_dir_brightest_y": 248,
+    "key_tint": "#c89253",
+    "key_tint_patch": [
+      359,
+      759,
+      32,
+      94
+    ],
+    "key_tint_patch_mean_rgb": [
+      93.58,
+      68.31,
+      38.96
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8b19f",
+      "floor_bottom_strip": "#c8ad97",
+      "mid_wall_right": "#c88a54",
+      "mid_wall_left": "#c88f59",
+      "brightest_21x21_patch": "#c8c8c7"
+    },
+    "brightest_21x21_patch_centre_px": [
+      559,
+      248
+    ],
+    "sobel_bright_side_deg_whole_frame": 118.1,
+    "sobel_bright_side_deg_wall_band": 120.59,
+    "left_third_minus_right_third_luminance_whole_frame": -1.354,
+    "left_third_minus_right_third_luminance_wall_band": -0.747
+  },
+  "_derived": {
+    "eye_height_m": 1.195,
+    "storey_height_m": 2.8904,
+    "implied_wall_width_m": 4.8228,
+    "px_per_m_at_bottom": 420.5858,
+    "implied_camera_wall_m": 4.1396
+  },
+  "_withheld_because": [],
+  "_round": "manor"
+}

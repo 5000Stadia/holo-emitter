@@ -1,0 +1,195 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 799,
+    "chair_rail_y_px": 578,
+    "dado_rail_above_floor_px": 221,
+    "capping_above_floor_px": 229
+  },
+  "_windows": {
+    "floor": [
+      798,
+      845
+    ],
+    "rail": [
+      565,
+      603
+    ],
+    "ceiling": [
+      65,
+      177
+    ],
+    "columns": [
+      [
+        248,
+        561
+      ],
+      [
+        812,
+        1287
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 561.45,
+      "asked_x1": 811.81,
+      "ruled_m": 1.0,
+      "window": [
+        311,
+        1061
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 570..838 (17 px from the ask) and another admissible pair sits 622..838 (43 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 232.632,
+  "implied_focal_px": 951.5,
+  "eye_height_m": 1.1731,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 570..838 (17 px from the ask) and another admissible pair sits 622..838 (43 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 128,
+    "ceiling_candidates": [
+      {
+        "y": 129,
+        "strength": 20.95,
+        "horiz": 0.658,
+        "cv": 0.711
+      },
+      {
+        "y": 33,
+        "strength": 16.11,
+        "horiz": 0.896,
+        "cv": 0.414
+      },
+      {
+        "y": 60,
+        "strength": 11.97,
+        "horiz": 0.786,
+        "cv": 0.49
+      },
+      {
+        "y": 84,
+        "strength": 10.14,
+        "horiz": 0.777,
+        "cv": 0.57
+      },
+      {
+        "y": 111,
+        "strength": 8.62,
+        "horiz": 0.77,
+        "cv": 0.781
+      },
+      {
+        "y": 119,
+        "strength": 5.42,
+        "horiz": 0.706,
+        "cv": 0.822
+      },
+      {
+        "y": 136,
+        "strength": 4.61,
+        "horiz": 0.752,
+        "cv": 0.704
+      },
+      {
+        "y": 152,
+        "strength": 4.15,
+        "horiz": 0.725,
+        "cv": 0.795
+      },
+      {
+        "y": 176,
+        "strength": 4.12,
+        "horiz": 0.767,
+        "cv": 0.816
+      },
+      {
+        "y": 160,
+        "strength": 3.96,
+        "horiz": 0.771,
+        "cv": 0.801
+      },
+      {
+        "y": 142,
+        "strength": 3.94,
+        "horiz": 0.758,
+        "cv": 0.766
+      },
+      {
+        "y": 166,
+        "strength": 3.71,
+        "horiz": 0.772,
+        "cv": 0.795
+      }
+    ],
+    "corner_x0_px": 253,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {
+      "floor": {
+        "x": 786,
+        "y": 499,
+        "edge_px": 28940
+      },
+      "ceiling": {
+        "x": 758,
+        "y": 543,
+        "edge_px": 5638
+      },
+      "side_walls": {
+        "x": 352,
+        "y": 709,
+        "edge_px": 9613
+      }
+    },
+    "light": {
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1516,
+      "key_dir_brightest_y": 528,
+      "key_tint": "#c89f6d",
+      "key_tint_patch": [
+        1316,
+        1535,
+        58,
+        120
+      ],
+      "key_tint_patch_mean_rgb": [
+        92.73,
+        73.59,
+        50.39
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88b59",
+        "floor_bottom_strip": "#c89b77",
+        "mid_wall_right": "#c8ac8a",
+        "mid_wall_left": "#c8a57c",
+        "brightest_21x21_patch": "#c8b69f"
+      },
+      "brightest_21x21_patch_centre_px": [
+        1516,
+        528
+      ],
+      "sobel_bright_side_deg_whole_frame": 90.31,
+      "sobel_bright_side_deg_wall_band": 90.44,
+      "left_third_minus_right_third_luminance_whole_frame": -11.38,
+      "left_third_minus_right_third_luminance_wall_band": -20.175
+    },
+    "storey_height_m": 2.8844,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 128, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -7.08,
+  "delta_eye_pct": -0.84,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "f579dd67",
+  "candidate": "backdrops/source/back_stair_head-W/row23-f579dd67.png"
+}

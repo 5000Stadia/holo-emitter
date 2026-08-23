@@ -1,0 +1,220 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 737,
+    "chair_rail_y_px": 573,
+    "dado_rail_above_floor_px": 164,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      711,
+      744
+    ],
+    "rail": [
+      552,
+      578
+    ],
+    "ceiling": [
+      211,
+      288
+    ],
+    "columns": [
+      [
+        17,
+        256
+      ],
+      [
+        598,
+        768
+      ],
+      [
+        939,
+        1518
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "fireplace",
+      "asked_x0": 256,
+      "asked_x1": 597.33,
+      "ruled_m": 2.0,
+      "window": [
+        -85,
+        938
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 352..727 (113 px from the ask) and another admissible pair sits 371..768 (143 px from the ask), which disagree by more than the 27 px this arm can resolve"
+    },
+    {
+      "kind": "door",
+      "asked_x0": 768,
+      "asked_x1": 938.67,
+      "ruled_m": 1.0,
+      "window": [
+        427,
+        1279
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 727..939 (21 px from the ask) and another admissible pair sits 1046..1214 (277 px from the ask), which disagree by more than the 27 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 172.632,
+  "implied_focal_px": 1035.8,
+  "eye_height_m": 1.2217,
+  "_absent": [
+    "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 352..727 (113 px from the ask) and another admissible pair sits 371..768 (143 px from the ask), which disagree by more than the 27 px this arm can resolve",
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 727..939 (21 px from the ask) and another admissible pair sits 1046..1214 (277 px from the ask), which disagree by more than the 27 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 102,
+    "ceiling_candidates": [
+      {
+        "y": 103,
+        "strength": 8.36,
+        "horiz": 0.7,
+        "cv": 1.281
+      },
+      {
+        "y": 97,
+        "strength": 8.18,
+        "horiz": 0.712,
+        "cv": 1.632
+      },
+      {
+        "y": 158,
+        "strength": 4.41,
+        "horiz": 0.692,
+        "cv": 0.864
+      },
+      {
+        "y": 183,
+        "strength": 4.4,
+        "horiz": 0.6,
+        "cv": 1.002
+      },
+      {
+        "y": 273,
+        "strength": 4.02,
+        "horiz": 0.785,
+        "cv": 1.338
+      },
+      {
+        "y": 16,
+        "strength": 3.91,
+        "horiz": 0.736,
+        "cv": 0.874
+      },
+      {
+        "y": 10,
+        "strength": 3.87,
+        "horiz": 0.758,
+        "cv": 0.864
+      },
+      {
+        "y": 26,
+        "strength": 3.81,
+        "horiz": 0.735,
+        "cv": 1.007
+      },
+      {
+        "y": 126,
+        "strength": 3.65,
+        "horiz": 0.705,
+        "cv": 1.641
+      },
+      {
+        "y": 146,
+        "strength": 3.62,
+        "horiz": 0.682,
+        "cv": 0.909
+      },
+      {
+        "y": 37,
+        "strength": 3.53,
+        "horiz": 0.739,
+        "cv": 0.858
+      },
+      {
+        "y": 47,
+        "strength": 3.41,
+        "horiz": 0.718,
+        "cv": 0.888
+      }
+    ],
+    "corner_x0_px": 135,
+    "corner_x1_px": 1434,
+    "ramp": {
+      "x": 796.7,
+      "y": 550.6,
+      "left_slope": 0.6979,
+      "right_slope": -0.7156,
+      "left_n": 56,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.29
+    },
+    "votes": {
+      "floor": {
+        "x": 828,
+        "y": 529,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 1074,
+        "y": 342,
+        "edge_px": 10910
+      },
+      "side_walls": {
+        "x": 200,
+        "y": 201,
+        "edge_px": 884
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 321,
+      "key_dir_brightest_y": 546,
+      "key_tint": "#c8945c",
+      "key_tint_patch": [
+        145,
+        521,
+        32,
+        94
+      ],
+      "key_tint_patch_mean_rgb": [
+        92.49,
+        68.38,
+        42.47
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8996b",
+        "floor_bottom_strip": "#c88249",
+        "mid_wall_right": "#c85f17",
+        "mid_wall_left": "#c8926a",
+        "brightest_21x21_patch": "#c8b398"
+      },
+      "brightest_21x21_patch_centre_px": [
+        321,
+        546
+      ],
+      "sobel_bright_side_deg_whole_frame": 116.3,
+      "sobel_bright_side_deg_wall_band": 146.86,
+      "left_third_minus_right_third_luminance_whole_frame": 16.981,
+      "left_third_minus_right_third_luminance_wall_band": 13.787
+    },
+    "storey_height_m": 3.6784,
+    "implied_wall_width_m": 7.5247,
+    "eye_height_m": 1.0798,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 1.15,
+  "delta_eye_pct": 3.27,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "4a2e1e8a",
+  "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png"
+}

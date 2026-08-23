@@ -1,0 +1,69 @@
+{
+  "floor_line_y": 0.681641,
+  "px_per_m_at_wall": 147.368,
+  "px_per_m_at_bottom": 391.86,
+  "wall_width_m": 6.45,
+  "key_tint": "#c89b62",
+  "image_h_px": 1024,
+  "horizon_y": 0.489746,
+  "key_dir": "R-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 140,
+  "camera_wall_m": 6.6,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 6.45,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 199,
+  "corner_x1_px": 1316,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source/library-E/row23-780b6a83.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 972.6,
+  "nearest_floor_m": 2.4821,
+  "measured_room": {
+    "storey_height_m": 3.929,
+    "wall_width_m": 7.58,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 6.45,
+    "carriers": [
+      {
+        "kind": "door",
+        "id": "op05",
+        "plan_px": [
+          882.2,
+          1029.6
+        ],
+        "plan_centre_px": 955.9,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op05",
+      "kind": "door",
+      "via": null,
+      "x": 891.71,
+      "y": 403.26,
+      "w": 173.18,
+      "h": 294.74,
+      "beyond_m": 15.2,
+      "beyond_offset_m": 3.525,
+      "measured": false
+    }
+  ]
+}

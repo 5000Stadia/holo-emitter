@@ -1,0 +1,135 @@
+{
+  "_source_sha256": "8cdd6778d4c4eacce61b34d40b3d896962388869922ac95ce968a59c952fa942",
+  "_what_this_is": "The manor production reading for privy_garden/N, measured off backdrops/source/privy_garden-N/row23-11d58c22.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
+  "facing_type": "open",
+  "image_h_px": 1024,
+  "floor_line_y": 0.750977,
+  "horizon_y": 0.44707,
+  "px_per_m_at_wall": 198.947,
+  "px_per_m_at_bottom": 361.97,
+  "implied_focal_px": 1014.6,
+  "eye_height_m": 1.5642,
+  "storey_height_m": 3.2672,
+  "drawn_standpoint_m": 5.1,
+  "delta_focal_pct": -0.91,
+  "delta_eye_pct": 3.21,
+  "band_pct": 8.0,
+  "wall_width_m": 6.3937,
+  "camera_wall_m": 5.1,
+  "corner_x0_px": 143,
+  "corner_x1_px": 1415,
+  "key_tint": "#c8c4c0",
+  "key_dir": "L-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 189,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "chair_rail",
+    "ruled_m": 0.95,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 0,
+        "y": 474,
+        "edge_px": 23802
+      },
+      "ceiling": {
+        "x": 846,
+        "y": 541,
+        "edge_px": 14096
+      },
+      "side_walls": {
+        "x": 1248,
+        "y": 820,
+        "edge_px": 12159
+      }
+    },
+    "adopted_y": 457.8,
+    "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+    "ceiling_ramp_intersection": {
+      "x": 690.4,
+      "y": 457.8,
+      "left_slope": 0.6649,
+      "right_slope": -0.5187,
+      "left_n": 61,
+      "left_resid_px": 0.31,
+      "right_n": 51,
+      "right_resid_px": 4.42
+    }
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 769,
+    "chair_rail_y_px": 580,
+    "dado_rail_above_floor_px": 189,
+    "capping_above_floor_px": 201,
+    "wall_ceiling_line_y_px": 119,
+    "corner_x0_px": 143,
+    "corner_x1_px": 1415,
+    "horizon_y_px": 457.8
+  },
+  "_windows": {
+    "floor": [
+      744,
+      782
+    ],
+    "rail": [
+      557,
+      588
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [],
+  "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 344,
+    "key_dir_brightest_y": 96,
+    "key_tint": "#c8c4c0",
+    "key_tint_patch": [
+      153,
+      544,
+      49,
+      111
+    ],
+    "key_tint_patch_mean_rgb": [
+      207.28,
+      203.53,
+      199.31
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8965f",
+      "floor_bottom_strip": "#c89b68",
+      "mid_wall_right": "#c87c39",
+      "mid_wall_left": "#c88241",
+      "brightest_21x21_patch": "#c8c5c3"
+    },
+    "brightest_21x21_patch_centre_px": [
+      344,
+      96
+    ],
+    "sobel_bright_side_deg_whole_frame": 85.19,
+    "sobel_bright_side_deg_wall_band": 85.74,
+    "left_third_minus_right_third_luminance_whole_frame": -6.352,
+    "left_third_minus_right_third_luminance_wall_band": -14.416
+  },
+  "_derived": {
+    "eye_height_m": 1.5642,
+    "storey_height_m": 3.2672,
+    "implied_wall_width_m": 6.3937,
+    "px_per_m_at_bottom": 361.9742,
+    "implied_camera_wall_m": 5.1471
+  },
+  "_withheld_because": [],
+  "_round": "manor"
+}

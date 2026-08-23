@@ -1,0 +1,202 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 799,
+    "chair_rail_y_px": 588,
+    "dado_rail_above_floor_px": 211,
+    "capping_above_floor_px": 222
+  },
+  "_windows": {
+    "floor": [
+      782,
+      826
+    ],
+    "rail": [
+      563,
+      598
+    ],
+    "ceiling": [
+      92,
+      198
+    ],
+    "columns": [
+      [
+        126,
+        514
+      ],
+      [
+        1033,
+        1409
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "fireplace",
+      "asked_x0": 514.94,
+      "asked_x1": 1032.83,
+      "ruled_m": 2.2,
+      "window": [
+        -3,
+        1550
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 967..1467 (443 px from the ask) and another admissible pair sits 519..967 (35 px from the ask), which disagree by more than the 41 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 222.105,
+  "implied_focal_px": 966.2,
+  "eye_height_m": 1.2287,
+  "_absent": [
+    "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 967..1467 (443 px from the ask) and another admissible pair sits 519..967 (35 px from the ask), which disagree by more than the 41 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 91,
+    "ceiling_candidates": [
+      {
+        "y": 92,
+        "strength": 12.97,
+        "horiz": 0.64,
+        "cv": 1.261
+      },
+      {
+        "y": 150,
+        "strength": 11.72,
+        "horiz": 0.653,
+        "cv": 0.936
+      },
+      {
+        "y": 182,
+        "strength": 10.63,
+        "horiz": 0.624,
+        "cv": 1.42
+      },
+      {
+        "y": 174,
+        "strength": 8.48,
+        "horiz": 0.658,
+        "cv": 1.157
+      },
+      {
+        "y": 120,
+        "strength": 8.21,
+        "horiz": 0.721,
+        "cv": 1.152
+      },
+      {
+        "y": 103,
+        "strength": 7.82,
+        "horiz": 0.683,
+        "cv": 1.069
+      },
+      {
+        "y": 130,
+        "strength": 7.4,
+        "horiz": 0.663,
+        "cv": 1.515
+      },
+      {
+        "y": 18,
+        "strength": 5.29,
+        "horiz": 0.726,
+        "cv": 0.838
+      },
+      {
+        "y": 24,
+        "strength": 5.28,
+        "horiz": 0.731,
+        "cv": 0.865
+      },
+      {
+        "y": 32,
+        "strength": 5.16,
+        "horiz": 0.718,
+        "cv": 0.878
+      },
+      {
+        "y": 10,
+        "strength": 5.16,
+        "horiz": 0.719,
+        "cv": 0.81
+      },
+      {
+        "y": 41,
+        "strength": 4.71,
+        "horiz": 0.702,
+        "cv": 0.883
+      }
+    ],
+    "corner_x0_px": 225,
+    "corner_x1_px": 1310,
+    "ramp": {
+      "x": 763.3,
+      "y": 565.1,
+      "left_slope": 0.8866,
+      "right_slope": -0.874,
+      "left_n": 57,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.28
+    },
+    "votes": {
+      "floor": {
+        "x": 736,
+        "y": 516,
+        "edge_px": 27258
+      },
+      "ceiling": {
+        "x": 768,
+        "y": 545,
+        "edge_px": 10115
+      },
+      "side_walls": {
+        "x": 0,
+        "y": 196,
+        "edge_px": 2526
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 544,
+      "key_dir_brightest_y": 708,
+      "key_tint": "#c89d6c",
+      "key_tint_patch": [
+        344,
+        744,
+        21,
+        83
+      ],
+      "key_tint_patch_mean_rgb": [
+        82.9,
+        65.21,
+        44.61
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88f5f",
+        "floor_bottom_strip": "#c88550",
+        "mid_wall_right": "#c87032",
+        "mid_wall_left": "#c89d7c",
+        "brightest_21x21_patch": "#c8a478"
+      },
+      "brightest_21x21_patch_centre_px": [
+        544,
+        708
+      ],
+      "sobel_bright_side_deg_whole_frame": 113.35,
+      "sobel_bright_side_deg_wall_band": 148.72,
+      "left_third_minus_right_third_luminance_whole_frame": 1.85,
+      "left_third_minus_right_third_luminance_wall_band": -1.782
+    },
+    "storey_height_m": 3.1877,
+    "implied_wall_width_m": 4.8851,
+    "eye_height_m": 1.0531,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -5.65,
+  "delta_eye_pct": 3.86,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "46bf6894",
+  "candidate": "backdrops/source/muniment_room-N/row23-46bf6894.png"
+}

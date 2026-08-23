@@ -1,0 +1,56 @@
+{
+  "floor_line_y": 0.780273,
+  "px_per_m_at_wall": 222.105,
+  "px_per_m_at_bottom": 435.76,
+  "wall_width_m": 5.45,
+  "key_tint": "#c89d6c",
+  "image_h_px": 1024,
+  "horizon_y": 0.551855,
+  "key_dir": "C-BELOW",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 211,
+  "camera_wall_m": 4.35,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 5.45,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 225,
+  "corner_x1_px": 1310,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source/muniment_room-N/row23-46bf6894.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 966.2,
+  "nearest_floor_m": 2.2172,
+  "measured_room": {
+    "storey_height_m": 3.188,
+    "wall_width_m": 4.885,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 5.45,
+    "carriers": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "plan_px": [
+          529.2,
+          1017.9
+        ],
+        "plan_centre_px": 773.6,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": []
+}

@@ -1,0 +1,157 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 904,
+    "chair_rail_y_px": 606,
+    "dado_rail_above_floor_px": 298,
+    "capping_above_floor_px": 304
+  },
+  "_windows": {
+    "floor": [
+      885,
+      948
+    ],
+    "rail": [
+      577,
+      628
+    ],
+    "ceiling": [
+      0,
+      65
+    ],
+    "columns": [
+      [
+        273,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": -222.97,
+      "asked_x1": 272.52,
+      "ruled_m": 1.5,
+      "window": [
+        -717,
+        767
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 31..471 (226 px from the ask) and another admissible pair sits 161..645 (378 px from the ask), which disagree by more than the 40 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 313.684,
+  "implied_focal_px": 972.4,
+  "eye_height_m": 1.2047,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 31..471 (226 px from the ask) and another admissible pair sits 161..645 (378 px from the ask), which disagree by more than the 40 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 11,
+    "ceiling_candidates": [
+      {
+        "y": 12,
+        "strength": 3.73,
+        "horiz": 0.74,
+        "cv": 0.854
+      },
+      {
+        "y": 26,
+        "strength": 3.6,
+        "horiz": 0.689,
+        "cv": 0.945
+      },
+      {
+        "y": 40,
+        "strength": 3.57,
+        "horiz": 0.701,
+        "cv": 0.962
+      },
+      {
+        "y": 19,
+        "strength": 3.47,
+        "horiz": 0.705,
+        "cv": 0.881
+      },
+      {
+        "y": 32,
+        "strength": 3.45,
+        "horiz": 0.712,
+        "cv": 0.967
+      },
+      {
+        "y": 47,
+        "strength": 3.31,
+        "horiz": 0.708,
+        "cv": 0.885
+      },
+      {
+        "y": 59,
+        "strength": 3.01,
+        "horiz": 0.729,
+        "cv": 0.927
+      },
+      {
+        "y": 53,
+        "strength": 2.89,
+        "horiz": 0.733,
+        "cv": 0.937
+      },
+      {
+        "y": 65,
+        "strength": 2.6,
+        "horiz": 0.717,
+        "cv": 0.878
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 365,
+      "key_dir_brightest_y": 258,
+      "key_tint": "#c89f69",
+      "key_tint_patch": [
+        165,
+        565,
+        0,
+        4
+      ],
+      "key_tint_patch_mean_rgb": [
+        118.69,
+        94.48,
+        62.5
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8beb6",
+        "floor_bottom_strip": "#c89e79",
+        "mid_wall_right": "#c8772e",
+        "mid_wall_left": "#c89252",
+        "brightest_21x21_patch": "#c7c7c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        365,
+        258
+      ],
+      "sobel_bright_side_deg_whole_frame": 138.68,
+      "sobel_bright_side_deg_wall_band": 131.06,
+      "left_third_minus_right_third_luminance_whole_frame": 42.76,
+      "left_third_minus_right_third_luminance_wall_band": 38.209
+    },
+    "storey_height_m": 2.8468,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 11, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -5.04,
+  "delta_eye_pct": 1.84,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "4ef9bb9b",
+  "candidate": "backdrops/source/garden_room-N/row23-4ef9bb9b.png"
+}

@@ -1,0 +1,209 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 583,
+    "chair_rail_y_px": 540,
+    "dado_rail_above_floor_px": 43,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      583,
+      593
+    ],
+    "rail": [
+      534,
+      542
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        98,
+        1485
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": 18.99,
+      "asked_x1": 97.55,
+      "ruled_m": 1.4999,
+      "window": [
+        -60,
+        176
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 22..89 (6 px from the ask) and another admissible pair sits 50..140 (37 px from the ask), which disagree by more than the 6 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1485.59,
+      "asked_x1": 1564.15,
+      "ruled_m": 1.4999,
+      "window": [
+        1406,
+        1643
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 1441..1512 (48 px from the ask) and another admissible pair sits 1422..1512 (58 px from the ask), which disagree by more than the 6 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 45.263,
+  "implied_focal_px": 884.9,
+  "eye_height_m": 1.2571,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 22..89 (6 px from the ask) and another admissible pair sits 50..140 (37 px from the ask), which disagree by more than the 6 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 1441..1512 (48 px from the ask) and another admissible pair sits 1422..1512 (58 px from the ask), which disagree by more than the 6 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 516,
+    "ceiling_candidates": [
+      {
+        "y": 517,
+        "strength": 36.38,
+        "horiz": 0.609,
+        "cv": 1.008
+      },
+      {
+        "y": 280,
+        "strength": 21.3,
+        "horiz": 0.681,
+        "cv": 2.436
+      },
+      {
+        "y": 249,
+        "strength": 20.23,
+        "horiz": 0.671,
+        "cv": 2.373
+      },
+      {
+        "y": 255,
+        "strength": 18.07,
+        "horiz": 0.687,
+        "cv": 2.067
+      },
+      {
+        "y": 533,
+        "strength": 17.48,
+        "horiz": 0.682,
+        "cv": 1.645
+      },
+      {
+        "y": 526,
+        "strength": 16.15,
+        "horiz": 0.687,
+        "cv": 1.611
+      },
+      {
+        "y": 120,
+        "strength": 14.38,
+        "horiz": 0.715,
+        "cv": 2.547
+      },
+      {
+        "y": 317,
+        "strength": 11.66,
+        "horiz": 0.669,
+        "cv": 2.952
+      },
+      {
+        "y": 163,
+        "strength": 11.31,
+        "horiz": 0.738,
+        "cv": 3.258
+      },
+      {
+        "y": 68,
+        "strength": 10.91,
+        "horiz": 0.756,
+        "cv": 1.618
+      },
+      {
+        "y": 511,
+        "strength": 10.91,
+        "horiz": 0.666,
+        "cv": 1.596
+      },
+      {
+        "y": 337,
+        "strength": 10.82,
+        "horiz": 0.681,
+        "cv": 3.109
+      }
+    ],
+    "corner_x0_px": 768,
+    "corner_x1_px": 768,
+    "ramp": {
+      "x": 751.5,
+      "y": 530.1,
+      "left_slope": 0.6054,
+      "right_slope": -0.1514,
+      "left_n": 52,
+      "left_resid_px": 8.26,
+      "right_n": 55,
+      "right_resid_px": 12.33
+    },
+    "votes": {
+      "floor": {
+        "x": 810,
+        "y": 518,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 1020,
+        "y": 828,
+        "edge_px": 25609
+      },
+      "side_walls": {
+        "x": 982,
+        "y": 394,
+        "edge_px": 1105
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 728,
+      "key_dir_brightest_y": 141,
+      "key_tint": "#c8b081",
+      "key_tint_patch": [
+        528,
+        928,
+        446,
+        508
+      ],
+      "key_tint_patch_mean_rgb": [
+        88.37,
+        77.67,
+        57.07
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8793a",
+        "floor_bottom_strip": "#c8a782",
+        "mid_wall_right": "#c8915d",
+        "mid_wall_left": "#c8905c",
+        "brightest_21x21_patch": "#c6c7c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        728,
+        141
+      ],
+      "sobel_bright_side_deg_whole_frame": -178.57,
+      "sobel_bright_side_deg_wall_band": null,
+      "left_third_minus_right_third_luminance_whole_frame": 5.394,
+      "left_third_minus_right_third_luminance_wall_band": 1.705
+    },
+    "storey_height_m": 1.4802,
+    "implied_wall_width_m": 0.0,
+    "eye_height_m": 1.1687,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -13.58,
+  "delta_eye_pct": 6.26,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "d8dc83d9",
+  "candidate": "backdrops/source/entrance_approach-N/row23-d8dc83d9.png"
+}

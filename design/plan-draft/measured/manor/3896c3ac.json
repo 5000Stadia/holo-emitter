@@ -1,0 +1,155 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 937,
+    "chair_rail_y_px": 590,
+    "dado_rail_above_floor_px": 347,
+    "capping_above_floor_px": 357
+  },
+  "_windows": {
+    "floor": [
+      885,
+      948
+    ],
+    "rail": [
+      577,
+      628
+    ],
+    "ceiling": [
+      0,
+      65
+    ],
+    "columns": [
+      [
+        0,
+        768
+      ],
+      [
+        1099,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 768,
+      "asked_x1": 1098.32,
+      "ruled_m": 1.0,
+      "window": [
+        438,
+        1428
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 781..1085 (13 px from the ask) and another admissible pair sits 484..781 (301 px from the ask), which disagree by more than the 26 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 365.263,
+  "implied_focal_px": 1132.3,
+  "eye_height_m": 1.1249,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 781..1085 (13 px from the ask) and another admissible pair sits 484..781 (301 px from the ask), which disagree by more than the 26 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 16,
+    "ceiling_candidates": [
+      {
+        "y": 17,
+        "strength": 3.2,
+        "horiz": 0.697,
+        "cv": 0.924
+      },
+      {
+        "y": 25,
+        "strength": 3.05,
+        "horiz": 0.722,
+        "cv": 0.956
+      },
+      {
+        "y": 32,
+        "strength": 3.04,
+        "horiz": 0.719,
+        "cv": 0.988
+      },
+      {
+        "y": 39,
+        "strength": 3.01,
+        "horiz": 0.711,
+        "cv": 0.982
+      },
+      {
+        "y": 11,
+        "strength": 2.99,
+        "horiz": 0.726,
+        "cv": 0.913
+      },
+      {
+        "y": 47,
+        "strength": 2.94,
+        "horiz": 0.731,
+        "cv": 0.917
+      },
+      {
+        "y": 61,
+        "strength": 2.84,
+        "horiz": 0.725,
+        "cv": 0.983
+      },
+      {
+        "y": 54,
+        "strength": 2.7,
+        "horiz": 0.74,
+        "cv": 1.033
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 448,
+      "key_dir_brightest_y": 18,
+      "key_tint": "#c8a982",
+      "key_tint_patch": [
+        248,
+        648,
+        0,
+        8
+      ],
+      "key_tint_patch_mean_rgb": [
+        130.68,
+        110.35,
+        84.65
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89164",
+        "floor_bottom_strip": "#c88853",
+        "mid_wall_right": "#c87231",
+        "mid_wall_left": "#c85809",
+        "brightest_21x21_patch": "#c8ad89"
+      },
+      "brightest_21x21_patch_centre_px": [
+        448,
+        18
+      ],
+      "sobel_bright_side_deg_whole_frame": 120.0,
+      "sobel_bright_side_deg_wall_band": 110.12,
+      "left_third_minus_right_third_luminance_whole_frame": 14.507,
+      "left_third_minus_right_third_luminance_wall_band": 9.923
+    },
+    "storey_height_m": 2.5215,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 16, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": 10.58,
+  "delta_eye_pct": -4.91,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "3896c3ac",
+  "candidate": "backdrops/source/garden_room-S/row23-3896c3ac.png"
+}

@@ -1,0 +1,157 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 885,
+    "chair_rail_y_px": 623,
+    "dado_rail_above_floor_px": 262,
+    "capping_above_floor_px": 279
+  },
+  "_windows": {
+    "floor": [
+      885,
+      948
+    ],
+    "rail": [
+      577,
+      628
+    ],
+    "ceiling": [
+      0,
+      65
+    ],
+    "columns": [
+      [
+        273,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": -222.97,
+      "asked_x1": 272.52,
+      "ruled_m": 1.5,
+      "window": [
+        -717,
+        767
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 251..695 (448 px from the ask) and another admissible pair sits 165..695 (405 px from the ask), which disagree by more than the 40 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 275.789,
+  "implied_focal_px": 854.9,
+  "eye_height_m": 1.3014,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 251..695 (448 px from the ask) and another admissible pair sits 165..695 (405 px from the ask), which disagree by more than the 40 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 10,
+    "ceiling_candidates": [
+      {
+        "y": 11,
+        "strength": 3.76,
+        "horiz": 0.751,
+        "cv": 0.818
+      },
+      {
+        "y": 17,
+        "strength": 3.67,
+        "horiz": 0.734,
+        "cv": 0.837
+      },
+      {
+        "y": 24,
+        "strength": 3.61,
+        "horiz": 0.707,
+        "cv": 0.922
+      },
+      {
+        "y": 41,
+        "strength": 3.33,
+        "horiz": 0.705,
+        "cv": 0.872
+      },
+      {
+        "y": 31,
+        "strength": 3.3,
+        "horiz": 0.696,
+        "cv": 0.9
+      },
+      {
+        "y": 47,
+        "strength": 3.12,
+        "horiz": 0.68,
+        "cv": 0.882
+      },
+      {
+        "y": 59,
+        "strength": 3.03,
+        "horiz": 0.69,
+        "cv": 0.848
+      },
+      {
+        "y": 53,
+        "strength": 2.84,
+        "horiz": 0.698,
+        "cv": 0.917
+      },
+      {
+        "y": 65,
+        "strength": 2.81,
+        "horiz": 0.705,
+        "cv": 0.869
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 109,
+      "key_dir_brightest_y": 233,
+      "key_tint": "#c85e0f",
+      "key_tint_patch": [
+        0,
+        309,
+        0,
+        4
+      ],
+      "key_tint_patch_mean_rgb": [
+        8.79,
+        4.14,
+        0.67
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c87a27",
+        "floor_bottom_strip": "#c89871",
+        "mid_wall_right": "#c87e47",
+        "mid_wall_left": "#c8c2b3",
+        "brightest_21x21_patch": "#c8c8c7"
+      },
+      "brightest_21x21_patch_centre_px": [
+        109,
+        233
+      ],
+      "sobel_bright_side_deg_whole_frame": 123.79,
+      "sobel_bright_side_deg_wall_band": 113.96,
+      "left_third_minus_right_third_luminance_whole_frame": 16.524,
+      "left_third_minus_right_third_luminance_wall_band": 18.467
+    },
+    "storey_height_m": 3.1727,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 10, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -16.51,
+  "delta_eye_pct": 10.0,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "90a5efa0",
+  "candidate": "backdrops/source/closet_chamber-N/row23-90a5efa0.png"
+}

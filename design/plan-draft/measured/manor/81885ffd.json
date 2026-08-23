@@ -1,0 +1,229 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 653,
+    "chair_rail_y_px": 559,
+    "dado_rail_above_floor_px": 94,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      652,
+      673
+    ],
+    "rail": [
+      544,
+      561
+    ],
+    "ceiling": [
+      313,
+      364
+    ],
+    "columns": [
+      [
+        167,
+        282
+      ],
+      [
+        456,
+        976
+      ],
+      [
+        1150,
+        1265
+      ],
+      [
+        1440,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": -7.23,
+      "asked_x1": 166.33,
+      "ruled_m": 1.5,
+      "window": [
+        -181,
+        340
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 25..235 (50 px from the ask) and another admissible pair sits 4..205 (25 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 282.03,
+      "asked_x1": 455.59,
+      "ruled_m": 1.5,
+      "window": [
+        108,
+        629
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 235..379 (62 px from the ask) and another admissible pair sits 379..560 (101 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 976.27,
+      "asked_x1": 1149.83,
+      "ruled_m": 1.5,
+      "window": [
+        802,
+        1323
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 876..1040 (105 px from the ask) and another admissible pair sits 1040..1198 (56 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1265.54,
+      "asked_x1": 1439.1,
+      "ruled_m": 1.5,
+      "window": [
+        1091,
+        1613
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 1198..1368 (69 px from the ask) and another admissible pair sits 1231..1368 (53 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 98.947,
+  "implied_focal_px": 875.7,
+  "eye_height_m": 1.2825,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 25..235 (50 px from the ask) and another admissible pair sits 4..205 (25 px from the ask), which disagree by more than the 14 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 235..379 (62 px from the ask) and another admissible pair sits 379..560 (101 px from the ask), which disagree by more than the 14 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 876..1040 (105 px from the ask) and another admissible pair sits 1040..1198 (56 px from the ask), which disagree by more than the 14 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 1198..1368 (69 px from the ask) and another admissible pair sits 1231..1368 (53 px from the ask), which disagree by more than the 14 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 190,
+    "ceiling_candidates": [
+      {
+        "y": 308,
+        "strength": 47.43,
+        "horiz": 0.673,
+        "cv": 1.433
+      },
+      {
+        "y": 173,
+        "strength": 42.51,
+        "horiz": 0.887,
+        "cv": 0.353
+      },
+      {
+        "y": 282,
+        "strength": 41.92,
+        "horiz": 0.512,
+        "cv": 1.062
+      },
+      {
+        "y": 350,
+        "strength": 23.36,
+        "horiz": 0.669,
+        "cv": 1.949
+      },
+      {
+        "y": 337,
+        "strength": 22.05,
+        "horiz": 0.746,
+        "cv": 1.987
+      },
+      {
+        "y": 204,
+        "strength": 20.16,
+        "horiz": 0.886,
+        "cv": 0.51
+      },
+      {
+        "y": 191,
+        "strength": 14.87,
+        "horiz": 0.9,
+        "cv": 0.482
+      },
+      {
+        "y": 331,
+        "strength": 14.85,
+        "horiz": 0.713,
+        "cv": 2.173
+      },
+      {
+        "y": 363,
+        "strength": 14.84,
+        "horiz": 0.694,
+        "cv": 1.948
+      },
+      {
+        "y": 317,
+        "strength": 14.52,
+        "horiz": 0.676,
+        "cv": 2.203
+      },
+      {
+        "y": 230,
+        "strength": 14.38,
+        "horiz": 0.888,
+        "cv": 0.599
+      },
+      {
+        "y": 324,
+        "strength": 14.01,
+        "horiz": 0.717,
+        "cv": 2.41
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 598,
+      "key_dir_brightest_y": 321,
+      "key_tint": "#c89863",
+      "key_tint_patch": [
+        398,
+        798,
+        120,
+        182
+      ],
+      "key_tint_patch_mean_rgb": [
+        91.71,
+        69.52,
+        45.6
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8834a",
+        "floor_bottom_strip": "#c8baac",
+        "mid_wall_right": "#c8976b",
+        "mid_wall_left": "#c88143",
+        "brightest_21x21_patch": "#c8c7c5"
+      },
+      "brightest_21x21_patch_centre_px": [
+        598,
+        321
+      ],
+      "sobel_bright_side_deg_whole_frame": 89.82,
+      "sobel_bright_side_deg_wall_band": -35.75,
+      "left_third_minus_right_third_luminance_whole_frame": 7.547,
+      "left_third_minus_right_third_luminance_wall_band": 3.077
+    },
+    "storey_height_m": 4.6793,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 190, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -14.48,
+  "delta_eye_pct": 8.41,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "81885ffd",
+  "candidate": "backdrops/source/solar-S/row23-81885ffd.png"
+}

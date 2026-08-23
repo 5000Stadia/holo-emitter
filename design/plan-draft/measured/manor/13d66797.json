@@ -1,0 +1,182 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 714,
+    "chair_rail_y_px": 558,
+    "dado_rail_above_floor_px": 156,
+    "capping_above_floor_px": 163
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        492,
+        1043
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 164.211,
+  "implied_focal_px": 1083.8,
+  "eye_height_m": 1.1443,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 115,
+    "ceiling_candidates": [
+      {
+        "y": 116,
+        "strength": 28.32,
+        "horiz": 1.0,
+        "cv": 0.117
+      },
+      {
+        "y": 170,
+        "strength": 27.14,
+        "horiz": 1.0,
+        "cv": 0.343
+      },
+      {
+        "y": 191,
+        "strength": 20.06,
+        "horiz": 0.812,
+        "cv": 0.5
+      },
+      {
+        "y": 125,
+        "strength": 19.97,
+        "horiz": 0.993,
+        "cv": 0.242
+      },
+      {
+        "y": 147,
+        "strength": 19.54,
+        "horiz": 0.995,
+        "cv": 0.31
+      },
+      {
+        "y": 198,
+        "strength": 15.54,
+        "horiz": 0.739,
+        "cv": 0.713
+      },
+      {
+        "y": 208,
+        "strength": 8.46,
+        "horiz": 0.596,
+        "cv": 0.802
+      },
+      {
+        "y": 16,
+        "strength": 4.77,
+        "horiz": 0.761,
+        "cv": 0.731
+      },
+      {
+        "y": 10,
+        "strength": 4.72,
+        "horiz": 0.741,
+        "cv": 0.713
+      },
+      {
+        "y": 26,
+        "strength": 4.52,
+        "horiz": 0.741,
+        "cv": 0.806
+      },
+      {
+        "y": 40,
+        "strength": 4.37,
+        "horiz": 0.726,
+        "cv": 0.744
+      },
+      {
+        "y": 139,
+        "strength": 4.35,
+        "horiz": 0.703,
+        "cv": 1.079
+      }
+    ],
+    "corner_x0_px": 407,
+    "corner_x1_px": 1150,
+    "ramp": {
+      "x": 770.8,
+      "y": 450.8,
+      "left_slope": 0.9309,
+      "right_slope": -0.8943,
+      "left_n": 56,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.31
+    },
+    "votes": {
+      "floor": {
+        "x": 764,
+        "y": 489,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 768,
+        "y": 431,
+        "edge_px": 10392
+      },
+      "side_walls": {
+        "x": 146,
+        "y": 213,
+        "edge_px": 1776
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 384,
+      "key_dir_brightest_y": 956,
+      "key_tint": "#c88e49",
+      "key_tint_patch": [
+        417,
+        584,
+        45,
+        107
+      ],
+      "key_tint_patch_mean_rgb": [
+        70.83,
+        50.14,
+        26.02
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88241",
+        "floor_bottom_strip": "#c8966c",
+        "mid_wall_right": "#c86c25",
+        "mid_wall_left": "#c89b76",
+        "brightest_21x21_patch": "#c89f7b"
+      },
+      "brightest_21x21_patch_centre_px": [
+        384,
+        956
+      ],
+      "sobel_bright_side_deg_whole_frame": 119.54,
+      "sobel_bright_side_deg_wall_band": 142.15,
+      "left_third_minus_right_third_luminance_whole_frame": -3.639,
+      "left_third_minus_right_third_luminance_wall_band": -7.624
+    },
+    "storey_height_m": 3.6478,
+    "implied_wall_width_m": 4.5247,
+    "eye_height_m": 1.6028,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 5.84,
+  "delta_eye_pct": -3.27,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "13d66797",
+  "candidate": "backdrops/source/garden_room-W/row23-13d66797.png"
+}

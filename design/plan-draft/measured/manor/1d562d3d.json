@@ -1,0 +1,179 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 719,
+    "chair_rail_y_px": 563,
+    "dado_rail_above_floor_px": 156,
+    "capping_above_floor_px": 163
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        147,
+        690
+      ],
+      [
+        846,
+        1388
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 690.42,
+      "asked_x1": 845.58,
+      "ruled_m": 1.0001,
+      "window": [
+        535,
+        1000
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 698..858 (10 px from the ask) and another admissible pair sits 651..836 (24 px from the ask), which disagree by more than the 12 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 164.211,
+  "implied_focal_px": 1083.8,
+  "eye_height_m": 1.1747,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 698..858 (10 px from the ask) and another admissible pair sits 651..836 (24 px from the ask), which disagree by more than the 12 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 258,
+    "ceiling_candidates": [
+      {
+        "y": 218,
+        "strength": 30.9,
+        "horiz": 0.859,
+        "cv": 0.422
+      },
+      {
+        "y": 239,
+        "strength": 23.83,
+        "horiz": 0.867,
+        "cv": 0.517
+      },
+      {
+        "y": 281,
+        "strength": 18.85,
+        "horiz": 0.779,
+        "cv": 0.671
+      },
+      {
+        "y": 245,
+        "strength": 18.64,
+        "horiz": 0.847,
+        "cv": 0.622
+      },
+      {
+        "y": 259,
+        "strength": 15.35,
+        "horiz": 0.928,
+        "cv": 0.473
+      },
+      {
+        "y": 224,
+        "strength": 10.53,
+        "horiz": 0.851,
+        "cv": 0.554
+      },
+      {
+        "y": 16,
+        "strength": 5.7,
+        "horiz": 0.758,
+        "cv": 0.71
+      },
+      {
+        "y": 32,
+        "strength": 5.54,
+        "horiz": 0.728,
+        "cv": 0.734
+      },
+      {
+        "y": 24,
+        "strength": 5.45,
+        "horiz": 0.74,
+        "cv": 0.733
+      },
+      {
+        "y": 10,
+        "strength": 5.4,
+        "horiz": 0.735,
+        "cv": 0.73
+      },
+      {
+        "y": 112,
+        "strength": 5.27,
+        "horiz": 0.728,
+        "cv": 0.71
+      },
+      {
+        "y": 40,
+        "strength": 5.26,
+        "horiz": 0.74,
+        "cv": 0.719
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 176,
+      "key_dir_brightest_y": 16,
+      "key_tint": "#c87a2d",
+      "key_tint_patch": [
+        0,
+        376,
+        188,
+        250
+      ],
+      "key_tint_patch_mean_rgb": [
+        25.8,
+        15.75,
+        5.82
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88f55",
+        "floor_bottom_strip": "#c8986b",
+        "mid_wall_right": "#c87e3b",
+        "mid_wall_left": "#c86615",
+        "brightest_21x21_patch": "#c8a476"
+      },
+      "brightest_21x21_patch_centre_px": [
+        176,
+        16
+      ],
+      "sobel_bright_side_deg_whole_frame": 92.14,
+      "sobel_bright_side_deg_wall_band": 41.02,
+      "left_third_minus_right_third_luminance_whole_frame": 11.884,
+      "left_third_minus_right_third_luminance_wall_band": 4.588
+    },
+    "storey_height_m": 2.8074,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 258, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": 5.84,
+  "delta_eye_pct": -0.7,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "1d562d3d",
+  "candidate": "backdrops/source/servants_hall-S/row23-1d562d3d.png"
+}

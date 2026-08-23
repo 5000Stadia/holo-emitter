@@ -1,0 +1,156 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 774,
+    "chair_rail_y_px": 562,
+    "dado_rail_above_floor_px": 212,
+    "capping_above_floor_px": 212
+  },
+  "_windows": {
+    "floor": [
+      744,
+      782
+    ],
+    "rail": [
+      557,
+      588
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 223.158,
+  "implied_focal_px": 1138.1,
+  "eye_height_m": 1.1109,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 126,
+    "ceiling_candidates": [
+      {
+        "y": 127,
+        "strength": 102.87,
+        "horiz": 0.741,
+        "cv": 0.537
+      },
+      {
+        "y": 557,
+        "strength": 41.77,
+        "horiz": 0.785,
+        "cv": 0.508
+      },
+      {
+        "y": 173,
+        "strength": 38.83,
+        "horiz": 0.748,
+        "cv": 0.557
+      },
+      {
+        "y": 165,
+        "strength": 38.32,
+        "horiz": 0.762,
+        "cv": 0.542
+      },
+      {
+        "y": 142,
+        "strength": 35.0,
+        "horiz": 0.742,
+        "cv": 0.59
+      },
+      {
+        "y": 326,
+        "strength": 30.84,
+        "horiz": 0.701,
+        "cv": 0.758
+      },
+      {
+        "y": 381,
+        "strength": 30.7,
+        "horiz": 0.704,
+        "cv": 0.732
+      },
+      {
+        "y": 493,
+        "strength": 28.4,
+        "horiz": 0.706,
+        "cv": 0.735
+      },
+      {
+        "y": 276,
+        "strength": 26.17,
+        "horiz": 0.728,
+        "cv": 0.799
+      },
+      {
+        "y": 437,
+        "strength": 26.03,
+        "horiz": 0.727,
+        "cv": 0.729
+      },
+      {
+        "y": 195,
+        "strength": 23.83,
+        "horiz": 0.71,
+        "cv": 0.787
+      },
+      {
+        "y": 215,
+        "strength": 23.72,
+        "horiz": 0.729,
+        "cv": 0.69
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 364,
+      "key_dir_brightest_y": 115,
+      "key_tint": "#c1c3c8",
+      "key_tint_patch": [
+        164,
+        564,
+        56,
+        118
+      ],
+      "key_tint_patch_mean_rgb": [
+        202.73,
+        205.21,
+        210.53
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8a071",
+        "floor_bottom_strip": "#c89969",
+        "mid_wall_right": "#c8975f",
+        "mid_wall_left": "#c89d6b",
+        "brightest_21x21_patch": "#c7c7c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        364,
+        115
+      ],
+      "sobel_bright_side_deg_whole_frame": 95.28,
+      "sobel_bright_side_deg_wall_band": 99.06,
+      "left_third_minus_right_third_luminance_whole_frame": -2.425,
+      "left_third_minus_right_third_luminance_wall_band": -3.288
+    },
+    "storey_height_m": 2.9038,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 126, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": 11.14,
+  "delta_eye_pct": -6.1,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "1b134204",
+  "candidate": "backdrops/source/privy_garden-N/row23-1b134204.png"
+}

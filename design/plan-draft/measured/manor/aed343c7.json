@@ -1,0 +1,300 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 746,
+    "chair_rail_y_px": 587,
+    "dado_rail_above_floor_px": 159,
+    "capping_above_floor_px": 176
+  },
+  "_windows": {
+    "floor": [
+      744,
+      782
+    ],
+    "rail": [
+      557,
+      588
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        185
+      ],
+      [
+        507,
+        1008
+      ],
+      [
+        1311,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 185.73,
+      "asked_x1": 506.98,
+      "ruled_m": 1.6,
+      "window": [
+        -135,
+        827
+      ],
+      "hypothesis": null,
+      "found": true,
+      "x0": 251.0,
+      "x1": 496.0,
+      "width_px": 245.0,
+      "edge_delta_px": 38.13,
+      "candidates": [
+        [
+          496,
+          53.8
+        ],
+        [
+          284,
+          47.01
+        ],
+        [
+          274,
+          37.58
+        ],
+        [
+          509,
+          32.29
+        ],
+        [
+          251,
+          27.25
+        ],
+        [
+          521,
+          23.27
+        ],
+        [
+          243,
+          17.56
+        ],
+        [
+          301,
+          14.3
+        ]
+      ],
+      "searched": [
+        1,
+        827,
+        362,
+        763
+      ]
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1008.94,
+      "asked_x1": 1310.12,
+      "ruled_m": 1.5,
+      "window": [
+        687,
+        1631
+      ],
+      "hypothesis": null,
+      "found": true,
+      "x0": 1047.0,
+      "x1": 1294.0,
+      "width_px": 247.0,
+      "edge_delta_px": 27.09,
+      "candidates": [
+        [
+          1047,
+          67.18
+        ],
+        [
+          1159,
+          56.61
+        ],
+        [
+          1132,
+          43.1
+        ],
+        [
+          1244,
+          39.47
+        ],
+        [
+          1012,
+          35.01
+        ],
+        [
+          1294,
+          29.96
+        ],
+        [
+          1024,
+          29.88
+        ],
+        [
+          1095,
+          28.0
+        ]
+      ],
+      "searched": [
+        687,
+        1534,
+        362,
+        582
+      ]
+    }
+  ],
+  "px_per_m_at_wall": 167.368,
+  "implied_focal_px": 853.6,
+  "eye_height_m": 1.3139,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 94,
+    "ceiling_candidates": [
+      {
+        "y": 95,
+        "strength": 91.81,
+        "horiz": 0.758,
+        "cv": 0.546
+      },
+      {
+        "y": 124,
+        "strength": 40.82,
+        "horiz": 0.715,
+        "cv": 0.607
+      },
+      {
+        "y": 118,
+        "strength": 35.04,
+        "horiz": 0.729,
+        "cv": 0.584
+      },
+      {
+        "y": 207,
+        "strength": 31.76,
+        "horiz": 0.682,
+        "cv": 0.707
+      },
+      {
+        "y": 142,
+        "strength": 23.28,
+        "horiz": 0.779,
+        "cv": 0.536
+      },
+      {
+        "y": 537,
+        "strength": 21.79,
+        "horiz": 0.752,
+        "cv": 0.658
+      },
+      {
+        "y": 427,
+        "strength": 19.85,
+        "horiz": 0.666,
+        "cv": 0.791
+      },
+      {
+        "y": 244,
+        "strength": 17.07,
+        "horiz": 0.697,
+        "cv": 0.86
+      },
+      {
+        "y": 176,
+        "strength": 16.79,
+        "horiz": 0.685,
+        "cv": 0.798
+      },
+      {
+        "y": 505,
+        "strength": 16.78,
+        "horiz": 0.751,
+        "cv": 0.738
+      },
+      {
+        "y": 314,
+        "strength": 16.73,
+        "horiz": 0.72,
+        "cv": 0.815
+      },
+      {
+        "y": 391,
+        "strength": 16.2,
+        "horiz": 0.699,
+        "cv": 0.78
+      }
+    ],
+    "corner_x0_px": 73,
+    "corner_x1_px": 1470,
+    "ramp": {
+      "x": 758.6,
+      "y": 590.7,
+      "left_slope": 0.7663,
+      "right_slope": -0.7396,
+      "left_n": 61,
+      "left_resid_px": 0.29,
+      "right_n": 56,
+      "right_resid_px": 0.29
+    },
+    "votes": {
+      "floor": {
+        "x": 1536,
+        "y": 438,
+        "edge_px": 22937
+      },
+      "ceiling": {
+        "x": 758,
+        "y": 555,
+        "edge_px": 10288
+      },
+      "side_walls": {
+        "x": 1024,
+        "y": 781,
+        "edge_px": 6730
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 477,
+      "key_dir_brightest_y": 83,
+      "key_tint": "#c3c5c8",
+      "key_tint_patch": [
+        277,
+        677,
+        24,
+        86
+      ],
+      "key_tint_patch_mean_rgb": [
+        200.86,
+        202.98,
+        206.44
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8a77e",
+        "floor_bottom_strip": "#c8a274",
+        "mid_wall_right": "#c89351",
+        "mid_wall_left": "#c89f67",
+        "brightest_21x21_patch": "#c7c7c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        477,
+        83
+      ],
+      "sobel_bright_side_deg_whole_frame": 92.67,
+      "sobel_bright_side_deg_wall_band": 91.75,
+      "left_third_minus_right_third_luminance_whole_frame": 10.221,
+      "left_third_minus_right_third_luminance_wall_band": 7.51
+    },
+    "storey_height_m": 3.8956,
+    "implied_wall_width_m": 8.3469,
+    "eye_height_m": 0.9279,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -16.64,
+  "delta_eye_pct": 11.06,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "aed343c7",
+  "candidate": "backdrops/source/privy_garden-S/row23-aed343c7.png"
+}

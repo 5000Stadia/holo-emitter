@@ -1,0 +1,222 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 700,
+    "chair_rail_y_px": 552,
+    "dado_rail_above_floor_px": 148,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      681,
+      709
+    ],
+    "rail": [
+      548,
+      570
+    ],
+    "ceiling": [
+      262,
+      326
+    ],
+    "columns": [
+      [
+        137,
+        266
+      ],
+      [
+        554,
+        624
+      ],
+      [
+        768,
+        1398
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "fireplace",
+      "asked_x0": 266.74,
+      "asked_x1": 553.17,
+      "ruled_m": 2.0,
+      "window": [
+        -19,
+        839
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 333..679 (96 px from the ask) and another admissible pair sits 82..333 (202 px from the ask), which disagree by more than the 23 px this arm can resolve"
+    },
+    {
+      "kind": "door",
+      "asked_x0": 624.78,
+      "asked_x1": 768,
+      "ruled_m": 1.0,
+      "window": [
+        338,
+        1054
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 679..796 (41 px from the ask) and another admissible pair sits 657..772 (18 px from the ask), which disagree by more than the 23 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 155.789,
+  "implied_focal_px": 1113.9,
+  "eye_height_m": 1.1162,
+  "_absent": [
+    "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 333..679 (96 px from the ask) and another admissible pair sits 82..333 (202 px from the ask), which disagree by more than the 23 px this arm can resolve",
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 679..796 (41 px from the ask) and another admissible pair sits 657..772 (18 px from the ask), which disagree by more than the 23 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 119,
+    "ceiling_candidates": [
+      {
+        "y": 120,
+        "strength": 49.39,
+        "horiz": 0.786,
+        "cv": 0.466
+      },
+      {
+        "y": 182,
+        "strength": 15.23,
+        "horiz": 0.732,
+        "cv": 0.593
+      },
+      {
+        "y": 144,
+        "strength": 13.53,
+        "horiz": 0.867,
+        "cv": 0.549
+      },
+      {
+        "y": 156,
+        "strength": 11.92,
+        "horiz": 0.779,
+        "cv": 0.555
+      },
+      {
+        "y": 198,
+        "strength": 11.72,
+        "horiz": 0.63,
+        "cv": 0.79
+      },
+      {
+        "y": 205,
+        "strength": 8.77,
+        "horiz": 0.63,
+        "cv": 0.843
+      },
+      {
+        "y": 314,
+        "strength": 7.29,
+        "horiz": 0.752,
+        "cv": 1.326
+      },
+      {
+        "y": 299,
+        "strength": 7.14,
+        "horiz": 0.677,
+        "cv": 1.418
+      },
+      {
+        "y": 133,
+        "strength": 6.16,
+        "horiz": 0.857,
+        "cv": 0.61
+      },
+      {
+        "y": 322,
+        "strength": 5.4,
+        "horiz": 0.714,
+        "cv": 1.294
+      },
+      {
+        "y": 176,
+        "strength": 5.24,
+        "horiz": 0.763,
+        "cv": 0.735
+      },
+      {
+        "y": 38,
+        "strength": 4.62,
+        "horiz": 0.758,
+        "cv": 0.785
+      }
+    ],
+    "corner_x0_px": 188,
+    "corner_x1_px": 1362,
+    "ramp": {
+      "x": 1632.5,
+      "y": -87.7,
+      "left_slope": -0.1127,
+      "right_slope": -0.7348,
+      "left_n": 58,
+      "left_resid_px": 22.93,
+      "right_n": 61,
+      "right_resid_px": 0.29
+    },
+    "votes": {
+      "floor": {
+        "x": 786,
+        "y": 493,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 760,
+        "y": 512,
+        "edge_px": 13100
+      },
+      "side_walls": {
+        "x": 128,
+        "y": 200,
+        "edge_px": 1650
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 364,
+      "key_dir_brightest_y": 10,
+      "key_tint": "#c8a276",
+      "key_tint_patch": [
+        198,
+        564,
+        49,
+        111
+      ],
+      "key_tint_patch_mean_rgb": [
+        114.17,
+        92.65,
+        67.07
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89d78",
+        "floor_bottom_strip": "#c88c5d",
+        "mid_wall_right": "#c86c2c",
+        "mid_wall_left": "#c89673",
+        "brightest_21x21_patch": "#c8a982"
+      },
+      "brightest_21x21_patch_centre_px": [
+        364,
+        10
+      ],
+      "sobel_bright_side_deg_whole_frame": 130.47,
+      "sobel_bright_side_deg_wall_band": 141.8,
+      "left_third_minus_right_third_luminance_whole_frame": 20.843,
+      "left_third_minus_right_third_luminance_wall_band": 14.52
+    },
+    "storey_height_m": 3.7294,
+    "implied_wall_width_m": 7.5358,
+    "eye_height_m": 5.0562,
+    "withheld_because": [
+      "the horizon this painting's own side walls converge on (y -87.7) puts the eye at 5.056 m above its own floor line at the scale its own chair-rail declares (155.8 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
+    ]
+  },
+  "delta_focal_pct": 8.78,
+  "delta_eye_pct": -5.64,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "cf21103b",
+  "candidate": "backdrops/source/master_bedchamber-N/row23-cf21103b.png"
+}
