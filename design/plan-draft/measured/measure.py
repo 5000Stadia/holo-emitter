@@ -810,6 +810,110 @@ def find_corners_cand2(L, ceil_y, win=4, run=10, frac=0.30, look=80):
     return scan(-1), scan(1), f
 
 
+def wall_recession(L, ceil_y, floor_y, horizon_y, blk=16):
+    """Per column: does the wall band at this column RECEDE, and which way.
+
+    [row 32] The cand-2 corner rule asks one question of one line — is the
+    CEILING junction still horizontal here — and the manor's boarded and beamed
+    ceilings do not answer it, which is why 32 of the run's 58 holds were "no
+    corners". This asks a question the whole wall answers instead.
+
+    A wall square to the camera projects its architecture as horizontals and
+    verticals and NOTHING else: every rail, every stile, every panel edge is
+    axis-aligned. A side wall running away from the camera projects the same
+    architecture as OBLIQUE lines. So the structure tensor's normalised
+    off-diagonal, 2*Jxy/(Jxx+Jyy) — |sin 2t| weighted by edge energy — is
+    exactly zero on the facing wall and large on the returns, whatever the
+    ceiling is made of.
+
+    TWO THINGS EARN THEIR PLACE HERE AND BOTH ARE STRUCTURAL, NOT TUNED:
+
+    * The sum is taken in y BLOCKS, not down the whole column, because a left
+      return's lines lean one way above the horizon and the other way below it
+      and a single column sum cancels them against each other.
+    * The sign is taken from the wall's own DECLARED horizon (the sign only —
+      never the value): above it a left return leans one way, below it the
+      other, so folding the sign in makes the statistic POSITIVE on a left
+      return, NEGATIVE on a right one, and zero on anything symmetric. That
+      last part is what survives leaded glass, whose diamond quarries carry
+      both diagonals in equal measure and defeated the unsigned form on
+      `muniment_room/S` and `servants_hall/N`.
+
+    Returns the profile, or None where the band is too short to block.
+    """
+    Ly = np.zeros_like(L, dtype=float)
+    Lx = np.zeros_like(L, dtype=float)
+    Ly[1:-1, :] = (L[2:, :] - L[:-2, :]) * 0.5
+    Lx[:, 1:-1] = (L[:, 2:] - L[:, :-2]) * 0.5
+    y0 = int(max(1, ceil_y + blk))
+    y1 = int(min(H - 2, floor_y - blk))
+    if y1 - y0 < 2 * blk:
+        return None
+    P = (Lx * Ly)[y0:y1 + 1]
+    Q = (Lx * Lx + Ly * Ly)[y0:y1 + 1]
+    nr = (P.shape[0] // blk) * blk
+    Pb = P[:nr].reshape(nr // blk, blk, W).sum(axis=1)
+    yb = y0 + blk * np.arange(nr // blk) + blk / 2.0
+    sgn = np.where(yb < horizon_y, 1.0, -1.0)[:, None]
+    return 2 * (sgn * (-Pb)).sum(axis=0) / np.maximum(Q[:nr].sum(axis=0), 1e-9)
+
+
+def _level_break(xs, v, falling):
+    """The least-squares breakpoint of a two-level step model. No threshold.
+
+    The corner is not "where the signal crosses a line" — there is no line to
+    choose. It is the split that best explains the profile as two constant
+    levels, which is an argmin over the profile's own columns.
+    """
+    n = len(v)
+    if n < 8:
+        return None, 0.0
+    c1 = np.cumsum(v)
+    c2 = np.cumsum(v * v)
+    ks = np.arange(1, n)
+    s1, q1 = c1[ks - 1], c2[ks - 1]
+    s2, q2 = c1[-1] - s1, c2[-1] - q1
+    n1, n2 = ks.astype(float), (n - ks).astype(float)
+    sse = (q1 - s1 * s1 / n1) + (q2 - s2 * s2 / n2)
+    mu1, mu2 = s1 / n1, s2 / n2
+    sse = np.where((mu1 > mu2) if falling else (mu2 > mu1), sse, np.inf)
+    if not np.isfinite(sse).any():
+        return None, 0.0
+    k = int(np.argmin(sse))
+    tot = float(c2[-1] - c1[-1] ** 2 / n)
+    return int(xs[k]), (1.0 - float(sse[k]) / tot if tot > 0 else 0.0)
+
+
+def find_corners_recession(L, ceil_y, floor_y, horizon_y, exclude=(), blk=16):
+    """[row 32] Both corners, from where the wall stops receding.
+
+    `exclude` is the frame's own carriers — a door reveal and a window splay
+    recede too, and `buttery_pantry/S`'s door reveal was read as 325 px of side
+    wall until they were taken out. They are not a tuning: they are the boxes
+    the scaffold stamped, narrowed to what this frame's own reading found.
+
+    Returns (x0, x1, evidence). Either may be None where the profile cannot be
+    formed at all.
+    """
+    T = wall_recession(L, ceil_y, floor_y, horizon_y, blk)
+    if T is None:
+        return None, None, dict(why="the wall band is too short to read")
+    keep = np.ones(W, bool)
+    for a, b in exclude:
+        a, b = max(0, int(a)), min(W - 1, int(b))
+        if b > a:
+            keep[a:b + 1] = False
+    xs = np.nonzero(keep)[0]
+    cx = W // 2
+    left, right = xs[xs < cx], xs[xs >= cx]
+    x0, r0 = _level_break(left, T[left], falling=True)
+    x1, r1 = _level_break(right, -T[right], falling=False)
+    return x0, x1, dict(left_fit_r2=round(r0, 4), right_fit_r2=round(r1, 4),
+                        block_px=blk, excluded=[[int(a), int(b)] for a, b in exclude],
+                        rule=("the least-squares two-level breakpoint of the signed "
+                              "recession profile, one per half-frame"))
+
+
 def panelling_module(L, cfg, floor_y, band=(500, 640), cols=(200, 1400)):
     """The dado moulding, read the same way on every study facing.
 
@@ -938,12 +1042,26 @@ def wall_band_audit(L, cfg):
                  "px_per_m_at_wall, and none is."))
 
 
-def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64):
+def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64, with_error=False):
     """Independent, well-conditioned cross-check on the horizon.
 
     The side walls meet the ceiling along lines that run parallel to the view
     axis, so in a rectilinear image they converge on the principal point, which
-    lies on the horizon. Fit both ramps outside the corners and intersect."""
+    lies on the horizon. Fit both ramps outside the corners and intersect.
+
+    [row 32] `with_error` adds `sigma_y_px`, the standard error of the
+    intersection's own row propagated from the two fits' covariances. An
+    instrument that reports a horizon without reporting how well the picture
+    fixed it cannot be asked whether the picture fixed it at all — which is the
+    question that separates a painting the ruler and the perspective disagree
+    about from a painting neither of them could read.
+
+    IT IS OFF BY DEFAULT AND THAT IS NOT TASTE. The cand-1/2/3/6 corpora are
+    round-locked records — `plan.spec` re-runs each round and byte-compares the
+    result against what is committed — so a shared detector that quietly grows
+    a field rewrites four rounds of history to record a number those rounds
+    never read. The flag selects what is REPORTED; it changes no fit, no window
+    and no value, and the row-23 promotion is its only caller."""
     if cx0 is None or cx1 is None:
         return None
     half = 150
@@ -972,22 +1090,41 @@ def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64):
             if k.sum() < 20:
                 break
             xs, yv = xs[k], yv[k]
-        return A, len(xs), float(np.std(yv - np.polyval(A, xs)))
+        r = yv - np.polyval(A, xs)
+        n = len(xs)
+        s2 = float((r ** 2).sum()) / max(n - 2, 1)
+        xm = float(xs.mean())
+        sxx = float(((xs - xm) ** 2).sum())
+        cov = (np.array([[s2 / sxx, -s2 * xm / sxx],
+                         [-s2 * xm / sxx, s2 * (1.0 / n + xm * xm / sxx)]])
+               if sxx > 0 else np.zeros((2, 2)))
+        return A, n, float(np.std(r)), cov
 
     fl = fit(max(2, cx0 - reach), cx0 - 4)
     fr = fit(cx1 + 4, min(W - 3, cx1 + reach))
     if fl is None or fr is None:
         return None
-    (al, bl), nl, sl = fl
-    (ar, br), nr, sr = fr
+    (al, bl), nl, sl, cl = fl
+    (ar, br), nr, sr, cr = fr
     if abs(al - ar) < 1e-6:
         return None
     x = (br - bl) / (al - ar)
     y = al * x + bl
-    return dict(x=round(float(x), 1), y=round(float(y), 1),
-                left_slope=round(float(al), 4), right_slope=round(float(ar), 4),
-                left_n=nl, left_resid_px=round(sl, 2),
-                right_n=nr, right_resid_px=round(sr, 2))
+    den = al - ar
+    dx = np.array([-(br - bl) / den ** 2, -1.0 / den,
+                   (br - bl) / den ** 2, 1.0 / den])
+    dy = np.array([x + al * dx[0], 1.0 + al * dx[1], al * dx[2], al * dx[3]])
+    C = np.zeros((4, 4))
+    C[:2, :2] = cl
+    C[2:, 2:] = cr
+    var_y = float(dy @ C @ dy)
+    out = dict(x=round(float(x), 1), y=round(float(y), 1),
+               left_slope=round(float(al), 4), right_slope=round(float(ar), 4),
+               left_n=nl, left_resid_px=round(sl, 2),
+               right_n=nr, right_resid_px=round(sr, 2))
+    if with_error:
+        out["sigma_y_px"] = round(float(np.sqrt(max(var_y, 0.0))), 2)
+    return out
 
 
 def horizon_votes(L, ceil_y, floor_y, cx0, cx1):
@@ -2184,6 +2321,17 @@ def write_misses(raw, round_name="cand-2", records=None):
                           "is per WALL, so the configuration cannot vary by "
                           "technique even in principle. A PASS is a `roll` record, "
                           "not a miss.",
+                 "row32": "THE HOLD FAMILY. The manor production run held 58 "
+                          "of 85 walls on one instrument, and 32 of those holds "
+                          "said \"no corners\": the ceiling-ramp horizon needs "
+                          "two ceiling-line corners and `find_corners_cand2` was "
+                          "built on the study's plaster ceilings. Its entries are "
+                          "about the INSTRUMENT, the EMITTER and two promotion "
+                          "GATES rather than about one painting's camera, so they "
+                          "carry no facing and no delta - production law clause 6 "
+                          "is what they answer to, and each names where its cause "
+                          "is baked in. The `clock` record beside them carries the "
+                          "before and after with no band moved.",
                  "cand-6": "THE STANDING-EYE WAVE. [HUMAN 2026-08-22, "
                            "design/approvals.log at 964188d] \"B\" - the "
                            "standing eye - so every wall is regenerated "

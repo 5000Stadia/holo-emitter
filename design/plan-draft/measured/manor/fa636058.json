@@ -52,7 +52,7 @@
     "the door: the choice of edge pair would choose the verdict: the strongest pair sits 453..587 (163 px from the ask) and another admissible pair sits 615..825 (37 px from the ask), which disagree by more than the 14 px this arm can resolve"
   ],
   "_promotion": {
-    "ceiling_y_px": 150,
+    "ceiling_y_px": 203,
     "ceiling_candidates": [
       {
         "y": 151,
@@ -127,17 +127,117 @@
         "cv": 0.805
       }
     ],
-    "corner_x0_px": 172,
-    "corner_x1_px": 1358,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 150,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 186,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 573.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 203,
+        "admissible": true,
+        "sigma_y_px": 1.01,
+        "horizon_y_px": 573.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 156,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 226,
+        "admissible": true,
+        "sigma_y_px": 1.1,
+        "horizon_y_px": 572.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 179,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 173,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 162,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 232,
+        "admissible": true,
+        "sigma_y_px": 1.3,
+        "horizon_y_px": 573.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 573.3,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 136,
+    "corner_x1_px": 1368,
+    "corner_evidence": {
+      "left_fit_r2": 0.6017,
+      "right_fit_r2": 0.5284,
+      "block_px": 16,
+      "excluded": [
+        [
+          597,
+          768
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 16.15,
     "ramp": {
-      "x": 766.3,
-      "y": 573.3,
-      "left_slope": 0.7188,
-      "right_slope": -0.7252,
-      "left_n": 55,
-      "left_resid_px": 0.28,
+      "x": 766.7,
+      "y": 573.2,
+      "left_slope": 0.7182,
+      "right_slope": -0.7257,
+      "left_n": 61,
+      "left_resid_px": 0.29,
       "right_n": 61,
-      "right_resid_px": 0.3
+      "right_resid_px": 0.3,
+      "sigma_y_px": 1.01
     },
     "votes": {
       "floor": {
@@ -146,37 +246,37 @@
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 1000,
-        "y": 392,
-        "edge_px": 16235
+        "x": 996,
+        "y": 398,
+        "edge_px": 15075
       },
       "side_walls": {
-        "x": 734,
-        "y": 537,
-        "edge_px": 941
+        "x": 1190,
+        "y": 670,
+        "edge_px": 558
       }
     },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 42,
       "key_dir_brightest_y": 10,
-      "key_tint": "#c89866",
+      "key_tint": "#c87f3d",
       "key_tint_patch": [
-        182,
+        146,
         242,
-        80,
-        142
+        133,
+        195
       ],
       "key_tint_patch_mean_rgb": [
-        78.73,
-        59.74,
-        40.13
+        19.28,
+        12.26,
+        5.89
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c87b36",
         "floor_bottom_strip": "#c88755",
-        "mid_wall_right": "#c86721",
-        "mid_wall_left": "#c89269",
+        "mid_wall_right": "#c86925",
+        "mid_wall_left": "#c88a5b",
         "brightest_21x21_patch": "#c8af8f"
       },
       "brightest_21x21_patch_centre_px": [
@@ -184,13 +284,14 @@
         10
       ],
       "sobel_bright_side_deg_whole_frame": 109.99,
-      "sobel_bright_side_deg_wall_band": 123.29,
+      "sobel_bright_side_deg_wall_band": 139.7,
       "left_third_minus_right_third_luminance_whole_frame": 11.789,
-      "left_third_minus_right_third_luminance_wall_band": 6.29
+      "left_third_minus_right_third_luminance_wall_band": 6.431
     },
-    "storey_height_m": 3.2468,
-    "implied_wall_width_m": 6.6276,
-    "eye_height_m": 0.8813,
+    "storey_height_m": 2.9506,
+    "implied_wall_width_m": 6.8847,
+    "eye_height_m": 0.8818,
+    "hold_family": null,
     "withheld_because": []
   },
   "delta_focal_pct": 4.85,

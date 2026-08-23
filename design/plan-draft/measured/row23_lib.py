@@ -165,6 +165,17 @@ def cfg_from_sidecar(side):
                   for s, w in zip(side["stamped"], b["carrier_windows"])],
         carrier_tolerance_px=b["carrier_tolerance_px"],
         floor_line_declared=floor_y,
+        # [row 32] THE ONE BRACKET THIS ROUND NEVER HAD. Floor, rail and ceiling
+        # each got MEASURED_BAND propagated through a geometry the scaffold
+        # declares; the HORIZON never did, because until now nothing asked how
+        # well a frame fixed it. Same construction, same band: the ruled
+        # floor-to-horizon separation IS eye x px_per_m_at_wall, so +/-8 % of it
+        # is the licence the horizon row answers to, and a fitted horizon whose
+        # own standard error is wider than that licence has not decided
+        # anything. Nothing here is chosen.
+        horizon_declared=m["horizon_y"] * m["image_h_px"],
+        horizon_bracket_px=(b["band"] *
+                            (floor_y - m["horizon_y"] * m["image_h_px"])),
         _derivation=b["_derivation"],
     )
 
@@ -197,7 +208,54 @@ def _floor_and_rail(L, cfg, picks):
     return floor_y, mod, rail_above
 
 
-def _promotion_half(rgb, L, cfg, floor_y, ppm, picks):
+#: [row 32] The names a hold answers to. One per sub-family, so a wall that is
+#: still holding says WHICH thing is true of it and the sweep can route on it
+#: instead of on prose.
+UNFITTED_HORIZON = "unfitted-horizon"
+SUSPECT_PAINTING = "suspect-painting"
+
+
+def _admissible(ramp, ceil_y, floor_y, bracket):
+    """[row 32] Is this convergence a horizon, or is it two lines crossing?
+
+    Three tests, and not one of them carries a number of its own:
+
+      determinacy   the intersection's own standard error is inside the
+                    standing licence for the horizon row (`horizon_bracket_px`)
+      in-picture    the convergence lies in the frame. Lines parallel to the
+                    view axis converge on the PRINCIPAL POINT, and the prompt
+                    rules the camera level with zero tilt, so a principal point
+                    outside the picture is two edges crossing, not a horizon.
+      between       the horizon lies between the frame's own measured ceiling
+                    line and its own measured floor line — an eye inside the
+                    room it is standing in. This is the test that refuses the
+                    degenerate fit where both ramps come back flat and cross
+                    one row below the ceiling with a residual of zero.
+    """
+    if ramp is None:
+        return False, "no pair of side-wall junctions could be fitted at all"
+    if ramp.get("sigma_y_px") is None:
+        return False, "the fit reports no error bar"
+    if ramp["sigma_y_px"] > bracket:
+        return (False,
+                "the two side-wall junctions converge at y %.1f but only to "
+                "+/-%.1f px, and the standing licence on the horizon row is "
+                "+/-%.1f px" % (ramp["y"], ramp["sigma_y_px"], bracket))
+    if not (0.0 <= ramp["x"] <= float(W)):
+        return (False,
+                "the two side-wall junctions cross at x %.1f, outside the "
+                "picture — a level camera's principal point is in its own "
+                "frame, so this is two edges meeting and not a horizon"
+                % ramp["x"])
+    if not (ceil_y < ramp["y"] < floor_y):
+        return (False,
+                "the convergence lands at y %.1f, which is not between this "
+                "frame's own ceiling line (y %d) and its own floor line (y %d)"
+                % (ramp["y"], ceil_y, floor_y))
+    return True, None
+
+
+def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=()):
     """Everything a PROMOTION needs that a camera verdict does not.
 
     ONE INSTRUMENT, AND THIS IS THE OTHER HALF OF IT. Until 2026-08-24 the
@@ -218,12 +276,40 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks):
     every window is the scaffold's:
 
         ceiling line   `pick_ceiling` over the scaffold's rail columns, above
-                       the declared chair-rail bracket (see `ceiling_search`)
-        corners        `find_corners_cand2`, the cand-2 local-reference rule,
-                       run at THAT ceiling line
+                       the declared chair-rail bracket (see `ceiling_search`) —
+                       and, since row 32, CHOSEN from among that call's own
+                       candidate horizontals by which one the side walls
+                       converge on best (see below)
+        corners        `find_corners_recession`, the row-32 rule: where the
+                       wall's own architecture stops being axis-aligned
         horizon        `ceiling_ramp_vp` — the row-20 ruled instrument, the two
                        side-wall/ceiling ramps fitted and intersected
         light          `light`, whole-frame, for `key_tint` and `key_dir`
+
+    WHAT ROW 32 CHANGED, AND WHY THE RULING DID NOT MOVE
+    ----------------------------------------------------
+    The horizon is still the ceiling-ramp intersection and nothing else. What
+    changed is what the ramps are given to work with, because the production
+    run held 58 of 85 walls and 32 of those holds said "no corners":
+
+    * THE CORNERS. `find_corners_cand2` asks whether the CEILING junction is
+      still horizontal at column x. On the study's plaster ceilings that step
+      is the strongest thing in the top of the frame; on the manor's boarded
+      and beamed ceilings it is not there to collapse, so the scan walked to
+      the frame edge and returned None. The row-32 rule asks the whole wall
+      instead — a wall square to the camera draws only horizontals and
+      verticals, a return draws obliques — and reads both corners off where
+      that stops. Blind against the 19 walls the old rule DID read, it lands a
+      median 21.5 px away; against the four study controls, whose corners are
+      committed, 1 to 6 px.
+    * WHICH ROW IS THE CEILING. `pick_ceiling` returns the STRONGEST admissible
+      horizontal, and under a boarded ceiling that is a beam. So the ramps are
+      fitted at each of its candidates in turn and the row the two side walls
+      converge on most sharply is adopted — the picture's own answer to which
+      of its horizontals is the junction. This cannot invent a horizon: every
+      candidate still has to pass `_admissible`, and a candidate that does not
+      is not eligible to be chosen.
+    * AN ERROR BAR, AND THE THREE THINGS IT DECIDES. See `_admissible`.
 
     The scale, the floor line and the calibration feature are NOT recomputed:
     they are the gate's own, passed in, so the number a wall was admitted on is
@@ -231,13 +317,48 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks):
 
     `EYE_RANGE` rides in beside the rules for the same reason they do: it is
     `measure.py`'s own physical-plausibility range and this file does not get
-    to keep a second copy of it.
+    to keep a second copy of it. NO BAND MOVED at row 32 and none may: the
+    suspect family is separated by the error bar, never by widening this.
     """
     eye_range = picks["EYE_RANGE"]
     ceil_y, ceil_cands, _ = picks["pick_ceiling"](
         L, dict(ceil_cols=cfg["rail_columns"], ceil_range=cfg["ceiling_search"]))
-    cx0, cx1, _ = picks["find_corners_cand2"](L, ceil_y)
-    ramp = picks["ceiling_ramp_vp"](L, ceil_y, cx0, cx1)
+    bracket = cfg["horizon_bracket_px"]
+    # A door reveal and a window splay recede like a side wall does, so the
+    # frame's own carriers come out of the corner profile. Measured where this
+    # reading found them, asked where it did not — never a hand-placed box.
+    exclude = []
+    for c in (carriers or []):
+        if c.get("found"):
+            exclude.append((c["x0"], c["x1"]))
+        else:
+            exclude.append((c["asked_x0"], c["asked_x1"]))
+    cx0, cx1, corner_ev = picks["find_corners_recession"](
+        L, ceil_y, floor_y, cfg["horizon_declared"], exclude)
+
+    # THE CEILING ROW IS THE ONE THE SIDE WALLS AGREE ON. Every candidate is
+    # tried; the admissible one with the tightest convergence wins; if none is
+    # admissible the frame has not fixed a horizon and says so.
+    ramp, ramp_why, tried = None, None, []
+    if cx0 is not None and cx1 is not None:
+        for c in ceil_cands:
+            y = c["y"] - 1
+            r = picks["ceiling_ramp_vp"](L, y, cx0, cx1, with_error=True)
+            ok, why = _admissible(r, y, floor_y, bracket)
+            tried.append(dict(ceiling_y_px=y, admissible=ok,
+                              sigma_y_px=(r or {}).get("sigma_y_px"),
+                              horizon_y_px=(r or {}).get("y"), why=why))
+            if ok and (ramp is None or r["sigma_y_px"] < ramp["sigma_y_px"]):
+                ramp, ceil_y = r, y
+        if ramp is None:
+            ramp_why = (tried[0]["why"] if tried else
+                        "no candidate ceiling row could be fitted at all")
+    else:
+        missing = ("neither corner" if (cx0 is None and cx1 is None)
+                   else "only one corner")
+        ramp_why = ("the wall's own architecture never stops being square to "
+                    "the camera, so this frame gives %s" % missing)
+
     votes = {}
     if cx0 is not None or cx1 is not None:
         votes, _, _ = picks["horizon_votes"](L, ceil_y, floor_y, cx0, cx1)
@@ -247,33 +368,54 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks):
     width = ((cx1 - cx0) / ppm) if (ppm and cx0 is not None and cx1 is not None) else None
     eye = ((floor_y - ramp["y"]) / ppm) if (ramp and ppm) else None
 
-    why = []
+    why, family = [], None
     if ramp is None:
-        missing = ("neither corner" if (cx0 is None and cx1 is None)
-                   else "only one corner")
+        family = UNFITTED_HORIZON
         why.append(
             "the ceiling-ramp horizon is the instrument row 20 ruled, and it "
-            "fits the two side-wall/ceiling junctions: this frame gives it %s "
-            "at the ceiling line y %d, so it has nothing to fit. A facing with "
-            "no corners has no ramp and issues no eye height, which is a "
-            "WITHHELD and not a zero." % (missing, ceil_y))
-    elif not (eye_range[0] <= eye <= eye_range[1]):
-        why.append(
-            "the horizon this painting's own side walls converge on (y %.1f) "
-            "puts the eye at %.3f m above its own floor line at the scale its "
-            "own chair-rail declares (%.1f px/m), outside %.1f-%.1f m. The two "
-            "readings are of one picture and cannot both be true: the ruler "
-            "and the perspective disagree, and a meta built from them would "
-            "tell the renderer to stand somewhere nobody stands."
-            % (ramp["y"], eye, ppm, *eye_range))
+            "fits the two side-wall/ceiling junctions outside this frame's own "
+            "corners: %s. A facing whose side walls fix no horizon issues no "
+            "eye height, which is a WITHHELD and not a zero." % ramp_why)
+    else:
+        sigma_eye = ramp["sigma_y_px"] / ppm if ppm else 0.0
+        if eye_range[0] - sigma_eye <= eye <= eye_range[1] + sigma_eye:
+            if not (eye_range[0] <= eye <= eye_range[1]):
+                # Outside the range, but by less than the reading's own error
+                # bar: the picture has not said anything the bar cannot say.
+                family = UNFITTED_HORIZON
+                why.append(
+                    "the horizon this painting's side walls converge on (y "
+                    "%.1f +/- %.1f px) puts the eye at %.3f m, outside %.1f-"
+                    "%.1f m by less than the reading's own error bar (%.3f m). "
+                    "That is not a painting disagreeing with its ruler; it is a "
+                    "reading that has not decided, and a WITHHELD is what a "
+                    "reading that has not decided issues."
+                    % (ramp["y"], ramp["sigma_y_px"], eye, eye_range[0],
+                       eye_range[1], sigma_eye))
+        else:
+            family = SUSPECT_PAINTING
+            why.append(
+                "SUSPECT PAINTING: the horizon this painting's own side walls "
+                "converge on (y %.1f, fixed to +/-%.1f px, inside the +/-%.1f "
+                "px the standing licence allows the horizon row) puts the eye "
+                "at %.3f m above its own floor line at the scale its own gate "
+                "anchor declares (%.1f px/m), outside %.1f-%.1f m. Both "
+                "readings are determinate and they are of one picture, so they "
+                "cannot both be true: the ruler and the perspective disagree, "
+                "and no band is widened to admit that."
+                % (ramp["y"], ramp["sigma_y_px"], bracket, eye, ppm,
+                   eye_range[0], eye_range[1]))
 
     return dict(
         ceiling_y_px=ceil_y, ceiling_candidates=ceil_cands,
-        corner_x0_px=cx0, corner_x1_px=cx1,
+        ceiling_rows_tried=tried,
+        corner_x0_px=cx0, corner_x1_px=cx1, corner_evidence=corner_ev,
+        horizon_bracket_px=round(bracket, 2),
         ramp=ramp, votes=votes, light=lit,
         storey_height_m=(None if storey is None else round(storey, 4)),
         implied_wall_width_m=(None if width is None else round(width, 4)),
         eye_height_m=(None if eye is None else round(eye, 4)),
+        hold_family=family,
         withheld_because=why)
 
 
@@ -524,7 +666,8 @@ def measure_candidate(path, side, cfg, ref, picks):
     # Read here rather than in a second pass so that the document a promotion
     # ships and the reading a gate admitted are one measurement of one frame.
     out["_promotion"] = (None if ppm is None else
-                         _promotion_half(rgb, L, cfg, floor_y, ppm, picks))
+                         _promotion_half(rgb, L, cfg, floor_y, ppm, picks,
+                                         carriers))
 
     band = ref["band"]
     if ppm is None:
@@ -561,9 +704,12 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
     number the gate never saw, which is what a second measurement pass could.
 
     Returns `(doc, refusals)`. A non-empty `refusals` is a WITHHELD in the
-    round's own sense: a fact about what this frame gives the instrument, not a
-    verdict on the painting's camera, and the caller holds the wall rather than
-    asking the hand for another roll it cannot act on.
+    round's own sense — but since row 32 it is no longer one thing. It carries
+    a NAMED SUB-FAMILY (`hold_family` on the reading), and the two names route
+    differently: a `suspect-painting` is a fact about the PICTURE and buys a
+    re-ask with a correction the emitter can act on, while an
+    `unfitted-horizon` is a fact about what this frame gives the instrument.
+    Both are refusals here; `row23_run.py` decides what each one costs.
     """
     p = reading.get("_promotion")
     ppm = reading.get("px_per_m_at_wall")
@@ -632,8 +778,15 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
         "over the vanishing-point vote. The two side-wall/ceiling junctions "
         "run parallel to the view axis and must converge on the horizon; they "
         "are fitted outside this frame's own measured corners and intersected. "
-        "A facing with no corners has no ramp and issues no eye height, which "
-        "is a WITHHELD and not a zero."),
+        "A facing whose side walls fix no horizon issues no eye height, which "
+        "is a WITHHELD and not a zero. Row 32 left that ruling where it stood "
+        "and changed only what the ramps are given: corners read off where the "
+        "wall stops being square to the camera rather than off a plaster step, "
+        "the junction row chosen from pick_ceiling's own candidates by which "
+        "one the side walls converge on most sharply, and an error bar on the "
+        "intersection measured against the standing licence for the horizon "
+        "row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px "
+        "in _measured_px's siblings on the reading)."),
       "_horizon_votes": {"per_region": p["votes"],
                          "adopted_y": (ramp["y"] if ramp else None),
                          "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
@@ -655,6 +808,7 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
           "implied_camera_wall_m": (round(side["meta_used"]["image_h_px"] / ppm, 4)
                                     if ppm else None)},
       "_withheld_because": p["withheld_because"],
+      "_hold_family": p.get("hold_family"),
       "_round": round_name,
     }
     return doc, list(p["withheld_because"])

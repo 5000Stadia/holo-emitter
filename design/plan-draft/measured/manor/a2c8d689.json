@@ -99,31 +99,128 @@
         "cv": 0.784
       }
     ],
-    "corner_x0_px": null,
-    "corner_x1_px": null,
-    "ramp": null,
-    "votes": {},
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 23,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 11,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 29,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 51,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 60,
+        "admissible": true,
+        "sigma_y_px": 8.63,
+        "horizon_y_px": 650.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 45,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 98.0,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 382,
+    "corner_x1_px": 1383,
+    "corner_evidence": {
+      "left_fit_r2": 0.0136,
+      "right_fit_r2": 0.5764,
+      "block_px": 16,
+      "excluded": [
+        [
+          -222,
+          272
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 31.26,
+    "ramp": {
+      "x": 1383.0,
+      "y": 98.0,
+      "left_slope": 0.0,
+      "right_slope": -0.6603,
+      "left_n": 61,
+      "left_resid_px": 0.0,
+      "right_n": 61,
+      "right_resid_px": 0.3,
+      "sigma_y_px": 0.0
+    },
+    "votes": {
+      "floor": {
+        "x": 698,
+        "y": 477,
+        "edge_px": 16708
+      },
+      "ceiling": {
+        "x": 848,
+        "y": 402,
+        "edge_px": 1848
+      },
+      "side_walls": {
+        "x": 144,
+        "y": 826,
+        "edge_px": 17261
+      }
+    },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 395,
       "key_dir_brightest_y": 281,
-      "key_tint": "#c8a882",
+      "key_tint": "#c8a378",
       "key_tint_patch": [
-        195,
+        392,
         595,
         0,
         15
       ],
       "key_tint_patch_mean_rgb": [
-        140.14,
-        117.45,
-        91.29
+        125.2,
+        101.87,
+        75.13
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c8ab96",
         "floor_bottom_strip": "#c89873",
-        "mid_wall_right": "#c87837",
-        "mid_wall_left": "#c8925c",
+        "mid_wall_right": "#c86a20",
+        "mid_wall_left": "#c8976e",
         "brightest_21x21_patch": "#c8c8c8"
       },
       "brightest_21x21_patch_centre_px": [
@@ -131,15 +228,16 @@
         281
       ],
       "sobel_bright_side_deg_whole_frame": 115.64,
-      "sobel_bright_side_deg_wall_band": 108.33,
+      "sobel_bright_side_deg_wall_band": 142.44,
       "left_third_minus_right_third_luminance_whole_frame": 35.271,
       "left_third_minus_right_third_luminance_wall_band": 32.283
     },
     "storey_height_m": 3.1019,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
+    "implied_wall_width_m": 3.6021,
+    "eye_height_m": 2.832,
+    "hold_family": "suspect-painting",
     "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 23, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 98.0, fixed to +/-0.0 px, inside the +/-31.3 px the standing licence allows the horizon row) puts the eye at 2.832 m above its own floor line at the scale its own gate anchor declares (277.9 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
     ]
   },
   "delta_focal_pct": -15.87,

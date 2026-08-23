@@ -1244,6 +1244,19 @@ export function manorPrompt(plan, key, meta, rects, correction) {
   L.push(`  corners, the returns at left and right and the amount of visible ${GROUND} all land where`);
   L.push(`  Image 2 puts them, to the pixel. One metre at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
   L.push(`  The ${GROUND} is visible and runs to the bottom edge of frame.`);
+  /* [row 32] THE ONE NUMBER EVERY MANOR PROMPT LEFT UNSAID. The prompt states
+   * the wall-foot line, the corners and the scale, and every one of those lands
+   * inside its bracket in the returned paintings. It never stated where the
+   * returns must CONVERGE — and the promotion instrument reads the eye height
+   * off exactly that convergence, so 58 of 85 walls held on a quantity nothing
+   * had asked for. The painted horizons scatter +/-45 px around the ruled row
+   * while the stated quantities do not, which is the measurement of the
+   * omission. Production law clause 6: the fix lands here, in the emitter, so
+   * the next map gets it without this conversation in context. */
+  L.push(`  The left and right returns run back to meet each other at row ` +
+    `${Math.round(meta.horizon_y * meta.image_h_px)} of the ${meta.image_h_px} rows — that row is the`);
+  L.push("  viewer's eye line, and each return meets the surface overhead along one straight");
+  L.push("  unbroken line from its own corner to the edge of frame.");
   L.push(`Architecture and measurement anchors: ${anchor.sentence}`);
   for (const r of ruled) L.push("  " + r);
   if (rects.length) {
@@ -1671,16 +1684,40 @@ async function emitRetries(outDir, opts) {
   await browser.close();
 
   const mp = join(outDir, "retries.json");
+  /* THE INDEX IS CUMULATIVE, AND THIS FILE ONCE LOST A COAT BY NOT BEING.
+   *
+   * `row23_run.py` finds a retry roll's candidate ONLY through this file — the
+   * manifest predates every re-ask — so an entry dropped here makes an image
+   * that is sitting on disk invisible to the sweep. Rewriting `entries` with
+   * just this pass's emissions did exactly that: the second coat's fifteen
+   * walls fell out the moment a third pass was cut, thirty returned candidates
+   * with them, and the loop would have re-asked walls it had already been
+   * answered about.
+   *
+   * The header below claimed "never overwrites" while this line overwrote. The
+   * PACKETS were safe (each retry lives in its own `retry-<n>/` with its own
+   * roll ids); the INDEX was not, and the index is what the sweep reads. So
+   * every earlier entry is carried forward, keyed by wall AND attempt, and
+   * this pass's entries replace only their own key+attempt. */
+  const prior = existsSync(mp) ? JSON.parse(readFileSync(mp, "utf8")).entries || [] : [];
+  const merged = new Map();
+  for (const e of prior) merged.set(`${e.key}#${e.attempt}`, e);
+  for (const e of emitted) merged.set(`${e.key}#${e.attempt}`, e);
+  const entries = [...merged.values()].sort(
+    (a, b) => a.key.localeCompare(b.key) || a.attempt - b.attempt);
   writeFileSync(mp, JSON.stringify({
-    _what_this_is: "Every wall the sweep marked `retry`, re-cut as a complete packet whose prompt carries that wall's own correction sentence verbatim. Emitted by `node tools/make-scaffold.mjs --emit-retries`; nothing here is hand-written.",
+    _what_this_is: "Every re-ask packet this run has ever cut, each carrying its wall's own correction sentence verbatim. Emitted by `node tools/make-scaffold.mjs --emit-retries`; nothing here is hand-written.",
+    _cumulative: "Entries accumulate across passes, keyed by wall and attempt. `row23_run.py` finds a retry roll's candidate only through this file, so an entry dropped here hides an image that is already on disk — which is how the second coat went unread once.",
     _never_overwrites: "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
     _voice: "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
     _generated: new Date().toISOString().slice(0, 10),
-    emitted: emitted.length, refused: refused.length,
-    entries: emitted, refused_entries: refused
+    emitted: emitted.length, carried: entries.length - emitted.length,
+    refused: refused.length,
+    entries, refused_entries: refused
   }, null, 2) + "\n");
   console.log(`\nretries   ${mp.slice(ROOT.length + 1)}`);
-  console.log(`          ${emitted.length} re-ask packet(s); ${refused.length} refused`);
+  console.log(`          ${emitted.length} re-ask packet(s) this pass, ` +
+    `${entries.length - emitted.length} carried forward; ${refused.length} refused`);
   for (const r of refused) console.log(`            ${r.key}  ${r.refused}`);
   timings.record("emit.run", t_run, Date.now() / 1000, null,              // [row 33]
     { mode: "retries", emitted: emitted.length, refused: refused.length });

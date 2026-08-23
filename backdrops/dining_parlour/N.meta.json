@@ -1,0 +1,86 @@
+{
+  "floor_line_y": 0.692383,
+  "px_per_m_at_wall": 146.316,
+  "px_per_m_at_bottom": 447.95,
+  "wall_width_m": 8.8,
+  "key_tint": "#c8722c",
+  "image_h_px": 1024,
+  "horizon_y": 0.543164,
+  "key_dir": "L-BELOW",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 139,
+  "camera_wall_m": 7.15,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 8.8,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 144,
+  "corner_x1_px": 1406,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source/dining_parlour-N/row23-585a2dca.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1046.2,
+  "nearest_floor_m": 2.3354,
+  "measured_room": {
+    "storey_height_m": 3.014,
+    "wall_width_m": 8.625,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 8.8,
+    "carriers": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "plan_px": [
+          255.9,
+          548.5
+        ],
+        "plan_centre_px": 402.2,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      },
+      {
+        "kind": "door",
+        "id": "op06",
+        "plan_px": [
+          621.7,
+          768
+        ],
+        "plan_centre_px": 694.8,
+        "painted_px": [
+          770,
+          857
+        ],
+        "painted_centre_px": 813.5,
+        "centre_delta_px": 118.7,
+        "centre_delta_m": 0.811,
+        "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op06",
+      "kind": "door",
+      "via": null,
+      "x": 770,
+      "y": 414,
+      "w": 87,
+      "h": 295,
+      "beyond_m": 6,
+      "beyond_offset_m": 0,
+      "measured": true
+    }
+  ]
+}

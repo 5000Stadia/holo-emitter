@@ -127,9 +127,118 @@
         "cv": 0.792
       }
     ],
-    "corner_x0_px": 227,
-    "corner_x1_px": null,
-    "ramp": null,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 118,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 88,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 110,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 69,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 32,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 125,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 133,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 143,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 167,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 159,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 153,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 173,
+        "admissible": true,
+        "sigma_y_px": 0.93,
+        "horizon_y_px": 499.8,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 241,
+    "corner_x1_px": 1310,
+    "corner_evidence": {
+      "left_fit_r2": 0.6561,
+      "right_fit_r2": 0.7491,
+      "block_px": 16,
+      "excluded": [
+        [
+          561,
+          811
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 23.69,
+    "ramp": {
+      "x": 780.1,
+      "y": 499.8,
+      "left_slope": 0.7059,
+      "right_slope": -0.7175,
+      "left_n": 61,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.31,
+      "sigma_y_px": 0.93
+    },
     "votes": {
       "floor": {
         "x": 752,
@@ -142,9 +251,9 @@
         "edge_px": 7114
       },
       "side_walls": {
-        "x": 320,
-        "y": 744,
-        "edge_px": 9446
+        "x": 1208,
+        "y": 738,
+        "edge_px": 16413
       }
     },
     "light": {
@@ -166,8 +275,8 @@
       "key_tint_alternates": {
         "floor_under_brightest": "#c89467",
         "floor_bottom_strip": "#c89263",
-        "mid_wall_right": "#c8b092",
-        "mid_wall_left": "#c8a984",
+        "mid_wall_right": "#c89f70",
+        "mid_wall_left": "#c8ac89",
         "brightest_21x21_patch": "#c8b7a2"
       },
       "brightest_21x21_patch_centre_px": [
@@ -175,16 +284,15 @@
         440
       ],
       "sobel_bright_side_deg_whole_frame": 92.29,
-      "sobel_bright_side_deg_wall_band": 87.24,
+      "sobel_bright_side_deg_wall_band": 105.93,
       "left_third_minus_right_third_luminance_whole_frame": -8.594,
       "left_third_minus_right_third_luminance_wall_band": -12.988
     },
     "storey_height_m": 2.6879,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
-    "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 118, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
-    ]
+    "implied_wall_width_m": 4.03,
+    "eye_height_m": 1.2486,
+    "hold_family": null,
+    "withheld_because": []
   },
   "delta_focal_pct": 5.95,
   "delta_eye_pct": -2.84,

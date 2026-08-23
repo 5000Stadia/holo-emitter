@@ -3606,8 +3606,17 @@ verbatim reason goes to `PACKET.md` and `retries.json`.
 Nothing turned that sentence back into a packet until row 29, so a re-ask was hand-written and the
 correction lived in a transcript — `design/production-law.md` clause 3 calls that an open miss.
 `node tools/make-scaffold.mjs --emit-retries` reads the state, re-cuts each wall's scaffold **at its
-room's voice**, and writes a packet whose prompt carries the correction. Three refusals keep the
-record honest: it never overwrites the first ask (a retry lands in `<wall>/retry-<n>/` with its own
+room's voice**, and writes a packet whose prompt carries the correction.
+
+**`retries.json` is CUMULATIVE, and row 32 paid to learn it.** `row23_run.py` finds a retry roll's
+candidate only through that file — the manifest predates every re-ask — so rewriting `entries` with
+just the current pass's emissions makes an image sitting on disk invisible to the sweep. It did:
+cutting a third pass dropped fifteen walls and thirty returned candidates, which is the same shape as
+the second coat the sweep read none of. The packets were never at risk (each retry lives in its own
+`retry-<n>/` with its own roll ids); the INDEX was, and the index is what the sweep reads. Entries
+are now carried forward keyed by wall AND attempt, and the output counts what it carried.
+
+Three refusals keep the record honest: it never overwrites the first ask (a retry lands in `<wall>/retry-<n>/` with its own
 roll ids, because `row23_lib.py` measures a returned candidate against `<packet>/scaffold.png`), it
 never re-asks a promoted wall, and it never raises `attempts` — that is the sweep's.
 
@@ -3635,7 +3644,7 @@ the corners, the ceiling-ramp horizon and the light **in the same pass, off the 
 scale** as the floor line and the chair rail, and `row23_lib.promotion_doc` shapes that one reading
 into the §5 record. Nothing is measured a second time and there is nowhere to put a second window.
 The rules are still the corpus's, injected through `picks` exactly as `pick_floor` and
-`module_in_bands` always were — `pick_ceiling`, `find_corners_cand2`, `ceiling_ramp_vp`,
+`module_in_bands` always were — `pick_ceiling`, `find_corners_recession`, `ceiling_ramp_vp`,
 `horizon_votes`, `light`, and `EYE_RANGE` beside them.
 
 **The ceiling search runs from the frame top to the BOTTOM of the declared ceiling bracket.** Both
@@ -3654,25 +3663,140 @@ because the STANDPOINT puts the datum out of frame. The bracket is checked again
 any detector runs, the wall is HELD rather than re-asked, and its retry cap is untouched — a re-ask
 with no correction is the one thing the miss ledger exists to prevent.
 
-**What the promotion still refuses, and why each refusal is about the picture.** Two families
-survive, and both are honest:
+### The horizon instrument reads boarded ceilings (row 32)
 
-- *No ramp.* The ceiling-ramp horizon is row 20's ruled instrument and it fits the two
-  side-wall/ceiling junctions. A frame that gives it neither corner (or one) has no horizon and
-  issues no eye height, which the standing-eye wave already ruled is a WITHHELD and not a zero.
-- *The ruler and the perspective disagree.* Where the ramp DOES fit, the eye it implies against the
-  scale the wall's own chair rail declares must be physically possible (`measure.py`'s `EYE_RANGE`,
-  0.8–2.2 m). Four manor paintings imply 0.31, 0.32, 2.93 and 3.11 m — the two readings are of one
-  picture and cannot both be true, and a meta built from them would tell the renderer to stand
-  somewhere nobody stands.
+**The gap this row closed, stated as it stood.** The production run held **58 of 85** walls, and
+**32** of those holds said "no corners". `find_corners_cand2` looks for the ceiling-line step to
+collapse past the corner; the study's ceilings are plaster and it does, the manor's are boarded and
+beamed and it does not, so the scan walked to the frame edge and returned `None`, the row-20 ramp had
+nothing to fit, and the wall issued an honest WITHHELD. That is an architectural difference, not a
+threshold, and tuning `frac` by eye on manor frames is exactly the free parameter row 23 forbids.
 
-**The named gap, which is ours and not the hand's.** Seven walls hold for "no corner pair" and at
-least `hall/E` and `hall/W` visibly HAVE corners. `find_corners_cand2` looks for the ceiling-line
-step to collapse past the corner; the study's ceilings are plaster and it does, and the manor's are
-boarded, so past the corner the side wall meets ceiling boards at nearly the same row and the step
-never collapses. That is an architectural difference, not a threshold, and tuning `frac` by eye on
-manor frames is exactly the free parameter row 23 forbids. It wants a corner instrument that reads a
-boarded ceiling, and it is the next thing this loop needs.
+**The ruling did not move.** The horizon is still the ceiling-ramp intersection — the two
+side-wall/ceiling junctions fitted outside the frame's own corners and crossed. What row 32 changed
+is what those ramps are given, in three places, and it added the error bar that lets the instrument
+say which of two different things is wrong with a frame.
+
+**1. The corners (`measure.py`'s `find_corners_recession`).** The cand-2 rule asks one question of
+one line. This asks the whole wall. A wall square to the camera projects its architecture as
+horizontals and verticals and nothing else — every rail, stile and panel edge is axis-aligned — and a
+return running away from the camera projects the same architecture as obliques. So the structure
+tensor's normalised off-diagonal, `2·Jxy/(Jxx+Jyy)`, is *exactly* zero on the facing wall and large
+on the returns, whatever the ceiling is made of. The corner is the **least-squares two-level
+breakpoint** of that profile: an argmin over the profile's own columns, not a cut anyone chose.
+
+Three things earn their place in it and each is structural:
+
+- The sum is taken in **y blocks**, because a left return's lines lean one way above the horizon and
+  the other way below it and a single column sum cancels them against each other. Measured at block
+  heights 8, 16 and 32 px the corner answers move ≤ a few px and the holdout median is 21.5 / 21.5 /
+  22.0 px — the block height is inert, which is how a parameter argues for its life.
+- The **sign** is taken from the wall's declared horizon (the sign only, never the value): folding it
+  in makes the statistic positive on a left return, negative on a right one, and **zero on anything
+  symmetric**. That last part is what survives leaded glass, whose diamond quarries carry both
+  diagonals in equal measure and defeated the unsigned form on `muniment_room/S` and
+  `servants_hall/N` by ~400 px.
+- The frame's **own carriers come out of the profile**, measured where this reading found them and
+  asked where it did not, because a door reveal and a window splay recede too — `buttery_pantry/S`'s
+  reveal was read as 325 px of side wall until they were excluded.
+
+**2. Which row is the ceiling.** `pick_ceiling` returns the *strongest* admissible horizontal and
+under a boarded ceiling that is a beam. The ramps are now fitted at **each** of its own candidates
+and the row the two returns converge on most sharply is adopted — the picture's answer to which of
+its horizontals is the junction. It cannot invent a horizon: every candidate must still pass
+`_admissible`, and one that does not is not eligible to be chosen.
+
+**3. The error bar, and the one bracket this round never had.** `ceiling_ramp_vp` now reports
+`sigma_y_px`, the standard error of the intersection's own row propagated from the two fits'
+covariances. `cfg_from_sidecar` derives `horizon_bracket_px` the way every other bracket in this
+round is derived — `MEASURED_BAND` propagated through a geometry the scaffold declares, here the
+ruled floor-to-horizon separation, which *is* eye × `px_per_m_at_wall`. `row23_lib._admissible` then
+spends it on three tests, none of which carries a number of its own:
+
+- **determinacy** — the intersection is fixed to inside `horizon_bracket_px`. A horizon whose own
+  error bar is wider than the licence it answers to has not decided anything.
+- **in-picture** — the convergence lies in the frame. Lines parallel to the view axis converge on the
+  principal point and the prompt rules the camera level with zero tilt, so a crossing outside the
+  picture is two edges meeting, not a horizon.
+- **between the lines** — the horizon lies between this frame's own measured ceiling line and its own
+  measured floor line. This is what refuses the degenerate fit where both ramps come back flat and
+  cross one row below the ceiling with a residual of exactly zero, which seven manor frames do.
+
+**The holdout, because there is no ground truth on a held wall.** `row32_holdout.py` predicts, blind,
+the corners the old instrument read. The four **study controls** carry committed corners confirmed by
+their own rooms' symmetry, and they are the plaster case the rule was extended from: it moves them
+−5/+2, −6/+3, −4/+1 and −4/+23 px. Against the **19 promoted manor walls** the corners land a median
+23 px (p90 38, max 62) from the old rule's, and the number that actually ships — the horizon the
+row-20 ramp then fits — reproduces to a **median 0.6 px, max 3.3 px** on the 16 that pass
+admissibility. The three that do not (`buttery_pantry/N`, `buttery_pantry/S`, `privy_garden/N`) were
+promoted on ramp residuals of 19.6, 22.2 and 12.5 px, which is the old instrument reporting a horizon
+it had not fitted; their art is in the store and the loop reads it rather than remaking it, and the
+new guard would not have admitted them.
+
+**What the sweep then did, on the images already on disk.** 20 promoted / 58 held / 4 retrying / 3
+parked became **31 promoted / 31 retrying / 18 held / 3 parked / 2 admitted-and-fenced**, with no
+band moved and no new candidate generated. Of the 58 holds: **12 promoted**, **27 became a diagnosed
+re-ask** carrying a correction the emitter can act on (15 `unfitted-horizon`, 12 `suspect-painting`),
+2 are fenced below, and 17 still hold — 10 refused by a promotion clause that is not row 32's (a
+doorway the plan rules and the painting does not draw; the flight clause below), 5 `unfitted-horizon`
+with their retry cap spent, and `hall/N` and `hall/S`, which are waiting on a standpoint and not on
+an image. Every wall that is not promoted now carries a `hold_family`, which is what the ledger could
+not say before.
+
+**Two fences, and both were earned in this run rather than reasoned out.**
+
+- **M0's own two rooms** (`row23_run.M0_ROOMS`). The sweep admitted `hall/E` and promoting it turned
+  eighteen cases red at once: §12.5's typed per-facing literals, eight clause-ledger cases, and the
+  two committed batches Kabe was shown, which are re-rendered and byte-compared precisely so a
+  picture cannot move under them silently. `study` and `hall` are the eight facings **row 4**
+  produces — probe first, `style_block` extracted, the probe pair passed by Kabe — and a manor sweep
+  promoting one walks through that order. The camera is admitted and said to be; the ROUTE is row
+  4's. `hall/E` and `hall/W` sit at `admitted-not-promoted` and row 4 deletes the fence.
+- **A painting that loses the staircase** (`promote-backdrop.mjs`, clause
+  `row32:stair.painted_flight_lost`). The renderer draws a flight out of the meta's own `stairs` and
+  a promoted meta has none, so painting a facing whose room draws one deletes the staircase and the
+  polygon a click travels through. Five walls were in that state, `back_stair/W` since the first
+  harvest, and `manor.spec`'s "a flight seen across its run is a body, not a line" had stopped having
+  a subject at all rather than gone red. The validator's row-21 exit-via clause speaks only where an
+  EXIT goes through the flight; a flight you merely LOOK at from this facing had nobody speaking for
+  it. All five are back on the grid, which draws the stair.
+
+**And `--recheck-doors` is every promoted wall now, not the door-bearing ones.** It was cut for row
+27's painted-door rule and filtered on `openings` because that was the only clause it answered, so a
+promotion clause that is not about doors had no way to reach the art already in the store —
+`back_stair/W` sat there deleting a staircase it had been promoted before the clause existed. The
+filter is the store itself; the door READING still only runs on a door-bearing wall, because widening
+that too patched `openings: []` into two round-locked corpora `plan.spec` byte-compares.
+
+**What the promotion still refuses, and the sub-family each refusal names.** A refusal now carries
+`hold_family` and the sweep routes on it rather than on prose:
+
+- *`unfitted-horizon`.* The frame fixed no horizon — either the wall never stops being square to the
+  camera, or no candidate junction row passes `_admissible`, or the eye it implies leaves `EYE_RANGE`
+  by **less** than the reading's own error bar. The last of those is the honest middle: a reading
+  that has not decided issues a WITHHELD rather than an accusation.
+- *`suspect-painting`.* The horizon IS determinate, inside the standing licence, and the eye it
+  implies against the scale the wall's own gate anchor declares is outside `EYE_RANGE` by more than
+  the error bar. Both readings are of one picture and they cannot both be true: the ruler and the
+  perspective disagree. **No band is widened to admit that** — `EYE_RANGE` is `measure.py`'s and this
+  file does not keep a second copy, which `horizon.spec` asserts.
+- Everything else — a doorway the plan rules and the painting does not draw — holds as it did.
+
+**Both families buy a roll, and that is the change in what a hold costs.** The old branch held every
+promotion refusal on the reasoning that "a retry would spend a roll repainting a wall whose frame is
+already admissible". That is right about an *instrument* failure and wrong about a *picture* failure,
+and the run then held 58 walls on it. `_correction_for` turns each family into a forward instruction —
+what to draw, not what went wrong — naming the row the returns must meet at, in words that carry onto
+a garden wall whole (`room-voices.mjs`'s `carryableOutdoors` redacts a correction that names interior
+fabric, and a redacted correction is a roll spent on "follow the words below").
+
+**And the emitter now states the row (production law clause 6).** `manorPrompt` stated the wall-foot
+line, the corners and the scale — all of which land inside their brackets in the returned paintings —
+and never stated where the returns must converge, which is the one quantity the promotion reads the
+eye height off. The painted horizons scatter ±45 px around the ruled row while the stated quantities
+do not: that spread is the measurement of the omission. Every manor prompt now names the eye-line row
+and asks for one straight unbroken junction from each corner to the frame edge, so the next map gets
+it with none of this in context.
 
 **A promotion that cannot be baked is not a promotion.** `do_promote` runs `promote-backdrop.mjs`,
 then bakes `backdrops/baked.js` AND every world's `fixture.js` — a promoted wall changes two baked

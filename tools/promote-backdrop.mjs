@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
 import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers } from "./plan-projection.mjs";
+import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing } from "./plan-projection.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -308,6 +308,28 @@ const plannedDoors = planned.filter((p) => p.kind === "door");
 const painted = m._measured_px && Array.isArray(m._measured_px.openings)
   ? m._measured_px.openings : null;
 const refusals = [];
+/* [row 32] A PAINTING THAT LOSES THE STAIRCASE IS NOT A PROMOTION.
+ *
+ * The renderer draws a flight from the meta's own `stairs`, and a promoted
+ * meta has none — so promoting a facing whose room draws a flight deletes the
+ * staircase from the picture, and with it the poly the click travels through.
+ * `great_stair_hall/W` is the case: the manor sweep promoted it and
+ * `manor.spec`'s "a flight seen across its run is a body, not a line" stopped
+ * having a subject at all, which is the gates-that-cannot-fail shape rather
+ * than a passing test.
+ *
+ * The validator already refuses the neighbouring case — an exit whose `via`
+ * names a flight the meta does not carry, the clause `row21` tags
+ * `exit.via_unfilled`, which is what took `back_stair_head/W` back out of the
+ * store — but a flight the
+ * player only LOOKS at from this facing has no exit through it here, so
+ * nothing spoke for it. This does. It is the plan's own geometry, asked of
+ * every promotion on every route, and it lapses by itself the day row 25
+ * gives a painted facing a flight to carry. */
+const drawnFlights = stairsForFacing(plan, loc, facing, meta) || [];
+if (drawnFlights.length && !(Array.isArray(meta.stairs) && meta.stairs.length)) {
+  refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left looking at the place a stair used to be [row32:stair.painted_flight_lost]`);
+}
 /* Assigned by id, so the loop that writes the openings and the loop that writes
  * the carrier record read one answer rather than each computing its own. */
 const assigned = new Map();

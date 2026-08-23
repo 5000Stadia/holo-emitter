@@ -48,7 +48,7 @@
     "the window: the choice of edge pair would choose the verdict: the strongest pair sits 31..471 (226 px from the ask) and another admissible pair sits 161..645 (378 px from the ask), which disagree by more than the 40 px this arm can resolve"
   ],
   "_promotion": {
-    "ceiling_y_px": 11,
+    "ceiling_y_px": 25,
     "ceiling_candidates": [
       {
         "y": 12,
@@ -105,31 +105,135 @@
         "cv": 0.878
       }
     ],
-    "corner_x0_px": null,
-    "corner_x1_px": null,
-    "ramp": null,
-    "votes": {},
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 11,
+        "admissible": true,
+        "sigma_y_px": 23.04,
+        "horizon_y_px": 527.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 25,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 18,
+        "admissible": true,
+        "sigma_y_px": 23.04,
+        "horizon_y_px": 527.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 46,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 58,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 52,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 64,
+        "admissible": true,
+        "sigma_y_px": 0.0,
+        "horizon_y_px": 170.0,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 273,
+    "corner_x1_px": 1434,
+    "corner_evidence": {
+      "left_fit_r2": 0.0285,
+      "right_fit_r2": 0.735,
+      "block_px": 16,
+      "excluded": [
+        [
+          -222,
+          272
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 31.26,
+    "ramp": {
+      "x": 1275.7,
+      "y": 170.0,
+      "left_slope": -0.0,
+      "right_slope": -0.6849,
+      "left_n": 61,
+      "left_resid_px": 0.0,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 0.0
+    },
+    "votes": {
+      "floor": {
+        "x": 1500,
+        "y": 588,
+        "edge_px": 3743
+      },
+      "ceiling": {
+        "x": 1080,
+        "y": 298,
+        "edge_px": 1875
+      },
+      "side_walls": {
+        "x": 790,
+        "y": 492,
+        "edge_px": 9876
+      }
+    },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 365,
       "key_dir_brightest_y": 258,
-      "key_tint": "#c89f69",
+      "key_tint": "#c8a06b",
       "key_tint_patch": [
-        165,
+        283,
         565,
         0,
-        4
+        17
       ],
       "key_tint_patch_mean_rgb": [
-        118.69,
-        94.48,
-        62.5
+        121.35,
+        96.83,
+        64.88
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c8beb6",
         "floor_bottom_strip": "#c89e79",
-        "mid_wall_right": "#c8772e",
-        "mid_wall_left": "#c89252",
+        "mid_wall_right": "#c8772b",
+        "mid_wall_left": "#c8c0a6",
         "brightest_21x21_patch": "#c7c7c8"
       },
       "brightest_21x21_patch_centre_px": [
@@ -137,15 +241,16 @@
         258
       ],
       "sobel_bright_side_deg_whole_frame": 138.68,
-      "sobel_bright_side_deg_wall_band": 131.06,
+      "sobel_bright_side_deg_wall_band": 153.11,
       "left_third_minus_right_third_luminance_whole_frame": 42.76,
-      "left_third_minus_right_third_luminance_wall_band": 38.209
+      "left_third_minus_right_third_luminance_wall_band": 37.842
     },
-    "storey_height_m": 2.8468,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
+    "storey_height_m": 2.8022,
+    "implied_wall_width_m": 3.7012,
+    "eye_height_m": 2.3399,
+    "hold_family": "suspect-painting",
     "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 11, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 170.0, fixed to +/-0.0 px, inside the +/-31.3 px the standing licence allows the horizon row) puts the eye at 2.340 m above its own floor line at the scale its own gate anchor declares (313.7 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
     ]
   },
   "delta_focal_pct": -5.04,

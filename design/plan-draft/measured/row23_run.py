@@ -21,6 +21,10 @@ WHAT IT WILL NOT DO, and both are fences rather than omissions:
     ground truth and its only Kabe-ruled camera; a production loop that
     overwrote them would destroy the reference the whole matrix is measured
     against, and it would do it silently.
+  * [row 32] It never paints M0's own two rooms. `study` and `hall` are the
+    eight facings row 4 produces, probe first and behind Kabe's eye, and a
+    manor sweep promoting one of them walks through that order — see
+    `M0_ROOMS`.
   * It never publishes. Promotions accumulate and it PRINTS that they have;
     `tools/publish-site.sh` is a human's to run, because publication is the one
     act that cannot be taken back.
@@ -73,6 +77,25 @@ OUT = os.path.join(HERE, "manor")
 #: every row-23 number is measured against.
 NEVER_PROMOTE = {"study/N", "study/W"}
 
+#: [row 32] M0'S OWN TWO ROOMS, AND THE MANOR LOOP MAY NOT PAINT THEM.
+#:
+#: `study` and `hall` are the eight facings blueprint §12.5 measures and that
+#: the spec list's ROW 4 produces — probe first, `style_block` extracted, the
+#: probe pair passed by Kabe, and only then the eight. That order exists so a
+#: human sees M0's look before it ships, and a manor sweep that promotes
+#: `hall/E` because its horizon happened to fit walks straight through it.
+#:
+#: It is not a hypothetical. The row-32 sweep admitted `hall/E` and promoting
+#: it turned eighteen cases red at once — §12.5's typed per-facing literals,
+#: eight clause-ledger cases, and the two committed batches Kabe was shown,
+#: which are re-rendered and byte-compared precisely so a picture cannot move
+#: under them silently. Every one of those is the acceptance world saying a
+#: look changed. The instrument was right about the frame; the ROUTE was wrong.
+#:
+#: `study/N` and `study/W` above are already painted and stay so; this fence
+#: only refuses walls the manor loop has not painted yet. Row 4 deletes it.
+M0_ROOMS = {"study", "hall"}
+
 
 def load_state():
     return json.load(open(STATE)) if os.path.exists(STATE) else {"walls": {}}
@@ -86,6 +109,56 @@ def save_state(st):
 def sha(p):
     return hashlib.sha256(open(p, "rb").read()).hexdigest()
 
+
+
+def _correction_for(family, why, reading, entry):
+    """[row 32] The forward half of a hold, in words a prompt can act on.
+
+    Production law clause 6: a solution folds into the EMITTER, a GATE or the
+    INSTRUMENT, never into a hand-retouched artifact. This is the emitter half
+    of row 32's fix — `manorPrompt` carries whatever this returns verbatim, so
+    the correction reaches the generator as an instruction rather than reaching
+    a transcript as a diagnosis.
+
+    Three rules govern the wording and all three were paid for:
+
+    * IT SAYS WHAT TO DRAW, not what went wrong. "The returns converge too low"
+      is a verdict; "the two returns meet at row 526" is a thing to paint.
+    * IT NAMES THE ROW, from this wall's own manifest entry. The horizon is the
+      one number every manor prompt left unsaid, which is exactly why the
+      painted horizons scatter +/-45 px around it while the floor line, which
+      the prompt DOES state, lands inside its bracket.
+    * IT NAMES NO INTERIOR FABRIC. `room-voices.mjs`'s `carryableOutdoors`
+      redacts a correction that does, and a redacted correction is a roll spent
+      on "follow the words below" — so these sentences say "the surface
+      overhead" and "the wall-foot line" and carry onto a garden wall whole.
+
+    Returns None where the refusal is not row 32's to answer (a doorway the
+    plan rules and the painting does not draw), and the wall holds as before.
+    """
+    if family not in ("suspect-painting", "unfitted-horizon"):
+        return None
+    hz = entry.get("horizon_y")
+    p = (reading or {}).get("_promotion") or {}
+    row = ("row %d of the %d-row frame"
+           % (round(hz * 1024), 1024)) if hz else "the eye line Image 2 marks"
+    common = (
+        "Both returns must read as real receding surfaces: each meets the "
+        "surface overhead along ONE straight unbroken line running from its "
+        "corner to the edge of frame, and those two lines must meet each other "
+        "at %s — the eye line Image 2 marks. The wall-foot line, the corners "
+        "and the scale stay exactly where Image 2 puts them." % row)
+    if family == "suspect-painting":
+        return (
+            "the left and right returns of this wall converge at y %.1f, which "
+            "puts the viewer's eye %.3f m above the wall-foot line this frame "
+            "draws — nobody stands there, and the frame's own ruler says "
+            "otherwise, so the two readings of one picture disagree. %s"
+            % ((p.get("ramp") or {}).get("y", float("nan")),
+               p.get("eye_height_m") or float("nan"), common))
+    return (
+        "this frame's returns carry no junction the eye line can be fitted to. "
+        "%s" % common)
 
 
 def promote_reading(key, cand_rel, e, side, ref, reading):
@@ -226,10 +299,11 @@ def sweep(manifest, state, do_promote=True):
     # exactly as for the camera half. Nothing in `row23_lib` re-derives a
     # detector this project has already paid for.
     from measure import (pick_floor, module_in_bands, pick_ceiling,
-                         find_corners_cand2, ceiling_ramp_vp, horizon_votes,
+                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
                          light, EYE_RANGE)
     picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
-                 pick_ceiling=pick_ceiling, find_corners_cand2=find_corners_cand2,
+                 pick_ceiling=pick_ceiling,
+                 find_corners_recession=find_corners_recession,
                  ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
                  light=light, EYE_RANGE=EYE_RANGE)
     os.makedirs(OUT, exist_ok=True)
@@ -240,7 +314,32 @@ def sweep(manifest, state, do_promote=True):
             continue
         key = e["key"]
         st = state["walls"].setdefault(key, {"attempts": 0, "status": "waiting"})
+        # THE STORE IS THE TRUTH IN BOTH DIRECTIONS. Below, a wall with art and
+        # no state is recorded as promoted. This is the mirror the loop was
+        # missing: a wall whose STATE says promoted and whose art is gone is
+        # not promoted, it is invisible — the sweep skipped it, the store had
+        # nothing, and the page rendered grid while the ledger said painted.
+        # It happens the moment a promotion clause takes a wall back out (row
+        # 27's door rule, row 32's flight rule) and anything afterwards reads a
+        # state file written before that. Re-decided from the pixels, like any
+        # other wall.
+        loc0, fac0 = key.split("/")
+        if st["status"] == "promoted" and not os.path.exists(
+                os.path.join(ROOT, "backdrops", loc0, fac0 + ".meta.json")):
+            print("  %-24s RE-DECIDE  state said promoted and the store holds no art"
+                  % key)
+            st["status"] = "waiting"
+            st.pop("hold_family", None)
         if st["status"] in ("promoted", "parked"):
+            # [row 32] A PARKED WALL NAMES ITS SUB-FAMILY TOO, even though the
+            # sweep does not re-read it. A wall parked before row 32 spent its
+            # cap on the CAMERA gate — its correction is a scale, not a horizon
+            # — and leaving it unnamed is the state row 32 exists to end: a
+            # ledger that cannot say how many of its stalled walls are one
+            # thing. This stamps what the wall's own record already says and
+            # measures nothing.
+            if st["status"] == "parked" and not st.get("hold_family"):
+                st["hold_family"] = "camera-miss"
             continue
         # THE STORE IS CHECKED, NOT THE STATE FILE ALONE. A wall promoted by any
         # route already has art, and a late duplicate return for it must not
@@ -350,10 +449,21 @@ def sweep(manifest, state, do_promote=True):
             r, d = best
             if key in NEVER_PROMOTE:
                 st["status"] = "admitted-not-promoted"
+                st["hold_family"] = "fenced-ground-truth"
                 st["why"] = ("this wall is the experiment's own ground truth; "
                              "promoting it would overwrite the reference every "
                              "row-23 number is measured against")
                 promoted.append((key, "ADMITTED, fenced from promotion", d))
+            elif key.split("/")[0] in M0_ROOMS:
+                st["status"] = "admitted-not-promoted"
+                st["hold_family"] = "fenced-m0-row4"
+                st["why"] = ("this wall is one of M0's own eight facings; the "
+                             "spec list's row 4 produces them probe-first and "
+                             "behind Kabe's eye, and a manor sweep promoting "
+                             "one walks through that order. The camera is "
+                             "admitted and the frame is on file; the ROUTE is "
+                             "row 4's, not this loop's")
+                promoted.append((key, "ADMITTED, fenced from promotion (M0, row 4's)", d))
             elif do_promote:
                 side["candidate"] = r["candidate"]
                 ok, why = do_promote_fn(key, r["candidate"], e, side, ref, d)
@@ -363,25 +473,52 @@ def sweep(manifest, state, do_promote=True):
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
-                    # THE CAMERA PASSED AND THE PROMOTION REFUSED. A retry
-                    # would spend a roll repainting a wall whose frame is
-                    # already admissible, so the wall HOLDS with its candidate
-                    # named and the reason recorded, and the next sweep
-                    # promotes it the moment the reason stops being true.
+                    # THE CAMERA PASSED AND THE PROMOTION REFUSED — and since
+                    # row 32 that is no longer one situation with one cost.
                     #
-                    # AND THE REASON IS NOW ABOUT THE PICTURE, WHICH IT WAS NOT
-                    # BEFORE. Until 2026-08-24 most of these said "no
-                    # px_per_m_at_wall", which was a second instrument
-                    # disagreeing with the gate about a scale the gate had just
-                    # read (see `promote_reading`). What remains is the honest
-                    # residue: a frame with no corners gives the row-20 horizon
-                    # instrument nothing to fit, and a frame whose chair-rail
-                    # and whose side-wall convergence imply two different
-                    # cameras cannot be dressed in one meta. Those are facts
-                    # about a painting, and they are what the retry packet says.
-                    st["status"] = "held"
+                    # Until 2026-08-24 most of these said "no px_per_m_at_wall",
+                    # which was a second instrument disagreeing with the gate
+                    # about a scale the gate had just read (see
+                    # `promote_reading`), and the wall HELD because a retry
+                    # would have spent a roll repainting a frame that was
+                    # already admissible. That reasoning was right about an
+                    # instrument failure and wrong about a picture failure, and
+                    # the run then held 58 of 85 walls on it.
+                    #
+                    # So the refusal now carries a NAMED SUB-FAMILY and the
+                    # sub-family decides what it costs:
+                    #
+                    #   suspect-painting   the instrument read this frame's
+                    #                      horizon to inside the standing
+                    #                      licence and it disagrees with the
+                    #                      frame's own ruler. That is a fact
+                    #                      about the PAINTING, a repaint can
+                    #                      answer it, and the correction says
+                    #                      what to move — so it buys a roll.
+                    #   unfitted-horizon   the frame fixed no horizon at all.
+                    #                      Also a fact about the painting (its
+                    #                      side walls draw no junction the two
+                    #                      ramps can be fitted to), and the
+                    #                      correction is the forward half of
+                    #                      that sentence — so it buys a roll
+                    #                      too, up to the same cap.
+                    #   anything else      the older refusals, unchanged: a
+                    #                      doorway the plan rules and the
+                    #                      painting does not draw. Those hold.
+                    fam = ((d.get("_promotion") or {}).get("hold_family")
+                           if isinstance(d, dict) else None)
+                    corr = _correction_for(fam, why, d, e)
                     st["candidate"] = r["candidate"]
-                    st["correction"] = "camera PASS; held for the promotion instrument: %s" % why
+                    if corr and st["attempts"] < e.get("retry_cap", 3):
+                        st["status"] = "retry"
+                        st["correction"] = corr
+                        st["hold_family"] = fam
+                    else:
+                        st["status"] = "held"
+                        st["hold_family"] = fam or "promotion-refused"
+                        st["correction"] = (
+                            "camera PASS; held for the promotion instrument "
+                            "[%s]: %s" % (st["hold_family"], corr or why))
                     failed.append((key, d, st["correction"]))
             else:
                 st["status"] = "admitted"
@@ -397,6 +534,11 @@ def sweep(manifest, state, do_promote=True):
                     worst = json.load(open(jp))
             if worst is None:
                 st["status"] = "retry"
+                # [row 32] EVERY WALL NAMES ITS SUB-FAMILY, including the ones
+                # that never reached the horizon instrument at all. A hold with
+                # no name is the state row 32 was allocated out of: 58 walls
+                # holding, and the ledger unable to say how many were one thing.
+                st["hold_family"] = "unmeasurable-candidate"
                 st["correction"] = ("no candidate of this wall could be measured "
                                     "at all; see MEASURE-ERR lines")
                 failed.append((key, {}, st["correction"]))
@@ -410,6 +552,7 @@ def sweep(manifest, state, do_promote=True):
             # and what it is waiting for is a standpoint, not an image.
             if worst.get("kind") == "measurement_withheld":
                 st["status"] = "held"
+                st["hold_family"] = "standpoint-out-of-frame"
                 st["candidate"] = worst.get("candidate")
                 st["correction"] = ("no roll of this facing can be measured: %s"
                                     % worst.get("blocked_on"))
@@ -417,6 +560,7 @@ def sweep(manifest, state, do_promote=True):
                 continue
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
+                st["hold_family"] = "camera-miss"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
                 _now = time.time()                                # [row 33]
                 timings.record("park.wall", _now, _now, key,
@@ -424,6 +568,7 @@ def sweep(manifest, state, do_promote=True):
                 parked.append((key, worst))
             else:
                 st["status"] = "retry"
+                st["hold_family"] = "camera-miss"
                 ppm = worst.get("px_per_m_at_wall")
                 want = e["px_per_m_at_wall"]
                 st["correction"] = (
@@ -436,7 +581,7 @@ def sweep(manifest, state, do_promote=True):
 
 
 def recheck_doors(state):
-    """[Row 27] Every already-promoted door-bearing wall, re-read and re-decided.
+    """[Row 27, widened at row 32] Every promoted wall, re-decided by the law as it now stands.
 
     The twenty-two walls of the first production harvest were promoted with
     their openings PROJECTED from the plan, which is the defect the Captain
@@ -459,8 +604,15 @@ def recheck_doors(state):
             if not f.endswith(".meta.json"):
                 continue
             meta = json.load(open(os.path.join(d, f)))
-            if not any(o.get("kind") == "door" for o in meta.get("openings", [])):
-                continue
+            # [row 32] EVERY PROMOTED WALL, not only the door-bearing ones.
+            # This loop was cut for row 27's painted-door rule and filtered on
+            # `openings` because that was the only clause it was answering. A
+            # promotion clause that is not about doors — row 32's flight
+            # clause, for one — then had no way to reach the walls already in
+            # the store, and `back_stair/W` sat there deleting a staircase it
+            # had been promoted before the clause existed. The filter is the
+            # store itself now: if it is promoted, the law as it stands today
+            # is asked about it.
             walls.append(("%s/%s" % (loc, f[0]), loc, f[0], meta))
     kept, demoted = [], []
     for key, loc, fac, meta in walls:
@@ -470,7 +622,15 @@ def recheck_doors(state):
         if not cand or not os.path.exists(doc):
             demoted.append((key, "the meta names no candidate, or its measurement is gone"))
             continue
-        found, _note = door_reading(doc, cand, loc)
+        # THE DOOR READING STILL ONLY RUNS ON A DOOR-BEARING WALL. Widening
+        # the wall list above widened this too for one draft, and it patched
+        # `openings: []` into `cand6/study-W.json` and `cand5ref/study-N.json`
+        # — round-locked corpora, byte-compared by `plan.spec`. A promotion
+        # clause may re-decide any wall in the store; it may not rewrite the
+        # record of a round that never asked the question.
+        found = []
+        if any(o.get("kind") == "door" for o in meta.get("openings", [])):
+            found, _note = door_reading(doc, cand, loc)
         r = subprocess.run(
             ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
              "--facing", key, "--candidate", cand]

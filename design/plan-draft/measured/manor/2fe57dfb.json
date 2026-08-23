@@ -107,17 +107,112 @@
         "cv": 0.886
       }
     ],
-    "corner_x0_px": 523,
-    "corner_x1_px": 1006,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 97,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 67,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 89,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 54,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 28,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 11,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 61,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 104,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 110,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 118,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 127,
+        "admissible": true,
+        "sigma_y_px": 1.12,
+        "horizon_y_px": 569.9,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 98,
+    "corner_x1_px": 1437,
+    "corner_evidence": {
+      "left_fit_r2": 0.1883,
+      "right_fit_r2": 0.4015,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 26.19,
     "ramp": {
-      "x": 890.7,
-      "y": -178.8,
-      "left_slope": -0.6632,
-      "right_slope": 1.6748,
+      "x": 774.2,
+      "y": 569.9,
+      "left_slope": 0.7095,
+      "right_slope": -0.7181,
       "left_n": 61,
-      "left_resid_px": 8.14,
-      "right_n": 57,
-      "right_resid_px": 20.55
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.31,
+      "sigma_y_px": 1.12
     },
     "votes": {
       "floor": {
@@ -131,9 +226,9 @@
         "edge_px": 5251
       },
       "side_walls": {
-        "x": 162,
-        "y": 208,
-        "edge_px": 19693
+        "x": 1292,
+        "y": 743,
+        "edge_px": 4783
       }
     },
     "light": {
@@ -155,8 +250,8 @@
       "key_tint_alternates": {
         "floor_under_brightest": "#c8976b",
         "floor_bottom_strip": "#c88f5b",
-        "mid_wall_right": "#c8a983",
-        "mid_wall_left": "#c8af90",
+        "mid_wall_right": "#c89c67",
+        "mid_wall_left": "#c8ae8d",
         "brightest_21x21_patch": "#c8bbaa"
       },
       "brightest_21x21_patch_centre_px": [
@@ -164,16 +259,15 @@
         510
       ],
       "sobel_bright_side_deg_whole_frame": 143.9,
-      "sobel_bright_side_deg_wall_band": 125.47,
+      "sobel_bright_side_deg_wall_band": 115.64,
       "left_third_minus_right_third_luminance_whole_frame": 21.742,
       "left_third_minus_right_third_luminance_wall_band": 21.602
     },
     "storey_height_m": 2.7633,
-    "implied_wall_width_m": 1.8208,
-    "eye_height_m": 3.803,
-    "withheld_because": [
-      "the horizon this painting's own side walls converge on (y -178.8) puts the eye at 3.803 m above its own floor line at the scale its own chair-rail declares (265.3 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
-    ]
+    "implied_wall_width_m": 5.0478,
+    "eye_height_m": 0.9805,
+    "hold_family": null,
+    "withheld_because": []
   },
   "delta_focal_pct": -4.15,
   "delta_eye_pct": -3.16,

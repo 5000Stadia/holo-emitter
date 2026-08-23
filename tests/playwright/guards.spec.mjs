@@ -362,7 +362,14 @@ export const MECHANISMS = [
      the door. */
   "door.painted_width",
   "door.painted_overlap",
-  "door.unmeasured_exit"
+  "door.unmeasured_exit",
+  /* [Row 32] And the promotion's fourth, minted the day the manor sweep
+     painted `great_stair_hall/W` and the flight went out of the picture with
+     it. A promoted meta carries no `stairs`, so a facing whose room draws one
+     loses it — the validator's `exit.via_unfilled` speaks only where an EXIT
+     goes through the flight, and a flight you merely LOOK at from this facing
+     had nobody speaking for it. */
+  "stair.painted_flight_lost"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -2782,10 +2789,20 @@ test.describe("row 19's bounds, from both sides", () => {
  */
 test.describe("the clause ledger — the promotion's painted-door mechanisms", () => {
   /** Run the real promotion over a doctored door reading; return its tokens. */
-  function promoteTokens(key, doctor) {
+  function promoteTokens(key, doctor, planDoctor) {
     const dir = stageTree();
     try {
       const [loc, fac] = key.split("/");
+      /* [Row 32] SOME PROMOTION CLAUSES ARE ABOUT THE PLAN, NOT THE READING.
+         The flight clause fires on what the DRAWING puts in this view, so a
+         case for it has to doctor the plan the staged tool reads, exactly as
+         the door cases doctor the measurement. */
+      if (planDoctor) {
+        const planRel = join("fixtures", "demo-study", "plan.json");
+        const plan = JSON.parse(readFileSync(join(dir, planRel), "utf8"));
+        planDoctor(plan);
+        writeFileSync(join(dir, planRel), JSON.stringify(plan, null, 2) + "\n");
+      }
       const meta = JSON.parse(readFileSync(
         join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
       /* The candidate this meta names — `stageTree` leaves `backdrops/source/`
@@ -2849,6 +2866,27 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
       b.centre_px = b.x0_px + w / 2;
     }), "two ways through cannot be the same pixels")
       .toEqual(["door.painted_overlap"]);
+  });
+
+  ledgerCase("stair.painted_flight_lost", () => {
+    /* [Row 32] A PROMOTED META CARRIES NO `stairs`, so painting a facing whose
+       room draws a flight deletes the staircase out of the picture — and with
+       it the polygon a click travels through. `great_stair_hall/W` is the wall
+       that earned it: the manor sweep promoted it and `manor.spec`'s "a flight
+       seen across its run is a body, not a line" stopped having a subject at
+       all, which is a green check standing on a missing staircase rather than
+       on a drawn one.
+
+       The construction moves the great stair into the library, in front of
+       `library/E`'s own standpoint, and changes nothing else: the reading is
+       untouched, so the door clauses stay silent and the only thing this wall
+       has newly done is hold a flight. */
+    expect(promoteTokens("library/E", () => {}, (plan) => {
+      const st = plan.stairs.find((s2) => s2.id === "great_stair");
+      st.rect = { x0: 5.0, x1: 6.6, y0: 16.5, y1: 19.0 };
+      st.joins = ["library", "stair_landing"];
+    }), "a wall painted over the staircase its room holds")
+      .toEqual(["stair.painted_flight_lost"]);
   });
 
   ledgerCase("door.unmeasured_exit", () => {

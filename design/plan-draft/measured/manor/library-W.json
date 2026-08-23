@@ -70,7 +70,8 @@
     "wall_ceiling_line_y_px": 142,
     "corner_x0_px": 246,
     "corner_x1_px": 1303,
-    "horizon_y_px": 510.9
+    "horizon_y_px": 510.9,
+    "openings": []
   },
   "_windows": {
     "floor": [
@@ -169,5 +170,21 @@
     "implied_camera_wall_m": 6.4853
   },
   "_withheld_because": [],
-  "_round": "manor"
+  "_round": "manor",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      447,
+      668
+    ],
+    "wall_band_px": [
+      246,
+      1303
+    ],
+    "wall_median_luminance": 22.11,
+    "min_enumerated_px": 63,
+    "min_head_m": 1.4,
+    "storey_m": 2.8,
+    "candidates_before_head_test": 1
+  }
 }
