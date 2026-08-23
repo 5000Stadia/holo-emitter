@@ -545,21 +545,58 @@ def _seen_keys(recs):
     return {_sig(r["step"], r.get("key"), r["ts_start"], r["ts_end"]) for r in recs}
 
 
-def backfill(tree, ledger):
-    """Write what is missing, and nothing that is already there."""
+def backfill(tree, ledger, until=None):
+    """Write what is missing, and nothing that is already there.
+
+    `until` bounds the mining to one run. It exists because a file's mtime is
+    destroyed the moment anything rewrites it, and a tree under active work
+    rewrites plenty: while this row was being built, a concurrent instrument
+    re-ran 132 of the 214 manor readings to byte-identical files, moving their
+    mtimes hours past the sweep that actually took them. A cutoff at the commit
+    that closed the run keeps the mined window to evidence that had already
+    landed, and everything past it is skipped and counted rather than folded in.
+    """
     existing, _bad = load(ledger)
     seen = _seen_keys(existing)
     mined, anomalies = mine(tree)
-    written = 0
+    written, after = 0, 0
     for step, key, a, b, det in mined:
+        if until is not None and float(b) > until:
+            after += 1
+            continue
         sig = _sig(step, key, a, b)
         if sig in seen:
             continue
         seen.add(sig)
         timings.record(step, a, b, key=key, detail=det, backfilled=True, path=ledger)
         written += 1
-    return {"mined": len(mined), "written": written, "skipped": len(mined) - written,
-            "anomalies": anomalies, "tree": tree}
+    return {"mined": len(mined), "written": written,
+            "skipped": len(mined) - written - after, "after_cutoff": after,
+            "until": until, "anomalies": anomalies, "tree": tree}
+
+
+def resolve_until(word, tree):
+    """`--until` as an epoch: a number, an ISO datetime, or any git revision.
+
+    A revision is the useful form: the cutoff a run deserves is the commit that
+    closed it, and naming that commit is a citation rather than a chosen number.
+    """
+    if not word:
+        return None
+    try:
+        return float(word)
+    except ValueError:
+        pass
+    for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+        try:
+            return time.mktime(time.strptime(word, fmt))
+        except ValueError:
+            continue
+    out = _git(tree, "log", "-1", "--format=%ct", word).strip()
+    if out:
+        return float(out)
+    raise SystemExit("timings_report: --until %r is not an epoch, an ISO datetime, "
+                     "or a revision this tree knows" % word)
 
 
 def flattened_mtimes(tree):
@@ -614,6 +651,11 @@ def render(recs, bad_lines, stats, top, gaps, queues, flags, checked, opts, back
         a("")
         a("Backfill mined `%s`: %d event(s), %d written, %d already in the ledger."
           % (back["tree"], back["mined"], back["written"], back["skipped"]))
+        if back.get("until"):
+            a("Bounded at **%s** — %d event(s) whose evidence was written after the "
+              "cutoff are excluded, because a tree under active work rewrites mtimes "
+              "and one run's ledger holds one run's evidence."
+              % (clock(back["until"]), back["after_cutoff"]))
         if back["anomalies"]:
             a("%d candidate(s) whose prompt file is newer than the image "
               "(re-emitted packets); only their arrival is recorded."
@@ -731,12 +773,14 @@ def render(recs, bad_lines, stats, top, gaps, queues, flags, checked, opts, back
           "ledger is what removes all four — a step that writes its own record leaves "
           "evidence an overwrite cannot destroy.")
         a("")
-        a("1. **A re-read overwrites its own clock.** A reading document has one mtime. "
-          "Row 27's recheck and any later re-measurement rewrite it, so the "
-          "`generate.roll` -> `measure.candidate` wait for a re-read candidate is measured "
-          "to the RE-READ, not to the first reading, and is longer than the run's own "
-          "handoff was. The live ledger appends instead of overwriting, so from the next "
-          "sweep on the first reading keeps its own timestamp.")
+        a("1. **A re-read overwrites its own clock, and it was caught doing it.** A "
+          "reading document has one mtime. Row 27's recheck rewrote every door-bearing "
+          "wall's, and while row 33 was being built a concurrent instrument re-ran 132 "
+          "of the 214 manor readings to byte-identical files — same numbers, mtimes "
+          "hours later. So a re-read candidate's `generate.roll` -> `measure.candidate` "
+          "wait is measured to the RE-READ and is longer than the run's own handoff was. "
+          "`--until` bounds the mining to one run, which is the mitigation; the live "
+          "ledger is the cure, because it appends and an append cannot be overwritten.")
         a("2. **A promotion's duration is a lower bound.** The meta is the last file it "
           "writes; the bake that follows left no per-wall evidence.")
         a("3. **Bakes and publishes are markers.** A commit knows when, never how long.")
@@ -798,6 +842,11 @@ def main(argv=None):
                          "are the checkout's, not the run's")
     ap.add_argument("--run-state", default=None,
                     help="run-state.json, for what was pending during a gap")
+    ap.add_argument("--until", default=None,
+                    help="bound --backfill to evidence at or before this moment: an "
+                         "epoch float, an ISO datetime, or HEAD for the commit "
+                         "timestamp of HEAD. A tree under active work rewrites mtimes, "
+                         "and a cutoff keeps one run's evidence to one run")
     ap.add_argument("--backfill", action="store_true",
                     help="mine the evidence Test 1 already left, marked backfilled:true")
     ap.add_argument("--monitor", action="store_true",
@@ -813,7 +862,7 @@ def main(argv=None):
     back = None
     flat = flattened_mtimes(a.tree) if a.backfill else None
     if a.backfill:
-        back = backfill(a.tree, ledger)
+        back = backfill(a.tree, ledger, resolve_until(a.until, a.tree))
 
     recs, bad = load(ledger)
     rs_path = a.run_state or os.path.join(
