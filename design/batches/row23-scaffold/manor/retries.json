@@ -3,7 +3,7 @@
   "_never_overwrites": "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
   "_generated": "2026-08-23",
-  "emitted": 13,
+  "emitted": 15,
   "refused": 0,
   "entries": [
     {
@@ -227,6 +227,62 @@
           "id": "b5c56d45",
           "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
           "prompt": "backdrops/source/great_hall-E/row23-b5c56d45.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "great_hall/W",
+      "attempt": 3,
+      "packet": "design/batches/row23-scaffold/manor/great_hall-W/retry-3",
+      "correction": " Re-ask under the unlit-doorway rule: the space beyond every door opening is deep unlit shadow, no lit room and no light source beyond it - that darkness is what makes a painted doorway measurable and composable.",
+      "voice": {
+        "id": "hall_state",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 93.51598173515983,
+      "scaffold_sha256": "09d28d3ca77488181393d2064a9f55655ab8f184e3dd00d7a9384cd9a2d6b6d9",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "3765b3ed",
+          "candidate": "backdrops/source/great_hall-W/row23-3765b3ed.png",
+          "prompt": "backdrops/source/great_hall-W/row23-3765b3ed.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "a2fc0def",
+          "candidate": "backdrops/source/great_hall-W/row23-a2fc0def.png",
+          "prompt": "backdrops/source/great_hall-W/row23-a2fc0def.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "library/S",
+      "attempt": 3,
+      "packet": "design/batches/row23-scaffold/manor/library-S/retry-3",
+      "correction": " Re-ask under the unlit-doorway rule: the space beyond every door opening is deep unlit shadow, no lit room and no light source beyond it - that darkness is what makes a painted doorway measurable and composable.",
+      "voice": {
+        "id": "parlour_wainscot",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 170.66666666666666,
+      "scaffold_sha256": "4bd866f959ef200ff5d524592ec787517e9e06927f98b9d490150a2323e852e8",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "6fdf48be",
+          "candidate": "backdrops/source/library-S/row23-6fdf48be.png",
+          "prompt": "backdrops/source/library-S/row23-6fdf48be.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "104c52ec",
+          "candidate": "backdrops/source/library-S/row23-104c52ec.png",
+          "prompt": "backdrops/source/library-S/row23-104c52ec.prompt.txt"
         }
       ]
     },
