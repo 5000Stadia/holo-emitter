@@ -1,0 +1,34 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the north wall of the master bedchamber, circa-1660 English manor
+Correction on a previous attempt at this exact wall: draw 0.895x larger: 143.2 px/m at the wall plane, not 160.0
+  Everything else below still holds; this correction is the change being asked for.
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
+  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the north wall of the empty master bedchamber of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The
+  camera is level, with zero upward or downward tilt. The wall-floor line, the
+  corners, the returns at left and right and the amount of visible floor all land where
+  Image 2 puts them, to the pixel. One metre at the wall plane spans 143 pixels.
+  The floor is visible and runs to the bottom edge of frame.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly 2.00 m wide.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials and period detail: oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling.
+  Underfoot: wide oak floorboards.
+  Hangings: a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.
+Windows: this wall carries no window and no glazed opening of any kind.
+Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the master bedchamber is completely empty of furniture, loose props, people, animals
+  and clutter.
+  Image 2 contains grid lines, a large letter and annotation text; these are
+  diagram marks identifying the wall, and the painted picture contains no line, letter,
+  word, number, label, watermark or border of any kind.

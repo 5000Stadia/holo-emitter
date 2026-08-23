@@ -3550,6 +3550,67 @@ lands. Row 26's closing commit deletes the two entries, and a test reads `design
 spec table and goes red if the fence outlives its row — the handshake is mechanical rather than a
 note in a spec file that is deleted along with the spec file.
 
+### The room's material voice (`tools/room-voices.mjs`) — row 29
+
+The prompt's materials used to be a four-entry table keyed on `room.archetype`. The plan has six
+archetypes; `service` and `stair` were not in it, so the kitchen, the buttery, the servants' hall
+and both stairs fell through to the `chamber` default and were asked for the study's own paragraph.
+Kabe walked the painted manor and said so — *"is every room in this house parlor walls?"* — and, of
+the privy garden, *"exterior garden has interior wall outside"*.
+
+**Voices are keyed on the plan's own room ids, not on the archetype.** Thirteen of them, each
+carrying one line of period justification. The archetype lumps the great hall with the solar, the
+study with every bedchamber, the kitchen with the buttery and both stairs with the landings, so a
+voice keyed on it cannot separate rooms that must differ. `ARCHETYPE_FALLBACK` and `TYPE_FALLBACK`
+exist for a room id a future plan invents; `voiceFor` **refuses** where nothing resolves, and a test
+insists every room of *this* plan is named explicitly, because a fallback is exactly how the study's
+paragraph reached the scullery.
+
+**One measured height, many voiced features.** `row23_lib.py` reads one horizontal out of the
+scaffold's `rail_band` and converts it with `rail_above / 0.95`; that divisor is the instrument's
+and the emitter may not move it. A kitchen with no chair-rail therefore does not *drop* the anchor —
+it renames it at the same ruled height:
+
+| voice family | anchor | why it is that feature |
+|---|---|---|
+| hall, great chamber, parlours, gallery, chambers, stairs-of-state, cross passage, garden parlour | wainscot chair-rail | blueprint §11's universal anchor |
+| back stair, back stair head | plain oak dado capping | a boarded service dado is capped by a plain batten |
+| kitchen, buttery, servants' hall | plain oak hanging rail | the peg-rail every service room hung its gear from |
+| privy garden, entrance court, walled approach | stone string-course | a brick garden wall is built off a stone plinth, capped |
+| facings the plan types `open` | boundary wall coping | no building wall stands there; a forecourt is closed by a low walled boundary |
+
+The scaffold's **stamped label** is voiced too. It was a constant, so the diagram handed to a painter
+drew `CHAIR-RAIL 0.95 M` across the privy garden — the diagram itself was the source of the interior
+wall Kabe found outside. `chairRail(meta, anchor)` and `legendFor(..., anchor)` take the words from
+the voice; the geometry, the band and every bracket are untouched, and a test asserts every anchor
+stamps at the same y.
+
+**Windows are derived per facing, and heraldry is rationed.** Bay count from the plan's own openings,
+lights at a 0.50 m module, transom only where an opening runs to four lights or more (the scaffold
+rules every window 1.10 m tall, and a transom across that is a mistake however grand the room), the
+dressing by the room's rank, and which light opens by where the opening sits on the wall. Identical
+openings are described once as a range. Painted arms go in the **great hall** and one shield in the
+**dining parlour**; every other wall carries an explicit refusal of heraldic glass.
+
+**Three lint clauses carry it** (`prompt_lint.py`): `prompt.interior_fabric_outdoors`,
+`prompt.voice_incoherent`, `prompt.heraldry_unrationed`. Each is one of Kabe's findings turned into a
+refusal that happens before an image exists. Two of them caught defects in the voice table while it
+was being written, and one caught the re-ask: `privy_garden/N`'s correction is the veto itself, which
+names *"interior oak panelling and a chair-rail"* — so an outdoor wall carries its correction only
+when it can be said without naming interior fabric, and otherwise carries the forward half while the
+verbatim reason goes to `PACKET.md` and `retries.json`.
+
+### The re-ask (`--emit-retries`)
+
+`row23_run.py`'s sweep decides a wall must be asked again and writes why into `run-state.json`.
+Nothing turned that sentence back into a packet until row 29, so a re-ask was hand-written and the
+correction lived in a transcript — `design/production-law.md` clause 3 calls that an open miss.
+`node tools/make-scaffold.mjs --emit-retries` reads the state, re-cuts each wall's scaffold **at its
+room's voice**, and writes a packet whose prompt carries the correction. Three refusals keep the
+record honest: it never overwrites the first ask (a retry lands in `<wall>/retry-<n>/` with its own
+roll ids, because `row23_lib.py` measures a returned candidate against `<packet>/scaffold.png`), it
+never re-asks a promoted wall, and it never raises `attempts` — that is the sweep's.
+
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 
 One sweep reads whatever candidates are on disk, measures each against the camera its own manifest

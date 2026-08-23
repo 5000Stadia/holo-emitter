@@ -50,6 +50,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { facingCarriers, openingsForFacing, deriveMeta } from "./plan-projection.mjs";
+/* THE ROOM'S OWN VOICE, row 29 [HUMAN, 2026-08-24]: "is every room in this
+ * house parlor walls?" and "exterior garden has interior wall outside". The
+ * table is beside this file with each voice's period justification on it; every
+ * material sentence, every window sentence and the STAMPED ANCHOR LABEL below
+ * come out of it, so a room can only be asked for the study's panelling if the
+ * plan says it is that kind of room. */
+import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
+  from "./room-voices.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -65,6 +73,20 @@ import { MEASURED_BAND } from "./validate-fixtures.mjs";
 /* Blueprint §11's universal anchor: the wainscot chair-rail, on every panelled
  * wall in the manor. It is the one ruler the gate votes on. */
 const CHAIR_RAIL_M = 0.95;
+/* ONE MEASURED HEIGHT, MANY VOICED FEATURES. `row23_lib.py` reads a single
+ * horizontal out of the `rail_band` this file declares and converts it with
+ * `rail_above / 0.95`; that divisor is the instrument's and nothing here may
+ * move it. So a kitchen does not drop the anchor — it renames it (a plain
+ * hanging rail instead of a chair-rail) at the same ruled height, and a garden
+ * wall names a string-course. `room-voices.mjs` owns that table and this line is
+ * the handshake: if the two ever disagree the emitter refuses rather than
+ * stamping a ruler the gate is not measuring. */
+if (ANCHOR_M !== CHAIR_RAIL_M) {
+  throw new Error(
+    `make-scaffold: room-voices declares its anchor at ${ANCHOR_M} m and this file rules it at ` +
+    `${CHAIR_RAIL_M} m. Every voice's anchor is the SAME ruled height — only its feature and its ` +
+    `name change with the room — because row23_lib.py divides the measured height by 0.95.`);
+}
 /* §11's ruled door opening height at the wall plane. */
 const DOOR_HEAD_M = 2.00;
 /* Scaffold CONVENTIONS — declared, drawn, and scored by nothing. A plan view is
@@ -319,20 +341,30 @@ export function scaffoldRects(plan, loc, facing, meta) {
 }
 
 /**
- * The chair-rail: blueprint §11's universal anchor, the one ruler the gate
- * votes on, drawn corner to corner at exactly 0.95 m above the floor line.
+ * The gate anchor's line: the one ruler the gate votes on, drawn corner to
+ * corner at exactly 0.95 m above the floor line.
  *
  * On `study/N` this lands at y 570.0 and the reference painting's own measured
  * `dado_rail_y_px` is 570. That agreement is the generator's first check.
+ *
+ * THE GEOMETRY IS FIXED AND THE LABEL IS VOICED. Row 29: the stamp used to read
+ * `CHAIR-RAIL` on every facing in the manor, so the DIAGRAM handed to a painter
+ * drew a chair-rail across the privy garden and Kabe walked into it ("exterior
+ * garden has interior wall outside"). The height, the band and the brackets are
+ * untouched — only the words change, and they change with the room's voice.
+ * `anchor` is a `room-voices.mjs` anchor; omitted, it is the panelled rooms'
+ * chair-rail, which is what the two experiment walls carry.
  */
-export function chairRail(meta) {
+export function chairRail(meta, anchor) {
   const y = round(wallY(CHAIR_RAIL_M, meta), 2);
   const has = groundplane.hasCorners(meta);
   return {
     y,
     x0: has ? meta.corner_x0_px : 0,
     x1: has ? meta.corner_x1_px : CANVAS_W,
-    label: `CHAIR-RAIL ${CHAIR_RAIL_M.toFixed(2)} M ABOVE FLOOR - GATE ANCHOR`
+    label: anchor ? anchor.label
+      : `CHAIR-RAIL ${CHAIR_RAIL_M.toFixed(2)} M ABOVE FLOOR - GATE ANCHOR`,
+    anchor: anchor ? anchor.id : "chair_rail"
   };
 }
 
@@ -554,10 +586,10 @@ async function renderPng(page, key, meta, mode, marks) {
  * case exists to refuse, and it found them. */
 const LEGEND_TEXT_H = 15;
 const LEGEND_LINE_H = 26;
-function legendFor(meta, rects, camera) {
+function legendFor(meta, rects, camera, anchor) {
   const lines = [
     "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
-    `RULED - CHAIR-RAIL ${CHAIR_RAIL_M.toFixed(2)} M · CARRIER WIDTHS · DOOR HEAD ${DOOR_HEAD_M.toFixed(2)} M`,
+    `RULED - ${anchor ? anchor.legend_word : "CHAIR-RAIL"} ${CHAIR_RAIL_M.toFixed(2)} M · CARRIER WIDTHS · DOOR HEAD ${DOOR_HEAD_M.toFixed(2)} M`,
     "CONVENTION - CARRIER HEIGHTS ABOVE FLOOR · WINDOW SILL AND HEAD",
     `SCALE - ONE METRE OF WALL SPANS ${meta.px_per_m_at_wall.toFixed(0)} PIXELS AT THE WALL PLANE`,
     `CAMERA - ${camera}`
@@ -664,6 +696,15 @@ async function main() {
     });
     return;
   }
+  if (argv.includes("--emit-retries")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    await emitRetries(out, {
+      technique: argOf("--technique", "t2"),
+      rolls: Number(argOf("--rolls", "2")),
+      retries: Number(argOf("--retries", "3"))
+    });
+    return;
+  }
   if (argv.includes("--emit-packets")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold")));
     const r = emitPackets(out);
@@ -720,8 +761,11 @@ async function main() {
   }
 
   const { rects, apertures } = scaffoldRects(plan, loc, facing, meta);
-  const cr = chairRail(meta);
-  assertLabelChars(cr.label, "the chair-rail label");
+  /* The room's own voice decides what the anchor is CALLED on the diagram; the
+   * height, the band and every bracket are unchanged by it. */
+  const { voice, anchor, via } = voiceFor(plan, loc, facing);
+  const cr = chairRail(meta, anchor);
+  assertLabelChars(cr.label, "the gate anchor's label");
   for (const r of rects) {
     assertLabelChars(r.label, `${r.kind}'s label`);
     assertLabelChars(r.sub, `${r.kind}'s dimension line`);
@@ -733,7 +777,7 @@ async function main() {
     derived: "DERIVED FROM THE PLAN - INJECTED",
     reading: `MEASURED READING ${roundName.toUpperCase()} - INJECTED, ADMITTED NOT PROMOTED`
   };
-  const legend = legendFor(meta, rects, CAMERA_WORD[camera] || camera);
+  const legend = legendFor(meta, rects, CAMERA_WORD[camera] || camera, anchor);
 
   let tol = null;
   if (REFLEX[key]) {
@@ -782,6 +826,11 @@ async function main() {
     })),
     apertures_recorded_not_stamped: apertures,
     chair_rail: { y: round(cr.y, 2), x0: cr.x0, x1: cr.x1, ruled_m: CHAIR_RAIL_M },
+    /* WHICH FEATURE THIS WALL'S ANCHOR IS, and how the voice was reached. The
+     * ruled height never varies (`row23_lib.py` divides by 0.95); the feature
+     * and its name do, so the record says which one this diagram stamped. */
+    voice: { id: voice.id, via, why: voice.why, outdoor: !!voice.outdoor,
+      anchor: anchor.id, anchor_line: anchor.line, anchor_ruled_m: CHAIR_RAIL_M },
     brackets: bk,
     carrier_reflex_baseline_px: REFLEX[key] ? tol && round(tol, 2) : null,
     legend_box: { x: legend.x, y: legend.y, w: legend.w, h: legend.h,
@@ -1106,55 +1155,128 @@ const CARRIER_SENTENCE = {
   window: (w) => `The leaded window opening is exactly ${w.toFixed(2)} m wide.`,
   fireplace: (w) => `The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide.`
 };
-const ROOM_MATERIALS = {
-  chamber: "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards",
-  hall: "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor",
-  corridor: "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards",
-  open: "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot"
-};
+/* THE MATERIAL VOICE IS NOT HERE. It was — an archetype-keyed `ROOM_MATERIALS`
+ * table with four entries, which the plan's six archetypes overflowed: `service`
+ * and `stair` were absent, so the kitchen, the buttery, the servants' hall and
+ * both stairs fell to the `chamber` default and were asked for the STUDY's own
+ * paragraph. It now lives in `tools/room-voices.mjs`, keyed on the plan's own
+ * room ids, with each voice's period justification beside it and a refusal
+ * rather than a default for a room nothing resolves. */
 
-export function manorPrompt(plan, key, meta, rects) {
+/**
+ * One production wall's prompt: every clause a function of the plan's carriers,
+ * this facing's meta, and the room's voice.
+ *
+ * `correction` is optional. A re-ask carries the measured sentence the run loop
+ * wrote into `run-state.json` verbatim, at the top where it cannot be missed —
+ * that is the only difference between a first ask and a re-ask, so the two
+ * cannot drift into differently-worded requests for one wall.
+ */
+export function manorPrompt(plan, key, meta, rects, correction) {
   const [loc, f] = key.split("/");
   const room = plan.rooms.find((r) => r.id === loc);
   const side = { N: "north", E: "east", S: "south", W: "west" }[f];
-  const mat = ROOM_MATERIALS[room.archetype] || ROOM_MATERIALS[room.type] || ROOM_MATERIALS.chamber;
+  const { voice, anchor } = voiceFor(plan, loc, f);
+  const out = voice.outdoor;
   const name = (room.name || room.id).toLowerCase();
-  const ruled = rects.map((r) => {
+  const SURFACE = out ? "side" : "wall";
+  /* THE WINDOWS COME OFF THE STAMPED BOXES, not off the plan a second time, so
+   * the width the prompt states is the width the scaffold drew and the gate
+   * will score. `u` is the box's own centre as a fraction of the ruled wall. */
+  const windows = rects.filter((r) => r.kind === "window").map((r) => ({
+    width_m: (r.x1 - r.x0) / meta.px_per_m_at_wall,
+    u: (r.from_m + r.to_m) / 2 / meta.wall_width_m
+  }));
+  /* The ruled carrier sentences, MINUS the windows: the window paragraph below
+   * states every opening's width once, and the old per-carrier line restated
+   * "The leaded window opening is exactly 1.50 m wide" four times on
+   * `great_hall/S` — the very repetition row 29 is about. */
+  const ruled = rects.filter((r) => r.kind !== "window").map((r) => {
     const fn = CARRIER_SENTENCE[r.kind];
     return fn ? fn((r.x1 - r.x0) / meta.px_per_m_at_wall) : null;
   }).filter(Boolean);
+  /* Underfoot and overhead: an outdoor facing has ground and sky where an
+   * interior has a floor and a ceiling, and every line below that would
+   * otherwise say "floor" or "room" asks the voice instead. */
+  const GROUND = out ? "ground" : "floor";
+
   const L = [];
-  L.push("Use case: historical-scene");
-  L.push(`Asset type: gameplay backdrop for the ${side} wall of the ${name}, circa-1660 English manor`);
-  L.push("Input images: Image 1 is the exact reference for painted style, medium, materials,");
-  L.push("  palette, period detail and light quality. Image 2 is a geometric layout diagram of");
-  L.push("  the wall to be painted: it is a technical drawing, not artwork to imitate.");
+  /* THE USE-CASE LINE CARRIES THE VOICE'S SIDE OF THE DOOR, and the lint reads
+   * it: an `exterior` prompt that then names interior fabric is refused before
+   * an image exists. That is Kabe's veto as a clause rather than as a memory. */
+  L.push(`Use case: historical-scene, ${out ? "exterior" : "interior"}`);
+  L.push(`Asset type: gameplay backdrop for the ${side} ${SURFACE} of the ${name}, circa-1660 English manor`);
+  if (correction) {
+    /* FIRST, BECAUSE IT IS THE REASON THIS ASK EXISTS. Verbatim from
+     * run-state.json — the measurement's own words, never a paraphrase.
+     *
+     * EXCEPT WHERE THE WORDS THEMSELVES ARE THE DEFECT. `privy_garden/N`'s
+     * correction is Kabe's veto, and to say what went wrong it names "interior
+     * oak panelling and a chair-rail" — on the one wall those words were
+     * vetoed from. Carrying it put them straight back in front of the
+     * generator, and the lint refused the packet, correctly. So an outdoor
+     * wall carries its correction only when the correction can be said without
+     * naming interior fabric; otherwise it carries the forward half and the
+     * verbatim reason goes to PACKET.md and `retries.json`, where a reader
+     * needs it and no generator reads it. */
+    const say = (out && !carryableOutdoors(correction)) ? REDACTED_CORRECTION : correction;
+    L.push(`Correction on a previous attempt at this exact wall: ${say}`);
+    L.push("  Everything else below still holds; this correction is the change being asked for.");
+  }
+  L.push("Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality");
+  L.push("  and brush handling. It is NOT a reference for this place's materials, for how many");
+  L.push("  openings this wall has, or for what is in its glass — those are the words below, and");
+  L.push("  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout");
+  L.push("  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.");
   L.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
-  L.push(`Primary request: Paint the ${side} wall of the empty ${name} of a circa-1660 English manor,`);
-  L.push("  matching Image 1's finish and Image 2's geometry exactly.");
-  L.push("Gate anchor: the wainscot chair-rail above the floor, 0.95 m.");
+  L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a circa-1660 English manor,`);
+  L.push("  matching Image 1's paint handling and Image 2's geometry exactly.");
+  L.push(`Gate anchor: ${anchor.line}, ${CHAIR_RAIL_M.toFixed(2)} m.`);
   L.push("Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The");
-  L.push("  camera is level, with zero upward or downward tilt. The wall-floor line, the room");
-  L.push("  corners, the side-wall returns and the amount of visible floor all land where Image 2");
-  L.push(`  puts them, to the pixel. One metre of wall at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
-  L.push("  The floor is visible and runs to the bottom edge of frame.");
-  L.push("Architecture and measurement anchors: A clearly legible wainscot chair-rail runs");
-  L.push("  continuously corner to corner at exactly 0.95 m above the floor, on every exposed");
-  L.push("  wall surface including the side-wall returns.");
+  L.push(`  camera is level, with zero upward or downward tilt. The wall-${GROUND} line, the`);
+  L.push(`  corners, the returns at left and right and the amount of visible ${GROUND} all land where`);
+  L.push(`  Image 2 puts them, to the pixel. One metre at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
+  L.push(`  The ${GROUND} is visible and runs to the bottom edge of frame.`);
+  L.push(`Architecture and measurement anchors: ${anchor.sentence}`);
   for (const r of ruled) L.push("  " + r);
   if (rects.length) {
-    L.push(`  Each feature stands where Image 2's box for it stands, filling that box's width.`);
+    L.push("  Each feature stands where Image 2's box for it stands, filling that box's width.");
   } else {
-    L.push("  This wall carries no opening and no fireplace: it is unbroken panelling, and the");
-    L.push("  chair-rail is the one ruled feature in it.");
+    /* "no hearth" was here, and the lint's outdoor clause refuses the word
+     * `hearth` in an exterior prompt — correctly, since it is interior fabric
+     * and naming it even to deny it puts it in front of the generator. */
+    L.push(`  This ${SURFACE} carries no opening and no built feature at all: it is ${voice.blank}, and`);
+    L.push("  the anchor above is the one ruled feature in it.");
   }
   L.push("  Make these dimensions physically coherent and unmistakable in the architecture.");
-  L.push(`Materials and period detail: ${mat}.`);
+  /* ── the voice ── */
+  if (out) {
+    /* AN OUTDOOR FACING WITH OPENINGS IN IT IS THE HOUSE'S OWN ELEVATION, and
+     * the plan decides which by whether it draws any carrier on that wall line
+     * — `entrance_court/N` six windows and a door, `privy_garden/N` nothing. */
+    const fabric = (rects.length && voice.walls_with_openings) || voice.walls;
+    L.push(`Materials and period detail: ${fabric}. Underfoot: ${voice.floor}.`);
+    L.push("  Overhead is open sky with weather in it, and daylight falls from it onto everything");
+    L.push("  in frame. This place is out of doors and everything in it is built for weather.");
+  } else {
+    L.push(`Materials and period detail: ${voice.walls}. Overhead: ${voice.ceiling}.`);
+    L.push(`  Underfoot: ${voice.floor}.`);
+    if (voice.id === "bedchamber") L.push(`  Hangings: ${hangingsFor(loc)}.`);
+  }
+  /* ── the windows, and the heraldry ration ── */
+  for (const line of windowLines(voice, windows, name, SURFACE)) L.push(line);
   L.push("Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm");
   L.push("  browns, cool ambient light, gentle natural falloff.");
-  L.push("Constraints: the room is completely empty of furniture, loose props, people and");
-  L.push("  clutter. Image 2 contains grid lines, a large letter and annotation text; these are");
-  L.push("  diagram marks identifying the wall, and the painted room contains no line, letter,");
+  if (out) {
+    L.push(`Constraints: the ${name} is completely empty of people, animals, carts, garden furniture,`);
+    L.push("  tubs, statuary and loose props; its planting is low and kept, and nothing grown crosses");
+    L.push("  the wall plane.");
+  } else {
+    L.push(`Constraints: the ${name} is completely empty of furniture, loose props, people, animals`);
+    L.push("  and clutter.");
+  }
+  L.push("  Image 2 contains grid lines, a large letter and annotation text; these are");
+  L.push(`  diagram marks identifying the ${out ? "view" : "wall"}, and the painted picture contains no line, letter,`);
   L.push("  word, number, label, watermark or border of any kind.");
   return L.join("\n") + "\n";
 }
@@ -1292,8 +1414,10 @@ async function emitManor(outDir, opts) {
       continue;
     }
     const { rects } = scaffoldRects(plan, loc, f, meta);
-    const cr = chairRail(meta);
-    const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING");
+    const { voice, anchor, via } = voiceFor(plan, loc, f);
+    const cr = chairRail(meta, anchor);
+    assertLabelChars(cr.label, `${fac.key}'s gate anchor label`);
+    const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
     const marks = { rects, chair_rail: cr, legend };
     const framePng = await renderPng(page, fac.key, meta, "scaffold", null);
     const scafPng = await renderPng(page, fac.key, meta, "scaffold", marks);
@@ -1327,7 +1451,8 @@ async function emitManor(outDir, opts) {
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
       `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
-      `${rects.length ? rects.map((r) => r.kind).join(" + ") : "no carrier — unbroken panelling"}.\n` +
+      `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     entries.push({
       ...fac,
@@ -1343,6 +1468,7 @@ async function emitManor(outDir, opts) {
       implied_focal_px: round(groundplane.focalPx(meta), 1),
       stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
       chair_rail_y: cr.y,
+      voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       rolls: ids,
       retry_cap: opts.retries || 2
     });
@@ -1375,6 +1501,157 @@ async function emitManor(outDir, opts) {
   }
   for (const [k, n] of Object.entries(why)) console.log(`            ${n} ${k}`);
   return manifest;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* The re-ask                                                          */
+/* ------------------------------------------------------------------ */
+/* `row23_run.py`'s sweep decides a wall must be asked again and writes WHY into
+ * `run-state.json` — a measured sentence ("draw 0.854x larger: 93.5 px/m at the
+ * wall plane, not 109.5") or, once, Kabe's own veto. Until row 29 nothing
+ * turned that sentence back into a packet, so a re-ask was a hand-written
+ * message and the correction lived in a transcript, which
+ * `design/production-law.md` clause 3 calls an OPEN miss.
+ *
+ * This is that step in code. It reads the state, cuts each wall's scaffold
+ * AGAIN — at its room's voice, so a wall re-asked after the voice table lands
+ * gets the new voice for free — and writes a complete packet whose prompt
+ * carries the correction verbatim at the top.
+ *
+ * THREE THINGS IT WILL NOT DO, each of them a way of falsifying the record:
+ *
+ *   1. IT NEVER OVERWRITES THE FIRST ASK. A retry lands in `<wall>/retry-<n>/`
+ *      and its rolls have their own ids, so the diagram and the prompt a
+ *      returned candidate was painted from stay exactly as they were — which
+ *      matters, because `row23_lib.py` measures a returned candidate against
+ *      `<packet>/scaffold.png`.
+ *   2. IT NEVER RE-ASKS A PROMOTED WALL. Promotion is the end of a wall's life
+ *      in this loop.
+ *   3. IT NEVER TOUCHES THE CAP. `attempts` is the sweep's to raise; this only
+ *      refuses to emit for a wall that has already spent it.
+ */
+export function retryWalls(state) {
+  return Object.entries(state.walls || {})
+    .filter(([, w]) => w.status === "retry")
+    .map(([key, w]) => ({ key, attempts: w.attempts || 0, correction: w.correction || null }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+}
+
+async function emitRetries(outDir, opts) {
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const statePath = join(outDir, "run-state.json");
+  if (!existsSync(statePath)) {
+    console.error(`make-scaffold refused: ${statePath.slice(ROOT.length + 1)} does not exist, so there ` +
+      `is nothing that has been measured and found wanting. Run the sweep first.`);
+    process.exit(1);
+  }
+  const state = JSON.parse(readFileSync(statePath, "utf8"));
+  const want = retryWalls(state);
+  const cap = opts.retries || 3;
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+
+  const emitted = [], refused = [];
+  for (const w of want) {
+    const [loc, f] = w.key.split("/");
+    if (existsSync(join(ROOT, "backdrops", loc, `${f}.meta.json`))) {
+      refused.push({ ...w, refused: "promoted since the state was written" });
+      continue;
+    }
+    if (!w.correction) {
+      refused.push({ ...w, refused: "the state records no correction, and a re-ask with nothing to correct is the same ask" });
+      continue;
+    }
+    if (w.attempts >= cap) {
+      refused.push({ ...w, refused: `the retry cap is spent (${w.attempts} of ${cap})` });
+      continue;
+    }
+    const meta = await page.evaluate((k) => {
+      const e = window.HOLO_APP.backdrops[k];
+      return e && e.meta ? e.meta : null;
+    }, w.key);
+    if (!meta) { refused.push({ ...w, refused: "the page holds no meta for this facing" }); continue; }
+
+    const { rects } = scaffoldRects(plan, loc, f, meta);
+    const { voice, anchor, via } = voiceFor(plan, loc, f);
+    const cr = chairRail(meta, anchor);
+    assertLabelChars(cr.label, `${w.key}'s gate anchor label`);
+    const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
+    const framePng = await renderPng(page, w.key, meta, "scaffold", null);
+    const scafPng = await renderPng(page, w.key, meta, "scaffold",
+      { rects, chair_rail: cr, legend });
+
+    const attempt = w.attempts + 1;
+    const dir = join(outDir, `${loc}-${f}`, `retry-${attempt}`);
+    mkdirSync(dir, { recursive: true });
+    writePng(framePng, join(dir, "frame.png"));
+    writePng(scafPng, join(dir, "scaffold.png"));
+    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+
+    const text = manorPrompt(plan, w.key, meta, rects, w.correction);
+    writeFileSync(join(dir, "prompt.txt"), text);
+    const ids = [];
+    for (let i = 1; i <= (opts.rolls || 2); i++) {
+      /* A DIFFERENT TECHNIQUE STRING PER ATTEMPT, so a retry's return path can
+       * never collide with the spent ask's and the two are separable in the
+       * corpus forever. */
+      const id = rollId(w.key, `${opts.technique || "t2"}r${attempt}`, null, i);
+      ids.push({ roll: i, id,
+        candidate: `${sourceDirFor(w.key)}/row23-${id}.png`,
+        prompt: `${sourceDirFor(w.key)}/row23-${id}.prompt.txt` });
+    }
+    mkdirSync(join(ROOT, sourceDirFor(w.key)), { recursive: true });
+    for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
+    writeFileSync(join(dir, "PACKET.md"),
+      `# ${w.key} — RE-ASK ${attempt} (technique ${opts.technique || "t2"}, labelled scaffold)\n\n` +
+      `> **Why this wall is being asked again**\n>\n> ${w.correction}\n\n` +
+      (voice.outdoor && !carryableOutdoors(w.correction)
+        ? `**The prompt does not quote that sentence.** This is an outdoor facing, and the sentence ` +
+          `names interior fabric — which is the very thing it is vetoing. Putting those words in the ` +
+          `prompt would put them in front of the generator on the one wall they were vetoed from, and ` +
+          `\`prompt_lint.py\` refuses a packet that does. The prompt carries the forward half instead; ` +
+          `the reason lives here.\n\n`
+        : "") +
+      `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
+      `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
+      `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
+      ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
+      `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
+      `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
+      `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
+      `The earlier ask for this wall is still at \`../\` and is not overwritten.\n` +
+      `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
+
+    emitted.push({
+      key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
+      correction: w.correction,
+      voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
+      px_per_m_at_wall: meta.px_per_m_at_wall,
+      scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      rolls: ids
+    });
+    console.log(`  ${w.key.padEnd(24)} retry-${attempt}  voice ${voice.id.padEnd(18)} ${ids.length} roll(s)`);
+  }
+  await browser.close();
+
+  const mp = join(outDir, "retries.json");
+  writeFileSync(mp, JSON.stringify({
+    _what_this_is: "Every wall the sweep marked `retry`, re-cut as a complete packet whose prompt carries that wall's own correction sentence verbatim. Emitted by `node tools/make-scaffold.mjs --emit-retries`; nothing here is hand-written.",
+    _never_overwrites: "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
+    _voice: "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
+    _generated: new Date().toISOString().slice(0, 10),
+    emitted: emitted.length, refused: refused.length,
+    entries: emitted, refused_entries: refused
+  }, null, 2) + "\n");
+  console.log(`\nretries   ${mp.slice(ROOT.length + 1)}`);
+  console.log(`          ${emitted.length} re-ask packet(s); ${refused.length} refused`);
+  for (const r of refused) console.log(`            ${r.key}  ${r.refused}`);
+  return { emitted, refused };
 }
 
 
