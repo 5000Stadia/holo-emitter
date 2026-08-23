@@ -504,3 +504,53 @@ row-25 fix here.
   movement in the guard surface is one new token that refuses MORE than before.
 - **`staging.json`, the 55 existing exits, and every other room's standpoint.** Untouched — and the
   `u`-invariance in §4.2 is why the first of those is provable rather than hoped for.
+
+---
+
+## 11. What the build changed about this plan, and what it measured
+
+Written after the fact, so the Reviewer diffs the plan against the artifact rather than against my
+memory of it.
+
+**Two things the plan had wrong, both found by running it.**
+
+1. **The census is 48 facings, not 52.** 46 carry a door, 2 carry the court mouth, and the 4 stair
+   facings are *inside* the 46 rather than beside them — no facing in the manor carries a flight
+   alone, so `46 + 2 + 4` double-counts. Directed, 56 ways: 50 door, 2 threshold, 4 flight. On-frame
+   widths by kind: doors 0.0–330.3 px, flights 272.9–566.8 px, thresholds 1068.5 and 1536.0.
+2. **`waysThrough`'s note and the bake's warning both spell ledger tokens**, and the ledger's
+   one-token-one-emit-site scan counts any occurrence of the `[rowN:name]` grammar anywhere in a
+   scanned source. Naming a clause in a comment therefore breaks the scan. Comments now say
+   ``row 26's `exit.opening_unusable` clause``; only the emit site carries the bracketed form.
+
+**Three things the page taught the tests.**
+
+3. The double-click echo guard swallows a second doorway click inside 400 ms — `walkByClick`'s own
+   comment already said so, and the row's walk waits its window rather than reading the guard as a
+   defect in the doorway.
+4. Dispatching into `harness` directly leaves the page's own layout stale, so `resolve` reads the
+   previous facing's entities. The row's walk turns and walks back through real keys.
+5. The glyph case's premise ("hall/N and hall/S differ by two letters") was an accident of the two
+   facings sharing a meta, and the slide ends it. Both halves now render `hall/S` from `hall/N`'s
+   meta — the premise stated rather than relied on.
+
+**The sweep (§8.2), run as a real walk of all 22 rooms on both builds, at 390×844 and 320×568.**
+
+| | before (`65678c0`) | after |
+|---|---|---|
+| exits walked | 55 | **56** |
+| worst doorway on frame | `door_hall_buttery_pantry` **54 of 476 px** (13.6 / 11.2 CSS px) | `door_entrance_court_dining_parlour` 67 of 67 px (17.0 / 13.9 CSS px) — whole, only distant |
+| of that doorway, the share answering a click | **10.5 %** | 93.1 % on both passage doors |
+| doorways the frame had eaten | 1 | **0** |
+| worst clickable share, anything | 32.4 % (`stair_stair_landing_great_stair_hall`) | 32.4 % — the same descending flight, untouched; row 25's |
+| median clickable share | 100 % | 100 % |
+
+The row's headline number (F9) is the worst clickable share: **32.4 %, and it is a staircase, not a
+doorway.** Every doorway in the manor now answers over its whole drawn area. The row's own text
+quotes `op15` at "8 % clickable"; measured here over the declared aperture including its off-canvas
+part it is 10.5 % — the same defect, sampled slightly differently, and stated rather than rounded to
+match.
+
+**The mutation check on the refusal branch**, run by hand before the artifact critic sees it:
+replacing "keep the centred standpoint" with "slide anyway" turns both constructed refusal cases red
+and leaves the feasible companion green; restoring turns all three green.
