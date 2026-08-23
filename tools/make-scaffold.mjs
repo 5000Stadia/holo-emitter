@@ -1243,6 +1243,19 @@ export function manorPrompt(plan, key, meta, rects, correction) {
   L.push(`  corners, the returns at left and right and the amount of visible ${GROUND} all land where`);
   L.push(`  Image 2 puts them, to the pixel. One metre at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
   L.push(`  The ${GROUND} is visible and runs to the bottom edge of frame.`);
+  /* [row 32] THE ONE NUMBER EVERY MANOR PROMPT LEFT UNSAID. The prompt states
+   * the wall-foot line, the corners and the scale, and every one of those lands
+   * inside its bracket in the returned paintings. It never stated where the
+   * returns must CONVERGE — and the promotion instrument reads the eye height
+   * off exactly that convergence, so 58 of 85 walls held on a quantity nothing
+   * had asked for. The painted horizons scatter +/-45 px around the ruled row
+   * while the stated quantities do not, which is the measurement of the
+   * omission. Production law clause 6: the fix lands here, in the emitter, so
+   * the next map gets it without this conversation in context. */
+  L.push(`  The left and right returns run back to meet each other at row ` +
+    `${Math.round(meta.horizon_y * meta.image_h_px)} of the ${meta.image_h_px} rows — that row is the`);
+  L.push("  viewer's eye line, and each return meets the surface overhead along one straight");
+  L.push("  unbroken line from its own corner to the edge of frame.");
   L.push(`Architecture and measurement anchors: ${anchor.sentence}`);
   for (const r of ruled) L.push("  " + r);
   if (rects.length) {

@@ -82,6 +82,56 @@ def sha(p):
 
 
 
+def _correction_for(family, why, reading, entry):
+    """[row 32] The forward half of a hold, in words a prompt can act on.
+
+    Production law clause 6: a solution folds into the EMITTER, a GATE or the
+    INSTRUMENT, never into a hand-retouched artifact. This is the emitter half
+    of row 32's fix — `manorPrompt` carries whatever this returns verbatim, so
+    the correction reaches the generator as an instruction rather than reaching
+    a transcript as a diagnosis.
+
+    Three rules govern the wording and all three were paid for:
+
+    * IT SAYS WHAT TO DRAW, not what went wrong. "The returns converge too low"
+      is a verdict; "the two returns meet at row 526" is a thing to paint.
+    * IT NAMES THE ROW, from this wall's own manifest entry. The horizon is the
+      one number every manor prompt left unsaid, which is exactly why the
+      painted horizons scatter +/-45 px around it while the floor line, which
+      the prompt DOES state, lands inside its bracket.
+    * IT NAMES NO INTERIOR FABRIC. `room-voices.mjs`'s `carryableOutdoors`
+      redacts a correction that does, and a redacted correction is a roll spent
+      on "follow the words below" — so these sentences say "the surface
+      overhead" and "the wall-foot line" and carry onto a garden wall whole.
+
+    Returns None where the refusal is not row 32's to answer (a doorway the
+    plan rules and the painting does not draw), and the wall holds as before.
+    """
+    if family not in ("suspect-painting", "unfitted-horizon"):
+        return None
+    hz = entry.get("horizon_y")
+    p = (reading or {}).get("_promotion") or {}
+    row = ("row %d of the %d-row frame"
+           % (round(hz * 1024), 1024)) if hz else "the eye line Image 2 marks"
+    common = (
+        "Both returns must read as real receding surfaces: each meets the "
+        "surface overhead along ONE straight unbroken line running from its "
+        "corner to the edge of frame, and those two lines must meet each other "
+        "at %s — the eye line Image 2 marks. The wall-foot line, the corners "
+        "and the scale stay exactly where Image 2 puts them." % row)
+    if family == "suspect-painting":
+        return (
+            "the left and right returns of this wall converge at y %.1f, which "
+            "puts the viewer's eye %.3f m above the wall-foot line this frame "
+            "draws — nobody stands there, and the frame's own ruler says "
+            "otherwise, so the two readings of one picture disagree. %s"
+            % ((p.get("ramp") or {}).get("y", float("nan")),
+               p.get("eye_height_m") or float("nan"), common))
+    return (
+        "this frame's returns carry no junction the eye line can be fitted to. "
+        "%s" % common)
+
+
 def promote_reading(key, cand_rel, e, side, ref, reading):
     """A promote-ready record, out of the reading the GATE already took.
 
@@ -201,10 +251,11 @@ def sweep(manifest, state, do_promote=True):
     # exactly as for the camera half. Nothing in `row23_lib` re-derives a
     # detector this project has already paid for.
     from measure import (pick_floor, module_in_bands, pick_ceiling,
-                         find_corners_cand2, ceiling_ramp_vp, horizon_votes,
+                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
                          light, EYE_RANGE)
     picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
-                 pick_ceiling=pick_ceiling, find_corners_cand2=find_corners_cand2,
+                 pick_ceiling=pick_ceiling,
+                 find_corners_recession=find_corners_recession,
                  ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
                  light=light, EYE_RANGE=EYE_RANGE)
     os.makedirs(OUT, exist_ok=True)
@@ -322,25 +373,52 @@ def sweep(manifest, state, do_promote=True):
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
-                    # THE CAMERA PASSED AND THE PROMOTION REFUSED. A retry
-                    # would spend a roll repainting a wall whose frame is
-                    # already admissible, so the wall HOLDS with its candidate
-                    # named and the reason recorded, and the next sweep
-                    # promotes it the moment the reason stops being true.
+                    # THE CAMERA PASSED AND THE PROMOTION REFUSED — and since
+                    # row 32 that is no longer one situation with one cost.
                     #
-                    # AND THE REASON IS NOW ABOUT THE PICTURE, WHICH IT WAS NOT
-                    # BEFORE. Until 2026-08-24 most of these said "no
-                    # px_per_m_at_wall", which was a second instrument
-                    # disagreeing with the gate about a scale the gate had just
-                    # read (see `promote_reading`). What remains is the honest
-                    # residue: a frame with no corners gives the row-20 horizon
-                    # instrument nothing to fit, and a frame whose chair-rail
-                    # and whose side-wall convergence imply two different
-                    # cameras cannot be dressed in one meta. Those are facts
-                    # about a painting, and they are what the retry packet says.
-                    st["status"] = "held"
+                    # Until 2026-08-24 most of these said "no px_per_m_at_wall",
+                    # which was a second instrument disagreeing with the gate
+                    # about a scale the gate had just read (see
+                    # `promote_reading`), and the wall HELD because a retry
+                    # would have spent a roll repainting a frame that was
+                    # already admissible. That reasoning was right about an
+                    # instrument failure and wrong about a picture failure, and
+                    # the run then held 58 of 85 walls on it.
+                    #
+                    # So the refusal now carries a NAMED SUB-FAMILY and the
+                    # sub-family decides what it costs:
+                    #
+                    #   suspect-painting   the instrument read this frame's
+                    #                      horizon to inside the standing
+                    #                      licence and it disagrees with the
+                    #                      frame's own ruler. That is a fact
+                    #                      about the PAINTING, a repaint can
+                    #                      answer it, and the correction says
+                    #                      what to move — so it buys a roll.
+                    #   unfitted-horizon   the frame fixed no horizon at all.
+                    #                      Also a fact about the painting (its
+                    #                      side walls draw no junction the two
+                    #                      ramps can be fitted to), and the
+                    #                      correction is the forward half of
+                    #                      that sentence — so it buys a roll
+                    #                      too, up to the same cap.
+                    #   anything else      the older refusals, unchanged: a
+                    #                      doorway the plan rules and the
+                    #                      painting does not draw. Those hold.
+                    fam = ((d.get("_promotion") or {}).get("hold_family")
+                           if isinstance(d, dict) else None)
+                    corr = _correction_for(fam, why, d, e)
                     st["candidate"] = r["candidate"]
-                    st["correction"] = "camera PASS; held for the promotion instrument: %s" % why
+                    if corr and st["attempts"] < e.get("retry_cap", 3):
+                        st["status"] = "retry"
+                        st["correction"] = corr
+                        st["hold_family"] = fam
+                    else:
+                        st["status"] = "held"
+                        st["hold_family"] = fam or "promotion-refused"
+                        st["correction"] = (
+                            "camera PASS; held for the promotion instrument "
+                            "[%s]: %s" % (st["hold_family"], corr or why))
                     failed.append((key, d, st["correction"]))
             else:
                 st["status"] = "admitted"
