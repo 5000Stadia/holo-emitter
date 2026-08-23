@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["demo-study"] = {
   id: "demo-study",
-  fp: "11cb0692",
+  fp: "68c79899",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -345,23 +345,24 @@ window.HOLO_FIXTURES["demo-study"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1580.0558139534883,
+    "corner_x1_px": 2230.1767441860466,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 0.93,
     "openings": [
       {
         "id": "op15",
         "kind": "door",
         "via": null,
-        "x": 1482.4186046511627,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
         "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 5.3,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -0.93
       }
     ],
     "stairs": []
@@ -421,23 +422,24 @@ window.HOLO_FIXTURES["demo-study"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1818.1953488372092,
+    "corner_x1_px": 1992.0372093023257,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 1.43,
     "openings": [
       {
         "id": "op14",
         "kind": "door",
         "via": null,
-        "x": 1720.5581395348836,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
-        "w": 476.2790697674418,
+        "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 9,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -1.43
       }
     ],
     "stairs": []

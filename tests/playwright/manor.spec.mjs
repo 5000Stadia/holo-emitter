@@ -15,7 +15,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { deriveMeta, facingCarriers, waysThrough } from "../../tools/plan-projection.mjs";
-import { validatePlan, planWarnings } from "../../tools/validate-plan.mjs";
+import { validatePlan, planWarnings, MIN_USABLE_APERTURE_PX } from "../../tools/validate-plan.mjs";
 
 const require = createRequire(import.meta.url);
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
@@ -202,7 +202,11 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
       "guest_chamber/S": 1,
       "guest_chamber/W": 2,
       "hall/E": 1,
-      "hall/S": 1,
+      /* [Row 26] `hall/S` used to carry one blank doorway — `op14`, drawn in
+         the wall and walked by nobody, because from the passage's centre it
+         projected wholly off the frame. The lateral slide brought it in and the
+         completeness clause then demanded its exit, so it is a way through the
+         player uses and no longer something the picture does not say. */
       "kitchen/E": 1,
       "kitchen/S": 2,
       "library/S": 1,
@@ -249,22 +253,30 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
     ]);
   });
 
-  /* THE WAYS THROUGH, AND THE ONE EXEMPTION, both computed. The completeness
+  /* THE WAYS THROUGH, AND NOW THERE IS NO EXEMPTION AT ALL. The completeness
      clause requires an exit in both directions for every opening and flight
      joining two named rooms; the exemption is an opening its own standpoint
-     cannot see, and it is not a hand-carved hole — the cross passage is 8.00 m
-     long and the pinned lens shows 3.2 m of it, so the kitchen's door lands
-     185 px past the frame. */
-  test("every way the plan draws is walked, and the exemptions are named", () => {
+     cannot see.
+
+     [ROW 26] THE MANOR'S ONE EXEMPT WAY IS GONE, and the sentence that used to
+     stand here is gone with it: `op14` landed 185 px past the frame because the
+     standpoint law stood the viewer at the centre of an 8.00 m passage whose
+     doors are near one end, and the law now slides the body along its own wall.
+     `hall/S` sees the kitchen's door whole, the completeness clause demanded its
+     exit, and the manor walks 56. The list is asserted EMPTY rather than deleted
+     — an exemption that quietly reappears is exactly the hole this pair of
+     assertions exists to keep visible. */
+  test("every way the plan draws is walked, and no way is exempt", () => {
     const ways = waysThrough(PLAN, NAV);
     const have = new Set();
     for (const l of NAV.locations) for (const e of l.exits || []) have.add(`${e.via}|${e.from}|${e.to}`);
     expect(ways.walkable.filter((w) => !have.has(`${w.id}|${w.from}|${w.to}`)), "unwalked").toEqual([]);
     expect(ways.offscreen.map((w) => `${w.id} ${w.from}→${w.to} on ${w.from}/${w.facing}`))
-      .toEqual(["op14 hall→kitchen on hall/S"]);
-    /* And the exempted room is still reachable another way, which is the whole
-       reason the exemption is admissible rather than a hole in the building. */
-    expect(have.has("op02|entrance_court|kitchen")).toBe(true);
+      .toEqual([]);
+    /* And the door that WAS exempt is walked from both sides now, which is the
+       whole of what row 26 bought the player here. */
+    expect(have.has("op14|hall|kitchen")).toBe(true);
+    expect(have.has("op14|kitchen|hall")).toBe(true);
   });
 
   test("the plan and the manor world are green together", () => {
@@ -666,7 +678,12 @@ test.describe("reachability is a hand, not a graph", () => {
              canvas first. */
           const x0 = Math.max(0, ap.x), x1 = Math.min(1536, ap.x + ap.w);
           const y0 = Math.max(0, ap.y), y1 = Math.min(1024, ap.y + ap.h);
-          sizes.push({ id: ex.id, w: Math.max(0, x1 - x0) * k, h: Math.max(0, y1 - y0) * k });
+          sizes.push({ id: ex.id, w: Math.max(0, x1 - x0) * k, h: Math.max(0, y1 - y0) * k,
+            /* [row 26] and the same intersection in CANVAS px beside it, with
+               what the aperture DECLARED, because the row-26 bar is about how
+               much of a way through the frame ate — a different question from
+               how big a finger finds it. */
+            onW: Math.max(0, x1 - x0), onH: Math.max(0, y1 - y0), decW: ap.w, decH: ap.h });
         }
       }
       return { k, sizes, docWidth: document.documentElement.scrollWidth,
@@ -684,6 +701,21 @@ test.describe("reachability is a hand, not a graph", () => {
        direction — the manor's own front door was exactly that. */
     expect(minW, "the narrowest way through the manor, in CSS px on a phone").toBeGreaterThan(12);
     expect(minSide, "and its smaller side").toBeGreaterThan(12);
+    /* [ROW 26] AND THE FRAME HAS NOT EATEN ANY OF THEM. This is ADDED to the
+       absolute floor above and does not replace it: the two bounds answer
+       different questions, and the comment above is explicit that a bound
+       phrased against the current corpus is worth nothing. A doorway is
+       honestly small when you are standing 15.30 m from it — ten of these draw
+       under 24 CSS px on this screen and every one of them is whole — and it is
+       frame-eaten when the picture cut it off, which is what `op15` was: 476 px
+       of doorway with 54 on screen, the player's only way out of the boot pair.
+       So the bar is what the row states: at least `min(declared, the derived
+       usable minimum)` of it on the frame, in canvas px, on both axes. */
+    const eaten = r.sizes.filter((s) =>
+      s.onW < Math.min(s.decW, MIN_USABLE_APERTURE_PX) - 1e-6 ||
+      s.onH < Math.min(s.decH, MIN_USABLE_APERTURE_PX) - 1e-6)
+      .map((s) => `${s.id} shows ${Math.round(s.onW)}×${Math.round(s.onH)} of ${Math.round(s.decW)}×${Math.round(s.decH)}`);
+    expect(eaten, "ways through the manor that the frame has eaten").toEqual([]);
     expect(minArea, "and the smallest reachable area").toBeGreaterThan(500);
     /* AND THE PAGE DOES NOT GROW SIDEWAYS. An aperture that runs past the
        frame used to put its keyboard control at `left: 112%`, which widened
@@ -929,8 +961,9 @@ test.describe("§12.2 over a manor route, in both engines", () => {
   test.use({ viewport: POINTER_VIEWPORT });
 
   /* The route both clauses run on: out of the study, round the service range,
-     up the great stair, along the gallery, down the back stair and home —
-     eighteen passages across both floors. Turns included, because a turn is a
+     up the great stair, along the gallery, down the back stair and home, then
+     in and out of the kitchen by the cross passage — the ROUTE array's own
+     length of passages, across both floors. Turns included, because a turn is a
      picture too and clause 1 is about the SEQUENCE of them. */
   const ROUTE = ["door_study_hall", "door_hall_buttery_pantry",
     "door_buttery_pantry_servants_hall", "door_servants_hall_privy_garden",
@@ -940,7 +973,13 @@ test.describe("§12.2 over a manor route, in both engines", () => {
     "door_muniment_room_long_gallery", "door_long_gallery_back_stair_head",
     "stair_back_stair_head_back_stair", "door_back_stair_great_hall",
     "door_great_hall_entrance_court", "way_entrance_court_entrance_approach",
-    "way_entrance_approach_entrance_court", "door_entrance_court_kitchen"];
+    "way_entrance_approach_entrance_court", "door_entrance_court_kitchen",
+    /* [row 26] and out of the kitchen by the passage door, which is the way
+       row 26 gave back — so the 56th exit is hashed like the other 55 rather
+       than being the one nobody replays. The count is not written in either
+       comment any more: it was twenty in one and nineteen in the other, over
+       an array of twenty, which is what a number restated twice does. */
+    "door_kitchen_hall", "door_hall_kitchen"];
 
   async function hashes(page) {
     await page.goto(navUrl());

@@ -98,6 +98,30 @@
 # existence rather than on any row number, so nothing about the close relaxes
 # it.
 #
+# ROW 26 IS A REDLINE AND THESE TWO DIGESTS DID NOT MOVE FOR IT.
+#
+# Row 26 gave the standpoint law a second question — not only how far back a
+# facing stands, but where along its own wall — because the cross passage's
+# doors sit near one end of it and from the middle the buttery's doorway showed
+# 54 px of its 476, which is what the Captain walked into. Two of the manor's
+# 88 standpoints slid: `hall/N` and `hall/S`. The markers on both sheets moved
+# with them, so the drawn digest below no longer describes this drawing and the
+# sheets print UNAPPROVED REVISION, which is exactly what a redline is supposed
+# to do. Re-anchoring is Kabe's glance and the two manual steps in
+# `design/plan-draft/README.md`, and this row does not take them: it hands the
+# re-rendered sheets to him with `AWAITING KABE` in `design/approvals.log`.
+#
+# The `pending` line below is re-derived rather than rewritten — the standpoint
+# table gained a `standpoint_offset_m` column so the clause could learn the new
+# family, and `plan.spec` computed the string it now carries.
+#
+# IT COUNTS PER FAMILY NOW, and that is a correction rather than a flourish. The
+# first version of the line read "the standpoint distances and the standpoints'
+# own lateral slides on 38 of the manor's 88 facings" — the union, true of
+# neither half: 38 distances moved at row 20 and TWO standpoints slid at row 26.
+# This line is the whole of what tells Kabe what to look for on a sheet, and a
+# count that overstates the smaller family nineteenfold sends him hunting for
+# markers that did not move.
 plan  ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065  2026-08-21
 undrawn  61d2f004702e88b694a4d71898f64b3f009310045e6668e42635d61b7008ebf6
-pending  the standpoint distances on 38 of the manor's 88 facings, changed since the sheet he approved
+pending  the standpoint distances on 38 and the standpoints' own lateral slides on 2 of the manor's 88 facings, changed since the sheet he approved

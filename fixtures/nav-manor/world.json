@@ -372,6 +372,14 @@
           "via": "op15"
         },
         {
+          "id": "door_hall_kitchen",
+          "from": "hall",
+          "facing": "S",
+          "to": "kitchen",
+          "arrive_facing": "S",
+          "via": "op14"
+        },
+        {
           "id": "door_hall_study",
           "from": "hall",
           "facing": "W",

@@ -523,7 +523,7 @@ test.describe("what an exit's `via` names is bound to one function", () => {
          lookup stays green here. */
       const unfilled = findings.filter((f) => f.includes("[row21:exit.via_unfilled]"));
       expect(unfilled.length, "the validator reads the lookup from groundplane, not from its own copy")
-        .toBe(55);
+        .toBe(56);
     } finally {
       groundplane.openingFor = original;
     }
@@ -553,9 +553,9 @@ test.describe("what an exit's `via` names is bound to one function", () => {
       window.HOLO.groundplane.openingFor = original;
       return { before, during, after: count() };
     });
-    expect(r.before, "every way through the manor is an aperture on its own facing").toBe(55);
+    expect(r.before, "every way through the manor is an aperture on its own facing").toBe(56);
     expect(r.during, "with the lookup displaced the building has no ways through at all").toBe(0);
-    expect(r.after, "and restored").toBe(55);
+    expect(r.after, "and restored").toBe(56);
   });
 
   test("a leaf outranks the plan's own name for the hole it stands in", () => {

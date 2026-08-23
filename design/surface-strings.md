@@ -224,6 +224,9 @@ The 38 narration lines and the record nouns are carried **verbatim** here and by
 their homes (`fixtures/demo-study/narration.json`, the bound library), so the copy cannot drift and
 a human still reads the whole product face in one place.
 
+The `id` is a stable handle and not an ordering: rows sit where their string belongs, and a row
+added later takes the next free number rather than renumbering the ones a question already cites.
+
 ```STRINGS
 id | surface | state | verdict | observed | adjudicator | string
 3 | #narration | boot viewstate the world does not hold (either branch) | PASS | yes | row7-artifact-critic | The projection was set to a view this pattern does not hold.
@@ -356,9 +359,11 @@ id | surface | state | verdict | observed | adjudicator | string
 130 | #narration | go.door_guest_chamber_stair_landing.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row15-manor | The door between the guest chamber and the stair landing is not the one before you.
 131 | #narration | go.door_hall_buttery_pantry.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row15-manor | Out of the cross passage, you come into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.
 132 | #narration | go.door_hall_buttery_pantry.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row15-manor | The way from the cross passage into the buttery and pantry is not before you.
+192 | #narration | go.door_hall_kitchen.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row26-gate | You turn out of the cross passage and the kitchen takes you in. Its heat reaches the doorway before you do, and under the heat is ash and scoured board. The doorway stands open behind you.
+193 | #narration | go.door_hall_kitchen.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row26-gate | The passage's own door into the kitchen is not the one before you.
 133 | #narration | go.door_kitchen_entrance_court.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row15-manor | The kitchen gives onto the entrance court, and you step through into it. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.
 134 | #narration | go.door_kitchen_entrance_court.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row15-manor | The kitchen does not open into the entrance court from here.
-135 | #narration | go.door_kitchen_hall.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row15-manor | You come out of the kitchen into the cross passage. The air is cooler here, and moves. The passage runs away east and west, and the door you came by is not on either wall.
+135 | #narration | go.door_kitchen_hall.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row26-gate | You come out of the kitchen into the cross passage. The air is cooler here, and moves, and the passage runs away east and west. The doorway stands open behind you.
 136 | #narration | go.door_kitchen_hall.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row15-manor | That way — the kitchen to the cross passage — lies elsewhere in the house.
 137 | #narration | go.door_library_garden_room.arrive (the manor's arrival prose, painted navigation world) | PASS | yes | row15-manor | You cross out of the library and into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.
 138 | #narration | go.door_library_garden_room.refused_unreachable (the manor's refusal prose, painted navigation world) | PASS | yes | row15-manor | You are not at the passage between the library and the garden room.
@@ -420,7 +425,7 @@ id | surface | state | verdict | observed | adjudicator | string
 ```
 
 ```COUNT
-STRINGS 191
+STRINGS 193
 STATES 36
 ```
 
