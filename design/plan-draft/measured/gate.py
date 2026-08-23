@@ -179,20 +179,80 @@ def main_cand5ref():
     return 0
 
 
+
+def main_row23(want):
+    """The camera half of row 23, in the same idiom as every round before it.
+
+    IT REPORTS THE CAMERA AND NOTHING ELSE, deliberately. A row-23 candidate is
+    admitted on exactly the terms cand-6 candidates were — the standing +/-8 %
+    on the implied focal length AND the eye height, read off the anchor its own
+    prompt declares. What this table CANNOT see is the thing row 23 varies:
+    every cell of the matrix asked for the same camera, so a technique that
+    moved a carrier and nothing else is invisible here by construction.
+
+    `row23_report.py` is where the carrier lean lives, and it is the headline.
+    This table is the floor a candidate has to clear before that question is
+    even worth asking of it.
+    """
+    here = os.path.join(HERE, "row23")
+    if not os.path.isdir(here):
+        print("gate: no row-23 readings - run "
+              "design/plan-draft/measured/measure.py --round row23")
+        return 1
+    docs = []
+    for f in sorted(os.listdir(here)):
+        if f.endswith(".json") and f != "assignment.json":
+            docs.append(json.load(open(os.path.join(here, f))))
+    if not docs:
+        print("ROUND row23: no candidate has returned yet. The scaffolds are cut, "
+              "the packets are out, and this table fills in as frames land.")
+        return 0
+    print("ROUND row23: THE TECHNIQUE MATRIX, camera half. Each wall is read "
+          "against ITS OWN reference and the two are never pooled:\n"
+          "  study/N  the Kabe-ruled standing camera (cand5ref)\n"
+          "  study/E  its own ADMITTED cand-6 reading - not a ruled reference\n"
+          "The band is +/-%.0f%% on the focal length AND the eye height, the "
+          "standing licence; this round brings none of its own.\n" % (BAND6 * 100))
+    print("%-9s %-9s %10s %10s %10s %9s %9s   %s"
+          % ("id", "wall", "px/m", "focal px", "TARGET", "dfocal", "deye", "verdict"))
+    bad = 0
+    for d in sorted(docs, key=lambda x: (x["facing"], x["id"])):
+        if want and d["facing"] not in want:
+            continue
+        v = d["verdict"]
+        if v != "PASS":
+            bad += 1
+        print("%-9s %-9s %10s %10s %10.1f %9s %9s   %s"
+              % (d["id"], d["facing"],
+                 d.get("px_per_m_at_wall") or "-",
+                 d.get("implied_focal_px") or "-",
+                 d["reference"]["focal_px"],
+                 ("%+.1f%%" % d["delta_focal_pct"]) if d.get("delta_focal_pct") is not None else "-",
+                 ("%+.1f%%" % d["delta_eye_pct"]) if d.get("delta_eye_pct") is not None else "-",
+                 v))
+    print("\n%d of %d admitted on the camera." % (len(docs) - bad, len(docs)))
+    print("An ABSENT verdict is a fact about the PAINTING - the feature the "
+          "scaffold declares is not inside the band the licence allows - and it "
+          "counts against its cell. It is NOT the wave's measurement_withheld.")
+    return 1 if bad else 0
+
+
 def main(argv):
     argv = list(argv)
     here = HERE
     if "--round" in argv:
         i = argv.index("--round")
         rnd = argv[i + 1] if len(argv) > i + 1 else ""
-        if rnd not in ("cand2", "cand3", "cand5ref", "cand6"):
-            print("gate: --round takes cand2, cand3, cand5ref or cand6")
+        if rnd not in ("cand2", "cand3", "cand5ref", "cand6", "row23"):
+            print("gate: --round takes cand2, cand3, cand5ref, cand6 or row23")
             return 2
         del argv[i:i + 2]
         if rnd == "cand5ref":
             return main_cand5ref()
         if rnd == "cand6":
             return main_cand6(argv[1:])
+        if rnd == "row23":
+            return main_row23(argv[1:])
         if rnd == "cand3":
             here = os.path.join(HERE, "cand3")
             if not os.path.isdir(here):
