@@ -483,10 +483,12 @@ test.describe("the manor, walked", () => {
   });
 
   test("and the same walk in a hand, at 390x844", async ({ page }) => {
-    /* THE OTHER SIZE, and it is not decoration: 28 of the manor's 55 exits are
+    /* THE OTHER SIZE, and it is not decoration: 29 of the manor's 56 exits are
        narrower than the 44 CSS px platform minimum on this screen, because the
        standpoint law stands the entrance court's viewer 15.30 m off its own
-       wall. What makes them reachable is the tolerance ring, and the only way
+       wall. (Row 26 seated two doorways that the frame had been cutting and
+       gave the manor back its 56th exit; none of that touches these, which are
+       whole and far away rather than clipped.) What makes them reachable is the tolerance ring, and the only way
        to know it does is to aim at them here. */
     test.setTimeout(180_000);
     await page.setViewportSize(PHONE);
@@ -507,4 +509,87 @@ test.describe("the manor, walked", () => {
     expect(trouble, "every way through the manor is reachable on a phone").toEqual([]);
     expect((await state(page)).viewstate.location).toBe("entrance_approach");
   });
+});
+
+/* ------------------------------------------------------------------ [row 26] */
+
+/* THE GATE OF THE MANOR, PROVED WHERE THE DEFECT LIVED — on the shipped page,
+   walked as a player walks it, with a real pointer event at a real drawn pixel.
+   The Captain's own report was "Still just 2 rooms" / "No change - go try it
+   out", and this is why: the buttery doorway on `hall/N` drew 476 px of itself
+   with 54 on the frame, 8 % of it clickable, unmarked on a near-black grid
+   wall. Every machine check in the project passed while that was true, which is
+   the point of doing it this way instead — `dispatch` reaching the exit proves
+   the world; only a click at a pixel proves the player can reach it.
+
+   NOT `HOLO_APP.resolve`. This suite has been burned once by a case that asked
+   `resolve` and never sent an event. */
+test.describe("the gate of the manor: a walked way-through is where the hand is", () => {
+  for (const [name, vp] of [["a phone", { width: 390, height: 844 }],
+                            ["the narrowest screen the suite drives", { width: 320, height: 568 }]]) {
+    test(`from the passage, a real click on the drawn doorway travels — ${name}`, async ({ page }) => {
+      test.setTimeout(120_000);
+      await page.setViewportSize(vp);
+      await page.goto(navUrl());
+      await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+
+      /* Into the passage the way the boot pair opens onto it, by real intents. */
+      expect(await driveTo(page, ["door_study_hall"]), "out of the study").toEqual([]);
+      expect((await state(page)).viewstate.location).toBe("hall");
+
+      for (const [facing, exitId, dest] of [["N", "door_hall_buttery_pantry", "buttery_pantry"],
+                                            ["S", "door_hall_kitchen", "kitchen"]]) {
+        /* Face the wall the door is in with a real arrow key — no viewstate
+           writing, and the page repaints on its own envelope as it would for a
+           player. */
+        expect(await faceWithKeys(page, facing), `turning to ${facing}`).toBe(true);
+        expect((await state(page)).viewstate).toEqual({ location: "hall", facing });
+
+        /* The aperture the RENDERER produced, not one this test computed, and
+           the part of it that is actually on the canvas. */
+        const ap = await page.evaluate((id) => {
+          const A = window.HOLO_APP, vs = A.harness.viewstate;
+          const a = window.HOLO.renderer.apertures(
+            A.harness.world, A.harness.staging, A.library, A.metaFor(vs), vs)
+            .find((x) => x.exit === id);
+          if (!a) return null;
+          const x0 = Math.max(0, a.x), x1 = Math.min(1536, a.x + a.w);
+          const y0 = Math.max(0, a.y), y1 = Math.min(1024, a.y + a.h);
+          return { x: a.x, y: a.y, w: a.w, h: a.h, onW: x1 - x0, onH: y1 - y0,
+            cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+        }, exitId);
+        expect(ap, `${exitId} draws an aperture on hall/${facing}`).toBeTruthy();
+        expect(ap.onW, `${exitId}: ${Math.round(ap.onW)} px of ${Math.round(ap.w)} on the frame`)
+          .toBeCloseTo(ap.w, 6);
+
+        /* AND THE CLICK. At the middle of what is drawn, through the live
+           bounding box, as a pointer event the page receives.
+
+           The pause is the double-click echo guard's own 400 ms window, for
+           the reason `walkByClick` above already records: one gesture must not
+           walk two rooms, and a test that clicks as fast as the harness will
+           take it is not a player. Without it the SECOND doorway of this case
+           was swallowed by the guard and read as a defect in the doorway. */
+        await page.waitForTimeout(420);
+        await clickCanvasPoint(page, { x: ap.cx, y: ap.cy });
+        const s = await state(page);
+        expect(s.viewstate.location,
+          `a click on the drawn ${dest} doorway travels, at ${vp.width}x${vp.height}`).toBe(dest);
+
+        /* Back into the passage for the second door, by keyboard — a real
+           input path, so the page's own paint keeps step with the world. The
+           way back is on the opposite wall of the room we just entered, which
+           the world says rather than this test guessing. */
+        const back = dest === "buttery_pantry" ? "door_buttery_pantry_hall" : "door_kitchen_hall";
+        const backFacing = await page.evaluate((id) => {
+          const A = window.HOLO_APP, vs = A.harness.viewstate;
+          return (A.harness.world.locations.find((l) => l.id === vs.location).exits || [])
+            .find((e) => e.id === id).facing;
+        }, back);
+        expect(await faceWithKeys(page, backFacing), "facing the way back").toBe(true);
+        expect(await walkByKeyboard(page, back), "back into the passage").toBe(true);
+        expect((await state(page)).viewstate.location).toBe("hall");
+      }
+    });
+  }
 });

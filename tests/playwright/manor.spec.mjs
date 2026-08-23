@@ -15,7 +15,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { deriveMeta, facingCarriers, waysThrough } from "../../tools/plan-projection.mjs";
-import { validatePlan, planWarnings } from "../../tools/validate-plan.mjs";
+import { validatePlan, planWarnings, MIN_USABLE_APERTURE_PX } from "../../tools/validate-plan.mjs";
 
 const require = createRequire(import.meta.url);
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
@@ -678,7 +678,12 @@ test.describe("reachability is a hand, not a graph", () => {
              canvas first. */
           const x0 = Math.max(0, ap.x), x1 = Math.min(1536, ap.x + ap.w);
           const y0 = Math.max(0, ap.y), y1 = Math.min(1024, ap.y + ap.h);
-          sizes.push({ id: ex.id, w: Math.max(0, x1 - x0) * k, h: Math.max(0, y1 - y0) * k });
+          sizes.push({ id: ex.id, w: Math.max(0, x1 - x0) * k, h: Math.max(0, y1 - y0) * k,
+            /* [row 26] and the same intersection in CANVAS px beside it, with
+               what the aperture DECLARED, because the row-26 bar is about how
+               much of a way through the frame ate — a different question from
+               how big a finger finds it. */
+            onW: Math.max(0, x1 - x0), onH: Math.max(0, y1 - y0), decW: ap.w, decH: ap.h });
         }
       }
       return { k, sizes, docWidth: document.documentElement.scrollWidth,
@@ -696,6 +701,21 @@ test.describe("reachability is a hand, not a graph", () => {
        direction — the manor's own front door was exactly that. */
     expect(minW, "the narrowest way through the manor, in CSS px on a phone").toBeGreaterThan(12);
     expect(minSide, "and its smaller side").toBeGreaterThan(12);
+    /* [ROW 26] AND THE FRAME HAS NOT EATEN ANY OF THEM. This is ADDED to the
+       absolute floor above and does not replace it: the two bounds answer
+       different questions, and the comment above is explicit that a bound
+       phrased against the current corpus is worth nothing. A doorway is
+       honestly small when you are standing 15.30 m from it — ten of these draw
+       under 24 CSS px on this screen and every one of them is whole — and it is
+       frame-eaten when the picture cut it off, which is what `op15` was: 476 px
+       of doorway with 54 on screen, the player's only way out of the boot pair.
+       So the bar is what the row states: at least `min(declared, the derived
+       usable minimum)` of it on the frame, in canvas px, on both axes. */
+    const eaten = r.sizes.filter((s) =>
+      s.onW < Math.min(s.decW, MIN_USABLE_APERTURE_PX) - 1e-6 ||
+      s.onH < Math.min(s.decH, MIN_USABLE_APERTURE_PX) - 1e-6)
+      .map((s) => `${s.id} shows ${Math.round(s.onW)}×${Math.round(s.onH)} of ${Math.round(s.decW)}×${Math.round(s.decH)}`);
+    expect(eaten, "ways through the manor that the frame has eaten").toEqual([]);
     expect(minArea, "and the smallest reachable area").toBeGreaterThan(500);
     /* AND THE PAGE DOES NOT GROW SIDEWAYS. An aperture that runs past the
        frame used to put its keyboard control at `left: 112%`, which widened
@@ -941,8 +961,9 @@ test.describe("§12.2 over a manor route, in both engines", () => {
   test.use({ viewport: POINTER_VIEWPORT });
 
   /* The route both clauses run on: out of the study, round the service range,
-     up the great stair, along the gallery, down the back stair and home —
-     eighteen passages across both floors. Turns included, because a turn is a
+     up the great stair, along the gallery, down the back stair and home, then
+     in and out of the kitchen by the cross passage — twenty passages across
+     both floors. Turns included, because a turn is a
      picture too and clause 1 is about the SEQUENCE of them. */
   const ROUTE = ["door_study_hall", "door_hall_buttery_pantry",
     "door_buttery_pantry_servants_hall", "door_servants_hall_privy_garden",
@@ -952,7 +973,11 @@ test.describe("§12.2 over a manor route, in both engines", () => {
     "door_muniment_room_long_gallery", "door_long_gallery_back_stair_head",
     "stair_back_stair_head_back_stair", "door_back_stair_great_hall",
     "door_great_hall_entrance_court", "way_entrance_court_entrance_approach",
-    "way_entrance_approach_entrance_court", "door_entrance_court_kitchen"];
+    "way_entrance_approach_entrance_court", "door_entrance_court_kitchen",
+    /* [row 26] and out of the kitchen by the passage door, which is the way
+       row 26 gave back: nineteen passages, and the 56th exit is hashed like
+       the other 55 rather than being the one nobody replays. */
+    "door_kitchen_hall", "door_hall_kitchen"];
 
   async function hashes(page) {
     await page.goto(navUrl());
