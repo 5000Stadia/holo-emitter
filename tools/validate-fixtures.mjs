@@ -35,6 +35,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
 import { metaForFacing as planMetaForFacing, waysThrough } from "./plan-projection.mjs";
+/* [Row 26] The one home of "enough of this way through is on screen for a hand
+ * to land on it". The standpoint law's own slide reads the same function, so
+ * the law that moves the body and the clause that judges where it ended up
+ * cannot hold two readings of the same sentence. */
+import { usablyInFrame, MIN_USABLE_APERTURE_PX } from "./validate-plan.mjs";
 
 /* Row 20: the ruled lens, from its one code home. */
 const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_PX;
@@ -208,6 +213,9 @@ const META_KEYS = [
   "calibration_px", "camera_wall_m", "camera_far_m", "far_line",
   "facing_type", "wall_continuous", "wall_segments",
   "corner_x0_px", "corner_x1_px", "wall_x0_px", "storey_height_m",
+  // [row 26] where the eye stands along the wall, signed the way `u` is —
+  // absent, not zero, on every facing that stands on its room's own axis
+  "eye_offset_m",
   // provenance: which camera produced it, and whether it was MEASURED off a
   // painted backdrop (row 20) or derived from the plan
   "camera_id", "provisional", "measured", "backdrop",
@@ -986,7 +994,15 @@ export function validate(fixtureDir, records, derivedMetas) {
      * `via` would become a doorway the player walks through in a blank wall.
      * The two arms carry two tokens, because one token over two behaviours is
      * one countable thing the ledger can only ever exercise on whichever arm
-     * its case reaches. */
+     * its case reaches.
+     *
+     * [ROW 26] AND THE `via`-IS-AN-ENTITY GATE BELOW IS DELIBERATE, not an
+     * oversight this clause's third arm inherits. Where `via` names a LEAF,
+     * the thing a player aims at is that entity's own §4 placement, which the
+     * staging clauses and `stagingDivergence` govern; the building's meta does
+     * not carry it and a frame test asked here would be interrogating the
+     * wrong document. `demo-study`'s two exits are leaf-vias, which is why
+     * that world is outside all three arms and must stay so. */
     if (!entities.has(ex.via)) {
       const fs2 = ex.from + "/" + ex.facing;
       const m = metaForFacing(fs2, findings, derived);
@@ -1001,6 +1017,25 @@ export function validate(fixtureDir, records, derivedMetas) {
       } else if (hole.x + hole.w <= 0 || hole.x >= CANVAS_W ||
                  hole.y + hole.h <= 0 || hole.y >= CANVAS_H) {
         findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, which is off the ${CANVAS_W}×${CANVAS_H} frame — a way through nobody can see or click [row21:exit.opening_offscreen]`);
+      } else if (!usablyInFrame(hole, CANVAS_W, CANVAS_H)) {
+        /* [ROW 26] AND A SLIVER IS ITS OWN BEHAVIOUR, WITH ITS OWN TOKEN. The
+         * clause above passed `op15` — the player's only route out of the boot
+         * pair — by 54 px of a 476 px doorway, 8 % of it clickable, unmarked on
+         * a near-black wall, and the Captain walked the manor and reported
+         * "Still just 2 rooms". Wholly-off and eaten-by-the-frame are two
+         * behaviours with two remedies (walk it elsewhere; slide the
+         * standpoint), so they are two tokens: one token over both is one
+         * countable thing a ledger case can only ever exercise on whichever it
+         * reaches first, which is the rule the paragraph above already states.
+         *
+         * The predicate is `usablyInFrame` in `tools/validate-plan.mjs`, where
+         * the standpoint law's own slide reads it too — one home, so the law
+         * that MOVES the body and the clause that judges the result cannot
+         * come to disagree about what "in frame" means. The clause above is
+         * untouched by a character: this refuses more, never less. */
+        const onW = Math.max(0, Math.min(hole.x + hole.w, CANVAS_W) - Math.max(hole.x, 0));
+        const onH = Math.max(0, Math.min(hole.y + hole.h, CANVAS_H) - Math.max(hole.y, 0));
+        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it [row26:exit.opening_unusable]`);
       }
     }
     const fromLoc = locations.get(ex.from);
