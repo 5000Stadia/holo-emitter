@@ -712,7 +712,23 @@ const DOCUMENT_CASES = {
     no_treads: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ treads: 2.5 })]; }),
     no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ poly: [] })]; }),
     broken_ring: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
-    point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; })
+    point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; }),
+    /* [ROW 26] AND THE TWO WAYS A FLIGHT CAN STOP SAYING HOW BIG IT IS.
+       `x/y/w/h` on a flight are the intersection with the canvas, so the
+       usability clause reads `raw_w`/`raw_h` instead — and both of the levers
+       that would hand it back the clamped number are shut here rather than
+       trusted to stay unreachable. A DERIVED meta cannot pull either; a
+       measured one is hand-authored JSON that tier 1 returns verbatim, so a
+       promoted backdrop of a stair room is exactly where they would arrive. */
+    no_body_before_the_clamp: () => tokensFromMetas((m) => {
+      m["study/S"].stairs = [flight({ raw_w: undefined })];
+    }),
+    a_cut_body_claiming_it_was_not_cut: () => tokensFromMetas((m) => {
+      /* Flush to the right edge, and claiming the part on screen IS the whole
+         flight — which makes `onW >= min(raw_w, bar)` read `onW >= onW` again,
+         the very arithmetic an artifact critic defeated this row with. */
+      m["study/S"].stairs = [flight({ x: 1236, w: 300, raw_w: 300 })];
+    })
   }),
   "plan.stair_directions": () => {
     /* The flight kept where it is drawn and told it is climbed ACROSS its own
@@ -850,6 +866,10 @@ const flight = (over) => ({
   id: "great_stair", kind: "stair", via: null, direction: "up", treads: 17,
   rise_m: 2.8, u0: 0.1, u1: 0.3, depth_near_m: 5, depth_far_m: 0.2,
   x: 10, y: 200, w: 300, h: 700,
+  /* [row 26] the body before the clamp. This one is wholly inside the frame,
+     so nothing was cut and the two legitimately agree; a flight touching an
+     edge may not say that, which is its own arm below. */
+  raw_w: 300, raw_h: 700,
   poly: [[10, 200], [10, 900], [310, 900], [310, 200]],
   floor_poly: [[10, 700], [10, 900], [310, 900], [310, 700]],
   well_poly: [[10, 100], [10, 300], [310, 300], [310, 100]],

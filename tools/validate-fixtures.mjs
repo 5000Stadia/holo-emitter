@@ -515,6 +515,30 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
           if (typeof s.raw_h === "number" && typeof s.h === "number" && s.raw_h < s.h - 1e-6) {
             bad.push(`raw_h ${s.raw_h} is shorter than the ${s.h} px of it on the frame`);
           }
+          /* AND A FLIGHT CUT BY AN EDGE CLAIMS A BODY BIGGER THAN WHAT SURVIVED.
+           *
+           * `raw_w === w` is the same arithmetic the row was defeated by —
+           * `onW >= min(w, bar)` reading `onW >= onW` — arriving by a different
+           * door. `deriveMeta` cannot produce it where the frame actually cut
+           * something, because the clamp only bites when the extent runs past an
+           * edge. But a MEASURED meta is hand-authored JSON returned verbatim by
+           * tier 1, so a promoted backdrop of a stair room could carry a flight
+           * flush to the frame edge with an extent equal to the part on screen,
+           * and the usability clause would go quiet on it. The condition is
+           * where the equality is a LIE: a body touching an edge ran off it. A
+           * flight wholly inside the frame legitimately claims raw === clamped,
+           * which is why this is not a bare `raw_w > w`. */
+          const touches = (lo, size, limit) =>
+            typeof lo === "number" && typeof size === "number" &&
+            (lo <= 1e-6 || lo + size >= limit - 1e-6);
+          if (touches(s.x, s.w, CANVAS_W) && typeof s.raw_w === "number" &&
+              typeof s.w === "number" && s.raw_w <= s.w + 1e-6) {
+            bad.push(`raw_w ${s.raw_w} equals the ${s.w} px on the frame while the flight runs to a side edge — a body the frame cut is wider than what is left of it`);
+          }
+          if (touches(s.y, s.h, CANVAS_H) && typeof s.raw_h === "number" &&
+              typeof s.h === "number" && s.raw_h <= s.h + 1e-6) {
+            bad.push(`raw_h ${s.raw_h} equals the ${s.h} px on the frame while the flight runs to a top or bottom edge — a body the frame cut is taller than what is left of it`);
+          }
         }
         if (bad.length) flightTrouble.push(`flight ${JSON.stringify((s && s.id) ?? s)} — ${bad.join("; ")}`);
       }
@@ -1040,7 +1064,7 @@ export function validate(fixtureDir, records, derivedMetas) {
      * accident of the corpus rather than a clause, and an accident is worth
      * naming as one.
      *
-     * Recorded as residue in `design/architecture.md` and allocated its own row
+     * Recorded as residue in `design/architecture.md` and carried by ROW 28
      * rather than widened here: this row's subject is the way through that the
      * BUILDING carries, and reaching into the staging half is a different
      * clause against a different document. */
@@ -1077,19 +1101,29 @@ export function validate(fixtureDir, records, derivedMetas) {
          * by a character: this refuses more, never less. */
         const onW = Math.max(0, Math.min(hole.x + hole.w, CANVAS_W) - Math.max(hole.x, 0));
         const onH = Math.max(0, Math.min(hole.y + hole.h, CANVAS_H) - Math.max(hole.y, 0));
-        /* AND WHAT THE AUTHOR IS SUPPOSED TO DO ABOUT IT, said in the finding.
+        /* AND WHAT THE AUTHOR IS SUPPOSED TO DO ABOUT IT, said in the finding —
+         * differently for a door than for anything else, because the two are
+         * not in the same position.
          *
-         * The standpoint law slides the body to seat a door it can seat, so a
-         * finding here means the slide already tried and refused: there is no
-         * standable point on that wall from which this way through is reachable.
-         * When that happens the completeness clause is ALSO firing — the plan
-         * draws a way and the world must walk it, and walking it lands here —
-         * and the two are not a deadlock to be resolved by softening either.
-         * They are an unsatisfiable document being refused twice, loudly, and
-         * the only remedy is the plan's own geometry. The message says so
-         * rather than leaving a reader to discover it from two findings that
-         * look like they disagree. */
-        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it. The standpoint law found no standable point on that wall that seats it, so this way through cannot be made usable from any standpoint — move the opening or move the wall [row26:exit.opening_unusable]`);
+         * The standpoint law slides the body to seat a DOOR it can seat, so a
+         * door reaching this clause means the slide already tried and refused:
+         * there is no standable point on that wall from which it is reachable,
+         * and the completeness clause is ALSO firing — the plan draws a way and
+         * the world must walk it, and walking it lands here. That pair is not a
+         * deadlock to be resolved by softening either clause; it is an
+         * unsatisfiable document being refused twice, loudly, and the only
+         * remedy is the plan's own geometry.
+         *
+         * A FLIGHT OR A THRESHOLD IS NOT IN THAT POSITION, and telling its
+         * author "no standable point seats it" would be a claim nobody made:
+         * the slide's census is doors, for the measured reasons in
+         * `slideAlongWall`, so the law never considered this shape at all. The
+         * remedy is the same edit, and the sentence says which of the two
+         * states the reader is in rather than flattening them into one. */
+        const remedy = hole.kind === "door"
+          ? "The standpoint law found no standable point on that wall that seats it, so this way through cannot be made usable from any standpoint — move the opening or move the wall"
+          : `The standpoint law's slide considers doors only, so no standpoint it considered seats this ${hole.kind ?? "way through"} — move it, or move what it stands on`;
+        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it. ${remedy} [row26:exit.opening_unusable]`);
       }
     }
     const fromLoc = locations.get(ex.from);

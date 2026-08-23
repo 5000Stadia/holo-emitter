@@ -896,8 +896,9 @@ family — a guard measuring the thing it was handed rather than the thing it is
    `staging.outside_room` plus the coincidence that on `demo-study`'s walls the u-domain and the
    frame nearly agree; on a wide wall (the passage's north wall is 3810 px in a 1536 px frame) that
    coincidence fails and a leaf drawing 0.12 px on frame validates clean. The manor has no such
-   exit, so this is a latent hole rather than a live one — **named, not fixed**, and allocated its
-   own row: reaching into the staging half is a different clause against a different document.
+   exit, so this is a latent hole rather than a live one — **named, not fixed**, and carried by
+   **row 28** ("the leaf a frame can eat", allocated `a480f3c` from this row's critic): reaching
+   into the staging half is a different clause against a different document.
 
 ### What §12.5 lost, and what stands in its place
 

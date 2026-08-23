@@ -1501,8 +1501,15 @@ test.describe("law (a)'s third question: where along the wall the body stands", 
     }
     /* The document is legal — that is the point. Nothing upstream refuses it. */
     expect(validatePlan(p, WORLD, BY_ENTITY), "the doctored plan is a legal plan").toEqual([]);
-    /* The row's own law slid the facing, on a door, and took the flight with it. */
-    expect(r.facings.S.standpoint.x, "the slide fired on the door census").not.toBe(5.7);
+    /* The row's own law slid the facing, on a door, and took the flight with it.
+       BOTH NUMBERS NAMED: the room spans 0.6–9.4 so its cross-axis centre is
+       5.00, and the slide the door forces is 0.39 m of it. An earlier version of
+       this line asserted `not.toBe(5.7)` — a value neither the centred nor the
+       slid standpoint can ever hold, so it could not fail and the construction
+       would have kept passing if the slide had stopped firing entirely. */
+    const centred = (r.rect.x0 + r.rect.x1) / 2;
+    expect(centred, "the room's own cross-axis centre").toBe(5);
+    expect(r.facings.S.standpoint.x, "the slide fired on the door census").toBe(5.39);
     const m = deriveMeta(p, "stair_landing", "S");
     const flight = m.stairs.find((x) => x.id === "great_stair");
     expect(flight.raw_w, "the flight states the body it would draw").toBeGreaterThan(1000);
