@@ -500,11 +500,11 @@ reason in the code:
 **One round string, `"row23"`,** with `technique`, `variant`, `roll` and `camera` as fields.
 
 **(F17) The clock says out loud that it is not like-for-like.** The wave's 0-of-7, 0-of-7, 2-of-7 are
-*seven walls at one roll each*; row 23's are *four rolls of one wall*. The `clock` record carries
+*seven walls at one roll each*; row 23's are *four rolls of each of two walls*. The `clock` record carries
 `_not_comparable_because`, and the batch repeats it, because a number set beside another number reads
 as comparable whatever the prose says.
 
-### 5.4 The three measured components (F27, F12, F14, N5)
+### 5.4 The three measured components, per wall (F27, F12, F14, N5)
 
 **The second draft's `d_horizon` and `d_floor` are deleted** — an invented band filed under BAND6's
 authority. An absolute image row has no band derivable from the licence, and the floor-horizon
@@ -559,12 +559,12 @@ scoring it, the two-rulers problem has no victim.
 admitted.
 
 ```
-adherence_raw = 1 - mean( |d_focal|/0.08, |d_eye|/0.08, |d_hearth_edges|/324.4 )
+adherence_raw = 1 - mean( |d_focal|/0.08, |d_eye|/0.08, |d_carrier_edges|/tolerance )
 adherence_pct = 100 x max(0, adherence_raw)          # presentation only
 ```
 
 Ranking and medians use **`raw`**, unclamped, because the clamp collapses every bad roll to a tie at
-zero and destroys the ordering. **(N5) A roll whose hearth term is absent has no index at all** and
+zero and destroys the ordering. **(N5) A roll whose carrier term is absent has no index at all** and
 is listed in its own column with its reason. Averaging the two surviving terms would reward exactly
 the rolls whose obedience could not be verified; imputing a worst case would invent a number. Every
 technique's summary prints **"indexed j of admitted k"** so the shrinkage is visible rather than
