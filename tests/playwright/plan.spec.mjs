@@ -2681,17 +2681,37 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(header, "the ledger carries no header").toBeTruthy();
     expect(header._law, "the header cites the law the ledger answers to")
       .toMatch(/production-law\.md clause 2/);
+    /* [Row 23] THE THIRD KIND IS DELIBERATE AND THE LOCK MOVED WITH IT.
+       `scaffold_feature_absent` is a fact about a PAINTING - the feature the
+       scaffold declares is not inside the band the standing licence allows -
+       and it counts against its cell. It was added rather than folding the case
+       into `measurement_withheld`, which is a fact about OUR optics and counts
+       against nothing: a machine-readable kind that has quietly changed what it
+       asserts is worse than a missing one, and that is exactly why this
+       assertion is an equality rather than a subset. */
     expect(header._kinds && Object.keys(header._kinds).sort(),
-      "and names both kinds, because reading one as the other is the failure the class exists to prevent")
-      .toEqual(["generation_miss", "measurement_withheld"]);
+      "and names every kind, because reading one as another is the failure the class exists to prevent")
+      .toEqual(["generation_miss", "measurement_withheld", "scaffold_feature_absent"]);
     expect(Object.keys(header._rounds || {}).sort(),
-      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6"]);
+      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6", "row23"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3", "cand-6"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23"]);
+    /* [Row 23] AND A PASS IS NOT A MISS. The matrix puts twenty-four rolls in
+       this file and most of them are admitted; a ledger whose every line is a
+       miss cannot answer "is this getting better", which is production law
+       clause 4's whole acceptance metric. Admitted rolls are `roll` records and
+       are deliberately outside `ledger` above. */
+    const rolls = allLines.filter((r) => r._record === "roll");
+    expect(rolls.length, "row 23 admitted rolls but wrote none as `roll` records")
+      .toBeGreaterThan(0);
+    for (const r of rolls) {
+      expect(r.verdict, "a `roll` record is an admitted candidate").toBe("PASS");
+      expect(r.candidate, "a row-23 record names the candidate it read").toBeTruthy();
+    }
     /* [Standing-eye wave] AND THE CLOCK IS A RECORD IN THE LEDGER, because
        production law clause 5 says an improvement must clock as one and clause
        4's acceptance metric is the first-roll pass rate rising over time. A
