@@ -1042,19 +1042,26 @@ def wall_band_audit(L, cfg):
                  "px_per_m_at_wall, and none is."))
 
 
-def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64):
+def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64, with_error=False):
     """Independent, well-conditioned cross-check on the horizon.
 
     The side walls meet the ceiling along lines that run parallel to the view
     axis, so in a rectilinear image they converge on the principal point, which
     lies on the horizon. Fit both ramps outside the corners and intersect.
 
-    [row 32] `sigma_y_px` is new and nothing else here moved: the standard error
-    of the intersection's own row, propagated from the two fits' covariances.
-    An instrument that reports a horizon without reporting how well the picture
+    [row 32] `with_error` adds `sigma_y_px`, the standard error of the
+    intersection's own row propagated from the two fits' covariances. An
+    instrument that reports a horizon without reporting how well the picture
     fixed it cannot be asked whether the picture fixed it at all — which is the
     question that separates a painting the ruler and the perspective disagree
-    about from a painting neither of them could read."""
+    about from a painting neither of them could read.
+
+    IT IS OFF BY DEFAULT AND THAT IS NOT TASTE. The cand-1/2/3/6 corpora are
+    round-locked records — `plan.spec` re-runs each round and byte-compares the
+    result against what is committed — so a shared detector that quietly grows
+    a field rewrites four rounds of history to record a number those rounds
+    never read. The flag selects what is REPORTED; it changes no fit, no window
+    and no value, and the row-23 promotion is its only caller."""
     if cx0 is None or cx1 is None:
         return None
     half = 150
@@ -1111,11 +1118,13 @@ def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64):
     C[:2, :2] = cl
     C[2:, 2:] = cr
     var_y = float(dy @ C @ dy)
-    return dict(x=round(float(x), 1), y=round(float(y), 1),
-                left_slope=round(float(al), 4), right_slope=round(float(ar), 4),
-                left_n=nl, left_resid_px=round(sl, 2),
-                right_n=nr, right_resid_px=round(sr, 2),
-                sigma_y_px=round(float(np.sqrt(max(var_y, 0.0))), 2))
+    out = dict(x=round(float(x), 1), y=round(float(y), 1),
+               left_slope=round(float(al), 4), right_slope=round(float(ar), 4),
+               left_n=nl, left_resid_px=round(sl, 2),
+               right_n=nr, right_resid_px=round(sr, 2))
+    if with_error:
+        out["sigma_y_px"] = round(float(np.sqrt(max(var_y, 0.0))), 2)
+    return out
 
 
 def horizon_votes(L, ceil_y, floor_y, cx0, cx1):

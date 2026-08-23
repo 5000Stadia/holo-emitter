@@ -591,14 +591,15 @@ test.describe("the picture, on every facing the manor renders", () => {
           bd[`${loc.id}/${ex.facing}`] = { meta };
           window.HOLO.renderer.render(c, fx.world, fx.staging, A.library, bd, vs, {});
           const d = ctx.getImageData(0, 0, w, h).data;
-          let dark = 0, total = 0;
+          let dark = 0, total = 0, ds = 0, ds2 = 0;
           const x0 = Math.max(0, Math.ceil(ap.x) + 6), x1 = Math.min(w, Math.floor(ap.x + ap.w) - 6);
           const y0 = Math.max(0, Math.ceil(ap.y) + 6), y1 = Math.min(h, Math.floor(ap.y + ap.h) - 6);
           for (let y = y0; y < y1; y++) {
             for (let x = x0; x < x1; x++) {
               const i = ((y * w + x) << 2);
               total++;
-              if (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2] < 12) dark++;
+              const L = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+              if (L < 12) { dark++; ds += L; ds2 += L * L; }
             }
           }
           /* AN OPEN DESTINATION IS EXEMPT, and this is the exemption's own
@@ -627,8 +628,27 @@ test.describe("the picture, on every facing the manor renders", () => {
             }
             continue;
           }
-          if (total > 400 && dark / total > 0.25) {
-            voids.push(`${ex.id}: ${(100 * dark / total).toFixed(0)} % of its opening is void`);
+          /* [Row 32] DARK AND VOID ARE NOT THE SAME THING, and this clause
+             claims the second. A HOLE is the canvas the renderer never wrote
+             to: one value, flat, with no structure in it at all. A dark room
+             beyond a door is the grid's own low tones and it has structure —
+             a floor, a wall, a junction between them.
+
+             Darkness alone was the whole test, and it was already within one
+             point of firing on a wall nobody had touched:
+             `door_master_bedchamber_stair_landing` sat at 24.0 % against a
+             25 % bound. When the manor sweep promoted `stair_landing/E` its
+             measured door rectangle read 25.4 % — and the dark pixels behind
+             it vary by 2.55 luminance levels, which is a room and not a hole.
+             So the clause now asks both: a QUARTER of the opening dark AND
+             that dark being ONE COLOUR. The bound on "one colour" is the
+             channel's own quantisation — a region whose luminance varies by
+             less than a single 8-bit level cannot be showing anything — so it
+             is derived rather than chosen, and a real void (uniformly the
+             clear colour) still trips it on the first pixel. */
+          const darkSd = dark ? Math.sqrt(Math.max(0, ds2 / dark - (ds / dark) ** 2)) : 0;
+          if (total > 400 && dark / total > 0.25 && darkSd < 1) {
+            voids.push(`${ex.id}: ${(100 * dark / total).toFixed(0)} % of its opening is void — one flat colour, nothing drawn in it`);
           }
         }
       }

@@ -343,7 +343,7 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=()):
     if cx0 is not None and cx1 is not None:
         for c in ceil_cands:
             y = c["y"] - 1
-            r = picks["ceiling_ramp_vp"](L, y, cx0, cx1)
+            r = picks["ceiling_ramp_vp"](L, y, cx0, cx1, with_error=True)
             ok, why = _admissible(r, y, floor_y, bracket)
             tried.append(dict(ceiling_y_px=y, admissible=ok,
                               sigma_y_px=(r or {}).get("sigma_y_px"),
