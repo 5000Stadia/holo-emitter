@@ -105,12 +105,20 @@ tolerance turns row 26's constants red rather than silently decoupling them.
 
 ## 3. The tightened clause, stated
 
-**The predicate, one home.** `usablyInFrame(rect, canvasW, canvasH)` is exported from
+**The predicate.** `usablyInFrame(rect, canvasW, canvasH)` is exported from
 `tools/validate-plan.mjs`:
 
 > A way-through is usably in frame when the part of it inside the frame is at least
-> `min(rect.w, MIN_USABLE_APERTURE_PX)` wide **and** at least `min(rect.h, MIN_USABLE_APERTURE_PX)`
-> tall.
+> `min(what it draws, MIN_USABLE_APERTURE_PX)` wide **and** at least the same of it tall — where
+> "what it draws" is `raw_w`/`raw_h` on a shape that carries them and `w`/`h` on one that does not.
+
+**That distinction is not decoration; it is where this clause was defeated.** A door and a
+threshold state their own rectangle and let it run off the frame, so `w` is a claim about the
+building. A FLIGHT's rect is clamped to the canvas by `stairsForFacing` before anyone sees it, so
+`w` IS the on-frame width and the comparison read `onW >= onW`: an artifact critic pushed a
+staircase 98.7 % off frame and every check stayed green. Flights now carry their unclamped extent
+beside the clamped rect, from the same numbers, and `[row15:meta.stairs_list]` refuses a meta that
+drops them or claims a body narrower than the part of it on screen.
 
 `min(declared, bar)` and not the bar alone, deliberately, and this is the row's own done clause: the
 bar refuses a doorway the FRAME has eaten and does not refuse a doorway that is honestly small
@@ -120,10 +128,18 @@ they are unclipped and they are not this row's subject. A *fraction* bar was tri
 above 49.6 % would refuse a threshold that works today.
 
 **Two readers, not three.** The exit clause in `tools/validate-fixtures.mjs` (~line 1003), and the
-slide's own feasibility test (§4.1). **`waysThrough`'s `off` test stays LOOSE, exactly as it is
-today** (Navigator's ruling, F5): there is no deadlock to avoid, because a sliver a world walks is
-`[row26:exit.opening_unusable]` and a sliver no world walks is `[row15:exit.opening_unwalked]`, and
-both have real remedies — slide the standpoint, or walk the way. Leaving it loose is also what keeps
+slide's own feasibility test (§4.1) — which is a STRICTER predicate and not a second call to the
+same one (see §4.1's last paragraph). **`waysThrough`'s `off` test stays LOOSE, exactly as it is
+today** (Navigator's ruling, F5).
+
+**And the state where both clauses fire is real, so it is stated rather than denied.** An earlier
+draft of this file said "there is no deadlock". When the slide REFUSES and the way-through lands
+partly on frame, `[row15:exit.opening_unwalked]` demands the exit and `[row26:exit.opening_unusable]`
+refuses it, and no edit to the world satisfies both. That is correct behaviour — an unsatisfiable
+document should be refused loudly, from both directions — and the author's remedy is the plan's own
+geometry, not either clause. The unusable finding says so in its own words: *the standpoint law
+found no standable point on that wall that seats it, so this way through cannot be made usable from
+any standpoint — move the opening or move the wall.* Leaving the exemption loose is also what keeps
 §10's last sentence true: no exemption in this project widens by a character in this row.
 
 **Two tokens, not one widened token.** `[row21:exit.opening_offscreen]` keeps its exact predicate
@@ -211,6 +227,15 @@ return points are funnelled into one so the slide cannot be skipped on a path.
 > `[row26:exit.opening_unusable]` when a world walks them. No partial slide: a partial slide is a
 > picture that improves without satisfying the law, and it would hide the finding the law exists to
 > raise.
+
+**The slide's predicate is STRICTER than the clause's, and the two are bound by an asserted
+implication rather than by a shared call.** The slide asks for the whole door inside the frame with
+`FRAME_MARGIN_PX` beyond each jamb, because a standpoint being placed should aim at the good case,
+not at the least acceptable one; `usablyInFrame` asks only that enough of a way through survives
+for a hand. So slide-satisfied implies clause-satisfied and never the reverse, and that direction is
+asserted over the shipped corpus and over a door swept along the passage's whole north wall, so the
+two cannot drift apart in silence. (An earlier draft of this plan, and two comments in the code,
+claimed they were one function. They never were.)
 
 **There is no "too wide to fit" arm, and the reason is a number** (F1). The first draft carried a
 degraded arm for a way-through wider than the frame can hold. The census is doors; the widest door
@@ -542,11 +567,12 @@ memory of it.
 | worst doorway on frame | `door_hall_buttery_pantry` **54 of 476 px** (13.6 / 11.2 CSS px) | `door_entrance_court_dining_parlour` 67 of 67 px (17.0 / 13.9 CSS px) — whole, only distant |
 | of that doorway, the share answering a click | **10.5 %** | 93.1 % on both passage doors |
 | doorways the frame had eaten | 1 | **0** |
-| worst clickable share, anything | 32.4 % (`stair_stair_landing_great_stair_hall`) | 32.4 % — the same descending flight, untouched; row 25's |
+| worst clickable share, anything | **31.76 %** (`stair_stair_landing_great_stair_hall`, 20,115 of 63,336 drawn px) | 31.76 % — the same descending flight, untouched; row 25's |
 | median clickable share | 100 % | 100 % |
 
-The row's headline number (F9) is the worst clickable share: **32.4 %, and it is a staircase, not a
-doorway.** Every doorway in the manor now answers over its whole drawn area. The row's own text
+The row's headline number (F9) is the worst clickable share: **31.76 %, and it is a staircase, not
+a doorway** — 20,115 of that flight's 63,336 drawn pixels, by exact scan rather than by the sampled
+32.4 % this plan first quoted. Every doorway in the manor now answers over its whole drawn area. The row's own text
 quotes `op15` at "8 % clickable"; measured here over the declared aperture including its off-canvas
 part it is 10.5 % — the same defect, sampled slightly differently, and stated rather than rounded to
 match.

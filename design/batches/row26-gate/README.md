@@ -48,7 +48,7 @@ canvas and sampled for whether a click there travels:
 | worst doorway on frame | `hall → buttery` **54 of 476 px** (13.6 CSS px on a phone) | `entrance court → dining parlour` 67 of 67 px (17.0 CSS px) — whole, only distant |
 | of that worst doorway, how much answers a click | **10.5 %** | 93.1 % on both passage doors |
 | doorways the frame had eaten | 1 | **0** |
-| worst clickable share of anything | 32.4 % — the descending flight on the stair landing | 32.4 % — the same flight, untouched here; it is row 25's |
+| worst clickable share of anything | **31.76 %** — the descending flight on the stair landing (20,115 of 63,336 drawn px) | 31.76 % — the same flight, untouched here; it is row 25's |
 
 ## The one thing that needs your eye
 

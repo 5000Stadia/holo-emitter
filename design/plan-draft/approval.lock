@@ -114,6 +114,14 @@
 # The `pending` line below is re-derived rather than rewritten — the standpoint
 # table gained a `standpoint_offset_m` column so the clause could learn the new
 # family, and `plan.spec` computed the string it now carries.
+#
+# IT COUNTS PER FAMILY NOW, and that is a correction rather than a flourish. The
+# first version of the line read "the standpoint distances and the standpoints'
+# own lateral slides on 38 of the manor's 88 facings" — the union, true of
+# neither half: 38 distances moved at row 20 and TWO standpoints slid at row 26.
+# This line is the whole of what tells Kabe what to look for on a sheet, and a
+# count that overstates the smaller family nineteenfold sends him hunting for
+# markers that did not move.
 plan  ab40a48c212943e876910886fc03fc3eb80b081841357339d578e9fd3e003065  2026-08-21
 undrawn  61d2f004702e88b694a4d71898f64b3f009310045e6668e42635d61b7008ebf6
-pending  the standpoint distances and the standpoints' own lateral slides on 38 of the manor's 88 facings, changed since the sheet he approved
+pending  the standpoint distances on 38 and the standpoints' own lateral slides on 2 of the manor's 88 facings, changed since the sheet he approved

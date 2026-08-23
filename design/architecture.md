@@ -876,6 +876,29 @@ so the derived `pending` clause could learn the new family. The lens did not mov
 move, the camera did not turn, no room gained a second standpoint, and no refusal or exemption in
 the project widened.
 
+**Two things this row got wrong and an artifact critic found, kept here because both are the same
+family — a guard measuring the thing it was handed rather than the thing it is about.**
+
+1. **`usablyInFrame` could not fire on a staircase.** `stairsForFacing` clamps a flight's rect to
+   the canvas before anything sees it, so `onW >= min(w, 116)` read `onW >= onW`. The critic moved
+   `great_stair` to its room's west edge and `op18` to 8.18–9.18, and **row 26's own slide law —
+   a door census, blind to flights — carried the staircase off the frame by the letter of the law**:
+   4860 px of drawn body down to a 50 px wedge, 1 % of it on screen, 12.7 CSS px on a phone, with
+   the plan valid, both fixtures valid, the bake clean and 318 guard cases green. A flight now
+   carries `raw_w`/`raw_h` — its extent before the clamp, from the same numbers the clamp is made
+   of — and the clause measures against what the building DRAWS. `meta.stairs_list` refuses a meta
+   that drops them or claims a body narrower than the part of it on screen, so the fallback cannot
+   quietly reinstate the defect. The ledger gained a FLIGHT arm: its four existing arms all
+   doctored an opening, which is exactly why a delete-and-confirm-red missed this.
+2. **A leaf-via exit is not held on the frame by anything this row wrote, and the comment that
+   said otherwise is corrected.** All three arms of the exit clause sit behind `if
+   (!entities.has(ex.via))`. What actually keeps a leaf-via exit reachable today is
+   `staging.outside_room` plus the coincidence that on `demo-study`'s walls the u-domain and the
+   frame nearly agree; on a wide wall (the passage's north wall is 3810 px in a 1536 px frame) that
+   coincidence fails and a leaf drawing 0.12 px on frame validates clean. The manor has no such
+   exit, so this is a latent hole rather than a live one — **named, not fixed**, and allocated its
+   own row: reaching into the staging half is a different clause against a different document.
+
 ### What §12.5 lost, and what stands in its place
 
 **Clause (i) is retired** — *the wall in view fits the frame*, and its

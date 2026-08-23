@@ -35,10 +35,19 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
 import { metaForFacing as planMetaForFacing, waysThrough } from "./plan-projection.mjs";
-/* [Row 26] The one home of "enough of this way through is on screen for a hand
- * to land on it". The standpoint law's own slide reads the same function, so
- * the law that moves the body and the clause that judges where it ended up
- * cannot hold two readings of the same sentence. */
+/* [Row 26] The BAR — "enough of this way through is on screen for a hand to
+ * land on it" — which the exit clause below applies.
+ *
+ * THERE ARE TWO PREDICATES HERE, NOT ONE, and an earlier version of this
+ * comment claimed otherwise. `slideAlongWall` does NOT call this function: it
+ * asks something strictly stronger — the WHOLE door inside the frame with
+ * `FRAME_MARGIN_PX` beyond each jamb — because a standpoint is being placed
+ * and a placement should aim at the good case, not at the least acceptable
+ * one. So the relationship is an implication rather than an identity: anything
+ * the slide satisfies this clause also satisfies, and never the reverse. That
+ * implication is what must not drift, so it is asserted in `plan.spec.mjs`
+ * ("what the slide satisfies, the clause satisfies") rather than left to two
+ * comments agreeing with each other. */
 import { usablyInFrame, MIN_USABLE_APERTURE_PX } from "./validate-plan.mjs";
 
 /* Row 20: the ruled lens, from its one code home. */
@@ -1015,13 +1024,26 @@ export function validate(fixtureDir, records, derivedMetas) {
      * one countable thing the ledger can only ever exercise on whichever arm
      * its case reaches.
      *
-     * [ROW 26] AND THE `via`-IS-AN-ENTITY GATE BELOW IS DELIBERATE, not an
-     * oversight this clause's third arm inherits. Where `via` names a LEAF,
-     * the thing a player aims at is that entity's own §4 placement, which the
-     * staging clauses and `stagingDivergence` govern; the building's meta does
-     * not carry it and a frame test asked here would be interrogating the
-     * wrong document. `demo-study`'s two exits are leaf-vias, which is why
-     * that world is outside all three arms and must stay so. */
+     * [ROW 26] THE `via`-IS-AN-ENTITY GATE BELOW LEAVES A LEAF-VIA EXIT
+     * UNGUARDED BY THESE THREE ARMS, and the first version of this comment
+     * justified that with something that is not true.
+     *
+     * It said a leaf's aperture is governed by the staging clauses instead.
+     * What actually holds a leaf-via exit on the frame today is narrower than
+     * that: `staging.outside_room` refuses a placement addressed outside the
+     * room's own u-domain, and on `demo-study`'s walls the u-domain and the
+     * frame nearly coincide, so a leaf cannot be placed far enough out to be
+     * clipped. On a WIDE wall — the cross passage's 8.00 m north wall is 3810 px
+     * in a 1536 px frame — the u-domain runs well past both edges and that
+     * coincidence stops holding: a leaf-via exit whose leaf draws 0.12 px on
+     * frame validates clean. The manor has no such exit; the protection is an
+     * accident of the corpus rather than a clause, and an accident is worth
+     * naming as one.
+     *
+     * Recorded as residue in `design/architecture.md` and allocated its own row
+     * rather than widened here: this row's subject is the way through that the
+     * BUILDING carries, and reaching into the staging half is a different
+     * clause against a different document. */
     if (!entities.has(ex.via)) {
       const fs2 = ex.from + "/" + ex.facing;
       const m = metaForFacing(fs2, findings, derived);
@@ -1047,14 +1069,27 @@ export function validate(fixtureDir, records, derivedMetas) {
          * countable thing a ledger case can only ever exercise on whichever it
          * reaches first, which is the rule the paragraph above already states.
          *
-         * The predicate is `usablyInFrame` in `tools/validate-plan.mjs`, where
-         * the standpoint law's own slide reads it too — one home, so the law
-         * that MOVES the body and the clause that judges the result cannot
-         * come to disagree about what "in frame" means. The clause above is
-         * untouched by a character: this refuses more, never less. */
+         * The predicate is `usablyInFrame` in `tools/validate-plan.mjs`. The
+         * standpoint law's slide does not call it — it asks for the whole door
+         * plus a margin, which is strictly stronger — so what binds them is an
+         * asserted implication and not a shared call: a facing the slide
+         * satisfied passes this clause, always. The clause above is untouched
+         * by a character: this refuses more, never less. */
         const onW = Math.max(0, Math.min(hole.x + hole.w, CANVAS_W) - Math.max(hole.x, 0));
         const onH = Math.max(0, Math.min(hole.y + hole.h, CANVAS_H) - Math.max(hole.y, 0));
-        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it [row26:exit.opening_unusable]`);
+        /* AND WHAT THE AUTHOR IS SUPPOSED TO DO ABOUT IT, said in the finding.
+         *
+         * The standpoint law slides the body to seat a door it can seat, so a
+         * finding here means the slide already tried and refused: there is no
+         * standable point on that wall from which this way through is reachable.
+         * When that happens the completeness clause is ALSO firing — the plan
+         * draws a way and the world must walk it, and walking it lands here —
+         * and the two are not a deadlock to be resolved by softening either.
+         * They are an unsatisfiable document being refused twice, loudly, and
+         * the only remedy is the plan's own geometry. The message says so
+         * rather than leaving a reader to discover it from two findings that
+         * look like they disagree. */
+        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it. The standpoint law found no standable point on that wall that seats it, so this way through cannot be made usable from any standpoint — move the opening or move the wall [row26:exit.opening_unusable]`);
       }
     }
     const fromLoc = locations.get(ex.from);

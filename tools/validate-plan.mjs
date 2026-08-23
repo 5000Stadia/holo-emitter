@@ -324,11 +324,15 @@ export function wallFitsFrame(wallWidthM, distanceM, canvasW = PLAN_CANVAS_W) {
  * applying it to an aperture is an ANALOGY — the same hand, the same screen,
  * the same question "can a finger land on this exactly" — and it is written
  * here as an analogy rather than as a law row 2 already stated about doorways.
- * (2) Nothing in the manor turns on the exact values: the slide census is
- * invariant to FRAME_MARGIN_PX anywhere in [16, 52] and to
- * MIN_USABLE_APERTURE_PX in [95, 308]. What turns on them is only that the
- * numbers have a source, which `plan.spec.mjs` holds them to by re-reading
- * both CSS constants out of index.html and re-computing these ceilings.
+ * (2) WHICH facings slide does not turn on the exact values — the set is
+ * `hall/N` and `hall/S` and nothing else for FRAME_MARGIN_PX anywhere in
+ * [15, 53] and MIN_USABLE_APERTURE_PX in [95, 308] — but HOW FAR they slide
+ * does, and stating only the first would be the friendlier half of the truth:
+ * across that range `hall/N` moves 0.92–1.00 m and `hall/S` 1.42–1.50 m, and
+ * the drawn standpoints on a sheet Kabe glances at are those numbers. So the
+ * margin is not a free parameter; it is a small one whose only defence is that
+ * it is derived, which `plan.spec.mjs` holds it to by re-reading both CSS
+ * constants out of index.html and re-computing these ceilings.
  */
 export const FRAME_MARGIN_PX = 20;
 export const MIN_USABLE_APERTURE_PX = 116;
@@ -361,7 +365,7 @@ export const MIN_USABLE_APERTURE_PX = 116;
  * hand needs; what it is measured against has to be what the building draws,
  * not what the frame left of it. A meta that drops those fields, or claims a
  * body narrower than the part of it on screen, is refused by
- * `[row15:meta.stairs_list]` rather than falling quietly back to the defect.
+ * row 15's `meta.stairs_list` rather than falling quietly back to the defect.
  */
 export function usablyInFrame(rect, canvasW = PLAN_CANVAS_W, canvasH = PLAN_CANVAS_H) {
   const onW = Math.max(0, Math.min(rect.x + rect.w, canvasW) - Math.max(rect.x, 0));

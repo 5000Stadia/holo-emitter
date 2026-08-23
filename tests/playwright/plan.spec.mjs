@@ -1427,6 +1427,51 @@ test.describe("law (a)'s third question: where along the wall the body stands", 
     }
   });
 
+  /* TWO PREDICATES, AND THE IMPLICATION BETWEEN THEM IS THE THING TO HOLD.
+     The slide does not call `usablyInFrame`; it asks for the whole door inside
+     the frame with a margin beyond each jamb, which is strictly stronger,
+     because a standpoint being PLACED should aim at the good case and not at
+     the least acceptable one. Two comments once claimed they were one function
+     and they were not. What may never become false is the direction: a facing
+     the slide satisfied passes the clause. Asserted over the shipped corpus and
+     over a sweep of doors placed across a wall, so the two cannot drift apart
+     in silence — if the slide is ever loosened below the clause, this goes red
+     rather than a standpoint quietly landing somewhere the clause refuses. */
+  test("what the slide satisfies, the clause satisfies — over the manor and a swept wall", () => {
+    const check = (p2, roomId, facing) => {
+      const r2 = room(p2, roomId);
+      const fc = r2.facings[facing];
+      if (!fc || fc.standpoint_source === "drawn") return;
+      const sp = standpointFor(p2, r2, facing, p2.standpoint_stand_back,
+        p2.standpoint_threshold_clearance_m);
+      const before = JSON.stringify(fc.standpoint);
+      fc.standpoint = sp.point;
+      const m = deriveMeta(p2, roomId, facing);
+      const doors = m.openings.filter((o) => o.kind === "door");
+      /* Did the slide seat every door — its own, stronger bar? */
+      const seated = doors.every((o) =>
+        o.x >= FRAME_MARGIN_PX - 1e-6 && o.x + o.w <= PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      if (seated) {
+        for (const o of doors) {
+          expect(usablyInFrame(o, PLAN_CANVAS_W, PLAN_CANVAS_H),
+            `${roomId}/${facing} ${o.id}: the slide seated it and the clause refuses it`).toBe(true);
+        }
+      }
+      fc.standpoint = JSON.parse(before);
+    };
+    for (const r of PLAN.rooms) for (const f of FACINGS) check(clone(PLAN), r.id, f);
+    /* AND A SWEPT WALL, because the shipped corpus is one arrangement of doors
+       and the implication is a claim about all of them. The passage's north
+       door is walked from one end of its wall to the other, a decimetre at a
+       time, and every position where the slide succeeds is checked. */
+    for (let x0 = 31.2; x0 <= 37.8; x0 += 0.1) {
+      const p2 = clone(PLAN);
+      const op = p2.openings.find((o) => o.id === "op15");
+      op.rect = { ...op.rect, x0: +x0.toFixed(2), x1: +(x0 + 1).toFixed(2) };
+      check(p2, "hall", "N");
+    }
+  });
+
   /* A FLIGHT THE FRAME ATE, WHICH THIS CLAUSE COULD NOT SEE UNTIL AN ARTIFACT
      CRITIC BUILT IT. Row 26 shipped `usablyInFrame` comparing a flight's
      on-frame width against the flight's OWN RECT — and `stairsForFacing` clamps
@@ -3505,6 +3550,7 @@ test.describe("the schematic is a derived render of the plan", () => {
   function scopeFromDelta(then, now) {
     const moved = [], changedRows = new Set();
     for (const fam of FAMILIES) {
+      fam.rows = new Set();
       const j = now[0].indexOf(fam.column);
       if (j < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
       /* Each side read through ITS OWN header: a column inserted in the middle
@@ -3517,7 +3563,7 @@ test.describe("the schematic is a derived render of the plan", () => {
       let differs = then.length !== now.length;
       for (let r = 1; r < Math.min(then.length, now.length); r++) {
         const was = i < 0 ? fam.absentBaseline : then[r][i];
-        if (was !== now[r][j]) { differs = true; changedRows.add(r); }
+        if (was !== now[r][j]) { differs = true; changedRows.add(r); fam.rows.add(r); }
       }
       if (differs) moved.push(fam);
     }
@@ -3532,10 +3578,17 @@ test.describe("the schematic is a derived render of the plan", () => {
        to the sheet or the words are true wherever they are printed; this takes
        the second, and the test compares against the same scoping the sheet
        prints. */
-    const sentence = `${moved.map((f) => f.said).join(" and ")} on `
-      + `${changedRows.size} of the manor's ${now.length - 1} facings, `
+    /* [ROW 26] PER FAMILY, because the union is the number a reader believes.
+       The line said "the standpoint distances and the standpoints' own lateral
+       slides on 38 of the manor's 88 facings" — true of the union and false of
+       either half: 38 distances moved and TWO standpoints slid. Kabe reads this
+       sentence at the redline glance and it is the whole of what tells him what
+       to look for; a count that overstates the smaller family by nineteen times
+       sends him hunting the wrong sheet. */
+    const sentence = moved.map((f2) => `${f2.said} on ${f2.rows.size}`).join(" and ")
+      + ` of the manor's ${now.length - 1} facings, `
       + `changed since the sheet he approved`;
-    return { moved, sentence };
+    return { moved, sentence, changed: changedRows.size };
   }
 
   test("the pending clause is DERIVED from what moved — no sentence of anyone's carries the claim", () => {

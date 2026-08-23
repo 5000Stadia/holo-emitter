@@ -962,8 +962,8 @@ test.describe("§12.2 over a manor route, in both engines", () => {
 
   /* The route both clauses run on: out of the study, round the service range,
      up the great stair, along the gallery, down the back stair and home, then
-     in and out of the kitchen by the cross passage — twenty passages across
-     both floors. Turns included, because a turn is a
+     in and out of the kitchen by the cross passage — the ROUTE array's own
+     length of passages, across both floors. Turns included, because a turn is a
      picture too and clause 1 is about the SEQUENCE of them. */
   const ROUTE = ["door_study_hall", "door_hall_buttery_pantry",
     "door_buttery_pantry_servants_hall", "door_servants_hall_privy_garden",
@@ -975,8 +975,10 @@ test.describe("§12.2 over a manor route, in both engines", () => {
     "door_great_hall_entrance_court", "way_entrance_court_entrance_approach",
     "way_entrance_approach_entrance_court", "door_entrance_court_kitchen",
     /* [row 26] and out of the kitchen by the passage door, which is the way
-       row 26 gave back: nineteen passages, and the 56th exit is hashed like
-       the other 55 rather than being the one nobody replays. */
+       row 26 gave back — so the 56th exit is hashed like the other 55 rather
+       than being the one nobody replays. The count is not written in either
+       comment any more: it was twenty in one and nineteen in the other, over
+       an array of twenty, which is what a number restated twice does. */
     "door_kitchen_hall", "door_hall_kitchen"];
 
   async function hashes(page) {
