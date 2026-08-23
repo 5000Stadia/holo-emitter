@@ -269,12 +269,28 @@
     return meta.wall_width_m * meta.px_per_m_at_wall;
   }
 
+  /* [Row 26] How far the EYE stands to the side of the room's own cross-axis
+   * centre, in metres, signed the way `u` is. Zero everywhere but the two
+   * facings row 26's lateral slide moves, and absent from every meta that does
+   * not need it — so `|| 0` is the reading, not a default standing in for a
+   * missing field. */
+  function eyeOffsetM(meta) {
+    return (meta && typeof meta.eye_offset_m === "number") ? meta.eye_offset_m : 0;
+  }
+
   function wallCentrePx(meta, canvasW) {
     if (hasCorners(meta)) return (meta.corner_x0_px + meta.corner_x1_px) / 2;
     if (meta && meta.wall_x0_px != null) {
       return meta.wall_x0_px + meta.wall_width_m * meta.px_per_m_at_wall / 2;
     }
-    return canvasW / 2;
+    /* [Row 26] The wall's centre AT THE WALL PLANE, which is not the frame's
+     * centre once the eye has slid: a body δ metres to the right sees the
+     * wall's centre δ·px_per_m_at_wall pixels to the left. Corners and
+     * `wall_x0_px` already state that in pixels where they exist — a derived
+     * meta's corners come back through `xAtScale` at wall scale and carry it
+     * by construction, a measured one's are what someone measured off the
+     * painting — so this arm is the only one that has to add it. */
+    return canvasW / 2 - eyeOffsetM(meta) * meta.px_per_m_at_wall;
   }
 
   /**
@@ -285,10 +301,23 @@
    * The span is stated at the WALL plane and rescaled by s / px_per_m_at_wall,
    * which is the same thing the old `wall_width_m * s` said and stays true
    * when the span comes from measured corners instead of from a width.
+   *
+   * [ROW 26] AND THE LAST TERM IS THE EYE, WHICH IS NOT A PIXEL OFFSET. A body
+   * standing δ metres to the side of the room's axis moves a point at scale
+   * `s` by `−δ·s` — a DEPTH-DEPENDENT shift, because the eye is a position and
+   * not a slide of the picture. Shifting `wallCentrePx` alone moves every
+   * depth by the same pixel count, which is true only at the wall plane: the
+   * floor, the flights and everything standing in the room would shear against
+   * the wall behind them. So the wall-plane half lives in `wallCentrePx` and
+   * this term supplies the rest, `−δ·(s − px_per_m_at_wall)`, which is zero at
+   * the wall plane and zero on every meta with no offset. Together they are
+   * `canvasW/2 + ((u−0.5)·span_m − δ)·s`, whichever arm named the centre —
+   * so a meta whose corners already carry the shift is not counted twice.
    */
   function xAtScale(u, s, meta, canvasW) {
     return wallCentrePx(meta, canvasW) +
-      (u - 0.5) * wallSpanPxAtWall(meta) * (s / meta.px_per_m_at_wall);
+      (u - 0.5) * wallSpanPxAtWall(meta) * (s / meta.px_per_m_at_wall) -
+      eyeOffsetM(meta) * (s - meta.px_per_m_at_wall);
   }
 
   /**

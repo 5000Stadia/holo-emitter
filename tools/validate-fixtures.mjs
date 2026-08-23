@@ -35,6 +35,20 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
 import { metaForFacing as planMetaForFacing, waysThrough } from "./plan-projection.mjs";
+/* [Row 26] The BAR — "enough of this way through is on screen for a hand to
+ * land on it" — which the exit clause below applies.
+ *
+ * THERE ARE TWO PREDICATES HERE, NOT ONE, and an earlier version of this
+ * comment claimed otherwise. `slideAlongWall` does NOT call this function: it
+ * asks something strictly stronger — the WHOLE door inside the frame with
+ * `FRAME_MARGIN_PX` beyond each jamb — because a standpoint is being placed
+ * and a placement should aim at the good case, not at the least acceptable
+ * one. So the relationship is an implication rather than an identity: anything
+ * the slide satisfies this clause also satisfies, and never the reverse. That
+ * implication is what must not drift, so it is asserted in `plan.spec.mjs`
+ * ("what the slide satisfies, the clause satisfies") rather than left to two
+ * comments agreeing with each other. */
+import { usablyInFrame, MIN_USABLE_APERTURE_PX } from "./validate-plan.mjs";
 
 /* Row 20: the ruled lens, from its one code home. */
 const FOCAL_PX = createRequire(import.meta.url)("../src/groundplane.js").FOCAL_PX;
@@ -208,6 +222,9 @@ const META_KEYS = [
   "calibration_px", "camera_wall_m", "camera_far_m", "far_line",
   "facing_type", "wall_continuous", "wall_segments",
   "corner_x0_px", "corner_x1_px", "wall_x0_px", "storey_height_m",
+  // [row 26] where the eye stands along the wall, signed the way `u` is —
+  // absent, not zero, on every facing that stands on its room's own axis
+  "eye_offset_m",
   // provenance: which camera produced it, and whether it was MEASURED off a
   // painted backdrop (row 20) or derived from the plan
   "camera_id", "provisional", "measured", "backdrop",
@@ -478,6 +495,49 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
           }
           if (Array.isArray(s.poly) && s.poly.length < 3) {
             bad.push("poly is empty — a flight with no outline is a click target over bare floor");
+          }
+          /* [ROW 26] AND IT SAYS HOW BIG IT WOULD BE IF THE FRAME LET IT.
+           * `x/y/w/h` on a flight are already the intersection with the canvas,
+           * so they cannot say how much of the flight the frame ate — which is
+           * how row 26's usability clause came to be arithmetically incapable
+           * of firing on a staircase. `raw_w`/`raw_h` are the unclamped extent
+           * and the clause reads them; a meta that omits them, or claims a body
+           * SMALLER than the part of it on screen, would send the clause back
+           * to comparing a number with itself. */
+          for (const k of ["raw_w", "raw_h"]) {
+            if (typeof s[k] !== "number" || !isFinite(s[k]) || !(s[k] > 0)) {
+              bad.push(`${k} is ${JSON.stringify(s[k])} — a flight states the extent it would draw before the frame cut it`);
+            }
+          }
+          if (typeof s.raw_w === "number" && typeof s.w === "number" && s.raw_w < s.w - 1e-6) {
+            bad.push(`raw_w ${s.raw_w} is narrower than the ${s.w} px of it on the frame`);
+          }
+          if (typeof s.raw_h === "number" && typeof s.h === "number" && s.raw_h < s.h - 1e-6) {
+            bad.push(`raw_h ${s.raw_h} is shorter than the ${s.h} px of it on the frame`);
+          }
+          /* AND A FLIGHT CUT BY AN EDGE CLAIMS A BODY BIGGER THAN WHAT SURVIVED.
+           *
+           * `raw_w === w` is the same arithmetic the row was defeated by —
+           * `onW >= min(w, bar)` reading `onW >= onW` — arriving by a different
+           * door. `deriveMeta` cannot produce it where the frame actually cut
+           * something, because the clamp only bites when the extent runs past an
+           * edge. But a MEASURED meta is hand-authored JSON returned verbatim by
+           * tier 1, so a promoted backdrop of a stair room could carry a flight
+           * flush to the frame edge with an extent equal to the part on screen,
+           * and the usability clause would go quiet on it. The condition is
+           * where the equality is a LIE: a body touching an edge ran off it. A
+           * flight wholly inside the frame legitimately claims raw === clamped,
+           * which is why this is not a bare `raw_w > w`. */
+          const touches = (lo, size, limit) =>
+            typeof lo === "number" && typeof size === "number" &&
+            (lo <= 1e-6 || lo + size >= limit - 1e-6);
+          if (touches(s.x, s.w, CANVAS_W) && typeof s.raw_w === "number" &&
+              typeof s.w === "number" && s.raw_w <= s.w + 1e-6) {
+            bad.push(`raw_w ${s.raw_w} equals the ${s.w} px on the frame while the flight runs to a side edge — a body the frame cut is wider than what is left of it`);
+          }
+          if (touches(s.y, s.h, CANVAS_H) && typeof s.raw_h === "number" &&
+              typeof s.h === "number" && s.raw_h <= s.h + 1e-6) {
+            bad.push(`raw_h ${s.raw_h} equals the ${s.h} px on the frame while the flight runs to a top or bottom edge — a body the frame cut is taller than what is left of it`);
           }
         }
         if (bad.length) flightTrouble.push(`flight ${JSON.stringify((s && s.id) ?? s)} — ${bad.join("; ")}`);
@@ -986,7 +1046,28 @@ export function validate(fixtureDir, records, derivedMetas) {
      * `via` would become a doorway the player walks through in a blank wall.
      * The two arms carry two tokens, because one token over two behaviours is
      * one countable thing the ledger can only ever exercise on whichever arm
-     * its case reaches. */
+     * its case reaches.
+     *
+     * [ROW 26] THE `via`-IS-AN-ENTITY GATE BELOW LEAVES A LEAF-VIA EXIT
+     * UNGUARDED BY THESE THREE ARMS, and the first version of this comment
+     * justified that with something that is not true.
+     *
+     * It said a leaf's aperture is governed by the staging clauses instead.
+     * What actually holds a leaf-via exit on the frame today is narrower than
+     * that: `staging.outside_room` refuses a placement addressed outside the
+     * room's own u-domain, and on `demo-study`'s walls the u-domain and the
+     * frame nearly coincide, so a leaf cannot be placed far enough out to be
+     * clipped. On a WIDE wall — the cross passage's 8.00 m north wall is 3810 px
+     * in a 1536 px frame — the u-domain runs well past both edges and that
+     * coincidence stops holding: a leaf-via exit whose leaf draws 0.12 px on
+     * frame validates clean. The manor has no such exit; the protection is an
+     * accident of the corpus rather than a clause, and an accident is worth
+     * naming as one.
+     *
+     * Recorded as residue in `design/architecture.md` and carried by ROW 28
+     * rather than widened here: this row's subject is the way through that the
+     * BUILDING carries, and reaching into the staging half is a different
+     * clause against a different document. */
     if (!entities.has(ex.via)) {
       const fs2 = ex.from + "/" + ex.facing;
       const m = metaForFacing(fs2, findings, derived);
@@ -1001,6 +1082,48 @@ export function validate(fixtureDir, records, derivedMetas) {
       } else if (hole.x + hole.w <= 0 || hole.x >= CANVAS_W ||
                  hole.y + hole.h <= 0 || hole.y >= CANVAS_H) {
         findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, which is off the ${CANVAS_W}×${CANVAS_H} frame — a way through nobody can see or click [row21:exit.opening_offscreen]`);
+      } else if (!usablyInFrame(hole, CANVAS_W, CANVAS_H)) {
+        /* [ROW 26] AND A SLIVER IS ITS OWN BEHAVIOUR, WITH ITS OWN TOKEN. The
+         * clause above passed `op15` — the player's only route out of the boot
+         * pair — by 54 px of a 476 px doorway, 8 % of it clickable, unmarked on
+         * a near-black wall, and the Captain walked the manor and reported
+         * "Still just 2 rooms". Wholly-off and eaten-by-the-frame are two
+         * behaviours with two remedies (walk it elsewhere; slide the
+         * standpoint), so they are two tokens: one token over both is one
+         * countable thing a ledger case can only ever exercise on whichever it
+         * reaches first, which is the rule the paragraph above already states.
+         *
+         * The predicate is `usablyInFrame` in `tools/validate-plan.mjs`. The
+         * standpoint law's slide does not call it — it asks for the whole door
+         * plus a margin, which is strictly stronger — so what binds them is an
+         * asserted implication and not a shared call: a facing the slide
+         * satisfied passes this clause, always. The clause above is untouched
+         * by a character: this refuses more, never less. */
+        const onW = Math.max(0, Math.min(hole.x + hole.w, CANVAS_W) - Math.max(hole.x, 0));
+        const onH = Math.max(0, Math.min(hole.y + hole.h, CANVAS_H) - Math.max(hole.y, 0));
+        /* AND WHAT THE AUTHOR IS SUPPOSED TO DO ABOUT IT, said in the finding —
+         * differently for a door than for anything else, because the two are
+         * not in the same position.
+         *
+         * The standpoint law slides the body to seat a DOOR it can seat, so a
+         * door reaching this clause means the slide already tried and refused:
+         * there is no standable point on that wall from which it is reachable,
+         * and the completeness clause is ALSO firing — the plan draws a way and
+         * the world must walk it, and walking it lands here. That pair is not a
+         * deadlock to be resolved by softening either clause; it is an
+         * unsatisfiable document being refused twice, loudly, and the only
+         * remedy is the plan's own geometry.
+         *
+         * A FLIGHT OR A THRESHOLD IS NOT IN THAT POSITION, and telling its
+         * author "no standable point seats it" would be a claim nobody made:
+         * the slide's census is doors, for the measured reasons in
+         * `slideAlongWall`, so the law never considered this shape at all. The
+         * remedy is the same edit, and the sentence says which of the two
+         * states the reader is in rather than flattening them into one. */
+        const remedy = hole.kind === "door"
+          ? "The standpoint law found no standable point on that wall that seats it, so this way through cannot be made usable from any standpoint — move the opening or move the wall"
+          : `The standpoint law's slide considers doors only, so no standpoint it considered seats this ${hole.kind ?? "way through"} — move it, or move what it stands on`;
+        findings.push(`world.json: exit "${exId}" walks through ${fs2}'s opening "${hole.id ?? ex.via}" at ${Math.round(hole.x)},${Math.round(hole.y)} ${Math.round(hole.w)}×${Math.round(hole.h)}, of which only ${Math.round(onW)}×${Math.round(onH)} px are on the ${CANVAS_W}×${CANVAS_H} frame — under the ${MIN_USABLE_APERTURE_PX} px a hand can hit without the forgiveness a frame edge cannot give it. ${remedy} [row26:exit.opening_unusable]`);
       }
     }
     const fromLoc = locations.get(ex.from);

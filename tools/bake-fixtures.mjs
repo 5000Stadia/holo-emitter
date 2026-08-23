@@ -165,9 +165,17 @@ let plan;
    * fixture validator exempts these from its completeness clause — an opening
    * wholly off the frame cannot be a `go` target, and requiring an exit
    * through it would force `exit.opening_offscreen` to be widened. An
-   * exemption nobody prints is a hole; this is where it is printed. */
+   * exemption nobody prints is a hole; this is where it is printed.
+   *
+   * [ROW 26] THE MANOR'S ONE ENTRY IN THIS LIST IS GONE, and the warning that
+   * described it no longer tells the reader a human must redraw the plan. It
+   * used to name §4b item 9's multi-standpoint rooms as the fix; the actual
+   * fix was to tell the standpoint law where along the wall to stand, and
+   * `hall/S` now sees `op14` whole. The list itself stays, because a plan whose
+   * slide cannot satisfy every door still needs somewhere for its holes to be
+   * visible — and the first thing to try is named where a reader will need it. */
   for (const w of waysThrough(plan, parsed.world).offscreen) {
-    console.error(`plan warning: the plan draws a way from "${w.from}" to "${w.to}" through "${w.id}" that ${w.from}/${w.facing}'s own standpoint cannot see — its opening falls wholly off the frame, so no exit walks it and the room is entered another way (§4b item 9's multi-standpoint rooms are the fix, and they are drawn content)`);
+    console.error(`plan warning: the plan draws a way from "${w.from}" to "${w.to}" through "${w.id}" that ${w.from}/${w.facing}'s own standpoint cannot see — its opening falls wholly off the frame, so no exit walks it and the room is entered another way (row 26's lateral slide could not bring it into frame from anywhere this facing can stand)`);
   }
 
   /* Row 11: the §5 meta of every facing the world names, derived from the

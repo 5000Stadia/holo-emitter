@@ -502,20 +502,29 @@ export const LIT = {
      storey_height_m`, the same on both floors. */
   storey_height_m: 2.8,
 
-  /* [wall_width_m, camera_wall_m, facing_type], typed from the approved
-     standpoints table as row 20's standpoint law rebuilt it. study N/S and
-     hall N/S stand at the far side of their rooms because their walls do not
-     fit the frame from the drawn standpoint; study E/W and hall E/W keep the
-     drawn one because theirs do. study/S is 3.85 rather than 4.35 because the
-     chimney breast is behind you on that facing and you cannot stand in it. */
+  /* [wall_width_m, camera_wall_m, facing_type, standpoint_offset_m], typed from
+     the approved standpoints table as row 20's standpoint law rebuilt it and
+     row 26 extended it. study N/S and hall N/S stand at the far side of their
+     rooms because their walls do not fit the frame from the drawn standpoint;
+     study E/W and hall E/W keep the drawn one because theirs do. study/S is
+     3.85 rather than 4.35 because the chimney breast is behind you on that
+     facing and you cannot stand in it.
+
+     [ROW 26] AND THE FOURTH NUMBER IS WHERE ALONG THE WALL THE BODY STANDS.
+     The passage's two doors sit near one end of an 8.00 m room, so a viewer on
+     its cross-axis centre saw 54 px of a 476 px doorway; the standpoint law
+     slides the body instead. Typed from `design/plan-draft/standpoints.tsv`
+     like the distances beside it — the committed artifact, so a re-derivation
+     that moves it turns this file red rather than sliding through. Omitted
+     means zero, which is where 86 of the manor's 88 facings stand. */
   FACINGS: {
     "study/N": [5.45, 4.35, "enclosed"],
     "study/E": [4.80, 4.09, "enclosed"],
     "study/S": [5.45, 3.85, "enclosed"],
     "study/W": [4.80, 4.09, "enclosed"],
-    "hall/N": [8.00, 2.15, "enclosed"],
+    "hall/N": [8.00, 2.15, "enclosed", 0.93],
     "hall/E": [2.60, 6.00, "corridor"],
-    "hall/S": [8.00, 2.15, "enclosed"],
+    "hall/S": [8.00, 2.15, "enclosed", 1.43],
     "hall/W": [2.60, 6.00, "corridor"]
   },
   facingKeys() { return Object.keys(LIT.FACINGS); },
@@ -589,13 +598,19 @@ export const LIT = {
     const key = typeof f === "string" ? loc + "/" + f : loc;
     const row = LIT.FACINGS[key];
     if (!row) throw new Error("no test-side literals for " + key);
-    const [wall_width_m, camera_wall_m, facing_type] = row;
+    const [wall_width_m, camera_wall_m, facing_type, offset] = row;
     /* THE LENS: pixels per metre is a consequence of how far away the wall is,
        not a constant. This is row 20 in one line. */
     const px = LIT.focal_px / camera_wall_m;
     const half = (wall_width_m / 2) * px;
+    /* [Row 26] The eye's own displacement along the wall, in pixels at the
+       wall plane: the wall's centre sits that far to the other side of the
+       frame's centre, which is what moves the corners below. */
+    const eye = offset || 0;
+    const eyeShift = eye * px;
     return {
       key, wall_width_m, camera_wall_m, facing_type,
+      eye_offset_m: eye,
       storey_height_m: LIT.storey_height_m,
       px_per_m_at_wall: px,
       /* And so is the floor line: it sits eye-height below the horizon AT WALL
@@ -605,8 +620,8 @@ export const LIT = {
       px_per_m_at_bottom: LIT.px_per_m_at_bottom,
       horizon_y: LIT.horizon_y,
       image_h_px: LIT.H,
-      corner_x0_px: LIT.W / 2 - half,
-      corner_x1_px: LIT.W / 2 + half,
+      corner_x0_px: LIT.W / 2 - eyeShift - half,
+      corner_x1_px: LIT.W / 2 - eyeShift + half,
       /* The intention's "camera has feet" number: where the floor first
          appears in front of the viewer. Under a pinned lens it is
          `f / px_per_m_at_bottom` — the lens and the horizon decide it and the
@@ -662,7 +677,18 @@ export function mathFor(m) {
       return m.px_per_m_at_wall * m.camera_wall_m / (m.camera_wall_m - d);
     },
     yAtDepth(d) { return M.yAtS(M.sAtDepth(d)); },
-    xAtScale(u, s) { return centre + (u - 0.5) * span * (s / m.px_per_m_at_wall); },
+    /* [Row 26] The eye's own term, re-derived here rather than imported like
+       everything else in this file. A body δ metres to the side of the room's
+       axis moves a point at scale `s` by −δ·s; `centre` already carries the
+       wall-plane half of that (the corners are measured from the drawn sheet),
+       so what is left is the depth dependence, zero at the wall plane. Without
+       it this arithmetic would agree with the renderer on the wall and
+       disagree with it on the floor — which is the one place an independent
+       re-derivation is worth having. */
+    xAtScale(u, s) {
+      return centre + (u - 0.5) * span * (s / m.px_per_m_at_wall)
+        - (m.eye_offset_m || 0) * (s - m.px_per_m_at_wall);
+    },
     xAtU(u, y) { return M.xAtScale(u, M.sAtY(y)); },
     /* Full placement of a floor/wall entity from staging + record data.
      * A wall_mounted placement hangs ON the wall plane, so its scale is

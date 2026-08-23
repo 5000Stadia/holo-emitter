@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "16800300",
+  fp: "f9084a18",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -389,6 +389,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
           "to": "buttery_pantry",
           "arrive_facing": "N",
           "via": "op15"
+        },
+        {
+          "id": "door_hall_kitchen",
+          "from": "hall",
+          "facing": "S",
+          "to": "kitchen",
+          "arrive_facing": "S",
+          "via": "op14"
         },
         {
           "id": "door_hall_study",
@@ -766,11 +774,13 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_guest_chamber_stair_landing.refused_unreachable": "The door between the guest chamber and the stair landing is not the one before you.",
     "go.door_hall_buttery_pantry.arrive": "Out of the cross passage, you come into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.",
     "go.door_hall_buttery_pantry.refused_unreachable": "The way from the cross passage into the buttery and pantry is not before you.",
+    "go.door_hall_kitchen.arrive": "You turn out of the cross passage and the kitchen takes you in. Its heat reaches the doorway before you do, and under the heat is ash and scoured board. The doorway stands open behind you.",
+    "go.door_hall_kitchen.refused_unreachable": "The passage's own door into the kitchen is not the one before you.",
     "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.",
     "go.door_hall_study.refused_unreachable": "The way to the study is not before you; you must come to it first.",
     "go.door_kitchen_entrance_court.arrive": "The kitchen gives onto the entrance court, and you step through into it. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
     "go.door_kitchen_entrance_court.refused_unreachable": "The kitchen does not open into the entrance court from here.",
-    "go.door_kitchen_hall.arrive": "You come out of the kitchen into the cross passage. The air is cooler here, and moves. The passage runs away east and west, and the door you came by is not on either wall.",
+    "go.door_kitchen_hall.arrive": "You come out of the kitchen into the cross passage. The air is cooler here, and moves, and the passage runs away east and west. The doorway stands open behind you.",
     "go.door_kitchen_hall.refused_unreachable": "That way — the kitchen to the cross passage — lies elsewhere in the house.",
     "go.door_library_garden_room.arrive": "You cross out of the library and into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.",
     "go.door_library_garden_room.refused_unreachable": "You are not at the passage between the library and the garden room.",
@@ -920,6 +930,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 77.371545,
         "w": 566.807588,
         "h": 946.628455,
+        "raw_w": 4017.877973,
+        "raw_h": 1679.670714,
         "poly": [
           [
             969.192412,
@@ -1933,6 +1945,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 0,
         "w": 1536,
         "h": 1024,
+        "raw_w": 2004.425532,
+        "raw_h": 1220.085106,
         "poly": [
           [
             -245.106383,
@@ -3392,6 +3406,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 0,
         "w": 564.043956,
         "h": 1024,
+        "raw_w": 2612.497857,
+        "raw_h": 2267.1791630000002,
         "poly": [
           [
             -2048.453901,
@@ -4395,6 +4411,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 854.390515,
         "w": 566.807588,
         "h": 169.60948499999995,
+        "raw_w": 1697.7675400000003,
+        "raw_h": 1003.6473819999999,
         "poly": [
           [
             969.192412,
@@ -5037,6 +5055,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 877.228116,
         "w": 1536,
         "h": 146.771884,
+        "raw_w": 2004.425532,
+        "raw_h": 1169.133811,
         "poly": [
           [
             -245.106383,
@@ -6181,6 +6201,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 858.9,
         "w": 564.043956,
         "h": 165.10000000000002,
+        "raw_w": 1796.64849,
+        "raw_h": 1187.9953329999998,
         "poly": [
           [
             254.593407,
@@ -6872,7 +6894,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 227.5555555555556,
         "h": 455.1111111111111,
         "beyond_m": 2.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 1.43
       }
     ],
     "stairs": []
@@ -7895,6 +7917,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 194.9384,
         "w": 317.44,
         "h": 829.0616,
+        "raw_w": 4637.9323079999995,
+        "raw_h": 1488.109016,
         "poly": [
           [
             -4320.492308,
@@ -9238,6 +9262,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 0,
         "w": 272.87912099999994,
         "h": 1024,
+        "raw_w": 3929.655041,
+        "raw_h": 2493.217392,
         "poly": [
           [
             1263.120879,
@@ -10393,6 +10419,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 149.78,
         "w": 1117.090909,
         "h": 651.6363640000001,
+        "raw_w": 1117.090909,
+        "raw_h": 651.6363640000001,
         "poly": [
           [
             261.818182,
@@ -11985,23 +12013,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1580.0558139534883,
+    "corner_x1_px": 2230.1767441860466,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 0.93,
     "openings": [
       {
         "id": "op15",
         "kind": "door",
         "via": null,
-        "x": 1482.4186046511627,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
         "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 5.3,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -0.93
       }
     ],
     "stairs": []
@@ -12061,23 +12090,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1818.1953488372092,
+    "corner_x1_px": 1992.0372093023257,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 1.43,
     "openings": [
       {
         "id": "op14",
         "kind": "door",
         "via": null,
-        "x": 1720.5581395348836,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
-        "w": 476.2790697674418,
+        "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 9,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -1.43
       }
     ],
     "stairs": []
@@ -12165,7 +12195,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 157.78120184899848,
         "h": 315.5624036979969,
         "beyond_m": 2.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0.93
       }
     ],
     "stairs": []
@@ -13429,6 +13459,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 768.3784,
         "w": 317.44,
         "h": 255.62159999999994,
+        "raw_w": 3265.754607,
+        "raw_h": 1089.226032,
         "poly": [
           [
             -2948.314607,
@@ -14345,6 +14377,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 792.34,
         "w": 272.87912099999994,
         "h": 231.65999999999997,
+        "raw_w": 3929.655041,
+        "raw_h": 1119.2477,
         "poly": [
           [
             1623.208791,
@@ -15277,6 +15311,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "y": 727.998667,
         "w": 1117.090909,
         "h": 296.00133300000005,
+        "raw_w": 1117.090909,
+        "raw_h": 725.05406,
         "poly": [
           [
             261.818182,

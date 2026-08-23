@@ -429,12 +429,12 @@ export const ROUTES = {
   "hall/N": [R, { type: "go", exit: "door_study_hall" }, R, R, R]
 };
 
-/* THE FENCE. Row 26 slides the standpoints of these two facings, so their
- * `camera_wall_m` moves, their derived metas move, and any scaffold cut for
- * them now is stale the day that row lands. Its closing commit deletes these
- * two entries, and `scaffold.spec.mjs` turns red if it does not — the handshake
- * is mechanical rather than a note in a spec file that gets deleted with it. */
-export const PENDING_ROWS = { "hall/N": 26, "hall/S": 26 };
+/* THE FENCE. A facing goes here while an open row is about to move its
+ * standpoint — its derived meta would make any scaffold cut now stale the day
+ * that row lands. `scaffold.spec.mjs` turns red if an entry names a row the
+ * intention list no longer holds open, so the handshake is mechanical.
+ * Row 26 (hall/N, hall/S) closed 2026-08-24 and its entries left with it. */
+export const PENDING_ROWS = {};
 
 /* PIXELS NEVER CROSS THE BRIDGE. A 1536x1024 frame is 6.3 MB of RGBA, and
  * marshalling it to node as an array costs minutes per facing. Everything that

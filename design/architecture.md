@@ -803,6 +803,103 @@ drawn distance — rather than implicit in a rule that derives one position from
 wall's fit; and the fiction of travelling between nodes absorbs the displacement
 that free-look cannot hide. Residue item 3 carries the full table of numbers.
 
+### Where along the wall the body stands [row 26]
+
+The law above answers ONE question — how far back from the wall you stand — and for four rows
+nobody noticed it was only one. The other is where along that wall, and the answer was always
+"the room's own cross-axis centre", which is right until a room's doors are not at its centre.
+
+The cross passage is 8.00 m long and both its doors sit near one end. From the middle, at the
+ruled lens and 2.15 m off the wall, the buttery's doorway projected 476 px wide starting at
+x 1482 of 1536: **54 px of it on screen, 10.5 % of it answering a click**, unmarked on a
+near-black grid wall — and it was the player's only route out of the boot pair. The kitchen's
+door on the opposite wall did not appear at all. The Captain walked the deployed manor and
+reported "Still just 2 rooms". Every machine check in this project was green.
+
+> **The third branch.** After the distance branch fixes how far back a facing stands, the
+> standpoint slides along its own wall axis — the cross-axis coordinate only, so `camera_wall_m`
+> is never touched — by the LEAST whole centimetre that brings every door the plan draws on that
+> facing wholly into frame with `FRAME_MARGIN_PX` beyond each jamb. The standable band is part of
+> the feasible set, not a clamp applied afterwards: the slide is chosen inside the intersection of
+> the doors' fit intervals with the room's own cross span (inset by the same clearance the
+> threshold branch uses, less any masonry standing at that standpoint's depth). Where that
+> intersection holds no whole centimetre, **the facing keeps the centred standpoint** and the
+> doors that fail report themselves. No partial slide: a partial slide is a picture that improves
+> without satisfying the law, and it would hide the finding the law exists to raise.
+
+`slideAlongWall`, beside `distanceStandpoint` in `tools/validate-plan.mjs`, and the distance
+half's four exits funnel through it rather than returning past it. Two of the manor's 88 facings
+move: `hall/N` by 0.93 m and `hall/S` by 1.43 m, both along their own RIGHT. Nothing else in the
+building moves.
+
+**The census is doors, and the exclusions are measured rather than assumed.** A flight's rect is
+already clamped to the canvas, so "fully in frame" is vacuous for it, and its real body runs
+1797–4637 px wide on the four stair facings — no lateral slide contains that, and its on-frame
+extent (273–567 px) is three to six times the bar already. A threshold is the absence of a wall
+and the court mouth is 3095 px wide. Neither is a hole in the plane in front of you; the flight's
+hit region is row 25's.
+
+**The two numbers have a source: row 2's pointing tolerance.** `TAKEABLE_MARGIN_CSS` (4 CSS px,
+the forgiveness ring) and `SMALL_TARGET_CSS` (24 CSS px, *"big enough to answer for itself"*),
+converted at the narrowest stage width this suite drives (320 CSS px, so 4.8 canvas px per CSS
+px): `FRAME_MARGIN_PX` 20 and `MIN_USABLE_APERTURE_PX` 116. What connects them to a FRAME edge is
+that **at a clipped edge the ring is worth nothing** — there are no pointer events outside the
+canvas element, so the half of the ring past the edge can never be clicked, and a clipped aperture
+must satisfy row 2's UNFORGIVEN test instead. Applying a takeable's constant to a doorway is an
+analogy, said out loud where the constants live; `plan.spec` re-reads both out of `index.html` and
+re-computes the ceilings, so moving row 2's tolerance turns row 26 red rather than quietly
+decoupling.
+
+**`[row26:exit.opening_unusable]`** is the clause half: an exit's way through must be usably in
+frame — at least `min(declared, MIN_USABLE_APERTURE_PX)` of it on the canvas on both axes.
+`[row21:exit.opening_offscreen]` is untouched by a character; this refuses MORE. Two tokens
+because they are two behaviours with two remedies (walk it elsewhere; slide the body), which is
+the rule the arm above them already states. `waysThrough`'s own exemption test stays LOOSE
+deliberately: an exemption that grew would stop asking for exits through slivers, and a sliver
+nobody walks would become invisible instead of becoming `[row15:exit.opening_unwalked]`.
+
+**The picture side is one term, and it is not a pixel offset.** `groundplane.xAtScale` gained
+`− eye_offset_m · (s − px_per_m_at_wall)`, with the wall-plane half in `wallCentrePx`. A body δ
+metres to the side moves a point at scale `s` by `−δ·s`, so the shift is depth-dependent: the
+passage's press stands 1.55 m in front of that wall and moves 1587 px where the wall moves 443.
+The term is zero at the wall plane and zero on every meta without an offset, so it moves no pixel
+anywhere else in the product, and it does not double-count against a meta whose corners already
+carry the shift. `eye_offset_m` is emitted only where it is non-zero — two metas — and is read off
+the DRAWN standpoint, so a `drawn` standpoint (§4b item 9's reserved rooms) would draw correctly
+the day one is authored. **Staged `u` does not move**: the eye term is common to both ends of the
+u-domain and cancels exactly, which is why `staging.json` is untouched by a slide rather than
+merely unedited.
+
+**What this cost, and what it did not.** The sheets re-render with two markers moved, print
+UNAPPROVED REVISION, and go back to Kabe; `standpoints.tsv` gained a `standpoint_offset_m` column
+so the derived `pending` clause could learn the new family. The lens did not move, the eye did not
+move, the camera did not turn, no room gained a second standpoint, and no refusal or exemption in
+the project widened.
+
+**Two things this row got wrong and an artifact critic found, kept here because both are the same
+family — a guard measuring the thing it was handed rather than the thing it is about.**
+
+1. **`usablyInFrame` could not fire on a staircase.** `stairsForFacing` clamps a flight's rect to
+   the canvas before anything sees it, so `onW >= min(w, 116)` read `onW >= onW`. The critic moved
+   `great_stair` to its room's west edge and `op18` to 8.18–9.18, and **row 26's own slide law —
+   a door census, blind to flights — carried the staircase off the frame by the letter of the law**:
+   4860 px of drawn body down to a 50 px wedge, 1 % of it on screen, 12.7 CSS px on a phone, with
+   the plan valid, both fixtures valid, the bake clean and 318 guard cases green. A flight now
+   carries `raw_w`/`raw_h` — its extent before the clamp, from the same numbers the clamp is made
+   of — and the clause measures against what the building DRAWS. `meta.stairs_list` refuses a meta
+   that drops them or claims a body narrower than the part of it on screen, so the fallback cannot
+   quietly reinstate the defect. The ledger gained a FLIGHT arm: its four existing arms all
+   doctored an opening, which is exactly why a delete-and-confirm-red missed this.
+2. **A leaf-via exit is not held on the frame by anything this row wrote, and the comment that
+   said otherwise is corrected.** All three arms of the exit clause sit behind `if
+   (!entities.has(ex.via))`. What actually keeps a leaf-via exit reachable today is
+   `staging.outside_room` plus the coincidence that on `demo-study`'s walls the u-domain and the
+   frame nearly agree; on a wide wall (the passage's north wall is 3810 px in a 1536 px frame) that
+   coincidence fails and a leaf drawing 0.12 px on frame validates clean. The manor has no such
+   exit, so this is a latent hole rather than a live one — **named, not fixed**, and carried by
+   **row 28** ("the leaf a frame can eat", allocated `a480f3c` from this row's critic): reaching
+   into the staging half is a different clause against a different document.
+
 ### What §12.5 lost, and what stands in its place
 
 **Clause (i) is retired** — *the wall in view fits the frame*, and its
@@ -1250,14 +1347,17 @@ have honoured, and no pointer path to it); the keyboard go-control follows the s
 empty painted room is not walkable by mouse alone. A typo in `via` cannot become a way through a
 blank wall: the fixture validator refuses an exit whose `via` resolves to neither a staged
 transition entity nor an opening the facing's meta carries (`[row21:exit.via_unfilled]`), and one
-whose opening is off the frame (`[row21:exit.opening_offscreen]`).
+whose opening is off the frame (`[row21:exit.opening_offscreen]`), and one whose opening is on
+the frame by too little of itself to hit (`[row26:exit.opening_unusable]` — see *Where along the
+wall the body stands*).
 
 **A meta carries every door the plan puts on that facing, and the renderer cuts a hole only where
 the WORLD says there is a way through.** The cross passage's north wall carries `op15` and its south
 wall `op14`. **Neither is named by an exit of the DEMO world**, which is the two-room fixture this
-paragraph was written about; the manor world walks through `op15` and cannot walk through `op14`
-(its own standpoint cannot see it — see *The manor walkable*). In the demo world they appear in the
-meta as geometry with `via: null`
+paragraph was written about; the manor world walks through both since row 26 slid the passage's two
+long standpoints (before it, `op14` fell wholly off the frame and no exit could walk it — see *Where
+along the wall the body stands*). In the demo world they appear in the meta as geometry with
+`via: null`
 and are painted as plain wall, which is row 11's omission census unchanged (`geometry.spec` computes
 that list from the plan and pins it, so a carrier the plan gains cannot quietly become blank wall).
 Neither reading of the alternative is available: cutting them would show void through a doorway the
@@ -2027,7 +2127,8 @@ facing, by kind, so neither can move unnoticed.
 ## The manor walkable (rows 15 and 19) — twenty-two rooms, and the two other ways through a building
 
 **The navigation world is the whole manor now.** `fixtures/nav-manor/` holds 22 locations × 4
-facings and **55 exits**, projected from the same `fixtures/demo-study/plan.json` through its
+facings and **56 exits** (55 until row 26 gave the passage back its door into the kitchen),
+projected from the same `fixtures/demo-study/plan.json` through its
 `plan.ref`. Nothing is staged in it: it is the manor with nothing in it, which is what the bare link
 serves. The furnished demo world at `?world=demo-study` is untouched — §12's acceptance is two
 furnished rooms and the row text says so.
@@ -2188,21 +2289,29 @@ the plan DRAWS and the world never opens. Two clauses close that:
 **The exemption is computed, not carved.** `waysThrough` in `tools/plan-projection.mjs` is the one
 home of both lists, and a way whose opening falls WHOLLY off the frame from the standpoint that
 would view it is exempt — because `[row21:exit.opening_offscreen]` refuses a `go` target nobody can
-reach, and requiring an exit through it would force that clause to be widened. The manor has exactly
-one: **`op14`, `hall → kitchen`**. The cross passage is 8.00 m long, the pinned lens shows 3.2 m of
-it from the drawn standpoint, and the kitchen's door lands 185 px past the right edge. So the manor
-has 55 exits and not 56, the kitchen is entered from the entrance court instead, and the bake prints
-the exemption as a plan warning every time. §4b item 9's multi-standpoint rooms are its fix and they
-are drawn content.
+reach, and requiring an exit through it would force that clause to be widened.
 
-**The reverse direction is unaffected**: `kitchen/N` sees the same opening at 476 px/m and
-`door_kitchen_hall` walks. A passage that works one way and not the other is ugly and it is honest —
-from the middle of the passage you cannot see that door.
+**[ROW 26] THE MANOR'S LIST IS NOW EMPTY, and the paragraph that stood here was wrong about the
+fix.** It read: the manor has exactly one exemption, `op14` `hall → kitchen`, whose door lands
+185 px past the right edge, so the manor has 55 exits and not 56 and the kitchen is entered from
+the court instead — "§4b item 9's multi-standpoint rooms are its fix and they are drawn content".
+The first half was measurement and it was true. The second half was a guess and it was false: the
+standpoint law can be told WHERE ALONG A WALL to stand, which is one derived clause and no drawn
+content at all. `hall/S` stands 1.43 m along its own wall now, `op14` is in frame whole,
+`[row15:exit.opening_unwalked]` then demanded the exit that had been missing, and the manor walks
+**56**. The exemption MECHANISM stays — a plan whose slide cannot satisfy every door still needs
+somewhere for its holes to be visible, and the bake still prints them — but on this corpus it
+prints nothing.
+
+**The reverse direction was never affected**: `kitchen/N` always saw the same opening at 476 px/m
+and `door_kitchen_hall` always walked. For four rows the passage worked one way and not the other,
+which was recorded here as "ugly and honest". It was ugly; what made it honest was saying so, and
+what made it fixable was measuring it.
 
 ### Reachability is a hand, not a graph
 
 `world.rooms_unreachable` is satisfied by connectivity while a phone player cannot hit a door.
-Measured at 390×844 over all 55 exits: **29 are under the 44 CSS px platform minimum**, 10 under 24,
+Measured at 390×844 over all 56 exits: **29 are under the 44 CSS px platform minimum**, 10 under 24,
 and the narrowest is 17 × 34 — the entrance court's flanks, whose standpoint stands 15.30 m off its
 own wall. Three things follow and none of them is a widened tolerance:
 
@@ -2305,7 +2414,7 @@ second copy of a fact this project already keeps once.
   these eight and no others (below);
 - the ways through and the one exemption;
 - the flight's treads predicted and measured;
-- never-void through all 55 doorways, with the open-destination exemption stated;
+- never-void through all 56 doorways, with the open-destination exemption stated;
 - **"leave a room and return"** measured where it can fail: in `nav-manor` — no entities, empty
   knowledge, a viewstate of exactly `{location, facing}` — a hash identity across a round trip
   cannot fail and is §12.2 restated. So it runs in a staged tree carrying the demo world's entities
@@ -2607,7 +2716,8 @@ in the floor that `well_poly` never builds for a descending flight. Round four c
 sentences found and fixed; there were nine.
 
 **What is nonetheless true of the artifact**, verified by the fourth critic independently: all 22
-rooms reachable, orientation law holding on all 55 exits including all four stair exits, "leave a
+rooms reachable, orientation law holding on all 55 exits including all four stair exits (56 since
+row 26), "leave a
 room and return" holding with an identical picture hash across a round trip, 1340 passed / 14
 skipped in both engines, all 14 batch frames byte-identical to a fresh capture, all nine reinstated
 defects confirmed red, no page overflow and no stray scroll at any facing, and the four

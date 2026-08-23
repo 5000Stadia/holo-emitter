@@ -36,7 +36,8 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { validate } from "../../tools/validate-fixtures.mjs";
-import { validatePlan, drawn, MIN_STANDOFF_M } from "../../tools/validate-plan.mjs";
+import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
+  PLAN_CANVAS_W as CANVAS_W, PLAN_CANVAS_H as CANVAS_H } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
 
 const require = createRequire(import.meta.url);
@@ -241,6 +242,9 @@ export const MECHANISMS = [
   "staging.pair_half_missing",
   "exit.via_unfilled",
   "exit.opening_offscreen",
+  /* [row 26] and the sliver the clause above passes: a way through with less of
+     itself on the frame than a hand can hit unaided */
+  "exit.opening_unusable",
   "meta.required_fields",
   "meta.unknown_key",
   "meta.storey_height",
@@ -468,6 +472,54 @@ const DOCUMENT_CASES = {
     below_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = 4000; }); }),
     above_the_frame: () => tokensFromNavMetas((m) => { forEachOpening(m, (o) => { o.y = -o.h - 10; }); })
   }),
+  /* [ROW 26] AND THE SLIVER, WHICH THE CLAUSE ABOVE PASSED BY 54 PX. `op15` —
+     the player's only way out of the boot pair — drew 476 px of doorway with 54
+     of them on the frame, 8 % of it clickable, and the off-frame clause said
+     yes because the rectangle was not WHOLLY off. That is a different behaviour
+     from "nobody can see it" and it carries its own token, exactly as
+     `exit.via_unfilled`'s two arms do.
+
+     FOUR EDGES AGAIN, and for the reason the arms above already record: a
+     critic dropped the vertical half of that clause and the suite stayed green.
+     A doorway with a hand's-width of itself below the top edge is as unreachable
+     as one past the side, and neither is caught by the other's arm.
+
+     Each arm leaves MIN_USABLE_APERTURE_PX − 1 px of the opening on the frame,
+     so it fails this clause and passes the one above — which is what makes the
+     two tokens distinguishable rather than one clause with two spellings. */
+  "exit.opening_unusable": () => everyArm("exit.opening_unusable", {
+    sliver_right: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.x = CANVAS_W - (MIN_USABLE_APERTURE_PX - 1);
+    })),
+    sliver_left: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.x = MIN_USABLE_APERTURE_PX - 1 - o.w;
+    })),
+    sliver_top: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.y = MIN_USABLE_APERTURE_PX - 1 - o.h;
+    })),
+    sliver_bottom: () => tokensFromNavMetas((m) => forEachOpening(m, (o) => {
+      o.y = CANVAS_H - (MIN_USABLE_APERTURE_PX - 1);
+    })),
+    /* AND A FLIGHT, WHICH IS WHY THIS ARM EXISTS AT ALL. Every arm above
+       doctors an OPENING, and that is exactly how row 26 shipped a clause
+       arithmetically incapable of firing on a staircase: `stairsForFacing`
+       clamps a flight's rect to the canvas before anyone sees it, so the
+       comparison read `onW >= onW` and a three-pixel wedge passed. An artifact
+       critic found it by construction — a flight carried 98.7 % off the frame
+       with the plan valid, both fixtures valid and 318 guard cases green.
+       A ledger whose arms all doctor the same shape can only ever prove the
+       clause reaches that shape. */
+    a_flight_the_frame_ate: () => tokensFromNavMetas((m) => {
+      for (const key of Object.keys(m)) {
+        for (const s of (m[key].stairs || [])) {
+          /* The body it would draw is left alone; only what survives the frame
+             shrinks, which is what a flight run off the edge looks like. */
+          s.x = CANVAS_W - (MIN_USABLE_APERTURE_PX - 1);
+          s.w = MIN_USABLE_APERTURE_PX - 1;
+        }
+      }
+    })
+  }),
   /* [Round 5] ONE HALF OF A NAMED PAIR. Row 21 added an exemption above this
      for a world holding NEITHER half — the painted world stages no furniture —
      and said in the same breath that a world holding ONE half "is still the
@@ -660,7 +712,23 @@ const DOCUMENT_CASES = {
     no_treads: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ treads: 2.5 })]; }),
     no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ poly: [] })]; }),
     broken_ring: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
-    point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; })
+    point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; }),
+    /* [ROW 26] AND THE TWO WAYS A FLIGHT CAN STOP SAYING HOW BIG IT IS.
+       `x/y/w/h` on a flight are the intersection with the canvas, so the
+       usability clause reads `raw_w`/`raw_h` instead — and both of the levers
+       that would hand it back the clamped number are shut here rather than
+       trusted to stay unreachable. A DERIVED meta cannot pull either; a
+       measured one is hand-authored JSON that tier 1 returns verbatim, so a
+       promoted backdrop of a stair room is exactly where they would arrive. */
+    no_body_before_the_clamp: () => tokensFromMetas((m) => {
+      m["study/S"].stairs = [flight({ raw_w: undefined })];
+    }),
+    a_cut_body_claiming_it_was_not_cut: () => tokensFromMetas((m) => {
+      /* Flush to the right edge, and claiming the part on screen IS the whole
+         flight — which makes `onW >= min(raw_w, bar)` read `onW >= onW` again,
+         the very arithmetic an artifact critic defeated this row with. */
+      m["study/S"].stairs = [flight({ x: 1236, w: 300, raw_w: 300 })];
+    })
   }),
   "plan.stair_directions": () => {
     /* The flight kept where it is drawn and told it is climbed ACROSS its own
@@ -798,6 +866,10 @@ const flight = (over) => ({
   id: "great_stair", kind: "stair", via: null, direction: "up", treads: 17,
   rise_m: 2.8, u0: 0.1, u1: 0.3, depth_near_m: 5, depth_far_m: 0.2,
   x: 10, y: 200, w: 300, h: 700,
+  /* [row 26] the body before the clamp. This one is wholly inside the frame,
+     so nothing was cut and the two legitimately agree; a flight touching an
+     edge may not say that, which is its own arm below. */
+  raw_w: 300, raw_h: 700,
   poly: [[10, 200], [10, 900], [310, 900], [310, 200]],
   floor_poly: [[10, 700], [10, 900], [310, 900], [310, 700]],
   well_poly: [[10, 100], [10, 300], [310, 300], [310, 100]],

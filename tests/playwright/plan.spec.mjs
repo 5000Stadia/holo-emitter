@@ -18,9 +18,11 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { validate as validateFixture } from "../../tools/validate-fixtures.mjs";
 import {
   validatePlan, planWarnings, drawn, ruleStandpoint, measuredDistance,
-  facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions
+  facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions,
+  usablyInFrame, MIN_USABLE_APERTURE_PX, FRAME_MARGIN_PX, PLAN_CANVAS_W, PLAN_CANVAS_H
 } from "../../tools/validate-plan.mjs";
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
@@ -1248,21 +1250,33 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
   test("all 88 facings agree with the approved standpoints.tsv", () => {
     const lines = readFileSync(join(draftDir, "standpoints.tsv"), "utf8").trim().split("\n");
     const header = lines.shift().split("\t");
-    expect(header.slice(0, 7)).toEqual([
-      "floor", "room", "room_type", "facing", "facing_type", "camera_wall_m", "wall_width_m"]);
+    /* [Row 26] The table answers the standpoint law's two questions now, so it
+       carries the lateral offset beside the distance — and this case checks it
+       against the derived meta's own `eye_offset_m`, which is the number the
+       PICTURE is drawn from. A sheet whose table said one thing while the
+       renderer stood somewhere else is precisely the split the table exists to
+       make impossible. */
+    expect(header.slice(0, 8)).toEqual([
+      "floor", "room", "room_type", "facing", "facing_type", "camera_wall_m",
+      "standpoint_offset_m", "wall_width_m"]);
     expect(lines.length).toBe(88);
-    let checked = 0;
+    let checked = 0, slid = 0;
     for (const line of lines) {
-      const [floor, name, roomType, facing, facingType, cam, ww] = line.split("\t");
+      const [floor, name, roomType, facing, facingType, cam, off, ww] = line.split("\t");
       const r = PLAN.rooms.find((x) => x.floor === floor && x.name === name);
       expect(r, `${floor}/${name}`).toBeTruthy();
       expect(r.type).toBe(roomType);
       const m = deriveMeta(PLAN, r.id, facing);
       expect(m.facing_type, `${name}/${facing} type`).toBe(facingType);
       expect((m.camera_wall_m ?? m.camera_far_m).toFixed(2), `${name}/${facing} camera_wall_m`).toBe(cam);
+      expect((m.eye_offset_m || 0).toFixed(2), `${name}/${facing} standpoint_offset_m`).toBe(off);
       expect(m.wall_width_m.toFixed(2), `${name}/${facing} wall_width_m`).toBe(ww);
+      if (Number(off) !== 0) slid++;
       checked++;
     }
+    /* And the manor's two slid facings are named in the table rather than
+       hiding inside a column of zeroes. */
+    expect(slid, "the cross passage's two long facings, and nothing else in the manor").toBe(2);
     expect(checked).toBe(88);
   });
 
@@ -1291,6 +1305,292 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
         expect(fc[fc.type === "open" ? "camera_wall_m" : "camera_far_m"]).toBeUndefined();
       }
     }
+  });
+});
+
+/* ------------------------------------- [row 26] the standpoint law's third branch */
+
+test.describe("law (a)'s third question: where along the wall the body stands", () => {
+  /* THE TWO NUMBERS HAVE A SOURCE, AND THIS IS THE WIRE TO IT. Row 2's
+     pointing tolerance is two constants in index.html; row 26's two are those
+     converted at the narrowest stage width the suite drives. Re-read and
+     re-computed here so that moving row 2's tolerance turns row 26 red rather
+     than leaving two numbers that USED to be derived. */
+  test("the frame margin and the usable minimum are row 2's tolerance, converted", () => {
+    const src = readFileSync(join(repoRoot, "index.html"), "utf8");
+    const one = (name) => {
+      const hits = [...src.matchAll(new RegExp(`var ${name} = (\\d+);`, "g"))];
+      expect(hits.length, `index.html defines ${name} exactly once`).toBe(1);
+      return Number(hits[0][1]);
+    };
+    const ring = one("TAKEABLE_MARGIN_CSS");     // row 2's forgiveness ring
+    const unforgiven = one("SMALL_TARGET_CSS");  // row 2's "big enough to answer for itself"
+    /* The narrowest width this product is driven at anywhere in its own suite.
+       Read out of the specs rather than typed, so a case that starts driving a
+       narrower phone moves the constants instead of quietly invalidating
+       them. */
+    const widths = [];
+    for (const f of readdirSync(join(repoRoot, "tests", "playwright"))) {
+      if (!f.endsWith(".mjs")) continue;
+      const s = readFileSync(join(repoRoot, "tests", "playwright", f), "utf8");
+      for (const m of s.matchAll(/width:\s*(\d{3,4})\s*,\s*height:/g)) widths.push(Number(m[1]));
+    }
+    const narrowest = Math.min(...widths);
+    expect(narrowest, "the suite's narrowest driven viewport").toBe(320);
+    expect(FRAME_MARGIN_PX, "the forgiveness ring, in canvas px at the narrowest stage")
+      .toBe(Math.ceil(ring * PLAN_CANVAS_W / narrowest));
+    expect(MIN_USABLE_APERTURE_PX, "row 2's unforgiven size, in canvas px at the narrowest stage")
+      .toBe(Math.ceil(unforgiven * PLAN_CANVAS_W / narrowest));
+  });
+
+  test("the manor's two slid facings are exactly the two whose doors ran off the frame", () => {
+    const slid = [];
+    for (const r of PLAN.rooms) {
+      for (const f of FACINGS) {
+        const fc = r.facings[f];
+        if (!fc || fc.standpoint_source === "drawn") continue;
+        const m = deriveMeta(PLAN, r.id, f);
+        if (m.eye_offset_m) slid.push(`${r.id}/${f} ${m.eye_offset_m}`);
+      }
+    }
+    expect(slid.sort()).toEqual(["hall/N 0.93", "hall/S 1.43"]);
+  });
+
+  /* THE LEAST-MAGNITUDE PROPERTY, MEASURED AT THE DOOR RATHER THAN ASSERTED.
+     A centimetre less and the jamb is inside the margin; the slide chosen is
+     the first whole centimetre that is not. This is what stops the clause
+     being satisfiable by "slide a long way and call it fixed". */
+  test("the slide is the LEAST whole centimetre that seats every door in frame", () => {
+    for (const [id, facing, expected] of [["op15", "N", 0.93], ["op14", "S", 1.43]]) {
+      const at = (offset) => {
+        const p = clone(PLAN);
+        const fc = room(p, "hall").facings[facing];
+        const right = facing === "N" ? 1 : -1;
+        fc.standpoint.x = 35 + offset * right;
+        const m = deriveMeta(p, "hall", facing);
+        const h = m.openings.find((o) => o.id === id);
+        return { on: Math.min(h.x + h.w, PLAN_CANVAS_W) - Math.max(h.x, 0), right: h.x + h.w };
+      };
+      expect(at(expected).right, `${id} at the chosen slide sits inside the margin`)
+        .toBeLessThanOrEqual(PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      expect(at(drawn(expected - 0.01)).right, `${id} one centimetre short is NOT seated`)
+        .toBeGreaterThan(PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      expect(at(0).on, `${id} from the room's centre`).toBeLessThan(MIN_USABLE_APERTURE_PX);
+    }
+  });
+
+  /* AND THE PICTURE MOVED, NOT ONLY THE DOCUMENT. The trap this case exists
+     for: `eye_offset_m` set AFTER the openings and the corners leaves the
+     standpoint sliding in the plan and every rectangle drawn from the room's
+     centre — the assertions above would all still pass. So the assertion is on
+     the DERIVED OPENING, at two depths, against arithmetic written here. */
+  test("a slid facing's opening and floor move with the eye, at their own scales", () => {
+    const m = deriveMeta(PLAN, "hall", "N");
+    const s0 = m.px_per_m_at_wall;
+    const hole = m.openings.find((o) => o.id === "op15");
+    /* op15 spans 1.5–2.5 m right of the room's centre; the eye stands 0.93 m
+       that way, so at the wall plane the near jamb draws at half the frame
+       plus (1.5 − 0.93) metres of wall. */
+    expect(hole.x).toBeCloseTo(PLAN_CANVAS_W / 2 + (1.5 - 0.93) * s0, 6);
+    expect(hole.x + hole.w).toBeCloseTo(PLAN_CANVAS_W / 2 + (2.5 - 0.93) * s0, 6);
+    expect(usablyInFrame(hole, PLAN_CANVAS_W, PLAN_CANVAS_H)).toBe(true);
+    /* The corners are the wall's own ends and move by the same 0.93 m of wall. */
+    expect(m.corner_x0_px).toBeCloseTo(PLAN_CANVAS_W / 2 + (-4 - 0.93) * s0, 6);
+    expect(m.corner_x1_px).toBeCloseTo(PLAN_CANVAS_W / 2 + (4 - 0.93) * s0, 6);
+    /* AND A POINT NEARER THAN THE WALL MOVES FURTHER, which is the whole
+       reason the eye's term is not a pixel offset. At 1.00 m in front of the
+       wall the scale is larger and the same body displaces the picture by
+       0.93 × that scale, not by 0.93 × the wall's. */
+    const gp = require(join(repoRoot, "src", "groundplane.js"));
+    const near = gp.scaleAtDepth(1.0, m);
+    expect(near).toBeGreaterThan(s0);
+    expect(gp.xAtScale(0.5, near, m, PLAN_CANVAS_W))
+      .toBeCloseTo(PLAN_CANVAS_W / 2 - 0.93 * near, 6);
+    expect(gp.xAtScale(0.5, s0, m, PLAN_CANVAS_W))
+      .toBeCloseTo(PLAN_CANVAS_W / 2 - 0.93 * s0, 6);
+  });
+
+  /* AND STAGED `u` DOES NOT MOVE, which is what makes staging.json untouched by
+     a slide rather than merely unedited. The eye term is common to both ends of
+     the u-domain and cancels; the PIXELS move and the address does not. */
+  test("a slide moves the pixels and not the staging addresses", () => {
+    const p = clone(PLAN);
+    room(p, "hall").facings.N.standpoint.x = 35;   // the unslid passage
+    for (const o of PLAN.objects.filter((x) => x.room === "hall")) {
+      for (const f of FACINGS) {
+        let a, b;
+        try { a = projectPlacement(PLAN, o.id, "hall", f); } catch (e) { continue; }
+        try { b = projectPlacement(p, o.id, "hall", f); } catch (e) { continue; }
+        expect(a.u, `${o.id} on hall/${f}: the address is the wall's, not the eye's`)
+          .toBeCloseTo(b.u, 12);
+      }
+    }
+  });
+
+  /* TWO PREDICATES, AND THE IMPLICATION BETWEEN THEM IS THE THING TO HOLD.
+     The slide does not call `usablyInFrame`; it asks for the whole door inside
+     the frame with a margin beyond each jamb, which is strictly stronger,
+     because a standpoint being PLACED should aim at the good case and not at
+     the least acceptable one. Two comments once claimed they were one function
+     and they were not. What may never become false is the direction: a facing
+     the slide satisfied passes the clause. Asserted over the shipped corpus and
+     over a sweep of doors placed across a wall, so the two cannot drift apart
+     in silence — if the slide is ever loosened below the clause, this goes red
+     rather than a standpoint quietly landing somewhere the clause refuses. */
+  test("what the slide satisfies, the clause satisfies — over the manor and a swept wall", () => {
+    const check = (p2, roomId, facing) => {
+      const r2 = room(p2, roomId);
+      const fc = r2.facings[facing];
+      if (!fc || fc.standpoint_source === "drawn") return;
+      const sp = standpointFor(p2, r2, facing, p2.standpoint_stand_back,
+        p2.standpoint_threshold_clearance_m);
+      const before = JSON.stringify(fc.standpoint);
+      fc.standpoint = sp.point;
+      const m = deriveMeta(p2, roomId, facing);
+      const doors = m.openings.filter((o) => o.kind === "door");
+      /* Did the slide seat every door — its own, stronger bar? */
+      const seated = doors.every((o) =>
+        o.x >= FRAME_MARGIN_PX - 1e-6 && o.x + o.w <= PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      if (seated) {
+        for (const o of doors) {
+          expect(usablyInFrame(o, PLAN_CANVAS_W, PLAN_CANVAS_H),
+            `${roomId}/${facing} ${o.id}: the slide seated it and the clause refuses it`).toBe(true);
+        }
+      }
+      fc.standpoint = JSON.parse(before);
+    };
+    for (const r of PLAN.rooms) for (const f of FACINGS) check(clone(PLAN), r.id, f);
+    /* AND A SWEPT WALL, because the shipped corpus is one arrangement of doors
+       and the implication is a claim about all of them. The passage's north
+       door is walked from one end of its wall to the other, a decimetre at a
+       time, and every position where the slide succeeds is checked. */
+    for (let x0 = 31.2; x0 <= 37.8; x0 += 0.1) {
+      const p2 = clone(PLAN);
+      const op = p2.openings.find((o) => o.id === "op15");
+      op.rect = { ...op.rect, x0: +x0.toFixed(2), x1: +(x0 + 1).toFixed(2) };
+      check(p2, "hall", "N");
+    }
+  });
+
+  /* A FLIGHT THE FRAME ATE, WHICH THIS CLAUSE COULD NOT SEE UNTIL AN ARTIFACT
+     CRITIC BUILT IT. Row 26 shipped `usablyInFrame` comparing a flight's
+     on-frame width against the flight's OWN RECT — and `stairsForFacing` clamps
+     that rect to the canvas, so the comparison was a number against itself and
+     a three-pixel wedge passed. The construction below is the critic's, kept
+     whole rather than paraphrased into a doctored meta: move `great_stair` to
+     its room's west edge and `op18` to 8.18–9.18, and row 26's OWN slide law —
+     whose census is doors and is blind to flights — carries the staircase off
+     the frame by the letter of the law.
+
+     It runs the WHOLE chain, plan through fixture, because every link of it was
+     green when the defect shipped: the plan validates, the metas derive, the
+     bake is clean, and the finding is the only thing that was missing. */
+  test("a flight the frame has eaten is a finding, not a green plan", () => {
+    const p = clone(PLAN);
+    const st = p.stairs.find((x) => x.id === "great_stair");
+    st.rect = { ...st.rect, x0: 0.6, x1: 2.2 };
+    const op18 = p.openings.find((o) => o.id === "op18");
+    op18.rect = { ...op18.rect, x0: 8.18, x1: 9.18 };
+    const r = room(p, "stair_landing");
+    for (const f of FACINGS) {
+      const sp = standpointFor(p, r, f, p.standpoint_stand_back,
+        p.standpoint_threshold_clearance_m);
+      r.facings[f].standpoint = sp.point;
+      if (sp.source === "rule") delete r.facings[f].standpoint_source;
+      else r.facings[f].standpoint_source = sp.source;
+    }
+    /* The document is legal — that is the point. Nothing upstream refuses it. */
+    expect(validatePlan(p, WORLD, BY_ENTITY), "the doctored plan is a legal plan").toEqual([]);
+    /* The row's own law slid the facing, on a door, and took the flight with it.
+       BOTH NUMBERS NAMED: the room spans 0.6–9.4 so its cross-axis centre is
+       5.00, and the slide the door forces is 0.39 m of it. An earlier version of
+       this line asserted `not.toBe(5.7)` — a value neither the centred nor the
+       slid standpoint can ever hold, so it could not fail and the construction
+       would have kept passing if the slide had stopped firing entirely. */
+    const centred = (r.rect.x0 + r.rect.x1) / 2;
+    expect(centred, "the room's own cross-axis centre").toBe(5);
+    expect(r.facings.S.standpoint.x, "the slide fired on the door census").toBe(5.39);
+    const m = deriveMeta(p, "stair_landing", "S");
+    const flight = m.stairs.find((x) => x.id === "great_stair");
+    expect(flight.raw_w, "the flight states the body it would draw").toBeGreaterThan(1000);
+    expect(flight.w / flight.raw_w, "and almost none of it survives the frame").toBeLessThan(0.05);
+    expect(usablyInFrame(flight, PLAN_CANVAS_W, PLAN_CANVAS_H),
+      "a flight reduced to a wedge at the frame edge is not usably in frame").toBe(false);
+
+    /* AND THE FIXTURE VALIDATOR SAYS SO, over the manor world that walks it. */
+    const navDir = join(repoRoot, "fixtures", "nav-manor");
+    const nav = readJson(join(navDir, "world.json"));
+    const metas = {};
+    for (const loc of nav.locations) {
+      for (const f of loc.facings) {
+        try { metas[`${loc.id}/${f}`] = metaForFacing(p, loc.id, f); } catch (e) { /* unplanned */ }
+      }
+    }
+    const found = validateFixture(navDir, RECORDS, metas)
+      .filter((x) => x.includes("[row26:exit.opening_unusable]") && x.includes("great_stair"));
+    expect(found.length,
+      "the manor walks this flight and a player cannot reach it — that is a finding")
+      .toBeGreaterThan(0);
+  });
+
+  /* THE REFUSAL, ON PLANS BUILT HERE — never on the shipped one, which slides
+     cleanly and therefore proves nothing about what happens when it cannot.
+     Both sub-branches, because they fail for different reasons and an
+     implementation could satisfy one and not the other. */
+  test.describe("when no slide satisfies the doors, the body does not move", () => {
+    /* A room with a door at each end of a wall too long to hold both in one
+       frame: the fit intervals do not intersect. */
+    function twoDoorsFarApart() {
+      const p = clone(PLAN);
+      const r = room(p, "hall");
+      const held = p.openings.find((o) => o.id === "op15");
+      held.rect = { x0: 37.5, x1: 38.5, y0: 12.2, y1: 12.55 };
+      const other = p.openings.find((o) => o.id === "op14");
+      other.rect = { x0: 31.5, x1: 32.5, y0: 12.2, y1: 12.55 };
+      other.joins = ["hall", "buttery_pantry"];
+      return { p, r };
+    }
+    /* The shipped passage with masonry standing where the slide would put the
+       body: a chimney breast across the east half of the room at the depth
+       this facing stands at. The fit interval is unchanged and every metre of
+       it is now unstandable. */
+    function masonryWhereTheSlideGoes() {
+      const p = clone(PLAN);
+      p.fireplaces.push({ floor: "ground", room: "hall",
+        rect: { x0: 36, x1: 39, y0: 9.8, y1: 10.3 } });
+      return { p, r: room(p, "hall") };
+    }
+
+    for (const [name, build] of [["the fit intervals do not intersect", twoDoorsFarApart],
+                                 ["the slide is outside the standable band", masonryWhereTheSlideGoes]]) {
+      test(name, () => {
+        const { p, r } = build();
+        const got = standpointFor(p, r, "N", p.standpoint_stand_back,
+          p.standpoint_threshold_clearance_m);
+        expect(got.point.x, `${name}: the standpoint stays on the room's own axis`).toBe(35);
+        /* And it is a refusal rather than a facing that happened to fit: at
+           least one door is NOT usably in frame from where the body stands. */
+        p.rooms.find((x) => x.id === "hall").facings.N.standpoint = got.point;
+        const m = deriveMeta(p, "hall", "N");
+        const bad = m.openings.filter((o) => !usablyInFrame(o, PLAN_CANVAS_W, PLAN_CANVAS_H));
+        expect(bad.length, `${name}: the refusal leaves a door for the clause to report`)
+          .toBeGreaterThan(0);
+      });
+    }
+
+    /* AND THE STANDABLE HALF IS LOAD-BEARING, not a formality: the same
+       geometry with the room widened enough to stand where the door needs
+       DOES slide. Without this the case above would pass on an implementation
+       that never slides at all. */
+    test("the same facing with the masonry moved out of the way does slide", () => {
+      const { p, r } = masonryWhereTheSlideGoes();
+      p.fireplaces[p.fireplaces.length - 1].rect =
+        { x0: 31, x1: 33, y0: 9.8, y1: 10.3 };   // the same hearth, at the other end
+      const got = standpointFor(p, r, "N", p.standpoint_stand_back,
+        p.standpoint_threshold_clearance_m);
+      expect(got.point.x, "the standable half is what refused it, and nothing else")
+        .toBe(35.93);
+    });
   });
 });
 
@@ -2995,20 +3295,38 @@ test.describe("the schematic is a derived render of the plan", () => {
       .toEqual(blocks[0].map((l) => l.trimEnd()));
   });
 
-  /* [Row 15] AND THE MANOR BATCH, the same shape, against TODAY's build —
-   * these are pictures of what the link serves now, so the build that answers
-   * for them is the one running. An artifact nobody can regenerate is not
-   * derived; it is just a file. */
+  /* [Row 15] AND THE MANOR BATCH, the same shape. An artifact nobody can
+   * regenerate is not derived; it is just a file.
+   *
+   * [ROW 26] FROM THE BUILD THAT DREW THEM, WHICH IS ROW 15'S OWN HAND-OFF
+   * COMMIT AND NOT HEAD. Row 26 slid the cross passage's two long standpoints,
+   * so `10-hall-N-no-floor-line.png` is a picture today's build does not draw.
+   * The reflex is to re-capture it — and that would replace evidence Kabe has
+   * never ruled on (this batch is AWAITING KABE in `design/approvals.log`) with
+   * evidence he has never seen, which is the objection `architecture.md`'s
+   * residue item 8 already records and which the row-21 batch above was pinned
+   * for. Same treatment, deliberately copied rather than generalised: the
+   * capture script takes an app root and this one is a checkout of
+   * `ROW15_COMMIT`. It moves when a human has ruled on a new set of pictures
+   * and at no other time. Row 26's own batch carries the AFTER. */
   const ROW15_DIR = join(repoRoot, "design", "batches", "row15-manor");
+  const ROW15_COMMIT = "1ea511c";
 
   test("the row-15 batch IS what the code draws — every frame re-rendered and compared", async ({ browserName }) => {
     test.setTimeout(240_000);
     test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
     expect(existsSync(join(ROW15_DIR, "capture.mjs")),
       "the batch must carry the script that made it").toBe(true);
+    expect(execFileSync("git", ["rev-parse", "--short", ROW15_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(ROW15_COMMIT);
+    const tree = mkdtempSync(join(tmpdir(), "holo-row15-tree-"));
     const out = mkdtempSync(join(tmpdir(), "holo-row15-"));
     try {
-      const log = execFileSync("node", [join(ROW15_DIR, "capture.mjs"), out],
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW15_COMMIT,
+        "index.html", "src", "fixtures", "backdrops", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node", [join(ROW15_DIR, "capture.mjs"), out, tree],
         { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
       const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
       expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(12);
@@ -3019,7 +3337,7 @@ test.describe("the schematic is a derived render of the plan", () => {
         if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
       }
       expect(stale,
-        "these batch frames are not what the code draws — re-run design/batches/row15-manor/capture.mjs into the batch")
+        `these batch frames are not what ${ROW15_COMMIT} drew — the build that made them is the only thing that can answer for them`)
         .toEqual([]);
       const committedFrames = readdirSync(ROW15_DIR)
         .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
@@ -3039,6 +3357,78 @@ test.describe("the schematic is a derived render of the plan", () => {
           .toBe(`${m[1]}/${m[2]}`);
       }
     } finally {
+      rmSync(tree, { recursive: true, force: true });
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 26] AND THE ROW'S OWN BATCH, which is of TWO builds: the passage as
+   * the site drew it and the passage after the slide. The BEFORE half is drawn
+   * from the commit the row started at — the same `git archive` route the
+   * row-21 batch above uses — because a picture of "before" rendered by
+   * today's code would not be a picture of before at all. */
+  const ROW26_DIR = join(repoRoot, "design", "batches", "row26-gate");
+  const ROW26_BEFORE_COMMIT = "65678c0";
+
+  test("the row-26 batch IS what the two builds draw — every frame re-rendered and compared", async ({ browserName }) => {
+    test.setTimeout(240_000);
+    test.skip(browserName !== "chromium", "the batch is captured in Chromium whatever engine this project runs");
+    expect(existsSync(join(ROW26_DIR, "capture.mjs")),
+      "the batch must carry the script that made it").toBe(true);
+    expect(execFileSync("git", ["rev-parse", "--short", ROW26_BEFORE_COMMIT],
+      { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(ROW26_BEFORE_COMMIT);
+    const tree = mkdtempSync(join(tmpdir(), "holo-row26-tree-"));
+    const out = mkdtempSync(join(tmpdir(), "holo-row26-"));
+    try {
+      const tar = join(tree, "t.tar");
+      execFileSync("git", ["archive", "-o", tar, ROW26_BEFORE_COMMIT,
+        "index.html", "src", "fixtures", "backdrops", "library"], { cwd: repoRoot });
+      execFileSync("tar", ["-xf", tar, "-C", tree]);
+      const log = execFileSync("node",
+        [join(ROW26_DIR, "capture.mjs"), out, repoRoot, tree],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      const fresh = readdirSync(out).filter((f) => f.endsWith(".png")).sort();
+      expect(fresh.length, "capture.mjs produced no frames").toBeGreaterThan(4);
+      const stale = [];
+      for (const f of fresh) {
+        const committed = join(ROW26_DIR, f);
+        if (!existsSync(committed)) { stale.push(`${f} (missing from the batch)`); continue; }
+        if (!readFileSync(committed).equals(readFileSync(join(out, f)))) stale.push(f);
+      }
+      expect(stale, "these batch frames are not what the two builds draw").toEqual([]);
+      const committedFrames = readdirSync(ROW26_DIR)
+        .filter((f) => /^\d\d-/.test(f) && f.endsWith(".png")).sort();
+      expect(committedFrames, "a frame the script draws is missing from the set a human is shown")
+        .toEqual(fresh);
+      /* Each frame is of what its name promises, and the BEFORE/AFTER pairs are
+         of the SAME facing — a pair that drifted apart would be an argument
+         about two different walls. */
+      const reached = Object.fromEntries(
+        log.split("\n").map((l) => /^(\S+) -> (\S+)$/.exec(l)).filter(Boolean)
+          .map((m) => [m[1], m[2]]));
+      for (const f of fresh) {
+        const name = f.replace(/\.png$/, "");
+        const m = /^\d\d-(?:BEFORE-)?([a-z_]+)-([NESW])$/.exec(name);
+        expect(m, `${name}: a batch frame's name must say which room and facing it is`).toBeTruthy();
+        expect(reached[name], `${name} is named for ${m[1]}/${m[2]} and was captured at ${reached[name]}`)
+          .toBe(`${m[1]}/${m[2]}`);
+      }
+      const pairs = fresh.filter((f) => f.includes("BEFORE"))
+        .map((f) => f.replace(/^\d\d-BEFORE-/, ""));
+      for (const tail of pairs) {
+        expect(fresh.some((f) => !f.includes("BEFORE") && f.endsWith("-" + tail)),
+          `${tail} is shown BEFORE with nothing to compare it to`).toBe(true);
+      }
+      /* AND THE PAIR IS NOT THE SAME PICTURE TWICE. A capture script that
+         silently drew both halves from one build would produce a batch whose
+         every frame is "what the code draws" and whose argument is empty. */
+      for (const tail of ["hall-N.png", "hall-S.png"]) {
+        const before = readFileSync(join(ROW26_DIR, "01-BEFORE-" + tail));
+        const after = readFileSync(join(ROW26_DIR, "02-" + tail));
+        expect(before.equals(after), `${tail}: the two builds drew the same picture`).toBe(false);
+      }
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
       rmSync(out, { recursive: true, force: true });
     }
   });
@@ -3085,10 +3475,27 @@ test.describe("the schematic is a derived render of the plan", () => {
          printing it perfectly. A guard that does not know its subject wraps is
          the same defect in a smaller costume. */
       const stamp = stampText(svg);
-      expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
-        .toContain("AWAITING HIS EYE ON");
-      expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
-        .toContain(scope);
+      /* [ROW 26] TWO STATES SATISFY THIS, AND ONLY TWO. The sheet either
+         claims an approval — and then it must print, in the same breath, the
+         drawn content that approval does not cover — or it claims none at all,
+         which UNAPPROVED REVISION does more loudly than any pending clause
+         could: it names the digest it was drawn from, the digest Kabe signed,
+         and that the sheet goes back to him. Row 26 slid two standpoints, so
+         the sheets are in the second state.
+         What is refused is the same thing as before: a stamp that says
+         APPROVED and stops there. The disjunction is asserted rather than the
+         `pending` requirement being dropped for the unapproved case, because
+         "the sheet is currently unapproved" is not a licence to stop printing
+         scope the day it is approved again. */
+      const unapproved = stamp.includes("UNAPPROVED REVISION");
+      expect(unapproved || stamp.includes("APPROVED"),
+        `${f}: the stamp claims neither an approval nor the lack of one`).toBe(true);
+      if (!unapproved) {
+        expect(stamp, `${f}: the stamp prints APPROVED without printing what it does not cover`)
+          .toContain("AWAITING HIS EYE ON");
+        expect(stamp, `${f}: the stamp must name the pending scope, not merely the words`)
+          .toContain(scope);
+      }
     }
   });
 
@@ -3128,22 +3535,42 @@ test.describe("the schematic is a derived render of the plan", () => {
   /* Each drawn family the sheet prints, the column that carries it, and the
      words the derived clause uses for it. Only families that MOVED appear, so
      the clause cannot be satisfied by naming everything. */
+  /* [Row 26] `absentBaseline` is what the sheet was drawing before a column
+     existed. The standpoint law asks two questions now — how far back, and
+     where along the wall — and the second one arrived as a NEW column, which
+     the comparison below used to treat as "I no longer know what I am
+     comparing" and go red with nothing to do about it. A column that did not
+     exist was not silent: every standpoint stood on its room's own axis, which
+     is 0.00, so the baseline is a fact and not a convenience. Without it the
+     sheet would keep naming only the distances while two markers had moved
+     sideways — the exact narrowing this clause exists to prevent, arriving by
+     omission instead of by prose. */
   const FAMILIES = [
     { column: "camera_wall_m", said: "the standpoint distances" },
+    { column: "standpoint_offset_m", said: "the standpoints' own lateral slides",
+      absentBaseline: "0.00" },
     { column: "wall_width_m", said: "the wall widths" },
     { column: "room_type", said: "the room types" },
     { column: "facing_type", said: "the facing types" }
   ];
 
   function scopeFromDelta(then, now) {
-    const head = then[0];
     const moved = [], changedRows = new Set();
     for (const fam of FAMILIES) {
-      const i = head.indexOf(fam.column);
-      if (i < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
+      fam.rows = new Set();
+      const j = now[0].indexOf(fam.column);
+      if (j < 0) return { error: `standpoints.tsv has no ${fam.column} column` };
+      /* Each side read through ITS OWN header: a column inserted in the middle
+         would otherwise line the new table's values up against the old table's
+         neighbours and report every row as changed. */
+      const i = then[0].indexOf(fam.column);
+      if (i < 0 && fam.absentBaseline === undefined) {
+        return { error: `standpoints.tsv gained a ${fam.column} column since ${SEEN_SHEET_COMMIT} and this comparison has no baseline for it` };
+      }
       let differs = then.length !== now.length;
       for (let r = 1; r < Math.min(then.length, now.length); r++) {
-        if (then[r][i] !== now[r][i]) { differs = true; changedRows.add(r); }
+        const was = i < 0 ? fam.absentBaseline : then[r][i];
+        if (was !== now[r][j]) { differs = true; changedRows.add(r); fam.rows.add(r); }
       }
       if (differs) moved.push(fam);
     }
@@ -3158,10 +3585,17 @@ test.describe("the schematic is a derived render of the plan", () => {
        to the sheet or the words are true wherever they are printed; this takes
        the second, and the test compares against the same scoping the sheet
        prints. */
-    const sentence = `${moved.map((f) => f.said).join(" and ")} on `
-      + `${changedRows.size} of the manor's ${now.length - 1} facings, `
+    /* [ROW 26] PER FAMILY, because the union is the number a reader believes.
+       The line said "the standpoint distances and the standpoints' own lateral
+       slides on 38 of the manor's 88 facings" — true of the union and false of
+       either half: 38 distances moved and TWO standpoints slid. Kabe reads this
+       sentence at the redline glance and it is the whole of what tells him what
+       to look for; a count that overstates the smaller family by nineteen times
+       sends him hunting the wrong sheet. */
+    const sentence = moved.map((f2) => `${f2.said} on ${f2.rows.size}`).join(" and ")
+      + ` of the manor's ${now.length - 1} facings, `
       + `changed since the sheet he approved`;
-    return { moved, sentence };
+    return { moved, sentence, changed: changedRows.size };
   }
 
   test("the pending clause is DERIVED from what moved — no sentence of anyone's carries the claim", () => {
@@ -3171,8 +3605,18 @@ test.describe("the schematic is a derived render of the plan", () => {
       { cwd: repoRoot, encoding: "utf8" }).trim()).toBe(SEEN_SHEET_COMMIT);
 
     const { then, now } = standpointDelta();
-    expect(now[0], "the standpoint table's columns changed; this comparison no longer knows what it is comparing")
+    /* [Row 26] A column may be ADDED — a drawn family the sheet did not have —
+       but not removed and not renamed, and an added one is only accepted where
+       a family declares what the sheet was drawing before it existed. Blanket
+       equality here made a new family a red case with no remedy, which is a
+       guard telling its reader to give up rather than what to do. */
+    expect(then[0].filter((c) => now[0].includes(c)),
+      "a column left the standpoint table or was renamed; this comparison no longer knows what it is comparing")
       .toEqual(then[0]);
+    expect(now[0].filter((c) => !then[0].includes(c) &&
+        !FAMILIES.some((f) => f.column === c && f.absentBaseline !== undefined)),
+      "the standpoint table gained a column that no family declares a baseline for — the sheet would be drawing something the pending clause cannot name")
+      .toEqual([]);
     const d = scopeFromDelta(then, now);
     expect(d.error).toBeUndefined();
     expect(d.sentence,

@@ -1089,12 +1089,29 @@ test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async
      That clause is the one Kabe's sentence asks for: "a room with a label on
      the wall is a diagram" is what 1.5 m fails. */
   await page.goto(appUrl());
+  /* [ROW 26] AND THE TWO FACINGS NO LONGER SHARE ONE META BY ACCIDENT, SO THE
+     COMPARISON MAKES THEM SHARE ONE ON PURPOSE. The passage's doors sit near
+     one end of it, and row 26's lateral slide moved `hall/N` 0.93 m along its
+     wall and `hall/S` 1.43 m — different bodies, different pictures, so a raw
+     diff of the two frames is the whole grid rather than two letters, and this
+     case measured 1024 px of "glyph". The premise it was written on ("their
+     DIFFERENCE is the two letters and nothing else") was always the thing being
+     relied on; it is now stated instead of hoped for — `hall/S` is drawn from
+     `hall/N`'s own meta, so the two frames differ by the letterform alone and
+     the number below is measured against that meta's wall scale. */
   const m = LIT.facing("hall", "N");
   const box = await page.evaluate(() => {
-    const T = window.__T;
-    const a = T.renderDirect({ location: "hall", facing: "N" }, null, { backdrop_only: true });
-    const b = T.renderDirect({ location: "hall", facing: "S" }, null, { backdrop_only: true });
-    return T.diffBounds(a, b);
+    const T = window.__T, fx = window.HOLO_FIXTURE;
+    const bd = T.bd();
+    const one = { ...bd, "hall/S": bd["hall/N"] };
+    const shot = (facing) => {
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), one,
+        { location: "hall", facing }, { backdrop_only: true });
+      return c;
+    };
+    return T.diffBounds(shot("N"), shot("S"));
   });
   /* The drawn extent is the letterform plus its own stroke, which is `gh/18`
      wide and centred on the polyline — so the box is the metre size plus a
@@ -1126,9 +1143,21 @@ test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async
      answer an arrow key, and loud enough to be the most legible thing in the
      room. */
   const ink = await page.evaluate(() => {
-    const T = window.__T;
-    const a = T.renderDirect({ location: "hall", facing: "N" }, null, { backdrop_only: true });
-    const b = T.renderDirect({ location: "hall", facing: "S" }, null, { backdrop_only: true });
+    const T = window.__T, fx = window.HOLO_FIXTURE;
+    /* [Row 26] One meta for both, exactly as the size clause above: after the
+       lateral slide the two facings stand at different points on their wall,
+       so an undoctored diff is the grid rather than the letters and this mean
+       would be measuring the passage instead of its signage. */
+    const bd = T.bd();
+    const one = { ...bd, "hall/S": bd["hall/N"] };
+    const shot = (facing) => {
+      const c = document.createElement("canvas");
+      c.width = 1536; c.height = 1024;
+      window.HOLO.renderer.render(c, fx.world, fx.staging, T.lib(), one,
+        { location: "hall", facing }, { backdrop_only: true });
+      return c;
+    };
+    const a = shot("N"), b = shot("S");
     const W = a.width, H = a.height;
     const da = a.getContext("2d").getImageData(0, 0, W, H).data;
     const db = b.getContext("2d").getImageData(0, 0, W, H).data;
