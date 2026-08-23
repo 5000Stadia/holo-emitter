@@ -29,9 +29,19 @@ TWO SETS, AND THEY ANSWER DIFFERENT QUESTIONS.
                        corners hand the row-20 ramp come back at the same row?
                        That is the number the promotion ships, and it is the
                        column to read.
+
+AND THE OLD ANSWER IS READ OUT OF GIT, NOT OFF DISK. The sweep rewrites every
+reading under `manor/` each pass, so the moment the new instrument runs the
+"old" column becomes a copy of the new one and every error is zero — a holdout
+that has quietly turned into a self-comparison, which is the exact failure it
+exists to prevent. It was caught doing it: three newly promoted walls reported
+0/0 and pulled the corner median from 23 px to 10. So the ground truth is
+pinned to `BEFORE_ROW32`, the commit that allocated this row, and every number
+in set B is read out of that tree with `git show`.
 """
 import json
 import os
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +53,18 @@ import row23_lib                                           # noqa: E402
 from measure_lib import load, luma                         # noqa: E402
 
 MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
+
+#: The commit that allocated row 32 — the last tree in which every reading under
+#: `manor/` is the OLD instrument's. The holdout's ground truth is read from
+#: here and from nowhere else.
+BEFORE_ROW32 = "16a75c6"
+
+
+def _at(rev, relpath):
+    """A file as of `rev`, or None where that tree does not carry it."""
+    r = subprocess.run(["git", "-C", ROOT, "show", "%s:%s" % (rev, relpath)],
+                       capture_output=True, text=True)
+    return r.stdout if r.returncode == 0 else None
 
 #: The committed cand-2 corners. `design/plan-draft/measured/cand3/…` and
 #: `measure.py`'s own study/N notes carry the reproduction test these came from.
@@ -76,13 +98,26 @@ def control_row(fac):
 
 def manor_rows():
     manifest = json.load(open(os.path.join(MANOR, "manifest.json")))
-    state = json.load(open(os.path.join(MANOR, "run-state.json")))["walls"]
+    old_state = _at(BEFORE_ROW32,
+                    "design/batches/row23-scaffold/manor/run-state.json")
+    if old_state is None:
+        raise SystemExit("row32_holdout: %s does not carry the pre-row-32 run "
+                         "state, so there is no old answer to hold out from"
+                         % BEFORE_ROW32)
+    state = json.loads(old_state)["walls"]
     ent = {e["key"]: e for e in manifest["entries"]}
     by_cand = {}
-    for name in os.listdir(os.path.join(HERE, "manor")):
+    listing = subprocess.run(
+        ["git", "-C", ROOT, "ls-tree", "--name-only",
+         "%s:design/plan-draft/measured/manor" % BEFORE_ROW32],
+        capture_output=True, text=True).stdout
+    for name in listing.split():
         if not name.endswith(".json"):
             continue
-        d = json.load(open(os.path.join(HERE, "manor", name)))
+        raw = _at(BEFORE_ROW32, "design/plan-draft/measured/manor/" + name)
+        if raw is None:
+            continue
+        d = json.loads(raw)
         if "candidate" in d:
             by_cand[d["candidate"]] = d
     picks = _picks()

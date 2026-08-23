@@ -70,6 +70,28 @@ test.describe("row 32 — the horizon instrument", () => {
     }
   });
 
+  /* THE HOLDOUT'S GROUND TRUTH IS PINNED TO A COMMIT, and it has to be: the
+     sweep rewrites every reading under `manor/` each pass, so an "old" column
+     read off disk becomes a copy of the new one the first time the new
+     instrument runs. It was caught doing exactly that — three newly promoted
+     walls reported 0/0 and pulled the corner median from 23 px to 10, which is
+     a holdout that has turned into a self-comparison. */
+  test("the holdout's old answer is read from a commit, not from the working tree", () => {
+    const src = readFileSync(join(MEASURED, "row32_holdout.py"), "utf8");
+    const m = src.match(/^BEFORE_ROW32\s*=\s*"([0-9a-f]{7,40})"/m);
+    expect(m, "row32_holdout.py pins no commit for its ground truth").toBeTruthy();
+    const subject = execFileSync("git", ["-C", repoRoot, "log", "-1", "--format=%s", m[1]],
+      { encoding: "utf8" }).trim();
+    expect(subject, `${m[1]} is not the commit that allocated row 32`)
+      .toMatch(/Row 32 allocated/);
+    /* And set B genuinely goes through git rather than through the directory
+       the sweep writes into. */
+    expect(src, "the holdout reads the manor readings off disk, which the sweep overwrites")
+      .not.toMatch(/listdir\(os\.path\.join\(HERE, "manor"\)\)/);
+    expect(src, "the holdout never reads its ground truth out of git")
+      .toMatch(/"git", "-C", ROOT, "show"/);
+  });
+
   /* ------------------------------------------------------------------ 2 */
   /* Each guard, handed the construction it exists to refuse. These are the
    * delete-green cases: remove any one clause from `_admissible` and the line
