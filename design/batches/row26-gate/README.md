@@ -23,6 +23,14 @@ court. It is in frame now, and the manor walks 56 exits instead of 55.
 `01-BEFORE-hall-E.png` and `02-hall-E.png` are a facing in the same room that this row did NOT
 move, so you can see that "the passage moved" means two of its four walls and not the room.
 
+**The two AFTER frames were re-captured on 2026-08-24 and the doorways in them changed**, which is
+not this row's doing and is the only difference: the manor production run promoted painted walls
+into the buttery and the kitchen, so what shows through those two mouths is a painting now instead
+of the grid. It does not show WELL — the through-view fills the mouth by stretching the
+destination's edge pixels, which is exactly the defect row 25 (d) was allocated for and which had
+never had real art behind it to be visible against. Row 26's own claim — the whole doorway is in
+frame with a hand's margin beyond its jamb — is what these frames are of, and it is unchanged.
+
 ## What changed, in one sentence
 
 The standpoint law used to answer one question — how far back from a wall do you stand — and it
