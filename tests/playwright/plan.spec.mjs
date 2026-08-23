@@ -2050,7 +2050,7 @@ test.describe("the schematic is a derived render of the plan", () => {
    * nothing about the artifact. `geometryOnly` above absorbs chrome on BOTH
    * sides instead, so this literal moves only when the DRAWING moves and Kabe
    * has said yes to the new one. */
-  const APPROVAL_COMMIT = "f50e20e";
+  const APPROVAL_COMMIT = "2686e53";
 
   /* The last sheets a human looked at DIRECTLY — Kabe's 2026-08-21 approval was
    * of two rendered frames, not of these drawings, which is the whole reason a
