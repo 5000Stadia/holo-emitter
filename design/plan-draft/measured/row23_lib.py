@@ -46,6 +46,13 @@ THREE VERDICTS, AND THE MIDDLE ONE IS NEW
 The wave's `measurement_withheld` kept its exact meaning rather than being
 widened to cover the new case, because a machine-readable kind that has quietly
 changed what it asserts is worse than a missing one.
+
+AND SINCE THE MANOR RUN, THIS IS ALSO THE PROMOTION'S INSTRUMENT
+----------------------------------------------------------------
+`row23_run.py` promotes the walls this file admits, and the §5 record
+`tools/promote-backdrop.mjs` reads is built by `promotion_doc` below out of the
+very reading that admitted them — see `_promotion_half` for why there is no
+second measurement pass and what happened when there was one.
 """
 import json
 import os
@@ -111,15 +118,32 @@ def cfg_from_sidecar(side):
         lo, hi = max(0, int(x[0])), min(1535, int(x[1]))
         if hi > lo:
             cols.append((lo, hi))
+    rail_band = (int(rb["centre"] - rb["half_width"]),
+                 int(rb["centre"] + rb["half_width"]))
     return dict(
         wall=side["facing"],
         ppm=ppm,
+        camera_wall_m=m.get("camera_wall_m"),
         image_h_px=m["image_h_px"],
         corner_x0=m["corner_x0_px"], corner_x1=m["corner_x1_px"],
         floor_window=(int(fw["centre"] - fw["half_width"]),
                       int(fw["centre"] + fw["half_width"])),
-        rail_band=(int(rb["centre"] - rb["half_width"]),
-                   int(rb["centre"] + rb["half_width"])),
+        rail_band=rail_band,
+        # THE CEILING SEARCH RUNS FROM THE FRAME TOP TO THE BOTTOM OF THE
+        # DECLARED CEILING BRACKET, and it is open upward on purpose. The
+        # bracket is +/-8 % around where the PLAN's storey puts the junction,
+        # and the manor paintings routinely draw a taller room than the plan
+        # rules: `great_hall/N` paints its ceiling at y 218 against a bracket of
+        # 313..364, so searching the bracket alone finds a panel head, calls it
+        # a ceiling, and every corner and every ramp is then fitted at the wrong
+        # row. Opening the span downward instead is worse — at (8, chair-rail)
+        # `back_stair/N` picks the wainscot capping at y 530 over its real
+        # ceiling at 60, because `pick_ceiling` takes the STRONGEST admissible
+        # horizontal and a capping shadow outruns a plaster junction. So: as
+        # high as the picture goes, no lower than the licence allows a ceiling
+        # to be. Both endpoints are the scaffold's.
+        ceiling_search=(8, (int(cb["centre"] + cb["half_width"]) if cb
+                            else max(24, rail_band[0]))),
         ceiling_band=(None if not cb else
                       (max(0, int(cb["centre"] - cb["half_width"])),
                        int(cb["centre"] + cb["half_width"]))),
@@ -171,6 +195,86 @@ def _floor_and_rail(L, cfg, picks):
     mod = picks["module_in_bands"](L, floor_y, cfg["rail_band"], cfg["rail_columns"])
     rail_above = mod["dado_rail_above_floor_px"]
     return floor_y, mod, rail_above
+
+
+def _promotion_half(rgb, L, cfg, floor_y, ppm, picks):
+    """Everything a PROMOTION needs that a camera verdict does not.
+
+    ONE INSTRUMENT, AND THIS IS THE OTHER HALF OF IT. Until 2026-08-24 the
+    manor loop measured each frame twice: once here, for the gate, and once
+    through `measure.py`'s `measure_wave`, for the document
+    `tools/promote-backdrop.mjs` reads. That second call was given a config
+    synthesised from the same manifest brackets WIDENED THREEFOLD — a
+    `module_band` of the rail bracket +/-3 half-widths where the gate reads
+    +/-1 — and a detector's window is part of the detector, so the two calls
+    were two instruments. They disagreed: `great_hall/N` read 117.9 px/m at the
+    gate and 104.2 px/m at the promotion, `back_stair/N` 337.9 against 363.2,
+    and the promotion's WITHHELD was then computed from a scale no gate had
+    ever admitted. Two answers for one quantity is exactly what the loop was
+    written to avoid, so the second call is gone and this is what replaced it.
+
+    Nothing here is a new detector. The rules are `measure.py`'s own, injected
+    through `picks` like `pick_floor` and `module_in_bands` already are, and
+    every window is the scaffold's:
+
+        ceiling line   `pick_ceiling` over the scaffold's rail columns, above
+                       the declared chair-rail bracket (see `ceiling_search`)
+        corners        `find_corners_cand2`, the cand-2 local-reference rule,
+                       run at THAT ceiling line
+        horizon        `ceiling_ramp_vp` — the row-20 ruled instrument, the two
+                       side-wall/ceiling ramps fitted and intersected
+        light          `light`, whole-frame, for `key_tint` and `key_dir`
+
+    The scale, the floor line and the calibration feature are NOT recomputed:
+    they are the gate's own, passed in, so the number a wall was admitted on is
+    the number its meta ships.
+
+    `EYE_RANGE` rides in beside the rules for the same reason they do: it is
+    `measure.py`'s own physical-plausibility range and this file does not get
+    to keep a second copy of it.
+    """
+    eye_range = picks["EYE_RANGE"]
+    ceil_y, ceil_cands, _ = picks["pick_ceiling"](
+        L, dict(ceil_cols=cfg["rail_columns"], ceil_range=cfg["ceiling_search"]))
+    cx0, cx1, _ = picks["find_corners_cand2"](L, ceil_y)
+    ramp = picks["ceiling_ramp_vp"](L, ceil_y, cx0, cx1)
+    votes = {}
+    if cx0 is not None or cx1 is not None:
+        votes, _, _ = picks["horizon_votes"](L, ceil_y, floor_y, cx0, cx1)
+    lit = picks["light"](rgb, L, ceil_y, floor_y, cx0, cx1)
+
+    storey = (floor_y - ceil_y) / ppm if ppm else None
+    width = ((cx1 - cx0) / ppm) if (ppm and cx0 is not None and cx1 is not None) else None
+    eye = ((floor_y - ramp["y"]) / ppm) if (ramp and ppm) else None
+
+    why = []
+    if ramp is None:
+        missing = ("neither corner" if (cx0 is None and cx1 is None)
+                   else "only one corner")
+        why.append(
+            "the ceiling-ramp horizon is the instrument row 20 ruled, and it "
+            "fits the two side-wall/ceiling junctions: this frame gives it %s "
+            "at the ceiling line y %d, so it has nothing to fit. A facing with "
+            "no corners has no ramp and issues no eye height, which is a "
+            "WITHHELD and not a zero." % (missing, ceil_y))
+    elif not (eye_range[0] <= eye <= eye_range[1]):
+        why.append(
+            "the horizon this painting's own side walls converge on (y %.1f) "
+            "puts the eye at %.3f m above its own floor line at the scale its "
+            "own chair-rail declares (%.1f px/m), outside %.1f-%.1f m. The two "
+            "readings are of one picture and cannot both be true: the ruler "
+            "and the perspective disagree, and a meta built from them would "
+            "tell the renderer to stand somewhere nobody stands."
+            % (ramp["y"], eye, ppm, *eye_range))
+
+    return dict(
+        ceiling_y_px=ceil_y, ceiling_candidates=ceil_cands,
+        corner_x0_px=cx0, corner_x1_px=cx1,
+        ramp=ramp, votes=votes, light=lit,
+        storey_height_m=(None if storey is None else round(storey, 4)),
+        implied_wall_width_m=(None if width is None else round(width, 4)),
+        eye_height_m=(None if eye is None else round(eye, 4)),
+        withheld_because=why)
 
 
 def carrier_edges(L, cfg, carrier):
@@ -323,6 +427,33 @@ def measure_candidate(path, side, cfg, ref, picks):
         return dict(verdict="WITHHELD", kind="measurement_withheld",
                     blocked_on="the frame is %dx%d, not %dx%d - no window in this "
                                "round addresses it" % (rgb.shape[1], rgb.shape[0], W, H))
+    # A WINDOW THAT IS NOT IN THE PICTURE IS A WITHHELD, NOT A CRASH.
+    # `hall/N` and `hall/S` stand 2.15 m from an 8.00 m wall: at the ruled lens
+    # that wall is 3810 px of a 1536 px frame and its foot lands at y 1089 of a
+    # 1024-row picture, so the scaffold's own floor bracket is 1044..1134 —
+    # entirely below the frame. `pick_floor` then took the argmin of an empty
+    # profile and the wall reported MEASURE-ERR, which reads as a bad painting.
+    # It is not: no painting of this facing can put the declared anchor's datum
+    # in frame, because the STANDPOINT is what puts it out. Said plainly, once,
+    # so the loop holds the wall instead of spending rolls on it.
+    for name, lo, hi in (("floor bracket", *cfg["floor_window"]),
+                         ("chair-rail bracket", *cfg["rail_band"])):
+        if lo >= H or hi <= 0 or hi <= lo:
+            return dict(verdict="WITHHELD", kind="measurement_withheld",
+                        blocked_on=(
+                            "the scaffold's %s for this facing is y %d..%d of a "
+                            "%d-row frame — standing %s m from a %s m wall at the "
+                            "ruled lens puts the wall's own foot below the picture. "
+                            "There is no datum in this frame for the declared anchor "
+                            "to be a height above, and no repainting moves it: the "
+                            "standpoint does."
+                            % (name, lo, hi, H,
+                               side["meta_used"].get("camera_wall_m"),
+                               side["meta_used"].get("wall_width_m"))))
+    if not cfg["rail_columns"]:
+        return dict(verdict="WITHHELD", kind="measurement_withheld",
+                    blocked_on="every column band this scaffold declares falls "
+                               "outside the frame, so there is nothing to read down")
     L = luma(rgb)
 
     floor_y, mod, rail_above = _floor_and_rail(L, cfg, picks)
@@ -389,6 +520,12 @@ def measure_candidate(path, side, cfg, ref, picks):
     out["eye_height_m"] = None if eye is None else round(eye, 4)
     out["_absent"] = absent
 
+    # ---- the promotion half, off the SAME pixels and the SAME scale ---------
+    # Read here rather than in a second pass so that the document a promotion
+    # ships and the reading a gate admitted are one measurement of one frame.
+    out["_promotion"] = (None if ppm is None else
+                         _promotion_half(rgb, L, cfg, floor_y, ppm, picks))
+
     band = ref["band"]
     if ppm is None:
         out["verdict"] = "ABSENT"
@@ -402,6 +539,125 @@ def measure_candidate(path, side, cfg, ref, picks):
         out["verdict"] = "PASS" if ok else "FAIL"
         out["kind"] = None if ok else "generation_miss"
     return out
+
+
+# --------------------------------------------------------- the promotion doc
+
+#: blueprint §11's universal wainscot anchor, and the one this round measures
+#: the camera off. Stated once here because the sentence below is PARSED —
+#: `geometry.spec`'s calibration audit pulls the metres out of `calibration_ref`
+#: with /taken at ([\d.]+) m/ and checks that `calibration_px` over that size IS
+#: `px_per_m_at_wall` — so the number in the prose and the number in the
+#: arithmetic have to be one number.
+CHAIR_RAIL_M = 0.95
+
+
+def promotion_doc(reading, side, ref, round_name, source_sha256):
+    """The §5 record `tools/promote-backdrop.mjs` reads, off THIS reading.
+
+    Nothing is measured here. Every field is a value `measure_candidate`
+    already read off the frame that passed the gate, shaped into the document
+    the promotion tool takes — so re-running the promotion cannot produce a
+    number the gate never saw, which is what a second measurement pass could.
+
+    Returns `(doc, refusals)`. A non-empty `refusals` is a WITHHELD in the
+    round's own sense: a fact about what this frame gives the instrument, not a
+    verdict on the painting's camera, and the caller holds the wall rather than
+    asking the hand for another roll it cannot act on.
+    """
+    p = reading.get("_promotion")
+    ppm = reading.get("px_per_m_at_wall")
+    if ppm is None or p is None:
+        return None, ["no scale could be read off this frame, so there is "
+                      "nothing for a meta to be a meta of"]
+    m = reading["_measured_px"]
+    ramp = p["ramp"]
+    lit = p["light"]
+    doc = {
+      "_source_sha256": source_sha256,
+      "_what_this_is": (
+        "The manor production reading for %s, measured off %s by "
+        "design/plan-draft/measured/row23_run.py through the row-23 "
+        "instrument — the SAME reading its camera gate admitted, shaped into "
+        "the §5 record tools/promote-backdrop.mjs takes. Every search window "
+        "is the wall's own scaffold's, declared in "
+        "design/batches/row23-scaffold/manor/manifest.json before any "
+        "candidate existed." % (side["facing"], side["candidate"])),
+      "_role": ("manor production wall, measured against the camera its own "
+                "manifest entry declares"),
+      "verdict": reading["verdict"],
+      "facing_type": side["meta_used"].get("facing_type", "enclosed"),
+      "image_h_px": side["meta_used"]["image_h_px"],
+      "floor_line_y": round(m["wall_floor_line_y_px"] / float(side["meta_used"]["image_h_px"]), 6),
+      "horizon_y": (round(ramp["y"] / float(side["meta_used"]["image_h_px"]), 6)
+                    if ramp else None),
+      "px_per_m_at_wall": ppm,
+      "px_per_m_at_bottom": (
+          round((side["meta_used"]["image_h_px"] - ramp["y"]) / p["eye_height_m"], 2)
+          if (ramp and p["eye_height_m"]) else None),
+      "implied_focal_px": reading["implied_focal_px"],
+      "eye_height_m": p["eye_height_m"],
+      "storey_height_m": p["storey_height_m"],
+      "drawn_standpoint_m": side["meta_used"].get("camera_wall_m"),
+      "delta_focal_pct": reading.get("delta_focal_pct"),
+      "delta_eye_pct": reading.get("delta_eye_pct"),
+      "band_pct": ref["band"] * 100,
+      "wall_width_m": p["implied_wall_width_m"],
+      "camera_wall_m": side["meta_used"].get("camera_wall_m"),
+      "corner_x0_px": p["corner_x0_px"],
+      "corner_x1_px": p["corner_x1_px"],
+      "key_tint": lit["key_tint"],
+      "key_dir": "%s-%s" % (
+          lit["key_dir_measured"],
+          "ABOVE" if (ramp and lit["key_dir_brightest_y"] < ramp["y"])
+          else ("BELOW" if ramp else "NO-HORIZON")),
+      "calibration_ref": (
+        "the wainscot chair-rail's undercut shadow above the wall's own floor "
+        "line, taken at %.2f m — blueprint §11 rules it there on every "
+        "panelled wall in the manor and this facing's own scaffold declares it "
+        "as the measurement anchor" % CHAIR_RAIL_M),
+      "calibration_px": m["dado_rail_above_floor_px"],
+      "calibration_tier": 1,
+      "_ruler_policy": {
+        "adopted": "chair_rail",
+        "ruled_m": CHAIR_RAIL_M,
+        "rule": (
+          "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera "
+          "verdict, the calibration feature and this document's scale are all "
+          "the same chair-rail reading inside the same +/-8 % bracket, taken "
+          "once. There is no second window and no second pass."),
+      },
+      "_which_horizon": (
+        "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 "
+        "over the vanishing-point vote. The two side-wall/ceiling junctions "
+        "run parallel to the view axis and must converge on the horizon; they "
+        "are fitted outside this frame's own measured corners and intersected. "
+        "A facing with no corners has no ramp and issues no eye height, which "
+        "is a WITHHELD and not a zero."),
+      "_horizon_votes": {"per_region": p["votes"],
+                         "adopted_y": (ramp["y"] if ramp else None),
+                         "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+                         "ceiling_ramp_intersection": ramp},
+      "_measured_px": dict(m, wall_ceiling_line_y_px=p["ceiling_y_px"],
+                           corner_x0_px=p["corner_x0_px"],
+                           corner_x1_px=p["corner_x1_px"],
+                           horizon_y_px=(ramp["y"] if ramp else None)),
+      "_windows": reading["_windows"],
+      "_carriers": reading["carriers"],
+      "_light": lit,
+      "_derived": {
+          "eye_height_m": p["eye_height_m"],
+          "storey_height_m": p["storey_height_m"],
+          "implied_wall_width_m": p["implied_wall_width_m"],
+          "px_per_m_at_bottom": (
+              round((side["meta_used"]["image_h_px"] - ramp["y"]) / p["eye_height_m"], 4)
+              if (ramp and p["eye_height_m"]) else None),
+          "implied_camera_wall_m": (round(side["meta_used"]["image_h_px"] / ppm, 4)
+                                    if ppm else None)},
+      "_withheld_because": p["withheld_because"],
+      "_round": round_name,
+    }
+    return doc, list(p["withheld_because"])
 
 
 # ------------------------------------------------------------------- scoring
