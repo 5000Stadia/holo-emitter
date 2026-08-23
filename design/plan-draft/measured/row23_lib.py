@@ -68,6 +68,24 @@ REFLEX_PX = {"study/N": (330.4, 569.2), "study/E": (673.0, 860.0)}
 
 # ----------------------------------------------------------------- the config
 
+def _conv_y(kind, floor_y, ppm):
+    """Vertical extent of a stamped carrier where the manifest carries none.
+
+    The manor manifest's `stamped` copies hold only (kind, x0, x1) — the
+    emitter dropped the vertical fields, found when the first live arrival
+    took the sweep down with KeyError 'y0'. The verticals are not data the
+    manifest lost so much as data it never needed to carry: the scaffold drew
+    them FROM THE CONVENTION TABLE (plan spec §2.5 — a plan view holds no
+    vertical dimension), so the same table re-derives them here, at the wall
+    plane's own scale, exactly as the label pass stamped them.
+    """
+    if kind == "fireplace":
+        return (floor_y - 1.60 * ppm, floor_y)          # floor line -> 1.60 m
+    if kind == "window":
+        return (floor_y - 2.00 * ppm, floor_y - 0.90 * ppm)  # sill 0.90 -> head 2.00
+    return (floor_y - 2.00 * ppm, floor_y)              # door and anything door-like
+
+
 def cfg_from_sidecar(side):
     """CFG_ROW23 — a FUNCTION of the wall's scaffold, never a table.
 
@@ -103,7 +121,9 @@ def cfg_from_sidecar(side):
         floor_search=(max(0, int(fw["centre"] - 6 * fw["half_width"])),
                       min(H - 1, int(fw["centre"] + 6 * fw["half_width"]))),
         carriers=[dict(kind=s["kind"],
-                       x0=s["x0"], x1=s["x1"], y0=s["y0"], y1=s["y1"],
+                       x0=s["x0"], x1=s["x1"],
+                       y0=s.get("y0", _conv_y(s["kind"], floor_y, ppm)[0]),
+                       y1=s.get("y1", _conv_y(s["kind"], floor_y, ppm)[1]),
                        ruled_m=round((s["x1"] - s["x0"]) / ppm, 4),
                        tolerance_px=b["carrier_tolerance_px"],
                        reflex=REFLEX_PX.get(side["facing"]),

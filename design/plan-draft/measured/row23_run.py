@@ -171,7 +171,10 @@ def sweep(manifest, state, do_promote=True):
                    authority="the meta the page holds for this facing")
         side = {"facing": key,
                 "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
-                              "camera_wall_m": e["camera_wall_m"],
+                              # An OPEN facing has no wall to be a distance
+                              # from; its scale is quoted at the far line and
+                              # nothing in the cfg needs the distance itself.
+                              "camera_wall_m": e.get("camera_wall_m"),
                               "image_h_px": 1024,
                               "floor_line_y": e.get("floor_line_y", 0.7857),
                               "horizon_y": 0.51377,
@@ -182,7 +185,19 @@ def sweep(manifest, state, do_promote=True):
                 "brackets": e["brackets"], "stamped": e["stamped"],
                 "outputs": {"scaffold": e["packet"] + "/scaffold.png",
                             "scaffold_sha256": e["scaffold_sha256"]}}
-        cfg = row23_lib.cfg_from_sidecar(side)
+        # HOTFIX (Navigator, live run 2026-08-24): the manifest's `stamped`
+        # copies carry only (kind, x0, x1); the verticals are re-derived from
+        # the scaffold's own convention table in `row23_lib._conv_y`. Found
+        # when the first arrival took the whole loop down with KeyError 'y0'.
+        try:
+            cfg = row23_lib.cfg_from_sidecar(side)
+        except Exception as _ex:
+            # ONE BAD WALL PARKS ITSELF; it does not take the sweep down. The
+            # crash class this replaces cost the run its cadence once.
+            st["status"] = "parked"
+            st["why"] = "config derivation failed: %s" % _ex
+            print("  %-24s PARKED    config: %s" % (key, _ex))
+            continue
 
         best = None
         for r in arrivals:
