@@ -50,6 +50,21 @@ own options, and asserts the label pass touches only rects the sidecar declared.
 have already gone red on real defects during P0 — a legend box overhanging its own rect by six
 pixels, and a route replay that compared `study/E` against `study/N`.
 
+## The packets — six of them, ready to dispatch
+
+`packets/<wall>/<technique>/` — emitted by `node tools/make-scaffold.mjs --emit-packets`, never
+hand-written. Each carries the style seed, that wall's Image 2, the prompt with that wall's own
+numbers substituted from its sidecar, and a `PACKET.md` naming the attach order and the **exact
+destination filename for every roll**.
+
+`design/plan-draft/measured/row23/assignment.json` is the only map from an opaque return id to the
+cell that produced it. It was committed before any candidate existed and can never change —
+`scaffold.spec` checks its blob against the commit that introduced it.
+
+Returns land at `backdrops/source/<dir>/row23-<id>.png`, and **each roll's prompt is already on
+disk beside it**, so a return needs nothing but the PNG and the measurement can run the second a
+file appears. Waves go out back-to-back.
+
 ## Three things a reader is owed before the numbers arrive
 
 1. **This is an obedience experiment.** The scaffold stamps the hearth where `plan.json` draws it,

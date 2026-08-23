@@ -844,7 +844,8 @@ the suite red if row 26 closes without deleting the entries**. Row 23 exercises 
 |---|---|---|---|
 | P0 | generator, glyph table, sidecar, brackets, label pass, top-level PNGs, §7.1–7.9, §7.13; `contract.json`'s one sentence | — | 0 |
 | CP-23A | seed + scaffold look to Kabe | **holds dispatch** | 0 |
-| P1 | `assignment.json` committed (both walls); t1/t2/t3 dispatched at full n = 4 on `study/N` AND `study/E` | CP-23A closed | 24 |
+| **P1 prep — DONE** | `assignment.json` committed (28 ids, both walls); six packets emitted by `--emit-packets`; all 24 prompts lint-clean and on disk beside their return paths | CP-23A closed | 0 |
+| P1 | the six packets dispatched wave by wave, n = 4 each | the seat | 24 |
 | P2 | measure, score, table, separation report | P1 | 0 |
 | P3 | run-off, if the Navigator spends it (§5.6) | P2 | 8 |
 | P4 | lens arm at `--camera derived`, `study/N` only — it is the wall with the Kabe-ruled camera | P2 | 4 |
