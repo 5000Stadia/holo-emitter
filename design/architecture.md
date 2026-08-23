@@ -3550,6 +3550,95 @@ lands. Row 26's closing commit deletes the two entries, and a test reads `design
 spec table and goes red if the fence outlives its row — the handshake is mechanical rather than a
 note in a spec file that is deleted along with the spec file.
 
+## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
+
+One sweep reads whatever candidates are on disk, measures each against the camera its own manifest
+entry declares, and promotes, holds or re-asks per wall. Nothing waits on anything; running it again
+after more frames land costs only the new ones. It never promotes `study/N` or `study/W` (the
+experiment's own ground truth) and it never publishes.
+
+**ONE INSTRUMENT PER QUANTITY, and the run paid to learn what that means.** The loop originally
+measured every frame TWICE: once through `row23_lib.measure_candidate` for the camera gate, and once
+through `measure.py`'s `measure_wave` to build the document `promote-backdrop.mjs` reads. The second
+call was written to *avoid* a second detector — it reuses the corpus's functions — and it created one
+anyway, because it fed them a config synthesised from the same manifest brackets **widened
+threefold** (`module_band` = the rail bracket ±3 half-widths where the gate reads ±1). A detector's
+window is part of the detector. The two disagreed about the one number the gate exists to read —
+`great_hall/N` 117.9 px/m at the gate against 104.2 at the promotion, `back_stair/N` 337.9 against
+363.2 — and every WITHHELD the promotion issued was then computed off a scale no gate had ever
+admitted. Fourteen camera-PASS walls were refused promotion for "no px_per_m_at_wall" on frames whose
+`px_per_m_at_wall` the gate had just read.
+
+So `measure_wave` is out of this path entirely. `row23_lib._promotion_half` reads the ceiling line,
+the corners, the ceiling-ramp horizon and the light **in the same pass, off the same `L`, at the same
+scale** as the floor line and the chair rail, and `row23_lib.promotion_doc` shapes that one reading
+into the §5 record. Nothing is measured a second time and there is nowhere to put a second window.
+The rules are still the corpus's, injected through `picks` exactly as `pick_floor` and
+`module_in_bands` always were — `pick_ceiling`, `find_corners_cand2`, `ceiling_ramp_vp`,
+`horizon_votes`, `light`, and `EYE_RANGE` beside them.
+
+**The ceiling search runs from the frame top to the BOTTOM of the declared ceiling bracket.** Both
+endpoints are the scaffold's and both were wrong once. Searching the bracket alone finds a panel head
+on every wall whose painting drew a taller room than the plan rules — `great_hall/N` paints its
+ceiling at y 218 against a bracket of 313..364 — and every corner and ramp is then fitted at the
+wrong row. Opening the span *downward* instead (to the chair-rail bracket) is worse: `pick_ceiling`
+takes the strongest admissible horizontal, and a wainscot capping shadow outruns a plaster junction,
+so `back_stair/N` picks y 530 over its real ceiling at y 60.
+
+**A window outside the picture is a WITHHELD, not a crash.** `hall/N` and `hall/S` stand 2.15 m from
+an 8.00 m wall: at the ruled lens the wall's own foot lands at y 1089 of a 1024-row frame, so the
+scaffold's floor bracket is 1044..1134 and `pick_floor` took the argmin of an empty profile. That
+read as MEASURE-ERR, i.e. as a bad painting. It is not: no roll of those facings can carry a reading,
+because the STANDPOINT puts the datum out of frame. The bracket is checked against the frame before
+any detector runs, the wall is HELD rather than re-asked, and its retry cap is untouched — a re-ask
+with no correction is the one thing the miss ledger exists to prevent.
+
+**What the promotion still refuses, and why each refusal is about the picture.** Two families
+survive, and both are honest:
+
+- *No ramp.* The ceiling-ramp horizon is row 20's ruled instrument and it fits the two
+  side-wall/ceiling junctions. A frame that gives it neither corner (or one) has no horizon and
+  issues no eye height, which the standing-eye wave already ruled is a WITHHELD and not a zero.
+- *The ruler and the perspective disagree.* Where the ramp DOES fit, the eye it implies against the
+  scale the wall's own chair rail declares must be physically possible (`measure.py`'s `EYE_RANGE`,
+  0.8–2.2 m). Four manor paintings imply 0.31, 0.32, 2.93 and 3.11 m — the two readings are of one
+  picture and cannot both be true, and a meta built from them would tell the renderer to stand
+  somewhere nobody stands.
+
+**The named gap, which is ours and not the hand's.** Seven walls hold for "no corner pair" and at
+least `hall/E` and `hall/W` visibly HAVE corners. `find_corners_cand2` looks for the ceiling-line
+step to collapse past the corner; the study's ceilings are plaster and it does, and the manor's are
+boarded, so past the corner the side wall meets ceiling boards at nearly the same row and the step
+never collapses. That is an architectural difference, not a threshold, and tuning `frac` by eye on
+manor frames is exactly the free parameter row 23 forbids. It wants a corner instrument that reads a
+boarded ceiling, and it is the next thing this loop needs.
+
+**A promotion that cannot be baked is not a promotion.** `do_promote` runs `promote-backdrop.mjs`,
+then bakes `backdrops/baked.js` AND every world's `fixture.js` — a promoted wall changes two baked
+artifacts, and baking only the first leaves `fixtures/nav-manor/fixture.js` stale. The bake runs the
+fixture validator over the meta just written, so a refusal there is the law speaking about the asset:
+the two files are taken back out of the store and the wall holds.
+
+### The lens fork, completed at its second reader
+
+A wall is gated against the camera **its own page meta commands**: the study's painted walls against
+the measured 819.6 px reference, a manor wall whose scaffold and derived meta both declare 1024
+against the ruled lens. That ruling landed in `promote-backdrop.mjs` as `--reference ruled` and
+**nowhere else**, so `validate-fixtures.mjs` still centred every measured band on 819.6 — and the
+first manor wall promoted was refused by the bake reading the meta the promotion had just written
+(`buttery_pantry/S`, a 975.8 px lens obeying its command, outside 754.0..885.2). Eight `guards.spec`
+ledger cases went red behind it, because a shipped meta tripping a clause pollutes every exclusivity
+assertion in the file.
+
+The fix is one function with two centres. `measuredLensBand(reference)` is the single home; both the
+promotion tool and the validator call it; the meta carries `camera_reference` so the two readers
+cannot disagree, and so the promotion can be re-run from the meta alone (`fixtures.spec`'s promotion
+staleness case reads it back off the meta beside `measured_round`). The BAND does not move — it is
+±`MEASURED_BAND` around whichever centre. An absent or unrecognised value is the measured reference,
+the stricter of the two, so a misspelling refuses a manor wall loudly rather than admitting a study
+wall quietly. `validator.spec` pins the ruled centre from both sides, reads it off
+`groundplane.FOCAL_PX` rather than typing 1024, and asserts the two centres are genuinely two.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went
