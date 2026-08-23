@@ -43,7 +43,7 @@
  * 27's ruling and is not decided here.
  */
 import { chromium } from "playwright";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -649,6 +649,18 @@ async function main() {
   const argv = process.argv.slice(2);
   const key = argv[0];
   const argOf = (f, d) => { const i = argv.indexOf(f); return i !== -1 ? argv[i + 1] : d; };
+  if (argv.includes("--emit-packets")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold")));
+    const r = emitPackets(out);
+    console.log(`assignment  ${r.assignPath.slice(ROOT.length + 1)}`);
+    console.log(`            ${r.rolls.length} stage-1 rolls + ${r.lens.length} lens rolls`);
+    for (const x of r.rolls) {
+      console.log(`  ${x.wall}  ${x.technique}${x.variant ? "/" + x.variant : "   "}  roll ${x.roll}  ${x.id}  -> ${x.candidate}`);
+    }
+    for (const x of r.lens) console.log(`  ${x.wall}  lens        roll ${x.roll}  ${x.id}  -> ${x.candidate}`);
+    console.log(`packets     ${out.slice(ROOT.length + 1)}/packets/`);
+    return;
+  }
   if (!key || !/^[a-z_]+\/[NESW]$/.test(key)) {
     console.error("usage: node tools/make-scaffold.mjs <location>/<facing> --out <dir> [--camera page|derived|reading] [--round <name>]");
     process.exit(2);
@@ -782,6 +794,288 @@ async function main() {
   console.log(`  -> ${sidePath.slice(ROOT.length + 1)}`);
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Packets — the dispatch unit, and the production recipe's seed        */
+/* ------------------------------------------------------------------ */
+/* §8: "the recipe is code". This is the same emitter the manor run will use on
+ * every unpainted facing — the row's three techniques are its first three
+ * arguments, and the recommended one becomes the default. Nothing about a
+ * packet is hand-written: the prompt's numbers come out of the wall's own
+ * sidecar, so a wall whose plan moves re-emits with the plan rather than being
+ * retyped.
+ *
+ * THE CAPTAIN'S SPEED RULE, 2026-08-23: "algorithmic execution for as much as
+ * possible, images within the time it takes to retrieve the image one time then
+ * prep it." Waves go out back-to-back. What makes that possible is that a
+ * return lands on the exact path the measurement already expects, so
+ * `measure.py --round row23` can run the second a file appears — which is why
+ * PACKET.md names a destination FILENAME per roll rather than a directory. */
+
+/* Where a facing's candidates live. The source tree names the cross passage
+ * `passage-*` and the study `study-*`; the renderer keys them both `<room>/<F>`. */
+export const SOURCE_DIR = { study: "study", hall: "passage" };
+export const sourceDirFor = (key) => {
+  const [loc, f] = key.split("/");
+  return `backdrops/source/${SOURCE_DIR[loc] || loc}-${f}`;
+};
+
+/* THE OPAQUE ID. Deterministic, so the emission is re-runnable and the map can
+ * be committed before anything exists; opaque in the FILENAME, which is the
+ * thing that would otherwise tell a measuring hand which technique it is
+ * looking at.
+ *
+ * Said plainly, because a blinding claim that overstates itself is worse than
+ * none: this is not cryptographic, and it is reproducible from this file. What
+ * actually carries the blinding is that `CFG_ROW23` is a function of the
+ * SCAFFOLD's geometry, and a scaffold is per WALL — so the detector
+ * configuration cannot vary by technique even in principle. The id keeps the
+ * technique out of the path; the config keeps it out of the measurement. */
+export function rollId(wall, technique, variant, roll) {
+  return createHash("sha256")
+    .update(`row23|${wall}|${technique}|${variant || "-"}|${roll}`)
+    .digest("hex").slice(0, 8);
+}
+
+const TECHNIQUES = [
+  { id: "t1", image2: "frame", labelled: false, variants: [null],
+    what: "scaffold alone + style ref" },
+  { id: "t2", image2: "scaffold", labelled: true, variants: [null],
+    what: "scaffold with labelled carriers" },
+  { id: "t3", image2: "scaffold", labelled: true, variants: ["VA", "VB"],
+    what: "scaffold + style + text variants" }
+];
+const ROLLS = 4;
+const STYLE_SEED = "design/references/style-seed-warm.png";
+
+const WALL_WORDS = {
+  "study/N": {
+    side: "north",
+    ruled: "The stone Tudor fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly 2.20 m wide.",
+    declared2: "The fireplace stands where Image 2's FIREPLACE box stands, its stone breast filling that box's width.",
+    materials: "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards, pale carved stone Tudor fireplace surround, brick-lined firebox, a small lively lit wood fire",
+    vb: "The stone fireplace stands just left of the wall's centre, its breast projecting half a metre into the room, with a broad clear expanse of panelling to its right.",
+    carrier: "fireplace breast"
+  },
+  "study/E": {
+    side: "east",
+    ruled: "The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane.",
+    declared2: "The doorway stands where Image 2's DOOR box stands, its opening filling that box's width.",
+    materials: "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards, a plain moulded oak door surround with the opening standing empty and no door leaf hung in it",
+    vb: "The doorway stands well right of the wall's centre, with a broad clear expanse of panelling to its left and only a narrow return of wall beyond it.",
+    carrier: "door opening"
+  }
+};
+
+/** V-A's sentence, computed from the wall's own sidecar. Nothing typed. */
+function variantA(side, w) {
+  const m = side.meta_used, s = side.stamped[0];
+  const ppm = m.px_per_m_at_wall;
+  const fromL = (s.x0 - m.corner_x0_px) / ppm;
+  const toL = (s.x1 - m.corner_x0_px) / ppm;
+  const span = (m.corner_x1_px - m.corner_x0_px) / ppm;
+  return `Carrier placement: The ${w.carrier} begins ${fromL.toFixed(2)} m from the left corner ` +
+    `and ends ${toL.toFixed(2)} m from it, on a wall measuring ${span.toFixed(2)} m corner to ` +
+    `corner as Image 2 draws it - from ${Math.round(100 * fromL / span)} % to ` +
+    `${Math.round(100 * toL / span)} % of the wall's width.`;
+}
+
+/**
+ * One prompt. `t1` and `t2` are byte-identical but for the two DECLARED lines,
+ * which is the control that makes the matrix an experiment rather than three
+ * differently-worded asks; `emitPackets` asserts that diff before it writes.
+ */
+export function promptFor(key, side, technique, variant) {
+  const w = WALL_WORDS[key];
+  const ppm = side.meta_used.px_per_m_at_wall;
+  const lab = technique.labelled;
+  const lines = [];
+  lines.push("Use case: historical-scene");
+  lines.push(`Asset type: gameplay backdrop for the study ${w.side} wall, circa-1660 English manor`);
+  lines.push("Input images: Image 1 is the exact reference for painted style, medium, materials,");
+  lines.push("  palette, period detail and light quality. Image 2 is a geometric layout diagram of");
+  lines.push("  the wall to be painted: it is a technical drawing, not artwork to imitate.");
+  /* ONE PHYSICAL LINE PER DECLARED SENTENCE. §4.0b says t1 and t2 differ by
+     exactly the two declared lines, and the control below counts LINES — so a
+     declaration wrapped across two of them makes the diff three and the guard
+     refuses the wave. It did, on the first run. */
+  if (lab) {
+    lines.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
+  }
+  lines.push(`Primary request: Paint the ${w.side} wall of an empty circa-1660 English manor study,`);
+  lines.push("  matching Image 1's finish and Image 2's geometry exactly.");
+  lines.push("Gate anchor: the wainscot chair-rail above the floor, 0.95 m.");
+  lines.push("Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The");
+  lines.push("  camera is level, with zero upward or downward tilt. The wall-floor line, the two");
+  lines.push("  room corners, the side-wall returns at left and right, and the amount of visible");
+  lines.push("  floor all land where Image 2 puts them, to the pixel. One metre of wall at the wall");
+  lines.push(`  plane spans ${ppm.toFixed(0)} pixels. The floor is visible and runs to the bottom edge of frame.`);
+  lines.push("Architecture and measurement anchors: A clearly legible wainscot chair-rail runs");
+  lines.push("  continuously corner to corner at exactly 0.95 m above the floor, on every exposed");
+  lines.push(`  wall surface including the side-wall returns. ${w.ruled} Make these dimensions`);
+  lines.push("  physically coherent and unmistakable in the architecture.");
+  if (lab) lines.push(`  ${w.declared2}`);
+  lines.push(`Materials and period detail: ${w.materials}.`);
+  lines.push("Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm");
+  lines.push("  browns, cool ambient light from the right, localized amber firelight, gentle natural falloff.");
+  lines.push("Constraints: the room is completely empty of furniture, loose props, people and");
+  lines.push("  clutter. Image 2 contains grid lines, a large letter and annotation text; these are");
+  lines.push("  diagram marks identifying the wall, and the painted room contains no line, letter,");
+  lines.push("  word, number, label, watermark or border of any kind.");
+  if (variant === "VA") lines.push(variantA(side, w));
+  if (variant === "VB") lines.push(`Carrier placement: ${w.vb}`);
+  return lines.join("\n") + "\n";
+}
+
+export function emitPackets(outDir) {
+  const walls = ["study/N", "study/E"];
+  const sides = {};
+  for (const key of walls) {
+    const [loc, f] = key.split("/");
+    sides[key] = JSON.parse(readFileSync(join(outDir, `${loc}-${f}.scaffold.json`), "utf8"));
+  }
+
+  /* ---- the map, written before anything it maps exists ---- */
+  const rolls = [];
+  for (const key of walls) {
+    for (const t of TECHNIQUES) {
+      let n = 0;
+      for (const v of t.variants) {
+        const per = ROLLS / t.variants.length;
+        for (let i = 0; i < per; i++) {
+          n += 1;
+          const id = rollId(key, t.id, v, n);
+          rolls.push({
+            id, wall: key, technique: t.id, variant: v, roll: n,
+            camera: sides[key].camera, scaffold: t.image2,
+            candidate: `${sourceDirFor(key)}/row23-${id}.png`,
+            prompt: `${sourceDirFor(key)}/row23-${id}.prompt.txt`
+          });
+        }
+      }
+    }
+  }
+  const lens = [];
+  for (let i = 1; i <= 4; i++) {
+    const id = rollId("study/N", "lens", "derived", i);
+    lens.push({
+      id, wall: "study/N", technique: null, variant: null, roll: i, camera: "derived",
+      scaffold: "scaffold",
+      candidate: `${sourceDirFor("study/N")}/row23-${id}.png`,
+      prompt: `${sourceDirFor("study/N")}/row23-${id}.prompt.txt`,
+      _technique_decided_by:
+        "the deterministic entrant rule in design/specs/23-plan.md §5.6 (highest admitted count, " +
+        "then highest median adherence_raw, then technique index), applied at P2. It is recorded " +
+        "in the batch table and NOT here, because this file may never change once written."
+    });
+  }
+
+  const assignPath = join(ROOT, "design", "plan-draft", "measured", "row23", "assignment.json");
+  mkdirSync(dirname(assignPath), { recursive: true });
+  writeFileSync(assignPath, JSON.stringify({
+    _what_this_is: "The ONLY map from an opaque return id to the cell that produced it. Written and committed BEFORE any candidate is measured; scaffold.spec asserts its blob has never changed since the commit that introduced it.",
+    _why_opaque: "A return path carrying its technique would tell a measuring hand which condition it is looking at. What actually carries the blinding is that CFG_ROW23 is a function of the SCAFFOLD's geometry and a scaffold is per WALL, so the detector configuration cannot vary by technique even in principle; the opaque id keeps the technique out of the path as well. The id is reproducible from tools/make-scaffold.mjs and is not cryptographic, which is stated here rather than implied.",
+    _stage1: "3 techniques x 4 rolls x 2 walls = 24. t3's four are two variants x two rolls, so a variant is separable from roll noise.",
+    _lens_arm: "4 rolls at --camera derived on study/N, the wall with the Kabe-ruled camera. Their technique is decided by a rule at P2, not chosen, and is not written here.",
+    _generated: "2026-08-23",
+    rolls, lens
+  }, null, 2) + "\n");
+
+  /* ---- the packets ---- */
+  const lint = [];
+  for (const key of walls) {
+    const [loc, f] = key.split("/");
+    const side = sides[key];
+    const texts = {};
+    for (const t of TECHNIQUES) {
+      const dir = join(outDir, "packets", `${loc}-${f}`, t.id);
+      mkdirSync(dir, { recursive: true });
+      copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+      const img2 = `${loc}-${f}-${t.image2}.png`;
+      copyFileSync(join(outDir, img2), join(dir, img2));
+
+      const mine = rolls.filter((r) => r.wall === key && r.technique === t.id);
+      const written = [];
+      for (const v of t.variants) {
+        const text = promptFor(key, side, t, v);
+        const name = v ? `prompt-${v}.txt` : "prompt.txt";
+        writeFileSync(join(dir, name), text);
+        written.push({ name, variant: v });
+        if (!v) texts[t.id] = text;
+        lint.push(join(dir, name));
+        /* AND BESIDE THE CANDIDATE, where the lint and the measurement look for
+         * it. The seat copies the image; the prompt is ours to place, and
+         * placing it now means a return needs nothing but the PNG. */
+        for (const r of mine.filter((x) => x.variant === v)) {
+          mkdirSync(join(ROOT, sourceDirFor(key)), { recursive: true });
+          writeFileSync(join(ROOT, r.prompt), text);
+          lint.push(join(ROOT, r.prompt));
+        }
+      }
+      writeFileSync(join(dir, "PACKET.md"), packetMd(key, t, mine, img2, side));
+    }
+    /* THE CONTROL, ASSERTED BEFORE ANY PACKET IS DISPATCHED rather than claimed
+     * in a document: on this wall t1 and t2 differ by exactly the two declared
+     * lines. A matrix whose prompts differ in prose as well as in technique has
+     * measured nothing. */
+    const a = texts.t1.split("\n"), b = texts.t2.split("\n");
+    const extra = b.filter((l) => !a.includes(l));
+    const missing = a.filter((l) => !b.includes(l));
+    if (extra.length !== 2 || missing.length !== 0) {
+      throw new Error(
+        `emit-packets refused: on ${key} the t1/t2 prompts differ by ${extra.length} added and ` +
+        `${missing.length} removed lines, not by exactly the two declared ones. The matrix's own ` +
+        `control is broken and no packet may go out.`);
+    }
+  }
+  return { assignPath, rolls, lens, lint };
+}
+
+function packetMd(key, t, mine, img2, side) {
+  const dir = sourceDirFor(key);
+  const rows = mine.map((r) =>
+    `| ${r.roll} | \`${r.variant ? `prompt-${r.variant}.txt` : "prompt.txt"}\` | \`${r.candidate}\` |`);
+  return `# Packet — ${key}, technique ${t.id} (${t.what})
+
+**Generate ${mine.length} images. Save each to the exact path in the table.** The measurement runs
+the moment a file appears at one of those paths, so a return in the right place under the wrong name
+costs a wave.
+
+## Attach, in this order
+
+1. \`style-seed-warm.png\` — **Image 1**, the style reference. Kabe's approved seed ("Warm",
+   \`design/approvals.log\`, 2026-08-21).
+2. \`${img2}\` — **Image 2**, the ${t.labelled ? "annotated layout scaffold" : "bare layout frame"}.
+
+Then send the prompt text verbatim from the file named in the table.
+
+## The rolls
+
+| roll | prompt to send | save the image to |
+|---|---|---|
+${rows.join("\n")}
+
+**The prompt files are already on disk beside where the image goes** (\`${dir}/row23-<id>.prompt.txt\`),
+written from this packet, so a return needs nothing but the PNG. Do not rewrite them.
+
+## What this wall is
+
+${key} at ${side.meta_used.px_per_m_at_wall} px per metre at the wall plane, ${side.camera === "page"
+    ? "drawn at the camera the page holds for this facing"
+    : "drawn at its own measured cand-6 camera, injected (admitted, not promoted)"}. Its plan carrier
+is the **${side.stamped.map((s) => s.label.toLowerCase()).join(", ")}**, and the gate's one voting
+ruler is the wainscot chair-rail at 0.95 m above the floor line.
+
+## The fence
+
+Write only under \`backdrops/\` and \`library-src/\`. Never \`src/\`, never \`design/\`. Nothing here
+asks you to judge a result: generate, save to the named paths, and report the paths back.
+`;
+}
+
+/* THE ENTRY POINT LIVES AT THE END OF THE FILE, and has to: `main` reads the
+ * packet tables below it, and a module-eval-time call placed above them hits
+ * their temporal dead zone. */
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((e) => { console.error(e); process.exit(1); });
 }

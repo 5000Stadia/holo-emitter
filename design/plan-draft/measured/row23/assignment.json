@@ -1,0 +1,323 @@
+{
+  "_what_this_is": "The ONLY map from an opaque return id to the cell that produced it. Written and committed BEFORE any candidate is measured; scaffold.spec asserts its blob has never changed since the commit that introduced it.",
+  "_why_opaque": "A return path carrying its technique would tell a measuring hand which condition it is looking at. What actually carries the blinding is that CFG_ROW23 is a function of the SCAFFOLD's geometry and a scaffold is per WALL, so the detector configuration cannot vary by technique even in principle; the opaque id keeps the technique out of the path as well. The id is reproducible from tools/make-scaffold.mjs and is not cryptographic, which is stated here rather than implied.",
+  "_stage1": "3 techniques x 4 rolls x 2 walls = 24. t3's four are two variants x two rolls, so a variant is separable from roll noise.",
+  "_lens_arm": "4 rolls at --camera derived on study/N, the wall with the Kabe-ruled camera. Their technique is decided by a rule at P2, not chosen, and is not written here.",
+  "_generated": "2026-08-23",
+  "rolls": [
+    {
+      "id": "53e2d427",
+      "wall": "study/N",
+      "technique": "t1",
+      "variant": null,
+      "roll": 1,
+      "camera": "page",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-N/row23-53e2d427.png",
+      "prompt": "backdrops/source/study-N/row23-53e2d427.prompt.txt"
+    },
+    {
+      "id": "58a23659",
+      "wall": "study/N",
+      "technique": "t1",
+      "variant": null,
+      "roll": 2,
+      "camera": "page",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-N/row23-58a23659.png",
+      "prompt": "backdrops/source/study-N/row23-58a23659.prompt.txt"
+    },
+    {
+      "id": "c4d0e3e0",
+      "wall": "study/N",
+      "technique": "t1",
+      "variant": null,
+      "roll": 3,
+      "camera": "page",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-N/row23-c4d0e3e0.png",
+      "prompt": "backdrops/source/study-N/row23-c4d0e3e0.prompt.txt"
+    },
+    {
+      "id": "d2cc8502",
+      "wall": "study/N",
+      "technique": "t1",
+      "variant": null,
+      "roll": 4,
+      "camera": "page",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-N/row23-d2cc8502.png",
+      "prompt": "backdrops/source/study-N/row23-d2cc8502.prompt.txt"
+    },
+    {
+      "id": "017814cc",
+      "wall": "study/N",
+      "technique": "t2",
+      "variant": null,
+      "roll": 1,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-017814cc.png",
+      "prompt": "backdrops/source/study-N/row23-017814cc.prompt.txt"
+    },
+    {
+      "id": "f059b5fb",
+      "wall": "study/N",
+      "technique": "t2",
+      "variant": null,
+      "roll": 2,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-f059b5fb.png",
+      "prompt": "backdrops/source/study-N/row23-f059b5fb.prompt.txt"
+    },
+    {
+      "id": "c21b7640",
+      "wall": "study/N",
+      "technique": "t2",
+      "variant": null,
+      "roll": 3,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-c21b7640.png",
+      "prompt": "backdrops/source/study-N/row23-c21b7640.prompt.txt"
+    },
+    {
+      "id": "40f613b0",
+      "wall": "study/N",
+      "technique": "t2",
+      "variant": null,
+      "roll": 4,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-40f613b0.png",
+      "prompt": "backdrops/source/study-N/row23-40f613b0.prompt.txt"
+    },
+    {
+      "id": "99ac9099",
+      "wall": "study/N",
+      "technique": "t3",
+      "variant": "VA",
+      "roll": 1,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-99ac9099.png",
+      "prompt": "backdrops/source/study-N/row23-99ac9099.prompt.txt"
+    },
+    {
+      "id": "7432e756",
+      "wall": "study/N",
+      "technique": "t3",
+      "variant": "VA",
+      "roll": 2,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-7432e756.png",
+      "prompt": "backdrops/source/study-N/row23-7432e756.prompt.txt"
+    },
+    {
+      "id": "980cfda6",
+      "wall": "study/N",
+      "technique": "t3",
+      "variant": "VB",
+      "roll": 3,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-980cfda6.png",
+      "prompt": "backdrops/source/study-N/row23-980cfda6.prompt.txt"
+    },
+    {
+      "id": "5f7ef55f",
+      "wall": "study/N",
+      "technique": "t3",
+      "variant": "VB",
+      "roll": 4,
+      "camera": "page",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-5f7ef55f.png",
+      "prompt": "backdrops/source/study-N/row23-5f7ef55f.prompt.txt"
+    },
+    {
+      "id": "a62f24d1",
+      "wall": "study/E",
+      "technique": "t1",
+      "variant": null,
+      "roll": 1,
+      "camera": "reading",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-E/row23-a62f24d1.png",
+      "prompt": "backdrops/source/study-E/row23-a62f24d1.prompt.txt"
+    },
+    {
+      "id": "d269abe0",
+      "wall": "study/E",
+      "technique": "t1",
+      "variant": null,
+      "roll": 2,
+      "camera": "reading",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-E/row23-d269abe0.png",
+      "prompt": "backdrops/source/study-E/row23-d269abe0.prompt.txt"
+    },
+    {
+      "id": "45ac54cb",
+      "wall": "study/E",
+      "technique": "t1",
+      "variant": null,
+      "roll": 3,
+      "camera": "reading",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-E/row23-45ac54cb.png",
+      "prompt": "backdrops/source/study-E/row23-45ac54cb.prompt.txt"
+    },
+    {
+      "id": "cfca2310",
+      "wall": "study/E",
+      "technique": "t1",
+      "variant": null,
+      "roll": 4,
+      "camera": "reading",
+      "scaffold": "frame",
+      "candidate": "backdrops/source/study-E/row23-cfca2310.png",
+      "prompt": "backdrops/source/study-E/row23-cfca2310.prompt.txt"
+    },
+    {
+      "id": "c0095e2a",
+      "wall": "study/E",
+      "technique": "t2",
+      "variant": null,
+      "roll": 1,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-c0095e2a.png",
+      "prompt": "backdrops/source/study-E/row23-c0095e2a.prompt.txt"
+    },
+    {
+      "id": "4550514c",
+      "wall": "study/E",
+      "technique": "t2",
+      "variant": null,
+      "roll": 2,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-4550514c.png",
+      "prompt": "backdrops/source/study-E/row23-4550514c.prompt.txt"
+    },
+    {
+      "id": "a32d5a49",
+      "wall": "study/E",
+      "technique": "t2",
+      "variant": null,
+      "roll": 3,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-a32d5a49.png",
+      "prompt": "backdrops/source/study-E/row23-a32d5a49.prompt.txt"
+    },
+    {
+      "id": "ed5fd5f6",
+      "wall": "study/E",
+      "technique": "t2",
+      "variant": null,
+      "roll": 4,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-ed5fd5f6.png",
+      "prompt": "backdrops/source/study-E/row23-ed5fd5f6.prompt.txt"
+    },
+    {
+      "id": "1b34f975",
+      "wall": "study/E",
+      "technique": "t3",
+      "variant": "VA",
+      "roll": 1,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-1b34f975.png",
+      "prompt": "backdrops/source/study-E/row23-1b34f975.prompt.txt"
+    },
+    {
+      "id": "bf5e7d28",
+      "wall": "study/E",
+      "technique": "t3",
+      "variant": "VA",
+      "roll": 2,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-bf5e7d28.png",
+      "prompt": "backdrops/source/study-E/row23-bf5e7d28.prompt.txt"
+    },
+    {
+      "id": "8dacc6d5",
+      "wall": "study/E",
+      "technique": "t3",
+      "variant": "VB",
+      "roll": 3,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-8dacc6d5.png",
+      "prompt": "backdrops/source/study-E/row23-8dacc6d5.prompt.txt"
+    },
+    {
+      "id": "c51d5bb4",
+      "wall": "study/E",
+      "technique": "t3",
+      "variant": "VB",
+      "roll": 4,
+      "camera": "reading",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-E/row23-c51d5bb4.png",
+      "prompt": "backdrops/source/study-E/row23-c51d5bb4.prompt.txt"
+    }
+  ],
+  "lens": [
+    {
+      "id": "99e36367",
+      "wall": "study/N",
+      "technique": null,
+      "variant": null,
+      "roll": 1,
+      "camera": "derived",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-99e36367.png",
+      "prompt": "backdrops/source/study-N/row23-99e36367.prompt.txt",
+      "_technique_decided_by": "the deterministic entrant rule in design/specs/23-plan.md §5.6 (highest admitted count, then highest median adherence_raw, then technique index), applied at P2. It is recorded in the batch table and NOT here, because this file may never change once written."
+    },
+    {
+      "id": "9dd4d51c",
+      "wall": "study/N",
+      "technique": null,
+      "variant": null,
+      "roll": 2,
+      "camera": "derived",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-9dd4d51c.png",
+      "prompt": "backdrops/source/study-N/row23-9dd4d51c.prompt.txt",
+      "_technique_decided_by": "the deterministic entrant rule in design/specs/23-plan.md §5.6 (highest admitted count, then highest median adherence_raw, then technique index), applied at P2. It is recorded in the batch table and NOT here, because this file may never change once written."
+    },
+    {
+      "id": "63cb16c3",
+      "wall": "study/N",
+      "technique": null,
+      "variant": null,
+      "roll": 3,
+      "camera": "derived",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-63cb16c3.png",
+      "prompt": "backdrops/source/study-N/row23-63cb16c3.prompt.txt",
+      "_technique_decided_by": "the deterministic entrant rule in design/specs/23-plan.md §5.6 (highest admitted count, then highest median adherence_raw, then technique index), applied at P2. It is recorded in the batch table and NOT here, because this file may never change once written."
+    },
+    {
+      "id": "4a9784c3",
+      "wall": "study/N",
+      "technique": null,
+      "variant": null,
+      "roll": 4,
+      "camera": "derived",
+      "scaffold": "scaffold",
+      "candidate": "backdrops/source/study-N/row23-4a9784c3.png",
+      "prompt": "backdrops/source/study-N/row23-4a9784c3.prompt.txt",
+      "_technique_decided_by": "the deterministic entrant rule in design/specs/23-plan.md §5.6 (highest admitted count, then highest median adherence_raw, then technique index), applied at P2. It is recorded in the batch table and NOT here, because this file may never change once written."
+    }
+  ]
+}
