@@ -35,7 +35,7 @@ for a marker.
    - `design/plan-draft/measured/row23_run.py` — `measure.candidate` per candidate,
      `promote.wall` per promotion, `bake.sweep` per bake call, `sweep.pass` per sweep.
      **This file is shared with the concurrent corner/horizon builder**: every edit here is a
-     timing line and nothing else, each marked `# [row33]`, and `row23_lib.py` is not touched.
+     timing line and nothing else, each marked `# [row 33]`, and `row23_lib.py` is not touched.
    - `tools/promote-backdrop.mjs` — `promote.backdrop`.
    - `tools/bake-backdrops.mjs` — `bake.backdrops`.
    - `tools/bake-fixtures.mjs` — `bake.fixtures`.

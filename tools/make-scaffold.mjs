@@ -50,7 +50,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { facingCarriers, openingsForFacing, deriveMeta } from "./plan-projection.mjs";
-import * as timings from "./timings.mjs";                 // [row33] the stopwatch
+import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 /* THE ROOM'S OWN VOICE, row 29 [HUMAN, 2026-08-24]: "is every room in this
  * house parlor walls?" and "exterior garden has interior wall outside". The
  * table is beside this file with each voice's period justification on it; every
@@ -1343,7 +1343,7 @@ function tolFor(meta, rects) {
 }
 
 async function emitManor(outDir, opts) {
-  const t_run = Date.now() / 1000;                                        // [row33]
+  const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const all = manorFacings(plan);
 
@@ -1421,7 +1421,7 @@ async function emitManor(outDir, opts) {
       entries.push({ ...fac, skipped: "the page holds no meta for this facing" });
       continue;
     }
-    /* [row33] The scaffold cut for one facing: two full-canvas renders read
+    /* [row 33] The scaffold cut for one facing: two full-canvas renders read
      * back out of a browser, which is the emit half of the pipeline's clock. */
     const t_facing = Date.now() / 1000;
     const { rects } = scaffoldRects(plan, loc, f, meta);
@@ -1436,10 +1436,10 @@ async function emitManor(outDir, opts) {
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
-    timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row33]
+    timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row 33]
       { carriers: rects.length, voice: voice.id, technique: opts.technique || "t2" });
 
-    const t_packet = Date.now() / 1000;                                   // [row33]
+    const t_packet = Date.now() / 1000;                                   // [row 33]
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 2); i++) {
       const id = rollId(fac.key, opts.technique || "t2", null, i);
@@ -1468,7 +1468,7 @@ async function emitManor(outDir, opts) {
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
-    /* [row33] The packet, and with it the moment the seat COULD have started —
+    /* [row 33] The packet, and with it the moment the seat COULD have started —
      * `emit.packet` -> `generate.roll` is the dispatch queue, and the first
      * backfilled reading of it was 41.9 min at p50. */
     timings.record("emit.packet", t_packet, Date.now() / 1000, fac.key,
@@ -1520,7 +1520,7 @@ async function emitManor(outDir, opts) {
     why[head] = (why[head] || 0) + 1;
   }
   for (const [k, n] of Object.entries(why)) console.log(`            ${n} ${k}`);
-  timings.record("emit.run", t_run, Date.now() / 1000, null,             // [row33]
+  timings.record("emit.run", t_run, Date.now() / 1000, null,             // [row 33]
     { mode: "manor", emitted: manifest.emitted, skipped: skipped.length,
       facings_in_plan: all.length, technique: opts.technique || "t2" });
   return manifest;
@@ -1562,7 +1562,7 @@ export function retryWalls(state) {
 }
 
 async function emitRetries(outDir, opts) {
-  const t_run = Date.now() / 1000;                                        // [row33]
+  const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const statePath = join(outDir, "run-state.json");
   if (!existsSync(statePath)) {
@@ -1600,7 +1600,7 @@ async function emitRetries(outDir, opts) {
     }, w.key);
     if (!meta) { refused.push({ ...w, refused: "the page holds no meta for this facing" }); continue; }
 
-    const t_facing = Date.now() / 1000;                                   // [row33]
+    const t_facing = Date.now() / 1000;                                   // [row 33]
     const { rects } = scaffoldRects(plan, loc, f, meta);
     const { voice, anchor, via } = voiceFor(plan, loc, f);
     const cr = chairRail(meta, anchor);
@@ -1616,10 +1616,10 @@ async function emitRetries(outDir, opts) {
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
     copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
-    timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row33]
+    timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
-    const t_packet = Date.now() / 1000;                                   // [row33]
+    const t_packet = Date.now() / 1000;                                   // [row 33]
     const text = manorPrompt(plan, w.key, meta, rects, w.correction);
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
@@ -1654,7 +1654,7 @@ async function emitRetries(outDir, opts) {
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `The earlier ask for this wall is still at \`../\` and is not overwritten.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
-    timings.record("emit.packet", t_packet, Date.now() / 1000, w.key,     // [row33]
+    timings.record("emit.packet", t_packet, Date.now() / 1000, w.key,     // [row 33]
       { rolls: ids.length, roll_ids: ids.map((r) => r.id),
         prompt_chars: text.length, retry: attempt });
 
@@ -1682,7 +1682,7 @@ async function emitRetries(outDir, opts) {
   console.log(`\nretries   ${mp.slice(ROOT.length + 1)}`);
   console.log(`          ${emitted.length} re-ask packet(s); ${refused.length} refused`);
   for (const r of refused) console.log(`            ${r.key}  ${r.refused}`);
-  timings.record("emit.run", t_run, Date.now() / 1000, null,              // [row33]
+  timings.record("emit.run", t_run, Date.now() / 1000, null,              // [row 33]
     { mode: "retries", emitted: emitted.length, refused: refused.length });
   return { emitted, refused };
 }

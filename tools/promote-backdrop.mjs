@@ -37,7 +37,7 @@ import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
 } from "./validate-fixtures.mjs";
 import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers } from "./plan-projection.mjs";
-import * as timings from "./timings.mjs";                 // [row33] the stopwatch
+import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CANVAS_W = 1536;
@@ -50,7 +50,7 @@ const argOf = (flag, dflt) => {
 const facingArg = argOf("--facing");
 const candidate = argOf("--candidate");
 
-/* [row33] THE CLOCK IS AN EXIT HANDLER, and that is not laziness: this script
+/* [row 33] THE CLOCK IS AN EXIT HANDLER, and that is not laziness: this script
  * refuses from fifteen different places, and a refusal is the outcome most
  * worth timing — a wall that costs a minute to be told no costs it every time
  * the sweep asks. One handler records every path, and says which it was. */

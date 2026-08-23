@@ -3745,7 +3745,7 @@ outcome most worth timing; both bakes and `prompt_lint.py` write their own; `pub
 GENERATION is not instrumented and cannot be — the generating seat is external — so it is DERIVED:
 prompt-file mtime to candidate-file mtime, per roll.
 
-Every edit row 33 made to `row23_run.py` is a timing line marked `[row33]`, and `row23_lib.py` is
+Every edit row 33 made to `row23_run.py` is a timing line marked `[row 33]`, and `row23_lib.py` is
 untouched; `timings.spec` asserts both, so the corner/horizon instrument's home stays one owner's.
 
 **The analyzer** (`timings_report.py`) computes per-step count/p50/p95/total/throughput, the top

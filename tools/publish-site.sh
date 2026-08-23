@@ -14,7 +14,7 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 HEAD_SHA=$(git rev-parse --short HEAD)
 
-# [row33] THE PUBLISH CLOCKS ITSELF, and it is the step with the least evidence
+# [row 33] THE PUBLISH CLOCKS ITSELF, and it is the step with the least evidence
 # behind it: this script force-pushes an ORPHAN branch, so each publish erases
 # the previous one's commit and the whole published history is one commit deep.
 # The backfill could mine exactly ONE publish out of the entire project. From
@@ -49,7 +49,7 @@ git -C "$S" push -qf https://github.com/5000Stadia/holo-emitter.git gh-pages
 gh api -X POST repos/5000Stadia/holo-emitter/pages/builds >/dev/null
 
 WANT=$(grep -c '"id"' fixtures/nav-manor/world.json)
-# [row33] The wait is measured on its own: it is the one part of a publish that
+# [row 33] The wait is measured on its own: it is the one part of a publish that
 # is not this project's to make faster, and pooling it with the push would hide
 # both numbers.
 T_VERIFY=$(now)
