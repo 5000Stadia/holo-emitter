@@ -502,16 +502,31 @@ export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W
  * carries no head, because nothing spans it. So the rectangle a player aims at
  * is the ground BEYOND it: everything past the threshold lies on the ground
  * plane, and on a level camera the ground plane runs from the threshold's own
- * line up to the horizon and no further. That is the whole derivation — the
- * mouth's own width at the mouth's own distance, from the horizon down to the
- * ground at the mouth — and it needs no constant of its own.
+ * line up to the horizon and no further.
  *
- * The renderer DRAWS NOTHING for it. Blueprint §4b law (b): where no building
- * stands the ground runs open to its far line, and the picture already shows
- * exactly that — a gap in the band list on a walled facing, and open ground on
- * an `open` one. A jamb, a fill or a pasted far room would be an invented
- * enclosure, or an [AI] appearance becoming the established look by default
- * where ruling (1) gives the vista to a generated backdrop.
+ * BOTH HALVES OF THAT WERE CHANGED IN ROUND FOUR AND THE PARAGRAPH IS KEPT SO
+ * THE CHANGE IS LEGIBLE. It read: "That is the whole derivation — the mouth's
+ * own width at the mouth's own distance, from the horizon down to the ground at
+ * the mouth — and it needs no constant of its own. The renderer DRAWS NOTHING
+ * for it. Blueprint §4b law (b): where no building stands the ground runs open
+ * to its far line, and the picture already shows exactly that. A jamb, a fill
+ * or a pasted far room would be an invented enclosure, or an [AI] appearance
+ * becoming the established look by default where ruling (1) gives the vista to
+ * a generated backdrop."
+ *
+ * What that reasoning missed is that a facing typed `enclosed` draws its wall
+ * across the WHOLE view, including the part the plan says is a gap — so on the
+ * manor's front way in the picture did not "already show exactly that", it
+ * showed a flat black wall with a 57 px sliver at its foot. An `open_edge` has
+ * no lintel, so the hole now runs from the top of the frame to the ground, and
+ * the destination's own ground is composited through it.
+ *
+ * THAT COMPOSITE IS NOT SETTLED. Round four's critic measured it: the
+ * destination's real frame covers 22.5 % of the approach's mouth and 38 % of
+ * the court's, and the rest is `drawImage` edge extension — flat blocks derived
+ * from a single pixel each. On the numbers, the paragraph above may have been
+ * right for the wrong reason. Rows 15 and 19 hand the question on; see
+ * `design/architecture.md`, "Where rows 15 and 19 stop".
  */
 export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
   const room = roomOf(plan, roomId);

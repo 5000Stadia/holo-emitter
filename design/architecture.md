@@ -2129,17 +2129,19 @@ entrance court, so without it one plan room is unreachable. `meta.openings` entr
 `kind: "door" | "threshold"` (`[row15:meta.opening_kind]`), because the renderer's two branches are
 opposites and a missing kind would take the door branch and cut a jamb into open ground.
 
-**The rectangle is the ground beyond the mouth**: everything past a threshold lies on the ground
-plane, and on a level camera the ground plane runs from the threshold's own line up to the horizon
-and no further. So the rect is the mouth's width at the mouth's own distance, from the horizon down
-to the ground at the mouth — 1068 × 57 px on `entrance_approach/N`, full-width × 165 px on
-`entrance_court/S`. No constant and no cap chosen by hand. **The one over-claim, named**: on
-`entrance_court/S` the mouth stands 6.75 m out and the court's own far line 26.75 m out, so 42 px of
-that 165 is above the far line and is void rather than the approach's ground. A click there travels.
-Capping the top at the facing's own floor line would fix it there and destroy it on
-`entrance_approach/N`, where the mouth IS the wall line and the ground beyond it is entirely above
-the floor line — the rect would collapse to nothing. So it is left, in a band where nothing else is
-clickable, rather than special-cased by which side of a mouth you happen to be standing on.
+**The rectangle was the ground beyond the mouth, and in round four it stopped being that.** It ran
+from the horizon down to the ground at the mouth — 1068 × 57 px on `entrance_approach/N`, full-width
+× 165 px on `entrance_court/S` — on the reasoning that everything past a threshold lies on the
+ground plane and the ground plane ends at the horizon. That sliver sat at the foot of a wall the
+grid drew straight across the plan's own 20.4 m opening, and the facing rendered as flat black. An
+`open_edge` has no lintel, so the hole now runs from the TOP OF THE FRAME to the ground at the
+mouth: **1069 × 588 px** on `entrance_approach/N` and **3095 × 706 px** on `entrance_court/S`.
+
+**And that is over-claimed, badly, which round four's critic found and this row does not fix.** The
+old over-claim was 42 px of 165 above the far line. The new one is most of the rectangle: on
+`entrance_court/S` the aperture is wider than the 1536 px canvas and 69 % of its height, so the void
+above the horizon answers `go` — and both chevrons, sitting on black sky, now yield a walk instead
+of a turn because every pixel of them is "inside a way through". See *Where rows 15 and 19 stop*.
 
 **One mark, and it is a line on the ground.** Law (b) forbids an invented enclosure where no
 building stands, so there is no jamb, no reveal, no soffit and no fill — but a 20.4 m `go` target on
@@ -2151,9 +2153,22 @@ so the mark there is the floor line and the two band ends beside it; on the cour
 6.75 m in front of a far line 26.75 m off and the line is the only thing that draws it. The ledger
 case measures the court's side for that reason.
 
-**No through-view, stated as a choice**: what lies beyond an outdoor mouth is a vista, and blueprint
-§4b ruling (1) gives the vista to a generated backdrop; a frame pasted into the gap would make an
-[AI] appearance the established look. `beyond_m: null` is how the meta says so.
+**A through-view, and the choice reversed.** This said: "**No through-view, stated as a choice**:
+what lies beyond an outdoor mouth is a vista, and blueprint §4b ruling (1) gives the vista to a
+generated backdrop; a frame pasted into the gap would make an [AI] appearance the established look.
+`beyond_m: null` is how the meta says so." Round four reversed it on the ground that what goes
+through the gap is the GROUND — not an invented vista but the destination's own floor plane, drawn
+by the destination's own facing — and `beyond_m` is now 9 m on the approach's side and 0 on the
+court's.
+
+**The reversal is not vindicated.** Round four's critic measured the composite and found the
+destination's real frame covers 22.5 % of the manor's front opening and 38 % of the court's; the
+rest is `drawImage` edge extension — two uniform blocks, each 608 × 368 px derived from a single
+pixel, together 36 % of that opening and 17 % of the whole picture. That is nearer to the pasted
+[AI] appearance the original paragraph refused than to a floor plane the document holds. The
+sentence above is corrected because it described code that no longer exists; the JUDGEMENT it
+recorded may have been the right one, and rows 15 and 19 hand that question on rather than settling
+it.
 
 **`apertures` inverts the band test for it.** A doorway needs a band to be a hole in; a threshold
 needs the absence of one, or it is a way through a standing wall. One law, two directions —
@@ -2518,6 +2533,90 @@ it shows, aimed at Kabe; the README's "one wall of it is painted" (two are) and 
 document's own claim that a check "would have caught it" when removing what it guards left it green.
 Each is corrected in place and each says what it used to say, because a correction that erases the
 error teaches nothing.
+
+### Where rows 15 and 19 stop
+
+**Rows 15 and 19 hand on OPEN.** Four examinations were spent — plan critic, artifact critic,
+recheck, and a fourth round Kabe authorised past the budget because a black entrance, a hairline
+staircase and a chevron stealing doorway walks are player-facing truth. The fourth round returned
+FAIL with seven blocking findings, and Kabe's standing boundary was that a failure ON THE SAME
+FAMILIES ends the row rather than starting a fifth: the work hands on with the report as its state,
+the fixes recorded found-not-verified, and the stair goes to fresh hands as its own row.
+
+It failed on the same families, and the critic said so in as many words. What follows is the state
+of these rows, not a plan for them.
+
+**1. The descending flights cannot be climbed by pointer, and this is the round's own fault
+repeated.** Measured over every drawn pixel of the flight's body on all twelve stair-carrying
+facings:
+
+| facing | direction | drawn body px | share of it that travels |
+|---|---|---|---|
+| `back_stair/E` | up | 499,432 | 100 % |
+| `great_stair_hall/N` | up | 203,972 | 100 % |
+| `back_stair_head/W` | **down** | 28,568 | **71.8 %** |
+| `stair_landing/S` | **down** | 42,688 | **0 %** |
+
+On `stair_landing/S` a player can see a staircase and click three separate pixels of it and nothing
+happens; only the keyboard control works. The cause is that `x/y/w/h` are clamped to the canvas and
+`poly` — the hit region — is the raw hull, whose centroid on that facing is at (2201, 1091), off the
+frame; and `nearAperture` skips poly apertures, so no tolerance ring recovers it. **The round fixed
+the hit region for the case it looked at — a player standing at the FOOT of a stair — and never
+looked at the head of one.** That is the sixth-bite fault in the same commit that records the
+sixth-bite fault. Any fix must make the hit region the intersection of the body with the frame, and
+must be checked by *a click on a drawn body pixel travels*, measured on the DESCENDING facings.
+
+**2. The threshold's rectangle claims frame it draws nothing in, and the chevron yield rides on it.**
+`way_entrance_court_entrance_approach` is `x −779, y 0, w 3095, h 706` on a 1536 × 1024 canvas: wider
+than the frame and 69 % of its height, including all the void above the horizon. Because the chevron
+yield asks "is this point inside a way through", **both chevrons on `entrance_court/S` now walk you
+out of the court over their whole area and neither turns** — over black sky, where the yield's own
+stated justification ("a person clicking a doorway they can plainly see") does not hold. ≥ 91 % on
+`back_stair/E`/right and `great_stair_hall/N`/left. The yield was the right idea and it was built on
+a region that does not mean what it is being asked to mean.
+
+**3. The through-view is mostly manufactured.** On `entrance_approach/N` the destination's real
+frame covers 22.5 % of the mouth; the rest is `drawImage` edge extension, including two blocks of
+608 × 368 px each derived from a single pixel — together 36 % of the manor's front opening and 17 %
+of the whole picture. `entrance_court/S`: 38 % real. And the never-void clause written to guard it
+measures only the horizon-to-sill band, which is the one strip where the composite is real. **The
+author chose where to measure, again, in the clause written to stop the author choosing where to
+measure.**
+
+**4. The stair is one flat colour.** `#4a5870` covers 22.2 % of `great_stair_hall/W` and 31.7 % of
+`back_stair/E` as a single value — the next most common colour in each frame is under 2.7 % — so
+every face of the solid, tread top and riser and stringer side alike, is the same tone. §7 rules one
+key from upper-left and the grid's own floor and wall do separate under it; the only solid in the
+product is the only thing in it that is unlit. It is no longer a hairline and it is not yet a
+staircase you are standing beside.
+
+**5. `projectionFault` is one predicate read under three conditions.** `projectPlacement` gates the
+`at_the_eye` refusal on `attachment !== "wall_mounted"`; `planWarnings` and `facingsContaining` do
+not. On the shipped plan all three agree — seven refused, seven printed, the same seven — so the
+claim "equal by construction" is true only by accident of the corpus. A constructed wall-mounted
+object with `shelf1`'s footprint splits them: the report and the manifest say "no picture here"
+while the site that makes the number makes one. And reinstating the old duplicated condition turns
+nothing red except a generated-document freshness check — there is no test that asserts the two sets
+are equal.
+
+**6. Two more documents were lying and are corrected above**, both about the threshold and both in
+the passage round four itself rewrote: `architecture.md`'s "No through-view, stated as a choice" and
+the rectangle's dimensions, and `plan-projection.mjs`'s JSDoc claiming "The renderer DRAWS NOTHING
+for it" sixty lines above the code that sets `beyond_m`. The batch caption for `06` claimed a well
+in the floor that `well_poly` never builds for a descending flight. Round four claimed five false
+sentences found and fixed; there were nine.
+
+**What is nonetheless true of the artifact**, verified by the fourth critic independently: all 22
+rooms reachable, orientation law holding on all 55 exits including all four stair exits, "leave a
+room and return" holding with an identical picture hash across a round trip, 1340 passed / 14
+skipped in both engines, all 14 batch frames byte-identical to a fresh capture, all nine reinstated
+defects confirmed red, no page overflow and no stray scroll at any facing, and the four
+standpoint-on-flight warnings naming exactly the four facings that carry no flight.
+
+**What the next hands should know before touching this:** every guard in this row that failed,
+failed the same way — it was measured where the fix runs rather than where the defect lives. The
+ascending stair, the boot facing, the horizon-to-sill strip, the shipped corpus. Kabe's sentence
+above is the whole of it, and it is cheaper to obey than to rediscover.
 
 ### Residue, named
 
