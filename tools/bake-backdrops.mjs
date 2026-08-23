@@ -35,6 +35,12 @@ import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import * as timings from "./timings.mjs";                 // [row33] the stopwatch
+
+/* [row33] The bake clocks itself. Until row 33 the only evidence a bake left
+ * was a commit timestamp, which knows when it landed and never how long it
+ * took, so the ledger's first reading of this step is eight markers. */
+const T0 = Date.now() / 1000;
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -129,4 +135,9 @@ ${body}
 `;
 
 writeFileSync(outFile, out);
+/* [row33] */
+timings.record("bake.backdrops", T0, Date.now() / 1000, null,
+  { paintings: entries.length, out_bytes: out.length, fp,
+    png_bytes: entries.reduce((s, e) => s + e.png_bytes, 0),
+    jpeg_bytes: entries.reduce((s, e) => s + e.bytes, 0) });
 console.log(`baked ${outFile} (fp ${fp}, ${entries.length} painting(s), ${(out.length / 1e6).toFixed(2)} MB)`);
