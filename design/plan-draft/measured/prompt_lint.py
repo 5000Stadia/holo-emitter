@@ -289,6 +289,9 @@ def lint(path):
 
 
 def main(argv):
+    import time                                                    # [row 33]
+    import timings                                                 # [row 33]
+    _t = time.time()                                               # [row 33]
     files = argv[1:]
     if not files:
         for d in sorted(os.listdir(SOURCE)):
@@ -309,6 +312,8 @@ def main(argv):
         else:
             print("ok      %s  (%s)" % (rel, anchor))
     print("\n%d of %d prompt(s) refused." % (bad, len(files)))
+    timings.record("lint.prompts", _t, time.time(), None,          # [row 33]
+                   {"prompts": len(files), "refused": bad})
     return 1 if bad else 0
 
 

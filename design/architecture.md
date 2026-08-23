@@ -3700,6 +3700,88 @@ the stricter of the two, so a misspelling refuses a manor wall loudly rather tha
 wall quietly. `validator.spec` pins the ruled centre from both sides, reads it off
 `groundplane.FOCAL_PX` rather than typing 1024, and asserts the two centres are genuinely two.
 
+## The pipeline's own stopwatch (row 33) — the ledger, the analyzer, the monitor
+
+[HUMAN, 2026-08-24, verbatim]: "I want you or a subtask to be constantly monitoring and sampling
+the performance of these steps we really need to get it down to a highly efficient process. I want
+it to be so quick it could almost be live in the future. Lets track length of time for each step
+and ask how can this be faster while maintaining quality"
+
+**The ledger.** `design/plan-draft/measured/timings.jsonl`, one JSON object per line:
+`{ts_start, ts_end, step, key, detail}`, plus `backfilled: true` on anything derived rather than
+measured. Two writers share the shape — `design/plan-draft/measured/timings.py` for the python half
+of the pipeline and `tools/timings.mjs` for the node half — because the sweep is python and calls
+the bakes, which are node, and one run must land in one series.
+
+**Why one `write()` is the whole concurrency design.** The emitter, the sweep, the bakes and the
+publish can all be in flight at once; the run this exists to measure was parallel by design. A
+single `write()` of at most `PIPE_BUF` (4096) bytes to a file opened `O_APPEND` is atomic on Linux,
+so two processes cannot interleave inside one line and neither can overwrite the other's offset.
+That is why `detail` is TRUNCATED to fit rather than allowed to grow past the limit, and why the
+node writer must keep using `writeFileSync(..., {flag: "a"})` and not a stream: a second write is a
+second chance to interleave. `timings.spec.mjs` runs eight processes appending 2000 fat records to
+one ledger and asserts the exact count and that every line parses.
+
+**Nothing here can take a step down.** Every write is guarded and a failure prints one line to
+stderr. This is apparatus, and production law clause 5 gives apparatus no standing to break the
+work it measures.
+
+**`HOLO_TIMINGS`** overrides the path; `off` silences both writers. `playwright.config.mjs` sets it
+to `off` for the whole suite, because half a dozen specs run the real tools and would otherwise
+append test runs to a committed record.
+
+**Markers.** A record with `ts_end <= ts_start` knows WHEN a step landed and not HOW LONG it took —
+a git commit timestamp is all a bake left behind. The analyzer counts markers, names them, excludes
+them from every duration statistic, and still treats them as activity so no gap is invented across
+one. Live writers clamp `ts_end` to `ts_start + 1 µs` so a real step can never be mistaken for one.
+
+**What is instrumented, and where generation comes from.** `make-scaffold.mjs` writes `emit.facing`,
+`emit.packet` and `emit.run` in both the manor order and the re-ask; `row23_run.py` writes
+`measure.candidate` per candidate (MEASURE-ERR included — a measurement that fails still costs its
+time), `promote.wall`, `bake.sweep` and `sweep.pass`; `promote-backdrop.mjs` writes
+`promote.backdrop` from an EXIT HANDLER, because it refuses from fifteen places and a refusal is the
+outcome most worth timing; both bakes and `prompt_lint.py` write their own; `publish-site.sh` splits
+`publish.site` from `publish.verify`, since the push is ours and the CDN wait is not.
+GENERATION is not instrumented and cannot be — the generating seat is external — so it is DERIVED:
+prompt-file mtime to candidate-file mtime, per roll.
+
+Every edit row 33 made to `row23_run.py` is a timing line marked `[row 33]`, and `row23_lib.py` is
+untouched; `timings.spec` asserts both, so the corner/horizon instrument's home stays one owner's.
+
+**The analyzer** (`timings_report.py`) computes per-step count/p50/p95/total/throughput, the top
+contributor with its number, idle gaps, queue latency, and regression against the ledger's own
+trailing baseline. `--backfill` mines the evidence Test 1 left and is idempotent; `--until` bounds
+the mining to one run (an epoch, an ISO datetime, or a REVISION — the cutoff a run deserves is the
+commit that closed it); `--monitor` prints one line and exits non-zero on a flag, for a scheduler's
+cadence. It has no model call and no loop, per row 30's lens.
+
+**Idle gaps versus queue latency, and why both.** A gap scan asks whether ANYTHING was running: it
+merges activity spans, and a hole longer than the threshold is IDLE if any wall was pending across
+it and QUIET otherwise (pending from ledger continuity against `run-state.json`). That found 5.96 h
+of dead air in Test 1, the largest a 4.64 h hole with 79 walls waiting. But it is structurally blind
+to the sharper idle: while a finished candidate sits unmeasured the NEXT candidate is being
+generated, so the timeline never breaks and the wall waits anyway. `queue_latency` joins two steps
+by roll id (or by facing, chosen per handoff and never mixed — joining on both counts a two-roll
+wall three times) and reports how long the work itself sat. Test 1: 37.3 min at p50 from candidate
+on disk to reading taken, 41.9 min from packet dispatched to image returned.
+
+**What the first backfill measured.** `generate.roll` is 99.9 % of Test 1's measured wall-clock —
+176 h over 232 rolls, p50 41.9 min, p95 1.83 h — and everything the pipeline itself does is
+milliseconds to seconds: emit 17 ms a facing, measure 3.58 s a candidate, promote 173 ms. The
+target Kabe stated ("so quick it could almost be live") is therefore not a code-speed problem at
+all; it is a dispatch-and-collect problem, and the deletable time is in the handoffs.
+
+**What the backfill cannot know, and the two derivations that were wrong before they were right.**
+A file's mtime is destroyed by anything that rewrites it. The first version of the promote backfill
+read the promoted PNG's mtime to its meta's — and row 27's recheck had rewritten 22 metas five
+hours after their PNGs, so it reported promotions taking 14.6 h and flagged a 20,000,000x
+regression off its own arithmetic. Two files being present is not evidence that one run wrote both;
+the metas are now read as the bursts they were written in. Separately, while row 33 was being built
+a concurrent instrument re-ran 132 of the 214 manor readings to byte-identical files, moving their
+mtimes hours past the sweep that took them — which is what `--until` exists for, and what the live
+ledger cures, because an append cannot be overwritten. The report carries all four limits in its
+own "What the backfill cannot know" section rather than in a transcript.
+
 ## The painted door governs (row 27) — where a way through is, on a promoted wall
 
 **The defect, and how it shipped.** Row 21 gave a promoted meta an `openings` list and made the

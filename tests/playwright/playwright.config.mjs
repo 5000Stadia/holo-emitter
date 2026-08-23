@@ -1,5 +1,16 @@
 import { defineConfig } from "@playwright/test";
 
+/* [Row 33] THE SUITE DOES NOT WRITE TO THE TIMINGS LEDGER. Half a dozen specs
+   run the real pipeline tools — the bakes, `prompt_lint.py`, the promotion —
+   and every one of those now clocks itself. Left alone they would append to
+   `design/plan-draft/measured/timings.jsonl` on every `npm test`, which would
+   dirty a committed artifact and fill the pipeline's own record with runs that
+   were tests. The env var is inherited by every subprocess a spec spawns, and
+   `timings.spec.mjs` overrides it per call with a temp path where it needs a
+   ledger to read back. This is set here rather than in each spec because the
+   default has to hold for the specs that do not know the writer exists. */
+process.env.HOLO_TIMINGS = process.env.HOLO_TIMINGS || "off";
+
 export default defineConfig({
   testDir: ".",
   fullyParallel: true,

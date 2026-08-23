@@ -13,8 +13,24 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 HEAD_SHA=$(git rev-parse --short HEAD)
+
+# [row 33] THE PUBLISH CLOCKS ITSELF, and it is the step with the least evidence
+# behind it: this script force-pushes an ORPHAN branch, so each publish erases
+# the previous one's commit and the whole published history is one commit deep.
+# The backfill could mine exactly ONE publish out of the entire project. From
+# here the ledger keeps them all — and keeps the two halves apart, because they
+# are different problems: the push is ours, the verification wait is a CDN's.
+ROOT_DIR=$(pwd)
+now() { python3 -c 'import time; print(time.time())'; }
+note() {  # note <step> <ts_start> <detail-json>; never fails the publish
+  HOLO_NOTE_ROOT="$ROOT_DIR" python3 "$ROOT_DIR/tools/timings_note.py" "$1" "$2" "$3" || true
+}
+T_PUBLISH=$(now)
 S=$(mktemp -d)
-trap 'rm -rf "$S"' EXIT
+# ONE EXIT TRAP. bash keeps only the last handler registered for a signal, so
+# the scratch removal and the clock share this one rather than silently
+# replacing each other — which is what a second `trap ... EXIT` line would do.
+trap 'RC=$?; rm -rf "$S"; note publish.site "$T_PUBLISH" "{\"head\":\"$HEAD_SHA\",\"exit_code\":$RC}"' EXIT
 
 cp index.html "$S"/
 touch "$S"/.nojekyll
@@ -33,11 +49,18 @@ git -C "$S" push -qf https://github.com/5000Stadia/holo-emitter.git gh-pages
 gh api -X POST repos/5000Stadia/holo-emitter/pages/builds >/dev/null
 
 WANT=$(grep -c '"id"' fixtures/nav-manor/world.json)
+# [row 33] The wait is measured on its own: it is the one part of a publish that
+# is not this project's to make faster, and pooling it with the push would hide
+# both numbers.
+T_VERIFY=$(now)
 for i in $(seq 1 30); do
   sleep 10
   GOT=$(curl -s "https://5000stadia.github.io/holo-emitter/fixtures/nav-manor/world.json?cb=$RANDOM" \
     | grep -c '"id"' || true)
-  [ "$GOT" = "$WANT" ] && { echo "live: world serves ($GOT ids) @ $HEAD_SHA"; exit 0; }
+  [ "$GOT" = "$WANT" ] && {
+    note publish.verify "$T_VERIFY" "{\"polls\":$i,\"ids\":$GOT,\"served\":true}"
+    echo "live: world serves ($GOT ids) @ $HEAD_SHA"; exit 0; }
 done
+note publish.verify "$T_VERIFY" "{\"polls\":30,\"ids\":${GOT:-0},\"served\":false}"
 echo "publish-site: live world still stale after 5 min (want $WANT ids, got ${GOT:-0})" >&2
 exit 1

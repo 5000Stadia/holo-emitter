@@ -43,6 +43,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, HERE)
 
+# [row 33] THE SWEEP CLOCKS ITSELF. Every edit this row made to this file is a
+# timing line and nothing else — each one marked `[row 33]` — so the measurement
+# internals below are untouched and a merge with work on them is trivial. The
+# writer never raises and never blocks; see `timings.py`.
+import timings  # noqa: E402
+
 MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
 MANIFEST = os.path.join(MANOR, "manifest.json")
 STATE = os.path.join(MANOR, "run-state.json")
@@ -144,9 +150,15 @@ def _bake():
     wall from a meta nothing baked is a page rendering yesterday's world.
     """
     out = []
+    _t = time.time()                                              # [row 33]
+    _n = 0                                                        # [row 33]
     r = subprocess.run(["node", os.path.join(ROOT, "tools", "bake-backdrops.mjs")],
                        cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
+        # [row 33] A refused bake is timed too: it is the outcome that costs the
+        # sweep a promotion, and it is the one nobody would think to measure.
+        timings.record("bake.sweep", _t, time.time(), None,
+                       {"worlds": 0, "refused": True, "at": "backdrops"})
         return "backdrops/baked.js: " + (r.stdout + r.stderr).strip()[-300:]
     for d in sorted(os.listdir(os.path.join(ROOT, "fixtures"))):
         fd = os.path.join(ROOT, "fixtures", d)
@@ -155,8 +167,11 @@ def _bake():
         r = subprocess.run(["node", os.path.join(ROOT, "tools", "bake-fixtures.mjs"),
                             "--fixture-dir", fd], cwd=ROOT,
                            capture_output=True, text=True)
+        _n += 1                                                   # [row 33]
         if r.returncode != 0:
             out.append("fixtures/%s: %s" % (d, (r.stdout + r.stderr).strip()[-300:]))
+    timings.record("bake.sweep", _t, time.time(), None,           # [row 33]
+                   {"worlds": _n, "refused": bool(out)})
     return out[0] if out else None
 
 
@@ -169,6 +184,16 @@ def do_promote(key, cand_rel, e, side, ref, reading):
     of the store and the wall holds, rather than leaving a wall in `backdrops/`
     that the page cannot be built from.
     """
+    _t = time.time()                                              # [row 33]
+    ok, why = _do_promote(key, cand_rel, e, side, ref, reading)    # [row 33]
+    timings.record("promote.wall", _t, time.time(), key,           # [row 33]
+                   {"candidate": cand_rel, "refused": not ok,
+                    "why": (why or "")[:300] or None})
+    return ok, why
+
+
+def _do_promote(key, cand_rel, e, side, ref, reading):
+    """[row 33] The promotion itself, unchanged; `do_promote` is now its clock."""
     path, why = promote_reading(key, cand_rel, e, side, ref, reading)
     if path is None:
         return False, why
@@ -282,6 +307,12 @@ def sweep(manifest, state, do_promote=True):
             # crash class this replaces cost the run its cadence once.
             st["status"] = "parked"
             st["why"] = "config derivation failed: %s" % _ex
+            # [row 33] A wall leaving the pipeline is a leave event whichever
+            # door it goes out of; without this, a parked wall reads as pending
+            # for the rest of the ledger and every gap after it reads IDLE.
+            _now = time.time()
+            timings.record("park.wall", _now, _now, key,
+                           {"why": "config derivation failed", "error": str(_ex)[:200]})
             print("  %-24s PARKED    config: %s" % (key, _ex))
             continue
 
@@ -293,11 +324,21 @@ def sweep(manifest, state, do_promote=True):
             # at its cap like any other run of misses. The alternative — a
             # per-pixel surprise anywhere in 170 images taking the loop down —
             # is the crash class this run has now paid for twice.
+            _t = time.time()                                      # [row 33]
             try:
                 d = row23_lib.measure_candidate(p, side, cfg, ref, picks)
             except Exception as _mex:
+                # [row 33] A MEASURE-ERR is a measurement that ran and cost its
+                # time; leaving it out would make the instrument look faster
+                # than it is on exactly the frames it struggles with.
+                timings.record("measure.candidate", _t, time.time(), key,
+                               {"roll_id": r["id"], "candidate": r["candidate"],
+                                "verdict": "MEASURE-ERR", "error": str(_mex)[:200]})
                 print("  %-24s MEASURE-ERR %s: %s" % (key, r["id"], _mex))
                 continue
+            timings.record("measure.candidate", _t, time.time(), key,  # [row 33]
+                           {"roll_id": r["id"], "candidate": r["candidate"],
+                            "verdict": d.get("verdict"), "kind": d.get("kind")})
             d["id"], d["candidate"] = r["id"], r["candidate"]
             json.dump(d, open(os.path.join(OUT, "%s.json" % r["id"]), "w"), indent=2)
             if d["verdict"] == "PASS" and (best is None or
@@ -377,6 +418,9 @@ def sweep(manifest, state, do_promote=True):
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
+                _now = time.time()                                # [row 33]
+                timings.record("park.wall", _now, _now, key,
+                               {"why": "retry cap spent", "attempts": st["attempts"]})
                 parked.append((key, worst))
             else:
                 st["status"] = "retry"
@@ -485,7 +529,15 @@ def main():
 
     while True:
         state = load_state()
+        _t = time.time()                                          # [row 33]
         promoted, failed, parked, waiting = sweep(manifest, state, not a.no_promote)
+        # [row 33] The pass itself, so a sweep that finds nothing is on the clock
+        # too: an empty pass every 45 seconds is the shape of the idle the ledger
+        # is here to find, and it is invisible if only the work is timed.
+        timings.record("sweep.pass", _t, time.time(), None,
+                       {"promoted": len(promoted), "failed": len(failed),
+                        "parked": len(parked), "waiting": len(waiting),
+                        "promote_enabled": not a.no_promote})
         save_state(state)
 
         for key, why, d in promoted:

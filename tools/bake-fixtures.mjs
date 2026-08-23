@@ -19,6 +19,11 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
+
+/* [row 33] The bake clocks itself — see tools/timings.mjs. */
+const T0 = Date.now() / 1000;
+
 import { validate, resolvePlanPath, metaForFacing as resolveFacingMeta } from "./validate-fixtures.mjs";
 import { validatePlan, planWarnings } from "./validate-plan.mjs";
 import {
@@ -275,4 +280,8 @@ window.HOLO_FIXTURES[${JSON.stringify(fixtureId)}] = {
 `;
 
 writeFileSync(outFile, out);
+/* [row 33] */
+timings.record("bake.fixtures", T0, Date.now() / 1000, fixtureId,
+  { fp, out_bytes: out.length, facings: metas ? Object.keys(metas).length : 0,
+    locations: ((parsed.world || {}).locations || []).length });
 console.log(`baked ${outFile} (fp ${fp})`);

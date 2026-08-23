@@ -37,6 +37,7 @@ import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
 } from "./validate-fixtures.mjs";
 import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers } from "./plan-projection.mjs";
+import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CANVAS_W = 1536;
@@ -48,6 +49,16 @@ const argOf = (flag, dflt) => {
 
 const facingArg = argOf("--facing");
 const candidate = argOf("--candidate");
+
+/* [row 33] THE CLOCK IS AN EXIT HANDLER, and that is not laziness: this script
+ * refuses from fifteen different places, and a refusal is the outcome most
+ * worth timing — a wall that costs a minute to be told no costs it every time
+ * the sweep asks. One handler records every path, and says which it was. */
+const _t0 = Date.now() / 1000;
+process.on("exit", (code) => {
+  timings.record("promote.backdrop", _t0, Date.now() / 1000, facingArg || null,
+    { candidate: candidate || null, exit_code: code, refused: code !== 0 });
+});
 const planPath = argOf("--plan", join(root, "fixtures", "demo-study", "plan.json"));
 /* WHICH ROUND'S MEASUREMENT. `design/plan-draft/measured/` itself is the cand-2
  * promotion round's home and stays the default, so every call written before
