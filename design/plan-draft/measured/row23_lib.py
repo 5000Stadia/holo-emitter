@@ -100,7 +100,17 @@ def cfg_from_sidecar(side):
     ppm = m["px_per_m_at_wall"]
     fw, rb, cb = b["floor_window"], b["rail_band"], b["ceiling_band"]
 
-    cols = [tuple(x) for x in b["rail_columns"]]
+    # HOTFIX (live run 2026-08-24, second crash): manor brackets carry FLOAT
+    # column endpoints, and on a wall whose corners overrun the frame they are
+    # negative or past 1535 (great_hall/N: -76.7 … 1612.7). The corpus's
+    # `cols_of` needs integer, in-frame spans — floats reached numpy as an
+    # index array and took the sweep down. Clamped and floored here, at the one
+    # place the columns are made; an empty span is dropped rather than passed.
+    cols = []
+    for x in b["rail_columns"]:
+        lo, hi = max(0, int(x[0])), min(1535, int(x[1]))
+        if hi > lo:
+            cols.append((lo, hi))
     return dict(
         wall=side["facing"],
         ppm=ppm,

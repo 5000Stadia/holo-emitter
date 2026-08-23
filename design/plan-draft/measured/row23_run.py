@@ -81,9 +81,19 @@ def promote_reading(key, cand_rel, e):
     import measure as M
     b = e["brackets"]
     fw, rb, cb = b["floor_window"], b["rail_band"], b["ceiling_band"]
-    cols = [tuple(x) for x in b["rail_columns"]] or [(200, 1336)]
+    # Same clamp as `row23_lib.cfg_from_sidecar` (live-run hotfix): manor
+    # brackets carry float, sometimes out-of-frame column endpoints, and the
+    # corpus's `cols_of` needs integer in-frame spans.
+    cols = []
+    for x in b["rail_columns"]:
+        lo, hi = max(0, int(x[0])), min(1535, int(x[1]))
+        if hi > lo:
+            cols.append((lo, hi))
+    cols = cols or [(200, 1336)]
     cfg = dict(
         src=cand_rel,
+        role="manor production wall, technique-2 recipe, measured by the wave "
+             "instrument against its own manifest camera",
         floor_window=(int(fw["centre"] - fw["half_width"]),
                       int(fw["centre"] + fw["half_width"])),
         ceil_cols=cols, ceil_range=(8, max(60, int(cb["centre"] + cb["half_width"]))
@@ -95,6 +105,18 @@ def promote_reading(key, cand_rel, e):
         module_band=(int(rb["centre"] - rb["half_width"] * 3),
                      int(rb["centre"] + rb["half_width"] * 3)),
         module_cols=cols)
+    # THE WAVE INSTRUMENT IS TAUGHT THIS WALL, not rewritten for it.
+    # `measure_wave` reads two per-facing tables the corpus built for its own
+    # eight walls — `PLAN_NOW` (standpoint distance) and `PLAN` (ruled wall
+    # width and storey). A manor wall carries the same facts in its manifest
+    # entry, so they are injected under its key before the call. Found live:
+    # every camera-PASS on a manor wall was refused promotion with KeyError.
+    if e.get("camera_wall_m") is None:
+        return None, ("an open facing's far-line frame has no wall for the wave "
+                      "instrument to measure; its promotion path is not built yet")
+    M.PLAN_NOW[key] = e["camera_wall_m"]
+    M.PLAN[key] = {"wall_width_m": e.get("wall_width_m"),
+                   "storey_m": e.get("storey_height_m")}
     try:
         r = M.measure_wave(key, cfg, ref=None)
     except Exception as exc:                       # a wall the detectors cannot read
@@ -102,7 +124,7 @@ def promote_reading(key, cand_rel, e):
     doc = M.wave_doc(key, r, None, "manor")
     doc["_source_sha256"] = sha(os.path.join(ROOT, cand_rel))
     loc, f = key.split("/")
-    d = os.path.join(HERE, "manor-promote")
+    d = os.path.join(HERE, "manor")
     os.makedirs(d, exist_ok=True)
     path = os.path.join(d, "%s-%s.json" % (loc, f))
     json.dump(doc, open(path, "w"), indent=2)
@@ -116,7 +138,10 @@ def do_promote(key, cand_rel, e):
         return False, why
     r = subprocess.run(
         ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
-         "--facing", key, "--candidate", cand_rel, "--round", "manor-promote"],
+         "--facing", key, "--candidate", cand_rel, "--round", "manor",
+         # The wall answers to the camera its own meta commands: manor walls
+         # are scaffolded and derived at the ruled 1024 px lens.
+         "--reference", "ruled"],
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         return False, (r.stdout + r.stderr).strip().split("\n")[-1][:200]
@@ -202,7 +227,16 @@ def sweep(manifest, state, do_promote=True):
         best = None
         for r in arrivals:
             p = os.path.join(ROOT, r["candidate"])
-            d = row23_lib.measure_candidate(p, side, cfg, ref, picks)
+            # A candidate the measurement cannot read is that CANDIDATE's
+            # failure, never the sweep's: logged, skipped, and the wall parks
+            # at its cap like any other run of misses. The alternative — a
+            # per-pixel surprise anywhere in 170 images taking the loop down —
+            # is the crash class this run has now paid for twice.
+            try:
+                d = row23_lib.measure_candidate(p, side, cfg, ref, picks)
+            except Exception as _mex:
+                print("  %-24s MEASURE-ERR %s: %s" % (key, r["id"], _mex))
+                continue
             d["id"], d["candidate"] = r["id"], r["candidate"]
             json.dump(d, open(os.path.join(OUT, "%s.json" % r["id"]), "w"), indent=2)
             if d["verdict"] == "PASS" and (best is None or
@@ -226,8 +260,17 @@ def sweep(manifest, state, do_promote=True):
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
-                    st["status"] = "retry"
-                    st["correction"] = "the camera passed but promotion refused: %s" % why
+                    # THE PAINTING PASSED AND THE INSTRUMENT REFUSED — that is
+                    # OUR gap, not the hand's, and a retry would spend a roll
+                    # repainting a wall whose frame is already admissible. The
+                    # wall HOLDS with its candidate named; when the promotion
+                    # instrument learns to read it, the next sweep promotes it
+                    # with no new image asked for. (Live finding 2026-08-24:
+                    # the wave instrument WITHHELDs on most manor walls the
+                    # row-23 instrument reads cleanly.)
+                    st["status"] = "held"
+                    st["candidate"] = r["candidate"]
+                    st["correction"] = "camera PASS; held for the promotion instrument: %s" % why
                     failed.append((key, d, st["correction"]))
             else:
                 st["status"] = "admitted"
@@ -236,8 +279,17 @@ def sweep(manifest, state, do_promote=True):
         else:
             worst = None
             for r in arrivals:
-                d = json.load(open(os.path.join(OUT, "%s.json" % r["id"])))
-                worst = d
+                # A MEASURE-ERR candidate wrote no reading; its absence is its
+                # record, not a crash for the wall behind it.
+                jp = os.path.join(OUT, "%s.json" % r["id"])
+                if os.path.exists(jp):
+                    worst = json.load(open(jp))
+            if worst is None:
+                st["status"] = "retry"
+                st["correction"] = ("no candidate of this wall could be measured "
+                                    "at all; see MEASURE-ERR lines")
+                failed.append((key, {}, st["correction"]))
+                continue
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"

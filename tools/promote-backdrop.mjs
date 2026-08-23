@@ -123,9 +123,29 @@ if (!(ppm > 0)) {
 }
 const drawn = fc.camera_wall_m;
 const focal = ppm * drawn;
-const band = measuredLensBand();
+/* WHICH LAWFUL REFERENCE THIS WALL ANSWERS TO. There are exactly two cameras
+ * the law knows: the MEASURED reference (819.6 px, the study's approved
+ * painting, blueprint §5) and the RULED lens (1024 px, §10's focal_mm through
+ * one formula). A wall is gated against the camera its own page meta commands
+ * — the study's painted walls against the measured one, a manor wall whose
+ * scaffold and derived meta both declare 1024 against the ruled one. Gating a
+ * 1024-commanded wall against 819.6 refuses the hand for obeying its
+ * instruction (found live: back_stair/E painted 1016 px, -0.8% from command,
+ * refused). `--reference ruled|measured` selects; the band is ±MEASURED_BAND
+ * around either and is not moved. [Navigator ruling 2026-08-24 under the
+ * Captain's standing directive, design/approvals.log; the lens-fork rule's own
+ * branch 1 — "the generator follows a commanded camera" — with this as its
+ * first production evidence.] */
+const refMode = argOf("--reference", "measured");
+if (refMode !== "measured" && refMode !== "ruled") {
+  console.error(`promote refused: --reference ${refMode} is neither "measured" nor "ruled" — those are the only two cameras the law knows`);
+  process.exit(2);
+}
+const band = refMode === "ruled"
+  ? { lo: 1024 * (1 - MEASURED_BAND), hi: 1024 * (1 + MEASURED_BAND) }
+  : measuredLensBand();
 if (!(focal >= band.lo && focal <= band.hi)) {
-  console.error(`promote refused: ${facingArg} measures ${ppm.toFixed(2)} px/m at its drawn ${drawn} m — a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the approved ${MEASURED_REFERENCE_PX} px (blueprint §5). The corpus conforms to the law; the law is not moved to admit the corpus.`);
+  console.error(`promote refused: ${facingArg} measures ${ppm.toFixed(2)} px/m at its drawn ${drawn} m — a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the ${refMode === "ruled" ? "ruled 1024" : `approved ${MEASURED_REFERENCE_PX}`} px camera this wall answers to (blueprint §5/§10). The corpus conforms to the law; the law is not moved to admit the corpus.`);
   process.exit(1);
 }
 
