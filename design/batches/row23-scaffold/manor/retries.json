@@ -297,8 +297,8 @@
         "outdoor": true,
         "anchor": "string_course"
       },
-      "px_per_m_at_wall": 198.947,
-      "scaffold_sha256": "c90be3bf8371e0f7c1ef078236c77a6c0279516ad849baba20b18a7af8810d69",
+      "px_per_m_at_wall": 200.78431372549022,
+      "scaffold_sha256": "522f1a630ddada7b35e50df929d7b6529750f8ed73d798f0c23071fe54a73c52",
       "rolls": [
         {
           "roll": 1,

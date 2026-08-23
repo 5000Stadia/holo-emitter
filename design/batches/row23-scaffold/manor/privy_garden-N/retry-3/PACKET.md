@@ -15,7 +15,7 @@ exact paths below — the measurement runs the moment a file appears at one of t
 
 The prompt files are already on disk beside them. Do not rewrite them.
 
-This wall: 198.9 px per metre at the wall plane, no carrier — unbroken weathered brickwork on its stone plinth.
+This wall: 200.8 px per metre at the wall plane, no carrier — unbroken weathered brickwork on its stone plinth.
 Voice: **outdoors_walled** (room id); gate anchor **the stone string-course above the ground**, 0.95 m.
 The earlier ask for this wall is still at `../` and is not overwritten.
 Write only under `backdrops/`. Never `src/`, never `design/`.

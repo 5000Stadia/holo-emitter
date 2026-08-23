@@ -17,8 +17,8 @@ Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly.
   Image 2 puts them, to the pixel. One metre at the wall plane spans 171 pixels.
   The floor is visible and runs to the bottom edge of frame.
 Architecture and measurement anchors: A plain scrubbed-oak hanging rail, pegged with iron hooks, runs continuously corner to corner at exactly 0.95 m above the floor, fixed straight onto the limewashed plaster on every exposed wall surface including the side-wall returns. It is a single square-edged batten on bare plaster, with no timber lining, no joinery and no moulding anywhere behind it or below it.
-  The door opening is exactly 0.80 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
-  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
+  The door opening is exactly 0.80 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
   Each feature stands where Image 2's box for it stands, filling that box's width.
   Make these dimensions physically coherent and unmistakable in the architecture.
 Materials and period detail: plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them.

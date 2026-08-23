@@ -18,7 +18,7 @@ Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly.
   The floor is visible and runs to the bottom edge of frame.
 Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
   The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly 2.00 m wide.
-  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
   Each feature stands where Image 2's box for it stands, filling that box's width.
   Make these dimensions physically coherent and unmistakable in the architecture.
 Materials and period detail: oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling.

@@ -14,7 +14,7 @@ Gate anchor: the stone string-course above the ground, 0.95 m.
 Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The
   camera is level, with zero upward or downward tilt. The wall-ground line, the
   corners, the returns at left and right and the amount of visible ground all land where
-  Image 2 puts them, to the pixel. One metre at the wall plane spans 199 pixels.
+  Image 2 puts them, to the pixel. One metre at the wall plane spans 201 pixels.
   The ground is visible and runs to the bottom edge of frame.
 Architecture and measurement anchors: A single projecting course of dressed stone runs continuously across the whole wall at exactly 0.95 m above the ground, capping the wall's plinth. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.
   This side carries no opening and no built feature at all: it is unbroken weathered brickwork on its stone plinth, and

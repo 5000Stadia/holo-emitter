@@ -1151,7 +1151,13 @@ asks you to judge a result: generate, save to the named paths, and report the pa
  * acceptance gate can measure, at the size this project rules it — `prompt_lint`
  * refuses anything else, and it is the whole reason `Gate anchor:` exists. */
 const CARRIER_SENTENCE = {
-  door: (w) => `The door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.`,
+  /* "…and the space beyond is unlit": row 27's lesson folded in per production
+   * law clause 6. The promotion instrument reads a painted doorway as a VOID —
+   * a dark run against the wall plane — and a doorway painted with a lit room
+   * behind it is unmeasurable (library/S was demoted for exactly this). The
+   * darkness is also what the renderer wants: it composites the destination
+   * room into the opening, so painted light back there fights the through-view. */
+  door: (w) => `The door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
   window: (w) => `The leaded window opening is exactly ${w.toFixed(2)} m wide.`,
   fireplace: (w) => `The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide.`
 };

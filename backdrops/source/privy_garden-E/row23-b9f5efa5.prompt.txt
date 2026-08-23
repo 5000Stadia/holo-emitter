@@ -17,7 +17,7 @@ Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly.
   Image 2 puts them, to the pixel. One metre at the wall plane spans 67 pixels.
   The ground is visible and runs to the bottom edge of frame.
 Architecture and measurement anchors: A single projecting course of dressed stone runs continuously across the whole wall at exactly 0.95 m above the ground, capping the wall's plinth. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.
-  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
   Each feature stands where Image 2's box for it stands, filling that box's width.
   Make these dimensions physically coherent and unmistakable in the architecture.
 Materials and period detail: the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline. Underfoot: raked gravel paths between low clipped box and turf.
