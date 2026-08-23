@@ -84,9 +84,37 @@ export const MEASURED_BAND = 0.08;             // ±8 %, the standing-eye wave /
  * its own delta: a case proves the clause fires, and only a test at the
  * BOUNDARY proves the number. `validator.spec` pins it from both sides. */
 export const DERIVED_LENS_TOL = 1e-9;
-export function measuredLensBand() {
-  return { lo: MEASURED_REFERENCE_PX * (1 - MEASURED_BAND),
-           hi: MEASURED_REFERENCE_PX * (1 + MEASURED_BAND), exact: false };
+/* WHICH OF THE TWO LAWFUL CAMERAS A MEASURED META ANSWERS TO.
+ *
+ * There are exactly two and there have never been more: the MEASURED reference
+ * (819.6 px — `study/N`'s approved painting, blueprint §5) and the RULED lens
+ * (`FOCAL_PX`, 1024 px — §10's `camera.focal_mm` through one formula). Which
+ * one a wall is judged against is the camera its own page meta commands: the
+ * study's painted walls were generated free-hand and measured, so they answer
+ * to the measured reference; a manor wall whose scaffold and derived meta both
+ * declare 1024 was PAINTED TO ORDER at the ruled lens and answers to that.
+ * [Navigator ruling 2026-08-24, design/approvals.log; the lens-fork rule's own
+ * branch 1 — "the generator follows a commanded camera".]
+ *
+ * THE RULING ARRIVED IN `promote-backdrop.mjs` AND NOT HERE, AND THAT HALF-
+ * LANDING IS WHY THIS COMMENT EXISTS. The promotion tool grew `--reference
+ * ruled` and admitted the first manor wall; this validator still centred every
+ * measured band on 819.6, so the meta the promotion had just written was
+ * refused the moment the bake read it — `buttery_pantry/S`, a 975.8 px lens,
+ * obeying its command and outside 754.0..885.2. One law, two readers, one of
+ * them not told: the bake refused, and eight `guards.spec` ledger cases went
+ * red behind it because a shipped meta tripping a clause pollutes every
+ * exclusivity assertion in the file.
+ *
+ * The BAND does not move: it is ±MEASURED_BAND around whichever centre, and
+ * the centre is the only thing the meta chooses. An absent or unrecognised
+ * `camera_reference` is the measured reference — the stricter of the two — so
+ * a misspelling refuses a manor wall loudly rather than admitting a study wall
+ * quietly. */
+export function measuredLensBand(reference) {
+  const centre = reference === "ruled" ? FOCAL_PX : MEASURED_REFERENCE_PX;
+  return { lo: centre * (1 - MEASURED_BAND),
+           hi: centre * (1 + MEASURED_BAND), exact: false, centre };
 }
 
 const require_ = createRequire(import.meta.url);
@@ -228,6 +256,10 @@ const META_KEYS = [
   // provenance: which camera produced it, and whether it was MEASURED off a
   // painted backdrop (row 20) or derived from the plan
   "camera_id", "provisional", "measured", "backdrop",
+  // ...and which of the two lawful cameras it was measured against, so the
+  // acceptance band can be centred where the wall was commanded rather than
+  // where the study happened to be painted — see `measuredLensBand`
+  "camera_reference",
   // ...and which measurement ROUND produced it, so the promotion can be
   // re-derived from the meta alone once rounds have their own directories
   "measured_round",
@@ -645,9 +677,13 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
        * prevent, and this clause committed it again until a critic widened the
        * unexercised arm to 0.99 with the suite green. */
       if (meta.measured) {
-        const band = measuredLensBand();
+        /* ...AROUND THE CAMERA THIS WALL ANSWERS TO, which `measuredLensBand`
+         * above states in full. The width is the same ±MEASURED_BAND either
+         * way; only the centre is the meta's to name, and naming nothing names
+         * the stricter one. */
+        const band = measuredLensBand(meta.camera_reference);
         if (!(focal >= band.lo && focal <= band.hi)) {
-          findings.push(`${label}: MEASURED ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% acceptance band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the approved ${MEASURED_REFERENCE_PX} px (§12.5 (i′), blueprint §5) — the painting is not on the project's camera [row20:meta.one_lens_measured]`);
+          findings.push(`${label}: MEASURED ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% acceptance band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the ${band.centre === FOCAL_PX ? `ruled ${FOCAL_PX}` : `approved ${MEASURED_REFERENCE_PX}`} px camera it declares (§12.5 (i′), blueprint §5/§10) — the painting is not on the project's camera [row20:meta.one_lens_measured]`);
         }
       } else if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= DERIVED_LENS_TOL)) {
         findings.push(`${label}: ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (§12.5 (i′), blueprint §10) — one lens per room, and per manor [row20:meta.one_lens]`);

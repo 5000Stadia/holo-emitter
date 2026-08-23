@@ -1,92 +1,128 @@
 {
   "walls": {
     "great_hall/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 615.8) puts the eye at 0.485 m above its own floor line at the scale its own chair-rail declares (117.9 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "great_hall/E": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "retry",
+      "correction": "draw 0.854x larger: 93.5 px/m at the wall plane, not 109.5"
     },
     "great_hall/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 618.8) puts the eye at 0.313 m above its own floor line at the scale its own chair-rail declares (112.6 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "great_hall/W": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png"
     },
     "study/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "retry",
+      "correction": "draw 1.164x larger: 266.0 px/m at the wall plane, not 228.4"
     },
     "back_stair/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/back_stair-N/row23-98d329eb.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 60, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "back_stair/E": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 121, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "back_stair/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 66, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "back_stair/W": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png"
     },
     "hall/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/passage-N/row23-77c49aa1.png",
+      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does."
     },
     "hall/E": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/passage-E/row23-2187fbb5.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 159, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "hall/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/passage-S/row23-5b48e9f7.png",
+      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does."
     },
     "hall/W": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/passage-W/row23-fa262b87.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 118, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "kitchen/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 209.5) puts the eye at 3.112 m above its own floor line at the scale its own chair-rail declares (166.3 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "kitchen/E": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/kitchen-E/row23-94a463ee.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 110, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "kitchen/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/kitchen-S/row23-7de99c6d.png"
     },
     "kitchen/W": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 687.5) puts the eye at 0.318 m above its own floor line at the scale its own chair-rail declares (174.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "buttery_pantry/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/buttery_pantry-N/row23-27fc2560.png"
     },
     "buttery_pantry/E": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/buttery_pantry-E/row23-7c019f47.png",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 181, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "buttery_pantry/S": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/buttery_pantry-S/row23-7f7836f8.png"
     },
     "buttery_pantry/W": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "held",
+      "candidate": "backdrops/source/buttery_pantry-W/row23-f538206d.png",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 223.5) puts the eye at 2.927 m above its own floor line at the scale its own chair-rail declares (175.8 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "servants_hall/N": {
-      "attempts": 0,
-      "status": "waiting"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/servants_hall-N/row23-b8fa4f78.png"
     },
     "servants_hall/E": {
       "attempts": 0,

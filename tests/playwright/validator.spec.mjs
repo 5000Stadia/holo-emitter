@@ -709,6 +709,51 @@ test.describe("the lens tolerances are pinned from both sides", () => {
     expect(atFocal(hi + 1), "just outside the high edge must be refused").toBeGreaterThan(0);
   });
 
+  /* THE SECOND LAWFUL CENTRE, PINNED THE SAME WAY. A manor wall is painted to
+     order at the ruled lens and its meta says so, so its band is centred there
+     — and a band with a movable centre is a band a critic can move by moving
+     the centre instead of the width. Two things need pinning and neither is
+     the other: that the ruled centre IS the ruled lens (not 819.6, not a
+     literal), and that the ±8 % around it is the same ±8 %. The high edge is
+     the one that matters in production: every manor wall this run measured
+     sits between 964 and 1080 px, which is inside the ruled band and outside
+     the measured one — so a centre that quietly reverted would refuse the
+     whole manor, and a band that quietly widened would admit paintings nobody
+     ruled. */
+  test("a meta that names the RULED camera is banded around 1024, and just as tightly", () => {
+    const atFocal = (focalPx, reference) => lensTokens((m) => {
+      m["hall/S"].measured = true;
+      m["hall/S"].camera_reference = reference;
+      m["hall/S"].px_per_m_at_wall = focalPx / m["hall/S"].camera_wall_m;
+    }, /row20:meta\.one_lens_measured\]/);
+
+    /* READ OFF THE RENDERER'S OWN GROUND PLANE, never typed: the ruled lens is
+       `groundplane.FOCAL_PX` and `assertRuledLens` pins that to §10's
+       `camera.focal_mm`, so a literal here would be a third copy of a number
+       whose whole point is that it has one home. */
+    const ruled = require(join(repoRoot, "src", "groundplane.js")).FOCAL_PX;
+    const lo = ruled * (1 - MEASURED_BAND), hi = ruled * (1 + MEASURED_BAND);
+    expect(atFocal(ruled, "ruled"), "the ruled camera itself must pass").toBe(0);
+    expect(atFocal(lo + 1, "ruled"), "just inside the low edge must pass").toBe(0);
+    expect(atFocal(hi - 1, "ruled"), "just inside the high edge must pass").toBe(0);
+    expect(atFocal(lo - 1, "ruled"), "just outside the low edge must be refused")
+      .toBeGreaterThan(0);
+    expect(atFocal(hi + 1, "ruled"), "just outside the high edge must be refused")
+      .toBeGreaterThan(0);
+    /* AND THE TWO CENTRES ARE TWO CENTRES. The ruled lens is outside the
+       measured band and the approved camera is outside the ruled one, so a
+       meta naming neither — or naming a word this project does not know — is
+       judged at the stricter of them and a manor lens is refused there. */
+    expect(atFocal(ruled, "measured"), "the ruled lens is not inside the measured band")
+      .toBeGreaterThan(0);
+    expect(atFocal(ruled, undefined), "and an unnamed camera is the measured one")
+      .toBeGreaterThan(0);
+    expect(atFocal(ruled, "RULED"), "and a camera this project cannot name is not a licence")
+      .toBeGreaterThan(0);
+    expect(atFocal(MEASURED_REFERENCE_PX, "ruled"),
+      "the approved camera is not inside the ruled band either").toBeGreaterThan(0);
+  });
+
   /* AND THE BAND IS JUDGED AGAINST THE CORPUS IT EXISTS TO JUDGE. `gate.py`'s
      own sentence is "The corpus conforms to the law; the law is never moved to
      admit the corpus", and blueprint §5 rules seven of the eight backdrops

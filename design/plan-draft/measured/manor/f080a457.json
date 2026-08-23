@@ -1,0 +1,202 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 739,
+    "chair_rail_y_px": 563,
+    "dado_rail_above_floor_px": 176,
+    "capping_above_floor_px": 176
+  },
+  "_windows": {
+    "floor": [
+      711,
+      744
+    ],
+    "rail": [
+      552,
+      578
+    ],
+    "ceiling": [
+      211,
+      288
+    ],
+    "columns": [
+      [
+        345,
+        686
+      ],
+      [
+        943,
+        1190
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": 686.93,
+      "asked_x1": 942.93,
+      "ruled_m": 1.5,
+      "window": [
+        430,
+        1198
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 654..935 (20 px from the ask) and another admissible pair sits 597..881 (76 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 185.263,
+  "implied_focal_px": 1111.6,
+  "eye_height_m": 1.1492,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 654..935 (20 px from the ask) and another admissible pair sits 597..881 (76 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 111,
+    "ceiling_candidates": [
+      {
+        "y": 112,
+        "strength": 30.42,
+        "horiz": 1.0,
+        "cv": 0.163
+      },
+      {
+        "y": 176,
+        "strength": 17.49,
+        "horiz": 0.936,
+        "cv": 0.615
+      },
+      {
+        "y": 210,
+        "strength": 11.11,
+        "horiz": 0.741,
+        "cv": 0.768
+      },
+      {
+        "y": 203,
+        "strength": 10.03,
+        "horiz": 0.727,
+        "cv": 1.959
+      },
+      {
+        "y": 121,
+        "strength": 9.96,
+        "horiz": 0.678,
+        "cv": 1.41
+      },
+      {
+        "y": 149,
+        "strength": 9.69,
+        "horiz": 0.961,
+        "cv": 0.506
+      },
+      {
+        "y": 170,
+        "strength": 9.19,
+        "horiz": 0.856,
+        "cv": 0.447
+      },
+      {
+        "y": 133,
+        "strength": 7.65,
+        "horiz": 0.734,
+        "cv": 1.525
+      },
+      {
+        "y": 218,
+        "strength": 6.82,
+        "horiz": 0.622,
+        "cv": 0.801
+      },
+      {
+        "y": 258,
+        "strength": 6.81,
+        "horiz": 0.793,
+        "cv": 3.655
+      },
+      {
+        "y": 239,
+        "strength": 5.97,
+        "horiz": 0.751,
+        "cv": 2.596
+      },
+      {
+        "y": 16,
+        "strength": 5.89,
+        "horiz": 0.758,
+        "cv": 0.812
+      }
+    ],
+    "corner_x0_px": 268,
+    "corner_x1_px": 1278,
+    "ramp": {
+      "x": 747.1,
+      "y": 523.8,
+      "left_slope": 0.8697,
+      "right_slope": -0.7961,
+      "left_n": 61,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.3
+    },
+    "votes": {
+      "floor": {
+        "x": 764,
+        "y": 522,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 742,
+        "y": 494,
+        "edge_px": 13085
+      },
+      "side_walls": {
+        "x": 752,
+        "y": 401,
+        "edge_px": 4447
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 674,
+      "key_dir_brightest_y": 316,
+      "key_tint": "#c8a57d",
+      "key_tint_patch": [
+        474,
+        874,
+        41,
+        103
+      ],
+      "key_tint_patch_mean_rgb": [
+        118.85,
+        97.99,
+        74.06
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8ae95",
+        "floor_bottom_strip": "#c8ac96",
+        "mid_wall_right": "#c85c15",
+        "mid_wall_left": "#c86b27",
+        "brightest_21x21_patch": "#c8c8c7"
+      },
+      "brightest_21x21_patch_centre_px": [
+        674,
+        316
+      ],
+      "sobel_bright_side_deg_whole_frame": 66.99,
+      "sobel_bright_side_deg_wall_band": 28.97,
+      "left_third_minus_right_third_luminance_whole_frame": -6.934,
+      "left_third_minus_right_third_luminance_wall_band": -6.553
+    },
+    "storey_height_m": 3.3898,
+    "implied_wall_width_m": 5.4517,
+    "eye_height_m": 1.1616,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 8.55,
+  "delta_eye_pct": -2.86,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "f080a457",
+  "candidate": "backdrops/source/buttery_pantry-E/row23-f080a457.png"
+}

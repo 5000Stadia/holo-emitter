@@ -23,6 +23,7 @@
   "corner_x1_px": 1351,
   "storey_height_m": 2.8,
   "camera_id": "measured:backdrops/source/study-W/cand-6.png",
+  "camera_reference": "measured",
   "measured_round": "cand6",
   "provisional": false,
   "measured": true,

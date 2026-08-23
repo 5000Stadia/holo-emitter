@@ -1,0 +1,56 @@
+{
+  "floor_line_y": 0.706055,
+  "px_per_m_at_wall": 160,
+  "px_per_m_at_bottom": 395.85,
+  "wall_width_m": 8,
+  "key_tint": "#c8a376",
+  "image_h_px": 1024,
+  "horizon_y": 0.506641,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 152,
+  "camera_wall_m": 6.6,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 8,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 188,
+  "corner_x1_px": 1330,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source/servants_hall-N/row23-b8fa4f78.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1056,
+  "nearest_floor_m": 2.6677,
+  "measured_room": {
+    "storey_height_m": 3.431,
+    "wall_width_m": 7.138,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 8,
+    "carriers": [
+      {
+        "kind": "window",
+        "id": null,
+        "plan_px": [
+          448,
+          688
+        ],
+        "plan_centre_px": 568,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": []
+}

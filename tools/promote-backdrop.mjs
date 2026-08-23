@@ -141,9 +141,13 @@ if (refMode !== "measured" && refMode !== "ruled") {
   console.error(`promote refused: --reference ${refMode} is neither "measured" nor "ruled" — those are the only two cameras the law knows`);
   process.exit(2);
 }
-const band = refMode === "ruled"
-  ? { lo: 1024 * (1 - MEASURED_BAND), hi: 1024 * (1 + MEASURED_BAND) }
-  : measuredLensBand();
+/* THROUGH THE VALIDATOR'S OWN BAND, not a second copy of it. This file used to
+ * build the ruled arm inline — `1024 * (1 ± MEASURED_BAND)` — while the
+ * validator built the measured one, so the two readers of one law computed it
+ * in two places and only one of them knew the ruled camera existed at all. The
+ * consequence was live: this tool admitted `buttery_pantry/S` and the bake then
+ * refused the meta it had just written. One function, both centres. */
+const band = measuredLensBand(refMode);
 if (!(focal >= band.lo && focal <= band.hi)) {
   console.error(`promote refused: ${facingArg} measures ${ppm.toFixed(2)} px/m at its drawn ${drawn} m — a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the ${refMode === "ruled" ? "ruled 1024" : `approved ${MEASURED_REFERENCE_PX}`} px camera this wall answers to (blueprint §5/§10). The corpus conforms to the law; the law is not moved to admit the corpus.`);
   process.exit(1);
@@ -187,6 +191,15 @@ const meta = {
   corner_x1_px: m.corner_x1_px,
   storey_height_m: null,
   camera_id: "measured:" + srcRel,
+  /* WHICH OF THE TWO LAWFUL CAMERAS THIS WALL WAS ADMITTED AGAINST, carried so
+   * that the validator centres its band where this promotion did. Without it
+   * the refusal moves between the tool that writes the meta and the gate that
+   * reads it, which is what happened on the first manor wall: promoted at the
+   * ruled 1024 px it was commanded to draw, refused at the bake against the
+   * study's measured 819.6. It is also what lets the promotion be RE-RUN from
+   * the meta alone, exactly as `measured_round` is — `fixtures.spec`'s
+   * staleness case reads both back off the meta and passes them to this tool. */
+  camera_reference: refMode,
   /* WHICH ROUND MEASURED IT, so the promotion can be RE-RUN from the meta
    * alone. `fixtures.spec`'s staleness case re-derives every promoted meta by
    * running this tool again and byte-comparing, and it finds the candidate

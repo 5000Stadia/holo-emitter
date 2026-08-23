@@ -67,62 +67,31 @@ def sha(p):
 
 
 
-def promote_reading(key, cand_rel, e):
-    """A promote-ready reading, produced by the corpus's OWN wave measurement.
+def promote_reading(key, cand_rel, e, side, ref, reading):
+    """A promote-ready record, out of the reading the GATE already took.
 
-    `promote-backdrop.mjs` needs more than the row-23 camera check does: the
-    ceiling-ramp horizon (the instrument row 20 ruled), the corners, the light,
-    the calibration feature. All of that already exists in `measure_wave`, which
-    is what the standing-eye wave was measured with — so this builds that
-    function's config from the manifest entry and calls it, rather than growing
-    a second measurement of the same pixels. Two detectors for one quantity is
-    how a project ends up with two answers.
+    ONE INSTRUMENT PER QUANTITY, and this is what that costs and what it buys.
+    Until 2026-08-24 this function measured the frame a SECOND time, through
+    `measure.py`'s `measure_wave`, with a config synthesised from the same
+    manifest brackets widened threefold. The intent was reuse; the effect was a
+    second instrument, because a detector's window is part of the detector.
+    They disagreed about the one number the gate exists to read — `great_hall/N`
+    117.9 px/m at the gate against 104.2 at the promotion, `back_stair/N` 337.9
+    against 363.2 — and every WITHHELD the promotion issued was computed off a
+    scale no gate had ever admitted. So the second call is gone: the row-23
+    instrument reads the ceiling line, the corners, the ceiling-ramp horizon and
+    the light in the same pass as the floor line and the chair rail (see
+    `row23_lib._promotion_half`), and this shapes that one reading into the §5
+    record. Nothing is measured here.
     """
-    import measure as M
-    b = e["brackets"]
-    fw, rb, cb = b["floor_window"], b["rail_band"], b["ceiling_band"]
-    # Same clamp as `row23_lib.cfg_from_sidecar` (live-run hotfix): manor
-    # brackets carry float, sometimes out-of-frame column endpoints, and the
-    # corpus's `cols_of` needs integer in-frame spans.
-    cols = []
-    for x in b["rail_columns"]:
-        lo, hi = max(0, int(x[0])), min(1535, int(x[1]))
-        if hi > lo:
-            cols.append((lo, hi))
-    cols = cols or [(200, 1336)]
-    cfg = dict(
-        src=cand_rel,
-        role="manor production wall, technique-2 recipe, measured by the wave "
-             "instrument against its own manifest camera",
-        floor_window=(int(fw["centre"] - fw["half_width"]),
-                      int(fw["centre"] + fw["half_width"])),
-        ceil_cols=cols, ceil_range=(8, max(60, int(cb["centre"] + cb["half_width"]))
-                                    if cb else 420),
-        floor_cols=cols, floor_range=(int(fw["centre"] - 6 * fw["half_width"]),
-                                      min(1010, int(fw["centre"] + 6 * fw["half_width"]))),
-        rail_cols=cols, rail_range=(int(rb["centre"] - 3 * rb["half_width"]),
-                                    int(rb["centre"] + 3 * rb["half_width"])),
-        module_band=(int(rb["centre"] - rb["half_width"] * 3),
-                     int(rb["centre"] + rb["half_width"] * 3)),
-        module_cols=cols)
-    # THE WAVE INSTRUMENT IS TAUGHT THIS WALL, not rewritten for it.
-    # `measure_wave` reads two per-facing tables the corpus built for its own
-    # eight walls — `PLAN_NOW` (standpoint distance) and `PLAN` (ruled wall
-    # width and storey). A manor wall carries the same facts in its manifest
-    # entry, so they are injected under its key before the call. Found live:
-    # every camera-PASS on a manor wall was refused promotion with KeyError.
     if e.get("camera_wall_m") is None:
-        return None, ("an open facing's far-line frame has no wall for the wave "
-                      "instrument to measure; its promotion path is not built yet")
-    M.PLAN_NOW[key] = e["camera_wall_m"]
-    M.PLAN[key] = {"wall_width_m": e.get("wall_width_m"),
-                   "storey_m": e.get("storey_height_m")}
-    try:
-        r = M.measure_wave(key, cfg, ref=None)
-    except Exception as exc:                       # a wall the detectors cannot read
-        return None, "the wave detectors could not read this frame: %s" % exc
-    doc = M.wave_doc(key, r, None, "manor")
-    doc["_source_sha256"] = sha(os.path.join(ROOT, cand_rel))
+        return None, ("an open facing's far-line frame has no wall plane to "
+                      "carry a scale; its promotion path is not built yet")
+    import row23_lib
+    doc, refusals = row23_lib.promotion_doc(
+        reading, side, ref, "manor", sha(os.path.join(ROOT, cand_rel)))
+    if doc is None or refusals:
+        return None, (refusals or ["no reading"])[0]
     loc, f = key.split("/")
     d = os.path.join(HERE, "manor")
     os.makedirs(d, exist_ok=True)
@@ -131,9 +100,43 @@ def promote_reading(key, cand_rel, e):
     return path, None
 
 
-def do_promote(key, cand_rel, e):
-    """promote-backdrop + bake, for one wall. Never for the experiment's own."""
-    path, why = promote_reading(key, cand_rel, e)
+def _bake():
+    """backdrops/baked.js AND every fixture that reads a promoted meta.
+
+    A promoted wall changes two baked artifacts, not one: `backdrops/baked.js`
+    carries the picture and each world's `fixture.js` carries the meta the page
+    renders it with. Baking only the first is how a sweep leaves
+    `fixtures/nav-manor/fixture.js` stale — which `fixtures.spec`'s bake
+    staleness case turns red, and which it should, because a page rendering a
+    wall from a meta nothing baked is a page rendering yesterday's world.
+    """
+    out = []
+    r = subprocess.run(["node", os.path.join(ROOT, "tools", "bake-backdrops.mjs")],
+                       cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0:
+        return "backdrops/baked.js: " + (r.stdout + r.stderr).strip()[-300:]
+    for d in sorted(os.listdir(os.path.join(ROOT, "fixtures"))):
+        fd = os.path.join(ROOT, "fixtures", d)
+        if not os.path.exists(os.path.join(fd, "world.json")):
+            continue
+        r = subprocess.run(["node", os.path.join(ROOT, "tools", "bake-fixtures.mjs"),
+                            "--fixture-dir", fd], cwd=ROOT,
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            out.append("fixtures/%s: %s" % (d, (r.stdout + r.stderr).strip()[-300:]))
+    return out[0] if out else None
+
+
+def do_promote(key, cand_rel, e, side, ref, reading):
+    """promote-backdrop + bake, for one wall. Never for the experiment's own.
+
+    A PROMOTION THAT CANNOT BE BAKED IS NOT A PROMOTION. The bake runs the
+    fixture validator over the meta this wall just wrote, and a refusal there
+    is the law speaking about the asset — so the two files are taken back out
+    of the store and the wall holds, rather than leaving a wall in `backdrops/`
+    that the page cannot be built from.
+    """
+    path, why = promote_reading(key, cand_rel, e, side, ref, reading)
     if path is None:
         return False, why
     r = subprocess.run(
@@ -145,18 +148,32 @@ def do_promote(key, cand_rel, e):
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         return False, (r.stdout + r.stderr).strip().split("\n")[-1][:200]
-    b = subprocess.run(["node", os.path.join(ROOT, "tools", "bake-backdrops.mjs")],
-                       cwd=ROOT, capture_output=True, text=True)
-    if b.returncode != 0:
-        return False, "promoted, but the bake failed: " + (b.stdout + b.stderr).strip()[-200:]
+    bad = _bake()
+    if bad:
+        loc, f = key.split("/")
+        for p in (os.path.join(ROOT, "backdrops", loc, f + ".png"),
+                  os.path.join(ROOT, "backdrops", loc, f + ".meta.json")):
+            if os.path.exists(p):
+                os.remove(p)
+        _bake()
+        return False, "promoted, and taken back out because the bake refused: " + bad
     return True, None
 
 
 def sweep(manifest, state, do_promote=True):
     do_promote_fn = globals()["do_promote"]
     import row23_lib
-    from measure import pick_floor, module_in_bands
-    picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands)
+    # THE CORPUS'S RULES, INJECTED — the row-23 instrument supplies the windows
+    # and `measure.py` supplies how to read inside them, for the promotion half
+    # exactly as for the camera half. Nothing in `row23_lib` re-derives a
+    # detector this project has already paid for.
+    from measure import (pick_floor, module_in_bands, pick_ceiling,
+                         find_corners_cand2, ceiling_ramp_vp, horizon_votes,
+                         light, EYE_RANGE)
+    picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
+                 pick_ceiling=pick_ceiling, find_corners_cand2=find_corners_cand2,
+                 ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+                 light=light, EYE_RANGE=EYE_RANGE)
     os.makedirs(OUT, exist_ok=True)
 
     promoted, failed, parked, waiting = [], [], [], []
@@ -210,6 +227,7 @@ def sweep(manifest, state, do_promote=True):
                 "brackets": e["brackets"], "stamped": e["stamped"],
                 "outputs": {"scaffold": e["packet"] + "/scaffold.png",
                             "scaffold_sha256": e["scaffold_sha256"]}}
+        side["meta_used"]["facing_type"] = e.get("type")
         # HOTFIX (Navigator, live run 2026-08-24): the manifest's `stamped`
         # copies carry only (kind, x0, x1); the verticals are re-derived from
         # the scaffold's own convention table in `row23_lib._conv_y`. Found
@@ -253,21 +271,30 @@ def sweep(manifest, state, do_promote=True):
                              "row-23 number is measured against")
                 promoted.append((key, "ADMITTED, fenced from promotion", d))
             elif do_promote:
-                ok, why = do_promote_fn(key, r["candidate"], e)
+                side["candidate"] = r["candidate"]
+                ok, why = do_promote_fn(key, r["candidate"], e, side, ref, d)
                 if ok:
                     st["status"] = "promoted"
                     st["candidate"] = r["candidate"]
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
-                    # THE PAINTING PASSED AND THE INSTRUMENT REFUSED — that is
-                    # OUR gap, not the hand's, and a retry would spend a roll
-                    # repainting a wall whose frame is already admissible. The
-                    # wall HOLDS with its candidate named; when the promotion
-                    # instrument learns to read it, the next sweep promotes it
-                    # with no new image asked for. (Live finding 2026-08-24:
-                    # the wave instrument WITHHELDs on most manor walls the
-                    # row-23 instrument reads cleanly.)
+                    # THE CAMERA PASSED AND THE PROMOTION REFUSED. A retry
+                    # would spend a roll repainting a wall whose frame is
+                    # already admissible, so the wall HOLDS with its candidate
+                    # named and the reason recorded, and the next sweep
+                    # promotes it the moment the reason stops being true.
+                    #
+                    # AND THE REASON IS NOW ABOUT THE PICTURE, WHICH IT WAS NOT
+                    # BEFORE. Until 2026-08-24 most of these said "no
+                    # px_per_m_at_wall", which was a second instrument
+                    # disagreeing with the gate about a scale the gate had just
+                    # read (see `promote_reading`). What remains is the honest
+                    # residue: a frame with no corners gives the row-20 horizon
+                    # instrument nothing to fit, and a frame whose chair-rail
+                    # and whose side-wall convergence imply two different
+                    # cameras cannot be dressed in one meta. Those are facts
+                    # about a painting, and they are what the retry packet says.
                     st["status"] = "held"
                     st["candidate"] = r["candidate"]
                     st["correction"] = "camera PASS; held for the promotion instrument: %s" % why
@@ -289,6 +316,20 @@ def sweep(manifest, state, do_promote=True):
                 st["correction"] = ("no candidate of this wall could be measured "
                                     "at all; see MEASURE-ERR lines")
                 failed.append((key, {}, st["correction"]))
+                continue
+            # A WITHHELD IS NOT A MISS AND MUST NOT BUY A ROLL. `measurement_
+            # withheld` is this round's word for "the detector could not run at
+            # all", and on the manor that is `hall/N` and `hall/S`: standing
+            # 2.15 m from an 8 m wall puts the declared anchor's own datum below
+            # the frame, so no painting of that facing can carry a reading and a
+            # re-ask carries no correction. The wall holds, its cap untouched,
+            # and what it is waiting for is a standpoint, not an image.
+            if worst.get("kind") == "measurement_withheld":
+                st["status"] = "held"
+                st["candidate"] = worst.get("candidate")
+                st["correction"] = ("no roll of this facing can be measured: %s"
+                                    % worst.get("blocked_on"))
+                failed.append((key, worst, st["correction"]))
                 continue
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
@@ -328,13 +369,25 @@ def main():
 
         for key, why, d in promoted:
             print("  %-24s PROMOTE   %s" % (key, why))
+        # THE LINE SAYS WHAT THE STATE SAYS. Every entry in `failed` printed
+        # RETRY, including the ones the sweep had recorded as HELD — so the
+        # run's own log claimed rolls were being asked for that nothing was
+        # asking for. The status is read back out of the state it was just
+        # written into rather than assumed from which list the wall is in.
         for key, d, corr in failed:
-            print("  %-24s RETRY     %s | %s" % (key, d.get("verdict"), corr))
+            print("  %-24s %-9s %s | %s"
+                  % (key, state["walls"][key]["status"].upper(),
+                     d.get("verdict"), corr))
         for key, d in parked:
             print("  %-24s PARKED    cap spent; wall stays grid, run continues" % key)
-        done = sum(1 for w in state["walls"].values() if w["status"] == "promoted")
-        print("%s  %d promoted, %d retrying, %d parked, %d still unpainted"
-              % (time.strftime("%H:%M:%S"), done, len(failed), len(parked), len(waiting)))
+        tally = {}
+        for w in state["walls"].values():
+            tally[w["status"]] = tally.get(w["status"], 0) + 1
+        done = tally.get("promoted", 0)
+        print("%s  %d promoted, %d retrying, %d held, %d parked, %d still unpainted"
+              % (time.strftime("%H:%M:%S"), done, tally.get("retry", 0),
+                 tally.get("held", 0), tally.get("parked", 0),
+                 tally.get("waiting", 0)))
         if done:
             print("  >> %d wall(s) promoted and baked. `tools/publish-site.sh` is yours to "
                   "run when you want them live - this loop never publishes." % done)
