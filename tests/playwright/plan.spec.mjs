@@ -20,7 +20,8 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   validatePlan, planWarnings, drawn, ruleStandpoint, measuredDistance,
-  facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions
+  facingOfOpening, FACINGS, standpointFor, wallFitsFrame, standpointObstructions,
+  usablyInFrame, MIN_USABLE_APERTURE_PX, FRAME_MARGIN_PX, PLAN_CANVAS_W, PLAN_CANVAS_H
 } from "../../tools/validate-plan.mjs";
 import {
   deriveMeta, projectPlacement, projectEntity, stagingDivergence,
@@ -1303,6 +1304,186 @@ test.describe("derived meta geometry, by independent arithmetic", () => {
         expect(fc[fc.type === "open" ? "camera_wall_m" : "camera_far_m"]).toBeUndefined();
       }
     }
+  });
+});
+
+/* ------------------------------------- [row 26] the standpoint law's third branch */
+
+test.describe("law (a)'s third question: where along the wall the body stands", () => {
+  /* THE TWO NUMBERS HAVE A SOURCE, AND THIS IS THE WIRE TO IT. Row 2's
+     pointing tolerance is two constants in index.html; row 26's two are those
+     converted at the narrowest stage width the suite drives. Re-read and
+     re-computed here so that moving row 2's tolerance turns row 26 red rather
+     than leaving two numbers that USED to be derived. */
+  test("the frame margin and the usable minimum are row 2's tolerance, converted", () => {
+    const src = readFileSync(join(repoRoot, "index.html"), "utf8");
+    const one = (name) => {
+      const hits = [...src.matchAll(new RegExp(`var ${name} = (\\d+);`, "g"))];
+      expect(hits.length, `index.html defines ${name} exactly once`).toBe(1);
+      return Number(hits[0][1]);
+    };
+    const ring = one("TAKEABLE_MARGIN_CSS");     // row 2's forgiveness ring
+    const unforgiven = one("SMALL_TARGET_CSS");  // row 2's "big enough to answer for itself"
+    /* The narrowest width this product is driven at anywhere in its own suite.
+       Read out of the specs rather than typed, so a case that starts driving a
+       narrower phone moves the constants instead of quietly invalidating
+       them. */
+    const widths = [];
+    for (const f of readdirSync(join(repoRoot, "tests", "playwright"))) {
+      if (!f.endsWith(".mjs")) continue;
+      const s = readFileSync(join(repoRoot, "tests", "playwright", f), "utf8");
+      for (const m of s.matchAll(/width:\s*(\d{3,4})\s*,\s*height:/g)) widths.push(Number(m[1]));
+    }
+    const narrowest = Math.min(...widths);
+    expect(narrowest, "the suite's narrowest driven viewport").toBe(320);
+    expect(FRAME_MARGIN_PX, "the forgiveness ring, in canvas px at the narrowest stage")
+      .toBe(Math.ceil(ring * PLAN_CANVAS_W / narrowest));
+    expect(MIN_USABLE_APERTURE_PX, "row 2's unforgiven size, in canvas px at the narrowest stage")
+      .toBe(Math.ceil(unforgiven * PLAN_CANVAS_W / narrowest));
+  });
+
+  test("the manor's two slid facings are exactly the two whose doors ran off the frame", () => {
+    const slid = [];
+    for (const r of PLAN.rooms) {
+      for (const f of FACINGS) {
+        const fc = r.facings[f];
+        if (!fc || fc.standpoint_source === "drawn") continue;
+        const m = deriveMeta(PLAN, r.id, f);
+        if (m.eye_offset_m) slid.push(`${r.id}/${f} ${m.eye_offset_m}`);
+      }
+    }
+    expect(slid.sort()).toEqual(["hall/N 0.93", "hall/S 1.43"]);
+  });
+
+  /* THE LEAST-MAGNITUDE PROPERTY, MEASURED AT THE DOOR RATHER THAN ASSERTED.
+     A centimetre less and the jamb is inside the margin; the slide chosen is
+     the first whole centimetre that is not. This is what stops the clause
+     being satisfiable by "slide a long way and call it fixed". */
+  test("the slide is the LEAST whole centimetre that seats every door in frame", () => {
+    for (const [id, facing, expected] of [["op15", "N", 0.93], ["op14", "S", 1.43]]) {
+      const at = (offset) => {
+        const p = clone(PLAN);
+        const fc = room(p, "hall").facings[facing];
+        const right = facing === "N" ? 1 : -1;
+        fc.standpoint.x = 35 + offset * right;
+        const m = deriveMeta(p, "hall", facing);
+        const h = m.openings.find((o) => o.id === id);
+        return { on: Math.min(h.x + h.w, PLAN_CANVAS_W) - Math.max(h.x, 0), right: h.x + h.w };
+      };
+      expect(at(expected).right, `${id} at the chosen slide sits inside the margin`)
+        .toBeLessThanOrEqual(PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      expect(at(drawn(expected - 0.01)).right, `${id} one centimetre short is NOT seated`)
+        .toBeGreaterThan(PLAN_CANVAS_W - FRAME_MARGIN_PX + 1e-6);
+      expect(at(0).on, `${id} from the room's centre`).toBeLessThan(MIN_USABLE_APERTURE_PX);
+    }
+  });
+
+  /* AND THE PICTURE MOVED, NOT ONLY THE DOCUMENT. The trap this case exists
+     for: `eye_offset_m` set AFTER the openings and the corners leaves the
+     standpoint sliding in the plan and every rectangle drawn from the room's
+     centre — the assertions above would all still pass. So the assertion is on
+     the DERIVED OPENING, at two depths, against arithmetic written here. */
+  test("a slid facing's opening and floor move with the eye, at their own scales", () => {
+    const m = deriveMeta(PLAN, "hall", "N");
+    const s0 = m.px_per_m_at_wall;
+    const hole = m.openings.find((o) => o.id === "op15");
+    /* op15 spans 1.5–2.5 m right of the room's centre; the eye stands 0.93 m
+       that way, so at the wall plane the near jamb draws at half the frame
+       plus (1.5 − 0.93) metres of wall. */
+    expect(hole.x).toBeCloseTo(PLAN_CANVAS_W / 2 + (1.5 - 0.93) * s0, 6);
+    expect(hole.x + hole.w).toBeCloseTo(PLAN_CANVAS_W / 2 + (2.5 - 0.93) * s0, 6);
+    expect(usablyInFrame(hole, PLAN_CANVAS_W, PLAN_CANVAS_H)).toBe(true);
+    /* The corners are the wall's own ends and move by the same 0.93 m of wall. */
+    expect(m.corner_x0_px).toBeCloseTo(PLAN_CANVAS_W / 2 + (-4 - 0.93) * s0, 6);
+    expect(m.corner_x1_px).toBeCloseTo(PLAN_CANVAS_W / 2 + (4 - 0.93) * s0, 6);
+    /* AND A POINT NEARER THAN THE WALL MOVES FURTHER, which is the whole
+       reason the eye's term is not a pixel offset. At 1.00 m in front of the
+       wall the scale is larger and the same body displaces the picture by
+       0.93 × that scale, not by 0.93 × the wall's. */
+    const gp = require(join(repoRoot, "src", "groundplane.js"));
+    const near = gp.scaleAtDepth(1.0, m);
+    expect(near).toBeGreaterThan(s0);
+    expect(gp.xAtScale(0.5, near, m, PLAN_CANVAS_W))
+      .toBeCloseTo(PLAN_CANVAS_W / 2 - 0.93 * near, 6);
+    expect(gp.xAtScale(0.5, s0, m, PLAN_CANVAS_W))
+      .toBeCloseTo(PLAN_CANVAS_W / 2 - 0.93 * s0, 6);
+  });
+
+  /* AND STAGED `u` DOES NOT MOVE, which is what makes staging.json untouched by
+     a slide rather than merely unedited. The eye term is common to both ends of
+     the u-domain and cancels; the PIXELS move and the address does not. */
+  test("a slide moves the pixels and not the staging addresses", () => {
+    const p = clone(PLAN);
+    room(p, "hall").facings.N.standpoint.x = 35;   // the unslid passage
+    for (const o of PLAN.objects.filter((x) => x.room === "hall")) {
+      for (const f of FACINGS) {
+        let a, b;
+        try { a = projectPlacement(PLAN, o.id, "hall", f); } catch (e) { continue; }
+        try { b = projectPlacement(p, o.id, "hall", f); } catch (e) { continue; }
+        expect(a.u, `${o.id} on hall/${f}: the address is the wall's, not the eye's`)
+          .toBeCloseTo(b.u, 12);
+      }
+    }
+  });
+
+  /* THE REFUSAL, ON PLANS BUILT HERE — never on the shipped one, which slides
+     cleanly and therefore proves nothing about what happens when it cannot.
+     Both sub-branches, because they fail for different reasons and an
+     implementation could satisfy one and not the other. */
+  test.describe("when no slide satisfies the doors, the body does not move", () => {
+    /* A room with a door at each end of a wall too long to hold both in one
+       frame: the fit intervals do not intersect. */
+    function twoDoorsFarApart() {
+      const p = clone(PLAN);
+      const r = room(p, "hall");
+      const held = p.openings.find((o) => o.id === "op15");
+      held.rect = { x0: 37.5, x1: 38.5, y0: 12.2, y1: 12.55 };
+      const other = p.openings.find((o) => o.id === "op14");
+      other.rect = { x0: 31.5, x1: 32.5, y0: 12.2, y1: 12.55 };
+      other.joins = ["hall", "buttery_pantry"];
+      return { p, r };
+    }
+    /* The shipped passage with masonry standing where the slide would put the
+       body: a chimney breast across the east half of the room at the depth
+       this facing stands at. The fit interval is unchanged and every metre of
+       it is now unstandable. */
+    function masonryWhereTheSlideGoes() {
+      const p = clone(PLAN);
+      p.fireplaces.push({ floor: "ground", room: "hall",
+        rect: { x0: 36, x1: 39, y0: 9.8, y1: 10.3 } });
+      return { p, r: room(p, "hall") };
+    }
+
+    for (const [name, build] of [["the fit intervals do not intersect", twoDoorsFarApart],
+                                 ["the slide is outside the standable band", masonryWhereTheSlideGoes]]) {
+      test(name, () => {
+        const { p, r } = build();
+        const got = standpointFor(p, r, "N", p.standpoint_stand_back,
+          p.standpoint_threshold_clearance_m);
+        expect(got.point.x, `${name}: the standpoint stays on the room's own axis`).toBe(35);
+        /* And it is a refusal rather than a facing that happened to fit: at
+           least one door is NOT usably in frame from where the body stands. */
+        p.rooms.find((x) => x.id === "hall").facings.N.standpoint = got.point;
+        const m = deriveMeta(p, "hall", "N");
+        const bad = m.openings.filter((o) => !usablyInFrame(o, PLAN_CANVAS_W, PLAN_CANVAS_H));
+        expect(bad.length, `${name}: the refusal leaves a door for the clause to report`)
+          .toBeGreaterThan(0);
+      });
+    }
+
+    /* AND THE STANDABLE HALF IS LOAD-BEARING, not a formality: the same
+       geometry with the room widened enough to stand where the door needs
+       DOES slide. Without this the case above would pass on an implementation
+       that never slides at all. */
+    test("the same facing with the masonry moved out of the way does slide", () => {
+      const { p, r } = masonryWhereTheSlideGoes();
+      p.fireplaces[p.fireplaces.length - 1].rect =
+        { x0: 31, x1: 33, y0: 9.8, y1: 10.3 };   // the same hearth, at the other end
+      const got = standpointFor(p, r, "N", p.standpoint_stand_back,
+        p.standpoint_threshold_clearance_m);
+      expect(got.point.x, "the standable half is what refused it, and nothing else")
+        .toBe(35.93);
+    });
   });
 });
 
