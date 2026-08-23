@@ -307,6 +307,12 @@ def sweep(manifest, state, do_promote=True):
             # crash class this replaces cost the run its cadence once.
             st["status"] = "parked"
             st["why"] = "config derivation failed: %s" % _ex
+            # [row 33] A wall leaving the pipeline is a leave event whichever
+            # door it goes out of; without this, a parked wall reads as pending
+            # for the rest of the ledger and every gap after it reads IDLE.
+            _now = time.time()
+            timings.record("park.wall", _now, _now, key,
+                           {"why": "config derivation failed", "error": str(_ex)[:200]})
             print("  %-24s PARKED    config: %s" % (key, _ex))
             continue
 
@@ -412,6 +418,9 @@ def sweep(manifest, state, do_promote=True):
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
+                _now = time.time()                                # [row 33]
+                timings.record("park.wall", _now, _now, key,
+                               {"why": "retry cap spent", "attempts": st["attempts"]})
                 parked.append((key, worst))
             else:
                 st["status"] = "retry"

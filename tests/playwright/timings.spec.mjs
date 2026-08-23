@@ -500,7 +500,12 @@ test.describe("row 33 — the instrumentation is wired to the real tools", () =>
        marked and touches no logic — so the marks are asserted, and so is the
        fact that `row23_lib.py` gained nothing. */
     const run = readFileSync(join(MEASURED, "row23_run.py"), "utf8");
-    for (const step of ["measure.candidate", "promote.wall", "bake.sweep", "sweep.pass"]) {
+    for (const step of ["measure.candidate", "promote.wall", "bake.sweep", "sweep.pass",
+                        /* Both doors out of the pipeline, because the analyzer's
+                           LEAVE_STEPS names this one and a name with no emitter
+                           is a check that cannot fire — a parked wall would read
+                           as pending forever and every later gap as IDLE. */
+                        "park.wall"]) {
       expect(run, `row23_run.py no longer records ${step}`).toContain(`"${step}"`);
     }
     expect(run).toContain("import timings");

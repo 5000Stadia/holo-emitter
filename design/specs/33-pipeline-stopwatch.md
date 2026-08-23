@@ -48,9 +48,21 @@ for a marker.
 5. `--backfill` — mines the evidence Test 1 already left, marks every record `backfilled: true`,
    is idempotent (a record already in the ledger is not written twice), and takes `--tree` because
    a fresh worktree checkout flattens every mtime to the checkout second. The tool detects that
-   flattening and says so rather than reporting a run that took four seconds.
+   flattening and says so rather than reporting a run that took four seconds. `--until` bounds the
+   mining to one run — an epoch, an ISO datetime, or a REVISION, since the cutoff a run deserves
+   is the commit that closed it — because a tree under active work rewrites mtimes and destroys
+   the evidence underneath them.
 6. `--monitor` — runs the analyzer, prints one line, exits non-zero on any regression flag. A
    scheduler's to call on a cadence; it does not schedule itself.
+
+## Queue latency — added during the build, and the sharper of the two idle lenses
+
+Not in the first draft of this plan, and it should have been. A gap scan asks whether ANYTHING was
+running; it is structurally blind to a candidate sitting unmeasured while the next candidate is
+being generated, because the activity timeline never breaks. So the analyzer also joins two steps
+by roll id (or by facing, chosen per handoff and never mixed) and reports how long the WORK sat.
+Unlike a step's own duration, that time is free to delete: nothing has to be made faster for a
+handoff to stop waiting.
 
 ## Generation time
 
@@ -91,6 +103,10 @@ a flag that does not carry its arithmetic is an assertion.
 - The analyzer on a synthetic ledger carrying a planted idle gap and a planted regression: both
   are found, both named with their numbers. **Each arm has its negative control** — the same
   ledger with the defect removed must report neither, so an arm that cannot fail is visible as
-  one.
-- Backfill on the real tree: non-zero counts on more than one step.
-- Live wiring: running an instrumented step against a temp ledger produces its record.
+  one. The idle arm gets a third: the same gap with the work already terminal must read QUIET.
+  Verified by mutation — disabling the gap threshold or the flag comparison turns exactly the
+  positive arms red and leaves the controls green.
+- Backfill on the real tree: non-zero counts on five steps, every record marked and carrying its
+  derivation; a second mining writes nothing.
+- Live wiring: the tools are RUN — both bakes, the lint, and a REFUSED promotion — and their
+  records read back. Not "the file imports the writer".
