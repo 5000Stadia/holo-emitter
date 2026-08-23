@@ -585,7 +585,7 @@
           "type": "enclosed",
           "standpoint_source": "threshold",
           "standpoint": {
-            "x": 35,
+            "x": 35.93,
             "y": 10.049999999999999
           },
           "wall_line": 12.2,
@@ -606,7 +606,7 @@
           "type": "enclosed",
           "standpoint_source": "threshold",
           "standpoint": {
-            "x": 35,
+            "x": 33.57,
             "y": 11.75
           },
           "wall_line": 9.6,

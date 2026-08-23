@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "16800300",
+  fp: "839a90df",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -389,6 +389,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
           "to": "buttery_pantry",
           "arrive_facing": "N",
           "via": "op15"
+        },
+        {
+          "id": "door_hall_kitchen",
+          "from": "hall",
+          "facing": "S",
+          "to": "kitchen",
+          "arrive_facing": "S",
+          "via": "op14"
         },
         {
           "id": "door_hall_study",
@@ -766,7 +774,9 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_guest_chamber_stair_landing.refused_unreachable": "The door between the guest chamber and the stair landing is not the one before you.",
     "go.door_hall_buttery_pantry.arrive": "Out of the cross passage, you come into the buttery and pantry. Cool and close, and it keeps the sour-sweet breath of ale and stored things. The doorway stands open behind you.",
     "go.door_hall_buttery_pantry.refused_unreachable": "The way from the cross passage into the buttery and pantry is not before you.",
-    "go.door_hall_study.arrive": "You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.",
+    "go.door_hall_kitchen.arrive": "You turn out of the cross passage and the kitchen takes you in. Its heat reaches the doorway before you do, and under the heat is ash and scoured board. The doorway stands open behind you.",
+    "go.door_hall_kitchen.refused_unreachable": "The passage's own door into the kitchen is not the one before you.",
+    "go.door_hall_study.arrive":"You pass back into the study, where ink and oak dust close about you again. The doorway stands open behind you.",
     "go.door_hall_study.refused_unreachable": "The way to the study is not before you; you must come to it first.",
     "go.door_kitchen_entrance_court.arrive": "The kitchen gives onto the entrance court, and you step through into it. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
     "go.door_kitchen_entrance_court.refused_unreachable": "The kitchen does not open into the entrance court from here.",
@@ -6872,7 +6882,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 227.5555555555556,
         "h": 455.1111111111111,
         "beyond_m": 2.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 1.43
       }
     ],
     "stairs": []
@@ -11985,23 +11995,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1580.0558139534883,
+    "corner_x1_px": 2230.1767441860466,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 0.93,
     "openings": [
       {
         "id": "op15",
         "kind": "door",
         "via": null,
-        "x": 1482.4186046511627,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
         "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 5.3,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -0.93
       }
     ],
     "stairs": []
@@ -12061,23 +12072,24 @@ window.HOLO_FIXTURES["nav-manor"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -1137.1162790697674,
-    "corner_x1_px": 2673.116279069767,
+    "corner_x0_px": -1818.1953488372092,
+    "corner_x1_px": 1992.0372093023257,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
     "camera_wall_m": 2.15,
+    "eye_offset_m": 1.43,
     "openings": [
       {
         "id": "op14",
         "kind": "door",
         "via": null,
-        "x": 1720.5581395348836,
+        "x": 1039.4790697674418,
         "y": 136.9799999999999,
-        "w": 476.2790697674418,
+        "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 9,
-        "beyond_offset_m": 0
+        "beyond_offset_m": -1.43
       }
     ],
     "stairs": []
@@ -12165,7 +12177,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 157.78120184899848,
         "h": 315.5624036979969,
         "beyond_m": 2.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0.93
       }
     ],
     "stairs": []
