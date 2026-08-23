@@ -256,8 +256,9 @@
     },
     "privy_garden/N": {
       "attempts": 2,
-      "status": "promoted",
-      "candidate": "backdrops/source/privy_garden-N/row23-11d58c22.png"
+      "status": "retry",
+      "candidate": "backdrops/source/privy_garden-N/row23-11d58c22.png",
+      "correction": "VETOED BY KABE 2026-08-24, verbatim: 'exterior garden has interior wall outside' - the archetype prompt gave an OPEN garden room interior oak panelling and a chair-rail. The re-ask must describe the privy garden's own fabric: brick/stone garden wall, sky, planting - no interior materials, no wainscot. The promoted art was demoted; the wall is grid again until an outdoor-true candidate passes."
     },
     "privy_garden/E": {
       "attempts": 2,
