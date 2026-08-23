@@ -2693,13 +2693,25 @@ test.describe("the schematic is a derived render of the plan", () => {
       "and names every kind, because reading one as another is the failure the class exists to prevent")
       .toEqual(["generation_miss", "measurement_withheld", "scaffold_feature_absent"]);
     expect(Object.keys(header._rounds || {}).sort(),
-      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6", "row23"]);
+      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6", "row23", "row32"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row32"]);
+    /* [Row 32] AND A ROUND WHOSE MISSES ARE NOT ABOUT ONE PAINTING STILL HAS TO
+       CLOSE THEM. Row 32's entries are about the instrument, the emitter and two
+       promotion gates, so they carry no facing and no delta and the per-facing
+       loop below does not reach them — which is exactly how a line could sit in
+       this file forever saying nothing. Each one names where its cause is baked
+       in, which is production law clause 3's whole test. */
+    for (const r of ledger.filter((x) => x.round === "row32")) {
+      expect(String(r.baked_in || ""), `row32 ${r.gate}: a miss with no baked-in cause is an OPEN miss and may not say CLOSED`)
+        .not.toHaveLength(0);
+      expect(r.status, `row32 ${r.gate}: names a status this ledger does not use`).toBe("CLOSED");
+      expect(r.cause, `row32 ${r.gate}: a miss carries its diagnosed cause`).toBeTruthy();
+    }
     /* [Row 23] AND A PASS IS NOT A MISS. The matrix puts twenty-four rolls in
        this file and most of them are admitted; a ledger whose every line is a
        miss cannot answer "is this getting better", which is production law

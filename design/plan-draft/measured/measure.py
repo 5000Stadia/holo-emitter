@@ -2321,6 +2321,17 @@ def write_misses(raw, round_name="cand-2", records=None):
                           "is per WALL, so the configuration cannot vary by "
                           "technique even in principle. A PASS is a `roll` record, "
                           "not a miss.",
+                 "row32": "THE HOLD FAMILY. The manor production run held 58 "
+                          "of 85 walls on one instrument, and 32 of those holds "
+                          "said \"no corners\": the ceiling-ramp horizon needs "
+                          "two ceiling-line corners and `find_corners_cand2` was "
+                          "built on the study's plaster ceilings. Its entries are "
+                          "about the INSTRUMENT, the EMITTER and two promotion "
+                          "GATES rather than about one painting's camera, so they "
+                          "carry no facing and no delta - production law clause 6 "
+                          "is what they answer to, and each names where its cause "
+                          "is baked in. The `clock` record beside them carries the "
+                          "before and after with no band moved.",
                  "cand-6": "THE STANDING-EYE WAVE. [HUMAN 2026-08-22, "
                            "design/approvals.log at 964188d] \"B\" - the "
                            "standing eye - so every wall is regenerated "

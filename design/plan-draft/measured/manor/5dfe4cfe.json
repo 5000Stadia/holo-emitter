@@ -107,18 +107,103 @@
         "cv": 0.771
       }
     ],
-    "corner_x0_px": 237,
-    "corner_x1_px": 1334,
-    "ramp": {
-      "x": 1476.1,
-      "y": 30.5,
-      "left_slope": 0.0082,
-      "right_slope": -0.6616,
-      "left_n": 50,
-      "left_resid_px": 9.48,
-      "right_n": 61,
-      "right_resid_px": 0.3
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 136,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 166,
+        "admissible": false,
+        "sigma_y_px": 205.99,
+        "horizon_y_px": 141.8,
+        "why": "the two side-wall junctions converge at y 141.8 but only to +/-206.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 175,
+        "admissible": false,
+        "sigma_y_px": 250.48,
+        "horizon_y_px": 162.2,
+        "why": "the two side-wall junctions converge at y 162.2 but only to +/-250.5 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 202,
+        "admissible": false,
+        "sigma_y_px": 71.64,
+        "horizon_y_px": 318.4,
+        "why": "the two side-wall junctions converge at y 318.4 but only to +/-71.6 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 143,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 23,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 51,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 45,
+        "admissible": false,
+        "sigma_y_px": 84.24,
+        "horizon_y_px": 74.2,
+        "why": "the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      }
+    ],
+    "corner_x0_px": 234,
+    "corner_x1_px": 1354,
+    "corner_evidence": {
+      "left_fit_r2": 0.6298,
+      "right_fit_r2": 0.5726,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
     },
+    "horizon_bracket_px": 14.68,
+    "ramp": null,
     "votes": {
       "floor": {
         "x": 1130,
@@ -133,7 +218,7 @@
       "side_walls": {
         "x": 858,
         "y": 407,
-        "edge_px": 1492
+        "edge_px": 1727
       }
     },
     "light": {
@@ -142,21 +227,21 @@
       "key_dir_brightest_y": 996,
       "key_tint": "#c8914e",
       "key_tint_patch": [
-        247,
+        244,
         386,
         66,
         128
       ],
       "key_tint_patch_mean_rgb": [
-        60.84,
-        44.01,
-        23.83
+        60.43,
+        43.67,
+        23.58
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c87f34",
         "floor_bottom_strip": "#c88f5f",
-        "mid_wall_right": "#c86919",
-        "mid_wall_left": "#c89667",
+        "mid_wall_right": "#c86817",
+        "mid_wall_left": "#c89566",
         "brightest_21x21_patch": "#c8af99"
       },
       "brightest_21x21_patch_centre_px": [
@@ -164,15 +249,16 @@
         996
       ],
       "sobel_bright_side_deg_whole_frame": 87.24,
-      "sobel_bright_side_deg_wall_band": 129.61,
+      "sobel_bright_side_deg_wall_band": 38.92,
       "left_third_minus_right_third_luminance_whole_frame": 9.481,
       "left_third_minus_right_third_luminance_wall_band": -0.471
     },
     "storey_height_m": 3.7741,
-    "implied_wall_width_m": 7.0895,
-    "eye_height_m": 4.456,
+    "implied_wall_width_m": 7.2381,
+    "eye_height_m": null,
+    "hold_family": "unfitted-horizon",
     "withheld_because": [
-      "the horizon this painting's own side walls converge on (y 30.5) puts the eye at 4.456 m above its own floor line at the scale its own chair-rail declares (154.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 74.2 but only to +/-84.2 px, and the standing licence on the horizon row is +/-14.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
     ]
   },
   "delta_focal_pct": -0.27,

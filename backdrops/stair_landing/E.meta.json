@@ -1,71 +1,71 @@
 {
-  "floor_line_y": 0.783203,
-  "px_per_m_at_wall": 235.789,
-  "px_per_m_at_bottom": 404.37,
-  "wall_width_m": 4.15,
-  "key_tint": "#c87030",
+  "floor_line_y": 0.700195,
+  "px_per_m_at_wall": 158.947,
+  "px_per_m_at_bottom": 402.32,
+  "wall_width_m": 5.65,
+  "key_tint": "#c89c67",
   "image_h_px": 1024,
-  "horizon_y": 0.47998,
-  "key_dir": "L-ABOVE",
+  "horizon_y": 0.504395,
+  "key_dir": "R-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 224,
-  "camera_wall_m": 4.09,
+  "calibration_px": 151,
+  "camera_wall_m": 6.6,
   "facing_type": "enclosed",
   "wall_continuous": true,
   "wall_segments": [
     {
       "from_m": 0,
-      "to_m": 4.15,
+      "to_m": 5.65,
       "kind": "wall"
     }
   ],
-  "corner_x0_px": 243,
-  "corner_x1_px": 1315,
+  "corner_x0_px": 275,
+  "corner_x1_px": 1244,
   "storey_height_m": 2.8,
-  "camera_id": "measured:backdrops/source/back_stair-W/row23-4e3755a6.png",
+  "camera_id": "measured:backdrops/source/stair_landing-E/row23-178cf7b9.png",
   "camera_reference": "ruled",
   "measured_round": "manor",
   "provisional": false,
   "measured": true,
   "backdrop": "wall",
-  "focal_px": 964.4,
-  "nearest_floor_m": 2.3849,
+  "focal_px": 1049.1,
+  "nearest_floor_m": 2.6075,
   "measured_room": {
-    "storey_height_m": 2.88,
-    "wall_width_m": 4.546,
+    "storey_height_m": 3.077,
+    "wall_width_m": 6.096,
     "ruled_storey_height_m": 2.8,
-    "ruled_wall_width_m": 4.15,
+    "ruled_wall_width_m": 5.65,
     "carriers": [
       {
         "kind": "door",
-        "id": "op11",
+        "id": "op21",
         "plan_px": [
-          573.5,
-          809.3
+          668.7,
+          827.6
         ],
-        "plan_centre_px": 691.4,
+        "plan_centre_px": 748.1,
         "painted_px": [
-          608,
-          767
+          683,
+          865
         ],
-        "painted_centre_px": 687.5,
-        "centre_delta_px": -3.9,
-        "centre_delta_m": -0.017,
+        "painted_centre_px": 774,
+        "centre_delta_px": 25.9,
+        "centre_delta_m": 0.163,
         "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
       }
     ]
   },
   "openings": [
     {
-      "id": "op11",
+      "id": "op21",
       "kind": "door",
       "via": null,
-      "x": 608,
-      "y": 298,
-      "w": 159,
-      "h": 504,
-      "beyond_m": 14.95,
-      "beyond_offset_m": -2.575,
+      "x": 683,
+      "y": 339,
+      "w": 182,
+      "h": 378,
+      "beyond_m": 15.2,
+      "beyond_offset_m": -2.875,
       "measured": true
     }
   ]

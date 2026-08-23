@@ -145,17 +145,121 @@
         "cv": 1.153
       }
     ],
-    "corner_x0_px": 145,
-    "corner_x1_px": 1364,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 133,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 181,
+        "admissible": false,
+        "sigma_y_px": 136.8,
+        "horizon_y_px": 1458.8,
+        "why": "the two side-wall junctions converge at y 1458.8 but only to +/-136.8 px, and the standing licence on the horizon row is +/-16.2 px"
+      },
+      {
+        "ceiling_y_px": 127,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 168,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 155,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 140,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 203,
+        "admissible": false,
+        "sigma_y_px": 339.15,
+        "horizon_y_px": -2829.6,
+        "why": "the two side-wall junctions converge at y -2829.6 but only to +/-339.1 px, and the standing licence on the horizon row is +/-16.2 px"
+      },
+      {
+        "ceiling_y_px": 209,
+        "admissible": false,
+        "sigma_y_px": 775.36,
+        "horizon_y_px": -1570.0,
+        "why": "the two side-wall junctions converge at y -1570.0 but only to +/-775.4 px, and the standing licence on the horizon row is +/-16.2 px"
+      },
+      {
+        "ceiling_y_px": 147,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 161,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 174,
+        "admissible": true,
+        "sigma_y_px": 1.05,
+        "horizon_y_px": 583.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 191,
+        "admissible": true,
+        "sigma_y_px": 1.32,
+        "horizon_y_px": 583.7,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 125,
+    "corner_x1_px": 1388,
+    "corner_evidence": {
+      "left_fit_r2": 0.6745,
+      "right_fit_r2": 0.3159,
+      "block_px": 16,
+      "excluded": [
+        [
+          320,
+          576
+        ],
+        [
+          661,
+          1002
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 16.15,
     "ramp": {
-      "x": 733.6,
-      "y": 582.7,
-      "left_slope": 0.7873,
-      "right_slope": -0.7237,
+      "x": 734.8,
+      "y": 583.1,
+      "left_slope": 0.7864,
+      "right_slope": -0.7256,
       "left_n": 61,
       "left_resid_px": 0.31,
       "right_n": 61,
-      "right_resid_px": 0.29
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.05
     },
     "votes": {
       "floor": {
@@ -169,9 +273,9 @@
         "edge_px": 15623
       },
       "side_walls": {
-        "x": 754,
-        "y": 553,
-        "edge_px": 1513
+        "x": 720,
+        "y": 543,
+        "edge_px": 1303
       }
     },
     "light": {
@@ -193,8 +297,8 @@
       "key_tint_alternates": {
         "floor_under_brightest": "#c8b4a7",
         "floor_bottom_strip": "#c89e7d",
-        "mid_wall_right": "#c8671b",
-        "mid_wall_left": "#c8ae91",
+        "mid_wall_right": "#c8651a",
+        "mid_wall_left": "#c8a27c",
         "brightest_21x21_patch": "#c7c7c8"
       },
       "brightest_21x21_patch_centre_px": [
@@ -202,13 +306,14 @@
         264
       ],
       "sobel_bright_side_deg_whole_frame": 106.66,
-      "sobel_bright_side_deg_wall_band": 128.52,
+      "sobel_bright_side_deg_wall_band": 120.06,
       "left_third_minus_right_third_luminance_whole_frame": 31.027,
       "left_third_minus_right_third_luminance_wall_band": 25.583
     },
     "storey_height_m": 3.2194,
-    "implied_wall_width_m": 6.4336,
-    "eye_height_m": 0.846,
+    "implied_wall_width_m": 6.6658,
+    "eye_height_m": 0.8439,
+    "hold_family": null,
     "withheld_because": []
   },
   "delta_focal_pct": 11.02,

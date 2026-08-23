@@ -52,7 +52,7 @@
     "the door: the choice of edge pair would choose the verdict: the strongest pair sits 698..858 (10 px from the ask) and another admissible pair sits 651..836 (24 px from the ask), which disagree by more than the 12 px this arm can resolve"
   ],
   "_promotion": {
-    "ceiling_y_px": 258,
+    "ceiling_y_px": 244,
     "ceiling_candidates": [
       {
         "y": 218,
@@ -127,31 +127,156 @@
         "cv": 0.719
       }
     ],
-    "corner_x0_px": null,
-    "corner_x1_px": null,
-    "ramp": null,
-    "votes": {},
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 217,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 612.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 238,
+        "admissible": true,
+        "sigma_y_px": 1.14,
+        "horizon_y_px": 611.4,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 280,
+        "admissible": true,
+        "sigma_y_px": 1.1,
+        "horizon_y_px": 611.4,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 244,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 611.4,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 258,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 611.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 223,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 611.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 15,
+        "admissible": false,
+        "sigma_y_px": 113.56,
+        "horizon_y_px": -1418.5,
+        "why": "the two side-wall junctions converge at y -1418.5 but only to +/-113.6 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": false,
+        "sigma_y_px": 150.2,
+        "horizon_y_px": -1099.5,
+        "why": "the two side-wall junctions converge at y -1099.5 but only to +/-150.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 23,
+        "admissible": false,
+        "sigma_y_px": 118.49,
+        "horizon_y_px": -1515.9,
+        "why": "the two side-wall junctions converge at y -1515.9 but only to +/-118.5 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": false,
+        "sigma_y_px": 233.27,
+        "horizon_y_px": -630.9,
+        "why": "the two side-wall junctions converge at y -630.9 but only to +/-233.3 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 111,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 612.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 1.35,
+        "horizon_y_px": 613.1,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 117,
+    "corner_x1_px": 1395,
+    "corner_evidence": {
+      "left_fit_r2": 0.2758,
+      "right_fit_r2": 0.4223,
+      "block_px": 16,
+      "excluded": [
+        [
+          690,
+          845
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 14.68,
+    "ramp": {
+      "x": 781.9,
+      "y": 611.4,
+      "left_slope": 0.6266,
+      "right_slope": -0.6824,
+      "left_n": 59,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.3,
+      "sigma_y_px": 1.09
+    },
+    "votes": {
+      "floor": {
+        "x": 778,
+        "y": 528,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 1028,
+        "y": 430,
+        "edge_px": 23885
+      },
+      "side_walls": {
+        "x": 448,
+        "y": 273,
+        "edge_px": 1332
+      }
+    },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 176,
       "key_dir_brightest_y": 16,
-      "key_tint": "#c87a2d",
+      "key_tint": "#c8853c",
       "key_tint_patch": [
-        0,
+        127,
         376,
-        188,
-        250
+        174,
+        236
       ],
       "key_tint_patch_mean_rgb": [
-        25.8,
-        15.75,
-        5.82
+        44.01,
+        29.33,
+        13.26
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c88f55",
         "floor_bottom_strip": "#c8986b",
-        "mid_wall_right": "#c87e3b",
-        "mid_wall_left": "#c86615",
+        "mid_wall_right": "#c86e22",
+        "mid_wall_left": "#c8905b",
         "brightest_21x21_patch": "#c8a476"
       },
       "brightest_21x21_patch_centre_px": [
@@ -159,15 +284,16 @@
         16
       ],
       "sobel_bright_side_deg_whole_frame": 92.14,
-      "sobel_bright_side_deg_wall_band": 41.02,
+      "sobel_bright_side_deg_wall_band": 56.85,
       "left_third_minus_right_third_luminance_whole_frame": 11.884,
-      "left_third_minus_right_third_luminance_wall_band": 4.588
+      "left_third_minus_right_third_luminance_wall_band": 4.488
     },
-    "storey_height_m": 2.8074,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
+    "storey_height_m": 2.8926,
+    "implied_wall_width_m": 7.7827,
+    "eye_height_m": 0.6553,
+    "hold_family": "suspect-painting",
     "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 258, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 611.4, fixed to +/-1.1 px, inside the +/-14.7 px the standing licence allows the horizon row) puts the eye at 0.655 m above its own floor line at the scale its own gate anchor declares (164.2 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
     ]
   },
   "delta_focal_pct": 5.84,

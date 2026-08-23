@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "1d89e61e",
+  fp: "6bfeda8e",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -845,20 +845,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
   viewstate: { "location": "study", "facing": "N" },
   metas: {
   "back_stair/N": {
-    "floor_line_y": 0.8941553833400322,
-    "px_per_m_at_wall": 329.2604501607717,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.882812,
+    "px_per_m_at_wall": 337.895,
+    "px_per_m_at_bottom": 439.9,
     "wall_width_m": 5.45,
-    "key_tint": "#c8b489",
+    "key_tint": "#c85c0a",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 329.2604501607717,
+    "horizon_y": 0.494629,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 321,
+    "camera_wall_m": 3.11,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -866,15 +865,25 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": -129.2347266881029,
-    "corner_x1_px": 1665.234726688103,
-    "focal_px": 1024,
+    "corner_x0_px": 97,
+    "corner_x1_px": 1441,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 3.11,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/back_stair-N/row23-98d329eb.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1050.9,
+    "nearest_floor_m": 2.3888,
+    "measured_room": {
+      "storey_height_m": 2.604,
+      "wall_width_m": 3.978,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.45,
+      "carriers": []
+    },
+    "openings": []
   },
   "back_stair/E": {
     "floor_line_y": 0.803011585039731,
@@ -3353,88 +3362,16 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "back_stair/W": {
-    "floor_line_y": 0.783203,
-    "px_per_m_at_wall": 235.789,
-    "px_per_m_at_bottom": 404.37,
-    "wall_width_m": 4.15,
-    "key_tint": "#c87030",
-    "image_h_px": 1024,
-    "horizon_y": 0.47998,
-    "key_dir": "L-ABOVE",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 224,
-    "camera_wall_m": 4.09,
-    "facing_type": "enclosed",
-    "wall_continuous": true,
-    "wall_segments": [
-      {
-        "from_m": 0,
-        "to_m": 4.15,
-        "kind": "wall"
-      }
-    ],
-    "corner_x0_px": 243,
-    "corner_x1_px": 1315,
-    "storey_height_m": 2.8,
-    "camera_id": "measured:backdrops/source/back_stair-W/row23-4e3755a6.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 964.4,
-    "nearest_floor_m": 2.3849,
-    "measured_room": {
-      "storey_height_m": 2.88,
-      "wall_width_m": 4.546,
-      "ruled_storey_height_m": 2.8,
-      "ruled_wall_width_m": 4.15,
-      "carriers": [
-        {
-          "kind": "door",
-          "id": "op11",
-          "plan_px": [
-            573.5,
-            809.3
-          ],
-          "plan_centre_px": 691.4,
-          "painted_px": [
-            608,
-            767
-          ],
-          "painted_centre_px": 687.5,
-          "centre_delta_px": -3.9,
-          "centre_delta_m": -0.017,
-          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
-        }
-      ]
-    },
-    "openings": [
-      {
-        "id": "op11",
-        "kind": "door",
-        "via": null,
-        "x": 608,
-        "y": 298,
-        "w": 159,
-        "h": 504,
-        "beyond_m": 14.95,
-        "beyond_offset_m": -2.575,
-        "measured": true
-      }
-    ]
-  },
-  "back_stair_head/N": {
-    "floor_line_y": 0.8941553833400322,
-    "px_per_m_at_wall": 329.2604501607717,
+    "floor_line_y": 0.803011585039731,
+    "px_per_m_at_wall": 250.36674816625919,
     "px_per_m_at_bottom": 420.8791208791208,
-    "wall_width_m": 5.45,
+    "wall_width_m": 4.15,
     "key_tint": "#c8b489",
     "image_h_px": 1024,
     "horizon_y": 0.51376953125,
     "key_dir": "UL",
     "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 329.2604501607717,
+    "calibration_px": 250.36674816625919,
     "facing_type": "enclosed",
     "camera_id": "grid",
     "provisional": true,
@@ -3442,19 +3379,1001 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "wall_segments": [
       {
         "from_m": 0,
-        "to_m": 5.45,
+        "to_m": 4.15,
         "kind": "wall"
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -129.2347266881029,
-    "corner_x1_px": 1665.234726688103,
+    "corner_x0_px": 248.48899755501213,
+    "corner_x1_px": 1287.5110024449878,
     "focal_px": 1024,
     "storey_height_m": 2.8,
     "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 4.09,
+    "openings": [
+      {
+        "id": "op11",
+        "kind": "door",
+        "via": null,
+        "x": 561.4474327628361,
+        "y": 321.5503667481662,
+        "w": 250.36674816625919,
+        "h": 500.73349633251837,
+        "beyond_m": 14.95,
+        "beyond_offset_m": -2.575
+      }
+    ],
+    "stairs": [
+      {
+        "id": "back_stair_flight",
+        "kind": "stair",
+        "via": null,
+        "direction": "up",
+        "treads": 17,
+        "rise_m": 2.8,
+        "x": 0,
+        "y": 0,
+        "w": 564.043956,
+        "h": 1024,
+        "raw_w": 2612.497857,
+        "raw_h": 2267.1791630000002,
+        "poly": [
+          [
+            -2048.453901,
+            -444.248936
+          ],
+          [
+            -350.865248,
+            -444.248936
+          ],
+          [
+            477.733211,
+            735.963477
+          ],
+          [
+            505.50416,
+            775.518968
+          ],
+          [
+            564.043956,
+            858.9
+          ],
+          [
+            528.425209,
+            917.01997
+          ],
+          [
+            477.733211,
+            999.735327
+          ],
+          [
+            -26.760705,
+            1822.930227
+          ],
+          [
+            -1232.604534,
+            1822.930227
+          ]
+        ],
+        "treads_poly": [
+          [
+            [
+              254.593407,
+              858.9
+            ],
+            [
+              564.043956,
+              858.9
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              213.363128,
+              885.626257
+            ]
+          ],
+          [
+            [
+              213.363128,
+              885.626257
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              547.664804,
+              835.570391
+            ],
+            [
+              213.363128,
+              835.570391
+            ]
+          ],
+          [
+            [
+              213.363128,
+              835.570391
+            ],
+            [
+              547.664804,
+              835.570391
+            ],
+            [
+              528.425209,
+              862.593242
+            ],
+            [
+              164.932422,
+              862.593242
+            ]
+          ],
+          [
+            [
+              164.932422,
+              862.593242
+            ],
+            [
+              528.425209,
+              862.593242
+            ],
+            [
+              528.425209,
+              808.166515
+            ],
+            [
+              164.932422,
+              808.166515
+            ]
+          ],
+          [
+            [
+              164.932422,
+              808.166515
+            ],
+            [
+              528.425209,
+              808.166515
+            ],
+            [
+              505.50416,
+              835.152912
+            ],
+            [
+              107.234609,
+              835.152912
+            ]
+          ],
+          [
+            [
+              107.234609,
+              835.152912
+            ],
+            [
+              505.50416,
+              835.152912
+            ],
+            [
+              505.50416,
+              775.518968
+            ],
+            [
+              107.234609,
+              775.518968
+            ]
+          ],
+          [
+            [
+              107.234609,
+              775.518968
+            ],
+            [
+              505.50416,
+              775.518968
+            ],
+            [
+              477.733211,
+              801.90644
+            ],
+            [
+              37.328427,
+              801.90644
+            ]
+          ],
+          [
+            [
+              37.328427,
+              801.90644
+            ],
+            [
+              477.733211,
+              801.90644
+            ],
+            [
+              477.733211,
+              735.963477
+            ],
+            [
+              37.328427,
+              735.963477
+            ]
+          ],
+          [
+            [
+              37.328427,
+              735.963477
+            ],
+            [
+              477.733211,
+              735.963477
+            ],
+            [
+              443.390947,
+              760.793004
+            ],
+            [
+              -49.119342,
+              760.793004
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              760.793004
+            ],
+            [
+              443.390947,
+              760.793004
+            ],
+            [
+              443.390947,
+              687.048148
+            ],
+            [
+              -49.119342,
+              687.048148
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              687.048148
+            ],
+            [
+              443.390947,
+              687.048148
+            ],
+            [
+              399.831972,
+              708.645624
+            ],
+            [
+              -158.767795,
+              708.645624
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              708.645624
+            ],
+            [
+              399.831972,
+              708.645624
+            ],
+            [
+              399.831972,
+              625.005018
+            ],
+            [
+              -158.767795,
+              625.005018
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              625.005018
+            ],
+            [
+              399.831972,
+              625.005018
+            ],
+            [
+              342.770889,
+              640.333962
+            ],
+            [
+              -302.404313,
+              640.333962
+            ]
+          ],
+          [
+            [
+              -302.404313,
+              640.333962
+            ],
+            [
+              342.770889,
+              640.333962
+            ],
+            [
+              342.770889,
+              543.730189
+            ],
+            [
+              -302.404313,
+              543.730189
+            ]
+          ],
+          [
+            [
+              -302.404313,
+              543.730189
+            ],
+            [
+              342.770889,
+              543.730189
+            ],
+            [
+              264.778309,
+              546.963796
+            ],
+            [
+              -498.730463,
+              546.963796
+            ]
+          ],
+          [
+            [
+              -498.730463,
+              546.963796
+            ],
+            [
+              264.778309,
+              546.963796
+            ],
+            [
+              264.778309,
+              432.641627
+            ],
+            [
+              -498.730463,
+              432.641627
+            ]
+          ],
+          [
+            [
+              -498.730463,
+              432.641627
+            ],
+            [
+              264.778309,
+              432.641627
+            ],
+            [
+              151.75,
+              411.65
+            ],
+            [
+              -783.25,
+              411.65
+            ]
+          ],
+          [
+            [
+              -783.25,
+              411.65
+            ],
+            [
+              151.75,
+              411.65
+            ],
+            [
+              151.75,
+              271.65
+            ],
+            [
+              -783.25,
+              271.65
+            ]
+          ],
+          [
+            [
+              -783.25,
+              271.65
+            ],
+            [
+              151.75,
+              271.65
+            ],
+            [
+              -26.760705,
+              197.942821
+            ],
+            [
+              -1232.604534,
+              197.942821
+            ]
+          ],
+          [
+            [
+              -1232.604534,
+              197.942821
+            ],
+            [
+              -26.760705,
+              197.942821
+            ],
+            [
+              -26.760705,
+              17.388665
+            ],
+            [
+              -1232.604534,
+              17.388665
+            ]
+          ],
+          [
+            [
+              -1232.604534,
+              17.388665
+            ],
+            [
+              -26.760705,
+              17.388665
+            ],
+            [
+              -350.865248,
+              -190.064539
+            ],
+            [
+              -2048.453901,
+              -190.064539
+            ]
+          ],
+          [
+            [
+              -2048.453901,
+              -190.064539
+            ],
+            [
+              -350.865248,
+              -190.064539
+            ],
+            [
+              -350.865248,
+              -444.248936
+            ],
+            [
+              -2048.453901,
+              -444.248936
+            ]
+          ]
+        ],
+        "noses": [
+          [
+            [
+              254.593407,
+              858.9
+            ],
+            [
+              564.043956,
+              858.9
+            ]
+          ],
+          [
+            [
+              213.363128,
+              835.570391
+            ],
+            [
+              547.664804,
+              835.570391
+            ]
+          ],
+          [
+            [
+              164.932422,
+              808.166515
+            ],
+            [
+              528.425209,
+              808.166515
+            ]
+          ],
+          [
+            [
+              107.234609,
+              775.518968
+            ],
+            [
+              505.50416,
+              775.518968
+            ]
+          ],
+          [
+            [
+              37.328427,
+              735.963477
+            ],
+            [
+              477.733211,
+              735.963477
+            ]
+          ],
+          [
+            [
+              -49.119342,
+              687.048148
+            ],
+            [
+              443.390947,
+              687.048148
+            ]
+          ],
+          [
+            [
+              -158.767795,
+              625.005018
+            ],
+            [
+              399.831972,
+              625.005018
+            ]
+          ],
+          [
+            [
+              -302.404313,
+              543.730189
+            ],
+            [
+              342.770889,
+              543.730189
+            ]
+          ],
+          [
+            [
+              -498.730463,
+              432.641627
+            ],
+            [
+              264.778309,
+              432.641627
+            ]
+          ],
+          [
+            [
+              -783.25,
+              271.65
+            ],
+            [
+              151.75,
+              271.65
+            ]
+          ],
+          [
+            [
+              -1232.604534,
+              17.388665
+            ],
+            [
+              -26.760705,
+              17.388665
+            ]
+          ],
+          [
+            [
+              -2048.453901,
+              -444.248936
+            ],
+            [
+              -350.865248,
+              -444.248936
+            ]
+          ]
+        ],
+        "mass_poly": [
+          [
+            [
+              254.593407,
+              858.9
+            ],
+            [
+              213.363128,
+              835.570391
+            ],
+            [
+              164.932422,
+              808.166515
+            ],
+            [
+              107.234609,
+              775.518968
+            ],
+            [
+              37.328427,
+              735.963477
+            ],
+            [
+              -49.119342,
+              687.048148
+            ],
+            [
+              -158.767795,
+              625.005018
+            ],
+            [
+              -302.404313,
+              543.730189
+            ],
+            [
+              -498.730463,
+              432.641627
+            ],
+            [
+              -783.25,
+              271.65
+            ],
+            [
+              -1232.604534,
+              17.388665
+            ],
+            [
+              -1232.604534,
+              1822.930227
+            ],
+            [
+              -783.25,
+              1531.65
+            ],
+            [
+              -498.730463,
+              1347.218979
+            ],
+            [
+              -302.404313,
+              1219.956604
+            ],
+            [
+              -158.767795,
+              1126.848658
+            ],
+            [
+              -49.119342,
+              1055.772428
+            ],
+            [
+              37.328427,
+              999.735327
+            ],
+            [
+              107.234609,
+              954.420799
+            ],
+            [
+              164.932422,
+              917.01997
+            ],
+            [
+              213.363128,
+              885.626257
+            ],
+            [
+              254.593407,
+              858.9
+            ]
+          ],
+          [
+            [
+              564.043956,
+              858.9
+            ],
+            [
+              547.664804,
+              835.570391
+            ],
+            [
+              528.425209,
+              808.166515
+            ],
+            [
+              505.50416,
+              775.518968
+            ],
+            [
+              477.733211,
+              735.963477
+            ],
+            [
+              443.390947,
+              687.048148
+            ],
+            [
+              399.831972,
+              625.005018
+            ],
+            [
+              342.770889,
+              543.730189
+            ],
+            [
+              264.778309,
+              432.641627
+            ],
+            [
+              151.75,
+              271.65
+            ],
+            [
+              -26.760705,
+              17.388665
+            ],
+            [
+              -26.760705,
+              1822.930227
+            ],
+            [
+              151.75,
+              1531.65
+            ],
+            [
+              264.778309,
+              1347.218979
+            ],
+            [
+              342.770889,
+              1219.956604
+            ],
+            [
+              399.831972,
+              1126.848658
+            ],
+            [
+              443.390947,
+              1055.772428
+            ],
+            [
+              477.733211,
+              999.735327
+            ],
+            [
+              505.50416,
+              954.420799
+            ],
+            [
+              528.425209,
+              917.01997
+            ],
+            [
+              547.664804,
+              885.626257
+            ],
+            [
+              564.043956,
+              858.9
+            ]
+          ]
+        ],
+        "floor_poly": [
+          [
+            254.593407,
+            858.9
+          ],
+          [
+            213.363128,
+            885.626257
+          ],
+          [
+            164.932422,
+            917.01997
+          ],
+          [
+            107.234609,
+            954.420799
+          ],
+          [
+            37.328427,
+            999.735327
+          ],
+          [
+            -49.119342,
+            1055.772428
+          ],
+          [
+            -158.767795,
+            1126.848658
+          ],
+          [
+            -302.404313,
+            1219.956604
+          ],
+          [
+            -498.730463,
+            1347.218979
+          ],
+          [
+            -783.25,
+            1531.65
+          ],
+          [
+            -1232.604534,
+            1822.930227
+          ],
+          [
+            -26.760705,
+            1822.930227
+          ],
+          [
+            151.75,
+            1531.65
+          ],
+          [
+            264.778309,
+            1347.218979
+          ],
+          [
+            342.770889,
+            1219.956604
+          ],
+          [
+            399.831972,
+            1126.848658
+          ],
+          [
+            443.390947,
+            1055.772428
+          ],
+          [
+            477.733211,
+            999.735327
+          ],
+          [
+            505.50416,
+            954.420799
+          ],
+          [
+            528.425209,
+            917.01997
+          ],
+          [
+            547.664804,
+            885.626257
+          ],
+          [
+            564.043956,
+            858.9
+          ]
+        ],
+        "well_poly": [
+          [
+            254.593407,
+            71.207692
+          ],
+          [
+            213.363128,
+            34.676536
+          ],
+          [
+            164.932422,
+            -8.234396
+          ],
+          [
+            107.234609,
+            -59.35624
+          ],
+          [
+            37.328427,
+            -121.295032
+          ],
+          [
+            -49.119342,
+            -197.890123
+          ],
+          [
+            -158.767795,
+            -295.041657
+          ],
+          [
+            -302.404313,
+            -422.307547
+          ],
+          [
+            -498.730463,
+            -596.257895
+          ],
+          [
+            -783.25,
+            -848.35
+          ],
+          [
+            151.75,
+            -848.35
+          ],
+          [
+            264.778309,
+            -596.257895
+          ],
+          [
+            342.770889,
+            -422.307547
+          ],
+          [
+            399.831972,
+            -295.041657
+          ],
+          [
+            443.390947,
+            -197.890123
+          ],
+          [
+            477.733211,
+            -121.295032
+          ],
+          [
+            505.50416,
+            -59.35624
+          ],
+          [
+            528.425209,
+            -8.234396
+          ],
+          [
+            547.664804,
+            34.676536
+          ],
+          [
+            564.043956,
+            71.207692
+          ]
+        ],
+        "beyond_m": null,
+        "beyond_offset_m": null
+      }
+    ]
+  },
+  "back_stair_head/N": {
+    "floor_line_y": 0.864258,
+    "px_per_m_at_wall": 315.789,
+    "px_per_m_at_bottom": 442.84,
+    "wall_width_m": 5.45,
+    "key_tint": "#c88f57",
+    "image_h_px": 1024,
+    "horizon_y": 0.526855,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 300,
     "camera_wall_m": 3.11,
-    "openings": [],
-    "stairs": []
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 5.45,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": 102,
+    "corner_x1_px": 1430,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source/back_stair_head-N/row23-c08999db.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 982.1,
+    "nearest_floor_m": 2.2177,
+    "measured_room": {
+      "storey_height_m": 2.597,
+      "wall_width_m": 4.205,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.45,
+      "carriers": []
+    },
+    "openings": []
   },
   "back_stair_head/E": {
     "floor_line_y": 0.803011585039731,
@@ -5951,20 +6870,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "buttery_pantry/E": {
-    "floor_line_y": 0.7109361979166666,
-    "px_per_m_at_wall": 170.66666666666666,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.725586,
+    "px_per_m_at_wall": 173.684,
+    "px_per_m_at_bottom": 409.91,
     "wall_width_m": 4.95,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8a57d",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 170.66666666666666,
+    "horizon_y": 0.523828,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 165,
+    "camera_wall_m": 6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -5972,15 +6890,40 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 345.6,
-    "corner_x1_px": 1190.4,
-    "focal_px": 1024,
+    "corner_x0_px": 210,
+    "corner_x1_px": 1313,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/buttery_pantry-E/row23-7c019f47.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1042.1,
+    "nearest_floor_m": 2.5423,
+    "measured_room": {
+      "storey_height_m": 3.236,
+      "wall_width_m": 6.351,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 4.95,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            685.5,
+            946
+          ],
+          "plan_centre_px": 815.8,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "buttery_pantry/S": {
     "floor_line_y": 0.767578,
@@ -6055,20 +6998,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "buttery_pantry/W": {
-    "floor_line_y": 0.7109361979166666,
-    "px_per_m_at_wall": 170.66666666666666,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.720703,
+    "px_per_m_at_wall": 175.789,
+    "px_per_m_at_bottom": 411.6,
     "wall_width_m": 4.95,
-    "key_tint": "#c8b489",
+    "key_tint": "#c88446",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 170.66666666666666,
+    "horizon_y": 0.5125,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 167,
+    "camera_wall_m": 6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -6076,15 +7018,25 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 345.6,
-    "corner_x1_px": 1190.4,
-    "focal_px": 1024,
+    "corner_x0_px": 267,
+    "corner_x1_px": 1273,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/buttery_pantry-W/row23-f538206d.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1054.7,
+    "nearest_floor_m": 2.5625,
+    "measured_room": {
+      "storey_height_m": 3.117,
+      "wall_width_m": 5.723,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 4.95,
+      "carriers": []
+    },
+    "openings": []
   },
   "closet_chamber/N": {
     "floor_line_y": 0.8953824344758065,
@@ -6260,20 +7212,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "openings": []
   },
   "dining_parlour/N": {
-    "floor_line_y": 0.6792240767045454,
-    "px_per_m_at_wall": 143.2167832167832,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.692383,
+    "px_per_m_at_wall": 146.316,
+    "px_per_m_at_bottom": 447.95,
     "wall_width_m": 8.8,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8722c",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 143.2167832167832,
+    "horizon_y": 0.543164,
+    "key_dir": "L-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 139,
+    "camera_wall_m": 7.15,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -6281,27 +7232,70 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 137.84615384615392,
-    "corner_x1_px": 1398.1538461538462,
-    "focal_px": 1023.9999999999999,
+    "corner_x0_px": 144,
+    "corner_x1_px": 1406,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.4330026109660574,
-    "camera_wall_m": 7.15,
+    "camera_id": "measured:backdrops/source/dining_parlour-N/row23-585a2dca.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1046.2,
+    "nearest_floor_m": 2.3354,
+    "measured_room": {
+      "storey_height_m": 3.014,
+      "wall_width_m": 8.625,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 8.8,
+      "carriers": [
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            255.9,
+            548.5
+          ],
+          "plan_centre_px": 402.2,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "door",
+          "id": "op06",
+          "plan_px": [
+            621.7,
+            768
+          ],
+          "plan_centre_px": 694.8,
+          "painted_px": [
+            770,
+            857
+          ],
+          "painted_centre_px": 813.5,
+          "centre_delta_px": 118.7,
+          "centre_delta_m": 0.811,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
     "openings": [
       {
         "id": "op06",
         "kind": "door",
         "via": null,
-        "x": 624.7832167832167,
-        "y": 409.0918881118881,
-        "w": 143.21678321678326,
-        "h": 286.4335664335664,
+        "x": 770,
+        "y": 414,
+        "w": 87,
+        "h": 295,
         "beyond_m": 6,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0,
+        "measured": true
       }
-    ],
-    "stairs": []
+    ]
   },
   "dining_parlour/E": {
     "floor_line_y": 0.704102,
@@ -6376,20 +7370,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "dining_parlour/S": {
-    "floor_line_y": 0.6792240767045454,
-    "px_per_m_at_wall": 143.2167832167832,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.6875,
+    "px_per_m_at_wall": 147.368,
+    "px_per_m_at_bottom": 372.46,
     "wall_width_m": 8.8,
-    "key_tint": "#c8b489",
+    "key_tint": "#c87025",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 143.2167832167832,
+    "horizon_y": 0.48291,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 140,
+    "camera_wall_m": 7.15,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -6397,15 +7390,54 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 137.84615384615392,
-    "corner_x1_px": 1398.1538461538462,
-    "focal_px": 1023.9999999999999,
+    "corner_x0_px": 133,
+    "corner_x1_px": 1394,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.4330026109660574,
-    "camera_wall_m": 7.15,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/dining_parlour-S/row23-1ec3581d.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1053.7,
+    "nearest_floor_m": 2.829,
+    "measured_room": {
+      "storey_height_m": 3.434,
+      "wall_width_m": 8.557,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 8.8,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            473.3,
+            694.3
+          ],
+          "plan_centre_px": 583.8,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            989.1,
+            1210.1
+          ],
+          "plan_centre_px": 1099.6,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "dining_parlour/W": {
     "floor_line_y": 0.702148,
@@ -6885,20 +7917,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "garden_room/W": {
-    "floor_line_y": 0.6930119554924243,
-    "px_per_m_at_wall": 155.15151515151516,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.704102,
+    "px_per_m_at_wall": 155.789,
+    "px_per_m_at_bottom": 362.46,
     "wall_width_m": 3.55,
-    "key_tint": "#c8b489",
+    "key_tint": "#c89156",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 155.15151515151516,
+    "horizon_y": 0.481055,
+    "key_dir": "C-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 148,
+    "camera_wall_m": 6.6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -6906,15 +7937,25 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 492.6060606060606,
-    "corner_x1_px": 1043.3939393939395,
-    "focal_px": 1024,
+    "corner_x0_px": 337,
+    "corner_x1_px": 1190,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6.6,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/garden_room-W/row23-3c4f560c.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1028.2,
+    "nearest_floor_m": 2.8367,
+    "measured_room": {
+      "storey_height_m": 3.851,
+      "wall_width_m": 5.475,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 3.55,
+      "carriers": []
+    },
+    "openings": []
   },
   "great_hall/N": {
     "floor_line_y": 0.6474418476341808,
@@ -11479,20 +12520,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "kitchen/E": {
-    "floor_line_y": 0.7109361979166666,
-    "px_per_m_at_wall": 170.66666666666666,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.725586,
+    "px_per_m_at_wall": 174.737,
+    "px_per_m_at_bottom": 412.4,
     "wall_width_m": 8.65,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8804e",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 170.66666666666666,
+    "horizon_y": 0.523828,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 166,
+    "camera_wall_m": 6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -11500,15 +12540,40 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 29.866666666666674,
-    "corner_x1_px": 1506.1333333333332,
-    "focal_px": 1024,
+    "corner_x0_px": 190,
+    "corner_x1_px": 1458,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/kitchen-E/row23-94a463ee.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1048.4,
+    "nearest_floor_m": 2.5422,
+    "measured_room": {
+      "storey_height_m": 3.182,
+      "wall_width_m": 7.257,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 8.65,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            842.3,
+            1104.4
+          ],
+          "plan_centre_px": 973.3,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "kitchen/S": {
     "floor_line_y": 0.709961,
@@ -11887,20 +12952,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "long_gallery/E": {
-    "floor_line_y": 0.6704582729718543,
-    "px_per_m_at_wall": 135.6291390728477,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.663086,
+    "px_per_m_at_wall": 132.632,
+    "px_per_m_at_bottom": 482.46,
     "wall_width_m": 24.3,
-    "key_tint": "#c8b489",
+    "key_tint": "#c89052",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 135.6291390728477,
+    "horizon_y": 0.535352,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 126,
+    "camera_wall_m": 7.55,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -11908,15 +12972,96 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": -879.8940397350996,
-    "corner_x1_px": 2415.8940397351,
-    "focal_px": 1024,
+    "corner_x0_px": 132,
+    "corner_x1_px": 1453,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 7.55,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/long_gallery-E/row23-670a301b.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1001.4,
+    "nearest_floor_m": 2.0756,
+    "measured_room": {
+      "storey_height_m": 3.031,
+      "wall_width_m": 9.96,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 24.3,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            -724.1,
+            -525.2
+          ],
+          "plan_centre_px": -624.6,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            -458.8,
+            -193.6
+          ],
+          "plan_centre_px": -326.2,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            403.3,
+            602.2
+          ],
+          "plan_centre_px": 502.7,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            1199.1,
+            1398
+          ],
+          "plan_centre_px": 1298.5,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            1862.2,
+            2061.2
+          ],
+          "plan_centre_px": 1961.7,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "long_gallery/S": {
     "floor_line_y": 0.5786981810853458,
@@ -12679,20 +13824,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "openings": []
   },
   "servants_hall/E": {
-    "floor_line_y": 0.7109361979166666,
-    "px_per_m_at_wall": 170.66666666666666,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.71582,
+    "px_per_m_at_wall": 173.684,
+    "px_per_m_at_bottom": 431.42,
     "wall_width_m": 7.05,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8b08c",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 170.66666666666666,
+    "horizon_y": 0.524316,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 165,
+    "camera_wall_m": 6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -12700,15 +13844,54 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 166.4000000000001,
-    "corner_x1_px": 1369.6,
-    "focal_px": 1024,
+    "corner_x0_px": 146,
+    "corner_x1_px": 1374,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/servants_hall-E/row23-a1213e7d.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1042.1,
+    "nearest_floor_m": 2.4155,
+    "measured_room": {
+      "storey_height_m": 3.443,
+      "wall_width_m": 7.07,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 7.05,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            312.1,
+            572.6
+          ],
+          "plan_centre_px": 442.3,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            659.4,
+            1006.8
+          ],
+          "plan_centre_px": 833.1,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "servants_hall/S": {
     "floor_line_y": 0.6930119554924243,
@@ -12810,20 +13993,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "solar/N": {
-    "floor_line_y": 0.6474418476341808,
-    "px_per_m_at_wall": 115.70621468926554,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.657227,
+    "px_per_m_at_wall": 117.895,
+    "px_per_m_at_bottom": 434.02,
     "wall_width_m": 14.6,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8ad87",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 115.70621468926554,
+    "horizon_y": 0.529395,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 112,
+    "camera_wall_m": 8.85,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -12831,15 +14013,68 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": -76.65536723163837,
-    "corner_x1_px": 1612.6553672316384,
-    "focal_px": 1024,
+    "corner_x0_px": 88,
+    "corner_x1_px": 1484,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 8.85,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/solar-N/row23-0d155462.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1043.4,
+    "nearest_floor_m": 2.404,
+    "measured_room": {
+      "storey_height_m": 4.462,
+      "wall_width_m": 11.841,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 14.6,
+      "carriers": [
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            202.1,
+            555.8
+          ],
+          "plan_centre_px": 378.9,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            791.6,
+            968.4
+          ],
+          "plan_centre_px": 880,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            1263.2,
+            1440
+          ],
+          "plan_centre_px": 1351.6,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": []
   },
   "solar/E": {
     "floor_line_y": 0.62793,
@@ -13921,20 +15156,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "stair_landing/E": {
-    "floor_line_y": 0.6930119554924243,
-    "px_per_m_at_wall": 155.15151515151516,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.700195,
+    "px_per_m_at_wall": 158.947,
+    "px_per_m_at_bottom": 402.32,
     "wall_width_m": 5.65,
-    "key_tint": "#c8b489",
+    "key_tint": "#c89c67",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 155.15151515151516,
+    "horizon_y": 0.504395,
+    "key_dir": "R-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 151,
+    "camera_wall_m": 6.6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -13942,27 +15176,56 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 329.69696969696963,
-    "corner_x1_px": 1206.3030303030305,
-    "focal_px": 1024,
+    "corner_x0_px": 275,
+    "corner_x1_px": 1244,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6.6,
+    "camera_id": "measured:backdrops/source/stair_landing-E/row23-178cf7b9.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1049.1,
+    "nearest_floor_m": 2.6075,
+    "measured_room": {
+      "storey_height_m": 3.077,
+      "wall_width_m": 6.096,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 5.65,
+      "carriers": [
+        {
+          "kind": "door",
+          "id": "op21",
+          "plan_px": [
+            668.7,
+            827.6
+          ],
+          "plan_centre_px": 748.1,
+          "painted_px": [
+            683,
+            865
+          ],
+          "painted_centre_px": 774,
+          "centre_delta_px": 25.9,
+          "centre_delta_m": 0.163,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
     "openings": [
       {
         "id": "op21",
         "kind": "door",
         "via": null,
-        "x": 671.030303030303,
-        "y": 399.3412121212122,
-        "w": 155.15151515151524,
-        "h": 310.3030303030303,
+        "x": 683,
+        "y": 339,
+        "w": 182,
+        "h": 378,
         "beyond_m": 15.2,
-        "beyond_offset_m": -2.875
+        "beyond_offset_m": -2.875,
+        "measured": true
       }
-    ],
-    "stairs": []
+    ]
   },
   "stair_landing/S": {
     "floor_line_y": 0.74126953125,

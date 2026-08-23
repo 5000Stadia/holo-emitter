@@ -103,10 +103,107 @@
         "cv": 1.033
       }
     ],
-    "corner_x0_px": null,
-    "corner_x1_px": null,
-    "ramp": null,
-    "votes": {},
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 16,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 24,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 38,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 10,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 46,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 60,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 53,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 595.1,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 202,
+    "corner_x1_px": 1364,
+    "corner_evidence": {
+      "left_fit_r2": 0.605,
+      "right_fit_r2": 0.6035,
+      "block_px": 16,
+      "excluded": [
+        [
+          768,
+          1098
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 31.26,
+    "ramp": {
+      "x": 799.1,
+      "y": 595.1,
+      "left_slope": 0.8309,
+      "right_slope": -0.8548,
+      "left_n": 61,
+      "left_resid_px": 0.31,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 0.97
+    },
+    "votes": {
+      "floor": {
+        "x": 1536,
+        "y": 490,
+        "edge_px": 2549
+      },
+      "ceiling": {
+        "x": 1068,
+        "y": 364,
+        "edge_px": 1016
+      },
+      "side_walls": {
+        "x": 830,
+        "y": 551,
+        "edge_px": 5619
+      }
+    },
     "light": {
       "key_dir_measured": "L",
       "key_dir_brightest_x": 448,
@@ -126,8 +223,8 @@
       "key_tint_alternates": {
         "floor_under_brightest": "#c89164",
         "floor_bottom_strip": "#c88853",
-        "mid_wall_right": "#c87231",
-        "mid_wall_left": "#c85809",
+        "mid_wall_right": "#c86821",
+        "mid_wall_left": "#c88d5c",
         "brightest_21x21_patch": "#c8ad89"
       },
       "brightest_21x21_patch_centre_px": [
@@ -135,16 +232,15 @@
         18
       ],
       "sobel_bright_side_deg_whole_frame": 120.0,
-      "sobel_bright_side_deg_wall_band": 110.12,
+      "sobel_bright_side_deg_wall_band": 123.68,
       "left_third_minus_right_third_luminance_whole_frame": 14.507,
       "left_third_minus_right_third_luminance_wall_band": 9.923
     },
     "storey_height_m": 2.5215,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
-    "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 16, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
-    ]
+    "implied_wall_width_m": 3.1813,
+    "eye_height_m": 0.936,
+    "hold_family": null,
+    "withheld_because": []
   },
   "delta_focal_pct": 10.58,
   "delta_eye_pct": -4.91,

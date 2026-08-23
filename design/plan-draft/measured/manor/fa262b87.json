@@ -52,7 +52,7 @@
     "the door: the choice of edge pair would choose the verdict: the strongest pair sits 695..869 (14 px from the ask) and another admissible pair sits 869..1022 (178 px from the ask), which disagree by more than the 14 px this arm can resolve"
   ],
   "_promotion": {
-    "ceiling_y_px": 118,
+    "ceiling_y_px": 39,
     "ceiling_candidates": [
       {
         "y": 119,
@@ -127,31 +127,156 @@
         "cv": 0.825
       }
     ],
-    "corner_x0_px": null,
-    "corner_x1_px": null,
-    "ramp": null,
-    "votes": {},
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 118,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 118) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 58,
+        "admissible": true,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 212,
+        "admissible": false,
+        "sigma_y_px": 67.07,
+        "horizon_y_px": 1123.8,
+        "why": "the two side-wall junctions converge at y 1123.8 but only to +/-67.1 px, and the standing licence on the horizon row is +/-16.2 px"
+      },
+      {
+        "ceiling_y_px": 74,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 74) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 165,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 165) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 205,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 205) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 179,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 179) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 132,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 132) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 1.96,
+        "horizon_y_px": 60.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 104,
+        "admissible": false,
+        "sigma_y_px": 2.53,
+        "horizon_y_px": 61.3,
+        "why": "the convergence lands at y 61.3, which is not between this frame's own ceiling line (y 104) and its own floor line (y 716)"
+      },
+      {
+        "ceiling_y_px": 29,
+        "admissible": true,
+        "sigma_y_px": 1.98,
+        "horizon_y_px": 60.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 15,
+        "admissible": true,
+        "sigma_y_px": 2.01,
+        "horizon_y_px": 60.7,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 506,
+    "corner_x1_px": 1049,
+    "corner_evidence": {
+      "left_fit_r2": 0.5753,
+      "right_fit_r2": 0.5892,
+      "block_px": 16,
+      "excluded": [
+        [
+          682,
+          853
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 16.15,
+    "ramp": {
+      "x": 1052.2,
+      "y": 60.7,
+      "left_slope": 0.0033,
+      "right_slope": 2.2476,
+      "left_n": 58,
+      "left_resid_px": 0.42,
+      "right_n": 54,
+      "right_resid_px": 33.42,
+      "sigma_y_px": 1.96
+    },
+    "votes": {
+      "floor": {
+        "x": 816,
+        "y": 554,
+        "edge_px": 15547
+      },
+      "ceiling": {
+        "x": 794,
+        "y": 432,
+        "edge_px": 3455
+      },
+      "side_walls": {
+        "x": 790,
+        "y": 430,
+        "edge_px": 30000
+      }
+    },
     "light": {
       "key_dir_measured": "R",
       "key_dir_brightest_x": 1160,
       "key_dir_brightest_y": 474,
-      "key_tint": "#c8894b",
+      "key_tint": "#c87a32",
       "key_tint_patch": [
         960,
-        1360,
-        48,
-        110
+        1039,
+        0,
+        31
       ],
       "key_tint_patch_mean_rgb": [
-        42.79,
-        29.36,
-        15.98
+        35.06,
+        21.43,
+        8.85
       ],
       "key_tint_alternates": {
         "floor_under_brightest": "#c8854c",
         "floor_bottom_strip": "#c88b56",
-        "mid_wall_right": "#c89f70",
-        "mid_wall_left": "#c88d51",
+        "mid_wall_right": "#c8945b",
+        "mid_wall_left": "#c89965",
         "brightest_21x21_patch": "#c8a984"
       },
       "brightest_21x21_patch_centre_px": [
@@ -159,15 +284,16 @@
         474
       ],
       "sobel_bright_side_deg_whole_frame": 112.2,
-      "sobel_bright_side_deg_wall_band": 103.37,
+      "sobel_bright_side_deg_wall_band": 150.32,
       "left_third_minus_right_third_luminance_whole_frame": -23.312,
-      "left_third_minus_right_third_luminance_wall_band": -33.293
+      "left_third_minus_right_third_luminance_wall_band": -31.235
     },
-    "storey_height_m": 3.689,
-    "implied_wall_width_m": null,
-    "eye_height_m": null,
+    "storey_height_m": 4.1763,
+    "implied_wall_width_m": 3.3497,
+    "eye_height_m": 4.0424,
+    "hold_family": "suspect-painting",
     "withheld_because": [
-      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 118, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 60.7, fixed to +/-2.0 px, inside the +/-16.2 px the standing licence allows the horizon row) puts the eye at 4.042 m above its own floor line at the scale its own gate anchor declares (162.1 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
     ]
   },
   "delta_focal_pct": -5.02,
