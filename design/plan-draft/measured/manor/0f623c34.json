@@ -1,0 +1,192 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 903,
+    "chair_rail_y_px": 595,
+    "dado_rail_above_floor_px": 308,
+    "capping_above_floor_px": 308
+  },
+  "_windows": {
+    "floor": [
+      885,
+      948
+    ],
+    "rail": [
+      577,
+      628
+    ],
+    "ceiling": [
+      0,
+      65
+    ],
+    "columns": [
+      [
+        273,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": -222.97,
+      "asked_x1": 272.52,
+      "ruled_m": 1.5,
+      "window": [
+        -717,
+        767
+      ],
+      "hypothesis": null,
+      "found": true,
+      "x0": 285.0,
+      "x1": 744.0,
+      "width_px": 459.0,
+      "edge_delta_px": 489.73,
+      "candidates": [
+        [
+          626,
+          114.57
+        ],
+        [
+          285,
+          103.59
+        ],
+        [
+          636,
+          103.39
+        ],
+        [
+          744,
+          102.98
+        ],
+        [
+          614,
+          102.81
+        ],
+        [
+          452,
+          101.69
+        ],
+        [
+          588,
+          100.98
+        ],
+        [
+          475,
+          99.21
+        ]
+      ],
+      "searched": [
+        1,
+        767,
+        256,
+        619
+      ]
+    }
+  ],
+  "px_per_m_at_wall": 324.211,
+  "implied_focal_px": 1005.1,
+  "eye_height_m": 1.1625,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 17,
+    "ceiling_candidates": [
+      {
+        "y": 18,
+        "strength": 5.53,
+        "horiz": 0.734,
+        "cv": 0.864
+      },
+      {
+        "y": 30,
+        "strength": 5.4,
+        "horiz": 0.716,
+        "cv": 0.955
+      },
+      {
+        "y": 24,
+        "strength": 5.36,
+        "horiz": 0.737,
+        "cv": 0.922
+      },
+      {
+        "y": 12,
+        "strength": 5.13,
+        "horiz": 0.723,
+        "cv": 0.822
+      },
+      {
+        "y": 40,
+        "strength": 5.01,
+        "horiz": 0.731,
+        "cv": 0.975
+      },
+      {
+        "y": 47,
+        "strength": 4.64,
+        "horiz": 0.74,
+        "cv": 0.844
+      },
+      {
+        "y": 54,
+        "strength": 4.27,
+        "horiz": 0.741,
+        "cv": 0.933
+      },
+      {
+        "y": 60,
+        "strength": 3.97,
+        "horiz": 0.705,
+        "cv": 0.999
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 539,
+      "key_dir_brightest_y": 245,
+      "key_tint": "#c8ab79",
+      "key_tint_patch": [
+        339,
+        739,
+        0,
+        9
+      ],
+      "key_tint_patch_mean_rgb": [
+        117.44,
+        100.5,
+        71.04
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8bdb7",
+        "floor_bottom_strip": "#c8ab96",
+        "mid_wall_right": "#c89359",
+        "mid_wall_left": "#c88b44",
+        "brightest_21x21_patch": "#c8c8c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        539,
+        245
+      ],
+      "sobel_bright_side_deg_whole_frame": 109.7,
+      "sobel_bright_side_deg_wall_band": 99.64,
+      "left_third_minus_right_third_luminance_whole_frame": 24.354,
+      "left_third_minus_right_third_luminance_wall_band": 20.624
+    },
+    "storey_height_m": 2.7328,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 17, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -1.85,
+  "delta_eye_pct": -1.73,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "0f623c34",
+  "candidate": "backdrops/source/closet_chamber-N/row23-0f623c34.png"
+}

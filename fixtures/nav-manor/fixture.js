@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "81da1014",
+  fp: "1d89e61e",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -12450,20 +12450,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     ]
   },
   "privy_garden/N": {
-    "floor_line_y": 0.7457303155637256,
-    "px_per_m_at_wall": 200.78431372549022,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.750977,
+    "px_per_m_at_wall": 198.947,
+    "px_per_m_at_bottom": 361.97,
     "wall_width_m": 20.4,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8c4c0",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 200.78431372549022,
+    "horizon_y": 0.44707,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 189,
+    "camera_wall_m": 5.1,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -12471,15 +12470,25 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": -1280,
-    "corner_x1_px": 2816,
-    "focal_px": 1024,
+    "corner_x0_px": 143,
+    "corner_x1_px": 1415,
     "storey_height_m": null,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 5.1,
-    "openings": [],
-    "stairs": []
+    "camera_id": "measured:backdrops/source/privy_garden-N/row23-11d58c22.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1014.6,
+    "nearest_floor_m": 2.8031,
+    "measured_room": {
+      "storey_height_m": 3.267,
+      "wall_width_m": 6.394,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 20.4,
+      "carriers": []
+    },
+    "openings": []
   },
   "privy_garden/E": {
     "floor_line_y": 0.5910897926879085,

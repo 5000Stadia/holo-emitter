@@ -1,0 +1,201 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 608,
+    "chair_rail_y_px": 545,
+    "dado_rail_above_floor_px": 63,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      598,
+      611
+    ],
+    "rail": [
+      536,
+      546
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        582,
+        786
+      ],
+      [
+        854,
+        953
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 786.41,
+      "asked_x1": 853.33,
+      "ruled_m": 0.9999,
+      "window": [
+        719,
+        920
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 842..901 (52 px from the ask) and another admissible pair sits 792..871 (12 px from the ask), which disagree by more than the 5 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 66.316,
+  "implied_focal_px": 1014.6,
+  "eye_height_m": 1.235,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 842..901 (52 px from the ask) and another admissible pair sits 792..871 (12 px from the ask), which disagree by more than the 5 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 127,
+    "ceiling_candidates": [
+      {
+        "y": 128,
+        "strength": 140.61,
+        "horiz": 0.997,
+        "cv": 0.119
+      },
+      {
+        "y": 276,
+        "strength": 61.25,
+        "horiz": 0.987,
+        "cv": 0.207
+      },
+      {
+        "y": 323,
+        "strength": 59.75,
+        "horiz": 0.964,
+        "cv": 0.242
+      },
+      {
+        "y": 230,
+        "strength": 52.58,
+        "horiz": 0.99,
+        "cv": 0.218
+      },
+      {
+        "y": 215,
+        "strength": 49.74,
+        "horiz": 0.941,
+        "cv": 0.301
+      },
+      {
+        "y": 245,
+        "strength": 49.24,
+        "horiz": 0.967,
+        "cv": 0.263
+      },
+      {
+        "y": 307,
+        "strength": 46.81,
+        "horiz": 0.931,
+        "cv": 0.3
+      },
+      {
+        "y": 261,
+        "strength": 43.72,
+        "horiz": 0.872,
+        "cv": 0.409
+      },
+      {
+        "y": 292,
+        "strength": 40.25,
+        "horiz": 0.856,
+        "cv": 0.443
+      },
+      {
+        "y": 200,
+        "strength": 40.01,
+        "horiz": 0.948,
+        "cv": 0.279
+      },
+      {
+        "y": 339,
+        "strength": 32.26,
+        "horiz": 0.705,
+        "cv": 0.635
+      },
+      {
+        "y": 156,
+        "strength": 28.05,
+        "horiz": 0.852,
+        "cv": 0.535
+      }
+    ],
+    "corner_x0_px": 136,
+    "corner_x1_px": 1394,
+    "ramp": {
+      "x": 1039.7,
+      "y": 354.8,
+      "left_slope": 0.3004,
+      "right_slope": -0.6839,
+      "left_n": 61,
+      "left_resid_px": 3.58,
+      "right_n": 56,
+      "right_resid_px": 26.82
+    },
+    "votes": {
+      "floor": {
+        "x": 1530,
+        "y": 474,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 772,
+        "y": 565,
+        "edge_px": 14775
+      },
+      "side_walls": {
+        "x": 770,
+        "y": 587,
+        "edge_px": 7831
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 628,
+      "key_dir_brightest_y": 74,
+      "key_tint": "#c7c8c6",
+      "key_tint_patch": [
+        428,
+        828,
+        57,
+        119
+      ],
+      "key_tint_patch_mean_rgb": [
+        170.54,
+        171.36,
+        169.75
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89748",
+        "floor_bottom_strip": "#c89452",
+        "mid_wall_right": "#c87131",
+        "mid_wall_left": "#c86f2c",
+        "brightest_21x21_patch": "#c8c7c2"
+      },
+      "brightest_21x21_patch_centre_px": [
+        628,
+        74
+      ],
+      "sobel_bright_side_deg_whole_frame": 93.79,
+      "sobel_bright_side_deg_wall_band": -87.88,
+      "left_third_minus_right_third_luminance_whole_frame": -6.216,
+      "left_third_minus_right_third_luminance_wall_band": -11.583
+    },
+    "storey_height_m": 7.2532,
+    "implied_wall_width_m": 18.9698,
+    "eye_height_m": 3.8181,
+    "withheld_because": [
+      "the horizon this painting's own side walls converge on (y 354.8) puts the eye at 3.818 m above its own floor line at the scale its own chair-rail declares (66.3 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
+    ]
+  },
+  "delta_focal_pct": -0.91,
+  "delta_eye_pct": 4.39,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "1f56f4bc",
+  "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png"
+}

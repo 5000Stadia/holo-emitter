@@ -1,0 +1,197 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 645,
+    "chair_rail_y_px": 553,
+    "dado_rail_above_floor_px": 92,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      627,
+      645
+    ],
+    "rail": [
+      540,
+      554
+    ],
+    "ceiling": [
+      353,
+      395
+    ],
+    "columns": [
+      [
+        333,
+        464
+      ],
+      [
+        558,
+        931
+      ],
+      [
+        1026,
+        1202
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 464.07,
+      "asked_x1": 557.59,
+      "ruled_m": 1.0,
+      "window": [
+        370,
+        651
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 548..650 (88 px from the ask) and another admissible pair sits 579..650 (104 px from the ask), which disagree by more than the 8 px this arm can resolve"
+    },
+    {
+      "kind": "door",
+      "asked_x0": 931.65,
+      "asked_x1": 1025.17,
+      "ruled_m": 1.0,
+      "window": [
+        837,
+        1119
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 851..943 (81 px from the ask) and another admissible pair sits 851..962 (72 px from the ask), which disagree by more than the 8 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 96.842,
+  "implied_focal_px": 1060.4,
+  "eye_height_m": 1.2278,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 548..650 (88 px from the ask) and another admissible pair sits 579..650 (104 px from the ask), which disagree by more than the 8 px this arm can resolve",
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 851..943 (81 px from the ask) and another admissible pair sits 851..962 (72 px from the ask), which disagree by more than the 8 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 365,
+    "ceiling_candidates": [
+      {
+        "y": 366,
+        "strength": 66.5,
+        "horiz": 1.0,
+        "cv": 0.218
+      },
+      {
+        "y": 215,
+        "strength": 51.42,
+        "horiz": 0.83,
+        "cv": 0.442
+      },
+      {
+        "y": 234,
+        "strength": 44.39,
+        "horiz": 0.958,
+        "cv": 0.227
+      },
+      {
+        "y": 256,
+        "strength": 39.65,
+        "horiz": 0.985,
+        "cv": 0.244
+      },
+      {
+        "y": 227,
+        "strength": 39.36,
+        "horiz": 0.959,
+        "cv": 0.254
+      },
+      {
+        "y": 126,
+        "strength": 33.62,
+        "horiz": 0.898,
+        "cv": 0.457
+      },
+      {
+        "y": 120,
+        "strength": 29.19,
+        "horiz": 0.959,
+        "cv": 0.371
+      },
+      {
+        "y": 111,
+        "strength": 27.42,
+        "horiz": 0.881,
+        "cv": 0.452
+      },
+      {
+        "y": 381,
+        "strength": 24.24,
+        "horiz": 0.982,
+        "cv": 0.389
+      },
+      {
+        "y": 248,
+        "strength": 23.23,
+        "horiz": 0.991,
+        "cv": 0.235
+      },
+      {
+        "y": 389,
+        "strength": 15.92,
+        "horiz": 0.883,
+        "cv": 0.627
+      },
+      {
+        "y": 221,
+        "strength": 15.88,
+        "horiz": 0.734,
+        "cv": 0.661
+      }
+    ],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 28,
+      "key_dir_brightest_y": 12,
+      "key_tint": "#c88741",
+      "key_tint_patch": [
+        0,
+        228,
+        295,
+        357
+      ],
+      "key_tint_patch_mean_rgb": [
+        42.9,
+        28.93,
+        13.89
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89764",
+        "floor_bottom_strip": "#c8a078",
+        "mid_wall_right": "#c86d2d",
+        "mid_wall_left": "#c8651a",
+        "brightest_21x21_patch": "#c8c0b8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        28,
+        12
+      ],
+      "sobel_bright_side_deg_whole_frame": 120.72,
+      "sobel_bright_side_deg_wall_band": 119.61,
+      "left_third_minus_right_third_luminance_whole_frame": 23.277,
+      "left_third_minus_right_third_luminance_wall_band": 4.842
+    },
+    "storey_height_m": 2.8913,
+    "implied_wall_width_m": null,
+    "eye_height_m": null,
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 365, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": 3.56,
+  "delta_eye_pct": 3.78,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "3765b3ed",
+  "candidate": "backdrops/source/great_hall-W/row23-3765b3ed.png"
+}

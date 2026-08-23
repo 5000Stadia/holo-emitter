@@ -1,0 +1,172 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 885,
+    "chair_rail_y_px": 628,
+    "dado_rail_above_floor_px": 257,
+    "capping_above_floor_px": 257
+  },
+  "_windows": {
+    "floor": [
+      885,
+      948
+    ],
+    "rail": [
+      577,
+      628
+    ],
+    "ceiling": [
+      0,
+      65
+    ],
+    "columns": [
+      [
+        0,
+        768
+      ],
+      [
+        1099,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 768,
+      "asked_x1": 1098.32,
+      "ruled_m": 1.0,
+      "window": [
+        438,
+        1428
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 853..1142 (64 px from the ask) and another admissible pair sits 570..853 (222 px from the ask), which disagree by more than the 26 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 270.526,
+  "implied_focal_px": 838.6,
+  "eye_height_m": 1.3267,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 853..1142 (64 px from the ask) and another admissible pair sits 570..853 (222 px from the ask), which disagree by more than the 26 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 63,
+    "ceiling_candidates": [
+      {
+        "y": 64,
+        "strength": 24.64,
+        "horiz": 0.658,
+        "cv": 0.783
+      },
+      {
+        "y": 12,
+        "strength": 4.86,
+        "horiz": 0.717,
+        "cv": 0.868
+      },
+      {
+        "y": 18,
+        "strength": 4.71,
+        "horiz": 0.723,
+        "cv": 0.83
+      },
+      {
+        "y": 28,
+        "strength": 4.57,
+        "horiz": 0.731,
+        "cv": 0.867
+      },
+      {
+        "y": 39,
+        "strength": 4.15,
+        "horiz": 0.736,
+        "cv": 0.872
+      },
+      {
+        "y": 57,
+        "strength": 4.06,
+        "horiz": 0.731,
+        "cv": 0.903
+      },
+      {
+        "y": 47,
+        "strength": 3.95,
+        "horiz": 0.745,
+        "cv": 0.809
+      }
+    ],
+    "corner_x0_px": 108,
+    "corner_x1_px": 1480,
+    "ramp": {
+      "x": 790.8,
+      "y": 580.0,
+      "left_slope": 0.7625,
+      "right_slope": -0.7122,
+      "left_n": 60,
+      "left_resid_px": 0.32,
+      "right_n": 48,
+      "right_resid_px": 0.29
+    },
+    "votes": {
+      "floor": {
+        "x": 766,
+        "y": 476,
+        "edge_px": 16860
+      },
+      "ceiling": {
+        "x": 1144,
+        "y": 308,
+        "edge_px": 6441
+      },
+      "side_walls": {
+        "x": 1130,
+        "y": 692,
+        "edge_px": 8617
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 461,
+      "key_dir_brightest_y": 598,
+      "key_tint": "#c8a580",
+      "key_tint_patch": [
+        261,
+        661,
+        0,
+        55
+      ],
+      "key_tint_patch_mean_rgb": [
+        103.53,
+        85.43,
+        66.5
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88c5b",
+        "floor_bottom_strip": "#c88854",
+        "mid_wall_right": "#c89a66",
+        "mid_wall_left": "#c88f53",
+        "brightest_21x21_patch": "#c8ac8b"
+      },
+      "brightest_21x21_patch_centre_px": [
+        461,
+        598
+      ],
+      "sobel_bright_side_deg_whole_frame": 107.64,
+      "sobel_bright_side_deg_wall_band": 123.17,
+      "left_third_minus_right_third_luminance_whole_frame": 8.687,
+      "left_third_minus_right_third_luminance_wall_band": 7.193
+    },
+    "storey_height_m": 3.0385,
+    "implied_wall_width_m": 5.0716,
+    "eye_height_m": 1.1274,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -18.1,
+  "delta_eye_pct": 12.14,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "760297d6",
+  "candidate": "backdrops/source/closet_chamber-S/row23-760297d6.png"
+}

@@ -7,9 +7,10 @@
       "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 615.8) puts the eye at 0.485 m above its own floor line at the scale its own chair-rail declares (117.9 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "great_hall/E": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 0.854x larger: 93.5 px/m at the wall plane, not 109.5"
+      "attempts": 4,
+      "status": "parked",
+      "correction": "draw 0.854x larger: 93.5 px/m at the wall plane, not 109.5",
+      "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "great_hall/S": {
       "attempts": 2,
@@ -18,15 +19,16 @@
       "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 618.8) puts the eye at 0.313 m above its own floor line at the scale its own chair-rail declares (112.6 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "great_hall/W": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
-      "correction": " Re-ask under the unlit-doorway rule: the space beyond every door opening is deep unlit shadow, no lit room and no light source beyond it - that darkness is what makes a painted doorway measurable and composable."
+      "correction": "camera PASS; held for the promotion instrument: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo"
     },
     "study/S": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 1.164x larger: 266.0 px/m at the wall plane, not 228.4"
+      "attempts": 4,
+      "status": "parked",
+      "correction": "draw 1.164x larger: 266.0 px/m at the wall plane, not 228.4",
+      "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "back_stair/N": {
       "attempts": 2,
@@ -138,9 +140,10 @@
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 258, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "servants_hall/W": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 0.906x larger: 170.7 px/m at the wall plane, not 188.4"
+      "attempts": 4,
+      "status": "held",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 54, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+      "candidate": "backdrops/source/servants_hall-W/row23-ee63b93c.png"
     },
     "dining_parlour/N": {
       "attempts": 2,
@@ -200,10 +203,10 @@
       "candidate": "backdrops/source/library-E/row23-780b6a83.png"
     },
     "library/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
-      "correction": " Re-ask under the unlit-doorway rule: the space beyond every door opening is deep unlit shadow, no lit room and no light source beyond it - that darkness is what makes a painted doorway measurable and composable."
+      "correction": "camera PASS; held for the promotion instrument: promote refused: library/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player would"
     },
     "library/W": {
       "attempts": 2,
@@ -223,9 +226,10 @@
       "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y -166.7) puts the eye at 5.757 m above its own floor line at the scale its own chair-rail declares (153.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "garden_room/S": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 0.904x larger: 330.3 px/m at the wall plane, not 365.3"
+      "attempts": 4,
+      "status": "held",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y -3223.3) puts the eye at 12.881 m above its own floor line at the scale its own chair-rail declares (318.9 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands.",
+      "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png"
     },
     "garden_room/W": {
       "attempts": 2,
@@ -246,7 +250,7 @@
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 534, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "entrance_court/S": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "retry",
       "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
@@ -258,14 +262,15 @@
     },
     "privy_garden/N": {
       "attempts": 2,
-      "status": "retry",
+      "status": "promoted",
       "candidate": "backdrops/source/privy_garden-N/row23-11d58c22.png",
       "correction": "VETOED BY KABE 2026-08-24, verbatim: 'exterior garden has interior wall outside' - the archetype prompt gave an OPEN garden room interior oak panelling and a chair-rail. The re-ask must describe the privy garden's own fabric: brick/stone garden wall, sky, planting - no interior materials, no wainscot. The promoted art was demoted; the wall is grid again until an outdoor-true candidate passes."
     },
     "privy_garden/E": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 0.859x larger: 66.9 px/m at the wall plane, not 77.9"
+      "attempts": 4,
+      "status": "held",
+      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 354.8) puts the eye at 3.818 m above its own floor line at the scale its own chair-rail declares (66.3 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands.",
+      "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png"
     },
     "privy_garden/S": {
       "attempts": 2,
@@ -286,17 +291,17 @@
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 427, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "entrance_approach/E": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "retry",
       "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
     "entrance_approach/S": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "retry",
       "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
     "entrance_approach/W": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "retry",
       "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
@@ -392,9 +397,10 @@
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 322, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "master_bedchamber/N": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 0.895x larger: 143.2 px/m at the wall plane, not 160.0"
+      "attempts": 4,
+      "status": "held",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 119, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+      "candidate": "backdrops/source/master_bedchamber-N/row23-331b2816.png"
     },
     "master_bedchamber/E": {
       "attempts": 2,
@@ -460,9 +466,10 @@
       "candidate": "backdrops/source/guest_chamber-W/row23-686d6ba6.png"
     },
     "closet_chamber/N": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 1.198x larger: 330.3 px/m at the wall plane, not 275.8"
+      "attempts": 4,
+      "status": "held",
+      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 17, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+      "candidate": "backdrops/source/closet_chamber-N/row23-0f623c34.png"
     },
     "closet_chamber/E": {
       "attempts": 2,
@@ -470,9 +477,10 @@
       "candidate": "backdrops/source/closet_chamber-E/row23-8aa286a9.png"
     },
     "closet_chamber/S": {
-      "attempts": 2,
-      "status": "retry",
-      "correction": "draw 1.113x larger: 330.3 px/m at the wall plane, not 296.8"
+      "attempts": 4,
+      "status": "parked",
+      "correction": "draw 1.113x larger: 330.3 px/m at the wall plane, not 296.8",
+      "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "closet_chamber/W": {
       "attempts": 2,
