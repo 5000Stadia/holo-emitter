@@ -28,7 +28,8 @@ $(python3 - <<'EOF'
 import json, os, glob
 owed = 0
 for f in ("design/batches/row23-scaffold/manor/manifest.json",
-          "design/batches/row23-scaffold/manor/retries.json"):
+          "design/batches/row23-scaffold/manor/retries.json",
+          "design/batches/row36-assembly/swatches/swatch-index.json"):
     if not os.path.exists(f): continue
     for e in json.load(open(f)).get("entries", []):
         if e.get("skipped"): continue
@@ -76,7 +77,7 @@ BATON="none"; DETAIL="all quiet: nothing owed anywhere this script can see"
 ACTIVE="unknown"; NUDGED="no"
 case "$BATON" in
   seat)
-    newest=$(find backdrops/source -name "row23-*.png" -printf "%T@\n" 2>/dev/null | sort -n | tail -1)
+    newest=$(find backdrops/source backdrops/textures/source -name "row*-*.png" -printf "%T@\n" 2>/dev/null | sort -n | tail -1)
     age=$(python3 -c "import time; print(int(time.time() - float('${newest:-0}')))")
     if tmux capture-pane -t holoemitter-assets -p 2>/dev/null | grep -q "Working ("; then ACTIVE="yes"
     elif [ "$age" -lt "$STALE_S" ]; then ACTIVE="yes"
