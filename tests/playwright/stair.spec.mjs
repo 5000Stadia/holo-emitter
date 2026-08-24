@@ -539,3 +539,65 @@ test.describe("the flight's faces separate under the room's own key", () => {
     });
   }
 });
+
+/* AND THE PIXELS UNDER THE CHROME. [Row 25]
+ *
+ * `resolve()` does not know that a button is laid over the picture, so a case
+ * that only asks it reports 100 % of a body that a real finger cannot all
+ * reach. Four of the manor's chevrons sit wholly inside a flight —
+ * `back_stair`'s right one on E and its left one on S and W,
+ * `great_stair_hall`'s left one on N — and a click there is a click on a
+ * drawn staircase whatever is layered over it. The chevron yields to it while
+ * its partner can still turn the room, so the pixel travels; the assertion is
+ * a REAL click at the centre of the chrome, which is the only way to see the
+ * difference.
+ */
+test.describe("a flight under the chrome is still a flight", () => {
+  for (const t of [
+    { loc: "back_stair", facing: "E", chevron: "chevron-right", dest: "back_stair_head" },
+    { loc: "great_stair_hall", facing: "N", chevron: "chevron-left", dest: "stair_landing" }
+  ]) {
+    for (const [vpName, size] of [["desktop", POINTER_VIEWPORT], ["a phone", PHONE]]) {
+      test(`${t.loc}/${t.facing} — a click on the ${t.chevron} over the flight climbs it, on ${vpName}`,
+        async ({ page }) => {
+          test.setTimeout(180_000);
+          await page.setViewportSize(size);
+          await page.goto(navUrl());
+          await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+          await standAt(page, t.loc, t.facing);
+          /* The chevron IS over the flight's own drawn body — named, so the
+             case says what it is about and fails loudly if a layout change
+             moves the chrome off the stair rather than passing quietly. */
+          const over = await page.evaluate((id) => {
+            const A = window.HOLO_APP;
+            const cv = document.getElementById("scene");
+            const r = cv.getBoundingClientRect();
+            const box = document.getElementById(id).getBoundingClientRect();
+            const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+            const p = { x: ((cx - r.left) * cv.width) / r.width,
+              y: ((cy - r.top) * cv.height) / r.height };
+            const fl = (A.metaFor(A.harness.viewstate).stairs || [])[0];
+            const inside = (poly) => {
+              let c = false;
+              for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                const [xi, yi] = poly[i], [xj, yj] = poly[j];
+                if ((yi > p.y) !== (yj > p.y) &&
+                    p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi) c = !c;
+              }
+              return c;
+            };
+            const body = (fl.mass_poly || []).concat(fl.treads_poly || []);
+            return { onBody: body.some((ring) => ring.length > 2 && inside(ring)),
+              el: (document.elementFromPoint(cx, cy) || {}).id || "none" };
+          }, t.chevron);
+          expect(over, "the chevron's own middle is over the flight's drawn body")
+            .toEqual({ onBody: true, el: t.chevron });
+          await page.locator("#" + t.chevron).click();
+          await page.waitForTimeout(700);
+          expect(await page.evaluate(() => window.HOLO_APP.harness.viewstate.location),
+            "a click on a drawn staircase climbs it, whatever is layered over the pixels")
+            .toBe(t.dest);
+        });
+    }
+  }
+});

@@ -21,7 +21,14 @@ const VIEWPORTS = [["desktop", POINTER_VIEWPORT], ["a phone", PHONE]];
 /* The facings where a chevron is wholly inside a way through — measured, and
    pinned as a membership. Filled in from the sweep itself the first time it
    ran; a facing joining or leaving this list is a change in what a player can
-   do with the chrome and has to be seen rather than absorbed. */
+   do with the chrome and has to be seen rather than absorbed.
+
+   Four of the six are chevrons sitting on a FLIGHT, and those still yield —
+   the rule asks the facing, not the button, so a covered chevron gives way
+   while its partner can still turn the room. Only the entrance court has BOTH
+   of its chevrons covered, and that is the one facing where yielding would
+   leave no pointer turn at all. `stair.spec`'s "a flight under the chrome is
+   still a flight" drives the other four with a real mouse. */
 const EXPECTED_SWALLOWED = {
   desktop: [
     "back_stair/E chevron-right",

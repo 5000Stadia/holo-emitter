@@ -2964,14 +2964,21 @@ control placement to disagree with. The rect stays the one home of a way through
 
 The chevron rode on that rectangle. `way_entrance_court_entrance_approach` is 3095 px wide on a
 1536 px frame, so every pixel of both chevrons was inside a way through and both walked the player
-out of the court over their whole area — a room a pointer could not look around in. **The test is
-the button, not the target:** if some part of the chevron is over no way through at all, the part
-that is over one yields and the rest still turns; if the ways through cover the button entirely,
-the chevron keeps its own meaning, because the alternative is a facing with no pointer turn on it.
-No threshold constant. Six chevrons in the manor are wholly inside a way through — both of the
-entrance court's and four over flights — and they are pinned as a membership in `ways.spec`, driven
-with a real mouse at both viewports; `hall/N` and `great_hall/N` are driven at phone width, where
-the yield must still fire.
+out of the court over their whole area — a room a pointer could not look around in. **The question is asked of the
+FACING, not of one button:** a chevron wholly inside a way through has no turn left in it, but the
+room still has one while the OTHER chevron is free — so a covered chevron yields as before, and
+only when BOTH are covered do they both keep their own meaning, which is the one case where
+yielding leaves a facing with no pointer turn at all. No threshold constant.
+
+Six chevrons in the manor are wholly inside a way through and they are pinned as a membership in
+`ways.spec`: both of the entrance court's, and four sitting on FLIGHTS (`back_stair` E/S/W,
+`great_stair_hall/N`). The per-button version of this rule was built first and refused — it made
+those four turn, and turning on a drawn staircase is this row's own defect in miniature, 2–3 % of a
+flight's body lying under chrome. Under the per-facing rule they climb, and only the court turns.
+`stair.spec` drives those chevrons with a real mouse at both viewports, because `resolve()` does
+not know a button is laid over the picture and a case that asks only it would report a body the
+finger cannot reach. `hall/N` and `great_hall/N` are driven at phone width, where the yield must
+still fire.
 
 ### What moved and what did not, measured rather than claimed
 

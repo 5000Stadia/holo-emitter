@@ -1530,10 +1530,27 @@
       return true;
     }
 
+    /* AND THE QUESTION IS ASKED OF THE FACING, NOT OF ONE BUTTON. A chevron
+       wholly inside a way through has no turn left in it — but the room still
+       has one as long as the OTHER chevron is free, and a player who can turn
+       left can reach every facing. So a covered chevron still yields while its
+       partner can turn, and only when BOTH are covered do they both keep their
+       own meaning, because that is the one case where yielding leaves a facing
+       with no pointer turn at all.
+       Six chevrons in this manor are wholly covered: both of the entrance
+       court's (a 3095 px mouth over a 1536 px frame — the facing the row was
+       allocated for) and four sitting on flights. Under the per-button rule
+       those four turned, and turning on a drawn staircase is this row's own
+       defect in miniature: 2–3 % of a flight's body lies under a chevron. Under
+       this one they climb, and the court still turns. */
     function turnOrGoThrough(dir, e) {
       var ap = null;
       try { ap = apertureAt(canvasPoint(e)); } catch (err) { ap = null; }
-      if (ap && ap.exit && !chevronFullyCovered(e.currentTarget)) { walkThrough(ap); return; }
+      if (ap && ap.exit) {
+        var bothCovered = chevronFullyCovered(document.getElementById("chevron-left")) &&
+          chevronFullyCovered(document.getElementById("chevron-right"));
+        if (!bothCovered) { walkThrough(ap); return; }
+      }
       dispatch({ type: "turn", dir: dir });
     }
     document.getElementById("chevron-left").addEventListener("click", function (e) {
