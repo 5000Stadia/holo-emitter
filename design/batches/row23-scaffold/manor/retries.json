@@ -5,8 +5,8 @@
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as Image 3 — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-08-24",
-  "emitted": 10,
-  "carried": 62,
+  "emitted": 2,
+  "carried": 72,
   "refused": 0,
   "entries": [
     {
@@ -1704,6 +1704,61 @@
       ]
     },
     {
+      "key": "privy_garden/E",
+      "attempt": 6,
+      "packet": "design/batches/row23-scaffold/manor/privy_garden-E/retry-6",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 66.9281045751634,
+      "flights": [],
+      "scaffold_sha256": "a9c8247b2e709b1f1497278089429c132f7ae7766a3e309bb4be47be23cce44d",
+      "edge_seed": {
+        "key": "privy_garden/E",
+        "location": "privy_garden",
+        "location_type": "open",
+        "policy": "required",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "privy_garden/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/privy_garden/N.png",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "privy_garden/S",
+            "painted": true
+          }
+        ],
+        "depends_on": null,
+        "why": "an open location: continuity across the turn is the point, and this neighbour is painted",
+        "file": "design/batches/row23-scaffold/manor/privy_garden-E/retry-6/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "653bf2718019f7838d12414d13d072b28c07652702511d8a3b906e9c24dec66e",
+        "source_sha256": "8cdd6778d4c4eacce61b34d40b3d896962388869922ac95ce968a59c952fa942"
+      },
+      "seed_policy": "required",
+      "depends_on": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "325628db",
+          "candidate": "backdrops/source/privy_garden-E/row23-325628db.png",
+          "prompt": "backdrops/source/privy_garden-E/row23-325628db.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "privy_garden/N",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/privy_garden-N/retry-3",
@@ -1828,6 +1883,61 @@
           "id": "d92a997c",
           "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
           "prompt": "backdrops/source/privy_garden-W/row23-d92a997c.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "privy_garden/W",
+      "attempt": 6,
+      "packet": "design/batches/row23-scaffold/manor/privy_garden-W/retry-6",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 66.9281045751634,
+      "flights": [],
+      "scaffold_sha256": "c01428b3d2129f8c7dd9bb8d018230eff16e42c3fb663558cb28edc3e875b505",
+      "edge_seed": {
+        "key": "privy_garden/W",
+        "location": "privy_garden",
+        "location_type": "open",
+        "policy": "required",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "privy_garden/S",
+        "neighbour_edge": "right",
+        "source": "backdrops/privy_garden/S.png",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "privy_garden/N",
+            "painted": true
+          }
+        ],
+        "depends_on": null,
+        "why": "an open location: continuity across the turn is the point, and this neighbour is painted",
+        "file": "design/batches/row23-scaffold/manor/privy_garden-W/retry-6/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "9d342f3444779d0eef4a367dad5aa6f87e6a320fc33e65e762e84dfa9c3cb582",
+        "source_sha256": "7902d8e773330c031cda9279a9f283d55f41703da0a0876f7070fab818ccf0d6"
+      },
+      "seed_policy": "required",
+      "depends_on": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "20fbe421",
+          "candidate": "backdrops/source/privy_garden-W/row23-20fbe421.png",
+          "prompt": "backdrops/source/privy_garden-W/row23-20fbe421.prompt.txt"
         }
       ]
     },

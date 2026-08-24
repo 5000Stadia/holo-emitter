@@ -20957,3 +20957,9 @@
 {"ts_start":1787590227.71,"ts_end":1787590235.861,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":10,"refused":0}}
 {"detail":{"prompts":418,"refused":28},"key":null,"step":"lint.prompts","ts_end":1787590257.267332,"ts_start":1787590256.103903}
 {"detail":{"prompts":418,"refused":28},"key":null,"step":"lint.prompts","ts_end":1787590263.373017,"ts_start":1787590262.823801}
+{"ts_start":1787598008.503,"ts_end":1787598009.271,"step":"emit.facing","key":"privy_garden/E","detail":{"carriers":1,"voice":"outdoors_walled","retry":6}}
+{"ts_start":1787598009.29,"ts_end":1787598009.31,"step":"emit.packet","key":"privy_garden/E","detail":{"rolls":1,"roll_ids":["325628db"],"prompt_chars":5093,"retry":6}}
+{"ts_start":1787598009.322,"ts_end":1787598009.979,"step":"emit.facing","key":"privy_garden/W","detail":{"carriers":1,"voice":"outdoors_walled","retry":6}}
+{"ts_start":1787598009.979,"ts_end":1787598009.98,"step":"emit.packet","key":"privy_garden/W","detail":{"rolls":1,"roll_ids":["20fbe421"],"prompt_chars":4876,"retry":6}}
+{"ts_start":1787598005.509,"ts_end":1787598010.088,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":2,"refused":0}}
+{"detail":{"prompts":2,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787598015.777612,"ts_start":1787598015.766791}

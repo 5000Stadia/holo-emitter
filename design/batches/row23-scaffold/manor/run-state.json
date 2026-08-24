@@ -434,11 +434,29 @@
     },
     "privy_garden/E": {
       "attempts": 5,
-      "status": "held",
+      "status": "retry",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: privy_garden/E: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player "
+      "why": "content gap re-ask: the ask never carried the completed neighbour's edge",
+      "content_gap_grants": {
+        "edge_never_seeded": {
+          "granted": 1,
+          "why": "the ask never carried the completed neighbour's edge",
+          "what_changed_in_the_emitter": "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 with its role stated in words in the Input images paragraph. The strip carries appearance; the sentence carries the role.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+          "gained_lines": [
+            "  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/privy_garden-E/retry-5/prompt.txt",
+          "at": "2026-08-24T18:59:58.311Z",
+          "prior_attempts": 5,
+          "prior_status": "held",
+          "hold_family": "unfitted-horizon",
+          "emitter_commit": "5426c75d06c2446307c56beca308ecabdd66c00b",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      }
     },
     "privy_garden/S": {
       "attempts": 5,
@@ -452,10 +470,29 @@
     },
     "privy_garden/W": {
       "attempts": 5,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "edge_never_seeded": {
+          "granted": 1,
+          "why": "the ask never carried the completed neighbour's edge",
+          "what_changed_in_the_emitter": "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 with its role stated in words in the Input images paragraph. The strip carries appearance; the sentence carries the role.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+          "gained_lines": [
+            "  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/privy_garden-W/retry-5/prompt.txt",
+          "at": "2026-08-24T18:59:58.311Z",
+          "prior_attempts": 5,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "5426c75d06c2446307c56beca308ecabdd66c00b",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never carried the completed neighbour's edge"
     },
     "entrance_approach/N": {
       "attempts": 4,
