@@ -95,6 +95,37 @@
   #fullscreen-toggle .icon-exit { display: none; }
   #fullscreen-toggle.active .icon-enter { display: none; }
   #fullscreen-toggle.active .icon-exit { display: block; }
+  /* THE STANDING READOUT — where you are and which way you are looking.
+     Kabe's own ask, 2026-08-24 [HUMAN, verbatim]: "I'd like a text overlay
+     somewhere stating room identified and direction for my reference."
+
+     Row 24 owns the full wayfinding instrument (compass, map, the
+     screen-reader surface on all 88 facings) and **how much of it is always
+     on is Kabe's ruling, not a builder's** — this is one sliver of it,
+     shipped now because he asked for it now.
+
+     Chrome, never the scene canvas: the capture rule forbids anything on the
+     picture the flip pairs are cut from, so this is DOM over the stage,
+     carries `.chrome` (it hides with everything else under `body.capture`),
+     and no scene hash moves because the canvas never learns it exists.
+
+     Top LEFT: the fullscreen button holds the top right, the chevrons hold
+     the vertical middle of both edges, and the bottom is the narration's.
+     Absolutely positioned inside #stage, so it costs the picture nothing —
+     the bottom chrome's 7.6rem reserve is what sizes the frame, and a band
+     added there would shrink the picture on every height-bound viewport.
+     pointer-events: none — a readout is not a control, and a click on the
+     corner it sits in still reaches the canvas underneath. */
+  #whereami {
+    position: absolute; top: 6px; left: 6px; z-index: 3;
+    padding: 2px 8px; max-width: calc(100% - 3.5rem);
+    font-size: 0.8rem; line-height: 1.3; letter-spacing: 0.04em;
+    color: #c8b489; background: rgba(200, 180, 137, 0.06);
+    border: 1px solid rgba(200, 180, 137, 0.35);
+    pointer-events: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #whereami .sep { padding: 0 0.4em; opacity: 0.7; }
   /* Row 10, entity/doorway keyboard controls: invisible, pointer-events:none
      so a mouse click passes straight through to the canvas beneath — the
      existing resolve()/hitTest() pointer path is untouched by construction.
@@ -243,6 +274,22 @@
     <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
     <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="icon-enter" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g><g class="icon-exit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></g></svg></button>
     <div id="entity-controls"></div>
+    <!-- The standing readout. `role="status"` rather than a bare div: the
+         place and the facing are announced when they change, which is the
+         first sliver of row 24's "every facing names itself to a screen
+         reader" — 86 of the manor's 88 facings say nothing at all today. The
+         two halves are separate elements so each is its own string; the mark
+         between them is decoration and is hidden from assistive tech, so what
+         is announced is the place and the aspect and no punctuation. Empty at
+         parse: it is filled by the first paint, and only ever with a view the
+         document actually holds.
+
+         LAST in the stage, after the controls: it is not one, it is not
+         focusable, and keyboard.spec's structure pin ("chevrons, then
+         fullscreen, then #entity-controls") is a claim about where the
+         focusable things are. Where it PAINTS is decided by z-index, not by
+         this position. -->
+    <div id="whereami" class="chrome" role="status" aria-label="where you stand" hidden><span id="whereami-place"></span><span class="sep" aria-hidden="true">·</span><span id="whereami-facing"></span></div>
   </div>
   <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.affordance{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
@@ -391,6 +438,9 @@
     var veil = document.getElementById("veil");
     var entityControlsEl = document.getElementById("entity-controls");
     var fullscreenBtn = document.getElementById("fullscreen-toggle");
+    var whereamiEl = document.getElementById("whereami");
+    var whereamiPlace = document.getElementById("whereami-place");
+    var whereamiFacing = document.getElementById("whereami-facing");
     var library = window.HOLO.placeholders.build(document);
     /* The renderer's backdrop map: "location/facing" -> { image, meta }.
        Row 11 fills the META half from the bake — every facing the overhead
@@ -482,6 +532,14 @@
         scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
         overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
       } catch (ignored) { /* the canvas is already beyond reach */ }
+      /* And the readout goes with the frame it was reading. The page has just
+         said the pattern will not resolve; a label still naming the room over
+         a black rectangle claims a place the picture no longer shows. */
+      try {
+        whereamiPlace.textContent = "";
+        whereamiFacing.textContent = "";
+        whereamiEl.hidden = true;
+      } catch (ignored2) { /* the element is already beyond reach */ }
       var affordances = document.querySelectorAll(".affordance");
       for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
       scene.style.cursor = "";
@@ -536,6 +594,13 @@
       paints += 1;
       window.HOLO_APP.paints = paints;
       scene.style.cursor = "";
+      /* The readout follows the picture, and only a picture that painted:
+         paint() is the harness's ONE subscriber, so every view change — a
+         turn, a travel, the boot redraw — arrives here with the viewstate
+         that produced the frame on screen. Set after the render rather than
+         before it, because a readout naming the room over a frame that threw
+         is the same lie as the picture moving when the world did not. */
+      updateWhereami(viewstate);
       /* Guarded on its own: syncControls()/paintOverlay() are a supplementary
          layer over an already-successful render — the picture is correct and
          on screen by this point — so a bug here degrades keyboard/AT
@@ -549,6 +614,31 @@
       } catch (err) {
         console.error("entity-controls fault:", err);
       }
+    }
+
+    /* The readout says where you stand — the place and the aspect, in the
+       document's own names for them, which is what Kabe asked it for.
+
+       It says NOTHING for a view the world does not hold. That is not
+       defensive coding, it is the same rule the rest of the page answers to:
+       a viewstate naming a room that is not in the document, or an aspect
+       that room does not have, is a broken document, and the narration pane
+       already has the sentence for it ("The projection was set to a view this
+       pattern does not hold."). A readout that printed `atrium` would be the
+       chrome asserting a place the world denies — and would put a name on the
+       surface that exists in no world, which is exactly the kind of string
+       the surface audit enumerates against. Blank and gone is the honest
+       state; the fault has a voice elsewhere. */
+    function updateWhereami(vs) {
+      var locs = (harness.world && harness.world.locations) || [];
+      var held = null;
+      for (var i = 0; i < locs.length; i++) {
+        if (locs[i].id === vs.location) held = locs[i];
+      }
+      var real = !!(held && held.facings && held.facings.indexOf(vs.facing) !== -1);
+      whereamiPlace.textContent = real ? vs.location : "";
+      whereamiFacing.textContent = real ? vs.facing : "";
+      whereamiEl.hidden = !real;
     }
 
     /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
