@@ -1,0 +1,65 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the garden room, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass - those are the words below, and
+  where Image 1 and these words disagree, these words win.
+  There is no layout image. Every dimension of this picture is stated in the text below,
+  in pixels and in metres, and the text is the whole of the geometry you are given.
+  Image 2 is a rough spatial sketch of the same wall, attached for orientation only. It is not measured and it is not to scale.
+Primary request: Paint the east wall of the empty garden room of a circa-1660 English manor,
+  matching Image 1's paint handling and the geometry stated below exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Camera and composition: 1536x1024 landscape, and the entire camera is constructed
+  below in words. Follow the words and the picture is right.
+  The camera is level: zero upward tilt, zero downward tilt, zero roll. It stands
+  square to the wall being painted, so that wall's own edges are exactly horizontal
+  and exactly vertical in frame and only the two side walls recede.
+  This is a frontal one-point perspective. There is exactly ONE vanishing point in
+  the picture and it lies at column 768, row 526.
+  Every line in the room that runs away from the viewer - both side walls where they
+  meet the floor, both side walls where they meet the ceiling, and the chair-rail
+  where it turns the corner onto a return - points at column 768, row 526 and
+  at nothing else.
+  The painted wall meets the floor along one exactly horizontal line at row 710.
+  The painted wall meets the ceiling along one exactly horizontal line at row 275.
+  Its two corners are exactly vertical lines at column 493 and column 1043.
+  The left side wall meets the ceiling along one straight unbroken line from column 493, row 275
+    to column 190, row 0.
+  The left side wall meets the floor along one straight unbroken line from column 493, row 710
+    to column 21, row 1024.
+  The right side wall meets the ceiling along one straight unbroken line from column 1043, row 275
+    to column 1346, row 0.
+  The right side wall meets the floor along one straight unbroken line from column 1043, row 710
+    to column 1515, row 1024.
+  Extended, those four lines all meet at column 768, row 526. That row is the
+  viewer's eye line, and it is the one quantity this picture is judged on: if the
+  two side walls converge anywhere but row 526, the picture is wrong however
+  well it is painted.
+  One metre of the painted wall spans 155 pixels; that wall is 3.55 m wide and spans
+    551 pixels between its corners.
+  The floor is visible and runs to the bottom edge of frame.
+Geometry, exact, in pixels and in metres: the frame is 1536 columns wide and 1024 rows
+  high; column 0 is its left edge and row 0 is its top edge. Distances along the wall
+  are measured from its left corner. One metre at the wall plane spans 155.15 pixels.
+  WALL - 3.55 m wide, from column 493 to column 1043 (551 pixels);
+    its foot is row 710, its head row 275, storey height 2.80 m.
+  CHAIR-RAIL - 0.95 m above the floor line, at row 562, running the full width
+    from column 493 to column 1043 and turning the corner onto both side walls.
+  EYE LINE - row 526.
+  DOOR - 1.00 m wide, standing from 1.40 m to 2.40 m along the wall:
+    from column 710 to column 865, its head at row 399 and its foot at row 710.
+  Image 2 is a rough spatial sketch; the text governs every number. Where Image 2 and these numbers disagree, these numbers win.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
+  Each feature stands at exactly the pixel columns given above.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials and period detail: light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling.
+  Underfoot: a floor of square stone paviours.
+Windows: this wall carries no window and no glazed opening of any kind.
+Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the garden room is completely empty of furniture, loose props, people, animals
+  and clutter.
+  The painted picture contains no line, letter, word, number, label, watermark or border
+  of any kind.
