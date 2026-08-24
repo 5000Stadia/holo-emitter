@@ -117,3 +117,7 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   measure.candidate 1.71x (the door/flight readers added per-candidate work: ~3.6s->6s; and the
   trailing baseline still spans the per-wall-bake era). None actionable; the absolute-floor
   refinement remains the standing analyzer fix for row 30.
+- 2026-08-24 (post-restart): the sweep re-measures EVERY held wall on every pass (27 held x
+  measurement + door read), so a full pass now runs tens of minutes and new arrivals wait
+  behind old holds. Row-30 candidate: cache readings by (candidate sha, instrument version)
+  and re-measure only new candidates or after an instrument change - a large, safe cut.
