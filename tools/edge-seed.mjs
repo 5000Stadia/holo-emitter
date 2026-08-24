@@ -19,8 +19,8 @@
  * THE DIVISION IS ROW 34's, APPLIED TO A SEAM. The reference carries appearance
  * — what a reference image is actually good at — and the words carry the ROLE,
  * which is what text is good at and what an unlabelled third image would leave
- * the generator to guess. `ROLE_SENTENCE` is that sentence and it names the
- * image by index and by side, per the cookbook rule.
+ * the generator to guess. `roleSentence()` composes it, naming the image by
+ * index and by side, per the cookbook rule.
  *
  * ------------------------------------------------------------------ *
  * THE ADJACENCY TABLE, AND WHERE IT COMES FROM                        *
@@ -75,7 +75,7 @@
  * because the image list is three long by the row's ruling and a fourth image
  * would be a different ask.
  */
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -308,6 +308,15 @@ export const seedFileName = (side) => `edge-seed-${side}.png`;
  */
 export function attachSeed(plan, key, packetDir, painted = isPainted) {
   const plan_ = seedPlan(plan, key, painted);
+  /* A PACKET HOLDS AT MOST ONE STRIP, and the emitter is re-runnable — so a
+   * packet cut again after its seam neighbour changed (the other side painted,
+   * or a demotion) must not be left holding yesterday's strip beside today's
+   * prompt. Both names are cleared before the chosen one is written; the file
+   * on disk and the sentence in the prompt are one decision or neither. */
+  for (const s of SIDES) {
+    const stale = join(packetDir, seedFileName(s));
+    if (existsSync(stale)) rmSync(stale);
+  }
   if (!plan_.neighbour) return { seed: null, plan: plan_ };
   const cut = cutEdgeSeed({
     source: join(ROOT, plan_.source),
