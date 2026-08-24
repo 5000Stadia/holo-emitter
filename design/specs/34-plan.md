@@ -13,6 +13,43 @@ Navigator's act (§9), and the generation-1 packets sit emitted and unsent until
 
 ## 0. What this experiment is, and what it cannot say
 
+## 0a. The governing frame, and the fence around it
+
+**Ruled mid-allocation [HUMAN, 2026-08-24, verbatim, and now in row 34 itself]:** *"Visual reference
+for visual orientation generalities, text for well defined articulation of anchored requirements and
+detail of the reference generalizations."*
+
+That is a **division of labour** and the row's space carries it as its own arm — `v7`
+CROSS-REFERENCED (§1): Image 2 kept and asked for orientation only, every anchored number in words,
+and each of those words naming the element of Image 2 it articulates.
+
+**And it is also the reading lens.** The report orders the arms along one axis — how much of the
+anchored precision the *image* is asked to carry — so the conclusion reads as **where does precision
+belong**, not as which recipe won (§5.6a).
+
+**The fence, ruled the same day [HUMAN, verbatim]: *"Yeah but test my direction against our tests as
+well."*** So:
+
+- `v7` runs on terms **byte-identical** to every other arm: the same 2 rolls per wall, the same
+  opaque ids, the same blind detector configuration, the same pre-committed selection rules, the
+  same arm-versus-control comparison at the same α.
+- **It gets no structural advantage anywhere.** It is not seeded into generation 2 by name, it has
+  no survival guarantee, and it is not weighted in any ordering. The only arm with a standing seat
+  is the **control**, which is the yardstick and never a candidate for the crown.
+- `row34_fitness.py` may name **no arm id but the control's**, and `evolution.spec.mjs` asserts that
+  structurally: an arm literal in the scorer is a finding.
+- The report must be able to print *"the cross-referenced frame lost to `<arm>` by N at p < X"* as
+  plainly as the reverse, and one of the planted-fixture cases in §8 makes `v7` the loser
+  specifically to prove the scorer says so.
+- **The spectrum's ruled midpoint is a position on the spectrum, not a privileged one.** `v7` versus
+  `v2` is named as the run's sharpest *comparison* (§5.6a) because the two put every number in the
+  text and differ only in whether the words are bound to the image — that is a reporting focus and
+  it changes no score.
+
+---
+
+## 0. What this experiment is, and what it cannot say
+
 **This is a prompting-technique experiment on one failing quantity.** Kabe's hypothesis, verbatim in
 the row: *"what is likely to produce the best result is the exact words that identify with precision
 the image in text form because image generation uses that as a primary channel and the image, as
@@ -37,9 +74,12 @@ whether that was a one-off or a direction.
 
 1. **It is a screen, not a crown.** Two rolls per variant per wall is four pooled rolls per variant.
    §5.4 computes the minimum detectable effect from that n and prints it beside every table: at
-   generation 1 the ONLY separation a Holm-corrected family-wise α can admit is a clean sweep —
-   4 of 4 admissible against a control at 0 of 4. Nothing weaker will be called a separation, and
-   the scorer says so in its own string rather than in this paragraph.
+   generation 1, with six arm-versus-control comparisons Holm-corrected at a family-wise α = 0.10,
+   the tightest step is 0.0167 and the ONLY result that clears it is a clean sweep — 4 of 4
+   admissible against a control at 0 of 4, whose exact one-sided Fisher p is 1/70 = 0.0143. The next
+   best conceivable result, 3 of 4 against 0 of 4, is p = 0.243 and does not come close. Nothing
+   weaker will be called a separation, and the scorer says so in its own string rather than in this
+   paragraph.
 2. **Both probe walls carry the same camera.** They differ in wall width and carrier load and in
    nothing else (§2). That removes scale as a confound *between* the probes and it means generation
    1 says nothing whatever about walls at other scales. The fold-back re-run over the hold family
@@ -67,9 +107,9 @@ moves. The three channels are what recombination in §6 crosses:
 
 | channel | settings |
 |---|---|
-| `text_geometry` | `production` · `exhaustive` · `minimal` |
-| `image` | `none` · `scaffold_primary` · `scaffold_demoted` · `edge` |
-| `camera_language` | `production` · `exhaustive` · `none` |
+| `text_geometry` | `production` · `exhaustive` · `minimal` · `cross_referenced` |
+| `image` | `none` · `scaffold_primary` · `scaffold_demoted` · `scaffold_orienting` · `edge` |
+| `camera_language` | `production` · `exhaustive` · `none` · `cross_referenced` |
 
 | id | name | text | image | camera | one line |
 |---|---|---|---|---|---|
@@ -79,12 +119,21 @@ moves. The three channels are what recombination in §6 crosses:
 | `v4` | SCAFFOLD-PRIMARY-MINIMAL-TEXT | minimal | scaffold_primary | none | The inverse of `v1`: the rich labelled scaffold carries everything and the words are three sentences (plus the three header lines `prompt_lint.py` requires, which is stated rather than smuggled — see §1.1). |
 | `v5` | EDGE-SCAFFOLD | production | edge | production | `v3`'s prompt text exactly, but for the one line naming what Image 2 is; Image 2 is the scaffold re-drawn as high-contrast black-on-white line art — no dim metre grid, no facing glyph, no legend, ink only where geometry is. |
 | `v6` | CAMERA-LANGUAGE | production | scaffold_primary | exhaustive | `v3` plus the exhaustive verbal perspective-construction paragraph and nothing else — the single-channel test of the row's own hypothesis against the standing production ask. |
+| `v7` | CROSS-REFERENCED | cross_referenced | scaffold_orienting | cross_referenced | **The governing frame's own arm** (§0a): Image 2 declared as orientation only — what is where, how the surfaces sit, how much of the frame each takes, *"not measured and not to scale"* — and a block that walks it element by element, naming each mark as a viewer sees it and then articulating it exactly: *"the boxed opening at the far right of Image 2 is the door: its opening is exactly 1.00 m wide … columns 710 to 865, head at row 399"*. The image is never asked to carry a number; the text never re-describes the layout the image already shows. |
 
 **The design is a factorial skeleton, deliberately.** `v5` and `v6` each move ONE channel off the
 control, so a win by either is attributable. `v4` moves two in the opposite direction. `v1` and
 `v2` move `text_geometry` and `camera_language` together, because those two are the two halves of
 Kabe's one hypothesis and splitting them would spend four rolls proving something the row does not
 ask; `v1` against `v2` is then a clean single-channel read on the image.
+
+**`v7` against `v2` is the sharpest comparison in the generation, and it is a comparison and not a
+score.** Both put every anchored number in the text. They differ in one thing: `v7`'s words are
+**bound** to the image element by element, so there is nothing for the two channels to disagree
+about; `v2`'s words run **beside** the image and a disagreement is settled by a precedence rule
+(*"the text governs every number"*). That is the division-of-labour ruling tested against the
+unbound form of the same split. Both are compared to the control on identical terms and neither is
+weighted (§0a).
 
 ### 1.1 What `v4`'s "three sentences" honestly means
 
@@ -183,14 +232,21 @@ costs the manor run nothing: the sweep has already stopped asking for them.
 
 | generation | arms | walls | rolls per arm per wall | images | fires when |
 |---|---|---|---|---|---|
-| 1 | 6 | 2 | 2 | **24** | on the Navigator's dispatch |
-| 2 | 6 | 2 | 2 | **24** | always — a screen that stops at one generation is not an evolution |
+| 1 | 7 | 2 | 2 | **28** | on the Navigator's dispatch |
+| 2 | 7 | 2 | 2 | **28** | always — a screen that stops at one generation is not an evolution |
 | 3 | at most 3 (winner, runner-up, control) | 2 | 2 | **12** | ONLY on §5.5's confirmation condition |
 
-**Generations: 3 maximum. Total roll budget: 60 images worst case, 48 if generation 3 is not
+**Generations: 3 maximum. Total roll budget: 68 images worst case, 56 if generation 3 is not
 spent.** No arm, no wall and no generation may be added without a new row: this table is the
 declaration the row's done clause asks for, and `row34_fitness.py` refuses to plan a generation
 that would exceed it.
+
+**This total is a re-declaration and it is said out loud.** The first draft of this plan declared
+six arms, 24 images a generation and **60** worst case. The governing frame ruled mid-build (§0a)
+added `v7`, which is a seventh arm at 2 rolls × 2 walls — **+4 per generation, +8 over the two
+screening generations**. The new totals above are declared **before anything is emitted**, which is
+what the row's done clause asks for; the superseded figures are recorded here rather than
+overwritten, because a budget that changes quietly is not a declared budget.
 
 The seat rides the existing subscription, so the cost is wall-clock and seat sessions, not money.
 
@@ -215,7 +271,7 @@ an arm.**
 
 `<id>` is an opaque 8-hex token over `row34|<generation>|<wall>|<arm>|<roll>`, carrying neither the
 arm nor the wall in the path. `assignment.json` maps id → `{generation, wall, arm, roll}` for all
-24 generation-1 rolls, is **committed before any candidate exists**, and `evolution.spec.mjs`
+28 generation-1 rolls, is **committed before any candidate exists**, and `evolution.spec.mjs`
 asserts its blob has never changed since the commit that introduced it — `git log --diff-filter=A`,
 blob immutability, exactly row 23 §7.8's mechanism.
 
@@ -289,15 +345,18 @@ with the per-wall counts printed beside the pooled ones.
 
 1. **Test:** one-sided **Fisher's exact test**, computed exactly (`math.comb`, no approximation),
    on the 2 × 2 of admissible-vs-not for the arm against the control.
-2. **Multiplicity:** **Holm–Bonferroni** over the five arm-vs-control comparisons, at a family-wise
+2. **Multiplicity:** **Holm–Bonferroni** over the six arm-vs-control comparisons, at a family-wise
    **α = 0.10 for a screening generation** (1 and 2) and **α = 0.05 for the confirmation
-   generation** (3), where at most two comparisons run.
+   generation** (3), where at most two comparisons run. Every arm enters that family on identical
+   terms; there is no arm the correction skips (§0a).
 3. **Minimum margin:** the arm must also beat the control by **≥ 2 admissible rolls** of its 4. A
    one-roll margin at n = 4 is inside the noise the row-23 arithmetic already convicted.
 4. **The scorer prints its own power.** `min_detectable_effect()` enumerates every possible
    (arm k, control k) pair at this n and prints the smallest margin that could clear step 2 — so
    the run's own weakness is a number in the report and not a claim in this file. At generation 1
-   that number is **4 of 4 against 0 of 4**: a clean sweep and nothing less.
+   that number is **4 of 4 against 0 of 4**: a clean sweep and nothing less. The scorer recomputes
+   it from the actual arm count, so adding an arm tightens Holm and the printed floor moves with it
+   rather than staying at a figure this file typed.
 5. **NO CROWN FROM NOISE.** If no arm clears steps 1–3, the generation's headline is the scorer's
    own string **`NO SEPARATION`**, and generation 2 is seeded by §6's declared null branch — never
    by whichever number happened to look best. `evolution.spec.mjs` asserts the report's headline is
@@ -324,7 +383,7 @@ hold family is re-run with it, and the result is reported with its number.
 `row34_fitness.py` writes `design/batches/row34-evolution/REPORT.md` and prints the same table:
 
 ```
-GENERATION 1 — 24 rolls, 6 arms, 2 walls, 2 rolls each
+GENERATION 1 — 28 rolls, 7 arms, 2 walls, 2 rolls each
 arm  wall              adm  cam  d_horizon_px  sigma_best_px  withheld
 v1   guest_chamber/E   ?/2  ?/2      ...            ...          0
 ...
@@ -334,6 +393,31 @@ HEADLINE: <NO SEPARATION | SEPARATION: v_ | SPLIT: v_>
 NOTE: this round has no text_painted detector; a painted label is a silent pass here.
 NOTE: v4 is MINIMAL-TEXT, not no-text: three body sentences plus three lint-required header lines.
 ```
+
+### 5.6a The spectrum, which is how the table is read
+
+**The Captain's frame is the lens (§0a), so the report's second table is not a league table.** It
+orders every arm along one axis — how much of the anchored precision the *image* is asked to carry —
+and reads the fitness against that ordering, so the finding is a statement about **where precision
+belongs**:
+
+```
+PRECISION LIVES IN ...     arm  bound?    adm k/n   d_horizon_px
+  the image                v4   -
+  the image (line art)     v5   -
+  both, loosely            v3   loose      <-- the control
+  both, loosely            v6   loose
+  the text                 v7   BOUND      <-- the ruled division of labour
+  the text                 v2   unbound
+  the text (no image)      v1   none
+HEADLINE PAIRING  v7 (bound) vs v2 (unbound): same precision location, opposite binding.
+```
+
+**And the report must be able to say either thing as plainly.** *"The Captain's cross-referenced
+frame lost to `<arm>` by N at p < X"* and *"the cross-referenced frame beat the control by N at
+p < X"* are the same sentence with different values in it, printed by the same code path. §8's
+planted fixtures include a case where `v7` is the loser precisely so that path is exercised before
+any real candidate exists.
 
 ---
 
@@ -347,12 +431,17 @@ settings from one parent or the other; a crossing that reproduces an arm that al
 skipped; crossings are enumerated in a fixed order (parent order by rank, then channel index) so
 the output is reproducible from the readings alone.
 
+**No arm has a seat by name.** The only standing entrant is the **control**, and it is there as the
+yardstick rather than as a candidate: every generation re-rolls it fresh, because a control measured
+once and reused across generations turns drift into signal. Everything else earns its place from the
+readings. `evolution.spec.mjs` asserts the scorer names no arm id but the control's, so a privileged
+arm cannot be smuggled in as a literal (§0a).
+
 **Branch A — SEPARATION.** Winners are ordered by (pooled admissible rate, then smallest median
 `d_horizon_px`, then smallest median `sigma_best_px`, then arm index — fully deterministic
-including an all-equal tie). Generation 2 is: **the control** (always, re-rolled fresh — a control
-measured once and reused across generations turns drift into signal), **W1**, **W2 if there is
-one**, then the crossings of W1 with each other generation-1 arm in rank order, taken until six
-arms are filled.
+including an all-equal tie). Generation 2 is: **the control**, **W1**, **W2 if there is one**, then
+the crossings of W1 with each other generation-1 arm in rank order, taken until seven arms are
+filled.
 
 **Branch B — NO SEPARATION.** Generation 2 is: **the control**, then the two arms ranked highest on
 the step-2/step-3 continuous quantities (median `d_horizon_any_px`, then median `sigma_best_px`),
@@ -368,6 +457,7 @@ simply re-run the same field with the same field's blind spot.
 | `v4` | the scaffold gains the return junction lines drawn as ruled marks with their own labels; the body stays three sentences |
 | `v5` | the edge drawing gains stroke-weight hierarchy: junctions heavy, carriers medium, the anchor light |
 | `v6` | the camera paragraph gains the row-by-row construction of both returns, stated as an instruction to draw rather than as a description |
+| `v7` | the cross-reference block gains a named element for every mark Image 2 draws that it does not yet name — the metre grid, the facing glyph, the legend — each stated as an orientation mark carrying no measurement |
 | `v3` | none — the control is never mutated. It is the yardstick. |
 
 **Branch C — a generation whose readings are all WITHHELD** is not a null; it is a broken run. The
@@ -395,31 +485,43 @@ Two named conditions ride on that:
 `tests/playwright/evolution.spec.mjs`, chromium (a claim about node composers, a python scorer and
 one canvas has no second engine):
 
-1. **Every arm composes for both probe walls, and `prompt_lint.py` accepts all twelve prompts.**
-   Run against the real lint, the real composer, both walls, all six arms.
+1. **Every arm composes for both probe walls, and `prompt_lint.py` accepts all fourteen prompts.**
+   Run against the real lint, the real composer, both walls, all seven arms.
 2. **The control is production.** `ARMS.v3.prompt(ctx)` is byte-identical to
    `manorPrompt(plan, key, meta, rects)`. If the emitter moves and the control does not, this goes
    red.
 3. **The declared diffs are the whole difference.** `v2`'s text is `v1`'s plus exactly the declared
-   demotion lines; `v5`'s text is `v3`'s but for exactly the one Image-2 line; `v6`'s text is `v3`'s
-   plus exactly the camera paragraph. Asserted as line diffs, row 23 §7.6's mechanism.
+   demotion lines; `v5`'s text is `v3`'s but for exactly the declared substitution set (the lines
+   that say what Image 2 *is*, all of which move when it becomes a line drawing); `v6`'s text is
+   `v3`'s plus exactly the camera paragraph. Asserted as line diffs, row 23 §7.6's mechanism.
+3b. **`v7` says what the frame ruled.** Its Image-2 declaration contains the orientation words and
+   no instruction to reproduce a number from the image; every carrier the plan draws on the wall is
+   named in its cross-reference block with its metres AND its pixel columns; and its element names
+   are derived (`positionWord` off the box centre), never typed.
 4. **The exhaustive geometry is the plan's, recomputed independently.** Every column, row and metre
    `v1` states is recomputed in the test from `facingCarriers`, `deriveMeta` and `groundplane` —
    never through the composer's own helper — including the return junction endpoints, which are
    recomputed the way `drawGrid` computes them.
-5. **The no-lettering constraint is present in all six arms** (§0, item 3), and every stamped label
-   character is in the declared glyph set.
+5. **The no-lettering constraint is present in all seven arms** (§0, item 3), and every stamped
+   label character is in the declared glyph set.
 6. **`assignment.json` has never changed since it was added** — introducing commit found with
    `git log --diff-filter=A`, blob compared. Return paths match the opaque-id grammar and contain
    no arm token and no wall token.
 7. **The fitness computation, on synthetic readings with a planted winner and a planted null.**
-   Two fixture sets are written to a temporary directory and scored by the real
-   `row34_fitness.py`: one where a single arm sweeps 4 of 4 against a control at 0 of 4 (the scorer
-   must name that arm and print `SEPARATION`), and one where every arm sits at 2 of 4 (the scorer
-   must print `NO SEPARATION` and name no winner). Both must be detected, and the planted-null case
-   is the one that matters: it is the check that this row cannot crown from noise.
+   Fixture sets are written to a temporary directory and scored by the real `row34_fitness.py`:
+   *(a)* one where a single arm sweeps 4 of 4 against a control at 0 of 4 — the scorer must name
+   that arm and print `SEPARATION`; *(b)* one where every arm sits at 2 of 4 — the scorer must print
+   `NO SEPARATION` and name no winner. Both must be detected, and the planted-null case is the one
+   that matters: it is the check that this row cannot crown from noise.
+7b. **`v7` planted as the loser** (§0a's fence). A third fixture set puts `v1` at 4 of 4 and `v7` at
+   0 of 4, and the report must name `v1` as the separation and print the cross-referenced arm's loss
+   in the same table with the same columns. A framing that could only announce a win would be a
+   finding.
 8. **The margin rule and the Holm rule each have a case that fails without them** — an arm at 3 of 4
    against 2 of 4 must NOT separate, and the delete-green form of that is asserted.
+8b. **The scorer names no arm but the control.** A structural scan of `row34_fitness.py` for arm-id
+   literals; `v3` (via the imported control id) is the only one permitted. This is the mechanical
+   half of §0a's fence.
 9. **The manor run is untouched.** Structural: no row-34 source names `manor/manifest.json`,
    `run-state.json` or `retries.json`. Behavioural: the three files' SHA-256 are unmoved across a
    real `row34_run.py` invocation.
