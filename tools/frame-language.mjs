@@ -232,7 +232,18 @@ export function appearanceLines(ctx) {
         `leaves the picture through ${edgeName(j.to)}.`);
     }
   }
-  if (!named) return [];
+  if (!named) {
+    /* BOUNDED BUT NOTHING TO DESCRIBE. A wall much wider than the frame has
+     * corners far outside it and no junction that leaves the picture inside its
+     * own bounds, so there is no line to say "climbs" or "drops" about. It still
+     * has an eye line, and that is the half the promotion instrument reads — so
+     * it gets the unbounded sentence rather than nothing at all. The first
+     * outdoor retry emitted after the fold lost this whole paragraph. */
+    L.push("  Everything that runs away from you in this view leans toward one place as it goes:");
+    L.push("    the middle of the picture's width, a little above its half-height, at about the eye");
+    L.push(`    level of someone standing on the ${GROUND} you can see.`);
+    return L;
+  }
   const HOW = ["", "that line", "both of those lines", "all three of those lines",
     "all four of those lines"];
   L.push(`  Carry ${HOW[named]} the other way instead, back into the distance, and they`);
@@ -255,7 +266,24 @@ export function coordinateLines(ctx, { lead = "The same lines, as picture coordi
     L.push(`    It meets the surface overhead along a level line at ${row(g.ceilY)}.`);
   }
   if (g.bounded) {
-    L.push(`    Its two upright edges stand at ${col(g.cL)} and ${col(g.cR)}.`);
+    /* A COLUMN OUTSIDE THE PICTURE IS NOT AN INSTRUCTION. `privy_garden/S` is a
+     * wall far wider than the frame, and the first fold told a painter to stand
+     * its upright edges at column -1280 and column 2816 — coordinates no ink can
+     * occupy. Where an edge is off-frame the picture is told what is true of it
+     * instead: the surface runs past the side of the frame. */
+    const inFrame = (x) => x >= 0 && x <= CANVAS_W;
+    if (inFrame(g.cL) && inFrame(g.cR)) {
+      L.push(`    Its two upright edges stand at ${col(g.cL)} and ${col(g.cR)}.`);
+    } else if (inFrame(g.cL)) {
+      L.push(`    Its left upright edge stands at ${col(g.cL)}; it runs past the right side of the`);
+      L.push("      picture without its other edge coming into view.");
+    } else if (inFrame(g.cR)) {
+      L.push(`    Its right upright edge stands at ${col(g.cR)}; it runs past the left side of the`);
+      L.push("      picture without its other edge coming into view.");
+    } else {
+      L.push("    It runs past both sides of the picture: neither of its upright edges is in view,");
+      L.push("      and it fills the whole width of the frame.");
+    }
     /* A JUNCTION WHOSE EXIT IS NULL IS NOT NAMED, and that is a real case on the
      * manor rather than a defensive nicety: `frameExit` returns null where the
      * line does not leave the frame inside its own bounds, which happens on
