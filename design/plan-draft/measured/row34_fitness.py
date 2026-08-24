@@ -606,7 +606,13 @@ def report(assign, result, gen_next=None):
     L.append("")
 
     # ---- the spectrum, which is how the table is read (plan §5.6a) ----------
-    spec = assign.get("_spectrum") or []
+    # PRINT A LENS ONLY WHERE IT HAS ROWS. The generation-3 report printed the
+    # spectrum's heading and its column names over nothing at all, because that
+    # axis carries no generation-3 arm — a heading with an empty table under it
+    # reads as a measurement that came back blank rather than as a lens that does
+    # not apply here.
+    spec = [x for x in (assign.get("_spectrum") or [])
+            if result["pooled"].get(x["arm"], {}).get("n_rolls")]
     if spec:
         L.append("## Where does precision belong")
         L.append("")
@@ -617,9 +623,7 @@ def report(assign, result, gen_next=None):
         L.append("| precision lives in | bound? | arm | adm k/n | d_horizon_px | reads |")
         L.append("|---|---|---|---|---|---|")
         for s in spec:
-            p = result["pooled"].get(s["arm"])
-            if not p:
-                continue
+            p = result["pooled"][s["arm"]]
             L.append("| %s | %s | %s | %d/%d | %s | %s |"
                      % (s["precision_in"], s["bound"] or "-", s["arm"],
                         p["admissible"], p["n"], p["d_horizon_px"], s["reads"]))
@@ -638,7 +642,8 @@ def report(assign, result, gen_next=None):
     # written in would put every one of its arms at one point on that axis, so
     # it reads against its own instead. Printed only where the generation being
     # scored actually has arms on it.
-    reg = [r for r in (assign.get("_register") or []) if result["pooled"].get(r["arm"])]
+    reg = [r for r in (assign.get("_register") or [])
+           if result["pooled"].get(r["arm"], {}).get("n_rolls")]
     if reg:
         L.append("## Which register the geometry is written in")
         L.append("")

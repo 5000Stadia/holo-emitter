@@ -747,20 +747,61 @@ Holm step of 0.0167 — an order of magnitude short. Nothing separated, twice, e
    arm the Captain's instinct pointed at (*text carries the anchored detail*) is the half that WON —
    what lost was the binding, not the division of labour.
 
-### The recommendation, conditional on generation 3
+### Generation 3, measured — the expression ablation (the last 16 rolls)
 
-**If generation 3 shows no arm beating `g1` under the standing discipline**, then per §6c prompting
-is exhausted, and the recommendation is: **fold the verbal-camera construction into `manorPrompt` in
-its cleaned generation-3 form (`g1`), and stop asking.** The residual is arithmetic — at the
-family's measured 0.75 the retry loop clears 95 % of a hold family in **3 asks** — and what remains
-goes to the Captain's look, not to a fourth generation.
+| register | arm | `garden_room/E` | `guest_chamber/E` | pooled | median \|horizon − 526\| | vs `g1` |
+|---|---|---|---|---|---|---|
+| coordinates | `g1` **(reference)** | 1/2 | 2/2 | **3/4** | 19.0 px | — |
+| fractions of the frame | `g2` | 2/2 | 1/2 | **3/4** | **7.0 px** | p 0.786, **split** |
+| appearance, no figures | `g3` | 0/2 | 2/2 | 2/4 | 21.1 px | p 0.929, split |
+| appearance + coordinates | `g4` | 1/2 | 2/2 | **3/4** | 13.0 px | p 0.786, no split |
 
-**If generation 3 does separate**, the separating register folds instead, and the same fold-back
-conditions in §7 apply.
+**`HEADLINE: NO SEPARATION`** — the third. Best p is 0.786 against a Holm step of 0.0333. The
+duplication audit replicates here too: 8 within-cell pairs, zero duplicates.
 
-**What would change this judgment:** any generation-3 cell clearing Holm; or `g3`/`g4` beating `g1`
-by a margin the discipline admits, which would move the recommendation from "verbal camera with
-figures" to "finished-appearance language", the row's sharpest single finding if it happens.
+**What the ablation actually says, read carefully rather than quickly:**
+
+1. **Removing the figures entirely is the one thing that clearly hurt.** `g3` is the only cell below
+   3/4, it carries the worst horizon error, and its `garden_room/E` rolls fit no horizon at all with
+   a best σ of 127.6 px. **Finished-appearance language on its own is not sufficient** — the numbers
+   are doing work, and this is the one place where three generations produce a directional answer
+   rather than a shrug.
+2. **`g2`'s better horizon error does not survive the per-wall look.** 7.0 px against `g1`'s 19.0 is
+   the largest single difference in the generation, and it is a **split**: `g2` beats the reference
+   on one wall and loses on the other. The flag exists for exactly this, and it is why "fractions
+   win" is not a sentence this row gets to write.
+3. **`g4` is the only cell that never loses to the reference on either wall** and improves the
+   secondary. It is also the only cell carrying *both* channels the evidence points at: the
+   finished-appearance framing the research backs with three independent lines, and the figures
+   `g3`'s failure shows are load-bearing.
+4. **The hygiene bundle looks neutral on the primary.** `g1` at 3/4 sits exactly on the incumbent's
+   6/8. That is *not* a comparison this design supports (§6b) and it is recorded as a coincidence
+   worth noting rather than a result.
+
+### The recommendation — the Navigator's judgment, AWAITING KABE
+
+**Prompting is exhausted, by the bar written down in §6c before this generation ran.** No arm beat
+the reference under the standing discipline in any of the three generations. There is no fourth
+generation and no confirmation generation; nothing is crowned by a number, and this is a judgment
+made in the open with its basis named.
+
+> **Recommended recipe: `g4` — the finished picture described in image-frame terms, with the pixel
+> coordinates attached.** Folded into `manorPrompt` with generation 3's whole hygiene bundle
+> (pre-shaped section names, dead vocabulary deleted, comma lists prosed, no-lettering by positive
+> substitution).
+
+**Its basis, and every part of it is weak evidence honestly labelled:** `g4` ties the best measured
+rate (3/4), is the only tied cell that loses to the reference on neither wall, improves the
+secondary horizon error over the reference (13.0 against 19.0 px), and is the only arm combining the
+two things the row has any directional evidence for — appearance framing, and figures. **It did not
+separate. Nothing did.**
+
+**The residual is arithmetic, not another generation.** At the measured 0.75 the verify-and-retry
+loop clears 95 % of a hold family in **3 asks**. What that leaves goes to the Captain's look.
+
+**What would change this recommendation:** a fresh-roll confirmation of `g4` against `g1` — which
+this row has no budget left to run and which would be a *new row*, not a fourth generation. If Kabe
+wants the crown rather than the judgment, that is what it costs: 8 rolls, one comparison, α 0.05.
 
 ---
 
