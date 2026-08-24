@@ -39,7 +39,8 @@ import { createRequire } from "node:module";
 import { validate, TOLERANCE_RULING, DECLARED_CAMERA_FIELDS } from "../../tools/validate-fixtures.mjs";
 import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
   PLAN_CANVAS_W as CANVAS_W, PLAN_CANVAS_H as CANVAS_H } from "../../tools/validate-plan.mjs";
-import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
+import { deriveMeta, metaForFacing, projectPlacement, flightsForFacing } from "../../tools/plan-projection.mjs";
+import { flightLines } from "../../tools/frame-language.mjs";
 
 const require = createRequire(import.meta.url);
 const FIXTURE_DIR = join(repoRoot, "fixtures", "demo-study");
@@ -406,6 +407,13 @@ export const MECHANISMS = [
      goes through the flight, and a flight you merely LOOK at from this facing
      had nobody speaking for it. */
   "stair.painted_flight_lost",
+  /* [Row 39] And its arm, minted the day the promotion gained the act the
+     clause above had been waiting for. A flight is attached to a promoted meta
+     only from a candidate whose own ask named one, so a candidate whose prompt
+     is gone is a hole in the record rather than a fact about the ask — the
+     same pair `vista.ask_unreadable` makes with `vista.indoor_ask`, and for
+     the same reason. */
+  "stair.ask_unreadable",
   /* [Row 29(a)] And the promotion's VISTA arms, minted the day the four `open`
      facings could first be measured at all. An open facing has no wall plane,
      no ceiling and no side walls, so three separate things that were true by
@@ -3093,7 +3101,7 @@ test.describe("row 19's bounds, from both sides", () => {
  * ruling's own mechanisms need exactly this rig with one more argument: the
  * declared-camera path is chosen by a FLAG on the command line, so its cases
  * spoil the flag or the reading rather than the reading alone. */
-function promoteTokens(key, doctor, planDoctor, extraArgs = []) {
+function promoteTokens(key, doctor, planDoctor, extraArgs = [], ask) {
   const dir = stageTree();
   try {
     const [loc, fac] = key.split("/");
@@ -3115,6 +3123,18 @@ function promoteTokens(key, doctor, planDoctor, extraArgs = []) {
     const cand = String(meta.camera_id).replace(/^measured:/, "");
     mkdirSync(dirname(join(dir, cand)), { recursive: true });
     cpSync(join(repoRoot, cand), join(dir, cand));
+    /* [Row 39] AND THE ASK COMES OVER WITH IT, for the reason the vista rig
+       below already states in its own words: the prompt beside a candidate is
+       a second file the promotion reads — the flight attachment is licensed by
+       it — so a staged tree without it is the `stair.ask_unreadable` case
+       rather than a neutral one. `ask` is that rig's parameter exactly:
+       undefined takes the real prompt, a string replaces it, null leaves the
+       candidate with no ask beside it at all. */
+    const askRel = cand.replace(/\.png$/i, ".prompt.txt");
+    const askText = ask === undefined
+      ? (existsSync(join(repoRoot, askRel)) ? readFileSync(join(repoRoot, askRel), "utf8") : null)
+      : ask;
+    if (askText !== null) writeFileSync(join(dir, askRel), askText);
     const docRel = join("design", "plan-draft", "measured",
       meta.measured_round || "", `${loc}-${fac}.json`);
     mkdirSync(dirname(join(dir, docRel)), { recursive: true });
@@ -3174,6 +3194,18 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
       .toEqual(["door.painted_overlap"]);
   });
 
+  /* [Row 32, extended at row 39] THE CONSTRUCTION ALL THREE STAIR CASES SHARE:
+     the great stair moved into the library, in front of `library/E`'s own
+     standpoint, and nothing else changed. The reading is untouched, so the
+     door clauses stay silent and the only thing this wall has newly done is
+     hold a flight. One home, so the two refusals and the attachment are
+     demonstrably about one situation. */
+  const INTO_THE_LIBRARY = (plan) => {
+    const st = plan.stairs.find((s2) => s2.id === "great_stair");
+    st.rect = { x0: 5.0, x1: 6.6, y0: 16.5, y1: 19.0 };
+    st.joins = ["library", "stair_landing"];
+  };
+
   ledgerCase("stair.painted_flight_lost", () => {
     /* [Row 32] A PROMOTED META CARRIES NO `stairs`, so painting a facing whose
        room draws a flight deletes the staircase out of the picture — and with
@@ -3187,12 +3219,46 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
        `library/E`'s own standpoint, and changes nothing else: the reading is
        untouched, so the door clauses stay silent and the only thing this wall
        has newly done is hold a flight. */
-    expect(promoteTokens("library/E", () => {}, (plan) => {
-      const st = plan.stairs.find((s2) => s2.id === "great_stair");
-      st.rect = { x0: 5.0, x1: 6.6, y0: 16.5, y1: 19.0 };
-      st.joins = ["library", "stair_landing"];
-    }), "a wall painted over the staircase its room holds")
+    expect(promoteTokens("library/E", () => {}, INTO_THE_LIBRARY),
+      "a wall painted over the staircase its room holds")
       .toEqual(["stair.painted_flight_lost"]);
+  });
+
+  ledgerCase("stair.ask_unreadable", () => {
+    /* [Row 39] AND THE ARM BESIDE IT, said separately because it is a
+       different situation and a clause with two arms under one token is a
+       clause half of which can be deleted with the suite green — the shape
+       `vista.ask_unreadable` already has beside `vista.indoor_ask`. A
+       candidate whose prompt is gone cannot be SHOWN to have been asked for a
+       staircase, which is not the same claim as "we never asked": the first is
+       a hole in the record and the second is a fact about the ask. Same plan,
+       same reading; only the ask is taken away. */
+    expect(promoteTokens("library/E", () => {}, INTO_THE_LIBRARY, [], null),
+      "a flight attached from an ask nobody can read")
+      .toEqual(["stair.ask_unreadable"]);
+  });
+
+  test("a wall whose ask named the flight trips neither of them", () => {
+    /* [Row 39] THE DISCRIMINATION THE TWO ARMS ABOVE STAND ON. Without it both
+       would be green on a tool that simply refuses every flight-bearing wall,
+       which is what the tool did before this row and is the state the clause
+       was written for. That the meta it then writes actually CARRIES the
+       flight is `plan.spec`'s arm, which keeps its tree to look at it.
+
+       The plan is doctored the same way; the ask gains the emitter's own
+       flight paragraph, composed here by the emitter rather than typed, so
+       that a change to the sentence moves this case with it. */
+    const doctored = clone(PLAN);
+    INTO_THE_LIBRARY(doctored);
+    const meta = deriveMeta(doctored, "library", "E");
+    const paragraph = flightLines({
+      flights: flightsForFacing(doctored, "library", "E", meta), meta
+    }).join("\n");
+    expect(paragraph, "the emitter says nothing about the flight this case moved")
+      .toMatch(/^Stairs: /);
+    expect(promoteTokens("library/E", () => {}, INTO_THE_LIBRARY, [], paragraph + "\n"),
+      "a flight-bearing wall whose ask named the staircase is promotable")
+      .toEqual([]);
   });
 
   ledgerCase("door.unmeasured_exit", () => {

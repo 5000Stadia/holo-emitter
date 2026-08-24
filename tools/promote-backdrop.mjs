@@ -586,14 +586,15 @@ if (drawnFlights.length) {
     meta.stairs = drawnFlights;
   }
 }
-/* AND THE POST-CONDITION, ASSERTED WHERE THE META IS WRITTEN. The clause above
- * is the only thing that puts a flight on a promoted meta; this is the check
- * that it did, kept as its own refusal so that deleting the attachment cannot
- * pass as a promotion with a quietly flightless stair room. */
-if (drawnFlights.length && !refusals.length &&
-    !(Array.isArray(meta.stairs) && meta.stairs.length === drawnFlights.length)) {
-  refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and the meta about to be written carries ${(meta.stairs || []).length} — painting this wall deletes the staircase the room holds, and a player is left looking at the place a stair used to be [row32:stair.painted_flight_lost]`);
-}
+/* AND NO SECOND ASSERTION THAT THE ATTACHMENT HAPPENED, deliberately. The
+ * obvious next line is a post-condition here — "the meta about to be written
+ * carries the flights the plan draws" — and it is the shape this project keeps
+ * paying for: it cannot be reached by doctoring any input, so it is a clause
+ * with no case, which is a gate that cannot fail. What holds the attachment is
+ * `plan.spec`'s own arm, which promotes `great_stair_hall/W` in a staged tree
+ * and reads `meta.stairs` off the file; deleting the assignment above turns it
+ * red, and that was verified by doing it. One token, one emit site, one case —
+ * the ledger's own rule, which the completeness scan enforces by counting. */
 /* Assigned by id, so the loop that writes the openings and the loop that writes
  * the carrier record read one answer rather than each computing its own. */
 const assigned = new Map();
