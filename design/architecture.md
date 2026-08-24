@@ -3824,6 +3824,136 @@ the stricter of the two, so a misspelling refuses a manor wall loudly rather tha
 wall quietly. `validator.spec` pins the ruled centre from both sides, reads it off
 `groundplane.FOCAL_PX` rather than typing 1024, and asserts the two centres are genuinely two.
 
+### An open facing's horizon: the far-line ruler (row 29(a))
+
+**The gap, as it stood.** Four facings of the manor are typed `open` in the plan —
+`entrance_court/S`, `entrance_approach/E|S|W`. An open facing has no wall plane: it carries
+`camera_far_m` where a walled one carries `camera_wall_m` (the field name is the mechanism, row 11)
+and its scale is quoted at the far line the plan draws. `row23_lib.measure_candidate` had never
+learned that. It computed `focal = ppm * meta_used["camera_wall_m"]` unconditionally, so every one of
+those walls' **sixteen** candidates died on `float * None` inside the sweep's per-candidate guard and
+printed `MEASURE-ERR`. No reading was ever written, so `worst is None`, so the wall was re-asked with
+"no candidate of this wall could be measured at all" — four walls spending their **entire retry cap
+on a TypeError in our own arithmetic**. `promote_reading` refused them a second time by design ("its
+promotion path is not built yet").
+
+**What an outdoor frame can honestly be measured on.** The ruler was already DECLARED, by the
+emitter, before any candidate existed — `tools/room-voices.mjs`, voice `outdoors_open`: *"What closes
+it and gives the gate its ruler is the low coursed-stone boundary wall that fences a forecourt of
+this date, its coping at the ruled height."* So an open frame carries two ruled lines, and they are
+read by the detectors the corpus already owns, through the brackets the scaffold already wrote down:
+
+    the far-line GROUND row     pick_floor, inside floor_window
+    the COPING 0.95 m above it  module_in_bands, inside rail_band
+    px_per_m at the far line    coping_above_ground_px / 0.95
+    implied_focal_px            that scale x camera_far_m (the plan's, law (a))
+
+That is byte-for-byte the pair a walled facing's chair-rail ruler uses. Only the anchor's NAME
+changes, and the scaffold names it.
+
+**And the horizon is not one of them.** On the pinhole, with the ground at `d` and the coping at
+`h = 0.95` standing on it, `y_ground = y_h + f·e/d` and `y_coping = y_h + f·(e−h)/d`. Their
+difference fixes `f` from the ruled `d`, and one equation in two unknowns (`y_h`, `e`) is left.
+**AN OPEN FRAME FIXES THE LENS AND CANNOT FIX THE EYE.** The three candidates for a second reading,
+and why each is refused:
+
+- *The sky/ground boundary* would be the horizon if the ground ran **level** to infinity. In these
+  paintings it never is. Where the boundary wall occludes the distance the sky/ground boundary
+  **is the coping** — 0.95 m up at the far line and therefore *below* the eye line, 8.9 px below it
+  on `entrance_court/S` against the ±3.6 px licence. Where country shows over the wall it is a
+  **ridge**: `entrance_approach/W` draws its treeline at y 430, ~96 px *above* the declared eye
+  line, which is exactly what ground standing higher than the viewer looks like and is not a
+  vanishing line at all. Fitting either reports a horizon the picture never fixed, and neither can
+  say so.
+- *The ceiling-ramp intersection* (row 20's ruled instrument) fits two side-wall/ceiling junctions.
+  An open facing has neither, and `meta.open_no_corners` refuses it corners outright. Run anyway on
+  these frames it returned nothing on nine of the sixteen candidates and, on the rest, a fit through
+  two unrelated edges — 64 px from where a level camera's eye line is on one of them.
+- *A second ground datum at a second ruled distance* would fix it. The frame has exactly one ruled
+  distance.
+
+**So the ruling: on an open facing the horizon is the camera's own declared eye line, and the
+picture's answer to it is the ground row.** `row23_lib._promotion_half_open` reports it under its own
+instrument name (`far-line-ruler`), with `ceiling_ramp_intersection` left **null** in the record so
+that a reader has to handle the case rather than find a horizon fitted to nothing.
+
+This is not a gate that cannot fail. The scaffold placed the far-line ground row at
+`horizon + eye × px_per_m`; `measure_candidate` reads the eye off it at the frame's own measured
+scale (`eye = (floor_y − ref.horizon_y_px) / ppm`, which is what it has always done, for every wall)
+and the camera gate holds it to the same ±8 % as everything else. `promote-backdrop.mjs` judges it
+once more on a vista (`[row29:vista.eye_band]`), because a vista has no *second* reading to appeal to
+the way a walled facing appeals to its ramp. What is genuinely absent is that second, independent
+perspective reading, and the record says so instead of manufacturing one.
+
+**The light, off a row the frame gives.** `measure.light` reads the surface OVERHEAD in a band above
+the junction it is handed. Outdoors that surface is the sky, and the top of the only built thing in
+frame is the coping — so the measured coping row is what is passed. The tint patch then lands in sky
+and the function's own "wall band" lands on the boundary wall's face, which is the one built surface
+an open frame has.
+
+**What a vista's §5 record carries, and what it must not.** `camera_far_m` and `far_line` and no
+`camera_wall_m`; `corner_x0_px`/`corner_x1_px` null (a corner there would be an invented enclosure);
+`storey_height_m` null and `measured_room.storey_height_m` null — `round(null, 3)` is **0** in
+JavaScript, and an open facing is the first wall to reach that field with nothing overhead to have a
+height; `backdrop: "vista"`, which `plan-projection.mjs` and the validator have both understood since
+row 11. Its `calibration_ref` names **the coping**, not a wainscot chair-rail: a §5 record that calls
+an outdoor ruler by an indoor name writes the Captain's finding (a) into the ledger itself. The
+`taken at <n> m` phrase is kept verbatim, because `geometry.spec`'s calibration audit parses the
+ruled metres out of that same sentence.
+
+**And the ask is part of what the promotion answers to.** The first sweep under this instrument
+promoted `entrance_court/S` from its roll-2 candidate — **a panelled parlour with a chair-rail and
+two enclosed corners**, painted from the prompt that wall carried *before* the `outdoors_open` voice
+existed. Every gate passed it: the camera gate measured the panelling's own chair-rail, called it the
+boundary wall's coping, and returned +4.5 %. The manor's front court went into the store as an
+interior — the Captain's "exterior garden has interior wall outside", shipped by the row that exists
+to remove it.
+
+`prompt_lint.py` and `room-voices.mjs` answer the forward half of that finding: an outdoor prompt may
+not NAME interior fabric. Nothing answered the backward half — that the art already on disk was asked
+for before that clause existed. So an open facing is now promoted only from a candidate whose **own
+prompt sidecar** names no interior fabric, through the lint's own word list and never a third copy of
+it. It is refused in `promote-backdrop.mjs` (`[row29:vista.indoor_ask]`, and
+`[row29:vista.ask_unreadable]` for a candidate with no ask beside it at all) and the same rolls are
+dropped from the sweep's pool, so the wall falls to its outdoor rolls and earns *their* correction
+rather than holding on a refusal about an ask nobody will make again. On any map emitted after the
+voice table this clause is a no-op by construction, which is the honest statement of what it is for.
+
+**Two records that were lying, and one that was being destroyed.** Three walls came out of the
+promotion still carrying `hold_family: unmeasurable-candidate` and the correction *"no candidate of
+this wall could be measured at all"* — written while the instrument was crashing on them, and true
+of nothing once they were painted. A parked wall was worse: the sweep skipped a parked wall
+entirely, so whatever correction it happened to hold when its cap ran out stayed on it forever,
+whichever route wrote it, and `entrance_court/S` ended up reading `hold_family: camera-miss` beside
+a sentence about a candidate it no longer had. Both are fixed the same way and both by
+*re-derivation*: a parked wall is re-decided from the pixels like any other (its cap still governs —
+it buys no roll and stays parked — but what it says about itself is this pass's own reading, family
+and diagnosed correction written together), and a promotion moves its answered correction to
+`answered_correction` rather than deleting it. That last word is load-bearing: a first draft
+*deleted* it, and on `privy_garden/N` the correction is **Kabe's own veto**, the one human-authored
+line in that file.
+
+**And the miss ledger's own writer was eating the evidence, for the third time.** `write_misses`
+tested `_record in (miss, roll) and prev.get("facing")` *before* it tested whether a line belonged
+to another round, so a miss that names no facing — one about the instrument or a promotion gate
+rather than about one painting's camera — fell through both branches and was not carried. One run
+of the documented writer (`measure.py --round cand2`) silently deleted **every row-32 miss**, and
+would have deleted row 29(a)'s the same way; the final sort keyed on `x["facing"]` besides, so the
+first facing-less line that *did* survive would have raised. This is the function's own header
+defect — *"the law's evidence must not live in a file whose generator destroys it"* — committed a
+third time, one record shape later each time. The foreign-round test now runs first and the sort key
+reads `x.get("facing") or ""`; verified by running the writer over the file and diffing, which now
+changes the header and nothing else. `plan.spec`'s ledger case derives the facing-less rounds from
+the file rather than naming `row32`, so a fourth such round is covered the day it is written.
+
+**Two things the emitter now carries, per production law clause 6.** `make-scaffold.mjs`'s manifest
+entry emits `camera_far_m` and `facing_type` beside `camera_wall_m`, so the next map's open facings
+arrive at the sweep with their own depth anchor. `facing_type` is added rather than reused because
+the entry's existing `type` is the ROOM's type — `entrance_court/N` is an `enclosed` facing of an
+open room and the manifest calls it `open`, so anything routing on it sends four walled paintings
+down the vista path. This map's manifest predates both fields, so `row23_run.facing_of` reads the
+drawing for them, which is law (a)'s authority for both anyway.
+
 ## The pipeline's own stopwatch (row 33) — the ledger, the analyzer, the monitor
 
 [HUMAN, 2026-08-24, verbatim]: "I want you or a subtask to be constantly monitoring and sampling

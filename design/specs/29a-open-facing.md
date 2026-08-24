@@ -128,6 +128,37 @@ walls touch is unchanged, and no band moves anywhere.
    arrive at the sweep with their own depth anchor and never depend on a second read of the plan.
    (The manifest's existing `type` is the ROOM's type — `entrance_court/N` is `enclosed` and is
    labelled `open` by it — which is why the facing type is added rather than reused.)
+7. **[ADDED MID-BUILD] The vista's ask is part of what it answers to.** The first sweep promoted
+   `entrance_court/S` from its roll-2 candidate: a **panelled parlour with a chair-rail and two
+   enclosed corners**, painted from the prompt this wall carried *before* the `outdoors_open`
+   voice existed. Every gate this project owns passed it — the camera gate measured the
+   panelling's own chair-rail, called it the boundary wall's coping and returned +4.5 % — and the
+   manor's front court went into the store as an interior. That is the Captain's finding (a)
+   verbatim, shipped by the very row that exists to remove it, so the row cannot leave it.
+   `prompt_lint.py` and `room-voices.mjs` answer the FORWARD half (an outdoor prompt may not name
+   interior fabric); nothing answered the backward half, that the art already on disk was asked
+   for before that clause existed. So: **an open facing is promoted only from a candidate whose
+   own prompt sidecar names no interior fabric**, through the lint's own word list and never a
+   third copy of it — refused in `promote-backdrop.mjs` (`[row29:vista.indoor_ask]`,
+   `[row29:vista.ask_unreadable]`) and dropped from the pool in the sweep, so the wall falls to
+   its outdoor rolls and earns their correction rather than holding on a refusal about an ask
+   nobody will make again. On any map emitted after the voice table this clause is a no-op by
+   construction, which is the honest statement of what it is for.
+
+8. **[ADDED MID-BUILD] Two records that were lying, and one being destroyed.** Promoting the
+   vistas surfaced three record defects, each of which this row created or ran into and none of
+   which it may leave: (i) a wall promoted in an earlier pass kept the `correction` and
+   `hold_family` written while the instrument was crashing on it, so the ledger said a painted
+   wall was waiting for a repaint — the correction now MOVES to `answered_correction` on
+   promotion, and moves rather than goes because on `privy_garden/N` that field is Kabe's own
+   veto; (ii) a PARKED wall was skipped entirely by the sweep, so whatever sentence it held when
+   its cap ran out stayed on it forever whichever route wrote it — a parked wall is now
+   re-decided from the pixels like any other, its cap still governing; (iii) `measure.py`'s
+   `write_misses` tested `facing` before it tested the round, so one run of the documented writer
+   silently deleted **every row-32 miss** and would have deleted this row's — the function's own
+   header defect ("the law's evidence must not live in a file whose generator destroys it")
+   committed a third time. Order swapped, sort key guarded, verified by running the writer over
+   the file and diffing.
 
 ## Edges — what this must not touch, and what feels it
 
@@ -160,3 +191,41 @@ walls touch is unchanged, and no band moves anywhere.
   diagnosed re-ask carrying a correction a prompt can act on, or to an honestly-named hold.
 * No wall that is promoted today changes.
 * The full suite is green.
+
+## How the four resolved
+
+All sixteen candidates now read; the whole timings ledger's 304 `MEASURE-ERR` records were these
+four walls and there are none left.
+
+| wall | outcome | on what |
+|---|---|---|
+| `entrance_approach/E` | **PROMOTED** | `row23-e0de241b`, −1.3 % focal, eye 1.256 m |
+| `entrance_approach/S` | **PROMOTED** | `row23-4cebd01f`, −1.3 % focal, eye 1.142 m |
+| `entrance_approach/W` | **PROMOTED** | `row23-ec10aaae`, +1.1 % focal, eye 1.226 m |
+| `entrance_court/S` | **PARKED, diagnosed** | its two outdoor-voiced rolls draw the boundary wall 12.0 % small (33.7 px/m against the ruled 38.3 at the far line) — correction: "draw 1.136× larger: 38.3 px/m at the far line, not 33.7". Its two other rolls are the pre-voice interiors clause 7 refuses. The cap is spent, so the wall holds rather than buying a roll; cutting a new packet is a dispatch and is not this row's. |
+
+Run state before → after: 34 → **37 promoted**, 4 → **0 retrying**, 42 held (unchanged), 3 → 4
+parked, 2 admitted-not-promoted (unchanged). Per candidate the vista path clocks **0.37 s p50**
+against the walled ceiling-ramp path's **4.12 s**, because it runs no instrument on a feature the
+picture does not have. Both numbers are in `misses.jsonl` as this row's clock record.
+
+## What this row found and did NOT fix
+
+* **The manifest's `type` is the ROOM's type.** `entrance_court/N|E|W` and `entrance_approach/N`
+  are `enclosed` facings of `open` rooms and every manifest entry calls them `open`. Nothing
+  routed on it before this row, so nothing was wrong; the sweep and the emitter now both carry a
+  true `facing_type` beside it. The stale field is left where it is rather than renamed, because
+  a manifest is a generated artifact and renaming a field in it re-cuts every scaffold digest.
+* **`entrance_court/S` is the only threshold-bearing open facing**, and it is not promoted, so the
+  question of what a painted vista does with a `threshold` aperture does not arise today. It would
+  the moment that wall is repainted and promoted: `wallBands` gives an open facing no band, so the
+  court mouth survives `crossesAnyBand`, and `drawThroughOpening` would composite the approach's
+  picture into a 3095 × 706 rectangle over the vista's own painted ground. The honest clause when
+  it arrives is that a `threshold` on a `backdrop: "vista"` facing draws no through-view — the
+  picture is already the thing row 15's device was invented to substitute for. **Not built here**:
+  it is latent, its rectangle is row 25(c)'s and its composite row 25(d)'s, and a renderer clause
+  with no shipped wall to fire on is a guard nobody can prove.
+* **Interior fabric on an outdoor room's ENCLOSED facings** is finding (a)'s head, not its tail.
+  `privy_garden/N` is promoted and its `measured_room.ruled_storey_height_m` still reads 2.8 m
+  from its floor. The vista clauses here are scoped to `facing_type === "open"` on purpose, so
+  nothing already in the store moves.
