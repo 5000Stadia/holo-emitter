@@ -112,3 +112,8 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   pass by mtime; ritual restarts retired. (b) analyzer refinement: emit.facing flagged 6.53x
   on a ~17ms base - ratio regressions need an absolute floor (ignore steps under ~1s total)
   or trivial steps will cry wolf.
+- 2026-08-24 11:51 tick (post host-restart): services up via services.sh, loop mid-sweep, baton quiet.
+  Analyzer flags emit.facing 6.53x (trivial-step wolf-cry, 17ms base), promote.wall 2.02x and
+  measure.candidate 1.71x (the door/flight readers added per-candidate work: ~3.6s->6s; and the
+  trailing baseline still spans the per-wall-bake era). None actionable; the absolute-floor
+  refinement remains the standing analyzer fix for row 30.
