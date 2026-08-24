@@ -510,56 +510,13 @@ def sweep(manifest, state, do_promote=True):
             waiting.append(key)
             continue
 
-        # The wall's own declared camera, off its own manifest entry — never a
-        # global one. A manor of 88 facings has 88 standpoints and therefore 88
-        # scales, and pooling them is the defect row 20 removed.
-        ref = dict(focal_px=e["implied_focal_px"], eye_m=1.183,
-                   horizon_y_px=1024 * 0.51377, band=0.08,
-                   source="the wall's own manifest entry",
-                   authority="the meta the page holds for this facing")
-        side = {"facing": key,
-                "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
-                              # An OPEN facing has no wall to be a distance
-                              # from; its scale is quoted at the FAR LINE, and
-                              # the field name is the mechanism (row 11) — so
-                              # both are carried and `row23_lib.camera_distance`
-                              # resolves which one this facing has. The manifest
-                              # is preferred where it carries the wall distance,
-                              # and the drawing supplies the far one, which the
-                              # manifest of this map never emitted.
-                              "camera_wall_m": (e.get("camera_wall_m")
-                                                if e.get("camera_wall_m") is not None
-                                                else fac.get("camera_wall_m")),
-                              "camera_far_m": (e.get("camera_far_m")
-                                               if e.get("camera_far_m") is not None
-                                               else fac.get("camera_far_m")),
-                              "image_h_px": 1024,
-                              "floor_line_y": e.get("floor_line_y", 0.7857),
-                              "horizon_y": 0.51377,
-                              "corner_x0_px": e.get("corner_x0_px"),
-                              "corner_x1_px": e.get("corner_x1_px"),
-                              "storey_height_m": e.get("storey_height_m"),
-                              "wall_width_m": e.get("wall_width_m")},
-                "brackets": e["brackets"], "stamped": e["stamped"],
-                "outputs": {"scaffold": e["packet"] + "/scaffold.png",
-                            "scaffold_sha256": e["scaffold_sha256"]}}
-        # [row 29(a)] THE FACING'S TYPE, FROM THE DRAWING. This read `e["type"]`,
-        # which is the ROOM's type in the manor manifest — so the four enclosed
-        # facings of the two open rooms (`entrance_court/N|E|W`,
-        # `entrance_approach/N`) were labelled `open` in every reading they
-        # wrote, and a promotion routing on it would take a walled painting down
-        # the vista path. The manifest's own `facing_type` is preferred where
-        # the emitter now writes one; the drawing answers where it does not.
-        side["meta_used"]["facing_type"] = (
-            e.get("facing_type") or fac.get("type") or e.get("type"))
-        # The anchor's NAME, so an outdoor record does not say "chair-rail".
-        # The scaffold's own voice named it when the packet was cut.
-        side["meta_used"]["anchor_label"] = {
-            "coping": "boundary-wall coping",
-            "string_course": "string course",
-            "dado_capping": "dado capping",
-            "chair_rail": "chair-rail",
-        }.get((e.get("voice") or {}).get("anchor"))
+        # The wall's own declared camera and its own scaffold record, off its
+        # own manifest entry — never a global one. Both were written out here
+        # until row 35 gave them a second reader (`row35_snap.py` measures the
+        # frame it is about to rectify, through the same windows); they live in
+        # `row23_lib` now so that one wall cannot be described two ways.
+        ref = row23_lib.reference_from_entry(e)
+        side = row23_lib.side_from_entry(key, e, fac)
         # HOTFIX (Navigator, live run 2026-08-24): the manifest's `stamped`
         # copies carry only (kind, x0, x1); the verticals are re-derived from
         # the scaffold's own convention table in `row23_lib._conv_y`. Found
