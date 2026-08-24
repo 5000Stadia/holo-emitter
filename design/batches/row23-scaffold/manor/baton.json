@@ -1,7 +1,7 @@
 {
- "ts": 1787530215.705447,
- "baton": "loop",
- "active": "yes",
+ "ts": 1787551826.8003461,
+ "baton": "publish",
+ "active": "waiting-on-navigator",
  "nudged": "no",
- "detail": "50 candidate(s) on disk with no reading - the sweep loop is owed"
+ "detail": "3 promoted wall(s) newer than the last publish - Navigator's publish-site.sh is owed"
 }
