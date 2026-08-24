@@ -35,7 +35,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { deriveMeta, facingCarriers } from "./plan-projection.mjs";
-import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars } from "./make-scaffold.mjs";
+import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars, rulerX, wallY }
+  from "./make-scaffold.mjs";
 import { voiceFor } from "./room-voices.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -680,8 +681,201 @@ ARMS.v7 = {
   }
 };
 
+/* ------------------------------------------------------------------ */
+/* Generation 2 — the arms the rule bred                               */
+/* ------------------------------------------------------------------ */
+/* Generation 1 returned NO SEPARATION at the strict bar, exactly as
+ * `min_detectable_effect` said it must unless an arm swept: 4 of 4 against 0 of
+ * 4 was the only clearing result at that n and correction, and nothing reached
+ * it. So the breeding took BRANCH B, the declared null branch, and named six
+ * arms — the control fresh, the two leaders on the continuous ladder amplified,
+ * their two surviving crossings, and the opposite pole of the spectrum. Nothing
+ * below was chosen: the arm set came out of `row34_fitness.py
+ * --plan-generation-2`, and what this section adds is the composers those
+ * channel triples now need.
+ *
+ * THE CROSSINGS ARE THE RULE'S, AND THE RULE CAN BE CHECKED WITHOUT THE
+ * READINGS. Given the two leaders, the channel enumeration drops m1, m3, m5 and
+ * m6 as duplicates of arms already in the pool and yields exactly m2 and m4 —
+ * pure logic over the seven declared triples, which `evolution.spec.mjs`
+ * re-derives rather than trusting a report of it.
+ *
+ * WHAT THE SCREEN SAW, and it is a pattern rather than a result: the text-heavy
+ * arms took 8 of 12 admissible against 2 of 16 for the image-heavy arms and the
+ * control, and the bound cross-referenced arm took 0 of 4 where its unbound twin
+ * took 3 of 4. None of that cleared the bar and none of it is called a finding;
+ * it is what branch B bred toward, and generation 2 is where it survives fresh
+ * rolls or does not. */
+
+/** Both endpoints of all four side-wall junctions, as a numeric table.
+ *
+ * This is `AMPLIFICATION.v2` word for word — and on its own it adds NO NUMBER
+ * the arm did not already state, because `cameraBlock` gives all four junctions
+ * by their two endpoints in prose. Found when the composer was written, and said
+ * here rather than shipped as an amplification that only reformats: the table is
+ * kept for the register change (prose to figures) and `wallGridBlock` below is
+ * what actually pushes the channel. Plan §6a records the extension and its
+ * reason, because a ladder rung that turned out to be empty is worth a sentence.
+ */
+export function junctionTable(ctx) {
+  const g = ctx.geometry;
+  if (!g.bounded) return [];
+  const L = ["  RETURN JUNCTIONS - each is ONE straight unbroken line between the two points given:"];
+  for (const [side, s] of [["LEFT", g.left], ["RIGHT", g.right]]) {
+    if (s.ceiling && s.ceiling.to) {
+      L.push(`    ${side} CEILING - from ${col(s.ceiling.from.x)}, ${row(s.ceiling.from.y)} ` +
+        `to ${col(s.ceiling.to.x)}, ${row(s.ceiling.to.y)}`);
+    }
+    L.push(`    ${side} FLOOR   - from ${col(s.floor.from.x)}, ${row(s.floor.from.y)} ` +
+      `to ${col(s.floor.to.x)}, ${row(s.floor.to.y)}`);
+  }
+  return L;
+}
+
+/** The wall plane's own grid, in numbers — every metre along it as a column and
+ *  every half metre up it as a row.
+ *
+ *  WHY THIS IS THE AMPLIFICATION THAT BITES. It is exactly what the scaffold's
+ *  dim metre grid carries as pixels, and this arm's whole premise is that the
+ *  image is demoted — so putting the grid into figures is the text taking over
+ *  the one thing the picture was still doing better than the words. Every value
+ *  is `rulerX` and `wallY`, the same two functions the scaffold stamps with, so
+ *  the numbers a painter is given and the numbers the gate scores are one set.
+ */
+export function wallGridBlock(ctx) {
+  const g = ctx.geometry;
+  const m = ctx.meta;
+  const cols = [];
+  for (let x = 0; x <= Math.floor(g.wall_width_m + 1e-9); x++) {
+    cols.push(`${x} m = ${col(rulerX(x, m))}`);
+  }
+  const rows = [];
+  const top = g.storey_height_m || 2.0;
+  for (let h = 0.5; h <= top + 1e-9; h += 0.5) {
+    rows.push(`${h.toFixed(1)} m = ${row(wallY(h, m))}`);
+  }
+  return [
+    "  THE WALL'S OWN GRID, so nothing has to be judged by eye. Measured along the wall from",
+    "    its left corner, one metre at a time:",
+    "    " + cols.join(" · "),
+    "  And measured up from the wall-floor line, half a metre at a time:",
+    "    " + rows.join(" · ")
+  ];
+}
+
+/** The returns as an instruction to DRAW rather than a description of what is
+ *  there — `AMPLIFICATION.v6` word for word, with waypoints at quarter, half and
+ *  three-quarter along each line so the hand has something to check against
+ *  before it reaches the far end. The waypoints are linear interpolation of the
+ *  two endpoints the renderer's own functions produced; nothing new is measured.
+ */
+export function drawInstructions(ctx) {
+  const g = ctx.geometry;
+  const vp = vanishingPoint(ctx.meta);
+  if (!g.bounded) return [];
+  const L = [];
+  L.push("  Draw each return as one line, in this order, and check it at the waypoints:");
+  for (const [side, s] of [["left", g.left], ["right", g.right]]) {
+    for (const [what, j] of [["ceiling", s.ceiling], ["floor", s.floor]]) {
+      if (!j || !j.to) continue;
+      const way = [0.25, 0.5, 0.75].map((t) => {
+        const x = j.from.x + t * (j.to.x - j.from.x);
+        const y = j.from.y + t * (j.to.y - j.from.y);
+        return `at ${col(x)} it is at ${row(y)}`;
+      });
+      L.push(`    Start the ${side} ${what} junction at ${col(j.from.x)}, ${row(j.from.y)} and rule it`);
+      L.push(`      straight to ${col(j.to.x)}, ${row(j.to.y)}: ${way.join("; ")}.`);
+    }
+  }
+  L.push("  Check the four lines against each other: extended, every one of them passes through");
+  L.push(`    ${col(vp.x)}, ${row(vp.y)}. If any two of them meet anywhere else, the drawing is wrong`);
+  L.push("    and no amount of finish will repair it.");
+  return L;
+}
+
+/* v2xv6m4's demotion, and it is SCOPED where v2's is blanket — because it has to
+ * be true. v2 can say "the text governs every number" because v2's text states
+ * every number; m4 carries PRODUCTION text geometry, which does not, so the same
+ * sentence in it would be a false sentence in a prompt. What m4 demotes the image
+ * for is the CAMERA, which its own text now constructs in full. */
+export const M4_DEMOTION_LINES = {
+  input: "  Image 2 is a rough spatial sketch of the same wall. Trust it for WHERE things are; the camera construction below is exact and governs every row and column in it.",
+  camera: "  Where Image 2's camera and this construction disagree, this construction wins."
+};
+
+ARMS.v2A = {
+  id: "v2A", name: "TEXT-PRIMARY, AMPLIFIED", parent: "v2", amplified: true,
+  what: "v2 with the junction table and the wall's own grid in figures",
+  channels: { ...ARMS.v2.channels },
+  images: () => ARMS.v2.images(),
+  /* Built from v1 and then demoted, rather than from v2 and then amplified, so
+   * the demotion sentence still CLOSES its section: appending to v2 put the
+   * amplification after "the text governs every number", which reads as though
+   * the table were an afterthought to the rule instead of the thing the rule
+   * governs. Same lines either way, and the suite checks the set difference from
+   * v2 rather than the construction order. */
+  prompt(ctx) {
+    const secs = parseSections(ARMS.v1.prompt(ctx));
+    const GEO = "Geometry, exact, in pixels and in metres";
+    appendTo(secs, GEO, junctionTable(ctx).concat(wallGridBlock(ctx)));
+    appendTo(secs, "Input images", [V2_DEMOTION_LINES.input]);
+    appendTo(secs, GEO, [V2_DEMOTION_LINES.geometry]);
+    return renderSections(secs);
+  }
+};
+
+ARMS.v6A = {
+  id: "v6A", name: "CAMERA-LANGUAGE, AMPLIFIED", parent: "v6", amplified: true,
+  what: "v6 with the returns constructed row by row as an instruction to draw",
+  channels: { ...ARMS.v6.channels },
+  images: () => ARMS.v6.images(),
+  prompt(ctx) {
+    const secs = parseSections(ARMS.v6.prompt(ctx));
+    appendTo(secs, "Camera and composition", drawInstructions(ctx));
+    return renderSections(secs);
+  }
+};
+
+ARMS.v2xv6m2 = {
+  id: "v2xv6m2", name: "EXHAUSTIVE TEXT, SCAFFOLD PRIMARY", parents: ["v2", "v6"],
+  what: "every number in the text AND the scaffold left primary - the crossing that keeps both channels at full strength",
+  channels: { text_geometry: "exhaustive", image: "scaffold_primary", camera_language: "exhaustive" },
+  images: () => ["style-seed-warm.png", "scaffold.png"],
+  /* The control's Image-2 declaration is left exactly as production writes it —
+   * boxed labels, "reproduce Image 2's camera exactly", the lot — and the
+   * exhaustive geometry and camera are added on top. So this arm asks both
+   * channels for the same thing at full strength, which is the case neither
+   * parent runs: v2 demotes the image, v6 leaves the text at production. */
+  prompt(ctx) {
+    const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+    replaceSection(secs, "Camera and composition", cameraBlock(ctx));
+    insertAfter(secs, "Camera and composition",
+      { key: "Geometry, exact, in pixels and in metres", lines: geometryBlock(ctx) });
+    return renderSections(secs);
+  }
+};
+
+ARMS.v2xv6m4 = {
+  id: "v2xv6m4", name: "PRODUCTION TEXT, EXHAUSTIVE CAMERA, SCAFFOLD DEMOTED",
+  parents: ["v2", "v6"],
+  what: "the camera constructed in full and the image demoted for it, with the carriers left to production's own sentences",
+  channels: { text_geometry: "production", image: "scaffold_demoted", camera_language: "exhaustive" },
+  images: () => ["style-seed-warm.png", "scaffold.png"],
+  prompt(ctx) {
+    const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+    appendTo(secs, "Input images", [M4_DEMOTION_LINES.input]);
+    replaceSection(secs, "Camera and composition", cameraBlock(ctx));
+    appendTo(secs, "Camera and composition", [M4_DEMOTION_LINES.camera]);
+    return renderSections(secs);
+  }
+};
+
 export const ARM_IDS = Object.keys(ARMS);
 export const CONTROL_ARM = "v3";
+
+/** The arms generation 1 ran. A later generation's set is decided by the planner
+ *  and read from its plan file, never from a list in a tool. */
+export const GEN1_ARMS = ["v1", "v2", "v3", "v4", "v5", "v6", "v7"];
 
 /* ------------------------------------------------------------------ */
 /* The spectrum — the Captain's frame as the reading order             */
@@ -704,10 +898,18 @@ export const SPECTRUM = [
     reads: "production: the image is asked for the camera to the pixel and the text restates some of it" },
   { arm: "v6", precision_in: "shared", bound: "loose",
     reads: "production plus the verbal camera construction; both channels carry the camera" },
+  { arm: "v6A", precision_in: "shared", bound: "loose", generation: 2,
+    reads: "v6 amplified: the returns constructed row by row as an instruction to draw" },
+  { arm: "v2xv6m4", precision_in: "shared", bound: "scoped", generation: 2,
+    reads: "the camera in the text and the carriers still on the image, with the image demoted for the camera alone" },
+  { arm: "v2xv6m2", precision_in: "both", bound: "full", generation: 2,
+    reads: "both channels at full strength: every number in the text AND the scaffold left primary" },
   { arm: "v7", precision_in: "text", bound: "bound",
     reads: "THE RULED DIVISION: the image orients, the text articulates it element by element" },
   { arm: "v2", precision_in: "text", bound: "unbound",
     reads: "the text carries every number standalone; the image is attached and demoted" },
+  { arm: "v2A", precision_in: "text", bound: "unbound", generation: 2,
+    reads: "v2 amplified: the junction table and the wall's own metre grid, in figures" },
   { arm: "v1", precision_in: "text", bound: "none",
     reads: "the text carries everything; there is no layout image at all" }
 ];

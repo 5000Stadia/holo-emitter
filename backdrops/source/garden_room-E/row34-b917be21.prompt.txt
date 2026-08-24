@@ -1,0 +1,9 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the garden room, circa-1660 English manor
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Primary request: Paint the east wall of the empty garden room of a circa-1660 English manor in
+  Image 1's medium, palette and light, with Image 2's geometry reproduced exactly to the
+  pixel. Image 2 is a technical layout diagram and not artwork to imitate: every line, box,
+  outline and letter in it is an instruction, and the painted picture contains no line,
+  letter, word, number, label, watermark or border of any kind. The picture is completely
+  empty of furniture, loose props, people, animals and clutter.

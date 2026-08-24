@@ -1,0 +1,410 @@
+{
+  "_what_this_is": "The row-34 evolution's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with `git log --diff-filter=A` and asserts that commit's blob equals the current one.",
+  "_why_opaque": "A return path carrying its arm would tell a measuring hand which condition it is looking at. What actually carries the blinding is that the detector configuration is a function of the WALL's declared geometry, so it cannot vary by arm even in principle; the opaque id keeps the arm out of the path as well. The id is reproducible from tools/emit-evolution.mjs and is not cryptographic, which is said here rather than implied.",
+  "_what_it_cannot_blind": "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
+  "_budget": {
+    "generations_max": 3,
+    "rolls_per_arm_per_wall": 2,
+    "arms_gen1": 7,
+    "walls": 2,
+    "images_per_screening_generation": 28,
+    "images_confirmation_generation": 12,
+    "total_worst_case": 68,
+    "total_without_confirmation": 56,
+    "_superseded": "the first draft of the plan declared 6 arms, 24 a generation and 60 worst case; the governing frame's v7 added 4 per generation and the totals above were re-declared before anything was emitted",
+    "_authority": "design/specs/34-plan.md §3"
+  },
+  "_generation": 2,
+  "_arms": [
+    {
+      "id": "v3",
+      "name": "CONTROL",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "production"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "the current production technique, unchanged"
+    },
+    {
+      "id": "v2A",
+      "name": "TEXT-PRIMARY, AMPLIFIED",
+      "channels": {
+        "text_geometry": "exhaustive",
+        "image": "scaffold_demoted",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "v2 with the junction table and the wall's own grid in figures"
+    },
+    {
+      "id": "v6A",
+      "name": "CAMERA-LANGUAGE, AMPLIFIED",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "v6 with the returns constructed row by row as an instruction to draw"
+    },
+    {
+      "id": "v2xv6m2",
+      "name": "EXHAUSTIVE TEXT, SCAFFOLD PRIMARY",
+      "channels": {
+        "text_geometry": "exhaustive",
+        "image": "scaffold_primary",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "every number in the text AND the scaffold left primary - the crossing that keeps both channels at full strength"
+    },
+    {
+      "id": "v2xv6m4",
+      "name": "PRODUCTION TEXT, EXHAUSTIVE CAMERA, SCAFFOLD DEMOTED",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_demoted",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "the camera constructed in full and the image demoted for it, with the carriers left to production's own sentences"
+    },
+    {
+      "id": "v4",
+      "name": "SCAFFOLD-PRIMARY-MINIMAL-TEXT",
+      "channels": {
+        "text_geometry": "minimal",
+        "image": "scaffold_primary",
+        "camera_language": "none"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "the rich labelled scaffold, and three sentences"
+    }
+  ],
+  "_control": "v3",
+  "_no_privileged_arm": "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" v7 is the governing frame's own arm and it runs on terms byte-identical to every other arm: same rolls, same blind measurement, same pre-committed rules, same Holm family, no seat by name. The only standing entrant is the control, which is the yardstick and never a candidate for the crown.",
+  "_spectrum": [
+    {
+      "arm": "v4",
+      "precision_in": "image",
+      "bound": null,
+      "reads": "the image carries everything; the words are three sentences"
+    },
+    {
+      "arm": "v5",
+      "precision_in": "image",
+      "bound": null,
+      "reads": "the image carries everything, redrawn as line art; production text"
+    },
+    {
+      "arm": "v3",
+      "precision_in": "shared",
+      "bound": "loose",
+      "reads": "production: the image is asked for the camera to the pixel and the text restates some of it"
+    },
+    {
+      "arm": "v6",
+      "precision_in": "shared",
+      "bound": "loose",
+      "reads": "production plus the verbal camera construction; both channels carry the camera"
+    },
+    {
+      "arm": "v6A",
+      "precision_in": "shared",
+      "bound": "loose",
+      "generation": 2,
+      "reads": "v6 amplified: the returns constructed row by row as an instruction to draw"
+    },
+    {
+      "arm": "v2xv6m4",
+      "precision_in": "shared",
+      "bound": "scoped",
+      "generation": 2,
+      "reads": "the camera in the text and the carriers still on the image, with the image demoted for the camera alone"
+    },
+    {
+      "arm": "v2xv6m2",
+      "precision_in": "both",
+      "bound": "full",
+      "generation": 2,
+      "reads": "both channels at full strength: every number in the text AND the scaffold left primary"
+    },
+    {
+      "arm": "v7",
+      "precision_in": "text",
+      "bound": "bound",
+      "reads": "THE RULED DIVISION: the image orients, the text articulates it element by element"
+    },
+    {
+      "arm": "v2",
+      "precision_in": "text",
+      "bound": "unbound",
+      "reads": "the text carries every number standalone; the image is attached and demoted"
+    },
+    {
+      "arm": "v2A",
+      "precision_in": "text",
+      "bound": "unbound",
+      "generation": 2,
+      "reads": "v2 amplified: the junction table and the wall's own metre grid, in figures"
+    },
+    {
+      "arm": "v1",
+      "precision_in": "text",
+      "bound": "none",
+      "reads": "the text carries everything; there is no layout image at all"
+    }
+  ],
+  "_headline_pairing": {
+    "bound": "v7",
+    "unbound": "v2",
+    "question": "with every anchored number in the text either way, does binding the words to the image element by element beat running them beside it under a precedence rule"
+  },
+  "_amplification": {
+    "v1": "the geometry text gains the per-return junction table: both endpoints of each return's floor junction and ceiling junction, in columns and rows, computed through groundplane",
+    "v2": "the geometry text gains the per-return junction table: both endpoints of each return's floor junction and ceiling junction, in columns and rows, computed through groundplane",
+    "v3": null,
+    "v4": "the scaffold gains the return junction lines drawn as ruled marks with their own labels; the body stays three sentences",
+    "v5": "the edge drawing gains stroke-weight hierarchy: junctions heavy, carriers medium, the anchor light",
+    "v6": "the camera paragraph gains the row-by-row construction of both returns, stated as an instruction to draw rather than as a description"
+  },
+  "_generated": "2026-08-24",
+  "rolls": [
+    {
+      "id": "50634066",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v3",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-50634066.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-50634066.prompt.txt"
+    },
+    {
+      "id": "528ad0da",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v3",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-528ad0da.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-528ad0da.prompt.txt"
+    },
+    {
+      "id": "a5becad9",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2A",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-a5becad9.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-a5becad9.prompt.txt"
+    },
+    {
+      "id": "24770991",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2A",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-24770991.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-24770991.prompt.txt"
+    },
+    {
+      "id": "e7bcea09",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v6A",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-e7bcea09.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-e7bcea09.prompt.txt"
+    },
+    {
+      "id": "7f76c5ae",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v6A",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-7f76c5ae.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-7f76c5ae.prompt.txt"
+    },
+    {
+      "id": "8c6bb965",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2xv6m2",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-8c6bb965.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-8c6bb965.prompt.txt"
+    },
+    {
+      "id": "7098875a",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2xv6m2",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-7098875a.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-7098875a.prompt.txt"
+    },
+    {
+      "id": "43e4bf39",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2xv6m4",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-43e4bf39.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-43e4bf39.prompt.txt"
+    },
+    {
+      "id": "e271601c",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v2xv6m4",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-e271601c.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-e271601c.prompt.txt"
+    },
+    {
+      "id": "174c9cd0",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v4",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/row34-174c9cd0.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-174c9cd0.prompt.txt"
+    },
+    {
+      "id": "5c60322d",
+      "generation": 2,
+      "wall": "guest_chamber/E",
+      "arm": "v4",
+      "roll": 2,
+      "candidate": "backdrops/source/guest_chamber-E/row34-5c60322d.png",
+      "prompt": "backdrops/source/guest_chamber-E/row34-5c60322d.prompt.txt"
+    },
+    {
+      "id": "5adecd18",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v3",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-5adecd18.png",
+      "prompt": "backdrops/source/garden_room-E/row34-5adecd18.prompt.txt"
+    },
+    {
+      "id": "90d5626e",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v3",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-90d5626e.png",
+      "prompt": "backdrops/source/garden_room-E/row34-90d5626e.prompt.txt"
+    },
+    {
+      "id": "dc5e3d86",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2A",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-dc5e3d86.png",
+      "prompt": "backdrops/source/garden_room-E/row34-dc5e3d86.prompt.txt"
+    },
+    {
+      "id": "336b0a4b",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2A",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-336b0a4b.png",
+      "prompt": "backdrops/source/garden_room-E/row34-336b0a4b.prompt.txt"
+    },
+    {
+      "id": "a76b29cd",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v6A",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-a76b29cd.png",
+      "prompt": "backdrops/source/garden_room-E/row34-a76b29cd.prompt.txt"
+    },
+    {
+      "id": "8eb68b3a",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v6A",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-8eb68b3a.png",
+      "prompt": "backdrops/source/garden_room-E/row34-8eb68b3a.prompt.txt"
+    },
+    {
+      "id": "1f8696d1",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2xv6m2",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-1f8696d1.png",
+      "prompt": "backdrops/source/garden_room-E/row34-1f8696d1.prompt.txt"
+    },
+    {
+      "id": "574b76d5",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2xv6m2",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-574b76d5.png",
+      "prompt": "backdrops/source/garden_room-E/row34-574b76d5.prompt.txt"
+    },
+    {
+      "id": "ccf321fc",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2xv6m4",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-ccf321fc.png",
+      "prompt": "backdrops/source/garden_room-E/row34-ccf321fc.prompt.txt"
+    },
+    {
+      "id": "77921ddd",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v2xv6m4",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-77921ddd.png",
+      "prompt": "backdrops/source/garden_room-E/row34-77921ddd.prompt.txt"
+    },
+    {
+      "id": "b917be21",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v4",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/row34-b917be21.png",
+      "prompt": "backdrops/source/garden_room-E/row34-b917be21.prompt.txt"
+    },
+    {
+      "id": "021b5241",
+      "generation": 2,
+      "wall": "garden_room/E",
+      "arm": "v4",
+      "roll": 2,
+      "candidate": "backdrops/source/garden_room-E/row34-021b5241.png",
+      "prompt": "backdrops/source/garden_room-E/row34-021b5241.prompt.txt"
+    }
+  ]
+}

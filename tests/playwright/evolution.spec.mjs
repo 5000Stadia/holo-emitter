@@ -30,10 +30,11 @@ import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { repoRoot } from "./helpers.mjs";
 import {
-  ARMS, ARM_IDS, CONTROL_ARM, PROBES, PLAN, SPECTRUM, HEADLINE_PAIRING,
+  ARMS, ARM_IDS, GEN1_ARMS, CONTROL_ARM, PROBES, PLAN, SPECTRUM, HEADLINE_PAIRING,
   AMPLIFICATION, CHANNELS, makeCtx, armPrompt, edgeMarks, frameGeometry,
   vanishingPoint, frameExit, parseSections, renderSections, positionWord,
-  V5_SUBSTITUTIONS, V2_DEMOTION_LINES, IMAGE2_LINES, crossings
+  V5_SUBSTITUTIONS, V2_DEMOTION_LINES, M4_DEMOTION_LINES, IMAGE2_LINES, crossings,
+  junctionTable, wallGridBlock, drawInstructions
 } from "../../tools/evolution-arms.mjs";
 import { manorPrompt, scaffoldRects, chairRail } from "../../tools/make-scaffold.mjs";
 import { deriveMeta, facingCarriers } from "../../tools/plan-projection.mjs";
@@ -100,7 +101,7 @@ test.describe("row 34 — the evolution run's machinery", () => {
     try {
       for (const key of KEYS) {
         const ctx = ctxFor(key);
-        for (const id of ARM_IDS) {
+        for (const id of GEN1_ARMS) {
           const text = armPrompt(id, ctx);
           expect(text.length, `${id} on ${key} composed nothing`).toBeGreaterThan(200);
           const p = join(dir, `${key.replace("/", "-")}__${id}.prompt.txt`);
@@ -108,7 +109,7 @@ test.describe("row 34 — the evolution run's machinery", () => {
           files.push(p);
         }
       }
-      expect(files.length).toBe(ARM_IDS.length * KEYS.length);
+      expect(files.length).toBe(GEN1_ARMS.length * KEYS.length);
       const out = py(LINT, files);
       expect(out, `prompt_lint refused an arm's prompt:\n${out}`)
         .toContain(`0 of ${files.length} prompt(s) refused.`);
@@ -304,7 +305,7 @@ test.describe("row 34 — the evolution run's machinery", () => {
        label is a silent pass. The only guard is the ask, and this case is it. */
     for (const key of KEYS) {
       for (const id of ARM_IDS) {
-        /* Whitespace-normalised: the constraint is wrapped across lines in the
+        /* Every arm of every generation. Whitespace-normalised: the constraint is wrapped across lines in the
            arms whose text is long, and a line break is not a missing rule. */
         const flat = armPrompt(id, ctxFor(key)).replace(/\s+/g, " ");
         expect(flat, `${id} on ${key} dropped the no-lettering constraint`)
@@ -403,7 +404,7 @@ test.describe("row 34 — the evolution run's machinery", () => {
   });
 
   test("the declared budget is a gate, not a sentence", () => {
-    expect(BUDGET.arms_gen1).toBe(ARM_IDS.length);
+    expect(BUDGET.arms_gen1).toBe(GEN1_ARMS.length);
     expect(BUDGET.images_per_screening_generation)
       .toBe(BUDGET.arms_gen1 * BUDGET.walls * BUDGET.rolls_per_arm_per_wall);
     expect(BUDGET.total_worst_case).toBe(
@@ -602,7 +603,20 @@ test.describe("row 34 — the evolution run's machinery", () => {
     const { report } = scoreCase("null", "v1");
     expect(report).toContain("## Where does precision belong");
     expect(report).toContain("Visual reference for visual orientation generalities");
-    for (const s of SPECTRUM) expect(report).toContain(`| ${s.arm} |`);
+    /* Every arm THIS generation ran, in the spectrum's own order. A later
+       generation's arms are in the table and have no rolls in this one, and the
+       report skips them rather than printing an empty row. */
+    const ran = SPECTRUM.map((s) => s.arm).filter((a) => GEN1_ARMS.includes(a));
+    for (const a of ran) expect(report).toContain(`| ${a} |`);
+    const spectrumBlock = report.split("## Where does precision belong")[1];
+    const order = ran.filter((a) => spectrumBlock.includes(`| ${a} |`));
+    expect(order).toEqual(ran);
+    let at = -1;
+    for (const a of ran) {
+      const i = spectrumBlock.indexOf(`| ${a} |`);
+      expect(i, `${a} is out of spectrum order in the report`).toBeGreaterThan(at);
+      at = i;
+    }
     expect(report).toContain(`HEADLINE PAIRING — ${HEADLINE_PAIRING.bound} (bound)`);
     /* And the three standing caveats ride every report. */
     expect(report).toContain("no text_painted detector");
@@ -611,6 +625,220 @@ test.describe("row 34 — the evolution run's machinery", () => {
   });
 
   /* --------------------------------------------------- the probes */
+  /* ------------------------------------------------- generation 2, bred */
+
+  test("the generation-2 arm set is the rule's, re-derived here rather than trusted", () => {
+    /* THE READINGS ARE NOT IN THIS TREE. The plan file records the planner's
+       output from the Navigator's sweep, so the arm set itself cannot be
+       recomputed here — but the CROSSINGS can, and they are the part a hand
+       could bend. Given the two leaders, the enumeration over the seven
+       generation-1 triples is pure logic over data this tree does hold. */
+    const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
+    expect(plan.branch).toBe("B");
+    expect(plan.refused).toBe(false);
+    expect(plan._provenance.readings_in_this_tree).toBe(false);
+    expect(plan._provenance._gap).toContain("NOT COMMITTED");
+
+    const bred = plan.arms.filter((a) => a.origin === "crossing");
+    const parents = bred[0].parents;
+    expect(new Set(bred.map((a) => a.parents.join("x"))).size).toBe(1);
+    const chan = [...CHANNELS].sort();
+    const sig = (c) => chan.map((k) => c[k]).join("|");
+    const taken = new Set(GEN1_ARMS.map((id) => sig(ARMS[id].channels)));
+    const derived = [];
+    for (let mask = 1; mask < 2 ** chan.length - 1; mask++) {
+      const c = {};
+      chan.forEach((k, i) => { c[k] = (mask >> i) & 1
+        ? ARMS[parents[1]].channels[k] : ARMS[parents[0]].channels[k]; });
+      const s = sig(c);
+      if (taken.has(s)) continue;
+      taken.add(s);
+      derived.push({ id: `${parents[0]}x${parents[1]}m${mask}`, channels: c });
+    }
+    expect(derived.map((d) => d.id)).toEqual(bred.map((a) => a.arm));
+    for (const d of derived) {
+      const planned = bred.find((a) => a.arm === d.id);
+      for (const k of chan) expect(planned.channels[k]).toBe(d.channels[k]);
+    }
+  });
+
+  test("every generation-2 composer matches the triple the rule bred", () => {
+    /* The emitter refuses a mismatch; this is the same claim without a browser,
+       so a composer written to the wrong triple is a red test and not a wasted
+       generation. */
+    const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
+    for (const a of plan.arms) {
+      const arm = ARMS[a.arm];
+      expect(arm, `no composer implements ${a.arm}`).toBeTruthy();
+      for (const c of Object.keys(a.channels)) expect(arm.channels[c]).toBe(a.channels[c]);
+    }
+    /* And the four new triples are genuinely four, not repeats of gen 1. */
+    const chan = [...CHANNELS].sort();
+    const sig = (id) => chan.map((k) => ARMS[id].channels[k]).join("|");
+    const fresh = plan.arms.map((a) => a.arm).filter((id) => !GEN1_ARMS.includes(id));
+    expect(fresh.length).toBe(4);
+    for (const id of fresh) {
+      if (ARMS[id].amplified) continue;      // an amplified arm keeps its parent's triple
+      expect(GEN1_ARMS.map(sig)).not.toContain(sig(id));
+    }
+  });
+
+  test("every generation-2 arm composes for both walls and prompt_lint accepts all twelve", () => {
+    const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
+    const dir = tmp("lint2");
+    const files = [];
+    try {
+      for (const key of KEYS) {
+        const ctx = ctxFor(key);
+        for (const a of plan.arms) {
+          const p = join(dir, `${key.replace("/", "-")}__${a.arm}.prompt.txt`);
+          writeFileSync(p, armPrompt(a.arm, ctx));
+          files.push(p);
+        }
+      }
+      expect(files.length).toBe(plan.arms.length * KEYS.length);
+      expect(py(LINT, files)).toContain(`0 of ${files.length} prompt(s) refused.`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("an amplified arm is its parent plus exactly its declared amplification", () => {
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      for (const id of ARM_IDS.filter((x) => ARMS[x].amplified)) {
+        const parent = ARMS[id].parent;
+        const before = armPrompt(parent, ctx).split("\n");
+        const after = armPrompt(id, ctx).split("\n");
+        /* Nothing is removed — an amplification that dropped a line would be a
+           different arm wearing its parent's name. */
+        expect(before.filter((l) => !after.includes(l)),
+          `${id} removed a line its parent ${parent} had`).toEqual([]);
+        const added = after.filter((l) => !before.includes(l));
+        expect(added.length, `${id} added nothing to ${parent}`).toBeGreaterThan(0);
+        /* And the channel triple did not move: amplification pushes an arm's
+           defining channel harder, it does not change which channel that is. */
+        for (const c of CHANNELS) expect(ARMS[id].channels[c]).toBe(ARMS[parent].channels[c]);
+        expect(AMPLIFICATION[parent], `${parent} has no declared mutation`).toBeTruthy();
+      }
+    }
+  });
+
+  test("v2A's amplification is the junction table AND the wall's own grid", () => {
+    /* The declared ladder's own words add no number v2 did not already state —
+       `cameraBlock` gives all four junctions by both endpoints in prose — so the
+       grid is the extension that makes this an amplification rather than a
+       reformat. Plan §6a records it; this pins that both halves are present. */
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      const text = armPrompt("v2A", ctx);
+      for (const line of junctionTable(ctx)) expect(text).toContain(line.trim());
+      for (const line of wallGridBlock(ctx)) expect(text).toContain(line.trim());
+      /* The grid's numbers are the scaffold's own stamping functions, recomputed
+         here from the meta rather than through the composer. */
+      const m = ctx.meta;
+      const g = ctx.geometry;
+      for (let x = 0; x <= Math.floor(g.wall_width_m + 1e-9); x++) {
+        const col = Math.round(groundplane.wallCentrePx(m, 1536)
+          + (x - m.wall_width_m / 2) * m.px_per_m_at_wall);
+        expect(text).toContain(`${x} m = column ${col}`);
+      }
+      for (const h of [0.5, 1.0, 1.5, 2.0]) {
+        const row = Math.round(m.floor_line_y * m.image_h_px - h * m.px_per_m_at_wall);
+        expect(text).toContain(`${h.toFixed(1)} m = row ${row}`);
+      }
+    }
+  });
+
+  test("v6A's waypoints lie on the junction lines and converge where the rest do", () => {
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      const text = armPrompt("v6A", ctx);
+      const g = ctx.geometry;
+      const vp = vanishingPoint(ctx.meta);
+      for (const [, s] of [["left", g.left], ["right", g.right]]) {
+        for (const j of [s.ceiling, s.floor]) {
+          if (!j || !j.to) continue;
+          for (const t of [0.25, 0.5, 0.75]) {
+            const x = Math.round(j.from.x + t * (j.to.x - j.from.x));
+            const y = Math.round(j.from.y + t * (j.to.y - j.from.y));
+            expect(text, `${key} waypoint ${t} off its own line`)
+              .toContain(`at column ${x} it is at row ${y}`);
+          }
+        }
+      }
+      expect(text).toContain(`passes through`);
+      expect(text).toContain(`column ${Math.round(vp.x)}, row ${Math.round(vp.y)}`);
+    }
+  });
+
+  test("m4's demotion is scoped, because a blanket one would be a false sentence", () => {
+    /* m4 carries PRODUCTION text geometry, which does not state every number, so
+       v2's "the text governs every number" would be untrue in it. It demotes the
+       image for the CAMERA alone, which its own text does construct in full. */
+    for (const key of KEYS) {
+      const text = armPrompt("v2xv6m4", ctxFor(key));
+      expect(text).toContain(M4_DEMOTION_LINES.input);
+      expect(text).toContain(M4_DEMOTION_LINES.camera);
+      expect(text).not.toContain(V2_DEMOTION_LINES.geometry);
+      expect(text).not.toContain("Geometry, exact, in pixels and in metres");
+    }
+    /* m2 keeps the image primary: production's own Image-2 declaration survives
+       intact and the exhaustive text is added on top of it. */
+    for (const key of KEYS) {
+      const text = armPrompt("v2xv6m2", ctxFor(key));
+      expect(text).toContain(IMAGE2_LINES.input_labels);
+      expect(text).toContain("Geometry, exact, in pixels and in metres");
+      expect(text).toContain("frontal one-point perspective");
+    }
+  });
+
+  test("generation 2's id map, packets and budget", () => {
+    const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
+    const assign = JSON.parse(readFileSync(join(BATCH, "assignment-gen2.json"), "utf8"));
+    expect(assign.rolls.length).toBe(plan.arms.length * KEYS.length
+      * BUDGET.rolls_per_arm_per_wall);
+    expect(assign.rolls.length).toBe(24);
+    /* Under the ceiling is fine; over is refused. */
+    expect(assign.rolls.length).toBeLessThanOrEqual(BUDGET.images_per_screening_generation);
+    const byWall = {};
+    for (const key of KEYS) byWall[key] = ctxFor(key);
+    const seen = new Set();
+    for (const r of assign.rolls) {
+      expect(r.generation).toBe(2);
+      expect(r.id).toBe(rollId34(2, r.wall, r.arm, r.roll));
+      expect(seen.has(r.id)).toBe(false);
+      seen.add(r.id);
+      expect(r.candidate.split("/").pop()).toBe(`row34-${r.id}.png`);
+      expect(readFileSync(join(repoRoot, r.prompt), "utf8"))
+        .toBe(armPrompt(r.arm, byWall[r.wall]));
+    }
+    /* And no generation-1 id was reused — the two maps are disjoint. */
+    const g1 = JSON.parse(readFileSync(join(BATCH, "assignment.json"), "utf8"));
+    for (const r of g1.rolls) expect(seen.has(r.id)).toBe(false);
+  });
+
+  test("generation 2 did not disturb generation 1", () => {
+    /* The emitter used to write `manifest.json` unconditionally, which would
+       have replaced generation 1's with generation 2's — and generation 1's
+       manifest is what points the measure path at generation 1's sidecars. One
+       manifest per generation, named like the id map. */
+    expect(existsSync(join(BATCH, "manifest.json"))).toBe(true);
+    expect(existsSync(join(BATCH, "manifest-gen2.json"))).toBe(true);
+    const g1 = JSON.parse(readFileSync(join(BATCH, "manifest.json"), "utf8"));
+    expect(g1.generation).toBe(1);
+    expect(g1.walls.every((w) => w.packet.includes("gen1"))).toBe(true);
+    const g2 = JSON.parse(readFileSync(join(BATCH, "manifest-gen2.json"), "utf8"));
+    expect(g2.generation).toBe(2);
+    expect(g2.walls.every((w) => w.packet.includes("gen2"))).toBe(true);
+    /* And the generation-1 id map is byte-unmoved since its introducing commit,
+       which the immutability case above checks; here we only pin that a second
+       emission did not touch its roll set. */
+    const a1 = JSON.parse(readFileSync(join(BATCH, "assignment.json"), "utf8"));
+    expect(a1.rolls.every((r) => r.generation === 1)).toBe(true);
+    expect(a1.rolls.length).toBe(BUDGET.images_per_screening_generation);
+  });
+
   test("both probe walls are hold-family, camera-PASS and single-failure", () => {
     const state = JSON.parse(readFileSync(join(MANOR, "run-state.json"), "utf8")).walls;
     for (const p of PROBES) {

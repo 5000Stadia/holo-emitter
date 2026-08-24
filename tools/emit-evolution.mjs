@@ -35,7 +35,7 @@ import { execFileSync } from "node:child_process";
 import { PAGE_RENDER, GLYPH_TABLE, sourceDirFor, chairRail, assertLabelChars }
   from "./make-scaffold.mjs";
 import {
-  ROOT, PLAN, PROBES, ARMS, ARM_IDS, CONTROL_ARM, SPECTRUM, HEADLINE_PAIRING,
+  ROOT, PLAN, PROBES, ARMS, ARM_IDS, GEN1_ARMS, CONTROL_ARM, SPECTRUM, HEADLINE_PAIRING,
   AMPLIFICATION, STYLE_SEED, CANVAS_W, CANVAS_H,
   makeCtx, armPrompt, edgeMarks, frameGeometry, vanishingPoint
 } from "./evolution-arms.mjs";
@@ -149,11 +149,55 @@ function scaffoldMarks(ctx) {
 /* Emit                                                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Which arms a generation runs.
+ *
+ * GENERATION 1'S SET IS THE DECLARED SEVEN. EVERY LATER GENERATION'S IS THE
+ * PLANNER'S, read out of the plan file `row34_fitness.py --plan-generation-N`
+ * wrote — never a list in this file, because an emitter that could choose its
+ * own arms is an emitter that could quietly keep a losing one alive. Each named
+ * arm must exist as a composer AND its declared channel triple must equal the
+ * one the plan bred, so a composer written to the wrong triple is refused here
+ * rather than discovered in the table.
+ */
+function armsFor(generation) {
+  if (generation === 1) return GEN1_ARMS;
+  const p = join(BATCH, `generation-${generation}-plan.json`);
+  if (!existsSync(p)) {
+    throw new Error(`emit-evolution refused: generation ${generation} has no plan at ` +
+      `${p.slice(ROOT.length + 1)}. Run row34_fitness.py --plan-generation-${generation} first; ` +
+      "the arm set is the rule's to decide, not this tool's.");
+  }
+  const plan = JSON.parse(readFileSync(p, "utf8"));
+  if (plan.refused) {
+    throw new Error(`emit-evolution refused: the generation-${generation} plan is itself a ` +
+      `refusal (branch ${plan.branch}): ${plan._why_refused || plan._why}`);
+  }
+  const ids = [];
+  for (const a of plan.arms) {
+    const arm = ARMS[a.arm];
+    if (!arm) {
+      throw new Error(`emit-evolution refused: the plan names \`${a.arm}\` and no composer ` +
+        `implements it. Its channel triple is ${JSON.stringify(a.channels)} and it was fixed by ` +
+        "the rule, not chosen; write the composer to that triple.");
+    }
+    for (const c of Object.keys(a.channels)) {
+      if (arm.channels[c] !== a.channels[c]) {
+        throw new Error(`emit-evolution refused: \`${a.arm}\`'s composer declares ` +
+          `${c}=${arm.channels[c]} where the plan bred ${c}=${a.channels[c]}`);
+      }
+    }
+    ids.push(a.arm);
+  }
+  return ids;
+}
+
 async function emit(generation) {
   if (generation > BUDGET.generations_max) {
     throw new Error(`emit-evolution refused: generation ${generation} is past the declared ` +
       `maximum of ${BUDGET.generations_max} (design/specs/34-plan.md §3)`);
   }
+  const armIds = armsFor(generation);
   const genDir = join(BATCH, `gen${generation}`);
   mkdirSync(genDir, { recursive: true });
 
@@ -224,7 +268,7 @@ async function emit(generation) {
     /* ---- one packet per arm ---- */
     const srcDir = sourceDirFor(key);
     mkdirSync(join(ROOT, srcDir), { recursive: true });
-    for (const armId of ARM_IDS) {
+    for (const armId of armIds) {
       const arm = ARMS[armId];
       const armDir = join(dir, armId);
       mkdirSync(armDir, { recursive: true });
@@ -274,13 +318,21 @@ async function emit(generation) {
       sidecar_sha256: sha256File(join(dir, "sidecar.json"))
     });
     console.log(`  ${key.padEnd(20)} ${ctx.rects.length} carrier(s)  ` +
-      `${ARM_IDS.length} arms x ${ROLLS_PER_ARM_PER_WALL} rolls`);
+      `${armIds.length} arms x ${ROLLS_PER_ARM_PER_WALL} rolls`);
   }
   await browser.close();
 
-  if (rolls.length !== BUDGET.images_per_screening_generation) {
+  /* THE BUDGET IS A CEILING FOR A BRED GENERATION AND AN EXACT COUNT FOR THE
+   * DECLARED ONE. Generation 1's seven arms are written into the plan, so a
+   * different number there is a bug. A later generation's arm set comes out of
+   * the breeding, and branch B can honestly come in UNDER when the leaders are
+   * near-identical and their crossings are already in the pool — plan §6 says
+   * under is fine and over is refused, and this is that sentence. */
+  const ceiling = BUDGET.images_per_screening_generation;
+  const over = generation === 1 ? rolls.length !== ceiling : rolls.length > ceiling;
+  if (over) {
     throw new Error(`emit-evolution refused: ${rolls.length} rolls against a declared ` +
-      `${BUDGET.images_per_screening_generation} (design/specs/34-plan.md §3)`);
+      `${ceiling} (design/specs/34-plan.md §3)`);
   }
 
   /* ---- the id map, committed before any candidate exists ---- */
@@ -291,7 +343,7 @@ async function emit(generation) {
     _what_it_cannot_blind: "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
     _budget: BUDGET,
     _generation: generation,
-    _arms: ARM_IDS.map((id) => ({ id, name: ARMS[id].name, channels: ARMS[id].channels,
+    _arms: armIds.map((id) => ({ id, name: ARMS[id].name, channels: ARMS[id].channels,
       images: ARMS[id].images(), what: ARMS[id].what })),
     _control: CONTROL_ARM,
     _no_privileged_arm: "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" v7 is the governing frame's own arm and it runs on terms byte-identical to every other arm: same rolls, same blind measurement, same pre-committed rules, same Holm family, no seat by name. The only standing entrant is the control, which is the yardstick and never a candidate for the crown.",
@@ -310,7 +362,7 @@ async function emit(generation) {
     row: 34, generation,
     budget: BUDGET,
     walls,
-    arms: ARM_IDS.map((id) => ({ id, name: ARMS[id].name, what: ARMS[id].what,
+    arms: armIds.map((id) => ({ id, name: ARMS[id].name, what: ARMS[id].what,
       channels: ARMS[id].channels, images: ARMS[id].images() })),
     control: CONTROL_ARM,
     rolls_per_arm_per_wall: ROLLS_PER_ARM_PER_WALL,
@@ -318,13 +370,21 @@ async function emit(generation) {
     _generated: new Date().toISOString().slice(0, 10),
     git_commit: gitCommit()
   };
-  writeFileSync(join(BATCH, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+  /* ONE MANIFEST PER GENERATION, named like the id map. The first draft wrote
+   * `manifest.json` unconditionally, which would have replaced generation 1's
+   * with generation 2's the moment a second generation was cut — and generation
+   * 1's manifest is what points the measure path at generation 1's sidecars, so
+   * re-measuring an earlier generation would have silently read the wrong
+   * wall geometry. Caught before generation 2 was emitted, not after. */
+  const manifestPath = join(BATCH, generation === 1
+    ? "manifest.json" : `manifest-gen${generation}.json`);
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
 
-  console.log(`\ngeneration ${generation}: ${rolls.length} rolls, ${ARM_IDS.length} arms, ` +
+  console.log(`\ngeneration ${generation}: ${rolls.length} rolls, ${armIds.length} arms, ` +
     `${walls.length} walls`);
   console.log(`  packets     ${genDir.slice(ROOT.length + 1)}`);
   console.log(`  id map      ${assignPath.slice(ROOT.length + 1)}`);
-  console.log(`  manifest    ${join(BATCH, "manifest.json").slice(ROOT.length + 1)}`);
+  console.log(`  manifest    ${manifestPath.slice(ROOT.length + 1)}`);
   console.log("  NOT DISPATCHED - dispatch is the Navigator's act");
 }
 
