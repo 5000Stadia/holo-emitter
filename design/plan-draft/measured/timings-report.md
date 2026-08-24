@@ -96,3 +96,9 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   the all-time queue p50 (generate->measure 9.58h) is dominated by the pre-loop backfill
   era and masks live health - report trailing-window (6h) queue latencies beside all-time
   so a live regression cannot hide under history, and history cannot alarm a healthy present.
+- 2026-08-24 tick 4: the baton metric, scoped to living walls, immediately surfaced 16
+  genuinely unmeasured candidates - all four open facings (the row-29 float x None family),
+  crash-skipped forever with no reading written. A watchdog false positive was hiding a
+  real permanent stall. Builder dispatched for the open-facing vista path (measurement +
+  promotion). Lesson for row 30: a monitoring metric that is known-noisy gets fixed, not
+  tolerated - noise is where real stalls hide.
