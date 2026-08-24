@@ -147,6 +147,16 @@
    * it. The peak is below the entity pool's 0.45 because a stair's contact runs
    * the length of a stringer rather than pooling under one small base. */
   var CONTACT_STEPS = [[18, 0.10], [11, 0.14], [5, 0.20]];
+  /* AND THE POOL IS THE FLIGHT'S OWN SIZE, not a constant number of pixels.
+   * §7's contact rule scales a sprite's pool with its footprint span at the
+   * ground scale, and a stair seen from 15 m with the same 18 px pool as one
+   * at 2 m is a shadow that grows as the thing casting it shrinks. The widths
+   * above are read at a flight drawing 400 px across — about the manor's
+   * median — and scale with the drawn width from there, bounded so a distant
+   * flight keeps a pool a person can see and a near one does not gain a moat. */
+  var CONTACT_REF_PX = 400;
+  var CONTACT_MIN_K = 0.45;
+  var CONTACT_MAX_K = 1.6;
   /* The near room's own sill line, at the foot of a threshold's mouth: one
      pixel the through-view is not allowed to paint over. */
   var SILL_PX = 2;
@@ -953,8 +963,10 @@
       if (fl.floor_poly && fl.floor_poly.length >= 3) {
         ctx.strokeStyle = "#000000";
         ctx.lineJoin = "round";
+        var contactK = Math.max(CONTACT_MIN_K,
+          Math.min(CONTACT_MAX_K, (fl.w || CONTACT_REF_PX) / CONTACT_REF_PX));
         for (var ci = 0; ci < CONTACT_STEPS.length; ci++) {
-          ctx.lineWidth = CONTACT_STEPS[ci][0];
+          ctx.lineWidth = CONTACT_STEPS[ci][0] * contactK;
           ctx.globalAlpha = CONTACT_STEPS[ci][1];
           strokeRing(ctx, fl.floor_poly);
         }

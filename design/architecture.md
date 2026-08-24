@@ -2893,9 +2893,12 @@ same stepped `key_tint` cells on the same integer tiling, so it is the same ligh
 one. No canvas gradient object anywhere: those rasterise differently across engines.
 
 **The flight darkens the floor it stands on** (intention quality 2). Three stepped black strokes of
-falling width and rising alpha along `floor_poly`, drawn before the body. On an ascent that ring is
-the contact line where the solid meets the floor; on a descent it is the lip of the well where the
-floor ends. One device, two true readings.
+falling width and rising alpha along `floor_poly`, drawn before the body, their widths scaled with
+the flight's own drawn width from a 400 px reference and bounded either side — §7 scales a sprite's
+pool with its footprint at the ground scale, and a stair seen from 15 m with the same pool as one
+at 2 m is a shadow that grows as the thing casting it shrinks. On an ascent that ring is the contact
+line where the solid meets the floor; on a descent it is the lip of the well where the floor ends.
+One device, two true readings.
 
 Measured after, per face class, inside the flight's own drawn pixels:
 
