@@ -418,16 +418,33 @@ def _do_promote(key, cand_rel, e, side, ref, reading, tolerance=False):
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         return False, (r.stdout + r.stderr).strip().split("\n")[-1][:200]
-    bad = _bake()
-    if bad:
+    # [row 33 regression fix, 2026-08-24] THE BAKE LEFT THE PER-WALL PATH. The
+    # stopwatch flagged promote.wall 44.8x slower: every promotion re-baked the
+    # whole store (15+ MB re-encoded per wall; twelve promotions, twelve full
+    # bakes). What the per-wall bake actually bought was ATTRIBUTION — a bake
+    # refusal named its wall and rolled it back. The cheap validator buys the
+    # same attribution without the encode: it reads the source metas directly.
+    # The sweep bakes ONCE at its end (`_bake_if_promoted`), which is where the
+    # encode belongs.
+    v = subprocess.run(["node", os.path.join(ROOT, "tools", "validate-fixtures.mjs"),
+                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor")],
+                       cwd=ROOT, capture_output=True, text=True)
+    if v.returncode != 0:
         loc, f = key.split("/")
         for p in (os.path.join(ROOT, "backdrops", loc, f + ".png"),
                   os.path.join(ROOT, "backdrops", loc, f + ".meta.json")):
             if os.path.exists(p):
                 os.remove(p)
-        _bake()
-        return False, "promoted, and taken back out because the bake refused: " + bad
+        return False, ("promoted, and taken back out because the validator refused: "
+                       + (v.stdout + v.stderr).strip().split("\n")[-1][:200])
     return True, None
+
+
+def _bake_if_promoted(n_promoted):
+    """One bake for the whole sweep, only when something moved."""
+    if not n_promoted:
+        return None
+    return _bake()
 
 
 def sweep(manifest, state, do_promote=True):
@@ -793,6 +810,11 @@ def sweep(manifest, state, do_promote=True):
                 st["status"] = "retry"
                 st.pop("why", None)
                 failed.append((key, worst, st["correction"]))
+    # [row 33 regression fix] One bake per sweep, not per wall — the walls were
+    # each validated at promotion time, so a refusal here is global, loud, rare.
+    _sweep_bad = _bake_if_promoted(len(promoted))
+    if _sweep_bad:
+        print("  !! end-of-sweep bake refused: %s" % _sweep_bad)
     return promoted, failed, parked, waiting
 
 
