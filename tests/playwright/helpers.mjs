@@ -434,6 +434,71 @@ export const test = base.extend({
 
 export { expect };
 
+/* WALK THERE; DO NOT ASSERT FROM THE DOOR-MAT.
+ *
+ * [Rows 15/19] Several of `manor.spec`'s first-draft cases computed all
+ * eighty-eight facings analytically, never left the boot facing, and then
+ * asserted a property of "the page" — a property that could only ever be false
+ * somewhere they had not gone. A recheck reinstated the exact defect one of
+ * them was written for and the whole suite stayed green. So a claim about what
+ * the PAGE DOES stands on the facing it is about, reached by real intents, with
+ * the go veil given time to settle.
+ *
+ * [Row 25] Lifted here from `manor.spec` when a second spec needed the same
+ * walk: a claim about a facing the stair spec stands on has to be reached the
+ * same way the manor's claims are, and two copies of a walk is two places for
+ * "we never actually got there" to hide. */
+export async function standAt(page, room, facing) {
+  const path = await page.evaluate(({ room }) => {
+    const A = window.HOLO_APP, W = A.harness.world;
+    const start = A.harness.viewstate.location;
+    const prev = new Map([[start, null]]);
+    const q = [start];
+    while (q.length) {
+      const cur = q.shift();
+      if (cur === room) break;
+      for (const ex of (W.locations.find((l) => l.id === cur).exits || [])) {
+        if (!prev.has(ex.to)) { prev.set(ex.to, [cur, ex.id]); q.push(ex.to); }
+      }
+    }
+    if (!prev.has(room)) throw new Error(`no walked route to ${room}`);
+    const out = [];
+    for (let c = room; prev.get(c); c = prev.get(c)[0]) out.unshift(prev.get(c)[1]);
+    return out;
+  }, { room });
+  for (const id of path) {
+    const want = await page.evaluate((id) => {
+      const A = window.HOLO_APP, W = A.harness.world;
+      return (W.locations.find((l) => l.id === A.harness.viewstate.location).exits || [])
+        .find((e) => e.id === id).facing;
+    }, id);
+    for (let i = 0; i < 4; i++) {
+      const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+      if (f === want) break;
+      await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
+      await page.waitForTimeout(120);
+    }
+    await page.evaluate((id) => window.HOLO_APP.dispatch({ type: "go", exit: id }), id);
+    await page.waitForTimeout(450);
+  }
+  for (let i = 0; i < 4; i++) {
+    const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
+    if (f === facing) break;
+    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
+    await page.waitForTimeout(150);
+  }
+  const at = await page.evaluate(() =>
+    window.HOLO_APP.harness.viewstate.location + "/" + window.HOLO_APP.harness.viewstate.facing);
+  expect(at, "the walk arrived where the case says it stands").toBe(`${room}/${facing}`);
+}
+
+/** A real click at a scene-canvas point, scaled to wherever the stage is. */
+export async function clickCanvasPoint(page, pt) {
+  const box = await page.locator("#scene").boundingBox();
+  await page.mouse.click(box.x + (pt.x * box.width) / 1536,
+    box.y + (pt.y * box.height) / 1024);
+}
+
 /* §5 literals plus the pinned depth-model constant, derived independently of
  * the shipped code (§12.5's independence rule: tests assert literals and
  * re-implement the math, never importing groundplane.js — the validator does

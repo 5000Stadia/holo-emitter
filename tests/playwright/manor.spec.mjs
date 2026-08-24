@@ -10,7 +10,8 @@
  * is the same discipline `LIT` follows for the eight, at the scale the manor
  * needs.
  */
-import { test, expect, repoRoot, navUrl, POINTER_VIEWPORT, LIT, stageTree, removeTree, bake } from "./helpers.mjs";
+import { test, expect, repoRoot, navUrl, POINTER_VIEWPORT, LIT, stageTree, removeTree, bake,
+  standAt, clickCanvasPoint } from "./helpers.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -24,13 +25,6 @@ const RECORDS = require(join(repoRoot, "src", "placeholders.js")).records;
 const FACINGS = ["N", "E", "S", "W"];
 const W = 1536, H = 1024;
 const PHONE = { width: 390, height: 844 };
-
-/** A real click at a scene-canvas point, scaled to wherever the stage is. */
-async function clickCanvasPoint(page, pt) {
-  const box = await page.locator("#scene").boundingBox();
-  await page.mouse.click(box.x + (pt.x * box.width) / 1536,
-    box.y + (pt.y * box.height) / 1024);
-}
 
 /** The approved sheet, parsed: room name -> facing -> {type, distance, width}. */
 const SHEET = (() => {
@@ -49,59 +43,6 @@ const SHEET = (() => {
 
 /** The plan's own room ids, keyed by the NAME the approved sheet prints. */
 const ROOM_BY_NAME = new Map(PLAN.rooms.map((r) => [r.name, r.id]));
-
-/* WALK THERE; DO NOT ASSERT FROM THE DOOR-MAT.
- *
- * Several of this file's first-draft cases computed all eighty-eight facings
- * analytically, never left the boot facing, and then asserted a property of
- * "the page" — a property that could only ever be false somewhere they had
- * not gone. A recheck reinstated the exact defect one of them was written for
- * and the whole suite stayed green. So a claim about what the PAGE DOES now
- * stands on the facing it is about, reached by real intents, with the go veil
- * given time to settle. */
-async function standAt(page, room, facing) {
-  const path = await page.evaluate(({ room }) => {
-    const A = window.HOLO_APP, W = A.harness.world;
-    const start = A.harness.viewstate.location;
-    const prev = new Map([[start, null]]);
-    const q = [start];
-    while (q.length) {
-      const cur = q.shift();
-      if (cur === room) break;
-      for (const ex of (W.locations.find((l) => l.id === cur).exits || [])) {
-        if (!prev.has(ex.to)) { prev.set(ex.to, [cur, ex.id]); q.push(ex.to); }
-      }
-    }
-    if (!prev.has(room)) throw new Error(`no walked route to ${room}`);
-    const out = [];
-    for (let c = room; prev.get(c); c = prev.get(c)[0]) out.unshift(prev.get(c)[1]);
-    return out;
-  }, { room });
-  for (const id of path) {
-    const want = await page.evaluate((id) => {
-      const A = window.HOLO_APP, W = A.harness.world;
-      return (W.locations.find((l) => l.id === A.harness.viewstate.location).exits || [])
-        .find((e) => e.id === id).facing;
-    }, id);
-    for (let i = 0; i < 4; i++) {
-      const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
-      if (f === want) break;
-      await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
-      await page.waitForTimeout(120);
-    }
-    await page.evaluate((id) => window.HOLO_APP.dispatch({ type: "go", exit: id }), id);
-    await page.waitForTimeout(450);
-  }
-  for (let i = 0; i < 4; i++) {
-    const f = await page.evaluate(() => window.HOLO_APP.harness.viewstate.facing);
-    if (f === facing) break;
-    await page.evaluate(() => window.HOLO_APP.dispatch({ type: "turn", dir: "right" }));
-    await page.waitForTimeout(150);
-  }
-  const at = await page.evaluate(() =>
-    window.HOLO_APP.harness.viewstate.location + "/" + window.HOLO_APP.harness.viewstate.facing);
-  expect(at, "the walk arrived where the case says it stands").toBe(`${room}/${facing}`);
-}
 
 /** Every way through THIS facing, with the visible centre of each in client px. */
 async function waysOnScreen(page) {
