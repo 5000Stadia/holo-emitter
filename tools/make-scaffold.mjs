@@ -59,6 +59,12 @@ import * as timings from "./timings.mjs";                 // [row 33] the stopwa
  * plan says it is that kind of room. */
 import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
   from "./room-voices.mjs";
+/* [row 34, AWAITING KABE] THE RECOMMENDED REGISTER, and it is shared rather than
+ * copied: `frame-language.mjs` is the one home for it, and the arm the
+ * recommendation was measured on (`g4`) is the same function. See that file's
+ * header for the recommendation's whole basis and for what it deliberately does
+ * not claim. */
+import { frameGeometry, registerBlock, positiveNoText } from "./frame-language.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -1239,24 +1245,24 @@ export function manorPrompt(plan, key, meta, rects, correction) {
   L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a circa-1660 English manor,`);
   L.push("  matching Image 1's paint handling and Image 2's geometry exactly.");
   L.push(`Gate anchor: ${anchor.line}, ${CHAIR_RAIL_M.toFixed(2)} m.`);
-  L.push("Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The");
-  L.push(`  camera is level, with zero upward or downward tilt. The wall-${GROUND} line, the`);
-  L.push(`  corners, the returns at left and right and the amount of visible ${GROUND} all land where`);
-  L.push(`  Image 2 puts them, to the pixel. One metre at the wall plane spans ${meta.px_per_m_at_wall.toFixed(0)} pixels.`);
-  L.push(`  The ${GROUND} is visible and runs to the bottom edge of frame.`);
-  /* [row 32] THE ONE NUMBER EVERY MANOR PROMPT LEFT UNSAID. The prompt states
-   * the wall-foot line, the corners and the scale, and every one of those lands
-   * inside its bracket in the returned paintings. It never stated where the
-   * returns must CONVERGE — and the promotion instrument reads the eye height
-   * off exactly that convergence, so 58 of 85 walls held on a quantity nothing
-   * had asked for. The painted horizons scatter +/-45 px around the ruled row
-   * while the stated quantities do not, which is the measurement of the
-   * omission. Production law clause 6: the fix lands here, in the emitter, so
-   * the next map gets it without this conversation in context. */
-  L.push(`  The left and right returns run back to meet each other at row ` +
-    `${Math.round(meta.horizon_y * meta.image_h_px)} of the ${meta.image_h_px} rows — that row is the`);
-  L.push("  viewer's eye line, and each return meets the surface overhead along one straight");
-  L.push("  unbroken line from its own corner to the edge of frame.");
+  /* [row 34] THE CAMERA IS ASKED FOR AS A FINISHED PICTURE, NOT AS AN OPERATION.
+   * What stood here described the camera and told the painter to reproduce
+   * Image 2's to the pixel, and it carried row 32's eye-line sentence at the
+   * end. Three generations of the row-34 trial replaced it, and the register
+   * below is what they recommend: the finished picture described in image-frame
+   * terms, WITH the coordinates attached. Both halves are load-bearing —
+   * stripping the figures out was the ablation's one clear loss, and piling more
+   * on dropped a leading arm from 3 of 4 to 1 of 4.
+   *
+   * ROW 32's CLAUSE SURVIVES IT. The eye-line row is still stated on every
+   * facing, including the open ones that have no corners to hang a return on;
+   * `coordinateLines` carries it in both branches, and `horizon.spec` checks the
+   * row rather than the sentence, because the sentence is what changed.
+   *
+   * NOTHING HERE SEPARATED. See `frame-language.mjs`. */
+  for (const line of registerBlock({
+    geometry: frameGeometry(meta), meta, voice, surface: SURFACE, room_name: name
+  })) L.push(line);
   L.push(`Architecture and measurement anchors: ${anchor.sentence}`);
   for (const r of ruled) L.push("  " + r);
   if (rects.length) {
@@ -1275,29 +1281,34 @@ export function manorPrompt(plan, key, meta, rects, correction) {
      * the plan decides which by whether it draws any carrier on that wall line
      * — `entrance_court/N` six windows and a door, `privy_garden/N` nothing. */
     const fabric = (rects.length && voice.walls_with_openings) || voice.walls;
-    L.push(`Materials and period detail: ${fabric}. Underfoot: ${voice.floor}.`);
+    L.push(`Materials/textures: ${fabric}. Underfoot: ${voice.floor}.`);
     L.push("  Overhead is open sky with weather in it, and daylight falls from it onto everything");
     L.push("  in frame. This place is out of doors and everything in it is built for weather.");
   } else {
-    L.push(`Materials and period detail: ${voice.walls}. Overhead: ${voice.ceiling}.`);
+    L.push(`Materials/textures: ${voice.walls}. Overhead: ${voice.ceiling}.`);
     L.push(`  Underfoot: ${voice.floor}.`);
     if (voice.id === "bedchamber") L.push(`  Hangings: ${hangingsFor(loc)}.`);
   }
   /* ── the windows, and the heraldry ration ── */
   for (const line of windowLines(voice, windows, name, SURFACE)) L.push(line);
-  L.push("Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm");
+  L.push("Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm");
   L.push("  browns, cool ambient light, gentle natural falloff.");
   if (out) {
-    L.push(`Constraints: the ${name} is completely empty of people, animals, carts, garden furniture,`);
-    L.push("  tubs, statuary and loose props; its planting is low and kept, and nothing grown crosses");
-    L.push("  the wall plane.");
+    L.push(`Constraints: the ${name} is completely empty. Nobody is in it and no animal is in it;`);
+    L.push("  it holds no cart and no garden furniture, and it carries no tub and no statuary. Its");
+    L.push("  planting is low and kept, and nothing grown crosses the wall plane.");
   } else {
-    L.push(`Constraints: the ${name} is completely empty of furniture, loose props, people, animals`);
-    L.push("  and clutter.");
+    L.push(`Constraints: the ${name} is completely empty. No furniture stands in it and nobody is in it;`);
+    L.push("  there are no loose props and no animals.");
   }
-  L.push("  Image 2 contains grid lines, a large letter and annotation text; these are");
-  L.push(`  diagram marks identifying the ${out ? "view" : "wall"}, and the painted picture contains no line, letter,`);
-  L.push("  word, number, label, watermark or border of any kind.");
+  /* [row 34] POSITIVE SUBSTITUTION, not a list of prohibitions. The old three
+   * lines were a comma-tag enumeration AND a suppression, which are the two
+   * shapes the model-specific research warns about — the second because
+   * forbidden text tends to re-express itself as objects. The outdoor form
+   * names no interior fabric, because row 29's veto is a clause and it applies
+   * to a rule as much as to a wall. */
+  L.push(`  Image 2 is a layout drawing and its marks are instructions rather than things to paint.`);
+  for (const line of positiveNoText({ voice })) L.push(line);
   return L.join("\n") + "\n";
 }
 
@@ -2093,6 +2104,11 @@ Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`. Generate, sa
 /* THE ENTRY POINT LIVES AT THE END OF THE FILE, and has to: `main` reads the
  * packet tables below it, and a module-eval-time call placed above them hits
  * their temporal dead zone. */
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+/* `process.argv[1]` IS UNDEFINED under `node -e`, and `pathToFileURL(undefined)`
+ * throws — so importing this module from an eval context crashed on load rather
+ * than exporting anything. Latent until something imported it that way; found
+ * doing exactly that while checking the row-34 fold. The guard is the same shape
+ * `emit-evolution.mjs` already uses. */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((e) => { console.error(e); process.exit(1); });
 }

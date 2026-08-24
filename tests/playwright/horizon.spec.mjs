@@ -187,8 +187,16 @@ for e in MAN["entries"]:
       const { rects } = scaffoldRects(PLAN, loc, f, meta);
       const text = manorPrompt(PLAN, key, meta, rects);
       const row = Math.round(meta.horizon_y * meta.image_h_px);
+      /* [row 34] THE ROW IS CHECKED, NOT THE SENTENCE. Row 32 earned this clause
+       * with the words "the left and right returns run back to meet each other
+       * at row N"; row 34's fold replaced that whole section with the register
+       * three generations recommended, which states the same row as "Carried on,
+       * all four of those meet at column X, row N" — and on an OPEN facing, which
+       * has no returns to converge, as "Lines running away from you converge at
+       * column X, row N". The clause is that the eye-line row reaches the
+       * generator on every wall; the phrasing was never the clause. */
       expect(text, `${key}'s prompt never says where the returns converge`)
-        .toContain(`meet each other at row ${row}`);
+        .toMatch(new RegExp(`(meet|converge)[^.]*\\brow ${row}\\b`));
     }
   });
 

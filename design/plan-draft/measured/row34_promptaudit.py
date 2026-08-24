@@ -147,8 +147,8 @@ def audit(path, carrier_counts=None):
         findings.append("carries %r, a community-reported trigger for pastiche and for text "
                         "artefacts [row34:prompt.style_of_trigger]" % m.group(0))
     nouns = count_nouns(text)
-    for n, c in sorted(nouns.items()):
-        licensed = 1 + 2 * (carrier_counts or {}).get(n, 0)
+    for n, c in sorted(nouns.items() if carrier_counts is not None else []):
+        licensed = 1 + 2 * carrier_counts.get(n, 0)
         if c > licensed:
             findings.append("says %r %d times against a licence of %d for this wall (one "
                             "mention plus two per carrier the plan actually draws); repeating a "
@@ -159,7 +159,9 @@ def audit(path, carrier_counts=None):
         findings.append("has %d comma-tag line(s) with no finite verb, the shape that induces "
                         "grid and collage artefacts where prose does not; first is %r "
                         "[row34:prompt.tag_style_prose]" % (len(tags), tags[0][:70]))
-    return findings, {"nouns": nouns, "tag_lines": len(tags), "chars": len(text)}
+    return findings, {"nouns": nouns, "tag_lines": len(tags), "chars": len(text),
+                      "noun_rule": "applied" if carrier_counts is not None else
+                                   "abstained - this wall's carrier licence is not knowable here"}
 
 
 def carriers_for(path):
@@ -180,7 +182,15 @@ def carriers_for(path):
             for s in w.get("stamped", []):
                 out[s["kind"]] = out.get(s["kind"], 0) + 1
             return out
-    return {}
+    # UNKNOWN, AND IT SAYS SO RATHER THAN GUESSING ZERO. A facing's carriers are
+    # DERIVED (`plan-projection.facingCarriers`), not stored on the room, so this
+    # file cannot compute them for a wall outside row 34's own manifests. The
+    # first version returned {} there, which read as "no carriers" and scored a
+    # five-window gallery against a licence of one — 38 of the manor's 88 prompts
+    # "failed" on a window count the plan itself asks for. A gate whose
+    # denominator is wrong is worse than no gate, so the noun rule ABSTAINS where
+    # it cannot know the licence, and the summary counts the abstentions.
+    return None
 
 
 def main(argv=None):
@@ -198,9 +208,11 @@ def main(argv=None):
                 continue
             files += [os.path.join(p, f) for f in sorted(os.listdir(p))
                       if f.startswith("row34-") and f.endswith(".prompt.txt")]
-    bad = 0
+    bad = abstained = 0
     for f in sorted(files):
         findings, facts = audit(f, carriers_for(f))
+        if facts["noun_rule"].startswith("abstained"):
+            abstained += 1
         rel = os.path.relpath(f, REPO)
         if findings:
             bad += 1
@@ -211,6 +223,9 @@ def main(argv=None):
             print("clean    %s  (%s)" % (rel, ", ".join(
                 "%s x%d" % (k, v) for k, v in sorted(facts["nouns"].items())) or "no countable noun"))
     print("\n%d of %d prompt(s) carry findings." % (bad, len(files)))
+    if abstained:
+        print("%d of them had the noun rule ABSTAIN: their carrier licence is not knowable "
+              "from this file, and a wrong denominator is worse than no gate." % abstained)
     return 1 if (bad and a.strict) else 0
 
 
