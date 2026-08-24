@@ -1394,6 +1394,24 @@
    * doorway BEYOND this one is drawn as what it is at that distance — an
    * unlit opening — rather than as a second room seen through two holes. */
   var THROUGH_DIM = 0.42;
+  /* [ROW 25] How much of the destination's own edge the extension's colour is
+   * averaged over. One row is what the stretch used, and one row of a painting
+   * is as much an accident of where the crop fell as it is a fact about the
+   * room; sixteen is a band wide enough to be the room's colour there and
+   * narrow enough to still be the EDGE's. */
+  var EDGE_BAND = 16;
+
+  /* The mean colour of a rectangle of the destination's own frame, as a fill
+   * string. One read per band — never the whole frame per opening. */
+  function bandMean(srcCtx, x, y, w, h) {
+    var d;
+    try { d = srcCtx.getImageData(x, y, Math.max(1, w), Math.max(1, h)).data; }
+    catch (err) { return "rgb(0,0,0)"; }
+    var r = 0, g = 0, b = 0, n = d.length / 4;
+    for (var i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    if (!n) return "rgb(0,0,0)";
+    return "rgb(" + Math.round(r / n) + "," + Math.round(g / n) + "," + Math.round(b / n) + ")";
+  }
 
   function drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options) {
     /* A SHUT DOOR SHOWS NO ROOM. The leaf is a sprite with its own alpha and
@@ -1482,19 +1500,57 @@
     /* [F6] THE CORNERS TOO. Four edge strips fill a CROSS, not a rectangle:
      * the four corner regions between them stayed void, and the void grows
      * with distance — 1.6 % of an opening on a facing the demo does not ship,
-     * 53 % of it with the far room 40 m away. Each corner is the destination's
-     * own corner pixel stretched, which is what clamping to an edge means in
-     * two directions at once. */
+     * 53 % of it with the far room 40 m away.
+     *
+     * [ROW 25] AND WHAT FILLS THEM CLAIMS COLOUR, NOT DETAIL. Every one of
+     * these regions used to be a single row or column of the destination
+     * STRETCHED across it, and on this manor that is most of what a player sees
+     * through an opening: `hall/N`'s 476 × 953 doorway is 9.6 % destination and
+     * the rest horizontal bands of smeared brown, `entrance_approach/N`'s mouth
+     * 16.1 % with two 608 × 368 blocks each derived from one pixel, and three
+     * doors are at ZERO — a room made entirely of one stretched pixel. A
+     * picture that invents structure nobody drew is the [AI] appearance the
+     * flip test exists to catch.
+     *
+     * So the extension is a FLAT FILL of the destination's own edge band on
+     * that side (its outer `EDGE_BAND` px, averaged), and each corner the mean
+     * of the destination's own corner block. What it asserts is one fact — the
+     * room beyond continues in this colour — which is true of a camera's crop
+     * of a real room, and nothing whatever about its structure. Where the
+     * destination's frame does not reach the opening AT ALL there is no edge to
+     * continue, so the claim weakens accordingly and the whole opening takes
+     * the mean of the destination's WHOLE frame: a room of this colour is
+     * there, and this picture cannot say more.
+     *
+     * The stretch is not restored by deleting this: what the extension exists
+     * to prevent is VOID in an opening the document holds a room behind, which
+     * is row 21's clause, and a colour claim keeps that promise while the
+     * stretched one broke a different one. The structural cure — a destination
+     * view derived at the OPENING's own axis rather than at the destination
+     * standpoint's, which is why coverage collapses to zero when two standpoints
+     * are far apart — is named in `design/architecture.md` and is not this
+     * row's. */
     var lft = Math.max(0, dx - a.x), rgt = Math.max(0, a.x + a.w - (dx + dw));
     var top = Math.max(0, dy - a.y), bot = Math.max(0, a.y + a.h - (dy + dh));
-    ctx.drawImage(off, 0, H - 1, W, 1, dx, dy + dh, dw, bot);
-    ctx.drawImage(off, 0, 0, W, 1, dx, a.y, dw, top);
-    ctx.drawImage(off, 0, 0, 1, H, a.x, dy, lft, dh);
-    ctx.drawImage(off, W - 1, 0, 1, H, dx + dw, dy, rgt, dh);
-    ctx.drawImage(off, 0, 0, 1, 1, a.x, a.y, lft, top);
-    ctx.drawImage(off, W - 1, 0, 1, 1, dx + dw, a.y, rgt, top);
-    ctx.drawImage(off, 0, H - 1, 1, 1, a.x, dy + dh, lft, bot);
-    ctx.drawImage(off, W - 1, H - 1, 1, 1, dx + dw, dy + dh, rgt, bot);
+    var oc = off.getContext("2d");
+    var covers = (dx < a.x + a.w) && (dx + dw > a.x) && (dy < a.y + a.h) && (dy + dh > a.y);
+    if (!covers) {
+      /* NOTHING OF THE DESTINATION'S FRAME IS IN THIS OPENING. Not a rare
+       * corner: `buttery_pantry/S`, `great_hall/N` and `kitchen/N` all look
+       * through a door at a part of the room their destination's own camera
+       * never saw. */
+      ctx.fillStyle = bandMean(oc, 0, 0, W, H);
+      ctx.fillRect(a.x, a.y, a.w, a.h);
+    } else {
+      if (bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, W, EDGE_BAND); ctx.fillRect(dx, dy + dh, dw, bot); }
+      if (top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, W, EDGE_BAND); ctx.fillRect(dx, a.y, dw, top); }
+      if (lft > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, H); ctx.fillRect(a.x, dy, lft, dh); }
+      if (rgt > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, H); ctx.fillRect(dx + dw, dy, rgt, dh); }
+      if (lft > 0 && top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, a.y, lft, top); }
+      if (rgt > 0 && top > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, a.y, rgt, top); }
+      if (lft > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, dy + dh, lft, bot); }
+      if (rgt > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, dy + dh, rgt, bot); }
+    }
     ctx.drawImage(off, dx, dy, dw, dh);
     /* Dimmed, because it is another room seen from outside it through a hole
      * in a wall — and because at full brightness the opening reads as a second

@@ -1486,10 +1486,54 @@
      * generally, because a chevron should not become a way of picking up a
      * teacup. Where nothing is behind it, which is the ordinary case on 84 of
      * the 88 facings, it turns exactly as before. */
+    /* [Row 25] AND IT NEVER GIVES UP ITS WHOLE SELF.
+     *
+     * The yield above is right about a doorway and wrong about a MOUTH. The
+     * entrance court's south side is a 20.4 m opening whose rectangle is
+     * 3095 px wide on a 1536 px frame: every pixel of both chevrons is inside a
+     * way through, so both of them walked the player out of the court over
+     * their whole area and neither turned — a room a pointer could not look
+     * around in. The yield's own justification is that the chrome is IN THE WAY
+     * of a target ("a person clicking a doorway they can plainly see"), and
+     * nothing is in the way of a mouth that fills the frame.
+     *
+     * So the test is the button, not the target: if some part of the chevron is
+     * over no way through at all, the part that IS over one yields and the rest
+     * still turns — which is every case round four found, the great hall's
+     * garden door at 26 % of a phone chevron included. If the ways through
+     * cover the button entirely, the chevron keeps its own meaning, because the
+     * alternative is a facing with no pointer turn on it.
+     *
+     * Sampled rather than solved: a way through may be a rectangle or a
+     * flight's own rings, and a coverage test that only knew rectangles would
+     * be a second answer to "what is inside a way through". */
+    function chevronFullyCovered(el) {
+      var box = el.getBoundingClientRect();
+      var r = scene.getBoundingClientRect();
+      if (!(r.width > 0 && r.height > 0)) return false;
+      var list;
+      try { list = apertureList(); } catch (err) { return false; }
+      if (!list.length) return false;
+      for (var iy = 0; iy <= 6; iy++) {
+        for (var ix = 0; ix <= 6; ix++) {
+          var cx = box.left + (box.width * ix) / 6;
+          var cy = box.top + (box.height * iy) / 6;
+          var p = { x: ((cx - r.left) * scene.width) / r.width,
+            y: ((cy - r.top) * scene.height) / r.height };
+          var covered = false;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].exit && apertureHolds(list[i], p.x, p.y, 0)) { covered = true; break; }
+          }
+          if (!covered) return false;
+        }
+      }
+      return true;
+    }
+
     function turnOrGoThrough(dir, e) {
       var ap = null;
       try { ap = apertureAt(canvasPoint(e)); } catch (err) { ap = null; }
-      if (ap && ap.exit) { walkThrough(ap); return; }
+      if (ap && ap.exit && !chevronFullyCovered(e.currentTarget)) { walkThrough(ap); return; }
       dispatch({ type: "turn", dir: dir });
     }
     document.getElementById("chevron-left").addEventListener("click", function (e) {
