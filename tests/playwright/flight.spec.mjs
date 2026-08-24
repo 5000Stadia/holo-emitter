@@ -484,11 +484,73 @@ test.describe("the ways through, said apart", () => {
 /* ------------------------------------------------------------------ 5 */
 
 test.describe("the content-gap grant", () => {
-  const freshState = () => JSON.parse(readFileSync(STATE, "utf8"));
+  const liveState = () => JSON.parse(readFileSync(STATE, "utf8"));
+
+  /**
+   * The moment the grant decided in, rebuilt from the grant's own record.
+   *
+   * The grant has already run against the live file — that is what put nine
+   * re-ask packets on disk — and the re-ask it produced is now the newest
+   * prompt for those walls, so the gap it found is closed and asking again
+   * correctly returns nothing. Rerunning it here would therefore pass
+   * vacuously. Two things have to be put back, and the record keeps both: the
+   * status each wall was moved FROM, and the exact prompt file the decision was
+   * diffed against. A record that could not reconstruct its own decision would
+   * be an audit trail nobody can read backwards, which is precisely what
+   * `_once_only` is supposed to make possible — so rebuilding it here is a
+   * check on the record as much as on the tool.
+   */
+  const preGrant = () => {
+    const state = liveState();
+    const spent = {};
+    let undone = 0;
+    for (const [key, w] of Object.entries(state.walls)) {
+      const g = w[GRANTS_KEY];
+      if (!g) continue;
+      for (const rec of Object.values(g)) {
+        w.status = rec.prior_status;
+        expect(rec.spent_prompt, `${key}'s grant does not name the prompt it was diffed against`)
+          .toBeTruthy();
+        spent[key] = join(repoRoot, rec.spent_prompt);
+      }
+      delete w[GRANTS_KEY];
+      undone++;
+    }
+    expect(undone, "the live run state carries no content-gap grant, so nothing here is about a real run")
+      .toBeGreaterThan(0);
+    return {
+      state,
+      opts: {
+        plan: PLAN,
+        spentPrompt: (key) => spent[key] || spentPromptPath(DEFAULT_OUT, key)
+      }
+    };
+  };
+
+  test("the live run state carries the grant, and the tool will not give a second", () => {
+    /* Once-only against the FILE, not against a copy: the tool has run, and
+       running it again must find nothing left to give. */
+    const live = liveState();
+    const granted = Object.entries(live.walls).filter(([, w]) => w[GRANTS_KEY]);
+    expect(granted.length, "the grant has not been applied to the run state").toBeGreaterThan(0);
+    for (const [key, w] of granted) {
+      for (const [reason, rec] of Object.entries(w[GRANTS_KEY])) {
+        expect(REASONS[reason], `${key} carries a grant under an unknown reason ${reason}`).toBeTruthy();
+        expect(rec.granted).toBe(1);
+        expect(rec.gained_lines.length,
+          `${key} was granted with nothing gained`).toBeGreaterThan(0);
+        expect(rec.emitter_commit, `${key}'s grant does not name the emitter it is testing`).toBeTruthy();
+        expect(rec.prior_status, `${key}'s grant does not record what it moved from`).toBeTruthy();
+      }
+      expect(w.status, `${key} was granted and is not queued for a re-ask`).toBe("retry");
+    }
+    expect(eligible(live, { plan: PLAN }).take,
+      "the grant would hand out a second ask on a state it has already granted").toEqual([]);
+  });
 
   test("grants exactly the walls whose ask was missing the thing they were refused for", () => {
-    const state = freshState();
-    const { take, skip } = eligible(state, { plan: PLAN });
+    const { state, opts } = preGrant();
+    const { take, skip } = eligible(state, opts);
     expect(take.length, "the grant finds nothing to grant").toBeGreaterThan(0);
     for (const t of take) {
       const w = state.walls[t.key];
@@ -525,14 +587,14 @@ test.describe("the content-gap grant", () => {
   });
 
   test("is once-only per wall per reason", () => {
-    const state = freshState();
-    const first = grant(state, { plan: PLAN, at: "2026-08-24T00:00:00.000Z" });
+    const { state, opts } = preGrant();
+    const first = grant(state, { ...opts, at: "2026-08-24T00:00:00.000Z" });
     expect(first.take.length).toBeGreaterThan(0);
     for (const t of first.take) {
       expect(state.walls[t.key][GRANTS_KEY][t.reason].granted).toBe(1);
       expect(state.walls[t.key].status).toBe("retry");
     }
-    const second = grant(state, { plan: PLAN, at: "2026-08-25T00:00:00.000Z" });
+    const second = grant(state, { ...opts, at: "2026-08-25T00:00:00.000Z" });
     expect(second.take, "a second run granted the same walls again").toEqual([]);
     for (const t of first.take) {
       const why = second.skip.find((s) => s.key === t.key).why;
@@ -544,7 +606,7 @@ test.describe("the content-gap grant", () => {
   });
 
   test("refuses a wall whose ask already said the thing", () => {
-    const state = freshState();
+    const state = liveState();
     const { skip } = eligible(state, { plan: PLAN });
     const already = skip.filter((s) => /nothing has been gained/.test(s.why));
     /* Two door-refused walls were already re-asked under the unlit rule and
@@ -564,7 +626,7 @@ test.describe("the content-gap grant", () => {
     /* The gap is PROVED, not asserted: if `manorPrompt` stopped composing the
        Stairs paragraph, this grant would stop finding flight walls rather than
        going on handing out asks for a fix that is no longer there. */
-    const state = freshState();
+    const state = liveState();
     const flightWalls = Object.entries(state.walls)
       .filter(([, w]) => REASONS.flight_never_named.refusal.test(w.correction || ""))
       .map(([k]) => k);

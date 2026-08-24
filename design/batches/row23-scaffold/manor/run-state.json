@@ -4,7 +4,7 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_hall/E": {
@@ -19,15 +19,35 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_hall/W": {
       "attempts": 4,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
+          "gained_lines": [
+            "  The left-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 464 and column 558. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.",
+            "  The right-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 932 and column 1025. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/great_hall-W/retry-3/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 4,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "study/S": {
       "attempts": 4,
@@ -48,28 +68,60 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "back_stair/S": {
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "back_stair/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
       "hold_family": "promotion-refused",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is l",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is l",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, carrying a person 2.80 m up to the storey above.",
+            "    10 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward you out of the picture, the steps further up standing wider and further apart than the ones behind them.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 564",
+            "    and rows 0 to 1024.",
+            "    The flight runs on past the left, top and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The surface overhead is open where the flight climbs through it. There is a stairwell",
+            "      cut in it directly over the flight, and nothing is drawn closing that opening.",
+            "    The space the flight climbs into, beyond its topmost step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "hall/N": {
       "attempts": 2,
       "status": "held",
       "candidate": "backdrops/source/passage-N/row23-77c49aa1.png",
-      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
+      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame — standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
       "hold_family": "standpoint-out-of-frame"
     },
     "hall/E": {
@@ -84,7 +136,7 @@
       "attempts": 2,
       "status": "held",
       "candidate": "backdrops/source/passage-S/row23-5b48e9f7.png",
-      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
+      "correction": "no roll of this facing can be measured: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame — standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
       "hold_family": "standpoint-out-of-frame"
     },
     "hall/W": {
@@ -99,7 +151,7 @@
       "attempts": 2,
       "status": "held",
       "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: kitchen/N: the way through the painting shows for \"op14\" is 68 px \u2014 0.41\u00d7 the 165.9 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (165.9 px/m; its ruler reads 16",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: kitchen/N: the way through the painting shows for \"op14\" is 68 px — 0.41× the 165.9 px blueprint §11's 1.00 m opening spans at this wall's corner scale (165.9 px/m; its ruler reads 16",
       "hold_family": "promotion-refused"
     },
     "kitchen/E": {
@@ -118,7 +170,7 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "buttery_pantry/N": {
@@ -161,13 +213,13 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/servants_hall-S/row23-aa3b7fd3.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 56.1, which puts the viewer's eye 4.141 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 56.1, which puts the viewer's eye 4.141 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "servants_hall/W": {
       "attempts": 5,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/servants_hall-W/row23-ee63b93c.png",
       "hold_family": "unfitted-horizon"
     },
@@ -199,35 +251,65 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "great_stair_hall/E": {
       "attempts": 4,
       "status": "promoted",
       "candidate": "backdrops/source/great_stair_hall-E/row23-5800e5f1.png",
-      "correction": "the left and right returns of this wall converge at y 104.0, which puts the viewer's eye 4.117 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "the left and right returns of this wall converge at y 104.0, which puts the viewer's eye 4.117 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_stair_hall/S": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "great_stair_hall/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is l",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is l",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, carrying a person 2.80 m up to the storey above.",
+            "    18 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the right of the picture, so the flight reads as a stair going up to the right.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 262 to 1379",
+            "    and rows 150 to 801.",
+            "    The surface overhead is open where the flight climbs through it. There is a stairwell",
+            "      cut in it directly over the flight, and nothing is drawn closing that opening.",
+            "    The space the flight climbs into, beyond its topmost step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/great_stair_hall-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "library/N": {
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/library-N/row23-3eb92ee4.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 628.8, which puts the viewer's eye 0.657 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 628.8, which puts the viewer's eye 0.657 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "library/E": {
@@ -239,7 +321,7 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: library/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player would",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: library/S: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player would",
       "hold_family": "promotion-refused"
     },
     "library/W": {
@@ -251,19 +333,19 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/garden_room-N/row23-88dcb306.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 154.0, which puts the viewer's eye 2.309 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 154.0, which puts the viewer's eye 2.309 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "garden_room/E": {
       "attempts": 5,
       "status": "promoted",
       "candidate": "backdrops/source/garden_room-E/row23-78bced76.png",
-      "answered_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them."
+      "answered_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them."
     },
     "garden_room/S": {
       "attempts": 5,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
       "hold_family": "unfitted-horizon"
     },
@@ -278,15 +360,34 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "entrance_court/E": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/entrance_court-E/row23-19d8f9ba.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+          "gained_lines": [
+            "  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/entrance_court-E/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "entrance_court/S": {
       "attempts": 4,
@@ -300,7 +401,7 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "privy_garden/N": {
@@ -312,7 +413,7 @@
     "privy_garden/E": {
       "attempts": 5,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
       "hold_family": "unfitted-horizon"
     },
@@ -320,21 +421,21 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/privy_garden-S/row23-506337da.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "privy_garden/W": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
       "hold_family": "promotion-refused"
     },
     "entrance_approach/N": {
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "entrance_approach/E": {
@@ -371,7 +472,7 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/solar-S/row23-0d788619.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "solar/W": {
@@ -388,7 +489,7 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/muniment_room-E/row23-60d54205.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "muniment_room/S": {
@@ -412,28 +513,87 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "back_stair_head/S": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, dropping 2.80 m to the storey below.",
+            "    4 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the left of the picture, so the flight reads as a stair going up to the left.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 1536",
+            "    and rows 877 to 1024.",
+            "    The flight runs on past the left, right and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair_head-S/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "back_stair_head/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, dropping 2.80 m to the storey below.",
+            "    None of its steps are in the picture: it falls away below the bottom edge. What this",
+            "    view shows of it is the opening in the floor it drops through.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 564",
+            "    and rows 859 to 1024.",
+            "    The flight runs on past the left and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair_head-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "long_gallery/N": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/long_gallery-N/row23-59887309.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "long_gallery/E": {
@@ -447,20 +607,40 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/long_gallery-S/row23-1d39131d.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "long_gallery/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 — a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+          "gained_lines": [
+            "  The left-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 531 and column 666. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.",
+            "  The right-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 1209 and column 1344. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/long_gallery-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "master_bedchamber/N": {
       "attempts": 5,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/master_bedchamber-N/row23-331b2816.png",
       "hold_family": "unfitted-horizon"
     },
@@ -473,7 +653,7 @@
       "attempts": 4,
       "status": "promoted",
       "candidate": "backdrops/source/master_bedchamber-S/row23-82cacbb3.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "master_bedchamber/W": {
@@ -483,10 +663,40 @@
     },
     "stair_landing/N": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/stair_landing-N/row23-ec82d83f.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, dropping 2.80 m to the storey below.",
+            "    5 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing away from you into the picture, the steps further up standing narrower and closer together than the near ones.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 317",
+            "    and rows 768 to 1024.",
+            "    The flight runs on past the left and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/stair_landing-N/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "stair_landing/E": {
       "attempts": 2,
@@ -499,35 +709,65 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "stair_landing/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
-      "hold_family": "promotion-refused"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left",
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` — the same projection the row-32 refusal reads — and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, dropping 2.80 m to the storey below.",
+            "    11 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the right of the picture, so the flight reads as a stair going up to the right.",
+            "    Where it stands, as picture coordinates — column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 262 to 1379",
+            "    and rows 728 to 1024.",
+            "    The flight runs on past the bottom edge of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow — no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/stair_landing-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "guest_chamber/N": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/guest_chamber-N/row23-96eb20b1.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "guest_chamber/E": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "guest_chamber/S": {
       "attempts": 4,
       "status": "promoted",
       "candidate": "backdrops/source/guest_chamber-S/row23-a64f40f9.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "guest_chamber/W": {
@@ -538,7 +778,7 @@
     "closet_chamber/N": {
       "attempts": 5,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/closet_chamber-N/row23-0f623c34.png",
       "hold_family": "unfitted-horizon"
     },

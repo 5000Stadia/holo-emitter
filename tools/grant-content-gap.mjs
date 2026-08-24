@@ -125,8 +125,17 @@ export function spentPromptPath(outDir, key) {
   return existsSync(first) ? first : null;
 }
 
-/** Which walls each reason may touch, and the reason for every wall it may not. */
-export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null } = {}) {
+/**
+ * Which walls each reason may touch, and the reason for every wall it may not.
+ *
+ * `spentPrompt` overrides where the ask that was actually sent is read from.
+ * It exists because this decision is only reproducible while the ask it was
+ * made against is still the newest one on disk: emit the re-ask and the gap
+ * closes, correctly and permanently. The grant's own record keeps the path it
+ * diffed, so a reader — or a test — can put the tool back in front of the state
+ * it decided on. Nothing in production passes it.
+ */
+export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, spentPrompt = null } = {}) {
   const take = [], skip = [];
   for (const [key, w] of Object.entries(state.walls || {})) {
     if (w.status === "promoted") { skip.push({ key, why: "promoted since the hold" }); continue; }
@@ -146,7 +155,7 @@ export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null } = {}
       skip.push({ key, why: "a promoted meta is already on disk for this facing" });
       continue;
     }
-    const sp = spentPromptPath(outDir, key);
+    const sp = spentPrompt ? spentPrompt(key) : spentPromptPath(outDir, key);
     if (!sp) {
       skip.push({ key, why: "no prompt on disk for this wall, so there is no ask to find a gap in" });
       continue;
