@@ -704,6 +704,66 @@ is recorded as one.
 
 ---
 
+## 9a. The endgame — the table, and the labelled judgment
+
+**The row produced three screens and no confirmation generation (§6b), so nothing here is crowned by
+a number.** What follows is row 23's sanctioned fallback: the table, the separation statistics beside
+it, and a recommendation made in the open with its basis named — *"recommended recipe — the
+Navigator's judgment, AWAITING KABE"*, never *"the winner"*.
+
+### The measured table, generations 1 and 2 (52 of the 68 rolls)
+
+| arm | what it is | gen 1 | gen 2 | pooled | Fisher p vs its own control |
+|---|---|---|---|---|---|
+| `v6` / `v6A` | verbal camera construction | 3/4 | 3/4 | **6/8** | 0.243 · 0.500 |
+| `v2` | exhaustive standalone numeric text | 3/4 | — | 3/4 | 0.243 |
+| `v1` | the same text with no layout image at all | 2/4 | — | 2/4 | 0.500 |
+| `v2xv6m2` | exhaustive text with the scaffold kept primary | — | 2/4 | 2/4 | 0.757 |
+| `v3` | **the control** (production) | 1/4 | 2/4 | 3/8 | — |
+| `v2A` | exhaustive text amplified with number tables | — | 1/4 | 1/4 | 0.929 |
+| `v2xv6m4` | production carriers, verbal camera, image demoted | — | 1/4 | 1/4 | 0.929 |
+| `v5` | scaffold redrawn as edge line art | 1/4 | — | 1/4 | 0.786 |
+| `v4` | scaffold primary, three sentences | 0/4 | 1/4 | **1/8** | 1.000 · 0.929 |
+| `v7` | **the ruled division** — image orients, text articulates, bound | 0/4 | — | **0/4** | 1.000 |
+
+**Every cell of this table is formally null.** The best Fisher p anywhere in it is 0.243 against a
+Holm step of 0.0167 — an order of magnitude short. Nothing separated, twice, exactly as
+`min_detectable_effect` said before either generation was dispatched.
+
+### What the Navigator reads in it, labelled as judgment
+
+1. **The verbal-camera family is the only thing that led twice.** 6 of 8, against a control at 3 of
+   8. That is the recommendation's whole basis and it is a pattern, not a result.
+2. **Amplifying number tables went backwards** — `v2` 3/4 dropping to `v2A` 1/4 when the junction
+   table and the metre grid were added. Consistent with the research finding that measurements have
+   "little effect" while framing language does not, and consistent with nothing else we ran.
+3. **The image-heavy end is the weakest.** `v4` at 1 of 8 and `v5` at 1 of 4. The ~1024 px reference
+   downsampling independently predicts exactly this, and it is the one place where an external
+   finding and our own numbers point the same way without being fitted to each other.
+4. **The Captain's bound cross-referenced arm placed last, at 0 of 4** — and its unbound twin `v2`
+   placed near the top at 3 of 4, on the same precision location. Binding the words to the image
+   element by element did worse than running them beside it. This is reported as plainly as a win
+   would have been (§0a), and it is one generation at n = 4: a direction, not a verdict, and the
+   arm the Captain's instinct pointed at (*text carries the anchored detail*) is the half that WON —
+   what lost was the binding, not the division of labour.
+
+### The recommendation, conditional on generation 3
+
+**If generation 3 shows no arm beating `g1` under the standing discipline**, then per §6c prompting
+is exhausted, and the recommendation is: **fold the verbal-camera construction into `manorPrompt` in
+its cleaned generation-3 form (`g1`), and stop asking.** The residual is arithmetic — at the
+family's measured 0.75 the retry loop clears 95 % of a hold family in **3 asks** — and what remains
+goes to the Captain's look, not to a fourth generation.
+
+**If generation 3 does separate**, the separating register folds instead, and the same fold-back
+conditions in §7 apply.
+
+**What would change this judgment:** any generation-3 cell clearing Holm; or `g3`/`g4` beating `g1`
+by a margin the discipline admits, which would move the recommendation from "verbal camera with
+figures" to "finished-appearance language", the row's sharpest single finding if it happens.
+
+---
+
 ## 10. What does not move
 
 - **No renderer change.** `src/renderer.js`, `src/groundplane.js`, `src/placeholders.js`,
