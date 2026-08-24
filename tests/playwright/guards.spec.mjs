@@ -36,7 +36,7 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { createRequire } from "node:module";
-import { validate } from "../../tools/validate-fixtures.mjs";
+import { validate, TOLERANCE_RULING, DECLARED_CAMERA_FIELDS } from "../../tools/validate-fixtures.mjs";
 import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
   PLAN_CANVAS_W as CANVAS_W, PLAN_CANVAS_H as CANVAS_H } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
@@ -299,6 +299,19 @@ export const MECHANISMS = [
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
+  /* [Row 32 — the Captain's suspect-painting tolerance ruling, 2026-08-24] The
+     declared-camera meta variant. Five clauses and not one of them touches the
+     band above: a suspect wall is a wall whose RULER passed and whose
+     perspective disagreed, so the family is separated by a vocabulary the gate
+     knows rather than by a tolerance the gate lost. What they hold is that the
+     record cannot lie about where its horizon came from, cannot wear the
+     suspect flag without having taken the path, and cannot claim the declared
+     licence over a field the picture was actually judged on. */
+  "meta.camera_source",
+  "meta.declared_needs_suspect",
+  "meta.declared_needs_ruling",
+  "meta.declared_fields_claim",
+  "meta.suspect_needs_declared",
   "plan.standpoint_source",
   "plan.standpoint_branch",
   "plan.standpoint_stands_back",
@@ -607,6 +620,49 @@ const DOCUMENT_CASES = {
   "meta.one_lens_measured": () => tokensFromMetas((m) => {
     m["hall/S"].measured = true;
     m["hall/S"].px_per_m_at_wall = 1120 / m["hall/S"].camera_wall_m;   // a 1120 px lens
+  }),
+  /* [ROW 32 — the Captain's suspect-painting tolerance ruling] THE DECLARED-
+     CAMERA META VARIANT. Its whole point is that the gate learns the shape
+     KNOWINGLY rather than by any measured clause going quiet, so each of these
+     is a way the record could lie about where its horizon came from. The
+     discrimination that makes them mean anything: `declaredLike` with nothing
+     spoiled trips nothing, which the case below asserts before the rest. */
+  /* A THIRD PLACE A CAMERA COULD HAVE COME FROM, which there is not. Doctored
+     onto a plain meta rather than a declared one: a bad token also makes the
+     three declared fields illegitimate, so a `declaredLike` construction here
+     would trip `meta.suspect_needs_declared` beside it and isolate nothing. */
+  "meta.camera_source": () => tokensFromMetas((m) => {
+    m["study/S"].camera_source = "estimated";
+  }),
+  "meta.declared_needs_suspect": () => tokensFromMetas((m) => {
+    m["study/S"] = declaredLike(m["study/S"], { suspect_perspective: false });
+  }),
+  "meta.declared_needs_ruling": () => tokensFromMetas((m) => {
+    /* A licence that names an authority nobody gave. The sentence is fluent
+       and cites nothing, which is exactly the shape an agent widening a gate
+       would produce. */
+    m["study/S"] = declaredLike(m["study/S"],
+      { tolerance_ruling: "the drift here is small enough to accept" });
+  }),
+  "meta.declared_fields_claim": () => everyArm("meta.declared_fields_claim", {
+    /* THE HORIZON IT FILLED, UNDECLARED — the meta then reads as a wall whose
+       horizon was fitted off its own painting, which is the one thing this
+       family could not do. */
+    "an omitted field": () => tokensFromMetas((m) => {
+      m["study/S"] = declaredLike(m["study/S"], { declared_fields: [] });
+    }),
+    /* AND THE SCALE, CLAIMED. This is the arm that matters most: naming
+       `px_per_m_at_wall` here would waive the ±8 % band by declaration, on a
+       family whose whole definition is that the band PASSED. */
+    "a field it did not fill": () => tokensFromMetas((m) => {
+      m["study/S"] = declaredLike(m["study/S"],
+        { declared_fields: ["horizon_y", "px_per_m_at_wall"] });
+    })
+  }),
+  "meta.suspect_needs_declared": () => everyArm("meta.suspect_needs_declared", {
+    "the flag alone": () => tokensFromMetas((m) => { m["study/S"].suspect_perspective = true; }),
+    "the ruling alone": () => tokensFromMetas((m) => { m["study/S"].tolerance_ruling = TOLERANCE_RULING; }),
+    "the licence alone": () => tokensFromMetas((m) => { m["study/S"].declared_fields = ["horizon_y"]; })
   }),
   "meta.image_h": () => tokensFromMetas((m) => { m["hall/S"].image_h_px = 900; }),
   "meta.segment_shape": () => tokensFromMetas((m) => segmented(m, [{ from_m: 2, to_m: 1, kind: "wall" }])),
@@ -942,6 +998,21 @@ function openLike(m) {
   return out;
 }
 
+/** [Row 32] The same facing, promoted under the Captain's tolerance ruling.
+ *
+ * A well-formed declared-camera meta, so that every case below can spoil ONE
+ * thing about it. `measured: true` and `camera_reference: "ruled"` together are
+ * what keep `meta.one_lens_measured` silent — a derived meta's focal IS the
+ * ruled 1024, so centring the band there admits it — and that is deliberate:
+ * the tolerance path does not waive the scale gate, so a construction for it
+ * has to sit inside the same band a real suspect wall sits inside. */
+function declaredLike(m, over = {}) {
+  return { ...m, measured: true, camera_reference: "ruled",
+    camera_source: "declared", suspect_perspective: true,
+    tolerance_ruling: TOLERANCE_RULING,
+    declared_fields: [...DECLARED_CAMERA_FIELDS], ...over };
+}
+
 /** hall/S, retyped as a part-built view carrying the given bands. */
 function segmented(m, bands) {
   m["hall/S"] = {
@@ -975,6 +1046,16 @@ test.describe("the clause ledger — document-side mechanisms", () => {
       expect(tripped, `${name} should be the only clause its doctored input trips`).toEqual([name]);
     });
   }
+
+  /* [Row 32] THE DISCRIMINATION THE FIVE DECLARED-CAMERA CASES STAND ON. Each
+     of them spoils one thing about a well-formed declared meta; without this,
+     every one of them could be green because the CONSTRUCTION trips its clause
+     rather than because the spoiling does. */
+  test("a well-formed declared-camera meta trips nothing", () => {
+    expect([...tokensFromMetas((m) => { m["study/S"] = declaredLike(m["study/S"]); })].sort(),
+      "a wall promoted under the tolerance ruling, honestly recorded, is not a finding")
+      .toEqual([]);
+  });
 
   test("and the shipped documents trip none of them", () => {
     /* [Row 21, round 3 — G4] EVERY shipped world, not the demo one. Two of the
