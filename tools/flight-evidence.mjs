@@ -204,11 +204,21 @@ function fillPoly(mask, w, h, ring) {
   }
 }
 
-/** A separable max-filter dilation by `r` — the ring is this minus the body. */
-function dilate(mask, w, h, r) {
+/**
+ * A separable max-filter dilation by `r` — the ring is this minus the body.
+ *
+ * Run over the body's own bounding box grown by `r`, and not over the frame:
+ * the naive form is 2·(2r+1) reads per pixel over 1536×1024, which is 180
+ * million and showed up on the row-33 clock as a promotion going from 0.05 s
+ * to nearly two. A flight occupies a corner of most frames, and outside the
+ * grown box there is nothing for a max filter to find.
+ */
+function dilate(mask, w, h, r, box) {
+  const x0 = Math.max(0, box.x0 - r), x1 = Math.min(w - 1, box.x1 + r);
+  const y0 = Math.max(0, box.y0 - r), y1 = Math.min(h - 1, box.y1 + r);
   const tmp = new Uint8Array(w * h), out = new Uint8Array(w * h);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
       let v = 0;
       for (let d = -r; d <= r && !v; d++) {
         const xx = x + d;
@@ -217,8 +227,8 @@ function dilate(mask, w, h, r) {
       tmp[y * w + x] = v;
     }
   }
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
       let v = 0;
       for (let d = -r; d <= r && !v; d++) {
         const yy = y + d;
@@ -268,11 +278,20 @@ export function paintedFlightReading(pngPath, flights) {
     return { read: false, why: "the projection puts no tread of this flight in the frame — what this view holds of it is the opening in the floor it drops through" };
   }
   let bodyN = 0;
-  for (let i = 0; i < mask.length; i++) if (mask[i]) bodyN++;
+  const box = { x0: w, x1: -1, y0: h, y1: -1 };
+  for (let i = 0; i < mask.length; i++) {
+    if (!mask[i]) continue;
+    bodyN++;
+    const x = i % w, y = (i - x) / w;
+    if (x < box.x0) box.x0 = x;
+    if (x > box.x1) box.x1 = x;
+    if (y < box.y0) box.y0 = y;
+    if (y > box.y1) box.y1 = y;
+  }
   if (bodyN < MIN_BODY_PX) {
     return { read: false, body_px: bodyN, why: `the flight's drawn body is ${bodyN} px of frame, under the ${MIN_BODY_PX} px this reading needs to be a reading` };
   }
-  const ring = dilate(mask, w, h, RING_PX);
+  const ring = dilate(mask, w, h, RING_PX, box);
   const g = sobelMag(img);
   let bodySum = 0, ringSum = 0, ringN = 0;
   for (let i = 0; i < mask.length; i++) {

@@ -3799,6 +3799,13 @@ carries no threshold; it also holds this project's only PNG decoder (8-bit non-i
 types 0/2/4/6, on `zlib.inflateSync`), written because `make-scaffold.mjs`'s *"the project carries no
 PNG library"* was still true.
 
+**What the reading costs, on the row-33 clock.** A promotion that attaches a flight runs 1.3–1.9 s
+against 0.05 s for one that does not: 0.6 s of PNG decode, 0.5 s of Sobel, the rest mask and ring.
+The ring's dilation is windowed to the body's own bounding box grown by 28 px — the naive form is
+180 million reads over a 1536×1024 frame and it was the whole of the difference on the walls whose
+flight sits in a corner. It is paid once per flight-bearing wall, against ~11.7 s for a snap and
+minutes for a generation, so it is stated rather than optimised further.
+
 **The refusals, split.** `row32:stair.painted_flight_lost` now means *re-ask: this roll never named a
 staircase*. `row39:stair.ask_unreadable` is its arm — a candidate whose prompt is gone, which is a
 hole in the record rather than a fact about the ask, the same pair `vista.ask_unreadable` makes with

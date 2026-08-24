@@ -34,6 +34,7 @@ import {
   facingCarriers, cameraFeetReport, WALL_MAP_11, CANVAS_W, FOCAL_PX, FOCAL_MM,
   DRAWING_EYE_M, stairsForFacing
 } from "../../tools/plan-projection.mjs";
+import { askTextFor } from "../../tools/flight-evidence.mjs";
 
 const require = createRequire(import.meta.url);
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
@@ -3122,6 +3123,36 @@ test.describe("the schematic is a derived render of the plan", () => {
     } finally {
       rmSync(tree, { recursive: true, force: true });
     }
+  });
+
+  /* [ROW 39] A SNAPPED FRAME'S ASK IS THE ROLL IT WAS RECTIFIED FROM.
+   *
+   * `row35_snap.py` writes `backdrops/source-snapped/<loc>-<F>/snapped.png` and
+   * nothing was ever asked for at that path, so a reader that only looks beside
+   * the candidate would refuse every snapped stair wall as unreadable — which
+   * is a true sentence about the wrong file. The snapped reading names its
+   * origin in its own `_snap` block, so the origin is FOLLOWED rather than
+   * guessed. `back_stair/W` is the live case: the row-35 pilot snapped it clean
+   * and the flight clause refused it, and this is the resolution that makes
+   * that refusal say which roll it is about.
+   */
+  test("a snapped candidate's ask is resolved through the roll it was rectified from", () => {
+    const readingPath = join(draftDir, "measured", "row35snap", "back_stair-W.json");
+    const reading = readJson(readingPath);
+    const snapped = "backdrops/source-snapped/back_stair-W/snapped.png";
+    expect(existsSync(join(repoRoot, snapped.replace(/\.png$/, ".prompt.txt"))),
+      "the snapped frame has an ask beside it after all, and this case is guarding nothing")
+      .toBe(false);
+    const ask = askTextFor(repoRoot, snapped, reading, join);
+    expect(ask.path, "the ask is the original roll's, named by the snap's own record")
+      .toBe("backdrops/source/back_stair-W/row23-4e3755a6.prompt.txt");
+    expect(ask.text, "and it is read").toBeTruthy();
+    expect(ask.via).toMatch(/rectified from/);
+    /* And a reading that names no origin returns null rather than an empty ask,
+       which is the difference between "nobody asked for a staircase" and "we
+       cannot tell": the promotion refuses those under two different clauses. */
+    expect(askTextFor(repoRoot, snapped, { ...reading, _snap: undefined }, join).text,
+      "a snapped candidate whose record names no origin resolves to nothing").toBe(null);
   });
 
   /** A tree the promotion can run in: its tools, the plan, the measurement

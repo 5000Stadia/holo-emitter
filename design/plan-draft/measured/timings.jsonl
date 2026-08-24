@@ -20928,3 +20928,5 @@
 {"ts_start":1787598823.96,"ts_end":1787598902.355,"step":"bake.backdrops","key":null,"detail":{"paintings":56,"out_bytes":36888234,"fp":"b87ce3ba","png_bytes":144739109,"jpeg_bytes":27657683}}
 {"ts_start":1787598921.936,"ts_end":1787598923.637,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"f5f5d034","out_bytes":419541,"facings":88,"locations":22}}
 {"ts_start":1787598925.583,"ts_end":1787598925.695,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787599921.37,"ts_end":1787599923.249,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":0,"refused":false}}
+{"ts_start":1787599965.996,"ts_end":1787599966.083,"step":"promote.backdrop","key":"back_stair/W","detail":{"candidate":"backdrops/source-snapped/back_stair-W/snapped.png","exit_code":1,"refused":true}}
