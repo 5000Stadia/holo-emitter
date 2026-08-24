@@ -1,10 +1,10 @@
 {
   "walls": {
     "great_hall/N": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
-      "correction": "the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_hall/E": {
@@ -15,10 +15,10 @@
       "hold_family": "camera-miss"
     },
     "great_hall/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
-      "correction": "the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_hall/W": {
@@ -43,17 +43,17 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "back_stair/E": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "back_stair/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
-      "correction": "the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "back_stair/W": {
@@ -86,7 +86,7 @@
       "hold_family": "standpoint-out-of-frame"
     },
     "hall/W": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "admitted-not-promoted",
       "candidate": "backdrops/source/passage-W/row23-fa262b87.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 118, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
@@ -113,10 +113,10 @@
       "candidate": "backdrops/source/kitchen-S/row23-7de99c6d.png"
     },
     "kitchen/W": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
-      "correction": "the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "buttery_pantry/N": {
@@ -156,10 +156,10 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "servants_hall/S": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/servants_hall-S/row23-1d562d3d.png",
-      "correction": "the left and right returns of this wall converge at y 611.4, which puts the viewer's eye 0.655 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/servants_hall-S/row23-aa3b7fd3.png",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 56.1, which puts the viewer's eye 4.141 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "servants_hall/W": {
@@ -194,24 +194,24 @@
       "candidate": "backdrops/source/dining_parlour-W/row23-e09cd1e4.png"
     },
     "great_stair_hall/N": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/great_stair_hall-N/row23-7f2d1ea8.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "great_stair_hall/E": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/great_stair_hall-E/row23-a34fb052.png",
+      "attempts": 4,
+      "status": "promoted",
+      "candidate": "backdrops/source/great_stair_hall-E/row23-5800e5f1.png",
       "correction": "the left and right returns of this wall converge at y 104.0, which puts the viewer's eye 4.117 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "great_stair_hall/S": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/great_stair_hall-S/row23-79d13231.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "great_stair_hall/W": {
@@ -222,10 +222,10 @@
       "hold_family": "promotion-refused"
     },
     "library/N": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/library-N/row23-d99e50f5.png",
-      "correction": "the left and right returns of this wall converge at y 614.1, which puts the viewer's eye 0.738 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/library-N/row23-3eb92ee4.png",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 628.8, which puts the viewer's eye 0.657 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "library/E": {
@@ -246,17 +246,17 @@
       "candidate": "backdrops/source/library-W/row23-68e2896a.png"
     },
     "garden_room/N": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/garden_room-N/row23-4ef9bb9b.png",
-      "correction": "the left and right returns of this wall converge at y 170.0, which puts the viewer's eye 2.340 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/garden_room-N/row23-88dcb306.png",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 154.0, which puts the viewer's eye 2.309 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "garden_room/E": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/garden_room-E/row23-f1ffa3c3.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "garden_room/S": {
@@ -274,11 +274,11 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "entrance_court/N": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/entrance_court-N/row23-8b1f489f.png",
-      "correction": "the left and right returns of this wall converge at y 132.0, which puts the viewer's eye 4.698 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "attempts": 4,
+      "status": "held",
+      "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "hold_family": "unfitted-horizon"
     },
     "entrance_court/E": {
       "attempts": 2,
@@ -294,10 +294,10 @@
       "hold_family": "unmeasurable-candidate"
     },
     "entrance_court/W": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "privy_garden/N": {
@@ -314,24 +314,24 @@
       "hold_family": "unfitted-horizon"
     },
     "privy_garden/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/privy_garden-S/row23-506337da.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "privy_garden/W": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/privy_garden-W/row23-bd4cd5c2.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "entrance_approach/N": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
-      "correction": "the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "entrance_approach/E": {
@@ -365,10 +365,10 @@
       "candidate": "backdrops/source/solar-E/row23-5e45b619.png"
     },
     "solar/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/solar-S/row23-0d788619.png",
-      "correction": "the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "solar/W": {
@@ -382,10 +382,10 @@
       "candidate": "backdrops/source/muniment_room-N/row23-46bf6894.png"
     },
     "muniment_room/E": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/muniment_room-E/row23-60d54205.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "muniment_room/S": {
@@ -406,10 +406,10 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "back_stair_head/E": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "back_stair_head/S": {
@@ -427,10 +427,10 @@
       "hold_family": "promotion-refused"
     },
     "long_gallery/N": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/long_gallery-N/row23-59887309.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "long_gallery/E": {
@@ -441,10 +441,10 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "long_gallery/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/long_gallery-S/row23-1d39131d.png",
-      "correction": "the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting"
     },
     "long_gallery/W": {
@@ -467,9 +467,9 @@
       "candidate": "backdrops/source/master_bedchamber-E/row23-e6cad361.png"
     },
     "master_bedchamber/S": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/master_bedchamber-S/row23-bf020879.png",
+      "attempts": 4,
+      "status": "promoted",
+      "candidate": "backdrops/source/master_bedchamber-S/row23-82cacbb3.png",
       "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
@@ -493,10 +493,10 @@
       "why": "art already in the store; this loop read it rather than remaking it"
     },
     "stair_landing/S": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/stair_landing-S/row23-8a4813ed.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "stair_landing/W": {
@@ -507,23 +507,23 @@
       "hold_family": "promotion-refused"
     },
     "guest_chamber/N": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/guest_chamber-N/row23-96eb20b1.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "guest_chamber/E": {
-      "attempts": 2,
-      "status": "retry",
+      "attempts": 4,
+      "status": "held",
       "candidate": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png",
-      "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },
     "guest_chamber/S": {
-      "attempts": 2,
-      "status": "retry",
-      "candidate": "backdrops/source/guest_chamber-S/row23-98f0d234.png",
+      "attempts": 4,
+      "status": "promoted",
+      "candidate": "backdrops/source/guest_chamber-S/row23-a64f40f9.png",
       "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon"
     },

@@ -1,0 +1,295 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 743,
+    "chair_rail_y_px": 557,
+    "dado_rail_above_floor_px": 186,
+    "capping_above_floor_px": 186
+  },
+  "_windows": {
+    "floor": [
+      711,
+      744
+    ],
+    "rail": [
+      552,
+      578
+    ],
+    "ceiling": [
+      211,
+      288
+    ],
+    "columns": [
+      [
+        29,
+        610
+      ],
+      [
+        781,
+        1506
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 610.13,
+      "asked_x1": 780.8,
+      "ruled_m": 1.0,
+      "window": [
+        439,
+        951
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 630..836 (38 px from the ask) and another admissible pair sits 650..844 (52 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 195.789,
+  "implied_focal_px": 1174.7,
+  "eye_height_m": 1.1078,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 630..836 (38 px from the ask) and another admissible pair sits 650..844 (52 px from the ask), which disagree by more than the 14 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 224,
+    "ceiling_candidates": [
+      {
+        "y": 225,
+        "strength": 22.32,
+        "horiz": 0.795,
+        "cv": 0.559
+      },
+      {
+        "y": 95,
+        "strength": 14.0,
+        "horiz": 0.706,
+        "cv": 0.851
+      },
+      {
+        "y": 112,
+        "strength": 12.1,
+        "horiz": 0.702,
+        "cv": 0.877
+      },
+      {
+        "y": 138,
+        "strength": 9.58,
+        "horiz": 0.742,
+        "cv": 0.788
+      },
+      {
+        "y": 166,
+        "strength": 7.78,
+        "horiz": 0.729,
+        "cv": 0.747
+      },
+      {
+        "y": 104,
+        "strength": 7.43,
+        "horiz": 0.755,
+        "cv": 0.852
+      },
+      {
+        "y": 35,
+        "strength": 6.71,
+        "horiz": 0.719,
+        "cv": 0.918
+      },
+      {
+        "y": 190,
+        "strength": 5.57,
+        "horiz": 0.723,
+        "cv": 0.735
+      },
+      {
+        "y": 276,
+        "strength": 5.46,
+        "horiz": 0.741,
+        "cv": 0.823
+      },
+      {
+        "y": 282,
+        "strength": 5.42,
+        "horiz": 0.733,
+        "cv": 0.838
+      },
+      {
+        "y": 248,
+        "strength": 5.35,
+        "horiz": 0.718,
+        "cv": 0.89
+      },
+      {
+        "y": 14,
+        "strength": 5.34,
+        "horiz": 0.716,
+        "cv": 0.889
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 224,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 94,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 111,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 137,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 165,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 103,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 34,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 189,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 275,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 281,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 247,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 13,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      }
+    ],
+    "corner_x0_px": 16,
+    "corner_x1_px": 1450,
+    "corner_evidence": {
+      "left_fit_r2": 0.0417,
+      "right_fit_r2": 0.4071,
+      "block_px": 16,
+      "excluded": [
+        [
+          610,
+          780
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 16.15,
+    "ramp": null,
+    "votes": {
+      "floor": {
+        "x": 1532,
+        "y": 467,
+        "edge_px": 26629
+      },
+      "ceiling": {
+        "x": 804,
+        "y": 598,
+        "edge_px": 14352
+      },
+      "side_walls": {
+        "x": 1324,
+        "y": 191,
+        "edge_px": 3221
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 462,
+      "key_dir_brightest_y": 596,
+      "key_tint": "#c88739",
+      "key_tint_patch": [
+        262,
+        662,
+        154,
+        216
+      ],
+      "key_tint_patch_mean_rgb": [
+        27.76,
+        18.73,
+        7.98
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8af8d",
+        "floor_bottom_strip": "#c8a57a",
+        "mid_wall_right": "#c8a473",
+        "mid_wall_left": "#c8a370",
+        "brightest_21x21_patch": "#c8bba8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        462,
+        596
+      ],
+      "sobel_bright_side_deg_whole_frame": 114.03,
+      "sobel_bright_side_deg_wall_band": 126.61,
+      "left_third_minus_right_third_luminance_whole_frame": 14.905,
+      "left_third_minus_right_third_luminance_wall_band": 14.763
+    },
+    "storey_height_m": 2.6508,
+    "implied_wall_width_m": 7.3242,
+    "eye_height_m": null,
+    "hold_family": "unfitted-horizon",
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: no pair of side-wall junctions could be fitted at all. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": 14.72,
+  "delta_eye_pct": -6.36,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "1b7dd463",
+  "candidate": "backdrops/source/kitchen-W/row23-1b7dd463.png"
+}

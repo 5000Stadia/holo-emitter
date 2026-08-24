@@ -1,0 +1,303 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 816,
+    "chair_rail_y_px": 601,
+    "dado_rail_above_floor_px": 215,
+    "capping_above_floor_px": 226
+  },
+  "_windows": {
+    "floor": [
+      798,
+      845
+    ],
+    "rail": [
+      565,
+      603
+    ],
+    "ceiling": [
+      65,
+      177
+    ],
+    "columns": [
+      [
+        167,
+        768
+      ],
+      [
+        1019,
+        1368
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 768,
+      "asked_x1": 1018.37,
+      "ruled_m": 1.0,
+      "window": [
+        518,
+        1268
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 725..1033 (29 px from the ask) and another admissible pair sits 541..760 (243 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 226.316,
+  "implied_focal_px": 925.6,
+  "eye_height_m": 1.281,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 725..1033 (29 px from the ask) and another admissible pair sits 541..760 (243 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 158,
+    "ceiling_candidates": [
+      {
+        "y": 89,
+        "strength": 39.3,
+        "horiz": 0.858,
+        "cv": 0.528
+      },
+      {
+        "y": 132,
+        "strength": 18.57,
+        "horiz": 0.862,
+        "cv": 0.616
+      },
+      {
+        "y": 109,
+        "strength": 18.01,
+        "horiz": 0.837,
+        "cv": 0.539
+      },
+      {
+        "y": 153,
+        "strength": 14.92,
+        "horiz": 0.75,
+        "cv": 0.654
+      },
+      {
+        "y": 159,
+        "strength": 12.83,
+        "horiz": 0.731,
+        "cv": 0.865
+      },
+      {
+        "y": 126,
+        "strength": 9.37,
+        "horiz": 0.734,
+        "cv": 0.815
+      },
+      {
+        "y": 96,
+        "strength": 8.95,
+        "horiz": 0.753,
+        "cv": 0.689
+      },
+      {
+        "y": 103,
+        "strength": 5.46,
+        "horiz": 0.704,
+        "cv": 1.215
+      },
+      {
+        "y": 18,
+        "strength": 5.0,
+        "horiz": 0.734,
+        "cv": 0.747
+      },
+      {
+        "y": 25,
+        "strength": 4.92,
+        "horiz": 0.729,
+        "cv": 0.777
+      },
+      {
+        "y": 31,
+        "strength": 4.77,
+        "horiz": 0.749,
+        "cv": 0.764
+      },
+      {
+        "y": 10,
+        "strength": 4.77,
+        "horiz": 0.732,
+        "cv": 0.784
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 88,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 131,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 108,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 152,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 158,
+        "admissible": true,
+        "sigma_y_px": 1.03,
+        "horizon_y_px": 553.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 125,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 95,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 102,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 24,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 30,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 553.2,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 168,
+    "corner_x1_px": 1380,
+    "corner_evidence": {
+      "left_fit_r2": 0.6578,
+      "right_fit_r2": 0.6296,
+      "block_px": 16,
+      "excluded": [
+        [
+          768,
+          1018
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 23.69,
+    "ramp": {
+      "x": 771.7,
+      "y": 553.3,
+      "left_slope": 0.7834,
+      "right_slope": -0.7737,
+      "left_n": 60,
+      "left_resid_px": 0.31,
+      "right_n": 60,
+      "right_resid_px": 0.3,
+      "sigma_y_px": 1.03
+    },
+    "votes": {
+      "floor": {
+        "x": 776,
+        "y": 503,
+        "edge_px": 25903
+      },
+      "ceiling": {
+        "x": 764,
+        "y": 514,
+        "edge_px": 9081
+      },
+      "side_walls": {
+        "x": 0,
+        "y": 230,
+        "edge_px": 3332
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 364,
+      "key_dir_brightest_y": 10,
+      "key_tint": "#c8712d",
+      "key_tint_patch": [
+        178,
+        564,
+        88,
+        150
+      ],
+      "key_tint_patch_mean_rgb": [
+        23.55,
+        13.34,
+        5.28
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89164",
+        "floor_bottom_strip": "#c88a56",
+        "mid_wall_right": "#c8631c",
+        "mid_wall_left": "#c88651",
+        "brightest_21x21_patch": "#c8a272"
+      },
+      "brightest_21x21_patch_centre_px": [
+        364,
+        10
+      ],
+      "sobel_bright_side_deg_whole_frame": 120.93,
+      "sobel_bright_side_deg_wall_band": 159.67,
+      "left_third_minus_right_third_luminance_whole_frame": 8.948,
+      "left_third_minus_right_third_luminance_wall_band": 3.916
+    },
+    "storey_height_m": 2.9074,
+    "implied_wall_width_m": 5.3553,
+    "eye_height_m": 1.1608,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -9.61,
+  "delta_eye_pct": 8.28,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "3cac8bd4",
+  "candidate": "backdrops/source/muniment_room-E/row23-3cac8bd4.png"
+}
