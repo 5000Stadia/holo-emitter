@@ -34,10 +34,26 @@ for f in ("design/batches/row23-scaffold/manor/manifest.json",
         if e.get("skipped"): continue
         for r in e.get("rolls", []):
             if not os.path.exists(r["candidate"]): owed += 1
-# unmeasured: candidates on disk with no reading json
+# unmeasured: rolls of LIVING walls whose candidate exists but has no reading.
+# Orphan candidates of terminal walls (promoted/parked/fenced) are the sweep's
+# to ignore by design; counting them held the baton at "loop owed 50" forever,
+# which is a standing false positive a real stall could hide behind.
+state = {}
+sp = "design/batches/row23-scaffold/manor/run-state.json"
+if os.path.exists(sp):
+    state = json.load(open(sp)).get("walls", {})
+TERMINAL = {"promoted", "parked", "admitted-not-promoted"}
 readings = {os.path.basename(p)[:-5] for p in glob.glob("design/plan-draft/measured/manor/????????.json")}
-cands = {os.path.basename(p)[6:-4] for p in glob.glob("backdrops/source/*/row23-*.png")}
-unmeasured = len(cands - readings)
+unmeasured = 0
+for f in ("design/batches/row23-scaffold/manor/manifest.json",
+          "design/batches/row23-scaffold/manor/retries.json"):
+    if not os.path.exists(f): continue
+    for e in json.load(open(f)).get("entries", []):
+        if e.get("skipped"): continue
+        if state.get(e.get("key", e.get("facing", "")), {}).get("status") in TERMINAL: continue
+        for r in e.get("rolls", []):
+            if os.path.exists(r["candidate"]) and r["id"] not in readings:
+                unmeasured += 1
 # unpublished: any promoted wall png newer than the last publish.site record
 last_pub = 0.0
 if os.path.exists("design/plan-draft/measured/timings.jsonl"):
