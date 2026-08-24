@@ -308,6 +308,17 @@ export const MECHANISMS = [
   "prompt.noun_repetition",
   "prompt.style_of_trigger",
   "prompt.tag_style_prose",
+  /* [Row 35] THE SNAP'S TWO BUDGETS, and they are clauses on the same reading
+     row 34's are. `row35_snap.py` refuses a rectification whose correction
+     exceeds a stated budget, exits non-zero and writes no frame; a rule that
+     can turn work red is a clause whatever else the tool does, and a clause
+     nobody can make fail is a clause nobody is checking. They are the only two
+     tokens the tool mints — its other refusals (an open facing, a frame the
+     instrument cannot read, a box that is not a box) are facts about the
+     picture rather than a priced correction, and carry none. Emitted for a day
+     without declarations, which is the hole this scan exists to find. */
+  "snap.stretch_budget",
+  "snap.reveal_budget",
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
@@ -2773,6 +2784,88 @@ test.describe("the clause ledger — prompt-lint mechanisms", () => {
       .toEqual(["prompt.tag_style_prose"]);
     expect(auditTokens(["  Do not invent typography, signage, plaques, inscriptions."]),
       "an imperative with commas was read as a tag list")
+      .toEqual([]);
+  });
+});
+
+/* ---------------------------------------------------------------- row 35 */
+test.describe("the clause ledger — the snap's budgets", () => {
+  /* THE TWO ARMS `row35_snap.py` CAN REFUSE ON, driven through the tool itself
+     rather than through a re-implementation of its arithmetic.
+
+     THE WALL IS THE CORPUS'S OWN CASE and not a fixture. `kitchen/W` fits a
+     convergence its ramps agree on to a third of a pixel and it is still a
+     frame the correction ruins — its two returns are 64 px slivers at the edges
+     of an almost flat-on wall — so snapping the 0.271 m eye it implies
+     magnifies the floor 4.88x and asks for 196.3 px of reveal. `--vp measured`
+     is what makes both reachable: under `--vp auto` the tool falls back to the
+     declared principal point rather than refusing, which is the production
+     path and is the base case below.
+
+     `--reading` hands the tool the row-23 reading the batch committed, so each
+     case costs the warp and not a measurement. `--out` goes outside the
+     repository: both browser projects run this file at once, and a refused snap
+     must be shown to write NO frame. */
+  const SNAP = join(repoRoot, "design", "plan-draft", "measured", "row35_snap.py");
+  const SNAP_READING = join(repoRoot, "design", "batches", "row35-snap",
+    "kitchen-W", "before-reading.json");
+
+  function snapTokens(extra, facing = "kitchen/W", reading = SNAP_READING) {
+    const dir = mkdtempSync(join(tmpdir(), "holo-snapcase-"));
+    const out = join(dir, "after.png");
+    try {
+      let text = "", code = 0;
+      try {
+        text = execFileSync("python3", [SNAP, "--facing", facing, "--reading", reading,
+          "--out", out, "--doc-out", join(dir, "reading.json"), ...extra],
+          { cwd: repoRoot, encoding: "utf8", stdio: "pipe",
+            env: { ...process.env, HOLO_TIMINGS: "off" } });
+      } catch (e) {
+        text = String(e.stdout || "") + String(e.stderr || "");
+        code = e.status;
+      }
+      const tokens = [...tokensOf([text])].sort();
+      if (tokens.length) {
+        expect(code, "a refusal that names a clause must also exit non-zero").not.toBe(0);
+        expect(existsSync(out), "a refused snap wrote a frame anyway").toBe(false);
+      }
+      return tokens;
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  test("a snap inside both budgets trips nothing at all", () => {
+    /* Without this both cases below could be passing on a wall that refuses
+       whatever the budgets say, and each would be green for the wrong reason.
+       This is the same invocation, at the shipped defaults, down the production
+       path — and it is also what proves a budget is a budget rather than a ban
+       on this wall. */
+    expect(snapTokens([]), "the production path on this wall is not inert").toEqual([]);
+  });
+
+  ledgerCase("snap.stretch_budget", () => {
+    expect(snapTokens(["--vp", "measured"]),
+      "a correction that magnifies a plane past the budget")
+      .toEqual(["snap.stretch_budget"]);
+    /* And it is a BUDGET: lifted past what this correction needs, the same
+       invocation stops refusing on it. */
+    expect(snapTokens(["--vp", "measured", "--stretch-budget", "1000",
+      "--reveal-budget-px", "100000"]),
+      "a magnification inside the budget was refused, which would make it a ban")
+      .toEqual([]);
+  });
+
+  ledgerCase("snap.reveal_budget", () => {
+    /* The stretch budget is lifted so the frame reaches the reveal arm at all —
+       this wall trips the first one on the way past, and a case that names a
+       clause has to be reaching that clause's own site. */
+    expect(snapTokens(["--vp", "measured", "--stretch-budget", "1000"]),
+      "a rectification that reaches past its own frame's edge")
+      .toEqual(["snap.reveal_budget"]);
+    expect(snapTokens(["--vp", "measured", "--stretch-budget", "1000",
+      "--reveal-budget-px", "100000"]),
+      "a reveal inside the budget was refused, which would make it a ban")
       .toEqual([]);
   });
 });

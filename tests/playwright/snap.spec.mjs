@@ -28,7 +28,7 @@ import { test, expect, repoRoot, POINTER_VIEWPORT, stageTree, removeTree } from 
 import { readFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, copyFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const SNAP = join(repoRoot, "design", "plan-draft", "measured", "row35_snap.py");
@@ -182,13 +182,24 @@ test.describe("row 35 — the snap", () => {
        takes, so it has to name the image it describes, carry that image's own
        digest, and agree with the box the snap recorded — otherwise the
        promotion would be reading post-snap prose over pre-snap numbers. */
+    /* THE ROUND DIRECTORY IS THE PIPELINE'S, NOT THE PILOT'S. This read the
+       image path out of the header with a `design/batches/…` pattern, which was
+       true while the only readings in the round were the pilot's and stopped
+       being true the moment the production sweep wrote its own into
+       `backdrops/source-snapped/…`. The invariant was never about WHERE the
+       frame lives: it is that the reading names the frame it describes, that
+       frame exists, and its digest is the one recorded. So the sentence's own
+       phrase is what is read, and the path it yields is checked rather than
+       assumed. */
     const dir = join(repoRoot, "design", "plan-draft", "measured", "row35snap");
     const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
     expect(files.length, "the round has readings in it").toBeGreaterThan(0);
     for (const f of files) {
       const d = JSON.parse(readFileSync(join(dir, f), "utf8"));
-      const png = /(design\/batches\/\S+?\.png)/.exec(d._what_this_is);
+      const png = /The image it describes is (\S+?\.png)/.exec(d._what_this_is);
       expect(png, `${f} does not name the image it describes`).toBeTruthy();
+      expect(existsSync(join(repoRoot, png[1])),
+        `${f} names ${png[1]} and there is no such frame`).toBe(true);
       const sha = execFileSync("sha256sum", [join(repoRoot, png[1])], { encoding: "utf8" })
         .split(/\s+/)[0];
       expect(d._source_sha256, `${f} records a digest that is not ${png[1]}'s`).toBe(sha);
@@ -249,16 +260,24 @@ test.describe("row 35 — the snap", () => {
        of the runnable tree and the click is taken there. */
     let dir = null;
     test.beforeAll(() => {
+      /* THE FRAME PROMOTED IS THE ONE THE READING NAMES, read out of the
+         reading rather than typed here. The pilot wrote its frames into the
+         batch; the production sweep writes its own into
+         `backdrops/source-snapped/`, and a staged path typed on this side goes
+         stale the moment the round is regenerated — which it did. The reading
+         is the authority for which image it is a reading OF (that is the rule
+         `promote-backdrop.mjs` itself enforces on the next line), so this
+         copies whatever it names, to the same relative path. */
+      const READING = join("design", "plan-draft", "measured", "row35snap", "servants_hall-W.json");
+      const rel = /The image it describes is (\S+?\.png)/
+        .exec(readFileSync(join(repoRoot, READING), "utf8"))[1];
       dir = stageTree();
-      mkdirSync(join(dir, "design", "plan-draft", "measured", "row35snap"), { recursive: true });
-      mkdirSync(join(dir, "design", "batches", "row35-snap", "servants_hall-W"), { recursive: true });
-      copyFileSync(join(repoRoot, "design", "plan-draft", "measured", "row35snap", "servants_hall-W.json"),
-        join(dir, "design", "plan-draft", "measured", "row35snap", "servants_hall-W.json"));
-      copyFileSync(join(BATCH, "servants_hall-W", "after.png"),
-        join(dir, "design", "batches", "row35-snap", "servants_hall-W", "after.png"));
+      for (const p of [READING, rel]) {
+        mkdirSync(join(dir, dirname(p)), { recursive: true });
+        copyFileSync(join(repoRoot, p), join(dir, p));
+      }
       execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
-        "--facing", "servants_hall/W",
-        "--candidate", "design/batches/row35-snap/servants_hall-W/after.png",
+        "--facing", "servants_hall/W", "--candidate", rel,
         "--round", "row35snap", "--reference", "ruled"],
         { cwd: dir, encoding: "utf8", stdio: "pipe" });
       execFileSync("node", [join(dir, "tools", "bake-backdrops.mjs")],
