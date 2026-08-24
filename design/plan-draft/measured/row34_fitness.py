@@ -245,9 +245,56 @@ def min_detectable_effect(n_a, n_c, m_comparisons, alpha, margin_min):
 
 # ---------------------------------------------------------------- evaluation
 
+def resolve_reference(assign, pool):
+    """Which arm this generation is measured AGAINST, and why.
+
+    THE DECLARED CONTROL IS NOT ALWAYS IN THE POOL, and that is a legitimate
+    shape rather than a mistake to paper over. Generations 1 and 2 re-rolled the
+    production control because they were screens of technique against production.
+    Generation 3 is an ABLATION: four cells that differ only in the register the
+    same geometry is written in, whose plan said before any candidate existed
+    that its cells compare TO EACH OTHER and not to earlier generations, because
+    a bundle of prompt-hygiene corrections moved under all four at once. An
+    ablation that re-ran production would be comparing across that bundle and
+    measuring the bundle.
+
+    The emitter nevertheless stamped `_control` from its own standing constant,
+    so generation 3's id map declares a control that ran no cells. That is an
+    EMITTER artifact and not a declaration anyone made for that generation, and
+    it took the scorer down with a KeyError rather than producing a wrong number
+    — which is the good failure of the two.
+
+    So the rule, and it is data-driven because this file may name no arm:
+
+      * the declared control, WHERE IT RAN CELLS in this generation;
+      * otherwise the FIRST ARM IN THE ID MAP'S OWN ORDER, which is the order
+        the generation's plan fixed before any candidate existed.
+
+    On generation 3 that resolves to the reference register — the cell its own
+    plan calls "the incumbent's register, cleaned" — which is what the plan
+    named as the thing to beat. On generations 1 and 2 the first branch fires and
+    nothing moves.
+
+    WHAT THIS IS NOT: a selection rule. It decides which column the others are
+    compared against, and it was written and committed while the generation-3
+    readings were not yet in this tree at all, so no score could have informed
+    it. `evolution.spec.mjs` pins both branches.
+    """
+    declared = assign.get("_control")
+    if pool.get(declared, {}).get("n_rolls"):
+        return declared, "the declared control, which ran cells in this generation"
+    for a in [x["id"] for x in assign["_arms"]]:
+        if pool.get(a, {}).get("n_rolls"):
+            return a, ("the declared control ran no cells in this generation - an ablation may "
+                       "legitimately run none - so the reference is the first arm in the id "
+                       "map's own order, which the generation's plan fixed before any "
+                       "candidate existed")
+    return declared, "no arm ran cells in this generation"
+
+
+
 def evaluate(assign, docs, generation, alpha=None, margin_min=MARGIN_MIN):
     """The whole judgement, with every rule from plan §5.4 applied in order."""
-    control = assign["_control"]
     arms = [a["id"] for a in assign["_arms"]]
     arm_index = {a: i for i, a in enumerate(arms)}
     alpha = alpha if alpha is not None else ALPHA_SCREEN
@@ -269,6 +316,7 @@ def evaluate(assign, docs, generation, alpha=None, margin_min=MARGIN_MIN):
     # whole table is still computed and printed — a reader needs to see the
     # withheld column that convicts it — and only the headline changes.
     broken = sum(pool[a]["n"] for a in arms) == 0
+    control, control_why = resolve_reference(assign, pool)
 
     contenders = [a for a in arms if a != control]
     cp = pool[control]
@@ -326,7 +374,8 @@ def evaluate(assign, docs, generation, alpha=None, margin_min=MARGIN_MIN):
                                 len(comps), alpha, margin_min)
     return {
         "generation": generation, "walls": walls, "declared_horizon_row": declared,
-        "control": control, "arms": arms, "alpha": alpha, "margin_min": margin_min,
+        "control": control, "control_why": control_why,
+        "arms": arms, "alpha": alpha, "margin_min": margin_min,
         "per_cell": per_cell, "pooled": pool, "comparisons": comps,
         "winners": [w["arm"] for w in winners], "splits": [s["arm"] for s in splits],
         "ranked": [c["arm"] for c in sorted(comps, key=rank_key)],
@@ -371,7 +420,7 @@ def plan_next_generation(assign, result, budget):
     there as the yardstick, re-rolled fresh every generation because a control
     measured once and reused turns drift into signal. Everything else is earned.
     """
-    control = assign["_control"]
+    control = result.get("control") or assign["_control"]
     chan = {a["id"]: a["channels"] for a in assign["_arms"]}
     channels = sorted(next(iter(chan.values())).keys())
     amps = assign.get("_amplification", {})
@@ -530,7 +579,9 @@ def report(assign, result, gen_next=None):
                         s["d_horizon_px"], s["d_horizon_any_px"], s["sigma_best_px"],
                         s["n_withheld"]))
     L.append("")
-    L.append("## Pooled, against the control")
+    L.append("## Pooled, against the reference arm `%s`" % result["control"])
+    L.append("")
+    L.append("Reference: **%s** — %s." % (result["control"], result.get("control_why", "")))
     L.append("")
     L.append("| arm | adm k/n | control k/n | margin | Fisher p | Holm thr | clears | split | separates |")
     L.append("|---|---|---|---|---|---|---|---|---|")
