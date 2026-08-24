@@ -332,6 +332,59 @@ print(json.dumps({"err": err,
     expect(cli).toMatch(/--dry-run belongs to --tolerance-sweep/);
   });
 
+  /* [The same ruling] AND WHAT A REAL RUN WRITES INTO THE RECORD.
+   *
+   * The dry run above is the mode operators will use; this is the branch they
+   * will use once. It runs with `dry_run=False` over a COPY of the state and a
+   * one-wall manifest, with the promotion itself stubbed — the real subprocess
+   * is exercised by `guards.spec`'s four tolerance ledger cases — so what is
+   * under examination here is the bookkeeping, which is the half nothing else
+   * would ever run before production did.
+   *
+   * The claim that matters: the correction this wall was carrying does not
+   * become `answered_correction`. Nobody answered it. The repaint it asked for
+   * never happened and the Captain accepted the drift instead, so it moves to a
+   * name that says so — and the wall keeps its family, because that is still
+   * true of the picture and is what the flip test will be judging. */
+  test("a real tolerance promotion records the waiver rather than an answer", () => {
+    const MANOR = join(repoRoot, "design", "batches", "row23-scaffold", "manor");
+    const before = readFileSync(join(MANOR, "run-state.json"), "utf8");
+    const out = inMeasured(`
+import copy, json, os, row23_run
+MANOR = ${JSON.stringify(MANOR)}
+state = json.load(open(os.path.join(MANOR, "run-state.json")))
+key = next(k for k, v in sorted(state["walls"].items())
+           if v.get("status") == "held" and v.get("hold_family") == "suspect-painting")
+full = json.load(open(os.path.join(MANOR, "manifest.json")))
+man2 = dict(full, entries=[e for e in full["entries"] if e["key"] == key])
+state = copy.deepcopy(state)
+row23_run.do_promote = lambda *a, **k: (True, None)
+promoted, skipped, err = row23_run.tolerance_sweep(man2, state, dry_run=False)
+print(json.dumps({"key": key, "err": err, "promoted": [p[0] for p in promoted],
+                  "skipped": [s[0] for s in skipped],
+                  "record": state["walls"][key]}))
+`);
+    const r = JSON.parse(out.trim().split("\n").pop());
+    expect(r.err).toBe(null);
+    expect(r.promoted, `${r.key} did not promote`).toEqual([r.key]);
+    const rec = r.record;
+    expect(rec.status).toBe("promoted");
+    expect(rec.camera_source).toBe("declared");
+    expect(rec.suspect_perspective).toBe(true);
+    expect(rec.hold_family, "the wall stopped naming what is true of its picture")
+      .toBe("suspect-painting");
+    expect(rec.tolerance_ruling).toMatch(/we can accept a tolerance for drift here/);
+    expect(rec.waived_correction,
+      "the correction this wall was carrying went somewhere other than the waiver")
+      .toMatch(/converge/);
+    expect(rec.correction,
+      "a promoted wall still says it is waiting for a repaint").toBeUndefined();
+    expect(rec.answered_correction,
+      "the record claims the repaint was made; nobody made it").toBeUndefined();
+    /* And the function wrote nothing itself — `main` owns the save. */
+    expect(readFileSync(join(MANOR, "run-state.json"), "utf8")).toBe(before);
+  });
+
   /* ------------------------------------------------------------------ 3 */
   /* The horizon bracket, recomputed here from the band and the wall's own
    * declared geometry alone. If `cfg_from_sidecar` ever types a number instead
