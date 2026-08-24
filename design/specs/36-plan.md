@@ -5,7 +5,14 @@ library's shape, the composition engine, the packet types the emitter gains, the
 orphaned t4 returns produced when they were finally scored, the validation that is real versus the
 validation that is trivial, and the interfaces to rows 37, 35, 25 and B-FLIGHT — spec'd, not built.
 
-**Status: PLAN, THIRD REVISION. Nothing built, nothing dispatched, nothing promoted.**
+**Status: PLAN, FOURTH REVISION — BUILD LICENSED.** The plan critic returned PASS WITH CORRECTIONS
+on revision 3, gated on one plan-text item: **N1, the library-wide scale contract**, now §1.4a. The
+five corrections that were licensed to land with the build are folded where they live (§2.4, §2.7,
+§5.3, §2.6), and the F16 residue is stated plainly in §1.6 rather than papered over.
+
+**One thing this row will not deliver, said at the top:** `--emit-flat` has no working gate and no
+cheap path to one. It is named, not specified, and step 10 is conditional on a Captain ruling (§1.6,
+§9.1).
 
 ---
 
@@ -219,6 +226,69 @@ integer multiple of it. Pitches: board 0.25 m, panel 0.80 m, joist 0.90 m. These
 and the manifest says so beside them, per row 35's precedent with its two budgets. Isotropic material
 (plaster, flags, gravel, brick) sets `grain_axis: null` and mirror-tiles both ways.
 
+### 1.4a THE SCALE CONTRACT — library-wide (N1)
+
+**Every asset in this library carries a derivable metres-per-pixel, and an asset whose scale cannot
+be derived does not enter it.** This is the law the rest of §1 answers to. It exists because a tile
+is only material if you know how big it is: a floorboard texture at an unknown ppm is not a
+floorboard texture, it is a picture of some floorboards, and projecting it produces boards of
+whatever size the mistake happened to make them. Every seam, every tiling module and every
+resolution budget in this plan is stated in metres, and all of them are void without this.
+
+`tile.json` carries `ppm` and `ppm_provenance` on **every** asset. There are exactly three ways an
+asset may get them, one per intake lane, and there is no fourth:
+
+| lane | how ppm is established | is it measured? |
+|---|---|---|
+| **harvested tile** | **chosen, then verified** — the harvest samples a grid defined in *surface metres* through the plane map, so `tile_ppm` is an input to the sampling, not a reading off it | no: exact by construction. What is *measured* is whether the source can supply it |
+| **swatch** | **recovered from the returned image** by measuring the ruled physical feature the ask declared | yes, and it is the only lane that can fail |
+| **unique wall elevation** (`--emit-flat`) | recovered from two rulers: the storey height the wall spans and the anchor at 0.95 m within it | yes — **and see the residue in §1.6** |
+
+**The harvested lane: the scale is chosen, and the source meta is a supply check.** This is worth
+saying precisely because it is easy to state backwards. Harvest builds the source box from the
+promoted meta's `px_per_m_at_wall`, `corner_*_px`, `floor_line_y` and `horizon_y`, then samples a
+lattice laid out in metres on the wall plane. The tile's ppm is therefore whatever the lattice was
+built at — a number we set. The source meta's ppm enters as the question *can this painting actually
+resolve that lattice*, which is §1.2's per-axis measurement and §1.8's supply ratio. So:
+
+- `ppm` = the lattice pitch, exact.
+- `ppm_provenance` = `{ lane: "harvest", source_facing, source_ppm_at_wall, plane: "wall",
+  supply_across, supply_along, supply_ratio }` — the source's own numbers, so a reader can re-derive
+  the supply check without re-running the harvest.
+- **The refusal**: a harvest whose `supply_ratio` exceeds the §1.8 flag is refused with its number
+  and converts to a swatch (§8). A tile is never stored at a ppm its source cannot carry.
+
+**The swatch lane: the scale is recovered, and this is the gate N1 asks for.** The generator controls
+the pixels, so ppm cannot be chosen — it must be read back out of what arrives. Every swatch ask
+therefore declares a **ruled physical feature and a count** (§1.6), and admission runs:
+
+1. Recover the feature's pixel period by 1-D autocorrelation along the axis the ask laid it out on.
+2. `ppm_recovered = period_px ÷ pitch_m`, and independently
+   `ppm_declared = image_width_px ÷ (count × pitch_m)`.
+3. **Refuse unless the two agree** within a stated residual, and refuse outright if the
+   autocorrelation has no dominant period to report.
+
+**That third clause is the gate, and its refusal is the point.** A swatch whose scale cannot be
+derived — a plausible-looking plank texture with no countable repeat, a generator that drew 11 boards
+where 14 were asked, an image with the boards running the wrong way — is **refused and re-asked**,
+never admitted at a guessed scale. Admitting one would put a wrongly-sized material into a library
+whose whole contract is that sizes are known, and it would do so invisibly: nothing downstream
+re-checks a tile's ppm, because everything downstream is entitled to trust it. `[row36:scale.underivable]`
+is its ledger token, one token, one emit site.
+
+**Two agreeing derivations rather than one, deliberately.** `ppm_declared` uses only the ask and the
+image width, so it is right whenever the generator obeyed the count; `ppm_recovered` uses only the
+pixels, so it is right whenever the generator drew a regular material at *some* count. Requiring both
+catches the case one alone cannot: a generator that obeys the count but crops, or draws the right
+material at the wrong count. Where they disagree the ask was not obeyed, and the swatch is a re-ask
+rather than a measurement problem.
+
+**What this contract makes true downstream**, and why it is the item that gates the build: §1.8's
+417/325/476 px/m bounds are demands *in metres*; §1.4's `pitch_m` and `tile_span_m` are metres;
+§2.2's world anchoring indexes tiles by *plan metres*; and §2.3's return re-projection composes two
+plane maps that are metric on both sides. Every one of those is arithmetic on a number this contract
+supplies. Without it they are arithmetic on a number nobody wrote down.
+
 ### 1.5 Harvest — wall fabrics only, each from a promoted wall Kabe has seen live
 
 For wall material `T`:
@@ -297,24 +367,35 @@ painted overmantel) deserves its own elevation. Its meta is an ordinary §5 meta
 turns into exactly the ask we want: `frameGeometry().bounded === false`, no returns, no ceiling line,
 the anchor spanning the full frame. **No change to `frame-language.mjs` is needed.**
 
-**Its gate is not the levelness test revision 2 proposed (F16).** Fitting the anchor row in the left
-and right thirds and requiring agreement detects a *tilted or rotated* camera — but on a one-point
-view a horizontal line on the facing plane stays horizontal, so a generator that hands back a
-receding side wall, a ceiling line or converging floorboards passes that gate cleanly. It tests the
-wrong thing. What actually separates an elevation from a perspective view is **the absence of
-convergence**, so the gate inverts row 35's own `ramp_refusal`:
+**`--emit-flat` HAS NO WORKING GATE, and this section is residue rather than a design (F16).**
 
-- **Both ceiling junctions must fail to be receding lines** — fitted slope under `MIN_RAMP_SLOPE` on
-  both sides, which is exactly the condition `ramp_refusal` currently reports as *"a horizontal edge
-  and not a return"*. In a flat elevation that refusal is the pass.
-- **Vertical edges must be parallel**: fit the panel stiles' verticals and require their pairwise
-  convergence to lie beyond the frame by a stated margin. Perspective converges them; an elevation
-  does not.
-- **No floor line and no ceiling line inside the frame**, since a wall filling the frame shows
-  neither.
+Revision 2 proposed a levelness test, which was wrong: on a one-point view a horizontal line on the
+facing plane stays horizontal, so a returned image with a receding side wall, a ceiling line or
+converging floorboards passes it cleanly. **Revision 3 then proposed an absence-of-convergence test,
+and that is wrong too** — verified against the instruments rather than reasoned about:
 
-Three cheap reads against one existing instrument, and the same reasoning row 35 already uses for
-what counts as a receding line rather than a new threshold.
+- **The proposed pass condition is the exact degenerate fit `_admissible` exists to refuse.** "Both
+  ceiling junctions fail to be receding lines" is the signature `_admissible` was written to reject
+  as an unusable reading. Building a gate whose PASS is another instrument's REFUSAL means the two
+  disagree by construction, and the day someone reconciles them the gate inverts silently.
+- **The ramp tests short-circuit**, so they do not reach the state the proposed gate wanted to read.
+- **`vp_vote` discards the stile signal**, for a reason recorded where it does it — so the
+  "vertical edges must be parallel" arm cannot be built on the existing vote either.
+
+**And there is a second, independent problem the gate would not have fixed: a flat wall carrying a
+door cannot be door-measured at all**, because `door_measure` anchors on the floor line and a wall
+filling the frame has none. So the exception path collides with §2.4's whole mechanism — the very
+walls most likely to be judged worth their own elevation are door-bearing ones.
+
+**No cheap path to a gate is known.** Therefore:
+
+> **A builder must not reach for this section as written.** `--emit-flat` is not specified, it is
+> named. Step 10 of §9.1 stays **conditional on a Captain ruling**, and if that ruling comes the gate
+> is its own piece of work with its own evidence — not an afternoon's addition to this row.
+
+Nothing else in the plan depends on it: the general case is plain fabric (§2.4), and the library's
+intake is harvest plus swatch (§1.3). This is the one place row 36 stops short, and it stops short
+out loud.
 
 **A returned swatch or flat wall is stored as a texture.** The library holds TYPED tiles (reusable
 material) and UNIQUE tiles (one physical wall's elevation), and the assembler consumes them
@@ -585,9 +666,14 @@ arithmetic, not generation. A plain assembled wall would otherwise trip row 27's
 the plan rules a way through and the painting shows none — which is precisely what refused
 `great_hall/N` and `library/S` after the snap.
 
-The construction: an unlit rectangular void at the plan's own aperture rect, converted to wall-local
-metres by `facingCarriers` and drawn into the assembled frame through the wall region's own map at
-the declared geometry. **The standing unlit-door doctrine already says the void should be dark** —
+The construction: an unlit rectangular void at the plan's own aperture rect, drawn into the
+assembled frame through the wall region's own map at the declared geometry.
+
+**Where each of the void's four edges comes from — `facingCarriers` does not supply them all
+(correction 2).** It returns a **horizontal band and a centre** for a carrier, which is two of the
+four numbers; the **head comes separately from `DOOR_OPENING_HEIGHT_M`**, and the sill is the floor
+line. So the rect is composed from two sources, not read whole out of one, and a builder who expects
+`facingCarriers` to hand back a rectangle will find half of it missing. **The standing unlit-door doctrine already says the void should be dark** —
 row 27's own lesson, that `door_measure.py`'s blind spot is a *lit* doorway — so painting it dark is
 obeying the doctrine rather than bending it. Three things follow by construction rather than by
 tolerance:
@@ -643,9 +729,11 @@ A wall whose view draws a staircase carries a `flights` entry, and row 32's flig
 promoted meta that has none. The assembler cannot paint a flight — it is a solid standing on the
 floor, not a surface — so:
 
-- **The assembled wall takes its meta `stairs` from B-FLIGHT's attachment machinery.** That work is
-  in flight and **its branch is not in this repository yet** (no `*flight*` branch exists at
-  `5dd7d1c`); its interface is consumed, not defined, here.
+- **The assembled wall takes its meta `stairs` from B-FLIGHT's attachment machinery.** **State as of
+  this revision (correction 5):** B-FLIGHT was respawned after the host restart and **has nothing
+  committed yet**; its baseline is `fc9c282+`, which carries no flight-relevant change. Its interface
+  is **consumed, not defined, here, and this row does not block on it** — the twelve stair facings are
+  simply not customers until it lands (§5.1).
 - **Its painted flight arrives later as a sprite**, in rows 4/37's lane.
 - **Until both land, stair-bearing walls are not assembly customers.** Twelve facings, enumerated in
   §5.1.
@@ -674,9 +762,19 @@ must produce all four of:
 3. **A dominant direction**, so `key_dir` means something rather than being an artefact of a flat
    field.
 4. **A stable `key_tint`** over the tint patch.
+5. **A contrast floor: at least 3 luma between the void and the wall's median (correction 1).**
+   `door_measure`'s stability sweep runs over luminance cuts and needs **at least 3 survivors**, so a
+   wall the stub renders at luma ≤ 2 leaves no room beneath it for a cut to separate anything — every
+   door on that wall dies at once. It is the worst kind of failure this row could ship: **the refusal
+   message names nothing about darkness**, so a builder reads "no door found" and goes looking at the
+   void's geometry, which is fine. The stub therefore has a floor on how dark it may render a wall,
+   and it is not a taste setting — it is the condition under which the headline metric (§5.3) can
+   return any answer at all.
 
 Row 37 replaces the stub with the runtime pass and **inherits exactly this contract**; a pass that
 satisfies it is drop-in, and one that does not breaks promotion rather than merely looking different.
+Item 5 in particular travels: a beautiful runtime pass that renders a dim room dimmer than luma 2
+silently un-doors it.
 
 ### 2.8 The honest limits, all of them, in one place
 
@@ -992,8 +1090,22 @@ identifies the disease:
 > frame; the read-back rect is compared to the drawn rect; and a real pointer click in a real browser
 > is checked to land inside it.
 
+**Two known, deterministic differences the comparison EXPECTS rather than chases (correction 3).**
+`door_measure` imposes `y1_px = round(floor_y)` on every rect it returns, and it carries a
+deterministic **1 px head bias** from an argmax tie. Both are properties of the instrument, not of
+the assembly, so the round trip asserts the read-back rect equals the drawn rect **with those two
+applied** — a comparison that chased them would be tuning the assembler to cancel a detector quirk,
+which is how a real defect gets hidden inside a fudge. They are stated here so the expected value is
+derived rather than discovered by whoever first sees a 1 px miss.
+
+**And the acceptance loop must redirect the patch (correction 4).** `door_measure.patch` **rewrites
+its document in place**, so an acceptance run that calls it against a committed reading edits that
+reading. The loop passes `--doc` to redirect the output; nothing in the acceptance path writes to a
+reading it did not create.
+
 It fails if the void is drawn wrong, if the lighting stub washes it out so the dark-run detector
-cannot resolve it, or if the aperture and ruler spaces diverge the way row 27 says they can. Beside
+cannot resolve it (contract item 5, §2.7), or if the aperture and ruler spaces diverge the way row 27
+says they can. Beside
 it, two more that can fail: **the hold-family rate on the acceptance re-measure** against §3.2's t4
 baseline (corners and ramp are real detectors on assembled pixels), and **the cross-facing pixel
 agreement** against its resampling control (§2.5).
@@ -1154,7 +1266,9 @@ corrected.
    painted door void.
 8. `kitchen/N` assembled and promoted; the demo room's four facings; the batch.
 9. The remaining eight customers, `hall` and `great_hall` last.
-10. `--emit-flat` only if the Captain rules a wall needs it.
+10. `--emit-flat` — **NOT BUILT.** Conditional on a Captain ruling, and if it comes it is its own
+    piece of work: §1.6 records that no working gate is known and that this section must not be
+    reached for as written.
 
 Gears: 1–3 are mechanical. 4–7 are the load-bearing build.
 
@@ -1192,6 +1306,11 @@ Modelled on `snap.spec.mjs`, which proves a construction rather than a verdict:
 - **No wall repainted, no per-wall legacy call taken** (§1.11).
 - Feels the change: `validate-fixtures.mjs` (`META_ALLOWED`), both bakes, `fixtures.spec.mjs`'s two
   staleness tests, `room-voices.spec.mjs`, `guards.spec.mjs`.
+- **`promote-backdrop.mjs:475` assigns `storey_height_m` from the PLAN regardless of what the ask
+  was.** So a promoted meta's storey is the plan's number even where the painting drew another, and
+  an assembled facing — which is built at the declared geometry anyway — will agree with it by
+  accident rather than by intent. Noted because §1.2's box construction reads `storey_height_m` back
+  out of the meta, and a reader could reasonably assume it is a measurement of the painting.
 - **`geometry.spec.mjs:173` hardcodes `MEASURED_REFERENCE_PX`** rather than calling
   `measuredLensBand(meta.camera_reference)`. It passes today only because both LIT-measured walls are
   `"measured"`. Promoting a `"ruled"` wall into `study/` or `hall/` turns it red — and `study/E`,
@@ -1290,7 +1409,7 @@ All twenty-four are folded. Nothing is outstanding.
 | **F13** | §1.4 | `grain_axis` / `pitch_m` / `tile_span_m` / `mirror`, pitch separated from period |
 | F14 | §2.2 | floors and ceilings anchored to the storey slab, not the room |
 | **F15** | §2.5, §4.2 | pixel bar becomes `D_cross ≤ D_control`; coordinate test credited as a regression test |
-| **F16** | §1.6 | flat-wall gate replaced: absence of convergence, not levelness |
+| **F16** | §1.6 | **RESIDUE, not fixed** — revision 3's replacement gate was wrong too; no working gate is known and none is cheap. `--emit-flat` is named, not specified |
 | **F17** | §3.1 | `row36_t4_score.py` committed; it prints §3.2's table |
 | **F18** | §3.1 | 2 of 8 picks, not one line; the red case must exercise the promotion half |
 | F19 | §1.9 | textures to `backdrops/textures/` |
@@ -1299,6 +1418,12 @@ All twenty-four are folded. Nothing is outstanding.
 | **F22** | §5.1 | census tree named as `5dd7d1c`; the live loop has already moved past it |
 | **F23** | §4.1 | the five promotion gates added; two cannot fail, three are the examination |
 | **F24** | §4.4 | answered by the F7 fix — the capture set is now `kitchen`, the general case |
+
+**Residue carried out of the examination, stated rather than closed.** F16: `--emit-flat` has no
+working gate — revision 2's levelness test and revision 3's absence-of-convergence test are both
+wrong, the second verified against `_admissible`, the short-circuiting ramp tests and `vp_vote`'s
+discarded stile signal. A flat wall carrying a door cannot be door-measured either, since there is no
+floor line to anchor on. §1.6 says so and forbids a builder from reaching for it as written.
 
 **What I would still flag to the Navigator, as observations rather than gaps.** The `same_as` aliases
 of F10 are a look ruling nobody has taken yet, and until they are taken the swatch count is an upper

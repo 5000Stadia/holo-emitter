@@ -22,6 +22,7 @@ keeps it current at every board change; reports cite these handles.
 |---|---|---|
 | B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | building |
 | B-FLIGHT | flight attachment: painted staircases written into promoted metas | building |
+| B-ASSEMBLY | row 36: assembly from established pieces — texture library, swatch asks, the assembler | building |
 | C-ASSEMBLY | row 36 plan critic (assembly-from-pieces) | reviewing |
 
 ## Recently landed (for "issue with…" back-reference)
