@@ -77,6 +77,7 @@ def _load_retries():
 
 
 RETRIES = _load_retries()
+REMEASURE = "--remeasure" in sys.argv
 _RETRIES_MTIME = os.path.getmtime(RETRIES_FILE) if os.path.exists(RETRIES_FILE) else 0
 
 
@@ -630,6 +631,20 @@ def sweep(manifest, state, do_promote=True):
             # per-pixel surprise anywhere in 170 images taking the loop down —
             # is the crash class this run has now paid for twice.
             _t = time.time()                                      # [row 33]
+            # [row 30 cut, 2026-08-24] A READING IS TAKEN ONCE. The sweep was
+            # re-measuring every held wall's every candidate on every pass —
+            # 27 holds x (measure + door read) — and after the host restart a
+            # single pass had not finished in two hours while new returns
+            # queued behind old holds. A candidate's reading is a pure
+            # function of its bytes and the instrument; it is cached by id and
+            # reused until `--remeasure` says the instrument moved.
+            _cached = os.path.join(OUT, "%s.json" % r["id"])
+            if os.path.exists(_cached) and not REMEASURE:
+                d = json.load(open(_cached))
+                if d.get("verdict") == "PASS" and (best is None or
+                        abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
+                    best = (r, d)
+                continue
             try:
                 d = row23_lib.measure_candidate(p, side, cfg, ref, picks)
             except Exception as _mex:

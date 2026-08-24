@@ -121,3 +121,9 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   measurement + door read), so a full pass now runs tens of minutes and new arrivals wait
   behind old holds. Row-30 candidate: cache readings by (candidate sha, instrument version)
   and re-measure only new candidates or after an instrument change - a large, safe cut.
+- 2026-08-24 tick: promote.wall flagged 121x — the per-wall bake was replaced by a per-wall
+  VALIDATOR run, and validate-fixtures over a 54-painting store is itself tens of seconds;
+  combined with re-measuring every held wall each pass, the restarted loop had not finished
+  ONE pass in two hours. ACTED: readings are now cached by candidate id (re-measure only on
+  --remeasure); next cut when it flags again: validate once per sweep too, with per-wall
+  attribution kept by validating only the promoted wall's meta.
