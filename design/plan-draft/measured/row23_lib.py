@@ -258,6 +258,22 @@ def _floor_and_rail(L, cfg, picks):
 UNFITTED_HORIZON = "unfitted-horizon"
 SUSPECT_PAINTING = "suspect-painting"
 
+#: [row 32, the Captain's tolerance ruling 2026-08-24] The two names the
+#: DECLARED-CAMERA promotion path answers to, and the one place they are listed.
+#:
+#: design/approvals.log: "I think its pretty close and we can accept a tolerance
+#: for drift here". Both families are one situation seen from two sides — a wall
+#: whose ruler passed its ±8 % band and whose PERSPECTIVE is unusable, either
+#: because the two returns converge where no eye stands or because they converge
+#: nowhere the error bar admits. Neither is a scale failure, which is what makes
+#: them suspects rather than misses, and the declared camera fills exactly the
+#: quantity the contradiction destroys: the horizon.
+#:
+#: `tools/promote-backdrop.mjs` holds the JavaScript copy of this list, beside
+#: the refusal that enforces it; the two are asserted equal by the suite for the
+#: same reason `prompt_lint`'s word list and `room-voices.mjs`'s are.
+TOLERANCE_FAMILIES = (SUSPECT_PAINTING, UNFITTED_HORIZON)
+
 
 def _admissible(ramp, ceil_y, floor_y, bracket):
     """[row 32] Is this convergence a horizon, or is it two lines crossing?

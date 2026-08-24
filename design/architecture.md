@@ -3804,6 +3804,80 @@ artifacts, and baking only the first leaves `fixtures/nav-manor/fixture.js` stal
 fixture validator over the meta just written, so a refusal there is the law speaking about the asset:
 the two files are taken back out of the store and the wall holds.
 
+### The declared camera: how a suspect painting is promoted (row 32, the Captain's tolerance ruling)
+
+**The ruling.** `design/approvals.log`, 2026-08-24 [HUMAN]: *"I think its pretty close and we can
+accept a tolerance for drift here"* — suspect-perspective walls promote under DECLARED camera numbers
+with a `suspect_perspective` flag; the drift costs compositing fidelity only (sprites against the
+painted floor at depth, through-view sizing) and no mechanical function; row 4 stages shallow on
+flagged walls and the flip test judges them.
+
+**What the family is, and what it is not.** A member has PASSED its camera gate: its ruler reads
+inside the standing ±8 % band. What it cannot do is fix a horizon — either its two returns converge
+somewhere no eye stands (`suspect-painting`) or they converge nowhere the error bar admits
+(`unfitted-horizon`). Both are the same situation seen from two sides, and both are named on the
+reading by the instrument itself, never by an operator. `row23_lib.TOLERANCE_FAMILIES` is the list;
+`tools/promote-backdrop.mjs` holds the JavaScript copy beside the refusal that enforces it, and
+`horizon.spec` asserts the two are one list. A wall that fails the SCALE gate is a miss, not a
+suspect, and no part of this reaches it.
+
+**What the declared camera fills, and it is one field.** `horizon_y`, taken from
+`deriveMeta(plan, loc, facing)` — the meta the page's own derived path holds for that facing, the
+ruled lens at its standpoint with the drawing eye and the measured reference horizon — so the
+declared camera and the camera the grid draws with are one number rather than two copies of one.
+Everything else on the meta is the value it would have carried on any other promotion: the scale off
+the painting (and still refused outside its band), the floor line off the painting, the calibration
+off the painting, the metres off the drawing. `px_per_m_at_bottom` and `nearest_floor_m` move because
+they are computed FROM the horizon; `key_dir`'s above/below suffix is reassembled against it, because
+an `unfitted-horizon` reading honestly says `NO-HORIZON` about an instrument that returned nothing
+and a meta that HAS a horizon must not ship that word. `DECLARED_CAMERA_FIELDS` in
+`validate-fixtures.mjs` is the whole licence, written once.
+
+**The eye is still judged.** The floor line is measured, the horizon is declared, and their
+separation at the painting's own scale is an eye height — held at the same ±8 % around
+`DRAWING_EYE_M` that everything else answers to (`[row32:tolerance.eye_band]`). The ruling accepts
+drift in what a frame's PERSPECTIVE says and none in what its RULER says, and the floor line is the
+ruler's. All ten current suspects measure 1.14–1.26 m there.
+
+**The four fields, and who reads each.** `camera_source` is what `fixtures.spec`'s promotion-staleness
+re-run and `--recheck-doors` read back to re-derive the file (a re-run without it refuses the wall the
+Captain admitted). `suspect_perspective` is the flag row 4's staging reads: a promoted meta is written
+verbatim into `fixtures/<w>/fixture.js`'s `metas` map, and that map IS the surface every placement is
+projected through and the page renders with — there is no second surface, and `fixtures.spec` checks
+the flag survives the bake. `tolerance_ruling` is the authority a reader of the meta alone can follow
+back to the log. `declared_fields` is the exact licence, so the scale can never be claimed as declared.
+
+**The gate learned the shape knowingly — no measured clause went quiet.** Five validator clauses
+(`meta.camera_source`, `meta.declared_needs_suspect`, `meta.declared_needs_ruling`,
+`meta.declared_fields_claim`, `meta.suspect_needs_declared`) and four promotion clauses
+(`tolerance.not_suspect`, `tolerance.suspect_undeclared`, `tolerance.eye_band`,
+`tolerance.open_facing`), each with a ledger case. The two that matter most are the two directions of
+the fence: only the family the instrument named goes through the declared door, and that family goes
+through NO other door — writing the documents for suspect walls would otherwise open a hole in
+`promotion_doc`'s refusal rather than a door beside it. A vista is not in the family at all: its
+horizon was already the declared eye line (row 29(a)), so there is no second reading for a tolerance
+to stand between.
+
+**The renderer has no opinion about any of it.** The four fields are inert — `mechanisms.spec` renders
+one painted facing and one grid facing with metas differing only in them and requires the same bytes,
+with a moved `px_per_m_at_wall` as the discrimination that proves the comparison can fail.
+
+**The route.** `row23_run.py --tolerance-sweep [--dry-run]`. It takes only walls the ordinary sweep
+has FINISHED with — `held` and `parked` — because a `retry` wall has rolls coming and a cap unspent,
+and spending the tolerance on it buys drift the standing loop was about to fix for free. It skips
+fenced walls, walls already in the store, open facings, and any wall that does not produce a camera
+PASS on this pass's own reading. It reads the Captain's line out of `design/approvals.log` rather than
+restating it, so the mode cannot outlive the ruling. `--dry-run` measures, decides and writes nothing.
+On a real run the wall's `correction` moves to `waived_correction` — the repaint it was asked for
+never happened, the drift was accepted instead — and the run state records `suspect_perspective`,
+`camera_source` and the ruling beside the family, which stays true of the picture.
+
+**Dry run, 2026-08-24, over the ten held suspect-painting walls:** all ten would promote —
+`back_stair/S`, `entrance_approach/N`, `garden_room/N`, `great_hall/N`, `great_hall/S`, `kitchen/W`,
+`library/N`, `long_gallery/S`, `servants_hall/S`, `solar/S` — focal deltas −2.7 % to +5.5 %, eye
+deltas −4.0 % to +6.4 %, every one inside the band. The nineteen `unfitted-horizon` walls are in
+`retry` behind row 34's production test and are the standing loop's until it reports.
+
 ### The lens fork, completed at its second reader
 
 A wall is gated against the camera **its own page meta commands**: the study's painted walls against

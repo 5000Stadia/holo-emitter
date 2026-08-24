@@ -36,7 +36,7 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { createRequire } from "node:module";
-import { validate } from "../../tools/validate-fixtures.mjs";
+import { validate, TOLERANCE_RULING, DECLARED_CAMERA_FIELDS } from "../../tools/validate-fixtures.mjs";
 import { validatePlan, drawn, MIN_STANDOFF_M, MIN_USABLE_APERTURE_PX,
   PLAN_CANVAS_W as CANVAS_W, PLAN_CANVAS_H as CANVAS_H } from "../../tools/validate-plan.mjs";
 import { deriveMeta, metaForFacing, projectPlacement } from "../../tools/plan-projection.mjs";
@@ -299,6 +299,19 @@ export const MECHANISMS = [
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
+  /* [Row 32 — the Captain's suspect-painting tolerance ruling, 2026-08-24] The
+     declared-camera meta variant. Five clauses and not one of them touches the
+     band above: a suspect wall is a wall whose RULER passed and whose
+     perspective disagreed, so the family is separated by a vocabulary the gate
+     knows rather than by a tolerance the gate lost. What they hold is that the
+     record cannot lie about where its horizon came from, cannot wear the
+     suspect flag without having taken the path, and cannot claim the declared
+     licence over a field the picture was actually judged on. */
+  "meta.camera_source",
+  "meta.declared_needs_suspect",
+  "meta.declared_needs_ruling",
+  "meta.declared_fields_claim",
+  "meta.suspect_needs_declared",
   "plan.standpoint_source",
   "plan.standpoint_branch",
   "plan.standpoint_stands_back",
@@ -382,6 +395,14 @@ export const MECHANISMS = [
      roll is a panelled parlour with two enclosed corners, and the camera gate
      measured its chair-rail, called it a boundary wall's coping and returned
      +4.5 %. */
+  /* [Row 32] And the promotion's TOLERANCE arms, minted under the Captain's
+     suspect-painting ruling. They are the fence around the second door: only
+     the family the instrument named goes through it, only through it, its eye
+     is still judged at the standing band, and a vista is not in the family. */
+  "tolerance.not_suspect",
+  "tolerance.suspect_undeclared",
+  "tolerance.eye_band",
+  "tolerance.open_facing",
   "vista.ask_unreadable",
   "vista.indoor_ask",
   "vista.no_far_line_ruler",
@@ -607,6 +628,49 @@ const DOCUMENT_CASES = {
   "meta.one_lens_measured": () => tokensFromMetas((m) => {
     m["hall/S"].measured = true;
     m["hall/S"].px_per_m_at_wall = 1120 / m["hall/S"].camera_wall_m;   // a 1120 px lens
+  }),
+  /* [ROW 32 — the Captain's suspect-painting tolerance ruling] THE DECLARED-
+     CAMERA META VARIANT. Its whole point is that the gate learns the shape
+     KNOWINGLY rather than by any measured clause going quiet, so each of these
+     is a way the record could lie about where its horizon came from. The
+     discrimination that makes them mean anything: `declaredLike` with nothing
+     spoiled trips nothing, which the case below asserts before the rest. */
+  /* A THIRD PLACE A CAMERA COULD HAVE COME FROM, which there is not. Doctored
+     onto a plain meta rather than a declared one: a bad token also makes the
+     three declared fields illegitimate, so a `declaredLike` construction here
+     would trip `meta.suspect_needs_declared` beside it and isolate nothing. */
+  "meta.camera_source": () => tokensFromMetas((m) => {
+    m["study/S"].camera_source = "estimated";
+  }),
+  "meta.declared_needs_suspect": () => tokensFromMetas((m) => {
+    m["study/S"] = declaredLike(m["study/S"], { suspect_perspective: false });
+  }),
+  "meta.declared_needs_ruling": () => tokensFromMetas((m) => {
+    /* A licence that names an authority nobody gave. The sentence is fluent
+       and cites nothing, which is exactly the shape an agent widening a gate
+       would produce. */
+    m["study/S"] = declaredLike(m["study/S"],
+      { tolerance_ruling: "the drift here is small enough to accept" });
+  }),
+  "meta.declared_fields_claim": () => everyArm("meta.declared_fields_claim", {
+    /* THE HORIZON IT FILLED, UNDECLARED — the meta then reads as a wall whose
+       horizon was fitted off its own painting, which is the one thing this
+       family could not do. */
+    "an omitted field": () => tokensFromMetas((m) => {
+      m["study/S"] = declaredLike(m["study/S"], { declared_fields: [] });
+    }),
+    /* AND THE SCALE, CLAIMED. This is the arm that matters most: naming
+       `px_per_m_at_wall` here would waive the ±8 % band by declaration, on a
+       family whose whole definition is that the band PASSED. */
+    "a field it did not fill": () => tokensFromMetas((m) => {
+      m["study/S"] = declaredLike(m["study/S"],
+        { declared_fields: ["horizon_y", "px_per_m_at_wall"] });
+    })
+  }),
+  "meta.suspect_needs_declared": () => everyArm("meta.suspect_needs_declared", {
+    "the flag alone": () => tokensFromMetas((m) => { m["study/S"].suspect_perspective = true; }),
+    "the ruling alone": () => tokensFromMetas((m) => { m["study/S"].tolerance_ruling = TOLERANCE_RULING; }),
+    "the licence alone": () => tokensFromMetas((m) => { m["study/S"].declared_fields = ["horizon_y"]; })
   }),
   "meta.image_h": () => tokensFromMetas((m) => { m["hall/S"].image_h_px = 900; }),
   "meta.segment_shape": () => tokensFromMetas((m) => segmented(m, [{ from_m: 2, to_m: 1, kind: "wall" }])),
@@ -942,6 +1006,21 @@ function openLike(m) {
   return out;
 }
 
+/** [Row 32] The same facing, promoted under the Captain's tolerance ruling.
+ *
+ * A well-formed declared-camera meta, so that every case below can spoil ONE
+ * thing about it. `measured: true` and `camera_reference: "ruled"` together are
+ * what keep `meta.one_lens_measured` silent — a derived meta's focal IS the
+ * ruled 1024, so centring the band there admits it — and that is deliberate:
+ * the tolerance path does not waive the scale gate, so a construction for it
+ * has to sit inside the same band a real suspect wall sits inside. */
+function declaredLike(m, over = {}) {
+  return { ...m, measured: true, camera_reference: "ruled",
+    camera_source: "declared", suspect_perspective: true,
+    tolerance_ruling: TOLERANCE_RULING,
+    declared_fields: [...DECLARED_CAMERA_FIELDS], ...over };
+}
+
 /** hall/S, retyped as a part-built view carrying the given bands. */
 function segmented(m, bands) {
   m["hall/S"] = {
@@ -975,6 +1054,16 @@ test.describe("the clause ledger — document-side mechanisms", () => {
       expect(tripped, `${name} should be the only clause its doctored input trips`).toEqual([name]);
     });
   }
+
+  /* [Row 32] THE DISCRIMINATION THE FIVE DECLARED-CAMERA CASES STAND ON. Each
+     of them spoils one thing about a well-formed declared meta; without this,
+     every one of them could be green because the CONSTRUCTION trips its clause
+     rather than because the spoiling does. */
+  test("a well-formed declared-camera meta trips nothing", () => {
+    expect([...tokensFromMetas((m) => { m["study/S"] = declaredLike(m["study/S"]); })].sort(),
+      "a wall promoted under the tolerance ruling, honestly recorded, is not a finding")
+      .toEqual([]);
+  });
 
   test("and the shipped documents trip none of them", () => {
     /* [Row 21, round 3 — G4] EVERY shipped world, not the demo one. Two of the
@@ -2804,50 +2893,56 @@ test.describe("row 19's bounds, from both sides", () => {
  * measurement, spoils exactly one thing in the door reading and runs the real
  * tool. Nothing here re-implements the guard.
  */
-test.describe("the clause ledger — the promotion's painted-door mechanisms", () => {
-  /** Run the real promotion over a doctored door reading; return its tokens. */
-  function promoteTokens(key, doctor, planDoctor) {
-    const dir = stageTree();
-    try {
-      const [loc, fac] = key.split("/");
-      /* [Row 32] SOME PROMOTION CLAUSES ARE ABOUT THE PLAN, NOT THE READING.
-         The flight clause fires on what the DRAWING puts in this view, so a
-         case for it has to doctor the plan the staged tool reads, exactly as
-         the door cases doctor the measurement. */
-      if (planDoctor) {
-        const planRel = join("fixtures", "demo-study", "plan.json");
-        const plan = JSON.parse(readFileSync(join(dir, planRel), "utf8"));
-        planDoctor(plan);
-        writeFileSync(join(dir, planRel), JSON.stringify(plan, null, 2) + "\n");
-      }
-      const meta = JSON.parse(readFileSync(
-        join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
-      /* The candidate this meta names — `stageTree` leaves `backdrops/source/`
-         behind on purpose, so the one image this promotion reads comes over by
-         itself, exactly as `fixtures.spec`'s staleness case does it. */
-      const cand = String(meta.camera_id).replace(/^measured:/, "");
-      mkdirSync(dirname(join(dir, cand)), { recursive: true });
-      cpSync(join(repoRoot, cand), join(dir, cand));
-      const docRel = join("design", "plan-draft", "measured",
-        meta.measured_round || "", `${loc}-${fac}.json`);
-      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
-      const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
-      doctor(doc);
-      writeFileSync(join(dir, docRel), JSON.stringify(doc, null, 2) + "\n");
-      let out = "";
-      try {
-        execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
-          "--facing", key, "--candidate", cand,
-          ...(meta.measured_round ? ["--round", meta.measured_round] : []),
-          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
-          { cwd: dir, encoding: "utf8", stdio: "pipe" });
-      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
-      return [...tokensOf([out])].sort();
-    } finally {
-      removeTree(dir);
+/** Run the real promotion over a doctored reading; return its tokens.
+ *
+ * [Row 32] Hoisted out of the door describe below because the tolerance
+ * ruling's own mechanisms need exactly this rig with one more argument: the
+ * declared-camera path is chosen by a FLAG on the command line, so its cases
+ * spoil the flag or the reading rather than the reading alone. */
+function promoteTokens(key, doctor, planDoctor, extraArgs = []) {
+  const dir = stageTree();
+  try {
+    const [loc, fac] = key.split("/");
+    /* [Row 32] SOME PROMOTION CLAUSES ARE ABOUT THE PLAN, NOT THE READING.
+       The flight clause fires on what the DRAWING puts in this view, so a
+       case for it has to doctor the plan the staged tool reads, exactly as
+       the door cases doctor the measurement. */
+    if (planDoctor) {
+      const planRel = join("fixtures", "demo-study", "plan.json");
+      const plan = JSON.parse(readFileSync(join(dir, planRel), "utf8"));
+      planDoctor(plan);
+      writeFileSync(join(dir, planRel), JSON.stringify(plan, null, 2) + "\n");
     }
+    const meta = JSON.parse(readFileSync(
+      join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+    /* The candidate this meta names — `stageTree` leaves `backdrops/source/`
+       behind on purpose, so the one image this promotion reads comes over by
+       itself, exactly as `fixtures.spec`'s staleness case does it. */
+    const cand = String(meta.camera_id).replace(/^measured:/, "");
+    mkdirSync(dirname(join(dir, cand)), { recursive: true });
+    cpSync(join(repoRoot, cand), join(dir, cand));
+    const docRel = join("design", "plan-draft", "measured",
+      meta.measured_round || "", `${loc}-${fac}.json`);
+    mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+    const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
+    doctor(doc);
+    writeFileSync(join(dir, docRel), JSON.stringify(doc, null, 2) + "\n");
+    let out = "";
+    try {
+      execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+        "--facing", key, "--candidate", cand,
+        ...(meta.measured_round ? ["--round", meta.measured_round] : []),
+        ...(meta.camera_reference ? ["--reference", meta.camera_reference] : []),
+        ...extraArgs],
+        { cwd: dir, encoding: "utf8", stdio: "pipe" });
+    } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+    return [...tokensOf([out])].sort();
+  } finally {
+    removeTree(dir);
   }
+}
 
+test.describe("the clause ledger — the promotion's painted-door mechanisms", () => {
   test("the undoctored reading promotes clean", () => {
     /* The discrimination every case below needs: the same wall, the same tool,
        nothing spoiled, no clause. Without it a case could go green because the
@@ -2915,6 +3010,86 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
     expect(promoteTokens("library/E", (d) => { d._measured_px.openings = []; }),
       "a doorway the world walks through with no hole in the picture")
       .toEqual(["door.unmeasured_exit"]);
+  });
+});
+
+/* [Row 32] THE PROMOTION'S TOLERANCE MECHANISMS — the declared-camera door.
+ *
+ * design/approvals.log 2026-08-24 [HUMAN]: "I think its pretty close and we can
+ * accept a tolerance for drift here". A SUSPECT PAINTING promotes on the camera
+ * the page's own derived path holds for its facing instead of on the horizon
+ * its side walls fix, because those side walls fix a horizon no eye stands at
+ * or fix none at all. Four things then have to be said out loud, and each of
+ * them is a way the door could become a hole:
+ *
+ *   the door is only open to the family the INSTRUMENT named (an operator
+ *     cannot elect a camera the measurement did not)
+ *   and it is the ONLY door open to that family (a suspect reading may not
+ *     walk through the ordinary promotion carrying its contradicted ramp)
+ *   the eye the declared horizon implies is still judged, at the same ±8 %
+ *     that admitted the lens — the ruling accepts drift in the perspective and
+ *     none in the ruler
+ *   and a vista is not in this family at all, because its horizon was already
+ *     declared and it has no second reading for a tolerance to stand between
+ *
+ * `library/E` is the walled subject: a promoted wall with a measured door, so
+ * every door clause is silent on it and a case here can only be tripping its
+ * own. `entrance_approach/E` is the vista.
+ */
+test.describe("the clause ledger — the promotion's tolerance mechanisms", () => {
+  const DECLARED = ["--camera-source", "declared"];
+  const suspect = (fam) => (d) => { d._hold_family = fam; };
+
+  test("a suspect reading promotes clean through the declared camera", () => {
+    /* The discrimination all four stand on, and it carries a second claim
+       worth stating: `library/E` measures 1.166 m of eye against the DECLARED
+       horizon — 1.4 % off the drawing eye — so this path is not admitting a
+       wall the camera would have refused. The reading is untouched apart from
+       the family name it is wearing. */
+    expect(promoteTokens("library/E", suspect("suspect-painting"), null, DECLARED),
+      "a suspect painting, flagged, on the page's own camera").toEqual([]);
+  });
+
+  ledgerCase("tolerance.not_suspect", () => {
+    /* THE OPERATOR DOES NOT GET TO CHOOSE THE CAMERA. `library/E`'s own reading
+       fixed a horizon and named no hold family, so asking for the declared one
+       is an operator overriding an instrument that worked — which is the whole
+       difference between a ruled tolerance and a widened gate. */
+    expect(promoteTokens("library/E", () => {}, null, DECLARED),
+      "a wall whose own instrument never called it suspect")
+      .toEqual(["tolerance.not_suspect"]);
+  });
+
+  ledgerCase("tolerance.suspect_undeclared", () => {
+    /* AND THE FAMILY DOES NOT GET THE ORDINARY DOOR. Without this the tolerance
+       path would be a hole rather than a door: `row23_lib.promotion_doc`'s
+       refusal is what has kept suspect walls out of the store, and the moment
+       the sweep writes their documents anyway, a plain `promote-backdrop` call
+       would ship the contradicted ramp with nothing flagged. */
+    expect(promoteTokens("library/E", suspect("unfitted-horizon")),
+      "a suspect reading walking through the ordinary promotion")
+      .toEqual(["tolerance.suspect_undeclared"]);
+  });
+
+  ledgerCase("tolerance.eye_band", () => {
+    /* THE RULER IS NOT INSIDE THE TOLERANCE. The floor line moves to y 725 —
+       1.35 m of eye against the declared horizon at this wall's own measured
+       147.4 px/m, 14 % off the drawing eye. Nothing else moves, so the lens
+       band, the corners and the door all read exactly as they did. */
+    expect(promoteTokens("library/E", (d) => {
+      d._hold_family = "suspect-painting";
+      d.floor_line_y = 0.708054;
+    }, null, DECLARED), "a wall-foot line no eye 1.183 m off the ground draws")
+      .toEqual(["tolerance.eye_band"]);
+  });
+
+  ledgerCase("tolerance.open_facing", () => {
+    /* A VISTA IS NOT A SUSPECT PAINTING. Its horizon is ALREADY the declared
+       eye line (row 29(a)), so the declared camera has nothing to give it and
+       the drift it would be excusing is in the one reading a vista has. */
+    expect(promoteTokens("entrance_approach/E", suspect("suspect-painting"),
+      null, DECLARED), "an open facing asked to promote on a declared horizon")
+      .toEqual(["tolerance.open_facing"]);
   });
 });
 

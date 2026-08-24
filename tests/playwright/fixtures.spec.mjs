@@ -168,10 +168,21 @@ test.describe("fixtures", () => {
            re-running the tool without naming which would refuse the manor half
            of the corpus at the wrong centre — a red case that says nothing
            about staleness. */
+        /* [Row 32] AND WHERE ITS HORIZON CAME FROM, which is the third thing
+           the re-run has to be told and the newest. A wall promoted under the
+           Captain's tolerance ruling carries `camera_source: "declared"`; the
+           tool refuses to touch its measurement without the flag — the
+           measurement names a hold family, and promoting one through the
+           ordinary door would ship the reading the instrument refused — so
+           re-running it unflagged would make this case red for the wrong
+           reason, exactly as an unstated round or reference would. The
+           tolerance is knowing: the spec reads the source back off the meta
+           rather than assuming every promotion took one path. */
         execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
           "--facing", `${loc}/${facing}`, "--candidate", candidate,
           ...(meta.measured_round ? ["--round", meta.measured_round] : []),
-          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : []),
+          ...(meta.camera_source ? ["--camera-source", meta.camera_source] : [])],
           { cwd: dir, encoding: "utf8", stdio: "pipe" });
         expect(readFileSync(join(dir, "backdrops", loc, `${facing}.meta.json`), "utf8"),
           `backdrops/${loc}/${facing}.meta.json is not what promote-backdrop.mjs writes — a field was edited by hand, or the measurement moved and the promotion was not re-run`)
@@ -181,6 +192,54 @@ test.describe("fixtures", () => {
           `backdrops/${loc}/${facing}.png is not a byte copy of the candidate it names`)
           .toBe(true);
       }
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  /* [ROW 32 — the Captain's suspect-painting tolerance ruling, 2026-08-24]
+   * WHERE `suspect_perspective` LANDS, AND THAT IT LANDS THERE.
+   *
+   * The ruling's last clause is about row 4: "row 4 stages shallow on flagged
+   * walls and the flip test judges them". So the flag has to reach whatever
+   * surface staging reads, and the answer is that it already does — a promoted
+   * meta is resolved by `metaForFacing` and written into `fixtures/<w>/
+   * fixture.js`'s `metas` map VERBATIM, and that map is the one every placement
+   * is projected through (`projectPlacement(meta, …)`) and the one the page
+   * renders with. There is no second surface and nothing to add: a flag on the
+   * meta is a flag in front of the code that stages.
+   *
+   * What could quietly break it is the bake growing a whitelist. It has none
+   * today — `JSON.stringify(metas)` — and this is the check that says so, run
+   * where it matters: a promoted meta doctored into a declared one, baked, and
+   * the flag looked for in the artifact staging reads. */
+  test("a declared meta's suspect flag reaches the baked meta map staging is projected through", () => {
+    const dir = stageTree();
+    try {
+      const metaPath = join(dir, "backdrops", "study", "N.meta.json");
+      const meta = JSON.parse(readFileSync(metaPath, "utf8"));
+      meta.camera_source = "declared";
+      meta.suspect_perspective = true;
+      meta.tolerance_ruling = "design/approvals.log 2026-08-24, suspect-painting " +
+        "tolerance [HUMAN]: \"I think its pretty close and we can accept a " +
+        "tolerance for drift here\"";
+      meta.declared_fields = ["horizon_y"];
+      writeFileSync(metaPath, JSON.stringify(meta, null, 2) + "\n");
+      /* The bake runs the fixture validator over exactly these metas, so a
+         green bake is also the gate admitting the shape end to end. */
+      bake(dir, ["--fixture-dir", join(dir, "fixtures", "demo-study")]);
+      const baked = readFileSync(join(dir, "fixtures", "demo-study", "fixture.js"), "utf8");
+      /* `metas` is the last member of the baked object and its JSON is printed
+         at zero indent, so it runs from `metas: {` to the `}` in column 0. */
+      const metas = JSON.parse(/\n {2}metas: (\{[\s\S]*\n\})\n\};?\n?$/.exec(baked)[1]);
+      expect(metas["study/N"].suspect_perspective,
+        "the flag did not survive the bake — the surface staging reads does not know this wall is suspect")
+        .toBe(true);
+      expect(metas["study/N"].camera_source).toBe("declared");
+      expect(metas["study/N"].declared_fields).toEqual(["horizon_y"]);
+      /* And an unflagged wall in the same map carries none of it, so the flag
+         means something when it is there. */
+      expect(metas["hall/S"].suspect_perspective).toBeUndefined();
     } finally {
       removeTree(dir);
     }

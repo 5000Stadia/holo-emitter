@@ -117,6 +117,42 @@ export function measuredLensBand(reference) {
            hi: centre * (1 + MEASURED_BAND), exact: false, centre };
 }
 
+/* WHERE A META'S CAMERA CAME FROM, and the second of the two answers is new.
+ *
+ * Until the Captain's tolerance ruling there was one answer and it was silent:
+ * a promoted meta's horizon was MEASURED, fitted off the painting's own two
+ * side-wall/ceiling junctions (row 20's ceiling ramp), and a facing whose
+ * ramp could not be fitted — or whose ramp disagreed with the frame's own
+ * ruler — was not promoted at all. Row 32 named that second case the SUSPECT
+ * PAINTING family and left it on the look surface.
+ *
+ * [HUMAN, 2026-08-24, design/approvals.log]: *"I think its pretty close and we
+ * can accept a tolerance for drift here"* — a suspect wall promotes on the
+ * camera the page's own derived path would have held for that facing, and says
+ * so in the meta rather than pretending its horizon was read off the picture.
+ *
+ * WHAT THE SECOND ANSWER MAY AND MAY NOT COVER. Exactly the field the
+ * perspective contradiction makes unmeasurable: `horizon_y`. Everything else
+ * on such a meta is the same measured or plan-owned value it would carry on
+ * any other promotion — the floor line off the painting, the scale off the
+ * painting AND STILL INSIDE ITS BAND, the building's metres off the drawing.
+ * `DECLARED_CAMERA_FIELDS` is the whole licence, written once, and the clause
+ * below refuses a meta that claims either more or less of it than this. A
+ * declared meta that named `px_per_m_at_wall` here would be waiving the scale
+ * gate by declaration, which the ruling does not license and this refuses. */
+export const DECLARED_CAMERA_FIELDS = ["horizon_y"];
+export const CAMERA_SOURCES = ["measured", "declared"];
+/* The Captain's own words, short. A declared meta has to CITE the ruling that
+ * admits it — the log line and the sentence — so that a reader of the meta
+ * alone can find the authority, and so that a meta cannot acquire the licence
+ * by carrying a token nobody ruled. Matched rather than compared byte for
+ * byte: the citation is prose and the authority is the log, not this file. */
+export const TOLERANCE_RULING =
+  'design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: ' +
+  '"I think its pretty close and we can accept a tolerance for drift here"';
+const TOLERANCE_CITATION = /we can accept a tolerance for drift here/;
+const TOLERANCE_LOG = /design\/approvals\.log/;
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 const { GRID_META } = require_("../src/renderer.js");
@@ -263,6 +299,11 @@ const META_KEYS = [
   // ...and which measurement ROUND produced it, so the promotion can be
   // re-derived from the meta alone once rounds have their own directories
   "measured_round",
+  // [row 32, the Captain's tolerance ruling] ...and whether its camera was
+  // MEASURED off the painting or DECLARED from the page's own derived camera,
+  // with the flag that says why and the ruling that admits it. All four are
+  // absent on an ordinary promotion — see `DECLARED_CAMERA_FIELDS`.
+  "camera_source", "suspect_perspective", "tolerance_ruling", "declared_fields",
   "focal_px", "nearest_floor_m",
   // [row 15] the flights standing in this view — a fact about the building,
   // like `openings`, and what an empty manor needs in order to have an upstairs
@@ -687,6 +728,50 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
         }
       } else if (!(Math.abs(focal - FOCAL_PX) / FOCAL_PX <= DERIVED_LENS_TOL)) {
         findings.push(`${label}: ${meta.px_per_m_at_wall.toFixed(2)} px/m at ${dist} m is a ${focal.toFixed(1)} px lens, not the ruled ${FOCAL_PX} px (§12.5 (i′), blueprint §10) — one lens per room, and per manor [row20:meta.one_lens]`);
+      }
+    }
+  }
+  /* [Row 32 — the Captain's suspect-painting tolerance ruling, 2026-08-24]
+   * THE DECLARED-CAMERA META VARIANT, KNOWN TO THE GATE BY ITS OWN CLAUSES.
+   *
+   * The band above did not move and is not reached by anything here: a
+   * declared-camera meta is still `measured: true`, still carries the scale it
+   * was read at, and is still refused outside ±MEASURED_BAND. That is what
+   * makes its wall a SUSPECT rather than a FAILURE — the ruler passed and the
+   * perspective is what disagreed — and widening the measured clause to admit
+   * this family would have thrown that distinction away, which is why this is
+   * a separate vocabulary rather than a looser tolerance.
+   *
+   * What these clauses hold is the HONESTY of the record: a meta whose horizon
+   * came from the declared camera must say so, must carry the suspect flag row
+   * 4's staging reads, must cite the ruling that admits it, and must claim
+   * neither more nor less of the declared licence than `DECLARED_CAMERA_FIELDS`
+   * gives it. And the flag may not be worn by a meta that did not take the
+   * path: a measured meta carrying `suspect_perspective` would put a wall on
+   * Kabe's suspect surface that nothing ever ruled suspect. */
+  {
+    const src = meta.camera_source;
+    if (src !== undefined && !CAMERA_SOURCES.includes(src)) {
+      findings.push(`${label}: camera_source ${JSON.stringify(src)} is not one of ${CAMERA_SOURCES.join(" | ")} — a meta's camera was either read off its painting or taken from the page's own derived camera, and there is no third place it could have come from [row32:meta.camera_source]`);
+    }
+    const declared = src === "declared";
+    if (declared) {
+      if (meta.suspect_perspective !== true) {
+        findings.push(`${label}: camera_source is "declared" and suspect_perspective is ${JSON.stringify(meta.suspect_perspective)} — the declared camera exists only for the suspect-painting family, and a wall promoted under it that does not fly the flag is invisible to row 4's staging and to the flip test that judges it [row32:meta.declared_needs_suspect]`);
+      }
+      const ruling = meta.tolerance_ruling;
+      if (typeof ruling !== "string" || !TOLERANCE_LOG.test(ruling) ||
+          !TOLERANCE_CITATION.test(ruling)) {
+        findings.push(`${label}: camera_source is "declared" and tolerance_ruling is ${JSON.stringify(ruling)} — this path is open only because a human ruled it open, so the meta cites the approvals line and his own words, and a licence that names no authority is an agent widening a gate [row32:meta.declared_needs_ruling]`);
+      }
+      if (JSON.stringify(meta.declared_fields) !== JSON.stringify(DECLARED_CAMERA_FIELDS)) {
+        findings.push(`${label}: declared_fields is ${JSON.stringify(meta.declared_fields)}, and the declared camera fills exactly ${JSON.stringify(DECLARED_CAMERA_FIELDS)} — omitting a field it filled claims a measured horizon this painting never fixed, and naming one it did not fill (the scale above all) claims by declaration a number the band judged off the picture [row32:meta.declared_fields_claim]`);
+      }
+    } else {
+      const worn = ["suspect_perspective", "tolerance_ruling", "declared_fields"]
+        .filter((k) => meta[k] !== undefined);
+      if (worn.length) {
+        findings.push(`${label}: carries ${worn.join(", ")} without camera_source "declared" — the flag, the ruling and the licence belong to one path, and a meta wearing them off it puts a wall on the suspect surface that nothing ever ruled suspect [row32:meta.suspect_needs_declared]`);
       }
     }
   }

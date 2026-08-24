@@ -3,6 +3,11 @@
 
     python3 design/plan-draft/measured/row23_run.py            # one sweep
     python3 design/plan-draft/measured/row23_run.py --watch    # keep sweeping
+    python3 design/plan-draft/measured/row23_run.py --tolerance-sweep --dry-run
+                          # [row 32] what the suspect family would promote on
+                          # the declared camera, under the Captain's ruling —
+                          # measured, decided, nothing written. Drop --dry-run
+                          # to do it. See `tolerance_sweep`.
 
 [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go from
 schematic/description to full assets. To the degree we hope to one pass parallel
@@ -231,7 +236,93 @@ def _correction_for(family, why, reading, entry):
         "%s" % common)
 
 
-def promote_reading(key, cand_rel, e, side, ref, reading):
+#: [row 32] THE PER-WALL SETUP, IN ONE PLACE, because two readers now need it.
+#:
+#: The tolerance sweep measures the same frames the ordinary sweep does, off the
+#: same manifest entry, against the same declared camera — and a second copy of
+#: this construction would be a second instrument the moment either moved. Only
+#: the ROUTE differs between the two callers; the reading is one reading.
+
+
+def arrivals_for(key, e):
+    """Every roll of this wall that is actually on disk, first coat and retry.
+
+    THE RETRY ROLLS ARE ARRIVALS TOO. `--emit-retries` cuts re-ask packets with
+    fresh opaque ids recorded in retries.json — a set this sweep predates;
+    without this merge the whole second coat lands invisible (found live,
+    2026-08-24: 30 returned corrections and the sweep read none of them). The
+    manifest's geometry cfg still governs: the voiced scaffolds move labels,
+    never geometry, and every anchor stamps at the same row — the voice table's
+    own test pins that.
+    """
+    all_rolls = list(e["rolls"])
+    for rr in RETRIES.get(key, []):
+        all_rolls.append(rr)
+    return [r for r in all_rolls
+            if os.path.exists(os.path.join(ROOT, r["candidate"]))]
+
+
+def ref_for(e):
+    """The wall's own declared camera, off its own manifest entry.
+
+    Never a global one. A manor of 88 facings has 88 standpoints and therefore
+    88 scales, and pooling them is the defect row 20 removed.
+    """
+    return dict(focal_px=e["implied_focal_px"], eye_m=1.183,
+                horizon_y_px=1024 * 0.51377, band=0.08,
+                source="the wall's own manifest entry",
+                authority="the meta the page holds for this facing")
+
+
+def side_for(key, e, fac):
+    """The sidecar the row-23 instrument reads this wall's windows out of."""
+    side = {"facing": key,
+            "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
+                          # An OPEN facing has no wall to be a distance
+                          # from; its scale is quoted at the FAR LINE, and
+                          # the field name is the mechanism (row 11) — so
+                          # both are carried and `row23_lib.camera_distance`
+                          # resolves which one this facing has. The manifest
+                          # is preferred where it carries the wall distance,
+                          # and the drawing supplies the far one, which the
+                          # manifest of this map never emitted.
+                          "camera_wall_m": (e.get("camera_wall_m")
+                                            if e.get("camera_wall_m") is not None
+                                            else fac.get("camera_wall_m")),
+                          "camera_far_m": (e.get("camera_far_m")
+                                           if e.get("camera_far_m") is not None
+                                           else fac.get("camera_far_m")),
+                          "image_h_px": 1024,
+                          "floor_line_y": e.get("floor_line_y", 0.7857),
+                          "horizon_y": 0.51377,
+                          "corner_x0_px": e.get("corner_x0_px"),
+                          "corner_x1_px": e.get("corner_x1_px"),
+                          "storey_height_m": e.get("storey_height_m"),
+                          "wall_width_m": e.get("wall_width_m")},
+            "brackets": e["brackets"], "stamped": e["stamped"],
+            "outputs": {"scaffold": e["packet"] + "/scaffold.png",
+                        "scaffold_sha256": e["scaffold_sha256"]}}
+    # [row 29(a)] THE FACING'S TYPE, FROM THE DRAWING. This read `e["type"]`,
+    # which is the ROOM's type in the manor manifest — so the four enclosed
+    # facings of the two open rooms (`entrance_court/N|E|W`,
+    # `entrance_approach/N`) were labelled `open` in every reading they
+    # wrote, and a promotion routing on it would take a walled painting down
+    # the vista path. The manifest's own `facing_type` is preferred where
+    # the emitter now writes one; the drawing answers where it does not.
+    side["meta_used"]["facing_type"] = (
+        e.get("facing_type") or fac.get("type") or e.get("type"))
+    # The anchor's NAME, so an outdoor record does not say "chair-rail".
+    # The scaffold's own voice named it when the packet was cut.
+    side["meta_used"]["anchor_label"] = {
+        "coping": "boundary-wall coping",
+        "string_course": "string course",
+        "dado_capping": "dado capping",
+        "chair_rail": "chair-rail",
+    }.get((e.get("voice") or {}).get("anchor"))
+    return side
+
+
+def promote_reading(key, cand_rel, e, side, ref, reading, tolerance=False):
     """A promote-ready record, out of the reading the GATE already took.
 
     ONE INSTRUMENT PER QUANTITY, and this is what that costs and what it buys.
@@ -261,6 +352,21 @@ def promote_reading(key, cand_rel, e, side, ref, reading):
     import row23_lib
     doc, refusals = row23_lib.promotion_doc(
         reading, side, ref, "manor", sha(os.path.join(ROOT, cand_rel)))
+    # [row 32] THE FENCE IS STILL A FENCE; THE TOLERANCE RULING IS A SECOND
+    # DOOR THROUGH IT AND NOT A HOLE IN IT.
+    #
+    # A refusal here is what has held the suspect family out of the store: the
+    # document the promotion tool reads was never written, so there was nothing
+    # to promote from. Under the Captain's ruling the document IS written for
+    # the two families named in `row23_lib.TOLERANCE_FAMILIES` — it keeps every
+    # honest number it read, including the contradicted ramp and the sentence
+    # saying why the reading was refused — and `promote-backdrop.mjs` then
+    # requires `--camera-source declared` to touch it. So the wall cannot reach
+    # the store by this route without wearing the flag, and a refusal that is
+    # NOT one of the two families still stops here exactly as before.
+    if doc is not None and refusals and tolerance and \
+            doc.get("_hold_family") in row23_lib.TOLERANCE_FAMILIES:
+        refusals = []
     if doc is None or refusals:
         return None, (refusals or ["no reading"])[0]
     loc, f = key.split("/")
@@ -325,7 +431,7 @@ def _bake():
     return out[0] if out else None
 
 
-def do_promote(key, cand_rel, e, side, ref, reading):
+def do_promote(key, cand_rel, e, side, ref, reading, tolerance=False):
     """promote-backdrop + bake, for one wall. Never for the experiment's own.
 
     A PROMOTION THAT CANNOT BE BAKED IS NOT A PROMOTION. The bake runs the
@@ -335,16 +441,17 @@ def do_promote(key, cand_rel, e, side, ref, reading):
     that the page cannot be built from.
     """
     _t = time.time()                                              # [row 33]
-    ok, why = _do_promote(key, cand_rel, e, side, ref, reading)    # [row 33]
+    ok, why = _do_promote(key, cand_rel, e, side, ref, reading, tolerance)
     timings.record("promote.wall", _t, time.time(), key,           # [row 33]
                    {"candidate": cand_rel, "refused": not ok,
+                    "camera_source": "declared" if tolerance else "measured",
                     "why": (why or "")[:300] or None})
     return ok, why
 
 
-def _do_promote(key, cand_rel, e, side, ref, reading):
+def _do_promote(key, cand_rel, e, side, ref, reading, tolerance=False):
     """[row 33] The promotion itself, unchanged; `do_promote` is now its clock."""
-    path, why = promote_reading(key, cand_rel, e, side, ref, reading)
+    path, why = promote_reading(key, cand_rel, e, side, ref, reading, tolerance)
     if path is None:
         return False, why
     r = subprocess.run(
@@ -352,7 +459,11 @@ def _do_promote(key, cand_rel, e, side, ref, reading):
          "--facing", key, "--candidate", cand_rel, "--round", "manor",
          # The wall answers to the camera its own meta commands: manor walls
          # are scaffolded and derived at the ruled 1024 px lens.
-         "--reference", "ruled"],
+         "--reference", "ruled"]
+        # [row 32] AND THE CAMERA ITS HORIZON COMES FROM. Named only on the
+        # tolerance route, so the ordinary call is the string it has always
+        # been and no promoted meta's bytes move.
+        + (["--camera-source", "declared"] if tolerance else []),
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         return False, (r.stdout + r.stderr).strip().split("\n")[-1][:200]
@@ -455,21 +566,11 @@ def sweep(manifest, state, do_promote=True):
                       % (key, loc, fac_f))
             continue
 
-        # THE RETRY ROLLS ARE ARRIVALS TOO. `--emit-retries` cuts re-ask
-        # packets with fresh opaque ids recorded in retries.json — a set this
-        # sweep predates; without this merge the whole second coat lands
-        # invisible (found live, 2026-08-24: 30 returned corrections and the
-        # sweep read none of them). The manifest's geometry cfg still governs:
-        # the voiced scaffolds move labels, never geometry, and every anchor
-        # stamps at the same row — the voice table's own test pins that.
         # [row 29(a)] The DRAWING's own facing record, read before anything
-        # routes on the facing's type — see `facing_of`.
+        # routes on the facing's type — see `facing_of`; and every roll of this
+        # wall that is on disk, first coat and retry — see `arrivals_for`.
         fac = facing_of(key)
-        all_rolls = list(e["rolls"])
-        for rr in RETRIES.get(key, []):
-            all_rolls.append(rr)
-        arrivals = [r for r in all_rolls
-                    if os.path.exists(os.path.join(ROOT, r["candidate"]))]
+        arrivals = arrivals_for(key, e)
         # [row 29(a)] AN OUTDOOR WALL'S CANDIDATES ARE THE ONES IT WAS ASKED FOR
         # OUTDOORS. `entrance_court/S`'s two ORIGINAL rolls were painted before
         # the `outdoors_open` voice existed, from a prompt that asked for oak
@@ -510,56 +611,8 @@ def sweep(manifest, state, do_promote=True):
             waiting.append(key)
             continue
 
-        # The wall's own declared camera, off its own manifest entry — never a
-        # global one. A manor of 88 facings has 88 standpoints and therefore 88
-        # scales, and pooling them is the defect row 20 removed.
-        ref = dict(focal_px=e["implied_focal_px"], eye_m=1.183,
-                   horizon_y_px=1024 * 0.51377, band=0.08,
-                   source="the wall's own manifest entry",
-                   authority="the meta the page holds for this facing")
-        side = {"facing": key,
-                "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
-                              # An OPEN facing has no wall to be a distance
-                              # from; its scale is quoted at the FAR LINE, and
-                              # the field name is the mechanism (row 11) — so
-                              # both are carried and `row23_lib.camera_distance`
-                              # resolves which one this facing has. The manifest
-                              # is preferred where it carries the wall distance,
-                              # and the drawing supplies the far one, which the
-                              # manifest of this map never emitted.
-                              "camera_wall_m": (e.get("camera_wall_m")
-                                                if e.get("camera_wall_m") is not None
-                                                else fac.get("camera_wall_m")),
-                              "camera_far_m": (e.get("camera_far_m")
-                                               if e.get("camera_far_m") is not None
-                                               else fac.get("camera_far_m")),
-                              "image_h_px": 1024,
-                              "floor_line_y": e.get("floor_line_y", 0.7857),
-                              "horizon_y": 0.51377,
-                              "corner_x0_px": e.get("corner_x0_px"),
-                              "corner_x1_px": e.get("corner_x1_px"),
-                              "storey_height_m": e.get("storey_height_m"),
-                              "wall_width_m": e.get("wall_width_m")},
-                "brackets": e["brackets"], "stamped": e["stamped"],
-                "outputs": {"scaffold": e["packet"] + "/scaffold.png",
-                            "scaffold_sha256": e["scaffold_sha256"]}}
-        # [row 29(a)] THE FACING'S TYPE, FROM THE DRAWING. This read `e["type"]`,
-        # which is the ROOM's type in the manor manifest — so the four enclosed
-        # facings of the two open rooms (`entrance_court/N|E|W`,
-        # `entrance_approach/N`) were labelled `open` in every reading they
-        # wrote, and a promotion routing on it would take a walled painting down
-        # the vista path. The manifest's own `facing_type` is preferred where
-        # the emitter now writes one; the drawing answers where it does not.
-        side["meta_used"]["facing_type"] = (
-            e.get("facing_type") or fac.get("type") or e.get("type"))
-        # The anchor's NAME, so an outdoor record does not say "chair-rail".
-        # The scaffold's own voice named it when the packet was cut.
-        side["meta_used"]["anchor_label"] = {
-            "coping": "boundary-wall coping",
-            "string_course": "string course",
-            "dado_capping": "dado capping",
-            "chair_rail": "chair-rail",
-        }.get((e.get("voice") or {}).get("anchor"))
+        ref = ref_for(e)
+        side = side_for(key, e, fac)
         # HOTFIX (Navigator, live run 2026-08-24): the manifest's `stamped`
         # copies carry only (kind, x0, x1); the verticals are re-derived from
         # the scaffold's own convention table in `row23_lib._conv_y`. Found
@@ -842,7 +895,15 @@ def recheck_doors(state):
             ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
              "--facing", key, "--candidate", cand]
             + (["--round", rnd] if rnd else [])
-            + (["--reference", meta["camera_reference"]] if meta.get("camera_reference") else []),
+            + (["--reference", meta["camera_reference"]] if meta.get("camera_reference") else [])
+            # [row 32] AND THE CAMERA SOURCE, read back off the meta for the
+            # same reason the round and the reference are: a wall promoted
+            # under the tolerance ruling is RE-DECIDED under it too, and
+            # re-running this tool without the flag would refuse it on
+            # `tolerance.suspect_undeclared` and demote a wall the Captain
+            # admitted.
+            + (["--camera-source", meta["camera_source"]]
+               if meta.get("camera_source") else []),
             cwd=ROOT, capture_output=True, text=True)
         if r.returncode == 0:
             kept.append((key, len([f for f in found]), r.stdout.strip().split("\n")[-1]))
@@ -864,6 +925,195 @@ def recheck_doors(state):
     return kept, demoted, bad
 
 
+APPROVALS = os.path.join(ROOT, "design", "approvals.log")
+
+
+def tolerance_ruling():
+    """The Captain's ruling, read from ITS OWN HOME and never copied here.
+
+    design/approvals.log is where a human's word lives in this project, and the
+    tolerance sweep exists only because one is on that ledger. Reading it rather
+    than restating it means the mode cannot outlive the ruling: strike the line
+    and the sweep refuses to run, which is the honest behaviour for a route
+    whose entire authority is a sentence somebody said.
+
+    The meta's own citation is `promote-backdrop.mjs`'s to write; this is the
+    sweep's check that there is something to cite.
+    """
+    if not os.path.exists(APPROVALS):
+        return None
+    for ln in reversed(open(APPROVALS, encoding="utf-8").read().splitlines()):
+        if "suspect-painting tolerance" in ln:
+            return ln.strip()
+    return None
+
+
+def tolerance_sweep(manifest, state, dry_run=True):
+    """[row 32, the Captain's ruling 2026-08-24] The suspect family, promoted.
+
+    A SECOND PASS OVER WALLS THE FIRST ONE HELD, and only over those. The
+    ordinary sweep decides every wall on its own art; this one takes the walls
+    it decided against for one named reason — the perspective is unusable while
+    the ruler is fine — and re-decides them under the declared camera.
+
+    WHAT IT WILL NOT DO:
+
+      * It never touches a wall the ordinary sweep is still working. A wall in
+        `retry` has rolls coming and its cap unspent; promoting it here would
+        spend the Captain's tolerance on a wall that was about to be repainted
+        for free. Only `held` and `parked` walls — the ones with nothing else
+        coming — are eligible, which is also why this mode is run AFTER the
+        production test's returns are in and never over them.
+      * It never widens a band. Every wall here still has to produce a camera
+        PASS on this pass's own reading; a wall whose scale has drifted out of
+        ±8 % since it was held is not a suspect, it is a miss, and it stays
+        held with its own correction untouched.
+      * It never promotes a fenced wall (`NEVER_PROMOTE`, `M0_ROOMS`) and never
+        touches art already in the store.
+
+    `dry_run` is the mode's default in every sense that matters: it measures
+    everything, decides everything, writes NOTHING — no document, no meta, no
+    run state — and prints what would happen and why. The ruling is a licence
+    to promote a family, not a licence to promote without looking.
+    """
+    import row23_lib
+    from measure import (pick_floor, module_in_bands, pick_ceiling,
+                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
+                         light, EYE_RANGE)
+    picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
+                 pick_ceiling=pick_ceiling,
+                 find_corners_recession=find_corners_recession,
+                 ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+                 light=light, EYE_RANGE=EYE_RANGE)
+    ruling = tolerance_ruling()
+    would, skipped = [], []
+    for e in manifest["entries"]:
+        if e.get("skipped"):
+            continue
+        key = e["key"]
+        st = state["walls"].get(key) or {}
+        loc, fac_f = key.split("/")
+        if st.get("status") not in ("held", "parked"):
+            continue
+        if st.get("hold_family") not in row23_lib.TOLERANCE_FAMILIES:
+            continue
+        if key in NEVER_PROMOTE or loc in M0_ROOMS:
+            skipped.append((key, st.get("hold_family"),
+                            "fenced from promotion by this loop"))
+            continue
+        if os.path.exists(os.path.join(ROOT, "backdrops", loc, fac_f + ".png")):
+            skipped.append((key, st.get("hold_family"), "art already in the store"))
+            continue
+        fac = facing_of(key)
+        if fac.get("type") == "open":
+            # An open frame's horizon is ALREADY declared, so there is nothing
+            # for this route to give it — `promote-backdrop.mjs` refuses one by
+            # name and the sweep says so here rather than spending a reading.
+            skipped.append((key, st.get("hold_family"),
+                            "an open facing: its horizon is already the declared "
+                            "eye line and it has no second reading to be "
+                            "tolerant of"))
+            continue
+        arrivals = arrivals_for(key, e)
+        if not arrivals:
+            skipped.append((key, st.get("hold_family"), "no candidate on disk"))
+            continue
+        ref = ref_for(e)
+        side = side_for(key, e, fac)
+        try:
+            cfg = row23_lib.cfg_from_sidecar(side)
+        except Exception as _ex:
+            skipped.append((key, st.get("hold_family"), "config: %s" % _ex))
+            continue
+        best = None
+        for r in arrivals:
+            try:
+                d = row23_lib.measure_candidate(
+                    os.path.join(ROOT, r["candidate"]), side, cfg, ref, picks)
+            except Exception as _mex:
+                continue
+            d["id"], d["candidate"] = r["id"], r["candidate"]
+            if d["verdict"] == "PASS" and (
+                    best is None or
+                    abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
+                best = (r, d)
+        if best is None:
+            # THE SCALE GATE IS NOT WAIVED AND THIS IS WHERE THAT IS TRUE.
+            skipped.append((key, st.get("hold_family"),
+                            "no candidate of this wall passes the camera band on "
+                            "this pass; that is a miss, not a suspect"))
+            continue
+        r, d = best
+        fam = (d.get("_promotion") or {}).get("hold_family")
+        if fam not in row23_lib.TOLERANCE_FAMILIES:
+            # The state said suspect and this pass's own reading does not. The
+            # reading wins — the state file is a record, the picture is the fact
+            # — and the wall goes back to the ordinary sweep.
+            skipped.append((key, st.get("hold_family"),
+                            "this pass reads it as %s; the ordinary sweep owns it"
+                            % (fam or "clean")))
+            continue
+        would.append((key, fam, r, d))
+    if dry_run:
+        return would, skipped, None
+    if not ruling:
+        return [], skipped, ("design/approvals.log carries no suspect-painting "
+                             "tolerance line; this mode has no authority to run")
+    promoted = []
+    for key, fam, r, d in would:
+        entry = e_of(manifest, key)
+        side = side_for(key, entry, facing_of(key))
+        side["candidate"] = r["candidate"]
+        ok, why = do_promote(key, r["candidate"], entry, side, ref_for(entry), d,
+                             tolerance=True)
+        st = state["walls"].setdefault(key, {"attempts": 0})
+        if ok:
+            st["status"] = "promoted"
+            st["candidate"] = r["candidate"]
+            # THE CORRECTION IS NOT ANSWERED AND IS NOT DELETED. The repaint
+            # this wall was asked for never happened; the Captain accepted the
+            # drift instead. Kept under a past-tense name so the two
+            # present-tense fields stop claiming a wall in the store is waiting
+            # for a roll, and so the record still says what the frame does.
+            if st.get("correction") is not None:
+                st["waived_correction"] = st.pop("correction")
+            st["hold_family"] = fam
+            st["suspect_perspective"] = True
+            st["camera_source"] = "declared"
+            st["tolerance_ruling"] = ruling
+            promoted.append((key, fam, r, d))
+        else:
+            st["status"] = "held"
+            st["hold_family"] = fam
+            st["why"] = "the tolerance promotion was refused: %s" % why
+            skipped.append((key, fam, why))
+    return promoted, skipped, None
+
+
+def e_of(manifest, key):
+    """This wall's manifest entry, by key."""
+    return next(x for x in manifest["entries"] if x["key"] == key)
+
+
+def _tolerance_line(key, fam, r, d):
+    """One dry-run row: what this wall would carry and where each field is from."""
+    p = d.get("_promotion") or {}
+    m = d.get("_measured_px") or {}
+    return ("  %-24s %-17s %s | measured %.1f px/m (%+.1f%% focal, %+.1f%% eye), "
+            "floor line y %d, rail %d px — DECLARED horizon %s | %s"
+            % (key, fam, r["id"], d["px_per_m_at_wall"], d["delta_focal_pct"],
+               d["delta_eye_pct"], m.get("wall_floor_line_y_px", -1),
+               m.get("dado_rail_above_floor_px", -1),
+               ("y %.1f (this frame's own returns converge at y %.1f)"
+                % (1024 * 0.51377, (p.get("ramp") or {}).get("y", float("nan"))))
+               if fam == "suspect-painting" else
+               "y %.1f (this frame's returns converge nowhere admissible)"
+               % (1024 * 0.51377),
+               "eye would be %.3f m" % ((m.get("wall_floor_line_y_px", 0)
+                                         - 1024 * 0.51377)
+                                        / d["px_per_m_at_wall"])))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--watch", action="store_true",
@@ -873,7 +1123,53 @@ def main():
     ap.add_argument("--recheck-doors", action="store_true",
                     help="row 27: re-measure and re-decide every promoted "
                          "door-bearing wall against the painted-door rule")
+    ap.add_argument("--tolerance-sweep", action="store_true",
+                    help="row 32: promote the remaining suspect-family holds on "
+                         "the declared camera, under the Captain's tolerance "
+                         "ruling (design/approvals.log 2026-08-24)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="with --tolerance-sweep: measure and decide, write "
+                         "nothing, and print what would promote and why")
     a = ap.parse_args()
+
+    if a.dry_run and not a.tolerance_sweep:
+        print("row23-run: --dry-run belongs to --tolerance-sweep; the ordinary "
+              "sweep's dry run is --no-promote, which already exists")
+        return 2
+
+    if a.tolerance_sweep:
+        ruling = tolerance_ruling()
+        if not ruling:
+            print("row23-run: design/approvals.log carries no suspect-painting "
+                  "tolerance line — this mode is a human's ruling and nothing else")
+            return 1
+        if not os.path.exists(MANIFEST):
+            print("row23-run: no manifest")
+            return 1
+        manifest = json.load(open(MANIFEST))
+        state = load_state()
+        out, skipped, err = tolerance_sweep(manifest, state, dry_run=a.dry_run)
+        if err:
+            print("row23-run: " + err)
+            return 1
+        print("  under: %s" % ruling)
+        for key, fam, r, d in out:
+            print(_tolerance_line(key, fam, r, d))
+            if not a.dry_run:
+                print("  %-24s PROMOTE   declared camera, flagged suspect" % key)
+        for key, fam, why in skipped:
+            print("  %-24s %-17s NOT PROMOTED: %s" % (key, fam or "-", why))
+        if a.dry_run:
+            print("%s  DRY RUN: %d wall(s) would promote on the declared camera, "
+                  "%d would not; nothing was written"
+                  % (time.strftime("%H:%M:%S"), len(out), len(skipped)))
+            return 0
+        save_state(state)
+        bad = _bake()
+        print("%s  %d wall(s) promoted under the tolerance ruling, %d not%s"
+              % (time.strftime("%H:%M:%S"), len(out), len(skipped),
+                 ("; BAKE REFUSED: " + bad) if bad else ""))
+        return 1 if bad else 0
 
     if a.recheck_doors:
         state = load_state()
