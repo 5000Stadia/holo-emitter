@@ -151,6 +151,14 @@ test.describe("row 27 — the painted door governs", () => {
     }
 
     test("the page's go target is the measured rectangle, not the plan's", async ({ page }) => {
+      /* ELEVEN COLD LOADS, and the default 90 s was already inside the noise:
+         `stand()` reloads the page for every promoted wall so each one is
+         judged from a boot rather than from wherever the last one left the
+         viewer, and a cold `file://` boot of this manor is 3–5 s on its own.
+         [Row 25] The composite's rewrite added about a tenth to a walk, which
+         is what pushed a marginal budget over on a loaded machine; the check
+         itself is unchanged and still walks to every wall. */
+      test.setTimeout(240_000);
       /* THE INTEGRATION THE DOCUMENT CANNOT SEE. A meta can carry a measured
          opening and the page can still hand `go` a rectangle it derived some
          other way; this walks to the wall and asks the page itself. */

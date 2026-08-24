@@ -553,9 +553,18 @@ test.describe("what an exit's `via` names is bound to one function", () => {
       window.HOLO.groundplane.openingFor = original;
       return { before, during, after: count() };
     });
-    expect(r.before, "every way through the manor is an aperture on its own facing").toBe(56);
+    /* [ROW 25] SIXTY-FOUR, NOT FIFTY-SIX, and the sentence that said otherwise
+       is gone with the number. The manor walks 56 ways through, and a FLIGHT is
+       drawn on every facing of its room that can see it — so the eight facings
+       that see a stair they are not walked from carry its aperture too, and a
+       click there turns you to it and climbs. Every other way through is a hole
+       in the wall you are facing and appears once. What this case is about is
+       unchanged: displace the lookup and the building has no ways through at
+       all. */
+    expect(r.before, "56 ways through, plus the 8 facings that see a flight from beside it")
+      .toBe(64);
     expect(r.during, "with the lookup displaced the building has no ways through at all").toBe(0);
-    expect(r.after, "and restored").toBe(56);
+    expect(r.after, "and restored").toBe(64);
   });
 
   test("a leaf outranks the plan's own name for the hole it stands in", () => {
