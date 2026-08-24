@@ -80,9 +80,16 @@ COUNTABLE = ["door", "window", "fireplace", "hearth", "chimney", "beam", "shield
 #: Three commas in a line with no finite verb is the shape; the threshold is
 #: stated here rather than tuned per prompt.
 TAG_COMMAS = 3
+#: An IMPERATIVE is prose, not a tag list. The rule is about fragment
+#: enumerations — "oak, brass, vellum, leaded glass" — and "Do not invent
+#: additional typography." is a sentence with a verb in it. Leaving the
+#: imperatives out made the tool refuse the very positive-substitution line the
+#: research recommends, which is the tool being wrong rather than the prompt.
 VERBISH = re.compile(r"\b(is|are|runs?|stands?|meets?|falls?|carries|sits?|has|have|"
                      r"contains?|reaches?|spans?|shows?|draws?|paints?|comes?|goes?|"
-                     r"begins?|ends?|holds?|marks?|governs?|wins?|looks?)\b", re.I)
+                     r"begins?|ends?|holds?|marks?|governs?|wins?|looks?|"
+                     r"do|does|don't|invent|keep|keeps?|leave|leaves?|make|makes?|use|uses?)\b",
+                     re.I)
 
 
 #: Compounds that contain a countable noun and are not one. "chair-rail" is a

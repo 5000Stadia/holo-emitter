@@ -334,6 +334,24 @@ async function emit(generation) {
     throw new Error(`emit-evolution refused: ${rolls.length} rolls against a declared ` +
       `${ceiling} (design/specs/34-plan.md §3)`);
   }
+  /* AND THE TOTAL, which is the number the row's done clause actually binds —
+   * "all bounded roll counts were declared before dispatch". A per-generation
+   * ceiling alone would let three generations each come in under and still
+   * overspend the row; and it would refuse a generation that is over its own
+   * line while under the total, which is exactly the case generation 3 is in.
+   * Counted off the id maps on disk rather than from a running tally, so a
+   * re-emission cannot double-count and a deleted map cannot hide a spend. */
+  let spent = rolls.length;
+  for (let g = 1; g < generation; g++) {
+    const p = join(BATCH, g === 1 ? "assignment.json" : `assignment-gen${g}.json`);
+    if (existsSync(p)) spent += JSON.parse(readFileSync(p, "utf8")).rolls.length;
+  }
+  if (spent > BUDGET.total_worst_case) {
+    throw new Error(`emit-evolution refused: ${spent} rolls across the row against a declared ` +
+      `total of ${BUDGET.total_worst_case} (design/specs/34-plan.md §3). A generation may move ` +
+      "its own line; the total is what was declared before dispatch and it does not move.");
+  }
+  console.log(`  budget      ${spent} of ${BUDGET.total_worst_case} declared, across the row`);
 
   /* ---- the id map, committed before any candidate exists ---- */
   const assignPath = join(BATCH, generation === 1 ? "assignment.json" : `assignment-gen${generation}.json`);

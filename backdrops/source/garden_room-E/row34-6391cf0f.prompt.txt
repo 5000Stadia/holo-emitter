@@ -1,0 +1,52 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the garden room, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
+  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the east wall of the empty garden room of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of
+  the room with the two side walls running away from you to left and right. The wall you
+  face shows its whole width, and the floor is visible and reaches the bottom of the
+  picture.
+  The line where the left-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the top edge.
+  The line where the left-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the bottom edge.
+  The line where the right-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the top edge.
+  The line where the right-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the bottom edge.
+  Carry all four of those lines the other way instead, back into the distance, and they
+    converge on a single place: the middle of the picture's width, a little above its
+    half-height, at about the eye level of someone standing on the floor you can see.
+  The same lines, as picture coordinates — column counted from the left edge,
+    row counted from the top:
+    The faced wall meets the floor along a level line at row 710.
+    It meets the surface overhead along a level line at row 275.
+    Its two upright edges stand at column 493 and column 1043.
+    The left side wall's upper line runs from column 493, row 275 to column 190, row 0.
+    The left side wall's lower line runs from column 493, row 710 to column 21, row 1024.
+    The right side wall's upper line runs from column 1043, row 275 to column 1346, row 0.
+    The right side wall's lower line runs from column 1043, row 710 to column 1515, row 1024.
+    Carried on, all four of those meet at column 768, row 526.
+    One metre of the faced wall covers 155 columns.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials/textures: light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling.
+  Underfoot: a floor of square stone paviours.
+Windows: this wall carries no window and no glazed opening of any kind.
+Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the garden room is completely empty. No furniture stands in it and nobody is in it; there are no
+  loose props and no animals.
+  Image 2 is a layout drawing and its marks are instructions rather than things to paint.
+  Every surface here is plain and unlettered. The panelling shows only plain wood and the
+  plaster shows only plain plaster; the glass holds only plain glazing and the stone is left
+  plain. This picture carries only the room itself. Do not invent additional typography.
