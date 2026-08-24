@@ -116,6 +116,89 @@ def _conv_y(kind, floor_y, ppm):
     return (floor_y - 2.00 * ppm, floor_y)              # door and anything door-like
 
 
+#: [row 35] The reference camera every manor wall answers to, in the two numbers
+#: that are not per-wall. Their authored home is `src/groundplane.js`
+#: (`DRAWING_EYE_M`, `HORIZON_Y`); these are the python-side copies the sweep
+#: has carried since the manor run, moved here from `row23_run.sweep` when a
+#: second reader appeared, so that the two readers cannot drift apart.
+DRAWING_EYE_M = 1.183
+HORIZON_Y = 0.51377
+
+
+def side_from_entry(key, entry, facing_record):
+    """[row 35] The per-wall scaffold record, out of the manifest and the plan.
+
+    ONE HOME, BECAUSE THERE ARE NOW TWO READERS. This block was written inline
+    in `row23_run.sweep` when the sweep was the only thing that measured a manor
+    wall. `row35_snap.py` measures one too — the snap's input geometry is the
+    same reading the gate takes, through the same windows, or it is a second
+    instrument by the very mechanism `_promotion_half` records — so the record
+    the two of them build is one function rather than two copies. Nothing about
+    what it builds changed in the move; the comments are the sweep's own.
+
+    `facing_record` is the PLAN's facing (`row23_run.facing_of`), which is the
+    authority for the facing's type and for an open facing's depth anchor.
+    """
+    e, fac = entry, (facing_record or {})
+    side = {"facing": key,
+            "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
+                          # An OPEN facing has no wall to be a distance from;
+                          # its scale is quoted at the FAR LINE, and the field
+                          # name is the mechanism (row 11) — so both are carried
+                          # and `camera_distance` resolves which one this facing
+                          # has. The manifest is preferred where it carries the
+                          # wall distance, and the drawing supplies the far one,
+                          # which the manifest of this map never emitted.
+                          "camera_wall_m": (e.get("camera_wall_m")
+                                            if e.get("camera_wall_m") is not None
+                                            else fac.get("camera_wall_m")),
+                          "camera_far_m": (e.get("camera_far_m")
+                                           if e.get("camera_far_m") is not None
+                                           else fac.get("camera_far_m")),
+                          "image_h_px": 1024,
+                          "floor_line_y": e.get("floor_line_y", 0.7857),
+                          "horizon_y": HORIZON_Y,
+                          "corner_x0_px": e.get("corner_x0_px"),
+                          "corner_x1_px": e.get("corner_x1_px"),
+                          "storey_height_m": e.get("storey_height_m"),
+                          "wall_width_m": e.get("wall_width_m")},
+            "brackets": e["brackets"], "stamped": e["stamped"],
+            "outputs": {"scaffold": e["packet"] + "/scaffold.png",
+                        "scaffold_sha256": e["scaffold_sha256"]}}
+    # [row 29(a)] THE FACING'S TYPE, FROM THE DRAWING. This read `e["type"]`,
+    # which is the ROOM's type in the manor manifest — so the four enclosed
+    # facings of the two open rooms (`entrance_court/N|E|W`,
+    # `entrance_approach/N`) were labelled `open` in every reading they wrote,
+    # and a promotion routing on it would take a walled painting down the vista
+    # path. The manifest's own `facing_type` is preferred where the emitter now
+    # writes one; the drawing answers where it does not.
+    side["meta_used"]["facing_type"] = (
+        e.get("facing_type") or fac.get("type") or e.get("type"))
+    # The anchor's NAME, so an outdoor record does not say "chair-rail". The
+    # scaffold's own voice named it when the packet was cut.
+    side["meta_used"]["anchor_label"] = {
+        "coping": "boundary-wall coping",
+        "string_course": "string course",
+        "dado_capping": "dado capping",
+        "chair_rail": "chair-rail",
+    }.get((e.get("voice") or {}).get("anchor"))
+    return side
+
+
+def reference_from_entry(entry):
+    """[row 35] The camera a manor wall's candidates are read against.
+
+    Off the wall's OWN manifest entry, never a global one — a manor of 88
+    facings has 88 standpoints and therefore 88 scales, and pooling them is the
+    defect row 20 removed. Moved out of `row23_run.sweep` beside
+    `side_from_entry` for the same reason.
+    """
+    return dict(focal_px=entry["implied_focal_px"], eye_m=DRAWING_EYE_M,
+                horizon_y_px=1024 * HORIZON_Y, band=0.08,
+                source="the wall's own manifest entry",
+                authority="the meta the page holds for this facing")
+
+
 def cfg_from_sidecar(side):
     """CFG_ROW23 — a FUNCTION of the wall's scaffold, never a table.
 

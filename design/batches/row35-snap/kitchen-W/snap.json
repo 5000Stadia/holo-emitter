@@ -1,0 +1,194 @@
+{
+  "_what_this_is": "the row-35 snap of kitchen/W: a five-plane planar rectification of backdrops/source/kitchen-W/row23-3da016f1.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",
+  "tool": "design/plan-draft/measured/row35_snap.py",
+  "source_box": {
+    "x0": 104.0,
+    "x1": 1461.0,
+    "yc": 223.0,
+    "yf": 743.0,
+    "vx": 768.0,
+    "vy": 526.10048
+  },
+  "target_box": {
+    "x0": 105.30501649145106,
+    "x1": 1430.6949835085488,
+    "yc": 220.11157539998203,
+    "yf": 727.9986666666666,
+    "vx": 768.0,
+    "vy": 526.10048
+  },
+  "source_anchors": {
+    "ceiling": "measured",
+    "corners": "measured",
+    "vanishing_point": "declared-principal-point",
+    "vanishing_point_why": "the measured convergence was tried first and its snap was over budget: the correction this frame needs magnifies its floor by 4.88x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]",
+    "px_per_m_at_wall": 174.737
+  },
+  "target": {
+    "k": 0.9767059447436242,
+    "storey_m": 2.97590092539073,
+    "target_eye_m": 1.1829971875,
+    "ppm_source": 174.737,
+    "ppm_target": 170.66666666666666
+  },
+  "residuals": {
+    "scale_k": 0.976706,
+    "eye_source_m": 1.2413,
+    "eye_target_m": 1.183,
+    "storey_painted_m": 2.9759,
+    "wall_uniform_scale": 0.9767,
+    "floor_vertical_over_horizontal": 0.953,
+    "ceiling_vertical_over_horizontal": 1.0336,
+    "left_return_shear": -0.015,
+    "right_return_shear": -0.0144
+  },
+  "magnification": {
+    "per_region": {
+      "wall": {
+        "pixels": 672282,
+        "max_magnification": 0.979,
+        "max_minification": 1.043
+      },
+      "floor": {
+        "pixels": 451171,
+        "max_magnification": 0.994,
+        "max_minification": 1.094
+      },
+      "ceiling": {
+        "pixels": 334254,
+        "max_magnification": 1.022,
+        "max_minification": 1.044
+      },
+      "left": {
+        "pixels": 58167,
+        "max_magnification": 1.009,
+        "max_minification": 1.069
+      },
+      "right": {
+        "pixels": 56990,
+        "max_magnification": 0.984,
+        "max_minification": 1.064
+      }
+    },
+    "max_magnification": 1.022,
+    "max_minification": 1.094,
+    "_reading": "the largest factor any painted detail is stretched by (magnification) and squeezed by (minification), taken over every pixel of the output frame"
+  },
+  "edge_reveal": {
+    "unplaced_pixels": 0,
+    "max_overshoot_px": 53.98,
+    "extended_pixels": 91469,
+    "extended_fraction": 0.05815,
+    "region_pixels": {
+      "wall": 671775,
+      "floor": 451171,
+      "ceiling": 334253,
+      "left": 58127,
+      "right": 57538
+    }
+  },
+  "budgets": {
+    "reveal_px": 100.0,
+    "stretch": 3.0
+  },
+  "source_candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
+  "source_candidate_sha256": "10f65df70f7e6391861431b063c441366680319ce56a31a47e7a55818e873aae",
+  "opening_rect_skew_px": 0.0,
+  "acceptance": {
+    "_what_this_is": "the snapped frame put back through the SAME instrument, with the same scaffold windows and no band moved. Under the Captain's 2026-08-24 ruling this is a report and not a gate.",
+    "verdict": "PASS",
+    "kind": null,
+    "hold_family": "suspect-painting",
+    "delta_focal_pct": 2.38,
+    "delta_eye_pct": 1.54,
+    "px_per_m_at_wall": 174.737,
+    "floor_line_y_px": 736,
+    "floor_window": [
+      711,
+      744
+    ],
+    "chair_rail_y_px": 570,
+    "rail_band": [
+      552,
+      578
+    ],
+    "ramp": {
+      "x": 681.7,
+      "y": 695.9,
+      "left_slope": 0.9599,
+      "right_slope": -0.7309,
+      "left_n": 59,
+      "left_resid_px": 0.35,
+      "right_n": 59,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.21
+    },
+    "ramp_eye_m": 0.2295,
+    "corner_x0_px": 105,
+    "corner_x1_px": 1431,
+    "declared_horizon_px": 526.10048,
+    "declared_floor_px": 727.9986666666666,
+    "target_eye_m": 1.1829971875,
+    "withheld_because": [
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 695.9, fixed to +/-1.2 px, inside the +/-16.2 px the standing licence allows the horizon row) puts the eye at 0.229 m above its own floor line at the scale its own gate anchor declares (174.7 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
+    ],
+    "absent": [
+      "the door: the choice of edge pair would choose the verdict: the strongest pair sits 617..783 (5 px from the ask) and another admissible pair sits 617..814 (20 px from the ask), which disagree by more than the 14 px this arm can resolve"
+    ],
+    "doors": {
+      "_what_this_is": "the doors the reading carries, transformed, beside a fresh read of the snapped frame",
+      "carried": 2,
+      "re_read": 2,
+      "pairs": [
+        {
+          "carried": [
+            619,
+            778,
+            396,
+            728
+          ],
+          "re_read": [
+            619,
+            778,
+            396,
+            728
+          ],
+          "centre_delta_px": 0.2,
+          "width_delta_px": 0
+        },
+        {
+          "carried": [
+            696,
+            778,
+            396,
+            728
+          ],
+          "re_read": [
+            696,
+            778,
+            396,
+            728
+          ],
+          "centre_delta_px": 0.2,
+          "width_delta_px": 0
+        }
+      ],
+      "re_read_note": {
+        "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+        "body_rows": [
+          438,
+          677
+        ],
+        "wall_band_px": [
+          105,
+          1430
+        ],
+        "wall_median_luminance": 23.96,
+        "min_enumerated_px": 68,
+        "min_head_m": 1.4,
+        "storey_m": 2.8,
+        "candidates_before_head_test": 4
+      }
+    }
+  }
+}

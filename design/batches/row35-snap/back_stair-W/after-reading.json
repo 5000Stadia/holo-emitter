@@ -1,0 +1,303 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 819,
+    "chair_rail_y_px": 584,
+    "dado_rail_above_floor_px": 235,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      798,
+      845
+    ],
+    "rail": [
+      565,
+      603
+    ],
+    "ceiling": [
+      65,
+      177
+    ],
+    "columns": [
+      [
+        248,
+        561
+      ],
+      [
+        812,
+        1287
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 561.45,
+      "asked_x1": 811.81,
+      "ruled_m": 1.0,
+      "window": [
+        311,
+        1061
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 590..863 (40 px from the ask) and another admissible pair sits 567..834 (14 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 247.368,
+  "implied_focal_px": 1011.7,
+  "eye_height_m": 1.1841,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 590..863 (40 px from the ask) and another admissible pair sits 567..834 (14 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 96,
+    "ceiling_candidates": [
+      {
+        "y": 97,
+        "strength": 32.54,
+        "horiz": 0.965,
+        "cv": 0.281
+      },
+      {
+        "y": 70,
+        "strength": 9.41,
+        "horiz": 0.982,
+        "cv": 0.435
+      },
+      {
+        "y": 53,
+        "strength": 8.15,
+        "horiz": 0.908,
+        "cv": 0.518
+      },
+      {
+        "y": 91,
+        "strength": 7.95,
+        "horiz": 0.767,
+        "cv": 0.717
+      },
+      {
+        "y": 111,
+        "strength": 3.8,
+        "horiz": 0.761,
+        "cv": 0.813
+      },
+      {
+        "y": 166,
+        "strength": 3.65,
+        "horiz": 0.756,
+        "cv": 0.816
+      },
+      {
+        "y": 104,
+        "strength": 3.56,
+        "horiz": 0.782,
+        "cv": 0.738
+      },
+      {
+        "y": 125,
+        "strength": 3.38,
+        "horiz": 0.718,
+        "cv": 0.854
+      },
+      {
+        "y": 46,
+        "strength": 3.33,
+        "horiz": 0.858,
+        "cv": 0.47
+      },
+      {
+        "y": 132,
+        "strength": 3.32,
+        "horiz": 0.727,
+        "cv": 0.804
+      },
+      {
+        "y": 118,
+        "strength": 3.29,
+        "horiz": 0.72,
+        "cv": 0.805
+      },
+      {
+        "y": 63,
+        "strength": 3.19,
+        "horiz": 0.784,
+        "cv": 0.653
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 96,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 69,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 52,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 90,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 110,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 165,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 103,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 124,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 45,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 131,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 117,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 62,
+        "admissible": true,
+        "sigma_y_px": 1.04,
+        "horizon_y_px": 525.6,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 199,
+    "corner_x1_px": 1322,
+    "corner_evidence": {
+      "left_fit_r2": 0.8239,
+      "right_fit_r2": 0.6334,
+      "block_px": 16,
+      "excluded": [
+        [
+          561,
+          811
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 23.69,
+    "ramp": {
+      "x": 766.6,
+      "y": 525.6,
+      "left_slope": 0.7799,
+      "right_slope": -0.7794,
+      "left_n": 61,
+      "left_resid_px": 0.32,
+      "right_n": 61,
+      "right_resid_px": 0.35,
+      "sigma_y_px": 1.04
+    },
+    "votes": {
+      "floor": {
+        "x": 784,
+        "y": 450,
+        "edge_px": 23158
+      },
+      "ceiling": {
+        "x": 764,
+        "y": 530,
+        "edge_px": 6780
+      },
+      "side_walls": {
+        "x": 408,
+        "y": 826,
+        "edge_px": 12345
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 403,
+      "key_dir_brightest_y": 475,
+      "key_tint": "#c8702f",
+      "key_tint_patch": [
+        209,
+        603,
+        26,
+        88
+      ],
+      "key_tint_patch_mean_rgb": [
+        20.32,
+        11.37,
+        4.82
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8936b",
+        "floor_bottom_strip": "#c89470",
+        "mid_wall_right": "#c8a47b",
+        "mid_wall_left": "#c8b399",
+        "brightest_21x21_patch": "#c8bcad"
+      },
+      "brightest_21x21_patch_centre_px": [
+        403,
+        475
+      ],
+      "sobel_bright_side_deg_whole_frame": 86.28,
+      "sobel_bright_side_deg_wall_band": 116.7,
+      "left_third_minus_right_third_luminance_whole_frame": -2.361,
+      "left_third_minus_right_third_luminance_wall_band": -2.8
+    },
+    "storey_height_m": 2.9228,
+    "implied_wall_width_m": 4.5398,
+    "eye_height_m": 1.1861,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -1.2,
+  "delta_eye_pct": 0.09,
+  "verdict": "PASS",
+  "kind": null
+}

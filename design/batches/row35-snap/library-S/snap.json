@@ -1,0 +1,159 @@
+{
+  "_what_this_is": "the row-35 snap of library/S: a five-plane planar rectification of backdrops/source/library-S/row23-4a2e1e8a.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",
+  "tool": "design/plan-draft/measured/row35_snap.py",
+  "source_box": {
+    "x0": 145.0,
+    "x1": 1452.0,
+    "yc": 157.0,
+    "yf": 737.0,
+    "vx": 796.7,
+    "vy": 549.9
+  },
+  "target_box": {
+    "x0": 121.9397871387306,
+    "x1": 1414.0602128612695,
+    "yc": 154.60169121213528,
+    "yf": 727.9986666666666,
+    "vx": 768.0,
+    "vy": 526.10048
+  },
+  "source_anchors": {
+    "ceiling": "measured",
+    "corners": "measured",
+    "vanishing_point": "measured-ramp",
+    "px_per_m_at_wall": 172.632
+  },
+  "target": {
+    "k": 0.9886154749216058,
+    "storey_m": 3.359747903053895,
+    "target_eye_m": 1.1829971875,
+    "ppm_source": 172.632,
+    "ppm_target": 170.66666666666666
+  },
+  "residuals": {
+    "scale_k": 0.988615,
+    "eye_source_m": 1.0838,
+    "eye_target_m": 1.183,
+    "storey_painted_m": 3.3597,
+    "wall_uniform_scale": 0.9886,
+    "floor_vertical_over_horizontal": 1.0915,
+    "ceiling_vertical_over_horizontal": 0.9564,
+    "left_return_shear": 0.026,
+    "right_return_shear": 0.0258
+  },
+  "magnification": {
+    "per_region": {
+      "wall": {
+        "pixels": 740316,
+        "max_magnification": 0.994,
+        "max_minification": 1.021
+      },
+      "floor": {
+        "pixels": 449881,
+        "max_magnification": 1.079,
+        "max_minification": 1.016
+      },
+      "ceiling": {
+        "pixels": 229552,
+        "max_magnification": 0.996,
+        "max_minification": 1.058
+      },
+      "left": {
+        "pixels": 77239,
+        "max_magnification": 1.045,
+        "max_minification": 1.048
+      },
+      "right": {
+        "pixels": 75876,
+        "max_magnification": 1.021,
+        "max_minification": 1.032
+      }
+    },
+    "max_magnification": 1.079,
+    "max_minification": 1.058,
+    "_reading": "the largest factor any painted detail is stretched by (magnification) and squeezed by (minification), taken over every pixel of the output frame"
+  },
+  "edge_reveal": {
+    "unplaced_pixels": 0,
+    "max_overshoot_px": 41.96,
+    "extended_pixels": 51657,
+    "extended_fraction": 0.03284,
+    "region_pixels": {
+      "wall": 740889,
+      "floor": 449891,
+      "ceiling": 229556,
+      "left": 76605,
+      "right": 75923
+    }
+  },
+  "budgets": {
+    "reveal_px": 100.0,
+    "stretch": 3.0
+  },
+  "source_candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
+  "source_candidate_sha256": "74eca10007fa214ae2f5e5e5bf97e07cd4496c1de39c8efa1ead8a3b4a2b8f3e",
+  "opening_rect_skew_px": 0.0,
+  "acceptance": {
+    "_what_this_is": "the snapped frame put back through the SAME instrument, with the same scaffold windows and no band moved. Under the Captain's 2026-08-24 ruling this is a report and not a gate.",
+    "verdict": "PASS",
+    "kind": null,
+    "hold_family": null,
+    "delta_focal_pct": -0.08,
+    "delta_eye_pct": 4.54,
+    "px_per_m_at_wall": 170.526,
+    "floor_line_y_px": 737,
+    "floor_window": [
+      711,
+      744
+    ],
+    "chair_rail_y_px": 575,
+    "rail_band": [
+      552,
+      578
+    ],
+    "ramp": {
+      "x": 767.7,
+      "y": 527.9,
+      "left_slope": 0.6673,
+      "right_slope": -0.6878,
+      "left_n": 61,
+      "left_resid_px": 0.28,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.04
+    },
+    "ramp_eye_m": 1.2262,
+    "corner_x0_px": 98,
+    "corner_x1_px": 1414,
+    "declared_horizon_px": 526.10048,
+    "declared_floor_px": 727.9986666666666,
+    "target_eye_m": 1.1829971875,
+    "withheld_because": [],
+    "absent": [
+      "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 285..697 (64 px from the ask) and another admissible pair sits 327..738 (106 px from the ask), which disagree by more than the 27 px this arm can resolve",
+      "the door: the choice of edge pair would choose the verdict: the strongest pair sits 738..907 (31 px from the ask) and another admissible pair sits 697..886 (62 px from the ask), which disagree by more than the 27 px this arm can resolve"
+    ],
+    "doors": {
+      "_what_this_is": "the doors the reading carries, transformed, beside a fresh read of the snapped frame",
+      "carried": 0,
+      "re_read": 0,
+      "pairs": [],
+      "re_read_note": {
+        "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+        "body_rows": [
+          438,
+          677
+        ],
+        "wall_band_px": [
+          121,
+          1414
+        ],
+        "wall_median_luminance": 18.04,
+        "min_enumerated_px": 68,
+        "min_head_m": 1.4,
+        "storey_m": 2.8,
+        "candidates_before_head_test": 1
+      }
+    }
+  }
+}
