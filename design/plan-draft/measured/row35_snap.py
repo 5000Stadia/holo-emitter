@@ -758,12 +758,42 @@ def transform_doc(doc, src, tgt, declared, target_eye, rgb_after, extras):
                               "ABOVE" if lit["key_dir_brightest_y"] < tgt["vy"] else "BELOW")
     d["_light"] = lit
 
-    ramp = dict((doc.get("_horizon_votes") or {}).get("ceiling_ramp_intersection") or {})
+    # THE HORIZON RECORD SAYS WHICH OF TWO THINGS IT IS, because they are not
+    # the same claim and a reader would otherwise take the weaker one for the
+    # stronger. The ROW is the declared one either way and that is not a
+    # courtesy: the warp re-projects this frame's floor onto it, so the ground
+    # plane the renderer builds does converge there.
+    #
+    #   from the MEASURED convergence — a theorem. The two return junctions pass
+    #     through the source convergence by construction and every straight line
+    #     through it comes out straight through the target's, so the snapped
+    #     picture's returns converge on this row.
+    #   from the DECLARED principal point — an ASSUMPTION, and it is written
+    #     down as one. That path is taken exactly when the frame fixed no usable
+    #     convergence of its own, so its painted ceiling junctions were not
+    #     moved onto this row and still whisper wherever the painter put them.
+    #     The row-35 residual, named on the record rather than discovered by the
+    #     next reader.
+    src_ramp = (doc.get("_horizon_votes") or {}).get("ceiling_ramp_intersection") or {}
+    measured_vp = extras["record"]["source_anchors"].get("vanishing_point") == "measured-ramp"
+    ramp = dict(src_ramp)
     ramp.update(x=round(tgt["vx"], 1), y=round(tgt["vy"], 1),
-                _snapped=("the returns of this frame were rectified onto the "
-                          "declared principal point; every straight line "
-                          "through the source convergence comes out straight "
-                          "through this one by construction"))
+                _snap_basis=("measured-convergence" if measured_vp
+                             else "declared-principal-point"),
+                _snapped=(
+                    "the two return junctions of this frame pass through its own "
+                    "measured convergence, and every straight line through that "
+                    "point comes out straight through this one, so the snapped "
+                    "picture's returns converge here by construction"
+                    if measured_vp else
+                    "ASSUMED, not achieved: this frame fixed no usable "
+                    "convergence of its own, so the snap took the declared "
+                    "principal point and re-projected the floor onto this row "
+                    "WITHOUT moving the painted ceiling junctions. The ground "
+                    "plane converges here; the painting's own returns still "
+                    "converge where the painter drew them (this reading's "
+                    "pre-snap fit put that at y %s). Re-measuring the snapped "
+                    "frame is what says which." % (src_ramp.get("y"),)))
     d["_horizon_votes"] = dict(doc.get("_horizon_votes") or {},
                                adopted_y=round(tgt["vy"], 1),
                                ceiling_ramp_intersection=ramp)

@@ -56,7 +56,8 @@
     "ceiling_ramp_intersection": {
       "x": 768.0,
       "y": 526.1,
-      "_snapped": "the returns of this frame were rectified onto the declared principal point; every straight line through the source convergence comes out straight through this one by construction"
+      "_snap_basis": "declared-principal-point",
+      "_snapped": "ASSUMED, not achieved: this frame fixed no usable convergence of its own, so the snap took the declared principal point and re-projected the floor onto this row WITHOUT moving the painted ceiling junctions. The ground plane converges here; the painting's own returns still converge where the painter drew them (this reading's pre-snap fit put that at y None). Re-measuring the snapped frame is what says which."
     },
     "far_line_ruler": null
   },

@@ -4432,6 +4432,23 @@ only 1.19×, the re-read finds *nothing at all* because resampling softens the v
 `_stable_dark_runs`'s stability test. On this corpus the transform is not merely faster than
 re-detection, it is more robust.
 
+### The horizon record says which of two claims it is
+
+The rewritten reading's `horizon_y` is the declared row on both paths, and that is not a courtesy:
+the warp re-projects the frame's floor onto it, so the ground plane the renderer builds does
+converge there. But `_horizon_votes.ceiling_ramp_intersection` means *what the instrument measured*,
+and the two paths do not make the same claim, so it carries `_snap_basis`:
+
+* `measured-convergence` — a theorem. The two return junctions pass through the frame's own measured
+  convergence, and every straight line through that point comes out straight through the target's,
+  so the snapped picture's returns converge on that row.
+* `declared-principal-point` — **ASSUMED, and it says so in those words**, along with the row this
+  frame's own returns were last fitted at. That path is taken exactly when the frame fixed no usable
+  convergence, so its painted ceiling junctions were never moved onto the declared row. That is the
+  row's named residual — the painted cues still whisper the old camera — written on the record
+  rather than left for the next reader to discover, and the acceptance re-measurement is what says
+  where the returns actually ended up (`kitchen/W`: still y 695.9).
+
 ### The acceptance test is the instrument, and it is a report
 
 `--acceptance` puts the snapped frame back through `row23_lib.measure_candidate` with the same
@@ -4480,9 +4497,15 @@ ramp slope of exactly ±0.0 on one side or both. Of the three: `great_hall/N` co
 declared one instead, which corrects its scale and floor line and leaves it `suspect-painting`.
 
 **A snapped wall is not automatically a promotable one, and this row moved no promotion clause.**
-`back_stair/W` snaps clean — 1.19×, no reveal at all, acceptance PASS with no hold — and
-`promote-backdrop.mjs` still refuses it on row 32's flight clause, because the plan draws a
-staircase in that view and a promoted meta carries none.
+Run `tools/promote-backdrop.mjs --round row35snap` over the six snapped walls in a throwaway tree
+and three promote (`servants_hall/W`, `kitchen/W`, `library/N`) and three are refused, none of them
+on geometry: `great_hall/N` and `library/S` on row 27's door clause — the plan rules one way through
+and the painting shows none, because both paint a LIT doorway rather than a dark void and that is
+`door_measure.py`'s standing blind spot — and `back_stair/W` on row 32's flight clause, because the
+plan draws a staircase in that view and a promoted meta carries none. **The snap corrects the
+geometry family and touches neither of those two**, which is worth knowing before the routing is
+sequenced: rectifying the whole corpus does not by itself unblock the walls the door detector cannot
+read.
 
 **The whole held corpus** (`design/batches/row35-snap/sweep.json`, produced by `--sweep`): 46 walls,
 30 snapped, 16 refused (13 over a stated budget with its number, 2 whose standpoint puts the anchor

@@ -63,7 +63,8 @@
       "right_n": 52,
       "right_resid_px": 0.28,
       "sigma_y_px": 1.27,
-      "_snapped": "the returns of this frame were rectified onto the declared principal point; every straight line through the source convergence comes out straight through this one by construction"
+      "_snap_basis": "measured-convergence",
+      "_snapped": "the two return junctions of this frame pass through its own measured convergence, and every straight line through that point comes out straight through this one, so the snapped picture's returns converge here by construction"
     },
     "far_line_ruler": null
   },

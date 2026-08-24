@@ -200,6 +200,18 @@ test.describe("row 35 — the snap", () => {
       expect(d._horizon_votes.ceiling_ramp_intersection.y,
         `${f}'s ramp record must be the box's own convergence`)
         .toBeCloseTo(box.vy, 1);
+      /* AND IT SAYS WHICH OF TWO CLAIMS IT IS. From a measured convergence the
+         snapped picture's returns converge on that row by construction; from
+         the declared principal point they were never moved onto it and the
+         record has to say ASSUMED, because a reading that asserts a
+         measurement nobody took is the defect this corpus keeps paying for. */
+      const ramp = d._horizon_votes.ceiling_ramp_intersection;
+      const basis = d._snap.source_anchors.vanishing_point === "measured-ramp"
+        ? "measured-convergence" : "declared-principal-point";
+      expect(ramp._snap_basis, `${f}'s horizon record must name its basis`).toBe(basis);
+      if (basis === "declared-principal-point") {
+        expect(ramp._snapped, `${f} took the fallback and must say so`).toMatch(/ASSUMED, not achieved/);
+      }
       /* The chair-rail row and the scale are one number, the way
          `geometry.spec`'s calibration audit reads them. */
       expect(d.calibration_px / 0.95).toBeCloseTo(d.px_per_m_at_wall, 0);
