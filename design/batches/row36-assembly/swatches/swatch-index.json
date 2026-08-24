@@ -1,0 +1,302 @@
+{
+  "_what_this_is": "Row 36's flat material swatches. One packet per material the library cannot harvest. A NEW index file rather than an edit to assignment.json, whose blob scaffold.spec asserts has never changed.",
+  "emitted": 12,
+  "rolls_each": 2,
+  "packets": [
+    {
+      "material": "ceiling/lime-plaster-ribs",
+      "slot": "ceiling",
+      "dir": "design/batches/row36-assembly/swatches/ceiling-lime-plaster-ribs",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "moulded plaster rib bay",
+        "pitch_m": 1.2,
+        "count": 3,
+        "span_m": 3.6,
+        "ppm": 426.67
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "633e78d7",
+          "dest": "backdrops/textures/source/ceiling-lime-plaster-ribs/row36-633e78d7.png"
+        },
+        {
+          "roll": 2,
+          "id": "15a48261",
+          "dest": "backdrops/textures/source/ceiling-lime-plaster-ribs/row36-15a48261.png"
+        }
+      ]
+    },
+    {
+      "material": "ceiling/parchment-plaster",
+      "slot": "ceiling",
+      "dir": "design/batches/row36-assembly/swatches/ceiling-parchment-plaster",
+      "scale_contract": {
+        "kind": "featureless",
+        "feature": null,
+        "span_m": 4.7262,
+        "ppm": 325,
+        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9f1fd7d5",
+          "dest": "backdrops/textures/source/ceiling-parchment-plaster/row36-9f1fd7d5.png"
+        },
+        {
+          "roll": 2,
+          "id": "99082b13",
+          "dest": "backdrops/textures/source/ceiling-parchment-plaster/row36-99082b13.png"
+        }
+      ]
+    },
+    {
+      "material": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "dir": "design/batches/row36-assembly/swatches/ceiling-plain-lime-plaster",
+      "scale_contract": {
+        "kind": "featureless",
+        "feature": null,
+        "span_m": 4.7262,
+        "ppm": 325,
+        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f208ffa2",
+          "dest": "backdrops/textures/source/ceiling-plain-lime-plaster/row36-f208ffa2.png"
+        },
+        {
+          "roll": 2,
+          "id": "11b20068",
+          "dest": "backdrops/textures/source/ceiling-plain-lime-plaster/row36-11b20068.png"
+        }
+      ]
+    },
+    {
+      "material": "ceiling/smoke-darkened-joists",
+      "slot": "ceiling",
+      "dir": "design/batches/row36-assembly/swatches/ceiling-smoke-darkened-joists",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "exposed joist",
+        "pitch_m": 0.9,
+        "count": 5,
+        "span_m": 4.5,
+        "ppm": 341.33
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b0af461b",
+          "dest": "backdrops/textures/source/ceiling-smoke-darkened-joists/row36-b0af461b.png"
+        },
+        {
+          "roll": 2,
+          "id": "58daf5d6",
+          "dest": "backdrops/textures/source/ceiling-smoke-darkened-joists/row36-58daf5d6.png"
+        }
+      ]
+    },
+    {
+      "material": "ceiling/plain-exposed-joists",
+      "slot": "ceiling",
+      "dir": "design/batches/row36-assembly/swatches/ceiling-plain-exposed-joists",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "exposed joist",
+        "pitch_m": 0.9,
+        "count": 5,
+        "span_m": 4.5,
+        "ppm": 341.33
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b53a33fd",
+          "dest": "backdrops/textures/source/ceiling-plain-exposed-joists/row36-b53a33fd.png"
+        },
+        {
+          "roll": 2,
+          "id": "a6253c86",
+          "dest": "backdrops/textures/source/ceiling-plain-exposed-joists/row36-a6253c86.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/wide-oak-boards",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-wide-oak-boards",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "floorboard",
+        "pitch_m": 0.25,
+        "count": 14,
+        "span_m": 3.5,
+        "ppm": 438.86
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "0dc1d7af",
+          "dest": "backdrops/textures/source/floor-wide-oak-boards/row36-0dc1d7af.png"
+        },
+        {
+          "roll": 2,
+          "id": "1870122a",
+          "dest": "backdrops/textures/source/floor-wide-oak-boards/row36-1870122a.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/square-stone-paviours",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-square-stone-paviours",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "square paviour",
+        "pitch_m": 0.45,
+        "count": 8,
+        "span_m": 3.6,
+        "ppm": 426.67
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "0e1f7ec1",
+          "dest": "backdrops/textures/source/floor-square-stone-paviours/row36-0e1f7ec1.png"
+        },
+        {
+          "roll": 2,
+          "id": "31656ca2",
+          "dest": "backdrops/textures/source/floor-square-stone-paviours/row36-31656ca2.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/worn-stone-flags",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-worn-stone-flags",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the spread of a worn flag",
+        "characteristic_m": 0.55,
+        "span_m": 3.6835,
+        "ppm": 417
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "62c3a39f",
+          "dest": "backdrops/textures/source/floor-worn-stone-flags/row36-62c3a39f.png"
+        },
+        {
+          "roll": 2,
+          "id": "d3b48faa",
+          "dest": "backdrops/textures/source/floor-worn-stone-flags/row36-d3b48faa.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/broad-oak-treads-boards",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-broad-oak-treads-boards",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "board",
+        "pitch_m": 0.25,
+        "count": 14,
+        "span_m": 3.5,
+        "ppm": 438.86
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d7fa28da",
+          "dest": "backdrops/textures/source/floor-broad-oak-treads-boards/row36-d7fa28da.png"
+        },
+        {
+          "roll": 2,
+          "id": "38e9a711",
+          "dest": "backdrops/textures/source/floor-broad-oak-treads-boards/row36-38e9a711.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/red-brick-on-edge",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-red-brick-on-edge",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "brick laid on edge",
+        "pitch_m": 0.115,
+        "count": 32,
+        "span_m": 3.68,
+        "ppm": 417.39
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f0350363",
+          "dest": "backdrops/textures/source/floor-red-brick-on-edge/row36-f0350363.png"
+        },
+        {
+          "roll": 2,
+          "id": "5b28cd9c",
+          "dest": "backdrops/textures/source/floor-red-brick-on-edge/row36-5b28cd9c.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/raked-gravel-box-turf",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-raked-gravel-box-turf",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "raked gravel grain",
+        "characteristic_m": 0.02,
+        "span_m": 3.6835,
+        "ppm": 417
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "6362a2fb",
+          "dest": "backdrops/textures/source/floor-raked-gravel-box-turf/row36-6362a2fb.png"
+        },
+        {
+          "roll": 2,
+          "id": "57849068",
+          "dest": "backdrops/textures/source/floor-raked-gravel-box-turf/row36-57849068.png"
+        }
+      ]
+    },
+    {
+      "material": "floor/gravel-and-turf",
+      "slot": "floor",
+      "dir": "design/batches/row36-assembly/swatches/floor-gravel-and-turf",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "raked gravel grain",
+        "characteristic_m": 0.02,
+        "span_m": 3.6835,
+        "ppm": 417
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "172b1b8f",
+          "dest": "backdrops/textures/source/floor-gravel-and-turf/row36-172b1b8f.png"
+        },
+        {
+          "roll": 2,
+          "id": "60a3f1a3",
+          "dest": "backdrops/textures/source/floor-gravel-and-turf/row36-60a3f1a3.png"
+        }
+      ]
+    }
+  ]
+}

@@ -23,7 +23,7 @@ keeps it current at every board change; reports cite these handles.
 |---|---|---|
 | B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | building |
 | B-FLIGHT | flight attachment: painted staircases written into promoted metas | building (respawned after the host restart) |
-| B-ASSEMBLY | row 36 builder: licensed; library scale contract then the build | building |
+| B-ASSEMBLY | row 36 builder: scale contract + MATERIALS landed; harvester, lighting stub, assembler, kitchen demo next | building |
 
 ## Recently landed (for "issue with…" back-reference)
 

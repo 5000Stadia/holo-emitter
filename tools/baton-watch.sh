@@ -21,7 +21,7 @@ set -u
 cd "$(git rev-parse --show-toplevel)"
 STALE_S=${STALE_S:-900}
 SCRATCH="/tmp/claude-1000/-home-k-Projects-holo-emitter/5e2abd72-bfa5-4129-bf0e-f0d5de0c1360/scratchpad"
-ORDER="Standing paint order. Run: git pull. Then read design/batches/row23-scaffold/manor/retries.json and design/batches/row23-scaffold/manor/manifest.json. For every roll listed anywhere in them whose candidate file does not exist on disk: attach that packet directory's style-seed-warm.png as Image 1 and scaffold.png as Image 2, send its prompt.txt verbatim to image generation, save the image to the exact candidate path. Do not judge results; work straight through; reply with counts when done. Fence: write only under backdrops/, never src/, never design/."
+ORDER="Standing paint order. Run: git pull. Then read design/batches/row23-scaffold/manor/retries.json, design/batches/row23-scaffold/manor/manifest.json and design/batches/row36-assembly/swatches/swatch-index.json (swatch packets attach NO image - their PACKET.md says so; other packets name their images incl. any edge-seed Image 3). For every roll listed anywhere in them whose candidate file does not exist on disk: attach that packet directory's style-seed-warm.png as Image 1 and scaffold.png as Image 2, send its prompt.txt verbatim to image generation, save the image to the exact candidate path. Do not judge results; work straight through; reply with counts when done. Fence: write only under backdrops/, never src/, never design/."
 
 read -r OWED UNMEASURED UNPUBLISHED <<EOF2
 $(python3 - <<'EOF'

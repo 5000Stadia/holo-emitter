@@ -58,6 +58,8 @@ import * as timings from "./timings.mjs";                 // [row 33] the stopwa
  * material sentence, every window sentence and the STAMPED ANCHOR LABEL below
  * come out of it, so a room can only be asked for the study's panelling if the
  * plan says it is that kind of room. */
+import { VOICES, emitMaterials }                          // [row 36] the swatch lane
+  from "./room-voices.mjs";
 import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
   from "./room-voices.mjs";
 /* [row 34, AWAITING KABE] THE RECOMMENDED REGISTER, and it is shared rather than
@@ -829,6 +831,14 @@ async function main() {
       retries: Number(argOf("--retries", "3")),
       walls: argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), [])
     });
+    return;
+  }
+  if (argv.includes("--emit-swatch")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row36-assembly", "swatches")));
+    const r = emitSwatches(out, { rolls: Number(argOf("--rolls", "2")) });
+    console.log(`swatch packets  ${r.packets.length}`);
+    for (const p of r.packets) console.log(`  ${p.material.padEnd(34)} ${p.rolls.length} roll(s)`);
+    console.log(`index           ${r.indexPath.slice(ROOT.length + 1)}`);
     return;
   }
   if (argv.includes("--emit-packets")) {
@@ -2362,4 +2372,197 @@ Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`. Generate, sa
  * `emit-evolution.mjs` already uses. */
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((e) => { console.error(e); process.exit(1); });
+}
+
+/* ------------------------------------------------------------------ */
+/* Row 36 — the swatch ask                                             */
+/* ------------------------------------------------------------------ */
+/* A SWATCH IS THE ONE ASK IN THIS PROJECT WITH NO GEOMETRY IN IT. Every other
+ * packet shows a camera a room and asks it to obey; a swatch asks for a
+ * material lying flat, and the whole request is: this stuff, this big, evenly
+ * lit, nothing else. It exists because `design/specs/36-plan.md` §1.2 measured
+ * every promoted facing and found floors and ceilings are grazing surfaces no
+ * painting resolves isotropically — 0 of 51 clear the demand — so they cannot
+ * be harvested and must be asked for flat.
+ *
+ * THREE THINGS THIS ASK DOES DIFFERENTLY, each with its reason:
+ *
+ *   NO SCAFFOLD IMAGE. There is no geometry to show. A scaffold would be a
+ *   picture of a room, and a room is exactly what this must not contain.
+ *
+ *   NO STYLE SEED. `style-seed-warm.png` is a LIGHTING reference — its name
+ *   says so — and row 37 rules that pieces carry material and not
+ *   illumination. Attaching it would import the one thing the ask forbids.
+ *   Medium is carried in words instead, which is also where row 34's evidence
+ *   put the anchored detail: the image-heavy arms were its weakest.
+ *
+ *   A SCALE CONTRACT IN THE ASK ITSELF. §1.4a: no asset enters the library
+ *   without a derivable metres-per-pixel. A generator controls the pixels, so
+ *   the scale cannot be chosen the way a harvest chooses it — it has to be
+ *   recoverable from what comes back. So the ask names a ruled physical feature
+ *   and a COUNT of it across the image, and admission recovers the period and
+ *   checks it. A swatch whose scale cannot be derived is re-asked, never
+ *   admitted at a guess: nothing downstream re-checks a tile's ppm, because
+ *   everything downstream is entitled to trust it.
+ */
+
+/** A swatch's opaque roll id. Kept in the same shape as `rollId` and in a
+ *  separate namespace, so a swatch can never collide with a wall roll. */
+export function swatchId(materialId, roll) {
+  return createHash("sha256")
+    .update(`row36|swatch|${materialId}|${roll}`)
+    .digest("hex").slice(0, 8);
+}
+
+/** The words that make a swatch's scale recoverable.
+ *
+ *  Periodic materials get a counted feature and that is the strict gate.
+ *  Stochastic ones have no countable module but a visible grain SIZE, so the
+ *  ask names it and admission checks the spectral peak at a wider residual.
+ *  Featureless ones are the honest special case: scale is UNOBSERVABLE — there
+ *  is nothing in smooth plaster whose size could be wrong — so any ppm is
+ *  correct and the gate inverts to "it must really be featureless". */
+export function swatchScaleLines(sc) {
+  const L = [];
+  if (sc.kind === "periodic") {
+    /* THE PITCH IS ACROSS THE GRAIN AND THE SENTENCE HAS TO SAY SO. Written as
+       "the boards run across the image at 0.25 m each" it reads as a length
+       along the board, which is the exact ambiguity `MATERIALS.tiling` was
+       restated to remove. Say it as a count laid side by side. */
+    L.push(`Scale, and this is exact: exactly ${sc.count} ${sc.feature}s lie side ` +
+           `by side across the image, each one exactly ${sc.pitch_m.toFixed(3)} m ` +
+           `wide measured across it.`);
+    L.push(`  They run the other way — along their own length — from one edge of ` +
+           `the image to the other, unbroken.`);
+    L.push(`  So the image spans ${sc.span_m.toFixed(3)} m across. Every ` +
+           `${sc.feature} is the same width as every other, and the count must be ` +
+           `exact: it is measured off the returned image and a miscount is a re-ask.`);
+  } else if (sc.kind === "stochastic") {
+    L.push(`Scale: the image covers exactly ${sc.span_m.toFixed(3)} m of ground ` +
+           `edge to edge.`);
+    L.push(`  ${sc.feature[0].toUpperCase() + sc.feature.slice(1)} is about ` +
+           `${(sc.characteristic_m * 1000).toFixed(0)} mm across, so it should read ` +
+           `at that size against the ${sc.span_m.toFixed(2)} m the image spans.`);
+  } else {
+    L.push(`Scale: the image covers about ${sc.span_m.toFixed(3)} m edge to edge, ` +
+           `but nothing in this surface has a size, and that is the point.`);
+    L.push("  It must be genuinely featureless — no cracks, no patches, no " +
+           "trowel marks, no mouldings, no boards, no joints, nothing whose " +
+           "size a viewer could read. An even surface with a faint tooth.");
+  }
+  return L;
+}
+
+/** The whole ask for one material, flat. */
+export function swatchPrompt(materialId, mat) {
+  const sc = mat.scale_contract;
+  const slotWord = mat.slot === "floor" ? "floor" : mat.slot === "ceiling" ? "ceiling" : "wall";
+  const L = [];
+  /* A VOICE'S PROSE CAN CARRY FRAME-RELATIVE LANGUAGE, AND A SWATCH HAS NO
+     FRAME. `outdoors_open.floor` is "raked gravel and worn turf running to the
+     bottom edge of frame" -- true and useful in a facing's ask, meaningless in
+     a flat sample, and worse than meaningless here because the same prompt's
+     Avoid line forbids a frame at all. So the ask refuses prose that talks
+     about the picture rather than the material, and the material may carry a
+     `swatch_prose` that says the same stuff without the frame. Refusing rather
+     than silently stripping: a regex that edits a request is a request nobody
+     wrote. */
+  const FRAME_TALK = /\b(edge of frame|in frame|bottom edge|top edge|foreground|background|far side|across the (?:far|near)|horizon)\b/i;
+  const prose = mat.swatch_prose || mat.prose;
+  if (prose && FRAME_TALK.test(prose)) {
+    throw new Error(
+      `make-scaffold: \`${materialId}\` names its material in picture terms ` +
+      `("${prose.match(FRAME_TALK)[0]}") and a swatch has no picture. Give the ` +
+      `material a \`swatch_prose\` that describes the stuff and not the frame.`);
+  }
+  if (!prose) {
+    throw new Error(
+      `make-scaffold: material \`${materialId}\` reached the swatch ask with no ` +
+      `prose. The words live in VOICES and are resolved by emitMaterials -- an ` +
+      `ask that names no material is not a request, it is a blank.`);
+  }
+  L.push(`Paint one flat, square sample of a single building material: ${prose}.`);
+  L.push("");
+  L.push("This is a MATERIAL SAMPLE and not a picture of a room. There is no");
+  L.push("  room, no wall meeting another wall, no corner, no floor line, no");
+  L.push("  ceiling, no window, no door, no furniture and no horizon. The");
+  L.push(`  ${slotWord} surface fills the whole image, edge to edge.`);
+  L.push("");
+  L.push("Viewpoint: square on, looking straight at the surface from directly");
+  L.push("  in front of it. No perspective, no vanishing point, no convergence,");
+  L.push("  nothing receding. The surface is parallel to the picture plane, so a");
+  L.push("  straight joint runs straight and stays the same width across the");
+  L.push("  whole image.");
+  L.push("");
+  L.push("Light: completely even and sourceless. No sun, no window light, no");
+  L.push("  firelight, no lamp, no highlight, no cast shadow, no vignette, no");
+  L.push("  gradient from one side to the other. The same brightness in every");
+  L.push("  corner as in the middle. This sample will be lit later by the scene");
+  L.push("  it is used in, so any light painted into it is light in the wrong");
+  L.push("  place forever.");
+  L.push("");
+  for (const line of swatchScaleLines(sc)) L.push(line);
+  L.push("");
+  L.push("Medium: fine oil realism with tactile brush detail, the material's own");
+  L.push("  colour, honest to English building work of about 1660. Age and wear");
+  L.push("  are welcome in the SURFACE — worn, scrubbed, weathered, settled — but");
+  L.push("  not as staining that reads as a shadow.");
+  L.push("");
+  L.push("Avoid: any room, any object, any perspective, any directional light,");
+  L.push("  any border or frame or margin, any caption, any colour chart, any");
+  L.push("  watermark. The material and nothing else.");
+  return L.join("\n");
+}
+
+/** Emit one packet per swatch material. Writes no image and reads no plan. */
+export function emitSwatches(outDir, opts = {}) {
+  const rolls = Number(opts.rolls || 2);
+  const doc = emitMaterials(VOICES);
+  const wanted = Object.values(doc.materials).filter((m) => m.lane === "swatch");
+  mkdirSync(outDir, { recursive: true });
+  const index = [];
+  for (const mat of wanted) {
+    const dir = join(outDir, mat.id.replace("/", "-"));
+    mkdirSync(dir, { recursive: true });
+    const prompt = swatchPrompt(mat.id, mat);
+    writeFileSync(join(dir, "prompt.txt"), prompt + "\n");
+    const ids = [];
+    for (let i = 1; i <= rolls; i++) {
+      const id = swatchId(mat.id, i);
+      const dest = `backdrops/textures/source/${mat.id.replace("/", "-")}/row36-${id}.png`;
+      ids.push({ roll: i, id, dest });
+      const pdir = join(ROOT, dirname(dest));
+      mkdirSync(pdir, { recursive: true });
+      writeFileSync(join(ROOT, dest.replace(/\.png$/, ".prompt.txt")), prompt + "\n");
+    }
+    const sc = mat.scale_contract;
+    writeFileSync(join(dir, "PACKET.md"),
+      `# ${mat.id} — flat material swatch\n\n` +
+      `Send \`prompt.txt\` verbatim. **Attach no image** — this ask carries no\n` +
+      `reference on purpose: there is no geometry to show, and the style seed is a\n` +
+      `LIGHTING reference which is the one thing a neutral sample must not inherit.\n\n` +
+      `Generate ${rolls} images and save them to the exact paths below.\n\n` +
+      ids.map((r) => `| roll ${r.roll} | \`${r.dest}\` |`).join("\n") + "\n\n" +
+      `Scale contract (${sc.kind}): ` +
+      (sc.kind === "periodic"
+        ? `${sc.count} × ${sc.feature} at ${sc.pitch_m} m = ${sc.span_m} m across, ` +
+          `${sc.ppm} px/m.\n`
+        : sc.kind === "stochastic"
+          ? `${sc.span_m} m across at ${sc.ppm} px/m, grain about ` +
+            `${(sc.characteristic_m * 1000).toFixed(0)} mm.\n`
+          : `${sc.span_m} m across at ${sc.ppm} px/m; scale is unobservable and ` +
+            `the sample must be genuinely featureless.\n`) +
+      `\nWrite only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
+    index.push({ material: mat.id, slot: mat.slot, dir: dir.slice(ROOT.length + 1),
+                 scale_contract: sc, rolls: ids });
+  }
+  const idxPath = join(outDir, "swatch-index.json");
+  writeFileSync(idxPath, JSON.stringify({
+    _what_this_is:
+      "Row 36's flat material swatches. One packet per material the library " +
+      "cannot harvest. A NEW index file rather than an edit to assignment.json, " +
+      "whose blob scaffold.spec asserts has never changed.",
+    emitted: index.length, rolls_each: rolls, packets: index
+  }, null, 2) + "\n");
+  return { packets: index, indexPath: idxPath };
 }

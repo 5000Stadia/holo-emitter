@@ -1,0 +1,760 @@
+{
+  "_what_this_is": "Row 36's texture library types. Emitted from tools/room-voices.mjs, which is the one home: the voices say what a surface is made of and this says how big it is. Do not hand-edit -- regenerate with `node tools/room-voices.mjs --emit-materials`.",
+  "slot_demand_ppm": {
+    "walls": 476,
+    "ceiling": 325,
+    "floor": 417
+  },
+  "swatch_w_px": 1536,
+  "counts": {
+    "declared": 36,
+    "aliases": 10,
+    "stored": 26,
+    "base": 23,
+    "harvest": 14,
+    "swatch": 12
+  },
+  "aliases": [
+    {
+      "from": "ceiling/boarded-oak-joists",
+      "to": "ceiling/plain-exposed-joists",
+      "slot": "ceiling",
+      "reason": "the same ceiling said twice -- plain oak boards on exposed joists."
+    },
+    {
+      "from": "ceiling/flat-lime-plaster",
+      "to": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "reason": "plain and flat are synonyms here; the material is lime plaster either way."
+    },
+    {
+      "from": "ceiling/plain-plastered-soffit",
+      "to": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "reason": "a soffit is where the plaster is, not what it is; plain plaster and plain lime plaster are one material in this period."
+    },
+    {
+      "from": "floor/broad-stone-flags",
+      "to": "floor/worn-stone-flags",
+      "slot": "floor",
+      "reason": "broad/large/worn are size adjectives on one material. NO voice's period justification names a different stone or a different laying pattern -- checked, all three say worn stone flags."
+    },
+    {
+      "from": "floor/gallery-long-oak-boards",
+      "to": "floor/wide-oak-boards",
+      "slot": "floor",
+      "reason": "\"running the length of the gallery\" is a LAYING DIRECTION, and direction is already carried by grain_axis room_long, which all three share -- so it is not a second material."
+    },
+    {
+      "from": "floor/large-worn-stone-flags",
+      "to": "floor/worn-stone-flags",
+      "slot": "floor",
+      "reason": "as above: a size adjective, not a different stone."
+    },
+    {
+      "from": "floor/scrubbed-oak-treads-boards",
+      "to": "floor/broad-oak-treads-boards",
+      "slot": "floor",
+      "reason": "broad and plain scrubbed are finish adjectives on oak treads and boards. Kept separate from the floorboards: treads name a stair surface."
+    },
+    {
+      "from": "floor/wide-worn-oak-boards",
+      "to": "floor/wide-oak-boards",
+      "slot": "floor",
+      "reason": "worn is a finish adjective on wide oak floorboards."
+    },
+    {
+      "from": "wall/plain-oak-wainscot-limewash",
+      "to": "wall/oak-wainscot-limewash",
+      "slot": "walls",
+      "reason": "differ only by \"plain\" and \"to chair height\" -- both are oak wainscot below limewashed plaster. THE CONSEQUENCE IS THE POINT: cross_passage had no promoted facing and was the library's only wall swatch; great_stair has one, so this alias turns an ask into a harvest."
+    },
+    {
+      "from": "wall/rough-limewash-over-stone",
+      "to": "wall/plain-limewash-to-floor",
+      "slot": "walls",
+      "reason": "\"rough ... over stone\" and \"plain\" are finish adjectives over the same material: limewashed plaster carried straight to the floor with no joinery."
+    }
+  ],
+  "materials": {
+    "wall/oak-fielded-bays-frieze": {
+      "id": "wall/oak-fielded-bays-frieze",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "fielded panel bay"
+      },
+      "prose": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+      "prose_from": "hall_state.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "fielded panel bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/dark-oak-panelling": {
+      "id": "wall/dark-oak-panelling",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "panel bay"
+      },
+      "prose": "dark hand-finished oak wall panelling",
+      "prose_from": "parlour_wainscot.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "panel bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/oak-wainscot-limewash-cornice": {
+      "id": "wall/oak-wainscot-limewash-cornice",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "wainscot bay"
+      },
+      "prose": "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
+      "prose_from": "long_gallery.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "wainscot bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/oak-wainscot-with-hangings": {
+      "id": "wall/oak-wainscot-with-hangings",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "wainscot bay"
+      },
+      "note": "the DADO band only; the field band above it is one of the three `wall/hangings-*` variants, chosen per room by `hangingsFor`",
+      "prose": "oak wainscot to chair height with wall hangings above it",
+      "prose_from": "bedchamber.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "wainscot bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/light-oak-wainscot-limewash": {
+      "id": "wall/light-oak-wainscot-limewash",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "wainscot bay"
+      },
+      "prose": "light-toned oak wainscot to chair height below limewashed plaster",
+      "prose_from": "garden_parlour.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "wainscot bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/oak-wainscot-limewash": {
+      "id": "wall/oak-wainscot-limewash",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.8,
+        "feature": "wainscot bay"
+      },
+      "prose": "oak wainscot to chair height below limewashed plaster",
+      "prose_from": "great_stair.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "wainscot bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      }
+    },
+    "wall/boarded-oak-dado-limewash": {
+      "id": "wall/boarded-oak-dado-limewash",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.25,
+        "feature": "square-edged dado board"
+      },
+      "prose": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
+      "prose_from": "back_stair.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "square-edged dado board",
+        "pitch_m": 0.25,
+        "count": 12,
+        "span_m": 3,
+        "ppm": 512
+      }
+    },
+    "wall/plain-limewash-to-floor": {
+      "id": "wall/plain-limewash-to-floor",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "surface",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.04,
+        "feature": "the trowelled undulation of plain limewash"
+      },
+      "prose": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+      "prose_from": "servants_hall.walls",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the trowelled undulation of plain limewash",
+        "characteristic_m": 0.04,
+        "span_m": 3.2269,
+        "ppm": 476
+      }
+    },
+    "wall/garden-brick-english-bond": {
+      "id": "wall/garden-brick-english-bond",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "u",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.075,
+        "feature": "brick course"
+      },
+      "prose": "a garden wall of weathered red brick in English bond on a coursed stone plinth, open sky above it",
+      "prose_from": "outdoors_walled.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "brick course",
+        "pitch_m": 0.075,
+        "count": 43,
+        "span_m": 3.225,
+        "ppm": 476.28
+      }
+    },
+    "wall/manor-exterior-elevation": {
+      "id": "wall/manor-exterior-elevation",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "u",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.075,
+        "feature": "brick course"
+      },
+      "note": "the THIRTEENTH wall fabric, invisible to a walls/ceiling/floor census: `outdoors_walled.walls_with_openings`, selected in `make-scaffold.mjs` when the plan draws any carrier on that wall line. 7 of the 8 outdoor facings render it",
+      "prose": "the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline",
+      "prose_from": "outdoors_walled.walls_with_openings",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "brick course",
+        "pitch_m": 0.075,
+        "count": 43,
+        "span_m": 3.225,
+        "ppm": 476.28
+      }
+    },
+    "wall/low-boundary-wall": {
+      "id": "wall/low-boundary-wall",
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "u",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.12,
+        "feature": "stone course"
+      },
+      "prose": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky",
+      "prose_from": "outdoors_open.walls",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "stone course",
+        "pitch_m": 0.12,
+        "count": 26,
+        "span_m": 3.12,
+        "ppm": 492.31
+      }
+    },
+    "wall/hangings-tapestry": {
+      "id": "wall/hangings-tapestry",
+      "slot": "walls",
+      "lane": "harvest",
+      "variant_of": "wall/oak-wainscot-with-hangings",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "surface",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.03,
+        "feature": "the weave of woven tapestry"
+      },
+      "prose": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
+      "prose_from": "bedchamber.hangings.best",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the weave of woven tapestry",
+        "characteristic_m": 0.03,
+        "span_m": 3.2269,
+        "ppm": 476
+      }
+    },
+    "wall/hangings-red-worsted": {
+      "id": "wall/hangings-red-worsted",
+      "slot": "walls",
+      "lane": "harvest",
+      "variant_of": "wall/oak-wainscot-with-hangings",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "surface",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.02,
+        "feature": "the weave of worsted say"
+      },
+      "prose": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping",
+      "prose_from": "bedchamber.hangings.good",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the weave of worsted say",
+        "characteristic_m": 0.02,
+        "span_m": 3.2269,
+        "ppm": 476
+      }
+    },
+    "wall/hangings-wool-serge": {
+      "id": "wall/hangings-wool-serge",
+      "slot": "walls",
+      "lane": "harvest",
+      "variant_of": "wall/oak-wainscot-with-hangings",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "surface",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.02,
+        "feature": "the weave of undyed wool serge"
+      },
+      "prose": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping",
+      "prose_from": "bedchamber.hangings.plain",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the weave of undyed wool serge",
+        "characteristic_m": 0.02,
+        "span_m": 3.2269,
+        "ppm": 476
+      }
+    },
+    "ceiling/lime-plaster-ribs": {
+      "id": "ceiling/lime-plaster-ribs",
+      "slot": "ceiling",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "periodic",
+        "pitch_m": 1.2,
+        "feature": "moulded plaster rib bay"
+      },
+      "prose": "a flat lime-plastered ceiling with moulded plaster ribs",
+      "prose_from": "hall_state.ceiling",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "moulded plaster rib bay",
+        "pitch_m": 1.2,
+        "count": 3,
+        "span_m": 3.6,
+        "ppm": 426.67
+      }
+    },
+    "ceiling/parchment-plaster": {
+      "id": "ceiling/parchment-plaster",
+      "slot": "ceiling",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "featureless"
+      },
+      "prose": "an aged parchment-toned plaster ceiling",
+      "prose_from": "parlour_wainscot.ceiling",
+      "scale_contract": {
+        "kind": "featureless",
+        "feature": null,
+        "span_m": 4.7262,
+        "ppm": 325,
+        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
+      }
+    },
+    "ceiling/plain-lime-plaster": {
+      "id": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "featureless"
+      },
+      "prose": "a plain lime-plastered ceiling",
+      "prose_from": "bedchamber.ceiling",
+      "scale_contract": {
+        "kind": "featureless",
+        "feature": null,
+        "span_m": 4.7262,
+        "ppm": 325,
+        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
+      }
+    },
+    "ceiling/smoke-darkened-joists": {
+      "id": "ceiling/smoke-darkened-joists",
+      "slot": "ceiling",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": "room_short",
+        "grain_frame": "plan",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.9,
+        "feature": "exposed joist"
+      },
+      "prose": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+      "prose_from": "service.ceiling",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "exposed joist",
+        "pitch_m": 0.9,
+        "count": 5,
+        "span_m": 4.5,
+        "ppm": 341.33
+      }
+    },
+    "ceiling/plain-exposed-joists": {
+      "id": "ceiling/plain-exposed-joists",
+      "slot": "ceiling",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": "room_short",
+        "grain_frame": "plan",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.9,
+        "feature": "exposed joist"
+      },
+      "prose": "plain exposed oak joists with boards between them",
+      "prose_from": "servants_hall.ceiling",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "exposed joist",
+        "pitch_m": 0.9,
+        "count": 5,
+        "span_m": 4.5,
+        "ppm": 341.33
+      }
+    },
+    "floor/wide-oak-boards": {
+      "id": "floor/wide-oak-boards",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": "room_long",
+        "grain_frame": "plan",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.25,
+        "feature": "floorboard"
+      },
+      "prose": "wide oak floorboards",
+      "prose_from": "great_chamber.floor",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "floorboard",
+        "pitch_m": 0.25,
+        "count": 14,
+        "span_m": 3.5,
+        "ppm": 438.86
+      }
+    },
+    "floor/square-stone-paviours": {
+      "id": "floor/square-stone-paviours",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "periodic",
+        "pitch_m": 0.45,
+        "feature": "square paviour"
+      },
+      "prose": "a floor of square stone paviours",
+      "prose_from": "garden_parlour.floor",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "square paviour",
+        "pitch_m": 0.45,
+        "count": 8,
+        "span_m": 3.6,
+        "ppm": 426.67
+      }
+    },
+    "floor/worn-stone-flags": {
+      "id": "floor/worn-stone-flags",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.55,
+        "feature": "the spread of a worn flag"
+      },
+      "prose": "a worn stone flagstone floor",
+      "prose_from": "cross_passage.floor",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "the spread of a worn flag",
+        "characteristic_m": 0.55,
+        "span_m": 3.6835,
+        "ppm": 417
+      }
+    },
+    "floor/broad-oak-treads-boards": {
+      "id": "floor/broad-oak-treads-boards",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": "room_long",
+        "grain_frame": "plan",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.25,
+        "feature": "board"
+      },
+      "prose": "broad oak treads and boards",
+      "prose_from": "great_stair.floor",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "board",
+        "pitch_m": 0.25,
+        "count": 14,
+        "span_m": 3.5,
+        "ppm": 438.86
+      }
+    },
+    "floor/red-brick-on-edge": {
+      "id": "floor/red-brick-on-edge",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": "room_long",
+        "grain_frame": "plan",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.115,
+        "feature": "brick laid on edge"
+      },
+      "prose": "a floor of worn red brick laid on edge",
+      "prose_from": "servants_hall.floor",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "brick laid on edge",
+        "pitch_m": 0.115,
+        "count": 32,
+        "span_m": 3.68,
+        "ppm": 417.39
+      }
+    },
+    "floor/raked-gravel-box-turf": {
+      "id": "floor/raked-gravel-box-turf",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.02,
+        "feature": "raked gravel grain"
+      },
+      "prose": "raked gravel paths between low clipped box and turf",
+      "prose_from": "outdoors_walled.floor",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "raked gravel grain",
+        "characteristic_m": 0.02,
+        "span_m": 3.6835,
+        "ppm": 417
+      }
+    },
+    "floor/gravel-and-turf": {
+      "id": "floor/gravel-and-turf",
+      "swatch_prose": "raked gravel and worn turf, the two running together",
+      "slot": "floor",
+      "lane": "swatch",
+      "tiling": {
+        "grain_axis": null,
+        "grain_frame": "plan",
+        "mirror": "both",
+        "scale_kind": "stochastic",
+        "characteristic_m": 0.02,
+        "feature": "raked gravel grain"
+      },
+      "prose": "raked gravel and worn turf running to the bottom edge of frame",
+      "prose_from": "outdoors_open.floor",
+      "scale_contract": {
+        "kind": "stochastic",
+        "feature": "raked gravel grain",
+        "characteristic_m": 0.02,
+        "span_m": 3.6835,
+        "ppm": 417
+      }
+    }
+  },
+  "bindings": {
+    "hall_state": {
+      "blank": "wall/oak-fielded-bays-frieze",
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/worn-stone-flags",
+      "walls": "wall/oak-fielded-bays-frieze"
+    },
+    "great_chamber": {
+      "blank": "wall/oak-fielded-bays-frieze",
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/wide-oak-boards",
+      "walls": "wall/oak-fielded-bays-frieze"
+    },
+    "parlour_wainscot": {
+      "blank": "wall/dark-oak-panelling",
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "walls": "wall/dark-oak-panelling"
+    },
+    "parlour_armorial": {
+      "blank": "wall/dark-oak-panelling",
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "walls": "wall/dark-oak-panelling"
+    },
+    "long_gallery": {
+      "blank": "wall/oak-wainscot-limewash-cornice",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "walls": "wall/oak-wainscot-limewash-cornice"
+    },
+    "bedchamber": {
+      "blank": "wall/oak-wainscot-with-hangings",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "hangings.best": "wall/hangings-tapestry",
+      "hangings.good": "wall/hangings-red-worsted",
+      "hangings.plain": "wall/hangings-wool-serge",
+      "walls": "wall/oak-wainscot-with-hangings"
+    },
+    "garden_parlour": {
+      "blank": "wall/light-oak-wainscot-limewash",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/square-stone-paviours",
+      "walls": "wall/light-oak-wainscot-limewash"
+    },
+    "cross_passage": {
+      "blank": "wall/oak-wainscot-limewash",
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/worn-stone-flags",
+      "walls": "wall/oak-wainscot-limewash"
+    },
+    "great_stair": {
+      "blank": "wall/oak-wainscot-limewash",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "walls": "wall/oak-wainscot-limewash"
+    },
+    "back_stair": {
+      "blank": "wall/boarded-oak-dado-limewash",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "walls": "wall/boarded-oak-dado-limewash"
+    },
+    "service": {
+      "blank": "wall/plain-limewash-to-floor",
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "walls": "wall/plain-limewash-to-floor"
+    },
+    "servants_hall": {
+      "blank": "wall/plain-limewash-to-floor",
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/red-brick-on-edge",
+      "walls": "wall/plain-limewash-to-floor"
+    },
+    "outdoors_walled": {
+      "blank": "wall/garden-brick-english-bond",
+      "floor": "floor/raked-gravel-box-turf",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_with_openings": "wall/manor-exterior-elevation"
+    },
+    "outdoors_open": {
+      "blank": "wall/low-boundary-wall",
+      "floor": "floor/gravel-and-turf",
+      "walls": "wall/low-boundary-wall"
+    }
+  }
+}
