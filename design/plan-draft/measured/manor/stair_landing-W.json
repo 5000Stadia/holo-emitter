@@ -1,30 +1,30 @@
 {
-  "_source_sha256": "0610575c4b99d094774259f3c67704f21676251f03c8e7674243a17324165da1",
-  "_what_this_is": "The manor production reading for stair_landing/W, measured off backdrops/source/stair_landing-W/row23-572c742a.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_source_sha256": "7ed861a0863d7c78edeeba8eaae660d330a8fee594ab4fc0a9641440b3e08264",
+  "_what_this_is": "The manor production reading for stair_landing/W, measured off backdrops/source/stair_landing-W/row23-72110eaf.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
-  "verdict": "PASS",
+  "verdict": "FAIL",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.698242,
-  "horizon_y": 0.497461,
-  "px_per_m_at_wall": 155.789,
-  "px_per_m_at_bottom": 389.94,
-  "implied_focal_px": 1028.2,
-  "eye_height_m": 1.3197,
-  "storey_height_m": 3.0233,
+  "floor_line_y": 0.706055,
+  "horizon_y": null,
+  "px_per_m_at_wall": 170.526,
+  "px_per_m_at_bottom": null,
+  "implied_focal_px": 1125.5,
+  "eye_height_m": null,
+  "storey_height_m": 3.4012,
   "drawn_standpoint_m": 6.6,
-  "delta_focal_pct": 0.41,
-  "delta_eye_pct": 2.5,
+  "delta_focal_pct": 9.91,
+  "delta_eye_pct": -2.4,
   "band_pct": 8.0,
-  "wall_width_m": 5.3662,
+  "wall_width_m": 7.5179,
   "camera_wall_m": 6.6,
   "camera_far_m": null,
-  "corner_x0_px": 345,
-  "corner_x1_px": 1181,
-  "key_tint": "#c88042",
-  "key_dir": "C-ABOVE",
+  "corner_x0_px": 172,
+  "corner_x1_px": 1454,
+  "key_tint": "#c89764",
+  "key_dir": "C-NO-HORIZON",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 148,
+  "calibration_px": 162,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -35,46 +35,36 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 802,
-        "y": 534,
-        "edge_px": 19437
+        "x": 840,
+        "y": 539,
+        "edge_px": 27373
       },
       "ceiling": {
-        "x": 764,
-        "y": 494,
-        "edge_px": 13774
+        "x": 780,
+        "y": 566,
+        "edge_px": 11922
       },
       "side_walls": {
-        "x": 764,
-        "y": 375,
-        "edge_px": 6732
+        "x": 1072,
+        "y": 796,
+        "edge_px": 8139
       }
     },
-    "adopted_y": 509.4,
+    "adopted_y": null,
     "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
-    "ceiling_ramp_intersection": {
-      "x": 766.3,
-      "y": 509.4,
-      "left_slope": 0.6306,
-      "right_slope": -0.6384,
-      "left_n": 56,
-      "left_resid_px": 0.28,
-      "right_n": 59,
-      "right_resid_px": 0.31,
-      "sigma_y_px": 0.75
-    },
+    "ceiling_ramp_intersection": null,
     "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 715,
-    "chair_rail_y_px": 567,
-    "dado_rail_above_floor_px": 148,
-    "capping_above_floor_px": 151,
-    "wall_ceiling_line_y_px": 244,
-    "corner_x0_px": 345,
-    "corner_x1_px": 1181,
-    "horizon_y_px": 509.4,
+    "wall_floor_line_y_px": 723,
+    "chair_rail_y_px": 561,
+    "dado_rail_above_floor_px": 162,
+    "capping_above_floor_px": null,
+    "wall_ceiling_line_y_px": 143,
+    "corner_x0_px": 172,
+    "corner_x1_px": 1454,
+    "horizon_y_px": null,
     "openings": []
   },
   "_windows": {
@@ -113,107 +103,66 @@
         1330
       ],
       "hypothesis": null,
-      "found": true,
-      "x0": 587.0,
-      "x1": 912.0,
-      "width_px": 325.0,
-      "edge_delta_px": 31.44,
-      "candidates": [
-        [
-          857,
-          125.67
-        ],
-        [
-          638,
-          112.34
-        ],
-        [
-          730,
-          108.77
-        ],
-        [
-          684,
-          97.79
-        ],
-        [
-          764,
-          90.51
-        ],
-        [
-          812,
-          90.16
-        ],
-        [
-          753,
-          86.23
-        ],
-        [
-          587,
-          84.0
-        ]
-      ],
-      "searched": [
-        166,
-        1330,
-        399,
-        570
-      ]
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 604..968 (37 px from the ask) and another admissible pair sits 725..1110 (169 px from the ask), which disagree by more than the 31 px this arm can resolve"
     }
   ],
   "_light": {
     "key_dir_measured": "C",
-    "key_dir_brightest_x": 775,
-    "key_dir_brightest_y": 317,
-    "key_tint": "#c88042",
+    "key_dir_brightest_x": 791,
+    "key_dir_brightest_y": 277,
+    "key_tint": "#c89764",
     "key_tint_patch": [
-      575,
-      975,
-      174,
-      236
+      591,
+      991,
+      73,
+      135
     ],
     "key_tint_patch_mean_rgb": [
-      36.76,
-      23.47,
-      12.22
+      59.2,
+      44.72,
+      29.53
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c8beba",
-      "floor_bottom_strip": "#c8a388",
-      "mid_wall_right": "#c88c4e",
-      "mid_wall_left": "#c88d50",
-      "brightest_21x21_patch": "#c8c6c4"
+      "floor_under_brightest": "#c8661e",
+      "floor_bottom_strip": "#c8a189",
+      "mid_wall_right": "#c8a170",
+      "mid_wall_left": "#c8a271",
+      "brightest_21x21_patch": "#c8c8c7"
     },
     "brightest_21x21_patch_centre_px": [
-      775,
-      317
+      791,
+      277
     ],
-    "sobel_bright_side_deg_whole_frame": 118.21,
-    "sobel_bright_side_deg_wall_band": 93.39,
-    "left_third_minus_right_third_luminance_whole_frame": 3.047,
-    "left_third_minus_right_third_luminance_wall_band": 0.243
+    "sobel_bright_side_deg_whole_frame": 105.28,
+    "sobel_bright_side_deg_wall_band": 111.28,
+    "left_third_minus_right_third_luminance_whole_frame": -2.546,
+    "left_third_minus_right_third_luminance_wall_band": 3.173
   },
   "_derived": {
-    "eye_height_m": 1.3197,
-    "storey_height_m": 3.0233,
-    "implied_wall_width_m": 5.3662,
-    "px_per_m_at_bottom": 389.9371,
-    "implied_camera_wall_m": 6.573
+    "eye_height_m": null,
+    "storey_height_m": 3.4012,
+    "implied_wall_width_m": 7.5179,
+    "px_per_m_at_bottom": null,
+    "implied_camera_wall_m": 6.0049
   },
-  "_withheld_because": [],
-  "_hold_family": null,
+  "_withheld_because": [
+    "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 551.8 but only to +/-54.7 px, and the standing licence on the horizon row is +/-14.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+  ],
+  "_hold_family": "unfitted-horizon",
   "_round": "manor",
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      450,
-      668
+      433,
+      672
     ],
     "wall_band_px": [
-      345,
-      1181
+      172,
+      1454
     ],
-    "wall_median_luminance": 15.83,
-    "min_enumerated_px": 62,
+    "wall_median_luminance": 67.24,
+    "min_enumerated_px": 68,
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 1
