@@ -235,6 +235,17 @@ DEFAULT_STRETCH_BUDGET = 3.0
 RAMP_REACH_PX = 64.0
 MIN_RAMP_SLOPE = 1.0 / RAMP_REACH_PX
 
+#: THE TWO CLAUSES THIS TOOL CAN REFUSE ON, by the names the clause ledger
+#: (`tests/playwright/guards.spec.mjs`) declares them under. They are the whole
+#: of what a BUDGET refuses — an unreadable frame, an open facing and a box that
+#: is not a box are refusals of a different kind and carry no clause, because
+#: `--vp auto` retries from the declared principal point on a priced correction
+#: and on nothing else. The ledger tokens themselves are written at their emit
+#: sites in `_snap_once` and nowhere else: one token, one arm.
+STRETCH_CLAUSE = "snap.stretch_budget"
+REVEAL_CLAUSE = "snap.reveal_budget"
+BUDGET_CLAUSES = (STRETCH_CLAUSE, REVEAL_CLAUSE)
+
 
 # ------------------------------------------------------------------- the box
 
@@ -926,12 +937,19 @@ def snap_wall(key, candidate, target_eye=None, vp_mode="auto",
         if not os.path.exists(path):
             return None, "no candidate at " + candidate
         reading = measure(path, _side, _cfg, _ref)
-    r, why = _snap_once(key, candidate, target_eye, vp_mode, reveal_budget,
-                        stretch_budget, reading)
-    if r is not None or vp_mode != "auto" or "[row35:snap." not in (why or ""):
+    r, why, clause = _snap_once(key, candidate, target_eye, vp_mode,
+                                reveal_budget, stretch_budget, reading)
+    # THE RETRY ROUTES ON THE CLAUSE, NOT ON THE SENTENCE. This read the ledger
+    # token back out of the refusal prose, which is two defects in one line: a
+    # caller deciding a route by substring-matching a message it also formats,
+    # and a second occurrence of a token whose whole discipline (guards.spec's
+    # ledger) is one token, one emit site. The clause name is what the emit site
+    # already knows; it is returned beside the sentence and the token appears
+    # exactly once, where it is emitted.
+    if r is not None or vp_mode != "auto" or clause not in BUDGET_CLAUSES:
         return r, why
-    r2, why2 = _snap_once(key, candidate, target_eye, "declared", reveal_budget,
-                          stretch_budget, reading)
+    r2, why2, _ = _snap_once(key, candidate, target_eye, "declared",
+                             reveal_budget, stretch_budget, reading)
     if r2 is None:
         return None, ("the measured convergence's snap is over budget (%s) and "
                       "the declared one is too (%s)" % (why, why2))
@@ -943,33 +961,36 @@ def snap_wall(key, candidate, target_eye=None, vp_mode="auto",
 
 def _snap_once(key, candidate, target_eye, vp_mode, reveal_budget,
                stretch_budget, reading):
+    """(result, refusal sentence, clause name). The clause is None on a pass and
+    on every refusal that is not one of `BUDGET_CLAUSES` — a wall the snap has
+    nothing to offer is not the same event as a correction it can price."""
     e, side, cfg, ref, declared = wall_context(key)
     if declared["facing_type"] == "open":
         return None, ("%s is an open facing: it has no wall plane, no ceiling "
                       "and no side walls, so there are no five planes to "
                       "rectify. A vista's geometry is the far-line ruler's and "
-                      "this tool has nothing to say about it" % key)
+                      "this tool has nothing to say about it" % key), None
     if declared["camera_m"] is None:
         return None, ("%s names neither camera_wall_m nor camera_far_m, so its "
                       "scale converts to no lens and no target camera can be "
-                      "built" % key)
+                      "built" % key), None
     path = os.path.join(ROOT, candidate)
     if not os.path.exists(path):
-        return None, "no candidate at " + candidate
+        return None, "no candidate at " + candidate, None
     if reading is None:
         reading = measure(path, side, cfg, ref)
     if reading.get("verdict") == "WITHHELD":
         return None, ("the instrument could not run on this frame at all: %s"
-                      % reading.get("blocked_on"))
+                      % reading.get("blocked_on")), None
     declared["source_ppm"] = reading.get("px_per_m_at_wall")
 
     src, notes, why = source_box(reading, declared, vp_mode)
     if src is None:
-        return None, why
+        return None, why, None
     eye_t = declared["eye_m"] if target_eye is None else float(target_eye)
     tgt, tnotes, why = target_box(src, declared, eye_t)
     if tgt is None:
-        return None, why
+        return None, why, None
 
     res = residuals(src, tgt, declared, eye_t)
     mag = magnification(src, tgt)
@@ -982,28 +1003,28 @@ def _snap_once(key, candidate, target_eye, vp_mode, reveal_budget,
             "surface for the camera it is being snapped to, and stretching it "
             "there would invent detail rather than move it "
             "[row35:snap.stretch_budget]"
-            % (worst, mag["max_magnification"], stretch_budget))
+            % (worst, mag["max_magnification"], stretch_budget)), STRETCH_CLAUSE
 
     rgb = load(path)
     after, edge = snap_frame(rgb, src, tgt)
     if edge["unplaced_pixels"]:
         return None, ("%d pixels of the output frame lie on none of the five "
                       "planes, which means the target box is not a box"
-                      % edge["unplaced_pixels"])
+                      % edge["unplaced_pixels"]), None
     if edge["max_overshoot_px"] > reveal_budget:
         return None, (
             "rectifying this frame reveals %.1f px beyond its own edge, past "
             "the %.1f px budget — the corners pull in far enough that the snap "
             "would be painting wall the generator never drew "
             "[row35:snap.reveal_budget]"
-            % (edge["max_overshoot_px"], reveal_budget))
+            % (edge["max_overshoot_px"], reveal_budget)), REVEAL_CLAUSE
 
     return dict(facing=key, candidate=candidate, reading=reading,
                 side=side, cfg=cfg, ref=ref, declared=declared,
                 source_box=src, target_box=tgt, source_notes=notes,
                 target_notes=tnotes, residuals=res, magnification=mag,
                 edge=edge, before=rgb, after=after,
-                budgets=dict(reveal_px=reveal_budget, stretch=stretch_budget)), None
+                budgets=dict(reveal_px=reveal_budget, stretch=stretch_budget)), None, None
 
 
 def snap_record(r):

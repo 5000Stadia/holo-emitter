@@ -819,13 +819,43 @@ test.describe("row 34 — the evolution run's machinery", () => {
   });
 
   test("both probe walls are hold-family, camera-PASS and single-failure", () => {
-    const state = JSON.parse(readFileSync(join(MANOR, "run-state.json"), "utf8")).walls;
+    /* THIS PINS THE ORDER THAT WAS DISPATCHED, NOT THE BOARD AS IT STANDS.
+       It used to read `run-state.json` and require `hold_family:
+       unfitted-horizon` with a camera-PASS correction — which was true of the
+       live loop when the probes were chosen and is not a fact this test owns:
+       `run-state.json` IS the live loop, and the row-35 snap and the tolerance
+       promotions have since corrected both of these walls and promoted them.
+       The claim row 34 actually rests on is about the moment the arms were cut,
+       and the file that holds that moment is the generation-1 manifest, which
+       the sweep never opens and never rewrites.
+
+       So the selection argument is read out of the archive, and reading it
+       there buys something the live check never had: the `why` sentences in
+       `tools/evolution-arms.mjs` and the `why_this_wall` sentences in the
+       dispatched order have to be ONE argument, so the code and the packet
+       cannot drift apart. */
+    const cut = JSON.parse(readFileSync(join(BATCH, "manifest.json"), "utf8"));
+    expect(cut._probe_selection,
+      "the dispatched order must say which subset the probes came out of")
+      .toMatch(/unfitted-horizon subset - camera PASS, horizon held/);
+    expect(cut.walls.map((w) => w.key), "the arms were cut against these two walls")
+      .toEqual(PROBES.map((p) => p.key));
     for (const p of PROBES) {
-      const w = state[p.key];
-      expect(w, `${p.key} is not in the manor run state`).toBeTruthy();
-      expect(w.hold_family).toBe("unfitted-horizon");
-      expect(w.correction).toContain("camera PASS");
+      const w = cut.walls.find((z) => z.key === p.key);
+      expect(w.why_this_wall,
+        `${p.key}: the reason in evolution-arms.mjs and the reason in the dispatched packet are two copies of one argument`)
+        .toBe(p.why);
       expect(p.why.length).toBeGreaterThan(40);
+      /* And the loop's own memory of the hold survives the promotion that
+         answered it — row 29(a)'s rule is that a correction MOVES to
+         `answered_correction` rather than being deleted, precisely so a
+         painted wall still records how it got there. Either name; the sentence
+         is the same one. */
+      const state = JSON.parse(readFileSync(join(MANOR, "run-state.json"), "utf8")).walls;
+      const said = (state[p.key] || {});
+      expect(said.correction || said.answered_correction,
+        `${p.key}: the run state no longer remembers the horizon hold these arms were cut against`)
+        .toMatch(/camera PASS[\s\S]*unfitted-horizon/);
     }
     /* The two differ in the quantity under test: same camera, different return
        length. That is the whole argument for two walls rather than one. */
