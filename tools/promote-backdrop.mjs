@@ -34,9 +34,10 @@ import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
+  MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand,
+  TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, CAMERA_SOURCES
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M } from "./plan-projection.mjs";
+import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC } from "./room-voices.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
@@ -71,7 +72,7 @@ const planPath = argOf("--plan", join(root, "fixtures", "demo-study", "plan.json
  * and the meta's shape are the same whichever round produced the numbers. */
 const roundDir = argOf("--round", "");
 if (!facingArg || !candidate) {
-  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>] [--round cand5ref|cand6]");
+  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>] [--round cand5ref|cand6] [--reference ruled|measured] [--camera-source measured|declared]");
   process.exit(2);
 }
 if (roundDir && !/^[a-z0-9]+$/.test(roundDir)) {
@@ -142,6 +143,50 @@ if (!(ppm > 0)) {
  * with `focal = ppm × undefined = NaN` and was refused by the band below with a
  * sentence about a lens, which is not what was wrong. */
 const isOpen = fc.type === "open";
+/* [row 32] WHICH CAMERA THE HORIZON ON THIS META CAME FROM, and the second
+ * answer exists because a human ruled it into existence.
+ *
+ * design/approvals.log 2026-08-24 [HUMAN]: "I think its pretty close and we can
+ * accept a tolerance for drift here". Row 32 named the SUSPECT PAINTING family:
+ * a frame whose ruler reads inside the ±8 % band and whose own side walls
+ * converge somewhere no eye stands, or converge nowhere at all. Both readings
+ * are of one picture and they cannot both be true, and the ruling is that the
+ * ruler wins and the perspective is FLAGGED rather than repainted — the drift
+ * costs compositing fidelity at depth and no mechanical function.
+ *
+ * So `--camera-source declared` takes the horizon off the camera the page's own
+ * derived path holds for this facing (`deriveMeta`, below) instead of off the
+ * picture, and the meta says so in four fields the fixture validator knows by
+ * name. NOTHING ELSE MOVES: the scale is still the painting's and still
+ * refused outside its band, the floor line is still the painting's, the metres
+ * are still the drawing's, and the eye the declared horizon implies is judged
+ * here at the same ±8 % as everything else.
+ *
+ * THE FLAG IS NOT AN OPERATOR'S TO GRANT. The measurement itself has to have
+ * named this frame a member of the family (`_hold_family`) — so a clean wall
+ * cannot be waved through this door — and, in the other direction, a
+ * measurement that DID name one cannot be promoted through the ordinary door,
+ * which is the hole this path would otherwise open in `promotion_doc`'s fence. */
+const TOLERANCE_FAMILIES = ["suspect-painting", "unfitted-horizon"];
+const cameraSource = argOf("--camera-source", "measured");
+if (!CAMERA_SOURCES.includes(cameraSource)) {
+  console.error(`promote refused: --camera-source ${cameraSource} is neither ${CAMERA_SOURCES.join(" nor ")}`);
+  process.exit(2);
+}
+const declaredCamera = cameraSource === "declared";
+const holdFamily = m._hold_family || null;
+if (declaredCamera && isOpen) {
+  console.error(`promote refused: ${facingArg} is an open facing and --camera-source declared has nothing to give it — a vista's horizon is ALREADY the camera's declared eye line (row 29(a)'s far-line ruler), so its eye is judged against the ground row it draws and there is no second reading for a tolerance to stand between. An open frame the ruler and the ground row disagree about is repainted, not flagged [row32:tolerance.open_facing]`);
+  process.exit(1);
+}
+if (declaredCamera && !TOLERANCE_FAMILIES.includes(holdFamily)) {
+  console.error(`promote refused: ${facingArg}'s measurement names hold family ${JSON.stringify(holdFamily)}, and the tolerance ruling covers ${TOLERANCE_FAMILIES.join(" and ")}. The declared camera is what a SUSPECT painting is promoted on; a wall whose own instrument never called it suspect is promoted on the horizon it fixed, and asking for the declared one here would be an operator choosing a camera the measurement did not [row32:tolerance.not_suspect]`);
+  process.exit(1);
+}
+if (!declaredCamera && TOLERANCE_FAMILIES.includes(holdFamily)) {
+  console.error(`promote refused: ${facingArg}'s measurement names it ${holdFamily} — its horizon and the ruler that measured it disagree, so promoting it on the horizon in this document ships the reading the instrument refused. It goes through --camera-source declared under the Captain's tolerance ruling, flagged, or it does not go [row32:tolerance.suspect_undeclared]`);
+  process.exit(1);
+}
 /* [row 29(a)] AND AN OUTDOOR FACING IS NOT PROMOTED FROM AN INDOOR ASK.
  *
  * The Captain's first walk of the painted manor, verbatim: "exterior garden has
@@ -240,8 +285,20 @@ if (!(focal >= band.lo && focal <= band.hi)) {
 const votes = m._horizon_votes || {};
 const ramp = votes.ceiling_ramp_intersection;
 const farRuler = votes.far_line_ruler;
-const horizonPx = isOpen ? (farRuler && farRuler.y) : (ramp && ramp.y);
-if (isOpen) {
+/* [row 32] AND THE THIRD ANSWER, WHICH IS NOT AN INSTRUMENT AT ALL. Under the
+ * tolerance ruling the horizon is the one the page's own derived path holds for
+ * this facing — the ruled lens at this standpoint, the drawing eye, the
+ * measured reference horizon — taken from `deriveMeta` rather than restated
+ * here, so the declared camera and the camera the grid draws with are one
+ * number. The reading's own ramp is left in the document, contradicted and
+ * visible; it is simply not what the meta ships. */
+const declaredMeta = declaredCamera ? deriveMeta(plan, loc, facing) : null;
+const horizonPx = declaredCamera ? declaredMeta.horizon_y * m.image_h_px
+  : (isOpen ? (farRuler && farRuler.y) : (ramp && ramp.y));
+if (declaredCamera) {
+  /* Nothing to check about an instrument that was not run — the checks that
+   * matter for this path are the family fence above and the eye band below. */
+} else if (isOpen) {
   if (!farRuler || typeof farRuler.y !== "number") {
     console.error(`promote refused: ${facingArg} is an open facing and its measurement carries no far-line ruler, which is the instrument an outdoor frame is read by — a vista promoted off a ceiling ramp would be a horizon fitted to two edges that are not side walls [row29:vista.no_far_line_ruler]`);
     process.exit(1);
@@ -273,6 +330,25 @@ if (isOpen) {
     process.exit(1);
   }
 }
+/* [row 32] AND THE DECLARED CAMERA'S OWN EYE CLAUSE, which is the reason the
+ * tolerance is a tolerance and not a hole.
+ *
+ * The ruling accepts drift in the PERSPECTIVE reading. It accepts nothing about
+ * the ruler, and the eye is where the two meet: the wall-foot line is measured
+ * off this painting, the horizon is declared, and their separation at the
+ * painting's own measured scale is an eye height. A frame that draws its floor
+ * line somewhere no eye 1.183 m off the ground could put it is not a suspect
+ * painting — it is a painting that failed the camera — and the same ±8 % that
+ * admitted its lens is what says so. This is the clause the camera gate applies
+ * upstream (`row23_run`'s `delta_eye_pct`), asserted again where the meta is
+ * written, because a promotion may be re-run from the meta alone. */
+if (declaredCamera) {
+  const d = Math.abs(eyeM - DRAWING_EYE_M) / DRAWING_EYE_M;
+  if (!(d <= MEASURED_BAND)) {
+    console.error(`promote refused: ${facingArg} draws its wall-foot line at ${(floorLineY * imageH).toFixed(1)} px, which against the declared horizon at ${horizonPx.toFixed(1)} px and this painting's own ${ppm.toFixed(2)} px/m puts the eye ${eyeM.toFixed(3)} m — ${(d * 100).toFixed(1)}% from the ${DRAWING_EYE_M} m this project draws at, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band. The tolerance ruling accepts drift in what this frame's PERSPECTIVE says; it accepts none in what its ruler says, and the floor line is the ruler's [row32:tolerance.eye_band]`);
+    process.exit(1);
+  }
+}
 
 const meta = {
   floor_line_y: round(floorLineY, 6),
@@ -282,7 +358,17 @@ const meta = {
   key_tint: m.key_tint,
   image_h_px: imageH,
   horizon_y: round(horizonY, 6),
-  key_dir: m.key_dir,
+  /* [row 32] THE KEY'S SIDE IS THE MEASUREMENT'S; WHETHER IT IS ABOVE OR BELOW
+   * THE HORIZON IS THIS META'S. The document assembles that suffix against the
+   * horizon its own instrument fixed, and on an `unfitted-horizon` frame there
+   * was none — the reading says `NO-HORIZON`, honestly, about an instrument
+   * that returned nothing. This meta HAS a horizon, so shipping that word would
+   * be the record contradicting itself in the one field that says where the
+   * light comes from. Reassembled from the same light reading against the
+   * declared row; the measured half of the token is untouched. */
+  key_dir: (declaredCamera && m._light)
+    ? `${m._light.key_dir_measured}-${m._light.key_dir_brightest_y < horizonPx ? "ABOVE" : "BELOW"}`
+    : m.key_dir,
   calibration_ref: m.calibration_ref,
   calibration_px: m.calibration_px,
   /* [row 29(a)] UNDER THE FIELD NAME ITS TYPE GIVES IT. The validator refuses a
@@ -317,6 +403,22 @@ const meta = {
    * an unstated round silently reads the cand-2 corpus, which is a DIFFERENT
    * painting's numbers. Null for the default directory. */
   measured_round: roundDir || null,
+  /* [row 32] AND WHERE ITS HORIZON CAME FROM, on the walls where that is not
+   * the picture. Four fields, written only on this path so no ordinary
+   * promotion's bytes move, and each one load-bearing somewhere else:
+   * `camera_source` is what `fixtures.spec`'s staleness re-run reads back to
+   * re-derive this file, `suspect_perspective` is the flag row 4's staging and
+   * the flip test read off the baked meta, `tolerance_ruling` is the authority
+   * a reader of the meta alone can follow, and `declared_fields` is the exact
+   * licence — the horizon and nothing else, so the scale this wall was admitted
+   * on can never be claimed as declared. The fixture validator refuses every
+   * one of those four being wrong, by name. */
+  ...(declaredCamera ? {
+    camera_source: cameraSource,
+    suspect_perspective: true,
+    tolerance_ruling: TOLERANCE_RULING,
+    declared_fields: [...DECLARED_CAMERA_FIELDS]
+  } : {}),
   provisional: false,
   measured: true,
   backdrop: fc.type === "open" ? "vista" : "wall",
@@ -616,9 +718,15 @@ writeFileSync(png, readFileSync(src));
 writeFileSync(join(outDir, `${facing}.meta.json`), JSON.stringify(meta, null, 2) + "\n");
 console.log(`promoted ${facingArg}: ${candidate} -> backdrops/${loc}/${facing}.png`);
 console.log(`  ${ppm.toFixed(3)} px/m at the drawn ${drawn} m = a ${focal.toFixed(1)} px lens (${((focal - MEASURED_REFERENCE_PX) / MEASURED_REFERENCE_PX * 100).toFixed(1)}% from the approved ${MEASURED_REFERENCE_PX})`);
-console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (${isOpen ? "declared eye line, far-line ruler" : "ceiling ramp"}), ${isOpen ? "far-line ground row" : "floor line"} ${(floorLineY * imageH).toFixed(0)} px`);
+console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (${declaredCamera ? `DECLARED — the page's own derived camera for this facing, under the tolerance ruling; this frame's own ${holdFamily}` : isOpen ? "declared eye line, far-line ruler" : "ceiling ramp"}), ${isOpen ? "far-line ground row" : "floor line"} ${(floorLineY * imageH).toFixed(0)} px`);
 if (isOpen) {
   console.log(`  no corners: an open facing runs to its ${fc.far_line} m far line and a corner there would be an invented enclosure`);
+} else if (meta.corner_x0_px == null || meta.corner_x1_px == null) {
+  /* [row 32] An `unfitted-horizon` frame is one whose wall never stops being
+   * square to the camera, so it gives the corner rule nothing to read — and a
+   * meta with no corners is legal (`meta.corner_pairing` asks only that it has
+   * two or none). Said out loud rather than printed as a NaN span. */
+  console.log(`  no corners: this frame's own architecture never stops being square to the camera, so the wall's ends are not in the reading`);
 } else {
   console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
 }

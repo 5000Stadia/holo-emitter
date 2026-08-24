@@ -168,10 +168,21 @@ test.describe("fixtures", () => {
            re-running the tool without naming which would refuse the manor half
            of the corpus at the wrong centre — a red case that says nothing
            about staleness. */
+        /* [Row 32] AND WHERE ITS HORIZON CAME FROM, which is the third thing
+           the re-run has to be told and the newest. A wall promoted under the
+           Captain's tolerance ruling carries `camera_source: "declared"`; the
+           tool refuses to touch its measurement without the flag — the
+           measurement names a hold family, and promoting one through the
+           ordinary door would ship the reading the instrument refused — so
+           re-running it unflagged would make this case red for the wrong
+           reason, exactly as an unstated round or reference would. The
+           tolerance is knowing: the spec reads the source back off the meta
+           rather than assuming every promotion took one path. */
         execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
           "--facing", `${loc}/${facing}`, "--candidate", candidate,
           ...(meta.measured_round ? ["--round", meta.measured_round] : []),
-          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : []),
+          ...(meta.camera_source ? ["--camera-source", meta.camera_source] : [])],
           { cwd: dir, encoding: "utf8", stdio: "pipe" });
         expect(readFileSync(join(dir, "backdrops", loc, `${facing}.meta.json`), "utf8"),
           `backdrops/${loc}/${facing}.meta.json is not what promote-backdrop.mjs writes — a field was edited by hand, or the measurement moved and the promotion was not re-run`)

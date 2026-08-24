@@ -23,14 +23,14 @@
  *      cannot survive `carryableOutdoors` is a fix that does not travel.
  */
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
-import { repoRoot } from "./helpers.mjs";
+import { join, dirname } from "node:path";
+import { repoRoot, stageTree, removeTree } from "./helpers.mjs";
 import { manorPrompt, scaffoldRects } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
 import { carryableOutdoors } from "../../tools/room-voices.mjs";
-import { MEASURED_BAND } from "../../tools/validate-fixtures.mjs";
+import { MEASURED_BAND, DECLARED_CAMERA_FIELDS } from "../../tools/validate-fixtures.mjs";
 
 const MEASURED = join(repoRoot, "design", "plan-draft", "measured");
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
@@ -142,6 +142,194 @@ print("COPY|%s" % ("EYE_RANGE = (" in src or "EYE_RANGE=(" in src))
     expect(lines["COPY"][0],
       "row23_lib has taken a second copy of EYE_RANGE, which is how a band moves quietly")
       .toBe("False");
+  });
+
+  /* ---------------------------------------------------------------- 2(b) */
+  /* [The Captain's tolerance ruling, 2026-08-24] AND THE FAMILY THE RULING
+   * COVERS IS ONE LIST READ IN TWO LANGUAGES. `row23_lib.TOLERANCE_FAMILIES`
+   * decides which refusals the sweep writes a document for;
+   * `promote-backdrop.mjs`'s own copy decides which documents the promotion
+   * will touch. Those are the two ends of one fence, and a fence whose two ends
+   * disagree is open at one of them — which is the shape `prompt_lint`'s word
+   * list and `room-voices.mjs`'s already pay a handshake to avoid. */
+  test("the tolerance ruling's family list is the same list at both ends of the fence", () => {
+    const py = inMeasured(`
+import row23_lib
+print("|".join(row23_lib.TOLERANCE_FAMILIES))
+`).trim();
+    const js = readFileSync(join(repoRoot, "tools", "promote-backdrop.mjs"), "utf8");
+    const m = /const TOLERANCE_FAMILIES = \[([^\]]*)\]/.exec(js);
+    expect(m, "promote-backdrop.mjs no longer declares TOLERANCE_FAMILIES").toBeTruthy();
+    const names = m[1].split(",").map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
+    expect(names.join("|"),
+      "the sweep writes documents for a family the promotion will not touch, or the other way round")
+      .toBe(py);
+    /* And it is the two the row named, not a set that has grown by itself. */
+    expect(names.sort()).toEqual(["suspect-painting", "unfitted-horizon"]);
+  });
+
+  /* [The same ruling] AND THE DECLARED CAMERA IS THE PAGE'S OWN, not a third
+   * one. The whole licence is `horizon_y`; if the promotion ever took the
+   * SCALE from the derived meta too, a suspect wall would be shipping a lens
+   * nobody measured and the ±8 % band would have stopped meaning anything. */
+  test("the declared camera fills the horizon and nothing else", () => {
+    expect(DECLARED_CAMERA_FIELDS).toEqual(["horizon_y"]);
+    const js = readFileSync(join(repoRoot, "tools", "promote-backdrop.mjs"), "utf8");
+    expect(js, "the declared horizon is not read off deriveMeta any more")
+      .toContain("declaredMeta.horizon_y * m.image_h_px");
+    /* The scale on the very next lines is still the painting's own reading. */
+    expect(js).toContain("const ppm = m.px_per_m_at_wall;");
+  });
+
+  /* [The same ruling] AND THE META THE PATH ACTUALLY WRITES, field by field.
+   *
+   * Reading the source proves what the tool intends; this runs it and compares
+   * the two metas the same wall produces on the two routes. Exactly five fields
+   * may differ — the horizon, the two numbers computed FROM the horizon, the
+   * key's above/below suffix, and the four-field declaration — and every other
+   * number on the file has to be byte-identical, because the ruling licenses a
+   * camera and not a rewrite. Anything else moving would be the tolerance
+   * quietly reaching a field nobody ruled on. */
+  test("a declared promotion moves the horizon and the fields that hang off it, and nothing else", () => {
+    const KEY = "library/E";
+    const [loc, fac] = KEY.split("/");
+    const dir = stageTree();
+    try {
+      const meta = JSON.parse(readFileSync(
+        join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+      const cand = String(meta.camera_id).replace(/^measured:/, "");
+      mkdirSync(dirname(join(dir, cand)), { recursive: true });
+      cpSync(join(repoRoot, cand), join(dir, cand));
+      const docRel = join("design", "plan-draft", "measured",
+        meta.measured_round || "", `${loc}-${fac}.json`);
+      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+      const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
+      /* The one thing that makes this wall a member of the family. Every other
+         number in the document is its own real reading. */
+      doc._hold_family = "suspect-painting";
+      writeFileSync(join(dir, docRel), JSON.stringify(doc, null, 2) + "\n");
+      execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+        "--facing", KEY, "--candidate", cand,
+        "--round", meta.measured_round, "--reference", meta.camera_reference,
+        "--camera-source", "declared"], { cwd: dir, encoding: "utf8", stdio: "pipe" });
+      const got = JSON.parse(readFileSync(
+        join(dir, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+
+      /* The horizon is the page's own, not the picture's. */
+      const derived = deriveMeta(PLAN, loc, fac);
+      expect(got.horizon_y, "the declared horizon is not the page's own camera")
+        .toBeCloseTo(derived.horizon_y, 6);
+      expect(got.horizon_y).not.toBeCloseTo(meta.horizon_y, 6);
+      /* The scale, the floor line and the calibration are still the painting's,
+         to the byte. This is the half the ruling does not touch. */
+      for (const k of ["px_per_m_at_wall", "floor_line_y", "calibration_px",
+        "calibration_ref", "key_tint", "focal_px", "corner_x0_px", "corner_x1_px"]) {
+        expect(got[k], `${k} moved on a route that only declares a horizon`)
+          .toEqual(meta[k]);
+      }
+      /* And the declaration itself. */
+      expect(got.camera_source).toBe("declared");
+      expect(got.suspect_perspective).toBe(true);
+      expect(got.declared_fields).toEqual(DECLARED_CAMERA_FIELDS);
+      expect(got.tolerance_ruling).toMatch(/design\/approvals\.log/);
+      expect(got.tolerance_ruling).toMatch(/we can accept a tolerance for drift here/);
+      /* Nothing else moved. `px_per_m_at_bottom` and `nearest_floor_m` are
+         computed FROM the horizon and must move with it; `key_dir` MAY, because
+         it carries an above/below suffix read against the horizon and this
+         wall's key happens to fall the same side of both. */
+      const LICENSED = ["camera_source", "declared_fields", "horizon_y", "key_dir",
+        "nearest_floor_m", "px_per_m_at_bottom", "suspect_perspective",
+        "tolerance_ruling"];
+      const moved = Object.keys({ ...meta, ...got })
+        .filter((k) => JSON.stringify(meta[k]) !== JSON.stringify(got[k])).sort();
+      expect(moved.filter((k) => !LICENSED.includes(k)),
+        "the declared route reached a field the ruling does not license").toEqual([]);
+      for (const k of LICENSED.filter((x) => x !== "key_dir")) {
+        expect(moved, `${k} did not move on the declared route`).toContain(k);
+      }
+    } finally {
+      removeTree(dir);
+    }
+  });
+
+  /* [The same ruling] THE SWEEP'S OWN ROUTING, AND THAT ITS DRY RUN IS DRY.
+   *
+   * Two claims, and the second is the one worth a test on its own: a mode that
+   * says it wrote nothing and wrote something is the worst kind of dry run,
+   * because the operator's decision was taken on the strength of the promise.
+   * The first is the routing — only walls the ordinary sweep has finished with
+   * (`held`, `parked`) and only ones IT named suspect. A wall in `retry` has
+   * rolls coming and a cap unspent, and spending the Captain's tolerance on it
+   * would buy drift the standing loop was about to fix for free. */
+  test("the tolerance sweep's dry run routes only finished suspect holds, and writes nothing", () => {
+    const MANOR = join(repoRoot, "design", "batches", "row23-scaffold", "manor");
+    const STATE = join(MANOR, "run-state.json");
+    const before = readFileSync(STATE, "utf8");
+    const beforeReadings = readdirSync(join(MEASURED, "manor")).sort().join("|");
+    /* THE ROUTING IS EXERCISED IN PROCESS, over a manifest cut to four walls.
+       Running the mode over all 88 entries measures every eligible frame and
+       costs three minutes, which is a test that will one day be skipped rather
+       than fixed. What is under examination here is which walls the mode TAKES,
+       and that decision is made before a pixel is read. */
+    const out = inMeasured(`
+import json, os, row23_run
+MANOR = ${JSON.stringify(MANOR)}
+man = json.load(open(os.path.join(MANOR, "run-state.json")))
+state = man
+walls = state["walls"]
+def one(pred):
+    return next((k for k, v in sorted(walls.items()) if pred(v)), None)
+picks = [
+    ("suspect-held", one(lambda v: v.get("status") == "held" and
+                         v.get("hold_family") == "suspect-painting")),
+    ("suspect-retry", one(lambda v: v.get("status") == "retry" and
+                          v.get("hold_family") in ("suspect-painting", "unfitted-horizon"))),
+    ("other-held", one(lambda v: v.get("status") == "held" and
+                       v.get("hold_family") == "promotion-refused")),
+    ("promoted", one(lambda v: v.get("status") == "promoted")),
+]
+full = json.load(open(os.path.join(MANOR, "manifest.json")))
+keys = [k for _, k in picks if k]
+man2 = dict(full, entries=[e for e in full["entries"] if e["key"] in keys])
+would, skipped, err = row23_run.tolerance_sweep(man2, state, dry_run=True)
+print(json.dumps({"err": err,
+                  "picks": {name: k for name, k in picks},
+                  "would": [w[0] for w in would],
+                  "skipped": [s[0] for s in skipped]}))
+`);
+    const r = JSON.parse(out.trim().split("\n").pop());
+    expect(r.err).toBe(null);
+    expect(r.would, "the one finished suspect hold was not taken")
+      .toContain(r.picks["suspect-held"]);
+    /* A wall the ordinary sweep is still working has rolls coming and a cap
+       unspent; spending the Captain's tolerance on it buys drift the standing
+       loop was about to fix for free. */
+    expect(r.would, "a retrying wall was taken by the tolerance sweep")
+      .not.toContain(r.picks["suspect-retry"]);
+    /* And a hold that is NOT this family — a doorway the plan rules and the
+       painting does not draw — is not a perspective disagreement and the ruling
+       says nothing about it. */
+    expect(r.would, "a hold outside the family was taken")
+      .not.toContain(r.picks["other-held"]);
+    expect(r.would, "a wall already in the store was re-promoted")
+      .not.toContain(r.picks["promoted"]);
+
+    /* AND THE DRY RUN IS DRY. A mode that says it wrote nothing and wrote
+       something is the worst kind, because the operator's decision was taken on
+       the strength of the promise. */
+    expect(readFileSync(STATE, "utf8"), "the dry run rewrote the run state").toBe(before);
+    expect(readdirSync(join(MEASURED, "manor")).sort().join("|"),
+      "the dry run wrote a measurement document").toBe(beforeReadings);
+
+    /* And `--dry-run` on its own is refused rather than quietly ignored: an
+       operator who typed it and got a real sweep would have promoted a corpus
+       believing nothing was written. */
+    let cli = "";
+    try {
+      cli = execFileSync("python3", [join(MEASURED, "row23_run.py"), "--dry-run"],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    } catch (e) { cli = String(e.stdout || "") + String(e.stderr || ""); }
+    expect(cli).toMatch(/--dry-run belongs to --tolerance-sweep/);
   });
 
   /* ------------------------------------------------------------------ 3 */
