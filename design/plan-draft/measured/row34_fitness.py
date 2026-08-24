@@ -470,6 +470,44 @@ def plan_next_generation(assign, result, budget):
 
 # ------------------------------------------------------------------ the report
 
+def retries_needed(p, target=0.95, cap=12):
+    """How many asks a wall needs at rate `p` to clear `target`.
+
+    THE ACCEPTANCE BAR'S ARITHMETIC, and it is why a fourth generation is not
+    the answer to a third null. The production loop already re-asks a wall, and
+    at an admissible rate p the share resolved in k asks is 1-(1-p)**k. A recipe
+    good enough to be retried beats a recipe that is tuned forever, and this puts
+    the k in the report rather than in an argument.
+    """
+    if not p or p <= 0:
+        return None
+    k, got = 0, 0.0
+    while got < target and k < cap:
+        k += 1
+        got = 1 - (1 - p) ** k
+    return {"rate": round(p, 4), "target": target, "retries": k,
+            "reached": round(got, 4), "capped": k >= cap and got < target}
+
+
+def _exhausted_line(result):
+    best, arm = 0.0, None
+    for a in result["arms"]:
+        s = result["pooled"][a]
+        if s["n"] and s["admissible"] / s["n"] > best:
+            best, arm = s["admissible"] / s["n"], a
+    r = retries_needed(best)
+    if not r:
+        return ("PROMPTING EXHAUSTED CHECK: no arm admitted anything, so no rate can be handed "
+                "to the retry loop and the residual is entirely the Captain's look.")
+    return ("PROMPTING EXHAUSTED CHECK: best measured rate %.2f (%s). At that rate the "
+            "verify-and-retry loop clears %.0f%% of a hold family in %d ask(s)%s. If this "
+            "generation named no arm that beats the incumbent under the standing discipline, "
+            "prompting is exhausted and the residual routes to that loop and to the Captain's "
+            "look - not to a fourth generation."
+            % (best, arm, 100 * r["target"], r["retries"],
+               " (capped)" if r["capped"] else ""))
+
+
 def report(assign, result, gen_next=None):
     L = []
     L.append("# Row 34 — the breakout evolution run")
@@ -543,6 +581,32 @@ def report(assign, result, gen_next=None):
                          % (hp["bound"], b["admissible"], b["n"], hp["unbound"],
                             u["admissible"], u["n"], hp["question"]))
                 L.append("")
+    # ---- the register, which is generation 3's own lens ---------------------
+    # The spectrum above asks how much precision the IMAGE carries. An ablation
+    # that holds the image constant and varies the REGISTER the geometry is
+    # written in would put every one of its arms at one point on that axis, so
+    # it reads against its own instead. Printed only where the generation being
+    # scored actually has arms on it.
+    reg = [r for r in (assign.get("_register") or []) if result["pooled"].get(r["arm"])]
+    if reg:
+        L.append("## Which register the geometry is written in")
+        L.append("")
+        L.append("| figures | appearance | arm | adm k/n | d_horizon_px | reads |")
+        L.append("|---|---|---|---|---|---|")
+        for r in reg:
+            pr = result["pooled"][r["arm"]]
+            L.append("| %s | %s | %s | %d/%d | %s | %s |"
+                     % (r["figures"], "yes" if r["appearance"] else "no", r["arm"],
+                        pr["admissible"], pr["n"], pr["d_horizon_px"], r["reads"]))
+        L.append("")
+        L.append("This generation's cells are comparable TO EACH OTHER and NOT to earlier "
+                 "generations: the prompt-hygiene corrections moved under all of its arms at "
+                 "once, so any difference from an earlier table confounds the ablation with "
+                 "the hygiene.")
+        L.append("")
+        L.append(_exhausted_line(result))
+        L.append("")
+
     for n in (NOTE_CAMERA, NOTE_NO_TEXT_PAINTED, NOTE_MINIMAL_TEXT):
         L.append(n)
         L.append("")

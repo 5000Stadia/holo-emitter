@@ -544,6 +544,83 @@ chosen afterwards**.
 
 ---
 
+### 6b. Generation 3 — the expression ablation, and what the research changed
+
+Generations 1 and 2 both returned `NO SEPARATION`. Model-specific research then arrived and did
+two things at once: it questioned some of this row's validity, and it named a factor no generation
+had varied. Generation 3 is designed against it and is **not bred by the branch rules** — breeding
+from a second null would re-run the same field with the same blind spot, which is the thing branch
+B's own opposite-extreme clause exists to avoid.
+
+**The validity findings, checked against our own corpus before anything was designed.**
+
+| finding | our corpus says |
+|---|---|
+| Identical prompts in one session return identical images | **Does not replicate.** 14 within-cell pairs in generation 1 and 12 in generation 2: **zero** byte-identical, **zero** near-duplicates. The control comparison is what makes that conclusive — within-cell share-of-same-pixels medians 0.055 and 0.068 against a *between-arm* floor of 0.044 and 0.050. Two rolls of one prompt agree no better than two different techniques do. **No seat restart is needed and the ~30s per roll is not spent.** What it does say is that roll-to-roll variance here is enormous, which is the real reason n = 2 is thin — a variance problem, not a duplication one. |
+| A skill layer reshapes our prompt before the model sees it | **True, and we were already most of the way into its shape.** The skill is a labelled specification schema and four of its field names are already ours verbatim (`Use case`, `Asset type`, `Input images`, `Primary request`, `Constraints`). Its own rule is *"If the prompt is already specific and detailed, preserve that specificity and only normalize/structure it."* Three of ours were near-misses and generation 3 renames them to the schema's own (`Composition/framing`, `Materials/textures`, `Style/medium`), leaving the shaper nothing to do but pass them through. `Gate anchor:` is not one of its fields and stays anyway, because `prompt_lint.py` requires it and a live gate is not this row's to suspend. |
+| References are downsampled to ~1024 px | Not measurable from here, and **taken as read**. It independently explains `v5`'s loss and weakens every scaffold-precision arm this row has run. Image 2 stays attached in all four generation-3 arms as a **constant**, not a variable. |
+| Repeated nouns multiply objects | **We were already clean** — zero findings across all 52 prompts, once the audit stopped counting "chair-rail" as a chair and stopped counting negated mentions. |
+| Tag-style comma prompts induce grid noise; "in the style of" is a trigger | **36 of 52** carried a comma-tag line, and they were the same two lines every time. **Zero** carried "in the style of". Both fixed in generation 3. |
+| Dead vocabulary | **28 of 52** carried "vanishing point" *and* "one-point perspective" — the whole exhaustive-camera family, including the arm leading both generations. Deleted from all generation-3 arms. |
+
+**The arms.** One channel moves, `camera_language`, and it is the register the same geometry is
+written in:
+
+| arm | register |
+|---|---|
+| `g1` | picture coordinates — the incumbent's register, cleaned |
+| `g2` | shares of the frame — the genuinely untested claim; the "fractions work" folklore traces to content farms and has no attributed evidence either way |
+| `g3` | what the finished picture looks like, with no geometry figures at all |
+| `g4` | the finished picture described, with the coordinates attached |
+
+**Four hygiene corrections move in all four arms together**, so they are a constant of the
+generation rather than a difference between its cells: the pre-shaping above, dead vocabulary
+deleted, comma-tag lists rewritten as prose, and the no-lettering rule by **positive substitution**
+rather than negation — the risk being semantic displacement, and "only" being the token the
+community's worked example puts most weight on.
+
+**What that costs, said before dispatch:** generation 3's cells are comparable **to each other** and
+**not** to generations 1 and 2, because the hygiene moved under all four at once. Any difference
+from an earlier table confounds the ablation with the hygiene.
+
+**The budget moved its shape and not its size.** §3 declared generation 3 as ≤3 arms and 12 rolls
+*because it was declared as a confirmation generation*. An ablation needs four cells. Generation 2
+came in **4 rolls under** its ceiling, and those 4 fund exactly the 4 this one is over: 28 + 24 + 16
+= **68**, the declared total, now exactly spent. The emitter gates on that total, counting the spend
+off the id maps on disk so a re-emission cannot double-count and a deleted map cannot hide a spend.
+
+**And the consequence is real: the row ends with three screens and no confirmation generation.**
+Nothing can be crowned by fresh rolls. The recipe is therefore chosen by **explicit labelled
+judgment on the table** — row 23's sanctioned fallback, and what that row did too.
+
+### 6c. The acceptance bar — when prompting is exhausted
+
+CVPR-2024 evidence says perfect line convergence is likely **unreachable by prompt**, because it is
+structural in the generator. A row that keeps asking would never end, so the bar is written down:
+
+> **Prompting is exhausted when a generation produces no arm that beats the incumbent under the
+> standing discipline.** Generations 1 and 2 have each already done that. Generation 3 is the third
+> and last ask.
+
+**Where the residual goes is arithmetic, not judgment.** The production loop already re-asks a wall.
+At an admissible rate `p`, the share of a hold family resolved in `k` asks is `1 − (1 − p)^k`, and
+`row34_fitness.py` prints the `k` its own best measured rate needs to clear 95 %. The incumbent sits
+at **6 of 8** across generations 1 and 2, and at 0.75 that is **3 asks**. Whatever remains after
+that is **the Captain's look fork** — not a fourth generation. A recipe good enough to be retried
+beats a recipe tuned forever.
+
+### 6d. Two sources that could not be retrieved
+
+The Captain flagged two community posts for the generation-3 evidence base. **Neither could be
+opened this session**, and no part of this design rests on a guess about what they contain: web
+search was exhausted at its 200-call session budget, `reddit.com` is blocked at the tool level, and
+a text-extraction proxy returned Reddit's own 403 network policy. They remain an open input — if
+they are retrieved before dispatch, the honest place for them is a fifth cell or a generation-3
+amendment, graded on the same ladder as everything else (anecdotal until it replicates on our
+instrument).
+
+---
+
 ## 7. Fold-back, and what it costs
 
 Production law clause 6: a correction lands in the emitter, never in a per-run paragraph. So the

@@ -162,7 +162,13 @@ export function frameGeometry(meta) {
  * `prompt_lint.py` reads it. Parsing it back is what lets an arm be defined as
  * "production, with this section replaced" rather than as a second prompt. */
 
-const KEY = /^([A-Z][A-Za-z ,'-]*):/;
+/* The key may carry a SLASH, because the imagegen skill's own field names do —
+ * `Composition/framing`, `Materials/textures`, `Style/medium`. The first
+ * pre-shaped prompt parsed back with those three sections missing entirely,
+ * silently absorbed into whatever came before them, and four suite cases went
+ * red at once. A parser that cannot read the shape we are deliberately
+ * writing into is worse than no parser. */
+const KEY = /^([A-Z][A-Za-z ,'\/-]*):/;
 
 export function parseSections(text) {
   const out = [];
@@ -1114,6 +1120,22 @@ for (const [id, name, mode, what] of GEN3) {
 }
 
 export const GEN3_ARMS = GEN3.map(([id]) => id);
+
+/* THE SPECTRUM IS GENERATIONS 1 AND 2's LENS AND IT DOES NOT FIT THIS ONE.
+ * That axis asks how much anchored precision the IMAGE carries; all four
+ * generation-3 arms hold the image constant and vary the REGISTER the geometry
+ * is written in. Forcing them onto the old axis would put four arms at one
+ * point and read as though nothing varied. A new factor gets a new lens. */
+export const REGISTER = [
+  { arm: "g1", figures: "coordinates", appearance: false,
+    reads: "the geometry as picture coordinates - the register that led both earlier generations" },
+  { arm: "g2", figures: "fractions", appearance: false,
+    reads: "the same geometry as shares of the frame - no attributed evidence either way, so this is the first measurement of it" },
+  { arm: "g4", figures: "coordinates", appearance: true,
+    reads: "what the finished picture looks like, with the coordinates attached" },
+  { arm: "g3", figures: "none", appearance: true,
+    reads: "what the finished picture looks like, and no geometry figures at all" }
+];
 
 export const ARM_IDS = Object.keys(ARMS);
 export const CONTROL_ARM = "v3";

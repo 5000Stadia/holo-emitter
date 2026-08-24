@@ -4225,6 +4225,55 @@ wrong wall geometry — one manifest per generation now, named like the id map. 
 longer holds an arm list past generation 1: it reads the planner's plan file and refuses any arm
 whose composer declares a different channel triple than the rule bred.
 
+**Generation 3, and the audit that had to come before it.** Model-specific research arrived after
+two nulls and questioned the row's own validity before adding to it. The load-bearing claim was that
+identical prompts in one session return identical images — if true, every roll pair was one sample
+wearing two ids, per-arm n was 2 rather than 4, and both generations' statistics were void.
+`row34_dupaudit.py` settles it: 14 within-cell pairs in generation 1 and 12 in generation 2, **zero**
+byte-identical and **zero** near-duplicates. What makes that conclusive rather than merely negative
+is the control it carries with it — two rolls of *different arms* on the same wall are the floor, and
+within-cell similarity (medians 0.055, 0.068) does not rise above it (0.044, 0.050). Two rolls of one
+prompt agree no better than two techniques do. No seat restart is needed; what the numbers do say is
+that roll-to-roll variance here is enormous, which is the real reason n = 2 is thin — a variance
+problem and not a duplication one.
+
+`row34_promptaudit.py` is the other half: four researched claims about prompt *text* turned into a
+tool rather than a paragraph. Over our own 52 prompts it found 28 carrying "vanishing point" and
+"one-point perspective" (zero-occurrence terms in the attributed corpus — the whole exhaustive-camera
+family, including the arm leading both generations), 36 carrying a comma-tag line, zero noun
+repetition and zero "in the style of". Two false-positive classes were fixed by running it over the
+corpus before trusting it: "chair-rail" is a moulding, not a chair, and a *negated* mention does not
+multiply an object. It reports by default and refuses only under `--strict`, because every rule in it
+is researched and none has yet moved a number on our instrument — which is what generation 3 is for.
+
+Generation 3 is therefore an **ablation, not a bred generation**: four arms identical but for the
+register the same geometry is written in — coordinates, fractions of the frame, pure finished-image
+appearance, and appearance with the figures attached. Four hygiene corrections move in all four
+together (pre-shaped into the imagegen skill's own field names, dead vocabulary deleted, comma lists
+prosed, no-lettering by positive substitution), which makes its cells comparable to each other and
+**not** to earlier generations. It has its own reading lens, `REGISTER`, because the spectrum axis
+asks how much precision the *image* carries and this ablation holds the image constant.
+
+Two things that bit while building it: `parseSections`' key pattern did not allow a slash, so the
+pre-shaped `Composition/framing` sections parsed back as missing and four suite cases went red at
+once; and the positive-substitution line was itself a comma list, which its own audit caught. Both
+are fixed where they live.
+
+**The budget moved its shape and not its size**, and the emitter now gates the total rather than only
+the per-generation line: generation 3 is 16 rolls against a declared 12, funded exactly by generation
+2's 4-roll underspend, for 28 + 24 + 16 = **68**, the declared total, exactly spent. The spend is
+counted off the id maps on disk, so a re-emission cannot double-count and a deleted map cannot hide
+one. The consequence is that the row ends with three screens and **no confirmation generation** —
+nothing can be crowned by fresh rolls, and the recipe is chosen by labelled judgment on the table,
+which is row 23's sanctioned fallback.
+
+**And the row now knows when to stop asking.** Prompting is exhausted when a generation produces no
+arm that beats the incumbent under the standing discipline; generations 1 and 2 have each done that
+and generation 3 is the last ask. The residual is arithmetic rather than judgment: at an admissible
+rate `p` the retry loop clears `1 − (1 − p)^k` of a hold family in `k` asks, and the scorer prints the
+`k` its own best rate needs. At the incumbent's 6 of 8 that is three asks; what remains is the
+Captain's look, not a fourth generation.
+
 **What is still missing from this row's audit trail.** The generation-1 readings and report are not
 committed. The discipline rests on readings on disk beside an immutable id map, so until
 `design/plan-draft/measured/row34/*.json` and generation 1's `REPORT.md` land, `generation-2-plan.json`

@@ -147,6 +147,32 @@
       "reads": "the text carries everything; there is no layout image at all"
     }
   ],
+  "_register": [
+    {
+      "arm": "g1",
+      "figures": "coordinates",
+      "appearance": false,
+      "reads": "the geometry as picture coordinates - the register that led both earlier generations"
+    },
+    {
+      "arm": "g2",
+      "figures": "fractions",
+      "appearance": false,
+      "reads": "the same geometry as shares of the frame - no attributed evidence either way, so this is the first measurement of it"
+    },
+    {
+      "arm": "g4",
+      "figures": "coordinates",
+      "appearance": true,
+      "reads": "what the finished picture looks like, with the coordinates attached"
+    },
+    {
+      "arm": "g3",
+      "figures": "none",
+      "appearance": true,
+      "reads": "what the finished picture looks like, and no geometry figures at all"
+    }
+  ],
   "_headline_pairing": {
     "bound": "v7",
     "unbound": "v2",

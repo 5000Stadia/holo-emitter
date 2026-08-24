@@ -66,7 +66,7 @@
         "anchor": "chair_rail",
         "outdoor": false
       },
-      "sidecar_sha256": "e5ea65e96906b96ada062b54373a47c9f795115c449966ed2ffb0c18db990742"
+      "sidecar_sha256": "4af2e2eeaf83bb0af4e87a7dedaad5d1c713665255584013321f4ee75de8d3dd"
     },
     {
       "key": "garden_room/E",
@@ -134,7 +134,7 @@
         "anchor": "chair_rail",
         "outdoor": false
       },
-      "sidecar_sha256": "fcf5e4df3e15de7435f8044f44f7ee3e14c887eab95993cf73fc966939791fdd"
+      "sidecar_sha256": "ae73600cc4aa55a3c63b7fbcdec100c5663e6d614b4cdcb43cea66322bf03ec8"
     }
   ],
   "arms": [
@@ -199,5 +199,5 @@
   "rolls_per_arm_per_wall": 2,
   "total_rolls": 16,
   "_generated": "2026-08-24",
-  "git_commit": "cda3e7278e8e65c3748fcf99fd1511ddf05a6f40"
+  "git_commit": "e69058c94fc7ca625f96535ccb09a76d98ee9de3"
 }
