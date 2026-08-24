@@ -1,0 +1,414 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 669,
+    "chair_rail_y_px": 563,
+    "dado_rail_above_floor_px": 106,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      656,
+      679
+    ],
+    "rail": [
+      544,
+      563
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        25
+      ],
+      [
+        206,
+        324
+      ],
+      [
+        517,
+        744
+      ],
+      [
+        924,
+        1043
+      ],
+      [
+        1224,
+        1438
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": -273.96,
+      "asked_x1": -94.32,
+      "ruled_m": 1.4999,
+      "window": [
+        -465,
+        97
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "no pair of vertical edges inside the declared window is within a quarter of the ruled width of each other"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 25.45,
+      "asked_x1": 205.1,
+      "ruled_m": 1.5,
+      "window": [
+        -166,
+        397
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 187..372 (164 px from the ask) and another admissible pair sits 222..372 (182 px from the ask), which disagree by more than the 15 px this arm can resolve"
+    },
+    {
+      "kind": "door",
+      "asked_x0": 324.87,
+      "asked_x1": 516.49,
+      "ruled_m": 1.6,
+      "window": [
+        132,
+        708
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 537..686 (191 px from the ask) and another admissible pair sits 497..686 (171 px from the ask), which disagree by more than the 15 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 744.05,
+      "asked_x1": 923.7,
+      "ruled_m": 1.5,
+      "window": [
+        552,
+        1115
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 820..957 (55 px from the ask) and another admissible pair sits 607..820 (120 px from the ask), which disagree by more than the 15 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1043.46,
+      "asked_x1": 1223.11,
+      "ruled_m": 1.5,
+      "window": [
+        851,
+        1415
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 957..1147 (81 px from the ask) and another admissible pair sits 1147..1335 (108 px from the ask), which disagree by more than the 15 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1438.69,
+      "asked_x1": 1606.36,
+      "ruled_m": 1.4,
+      "window": [
+        1246,
+        1798
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 1335..1484 (113 px from the ask) and another admissible pair sits 1294..1426 (163 px from the ask), which disagree by more than the 15 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1714.15,
+      "asked_x1": 1881.82,
+      "ruled_m": 1.4,
+      "window": [
+        1522,
+        2073
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "no pair of vertical edges inside the declared window is within a quarter of the ruled width of each other"
+    }
+  ],
+  "px_per_m_at_wall": 111.579,
+  "implied_focal_px": 954.0,
+  "eye_height_m": 1.2807,
+  "_absent": [
+    "the window: no pair of vertical edges inside the declared window is within a quarter of the ruled width of each other",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 187..372 (164 px from the ask) and another admissible pair sits 222..372 (182 px from the ask), which disagree by more than the 15 px this arm can resolve",
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 537..686 (191 px from the ask) and another admissible pair sits 497..686 (171 px from the ask), which disagree by more than the 15 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 820..957 (55 px from the ask) and another admissible pair sits 607..820 (120 px from the ask), which disagree by more than the 15 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 957..1147 (81 px from the ask) and another admissible pair sits 1147..1335 (108 px from the ask), which disagree by more than the 15 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 1335..1484 (113 px from the ask) and another admissible pair sits 1294..1426 (163 px from the ask), which disagree by more than the 15 px this arm can resolve",
+    "the window: no pair of vertical edges inside the declared window is within a quarter of the ruled width of each other"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 296,
+    "ceiling_candidates": [
+      {
+        "y": 297,
+        "strength": 89.64,
+        "horiz": 0.963,
+        "cv": 0.242
+      },
+      {
+        "y": 439,
+        "strength": 41.97,
+        "horiz": 0.723,
+        "cv": 0.552
+      },
+      {
+        "y": 308,
+        "strength": 41.44,
+        "horiz": 0.938,
+        "cv": 0.318
+      },
+      {
+        "y": 356,
+        "strength": 31.83,
+        "horiz": 0.89,
+        "cv": 0.374
+      },
+      {
+        "y": 402,
+        "strength": 31.79,
+        "horiz": 0.903,
+        "cv": 0.357
+      },
+      {
+        "y": 446,
+        "strength": 31.61,
+        "horiz": 0.559,
+        "cv": 0.774
+      },
+      {
+        "y": 414,
+        "strength": 30.09,
+        "horiz": 0.894,
+        "cv": 0.374
+      },
+      {
+        "y": 379,
+        "strength": 27.58,
+        "horiz": 0.877,
+        "cv": 0.395
+      },
+      {
+        "y": 367,
+        "strength": 26.32,
+        "horiz": 0.859,
+        "cv": 0.436
+      },
+      {
+        "y": 456,
+        "strength": 24.13,
+        "horiz": 0.629,
+        "cv": 0.909
+      },
+      {
+        "y": 390,
+        "strength": 22.59,
+        "horiz": 0.795,
+        "cv": 0.54
+      },
+      {
+        "y": 426,
+        "strength": 22.45,
+        "horiz": 0.754,
+        "cv": 0.593
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 296,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 438,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 307,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 355,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 401,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 445,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 413,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 378,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 366,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 455,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 389,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      },
+      {
+        "ceiling_y_px": 425,
+        "admissible": false,
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
+      }
+    ],
+    "corner_x0_px": 24,
+    "corner_x1_px": 1366,
+    "corner_evidence": {
+      "left_fit_r2": 0.2165,
+      "right_fit_r2": 0.0139,
+      "block_px": 16,
+      "excluded": [
+        [
+          -273,
+          -94
+        ],
+        [
+          25,
+          205
+        ],
+        [
+          324,
+          516
+        ],
+        [
+          744,
+          923
+        ],
+        [
+          1043,
+          1223
+        ],
+        [
+          1438,
+          1606
+        ],
+        [
+          1714,
+          1881
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 11.33,
+    "ramp": null,
+    "votes": {
+      "floor": {
+        "x": 1536,
+        "y": 480,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 2,
+        "y": 742,
+        "edge_px": 30000
+      },
+      "side_walls": {
+        "x": 312,
+        "y": 826,
+        "edge_px": 2473
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 782,
+      "key_dir_brightest_y": 208,
+      "key_tint": "#c8c2b7",
+      "key_tint_patch": [
+        582,
+        982,
+        226,
+        288
+      ],
+      "key_tint_patch_mean_rgb": [
+        191.58,
+        185.91,
+        175.07
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8a777",
+        "floor_bottom_strip": "#c8a471",
+        "mid_wall_right": "#c89f6b",
+        "mid_wall_left": "#c8a470",
+        "brightest_21x21_patch": "#c8bfaf"
+      },
+      "brightest_21x21_patch_centre_px": [
+        782,
+        208
+      ],
+      "sobel_bright_side_deg_whole_frame": 88.69,
+      "sobel_bright_side_deg_wall_band": -87.6,
+      "left_third_minus_right_third_luminance_whole_frame": -1.19,
+      "left_third_minus_right_third_luminance_wall_band": -4.27
+    },
+    "storey_height_m": 3.3429,
+    "implied_wall_width_m": 12.0274,
+    "eye_height_m": null,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": "unfitted-horizon",
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: no pair of side-wall junctions could be fitted at all. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -6.84,
+  "delta_eye_pct": 8.26,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "307b2b08",
+  "candidate": "backdrops/source/entrance_court-N/row23-307b2b08.png"
+}

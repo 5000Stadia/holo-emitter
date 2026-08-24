@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "92884ec4",
+  fp: "5b5b00f4",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -7856,20 +7856,19 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "garden_room/E": {
-    "floor_line_y": 0.6930119554924243,
-    "px_per_m_at_wall": 155.15151515151516,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.702148,
+    "px_per_m_at_wall": 154.737,
+    "px_per_m_at_bottom": 503.3,
     "wall_width_m": 3.55,
-    "key_tint": "#c8b489",
+    "key_tint": "#c89961",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 155.15151515151516,
+    "horizon_y": 0.569922,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 147,
+    "camera_wall_m": 6.6,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -7877,27 +7876,56 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 492.6060606060606,
-    "corner_x1_px": 1043.3939393939395,
-    "focal_px": 1024,
+    "corner_x0_px": 331,
+    "corner_x1_px": 1207,
     "storey_height_m": 2.8,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 6.6,
+    "camera_id": "measured:backdrops/source/garden_room-E/row23-78bced76.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1021.3,
+    "nearest_floor_m": 2.0291,
+    "measured_room": {
+      "storey_height_m": 2.869,
+      "wall_width_m": 5.661,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 3.55,
+      "carriers": [
+        {
+          "kind": "door",
+          "id": "op09",
+          "plan_px": [
+            710,
+            864.7
+          ],
+          "plan_centre_px": 787.3,
+          "painted_px": [
+            726,
+            888
+          ],
+          "painted_centre_px": 807,
+          "centre_delta_px": 19.7,
+          "centre_delta_m": 0.127,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
     "openings": [
       {
         "id": "op09",
         "kind": "door",
         "via": null,
-        "x": 709.8181818181818,
-        "y": 399.3412121212122,
-        "w": 155.15151515151524,
-        "h": 310.3030303030303,
+        "x": 726,
+        "y": 379,
+        "w": 162,
+        "h": 340,
         "beyond_m": 21,
-        "beyond_offset_m": 0.85
+        "beyond_offset_m": 0.85,
+        "measured": true
       }
-    ],
-    "stairs": []
+    ]
   },
   "garden_room/S": {
     "floor_line_y": 0.8953824344758065,

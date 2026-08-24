@@ -1,0 +1,305 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 592,
+    "chair_rail_y_px": 543,
+    "dado_rail_above_floor_px": 49,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      587,
+      597
+    ],
+    "rail": [
+      534,
+      543
+    ],
+    "ceiling": [
+      422,
+      447
+    ],
+    "columns": [
+      [
+        543,
+        655
+      ],
+      [
+        740,
+        992
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": 655.6,
+      "asked_x1": 739.9,
+      "ruled_m": 1.4999,
+      "window": [
+        571,
+        823
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 711..803 (59 px from the ask) and another admissible pair sits 599..698 (49 px from the ask), which disagree by more than the 7 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 51.579,
+  "implied_focal_px": 939.8,
+  "eye_height_m": 1.2776,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 711..803 (59 px from the ask) and another admissible pair sits 599..698 (49 px from the ask), which disagree by more than the 7 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 442,
+    "ceiling_candidates": [
+      {
+        "y": 347,
+        "strength": 58.67,
+        "horiz": 0.544,
+        "cv": 1.194
+      },
+      {
+        "y": 443,
+        "strength": 52.27,
+        "horiz": 0.582,
+        "cv": 1.045
+      },
+      {
+        "y": 327,
+        "strength": 44.54,
+        "horiz": 0.724,
+        "cv": 0.578
+      },
+      {
+        "y": 317,
+        "strength": 42.45,
+        "horiz": 0.833,
+        "cv": 0.456
+      },
+      {
+        "y": 235,
+        "strength": 37.49,
+        "horiz": 0.978,
+        "cv": 0.225
+      },
+      {
+        "y": 266,
+        "strength": 36.57,
+        "horiz": 1.0,
+        "cv": 0.094
+      },
+      {
+        "y": 341,
+        "strength": 36.29,
+        "horiz": 0.609,
+        "cv": 0.913
+      },
+      {
+        "y": 437,
+        "strength": 33.59,
+        "horiz": 0.598,
+        "cv": 1.298
+      },
+      {
+        "y": 297,
+        "strength": 29.07,
+        "horiz": 0.937,
+        "cv": 0.291
+      },
+      {
+        "y": 429,
+        "strength": 22.91,
+        "horiz": 0.691,
+        "cv": 1.591
+      },
+      {
+        "y": 419,
+        "strength": 22.8,
+        "horiz": 0.686,
+        "cv": 1.572
+      },
+      {
+        "y": 399,
+        "strength": 22.67,
+        "horiz": 0.656,
+        "cv": 1.645
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 346,
+        "admissible": false,
+        "sigma_y_px": 32.08,
+        "horizon_y_px": 61.4,
+        "why": "the two side-wall junctions converge at y 61.4 but only to +/-32.1 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 442,
+        "admissible": true,
+        "sigma_y_px": 0.69,
+        "horizon_y_px": 530.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 326,
+        "admissible": false,
+        "sigma_y_px": 44.26,
+        "horizon_y_px": 314.2,
+        "why": "the two side-wall junctions converge at y 314.2 but only to +/-44.3 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 316,
+        "admissible": false,
+        "sigma_y_px": 44.26,
+        "horizon_y_px": 314.2,
+        "why": "the two side-wall junctions converge at y 314.2 but only to +/-44.3 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 234,
+        "admissible": false,
+        "sigma_y_px": 44.26,
+        "horizon_y_px": 314.2,
+        "why": "the two side-wall junctions converge at y 314.2 but only to +/-44.3 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 265,
+        "admissible": false,
+        "sigma_y_px": 44.26,
+        "horizon_y_px": 314.2,
+        "why": "the two side-wall junctions converge at y 314.2 but only to +/-44.3 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 340,
+        "admissible": false,
+        "sigma_y_px": 57.79,
+        "horizon_y_px": 136.1,
+        "why": "the two side-wall junctions converge at y 136.1 but only to +/-57.8 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 436,
+        "admissible": true,
+        "sigma_y_px": 0.69,
+        "horizon_y_px": 530.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 296,
+        "admissible": false,
+        "sigma_y_px": 44.26,
+        "horizon_y_px": 314.2,
+        "why": "the two side-wall junctions converge at y 314.2 but only to +/-44.3 px, and the standing licence on the horizon row is +/-5.3 px"
+      },
+      {
+        "ceiling_y_px": 428,
+        "admissible": true,
+        "sigma_y_px": 0.69,
+        "horizon_y_px": 530.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 418,
+        "admissible": true,
+        "sigma_y_px": 2.32,
+        "horizon_y_px": 537.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 398,
+        "admissible": false,
+        "sigma_y_px": 155.71,
+        "horizon_y_px": -1983.8,
+        "why": "the two side-wall junctions converge at y -1983.8 but only to +/-155.7 px, and the standing licence on the horizon row is +/-5.3 px"
+      }
+    ],
+    "corner_x0_px": 331,
+    "corner_x1_px": 1202,
+    "corner_evidence": {
+      "left_fit_r2": 0.2781,
+      "right_fit_r2": 0.2514,
+      "block_px": 16,
+      "excluded": [
+        [
+          655,
+          739
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 5.32,
+    "ramp": {
+      "x": 753.8,
+      "y": 530.2,
+      "left_slope": -0.0783,
+      "right_slope": 0.0742,
+      "left_n": 61,
+      "left_resid_px": 0.28,
+      "right_n": 61,
+      "right_resid_px": 0.28,
+      "sigma_y_px": 0.69
+    },
+    "votes": {
+      "floor": {
+        "x": 766,
+        "y": 554,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 752,
+        "y": 509,
+        "edge_px": 30000
+      },
+      "side_walls": {
+        "x": 784,
+        "y": 399,
+        "edge_px": 2887
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 628,
+      "key_dir_brightest_y": 359,
+      "key_tint": "#c8bca5",
+      "key_tint_patch": [
+        428,
+        828,
+        372,
+        434
+      ],
+      "key_tint_patch_mean_rgb": [
+        131.93,
+        124.2,
+        108.73
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88a50",
+        "floor_bottom_strip": "#c8ab93",
+        "mid_wall_right": "#c89c66",
+        "mid_wall_left": "#c89c65",
+        "brightest_21x21_patch": "#c8c8c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        628,
+        359
+      ],
+      "sobel_bright_side_deg_whole_frame": 100.0,
+      "sobel_bright_side_deg_wall_band": 73.28,
+      "left_third_minus_right_third_luminance_whole_frame": -3.355,
+      "left_third_minus_right_third_luminance_wall_band": -7.56
+    },
+    "storey_height_m": 2.9082,
+    "implied_wall_width_m": 16.8867,
+    "eye_height_m": 1.1982,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -8.23,
+  "delta_eye_pct": 8.0,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "bd4d9cf4",
+  "candidate": "backdrops/source/long_gallery-N/row23-bd4d9cf4.png"
+}
