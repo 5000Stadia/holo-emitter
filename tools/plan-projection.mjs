@@ -949,15 +949,20 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
     if (floorRing.length >= 3) hitPolys.push(floorRing);
     const bodyPts = [];
     for (const r of hitPolys) for (const q of r) bodyPts.push(q);
-    /* AND THE DECLARED EXTENT IS THE SAME BODY, cut to the frame. It used to be
-     * the noses plus the footprint — a strictly narrower set than the rings the
-     * renderer fills, because the foot of every riser is in the quads and in
-     * nothing else — so row 26's usability clause, whose flight arm exists to
-     * ask "how much of this body did the frame eat", scored a body smaller
-     * than the one a player clicks. One point set, three readers: the region,
-     * the clamped rect, and `raw_w`/`raw_h`. `flightsForFacing` re-derives the
-     * same extent from `hit_polys` for the same reason. */
-    const all = bodyPts;
+    /* AND THE DECLARED EXTENT STAYS THE NOSES AND THE FOOTPRINT, which is a
+     * strictly narrower set than the rings the renderer fills — the foot of
+     * every riser lives in the quads and in nothing else, so `x/y/w/h` and
+     * `raw_w`/`raw_h` describe a body a little smaller than the one a player
+     * clicks. That divergence is DELIBERATE and it is not this row's to close:
+     * `flightsForFacing` feeds the emitter, whose inputs are frozen while
+     * round-locked corpora and in-flight re-asks depend on them, and moving the
+     * declared extent moves every flight sentence and every scaffold box with
+     * it [Navigator ruling, row 25]. The region is a list of RINGS and is
+     * tested as one, so nothing about a click depends on this rectangle; what
+     * row 26's usability clause scores is the declared body, which is what the
+     * painter was shown. Named here so the next reader finds the divergence
+     * rather than the drift. */
+    const all = stepPts.concat(floorRing);
     if (!all.length) continue;
     const xs = all.map((q) => q[0]), ys = all.map((q) => q[1]);
     const x = Math.max(0, Math.min(...xs)), xe = Math.min(canvasW, Math.max(...xs));
@@ -1081,16 +1086,16 @@ export function flightsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W)
     const st = (plan.stairs || []).find((x) => x.id === s.id);
     const facts = stairPlanFacts(st);
     /* THE EXTENT BEFORE THE CLAMP, from the same points the clamp was computed
-     * from: `stairsForFacing` takes its rectangle from the rings it draws, and
-     * those are carried on the record as `hit_polys`. Recomputing them here
-     * rather than storing a second copy is what keeps `raw_w`/`raw_h` the only
-     * declared extent (row 26's clause reads those).
-     * [ROW 25] It read the noses and the footprint before, which is a strictly
-     * narrower set than the body — the riser feet live in the quads alone — so
-     * the box the scaffold stamped and the extent the gate scored were both a
-     * little smaller than the thing on screen. */
+     * from: `stairsForFacing` takes its rectangle from the nose endpoints and
+     * the footprint ring together, and those are both carried on the record.
+     * Recomputing them here rather than storing a second copy is what keeps
+     * `raw_w`/`raw_h` the only declared extent (row 26's clause reads those).
+     * [ROW 25] It is NOT the hit region's own extent, deliberately: see
+     * `stairsForFacing`. This function is an emitter input and its numbers are
+     * frozen. */
     const pts = [];
-    for (const r of (s.hit_polys || [])) for (const p of r) pts.push(p);
+    for (const n of s.noses) { pts.push(n[0]); pts.push(n[1]); }
+    for (const p of s.floor_poly) pts.push(p);
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const raw = pts.length
       ? { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }

@@ -1181,15 +1181,40 @@
         goBtn.setAttribute("data-go", "1");
         goBtn.setAttribute("aria-label", goLabel(leaf, ap));
         positionControl(goBtn, ap);
-        (function (exitId) {
-          goBtn.addEventListener("click", function () { dispatch({ type: "go", exit: exitId }); });
-        })(ap.exit);
+        (function (thisAp) {
+          goBtn.addEventListener("click", function () { walkThrough(thisAp); });
+        })(ap);
         wireFocus(goBtn, { kind: "doorway", aperture: ap });
         entityControlsEl.appendChild(goBtn);
         if (focusedWasGo && focusedId === ap.exit) refocus = goBtn;
       }
 
       if (refocus) refocus.focus();
+    }
+
+    /* [Row 25] WALKING A WAY THROUGH, IN ONE PLACE, because a flight can be
+       seen from a facing it is not walked from.
+       `apertures` carries the exit's own facing as `turn_to` where that is not
+       the one you are standing on — which happens for a flight and for nothing
+       else, since every other way through is a hole in the wall you are facing.
+       A click on a staircase beside you is then the two intents a keyboard user
+       already presses: turn to it, then climb it. Both go through `dispatch`,
+       both are ordinary events, and the harness is not asked to accept a `go`
+       from a facing the world does not put it on. Returns the travel envelope,
+       so the double-click guard still arms on the gesture that travelled. */
+    var FACING_ORDER = ["N", "E", "S", "W"];
+    function walkThrough(ap) {
+      if (ap && ap.turn_to) {
+        var from = FACING_ORDER.indexOf(harness.viewstate.facing);
+        var to = FACING_ORDER.indexOf(ap.turn_to);
+        if (from >= 0 && to >= 0) {
+          var right = (to - from + 4) % 4;
+          var dir = right <= 2 ? "right" : "left";
+          var steps = right <= 2 ? right : 4 - right;
+          for (var t = 0; t < steps; t++) dispatch({ type: "turn", dir: dir });
+        }
+      }
+      return dispatch({ type: "go", exit: ap.exit });
     }
 
     /* Click -> intent. The doorway and its leaf are two different targets,
@@ -1257,7 +1282,7 @@
            is what identifies it, not the target. */
         var echo = lastGo && (Date.now() - lastGo) < DOUBLE_CLICK_MS;
         if (!echo) {
-          var env = dispatch({ type: "go", exit: r.aperture.exit });
+          var env = walkThrough(r.aperture);
           // Armed only by a click that actually travelled, so the echo window
           // belongs to the gesture that can echo.
           if (env && env.events && env.events.length) lastGo = Date.now();
@@ -1464,7 +1489,7 @@
     function turnOrGoThrough(dir, e) {
       var ap = null;
       try { ap = apertureAt(canvasPoint(e)); } catch (err) { ap = null; }
-      if (ap && ap.exit) { dispatch({ type: "go", exit: ap.exit }); return; }
+      if (ap && ap.exit) { walkThrough(ap); return; }
       dispatch({ type: "turn", dir: dir });
     }
     document.getElementById("chevron-left").addEventListener("click", function (e) {

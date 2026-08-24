@@ -139,6 +139,14 @@
    * (74,88,112) is 30 levels above the floor's brightest channel and 58 above
    * the wall's, which survives the frame-wide key falloff at either corner. */
   var STAIR_BASE = "#4a5870";
+  /* [Row 25] THE POOL WHERE THE FLIGHT MEETS THE FLOOR — width in px, alpha —
+   * widest and faintest first, so three flat strokes make a falloff outward
+   * from the contact line. §7's contact rule is written for sprites with a
+   * footprint span; a flight's footprint is a RING the projection already
+   * carries, so the pool is that ring stroked rather than an ellipse fitted to
+   * it. The peak is below the entity pool's 0.45 because a stair's contact runs
+   * the length of a stringer rather than pooling under one small base. */
+  var CONTACT_STEPS = [[18, 0.10], [11, 0.14], [5, 0.20]];
   /* The near room's own sill line, at the foot of a threshold's mouth: one
      pixel the through-view is not allowed to paint over. */
   var SILL_PX = 2;
@@ -202,6 +210,103 @@
    * containing it, so 1px strokes fill exact pixel rows — crisp and
    * rasteriser-independent. Grid strokes only; entity math never snaps. */
   function snap(v) { return Math.floor(v) + 0.5; }
+
+  /* THE FRAME'S OWN KEY FALLOFF, and it is ONE function because two surfaces
+   * need it. The grid lays it over the whole frame; the flight — drawn later,
+   * over the top of it — takes the same cells clipped to its own body, so the
+   * one solid in the room sits in the room's light instead of being uniformly
+   * lit across a frame that is not. Same stepped `key_tint` cells on the same
+   * integer tiling: the same light, not a second one.
+   *
+   * `bounds` limits which cells are visited (a flight covers a fifth of the
+   * frame at most) without moving a single cell edge, because the boundaries
+   * are computed from the frame either way — a second tiling would paint the
+   * corduroy the exact-integer rule exists to prevent. */
+  var FALLOFF_CELLS_X = 96;
+  var FALLOFF_CELLS_Y = 64;
+  function keyFalloff(ctx, meta, W, H, bounds) {
+    var cellsX = FALLOFF_CELLS_X, cellsY = FALLOFF_CELLS_Y;
+    var gx0 = 0, gx1 = cellsX, gy0 = 0, gy1 = cellsY;
+    if (bounds) {
+      gx0 = Math.max(0, Math.floor((bounds.x0 * cellsX) / W) - 1);
+      gx1 = Math.min(cellsX, Math.ceil((bounds.x1 * cellsX) / W) + 1);
+      gy0 = Math.max(0, Math.floor((bounds.y0 * cellsY) / H) - 1);
+      gy1 = Math.min(cellsY, Math.ceil((bounds.y1 * cellsY) / H) + 1);
+    }
+    ctx.save();
+    ctx.fillStyle = meta.key_tint;
+    for (var gx = gx0; gx < gx1; gx++) {
+      // Exact integer tiling: cells that overlap by a pixel paint that pixel
+      // twice, and a stepped falloff turns into a corduroy of alternating
+      // bands 17 luminance levels apart.
+      var px0 = Math.round((gx * W) / cellsX);
+      var px1 = Math.round(((gx + 1) * W) / cellsX);
+      for (var gy = gy0; gy < gy1; gy++) {
+        var py0 = Math.round((gy * H) / cellsY);
+        var py1 = Math.round(((gy + 1) * H) / cellsY);
+        var tf = (gx / (cellsX - 1) + gy / (cellsY - 1)) / 2; // 0 at upper-left
+        ctx.globalAlpha = KEY_FALLOFF * (1 - tf);
+        ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
+      }
+    }
+    ctx.restore();
+  }
+
+  /* WHERE THE KEY IS, read off the facing's own meta and never assumed. §11
+   * rules one light per frame — the backdrop's own — and `key_dir` is the
+   * field that carries it: "UL" on grid canonical, and "L-ABOVE", "C-ABOVE",
+   * "L-BELOW" among the manor's measured paintings. The token names a
+   * horizontal side (L/C/R) and a vertical one (ABOVE/BELOW, or the U/D of the
+   * compact form), and the third component is the same for all of them: a key
+   * is in FRONT of what it lights, or nothing facing the viewer would catch it.
+   * Returned in the view space the projection states its face normals in —
+   * x right, y into the frame, z up — as a unit vector pointing at the light. */
+  function keyVector(meta) {
+    var tok = String((meta && meta.key_dir) || "UL").toUpperCase();
+    var h = 0, v = 1;
+    if (/(^|-)L/.test(tok) || tok.indexOf("UL") === 0) h = -1;
+    else if (/(^|-)R/.test(tok) || tok.indexOf("UR") === 0) h = 1;
+    if (tok.indexOf("BELOW") >= 0 || /(^|-)D/.test(tok)) v = -1;
+    /* THE KEY IS ABOVE BEFORE IT IS TO ONE SIDE. A vector with equal
+     * horizontal and vertical parts lights a wall as hard as it lights a floor,
+     * and a staircase's big side face then reads brighter than its treads —
+     * which is a light from the side, not one from above the shoulder. The
+     * elevation carries more than twice the sideways term, so a tread top takes
+     * most of the key and a stringer takes a third of it, and the forward part
+     * is what stops a face turned at the viewer being unlit. */
+    var x = h * 0.5, y = -0.5, z = v * 1.2;
+    var n = Math.sqrt(x * x + y * y + z * z) || 1;
+    return [x / n, y / n, z / n];
+  }
+
+  function hexToRgb(hex) {
+    var s = String(hex || "").replace("#", "");
+    if (s.length === 3) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
+    var n = parseInt(s, 16);
+    if (!isFinite(n)) return [0, 0, 0];
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  /* ONE KEY ON A FACE. The unlit end is the surface's own tone and the lit end
+   * is that tone carried toward the light's own colour — which is what "shares
+   * the backdrop's key direction and colour temperature" means for a face the
+   * grid draws rather than a sprite it stamps. Lambert, clamped at zero: a face
+   * turned away from the key takes none of it and stays exactly the tone the
+   * flight had before this row, so nothing gets darker than the value round
+   * four measured against the wall behind it. */
+  var FACE_GAIN = 0.5;
+  function shadeFace(baseRgb, tintRgb, normal, light) {
+    var d = 0;
+    if (normal && normal.length === 3) {
+      d = normal[0] * light[0] + normal[1] * light[1] + normal[2] * light[2];
+    }
+    if (!(d > 0)) d = 0;
+    var t = FACE_GAIN * d;
+    return "rgb(" +
+      Math.round(baseRgb[0] + (tintRgb[0] - baseRgb[0]) * t) + "," +
+      Math.round(baseRgb[1] + (tintRgb[1] - baseRgb[1]) * t) + "," +
+      Math.round(baseRgb[2] + (tintRgb[2] - baseRgb[2]) * t) + ")";
+  }
 
   /* Facing glyph letterforms: stroked polylines in a unit box (x right,
    * y down), never fillText — font rasterisation varies across platforms and
@@ -496,24 +601,7 @@
      * (those rasterise differently across engines, which is why the sprite
      * painters forbid them). It leaves every GRID_META number alone: this is
      * paint, not geometry. */
-    var cellsX = 96;
-    var cellsY = 64;
-    ctx.fillStyle = meta.key_tint;
-    for (var gx = 0; gx < cellsX; gx++) {
-      // Exact integer tiling: cells that overlap by a pixel paint that pixel
-      // twice, and a stepped falloff turns into a corduroy of alternating
-      // bands 17 luminance levels apart.
-      var px0 = Math.round((gx * W) / cellsX);
-      var px1 = Math.round(((gx + 1) * W) / cellsX);
-      for (var gy = 0; gy < cellsY; gy++) {
-        var py0 = Math.round((gy * H) / cellsY);
-        var py1 = Math.round(((gy + 1) * H) / cellsY);
-        var tf = (gx / (cellsX - 1) + gy / (cellsY - 1)) / 2; // 0 at upper-left
-        ctx.globalAlpha = KEY_FALLOFF * (1 - tf);
-        ctx.fillRect(px0, py0, px1 - px0, py1 - py0);
-      }
-    }
-    ctx.globalAlpha = 1;
+    keyFalloff(ctx, meta, W, H, null);
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = meta.key_tint;
@@ -841,11 +929,75 @@
        * it. An occluder that does not occlude is the picture saying "nothing is
        * here" where the document holds a staircase. */
       ctx.globalAlpha = 1;
-      ctx.fillStyle = STAIR_BASE;
+      /* [ROW 25] AND EVERY FACE OF IT TAKES THE ROOM'S OWN KEY. The whole solid
+       * was one flat `#4a5870` — 22–32 % of a frame in a single value, tread top
+       * and riser and stringer alike — which made it the only unlit thing in a
+       * product whose §7 rules one key and whose two side returns already obey
+       * it. The tone stays the flight's own and becomes the UNLIT end: a face
+       * turned away from the key is exactly what it was before this row, and a
+       * face turned toward it is carried that far toward the key's own colour.
+       * The direction each face turns is the projection's (`treads_normal`,
+       * `mass_normal`), the key is this facing's own (`key_dir`, `key_tint`),
+       * and nothing here decides either. */
+      var baseRgb = hexToRgb(STAIR_BASE);
+      var tintRgb = hexToRgb(meta.key_tint);
+      var light = keyVector(meta);
+      var massN = fl.mass_normal || [];
+      var quadN = fl.treads_normal || [];
+      /* THE POOL AT THE CONTACT LINE, FIRST — under the body, so the body sits
+       * in it rather than over a clean floor. "Every grounded object darkens the
+       * ground under it" is a named quality and a lit solid standing on an
+       * untouched floor is the sticker the flip test is for. Three stepped
+       * strokes rather than a canvas gradient, the same reason the falloff is
+       * stepped: gradient objects rasterise differently across engines. */
+      if (fl.floor_poly && fl.floor_poly.length >= 3) {
+        ctx.strokeStyle = "#000000";
+        ctx.lineJoin = "round";
+        for (var ci = 0; ci < CONTACT_STEPS.length; ci++) {
+          ctx.lineWidth = CONTACT_STEPS[ci][0];
+          ctx.globalAlpha = CONTACT_STEPS[ci][1];
+          strokeRing(ctx, fl.floor_poly);
+        }
+        ctx.globalAlpha = 1;
+        ctx.lineJoin = "miter";
+      }
       /* The two closed strings first — the flight's own mass, stepped along
-       * the top and standing on the floor — then the treads over them. */
-      for (var mi = 0; mi < mass.length; mi++) fillRing(ctx, mass[mi]);
-      for (var qi = 0; qi < quads.length; qi++) fillRing(ctx, quads[qi]);
+       * the top and standing on the floor, far side before near — then the
+       * treads over them. */
+      for (var mi = 0; mi < mass.length; mi++) {
+        ctx.fillStyle = shadeFace(baseRgb, tintRgb, massN[mi], light);
+        fillRing(ctx, mass[mi]);
+      }
+      for (var qi = 0; qi < quads.length; qi++) {
+        ctx.fillStyle = shadeFace(baseRgb, tintRgb, quadN[qi], light);
+        fillRing(ctx, quads[qi]);
+      }
+      /* AND THE FLIGHT STANDS IN THE ROOM'S OWN LIGHT, not beside it: the same
+       * falloff cells the frame carries, clipped to the body. Without this the
+       * solid is uniformly lit across a frame that is not, which is the collage
+       * tell the flip test exists to catch. */
+      var bodyRings = (fl.hit_polys || []).length ? fl.hit_polys : mass.concat(quads);
+      if (bodyRings.length) {
+        ctx.save();
+        ctx.beginPath();
+        var bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
+        for (var bi = 0; bi < bodyRings.length; bi++) {
+          var br = bodyRings[bi];
+          if (!br || br.length < 3) continue;
+          ctx.moveTo(br[0][0], br[0][1]);
+          for (var bj = 1; bj < br.length; bj++) ctx.lineTo(br[bj][0], br[bj][1]);
+          ctx.closePath();
+          for (var bk = 0; bk < br.length; bk++) {
+            if (br[bk][0] < bx0) bx0 = br[bk][0];
+            if (br[bk][0] > bx1) bx1 = br[bk][0];
+            if (br[bk][1] < by0) by0 = br[bk][1];
+            if (br[bk][1] > by1) by1 = br[bk][1];
+          }
+        }
+        ctx.clip();
+        keyFalloff(ctx, meta, W, H, { x0: bx0, x1: bx1, y0: by0, y1: by1 });
+        ctx.restore();
+      }
       ctx.strokeStyle = meta.key_tint;
       /* The footprint on the floor: the well seen from above, the ground under
        * the steps seen from below, and on a descending flight the only thing
@@ -1025,7 +1177,26 @@
       var exits = loc.exits || [];
       for (var x = 0; x < exits.length; x++) {
         var exit = exits[x];
-        if (exit.facing !== viewstate.facing) continue;
+        /* [ROW 25] A FLIGHT YOU CAN SEE IS A FLIGHT YOU CAN CLIMB.
+         *
+         * Every other way through is a hole in the wall you are facing, so an
+         * exit on another facing is honestly absent from this picture. A FLIGHT
+         * is not: `deriveMeta` draws it on every facing of its own room that
+         * can see it, because a staircase standing on floor you are looking at
+         * is not absent — and until this row it was drawn on eight facings that
+         * answered no click at all, which is the same sentence as the defect
+         * this row was allocated for ("a player sees it and cannot use it")
+         * eight more times. Row 15's rule that the world says where you may
+         * walk is unchanged: the exit still belongs to its own facing, the
+         * aperture carries WHICH facing that is (`turn_to`), and the page turns
+         * you to it before it walks you — the two intents a keyboard user
+         * already presses, from one click on the thing itself. */
+        var offFacing = null;
+        if (exit.facing !== viewstate.facing) {
+          var seenHere = gp.openingFor(meta, exit.via);
+          if (!seenHere || seenHere.kind !== "stair") continue;
+          offFacing = exit.facing;
+        }
         var entity = null;
         for (var e = 0; e < world.entities.length; e++) {
           if (world.entities[e].id === exit.via) { entity = world.entities[e]; break; }
@@ -1119,6 +1290,10 @@
           source: source,
           kind: kind,
           polys: polys,
+          /* The facing this exit belongs to, where it is not the one you are
+           * standing on — a flight seen from beside it. Null everywhere else,
+           * so a reader that does not know about it behaves exactly as before. */
+          turn_to: offFacing,
           direction: direction,
           open: open_,
           beyond_m: beyond ? beyond.beyond_m : null,

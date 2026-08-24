@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "a8367845",
+  fp: "0c0e9fd7",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -24790,7 +24790,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 272.87912099999994,
         "h": 231.65999999999997,
         "raw_w": 3929.655041,
-        "raw_h": 1216.937649,
+        "raw_h": 1119.2477,
         "hit_polys": [
           [
             [
