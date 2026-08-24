@@ -2191,6 +2191,12 @@ written down. `manor.spec` predicts every nose test-side from the plan's own num
 against the meta, and then measures the render: the row the plan puts the top tread on must carry
 ink and the row between two treads must carry less.
 
+**[ROW 25 corrects the next two paragraphs.** `poly` — the treads' convex hull — is gone, and with
+it the fallback that made a descending flight unclickable; the region is `hit_polys`, the list of
+rings the renderer draws. The paragraphs are kept as they stood because a correction that erases
+the error teaches nothing. See *The stair a player can use, and the mouth that means what it
+draws*.**]**
+
 **A flight is a SOLID with a stepped top, drawn tread by tread.** The outline alone self-crosses
 whenever the run lies across the view instead of along it — the two stringers sit at different
 depths, both pass through the view axis, and a ring that walks up one and back down the other ties
@@ -2226,7 +2232,9 @@ and have identical rects. Named, not discovered.
 
 **Its hit region is its outline, not its bounding box** — a flight is a quad on a receding plane and
 a rectangle round it answers "climb the stair" for a click on the bare floor beside it, which is an
-overshoot this resolver has been wrong in before.
+overshoot this resolver has been wrong in before. **[ROW 25: still true of the principle and false
+of the noun. The region is the rings the picture draws, not one outline around them, because a hull
+bridges a flight the frame has cut in two.]**
 
 ### An open threshold is the absence of a wall, and it is walkable
 
@@ -2267,7 +2275,11 @@ through the gap is the GROUND — not an invented vista but the destination's ow
 by the destination's own facing — and `beyond_m` is now 9 m on the approach's side and 0 on the
 court's.
 
-**The reversal is not vindicated.** Round four's critic measured the composite and found the
+**The reversal is not vindicated.** **[ROW 25 settled this question: the reversal STANDS and the
+device was the thing at fault. What goes through a mouth is the destination's own frame where it
+reaches, and outside it a colour claim rather than a stretched pixel. The measurements below were
+re-taken on the painted manor and were worse than they read here — five doors under 10 % coverage,
+three at zero.]** Round four's critic measured the composite and found the
 destination's real frame covers 22.5 % of the manor's front opening and 38 % of the court's; the
 rest is `drawImage` edge extension — two uniform blocks, each 608 × 368 px derived from a single
 pixel, together 36 % of that opening and 17 % of the whole picture. That is nearer to the pasted
@@ -2658,7 +2670,9 @@ FAMILIES ends the row rather than starting a fifth: the work hands on with the r
 the fixes recorded found-not-verified, and the stair goes to fresh hands as its own row.
 
 It failed on the same families, and the critic said so in as many words. What follows is the state
-of these rows, not a plan for them.
+of these rows, not a plan for them. **[ROW 25 answered 1, 2, 3 and 4 of the list below; 5 and 6
+were already closed in place. The measurements here are the ones row 25 re-took and confirmed —
+see *The stair a player can use, and the mouth that means what it draws*.]**
 
 **1. The descending flights cannot be climbed by pointer, and this is the round's own fault
 repeated.** Measured over every drawn pixel of the flight's body on all twelve stair-carrying
@@ -2790,6 +2804,196 @@ above is the whole of it, and it is cheaper to obey than to rediscover.
    re-capture was made and then undone; it is written here because "we changed a picture Kabe was
    waiting on and then changed it back" is the kind of thing a reader should not have to reconstruct
    from git.
+
+## The stair a player can use, and the mouth that means what it draws (row 25)
+
+Rows 15 and 19 handed on open and the section above is their state. This is what row 25 did about
+it, and the four defects it was allocated for are (a) the hit region, (b) the unlit solid, (c) the
+`go` region and the chevron, (d) the manufactured through-view.
+
+### The hit region is the rings the picture draws, and the fallback WAS the bug
+
+`meta.stairs[].poly` is gone; `hit_polys` is a LIST of rings and it is the same list the renderer
+fills and strokes — `mass_poly`, `treads_poly`, `floor_poly`. A point is on the flight when it is
+inside one of them.
+
+**What the old field did, measured before anything was changed** (page's own `resolve()`, every
+drawn body pixel at 2 px, 1536 × 1200):
+
+| facing | direction | drawn body px | body travelled | with the footprint ring |
+|---|---|---|---|---|
+| `back_stair/E` | up | 514,856 | 100 % | 100 % |
+| `great_stair_hall/N` | up | 209,600 | 100 % | 100 % |
+| `back_stair_head/W` | **down** | 29,240 | **71.3 %** | 88.3 % |
+| `stair_landing/S` | **down** | 42,864 | **0 %** | 31.5 % |
+
+The hand-off's 0 % and 71.8 % are the body column and the artifact critics' 31.76 % is the last
+one, which is what says this is the same defect and not a new one. **The cause was not the clamped
+rect.** `poly` read `stepPts.length >= 6 && onFrame(stepPts) ? hull(stepPts + floorRing) :
+floorRing` — the noses' hull where enough noses were on the frame, and THE FOOTPRINT ALONE where
+they were not. A descending flight is exactly that case and its body is drawn BELOW its own
+footprint, so on `stair_landing/S` the region and the picture were disjoint sets. The fallback was
+a proxy for a question the body answers directly.
+
+**A convex hull of the same points was built first and refused.** On this corpus it measures
+identical — 100 % of the body, 0.0 % over-claim on all four travel facings — but only because a
+flight's visible body happens to be convex here: the mass is built in RUNS of adjacent treads, so a
+flight the frame cuts in two has two bodies and a hull bridges the gap and answers "climb the
+stair" for the floor between them. The union of the drawn rings cannot over-claim whatever the
+geometry does. This project has paid six times for a guarantee that held by accident of the corpus.
+
+**The page reads the rings and nothing else.** `apertureHolds` consults the rect only for apertures
+that carry no rings; `nearAperture` no longer skips them and measures §7's ring from the nearest
+ring's own edges, point-to-segment, never from a rectangle — which is what the skip was written to
+avoid and why the one way through with no forgiveness at all was the one whose region was already
+wrong. The hover halo is drawn from the same rings as a silhouette, the way an entity's is, so the
+promise and the region are one set of pixels.
+
+### A flight you can see is a flight you can climb
+
+`deriveMeta` draws a flight on every facing of its room that can see it, and until this row eight
+of those twelve facings answered no click at all — the same sentence as the defect the row was
+allocated for, eight more times. Row 15's rule is unreversed: the world still says where you may
+walk and the exit still belongs to its own facing. What changed is that the aperture now says WHICH
+facing that is (`turn_to`, null everywhere else) and `walkThrough` in the page turns you there and
+then walks you — the two intents a keyboard user already presses, from one click on the thing
+itself. One home, used by the canvas click, the chevron and the go-control alike.
+
+**The four facings whose standpoint stands INSIDE a flight still draw none and answer none**, which
+is honest and is `manor.spec`'s census.
+
+### The declared extent and the hit region are two point sets, deliberately
+
+`x/y/w/h` and `raw_w`/`raw_h` stay derived from the noses and the footprint — a strictly narrower
+set than the rings, because the foot of every riser lives in the quads alone. They were re-derived
+from the body for one commit and the Navigator reversed it: those numbers reach the emitter through
+`flightsForFacing`, and moving them moves every flight sentence and every scaffold box under
+round-locked corpora and in-flight re-asks. The divergence is named at both sites. It costs a click
+nothing, because no click consults the rectangle.
+
+### Every face of the flight takes the room's own key
+
+`#4a5870` covered every face — 22.2 % of `great_stair_hall/W` and 31.7 % of `back_stair/E` in a
+single value. The projection now says what each face IS (`treads_face`: `going` | `riser` | `ramp`)
+and which way it turns (`treads_normal`, `mass_normal`, view space: x right, y into the frame, z
+up), and emits the two stringers FAR-TO-NEAR so the near one paints over the far one. Nothing about
+light is decided there.
+
+The renderer lights them with the FACING'S OWN key — `meta.key_dir` and `meta.key_tint`, read, not
+assumed — as a Lambert term mixing `STAIR_BASE` toward the key's colour. **The tone stays the
+flight's own and becomes the UNLIT end**, so no face is darker than the value round four measured
+against the wall behind it. The key vector carries more elevation than sideways throw: a vector
+with equal parts lights a wall as hard as a floor, and the flight's big side face then read
+brighter than its treads, which is a light from the side.
+
+**And the flight stands in the room's light rather than beside it.** The frame-wide key falloff is
+painted before the flights, so a flat-filled solid sat uniformly lit in a room that is not.
+`keyFalloff` is one function now and runs a second time clipped to the flight's own rings — the
+same stepped `key_tint` cells on the same integer tiling, so it is the same light and not a second
+one. No canvas gradient object anywhere: those rasterise differently across engines.
+
+**The flight darkens the floor it stands on** (intention quality 2). Three stepped black strokes of
+falling width and rising alpha along `floor_poly`, drawn before the body. On an ascent that ring is
+the contact line where the solid meets the floor; on a descent it is the lip of the well where the
+floor ends. One device, two true readings.
+
+Measured after, per face class, inside the flight's own drawn pixels:
+
+| facing | going | riser | stringer to the key | stringer away | largest one value, share of FRAME |
+|---|---|---|---|---|---|
+| `great_stair_hall/W` | 133.3 | 111.0 | — (depth-turned 109.0) | — | 5.8 % (was 22.2 %) |
+| `back_stair/E` | 131.1 | 109.1 | 107.9 | 96.0 | 7.0 % (was 31.7 %) |
+| `great_stair_hall/N` | — | 114.1 | — | 97.9 | 3.4 % |
+
+The body still stands 191–217 summed off the frame behind it, against the 159 round four shipped.
+
+### The composite claims colour, and that is the row's (d) judgement
+
+Re-measured first, because the row's own numbers were taken before the manor was painted. Share of
+each way-through's on-frame rect that the destination's own frame actually covers:
+
+| facing | exit | rect | destination covers |
+|---|---|---|---|
+| `entrance_court/S` | the court's mouth | 3095 × 706 | 37.7 % |
+| `entrance_approach/N` | the same mouth, other side | 1069 × 588 | 16.1 % |
+| `buttery_pantry/S` | `door_…_hall` | 166 × 500 | **0 %** |
+| `great_hall/N` | `door_…_privy_garden` | 185 × 232 | **0 %** |
+| `kitchen/N` | `door_…_hall` | 158 × 315 | **0 %** |
+| `hall/S` | `door_…_kitchen` | 476 × 887 | 5.9 % |
+| `hall/N` | `door_…_buttery_pantry` | 476 × 887 | 9.6 % |
+
+Fifty doors, median coverage 100 %. So the row's "22–38 % destination" is right about the two
+mouths and understates the corpus: five DOORS are at or under 10 %, three of them at zero, where
+the whole opening was one edge pixel stretched across it. `hall/N` is the picture of the fault — a
+476 × 953 opening reading as horizontal bands of smeared brown, which is what a player sees on the
+live site.
+
+**The eight edge and corner blits are now eight flat fills**, each the mean of the destination
+frame's own outer 16 px band on that side, corners the mean of its own corner block. The
+destination's real frame is drawn exactly as before. What the composite asserts outside it is one
+fact — the room beyond continues in this colour — and nothing about its structure. **Where the
+destination's frame does not reach the opening at all** there is no edge to continue, and the
+opening takes the mean of the destination's whole frame: a room of this colour is there, and this
+picture cannot say more. That is a weaker claim and it is stated as one.
+
+**Why not delete the extension.** The uncovered part of an opening would be void, which is the
+defect row 21's through-view was built to end, and three of these doors are at zero coverage — it
+would put a black hole in the wall of three rooms.
+
+**The price, measured.** The seam between the destination's own frame and the fill beside it, in
+summed rgb: median 19 over the 23 openings that have one, worst 125 (`hall/N`), 51 on the court's
+mouth — against the 60 summed §12.8 treats as the threshold of visible. `ways.spec` pins the worst
+at 140.
+
+**The look trade, named, and it is Kabe's.** On a doorway the flat fill is plainly better. On the
+entrance court's 3095 × 706 mouth, where the fill dwarfs the real frame, the flat bands show their
+edges and the Builder's own judgement is that they read no better than the smear did. Both frames
+are in `design/batches/row25-stair/` and the trade is reversible in one constant.
+
+**The structural cure is named and is not this row's.** The composite looks through an opening with
+the DESTINATION STANDPOINT'S camera, which is the wrong camera — that is why coverage collapses to
+zero when two standpoints are far apart laterally. A destination view derived at the opening's own
+axis, or a bottom band assembled from the destination room's own floor texture, is rows 35/36's
+machinery.
+
+### The `go` region is the opening, and the chevron never gives up its whole self
+
+Because every pixel the region claims is now drawn from the document, the region needs no
+narrowing: no `regions` list, no horizon-to-sill sliver, no second space for row 26's clause and the
+control placement to disagree with. The rect stays the one home of a way through's extent.
+
+The chevron rode on that rectangle. `way_entrance_court_entrance_approach` is 3095 px wide on a
+1536 px frame, so every pixel of both chevrons was inside a way through and both walked the player
+out of the court over their whole area — a room a pointer could not look around in. **The test is
+the button, not the target:** if some part of the chevron is over no way through at all, the part
+that is over one yields and the rest still turns; if the ways through cover the button entirely,
+the chevron keeps its own meaning, because the alternative is a facing with no pointer turn on it.
+No threshold constant. Six chevrons in the manor are wholly inside a way through — both of the
+entrance court's and four over flights — and they are pinned as a membership in `ways.spec`, driven
+with a real mouse at both viewports; `hall/N` and `great_hall/N` are driven at phone width, where
+the yield must still fire.
+
+### What moved and what did not, measured rather than claimed
+
+All 88 facings rendered from a `git archive` of `6f578b1` and from this tree and compared pixel for
+pixel: **53 byte-identical, 35 moved** — the twelve that draw a flight (the lighting) and
+twenty-three openings whose composite carried an extension band, one of them the furnished world's
+`study/E`. The row-15 batch is pinned to its own commit and re-renders from a `git archive` of it,
+so neither change can make it stale.
+
+### Row 25's residue, named
+
+1. **The entrance court's mouth is the row's one open look question** — see the batch. A ruling
+   either way costs one constant.
+2. **The through-view's camera is still the destination standpoint's**, which is what makes five
+   doors show a room their own frame never saw. Named above as rows 35/36's.
+3. **A promoted stair wall has no owner for the click.** No painted facing draws a flight today
+   (`[row32:stair.painted_flight_lost]` refuses the promotion), so (b) is a grid-mode device. The
+   day one is promoted, which of the painted stair and the derived flight owns the click is row
+   27's question one target class out.
+4. **`treads_face` carries a `ramp` value** for the quad drawn between two noses where the riser's
+   own foot was clipped away. It is lit as the average of a going and a riser, which is what the
+   surface is; it appears only at a frame edge and nothing measures it separately.
 
 ## Ground plane (`src/groundplane.js`)
 
