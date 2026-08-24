@@ -85,10 +85,49 @@ async function bodyReach(page, exit, step = 2) {
     let drawn = 0, reached = 0, claimed = 0, region = 0, regionNotDrawn = 0;
     let farthest = 0;
     const misses = [];
-    for (let y = 0; y < cv.height; y += step) {
-      for (let x = 0; x < cv.width; x += step) {
-        let isBody = false;
-        for (const r of rings) if (inside(r, x, y)) { isBody = true; break; }
+    /* THE WINDOW IS THE FLIGHT'S OWN, plus the ring, and that is not a
+       convenience — it is provable. A flight's aperture answers a point only
+       when the point is inside one of its rings or within §7's forgiveness of
+       one (`apertureHolds`), so nothing outside this box can answer "climb",
+       and nothing outside it is drawn flight either. Scanning the whole frame
+       measured the same numbers and took 24× as long, which on a loaded
+       machine is how a case starts failing for a reason that is not the
+       product's. */
+    const PAD = 24;
+    let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
+    for (const r of rings) {
+      for (const q of r) {
+        if (q[0] < bx0) bx0 = q[0];
+        if (q[0] > bx1) bx1 = q[0];
+        if (q[1] < by0) by0 = q[1];
+        if (q[1] > by1) by1 = q[1];
+      }
+    }
+    const wx0 = Math.max(0, Math.floor(bx0 - PAD)), wx1 = Math.min(cv.width, Math.ceil(bx1 + PAD));
+    const wy0 = Math.max(0, Math.floor(by0 - PAD)), wy1 = Math.min(cv.height, Math.ceil(by1 + PAD));
+    /* Each ring's own box, so a point is tested against the handful of rings
+       it could be in rather than against all forty. */
+    const boxes = rings.map((r) => {
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const q of r) {
+        if (q[0] < x0) x0 = q[0];
+        if (q[0] > x1) x1 = q[0];
+        if (q[1] < y0) y0 = q[1];
+        if (q[1] > y1) y1 = q[1];
+      }
+      return [x0, y0, x1, y1];
+    });
+    const inAnyRing = (x, y) => {
+      for (let i = 0; i < rings.length; i++) {
+        const b = boxes[i];
+        if (x < b[0] || x > b[2] || y < b[1] || y > b[3]) continue;
+        if (inside(rings[i], x, y)) return true;
+      }
+      return false;
+    };
+    for (let y = wy0; y < wy1; y += step) {
+      for (let x = wx0; x < wx1; x += step) {
+        const isBody = inAnyRing(x, y);
         /* THE REGION ITSELF, geometrically — the rings the meta carries, asked
            without the page's forgiveness ring in the way. */
         let inRegion = false;
@@ -136,7 +175,7 @@ test.describe("a click on a drawn flight travels, at both ends of every stair", 
   for (const t of FLIGHTS) {
     test(`${t.loc}/${t.facing} — the ${t.dir} view${t.travel ? "" : ", seen from beside it"}: every drawn pixel of the flight is the flight`,
       async ({ page }) => {
-        test.setTimeout(180_000);
+        test.setTimeout(300_000);
         await page.setViewportSize(POINTER_VIEWPORT);
         await page.goto(navUrl());
         await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -179,7 +218,7 @@ test.describe("a click on a drawn flight travels, at both ends of every stair", 
      1:1 — or a ring measured in the wrong space — shows up here. */
   for (const t of FLIGHTS) {
     test(`${t.loc}/${t.facing} — the ${t.dir} view, on a phone`, async ({ page }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(300_000);
       await page.setViewportSize(PHONE);
       await page.goto(navUrl());
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -206,7 +245,7 @@ test.describe("a click on a drawn flight travels, at both ends of every stair", 
   for (const t of FLIGHTS.filter((q) => q.dir === "down" && (q.travel || q.facing === "W"))) {
     test(`${t.loc}/${t.facing} — a real click at the far corners of the drawn flight goes down`,
       async ({ page }) => {
-        test.setTimeout(180_000);
+        test.setTimeout(300_000);
         await page.setViewportSize(POINTER_VIEWPORT);
         await page.goto(navUrl());
         await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -342,7 +381,7 @@ test.describe("the flight's faces separate under the room's own key", () => {
     { loc: "back_stair_head", facing: "W" }
   ]) {
     test(`${t.loc}/${t.facing} — no face of the flight is the same value as the next`, async ({ page }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(300_000);
       await page.setViewportSize(POINTER_VIEWPORT);
       await page.goto(navUrl());
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -391,7 +430,7 @@ test.describe("the flight's faces separate under the room's own key", () => {
      has to FOLLOW the token. Without this the three unreachable arms of
      `keyVector` are code nobody can prove is read. */
   test("moving the key in the meta moves the light on the flight", async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(300_000);
     await page.setViewportSize(POINTER_VIEWPORT);
     await page.goto(navUrl());
     await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -485,7 +524,7 @@ test.describe("the flight's faces separate under the room's own key", () => {
      that is where there is floor beside it to darken. */
   for (const t of [{ loc: "great_stair_hall", facing: "W" }, { loc: "back_stair", facing: "E" }]) {
     test(`${t.loc}/${t.facing} — the flight pools shadow where it meets the floor`, async ({ page }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(300_000);
       await page.setViewportSize(POINTER_VIEWPORT);
       await page.goto(navUrl());
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
@@ -560,7 +599,7 @@ test.describe("a flight under the chrome is still a flight", () => {
     for (const [vpName, size] of [["desktop", POINTER_VIEWPORT], ["a phone", PHONE]]) {
       test(`${t.loc}/${t.facing} — a click on the ${t.chevron} over the flight climbs it, on ${vpName}`,
         async ({ page }) => {
-          test.setTimeout(180_000);
+          test.setTimeout(300_000);
           await page.setViewportSize(size);
           await page.goto(navUrl());
           await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);

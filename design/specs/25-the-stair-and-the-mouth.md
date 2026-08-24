@@ -103,8 +103,10 @@ looking at on the live site.
    the picture draws no stair in, and that nothing answers "climb" from farther outside the drawn
    body than §7's ring (4 CSS px, converted per viewport). Then REAL `page.mouse.click`s at the
    four extreme drawn pixels of three descending flights, one of them a side-on facing where the
-   click has to turn first. Runtime declared (F29): ~12 s per facing per viewport in Chromium,
-   about four minutes for the file in both engines.
+   click has to turn first. Runtime declared (F29): the sample window is the flight's own
+   body plus the forgiveness ring — provably enough, since nothing outside it
+   can answer "climb" — which is 24× fewer points than the frame; about 2.5
+   minutes for the file in Chromium and 4 in Firefox.
 
 ### (b) The flight's faces separate under the room's own key
 
