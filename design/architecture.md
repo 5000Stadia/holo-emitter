@@ -17,6 +17,7 @@ the demo draws.*
 index.html                      boots ?world=<id> (default nav-manor) + scene canvas 1536×1024 +
                                 overlay + chevrons + narration log +
                                 inventory strip + go-fade veil + boot/fault surfaces +
+                                the standing readout (#whereami: place · facing) +
                                 bootstrap (point→meaning, click→intent, hover)
 src/renderer.js                 pure draw §7 steps 1–6; layout / apertures / stamp / hitTest
                                 exports; grid mode; GRID_META; facing glyph
@@ -4690,8 +4691,9 @@ three pilot walls cost 42.0 s between them, post-return, both marked frames incl
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went
 to zero below ~154 px of viewport height and the page rendered literally nothing. The bottom
-chrome (narration log + inventory strip + status line) grew the vertical reserve from 3rem to
-**9.6rem**; the capture/pointer viewport is **1536×1200** so the canvas displays at native scale
+chrome (narration log + inventory strip; row 7 deleted the status line and with it 1.2rem, so the
+reserve the CSS reserves and measures is **7.6rem**, not the 9.6 this sentence carried for several
+rows) grew the vertical reserve from 3rem; the capture/pointer viewport is **1536×1200** so the canvas displays at native scale
 (canvas px = CSS px). That is the *convenient* viewport, and saying so is the point: it is where
 small targets are easiest to hit, so the pointer specs that pin it are not evidence about any
 other window size, and the clickability sweep runs at 1366×768 and 1920×1080 as well. All
@@ -4712,6 +4714,42 @@ on every shipped facing, swept by hand) that the same guard does not see; row 10
 controls are pointer-events:none and cannot occlude a click by construction, unlike the button. A
 later row generalizing this guard should enumerate every stage-overlaying control with
 `pointer-events` enabled, not `.chevron` by name.
+
+### The standing readout (`#whereami`) — Kabe's ask, 2026-08-24
+
+[HUMAN, verbatim]: "I'd like a text overlay somewhere stating room identified and direction for my
+reference." A corner label in the stage's **top left** — the fullscreen button holds the top right,
+the chevrons the vertical middle of both edges, the narration the bottom — reading
+`master_bedchamber · N`: the location id, a decorative mark, the facing. `position: absolute`
+inside `#stage`, so it costs the picture nothing; a band in the bottom chrome would have moved the
+7.6rem reserve and shrunk the frame on every height-bound viewport.
+
+Five things about it are load-bearing and each has a case in
+`tests/playwright/whereami.spec.mjs`:
+
+- **It is chrome, never the canvas.** Class `chrome` (hides under `body.capture`, so §12.6's flip
+  pairs never see it) and `pointer-events: none` (a readout is not a control; the corner still
+  belongs to the canvas underneath). No scene hash moves, and the spec asserts it by hashing
+  `#scene` with the readout live and again with it saying something else.
+- **It is fed by `paint()`, the harness's ONE subscriber**, after a successful render — so every
+  view change (key, chevron, click, `go`, boot redraw) carries it, a refused intent moves nothing
+  because the subscriber is not called on empty events, and a frame that threw is never labelled.
+  `fault()` blanks and withdraws it with the frame it was reading.
+- **It never names a view the world does not hold.** `updateWhereami` looks the location and the
+  facing up in `harness.world` and writes the empty string plus `hidden` when either misses. This
+  is what keeps the surface audit's enumeration closed: the broken-boot sweep drives
+  `{location: "atrium"}`, and a readout that printed it would put a name on the surface that
+  exists in no world. Removing that guard turns `voice.spec` red, which is the coupling working.
+- **Its audit rows are derived, not kept.** `design/surface-strings.md` #194–221 are every location
+  id of every `fixtures/*/world.json`, the four aspects, the separator mark and the region's
+  `aria-label`; the spec reads the worlds off the tree and asserts the enumeration equals them in
+  both directions, so a twenty-third room is red here before it is a surprise on the surface.
+- **`role="status"` with `aria-label="where you stand"`**, the separator `aria-hidden`. This is the
+  first sliver of row 24's screen-reader surface (86 of the manor's 88 facings say nothing to
+  assistive tech today). **Row 24 owns the full instrument and Kabe rules how much of it is always
+  on** — the taste questions (a review instrument on the product face; the raw id versus a spoken
+  room name) are recorded in `surface-strings.md`'s `QUESTIONS` under *the standing readout*, not
+  settled by the hand that built it.
 
 - **One resolver decides what a point means**: a **takeable whose own drawn rectangle (plus a
   4 CSS px margin) contains the point**, then the exact drawn pixel, then an open doorway the
@@ -4973,6 +5011,12 @@ read back off the real pane; the console witness present with the fingerprint `f
 and absent from the surface; no method speech in any console literal; and the pane's whole-row
 guard at 320 px and 200% zoom, which is where `shell.spec`'s "half a row of type" scar moved when
 the status band was deleted — the scar is general and rows 8–10 add chrome);
+`whereami` (Kabe's standing readout: the audit rows derived from every world's `world.json` in both
+directions, the readout against the viewstate after real keys, a real chevron and a real click
+through the door in the furnished world and over all 22 rooms and 88 facings of the manor, a
+refused intent moving nothing, the scene hash unmoved with the label live and lying, capture mode
+hiding it, its `role`/name/`pointer-events`, and the two states where it says nothing at all —
+a boot viewstate no world holds, and a render fault);
 `plan` (row 12, extended at row 11: the plan document, its validator's mutation cases, the orientation
 law made geometric, the camera, the derived meta by test-side arithmetic AND against the approved
 `standpoints.tsv`, the staging↔projection divergence, the three groundplane import bindings, the

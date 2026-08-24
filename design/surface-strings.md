@@ -227,6 +227,25 @@ a human still reads the whole product face in one place.
 The `id` is a stable handle and not an ordering: rows sit where their string belongs, and a row
 added later takes the next free number rather than renumbering the ones a question already cites.
 
+**The standing readout's rows are derived from the worlds, not hand-kept** (#194–221). The readout
+over the picture's top-left corner says where you stand — the place and the aspect, in the
+document's own names for them — so its string set is *every location id every shipped world holds*
+plus the four aspects plus the mark between them, and `tests/playwright/whereami.spec.mjs` reads
+the location ids off `fixtures/*/world.json` and asserts the enumeration equals them in **both**
+directions. A twenty-third room, or a renamed one, is therefore red here before it is a surprise
+on the surface. The readout is filled only with a view the world actually holds — the
+`atrium`-shaped viewstate that the broken-boot sweep drives leaves it blank and withdrawn — so no
+name reaches the surface that no world contains, which is what makes a closed enumeration possible
+at all.
+
+Its **audience judgment**, since a room id is machine-shaped where a narration line is not: the id
+names a room in the world, not this project's construction — it is world data on a surface, the
+same class as a record's `noun`, and the four aspects are already on the scene canvas as painted
+glyphs (#22–25). What is genuinely open is *taste*, not audience: `master_bedchamber` is the
+document's handle and a stranger reads underscores. That is recorded in `QUESTIONS` under *the
+standing readout* rather than settled here, because the instrument is Kabe's own ask and row 24
+owns how much of it is always on.
+
 ```STRINGS
 id | surface | state | verdict | observed | adjudicator | string
 3 | #narration | boot viewstate the world does not hold (either branch) | PASS | yes | row7-artifact-critic | The projection was set to a view this pattern does not hold.
@@ -422,10 +441,38 @@ id | surface | state | verdict | observed | adjudicator | string
 191 | entity-control go-control aria-label | an exit across an OPEN THRESHOLD — the manor's court mouth, where no wall stands and there is nothing to walk through | PASS | yes | row15-manor | cross the threshold
 192 | entity-control go-control aria-label | one of TWO unfilled doorways on the same wall, the left-hand one — four facings of the manor carry two, and neither has a leaf to be named after [row 15] | PASS | yes | row15-manor | walk through the doorway on the left
 193 | entity-control go-control aria-label | the right-hand of two unfilled doorways on one wall | PASS | yes | row15-manor | walk through the doorway on the right
+194 | #whereami aria-label | always | PASS | yes | kabe-ask-2026-08-24 | where you stand
+195 | #whereami separator | always | PASS | yes | kabe-ask-2026-08-24 | ·
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | back_stair
+197 | #whereami place | standing in back_stair_head, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | back_stair_head
+198 | #whereami place | standing in buttery_pantry, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | buttery_pantry
+199 | #whereami place | standing in closet_chamber, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | closet_chamber
+200 | #whereami place | standing in dining_parlour, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | dining_parlour
+201 | #whereami place | standing in entrance_approach, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | entrance_approach
+202 | #whereami place | standing in entrance_court, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | entrance_court
+203 | #whereami place | standing in garden_room, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | garden_room
+204 | #whereami place | standing in great_hall, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | great_hall
+205 | #whereami place | standing in great_stair_hall, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | great_stair_hall
+206 | #whereami place | standing in guest_chamber, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | guest_chamber
+207 | #whereami place | standing in hall, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | hall
+208 | #whereami place | standing in kitchen, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | kitchen
+209 | #whereami place | standing in library, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | library
+210 | #whereami place | standing in long_gallery, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | long_gallery
+211 | #whereami place | standing in master_bedchamber, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | master_bedchamber
+212 | #whereami place | standing in muniment_room, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | muniment_room
+213 | #whereami place | standing in privy_garden, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | privy_garden
+214 | #whereami place | standing in servants_hall, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | servants_hall
+215 | #whereami place | standing in solar, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | solar
+216 | #whereami place | standing in stair_landing, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | stair_landing
+217 | #whereami place | standing in study, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | study
+218 | #whereami facing | standing on any facing whose aspect is N | PASS | yes | kabe-ask-2026-08-24 | N
+219 | #whereami facing | standing on any facing whose aspect is E | PASS | yes | kabe-ask-2026-08-24 | E
+220 | #whereami facing | standing on any facing whose aspect is S | PASS | yes | kabe-ask-2026-08-24 | S
+221 | #whereami facing | standing on any facing whose aspect is W | PASS | yes | kabe-ask-2026-08-24 | W
 ```
 
 ```COUNT
-STRINGS 193
+STRINGS 221
 STATES 36
 ```
 
@@ -516,11 +563,13 @@ src/inventory.js | setAttribute aria-label | composed
 Sites are named by the identity the census detects — `file :: write`, matched in **both**
 directions, so a new sink and a deleted row are each red. Three more surfaces are literals in
 `index.html` rather than write sites and are enumerated in `STRINGS` instead: the `<title>`, the
-five `aria-label` attributes (rows 8–10 make the scene canvas's `role="img" aria-label` the fifth,
-alongside the two chevrons, `#narration` and `#inventory` — the fullscreen button's own literal
-`aria-label` is not a sixth: it is unconditionally overwritten by `syncFullscreenUI()` before the
-page is ever observed, so its two live values are `index.html`'s new composed site, not a literal
-one), and the `<noscript>` body. `src/renderer.js`'s `GLYPHS` table is guarded by its own equality
+six `aria-label` attributes (rows 8–10 make the scene canvas's `role="img" aria-label` the fifth,
+alongside the two chevrons, `#narration` and `#inventory`, and the standing readout's *where you
+stand* (#194) is the sixth — the fullscreen button's own literal
+`aria-label` is not one of them: it is unconditionally overwritten by `syncFullscreenUI()` before
+the page is ever observed, so its two live values are `index.html`'s new composed site, not a
+literal one), the standing readout's separator mark (#195, a literal text node between its two
+composed halves), and the `<noscript>` body. `src/renderer.js`'s `GLYPHS` table is guarded by its own equality
 check against #22–25.
 
 **Degenerate values, disposed per composed site:**
@@ -534,6 +583,13 @@ check against #22–25.
   role and nothing on the console — a nameless empty box beside prose saying you had just picked
   something up. It takes the same fallback and its own console fault. Over-long: the tile's name
   is not rendered as text, so length is not a surface concern.
+- `updateWhereami(viewstate)` — the standing readout's two halves share `index.html`'s
+  `textContent` site with `appendNarration`. There is no degenerate value to dispose, because the
+  site writes nothing it has not first found in the world: a viewstate naming a location the
+  document lacks, or an aspect that location lacks, writes the empty string to both halves and
+  hides the element. Absent, empty and non-string `location`/`facing` all fail that same lookup and
+  take the same branch. Over-long: one line, `white-space: nowrap` with `text-overflow: ellipsis`
+  and a `max-width` inside the stage, so a long id is clipped rather than reflowing the corner.
 - `index.html`'s `setAttribute aria-label` (row 8–10, the fullscreen button and every entity/
   go-control): the fullscreen button's two values are fixed literals, degenerate only if the
   `syncFullscreenUI()` call site itself is ever deleted, which is a code defect the sink census
@@ -653,6 +709,7 @@ mechanism in a document creates that message.
 - | the pane's log form | The narration pane accumulates, so a player who has acted five times reads a transcript stacked under the picture. That is a readout, and it touches the second quality. Chrome form rather than a string, so outside this row's domain — recorded with an owner rather than deferred to a call after the close.
 - | what the deploy serves | Pages serves `main` root, so the design documents AND `index.html`/`src/*.js` — whose comments carry the most method vocabulary of anything published — are readable at the public link, the source with a single keystroke. Nothing on the page links to the documents; the source needs no link. The intention's "`design/` travels with the code" is [AI-predicted, marked "correct me"], so whether the boundary above is the right one is Kabe's.
 - | the bottom chrome's alignment | The prose and the tiles sit flush at the window edge while the picture is centred, so at 1920x1080 the words hang 233px off the frame into the letterbox. Aligning them to the stage was tried and reverted: it costs a whole line of prose at 750x342, and the narration is the only thing here that speaks. Row 8 can move the reserve and have both. **Re-examined and re-declined at row 8** (not silently buried a second time): the row's own tradeoff — a full line of narration lost at phone landscape — is a taste call for Kabe, not a mechanics fix a presentation-only fullscreen row should fold in on its own judgement. Row 8 did, however, drop the reserve to zero under `html.fs-active` (fullscreen/maximized mode hides the bottom chrome entirely), which sidesteps the question there without answering it for the normal, non-fullscreen view. Still open.
+- | the standing readout | Kabe asked for it in his own words, 2026-08-24: "I'd like a text overlay somewhere stating room identified and direction for my reference." It ships as a corner label over the picture, and it prints the document's own handles — `master_bedchamber · N`, underscores and all — because the reference value is in the id. Three things are his and are recorded rather than decided: whether a review instrument belongs on the product face at all once row 24 lands (it is chrome, so a capture never sees it, but a stranger at the public link does); whether the id or a spoken room name is what it should say; and how much of the wayfinding instrument is always on, which row 24's done clause already reserves to him. Until he rules, this is the first sliver of row 24 and nothing more.
 - | control names, world vs machine | The inherited boundary does not decide row 8's first string: is `fullscreen` the shortest true name of what the button does, or is it a property of the visitor's window rather than of the world — the ground on which `Loading…` fails? Named here because two competent builders will otherwise ship different chrome. **Proposed resolution, row 8 (not a close — only the Navigator closes a line filed for Kabe):** the chevrons already establish that control names in this product are plain functional descriptions, not fiction ("turn left", not narrated prose), and "speech about the visitor's own device is not developer speech" already licenses naming a fact about the visitor's own window (the `LICENSED:device` ground for the no-JS message). Both together argue the button's name is a normal control name like any other. Row 8 also sidesteps the literal question by never using the word "fullscreen" in either string ("fill the screen" / "leave the full screen"), so the practical case ships either way this rules. Advisory until Kabe ratifies it, same standing as the voice specification below.
 ```
 
