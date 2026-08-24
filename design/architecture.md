@@ -4274,6 +4274,41 @@ rate `p` the retry loop clears `1 − (1 − p)^k` of a hold family in `k` asks,
 `k` its own best rate needs. At the incumbent's 6 of 8 that is three asks; what remains is the
 Captain's look, not a fourth generation.
 
+**How it came out: three generations, three nulls, and one directional answer.** 68 rolls, all
+declared before dispatch and exactly spent. Nothing separated in any generation — the best Fisher p
+across the whole row is 0.243, against Holm steps of 0.017 to 0.033 — which is what
+`min_detectable_effect` said would happen unless an arm swept. What the row does own:
+
+* **Removing the geometry figures entirely hurt.** Generation 3's pure-appearance cell was the only
+  one below 3/4, carried the worst horizon error, and fitted no horizon at all on one wall (best σ
+  127.6 px). Finished-appearance language is not sufficient on its own; the numbers are load-bearing.
+* **Amplifying the numbers hurt too** — `v2` 3/4 falling to `v2A` 1/4 when a junction table and a
+  metre grid were added. Both ends of that dial are worse than the middle.
+* **The image-heavy end is weakest** (`v4` 1/8, `v5` 1/4), which the ~1024 px reference downsampling
+  independently predicts — the one place an outside finding and our own numbers agree without being
+  fitted to each other.
+* **The bound cross-referenced arm placed last** (0/4) while its unbound twin placed near the top
+  (3/4) on the same precision location. The half the ruling pointed at — text carries the anchored
+  detail — is the half that led; what lost was the binding.
+* **A per-wall split is what stopped the row's most tempting number.** Generation 3's fractions cell
+  had the largest single improvement in horizon error (7.0 px against 19.0) and beat the reference
+  on one wall while losing on the other. The split flag refused it, which is the flag doing its job.
+
+**The endgame is a judgment, not a crown, and the plan says so in row 23's own words.** Three screens
+and no confirmation generation means nothing is crowned by a number. The recommendation is `g4` —
+the finished picture described in image-frame terms with the coordinates attached — folded in with
+generation 3's whole hygiene bundle, on the basis that it ties the best rate, loses to the reference
+on neither wall, improves the secondary, and is the only arm carrying both channels the row has any
+directional evidence for. It did not separate. Buying the crown instead costs a new row: 8 fresh
+rolls, one comparison, α 0.05.
+
+**What the row cost to be trustworthy, in defects it found in itself:** a check that could not fail;
+an amplification rung that added no number; a manifest that would have overwritten its predecessor;
+a parser that could not read the section names we deliberately wrote; a positive-substitution line
+that was itself a comma list; a lens that printed its heading over an empty table; and a declared
+control that an ablation legitimately did not run, which took the scorer down with a KeyError rather
+than a wrong number. Every one is fixed where it lives, and each is worth more than the null.
+
 **What is still missing from this row's audit trail.** The generation-1 readings and report are not
 committed. The discipline rests on readings on disk beside an immutable id map, so until
 `design/plan-draft/measured/row34/*.json` and generation 1's `REPORT.md` land, `generation-2-plan.json`
