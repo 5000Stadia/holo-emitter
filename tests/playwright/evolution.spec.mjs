@@ -30,7 +30,8 @@ import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { repoRoot } from "./helpers.mjs";
 import {
-  ARMS, ARM_IDS, GEN1_ARMS, CONTROL_ARM, PROBES, PLAN, SPECTRUM, HEADLINE_PAIRING,
+  ARMS, ARM_IDS, GEN1_ARMS, GEN3_ARMS, CONTROL_ARM, PROBES, PLAN, SPECTRUM, REGISTER,
+  POSITIVE_NO_TEXT, HEADLINE_PAIRING,
   AMPLIFICATION, CHANNELS, makeCtx, armPrompt, edgeMarks, frameGeometry,
   vanishingPoint, frameExit, parseSections, renderSections, positionWord,
   V5_SUBSTITUTIONS, V2_DEMOTION_LINES, M4_DEMOTION_LINES, IMAGE2_LINES, crossings,
@@ -48,6 +49,7 @@ const LINT = join(MEASURED, "prompt_lint.py");
 const FITNESS = join(MEASURED, "row34_fitness.py");
 const FIXTURES = join(MEASURED, "row34_fixtures.py");
 const RUNNER = join(MEASURED, "row34_run.py");
+const AUDIT = join(MEASURED, "row34_promptaudit.py");
 
 /* The manor production run's own state. Nothing in row 34 may move any of it,
  * and the behavioural half of that check hashes these three before and after. */
@@ -305,11 +307,19 @@ test.describe("row 34 — the evolution run's machinery", () => {
        label is a silent pass. The only guard is the ask, and this case is it. */
     for (const key of KEYS) {
       for (const id of ARM_IDS) {
-        /* Every arm of every generation. Whitespace-normalised: the constraint is wrapped across lines in the
-           arms whose text is long, and a line break is not a missing rule. */
+        /* Every arm of every generation, and in EITHER of the two forms this row
+           has used: the original enumeration, or generation 3's positive
+           substitution. What must never be dropped is the rule itself, because
+           the instrument has no text_painted detector to catch a painted label.
+           Whitespace-normalised — the constraint wraps across lines in the long
+           arms, and a line break is not a missing rule. */
         const flat = armPrompt(id, ctxFor(key)).replace(/\s+/g, " ");
-        expect(flat, `${id} on ${key} dropped the no-lettering constraint`)
-          .toContain("no line, letter, word, number, label, watermark or border of any kind");
+        const enumerated = flat.includes(
+          "no line, letter, word, number, label, watermark or border of any kind");
+        const positive = flat.includes("plain and unlettered")
+          && flat.includes("Do not invent additional typography");
+        expect(enumerated || positive,
+          `${id} on ${key} dropped the no-lettering rule in both of its forms`).toBe(true);
       }
     }
   });
@@ -583,8 +593,13 @@ test.describe("row 34 — the evolution run's machinery", () => {
   });
 
   /* --------------------------------------------------- the spectrum is the lens */
-  test("the spectrum spans image-carries-all to text-carries-all and covers every arm", () => {
-    expect(SPECTRUM.map((s) => s.arm).sort()).toEqual([...ARM_IDS].sort());
+  test("the spectrum spans image-carries-all to text-carries-all and covers every arm on it", () => {
+    /* Every arm whose factor that axis can SEE. Generation 3 holds the image
+       constant and varies the register the geometry is written in, so all four
+       of its arms would sit at one point here and read as though nothing
+       varied; they have their own lens and the next case checks it. */
+    const onAxis = ARM_IDS.filter((id) => ARMS[id].generation !== 3);
+    expect(SPECTRUM.map((s) => s.arm).sort()).toEqual([...onAxis].sort());
     expect(SPECTRUM[0].precision_in).toBe("image");
     expect(SPECTRUM[SPECTRUM.length - 1].precision_in).toBe("text");
     /* The ruled midpoint is a POSITION, not a privilege: it sits between the
@@ -837,6 +852,222 @@ test.describe("row 34 — the evolution run's machinery", () => {
     const a1 = JSON.parse(readFileSync(join(BATCH, "assignment.json"), "utf8"));
     expect(a1.rolls.every((r) => r.generation === 1)).toBe(true);
     expect(a1.rolls.length).toBe(BUDGET.images_per_screening_generation);
+  });
+
+  /* ------------------------------------------- generation 3, the ablation */
+
+  test("every generation-3 arm passes prompt_lint AND the hygiene audit under --strict", () => {
+    /* The hygiene audit only refuses under --strict, and generation 3's arms are
+       the ones that opt in — the research behind it is researched and not yet
+       scarred, so it gates what was designed against it and reports on the rest. */
+    const dir = tmp("lint3");
+    const files = [];
+    try {
+      for (const key of KEYS) {
+        const ctx = ctxFor(key);
+        for (const id of GEN3_ARMS) {
+          const p = join(dir, `${key.replace("/", "-")}__${id}.prompt.txt`);
+          writeFileSync(p, armPrompt(id, ctx));
+          files.push(p);
+        }
+      }
+      expect(files.length).toBe(GEN3_ARMS.length * KEYS.length);
+      expect(py(LINT, files)).toContain(`0 of ${files.length} prompt(s) refused.`);
+      expect(py(AUDIT, ["--strict", "--quiet", ...files]))
+        .toContain(`0 of ${files.length} prompt(s) carry findings.`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("the ablation is single-factor: the four arms differ in one section and nothing else", () => {
+    /* This is the whole validity of generation 3. If any other line moves
+       between cells, the table measures that line instead of the register. */
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      const secs = GEN3_ARMS.map((id) => parseSections(armPrompt(id, ctx)));
+      const keys0 = secs[0].map((s) => s.key);
+      for (const s of secs) expect(s.map((x) => x.key)).toEqual(keys0);
+      for (let i = 0; i < keys0.length; i++) {
+        const bodies = secs.map((s) => s[i].lines.join("\n"));
+        const same = bodies.every((b) => b === bodies[0]);
+        if (keys0[i] === "Composition/framing") {
+          expect(same, "the ablated section is identical across arms — nothing is varying")
+            .toBe(false);
+          expect(new Set(bodies).size, "two arms share an expression block").toBe(4);
+        } else {
+          expect(same, `${keys0[i]} differs between generation-3 arms`).toBe(true);
+        }
+      }
+    }
+  });
+
+  test("no generation-3 arm carries dead vocabulary, and the earlier ones did", () => {
+    const DEAD = [/vanishing\s+point/i, /one[- ]point\s+perspective/i, /focal\s+length/i,
+      /orthographic/i, /principal\s+point/i];
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      for (const id of GEN3_ARMS) {
+        const t = armPrompt(id, ctx);
+        for (const re of DEAD) expect(t, `${id} carries ${re}`).not.toMatch(re);
+      }
+      /* And the incumbent it replaces DID carry it — otherwise this case is
+         asserting a property nothing ever violated. */
+      expect(armPrompt("v6A", ctx)).toMatch(/vanishing\s+point/i);
+    }
+  });
+
+  test("g3 states no geometry figure, and says so honestly about the ones it must keep", () => {
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      const secs = parseSections(armPrompt("g3", ctx));
+      const block = secs.find((s) => s.key === "Composition/framing").lines.join("\n");
+      /* The ablated section is where "no figures" has to be true, and it is the
+         only place the claim is made. `Gate anchor:` carries 0.95 m because
+         prompt_lint requires it and the ruled carrier sentences carry their
+         metres because the gate scores them — both are constants of every arm,
+         so neither confounds the ablation. */
+      expect(block).not.toMatch(/\b\d+\s*(px|pixels|columns?|rows?)\b/i);
+      expect(block).not.toMatch(/\bcolumn\s+\d/i);
+      expect(block).not.toMatch(/\brow\s+\d/i);
+      expect(armPrompt("g3", ctx)).toContain("0.95 m");
+      /* g1 and g4 do state them, which is what makes g3's absence a variable. */
+      for (const id of ["g1", "g4"]) {
+        const b = parseSections(armPrompt(id, ctx))
+          .find((s) => s.key === "Composition/framing").lines.join("\n");
+        expect(b).toMatch(/\bcolumn\s+\d/i);
+      }
+    }
+  });
+
+  test("g1's and g4's figures, and g2's fractions, are the plan's — recomputed here", () => {
+    for (const key of KEYS) {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const g = frameGeometry(meta);
+      const vp = vanishingPoint(meta);
+      const floorY = Math.round(meta.floor_line_y * meta.image_h_px);
+      for (const id of ["g1", "g4"]) {
+        const t = armPrompt(id, ctxFor(key));
+        expect(t).toContain(`a level line at row ${floorY}`);
+        expect(t).toContain(`column ${Math.round(meta.corner_x0_px)} and ` +
+          `column ${Math.round(meta.corner_x1_px)}`);
+        expect(t).toContain(`meet at column ${Math.round(vp.x)}, row ${Math.round(vp.y)}`);
+      }
+      /* The fractions are the same numbers over the frame, computed here from
+         the meta rather than through the composer's own helper. */
+      const t2 = armPrompt("g2", ctxFor(key));
+      const want = (v, total) => {
+        const fr = v / total;
+        for (const [x, w] of [[0.25, "a quarter"], [0.333, "a third"], [0.5, "halfway"],
+          [0.667, "two thirds"], [0.75, "three quarters"]]) {
+          if (Math.abs(fr - x) <= 0.02) return w;
+        }
+        return fr.toFixed(2);
+      };
+      expect(t2).toContain(want(g.floorY, 1024));
+      expect(t2).toContain(want(g.cL, 1536));
+      expect(t2).not.toMatch(/\bcolumn\s+\d/i);
+    }
+  });
+
+  test("the no-lettering rule is positive substitution, and the comma list is gone", () => {
+    for (const key of KEYS) {
+      const ctx = ctxFor(key);
+      for (const id of GEN3_ARMS) {
+        const t = armPrompt(id, ctx);
+        for (const line of POSITIVE_NO_TEXT) expect(t).toContain(line.trim());
+        expect(t).toContain("only");
+        expect(t).not.toContain("no line, letter, word, number, label, watermark or border");
+      }
+      /* And the register it replaces did use the list. */
+      expect(armPrompt("v3", ctx))
+        .toContain("no line, letter,");
+    }
+  });
+
+  test("generation 3 is pre-shaped into the imagegen skill's own field names", () => {
+    for (const key of KEYS) {
+      const keys = parseSections(armPrompt("g1", ctxFor(key))).map((s) => s.key);
+      for (const k of ["Use case", "Asset type", "Input images", "Primary request",
+        "Composition/framing", "Materials/textures", "Style/medium", "Constraints"]) {
+        expect(keys, `${k} is not a section of the generation-3 prompt`).toContain(k);
+      }
+      /* Gate anchor is NOT one of the skill's fields and stays anyway, because
+         prompt_lint requires it and a live gate is not this row's to suspend. */
+      expect(keys).toContain("Gate anchor");
+      for (const gone of ["Camera and composition", "Materials and period detail",
+        "Style and lighting"]) {
+        expect(keys, `${gone} survived the pre-shaping`).not.toContain(gone);
+      }
+    }
+  });
+
+  test("the register is generation 3's lens and it spans figures to appearance", () => {
+    expect(REGISTER.map((r) => r.arm).sort()).toEqual([...GEN3_ARMS].sort());
+    expect(REGISTER[0].appearance).toBe(false);
+    expect(REGISTER[REGISTER.length - 1].appearance).toBe(true);
+    expect(REGISTER[REGISTER.length - 1].figures).toBe("none");
+    /* Exactly one cell at each corner of the two-way design. */
+    const cells = REGISTER.map((r) => `${r.figures}|${r.appearance}`);
+    expect(new Set(cells).size).toBe(REGISTER.length);
+  });
+
+  test("the declared TOTAL is a gate, and generation 3 spends it exactly", () => {
+    let spent = 0;
+    for (const [g, f] of [[1, "assignment.json"], [2, "assignment-gen2.json"],
+      [3, "assignment-gen3.json"]]) {
+      const p = join(BATCH, f);
+      expect(existsSync(p), `generation ${g} has no id map`).toBe(true);
+      const a = JSON.parse(readFileSync(p, "utf8"));
+      expect(a.rolls.every((r) => r.generation === g)).toBe(true);
+      spent += a.rolls.length;
+    }
+    expect(spent).toBe(BUDGET.total_worst_case);
+    /* The per-generation line moved and the total did not: generation 2 came in
+       under its ceiling and generation 3 is over its own declared 12. */
+    const g3 = JSON.parse(readFileSync(join(BATCH, "assignment-gen3.json"), "utf8"));
+    expect(g3.rolls.length).toBe(16);
+    expect(g3.rolls.length).toBeGreaterThan(BUDGET.images_confirmation_generation);
+    const plan = readFileSync(join(repoRoot, "design", "specs", "34-plan.md"), "utf8");
+    expect(plan).toContain("68");
+  });
+
+  test("generation 3's prompts on disk are its composers' own", () => {
+    const assign = JSON.parse(readFileSync(join(BATCH, "assignment-gen3.json"), "utf8"));
+    const byWall = {};
+    for (const key of KEYS) byWall[key] = ctxFor(key);
+    const seen = new Set();
+    for (const r of assign.rolls) {
+      expect(r.id).toBe(rollId34(3, r.wall, r.arm, r.roll));
+      expect(seen.has(r.id)).toBe(false);
+      seen.add(r.id);
+      expect(readFileSync(join(repoRoot, r.prompt), "utf8"))
+        .toBe(armPrompt(r.arm, byWall[r.wall]));
+    }
+    /* Disjoint from both earlier maps. */
+    for (const f of ["assignment.json", "assignment-gen2.json"]) {
+      for (const r of JSON.parse(readFileSync(join(BATCH, f), "utf8")).rolls) {
+        expect(seen.has(r.id)).toBe(false);
+      }
+    }
+  });
+
+  test("the duplication audit finds no duplicates and carries its own floor", () => {
+    /* The community claim that identical prompts return identical images does
+       not replicate on our seat, and the between-cell floor is what makes that
+       conclusive rather than merely negative. */
+    for (const f of ["duplication-audit.json", "duplication-audit-gen2.json"]) {
+      const d = JSON.parse(readFileSync(join(BATCH, f), "utf8"));
+      expect(d.byte_identical).toBe(0);
+      expect(d.near_duplicate).toBe(0);
+      expect(d.pairs_within_cell).toBeGreaterThan(0);
+      expect(d.between_cell_pairs).toBeGreaterThan(0);
+      expect(d.verdict).toContain("INDEPENDENT");
+      /* Within-cell similarity is not meaningfully above the between-cell floor
+         — which is the actual finding, and a threshold nobody chose. */
+      expect(d.within_share_max).toBeLessThan(d.between_share_max * 1.5);
+    }
   });
 
   test("both probe walls are hold-family, camera-PASS and single-failure", () => {

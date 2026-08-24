@@ -162,7 +162,13 @@ export function frameGeometry(meta) {
  * `prompt_lint.py` reads it. Parsing it back is what lets an arm be defined as
  * "production, with this section replaced" rather than as a second prompt. */
 
-const KEY = /^([A-Z][A-Za-z ,'-]*):/;
+/* The key may carry a SLASH, because the imagegen skill's own field names do —
+ * `Composition/framing`, `Materials/textures`, `Style/medium`. The first
+ * pre-shaped prompt parsed back with those three sections missing entirely,
+ * silently absorbed into whatever came before them, and four suite cases went
+ * red at once. A parser that cannot read the shape we are deliberately
+ * writing into is worse than no parser. */
+const KEY = /^([A-Z][A-Za-z ,'\/-]*):/;
 
 export function parseSections(text) {
   const out = [];
@@ -869,6 +875,267 @@ ARMS.v2xv6m4 = {
     return renderSections(secs);
   }
 };
+
+/* ------------------------------------------------------------------ */
+/* Generation 3 — the expression ablation                              */
+/* ------------------------------------------------------------------ */
+/* Generations 1 and 2 both returned NO SEPARATION at the bar, and both put the
+ * VERBAL-CAMERA family on top (v6 3/4, then v6A 3/4) while amplified number
+ * tables went the other way (v2A 1/4). Model-specific research then supplied
+ * the thing neither generation could: an account of WHY, and a factor neither
+ * had varied.
+ *
+ * THE ONE SURVIVING CLAIM WITH THREE INDEPENDENT LINES BEHIND IT: describe the
+ * FINISHED IMAGE'S APPEARANCE in image-frame terms — not camera operations, not
+ * measurements. FoR-T2I puts camera-frame framing at 68.2 against object-relative
+ * at 38.2 for this model family; GenSpace finds stating final-image orientation
+ * "significantly reduces confusion" while measurements have "little effect".
+ *
+ * AND THE CLAIM THAT IS GENUINELY UNTESTED, which is what makes it worth four
+ * arms: whether geometry lands better as PIXELS, as FRACTIONS of the frame, as
+ * pure APPEARANCE, or as appearance with the figures attached. The "fractions
+ * work" folklore traces to content farms and has no attributed evidence either
+ * way, so this row can be the first thing that actually measures it.
+ *
+ * SO GENERATION 3 IS A SINGLE-FACTOR ABLATION AND NOT A CONFIRMATION. Every arm
+ * below is the same prompt but for how the same geometry is expressed —
+ * `camera_language` is the only channel that moves, and the four hygiene
+ * corrections below move in ALL FOUR TOGETHER so they are a constant of the
+ * generation rather than a difference between its cells.
+ *
+ * WHAT THAT COSTS, said plainly: generation 3's cells are comparable TO EACH
+ * OTHER and NOT to generations 1 and 2, because the hygiene fixes moved under
+ * all of them at once. The row therefore ends with three screens and no
+ * confirmation generation, and §7 of the plan carries what that means for the
+ * crown.
+ *
+ * THE FOUR HYGIENE CORRECTIONS, each researched and none yet scarred:
+ *   1. Pre-shaped to the imagegen skill's own schema, so the shaper that stands
+ *      between us and the model has only to normalise what is already in its
+ *      shape. Its rule is explicit: "If the prompt is already specific and
+ *      detailed, preserve that specificity and only normalize/structure it."
+ *   2. Dead vocabulary deleted — "vanishing point", "one-point perspective" and
+ *      the rest have ZERO occurrences in the attributed corpus, and 28 of our 52
+ *      prompts carried two of them.
+ *   3. Comma-tag lists rewritten as prose, which is the shape that does not
+ *      induce grid and collage artefacts.
+ *   4. The no-lettering rule by POSITIVE SUBSTITUTION rather than negation,
+ *      because the real risk is semantic displacement — suppressed text
+ *      re-expressing itself as objects — and "only" is the highest-leverage
+ *      token in the community's worked example. */
+
+/** Which frame edge a point sits on, in the words a viewer would use. */
+export function edgeName(p) {
+  if (p.x <= 0.5) return "the left edge";
+  if (p.x >= CANVAS_W - 0.5) return "the right edge";
+  if (p.y <= 0.5) return "the top edge";
+  return "the bottom edge";
+}
+
+const SIMPLE = [[0.25, "a quarter"], [0.333, "a third"], [0.5, "halfway"],
+  [0.667, "two thirds"], [0.75, "three quarters"]];
+
+/** A coordinate as a fraction of the frame, in words. Names a simple fraction
+ *  where the value is genuinely near one and gives the figure otherwise, so the
+ *  arm is never quietly rounded into a different position. */
+export function frac(v, total, across) {
+  const f = v / total;
+  const way = across ? "of the way across the picture from its left edge"
+    : "of the way down the picture from its top edge";
+  for (const [x, word] of SIMPLE) {
+    if (Math.abs(f - x) <= 0.02) return `${word} ${way}`;
+  }
+  return `${f.toFixed(2)} ${way}`;
+}
+
+/** The four junctions, described as what the FINISHED PICTURE looks like.
+ *
+ *  No camera operation, no measurement, no jargon: which way each line leans,
+ *  which edge it leaves through, and where the eye is told they would meet. The
+ *  direction words are derived from the endpoints rather than written per wall,
+ *  so a facing whose returns leave through a different edge says the true thing.
+ */
+function appearanceLines(ctx) {
+  const g = ctx.geometry;
+  const vp = vanishingPoint(ctx.meta);
+  const L = [];
+  if (!g.bounded) return L;
+  for (const [side, s] of [["left-hand", g.left], ["right-hand", g.right]]) {
+    for (const [what, j, surface] of [["ceiling", s.ceiling, "overhead"],
+      ["floor", s.floor, "underfoot"]]) {
+      if (!j || !j.to) continue;
+      const rises = j.to.y < j.from.y;
+      L.push(`  The line where the ${side} side wall meets the surface ${surface} is straight ` +
+        `and unbroken. Coming`);
+      L.push(`    toward you from that wall's corner it ${rises ? "climbs" : "drops"}, and it ` +
+        `leaves the picture through ${edgeName(j.to)}.`);
+    }
+  }
+  L.push("  Carry all four of those lines the other way instead, back into the distance, and they");
+  L.push("    converge on a single place: the middle of the picture's width, a little above its");
+  L.push("    half-height, at about the eye level of someone standing on the floor you can see.");
+  return L;
+}
+
+/** The same four junctions and the same three rows, in whichever register the
+ *  arm is testing. This function IS the ablation: one switch, four outputs, and
+ *  every other line of the prompt identical between them. */
+export function expressionBlock(ctx, mode) {
+  const g = ctx.geometry;
+  const vp = vanishingPoint(ctx.meta);
+  const L = [];
+  L.push("Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of");
+  L.push("  the room with the two side walls running away from you to left and right. The wall you");
+  L.push("  face shows its whole width, and the floor is visible and reaches the bottom of the");
+  L.push("  picture.");
+  const wantsAppearance = mode === "appearance" || mode === "appearance_pixels";
+  const wantsFigures = mode === "frame_pixels" || mode === "appearance_pixels";
+  const wantsFractions = mode === "frame_fractions";
+
+  if (wantsAppearance) for (const line of appearanceLines(ctx)) L.push(line);
+
+  if (wantsFigures) {
+    L.push(`  ${wantsAppearance ? "The same lines, as picture coordinates" :
+      "Where everything falls, as picture coordinates"} — column counted from the left edge,`);
+    L.push("    row counted from the top:");
+    L.push(`    The faced wall meets the floor along a level line at row ${r0(g.floorY)}.`);
+    if (g.ceilY !== null) {
+      L.push(`    It meets the surface overhead along a level line at row ${r0(g.ceilY)}.`);
+    }
+    if (g.bounded) {
+      L.push(`    Its two upright edges stand at column ${r0(g.cL)} and column ${r0(g.cR)}.`);
+      for (const [side, s] of [["left", g.left], ["right", g.right]]) {
+        if (s.ceiling && s.ceiling.to) {
+          L.push(`    The ${side} side wall's upper line runs from column ${r0(s.ceiling.from.x)}, ` +
+            `row ${r0(s.ceiling.from.y)} to column ${r0(s.ceiling.to.x)}, row ${r0(s.ceiling.to.y)}.`);
+        }
+        L.push(`    The ${side} side wall's lower line runs from column ${r0(s.floor.from.x)}, ` +
+          `row ${r0(s.floor.from.y)} to column ${r0(s.floor.to.x)}, row ${r0(s.floor.to.y)}.`);
+      }
+      L.push(`    Carried on, all four of those meet at column ${r0(vp.x)}, row ${r0(vp.y)}.`);
+      L.push(`    One metre of the faced wall covers ${r0(g.px_per_m)} columns.`);
+    }
+  }
+
+  if (wantsFractions) {
+    L.push("  Where everything falls, as a share of the picture:");
+    L.push(`    The faced wall meets the floor along a level line ${frac(g.floorY, CANVAS_H, false)}.`);
+    if (g.ceilY !== null) {
+      L.push(`    It meets the surface overhead along a level line ${frac(g.ceilY, CANVAS_H, false)}.`);
+    }
+    if (g.bounded) {
+      L.push(`    Its two upright edges stand ${frac(g.cL, CANVAS_W, true)} and ` +
+        `${frac(g.cR, CANVAS_W, true)}.`);
+      for (const [side, s] of [["left", g.left], ["right", g.right]]) {
+        if (s.ceiling && s.ceiling.to) {
+          L.push(`    The ${side} side wall's upper line runs from ${frac(s.ceiling.from.x, CANVAS_W, true)},`);
+          L.push(`      ${frac(s.ceiling.from.y, CANVAS_H, false)}, to ` +
+            `${frac(s.ceiling.to.x, CANVAS_W, true)}, ${frac(s.ceiling.to.y, CANVAS_H, false)}.`);
+        }
+        L.push(`    The ${side} side wall's lower line runs from ${frac(s.floor.from.x, CANVAS_W, true)},`);
+        L.push(`      ${frac(s.floor.from.y, CANVAS_H, false)}, to ` +
+          `${frac(s.floor.to.x, CANVAS_W, true)}, ${frac(s.floor.to.y, CANVAS_H, false)}.`);
+      }
+      L.push(`    Carried on, all four of those meet ${frac(vp.x, CANVAS_W, true)}, ` +
+        `${frac(vp.y, CANVAS_H, false)}.`);
+      L.push(`    The faced wall is ${g.wall_width_m.toFixed(2)} m of real width across ` +
+        `${frac(g.corner_span_px, CANVAS_W, true).replace(" of the way across the picture from its left edge", " of the picture's width")}.`);
+    }
+  }
+  return L;
+}
+
+/* THE NO-LETTERING RULE, POSITIVELY. The old line was a comma list of things not
+ * to draw, and it is both of the shapes the research warns about at once: a
+ * tag-style enumeration, and a suppression that invites semantic displacement —
+ * the forbidden text re-expressing itself as objects. This names the surfaces
+ * that normally carry writing and gives each one a positive substitute, and it
+ * leans on "only", which the community's worked example puts the most weight on. */
+export const POSITIVE_NO_TEXT = [
+  "  Every surface here is plain and unlettered. The panelling shows only plain wood and the",
+  "  plaster shows only plain plaster; the glass holds only plain glazing and the stone is left",
+  "  plain. This picture carries only the room itself. Do not invent additional typography."
+];
+
+/** Generation 3's shared prompt: the control, hygiene-corrected, with the one
+ *  ablated section swapped in. Everything but that section is identical across
+ *  the four arms by construction. */
+function gen3Prompt(ctx, mode) {
+  const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+  /* (1) PRE-SHAPED. The skill's schema names four of our sections already; these
+   * three are near-misses, and renaming them leaves the shaper nothing to do but
+   * pass them through. `Gate anchor:` is not one of its fields and stays anyway,
+   * because prompt_lint requires it and a live gate is not this row's to suspend. */
+  replaceSection(secs, "Camera and composition", expressionBlock(ctx, mode));
+  renameSection(secs, "Materials and period detail", "Materials/textures");
+  renameSection(secs, "Style and lighting", "Style/medium");
+  /* (2) DEAD VOCABULARY: none is introduced, and the section that carried it is
+   * the one just replaced. The audit runs --strict over the result. */
+  /* (3) + (4) The two comma-tag lines become prose, and the no-lettering rule
+   * becomes a positive substitution. */
+  const ci = secs.findIndex((s) => s.key === "Constraints");
+  const keep = [];
+  for (const line of secs[ci].lines) {
+    if (line === IMAGE2_LINES.constraint_marks) break;
+    keep.push(line);
+  }
+  secs[ci].lines = keep.map((l) => l
+    .replace("completely empty of furniture, loose props, people, animals",
+      "completely empty. No furniture stands in it and nobody is in it; there are no")
+    .replace("  and clutter.", "  loose props and no animals."))
+    .concat([
+      "  Image 2 is a layout drawing and its marks are instructions rather than things to paint."
+    ]).concat(POSITIVE_NO_TEXT);
+  return renderSections(secs);
+}
+
+/** Rename a section, keeping its body. The heading is `Key: value` on its first
+ *  line, so the key is swapped in place rather than the section rebuilt. */
+function renameSection(secs, from, to) {
+  const i = at(secs, from);
+  if (i < 0) throw new Error(`evolution-arms: no \`${from}:\` section to rename`);
+  secs[i].lines[0] = secs[i].lines[0].replace(new RegExp(`^${from}:`), `${to}:`);
+  secs[i].key = to;
+  return secs;
+}
+
+const GEN3 = [
+  ["g1", "FRAME-PIXELS", "frame_pixels",
+    "the geometry as picture coordinates - the incumbent's register, cleaned"],
+  ["g2", "FRAME-FRACTIONS", "frame_fractions",
+    "the same geometry as shares of the frame - the genuinely untested claim"],
+  ["g3", "APPEARANCE", "appearance",
+    "no geometry figures at all: what the finished picture looks like"],
+  ["g4", "APPEARANCE-PLUS-FIGURES", "appearance_pixels",
+    "the finished picture described, with the coordinates attached"]
+];
+
+for (const [id, name, mode, what] of GEN3) {
+  ARMS[id] = {
+    id, name, what, generation: 3, mode,
+    channels: { text_geometry: "production", image: "scaffold_primary", camera_language: mode },
+    images: () => ["style-seed-warm.png", "scaffold.png"],
+    prompt(ctx) { return gen3Prompt(ctx, mode); }
+  };
+}
+
+export const GEN3_ARMS = GEN3.map(([id]) => id);
+
+/* THE SPECTRUM IS GENERATIONS 1 AND 2's LENS AND IT DOES NOT FIT THIS ONE.
+ * That axis asks how much anchored precision the IMAGE carries; all four
+ * generation-3 arms hold the image constant and vary the REGISTER the geometry
+ * is written in. Forcing them onto the old axis would put four arms at one
+ * point and read as though nothing varied. A new factor gets a new lens. */
+export const REGISTER = [
+  { arm: "g1", figures: "coordinates", appearance: false,
+    reads: "the geometry as picture coordinates - the register that led both earlier generations" },
+  { arm: "g2", figures: "fractions", appearance: false,
+    reads: "the same geometry as shares of the frame - no attributed evidence either way, so this is the first measurement of it" },
+  { arm: "g4", figures: "coordinates", appearance: true,
+    reads: "what the finished picture looks like, with the coordinates attached" },
+  { arm: "g3", figures: "none", appearance: true,
+    reads: "what the finished picture looks like, and no geometry figures at all" }
+];
 
 export const ARM_IDS = Object.keys(ARMS);
 export const CONTROL_ARM = "v3";

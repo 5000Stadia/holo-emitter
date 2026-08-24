@@ -1,0 +1,45 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the guest chamber, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
+  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the east wall of the empty guest chamber of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of
+  the room with the two side walls running away from you to left and right. The wall you
+  face shows its whole width, and the floor is visible and reaches the bottom of the
+  picture.
+  Where everything falls, as a share of the picture:
+    The faced wall meets the floor along a level line 0.69 of the way down the picture from its top edge.
+    It meets the surface overhead along a level line a quarter of the way down the picture from its top edge.
+    Its two upright edges stand 0.17 of the way across the picture from its left edge and 0.83 of the way across the picture from its left edge.
+    The left side wall's upper line runs from 0.17 of the way across the picture from its left edge,
+      a quarter of the way down the picture from its top edge, to 0.00 of the way across the picture from its left edge, 0.14 of the way down the picture from its top edge.
+    The left side wall's lower line runs from 0.17 of the way across the picture from its left edge,
+      0.69 of the way down the picture from its top edge, to 0.00 of the way across the picture from its left edge, 0.79 of the way down the picture from its top edge.
+    The right side wall's upper line runs from 0.83 of the way across the picture from its left edge,
+      a quarter of the way down the picture from its top edge, to 1.00 of the way across the picture from its left edge, 0.14 of the way down the picture from its top edge.
+    The right side wall's lower line runs from 0.83 of the way across the picture from its left edge,
+      0.69 of the way down the picture from its top edge, to 1.00 of the way across the picture from its left edge, 0.79 of the way down the picture from its top edge.
+    Carried on, all four of those meet halfway of the way across the picture from its left edge, halfway of the way down the picture from its top edge.
+    The faced wall is 6.45 m of real width across two thirds of the picture's width.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  This wall carries no opening and no built feature at all: it is unbroken wainscot below and hangings above, and
+  the anchor above is the one ruled feature in it.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials/textures: oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling.
+  Underfoot: wide oak floorboards.
+  Hangings: hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping.
+Windows: this wall carries no window and no glazed opening of any kind.
+Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the guest chamber is completely empty. No furniture stands in it and nobody is in it; there are no
+  loose props and no animals.
+  Image 2 is a layout drawing and its marks are instructions rather than things to paint.
+  Every surface here is plain and unlettered. The panelling shows only plain wood and the
+  plaster shows only plain plaster; the glass holds only plain glazing and the stone is left
+  plain. This picture carries only the room itself. Do not invent additional typography.

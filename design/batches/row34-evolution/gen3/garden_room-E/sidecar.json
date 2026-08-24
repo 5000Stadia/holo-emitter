@@ -1,0 +1,292 @@
+{
+  "_what_this_is": "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
+  "row": 34,
+  "generation": 3,
+  "wall": "garden_room/E",
+  "why_this_wall": "the nearest miss among clean walls (2.27x the licence against guest_chamber/E's 4.88x) and the opposite return geometry - the same camera to the last decimal, 492.6 px of return per side against 267.6 px",
+  "held_best_sigma_px": 33.3,
+  "voice": {
+    "id": "garden_parlour",
+    "anchor": "chair_rail",
+    "outdoor": false,
+    "via": "room id"
+  },
+  "meta_used": {
+    "floor_line_y": 0.6930119554924243,
+    "px_per_m_at_wall": 155.15151515151516,
+    "px_per_m_at_bottom": 420.8791208791208,
+    "wall_width_m": 3.55,
+    "key_tint": "#c8b489",
+    "image_h_px": 1024,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 155.15151515151516,
+    "facing_type": "enclosed",
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 3.55,
+        "kind": "wall"
+      }
+    ],
+    "wall_continuous": true,
+    "corner_x0_px": 492.6060606060606,
+    "corner_x1_px": 1043.3939393939395,
+    "focal_px": 1024,
+    "storey_height_m": 2.8,
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 6.6,
+    "openings": [
+      {
+        "id": "op09",
+        "kind": "door",
+        "via": null,
+        "x": 709.8181818181818,
+        "y": 399.3412121212122,
+        "w": 155.15151515151524,
+        "h": 310.3030303030303,
+        "beyond_m": 21,
+        "beyond_offset_m": 0.85
+      }
+    ],
+    "stairs": []
+  },
+  "meta_origin": "the meta the page holds for this facing (derived: this wall is not promoted)",
+  "declared_horizon_row": 526,
+  "vanishing_point": {
+    "x": 768,
+    "y": 526.1,
+    "_derivation": "the intersection of this facing's own two side-wall junction lines as renderer.js drawGrid draws them, computed rather than assumed to be the frame centre"
+  },
+  "frame_geometry": {
+    "floorY": 709.6442424242425,
+    "ceilY": 275.2200000000001,
+    "horizonY": 526.1,
+    "cL": 492.6060606060606,
+    "cR": 1043.3939393939395,
+    "bounded": true,
+    "px_per_m": 155.15151515151516,
+    "wall_width_m": 3.55,
+    "storey_height_m": 2.8,
+    "corner_span_px": 550.7878787878789,
+    "left": {
+      "floor": {
+        "from": {
+          "x": 492.6060606060606,
+          "y": 709.6442424242425
+        },
+        "toRaw": {
+          "x": 20.93956043956041,
+          "y": 1024
+        },
+        "to": {
+          "x": 20.93956043956041,
+          "y": 1024
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 492.6060606060606,
+          "y": 275.2200000000001
+        },
+        "toRaw": {
+          "x": 20.93956043956041,
+          "y": -154.4615384615381
+        },
+        "to": {
+          "x": 190.49381570810112,
+          "y": 0
+        }
+      }
+    },
+    "right": {
+      "floor": {
+        "from": {
+          "x": 1043.3939393939395,
+          "y": 709.6442424242425
+        },
+        "toRaw": {
+          "x": 1515.0604395604396,
+          "y": 1024
+        },
+        "to": {
+          "x": 1515.0604395604396,
+          "y": 1024
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 1043.3939393939395,
+          "y": 275.2200000000001
+        },
+        "toRaw": {
+          "x": 1515.0604395604396,
+          "y": -154.4615384615381
+        },
+        "to": {
+          "x": 1345.506184291899,
+          "y": 0
+        }
+      }
+    }
+  },
+  "stamped": [
+    {
+      "kind": "door",
+      "id": "op09",
+      "x0": 709.82,
+      "x1": 864.97,
+      "y0": 399.34,
+      "y1": 709.64,
+      "from_m": 1.4,
+      "to_m": 2.4
+    }
+  ],
+  "chair_rail": {
+    "y": 562.25,
+    "x0": 492.6060606060606,
+    "x1": 1043.3939393939395,
+    "word": "CHAIR-RAIL"
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 709.6442424242425,
+      "half_width": 14.68,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 562.2503030303031,
+      "half_width": 11.79,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 275.2200000000001,
+      "half_width": 34.75,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "door",
+        "id": "op09",
+        "x0": 709.82,
+        "x1": 864.97,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 0,
+    "rail_columns": [
+      [
+        492.6060606060606,
+        709
+      ],
+      [
+        865,
+        1043.3939393939395
+      ]
+    ]
+  },
+  "edge_marks": {
+    "lines": [
+      {
+        "x0": 492.61,
+        "y0": 709.64,
+        "x1": 1043.39,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "wall-floor line"
+      },
+      {
+        "x0": 492.61,
+        "y0": 275.22,
+        "x1": 1043.39,
+        "y1": 275.22,
+        "weight": "heavy",
+        "what": "wall-ceiling line"
+      },
+      {
+        "x0": 492.61,
+        "y0": 275.22,
+        "x1": 492.61,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "left corner"
+      },
+      {
+        "x0": 1043.39,
+        "y0": 275.22,
+        "x1": 1043.39,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "right corner"
+      },
+      {
+        "x0": 492.61,
+        "y0": 709.64,
+        "x1": 20.94,
+        "y1": 1024,
+        "weight": "heavy",
+        "what": "left return, floor junction"
+      },
+      {
+        "x0": 492.61,
+        "y0": 275.22,
+        "x1": 190.49,
+        "y1": 0,
+        "weight": "heavy",
+        "what": "left return, ceiling junction"
+      },
+      {
+        "x0": 1043.39,
+        "y0": 709.64,
+        "x1": 1515.06,
+        "y1": 1024,
+        "weight": "heavy",
+        "what": "right return, floor junction"
+      },
+      {
+        "x0": 1043.39,
+        "y0": 275.22,
+        "x1": 1345.51,
+        "y1": 0,
+        "weight": "heavy",
+        "what": "right return, ceiling junction"
+      },
+      {
+        "x0": 492.61,
+        "y0": 562.25,
+        "x1": 1043.39,
+        "y1": 562.25,
+        "weight": "light",
+        "what": "gate anchor"
+      }
+    ],
+    "rects": [
+      {
+        "kind": "door",
+        "x0": 709.82,
+        "y0": 399.34,
+        "x1": 864.97,
+        "y1": 709.64,
+        "weight": "medium"
+      }
+    ],
+    "ink": "#000000",
+    "ground": "#ffffff"
+  },
+  "_edge_provenance": "COMPOSED FROM DECLARED GEOMETRY, NOT A SHIPPED-RENDERER CAPTURE. frame.png and scaffold.png come out of window.HOLO.renderer.render and carry row 23 §7.1's guarantee that the picture a painter is given is the picture a player sees; edge.png does not. Plan §1.2 makes re-establishing that guarantee a named condition on folding v5 into production.",
+  "images": {
+    "frame": "3a933d3d22a2fb363e29303ea47bce23f933be481793e717ee9e751b88ccf948",
+    "scaffold": "fab5d4faa93f73c8f608582ed2adb0bde91d83bd1b6b8faf7d382ca720cf3025",
+    "edge": "4e4371650ffaf91ea63b93070f122a069afc2d34add617f08aeb7de684aa7c73"
+  },
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "1ffe66a4c02c916db1d7cea876b9d93346364a15a4d5344b5bc90a79fa4783b2",
+  "groundplane_sha256": "7e5217511b751eb0a20582e2982de9905797b984c2085dca6794896114d60957",
+  "git_commit": "e69058c94fc7ca625f96535ccb09a76d98ee9de3"
+}

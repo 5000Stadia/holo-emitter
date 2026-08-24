@@ -1,0 +1,82 @@
+{
+  "_what_this_is": "Generation 3's arm set. NOT bred by row34_fitness.py's branch rules: generations 1 and 2 both returned NO SEPARATION, and model-specific research then supplied a factor no generation had varied. Generation 3 is a single-factor ABLATION of how the same geometry is EXPRESSED, designed against that research and recorded here before any candidate exists.",
+  "_why_not_bred": "The branch rules breed from the readings, and the readings had nothing to say twice running. Breeding a third generation from a second null would have re-run the same field with the same blind spot - which is what branch B's own opposite-extreme clause exists to avoid, and this is that clause taken seriously rather than mechanically.",
+  "branch": "ABLATION",
+  "refused": false,
+  "_evidence_base": {
+    "surviving_claim": "Describe the FINISHED IMAGE'S appearance in image-frame terms, not camera operations and not measurements. FoR-T2I: 68.2 camera-frame against 38.2 object-relative for this model family. GenSpace: stating final-image orientation significantly reduces confusion while measurements have little effect.",
+    "genuinely_untested": "Whether geometry lands better as pixels, as fractions of the frame, as pure appearance, or as appearance with figures attached. The 'fractions work' claim traces to content farms and has no attributed evidence either way. This generation is the first thing that measures it.",
+    "retracted_and_not_built_on": "Mention-order left-to-right - DALL-E-3 folklore with zero gpt-image evidence.",
+    "our_own_two_generations": "The verbal-camera family led both (v6 3/4, then v6A 3/4) and amplified number tables went backwards (v2A 1/4). Consistent with the research and not evidence for it: neither generation separated at the bar."
+  },
+  "_hygiene_constant_across_all_four_arms": [
+    "Pre-shaped to the imagegen skill's own schema (Composition/framing, Materials/textures, Style/medium), so the shaper that stands between us and the model has only to pass through what is already in its shape. Its own rule: 'If the prompt is already specific and detailed, preserve that specificity and only normalize/structure it.'",
+    "Dead vocabulary deleted. 28 of our 52 earlier prompts carried 'vanishing point' and 'one-point perspective', both zero-occurrence terms in the attributed corpus.",
+    "Comma-tag lists rewritten as prose.",
+    "The no-lettering rule by positive substitution rather than negation, leaning on 'only'."
+  ],
+  "_the_cost_of_that": "Generation 3's cells are comparable TO EACH OTHER and NOT to generations 1 and 2: the hygiene corrections moved under all four arms at once, so any difference from an earlier generation confounds the ablation with the hygiene. Stated before dispatch rather than discovered in the table.",
+  "_reference_downsampling": "References reach the model at about 1024px. Fine scaffold detail never arrives, which independently explains v5's loss and weakens every scaffold-precision arm this row has run. Image 2 is still attached in all four arms - it is a constant, not a variable, here.",
+  "arms": [
+    {
+      "arm": "g1",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "frame_pixels"
+      },
+      "origin": "ablation cell",
+      "expresses": "frame_pixels",
+      "what": "the geometry as picture coordinates - the incumbent's register, cleaned"
+    },
+    {
+      "arm": "g2",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "frame_fractions"
+      },
+      "origin": "ablation cell",
+      "expresses": "frame_fractions",
+      "what": "the same geometry as shares of the frame - the genuinely untested claim"
+    },
+    {
+      "arm": "g3",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "appearance"
+      },
+      "origin": "ablation cell",
+      "expresses": "appearance",
+      "what": "no geometry figures at all: what the finished picture looks like"
+    },
+    {
+      "arm": "g4",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "appearance_pixels"
+      },
+      "origin": "ablation cell",
+      "expresses": "appearance_pixels",
+      "what": "the finished picture described, with the coordinates attached"
+    }
+  ],
+  "rolls": 16,
+  "_budget": {
+    "declared_total_worst_case": 68,
+    "spent_generation_1": 28,
+    "spent_generation_2": 24,
+    "this_generation": 16,
+    "total_after": 68,
+    "_the_shape_moved_and_the_total_did_not": "The plan's table declared generation 3 as at most 3 arms and 12 rolls, because it was declared as a CONFIRMATION generation. The research reshaped it into an ablation, which needs four cells. Generation 2 came in 4 rolls UNDER its ceiling (branch B bred six arms, not seven), and those 4 rolls fund exactly the 4 this generation is over. The declared TOTAL - the number the row's done clause binds - is unchanged at 68 and is now exactly spent.",
+    "_consequence": "The row ends with three screens and no confirmation generation. Nothing can be crowned by a fresh-roll confirmation, so the recipe is chosen by explicit labelled judgment on the table, which is row 23's sanctioned fallback and is what that row did too."
+  },
+  "_acceptance_bar": {
+    "_what_prompting_exhausted_means": "CVPR-2024 evidence says perfect line convergence is likely unreachable by prompt because it is structural in the generator. So this row needs a rule for when to stop asking, and it is: PROMPTING IS EXHAUSTED when a generation produces no arm that beats the incumbent under the standing discipline. Generations 1 and 2 have each done that already; generation 3 is the third and last ask.",
+    "_where_the_residual_goes": "Not into a fourth generation. The best measured admissible rate p is handed to the verify-and-retry loop, which already retries a wall - at p, the share of walls resolved in k retries is 1-(1-p)^k, and the scorer prints the k needed to clear the hold family to a stated fraction. Whatever that leaves is the Captain's look fork, not more rolls.",
+    "_the_incumbent": "the verbal-camera family, 6 of 8 admissible across generations 1 and 2 (v6 3/4, v6A 3/4)"
+  },
+  "_needs_composer": "None. Every arm has a composer written to the triple recorded here, and the emitter refuses any arm whose composer declares a different one."
+}
