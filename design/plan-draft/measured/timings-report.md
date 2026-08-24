@@ -102,3 +102,8 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   real permanent stall. Builder dispatched for the open-facing vista path (measurement +
   promotion). Lesson for row 30: a monitoring metric that is known-noisy gets fixed, not
   tolerated - noise is where real stalls hide.
+- 2026-08-24 tick: the sweep loop held a STALE in-memory retry map (retries.json is read at
+  module load; the loop predated the retry-5 emission) - 19 production-test returns sat
+  unreadable while the baton showed loop-active. Restarted; refinement for the loop: reload
+  when retries.json's mtime moves, so a long-lived watcher cannot go stale against its own
+  worklist. Same family as the second-coat invisibility - a worklist handoff seam.
