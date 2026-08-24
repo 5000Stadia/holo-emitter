@@ -1,0 +1,96 @@
+{
+  "branch": "B",
+  "refused": false,
+  "arms": [
+    {
+      "arm": "v3",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "production"
+      },
+      "origin": "the control, re-rolled fresh"
+    },
+    {
+      "arm": "v2A",
+      "channels": {
+        "text_geometry": "exhaustive",
+        "image": "scaffold_demoted",
+        "camera_language": "exhaustive"
+      },
+      "origin": "amplified",
+      "parents": [
+        "v2"
+      ],
+      "amplification": "the geometry text gains the per-return junction table: both endpoints of each return's floor junction and ceiling junction, in columns and rows, computed through groundplane",
+      "needs_composer": true
+    },
+    {
+      "arm": "v6A",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "exhaustive"
+      },
+      "origin": "amplified",
+      "parents": [
+        "v6"
+      ],
+      "amplification": "the camera paragraph gains the row-by-row construction of both returns, stated as an instruction to draw rather than as a description",
+      "needs_composer": true
+    },
+    {
+      "arm": "v2xv6m2",
+      "channels": {
+        "camera_language": "exhaustive",
+        "image": "scaffold_primary",
+        "text_geometry": "exhaustive"
+      },
+      "origin": "crossing",
+      "parents": [
+        "v2",
+        "v6"
+      ],
+      "needs_composer": true
+    },
+    {
+      "arm": "v2xv6m4",
+      "channels": {
+        "camera_language": "exhaustive",
+        "image": "scaffold_demoted",
+        "text_geometry": "production"
+      },
+      "origin": "crossing",
+      "parents": [
+        "v2",
+        "v6"
+      ],
+      "needs_composer": true
+    },
+    {
+      "arm": "v4",
+      "channels": {
+        "text_geometry": "minimal",
+        "image": "scaffold_primary",
+        "camera_language": "none"
+      },
+      "origin": "opposite extreme of the image/text spectrum",
+      "spectrum_distance": 5
+    }
+  ],
+  "rolls": 24,
+  "budget": {
+    "generations_max": 3,
+    "rolls_per_arm_per_wall": 2,
+    "arms_gen1": 7,
+    "walls": 2,
+    "images_per_screening_generation": 28,
+    "images_confirmation_generation": 12,
+    "total_worst_case": 68,
+    "total_without_confirmation": 56,
+    "_superseded": "the first draft of the plan declared 6 arms, 24 a generation and 60 worst case; the governing frame's v7 added 4 per generation and the totals above were re-declared before anything was emitted",
+    "_authority": "design/specs/34-plan.md \u00a73"
+  },
+  "_needs_composer": "an arm marked needs_composer names a channel combination no composer implements yet; writing it in tools/evolution-arms.mjs is the mechanical follow-on, and its channel triple is fixed here rather than chosen later",
+  "_why_refused": null
+}

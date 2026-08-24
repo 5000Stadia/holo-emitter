@@ -1,0 +1,317 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 706,
+    "chair_rail_y_px": 568,
+    "dado_rail_above_floor_px": 138,
+    "capping_above_floor_px": 155
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        492,
+        709
+      ],
+      [
+        865,
+        1043
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 709.82,
+      "asked_x1": 864.97,
+      "ruled_m": 1.0,
+      "window": [
+        709,
+        864
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 719..846 (14 px from the ask) and another admissible pair sits 719..861 (7 px from the ask), which disagree by more than the 0 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 145.263,
+  "implied_focal_px": 958.7,
+  "eye_height_m": 1.2384,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 719..846 (14 px from the ask) and another admissible pair sits 719..861 (7 px from the ask), which disagree by more than the 0 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 189,
+    "ceiling_candidates": [
+      {
+        "y": 190,
+        "strength": 33.58,
+        "horiz": 1.0,
+        "cv": 0.166
+      },
+      {
+        "y": 161,
+        "strength": 26.45,
+        "horiz": 1.0,
+        "cv": 0.181
+      },
+      {
+        "y": 184,
+        "strength": 11.55,
+        "horiz": 1.0,
+        "cv": 0.213
+      },
+      {
+        "y": 277,
+        "strength": 10.28,
+        "horiz": 0.771,
+        "cv": 1.326
+      },
+      {
+        "y": 172,
+        "strength": 8.64,
+        "horiz": 0.846,
+        "cv": 0.552
+      },
+      {
+        "y": 307,
+        "strength": 6.14,
+        "horiz": 0.723,
+        "cv": 1.716
+      },
+      {
+        "y": 284,
+        "strength": 6.01,
+        "horiz": 0.73,
+        "cv": 1.038
+      },
+      {
+        "y": 290,
+        "strength": 5.9,
+        "horiz": 0.763,
+        "cv": 1.243
+      },
+      {
+        "y": 11,
+        "strength": 3.51,
+        "horiz": 0.781,
+        "cv": 0.689
+      },
+      {
+        "y": 153,
+        "strength": 3.45,
+        "horiz": 0.768,
+        "cv": 0.635
+      },
+      {
+        "y": 112,
+        "strength": 3.36,
+        "horiz": 0.733,
+        "cv": 0.762
+      },
+      {
+        "y": 198,
+        "strength": 3.36,
+        "horiz": 0.725,
+        "cv": 0.762
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 189,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 160,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 183,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 276,
+        "admissible": true,
+        "sigma_y_px": 0.83,
+        "horizon_y_px": 525.4,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 171,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 306,
+        "admissible": false,
+        "sigma_y_px": 173.93,
+        "horizon_y_px": -1563.9,
+        "why": "the two side-wall junctions converge at y -1563.9 but only to +/-173.9 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 283,
+        "admissible": false,
+        "sigma_y_px": 70.37,
+        "horizon_y_px": 1171.7,
+        "why": "the two side-wall junctions converge at y 1171.7 but only to +/-70.4 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 289,
+        "admissible": false,
+        "sigma_y_px": 137.97,
+        "horizon_y_px": -1320.8,
+        "why": "the two side-wall junctions converge at y -1320.8 but only to +/-138.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 10,
+        "admissible": false,
+        "sigma_y_px": 23.78,
+        "horizon_y_px": 186.0,
+        "why": "the two side-wall junctions converge at y 186.0 but only to +/-23.8 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 152,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 111,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 197,
+        "admissible": true,
+        "sigma_y_px": 0.72,
+        "horizon_y_px": 527.0,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 368,
+    "corner_x1_px": 1191,
+    "corner_evidence": {
+      "left_fit_r2": 0.6376,
+      "right_fit_r2": 0.73,
+      "block_px": 16,
+      "excluded": [
+        [
+          709,
+          864
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 14.68,
+    "ramp": {
+      "x": 772.0,
+      "y": 527.0,
+      "left_slope": 0.8648,
+      "right_slope": -0.8366,
+      "left_n": 55,
+      "left_resid_px": 0.28,
+      "right_n": 61,
+      "right_resid_px": 0.32,
+      "sigma_y_px": 0.72
+    },
+    "votes": {
+      "floor": {
+        "x": 794,
+        "y": 551,
+        "edge_px": 27854
+      },
+      "ceiling": {
+        "x": 780,
+        "y": 524,
+        "edge_px": 17158
+      },
+      "side_walls": {
+        "x": 52,
+        "y": 188,
+        "edge_px": 9576
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 611,
+      "key_dir_brightest_y": 506,
+      "key_tint": "#c88942",
+      "key_tint_patch": [
+        411,
+        811,
+        119,
+        181
+      ],
+      "key_tint_patch_mean_rgb": [
+        55.35,
+        37.82,
+        18.34
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8a784",
+        "floor_bottom_strip": "#c8aa8b",
+        "mid_wall_right": "#c89d65",
+        "mid_wall_left": "#c8a374",
+        "brightest_21x21_patch": "#c8b7a0"
+      },
+      "brightest_21x21_patch_centre_px": [
+        611,
+        506
+      ],
+      "sobel_bright_side_deg_whole_frame": 89.71,
+      "sobel_bright_side_deg_wall_band": 90.63,
+      "left_third_minus_right_third_luminance_whole_frame": -17.899,
+      "left_third_minus_right_third_luminance_wall_band": -38.374
+    },
+    "storey_height_m": 3.5591,
+    "implied_wall_width_m": 5.6656,
+    "eye_height_m": 1.2322,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -6.37,
+  "delta_eye_pct": 4.69,
+  "verdict": "PASS",
+  "kind": null,
+  "_row": 34,
+  "_generation": 1,
+  "_id": "d8c26ab7",
+  "_wall": "garden_room/E",
+  "_candidate": "backdrops/source/garden_room-E/row34-d8c26ab7.png",
+  "_candidate_sha256": "9eba2951785bdf27e09bdffc02349ddb9d9802b247bdf9a6267caedbbbba4f3a",
+  "_ref": {
+    "focal_px": 1024,
+    "eye_m": 1.183,
+    "horizon_y_px": 526.1,
+    "band": 0.08,
+    "source": "the meta the page holds for this facing, off its own row-34 sidecar",
+    "authority": "the ruled lens; this wall is not promoted and holds no measured camera"
+  },
+  "_declared_horizon_row": 526,
+  "_arm_is_not_recorded_here": "by design: design/specs/34-plan.md \u00a74. The id maps to its arm in design/batches/row34-evolution/assignment.json, which was committed before any candidate existed and has not changed since."
+}

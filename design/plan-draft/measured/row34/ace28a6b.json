@@ -1,0 +1,292 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 719,
+    "chair_rail_y_px": 570,
+    "dado_rail_above_floor_px": 149,
+    "capping_above_floor_px": 159
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        267,
+        1268
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 156.842,
+  "implied_focal_px": 1035.2,
+  "eye_height_m": 1.2299,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 189,
+    "ceiling_candidates": [
+      {
+        "y": 169,
+        "strength": 30.68,
+        "horiz": 0.982,
+        "cv": 0.22
+      },
+      {
+        "y": 190,
+        "strength": 22.93,
+        "horiz": 0.924,
+        "cv": 0.376
+      },
+      {
+        "y": 175,
+        "strength": 17.78,
+        "horiz": 0.941,
+        "cv": 0.475
+      },
+      {
+        "y": 181,
+        "strength": 4.99,
+        "horiz": 0.712,
+        "cv": 1.265
+      },
+      {
+        "y": 24,
+        "strength": 4.35,
+        "horiz": 0.768,
+        "cv": 0.728
+      },
+      {
+        "y": 80,
+        "strength": 4.33,
+        "horiz": 0.759,
+        "cv": 0.737
+      },
+      {
+        "y": 112,
+        "strength": 4.32,
+        "horiz": 0.727,
+        "cv": 0.745
+      },
+      {
+        "y": 16,
+        "strength": 4.23,
+        "horiz": 0.74,
+        "cv": 0.755
+      },
+      {
+        "y": 32,
+        "strength": 4.23,
+        "horiz": 0.739,
+        "cv": 0.812
+      },
+      {
+        "y": 40,
+        "strength": 4.18,
+        "horiz": 0.753,
+        "cv": 0.783
+      },
+      {
+        "y": 52,
+        "strength": 4.16,
+        "horiz": 0.769,
+        "cv": 0.72
+      },
+      {
+        "y": 10,
+        "strength": 4.12,
+        "horiz": 0.738,
+        "cv": 0.722
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 168,
+        "admissible": true,
+        "sigma_y_px": 0.95,
+        "horizon_y_px": 502.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 189,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 502.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 174,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 502.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 180,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 502.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 23,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 79,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 111,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 15,
+        "admissible": true,
+        "sigma_y_px": 1.0,
+        "horizon_y_px": 502.8,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 51,
+        "admissible": true,
+        "sigma_y_px": 0.94,
+        "horizon_y_px": 503.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": true,
+        "sigma_y_px": 1.19,
+        "horizon_y_px": 502.1,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 233,
+    "corner_x1_px": 1301,
+    "corner_evidence": {
+      "left_fit_r2": 0.7128,
+      "right_fit_r2": 0.7365,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 14.68,
+    "ramp": {
+      "x": 769.2,
+      "y": 502.7,
+      "left_slope": 0.6569,
+      "right_slope": -0.6311,
+      "left_n": 57,
+      "left_resid_px": 0.29,
+      "right_n": 55,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 0.94
+    },
+    "votes": {
+      "floor": {
+        "x": 772,
+        "y": 509,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 776,
+        "y": 477,
+        "edge_px": 17359
+      },
+      "side_walls": {
+        "x": 1216,
+        "y": 686,
+        "edge_px": 11151
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 244,
+      "key_dir_brightest_y": 996,
+      "key_tint": "#c8864d",
+      "key_tint_patch": [
+        243,
+        444,
+        119,
+        181
+      ],
+      "key_tint_patch_mean_rgb": [
+        47.1,
+        31.56,
+        18.24
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8803b",
+        "floor_bottom_strip": "#c88147",
+        "mid_wall_right": "#c83712",
+        "mid_wall_left": "#c8401c",
+        "brightest_21x21_patch": "#c8ac8d"
+      },
+      "brightest_21x21_patch_centre_px": [
+        244,
+        996
+      ],
+      "sobel_bright_side_deg_whole_frame": 97.93,
+      "sobel_bright_side_deg_wall_band": 113.36,
+      "left_third_minus_right_third_luminance_whole_frame": 1.889,
+      "left_third_minus_right_third_luminance_wall_band": -8.082
+    },
+    "storey_height_m": 3.3792,
+    "implied_wall_width_m": 6.8094,
+    "eye_height_m": 1.3791,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 1.09,
+  "delta_eye_pct": 3.96,
+  "verdict": "PASS",
+  "kind": null,
+  "_row": 34,
+  "_generation": 1,
+  "_id": "ace28a6b",
+  "_wall": "guest_chamber/E",
+  "_candidate": "backdrops/source/guest_chamber-E/row34-ace28a6b.png",
+  "_candidate_sha256": "d80b9e3353a207c12833eb9013c3c1f8bd749bf6b39a9124b833292a6f8a4370",
+  "_ref": {
+    "focal_px": 1024,
+    "eye_m": 1.183,
+    "horizon_y_px": 526.1,
+    "band": 0.08,
+    "source": "the meta the page holds for this facing, off its own row-34 sidecar",
+    "authority": "the ruled lens; this wall is not promoted and holds no measured camera"
+  },
+  "_declared_horizon_row": 526,
+  "_arm_is_not_recorded_here": "by design: design/specs/34-plan.md \u00a74. The id maps to its arm in design/batches/row34-evolution/assignment.json, which was committed before any candidate existed and has not changed since."
+}
