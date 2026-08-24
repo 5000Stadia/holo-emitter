@@ -15,14 +15,16 @@ keeps it current at every board change; reports cite these handles.
 | SVC-WATCH | the baton watchdog: who owes the next action, nudges stalls | tmux `seat-watch`, writes `baton.json` |
 | SVC-TICK | the Navigator's 2-hour performance sampler | session cron |
 | SVC-SITE | the live site + one-command publisher | `tools/publish-site.sh` |
+| SVC-UP | the idempotent bring-up after ANY restart: starts only what is absent, never a duplicate | `tools/services.sh up` (status/down too) |
 
 ## Live builders (change often — the Navigator updates on spawn/land)
 
 | handle | task | state |
 |---|---|---|
 | B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | building |
-| B-FLIGHT | flight attachment: painted staircases written into promoted metas | building |
-| C-ASSEMBLY | row 36 plan critic (assembly-from-pieces) | reviewing |
+| B-FLIGHT | flight attachment: painted staircases written into promoted metas | respawned after the host restart (first transcript lost, no commits lost) |
+| B-ASSEMBLY | row 36 builder: plan revision 2 folding the critic's findings | revising |
+| B-SEAMS | row 38: edge-seeded generation (open required, indoor opportunistic) | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
@@ -42,3 +44,7 @@ keeps it current at every board change; reports cite these handles.
 the library" — any of these lands the issue on exactly one desk. For product
 defects with no obvious handle, name the room and facing ("great_hall/N") — every
 wall is itself an id the whole pipeline resolves.
+
+## Restart discipline
+
+A host restart kills tmux and the session cron. Recovery is one command (`tools/services.sh up`) plus resuming in-flight builders by handle; merged builders' worktrees are pruned so nothing loose survives a restart unowned. 2026-08-24: 13 merged worktrees pruned, 3 in-flight kept.
