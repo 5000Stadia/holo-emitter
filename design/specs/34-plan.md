@@ -291,6 +291,14 @@ exist is not the discipline it claims to be.
 Every number below is read out of a reading `row23_lib.measure_candidate` already produces. Nothing
 in this row measures a pixel that the manor run's own instrument does not already measure.
 
+### 5.0 The three files, and what each may touch
+
+| file | what it does | what it may not do |
+|---|---|---|
+| `design/plan-draft/measured/row34_run.py` | measures whatever landed, through `row23_lib` | promote, bake, publish, write under `backdrops/`, open the manor run's state |
+| `design/plan-draft/measured/row34_fitness.py` | scores, applies §5.4, writes the report, breeds the next generation | **name any arm id at all** — every id, the control's included, is read out of `assignment.json` |
+| `design/plan-draft/measured/row34_fixtures.py` | writes synthetic readings with a known answer, for §8 | write into the real readings directory (it refuses) |
+
 ### 5.1 The runner
 
 `design/plan-draft/measured/row34_run.py`. It reads `design/batches/row34-evolution/manifest.json`
@@ -351,6 +359,11 @@ with the per-wall counts printed beside the pooled ones.
    terms; there is no arm the correction skips (§0a).
 3. **Minimum margin:** the arm must also beat the control by **≥ 2 admissible rolls** of its 4. A
    one-roll margin at n = 4 is inside the noise the row-23 arithmetic already convicted.
+   **And at generation 1's n this clause does no independent work, which is said rather than
+   implied:** the only result that clears Holm at all is 4 of 4 against 0 of 4, whose margin is 4,
+   so Holm is strictly the tighter guard. The clause is kept because it is the one that survives a
+   change in n — the pooled n of a confirmation generation is where it becomes binding — and the
+   suite tests it as a unit (`separates()`), because no fixture at this n can reach it.
 4. **The scorer prints its own power.** `min_detectable_effect()` enumerates every possible
    (arm k, control k) pair at this n and prints the smallest margin that could clear step 2 — so
    the run's own weakness is a number in the report and not a claim in this file. At generation 1
@@ -440,14 +453,21 @@ arm cannot be smuggled in as a literal (§0a).
 **Branch A — SEPARATION.** Winners are ordered by (pooled admissible rate, then smallest median
 `d_horizon_px`, then smallest median `sigma_best_px`, then arm index — fully deterministic
 including an all-equal tie). Generation 2 is: **the control**, **W1**, **W2 if there is one**, then
-the crossings of W1 with each other generation-1 arm in rank order, taken until seven arms are
-filled.
+the crossings of W1 with each other generation-1 arm, **round-robin in rank order** — one crossing
+from each partner before a second from any — until seven arms are filled. Round-robin and not
+partner-by-partner because taking every crossing of the winner with the first partner fills a
+generation with five variations on one pair, which is a narrower search than the one that found the
+winner. Each crossing's id carries its channel mask, so five crossings of one pair are five rows a
+reader can tell apart.
 
 **Branch B — NO SEPARATION.** Generation 2 is: **the control**, then the two arms ranked highest on
 the step-2/step-3 continuous quantities (median `d_horizon_any_px`, then median `sigma_best_px`),
-each **amplified** by its own declared mutation, then the crossing of those two, then the arm that
-sits at the *opposite* extreme of the `image` channel from the better of them — so a null does not
-simply re-run the same field with the same field's blind spot.
+each **amplified** by its own declared mutation, then the crossings of those two, then the arm
+furthest along the §5.6a **spectrum** from the leader — the opposite end of the image-carries-all →
+text-carries-all axis, measured as a distance on that axis rather than as "the worst arm", which is
+a different thing and would breed from failure. A branch-B generation may come out **under** the
+declared budget when the leading arms are near-identical and their crossings are already in the
+pool; under is fine and over is refused.
 
 **The mutation ladder, declared per arm, and it is the only place an arm's text may grow:**
 
@@ -461,7 +481,15 @@ simply re-run the same field with the same field's blind spot.
 | `v3` | none — the control is never mutated. It is the yardstick. |
 
 **Branch C — a generation whose readings are all WITHHELD** is not a null; it is a broken run. The
-scorer refuses to plan a generation and says which reading blocked it.
+whole table is still computed and printed — a reader needs the withheld column that convicts it —
+and only the headline changes, to `RUN BROKEN: every reading is withheld`. The scorer refuses to
+plan a generation from it, because breeding from no evidence is worse than stopping.
+
+**A crossing is a channel triple, not a composer.** `--plan-generation-2` produces the *recipe*, and
+an arm it emits marked `needs_composer` names a channel combination `tools/evolution-arms.mjs` does
+not implement yet. Writing that composer is the mechanical follow-on when generation 1 returns; what
+matters — and what the plan fixes now — is that its channel triple was **decided by the rule and not
+chosen afterwards**.
 
 ---
 
@@ -519,9 +547,13 @@ one canvas has no second engine):
    finding.
 8. **The margin rule and the Holm rule each have a case that fails without them** — an arm at 3 of 4
    against 2 of 4 must NOT separate, and the delete-green form of that is asserted.
-8b. **The scorer names no arm but the control.** A structural scan of `row34_fitness.py` for arm-id
-   literals; `v3` (via the imported control id) is the only one permitted. This is the mechanical
-   half of §0a's fence.
+8b. **The scorer names no arm at all.** A structural scan of `row34_fitness.py` for arm-id literals
+   finds none — not even the control's, which is read out of `assignment.json`'s `_control`. This
+   is the mechanical half of §0a's fence, and it is stricter than that section promised: there is
+   no place in the scorer where a privileged arm could be written down.
+8c. **The breeding is deterministic and its ids are unique.** `--plan-generation-2` over the same
+   fixture twice produces byte-identical output, no two planned arms share an id, and the branch-B
+   "opposite extreme" is the arm furthest along the §5.6a spectrum from the leader.
 9. **The manor run is untouched.** Structural: no row-34 source names `manor/manifest.json`,
    `run-state.json` or `retries.json`. Behavioural: the three files' SHA-256 are unmoved across a
    real `row34_run.py` invocation.
