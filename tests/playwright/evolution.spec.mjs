@@ -1070,6 +1070,47 @@ test.describe("row 34 — the evolution run's machinery", () => {
     }
   });
 
+  test("the reference arm is resolved from data, and both branches are pinned", () => {
+    /* A generation's id map declares `_control` from the emitter's standing
+       constant, so an ABLATION - which legitimately runs no control - declares
+       one that ran no cells. That took the scorer down with a KeyError rather
+       than producing a wrong number, which is the good failure of the two.
+
+       The rule is data-driven because this file may name no arm: the declared
+       control where it ran cells, otherwise the first arm in the id map's own
+       order, which the generation's plan fixed before any candidate existed.
+       This is not a selection rule - it decides which column the others are
+       compared against. */
+    const src = `import sys; sys.path.insert(0, ${JSON.stringify(MEASURED)});\n` +
+      "import row34_fitness as f\n" +
+      "ran = {'n_rolls': 4}\n" +
+      "no = {'n_rolls': 0}\n" +
+      "a = {'_control': 'X', '_arms': [{'id': 'X'}, {'id': 'Y'}]}\n" +
+      "print(f.resolve_reference(a, {'X': ran, 'Y': ran})[0])\n" +
+      "print(f.resolve_reference(a, {'X': no, 'Y': ran})[0])\n" +
+      "print(f.resolve_reference(a, {'X': no, 'Y': no})[0])";
+    const dir = tmp("ref");
+    try {
+      const script = join(dir, "r.py");
+      writeFileSync(script, src);
+      /* control present -> control; control absent -> first arm that ran;
+         nothing ran -> the declaration, so a broken run still names something. */
+      expect(py(script, []).trim().split("\n")).toEqual(["X", "Y", "X"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+    /* And on the real maps: generations 1 and 2 take the first branch, the
+       ablation takes the second and lands on its own reference register. */
+    const g3 = JSON.parse(readFileSync(join(BATCH, "assignment-gen3.json"), "utf8"));
+    expect(g3._arms.map((a) => a.id)).toEqual([...GEN3_ARMS]);
+    expect(g3._arms.some((a) => a.id === g3._control)).toBe(false);
+    expect(g3._arms[0].id).toBe(REGISTER[0].arm);
+    for (const f of ["assignment.json", "assignment-gen2.json"]) {
+      const a = JSON.parse(readFileSync(join(BATCH, f), "utf8"));
+      expect(a._arms.some((x) => x.id === a._control)).toBe(true);
+    }
+  });
+
   test("both probe walls are hold-family, camera-PASS and single-failure", () => {
     const state = JSON.parse(readFileSync(join(MANOR, "run-state.json"), "utf8")).walls;
     for (const p of PROBES) {
