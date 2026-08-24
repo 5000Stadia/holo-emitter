@@ -49,7 +49,8 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
-import { facingCarriers, openingsForFacing, deriveMeta } from "./plan-projection.mjs";
+import { facingCarriers, openingsForFacing, deriveMeta, flightsForFacing }
+  from "./plan-projection.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 /* THE ROOM'S OWN VOICE, row 29 [HUMAN, 2026-08-24]: "is every room in this
  * house parlor walls?" and "exterior garden has interior wall outside". The
@@ -64,7 +65,8 @@ import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACT
  * recommendation was measured on (`g4`) is the same function. See that file's
  * header for the recommendation's whole basis and for what it deliberately does
  * not claim. */
-import { frameGeometry, registerBlock, positiveNoText } from "./frame-language.mjs";
+import { frameGeometry, registerBlock, positiveNoText, flightLines, col }
+  from "./frame-language.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -344,7 +346,89 @@ export function scaffoldRects(plan, loc, facing, meta) {
   const apertures = openingsForFacing(plan, loc, facing, meta, CANVAS_W).map((o) => ({
     id: o.id, via: o.via, x: o.x, y: o.y, w: o.w, h: o.h
   }));
-  return { rects: out, apertures };
+  return { rects: out, apertures, flights: flightRects(plan, loc, facing, meta) };
+}
+
+/* ------------------------------------------------------------------ */
+/* The flight region                                                   */
+/* ------------------------------------------------------------------ */
+/* A CARRIER IS IN A WALL; A FLIGHT IS ON THE FLOOR — so a staircase is not a
+ * `scaffoldRects` box and never could be. Its rectangle is not a ruled width at
+ * the wall plane, it is the extent of a projected solid, and stamping it in
+ * ruler space would put the label somewhere the flight is not.
+ *
+ * It is stamped anyway, because the diagram already DRAWS the flight (the
+ * renderer strokes it from `meta.stairs`) and an unlabelled shape in a technical
+ * drawing is a shape a painter is free to read as scenery. Six manor walls came
+ * back with the staircase missing and were refused promotion by the row-32
+ * clause; every one of them was painted from a diagram that drew the flight and
+ * a prompt that never named it.
+ *
+ * THE BOX IS THE CLAMPED RECT AND THE NOTE CARRIES THE RAW EXTENT. `x/y/w/h` on
+ * a flight are already the intersection with the frame, so the box is honest
+ * about what is in the picture; where the frame cut the body, the note says so,
+ * because "paint inside this box, filling it" is a lie about a flight that runs
+ * off three edges. */
+const FLIGHT_LABEL_H = 40;
+const FLIGHT_NOTE_H = 18;
+export const CLIMB_STAMP = {
+  left: "CLIMBS TO THE LEFT",
+  right: "CLIMBS TO THE RIGHT",
+  away: "CLIMBS AWAY FROM THE VIEWER",
+  toward: "CLIMBS TOWARD THE VIEWER"
+};
+
+export function flightRects(plan, loc, facing, meta) {
+  const out = [];
+  for (const s of flightsForFacing(plan, loc, facing, meta, CANVAS_W)) {
+    const climb = s.climb ? CLIMB_STAMP[s.climb] : "NO TREAD IN FRAME - FLOOR OPENING ONLY";
+    const cut = s.runs_off.length
+      ? `CUT BY THE FRAME ON THE ${s.runs_off.join(" AND ").toUpperCase()}`
+      : "";
+    const label = "FLIGHT";
+    /* TWO NOTE LINES RATHER THAN ONE LONG ONE. A flight cut on three edges
+     * carries 105 characters of note, which at a legible stroke height is
+     * 1674 px on a 1536 px frame — ink outside the picture, which is the one
+     * thing the confinement discipline exists to refuse. The line breaks
+     * instead of the letters shrinking. */
+    const notes = [`${s.treads} TREADS · ${s.width_m.toFixed(2)} M WIDE · ${climb}`];
+    if (cut) notes.push(cut);
+    assertLabelChars(label, `${loc}/${facing}'s flight label`);
+    for (const n of notes) assertLabelChars(n, `${loc}/${facing}'s flight note`);
+    const lw = textBox(label, FLIGHT_LABEL_H);
+    const widths = notes.map((n) => textBox(n, FLIGHT_NOTE_H));
+    const blockW = Math.max(lw, ...widths);
+    const blockH = FLIGHT_LABEL_H + 10 + notes.length * FLIGHT_NOTE_H +
+      (notes.length - 1) * 6;
+    /* THE BLOCK SITS AT THE TOP OF THE REGION AND CLEARS THE LEGEND. A
+     * descending flight's box begins near the bottom of the frame — its top
+     * edge is the floor opening at your feet — and the legend already owns
+     * those rows. A label the legend overprints is a label nobody can read, so
+     * where the region starts inside the legend's band the block is lifted to
+     * just above it and still points at the box below. */
+    const x = Math.max(8, Math.min(s.x + 14, CANVAS_W - blockW - 8));
+    const y = Math.max(8, Math.min(s.y + 14, LEGEND_TOP_Y - blockH - 10));
+    out.push({
+      kind: "flight", id: s.id, direction: s.direction, climb: s.climb,
+      treads: s.treads, treads_in_view: s.treads_in_view,
+      width_m: s.width_m, rise_m: s.rise_m, runs_off: s.runs_off,
+      x0: round(s.x, 2), y0: round(s.y, 2),
+      x1: round(s.x + s.w, 2), y1: round(s.y + s.h, 2),
+      raw_w: round(s.raw_w, 2), raw_h: round(s.raw_h, 2),
+      label, sub: notes.join(" · "),
+      ruled: ["width", "tread count", "rise"],
+      convention: [],
+      label_rect: rnd({ x, y, w: lw, h: FLIGHT_LABEL_H }),
+      notes: notes.map((text, i) => ({
+        text,
+        ...rnd({
+          x, y: y + FLIGHT_LABEL_H + 10 + i * (FLIGHT_NOTE_H + 6),
+          w: widths[i], h: FLIGHT_NOTE_H
+        })
+      }))
+    });
+  }
+  return out;
 }
 
 /**
@@ -561,6 +645,21 @@ export const PAGE_RENDER = function (arg) {
     glyphText(m.sub, m.note_rect.x, m.note_rect.y, m.note_rect.h, DIM);
   }
 
+  /* THE FLIGHT REGIONS, drawn on a longer dash than a carrier box so the two
+     read as different kinds of instruction: a carrier box is a hole of a ruled
+     width in the wall plane, a flight region is the extent of a solid standing
+     on the floor. `marks.flights` is absent on every scaffold cut before the
+     flight language existed, and an older sidecar must still re-render. */
+  for (const s of (marks.flights || [])) {
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([28, 12]);
+    ctx.strokeRect(s.x0, s.y0, s.x1 - s.x0, s.y1 - s.y0);
+    ctx.setLineDash([]);
+    glyphText(s.label, s.label_rect.x, s.label_rect.y, s.label_rect.h, INK);
+    for (const n of s.notes) glyphText(n.text, n.x, n.y, n.h, DIM);
+  }
+
   const cr = marks.chair_rail;
   ctx.strokeStyle = INK;
   ctx.lineWidth = 3;
@@ -593,6 +692,12 @@ async function renderPng(page, key, meta, mode, marks) {
  * case exists to refuse, and it found them. */
 const LEGEND_TEXT_H = 15;
 const LEGEND_LINE_H = 26;
+/* FIVE LINES, ALWAYS — the legend's content is fixed and its height with it, so
+ * the row the legend's frame begins at is a constant every other mark can be
+ * kept clear of rather than a number only `legendFor` knows. `legendFor`
+ * asserts the count, so a sixth line is a refusal instead of a silent overlap. */
+const LEGEND_LINES = 5;
+export const LEGEND_TOP_Y = CANVAS_H - (LEGEND_LINE_H * LEGEND_LINES + 22) - 24;
 function legendFor(meta, rects, camera, anchor) {
   const lines = [
     "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
@@ -602,6 +707,12 @@ function legendFor(meta, rects, camera, anchor) {
     `CAMERA - ${camera}`
   ];
   for (const l of lines) assertLabelChars(l, "the legend");
+  if (lines.length !== LEGEND_LINES) {
+    throw new Error(
+      `make-scaffold: the legend is ${lines.length} lines and LEGEND_TOP_Y is derived from ` +
+      `${LEGEND_LINES}. Every mark placed clear of the legend reads that constant, so the two ` +
+      `must move together or a label lands under the box that hides it.`);
+  }
   const h = LEGEND_LINE_H * lines.length + 22;
   const w = round(24 + Math.max(...lines.map((l) => textBox(l, LEGEND_TEXT_H))), 2);
   return { x: 24, y: CANVAS_H - h - 24, w, h, lines, text_h: LEGEND_TEXT_H, line_h: LEGEND_LINE_H };
@@ -767,7 +878,7 @@ async function main() {
     }, key);
   }
 
-  const { rects, apertures } = scaffoldRects(plan, loc, facing, meta);
+  const { rects, apertures, flights } = scaffoldRects(plan, loc, facing, meta);
   /* The room's own voice decides what the anchor is CALLED on the diagram; the
    * height, the band and every bracket are unchanged by it. */
   const { voice, anchor, via } = voiceFor(plan, loc, facing);
@@ -795,7 +906,7 @@ async function main() {
   }
   const bk = brackets(meta, rects, tol == null ? 0 : tol);
 
-  const marks = { rects, chair_rail: cr, legend };
+  const marks = { rects, chair_rail: cr, legend, flights };
   const framePng = await renderPng(page, key, meta, "scaffold", null);
   const scafPng = await renderPng(page, key, meta, "scaffold", marks);
   await browser.close();
@@ -832,6 +943,11 @@ async function main() {
       label_rect: rnd(r.label_rect), note_rect: rnd(r.note_rect)
     })),
     apertures_recorded_not_stamped: apertures,
+    /* THE FLIGHTS THIS VIEW HOLDS, stamped as regions rather than carriers, and
+     * declared with BOTH rectangles: the box drawn is the frame's own
+     * intersection, `raw_w`/`raw_h` are the body before the frame cut it. The
+     * prompt's Stairs paragraph is composed from the same projection. */
+    flights_stamped: flights,
     chair_rail: { y: round(cr.y, 2), x0: cr.x0, x1: cr.x1, ruled_m: CHAIR_RAIL_M },
     /* WHICH FEATURE THIS WALL'S ANCHOR IS, and how the voice was reached. The
      * ruled height never varies (`row23_lib.py` divides by 0.95); the feature
@@ -1164,10 +1280,27 @@ const CARRIER_SENTENCE = {
    * behind it is unmeasurable (library/S was demoted for exactly this). The
    * darkness is also what the renderer wants: it composites the destination
    * room into the opening, so painted light back there fights the through-view. */
-  door: (w) => `The door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
-  window: (w) => `The leaded window opening is exactly ${w.toFixed(2)} m wide.`,
-  fireplace: (w) => `The stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide.`
+  door: (w, which, where) => `The ${which}door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it${where}. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
+  window: (w, which, where) => `The ${which}leaded window opening is exactly ${w.toFixed(2)} m wide${where}.`,
+  fireplace: (w, which, where) => `The ${which}stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide${where}.`
 };
+
+/* WHICH ONE OF THEM, when a wall carries more than one of a kind.
+ *
+ * `great_hall/W` and `long_gallery/W` each carry TWO doorways, and until this
+ * existed their prompts said the identical door sentence twice — a painter told
+ * the same thing about a doorway with nothing to attach the second telling to.
+ * Both walls came back with fewer holes than the plan rules and both were
+ * refused promotion for it. A duplicated instruction is one instruction; the
+ * position is what makes it two. Where a wall carries exactly one of a kind
+ * nothing is added, because the box on Image 2 already says which. */
+const WHICH_OF = [[], [""], ["left-hand ", "right-hand "],
+  ["left-hand ", "middle ", "right-hand "]];
+function whichWords(n) {
+  if (WHICH_OF[n]) return WHICH_OF[n];
+  const ORD = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"];
+  return Array.from({ length: n }, (_, i) => `${ORD[i] || `${i + 1}th`}-from-the-left `);
+}
 /* THE MATERIAL VOICE IS NOT HERE. It was — an archetype-keyed `ROOM_MATERIALS`
  * table with four entries, which the plan's six archetypes overflowed: `service`
  * and `stair` were absent, so the kitchen, the buttery, the servants' hall and
@@ -1204,10 +1337,32 @@ export function manorPrompt(plan, key, meta, rects, correction) {
    * states every opening's width once, and the old per-carrier line restated
    * "The leaded window opening is exactly 1.50 m wide" four times on
    * `great_hall/S` — the very repetition row 29 is about. */
-  const ruled = rects.filter((r) => r.kind !== "window").map((r) => {
+  const spoken = rects.filter((r) => r.kind !== "window");
+  const nOf = {};
+  for (const r of spoken) nOf[r.kind] = (nOf[r.kind] || 0) + 1;
+  const seen = {};
+  const ruled = spoken.map((r) => {
     const fn = CARRIER_SENTENCE[r.kind];
-    return fn ? fn((r.x1 - r.x0) / meta.px_per_m_at_wall) : null;
+    if (!fn) return null;
+    const i = seen[r.kind] = (seen[r.kind] || 0);
+    seen[r.kind] = i + 1;
+    const n = nOf[r.kind];
+    const which = whichWords(n)[i];
+    /* THE POSITION IS ATTACHED ONLY WHERE IT DISAMBIGUATES, and it is attached
+     * in the register's own units — the picture's own columns, which is where
+     * `coordinateLines` puts every other figure in this prompt. */
+    const where = n > 1
+      ? `, and in the picture it stands between ${col(r.x0)} and ${col(r.x1)}`
+      : "";
+    return fn((r.x1 - r.x0) / meta.px_per_m_at_wall, which, where);
   }).filter(Boolean);
+  /* THE FLIGHT, if the plan draws one in this view. Derived here rather than
+   * handed in, so that EVERY caller of this composer — the manor emit, the
+   * re-ask, the suite's own 88-prompt sweep — asks for the staircase without
+   * having to remember to. `flightsForFacing` is the same projection
+   * `promote-backdrop.mjs`'s row-32 refusal reads, so the ask and the refusal
+   * cannot be describing two different staircases. */
+  const flights = flightsForFacing(plan, loc, f, meta, CANVAS_W);
   /* Underfoot and overhead: an outdoor facing has ground and sky where an
    * interior has a floor and a ceiling, and every line below that would
    * otherwise say "floor" or "room" asks the voice instead. */
@@ -1271,10 +1426,22 @@ export function manorPrompt(plan, key, meta, rects, correction) {
     /* "no hearth" was here, and the lint's outdoor clause refuses the word
      * `hearth` in an exterior prompt — correctly, since it is interior fabric
      * and naming it even to deny it puts it in front of the generator. */
+    /* AND THE FLIGHT IS NOT NOTHING. A stair stands ON THE FLOOR rather than in
+     * a wall, so a facing can carry no wall opening at all and still have a
+     * staircase across most of its picture — `great_stair_hall/W` is exactly
+     * that. Saying "no built feature at all" there contradicts the Stairs
+     * paragraph below it, so the wall's blankness is stated as the WALL's. */
     L.push(`  This ${SURFACE} carries no opening and no built feature at all: it is ${voice.blank}, and`);
-    L.push("  the anchor above is the one ruled feature in it.");
+    L.push(flights.length
+      ? `  the anchor above is the one ruled feature in it. What else this view holds stands on the`
+      : "  the anchor above is the one ruled feature in it.");
+    if (flights.length) L.push(`  ${GROUND} in front of it, and it is described below.`);
   }
   L.push("  Make these dimensions physically coherent and unmistakable in the architecture.");
+  /* ── the flight, where the plan draws one ── */
+  for (const line of flightLines({ flights, meta, voice, surface: SURFACE, room_name: name })) {
+    L.push(line);
+  }
   /* ── the voice ── */
   if (out) {
     /* AN OUTDOOR FACING WITH OPENINGS IN IT IS THE HOUSE'S OWN ELEVATION, and
@@ -1448,12 +1615,12 @@ async function emitManor(outDir, opts) {
     /* [row 33] The scaffold cut for one facing: two full-canvas renders read
      * back out of a browser, which is the emit half of the pipeline's clock. */
     const t_facing = Date.now() / 1000;
-    const { rects } = scaffoldRects(plan, loc, f, meta);
+    const { rects, flights } = scaffoldRects(plan, loc, f, meta);
     const { voice, anchor, via } = voiceFor(plan, loc, f);
     const cr = chairRail(meta, anchor);
     assertLabelChars(cr.label, `${fac.key}'s gate anchor label`);
     const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
-    const marks = { rects, chair_rail: cr, legend };
+    const marks = { rects, chair_rail: cr, legend, flights };
     const framePng = await renderPng(page, fac.key, meta, "scaffold", null);
     const scafPng = await renderPng(page, fac.key, meta, "scaffold", marks);
     const dir = join(outDir, `${loc}-${f}`);
@@ -1529,6 +1696,16 @@ async function emitManor(outDir, opts) {
       brackets: brackets(meta, rects, tolFor(meta, rects)),
       implied_focal_px: round(groundplane.focalPx(meta), 1),
       stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
+      /* WHAT THE ROW-32 REFUSAL WILL LOOK FOR. A wall whose room draws a flight
+       * cannot be promoted unless the painting has one, so the manifest names
+       * the flights this facing's ask is carrying — a wall that arrives with a
+       * `flights` entry and no staircase in the picture is a diagnosis rather
+       * than a mystery. */
+      flights: flights.map((s) => ({
+        id: s.id, direction: s.direction, climb: s.climb, treads: s.treads,
+        treads_in_view: s.treads_in_view, width_m: s.width_m,
+        x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
+      })),
       chair_rail_y: cr.y,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       rolls: ids,
@@ -1643,14 +1820,14 @@ async function emitRetries(outDir, opts) {
     if (!meta) { refused.push({ ...w, refused: "the page holds no meta for this facing" }); continue; }
 
     const t_facing = Date.now() / 1000;                                   // [row 33]
-    const { rects } = scaffoldRects(plan, loc, f, meta);
+    const { rects, flights } = scaffoldRects(plan, loc, f, meta);
     const { voice, anchor, via } = voiceFor(plan, loc, f);
     const cr = chairRail(meta, anchor);
     assertLabelChars(cr.label, `${w.key}'s gate anchor label`);
     const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
     const framePng = await renderPng(page, w.key, meta, "scaffold", null);
     const scafPng = await renderPng(page, w.key, meta, "scaffold",
-      { rects, chair_rail: cr, legend });
+      { rects, chair_rail: cr, legend, flights });
 
     const attempt = w.attempts + 1;
     const dir = join(outDir, `${loc}-${f}`, `retry-${attempt}`);
@@ -1693,6 +1870,12 @@ async function emitRetries(outDir, opts) {
       `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      (flights.length
+        ? `Stairs in this view: ${flights.map((s) => `**${s.id}** (${s.treads} treads, ` +
+            `${s.width_m.toFixed(2)} m wide, ${s.climb ? CLIMB_STAMP[s.climb].toLowerCase() : "no tread in frame"})`).join(", ")}. ` +
+          `The prompt asks for it and the scaffold stamps its region — a return without a ` +
+          `staircase in it is refused by the promotion gate, not by an eye.\n`
+        : "") +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `The earlier ask for this wall is still at \`../\` and is not overwritten.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
@@ -1705,6 +1888,11 @@ async function emitRetries(outDir, opts) {
       correction: w.correction,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       px_per_m_at_wall: meta.px_per_m_at_wall,
+      flights: flights.map((s) => ({
+        id: s.id, direction: s.direction, climb: s.climb, treads: s.treads,
+        treads_in_view: s.treads_in_view, width_m: s.width_m,
+        x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
+      })),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       rolls: ids
     });

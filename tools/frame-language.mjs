@@ -324,6 +324,112 @@ export function coordinateLines(ctx, { lead = "The same lines, as picture coordi
   return L;
 }
 
+/* ------------------------------------------------------------------ */
+/* The flight                                                          */
+/* ------------------------------------------------------------------ */
+/**
+ * A staircase, asked for in the register the rest of this file is written in.
+ *
+ * WHY IT EXISTS. `promote-backdrop.mjs` refuses to promote a facing whose room
+ * draws a flight the painting has none of — the row-32 clause — and six manor
+ * walls snapped geometrically clean and were refused by it. Every one of them
+ * was painted from a prompt that never mentioned a staircase, because until now
+ * the emitter's carrier language covered doors, windows and fireplaces and
+ * nothing else: `plan.stairs` reached the renderer, the validator and the
+ * refusal, and stopped short of the ask. That is production law clause 6 read
+ * backwards — the gate knew something the generation method did not — so the
+ * fix is here, in the emitter, derived from the plan for every wall forever.
+ *
+ * WHAT BELONGS TO WHOM. The flight's MATERIAL is the room's voice
+ * (`tools/room-voices.mjs`: the great stair is oak with turned balusters, the
+ * back stair plain scrubbed treads) and not one word of it is said here. What
+ * is said here is the flight's GEOMETRY as the finished picture holds it —
+ * where it stands in the frame, how wide, which way it climbs, how much of it
+ * the frame kept — plus the two standing constraints a way through the building
+ * always carries:
+ *
+ *   1. A RISING FLIGHT NEEDS THE SPACE OVER IT. The renderer cuts the surface
+ *      overhead to the flight's own footprint lifted a storey (`well_poly`), so
+ *      a painting that closes that hole is painting a stair into a low box.
+ *   2. WHAT LIES BEYOND IT IS UNLIT — the same rule the door sentence carries,
+ *      and for the same two reasons: the promotion instrument reads a way
+ *      through as a VOID, and the renderer composites the destination into it,
+ *      so painted light back there fights the through-view.
+ *
+ * `ctx.flights` is `flightsForFacing`'s output, which is also what the scaffold
+ * stamps its FLIGHT box from — one projection, two readers.
+ */
+const CLIMB_WORDS = {
+  left: ["climbing toward the left of the picture",
+    "so the flight reads as a stair going up to the left"],
+  right: ["climbing toward the right of the picture",
+    "so the flight reads as a stair going up to the right"],
+  away: ["climbing away from you into the picture",
+    "the steps further up standing narrower and closer together than the near ones"],
+  toward: ["climbing toward you out of the picture",
+    "the steps further up standing wider and further apart than the ones behind them"]
+};
+
+export function flightLines(ctx) {
+  const flights = ctx.flights || [];
+  if (!flights.length) return [];
+  const { GROUND } = words(ctx);
+  const L = [];
+  const many = flights.length > 1;
+  L.push(`Stairs: ${many ? `${flights.length} flights of stairs stand` : "a flight of stairs stands"} in this view, ` +
+    `and ${many ? "they are" : "it is"} part of the architecture rather than furniture — ` +
+    `${many ? "they are" : "it is"} built into this ${GROUND === "ground" ? "place" : "room"} and cannot be left out of the picture.`);
+  for (const s of flights) {
+    const lead = many ? `  The ${s.direction === "up" ? "rising" : "descending"} flight: ` : "  It is ";
+    L.push(`${lead}a straight stair of ${s.treads} steps, ${s.width_m.toFixed(2)} m wide, ` +
+      (s.direction === "up"
+        ? `carrying a person ${s.rise_m.toFixed(2)} m up to the storey above.`
+        : `dropping ${s.rise_m.toFixed(2)} m to the storey below.`));
+    if (s.treads_in_view > 0) {
+      const [how, tail] = CLIMB_WORDS[s.climb];
+      L.push(`    ${s.treads_in_view} of its steps are in the picture. The front edge of each step reads as a`);
+      L.push(`    level line across the width of the flight, and those lines stack one above the next,`);
+      L.push(`    ${how}, ${tail}.`);
+    } else {
+      /* A FLIGHT CAN BE PRESENT AS NOTHING BUT ITS HOLE. Two of the manor's
+       * facings look across a stairwell whose every tread is below the frame,
+       * and telling a painter to draw steps there would be asking for a
+       * staircase the geometry does not put in the picture. */
+      L.push("    None of its steps are in the picture: it falls away below the bottom edge. What this");
+      L.push(`    view shows of it is the opening in the ${GROUND} it drops through.`);
+    }
+    /* THE FIGURES, which is the half of `g4` the ablation proved load-bearing. */
+    L.push("    Where it stands, as picture coordinates — column counted from the left edge, row");
+    L.push(`    counted from the top: what is in view of it fills columns ${r0(s.x)} to ${r0(s.x + s.w)}`);
+    L.push(`    and rows ${r0(s.y)} to ${r0(s.y + s.h)}.`);
+    if (s.runs_off.length) {
+      L.push(`    The flight runs on past the ${listWords(s.runs_off)} edge${s.runs_off.length > 1 ? "s" : ""} of the picture:`);
+      L.push("      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.");
+    }
+    if (s.direction === "up" && (s.well_poly || []).length) {
+      L.push("    The surface overhead is open where the flight climbs through it. There is a stairwell");
+      L.push("      cut in it directly over the flight, and nothing is drawn closing that opening.");
+    }
+    /* THE UNLIT RULE, said in the flight's own terms. Word for word the door
+     * sentence's constraint (`CARRIER_SENTENCE.door`), because it is the same
+     * constraint: a way through the building, painted with a lit space behind
+     * it, is unmeasurable by the promotion instrument and fights the
+     * through-view the renderer composites into it. */
+    L.push(s.direction === "up"
+      ? "    The space the flight climbs into, beyond its topmost step, is deep unlit shadow — no lit"
+      : "    The space the flight drops into, beyond its lowest step, is deep unlit shadow — no lit");
+    L.push("      room there, no visible far wall, and no light source beyond the end of the stair.");
+  }
+  return L;
+}
+
+/** "left, top and bottom" — the plain English list, so a prompt never says
+ *  "left,top,bottom" at a painter. */
+function listWords(xs) {
+  if (xs.length === 1) return xs[0];
+  return xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1];
+}
+
 /**
  * ROW 34'S RECOMMENDED REGISTER, whole: the finished picture described in
  * image-frame terms, with the coordinates attached. This is `g4`.
