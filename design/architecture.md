@@ -3616,6 +3616,13 @@ pairs): **outdoor 5.54 median / 6.75 worst** (`entrance_approach/E|S`), **indoor
 worst** (`study/W|N`). For scale, two paintings from unrelated rooms read 6.26 median — the manor's
 own turns currently look like strangers, which is the defect Kabe saw by turning 90°.
 
+**The pilot's own before-numbers**, measured on the unseeded candidate `entrance_approach/N` is
+held at — `backdrops/source/entrance_approach-N/row23-272b11ba.png` — against the two painted
+vistas it stands between: `W|N` **18.55**, `N|E` **17.48**, tone gaps 73.1 and 71.9 of 255. Worse than any
+promoted pair in the manor and worse than two paintings of unrelated rooms — one open location's
+three finished directions and a fourth painted with nothing to continue. That pair of readings is
+what the seeded return is measured against.
+
 ### The room's material voice (`tools/room-voices.mjs`) — row 29
 
 The prompt's materials used to be a four-entry table keyed on `room.archetype`. The plan has six
