@@ -1035,7 +1035,7 @@
         var open_ = true;
         var beyond = null;
         var kind = "door";
-        var poly = null;
+        var polys = null;
         var direction = null;
         if (entity) {
           /* A LEAF IS AN ENTITY, and everything that follows from that holds:
@@ -1086,7 +1086,12 @@
           source = "building";
           beyond = found;
           kind = found.kind || "door";
-          poly = found.poly || null;
+          /* [Row 25] THE REGION IS THE RINGS THE PICTURE DRAWS. A flight
+           * carries a list of them — its stringers, its goings and risers, and
+           * its footprint — and a point is on the flight when it is inside one.
+           * A doorway and a mouth carry none: their region is their own
+           * rectangle, which is the hole in the wall. */
+          polys = found.hit_polys || null;
           direction = found.direction || null;
         }
         /* WHAT A WAY THROUGH NEEDS OF THE WALL, per kind, and it is law (b)
@@ -1113,7 +1118,7 @@
           arrive_facing: exit.arrive_facing,
           source: source,
           kind: kind,
-          poly: poly,
+          polys: polys,
           direction: direction,
           open: open_,
           beyond_m: beyond ? beyond.beyond_m : null,

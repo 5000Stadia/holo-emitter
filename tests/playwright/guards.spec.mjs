@@ -838,7 +838,7 @@ const DOCUMENT_CASES = {
     no_direction: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ direction: "sideways" })]; }),
     no_rise: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ rise_m: 0 })]; }),
     no_treads: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ treads: 2.5 })]; }),
-    no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ poly: [] })]; }),
+    no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ hit_polys: [] })]; }),
     broken_ring: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
     point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; }),
     /* [ROW 26] AND THE TWO WAYS A FLIGHT CAN STOP SAYING HOW BIG IT IS.
@@ -998,7 +998,7 @@ const flight = (over) => ({
      so nothing was cut and the two legitimately agree; a flight touching an
      edge may not say that, which is its own arm below. */
   raw_w: 300, raw_h: 700,
-  poly: [[10, 200], [10, 900], [310, 900], [310, 200]],
+  hit_polys: [[[10, 200], [10, 900], [310, 900], [310, 200]]],
   floor_poly: [[10, 700], [10, 900], [310, 900], [310, 700]],
   well_poly: [[10, 100], [10, 300], [310, 300], [310, 100]],
   beyond_m: null, beyond_offset_m: null, ...over

@@ -878,21 +878,25 @@
       }
       return best;
     }
-    /* [Row 25] WHERE AN APERTURE CARRIES AN OUTLINE, THE OUTLINE DECIDES, and
-       the rectangle is not consulted at all.
-       `x/y/w/h` on a flight are the clamped extent of a NARROWER point set than
-       the body the picture draws — the noses and the footprint, which is what
-       the row-26 usability clause scores — so a rectangle test in front of the
-       polygon can only ever subtract from it, and on `back_stair_head/W` it
-       did: the body runs 295 px past the declared rect's own bottom edge, drawn
-       and unclickable. The polygon is the whole of the claim; a point inside it
-       is on the flight, a point outside it is not, and the forgiveness ring
-       below measures from the outline. */
+    /* [Row 25] WHERE AN APERTURE CARRIES A REGION, THE REGION DECIDES, and the
+       rectangle is not consulted at all.
+       A flight's region is the list of rings the picture draws it with, and its
+       `x/y/w/h` are that body cut to the frame — so a rectangle test in front
+       of the rings can only ever subtract from them at an edge. The rings are
+       the whole of the claim: a point inside one of them is on the flight, a
+       point outside all of them is not, and the forgiveness ring below is
+       measured from their edges. */
     function apertureHolds(a, x, y, marginPx) {
       var m = marginPx || 0;
-      if (a.poly && a.poly.length >= 3) {
-        if (insidePoly(a.poly, x, y)) return true;
-        return m > 0 && distToPoly(a.poly, x, y) <= m;
+      if (a.polys && a.polys.length) {
+        var near = Infinity;
+        for (var i = 0; i < a.polys.length; i++) {
+          var ring = a.polys[i];
+          if (!ring || ring.length < 3) continue;
+          if (insidePoly(ring, x, y)) return true;
+          if (m > 0) near = Math.min(near, distToPoly(ring, x, y));
+        }
+        return m > 0 && near <= m;
       }
       return x >= a.x - m && x < a.x + a.w + m && y >= a.y - m && y < a.y + a.h + m;
     }
@@ -1292,15 +1296,23 @@
          shape IS the rectangle in the wall; a flight's is its own outline, and
          a rectangle around it would promise the bare floor beside it — the
          same divergence between the halo and the hit region that made an
-         entity's rectangle read as an editor selecting an asset. */
-      if (a.poly && a.poly.length >= 3) {
-        overlayCtx.beginPath();
-        for (var i = 0; i < a.poly.length; i++) {
-          if (i === 0) overlayCtx.moveTo(a.poly[i][0], a.poly[i][1]);
-          else overlayCtx.lineTo(a.poly[i][0], a.poly[i][1]);
+         entity's rectangle read as an editor selecting an asset.
+         [Row 25] A flight's outline is now the rings the picture draws it with,
+         so the halo traces every one of them: the promise and the region are
+         the same set of pixels rather than two shapes that agree on this
+         corpus. */
+      if (a.polys && a.polys.length) {
+        for (var pi = 0; pi < a.polys.length; pi++) {
+          var ring = a.polys[pi];
+          if (!ring || ring.length < 3) continue;
+          overlayCtx.beginPath();
+          for (var i = 0; i < ring.length; i++) {
+            if (i === 0) overlayCtx.moveTo(ring[i][0], ring[i][1]);
+            else overlayCtx.lineTo(ring[i][0], ring[i][1]);
+          }
+          overlayCtx.closePath();
+          overlayCtx.stroke();
         }
-        overlayCtx.closePath();
-        overlayCtx.stroke();
       } else {
         overlayCtx.strokeRect(
           a.x + OUTLINE_PX / 2, a.y + OUTLINE_PX / 2,

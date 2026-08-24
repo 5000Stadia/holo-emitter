@@ -554,8 +554,20 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
           if (!(Number.isInteger(s.treads) && s.treads > 0)) {
             bad.push(`treads is ${JSON.stringify(s.treads)}`);
           }
-          for (const k of ["poly", "floor_poly", "well_poly"]) {
-            const r = s[k];
+          /* [ROW 25] `hit_polys` is a LIST of rings — the body the picture
+           * draws, which is the region a click answers to — so every one of
+           * them is checked, and the list itself may not be empty. */
+          const rings = [];
+          if (!Array.isArray(s.hit_polys)) {
+            bad.push("hit_polys is not a list of rings");
+          } else {
+            if (!s.hit_polys.length) {
+              bad.push("hit_polys is empty — a flight with no region is drawn and cannot be climbed");
+            }
+            s.hit_polys.forEach((r, i) => rings.push([`hit_polys[${i}]`, r]));
+          }
+          for (const k of ["floor_poly", "well_poly"]) rings.push([k, s[k]]);
+          for (const [k, r] of rings) {
             if (!Array.isArray(r)) { bad.push(`${k} is not a ring of points`); continue; }
             /* `well_poly` is EMPTY on a descending flight, by design: it opens
              * the floor you stand on, not the ceiling over your head. An empty
@@ -566,8 +578,25 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
               bad.push(`${k} carries a point that is not two finite numbers`);
             }
           }
-          if (Array.isArray(s.poly) && s.poly.length < 3) {
-            bad.push("poly is empty — a flight with no outline is a click target over bare floor");
+          /* AND EVERY DRAWN FACE SAYS WHICH WAY IT TURNS, because §7's one key
+           * is applied per face in the renderer and a face with no normal would
+           * be lit by a default nobody chose. */
+          for (const [list, norms, label] of [[s.treads_poly, s.treads_normal, "treads"],
+            [s.mass_poly, s.mass_normal, "mass"]]) {
+            if (!Array.isArray(list)) { bad.push(`${label}_poly is not a list of rings`); continue; }
+            if (!Array.isArray(norms) || norms.length !== list.length) {
+              bad.push(`${label}_normal does not name one direction per ${label} face`);
+              continue;
+            }
+            if (norms.some((n) => !Array.isArray(n) || n.length !== 3 ||
+                n.some((c) => typeof c !== "number" || !isFinite(c)))) {
+              bad.push(`${label}_normal carries a direction that is not three finite numbers`);
+            }
+          }
+          if (Array.isArray(s.treads_poly) &&
+              (!Array.isArray(s.treads_face) || s.treads_face.length !== s.treads_poly.length ||
+               s.treads_face.some((f) => f !== "going" && f !== "riser" && f !== "ramp"))) {
+            bad.push("treads_face does not name every tread face as a going, a riser or a ramp");
           }
           /* [ROW 26] AND IT SAYS HOW BIG IT WOULD BE IF THE FRAME LET IT.
            * `x/y/w/h` on a flight are already the intersection with the canvas,
