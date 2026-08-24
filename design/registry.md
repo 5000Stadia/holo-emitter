@@ -22,14 +22,14 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | building |
-| B-FLIGHT | flight attachment: painted staircases written into promoted metas | respawned after the host restart (first transcript lost, no commits lost) |
-| B-ASSEMBLY | row 36 builder: plan revision 2 folding the critic's findings | revising |
-| B-SEAMS | row 38: edge-seeded generation (open required, indoor opportunistic) | building |
+| B-FLIGHT | flight attachment: painted staircases written into promoted metas | building (respawned after the host restart) |
+| B-ASSEMBLY | row 36 builder: licensed; library scale contract then the build | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-SEAMS | row 38: edge-seeded generation — adjacency, 10% seed strips, seam metric |
 | L-OVERLAY | the `study · N` corner readout (whereami) |
 | L-SNAP | row 35: planar rectification + eye retarget |
 | L-TOLERANCE | the declared-camera suspect promotions (12 walls) |

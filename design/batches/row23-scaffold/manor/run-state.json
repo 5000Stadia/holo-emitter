@@ -25,8 +25,8 @@
       "why": "the tolerance promotion was refused: promote refused: great_hall/S: the way through the painting shows for \"op01\" is 80 px \u2014 1.51\u00d7 the 52.9 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (52.9 px/m; its ruler reads 1"
     },
     "great_hall/W": {
-      "attempts": 5,
-      "status": "held",
+      "attempts": 4,
+      "status": "retry",
       "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
       "hold_family": "promotion-refused",
@@ -83,8 +83,8 @@
       "why": "the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
     },
     "back_stair/W": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
       "hold_family": "promotion-refused",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
@@ -282,8 +282,8 @@
       "why": "the tolerance promotion was refused: promote refused: great_stair_hall/S: the way through the painting shows for \"op06\" is 258 px \u2014 1.73\u00d7 the 149.5 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (149.5 px/m; its rule"
     },
     "great_stair_hall/W": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
       "hold_family": "promotion-refused",
@@ -385,11 +385,11 @@
       "why": "the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 2.42\u00d7 the 48.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (48.3 px/m; its ruler re"
     },
     "entrance_court/E": {
-      "attempts": 3,
-      "status": "held",
-      "candidate": "backdrops/source/entrance_court-E/row23-d4ef2d94.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon",
+      "attempts": 2,
+      "status": "retry",
+      "candidate": "backdrops/source/entrance_court-E/row23-19d8f9ba.png",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+      "hold_family": "promotion-refused",
       "content_gap_grants": {
         "ways_never_named_apart": {
           "granted": 1,
@@ -434,11 +434,29 @@
     },
     "privy_garden/E": {
       "attempts": 5,
-      "status": "held",
+      "status": "retry",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: privy_garden/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player "
+      "why": "content gap re-ask: the ask never carried the completed neighbour's edge",
+      "content_gap_grants": {
+        "edge_never_seeded": {
+          "granted": 1,
+          "why": "the ask never carried the completed neighbour's edge",
+          "what_changed_in_the_emitter": "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 with its role stated in words in the Input images paragraph. The strip carries appearance; the sentence carries the role.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+          "gained_lines": [
+            "  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/privy_garden-E/retry-5/prompt.txt",
+          "at": "2026-08-24T18:59:58.311Z",
+          "prior_attempts": 5,
+          "prior_status": "held",
+          "hold_family": "unfitted-horizon",
+          "emitter_commit": "5426c75d06c2446307c56beca308ecabdd66c00b",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      }
     },
     "privy_garden/S": {
       "attempts": 5,
@@ -452,18 +470,55 @@
     },
     "privy_garden/W": {
       "attempts": 5,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "edge_never_seeded": {
+          "granted": 1,
+          "why": "the ask never carried the completed neighbour's edge",
+          "what_changed_in_the_emitter": "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 with its role stated in words in the Input images paragraph. The strip carries appearance; the sentence carries the role.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+          "gained_lines": [
+            "  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/privy_garden-W/retry-5/prompt.txt",
+          "at": "2026-08-24T18:59:58.311Z",
+          "prior_attempts": 5,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "5426c75d06c2446307c56beca308ecabdd66c00b",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never carried the completed neighbour's edge"
     },
     "entrance_approach/N": {
       "attempts": 4,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "the tolerance promotion was refused: promoted, and taken back out because the bake refused: fixtures/nav-manor: 1. meta entrance_approach/N: a discontinuous wall carries corners \u2014 a view that is part building and part open ground has segments, not two corners [row11:meta.segmented_no_corners]\nbake refused: 1 validator finding(s)"
+      "why": "content gap re-ask: the ask never carried the completed neighbour's edge",
+      "content_gap_grants": {
+        "edge_never_seeded": {
+          "granted": 1,
+          "why": "the ask never carried the completed neighbour's edge",
+          "what_changed_in_the_emitter": "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 with its role stated in words in the Input images paragraph. The strip carries appearance; the sentence carries the role.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+          "gained_lines": [
+            "  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/entrance_approach-N/retry-3/prompt.txt",
+          "at": "2026-08-24T16:48:55.928Z",
+          "prior_attempts": 4,
+          "prior_status": "held",
+          "hold_family": "suspect-painting",
+          "emitter_commit": "5dd7d1cdac4ab6f1ca9bafefbd364429337813f1",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      }
     },
     "entrance_approach/E": {
       "attempts": 4,
@@ -551,8 +606,8 @@
       "why": "the tolerance promotion was refused: promote refused: back_stair_head/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player"
     },
     "back_stair_head/S": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
       "hold_family": "promotion-refused",
@@ -588,8 +643,8 @@
       "why": "content gap re-ask: the ask never named the flight"
     },
     "back_stair_head/W": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
       "hold_family": "promotion-refused",
@@ -651,8 +706,8 @@
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "long_gallery/W": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
       "hold_family": "promotion-refused",
@@ -705,9 +760,9 @@
       "candidate": "backdrops/source/master_bedchamber-W/row23-e1968455.png"
     },
     "stair_landing/N": {
-      "attempts": 3,
-      "status": "held",
-      "candidate": "backdrops/source/stair_landing-N/row23-e594b388.png",
+      "attempts": 2,
+      "status": "retry",
+      "candidate": "backdrops/source/stair_landing-N/row23-ec82d83f.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
@@ -757,8 +812,8 @@
       "why": "the tolerance promotion was refused: promote refused: stair_landing/S: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left"
     },
     "stair_landing/W": {
-      "attempts": 3,
-      "status": "held",
+      "attempts": 2,
+      "status": "retry",
       "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
       "hold_family": "promotion-refused",

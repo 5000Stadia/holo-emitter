@@ -67,6 +67,13 @@ import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACT
  * not claim. */
 import { frameGeometry, registerBlock, positiveNoText, flightLines, col }
   from "./frame-language.mjs";
+/* [row 38] THE SEAM SEED. A fresh ask whose adjacent facing is already painted
+ * carries that neighbour's abutting 10 % as Image 3, with its role stated in
+ * words. The adjacency table, the crop, the ordering exception for open
+ * locations and the packet's own wording all live in `edge-seed.mjs`; nothing
+ * about a seam is decided here. */
+import { attachSeed, packetNote, attachLine, openOrder, isOpenLocation, isPainted }
+  from "./edge-seed.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -819,7 +826,8 @@ async function main() {
     await emitRetries(out, {
       technique: argOf("--technique", "t2"),
       rolls: Number(argOf("--rolls", "2")),
-      retries: Number(argOf("--retries", "3"))
+      retries: Number(argOf("--retries", "3")),
+      walls: argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), [])
     });
     return;
   }
@@ -1317,8 +1325,15 @@ function whichWords(n) {
  * wrote into `run-state.json` verbatim, at the top where it cannot be missed —
  * that is the only difference between a first ask and a re-ask, so the two
  * cannot drift into differently-worded requests for one wall.
+ *
+ * `seed` is optional and is row 38's: the completed neighbour's abutting strip,
+ * already cut and recorded by `edge-seed.mjs`. It adds ONE line, in the Input
+ * images paragraph where the other two images are introduced, because the
+ * cookbook rule the row cites is that every reference image is named by index
+ * and by role and the interaction is stated. The pixels are the appearance; this
+ * sentence is the only thing that says what to do with them.
  */
-export function manorPrompt(plan, key, meta, rects, correction) {
+export function manorPrompt(plan, key, meta, rects, correction, seed) {
   const [loc, f] = key.split("/");
   const room = plan.rooms.find((r) => r.id === loc);
   const side = { N: "north", E: "east", S: "south", W: "west" }[f];
@@ -1397,6 +1412,10 @@ export function manorPrompt(plan, key, meta, rects, correction) {
   L.push("  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout");
   L.push("  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.");
   L.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
+  /* [row 38] ONE PHYSICAL LINE, like every other declared sentence in this
+   * composer — the t1/t2 control counts lines, and a sentence wrapped across
+   * two of them has changed the diff. */
+  if (seed) L.push(`  ${seed.role_sentence}`);
   L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a circa-1660 English manor,`);
   L.push("  matching Image 1's paint handling and Image 2's geometry exactly.");
   L.push(`Gate anchor: ${anchor.line}, ${CHAIR_RAIL_M.toFixed(2)} m.`);
@@ -1627,6 +1646,9 @@ async function emitManor(outDir, opts) {
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
+    /* [row 38] THE SEAM SEED, cut beside the packet before the prompt is
+     * composed, because the prompt only names Image 3 where Image 3 exists. */
+    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir);
     timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row 33]
       { carriers: rects.length, voice: voice.id, technique: opts.technique || "t2" });
 
@@ -1643,14 +1665,15 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = manorPrompt(plan, fac.key, meta, rects);
+    const text = manorPrompt(plan, fac.key, meta, rects, null, seed);
     writeFileSync(join(dir, "prompt.txt"), text);
     copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
     writeFileSync(join(dir, "PACKET.md"),
       `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
-      `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
+      packetNote(seed, seedPlan) +
+      `${attachLine(seed)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
@@ -1708,16 +1731,39 @@ async function emitManor(outDir, opts) {
       })),
       chair_rail_y: cr.y,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
+      /* [row 38] THE SEAM, IN THE ENTRY THE SEAT AND THE SWEEP BOTH READ.
+       * `edge_seed` is the strip that went out (null where none did) and
+       * `depends_on` is the ordering — non-null only on an open location whose
+       * seed neighbour is unpainted, which is the row's one licensed exception
+       * to one-pass parallelism. An indoor entry can never carry one, so a
+       * reader ordering on this field orders nothing indoors. */
+      edge_seed: seed,
+      seed_policy: seedPlan.policy,
+      depends_on: seedPlan.depends_on,
       rolls: ids,
       retry_cap: opts.retries || 2
     });
-    console.log(`  ${fac.key.padEnd(24)} ${rects.length} carrier(s)  ${ids.length} roll(s)`);
+    console.log(`  ${fac.key.padEnd(24)} ${rects.length} carrier(s)  ${ids.length} roll(s)`
+      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}`
+        : seedPlan.depends_on ? `  WAITS for ${seedPlan.depends_on}` : ""));
   }
   await browser.close();
 
+  /* [row 38] THE ORDER OPEN LOCATIONS ARE PAINTED IN — the ring from the first
+   * completed direction, per location, with each facing's dependency. Written
+   * whole rather than only for the facings this pass emitted, because the order
+   * is a fact about the LOCATION and a seat reading it needs to see the painted
+   * ones it starts from. */
+  const openOrders = {};
+  for (const room of plan.rooms) {
+    if (!isOpenLocation(plan, room.id)) continue;
+    openOrders[room.id] = openOrder(plan, room.id, isPainted);
+  }
   const manifest = {
     _what_this_is: "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
-    _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete.",
+    _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. ONE EXCEPTION, row 38's and scoped to it: a facing of an OPEN location whose edge-seed neighbour is not painted yet carries `depends_on`, and is painted after it. Every other facing, indoor or out, carries `depends_on: null` and the parallelism is unchanged.",
+    _seams: "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out as Image 3, where it was cut from, and its sha256. Open locations REQUIRE it and are ordered for it; indoor ones take it opportunistically and order nothing.",
+    open_location_order: openOrders,
     _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
     _reuse_rule: "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
     _technique: opts.technique || "t2",
@@ -1773,9 +1819,9 @@ async function emitManor(outDir, opts) {
  *   3. IT NEVER TOUCHES THE CAP. `attempts` is the sweep's to raise; this only
  *      refuses to emit for a wall that has already spent it.
  */
-export function retryWalls(state) {
+export function retryWalls(state, only = null) {
   return Object.entries(state.walls || {})
-    .filter(([, w]) => w.status === "retry")
+    .filter(([key, w]) => w.status === "retry" && (!only || only.includes(key)))
     .map(([key, w]) => ({ key, attempts: w.attempts || 0, correction: w.correction || null }))
     .sort((a, b) => a.key.localeCompare(b.key));
 }
@@ -1790,7 +1836,11 @@ async function emitRetries(outDir, opts) {
     process.exit(1);
   }
   const state = JSON.parse(readFileSync(statePath, "utf8"));
-  const want = retryWalls(state);
+  /* `--wall` narrows a pass to named walls. A scoped emission — row 38's pilot
+   * is one room — otherwise means hand-editing the state file to hide the other
+   * walls from the emitter, and a state file edited to steer a tool stops being
+   * a record of the sweep. */
+  const want = retryWalls(state, opts.walls && opts.walls.length ? opts.walls : null);
   const cap = opts.retries || 3;
 
   const browser = await chromium.launch();
@@ -1835,11 +1885,16 @@ async function emitRetries(outDir, opts) {
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
     copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    /* [row 38] A RE-ASK IS A FRESH FULL-FRAME ASK, so it seeds like one. It is
+     * also where seeding lands first in practice: the corpus's unpainted walls
+     * mostly have painted neighbours by now, and this is the path that carries
+     * the pilot. */
+    const { seed, plan: seedPlan } = attachSeed(plan, w.key, dir);
     timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
-    const text = manorPrompt(plan, w.key, meta, rects, w.correction);
+    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed);
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 2); i++) {
@@ -1863,7 +1918,8 @@ async function emitRetries(outDir, opts) {
           `\`prompt_lint.py\` refuses a packet that does. The prompt carries the forward half instead; ` +
           `the reason lives here.\n\n`
         : "") +
-      `Attach \`style-seed-warm.png\` as **Image 1** and \`scaffold.png\` as **Image 2**, in that\n` +
+      packetNote(seed, seedPlan) +
+      `${attachLine(seed)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
@@ -1894,9 +1950,15 @@ async function emitRetries(outDir, opts) {
         x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
       })),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      /* [row 38] The same two fields the manifest carries, for the same two
+       * readers: what went out as Image 3, and what this ask waited for. */
+      edge_seed: seed,
+      seed_policy: seedPlan.policy,
+      depends_on: seedPlan.depends_on,
       rolls: ids
     });
-    console.log(`  ${w.key.padEnd(24)} retry-${attempt}  voice ${voice.id.padEnd(18)} ${ids.length} roll(s)`);
+    console.log(`  ${w.key.padEnd(24)} retry-${attempt}  voice ${voice.id.padEnd(18)} ${ids.length} roll(s)`
+      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}` : ""));
   }
   await browser.close();
 
@@ -1927,6 +1989,7 @@ async function emitRetries(outDir, opts) {
     _cumulative: "Entries accumulate across passes, keyed by wall and attempt. `row23_run.py` finds a retry roll's candidate only through this file, so an entry dropped here hides an image that is already on disk — which is how the second coat went unread once.",
     _never_overwrites: "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
     _voice: "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
+    _seams: "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as Image 3 — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
     _generated: new Date().toISOString().slice(0, 10),
     emitted: emitted.length, carried: entries.length - emitted.length,
     refused: refused.length,

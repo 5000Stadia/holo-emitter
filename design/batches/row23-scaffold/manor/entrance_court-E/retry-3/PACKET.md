@@ -4,6 +4,10 @@
 >
 > camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 — a doorway the world walks through with no hole in the picture is not promotable, because a playe
 
+> **This ask waits for `entrance_court/N`.**
+>
+> entrance_court is an open location — no wall corners stand between its facings, so a seam here is a seam in open country. Its facings are painted in adjacency order from the first completed direction, and this one continues `entrance_court/N`, which is not painted yet. Row 38's one licensed exception to one-pass parallelism, and it is scoped to open locations.
+
 Attach `style-seed-warm.png` as **Image 1** and `scaffold.png` as **Image 2**, in that
 order, then send `prompt.txt` verbatim. Generate 1 images and save them to the
 exact paths below — the measurement runs the moment a file appears at one of them.

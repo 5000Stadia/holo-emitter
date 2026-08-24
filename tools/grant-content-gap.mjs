@@ -34,9 +34,13 @@
  *
  * WHAT IT WILL NOT TOUCH:
  *   * a wall that has since been promoted;
- *   * a wall whose refusal is not one of the reasons below — a camera miss, an
- *     unfitted horizon and a suspect painting are all facts about a PICTURE, and
- *     no gap in the ask explains them;
+ *   * a wall no reason below reaches. Two of the three reasons are keyed on the
+ *     REFUSAL the gate wrote, and a camera miss, an unfitted horizon and a
+ *     suspect painting are facts about a PICTURE that no gap in the ask
+ *     explains. Row 38's `edge_never_seeded` is keyed on the WALL instead — an
+ *     open location's facing whose painted neighbour was never handed to it —
+ *     so it can reach a wall holding on any of those, because what it answers
+ *     is an omission in the ask rather than the reason the picture was refused;
  *   * a wall whose spent prompt already says the thing. If the ask named it and
  *     the painting still lost it, that is the generator's miss and it belongs to
  *     the ordinary retry budget.
@@ -47,6 +51,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
 import { manorPrompt, scaffoldRects } from "./make-scaffold.mjs";
 import { deriveMeta } from "./plan-projection.mjs";
+import { seedPlan } from "./edge-seed.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const DEFAULT_OUT = join(ROOT, "design", "batches", "row23-scaffold", "manor");
@@ -84,6 +89,50 @@ export const REASONS = {
       "doorway by. `manorPrompt` now gives each way through its own position in " +
       "the picture, and every door sentence carries the unlit clause.",
     gained: (fresh, spent) => gainedLines(fresh, spent, /door opening is exactly/)
+  },
+  /* [row 38] THE THIRD REASON, AND THE FIRST THAT IS NOT KEYED ON A REFUSAL.
+   *
+   * The two above answer a sentence the gate wrote. This one answers a sentence
+   * NOBODY wrote: an open location's facings were asked for one at a time with
+   * nothing to continue, because until row 38 the emitter had no way to hand a
+   * painter the completed neighbour's edge. Kabe saw the result by turning 90°
+   * — "the edges of one may not stylistically be enforced on the edges of the
+   * direction when you turn 90°" — which is a defect in the ASK and not in any
+   * painting, and charging a retry for it charges the wall for our omission
+   * exactly as `flight_never_named` did.
+   *
+   * SCOPED TO OPEN LOCATIONS, deliberately. Row 38 makes seeding REQUIRED there
+   * and OPPORTUNISTIC indoors, and an opportunistic seed is one a wall picks up
+   * the next time it is asked for some other reason — never a reason to ask
+   * again on its own. So an indoor wall is refused by name here, with that
+   * sentence, rather than quietly not matching.
+   */
+  edge_never_seeded: {
+    id: "edge_never_seeded",
+    why: "the ask never carried the completed neighbour's edge",
+    applies: ({ key, plan }) => {
+      const s = seedPlan(plan, key);
+      return s.location_type === "open" && !!s.neighbour;
+    },
+    refuse: ({ key, plan }) => {
+      const s = seedPlan(plan, key);
+      if (s.location_type !== "open") {
+        return "indoors the seed is opportunistic: this wall takes one the next time it is " +
+          "asked, and row 38 does not make that a reason to ask again";
+      }
+      if (!s.neighbour) {
+        return s.depends_on
+          ? `an open facing whose seam neighbour \`${s.depends_on}\` is not painted yet — there ` +
+            `is no completed edge to seed it with, so it waits rather than being re-asked`
+          : "an open facing with no painted neighbour at all";
+      }
+      return null;
+    },
+    what: "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted " +
+      "neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 " +
+      "with its role stated in words in the Input images paragraph. The strip carries " +
+      "appearance; the sentence carries the role.",
+    gained: (fresh, spent) => gainedLines(fresh, spent, /Image 3 is a reference of exactly/)
   }
 };
 
@@ -135,16 +184,25 @@ export function spentPromptPath(outDir, key) {
  * diffed, so a reader — or a test — can put the tool back in front of the state
  * it decided on. Nothing in production passes it.
  */
-export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, spentPrompt = null } = {}) {
+export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, walls = null,
+  spentPrompt = null } = {}) {
   const take = [], skip = [];
   for (const [key, w] of Object.entries(state.walls || {})) {
+    if (walls && !walls.includes(key)) continue;
     if (w.status === "promoted") { skip.push({ key, why: "promoted since the hold" }); continue; }
     const corr = w.correction || "";
+    /* A reason matches EITHER a refusal the gate wrote (the first two) or a
+     * condition of the wall itself (row 38's, where the gap is in an ask nobody
+     * ever made). `applies` is given the plan so it can ask the drawing what
+     * kind of place this is; it writes nothing. */
     const reason = Object.values(REASONS)
       .filter((r) => !only || r.id === only)
-      .find((r) => r.refusal.test(corr));
+      .find((r) => r.refusal ? r.refusal.test(corr) : r.applies({ key, wall: w, plan }));
     if (!reason) {
-      skip.push({ key, why: `no content-gap reason matches this wall's refusal (hold family ${w.hold_family || w.status})` });
+      const named = only && REASONS[only];
+      const why = named && named.refuse ? named.refuse({ key, wall: w, plan }) : null;
+      skip.push({ key, why: why ||
+        `no content-gap reason matches this wall's refusal (hold family ${w.hold_family || w.status})` });
       continue;
     }
     if (((w[GRANTS_KEY] || {})[reason.id])) {
@@ -163,7 +221,12 @@ export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, spent
     const [loc, f] = key.split("/");
     const meta = deriveMeta(plan, loc, f);
     const { rects } = scaffoldRects(plan, loc, f, meta);
-    const fresh = manorPrompt(plan, key, meta, rects, w.correction || null);
+    /* THE FRESH PROMPT IS COMPOSED WITH THE SEED IT WOULD CARRY, and no strip is
+     * cut: `seedPlan` decides the side, the neighbour and the sentence without
+     * touching a pixel, so eligibility stays a read. */
+    const wouldSeed = seedPlan(plan, key);
+    const fresh = manorPrompt(plan, key, meta, rects, w.correction || null,
+      wouldSeed.neighbour ? wouldSeed : null);
     const gained = reason.gained(fresh, readFileSync(sp, "utf8"));
     if (!gained.length) {
       /* THE HONEST REFUSAL. The ask already said it, so the wall's misses are
@@ -225,6 +288,10 @@ function main() {
   const argOf = (f, d) => { const i = argv.indexOf(f); return i !== -1 ? argv[i + 1] : d; };
   const outDir = resolve(argOf("--out", DEFAULT_OUT));
   const only = argOf("--reason", null);
+  /* `--wall` narrows the pass to named walls, repeatable. It exists because row
+   * 38's pilot is one room by the row's own words, and a tool that can only run
+   * over everything makes a scoped pilot into a hand-edited state file. */
+  const walls = argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), []);
   if (only && !REASONS[only]) {
     console.error(`refused: no reason named ${only}. The reasons are: ${Object.keys(REASONS).join(", ")}`);
     process.exit(2);
@@ -236,7 +303,8 @@ function main() {
   }
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const state = JSON.parse(readFileSync(statePath, "utf8"));
-  const { take, skip } = grant(state, { dryRun, plan, outDir, only });
+  const { take, skip } = grant(state, { dryRun, plan, outDir, only,
+    walls: walls.length ? walls : null });
   for (const t of take) {
     console.log(`  GRANT  ${t.key.padEnd(24)} ${t.reason.padEnd(24)} attempts ${t.attempts} -> +${EXTRA_ASKS} ask`);
     for (const g of t.gained.slice(0, 2)) console.log(`           gained: ${g.trim().slice(0, 110)}`);

@@ -8,6 +8,7 @@ Input images: Image 1 is the exact reference for painted MEDIUM, palette, light 
   where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
   diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
   Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+  Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.
 Primary request: Paint the north wall of the empty stair landing of a circa-1660 English manor,
   matching Image 1's paint handling and Image 2's geometry exactly.
 Gate anchor: the wainscot chair-rail above the floor, 0.95 m.

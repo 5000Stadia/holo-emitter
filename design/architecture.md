@@ -3556,6 +3556,73 @@ lands. Row 26's closing commit deletes the two entries, and a test reads `design
 spec table and goes red if the fence outlives its row — the handshake is mechanical rather than a
 note in a spec file that is deleted along with the spec file.
 
+### The edge seed (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) — row 38
+
+A fresh full-frame ask whose adjacent facing is already painted carries that neighbour's abutting
+10 % as **Image 3**, and the prompt names its role in one sentence in the Input images paragraph:
+*Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from
+it seamlessly.* That is row 34's division applied to a seam — the strip carries appearance, which is
+what a reference image is good at, and the words carry the role, which is what text is good at. An
+unlabelled third image is a guess.
+
+**Which neighbour, and which side, is derived and not typed.** `RIGHT[F] === NORMAL[G]` means G is
+the facing F's right edge looks toward: standing facing N your right hand points east, and east is
+what facing E looks along. So the table is
+
+| facing | left edge abuts | cut from it | right edge abuts | cut from it |
+|---|---|---|---|---|
+| N | W | its right 10 % | E | its left 10 % |
+| E | N | its right 10 % | S | its left 10 % |
+| S | E | its right 10 % | W | its left 10 % |
+| W | S | its right 10 % | N | its left 10 % |
+
+and it is computed from `tools/validate-plan.mjs`'s own `RIGHT`/`NORMAL`, which the whole projection
+pipeline already runs on. **Verified against the drawing rather than against the story:** the world
+point at the right-hand end of F's wall line and the one at the left-hand end of its right
+neighbour's are the same room corner on 86 of the manor's 88 pairs. The two that differ are
+`entrance_court/E→S` and `entrance_court/S→W`, where an OPEN facing's `wall_line` is its FAR line
+tens of metres out — a different depth plane, the same yaw adjacency. `seams.spec.mjs` pins the
+count and the exception set.
+
+**The frames do not literally touch, and the packet says so.** The ruled lens is 24 mm on a 36 mm
+frame, hFOV 73.74°, so a 90° turn leaves a 16.26° wedge neither picture shows. The strip is what the
+neighbour ENDS with, not a column-for-column target, which is why the seam metric is comparative.
+
+**When both neighbours are painted the LEFT seed wins**, because the row's sequence is a turn to the
+right from the first completed direction and the finished picture is therefore at the new one's left
+edge. The one not taken is recorded in the manifest entry as an alternative; the image list stays
+three long, which is the row's ruling.
+
+**Required outdoors, opportunistic indoors.** On an OPEN location (`room.type === "open"` — the
+three the voice table gives an outdoor voice) continuity across the turn is the point, so the seed
+is required and the location's facings are ordered for it: the ring from the first completed
+direction, each facing depending on the one at its left edge, written whole into the manifest's
+`open_location_order` and per entry as `depends_on`. **That is the one licensed exception to one-pass
+parallelism and it is scoped in code**: `seedPlan` returns `depends_on: null` for every indoor facing
+by construction, so a reader ordering on that field orders nothing indoors. Indoors the seed is taken
+when it is there and the ask goes unseeded when it is not, exactly as before the row.
+
+**The crop is a shell-out for the same reason the bake is.** Node has no image codec and this project
+rules pixels to numpy + PIL; `crop-edge-seed.py` cuts `round(w × 0.10)` = 154 columns at full height
+with no resampling and a fixed encoder setting, and returns the strip's sha256 and the source
+painting's. Both go into the manifest entry, so a packet's own record proves which pixels went out.
+
+**The seam metric** — `design/plan-draft/measured/seam_measure.py` — reads the two pictures either
+side of one turn, lays their 10 % strips into one band and asks how loud the joint is against the
+paint around it: `discontinuity = colour_gap / interior_step`, with `tone_gap`, `profile_gap` and
+`gradient_gap` beside it. `--corpus` walks every adjacent promoted pair and reports median and worst,
+indoor and outdoor. The manor's unseeded baseline at row 38 (54 promoted paintings, 41 adjacent
+pairs): **outdoor 5.54 median / 6.75 worst** (`entrance_approach/E|S`), **indoor 5.84 median / 12.32
+worst** (`study/W|N`). For scale, two paintings from unrelated rooms read 6.26 median — the manor's
+own turns currently look like strangers, which is the defect Kabe saw by turning 90°.
+
+**The pilot's own before-numbers**, measured on the unseeded candidate `entrance_approach/N` is
+held at — `backdrops/source/entrance_approach-N/row23-272b11ba.png` — against the two painted
+vistas it stands between: `W|N` **18.55**, `N|E` **17.48**, tone gaps 73.1 and 71.9 of 255. Worse than any
+promoted pair in the manor and worse than two paintings of unrelated rooms — one open location's
+three finished directions and a fourth painted with nothing to continue. That pair of readings is
+what the seeded return is measured against.
+
 ### The room's material voice (`tools/room-voices.mjs`) — row 29
 
 The prompt's materials used to be a four-entry table keyed on `room.archetype`. The plan has six

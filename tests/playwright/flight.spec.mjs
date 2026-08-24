@@ -554,8 +554,17 @@ test.describe("the content-gap grant", () => {
     expect(take.length, "the grant finds nothing to grant").toBeGreaterThan(0);
     for (const t of take) {
       const w = state.walls[t.key];
-      expect(REASONS[t.reason].refusal.test(w.correction),
-        `${t.key} was granted under ${t.reason}, whose refusal its correction does not match`).toBe(true);
+      /* TWO SHAPES OF REASON SINCE ROW 38. The first two are keyed on the
+         REFUSAL the gate wrote. `edge_never_seeded` is keyed on the WALL — an
+         open location's facing whose painted neighbour was never handed to it —
+         because no refusal describes it: the gap is in an ask nobody made, so
+         there is no sentence to match. A granted wall satisfies its own
+         reason's own test, whichever kind that is. */
+      const reason = REASONS[t.reason];
+      expect(reason.refusal
+        ? reason.refusal.test(w.correction)
+        : reason.applies({ key: t.key, wall: w, plan: PLAN }),
+      `${t.key} was granted under ${t.reason}, whose own test its wall does not satisfy`).toBe(true);
       expect(t.gained.length,
         `${t.key} was granted with nothing gained, which is the same ask again`).toBeGreaterThan(0);
       /* THE GAP IS REAL, checked here against the file rather than against the
