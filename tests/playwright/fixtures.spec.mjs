@@ -148,6 +148,15 @@ test.describe("fixtures", () => {
            seat's lane — so the source of THIS promotion comes over by itself. */
         mkdirSync(join(dir, candidate, ".."), { recursive: true });
         cpSync(join(repoRoot, candidate), join(dir, candidate));
+        /* [row 29(a)] AND THE ASK IT WAS PAINTED FROM, which is a second file
+           the promotion reads. An OPEN facing is promoted only from a prompt
+           that can be shown not to have named interior fabric — the backward
+           half of the Captain's "exterior garden has interior wall outside",
+           since the art on disk predates the outdoor voice — so on a vista the
+           prompt beside the candidate is part of what the tool is re-run
+           against, exactly as the measurement and the round already are. */
+        const ask = candidate.replace(/\.png$/i, ".prompt.txt");
+        if (existsSync(join(repoRoot, ask))) cpSync(join(repoRoot, ask), join(dir, ask));
         /* AND THE ROUND IT WAS MEASURED IN, which the meta carries: rounds
            have their own directories, so re-running the tool without naming
            one reads the cand-2 corpus — a different painting's numbers — and
