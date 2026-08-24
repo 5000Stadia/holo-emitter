@@ -1,0 +1,652 @@
+{
+  "_what_this_is": "Are the two rolls of a cell two samples or one? See the module docstring.",
+  "_tolerance_per_channel": 2,
+  "_near_duplicate_threshold": 0.99,
+  "generation": 2,
+  "pairs_within_cell": 12,
+  "byte_identical": 0,
+  "near_duplicate": 0,
+  "within_share_min": 0.021926,
+  "within_share_median": 0.067827,
+  "within_share_max": 0.097378,
+  "between_cell_pairs": 30,
+  "between_share_median": 0.050123,
+  "between_share_max": 0.082315,
+  "between_byte_identical": 0,
+  "candidates_missing": [],
+  "verdict": "INDEPENDENT: no within-cell pair is a near-duplicate. The rolls are genuine repeats and the declared n stands.",
+  "within_cell": [
+    {
+      "arm": "v2A",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "dc5e3d86",
+        "336b0a4b"
+      ],
+      "byte_identical": false,
+      "sha_a": "a43cc0aa5139",
+      "sha_b": "df1a40b4ad27",
+      "same_shape": true,
+      "share_pixels_same": 0.078549,
+      "mean_abs_diff": 16.7978,
+      "max_abs_diff": 224,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v2A",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "a5becad9",
+        "24770991"
+      ],
+      "byte_identical": false,
+      "sha_a": "5343fa106bf6",
+      "sha_b": "bb637bc2611d",
+      "same_shape": true,
+      "share_pixels_same": 0.088753,
+      "mean_abs_diff": 9.2918,
+      "max_abs_diff": 183,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v2xv6m2",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "1f8696d1",
+        "574b76d5"
+      ],
+      "byte_identical": false,
+      "sha_a": "414818cf925b",
+      "sha_b": "01b70803f5ea",
+      "same_shape": true,
+      "share_pixels_same": 0.068586,
+      "mean_abs_diff": 14.9747,
+      "max_abs_diff": 208,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v2xv6m2",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "8c6bb965",
+        "7098875a"
+      ],
+      "byte_identical": false,
+      "sha_a": "70baf2d52373",
+      "sha_b": "c1887918f1c1",
+      "same_shape": true,
+      "share_pixels_same": 0.042097,
+      "mean_abs_diff": 11.1951,
+      "max_abs_diff": 203,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v2xv6m4",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "ccf321fc",
+        "77921ddd"
+      ],
+      "byte_identical": false,
+      "sha_a": "427f3eb8b350",
+      "sha_b": "3eb6e42dc944",
+      "same_shape": true,
+      "share_pixels_same": 0.097378,
+      "mean_abs_diff": 14.9435,
+      "max_abs_diff": 164,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v2xv6m4",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "43e4bf39",
+        "e271601c"
+      ],
+      "byte_identical": false,
+      "sha_a": "f22aff1885b3",
+      "sha_b": "55d9dc08a9aa",
+      "same_shape": true,
+      "share_pixels_same": 0.06001,
+      "mean_abs_diff": 11.5772,
+      "max_abs_diff": 208,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v3",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "5adecd18",
+        "90d5626e"
+      ],
+      "byte_identical": false,
+      "sha_a": "a71c6ed92bbf",
+      "sha_b": "58f266bad8c8",
+      "same_shape": true,
+      "share_pixels_same": 0.080385,
+      "mean_abs_diff": 15.0605,
+      "max_abs_diff": 154,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v3",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "50634066",
+        "528ad0da"
+      ],
+      "byte_identical": false,
+      "sha_a": "cab8eb4e31ee",
+      "sha_b": "6f4c0bbe5fd0",
+      "same_shape": true,
+      "share_pixels_same": 0.021926,
+      "mean_abs_diff": 18.8132,
+      "max_abs_diff": 213,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v4",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "b917be21",
+        "021b5241"
+      ],
+      "byte_identical": false,
+      "sha_a": "84bf30413777",
+      "sha_b": "159ad8b9da21",
+      "same_shape": true,
+      "share_pixels_same": 0.06089,
+      "mean_abs_diff": 15.9959,
+      "max_abs_diff": 255,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v4",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "174c9cd0",
+        "5c60322d"
+      ],
+      "byte_identical": false,
+      "sha_a": "26d30208a762",
+      "sha_b": "522b46a3b2a9",
+      "same_shape": true,
+      "share_pixels_same": 0.086988,
+      "mean_abs_diff": 11.3055,
+      "max_abs_diff": 212,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v6A",
+      "wall": "garden_room/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "a76b29cd",
+        "8eb68b3a"
+      ],
+      "byte_identical": false,
+      "sha_a": "322219d08983",
+      "sha_b": "bb4a1064133e",
+      "same_shape": true,
+      "share_pixels_same": 0.054357,
+      "mean_abs_diff": 16.5835,
+      "max_abs_diff": 227,
+      "near_duplicate": false
+    },
+    {
+      "arm": "v6A",
+      "wall": "guest_chamber/E",
+      "rolls": [
+        1,
+        2
+      ],
+      "ids": [
+        "e7bcea09",
+        "7f76c5ae"
+      ],
+      "byte_identical": false,
+      "sha_a": "df8fccfef547",
+      "sha_b": "dbfb11c9ec31",
+      "same_shape": true,
+      "share_pixels_same": 0.067068,
+      "mean_abs_diff": 11.071,
+      "max_abs_diff": 160,
+      "near_duplicate": false
+    }
+  ],
+  "between_cell": [
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.072746,
+      "mean_abs_diff": 10.6913,
+      "max_abs_diff": 194,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2A",
+        "v2xv6m2"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.056004,
+      "mean_abs_diff": 9.7711,
+      "max_abs_diff": 192,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2A",
+        "v2xv6m4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.047333,
+      "mean_abs_diff": 10.8406,
+      "max_abs_diff": 223,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2A",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.028918,
+      "mean_abs_diff": 17.7664,
+      "max_abs_diff": 208,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2A",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.053117,
+      "mean_abs_diff": 10.238,
+      "max_abs_diff": 159,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2A",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.016845,
+      "mean_abs_diff": 12.6763,
+      "max_abs_diff": 212,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m2",
+        "v2xv6m4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.043108,
+      "mean_abs_diff": 12.6905,
+      "max_abs_diff": 200,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m2",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.029344,
+      "mean_abs_diff": 17.7244,
+      "max_abs_diff": 208,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m2",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.031876,
+      "mean_abs_diff": 13.9973,
+      "max_abs_diff": 165,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m2",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.081779,
+      "mean_abs_diff": 11.2259,
+      "max_abs_diff": 222,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m4",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.020644,
+      "mean_abs_diff": 15.9671,
+      "max_abs_diff": 234,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m4",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.064831,
+      "mean_abs_diff": 13.9155,
+      "max_abs_diff": 210,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v2xv6m4",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.034548,
+      "mean_abs_diff": 17.9019,
+      "max_abs_diff": 222,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v3",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.078705,
+      "mean_abs_diff": 10.625,
+      "max_abs_diff": 192,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v3",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.035227,
+      "mean_abs_diff": 21.0058,
+      "max_abs_diff": 205,
+      "near_duplicate": false,
+      "wall": "guest_chamber/E",
+      "arms": [
+        "v4",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.060675,
+      "mean_abs_diff": 17.7779,
+      "max_abs_diff": 179,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2A",
+        "v2xv6m2"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.082315,
+      "mean_abs_diff": 16.0925,
+      "max_abs_diff": 194,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2A",
+        "v2xv6m4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.058813,
+      "mean_abs_diff": 19.9944,
+      "max_abs_diff": 201,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2A",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.026475,
+      "mean_abs_diff": 37.0115,
+      "max_abs_diff": 212,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2A",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.058899,
+      "mean_abs_diff": 23.8123,
+      "max_abs_diff": 228,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2A",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.0519,
+      "mean_abs_diff": 17.1637,
+      "max_abs_diff": 207,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m2",
+        "v2xv6m4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.058444,
+      "mean_abs_diff": 19.8172,
+      "max_abs_diff": 179,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m2",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.037259,
+      "mean_abs_diff": 35.6593,
+      "max_abs_diff": 215,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m2",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.048346,
+      "mean_abs_diff": 18.9458,
+      "max_abs_diff": 223,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m2",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.074263,
+      "mean_abs_diff": 19.2922,
+      "max_abs_diff": 177,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m4",
+        "v3"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.027348,
+      "mean_abs_diff": 30.1192,
+      "max_abs_diff": 193,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m4",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.053389,
+      "mean_abs_diff": 22.6142,
+      "max_abs_diff": 229,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v2xv6m4",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.035483,
+      "mean_abs_diff": 24.4892,
+      "max_abs_diff": 192,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v3",
+        "v4"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.052025,
+      "mean_abs_diff": 25.4642,
+      "max_abs_diff": 226,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v3",
+        "v6A"
+      ],
+      "byte_identical": false
+    },
+    {
+      "same_shape": true,
+      "share_pixels_same": 0.027963,
+      "mean_abs_diff": 38.6852,
+      "max_abs_diff": 221,
+      "near_duplicate": false,
+      "wall": "garden_room/E",
+      "arms": [
+        "v4",
+        "v6A"
+      ],
+      "byte_identical": false
+    }
+  ]
+}
