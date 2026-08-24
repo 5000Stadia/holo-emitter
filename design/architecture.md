@@ -2172,6 +2172,11 @@ staircase on floor you are looking at is not. What stays on the travel facing is
 `apertures` iterates exits, so a flight seen side-on is drawn and is not a `go` target. The picture
 shows the building; the world says where you may walk.
 
+**The plan's own stair facts have one home**, `stairPlanFacts` — the run axis, the foot end, the
+width across the run — because `stairsForFacing` derived them inline and nothing else could reach
+them, which is a large part of why the manor's prompts never named a staircase at all. The emitter
+reads that function and `flightsForFacing` (see *The flight language*), never a second derivation.
+
 **The projection is general, not axis-aligned.** Each tread's nose is two plan points, and a plan
 point becomes a depth from this facing's wall line and a lateral position across its view whichever
 way the run happens to lie. That needed one thing this module could not do, and it has one home:
@@ -3620,6 +3625,99 @@ Three refusals keep the record honest: it never overwrites the first ask (a retr
 roll ids, because `row23_lib.py` measures a returned candidate against `<packet>/scaffold.png`), it
 never re-asks a promoted wall, and it never raises `attempts` — that is the sweep's.
 
+### The flight language — the ask learns the staircase
+
+**The gate knew something the generation method did not.** `promote-backdrop.mjs` refuses a
+promotion whose room draws a flight the painting has none of (`row32:stair.painted_flight_lost`), and
+six manor walls snapped geometrically clean and were refused by it — `back_stair/W`,
+`back_stair_head/S`, `back_stair_head/W`, `great_stair_hall/W`, `stair_landing/N`,
+`stair_landing/W`. Every one of them had been painted from a prompt in which the word *stair* does
+not occur. `plan.stairs` reached the renderer, `deriveMeta`, the fixture validator and that refusal;
+the emitter's carrier language covered doors, windows and fireplaces and stopped there. **A carrier
+is in a wall and a flight is on the floor**, so a staircase was in no carrier list anywhere and the
+omission was invisible from inside the carrier machinery. Production law clause 6 read backwards, and
+`misses.jsonl` carries it as the emitter half of the entry that closed the gate half.
+
+**`flightsForFacing` is the one home** (`tools/plan-projection.mjs`). It is `stairsForFacing` — the
+same projection the refusal itself calls, so the ask and the refusal cannot be describing two
+different staircases — enriched with the four things a picture of a flight can be asked for:
+
+| fact | where it comes from |
+|---|---|
+| `width_m`, `run_m` | `stairPlanFacts`, the plan's own stair rect, extracted so the projection and the emitter cannot each derive it |
+| `treads_in_view` | how many tread NOSES reach the frame. The nose is the one line of a flight that means something alone; a tread's whole quad is mostly behind the nose in front of it |
+| `climb` | **derived, in two kinds.** Where the run lies on this facing's own normal the flight goes *away* or *toward* — decided by DEPTH from the wall line, exactly, because a standpoint stands off the wall it faces. Where the run lies across the view it goes *left* or *right*, by the projected travel. No threshold, and nothing read off the pixels. `null` where no tread is in the frame at all |
+| `raw_box`, `runs_off` | the extent before the clamp, recomputed from the nose endpoints and the footprint ring the clamp was itself computed from, so `raw_w`/`raw_h` stay the only declared extent |
+
+Two of the plan's twelve stair views (`back_stair_head/W`, `stair_landing/S`) hold a flight whose
+every tread is below the frame. A prompt that told a painter to draw steps there would be asking for
+a staircase the geometry does not put in the picture, so the paragraph says what IS in it — the
+opening in the floor — and nothing else.
+
+**The scaffold stamps a FLIGHT region.** `flightRects` draws the clamped rect on a longer dash than a
+carrier box, because the two are different kinds of instruction: a carrier box is a hole of ruled
+width in the wall plane, a flight region is the extent of a solid standing on the floor. Its notes
+carry the tread count, the width, the climb and — only where the frame really cut the body — which
+edges it ran past, since *"paint inside this box, filling it"* is a lie about a flight that runs off
+three of them. The label block sits at the top of the region and is lifted clear of `LEGEND_TOP_Y`:
+a descending flight's box begins in the legend's own rows and the legend is drawn last, so a block
+placed inside the box regardless would be buried by it.
+
+**The paragraph is `frame-language.flightLines`**, in row 34's `g4` register like everything else the
+prompt says about the picture — the finished appearance with the figures attached. It states where
+the flight stands in the frame, its width, its tread count, how many steps are in view, which way it
+climbs, and the two standing constraints a way through a building always carries:
+
+1. **A rising flight needs the space over it.** The renderer cuts the surface overhead to the
+   flight's own footprint lifted a storey (`well_poly`), so a painting that closes that hole paints a
+   staircase into a low box.
+2. **What lies beyond it is unlit** — word for word the constraint the door sentence has carried
+   since row 27, for the same two reasons: the promotion instrument reads a way through as a VOID,
+   and the renderer composites the destination into it, so painted light back there fights the
+   through-view.
+
+**The material is the voice's and the geometry is the sentence's.** `room-voices.mjs` already says
+what a flight is made of — the great stair oak with turned balusters, the back stair plain scrubbed
+treads — and `flightLines` says not one word about material. `manorPrompt` derives the flights
+itself rather than being handed them, so every caller of the composer asks for the staircase without
+having to remember to.
+
+**Two ways through are two instructions.** `CARRIER_SENTENCE.door` took only a width, so
+`great_hall/W` and `long_gallery/W` — two doorways each, both ruled 1.00 m — were asked for their
+second doorway in a sentence byte-identical to the first. A duplicated instruction is one
+instruction, and both walls came back with fewer holes than the plan rules. Where a facing carries
+more than one of a kind each sentence now takes its ordinal (left-hand / right-hand) and its own
+position in the picture, stated in the columns `coordinateLines` states every other figure in. A
+facing carrying one of a kind is untouched, so eighty of the eighty-eight prompts are byte-identical.
+
+### The content-gap re-ask (`tools/grant-content-gap.mjs`)
+
+An ordinary re-ask says *"you painted this wrong, here is the measurement"*. A content-gap re-ask
+says something a retry cap was never meant to charge for: **we never asked for it**. Charging a wall
+a retry for obeying an ask that omitted the staircase is charging it for our own omission.
+
+**The gap is proved, not asserted.** A `REASON` names the refusal it answers — matched against the
+correction sentence the sweep wrote, the measurement's own words — and a `gained` test. A wall is
+granted only when the prompt the emitter composes TODAY says something about that refusal's own
+subject that the prompt actually sent (the highest `retry-<n>/prompt.txt` on disk, or the first ask
+where there is none) did not. A reason whose fix has not landed in the emitter grants nothing and
+says so, which is the difference between this and a list of wall names somebody typed. Two reasons
+stand: `flight_never_named` and `ways_never_named_apart`.
+
+**It refuses more than it grants, and the refusals are the point.** `library/S` and `privy_garden/W`
+were both refused for a missing way through and both had already been re-asked under the unlit-void
+rule — the ask said it, the painting still lost it, so that is the generator's miss and the ordinary
+retry budget owns it. Nothing outside a content gap is touched at all: a camera miss, an unfitted
+horizon and a suspect painting are facts about a PICTURE and no gap in the ask explains them.
+
+**Once-only per wall per reason.** The grant lands in `run-state.json` under `content_gap_grants`,
+keyed by reason, carrying who granted it, the refusal it answers, the exact lines the ask gained, the
+spent prompt it was diffed against, the budget before, and the emitter commit under test. A wall
+already carrying a reason is refused by name: a second grant under one reason would put the fix on
+trial rather than the wall. Its only mechanical effect is moving `status` to `retry`, which is what
+`--emit-retries` reads; the cap itself stays the emitter's, and the tool prints the `--retries` value
+that lets exactly the granted walls through.
+
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 
 One sweep reads whatever candidates are on disk, measures each against the camera its own manifest
@@ -4905,7 +5003,20 @@ tag AND on number and asserted to write no frame; determinism by bytes; the corp
 rewritten reading names the image it describes, carries its digest and agrees with its own recorded
 box; the carried door rectangles against a fresh read of the snapped frame at
 `door_measure.py`'s own 6 px control tolerance; and a real click, in both engines, on the door of a
-snapped wall promoted into a SCRATCH staged tree).
+snapped wall promoted into a SCRATCH staged tree);
+`flight` (the flight language: the ask names the flight on every facing whose plan draws one and on
+no facing whose plan does not, checked on the emitted TEXT because the text is what a generator
+reads; the stamped box against `stairsForFacing`'s own rect recomputed here rather than by calling
+the stamping function; the label pass on a stair facing inside its declared rects, which is the
+confinement case on a wall that has a staircase in it — `study/N` and `study/E` have none, so it had
+never run on one; **the climb checked against pixel evidence that did not derive it**, since
+`flightsForFacing` reads the plan and a step further from the eye projects a shorter nose; the door
+sentences of every wall the run state refused for a missing way through, each carrying the
+unlit-void rule and, where the wall carries two, each in its own distinct sentence with its own
+columns; the lint over the RE-ASK form of every held wall, which is the form nobody composed; and the
+content-gap grant — that it grants exactly the walls whose spent prompt is missing the thing they
+were refused for, that it is once-only per wall per reason, that it refuses a wall whose ask already
+said it, and that a reason whose fix has left the emitter grants nothing).
 
 **A GUARD'S TEETH ARE PROVEN BY A CRITIC FAILING TO BREAK IT, NOT BY ITS AUTHOR WATCHING ONE
 MUTATION GO RED.** [felt, row 11] This is the fourth bite of the same family on this project and the

@@ -26,10 +26,30 @@
     },
     "great_hall/W": {
       "attempts": 4,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: the plan rules 2 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo",
+          "gained_lines": [
+            "  The left-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 464 and column 558. The space beyond the opening is deep unlit shadow \u2014 no lit room, no visible far wall, no light source beyond the doorway.",
+            "  The right-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 932 and column 1025. The space beyond the opening is deep unlit shadow \u2014 no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/great_hall-W/retry-3/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 4,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "study/S": {
       "attempts": 4,
@@ -64,10 +84,42 @@
     },
     "back_stair/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
       "hold_family": "promotion-refused",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, carrying a person 2.80 m up to the storey above.",
+            "    10 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward you out of the picture, the steps further up standing wider and further apart than the ones behind them.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 564",
+            "    and rows 0 to 1024.",
+            "    The flight runs on past the left, top and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The surface overhead is open where the flight climbs through it. There is a stairwell",
+            "      cut in it directly over the flight, and nothing is drawn closing that opening.",
+            "    The space the flight climbs into, beyond its topmost step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "hall/N": {
       "attempts": 2,
@@ -231,10 +283,40 @@
     },
     "great_stair_hall/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, carrying a person 2.80 m up to the storey above.",
+            "    18 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the right of the picture, so the flight reads as a stair going up to the right.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 262 to 1379",
+            "    and rows 150 to 801.",
+            "    The surface overhead is open where the flight climbs through it. There is a stairwell",
+            "      cut in it directly over the flight, and nothing is drawn closing that opening.",
+            "    The space the flight climbs into, beyond its topmost step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/great_stair_hall-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "library/N": {
       "attempts": 4,
@@ -304,10 +386,29 @@
     },
     "entrance_court/E": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/entrance_court-E/row23-19d8f9ba.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: entrance_court/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+          "gained_lines": [
+            "  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow \u2014 no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/entrance_court-E/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "entrance_court/S": {
       "attempts": 4,
@@ -451,17 +552,76 @@
     },
     "back_stair_head/S": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, dropping 2.80 m to the storey below.",
+            "    4 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the left of the picture, so the flight reads as a stair going up to the left.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 1536",
+            "    and rows 877 to 1024.",
+            "    The flight runs on past the left, right and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair_head-S/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "back_stair_head/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.10 m wide, dropping 2.80 m to the storey below.",
+            "    None of its steps are in the picture: it falls away below the bottom edge. What this",
+            "    view shows of it is the opening in the floor it drops through.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 564",
+            "    and rows 859 to 1024.",
+            "    The flight runs on past the left and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/back_stair_head-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "long_gallery/N": {
       "attempts": 5,
@@ -492,10 +652,30 @@
     },
     "long_gallery/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "ways_never_named_apart": {
+          "granted": 1,
+          "why": "the ask never named the ways through apart from each other",
+          "what_changed_in_the_emitter": "A wall carrying two doorways was asked for them in the identical sentence twice, which is one instruction and not two; and the earliest asks predate the unlit-void rule the promotion instrument reads a doorway by. `manorPrompt` now gives each way through its own position in the picture, and every door sentence carries the unlit clause.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: the plan rules 2 way(s) through this wall and the painting shows 1 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+          "gained_lines": [
+            "  The left-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 531 and column 666. The space beyond the opening is deep unlit shadow \u2014 no lit room, no visible far wall, no light source beyond the doorway.",
+            "  The right-hand door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it, and in the picture it stands between column 1209 and column 1344. The space beyond the opening is deep unlit shadow \u2014 no lit room, no visible far wall, no light source beyond the doorway."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/long_gallery-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the ways through apart from each other"
     },
     "master_bedchamber/N": {
       "attempts": 5,
@@ -526,10 +706,40 @@
     },
     "stair_landing/N": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/stair_landing-N/row23-ec82d83f.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, dropping 2.80 m to the storey below.",
+            "    5 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing away from you into the picture, the steps further up standing narrower and closer together than the near ones.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 0 to 317",
+            "    and rows 768 to 1024.",
+            "    The flight runs on past the left and bottom edges of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/stair_landing-N/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "stair_landing/E": {
       "attempts": 2,
@@ -548,10 +758,40 @@
     },
     "stair_landing/W": {
       "attempts": 2,
-      "status": "held",
+      "status": "retry",
       "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
-      "hold_family": "promotion-refused"
+      "hold_family": "promotion-refused",
+      "content_gap_grants": {
+        "flight_never_named": {
+          "granted": 1,
+          "why": "the ask never named the flight",
+          "what_changed_in_the_emitter": "The plan draws a staircase in this view and the prompt that was sent did not mention one. `manorPrompt` now composes a Stairs paragraph from `flightsForFacing` \u2014 the same projection the row-32 refusal reads \u2014 and the scaffold stamps the flight's own region over it.",
+          "answers_refusal": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
+          "gained_lines": [
+            "Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture \u2014 it is built into this room and cannot be left out of the picture.",
+            "  It is a straight stair of 17 steps, 1.60 m wide, dropping 2.80 m to the storey below.",
+            "    11 of its steps are in the picture. The front edge of each step reads as a",
+            "    level line across the width of the flight, and those lines stack one above the next,",
+            "    climbing toward the right of the picture, so the flight reads as a stair going up to the right.",
+            "    Where it stands, as picture coordinates \u2014 column counted from the left edge, row",
+            "    counted from the top: what is in view of it fills columns 262 to 1379",
+            "    and rows 728 to 1024.",
+            "    The flight runs on past the bottom edge of the picture:",
+            "      what is drawn is the part of it the frame holds, cut by the frame and not stopped short.",
+            "    The space the flight drops into, beyond its lowest step, is deep unlit shadow \u2014 no lit",
+            "      room there, no visible far wall, and no light source beyond the end of the stair."
+          ],
+          "spent_prompt": "design/batches/row23-scaffold/manor/stair_landing-W/prompt.txt",
+          "at": "2026-08-24T14:30:55.611Z",
+          "prior_attempts": 2,
+          "prior_status": "held",
+          "hold_family": "promotion-refused",
+          "emitter_commit": "aa96845213b907b3cfca96a8f5a7cfd08b7d3b93",
+          "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
+        }
+      },
+      "why": "content gap re-ask: the ask never named the flight"
     },
     "guest_chamber/N": {
       "attempts": 5,

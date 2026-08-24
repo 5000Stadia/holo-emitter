@@ -20890,3 +20890,22 @@
 {"detail":{"candidate":"backdrops/source/great_stair_hall-S/row23-77e46675.png","kind":null,"roll_id":"77e46675","verdict":"PASS"},"key":"great_stair_hall/S","step":"measure.candidate","ts_end":1787582921.386028,"ts_start":1787582917.889392}
 {"detail":{"candidate":"backdrops/source/great_stair_hall-S/row23-95ff8b0a.png","kind":"generation_miss","roll_id":"95ff8b0a","verdict":"FAIL"},"key":"great_stair_hall/S","step":"measure.candidate","ts_end":1787582925.735429,"ts_start":1787582921.386858}
 {"detail":{"camera_source":"measured","candidate":"backdrops/source/great_stair_hall-S/row23-f674d22f.png","refused":true,"why":"the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 234.6 but only to +/-73.2 px, and the standing licence on the horizon row is +/-18.6 px. A facing whose side walls fix "},"key":"great_stair_hall/S","step":"promote.wall","ts_end":1787582925.738391,"ts_start":1787582925.736269}
+{"ts_start":1787581863.521,"ts_end":1787581863.683,"step":"emit.facing","key":"back_stair_head/S","detail":{"carriers":0,"voice":"back_stair","retry":3}}
+{"ts_start":1787581863.684,"ts_end":1787581863.692,"step":"emit.packet","key":"back_stair_head/S","detail":{"rolls":1,"roll_ids":["4df7ac87"],"prompt_chars":6071,"retry":3}}
+{"ts_start":1787581863.706,"ts_end":1787581863.822,"step":"emit.facing","key":"back_stair_head/W","detail":{"carriers":1,"voice":"back_stair","retry":3}}
+{"ts_start":1787581863.822,"ts_end":1787581863.823,"step":"emit.packet","key":"back_stair_head/W","detail":{"rolls":1,"roll_ids":["1eb02ae9"],"prompt_chars":6036,"retry":3}}
+{"ts_start":1787581863.832,"ts_end":1787581863.947,"step":"emit.facing","key":"back_stair/W","detail":{"carriers":1,"voice":"back_stair","retry":3}}
+{"ts_start":1787581863.947,"ts_end":1787581863.949,"step":"emit.packet","key":"back_stair/W","detail":{"rolls":1,"roll_ids":["7d7caa79"],"prompt_chars":6350,"retry":3}}
+{"ts_start":1787581863.951,"ts_end":1787581864.055,"step":"emit.facing","key":"entrance_court/E","detail":{"carriers":1,"voice":"outdoors_walled","retry":3}}
+{"ts_start":1787581864.055,"ts_end":1787581864.056,"step":"emit.packet","key":"entrance_court/E","detail":{"rolls":1,"roll_ids":["d4ef2d94"],"prompt_chars":4770,"retry":3}}
+{"ts_start":1787581864.059,"ts_end":1787581864.17,"step":"emit.facing","key":"great_hall/W","detail":{"carriers":2,"voice":"hall_state","retry":5}}
+{"ts_start":1787581864.17,"ts_end":1787581864.171,"step":"emit.packet","key":"great_hall/W","detail":{"rolls":1,"roll_ids":["1b91cd6b"],"prompt_chars":5407,"retry":5}}
+{"ts_start":1787581864.181,"ts_end":1787581864.307,"step":"emit.facing","key":"great_stair_hall/W","detail":{"carriers":1,"voice":"great_stair","retry":3}}
+{"ts_start":1787581864.307,"ts_end":1787581864.309,"step":"emit.packet","key":"great_stair_hall/W","detail":{"rolls":1,"roll_ids":["9635a378"],"prompt_chars":6583,"retry":3}}
+{"ts_start":1787581864.312,"ts_end":1787581864.406,"step":"emit.facing","key":"long_gallery/W","detail":{"carriers":6,"voice":"long_gallery","retry":3}}
+{"ts_start":1787581864.406,"ts_end":1787581864.407,"step":"emit.packet","key":"long_gallery/W","detail":{"rolls":1,"roll_ids":["a761f3a6"],"prompt_chars":5179,"retry":3}}
+{"ts_start":1787581864.413,"ts_end":1787581864.517,"step":"emit.facing","key":"stair_landing/N","detail":{"carriers":1,"voice":"great_stair","retry":3}}
+{"ts_start":1787581864.517,"ts_end":1787581864.518,"step":"emit.packet","key":"stair_landing/N","detail":{"rolls":1,"roll_ids":["e594b388"],"prompt_chars":4934,"retry":3}}
+{"ts_start":1787581864.526,"ts_end":1787581864.647,"step":"emit.facing","key":"stair_landing/W","detail":{"carriers":1,"voice":"great_stair","retry":3}}
+{"ts_start":1787581864.648,"ts_end":1787581864.649,"step":"emit.packet","key":"stair_landing/W","detail":{"rolls":1,"roll_ids":["72110eaf"],"prompt_chars":6541,"retry":3}}
+{"ts_start":1787581862.151,"ts_end":1787581864.752,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":9,"refused":0}}

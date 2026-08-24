@@ -641,6 +641,36 @@ export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS
  * exactly as `treads` is checked against a band because there is no rise to
  * check it against.
  */
+/**
+ * The plan's own facts about one flight, before any camera sees it: which axis
+ * it is climbed along, which end is its foot, and how wide it is.
+ *
+ * ONE HOME, because two readers need it and they must not each derive it.
+ * `stairsForFacing` projects the flight from these; the emitter's flight
+ * sentence (`tools/frame-language.mjs`) names the width and the sense of the
+ * climb from the same six numbers. Before this existed the projection derived
+ * them inline and nothing else could reach them, which is why the manor's
+ * prompts never said a flight was there at all.
+ *
+ * `width_m` is the extent ACROSS the run — the width a person climbs abreast —
+ * and `run_m` the extent along it. Neither is a rise: the plan carries no
+ * vertical datum, so the rise is the lower room's storey height and it is read
+ * where that is known (`stairsForFacing`).
+ */
+export function stairPlanFacts(st) {
+  const runAxis = (st.up === "N" || st.up === "S") ? "y" : "x";
+  const across = runAxis === "y" ? "x" : "y";
+  const upSign = (st.up === "N" || st.up === "E") ? 1 : -1;
+  const foot = upSign > 0 ? st.rect[runAxis + "0"] : st.rect[runAxis + "1"];
+  const head = upSign > 0 ? st.rect[runAxis + "1"] : st.rect[runAxis + "0"];
+  const w0 = st.rect[across + "0"], w1 = st.rect[across + "1"];
+  return {
+    runAxis, across, upSign, foot, head, w0, w1,
+    width_m: round6(Math.abs(w1 - w0)),
+    run_m: round6(Math.abs(head - foot))
+  };
+}
+
 export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
@@ -711,13 +741,10 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
 
     /* THE RUN IS THE AXIS THE FLIGHT IS CLIMBED ALONG, which is `up`'s own
      * axis — `plan.stair_directions` holds the drawing to it. The width axis
-     * is the other one, and a tread's nose is a segment across it. */
-    const runAxis = (st.up === "N" || st.up === "S") ? "y" : "x";
-    const across = runAxis === "y" ? "x" : "y";
-    const upSign = (st.up === "N" || st.up === "E") ? 1 : -1;
-    const foot = upSign > 0 ? st.rect[runAxis + "0"] : st.rect[runAxis + "1"];
-    const head = upSign > 0 ? st.rect[runAxis + "1"] : st.rect[runAxis + "0"];
-    const w0 = st.rect[across + "0"], w1 = st.rect[across + "1"];
+     * is the other one, and a tread's nose is a segment across it. One home:
+     * `stairPlanFacts` below, so the projection and the emitter's flight
+     * sentence cannot disagree about which way a flight is climbed. */
+    const { runAxis, across, foot, head, w0, w1 } = stairPlanFacts(st);
     /* Height above THIS room's floor: a flight climbed out of this room rises,
      * and the same flight seen from the landing above it descends. */
     /* EVERY RANK IS KEPT WITH ITS INDEX. The nose of tread `i` and the floor
@@ -917,6 +944,104 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
       floor_poly: floorRing,
       well_poly: wellRing,
       beyond_m: null, beyond_offset_m: null
+    });
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* What a flight LOOKS LIKE in one view — the emitter's half            */
+/* ------------------------------------------------------------------ */
+/**
+ * The projected flight, plus the handful of facts a picture of it can be asked
+ * for: how wide it is, how many of its steps are actually in the frame, which
+ * way it climbs across that frame, and where the frame cut it.
+ *
+ * WHY THIS IS HERE AND NOT IN THE EMITTER. Production law clause 6: a
+ * correction lands in the emitter, a gate or the instrument, and it lands ONCE.
+ * `promote-backdrop.mjs` refuses a promotion whose room draws a flight the
+ * painting has none of — the row-32 clause — and it decides that by calling
+ * `stairsForFacing`. The prompt that asks for the flight, and the box the
+ * scaffold stamps over it, must be derived from the SAME projection or the ask
+ * and the refusal are describing two different staircases. So the projection
+ * owns the geometry and `tools/frame-language.mjs` owns only the words.
+ *
+ * `climb` is derived, never chosen, and in two kinds because a flight is one
+ * of two things in a given view:
+ *
+ *   ACROSS THE VIEW — the run lies on the axis this facing looks along the
+ *     face of, so climbing it moves you left or right across the picture and
+ *     barely changes your distance. The sign of the projected travel says
+ *     which; the plan says that this is the question being asked.
+ *   INTO THE VIEW — the run lies on this facing's own normal, so climbing it
+ *     carries you toward the camera or away from it. Which is decided by DEPTH
+ *     from the wall line, exactly: a plan point deeper into the room than
+ *     another is nearer the standpoint, because the standpoint stands off the
+ *     wall it faces. No threshold, and nothing read off the pixels.
+ *
+ * `climb` is null where no tread is in the frame at all: a flight can be
+ * present in a view as nothing but the opening in the floor it drops through
+ * (`back_stair_head/W`, `stair_landing/S`), and a picture cannot be told which
+ * way something not in it leans.
+ */
+export function flightsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
+  const room = roomOf(plan, roomId);
+  const fc = facingOf(room, facing);
+  const [normalAxis] = NORMAL[facing];
+  const H = meta.image_h_px;
+  const out = [];
+  for (const s of stairsForFacing(plan, roomId, facing, meta, canvasW)) {
+    const st = (plan.stairs || []).find((x) => x.id === s.id);
+    const facts = stairPlanFacts(st);
+    /* THE EXTENT BEFORE THE CLAMP, from the same points the clamp was computed
+     * from: `stairsForFacing` takes its rectangle from the nose endpoints and
+     * the footprint ring together, and those are both carried on the record.
+     * Recomputing them here rather than storing a second copy is what keeps
+     * `raw_w`/`raw_h` the only declared extent (row 26's clause reads those). */
+    const pts = [];
+    for (const n of s.noses) { pts.push(n[0]); pts.push(n[1]); }
+    for (const p of s.floor_poly) pts.push(p);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const raw = pts.length
+      ? { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }
+      : null;
+    /* A TREAD IS IN VIEW WHEN ITS FRONT EDGE REACHES THE FRAME. The nose is the
+     * one line of a flight that means something on its own (see the projection
+     * above), so it is the thing counted — not the tread's whole quad, which on
+     * a flight climbing away is mostly behind the nose in front of it. */
+    const inView = s.noses.filter((n) => {
+      const x0 = Math.min(n[0][0], n[1][0]), x1 = Math.max(n[0][0], n[1][0]);
+      const y0 = Math.min(n[0][1], n[1][1]), y1 = Math.max(n[0][1], n[1][1]);
+      return x1 >= 0 && x0 <= canvasW && y1 >= 0 && y0 <= H;
+    });
+    let climb = null;
+    if (inView.length) {
+      if (facts.runAxis === normalAxis) {
+        /* Depth from this facing's wall line. The standpoint stands off that
+         * line, so MORE depth is nearer the eye — the same relation
+         * `stairsForFacing`'s own `project` uses to pick a scale. */
+        const dFoot = Math.abs(fc.wall_line - facts.foot);
+        const dHead = Math.abs(fc.wall_line - facts.head);
+        climb = dHead < dFoot ? "away" : "toward";
+      } else {
+        const mid = (n) => (n[0][0] + n[1][0]) / 2;
+        climb = mid(inView[inView.length - 1]) < mid(inView[0]) ? "left" : "right";
+      }
+    }
+    out.push({
+      ...s,
+      width_m: facts.width_m,
+      run_m: facts.run_m,
+      across_view: facts.runAxis !== normalAxis,
+      treads_in_view: inView.length,
+      climb,
+      raw_box: raw,
+      runs_off: raw ? [
+        raw.x0 < -EPS ? "left" : null,
+        raw.x1 > canvasW + EPS ? "right" : null,
+        raw.y0 < -EPS ? "top" : null,
+        raw.y1 > H + EPS ? "bottom" : null
+      ].filter(Boolean) : []
     });
   }
   return out;
