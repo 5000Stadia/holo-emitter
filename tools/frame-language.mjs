@@ -370,6 +370,25 @@ const CLIMB_WORDS = {
     "the steps further up standing wider and further apart than the ones behind them"]
 };
 
+/* [row 39] THE SAME SENTENCE, READ BACK OFF A SPENT PROMPT.
+ *
+ * `tools/promote-backdrop.mjs` attaches a flight to a promoted meta only from
+ * a candidate whose own ask named one, and the question it asks of the spent
+ * prompt is answered HERE rather than by a second pattern living next to the
+ * promotion — one rule read in two directions, exactly as `INTERIOR_FABRIC` in
+ * `tools/room-voices.mjs` serves both the emitter's refusal and
+ * `vista.indoor_ask`. Written against the opener `flightLines` composes
+ * immediately below, so the two cannot drift: `flight.spec.mjs` asserts the
+ * handshake by putting this emitter's own output back through this predicate.
+ */
+export const FLIGHT_ASK =
+  /^Stairs: (?:a flight of stairs stands|\d+ flights of stairs stand) in this view\b/m;
+
+/** Did the ask this candidate was painted from name a staircase in the view? */
+export function askNamesAFlight(text) {
+  return FLIGHT_ASK.test(String(text == null ? "" : text));
+}
+
 export function flightLines(ctx) {
   const flights = ctx.flights || [];
   if (!flights.length) return [];

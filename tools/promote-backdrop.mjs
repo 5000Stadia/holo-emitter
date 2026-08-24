@@ -39,6 +39,8 @@ import {
 } from "./validate-fixtures.mjs";
 import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC } from "./room-voices.mjs";
+import { askNamesAFlight } from "./frame-language.mjs";
+import { askTextFor, paintedFlightReading } from "./flight-evidence.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -522,27 +524,75 @@ const plannedDoors = planned.filter((p) => p.kind === "door");
 const painted = m._measured_px && Array.isArray(m._measured_px.openings)
   ? m._measured_px.openings : null;
 const refusals = [];
-/* [row 32] A PAINTING THAT LOSES THE STAIRCASE IS NOT A PROMOTION.
+/* [row 32, ATTACHED at row 39] A PAINTING THAT LOSES THE STAIRCASE IS NOT A
+ * PROMOTION — and until this row nothing could give a promotion one.
  *
- * The renderer draws a flight from the meta's own `stairs`, and a promoted
- * meta has none — so promoting a facing whose room draws a flight deletes the
- * staircase from the picture, and with it the poly the click travels through.
- * `great_stair_hall/W` is the case: the manor sweep promoted it and
+ * The renderer draws a flight from the meta's own `stairs`. Row 32 found that
+ * a promoted meta had none, so promoting a facing whose room draws a flight
+ * deleted the staircase from the picture and with it the poly the click
+ * travels through (`great_stair_hall/W`: the sweep promoted it and
  * `manor.spec`'s "a flight seen across its run is a body, not a line" stopped
- * having a subject at all, which is the gates-that-cannot-fail shape rather
- * than a passing test.
+ * having a subject at all). What row 32 could do about that was refuse, and
+ * refusing was right while nothing painted a staircase. Row 38 taught the
+ * emitter to ASK for one and the re-asks came back with staircases in them,
+ * at which point the refusal was standing over the very paintings it existed
+ * to protect — because no act in this pipeline ATTACHED a flight to a promoted
+ * meta. Doors got that act at row 27. This is the flight's.
  *
- * The validator already refuses the neighbouring case — an exit whose `via`
- * names a flight the meta does not carry, the clause `row21` tags
- * `exit.via_unfilled`, which is what took `back_stair_head/W` back out of the
- * store — but a flight the
- * player only LOOKS at from this facing has no exit through it here, so
- * nothing spoke for it. This does. It is the plan's own geometry, asked of
- * every promotion on every route, and it lapses by itself the day row 25
- * gives a painted facing a flight to carry. */
+ * WHAT IS ATTACHED, AND WHOSE IT IS. `stairsForFacing` at THIS meta's own
+ * geometry — the same call this clause already made to decide whether to
+ * refuse, so the flight that is carried and the flight that was demanded are
+ * one projection and cannot be two. The shape is the derived meta's exactly
+ * (`deriveMeta` ends with this same call and the fixture validator's
+ * `row15:meta.stairs_list` reads both), `raw_w`/`raw_h` included, so a page
+ * built from a promoted stair wall and a page built from the plan's derived
+ * one hold the same kind of record.
+ *
+ * HOW TRUE IT IS. On a DECLARED-camera wall (the row-32 tolerance route) and
+ * on a SNAPPED one (`--round row35snap`, where `row35_snap.py` has rectified
+ * the frame ONTO the declared camera) the meta's geometry IS the camera the
+ * page derives with, so the projection is exact by construction: the flight
+ * lands where the same arithmetic put the scaffold box the painter was given.
+ * On a measured-camera wall the geometry is this painting's own reading, so
+ * the projection carries that reading's residual and nothing more — the same
+ * residual every other number on the meta carries, already gated at +/-8 %.
+ *
+ * AND THE PERMISSION IS THE ASK'S, not the pixels'. See
+ * `tools/flight-evidence.mjs`, which carries the measurement that settled it:
+ * the structure statistic this clause was meant to gate on does not separate a
+ * painted staircase from an empty room on the labelled corpus, and the ask
+ * does, exactly. The reading is still taken and still recorded — below, on
+ * `measured_room.flight_evidence` — because two artifacts can disagree and the
+ * disagreement must never be invisible. */
 const drawnFlights = stairsForFacing(plan, loc, facing, meta) || [];
-if (drawnFlights.length && !(Array.isArray(meta.stairs) && meta.stairs.length)) {
-  refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left looking at the place a stair used to be [row32:stair.painted_flight_lost]`);
+let flightEvidence = null;
+if (drawnFlights.length) {
+  const ask = askTextFor(root, candidate, m, join);
+  if (ask.text == null) {
+    refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and there is no readable ask beside ${candidate} (${ask.path}) — a flight is attached to a promoted meta only from a candidate that can be SHOWN to have been asked for one, and a candidate whose prompt is gone cannot be [row39:stair.ask_unreadable]`);
+  } else if (!askNamesAFlight(ask.text)) {
+    /* THE RE-ASK BRANCH. This is the wall the emitter has to paint again, and
+     * the message says which act closes it rather than only what is wrong. */
+    refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and the ask ${candidate} was painted from never named a staircase (${ask.path}, read ${ask.via || "beside the candidate"}) — this roll was asked for before the flight language existed, so the picture cannot be shown to hold the staircase the room holds, and promoting it leaves a player looking at the place a stair used to be. Its own re-ask under the flight paragraph is the candidate for this wall [row32:stair.painted_flight_lost]`);
+  } else {
+    /* THE ATTACHING BRANCH. The reading is taken first, so that a wall whose
+     * pixels disagree with its own ask is on the record even though nothing
+     * refuses it: `flight-evidence.mjs` explains at length why nothing does. */
+    flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights);
+    flightEvidence.asked = { prompt: ask.path, via: ask.via };
+    flightEvidence.geometry = declaredCamera ? "declared-camera, exact by construction"
+      : roundDir === "row35snap" ? "snapped onto the declared camera, exact by construction"
+        : "this painting's own measured camera";
+    meta.stairs = drawnFlights;
+  }
+}
+/* AND THE POST-CONDITION, ASSERTED WHERE THE META IS WRITTEN. The clause above
+ * is the only thing that puts a flight on a promoted meta; this is the check
+ * that it did, kept as its own refusal so that deleting the attachment cannot
+ * pass as a promotion with a quietly flightless stair room. */
+if (drawnFlights.length && !refusals.length &&
+    !(Array.isArray(meta.stairs) && meta.stairs.length === drawnFlights.length)) {
+  refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and the meta about to be written carries ${(meta.stairs || []).length} — painting this wall deletes the staircase the room holds, and a player is left looking at the place a stair used to be [row32:stair.painted_flight_lost]`);
 }
 /* Assigned by id, so the loop that writes the openings and the loop that writes
  * the carrier record read one answer rather than each computing its own. */
@@ -700,6 +750,15 @@ for (const c of facingCarriers(plan, loc, facing)) {
   carriers.push(entry);
 }
 meta.measured_room.carriers = carriers;
+/* [row 39] AND WHAT THE PIXELS SAID ABOUT THE FLIGHT THE META NOW CARRIES,
+ * beside the carrier disagreements and for the same stated reason: the
+ * geometry is the plan's, the permission is the ask's, and what the painting
+ * itself shows in that region is a third thing that must not live only in a
+ * refusal that never fires. Informational, exactly as the carriers are —
+ * `tools/flight-evidence.mjs` carries the calibration that says why it is not
+ * a gate and refuses to hold a threshold. Absent on every facing whose plan
+ * draws no flight, so no promoted meta's bytes move for this. */
+if (flightEvidence) meta.measured_room.flight_evidence = flightEvidence;
 
 function groundplaneX(u) {
   /* The same u -> x the corners and the staging use, at wall scale. */
@@ -729,6 +788,14 @@ if (isOpen) {
   console.log(`  no corners: this frame's own architecture never stops being square to the camera, so the wall's ends are not in the reading`);
 } else {
   console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
+}
+if (meta.stairs && meta.stairs.length) {
+  for (const s of meta.stairs) {
+    console.log(`  flight ${s.id}: ${s.treads} treads ${s.direction}, ${round(s.raw_w, 0)}x${round(s.raw_h, 0)} px of body with ${round(s.w, 0)}x${round(s.h, 0)} of it on the frame — attached from ${flightEvidence.geometry}`);
+  }
+  console.log(flightEvidence.read
+    ? `  the painting reads ${flightEvidence.ratio} of the room beside it in edge energy over that body (${flightEvidence.body_edge} against ${flightEvidence.ring_edge} across ${flightEvidence.body_px} px) — recorded, never gated: see tools/flight-evidence.mjs`
+    : `  no pixel reading of that body: ${flightEvidence.why}`);
 }
 for (const c of carriers) {
   if (c.centre_delta_px === null) {
