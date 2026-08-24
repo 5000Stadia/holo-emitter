@@ -2252,10 +2252,23 @@ def write_misses(raw, round_name="cand-2", records=None):
                     # not live in a file whose generator destroys it.
                     other.append(prev)
                     continue
-                if prev.get("_record") not in ("miss", "roll") or not prev.get("facing"):
-                    continue
+                # [row 29(a)] ANOTHER ROUND'S MISS SURVIVES WHETHER OR NOT IT
+                # NAMES A FACING, and the two checks were in the wrong order.
+                # A miss about the INSTRUMENT or a PROMOTION GATE rather than
+                # about one painting's camera carries no facing — row 32 minted
+                # three of them and row 29(a) three more — and the facing test
+                # ran FIRST, so every one of them was dropped on the next
+                # `--round cand2`. That is this function's own header defect
+                # ("the law's evidence must not live in a file whose generator
+                # destroys it") committed a third time, one record shape later,
+                # and it is silent: the run reports nothing and the ledger is
+                # simply shorter. The foreign-round test goes first; the facing
+                # test then means only what it always meant, that THIS round's
+                # per-facing misses are regenerated from the pixels.
                 if prev.get("round", "cand-2") != round_name:
                     foreign.append(prev)
+                    continue
+                if prev.get("_record") not in ("miss", "roll") or not prev.get("facing"):
                     continue
                 # [Row 23] THE CARRY KEY GAINS THE CANDIDATE. It was the facing
                 # alone, and row 23 puts twenty-four rolls on TWO facings - so
@@ -2332,6 +2345,22 @@ def write_misses(raw, round_name="cand-2", records=None):
                           "is what they answer to, and each names where its cause "
                           "is baked in. The `clock` record beside them carries the "
                           "before and after with no band moved.",
+                 "row29a": "THE OPEN FACING. Four facings of the manor are typed "
+                           "`open` - no wall plane, no ceiling, no side walls, and "
+                           "a scale quoted at the far line the plan draws - and "
+                           "none of their sixteen candidates had ever been read: "
+                           "the instrument multiplied by `camera_wall_m`, which an "
+                           "open facing does not carry, and every frame died as "
+                           "MEASURE-ERR. Its entries are about the INSTRUMENT and "
+                           "the PROMOTION rather than about one painting's camera, "
+                           "so they carry no facing and no delta, and each names "
+                           "where its cause is baked in. The instrument that "
+                           "replaced the crash is the FAR-LINE RULER the "
+                           "`outdoors_open` voice already declared: the far-line "
+                           "ground row and the boundary-wall coping 0.95 m above "
+                           "it, which fix the lens and leave the horizon declared "
+                           "rather than fitted, because an open frame has no "
+                           "second ground datum to fix it with.",
                  "cand-6": "THE STANDING-EYE WAVE. [HUMAN 2026-08-22, "
                            "design/approvals.log at 964188d] \"B\" - the "
                            "standing eye - so every wall is regenerated "
@@ -2457,8 +2486,12 @@ def write_misses(raw, round_name="cand-2", records=None):
     lines.extend(foreign)
     lines.extend(other)
     head = lines[0]
+    # [row 29(a)] `x["facing"]` here, and a facing-less miss carried through
+    # from another round would take the writer down with a KeyError the moment
+    # the carry above stopped dropping it. Same fact, said in the ordering: a
+    # miss is not always about one painting.
     misses = sorted([x for x in lines[1:] if x.get("_record") in ("miss", "roll")],
-                    key=lambda x: (x.get("round", "cand-2"), x["facing"],
+                    key=lambda x: (x.get("round", "cand-2"), x.get("facing") or "",
                                    x.get("candidate") or ""))
     misses += sorted([x for x in lines[1:] if x.get("_record") not in ("miss", "roll")],
                      key=lambda x: (x.get("_record", ""), str(x.get("id", ""))))
