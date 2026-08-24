@@ -1,0 +1,33 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the garden room, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a line drawing of
+  the surface to be painted, in black ink on white: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed outlines mark where a named feature belongs: paint that feature inside its outline, filling it. The outlines themselves are instructions and are never painted.
+Primary request: Paint the east wall of the empty garden room of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Camera and composition: 1536x1024 landscape. Reproduce Image 2's camera exactly. The
+  camera is level, with zero upward or downward tilt. The wall-floor line, the
+  corners, the returns at left and right and the amount of visible floor all land where
+  Image 2 puts them, to the pixel. One metre at the wall plane spans 155 pixels.
+  The floor is visible and runs to the bottom edge of frame.
+  The left and right returns run back to meet each other at row 526 of the 1024 rows — that row is the
+  viewer's eye line, and each return meets the surface overhead along one straight
+  unbroken line from its own corner to the edge of frame.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  The door opening is exactly 1.00 m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials and period detail: light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling.
+  Underfoot: a floor of square stone paviours.
+Windows: this wall carries no window and no glazed opening of any kind.
+Style and lighting: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the garden room is completely empty of furniture, loose props, people, animals
+  and clutter.
+  Image 2 is black ink on white and contains construction lines and outlines; these are
+  diagram marks identifying the wall, and the painted picture contains no line, letter,
+  word, number, label, watermark or border of any kind.

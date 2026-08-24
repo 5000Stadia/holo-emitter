@@ -138,6 +138,7 @@ node tools/plan-projection.mjs --rebuild-facings   # where you stand in each roo
 python3 design/plan-draft/draw_plan.py             # the two floor plans, from the document
 ./design/plan-draft/render.sh                      # and as pictures, at twice the size
 node tools/make-scaffold.mjs study/N --out <dir>   # one wall as a labelled layout drawing
+node tools/emit-evolution.mjs                     # the prompting-technique trial's own packets
 ```
 
 Change a room in the plan and re-run all three, and the drawing changes with it. The first
