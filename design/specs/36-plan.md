@@ -5,7 +5,7 @@ library's shape, the composition engine, the packet types the emitter gains, the
 orphaned t4 returns produced when they were finally scored, the validation that is real versus the
 validation that is trivial, and the interfaces to rows 37, 35, 25 and B-FLIGHT — spec'd, not built.
 
-**Status: PLAN, SECOND REVISION. Nothing built, nothing dispatched, nothing promoted.**
+**Status: PLAN, THIRD REVISION. Nothing built, nothing dispatched, nothing promoted.**
 
 ---
 
@@ -29,8 +29,19 @@ ruling did.** Both cases are recorded as findings rather than quietly absorbed:
 Numbers reproduced from the first revision are unchanged unless marked. Everything re-measured for
 this revision is marked **[re-measured]**.
 
-**Findings F8–F11, F13, F15–F18 and F21–F24 reached me as bare identifiers with no accompanying
-text.** They are not addressed below and I have not guessed at them — see §11.
+**Revision 3 folds the remaining thirteen findings** — F8, F9, F10, F11, F13, F15, F16, F17, F18,
+F21, F22, F23, F24 — which arrived as bare identifiers in the first relay and in full in the second.
+All are addressed; §11 records where each landed. Two of them again went further than stated once
+measured, and both are marked in place:
+
+- **F8 understates itself.** The three-slot census misses **15** material strings, not one: every
+  voice carries a `blank` string as well as `walls`, and the bedchamber's three `hangings` ranks are
+  a fourth key. The true string count is **47** (§1.3) — though not all 47 are distinct *materials*,
+  which is the distinction the fix turns on.
+- **F11's bound is not merely un-sampled, it is a constant.** Computed on *declared* geometry rather
+  than measured, the floor demand is 417 px/m on all 74 assemblable facings, because eye and horizon
+  are ruled (§1.8). The four readings F11 cites are painted deviations and belong to the harvest
+  supply question, not the assembly demand question — a conflation of mine that F11 is what exposed.
 
 ---
 
@@ -90,23 +101,75 @@ critic's F3/F4 and it is arithmetically correct.
 shows — median visible floor depth **3.8 m**, not 1.18 m. Every claim that rested on "the visible
 floor is shallow" is withdrawn.
 
+**(d) This table is the SUPPLY side only, and revision 2 conflated it with demand (F11).** Every
+number above is measured on the *painted* boxes the promoted corpus actually has. That is the right
+question for *can this material be harvested*. It is the wrong question for *what resolution must a
+tile carry*, because an assembled facing is built at the **declared** geometry and reproduces none of
+those painted deviations. Demand belongs on declared boxes and is computed there in §1.8.
+
 ### 1.3 The library split that follows
 
-| slot | count | lane | why |
+**[re-measured for revision 3, F8]** Revision 2 counted the strings on three keys — `walls`,
+`ceiling`, `floor` — and there are more. Enumerating *every* string-valued material key on every
+voice object:
+
+| key | what it is | distinct strings |
+|---|---|---|
+| `walls` | the room's wall fabric | 12 |
+| `blank` | **the same wall, said for a wall with NO carrier** (`make-scaffold.mjs:1434`) | 13 |
+| `walls_with_openings` | `outdoors_walled` only: the manor's **exterior brick elevation**, a genuinely different fabric from its garden wall, chosen at `make-scaffold.mjs:1450` and rendered by 7 of the 8 outdoor facings | 1 |
+| `hangings.{best,good,plain}` | `bedchamber` only: three visibly different fabrics selected by room id through `hangingsFor` | 3 |
+| `ceiling` | | 8 |
+| `floor` | | 12 |
+| | | **47 strings** |
+
+**The three-slot census sees 32 of those 47 and misses 15**, which is F8's real weight: it is not one
+overlooked key, and **a test walking a typed triple could never have caught it** — the exact
+clause-6 objection, since the completeness claim rested on that test.
+
+**But 47 strings are not 47 materials, and the distinction is the fix.** `blank` is the *same
+material* phrased for a carrier-free wall — "unbroken oak panelling" is "dark hand-finished oak wall
+panelling" with nothing on it. `walls_with_openings` and the three `hangings` are *different*
+materials. So:
+
+| slot | materials | lane | why |
 |---|---|---|---|
-| **wall fabrics** | 12 | **HARVEST** (11) + swatch (1) | anisotropy 1.000; 11 have a promoted source, `cross_passage` does not |
-| **ceilings** | 8 | **SWATCH** (8) | 0 of 51 clear demand |
-| **floors** | 12 | **SWATCH** (12) | 0 of 51 clear demand |
-| | **32** | **11 harvested, 21 swatch asks** | |
+| **wall fabrics** | **13** | **HARVEST** (12) + swatch (1) | anisotropy 1.000; `cross_passage` has no promoted source |
+| **ceilings** | 8 | **SWATCH** | 0 of 51 clear demand |
+| **floors** | 12 | **SWATCH** | 0 of 51 clear demand |
+| | **33** | **12 harvested, 21 swatch asks** | |
 
-**Thirty-two surface materials cover the entire twenty-two-room manor** — resolved by running
-`voiceFor` over all 88 facings and collecting distinct slot strings. All 14 voices are reached; none
-falls through a fallback. That count is unchanged from the first revision; what changed is which lane
-each material takes.
+**Thirty-three surface materials cover the entire twenty-two-room manor**, 29 of them with a promoted
+wall to harvest from. All 14 voices are reached; none falls through a fallback.
 
-Typed id: `<slot>/<material-slug>`, the slug derived from the material string by a pure function,
-never typed, so two voices sharing a string share a texture by construction (which is why
-`parlour_wainscot` and `parlour_armorial` collapse to one).
+**The bedchamber's three hangings are absorbed by the banded model, not added to it.** Its wall is
+*"oak wainscot to chair height with wall hangings above it"* — which in §1.5's banding is a shared
+`dado` band and three alternative `field` bands. So `bedchamber` is one fabric with a three-way field
+variant across its 12 facings, and the banded structure the anchor already forced turns out to be
+exactly the structure this needs. It is counted as 1 fabric + 2 extra field tiles.
+
+**Material identity, not string identity (F9, F10).** Revision 2 said the id was "a slug derived from
+the material string by a pure function". It was not — my own examples hand-dropped words — and worse,
+**`cross_passage.walls` is a strict prefix of `long_gallery.walls`** (verified: the gallery's string
+is the passage's plus *", with a moulded oak cornice at the wall head"*). Any truncating slug merges
+them silently, and since `cross_passage` is one of the swatch asks, the merge would "solve" it by
+handing the passage the gallery's cornice. So:
+
+- **No derived slug.** Each material carries an **explicit `id`** authored in `MATERIALS`, and a test
+  asserts the id↔string map is a **bijection** over every key of §1.3's table. A collision is a
+  refusal, not a silent merge.
+- **Near-duplicates are aliased by ruling, never automatically (F10).** The census finds real
+  near-identical families — three lime-plastered ceilings (two differing by *plain* versus *flat*
+  alone), three stone-flag floors, three oak-floorboard strings, four wainscot-below-limewash walls.
+  A per-string texture budget buys near-duplicates, so `MATERIALS` carries an optional
+  `same_as: <id>` that makes two strings share one tile. **The table ships with no aliases
+  declared**: whether *"a broad worn stone flagstone floor"* and *"a worn stone flagstone floor"* are
+  one material is a look question — broad flags are not small flags — and it is Kabe's or the
+  Navigator's to rule, with the tile sheet (§4.4 item 7) as the artifact it is ruled on. Each alias
+  declared removes one swatch ask and the arithmetic (§8) moves with it.
+- **One key naming two geometries, noted and deferred.** `back_stair.floor` is *"plain scrubbed oak
+  treads and boards"* — a stair surface and a floor surface in one string. Stair rooms are not
+  assembly customers (§2.6), so this is recorded and left to whoever splits it.
 
 ### 1.4 Where the table lives, and why it is not a new file
 
@@ -114,22 +177,47 @@ never typed, so two voices sharing a string share a texture by construction (whi
 what a voice's prose cannot: `{ id, slot, lane, tiling, harvest, scale_contract }`. No existing voice
 field changes, so `room-voices.spec.mjs` stays green untouched.
 
-- **Completeness is derived, not typed** (the felt lesson of row 11): a test walks `VOICES` and
-  asserts every non-null `walls`/`ceiling`/`floor` string has a `MATERIALS` entry. A future map that
-  invents a room type must add a voice, and the moment it does the test demands its material record.
-  That is clause 6's acceptance test — *does the next map get this for free?* — answered
-  mechanically rather than by intention.
+- **Completeness is derived from the objects, not from a typed list of slots (F8).** Revision 2's
+  test walked `walls`/`ceiling`/`floor` and would have missed 15 strings on the *current* map, which
+  is a completeness claim that was not one. The test now **enumerates every string-valued material
+  key on every voice object** — `walls`, `blank`, `walls_with_openings`, each rank under `hangings`,
+  `ceiling`, `floor`, and anything a future voice invents — and asserts each **resolves to** a
+  `MATERIALS` id. A new key on a voice fails the test until someone says which material it names,
+  which is the only version of this that answers clause 6: *does the next map get this for free?*
+  This is the row-11 felt lesson exactly — completeness derived from the artifacts that exist — and
+  revision 2 got it wrong in the same shape the lesson warns about.
 - **Crossing to Python the way the corpus already does it.** `MEASURED_BAND` is authored in JS and
   reaches `row23_lib` as data in a sidecar. Same here: `node tools/room-voices.mjs --emit-materials`
   writes `backdrops/textures/materials.json`, the Python assembler reads it, and a staleness test
   byte-compares a fresh emit against the committed file — the shape of the two existing bake
   staleness tests in `fixtures.spec.mjs`.
 
-`tiling` per material: `{ axis, module_m, mirror }`. Directional material (floorboards, panelling,
-joists) tiles by **translation along the grain at a material module** — board 0.25 m, panel 0.80 m,
-joist 0.90 m — so a repeat lands on a joint and never mid-board, and **mirrors across** the grain.
-Isotropic material (plaster, flags, gravel, brick) mirror-tiles both ways. These modules are craft
-numbers and the manifest says so beside them, per row 35's precedent with its two budgets.
+**`tiling`, restated so two readers cannot assign the axes oppositely (F13).** Revision 2 said
+material tiles *"along the grain at a material module — board 0.25 m"*, which is incoherent: 0.25 m
+is a board's pitch measured **across** the grain, not a distance along it. And "translation at a
+0.25 m module" reads as a 0.25 m repeat period, which would be visibly wallpapered. Both readings
+were available and neither was the one meant. The record now names the axes in surface coordinates
+and separates pitch from period:
+
+```
+tiling: {
+  grain_axis:   "u" | "v"      the direction the boards/joists/stiles RUN,
+                               in that surface's own two coordinates
+  pitch_m:      0.25           the repeat spacing measured PERPENDICULAR to grain_axis
+                               (board width, panel width, joist spacing)
+  tile_span_m:  [a, b]         the tile's actual extent — a whole number of pitches
+                               across, and as large as the source allows along
+  mirror:       "across"       the axis mirrored on repeat: never the grain axis,
+                               because mirroring across grain is invisible and
+                               mirroring along it reverses the boards
+}
+```
+
+So: **the repeat period is `tile_span_m`, not `pitch_m`.** `pitch_m` only constrains where a repeat
+may fall — on a joint rather than mid-board — by requiring `tile_span_m` across grain to be an
+integer multiple of it. Pitches: board 0.25 m, panel 0.80 m, joist 0.90 m. These are craft numbers
+and the manifest says so beside them, per row 35's precedent with its two budgets. Isotropic material
+(plaster, flags, gravel, brick) sets `grain_axis: null` and mirror-tiles both ways.
 
 ### 1.5 Harvest — wall fabrics only, each from a promoted wall Kabe has seen live
 
@@ -178,10 +266,17 @@ whose blob `scaffold.spec.mjs` asserts has never changed.
 swatch names a ruled physical feature and a count, so px/m is derivable from the returned image
 alone, by arithmetic and not by measurement:
 
-> *"Wide oak floorboards laid vertically, each board exactly 0.25 m wide, exactly 8 boards spanning
-> the image edge to edge."* → `px_per_m = 1536 ÷ (8 × 0.25) = 384 px/m`.
+> *"Wide oak floorboards laid vertically, each board exactly 0.25 m wide, exactly 14 boards spanning
+> the image edge to edge."* → `px_per_m = 1536 ÷ (14 × 0.25) = 439 px/m`.
 
-The feature is the material's own module from `MATERIALS.tiling.module_m`, so the contract is derived
+**The count is the LARGEST that still clears that slot's derived demand**, because a wider swatch
+covers more metres and therefore repeats less often — and repetition is §2.8's named risk. 14 boards
+is 3.50 m at 439 px/m against the floor's 417 px/m bound (§1.8); 15 would cover 3.75 m but only at
+410 px/m, under the bound and so refused before it is asked; 13 would clear it easily at 472 px/m and
+waste a quarter-metre of tile. So the ask's own arithmetic sets the count, trading resolution against
+repetition at the bound, and no craft number enters.
+
+The feature is the material's own `pitch_m` from `MATERIALS.tiling`, so the contract is derived
 from the same table that governs tiling and cannot drift from it. A returned swatch is verified by
 counting the feature — the module's period is exactly what a 1-D autocorrelation of the swatch
 recovers — and a swatch whose recovered period misses the declared one by more than a stated
@@ -200,9 +295,26 @@ exception path, retained because the Captain may rule that a particular wall (bu
 painted overmantel) deserves its own elevation. Its meta is an ordinary §5 meta with
 `corner_x0_px`/`corner_x1_px` null and `storey_height_m` null, which the existing machinery already
 turns into exactly the ask we want: `frameGeometry().bounded === false`, no returns, no ceiling line,
-the anchor spanning the full frame. **No change to `frame-language.mjs` is needed.** Its levelness
-gate: fit the anchor row separately in the left and right thirds and require agreement, reusing row
-35's `MIN_RAMP_SLOPE` reasoning rather than inventing a threshold.
+the anchor spanning the full frame. **No change to `frame-language.mjs` is needed.**
+
+**Its gate is not the levelness test revision 2 proposed (F16).** Fitting the anchor row in the left
+and right thirds and requiring agreement detects a *tilted or rotated* camera — but on a one-point
+view a horizontal line on the facing plane stays horizontal, so a generator that hands back a
+receding side wall, a ceiling line or converging floorboards passes that gate cleanly. It tests the
+wrong thing. What actually separates an elevation from a perspective view is **the absence of
+convergence**, so the gate inverts row 35's own `ramp_refusal`:
+
+- **Both ceiling junctions must fail to be receding lines** — fitted slope under `MIN_RAMP_SLOPE` on
+  both sides, which is exactly the condition `ramp_refusal` currently reports as *"a horizontal edge
+  and not a return"*. In a flat elevation that refusal is the pass.
+- **Vertical edges must be parallel**: fit the panel stiles' verticals and require their pairwise
+  convergence to lie beyond the frame by a stated margin. Perspective converges them; an elevation
+  does not.
+- **No floor line and no ceiling line inside the frame**, since a wall filling the frame shows
+  neither.
+
+Three cheap reads against one existing instrument, and the same reasoning row 35 already uses for
+what counts as a receding line rather than a new threshold.
 
 **A returned swatch or flat wall is stored as a texture.** The library holds TYPED tiles (reusable
 material) and UNIQUE tiles (one physical wall's elevation), and the assembler consumes them
@@ -258,11 +370,47 @@ the frame. The requirement I was given is right; the reason is the opposite one.
 Corpus figures: `px_per_m_at_wall` 42.1 / 160.0 / 337.9; `px_per_m_at_bottom` 354.2 / 411.9 / 503.3;
 floor band below the floor line 102 / 301 / 445 px; `nearest_floor_m` 1.824 / 2.542 / 2.903.
 
-**Floor swatches are asked at 512 px/m** — a craft number with its evidence: the corpus's largest
-demand measured two ways is 485 px/m (§1.2) and 503.3 px/m (`px_per_m_at_bottom` max), and 512 is the
-next power of two above both. Ceiling swatches at 384 px/m against a 359 px/m demand. Wall tiles at
-the largest demand their own slot makes. **Because they are asked rather than harvested, the swatch
-lane simply delivers these**, which is the whole reason the ruling moved them.
+**The tile resolutions are DERIVED, not craft numbers, and revision 2's were both (F11).** Revision 2
+gave floors a power-of-two "craft number with its evidence" and left wall and ceiling "computed and
+recorded rather than assumed" — an inconsistency with no reason offered — and it took its evidence
+from *measured* metas, which is a sample and not a bound. F11 is right on both counts: four PASS
+readings already exceed 503.3 px/m (`kitchen/W` 1212.8, `great_hall/N` 841.3, `library/N` 601.1,
+`privy_garden/W` 579.9; `garden_room/E` sits exactly at it), so 503.3 was the corpus maximum, never a
+ceiling.
+
+**[re-measured]** The demand is computed the one way it can be bounded: on the **declared** box of
+every facing, through the same per-axis resolution measurement as §1.2, at the 99th percentile of
+each region:
+
+| surface | declared demand, median | declared demand, MAX | facings |
+|---|---|---|---|
+| floor | 417 px/m | **417 px/m** | 74 |
+| ceiling | 325 px/m | **325 px/m** | 68 |
+| wall | 171 px/m | **476 px/m** | 76 |
+
+**Floor and ceiling demand are constants across the whole building**, because eye height and horizon
+are ruled and only `px_per_m_at_wall` varies between facings — the ground-plane scale at the frame
+bottom is `(H − horizon) ÷ eye` and both terms are fixed. So *every* assembled floor asks 417 px/m
+and *every* assembled ceiling 325 px/m, and these are bounds rather than samples. The swatch asks
+carry exactly those numbers, one derivation, all three slots.
+
+**And that measurement quietly resolves F11's sharpest point.** `kitchen/W` at 1212.8 px/m is not a
+demand this row must meet: it is a *painting* that deviates from the declared camera, and an
+assembled facing reproduces the declared camera, not the painting. Those four outliers belong to the
+harvest-supply question (§1.2d), which is why revision 2 reading them as demand was a conflation.
+*(F11 places `great_hall/N` on §5.1's customer list; the list carries `great_hall/E` and
+`great_hall/W`. The room is right, the facing is not — and the substance is unaffected, since
+`kitchen/W` is a return-source for `kitchen/N`, which is the demo wall.)*
+
+**Wall fabric is the one slot where supply is genuinely marginal.** Demand runs to 476 px/m at the
+worst facing against a best harvest supply of 338 px/m (§1.2) — a ratio of 1.41×, just inside the
+1.5× flag — while the median case is 171 against 161, or 1.06×. So the median wall harvests
+comfortably and the worst wall does not, and the build reports the ratio per material rather than
+assuming the median holds. A material whose worst consumer exceeds the flag converts to a swatch,
+like any other conversion (§8).
+
+**Because they are asked rather than harvested, the swatch lane simply delivers these**, which is the
+whole reason the F3/F4 ruling moved floors and ceilings into it.
 
 **Textures tile to whatever the view needs, so the frame bottom is real material by construction and
 never an extension.** That is the third motivation's cure, and it is structural: no code path in the
@@ -466,14 +614,28 @@ inherits it unchanged and re-runs it on assembled boxes.
 
 **Across frames — construction, and this is the row's own claim.**
 
-- **The coordinate agreement test.** For each adjacent facing pair, sample N points on the shared
-  physical surface from both frames and assert the plan-metre coordinates agree to < 1e-6.
-  Arithmetic, milliseconds, and the test that goes red the day anyone anchors a texture to a frame.
-- **The pixel agreement test.** Re-project facing A's right-return region into B's frame and measure
-  per-pixel agreement over the overlap. **The tolerance is not chosen**: the control is a
-  double-resample of the same source through the identity, measured on the same frame, and the bar is
-  that cross-facing disagreement does not exceed it by more than the resampling the two paths differ
-  by. No band is invented.
+- **The coordinate agreement test — a code regression test, and named as one (F15).** For each
+  adjacent facing pair, sample N points on the shared physical surface from both frames and assert
+  the plan-metre coordinates agree to < 1e-6. Arithmetic, milliseconds, and it goes red the day
+  anyone anchors a texture to a frame instead of to the world — which is the single defect most
+  likely to reintroduce the disease this row cures, so it earns its place. **What it is not is a
+  quality bar**: it compares the assembler's arithmetic with itself and would pass over a room built
+  entirely from wrong pixels. Revision 2 leaned on it as a bar in §4.2; it no longer does.
+- **The pixel agreement test, with a bar that is actually computable (F15).** Revision 2's tolerance
+  — *"does not exceed the control by more than the resampling the two paths differ by"* — named no
+  quantity and could not be evaluated. The bar is now the control itself, and the construction is
+  what removes the free parameter:
+
+  > `D_cross` = RMS difference, over the overlap, between facing A's return region re-projected into
+  > B's frame and B's own pixels there.
+  > `D_control` = RMS difference, over the same overlap, between B's pixels and B's pixels passed
+  > through **the same number of resamples with the geometry composed to the identity**.
+  > **Bar: `D_cross` ≤ `D_control`.**
+
+  If the geometry is exact, the two paths differ by nothing except resampling, and the control
+  applies exactly as much resampling. So a passing assembly satisfies the bar with no tolerance at
+  all, and any excess is geometric error rather than interpolation. Nothing is chosen; the control is
+  computed on the same frame in the same run.
 
 ### 2.6 Flights are not assembly's, stated (F1)
 
@@ -547,25 +709,41 @@ The four content-scaffold returns dispatched on the row-23 NULL trigger — `b91
 `ad04dc51`, `0cbdea31`, all on `study/N`, recorded in
 `design/plan-draft/measured/row23/assignment-2.json` — were painted, never measured.
 
-**`measure.py --round row23` cannot run today.** It passes
-`dict(pick_floor=…, module_in_bands=…)` as its `picks`, and rows 32/35 grew `measure_candidate` a
-promotion half that reads `picks["EYE_RANGE"]`. It dies on `KeyError: 'EYE_RANGE'` at
-`row23_lib.py:598`. **That is why nobody scored these: the instrument path that produced the other 24
-readings rotted, and no test covers it.** The one-line fix (pass the full picks set, as all three
-other callers do) is in this row's build, with a case that goes red without it.
+**`measure.py --round row23` cannot run today.** `measure.py:4009` injects **2 of the 8 keys**
+`_promotion_half` needs — `EYE_RANGE`, `pick_ceiling`, `find_corners_recession`, `ceiling_ramp_vp`,
+`horizon_votes` and `light` are all missing — and rows 32/35 grew `measure_candidate` that promotion
+half without updating this caller. It dies on `KeyError: 'EYE_RANGE'` at `row23_lib.py:598` before
+measuring anything. **That is why nobody scored these: the instrument path that produced the other 24
+readings rotted, and no test covers it.**
 
-I scored all 20 of `study/N`'s returns with the full picks against the Kabe-ruled `cand5ref`
-reference, joining technique to id at table time. Nothing was written into the repo.
+**Revision 2 called it "the one-line fix", which undersold it (F18).** The *edit* is small, because
+`row35_snap.picks()` (`row35_snap.py:637`) already imports every one of the eight from `measure` —
+so the fix is to delegate to that one home rather than to re-list six names in a second place. What
+must not be small is the red case: **it has to exercise the promotion half**, not merely assert the
+command exits 0. A case that runs `--round row23` and checks for a `_promotion` block with a hold
+family in it goes red on today's tree and green on the fix; a case that checks the exit code would
+pass the moment someone stubbed the KeyError away.
+
+**The scoring script ships (F17).** Revision 2 quoted numbers and said only *"nothing was written
+into the repo"*, so a reader could not check them without reconstructing the picks injection.
+`design/plan-draft/measured/row36_t4_score.py` is committed with this revision: it scores all 20 of
+`study/N`'s returns with the full picks against the Kabe-ruled `cand5ref` reference, joins technique
+to id at table time per row 23's discipline, prints §3.2's table, and writes nothing but an optional
+`--json`. Run it and the numbers below come out.
 
 ### 3.2 The numbers
 
 | tech | n | camera PASS | hold families | median \|Δfocal\| % | median \|Δeye\| % | carrier found |
 |---|---|---|---|---|---|---|
 | lens (unassigned) | 4 | 3 | 0 | 3.91 | 1.47 | 0/4 |
-| t1 frame only | 4 | 2 | 1 | 7.27 | 5.55 | 0/4 |
+| t1 frame only | 4 | 2 | 1 | 7.26 | 5.54 | 0/4 |
 | t2 labelled scaffold | 4 | 2 | 1 | 8.10 | 4.88 | 0/4 |
-| t3 scaffold + prose | 4 | 3 | 0 | 4.47 | 4.51 | 0/4 |
+| t3 scaffold + prose | 4 | 3 | 0 | 4.47 | 4.50 | 0/4 |
 | **t4 content-scaffold** | **4** | **4** | **3** | **4.75** | **3.20** | **0/4** |
+
+*(t1 and t3's medians read 7.27/5.55 and 4.51 in revision 2 — a last-digit difference from averaging
+the middle pair of an even-length list. The committed script's output is the authority and these are
+its figures.)*
 
 Per roll: `b912746e` PASS, 764.7 px (−6.70 %), 1.166 m (−1.47 %), `suspect-painting`; `f8c180d2`
 PASS, 805.9 (−1.67 %), 1.219 (+3.07 %), `unfitted-horizon`; `ad04dc51` PASS, 796.7 (−2.79 %), 1.222
@@ -608,9 +786,15 @@ actually saw:
 
 **The destination frame's last row, stretched downward, inside every through-doorway.** Row 25(d)
 measured this class already: a through-view composite is 22–38 % destination and the rest edge
-extension, with single-pixel-derived blocks totalling 17 % of the picture. **47 of the manor's walls
-carry a door**, which fits *"many of the rooms"* — and fits his next sentence: *"we need to address
-this with proper size source images which I trust we will have when we assble panels."*
+extension, with single-pixel-derived blocks totalling 17 % of the picture.
+
+**[corrected, F21b]** Revision 2 said *"47 of the manor's walls carry a door"*, which is reachable
+but only under one reading of three available: **46** facings carry a door-kind opening, **47**
+non-open facings carry any aperture, and **48** render a through-view. The right number for this
+claim is the last one — the smear is drawn by the through-view compositor, so what matters is how
+many facings composite one. **48 of 88 facings render a through-view**, which fits *"many of the
+rooms"* and fits Kabe's next sentence: *"we need to address this with proper size source images
+which I trust we will have when we assble panels."*
 
 - Assembly cures the class by construction wherever it composes (§1.8).
 - **The through-view fix is row 25's, not this row's.** §6.3 specs the interface.
@@ -643,13 +827,31 @@ the acceptance run reports per facing:
 | `carrier_edges` | yes | resolvable edge pairs; unread on this corpus already |
 | `pick_floor`, `module_in_bands` | **no — always return a row** | nothing; hence §1.5's banded fabric and the stub's contract item 1 |
 
+**And the table above is the wrong table on its own, because detectors do not refuse promotions
+(F23).** What actually refuses a wall is the promotion clause set, and revision 2 enumerated the
+measurement instruments instead — which reads as reassurance precisely where the risk is. The gates
+that decide, and what an assembled plain wall does to each:
+
+| promotion gate | what it refuses on | an assembled facing |
+|---|---|---|
+| **the lens band** (±8 % focal) | a painted camera outside the band | passes by construction — built at the declared lens. **Cannot fail; proves nothing.** |
+| **the eye band** (±8 %) | eye height outside the band | same. **Cannot fail; proves nothing.** |
+| **the door assignment** (row 27) | the plan rules a way through and the painting shows none | **THE live gate.** This is what refused `great_hall/N` and `library/S` after the snap, and it is why §2.4 paints the void. It can fail three ways and it is §5.3's headline. |
+| **the flight clause** (row 32) | the plan draws a staircase and the meta carries none | **cannot be satisfied by assembly at all** — hence the twelve stair facings are not customers (§2.6, §5.1). |
+| **the vista rule** (row 29a) | an open facing measured as an interior | excluded outright (§1.10). |
+
+Three of the five are exactly what a plain assembled wall trips, which is F1 restated from the gate
+side: **two of the gates cannot fail on an assembly and the other three are the whole examination.**
+
 ### 4.2 The real bar 1 — the flip test on turning
 
 Beyond §2.5's two agreement tests:
 
 - **Same-surface identity across the turn.** For each assembled room, capture all four facings and
   assert every physical surface appearing in two of them derives from the same tile at the same plan
-  coordinates — reported as a table, per room, per surface.
+  coordinates — reported as a table, per room, per surface. **This is the coordinate test and it is a
+  code regression check, not a quality bar** (F15): it proves the assembler is consistent with
+  itself. The quality claim rests on the pixel-agreement bar and on Kabe's eye, below.
 - **The corner strip comparison, as a picture.** For each adjacent pair, a side-by-side of A's
   right-edge strip and B's left-edge strip, which depict the same physical wall. The test measures
   the seam; Kabe judges it.
@@ -665,6 +867,13 @@ carries the row-33 clock.
 
 One capture spec everywhere, §12.6's: scene canvas at native 1536×1024, Playwright element
 screenshot, cold `file://`, no chrome, no hover.
+
+**Every item is `kitchen`, and that is the point (F24).** Revision 2's capture set was entirely
+`buttery_pantry`, whose four walls come from their own promoted lit elevations — so Kabe would never
+have seen a wall assembled as plain fabric with its carrier absent or sprited, which is the general
+case §2.4 declares and the case §8's arithmetic prices. **The F7 fix answers this**: `kitchen/N` is
+unpromoted, plain, door-only, with swatch floor and ceiling and both returns re-projected, so the
+capture set now shows the mechanism rather than the special case.
 
 1. **The turning set** — the demo room, all four facings in turn order, before and after.
 2. **The corner strips** — four adjacent-pair strips, before and after.
@@ -686,8 +895,26 @@ screenshot, cold `file://`, no chrome, no hover.
 ### 5.1 The honest customer set — 9, not 31 (F1)
 
 **[re-measured]** A facing is a customer only if it is genuinely unpromoted **and** its wall trips no
-clause the assembler cannot satisfy. Attributing every plan carrier to its wall and crossing that
-with `run-state.json` and the store:
+clause the assembler cannot satisfy.
+
+**The tree this census was taken on, named (F22).** Commit **`5dd7d1c`**, worktree
+`agent-a3556e121f5697c28`, whose `run-state.json` reads promoted 52 / held 18 / retry 9 / parked 4 /
+admitted-not-promoted 2. **The live tree has already moved**: the production loop's own
+`run-state.json` at the repository root now reads promoted 52 / **held 27** / parked 4 /
+admitted-not-promoted 2 — the nine `retry` walls have been absorbed into `held` with no retry status
+remaining. The bucket totals below are unchanged by that (a retry and a hold are both unpromoted),
+but **the loop is live and every status figure here is a snapshot**, so the build re-takes the census
+against the tree it runs on rather than trusting this table.
+
+**How each carrier was attributed, stated correctly (F21a).** Doors, windows and hearths are
+attributed to a wall by **rect coincidence** with that facing's `wall_line`. Flights are not:
+neither stair rect touches any wall line, so strict rect coincidence gives 74/10 rather than 76/8,
+and the 76/8/4 split comes out only via `stairsForFacing`'s **in-view** rule — which is the correct
+rule for a flight, since a staircase is a solid standing on the floor rather than a feature in a
+wall (§2.6). Revision 2 said "by rect coincidence" of the whole census; the numbers were right and
+the stated method was not.
+
+Attributing that way and crossing with `run-state.json` and the store:
 
 | bucket | n | why |
 |---|---|---|
@@ -879,9 +1106,10 @@ because floors and ceilings cannot be harvested (§1.2).
 |---|---|---|
 | full frames asked | 88 | **0** |
 | rolls actually spent to promote 54 walls | **232** `generate.roll` records, **median 42 min** (`timings.jsonl`, n=232, p50 2516 s, p90 4802 s) | — |
-| distinct surface materials the manor needs | — | **32** |
-| harvested from already-promoted walls | — | **11** (wall fabrics; anisotropy 1.000) |
+| distinct surface materials the manor needs | — | **33** (12 walls + 1 exterior elevation, 8 ceilings, 12 floors) |
+| harvested from already-promoted walls | — | **12** (wall fabrics; anisotropy 1.000) |
 | **new model calls — swatches** | — | **21** (12 floors, 8 ceilings, 1 wall fabric) |
+| extra field tiles for the bedchamber's three hangings ranks | — | 2, absorbed by the banded model (§1.3) |
 | unique wall elevations, if the Captain rules any deserve one | — | 0 required; 1 call each, once, ever |
 | carrier sprites | painted into 76 walls, 4× over | ~4 families, row 4's lane |
 | everything else | — | arithmetic; `snap.wall` runs at **11.9 s median** (n=51) and assembly is the same order |
@@ -890,15 +1118,24 @@ because floors and ceilings cannot be harvested (§1.2).
 forever and across buildings. For the next building (row 31's Test Build 2), if it shares this
 material vocabulary: **zero** — clause 6's acceptance test answered with a number.
 
-Evidence: 88/80/4/4 facings and 76/8/4 carrier attribution from the plan by script; 32 / 11 / 21 from
-`room-voices.mjs` resolved over every facing crossed with §1.2's anisotropy test; 232 rolls and
-2516 s from the committed timings ledger; 54 promoted from the store; 11.9 s from row 35's clock.
+**The material count moved 32 → 33 and the swatch count did not (F8).** The thirteenth wall fabric
+is `outdoors_walled`'s `walls_with_openings` — the manor's own exterior brick elevation, which 7 of
+the 8 outdoor facings render and which revision 2's three-slot census could not see. It has a
+promoted source, so it joins the harvest lane and the 21 swatches stand. Any alias the Captain later
+rules under §1.3 removes a swatch and moves this table with it.
+
+Evidence: 88/80/4/4 facings and 76/8/4 carrier attribution from the plan by script (doors, windows
+and hearths by rect coincidence, flights by `stairsForFacing`'s in-view rule, per §5.1); 47 strings →
+33 materials → 12 harvested / 21 swatch from every string-valued material key on every voice object,
+crossed with §1.2's anisotropy test; 232 rolls and 2516 s from the committed timings ledger; 54
+promoted from the store; 11.9 s from row 35's clock.
 
 **Three honesties.** It counts *asks*, not quality — 21 swatches that come back wrong are 21 more
-swatches. The 11 harvests are only free if their windows clear §1.7's neutrality bar and firelight
-rule; each failure converts to a swatch, and the build reports the conversion count rather than
-assuming zero. And the swatch count rising from 4 to 21 is not a cost the row discovered — it is the
-first revision's error being corrected.
+swatches. The 12 harvests are only free if their windows clear §1.7's neutrality bar and firelight
+rule **and their worst consumer stays inside the 1.41× supply ratio of §1.8**; each failure converts
+to a swatch, and the build reports the conversion count rather than assuming zero. And the swatch
+count rising from 4 to 21 is not a cost the row discovered — it is the first revision's error being
+corrected.
 
 ---
 
@@ -1004,19 +1241,67 @@ harvesting both and would have shipped interpolated material calling itself meas
 240 px/m against a corpus median of 161 px/m (§1.2c). Every claim resting on "the visible floor is
 shallow" is withdrawn.
 
+**FA-11** — **the completeness test was not a completeness test.** It walked a typed triple and would
+have missed 15 of 47 material strings on the *current* map, including a whole exterior elevation
+(§1.3). The clause-6 claim rested on it, and this is the row-11 felt lesson — completeness derived
+from the artifacts that exist — failing in the very shape the lesson warns about.
+
+**FA-12** — **the material id was not a pure function and would have merged two materials.**
+`cross_passage.walls` is a strict prefix of `long_gallery.walls`, and a truncating slug hands the
+passage the gallery's cornice — while "solving" one of the swatch asks by doing so (§1.3).
+
+**FA-13** — **I conflated harvest supply with assembly demand.** §1.2's figures are measured on
+painted boxes; assembled facings are built at declared geometry. On declared boxes the floor demand
+is a constant 417 px/m and the ceiling 325 px/m, so the tile resolutions are bounds rather than the
+craft numbers revision 2 gave them (§1.8).
+
+**FA-14** — **the flat-wall gate tested the wrong thing.** A horizontal line on the facing plane
+stays horizontal in a one-point view, so the levelness test would pass a returned image with a
+receding side wall, a ceiling line or converging floorboards (§1.6).
+
+**FA-15** — **§2.5's pixel-agreement bar was not computable as written**, and §4.2 leaned on the
+coordinate test as a quality bar when it is a code regression test (§2.5, §4.2).
+
+**FA-16** — **§4.1 enumerated detectors where promotion is decided by gates.** Two of the five gates
+cannot fail on an assembly and three are the whole examination (§4.1).
+
 **FA-10** — **the customer set was 31 and is 9**, and the proposed order of attack — "the 8
 featureless walls first" — was empty, because all 8 are already promoted (§5.1).
 
 ---
 
-## 11. WHAT I COULD NOT ADDRESS
+## 11. WHERE EACH FINDING LANDED
 
-The relay carried full rulings for **F1, F2, F3+F4, F5, F6, F7, F12, F14, F19 and F20**, all
-addressed above. It also directed me to fold **F8, F9, F10, F11, F13, F15, F16, F17, F18, F21, F22,
-F23 and F24** *"as the critic states them"* — but the critic's report was not included in the relay,
-is not committed anywhere in the repository, and I hold no mailbox seat to fetch it from.
+All twenty-four are folded. Nothing is outstanding.
 
-**Thirteen findings are therefore unaddressed, and I have not guessed at their content.** Inventing
-what a critic said in order to appear to have answered it is the one failure mode a plan critic
-cannot catch, because the fabricated answer reads exactly like a real one. **The plan is not ready
-for licence until those thirteen are folded in**; send the report text and they go into this revision.
+| finding | where | what changed |
+|---|---|---|
+| F1 | §2.4, §2.6, §5.1 | the assembler paints the door void; stair walls excluded; customers 31 → 9 |
+| F2 | §2.7, §6.1 | bake-time lighting stub, four-item output contract, the LIT bake promotes |
+| F3+F4 | §1.2, §1.3 | floors **and ceilings** leave the harvest lane; swatches 4 → 21 |
+| F5 | §1.7 | firelight excluded by rule; per-channel de-lighting; `chroma_drift` gated with a floor |
+| F6 | §1.6 | swatch scale contract; banded swatch form for wall fabrics |
+| F7 | §5.2, §5.3 | `kitchen` replaces `buttery_pantry`; headline metric → the door-void round trip |
+| **F8** | §1.3, §1.4, §8 | 47 strings, 15 invisible to a three-slot test; completeness derived from the voice objects; 33 materials |
+| **F9** | §1.3 | explicit ids with a bijection test — the prefix collision would have merged two materials |
+| **F10** | §1.3 | `same_as` aliasing by ruling, never automatic; none declared at ship |
+| **F11** | §1.8 | resolutions derived on declared boxes: floor 417, ceiling 325, wall 476 px/m |
+| F12 | §2.2 | wall origin: room corner, perimeter walked in a fixed sense |
+| **F13** | §1.4 | `grain_axis` / `pitch_m` / `tile_span_m` / `mirror`, pitch separated from period |
+| F14 | §2.2 | floors and ceilings anchored to the storey slab, not the room |
+| **F15** | §2.5, §4.2 | pixel bar becomes `D_cross ≤ D_control`; coordinate test credited as a regression test |
+| **F16** | §1.6 | flat-wall gate replaced: absence of convergence, not levelness |
+| **F17** | §3.1 | `row36_t4_score.py` committed; it prints §3.2's table |
+| **F18** | §3.1 | 2 of 8 picks, not one line; the red case must exercise the promotion half |
+| F19 | §1.9 | textures to `backdrops/textures/` |
+| F20 | §1.10 | vistas excluded, with row 38 named as the other lane |
+| **F21** | §3.4, §5.1 | 48 through-views; flights attributed by in-view rule, not rect coincidence |
+| **F22** | §5.1 | census tree named as `5dd7d1c`; the live loop has already moved past it |
+| **F23** | §4.1 | the five promotion gates added; two cannot fail, three are the examination |
+| **F24** | §4.4 | answered by the F7 fix — the capture set is now `kitchen`, the general case |
+
+**What I would still flag to the Navigator, as observations rather than gaps.** The `same_as` aliases
+of F10 are a look ruling nobody has taken yet, and until they are taken the swatch count is an upper
+bound. `back_stair.floor` names two geometries in one string and is deferred with the stair lane.
+And §5.1's status figures are a snapshot of a tree the production loop has already moved past — the
+build re-takes that census rather than trusting the table.
