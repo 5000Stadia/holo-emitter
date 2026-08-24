@@ -853,8 +853,8 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
         }
       }
     }
-    /* And the HIT REGION is the convex hull of the treads — a shape the page
-     * can test a point against, which a bow-tie is not. */
+    /* And the HIT REGION is the convex hull of the BODY THE PICTURE DRAWS — a
+     * shape the page can test a point against, which a bow-tie is not. */
     const hull = (pts) => {
       if (pts.length < 3) return pts.slice();
       const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
@@ -891,7 +891,23 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
     }
     const floorRing = ring(floorQuad);
     const wellRing = ring(wellQuad);
-    const onFrame = (r) => r.some((q) => q[1] > -EPS && q[1] < H && q[0] > -EPS && q[0] < canvasW);
+    /* [ROW 25] EVERY POINT OF THE DRAWN BODY, in one list, for the hit region
+     * below: the stringers, the goings and risers, and the footprint ring — the
+     * three things `renderer.js` fills and strokes for a flight. Built from the
+     * rings THEMSELVES rather than from the points they were built out of,
+     * because the riser feet are in the quads and in nothing else, and a hit
+     * region derived from a narrower set than the drawing is the whole of this
+     * row's first defect. */
+    const bodyPts = [];
+    for (const r of mass) for (const q of r) bodyPts.push(q);
+    for (const q4 of quads) for (const q of q4) bodyPts.push(q);
+    for (const q of floorRing) bodyPts.push(q);
+    /* The DECLARED extent, and it is deliberately the noses and the footprint
+     * and not `bodyPts`: `x/y/w/h` and `raw_w/raw_h` are what the row-26
+     * usability clause scores and what the scaffold stamps a box at, and
+     * `flightsForFacing` re-derives them from `noses` + `floor_poly` as the one
+     * declared extent. The hit region is a POLYGON and is tested as one, so it
+     * needs no rectangle to agree with. */
     const all = stepPts.concat(floorRing);
     if (!all.length) continue;
     const xs = all.map((q) => q[0]), ys = all.map((q) => q[1]);
@@ -924,20 +940,35 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
        * width is a real claim and this one was not. */
       raw_w: Math.max(...xs) - Math.min(...xs),
       raw_h: Math.max(...ys) - Math.min(...ys),
-      /* THE OUTLINE A PLAYER AIMS AT: the convex hull of the flight's WHOLE
-       * visible body — the noses and the footprint they stand on together —
-       * where any of it is in the frame, and the footprint alone where no nose
-       * is, which is a descending flight at this eye height whose steps drop
-       * below the frame within a metre and leave only the well in the floor.
+      /* THE OUTLINE A PLAYER AIMS AT IS THE BODY THE PICTURE DRAWS, and it is
+       * built from every point of it: the goings and the risers (`treads_poly`),
+       * the stringers (`mass_poly`) and the footprint ring the flight stands in
+       * — the three things the renderer fills and strokes for a flight and
+       * nothing else. Their convex hull, because the page tests a point against
+       * ONE ring and a flight's own outline self-crosses.
        *
-       * The noses alone are not it. On a flight climbing away from you they
-       * bunch into a patch high on the far wall, and a player standing AT THE
-       * FOOT of the stair, aiming at the bottom step beside them, missed it
-       * entirely: the only place a click climbed was a corner of the frame
-       * nowhere near the stair. The body a person aims at reaches the floor. */
-      poly: (stepPts.length >= 6 && onFrame(stepPts))
-        ? hull(stepPts.concat(floorRing))
-        : floorRing,
+       * [ROW 25] THE CONDITION THAT USED TO STAND HERE IS THE DESCENDING BUG.
+       * It read `stepPts.length >= 6 && onFrame(stepPts) ? hull(stepPts +
+       * floorRing) : floorRing` — the noses' own hull where enough noses were on
+       * the frame, and THE FOOTPRINT ALONE where they were not. A descending
+       * flight is exactly that case, and its body is drawn BELOW its footprint:
+       * on `stair_landing/S` the region and the picture were disjoint sets, so
+       * 42,864 px of drawn staircase took 0 % of a click on its own solid and
+       * 31.5 % over the footprint ring too. The fallback was a proxy for a
+       * question the body answers directly, and the body is asked now.
+       *
+       * The hull is not a looser region than the union of those rings: measured
+       * on all four travel facings it is the SAME SET inside the frame — 100 %
+       * of the drawn body, 0.0 % of it claiming anything the picture draws no
+       * stair in — because a flight's visible body is convex except for the
+       * sawtooth its own mass fills in. `stair.spec` measures both halves, so a
+       * geometry that made the hull loose would fail the second one.
+       *
+       * The noses alone were never it either, for the mirror-image reason: on a
+       * flight climbing away from you they bunch into a patch high on the far
+       * wall, and a player standing AT THE FOOT of the stair, aiming at the
+       * bottom step beside them, missed it entirely. */
+      poly: hull(bodyPts),
       treads_poly: quads,
       noses: noses,
       mass_poly: mass,

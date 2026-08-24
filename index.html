@@ -860,11 +860,41 @@
       }
       return inside;
     }
+    /* How far a point lies outside an outline — distance to the nearest edge,
+       which is what a tolerance ring around a POLYGON means. A ring measured
+       from the rectangle instead is the overshoot the outline exists to
+       refuse. */
+    function distToPoly(poly, x, y) {
+      var best = Infinity;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var ax = poly[j][0], ay = poly[j][1], bx = poly[i][0], by = poly[i][1];
+        var dx = bx - ax, dy = by - ay;
+        var len2 = dx * dx + dy * dy;
+        var t = len2 > 0 ? ((x - ax) * dx + (y - ay) * dy) / len2 : 0;
+        t = t < 0 ? 0 : (t > 1 ? 1 : t);
+        var ex = x - (ax + t * dx), ey = y - (ay + t * dy);
+        var d = Math.sqrt(ex * ex + ey * ey);
+        if (d < best) best = d;
+      }
+      return best;
+    }
+    /* [Row 25] WHERE AN APERTURE CARRIES AN OUTLINE, THE OUTLINE DECIDES, and
+       the rectangle is not consulted at all.
+       `x/y/w/h` on a flight are the clamped extent of a NARROWER point set than
+       the body the picture draws — the noses and the footprint, which is what
+       the row-26 usability clause scores — so a rectangle test in front of the
+       polygon can only ever subtract from it, and on `back_stair_head/W` it
+       did: the body runs 295 px past the declared rect's own bottom edge, drawn
+       and unclickable. The polygon is the whole of the claim; a point inside it
+       is on the flight, a point outside it is not, and the forgiveness ring
+       below measures from the outline. */
     function apertureHolds(a, x, y, marginPx) {
       var m = marginPx || 0;
-      if (!(x >= a.x - m && x < a.x + a.w + m && y >= a.y - m && y < a.y + a.h + m)) return false;
-      if (a.poly && a.poly.length >= 3 && m === 0) return insidePoly(a.poly, x, y);
-      return true;
+      if (a.poly && a.poly.length >= 3) {
+        if (insidePoly(a.poly, x, y)) return true;
+        return m > 0 && distToPoly(a.poly, x, y) <= m;
+      }
+      return x >= a.x - m && x < a.x + a.w + m && y >= a.y - m && y < a.y + a.h + m;
     }
     function apertureList() {
       return window.HOLO.renderer.apertures(
@@ -894,12 +924,16 @@
       var best = null;
       for (var i = 0; i < list.length; i++) {
         var a = list[i];
-        /* NOT AROUND AN OUTLINE. A margin is measured from a RECTANGLE, and a
-           flight's rectangle takes in the bare floor beside it — which is the
-           overshoot this ring has already been wrong in once. A flight needs no
-           forgiveness either: the manor's narrowest draws 143 CSS px across on a
-           phone, where its narrowest doorway draws 17. */
-        if (a.poly && a.poly.length >= 3) continue;
+        /* [Row 25] AND IT REACHES AN OUTLINE TOO, measured from the outline.
+           This used to skip any aperture carrying a polygon — "a margin is
+           measured from a RECTANGLE, and a flight's rectangle takes in the bare
+           floor beside it" — which was true of the rectangle and became a
+           second reason a player at the head of a stair could not use it: the
+           one way through with no forgiveness at all was the one whose region
+           was already wrong. `apertureHolds` measures a polygon's margin from
+           its own edges now, so the ring costs nothing it was written to
+           refuse, and the flight that draws 143 CSS px across on a phone simply
+           never needs it. */
         if (!apertureHolds(a, p.x, p.y, marginPx)) continue;
         if (!best || a.w * a.h < best.w * best.h) best = a;
       }
