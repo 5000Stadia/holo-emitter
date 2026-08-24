@@ -16,7 +16,8 @@ Use the browser link above, or open `index.html` locally (double-click works —
 build). Unestablished space renders as the holodeck grid; turn with the arrow keys or the edge
 chevrons. Everything clickable is reachable by keyboard alone too — Tab to it, Enter or Space to
 act — and the button in the corner fills the screen with the picture (a plain in-page fallback
-takes over wherever the browser withholds real fullscreen).
+takes over wherever the browser withholds real fullscreen). The label in the opposite corner says
+which room you are standing in and which way you are looking.
 
 So far: the whole house is walkable, and two walls of it are painted. Twenty-two rooms, courts and
 gardens over two floors; you can walk from the gravel outside the front, in through the court, the

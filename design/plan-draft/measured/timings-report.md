@@ -107,3 +107,8 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   unreadable while the baton showed loop-active. Restarted; refinement for the loop: reload
   when retries.json's mtime moves, so a long-lived watcher cannot go stale against its own
   worklist. Same family as the second-coat invisibility - a worklist handoff seam.
+- 2026-08-24 tick: (a) the stale-worklist seam bit a THIRD time (the nine content re-asks
+  invisible to the running loop) and is now fixed in code - refresh_retries() on every watch
+  pass by mtime; ritual restarts retired. (b) analyzer refinement: emit.facing flagged 6.53x
+  on a ~17ms base - ratio regressions need an absolute floor (ignore steps under ~1s total)
+  or trivial steps will cry wolf.

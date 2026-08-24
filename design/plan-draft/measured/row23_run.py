@@ -77,6 +77,21 @@ def _load_retries():
 
 
 RETRIES = _load_retries()
+_RETRIES_MTIME = os.path.getmtime(RETRIES_FILE) if os.path.exists(RETRIES_FILE) else 0
+
+
+def refresh_retries():
+    """[row 33 seam fix] A long-lived watcher may not go stale against its own
+    worklist. Three times now a writer added retry rolls after this module
+    loaded and the sweep walked past returned work while reporting healthy —
+    the second coat, the retry-5 production test, the content-gap nine. The
+    watch loop calls this each pass; the mtime check keeps it free."""
+    global RETRIES, _RETRIES_MTIME
+    m = os.path.getmtime(RETRIES_FILE) if os.path.exists(RETRIES_FILE) else 0
+    if m != _RETRIES_MTIME:
+        RETRIES = _load_retries()
+        _RETRIES_MTIME = m
+        print("  retries.json moved - worklist reloaded (%d walls)" % len(RETRIES))
 OUT = os.path.join(HERE, "manor")
 
 PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
@@ -1169,6 +1184,7 @@ def main():
     manifest = json.load(open(MANIFEST))
 
     while True:
+        refresh_retries()
         state = load_state()
         _t = time.time()                                          # [row 33]
         promoted, failed, parked, waiting = sweep(manifest, state, not a.no_promote)
