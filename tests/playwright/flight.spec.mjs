@@ -40,7 +40,7 @@ import {
 } from "../../tools/make-scaffold.mjs";
 import { deriveMeta, stairsForFacing, flightsForFacing, stairPlanFacts }
   from "../../tools/plan-projection.mjs";
-import { flightLines } from "../../tools/frame-language.mjs";
+import { flightLines, askNamesAFlight } from "../../tools/frame-language.mjs";
 import {
   REASONS, GRANTS_KEY, eligible, grant, spentPromptPath, DEFAULT_OUT
 } from "../../tools/grant-content-gap.mjs";
@@ -127,6 +127,39 @@ test.describe("the ask names the flight", () => {
       checked++;
     }
     expect(checked).toBeGreaterThan(60);
+  });
+
+  /* [ROW 39] THE HANDSHAKE. `tools/promote-backdrop.mjs` attaches a flight to a
+   * promoted meta only from a candidate whose spent prompt named one, and it
+   * asks that question through `askNamesAFlight` — which lives beside the
+   * sentence `flightLines` composes precisely so the two cannot drift. The
+   * drift would be silent and total: a predicate that no longer matches the
+   * emitter's own words refuses every flight wall in the manor, with the
+   * emitter, the scaffold and the plan all still agreeing with each other. So
+   * the emitter's own output is put back through the reader here, exactly as
+   * `room-voices.spec` pins `INTERIOR_FABRIC` against the voice that writes
+   * the words it hunts. */
+  test("the promotion's reader of a spent ask matches the emitter's own flight sentence", () => {
+    const stairs = stairFacings();
+    expect(stairs.length, "the plan draws no flight in any view").toBeGreaterThan(0);
+    for (const [loc, f] of stairs) {
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      expect(askNamesAFlight(manorPrompt(PLAN, `${loc}/${f}`, meta, rects)),
+        `${loc}/${f} is asked for a flight and the promotion cannot see that it was`)
+        .toBe(true);
+    }
+    /* And it is not a predicate that says yes to everything: a facing with no
+       flight in view, and a prompt that merely mentions the word. */
+    const [nl, nf] = everyFacing().find(([l, x]) =>
+      !stairs.some(([a, b]) => a === l && b === x));
+    const bare = deriveMeta(PLAN, nl, nf);
+    expect(askNamesAFlight(manorPrompt(PLAN, `${nl}/${nf}`, bare,
+      scaffoldRects(PLAN, nl, nf, bare).rects)),
+      `${nl}/${nf} draws no flight and the promotion reads its ask as naming one`).toBe(false);
+    expect(askNamesAFlight("The back stair room is panelled in oak."),
+      "the room's own NAME is not an ask for a staircase in the view").toBe(false);
+    expect(askNamesAFlight(null), "and an ask that is not there names nothing").toBe(false);
   });
 
   test("a flight with no tread in the frame is not asked for as steps", () => {
@@ -566,10 +599,18 @@ test.describe("the content-gap grant", () => {
           .not.toContain(line.trim());
       }
     }
-    /* Every wall the row-32 flight clause refused is granted, and it is found by
-       reading the refusal rather than by a list of names. */
+    /* Every wall the row-32 flight clause refused AND IS STILL WAITING ON is
+       granted, and it is found by reading the refusal rather than by a list of
+       names. [Row 39] The second half of that sentence is load-bearing now that
+       a flight-bearing wall can actually be promoted: `run-state.json` keeps a
+       wall's correction verbatim after the wall is answered, so a wall whose
+       art has since reached the store still READS as flight-refused here while
+       `eligible` — rightly, and in its own words — skips it. The store is the
+       fact; the recorded sentence is a record of a past decision. */
+    const inStore = (key) =>
+      existsSync(join(repoRoot, "backdrops", ...key.split("/")) + ".meta.json");
     const flightRefused = Object.entries(state.walls)
-      .filter(([, w]) => REASONS.flight_never_named.refusal.test(w.correction || ""))
+      .filter(([k, w]) => REASONS.flight_never_named.refusal.test(w.correction || "") && !inStore(k))
       .map(([k]) => k).sort();
     expect(flightRefused.length).toBeGreaterThan(0);
     expect(take.filter((t) => t.reason === "flight_never_named").map((t) => t.key).sort())
@@ -578,7 +619,7 @@ test.describe("the content-gap grant", () => {
        horizon and a suspect painting are facts about a picture. */
     for (const s of skip) {
       const w = state.walls[s.key];
-      if (!w || w.status === "promoted") continue;
+      if (!w || w.status === "promoted" || inStore(s.key)) continue;
       if (/no content-gap reason matches/.test(s.why)) {
         expect(REASONS.flight_never_named.refusal.test(w.correction || ""),
           `${s.key} was skipped and its refusal IS the flight clause`).toBe(false);
