@@ -32,7 +32,10 @@ import { execFileSync } from "node:child_process";
 import {
   VOICES, ANCHORS, ROOM_VOICE, ANCHOR_M, voiceFor, resolveAll,
   lightsFor, transomFor, surroundFor, windowLines,
-  carryableOutdoors, REDACTED_CORRECTION
+  carryableOutdoors, REDACTED_CORRECTION,
+  MATERIALS, MATERIAL_BINDING, SLOT_DEMAND_PPM, SWATCH_W_PX,
+  materialKeysOf, materialOf, assertMaterialsComplete, emitMaterials,
+  scaleContract, swatchCount
 } from "../../tools/room-voices.mjs";
 import { manorPrompt, scaffoldRects, chairRail, assertLabelChars } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
@@ -389,5 +392,152 @@ test.describe("row 29 — per-room material voices", () => {
     const L = windowLines(VOICES.service, [], "kitchen", "wall");
     expect(L.length).toBe(1);
     expect(L[0]).toMatch(/carries no window/);
+  });
+});
+
+/* Row 36 — the texture library's types.
+ *
+ * The voices say what a surface is made of; MATERIALS says how big it is. These
+ * cases guard the three things that can go wrong with that seam, and every one
+ * of them is a defect this row actually shipped in a draft before a critic
+ * found it:
+ *
+ *   the census walked a typed triple — walls/ceiling/floor — and MISSED 15 of
+ *   the 47 material strings on the map it was already governing: a `blank` on
+ *   every voice, the manor's own exterior elevation, and three ranks of
+ *   bedchamber hangings. A completeness test that enumerates a hardcoded list
+ *   is not a completeness test, which is the row-11 lesson said again.
+ *
+ *   the material id was going to be derived from the prose by a slug — and
+ *   `cross_passage.walls` is a strict PREFIX of `long_gallery.walls`, so any
+ *   truncating slug merges them silently AND "solves" the passage's swatch by
+ *   handing it the gallery's cornice.
+ *
+ *   the scale contract is what makes a tile material rather than a picture of
+ *   some material, so a swatch whose ppm cannot be derived must be refused
+ *   rather than admitted at a guess.
+ */
+test.describe("row 36 — material types for the texture library", () => {
+  test("every material-bearing key on every voice resolves, and the keys are found by walking the object", () => {
+    expect(() => assertMaterialsComplete(VOICES)).not.toThrow();
+    const stats = assertMaterialsComplete(VOICES);
+    expect(stats.reached, "every declared material is reached by some voice").toBe(stats.materials);
+
+    /* THE KEYS ARE DERIVED, NOT LISTED. Walking the objects must find strictly
+       more than the three-slot census did, and the difference is exactly the
+       15 strings that census could not see. */
+    let all = 0, triple = 0;
+    for (const v of Object.values(VOICES)) {
+      all += materialKeysOf(v).length;
+      for (const k of ["walls", "ceiling", "floor"]) if (typeof v[k] === "string") triple++;
+    }
+    expect(all, "walking the voice objects finds more keys than a typed triple").toBeGreaterThan(triple);
+    expect(materialKeysOf(VOICES.outdoors_walled)).toContain("walls_with_openings");
+    expect(materialKeysOf(VOICES.bedchamber)).toContain("hangings.best");
+    for (const v of Object.values(VOICES)) expect(materialKeysOf(v)).toContain("blank");
+  });
+
+  test("a voice that grows a material key nobody bound is REFUSED, not defaulted", () => {
+    /* The whole point: the next map invents a surface, and the library notices.
+       A fallback here is how the study's paragraph reached the scullery. */
+    const grown = { ...VOICES, invented: { ...VOICES.service, id: "invented" } };
+    expect(() => assertMaterialsComplete(grown))
+      .toThrow(/no material binding for voice/i);
+
+    expect(() => materialOf("service", "wainscot_frieze"))
+      .toThrow(/names no material|cannot be assembled/i);
+  });
+
+  test("material ids are authored, and the prefix that would have merged two materials does not", () => {
+    /* Verified, not asserted: the gallery's string really is the passage's plus
+       a cornice clause, so a truncating slug is not a hypothetical hazard. */
+    const cp = VOICES.cross_passage.walls, lg = VOICES.long_gallery.walls;
+    expect(lg.startsWith(cp), "the gallery's wall string extends the passage's").toBe(true);
+    expect(lg).not.toBe(cp);
+
+    const a = materialOf("cross_passage", "walls").id;
+    const b = materialOf("long_gallery", "walls").id;
+    expect(a, "two different fabrics keep two different ids").not.toBe(b);
+
+    /* And they do not share a lane by accident either: the passage has no
+       promoted facing to harvest from, so it is the one wall swatch. */
+    expect(materialOf("cross_passage", "walls").lane).toBe("swatch");
+    expect(materialOf("long_gallery", "walls").lane).toBe("harvest");
+  });
+
+  test("`blank` names the same material as `walls` — 47 strings are 33 materials", () => {
+    for (const [vid, v] of Object.entries(VOICES)) {
+      if (typeof v.blank !== "string") continue;
+      expect(materialOf(vid, "blank").id,
+        `${vid}: an unbroken wall is the same fabric with nothing on it`)
+        .toBe(materialOf(vid, "walls").id);
+    }
+    const stats = assertMaterialsComplete(VOICES);
+    expect(stats.base, "33 base materials cover the whole manor").toBe(33);
+  });
+
+  test("the lane split is the measurement's, not a preference: walls harvest, floors and ceilings are asked", () => {
+    for (const m of Object.values(MATERIALS)) {
+      if (m.slot === "floor" || m.slot === "ceiling") {
+        expect(m.lane, `${m.slot} cannot be harvested — 0 of 51 facings clear its demand`).toBe("swatch");
+      }
+    }
+    const walls = Object.entries(MATERIALS).filter(([, m]) => m.slot === "walls");
+    expect(walls.filter(([, m]) => m.lane === "harvest").length).toBeGreaterThan(0);
+    const swatches = Object.values(MATERIALS).filter((m) => m.lane === "swatch").length;
+    expect(swatches, "the plan's arithmetic: 21 swatch asks for the whole building").toBe(21);
+  });
+
+  test("every material carries a derivable scale, and the ask's own arithmetic clears its slot's demand", () => {
+    for (const [id, m] of Object.entries(MATERIALS)) {
+      const sc = scaleContract(m.slot, m.tiling);
+      expect(sc.ppm, `${id} carries a ppm`).toBeGreaterThan(0);
+      expect(sc.ppm, `${id} clears its slot's declared demand`)
+        .toBeGreaterThanOrEqual(SLOT_DEMAND_PPM[m.slot]);
+      if (sc.kind === "periodic") {
+        /* the count is the LARGEST that still clears — one more would not */
+        const span = (sc.count + 1) * sc.pitch_m;
+        expect(SWATCH_W_PX / span,
+          `${id}: ${sc.count} is the widest swatch that still clears the demand`)
+          .toBeLessThan(SLOT_DEMAND_PPM[m.slot]);
+        expect(sc.span_m).toBeCloseTo(sc.count * sc.pitch_m, 6);
+      } else {
+        expect(["stochastic", "featureless"]).toContain(sc.kind);
+      }
+    }
+  });
+
+  test("a pitch too coarse to fit one module at the demand is refused rather than rounded to zero", () => {
+    expect(() => swatchCount("floor", 12.0)).toThrow(/not one whole module fits/i);
+  });
+
+  test("a floor's grain is a fact about the ROOM, never about the facing", () => {
+    /* If a floor's grain were named in surface coordinates it would be a
+       property of which way you are standing — turn ninety degrees and the
+       boards swing, which is the exact disease this row exists to cure. */
+    for (const [id, m] of Object.entries(MATERIALS)) {
+      if (m.slot === "floor" || m.slot === "ceiling") {
+        expect(m.tiling.grain_frame, `${id} is anchored in plan space`).toBe("plan");
+        if (m.tiling.grain_axis) {
+          expect(["room_long", "room_short"]).toContain(m.tiling.grain_axis);
+        }
+      } else {
+        expect(m.tiling.grain_frame, `${id} is anchored on its own wall`).toBe("surface");
+        if (m.tiling.grain_axis) expect(["u", "v"]).toContain(m.tiling.grain_axis);
+      }
+    }
+    expect(materialOf("long_gallery", "floor").tiling.grain_axis,
+      "the gallery's boards run its length, whichever way you face").toBe("room_long");
+  });
+
+  test("the committed materials.json is what the emitter produces right now", () => {
+    /* Row 20's scar, in its cheapest form: a committed artifact that has
+       drifted from the generator that claims to produce it is a file nobody
+       can regenerate, and the Python assembler reads THIS file. */
+    const out = join(repoRoot, "backdrops", "textures", "materials.json");
+    expect(existsSync(out), "the emitted material table is committed").toBe(true);
+    const onDisk = readFileSync(out, "utf8");
+    const fresh = JSON.stringify(emitMaterials(VOICES), null, 2) + "\n";
+    expect(onDisk, "run `node tools/room-voices.mjs --emit-materials`").toBe(fresh);
   });
 });

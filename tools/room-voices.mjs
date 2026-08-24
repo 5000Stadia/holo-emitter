@@ -653,3 +653,518 @@ export function resolveAll(plan) {
   }
   return rows;
 }
+
+/* ------------------------------------------------------------------ */
+/* Materials — row 36's texture library                                */
+/* ------------------------------------------------------------------ */
+/* A VOICE SAYS WHAT A SURFACE IS MADE OF; A MATERIAL SAYS HOW BIG IT IS.
+ * Row 36 assembles a facing by sampling tiles laid out in metres, so every
+ * texture needs a metres-per-pixel and a repeat that lands on a joint. None of
+ * that can live in the voice's prose — "wide worn oak floorboards" does not say
+ * how wide — so it lives here, keyed to the same strings.
+ *
+ * THE THREE THINGS THIS TABLE CARRIES, and why prose cannot:
+ *
+ *   the LANE      harvest (rectify a patch out of a promoted painting) or
+ *                 swatch (ask for the material flat). Decided by measurement,
+ *                 not taste: `design/specs/36-plan.md` §1.2 measured every
+ *                 promoted facing and found floors and ceilings are grazing
+ *                 surfaces no facing resolves isotropically -- 0 of 51 clear
+ *                 the demand -- while a facing WALL's map is a similarity,
+ *                 anisotropy exactly 1.000 on all 51. Walls harvest; the other
+ *                 two are asked.
+ *
+ *   the TILING    which way the grain runs and the pitch ACROSS it. `pitch_m`
+ *                 is the spacing between boards/stiles/joists measured
+ *                 PERPENDICULAR to `grain_axis`. It is not a distance along the
+ *                 grain and it is NOT the repeat period: the period is the
+ *                 tile's own span, a whole number of pitches, so a repeat falls
+ *                 on a joint instead of halfway across a board.
+ *
+ *   the SCALE     how a consumer knows the tile's ppm -- §1.4a's library-wide
+ *                 contract: no asset enters without a derivable
+ *                 metres-per-pixel.
+ *
+ * AND A MATERIAL WITHOUT A COUNTABLE REPEAT STILL NEEDS A SCALE, which is the
+ * one case §1.4a's gate could not cover as first written. Three kinds:
+ *
+ *   periodic      boards, panels, joists, brick. The ask names a feature and a
+ *                 count; the return is verified by recovering the period and
+ *                 checking it against the count. The strict gate.
+ *   stochastic    gravel, turf, rough limewash, woven hangings. No countable
+ *                 module, but grain SIZE is visible and wrong grain reads
+ *                 wrong, so the ask names a characteristic size and the return
+ *                 is checked against its spectral peak at a wider residual.
+ *   featureless   smooth plaster. Scale is genuinely UNOBSERVABLE -- nothing in
+ *                 it has a size that could be wrong -- so any ppm is correct
+ *                 and the gate inverts: the tile must actually BE featureless
+ *                 (variance under a bar). If it returns with features we cannot
+ *                 scale them, and that is the refusal.
+ */
+
+/** The largest resolution any DECLARED facing asks of each surface, px/m.
+ *  Measured on declared boxes over all 88 facings (`36-plan.md` §1.8), not
+ *  sampled from painted ones. Floor and ceiling are constants across the whole
+ *  building because eye height and horizon are ruled and only
+ *  `px_per_m_at_wall` varies between facings. */
+export const SLOT_DEMAND_PPM = { walls: 476, ceiling: 325, floor: 417 };
+
+/** A swatch is asked at this pixel width. */
+export const SWATCH_W_PX = 1536;
+
+/** The largest whole count of `pitch_m` that still clears the slot's demand.
+ *  Largest, not smallest: a wider swatch covers more metres and repeats less
+ *  often, and repetition is the risk this library most likely loses on. */
+export function swatchCount(slot, pitchM) {
+  const demand = SLOT_DEMAND_PPM[slot];
+  const n = Math.floor(SWATCH_W_PX / (demand * pitchM));
+  if (n < 1) {
+    throw new Error(
+      `room-voices: a ${slot} swatch of pitch ${pitchM} m cannot clear ` +
+      `${demand} px/m in ${SWATCH_W_PX} px -- not one whole module fits`);
+  }
+  return n;
+}
+
+/** The ask's own arithmetic: count, span, and the ppm it delivers. */
+export function scaleContract(slot, tiling) {
+  if (tiling.scale_kind === "periodic") {
+    const count = swatchCount(slot, tiling.pitch_m);
+    const span = count * tiling.pitch_m;
+    return { kind: "periodic", feature: tiling.feature, pitch_m: tiling.pitch_m,
+             count, span_m: +span.toFixed(4),
+             ppm: +(SWATCH_W_PX / span).toFixed(2) };
+  }
+  const span = +(SWATCH_W_PX / SLOT_DEMAND_PPM[slot]).toFixed(4);
+  if (tiling.scale_kind === "stochastic") {
+    return { kind: "stochastic", feature: tiling.feature,
+             characteristic_m: tiling.characteristic_m, span_m: span,
+             ppm: SLOT_DEMAND_PPM[slot] };
+  }
+  return { kind: "featureless", feature: null, span_m: span,
+           ppm: SLOT_DEMAND_PPM[slot],
+           why: "scale is unobservable on a surface with nothing whose size " +
+                "could be wrong; the gate is that it really is featureless" };
+}
+
+/* `grain_frame` says which pair of axes `grain_axis` names, and the two are not
+ * the same space. A WALL's grain is a fact about that wall's own surface, so it
+ * is "u" (across the wall) or "v" (up it). A FLOOR's or CEILING's grain is a
+ * fact about the ROOM -- boards run the length of a gallery whichever way you
+ * are facing in it -- so it is "room_long" or "room_short", resolved against
+ * the room's rect at assembly time. Naming a floor's grain in surface
+ * coordinates would make it a property of the facing, which is exactly the
+ * disease row 36 exists to cure: turn ninety degrees and the boards swing.
+ *
+ * Pitches are craft numbers and this comment is where they say so. Board 0.25,
+ * panel bay 0.80 and joist 0.90 are the period-typical spacings the prompts
+ * already imply; brick course 0.075 and brick-on-edge 0.115 are standard
+ * English-bond dimensions. Each is the spacing ACROSS the grain.
+ */
+export const MATERIALS = {
+  /* ---- wall fabrics: the harvest lane (anisotropy 1.000, §1.2) ---- */
+  "wall/oak-fielded-bays-frieze": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "fielded panel bay" }
+  },
+  "wall/dark-oak-panelling": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "panel bay" }
+  },
+  "wall/oak-wainscot-limewash-cornice": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+  },
+  "wall/oak-wainscot-with-hangings": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
+    note: "the DADO band only; the field band above it is one of the three " +
+          "`wall/hangings-*` variants, chosen per room by `hangingsFor`"
+  },
+  "wall/light-oak-wainscot-limewash": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+  },
+  "wall/plain-oak-wainscot-limewash": {
+    slot: "walls", lane: "swatch",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
+    note: "SWATCH because `cross_passage` has no promoted facing anywhere in " +
+          "the manor -- `hall` is unpainted -- so there is nothing to harvest from"
+  },
+  "wall/oak-wainscot-limewash": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+  },
+  "wall/boarded-oak-dado-limewash": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "square-edged dado board" }
+  },
+  "wall/rough-limewash-over-stone": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.05,
+              feature: "the trowelled undulation of limewash over rubble" }
+  },
+  "wall/plain-limewash-to-floor": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.04,
+              feature: "the trowelled undulation of plain limewash" }
+  },
+  "wall/garden-brick-english-bond": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" }
+  },
+  "wall/manor-exterior-elevation": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" },
+    note: "the THIRTEENTH wall fabric, invisible to a walls/ceiling/floor " +
+          "census: `outdoors_walled.walls_with_openings`, selected in " +
+          "`make-scaffold.mjs` when the plan draws any carrier on that wall " +
+          "line. 7 of the 8 outdoor facings render it"
+  },
+  "wall/low-boundary-wall": {
+    slot: "walls", lane: "harvest",
+    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.12, feature: "stone course" }
+  },
+
+  /* ---- the bedchamber's three field bands ---- */
+  "wall/hangings-tapestry": {
+    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
+    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.03,
+              feature: "the weave of woven tapestry" }
+  },
+  "wall/hangings-red-worsted": {
+    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
+    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.02,
+              feature: "the weave of worsted say" }
+  },
+  "wall/hangings-wool-serge": {
+    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
+    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.02,
+              feature: "the weave of undyed wool serge" }
+  },
+
+  /* ---- ceilings: all swatch (0 of 51 facings clear the demand, §1.2) ---- */
+  "ceiling/lime-plaster-ribs": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "periodic", pitch_m: 1.20, feature: "moulded plaster rib bay" }
+  },
+  "ceiling/parchment-plaster": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "featureless" }
+  },
+  "ceiling/flat-lime-plaster": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "featureless" }
+  },
+  "ceiling/plain-lime-plaster": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "featureless" }
+  },
+  "ceiling/boarded-oak-joists": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
+  },
+  "ceiling/smoke-darkened-joists": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
+  },
+  "ceiling/plain-exposed-joists": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
+  },
+  "ceiling/plain-plastered-soffit": {
+    slot: "ceiling", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "featureless" }
+  },
+
+  /* ---- floors: all swatch (0 of 51 facings clear the demand, §1.2) ---- */
+  "floor/broad-stone-flags": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.70,
+              feature: "the spread of a broad worn flag" }
+  },
+  "floor/wide-oak-boards": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
+  },
+  "floor/wide-worn-oak-boards": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
+  },
+  "floor/gallery-long-oak-boards": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" },
+    note: "the gallery's voice says the boards run its LENGTH, which is what " +
+          "`room_long` means and why grain is a plan fact and not a facing one"
+  },
+  "floor/square-stone-paviours": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "periodic", pitch_m: 0.45, feature: "square paviour" }
+  },
+  "floor/worn-stone-flags": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.55,
+              feature: "the spread of a worn flag" }
+  },
+  "floor/broad-oak-treads-boards": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "board" }
+  },
+  "floor/scrubbed-oak-treads-boards": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.25, feature: "board" },
+    note: "NAMES TWO GEOMETRIES IN ONE STRING -- stair treads and floor " +
+          "boards are not the same surface. Recorded rather than split, " +
+          "because stair rooms are not assembly customers (36-plan.md §2.6)"
+  },
+  "floor/large-worn-stone-flags": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.80,
+              feature: "the spread of a large worn flag" }
+  },
+  "floor/red-brick-on-edge": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
+              scale_kind: "periodic", pitch_m: 0.115, feature: "brick laid on edge" }
+  },
+  "floor/raked-gravel-box-turf": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.02,
+              feature: "raked gravel grain" }
+  },
+  "floor/gravel-and-turf": {
+    slot: "floor", lane: "swatch",
+    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
+              scale_kind: "stochastic", characteristic_m: 0.02,
+              feature: "raked gravel grain" }
+  }
+};
+
+/** Which material each voice's each material-bearing key names.
+ *
+ *  THE STRINGS ARE NOT COPIED HERE, deliberately. A binding names a voice key
+ *  and a material id; the prose stays in `VOICES` as its one home, so a reworded
+ *  voice cannot silently drift from a duplicated copy of itself.
+ *
+ *  `blank` binds to the SAME material as `walls` throughout: "unbroken oak
+ *  panelling" is "dark hand-finished oak wall panelling" with nothing on it --
+ *  the same fabric, said for a wall with no carrier. That is why 47 strings are
+ *  33 materials. */
+export const MATERIAL_BINDING = {
+  hall_state:       { walls: "wall/oak-fielded-bays-frieze", blank: "wall/oak-fielded-bays-frieze",
+                      ceiling: "ceiling/lime-plaster-ribs", floor: "floor/broad-stone-flags" },
+  great_chamber:    { walls: "wall/oak-fielded-bays-frieze", blank: "wall/oak-fielded-bays-frieze",
+                      ceiling: "ceiling/lime-plaster-ribs", floor: "floor/wide-oak-boards" },
+  parlour_wainscot: { walls: "wall/dark-oak-panelling", blank: "wall/dark-oak-panelling",
+                      ceiling: "ceiling/parchment-plaster", floor: "floor/wide-worn-oak-boards" },
+  parlour_armorial: { walls: "wall/dark-oak-panelling", blank: "wall/dark-oak-panelling",
+                      ceiling: "ceiling/parchment-plaster", floor: "floor/wide-worn-oak-boards" },
+  /* THE GALLERY'S `blank` IS THE GALLERY'S OWN FABRIC, cornice included, even
+   * though its blank PROSE does not mention the cornice -- "unbroken oak
+   * wainscot below limewashed plaster" is byte-identical to `great_stair`'s
+   * blank string and they are NOT the same material. A blank gallery wall still
+   * has a moulded cornice at its head; the phrasing is just lossy about it.
+   * This is why a binding is keyed on (voice, key) and never on the string: two
+   * voices can say the same words about different fabrics. */
+  long_gallery:     { walls: "wall/oak-wainscot-limewash-cornice", blank: "wall/oak-wainscot-limewash-cornice",
+                      ceiling: "ceiling/flat-lime-plaster", floor: "floor/gallery-long-oak-boards" },
+  bedchamber:       { walls: "wall/oak-wainscot-with-hangings", blank: "wall/oak-wainscot-with-hangings",
+                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/wide-oak-boards",
+                      "hangings.best": "wall/hangings-tapestry",
+                      "hangings.good": "wall/hangings-red-worsted",
+                      "hangings.plain": "wall/hangings-wool-serge" },
+  garden_parlour:   { walls: "wall/light-oak-wainscot-limewash", blank: "wall/light-oak-wainscot-limewash",
+                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/square-stone-paviours" },
+  cross_passage:    { walls: "wall/plain-oak-wainscot-limewash", blank: "wall/plain-oak-wainscot-limewash",
+                      ceiling: "ceiling/boarded-oak-joists", floor: "floor/worn-stone-flags" },
+  great_stair:      { walls: "wall/oak-wainscot-limewash", blank: "wall/oak-wainscot-limewash",
+                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/broad-oak-treads-boards" },
+  back_stair:       { walls: "wall/boarded-oak-dado-limewash", blank: "wall/boarded-oak-dado-limewash",
+                      ceiling: "ceiling/plain-plastered-soffit", floor: "floor/scrubbed-oak-treads-boards" },
+  service:          { walls: "wall/rough-limewash-over-stone", blank: "wall/rough-limewash-over-stone",
+                      ceiling: "ceiling/smoke-darkened-joists", floor: "floor/large-worn-stone-flags" },
+  servants_hall:    { walls: "wall/plain-limewash-to-floor", blank: "wall/plain-limewash-to-floor",
+                      ceiling: "ceiling/plain-exposed-joists", floor: "floor/red-brick-on-edge" },
+  outdoors_walled:  { walls: "wall/garden-brick-english-bond", blank: "wall/garden-brick-english-bond",
+                      walls_with_openings: "wall/manor-exterior-elevation",
+                      floor: "floor/raked-gravel-box-turf" },
+  outdoors_open:    { walls: "wall/low-boundary-wall", blank: "wall/low-boundary-wall",
+                      floor: "floor/gravel-and-turf" }
+};
+
+/** Every material-bearing key on a voice, DERIVED FROM THE OBJECT.
+ *
+ *  This is the fix for the census that was not one. A test walking a typed
+ *  triple -- walls, ceiling, floor -- missed 15 of the 47 strings on the map it
+ *  was already governing: a `blank` on every voice, the manor's own exterior
+ *  elevation, and three ranks of bedchamber hangings. Enumerating the object
+ *  means a key a future voice invents fails the check instead of passing
+ *  unseen, which is the only version of this that answers production-law
+ *  clause 6. */
+export function materialKeysOf(voice) {
+  const keys = [];
+  for (const [k, v] of Object.entries(voice)) {
+    if (typeof v === "string" && MATERIAL_KEYS.has(k)) keys.push(k);
+  }
+  if (voice.hangings && typeof voice.hangings === "object") {
+    for (const rank of Object.keys(voice.hangings)) keys.push(`hangings.${rank}`);
+  }
+  return keys.sort();
+}
+
+/** The keys on a voice that name a material. A key added to a voice outside
+ *  this set is not silently ignored: `assertMaterialsComplete` refuses any
+ *  string-valued key that looks like a surface and is not bound. */
+export const MATERIAL_KEYS = new Set(["walls", "blank", "walls_with_openings", "ceiling", "floor"]);
+
+/** The material a voice's key names. Refuses rather than guessing. */
+export function materialOf(voiceId, key) {
+  const bound = MATERIAL_BINDING[voiceId];
+  if (!bound) throw new Error(`room-voices: no material binding for voice \`${voiceId}\``);
+  const id = bound[key];
+  if (!id) {
+    throw new Error(
+      `room-voices: voice \`${voiceId}\` carries a material key \`${key}\` that ` +
+      `names no material. Add it to MATERIAL_BINDING -- a surface nobody sized ` +
+      `cannot be assembled.`);
+  }
+  const mat = MATERIALS[id];
+  if (!mat) throw new Error(`room-voices: \`${voiceId}.${key}\` names unknown material \`${id}\``);
+  return { id, ...mat, scale_contract: scaleContract(mat.slot, mat.tiling) };
+}
+
+/** Completeness and bijection, asserted over the voices that exist.
+ *
+ *  Two claims, and they fail differently. COMPLETENESS: every material-bearing
+ *  key on every voice resolves to a material. BIJECTION: no two distinct voice
+ *  strings collide onto one material id unless their binding says so on
+ *  purpose, and every declared material is reachable. The second is why ids are
+ *  authored rather than derived from the prose: `cross_passage.walls` is a
+ *  strict PREFIX of `long_gallery.walls`, so any truncating slug merges them
+ *  silently -- and would "solve" the passage's swatch by handing it the
+ *  gallery's cornice. */
+export function assertMaterialsComplete(voices) {
+  const seenIds = new Set();
+  const stringOf = new Map();
+  for (const [vid, voice] of Object.entries(voices)) {
+    for (const key of materialKeysOf(voice)) {
+      const m = materialOf(vid, key);
+      seenIds.add(m.id);
+      const str = key.startsWith("hangings.")
+        ? voice.hangings[key.slice("hangings.".length)]
+        : voice[key];
+      const prev = stringOf.get(m.id);
+      if (prev === undefined) stringOf.set(m.id, new Set([str]));
+      else prev.add(str);
+    }
+  }
+  const unreachable = Object.keys(MATERIALS).filter((id) => !seenIds.has(id));
+  if (unreachable.length) {
+    throw new Error(
+      `room-voices: ${unreachable.length} material(s) no voice reaches: ` +
+      `${unreachable.join(", ")}. A texture nothing asks for is a texture ` +
+      `nobody will notice going stale.`);
+  }
+  for (const [id, strs] of stringOf) {
+    const mat = MATERIALS[id];
+    if (mat.slot === "walls" && strs.size > 2 && !mat.variant_of) {
+      throw new Error(
+        `room-voices: material \`${id}\` is named by ${strs.size} different ` +
+        `strings. A wall material carries at most its \`walls\` prose and its ` +
+        `\`blank\` phrasing; more than that is two materials wearing one id.`);
+    }
+  }
+  return { materials: Object.keys(MATERIALS).length, reached: seenIds.size,
+           base: Object.keys(MATERIALS).filter((id) => !MATERIALS[id].variant_of).length };
+}
+
+/** The payload the Python assembler reads. One home in JS, crossed as data --
+ *  the way `MEASURED_BAND` already crosses into `row23_lib`. */
+export function emitMaterials(voices) {
+  const stats = assertMaterialsComplete(voices);
+  const materials = {};
+  for (const [id, m] of Object.entries(MATERIALS)) {
+    materials[id] = { id, ...m, scale_contract: scaleContract(m.slot, m.tiling) };
+  }
+  const bindings = {};
+  for (const [vid, voice] of Object.entries(voices)) {
+    bindings[vid] = {};
+    for (const key of materialKeysOf(voice)) bindings[vid][key] = materialOf(vid, key).id;
+  }
+  return {
+    _what_this_is:
+      "Row 36's texture library types. Emitted from tools/room-voices.mjs, " +
+      "which is the one home: the voices say what a surface is made of and " +
+      "this says how big it is. Do not hand-edit -- regenerate with " +
+      "`node tools/room-voices.mjs --emit-materials`.",
+    slot_demand_ppm: SLOT_DEMAND_PPM,
+    swatch_w_px: SWATCH_W_PX,
+    counts: stats,
+    materials,
+    bindings
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* CLI — `node tools/room-voices.mjs --emit-materials`                 */
+/* ------------------------------------------------------------------ */
+/* The emitted JSON is what the Python assembler reads, and it is committed so
+ * that a build is reproducible without running node first. `fixtures.spec.mjs`
+ * already holds two staleness tests of exactly this shape: re-emit, compare
+ * bytes, refuse a committed artifact that has drifted from its generator. */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { writeFileSync, mkdirSync } = await import("node:fs");
+  const { dirname, join } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const here = dirname(fileURLToPath(import.meta.url));
+  const root = join(here, "..");
+  if (process.argv.includes("--emit-materials")) {
+    const doc = emitMaterials(VOICES);
+    const out = join(root, "backdrops", "textures", "materials.json");
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, JSON.stringify(doc, null, 2) + "\n");
+    const swatch = Object.values(doc.materials).filter((m) => m.lane === "swatch").length;
+    const harvest = Object.values(doc.materials).filter((m) => m.lane === "harvest").length;
+    process.stdout.write(
+      `materials: ${doc.counts.base} base (${doc.counts.materials} with variants)\n` +
+      `  harvest ${harvest}   swatch ${swatch}\n` +
+      `wrote ${out}\n`);
+  } else {
+    process.stdout.write("usage: node tools/room-voices.mjs --emit-materials\n");
+    process.exit(2);
+  }
+}

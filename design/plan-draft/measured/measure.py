@@ -4006,9 +4006,16 @@ def main_row23():
             print("   (nothing to measure yet)")
             continue
         for rid, path in found.items():
+            # ONE HOME FOR THE PICKS. This injected two of the eight keys
+            # `_promotion_half` needs, so every call died on
+            # `KeyError: 'EYE_RANGE'` the moment rows 32/35 grew that half --
+            # and nothing noticed, because no test runs this round. The dict
+            # lives in `row35_snap.picks()`, which imports all eight from this
+            # module; delegating means a ninth detector reaches this caller
+            # instead of breaking it the same way.
+            import row35_snap
             r = row23_lib.measure_candidate(
-                path, side, cfg, ref,
-                dict(pick_floor=pick_floor, module_in_bands=module_in_bands))
+                path, side, cfg, ref, row35_snap.picks())
             sc = row23_lib.score(r, side, ref)
             doc = dict(
                 _what_this_is="The row-23 reading for one returned candidate, by "
