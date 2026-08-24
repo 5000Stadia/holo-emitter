@@ -1,0 +1,306 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 802,
+    "chair_rail_y_px": 578,
+    "dado_rail_above_floor_px": 224,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      798,
+      845
+    ],
+    "rail": [
+      565,
+      603
+    ],
+    "ceiling": [
+      65,
+      177
+    ],
+    "columns": [
+      [
+        248,
+        561
+      ],
+      [
+        812,
+        1287
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 561.45,
+      "asked_x1": 811.81,
+      "ruled_m": 1.0,
+      "window": [
+        311,
+        1061
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 604..851 (41 px from the ask) and another admissible pair sits 574..835 (18 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 235.789,
+  "implied_focal_px": 964.4,
+  "eye_height_m": 1.1701,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 604..851 (41 px from the ask) and another admissible pair sits 574..835 (18 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 175,
+    "ceiling_candidates": [
+      {
+        "y": 124,
+        "strength": 36.86,
+        "horiz": 0.929,
+        "cv": 0.329
+      },
+      {
+        "y": 86,
+        "strength": 16.52,
+        "horiz": 0.882,
+        "cv": 0.566
+      },
+      {
+        "y": 99,
+        "strength": 14.3,
+        "horiz": 0.895,
+        "cv": 0.499
+      },
+      {
+        "y": 80,
+        "strength": 5.67,
+        "horiz": 0.822,
+        "cv": 0.561
+      },
+      {
+        "y": 136,
+        "strength": 4.53,
+        "horiz": 0.729,
+        "cv": 0.849
+      },
+      {
+        "y": 130,
+        "strength": 4.21,
+        "horiz": 0.752,
+        "cv": 0.749
+      },
+      {
+        "y": 148,
+        "strength": 4.09,
+        "horiz": 0.742,
+        "cv": 0.872
+      },
+      {
+        "y": 157,
+        "strength": 4.08,
+        "horiz": 0.747,
+        "cv": 0.814
+      },
+      {
+        "y": 142,
+        "strength": 4.07,
+        "horiz": 0.757,
+        "cv": 0.816
+      },
+      {
+        "y": 165,
+        "strength": 3.91,
+        "horiz": 0.751,
+        "cv": 0.792
+      },
+      {
+        "y": 176,
+        "strength": 3.89,
+        "horiz": 0.741,
+        "cv": 0.845
+      },
+      {
+        "y": 11,
+        "strength": 3.87,
+        "horiz": 0.706,
+        "cv": 1.047
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 123,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 85,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 98,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 79,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 135,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 129,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 147,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 156,
+        "admissible": true,
+        "sigma_y_px": 0.95,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 141,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 164,
+        "admissible": true,
+        "sigma_y_px": 0.9,
+        "horizon_y_px": 491.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 175,
+        "admissible": true,
+        "sigma_y_px": 0.89,
+        "horizon_y_px": 491.5,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 10,
+        "admissible": true,
+        "sigma_y_px": 0.97,
+        "horizon_y_px": 491.5,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 248,
+    "corner_x1_px": 1295,
+    "corner_evidence": {
+      "left_fit_r2": 0.8145,
+      "right_fit_r2": 0.7347,
+      "block_px": 16,
+      "excluded": [
+        [
+          561,
+          811
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 23.69,
+    "ramp": {
+      "x": 739.4,
+      "y": 491.5,
+      "left_slope": 0.7629,
+      "right_slope": -0.663,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.3,
+      "sigma_y_px": 0.89
+    },
+    "votes": {
+      "floor": {
+        "x": 794,
+        "y": 468,
+        "edge_px": 24252
+      },
+      "ceiling": {
+        "x": 752,
+        "y": 478,
+        "edge_px": 14880
+      },
+      "side_walls": {
+        "x": 40,
+        "y": 188,
+        "edge_px": 13305
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 428,
+      "key_dir_brightest_y": 474,
+      "key_tint": "#c89b68",
+      "key_tint_patch": [
+        258,
+        628,
+        105,
+        167
+      ],
+      "key_tint_patch_mean_rgb": [
+        59.69,
+        46.22,
+        30.93
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89168",
+        "floor_bottom_strip": "#c89471",
+        "mid_wall_right": "#c8a379",
+        "mid_wall_left": "#c8b39a",
+        "brightest_21x21_patch": "#c8bcad"
+      },
+      "brightest_21x21_patch_centre_px": [
+        428,
+        474
+      ],
+      "sobel_bright_side_deg_whole_frame": 95.48,
+      "sobel_bright_side_deg_wall_band": 116.15,
+      "left_third_minus_right_third_luminance_whole_frame": -7.234,
+      "left_third_minus_right_third_luminance_wall_band": -10.718
+    },
+    "storey_height_m": 2.6592,
+    "implied_wall_width_m": 4.4404,
+    "eye_height_m": 1.3169,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -5.82,
+  "delta_eye_pct": -1.09,
+  "verdict": "PASS",
+  "kind": null,
+  "_of_candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
+  "_of_candidate_sha256": "e5290aaedcb5462cc506bad08cd3b6d751e2f59e5a882b42a5e7211274516604",
+  "_what_this_is": "the row-23 reading of backdrops/source/back_stair-W/row23-4e3755a6.png that was this snap's input geometry \u2014 the measurement the gate takes, through this wall's own scaffold windows, before anything moved"
+}
