@@ -485,6 +485,57 @@ whole table is still computed and printed — a reader needs the withheld column
 and only the headline changes, to `RUN BROKEN: every reading is withheld`. The scorer refuses to
 plan a generation from it, because breeding from no evidence is worse than stopping.
 
+### 6a. What generation 1 returned, and what building its successor found
+
+**Generation 1: `NO SEPARATION`** at the strict bar — the outcome §5.4's own arithmetic said was the
+only honest one short of a sweep. The screen's pattern, recorded as a pattern and not as a finding:
+text-heavy arms took **8 of 12** admissible, image-heavy arms and the control **2 of 16**, and the
+bound cross-referenced arm took **0 of 4** where its unbound twin took **3 of 4**. None of it
+cleared the bar. Branch B fired, named six arms, and generation 2 is where that direction survives
+fresh rolls or does not.
+
+**The crossings were re-derived rather than trusted.** Given the two leaders, the channel
+enumeration over the seven generation-1 triples drops m1, m3, m5 and m6 as duplicates already in the
+pool and yields exactly **m2 and m4** — pure logic over data the tree holds, agreeing with the
+planner, and `evolution.spec.mjs` recomputes it.
+
+**An empty rung on the ladder, found and said rather than papered over.** `AMPLIFICATION.v2` reads
+*"the geometry text gains the per-return junction table: both endpoints of each return's floor
+junction and ceiling junction"* — and on inspection that adds **no number v2 did not already state**,
+because `cameraBlock` gives all four junctions by both endpoints in prose. Shipping it would have
+been a reformat wearing an amplification's name. So `v2A` carries the declared table (for the
+register change, prose → figures) **plus a declared extension**: the wall's own grid in figures,
+every metre along it as a column and every half metre up it as a row, off `rulerX` and `wallY` —
+the same two functions the scaffold stamps with. The extension is the text taking over the one thing
+the picture was still doing better than the words, which is v2's own premise. **It is an extension
+to the ladder, made after generation 1 returned, and it is recorded as one.** What it does not touch
+is any *selection* rule: the ladder says what a mutation may change, never who wins, and every rule
+that decides a winner is still the one fixed before dispatch.
+
+**A demotion that had to be scoped to stay true.** `v2xv6m4` carries **production** text geometry,
+which does not state every number, so v2's blanket *"the text governs every number"* would be a
+false sentence inside it. m4 demotes the image for the **camera** alone — which its own text does
+construct in full — and the suite pins that the blanket line is absent from it.
+
+**A defect caught before it could bite.** The emitter wrote `manifest.json` unconditionally, so
+cutting generation 2 would have replaced generation 1's — and generation 1's manifest is what points
+the measure path at generation 1's sidecars, so re-measuring an earlier generation would silently
+have read the wrong wall geometry. **One manifest per generation now**, named like the id map
+(`manifest.json`, `manifest-gen2.json`), and `row34_run.py` picks the one for the generation it is
+measuring.
+
+**The hole in the audit trail, named because it is the row's own discipline.** The generation-1
+**readings and `REPORT.md` are not committed anywhere in this repository**. The whole discipline
+rests on readings sitting on disk beside an immutable id map, and without them `generation-2-plan.json`
+records the planner's output rather than being reproducible from the tree. Committing
+`design/plan-draft/measured/row34/*.json` and generation 1's report closes it; until they land, no
+later reader can re-derive the plan that bred generation 2, and the plan file says so on its face.
+
+**The emitter no longer knows which arms a generation runs.** Generation 1's set is the declared
+seven; every later one is read out of the planner's plan file, and each named arm must exist as a
+composer whose channel triple **equals the one the rule bred** or the emission is refused. An
+emitter that could choose its own arms is an emitter that could quietly keep a losing one alive.
+
 **A crossing is a channel triple, not a composer.** `--plan-generation-2` produces the *recipe*, and
 an arm it emits marked `needs_composer` names a channel combination `tools/evolution-arms.mjs` does
 not implement yet. Writing that composer is the mechanical follow-on when generation 1 returns; what
