@@ -1,5 +1,26 @@
 {
+  "_what_this_is": "Generation 2's arm set, bred from generation 1's readings by design/plan-draft/measured/row34_fitness.py --plan-generation-2 under the branch rules design/specs/34-plan.md §6 fixed before generation 1 was dispatched.",
+  "_provenance": {
+    "derived_by": "row34_fitness.py --plan-generation-2",
+    "derived_in": "the Navigator's tree, over the generation-1 sweep",
+    "readings_in_this_tree": false,
+    "_gap": "THE GENERATION-1 READINGS AND REPORT.md ARE NOT COMMITTED ANYWHERE IN THIS REPOSITORY. This file therefore records the planner's output rather than being reproducible from the tree, which is a hole in the row's audit trail: the whole discipline rests on the readings being on disk beside an immutable id map. Committing design/plan-draft/measured/row34/*.json and the generation-1 REPORT.md closes it, and until they land no later reader can re-derive this plan.",
+    "_what_was_re_derived_here": "The crossing set. Given the two leaders (v2, v6), the channel enumeration over the seven declared gen-1 triples drops m1, m3, m5 and m6 as duplicates of arms already in the pool and yields exactly m2 and m4. That is pure logic over data this tree does hold, it agrees with the planner's output, and evolution.spec.mjs re-derives it rather than trusting this note."
+  },
   "branch": "B",
+  "_branch_b_fired_because": "generation 1 returned NO SEPARATION at the strict bar. min_detectable_effect said before dispatch that 4 of 4 against 0 of 4 was the only clearing result at this n and correction; nothing reached it.",
+  "generation_1_admissible": {
+    "_reported_by": "the Navigator, from the generation-1 sweep",
+    "v1": "2/4",
+    "v2": "3/4",
+    "v3": "1/4",
+    "v4": "0/4",
+    "v5": "1/4",
+    "v6": "3/4",
+    "v7": "0/4",
+    "_pattern": "text-heavy arms (v1, v2, v6) took 8 of 12 admissible; image-heavy arms and the control (v3, v4, v5, v7) took 2 of 16. A PATTERN THE SCREEN SAW, not a finding: it did not clear the bar, and generation 2 is where it survives fresh rolls or does not.",
+    "_headline_pairing": "the bound cross-referenced arm (v7) took 0 of 4 where its unbound twin (v2) took 3 of 4 - with every anchored number in the text either way, binding the words to the image element by element did WORSE than running them beside it under a precedence rule. One generation at n=4; it is a direction, not a verdict."
+  },
   "refused": false,
   "arms": [
     {
@@ -22,8 +43,7 @@
       "parents": [
         "v2"
       ],
-      "amplification": "the geometry text gains the per-return junction table: both endpoints of each return's floor junction and ceiling junction, in columns and rows, computed through groundplane",
-      "needs_composer": true
+      "amplification": "the geometry text gains the per-return junction table: both endpoints of each return's floor junction and ceiling junction, in columns and rows, computed through groundplane"
     },
     {
       "arm": "v6A",
@@ -36,36 +56,33 @@
       "parents": [
         "v6"
       ],
-      "amplification": "the camera paragraph gains the row-by-row construction of both returns, stated as an instruction to draw rather than as a description",
-      "needs_composer": true
+      "amplification": "the camera paragraph gains the row-by-row construction of both returns, stated as an instruction to draw rather than as a description"
     },
     {
       "arm": "v2xv6m2",
       "channels": {
-        "camera_language": "exhaustive",
+        "text_geometry": "exhaustive",
         "image": "scaffold_primary",
-        "text_geometry": "exhaustive"
+        "camera_language": "exhaustive"
       },
       "origin": "crossing",
       "parents": [
         "v2",
         "v6"
-      ],
-      "needs_composer": true
+      ]
     },
     {
       "arm": "v2xv6m4",
       "channels": {
-        "camera_language": "exhaustive",
+        "text_geometry": "production",
         "image": "scaffold_demoted",
-        "text_geometry": "production"
+        "camera_language": "exhaustive"
       },
       "origin": "crossing",
       "parents": [
         "v2",
         "v6"
-      ],
-      "needs_composer": true
+      ]
     },
     {
       "arm": "v4",
@@ -75,22 +92,11 @@
         "camera_language": "none"
       },
       "origin": "opposite extreme of the image/text spectrum",
-      "spectrum_distance": 5
+      "spectrum_distance": 8
     }
   ],
   "rolls": 24,
-  "budget": {
-    "generations_max": 3,
-    "rolls_per_arm_per_wall": 2,
-    "arms_gen1": 7,
-    "walls": 2,
-    "images_per_screening_generation": 28,
-    "images_confirmation_generation": 12,
-    "total_worst_case": 68,
-    "total_without_confirmation": 56,
-    "_superseded": "the first draft of the plan declared 6 arms, 24 a generation and 60 worst case; the governing frame's v7 added 4 per generation and the totals above were re-declared before anything was emitted",
-    "_authority": "design/specs/34-plan.md \u00a73"
-  },
-  "_needs_composer": "an arm marked needs_composer names a channel combination no composer implements yet; writing it in tools/evolution-arms.mjs is the mechanical follow-on, and its channel triple is fixed here rather than chosen later",
-  "_why_refused": null
+  "budget_ceiling": 28,
+  "_under_ceiling": "24 of a declared 28. Branch B comes in under when the leaders are near-identical and their crossings are already in the pool; plan §6 says under is fine and over is refused.",
+  "_needs_composer": "Every arm above now HAS a composer in tools/evolution-arms.mjs, written to the channel triple this file fixed. The emitter refuses any arm whose composer declares a different triple."
 }

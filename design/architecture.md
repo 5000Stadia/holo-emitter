@@ -4080,6 +4080,27 @@ held frame and reproduced that frame's manor reading exactly — PASS, −0.27 %
 min σ 71.64, `unfitted-horizon` — which is the evidence that it is the same instrument and not a
 second one.
 
+**Generation 2, and the three things building it found.** Generation 1 returned `NO SEPARATION` at
+the strict bar — the only honest outcome short of a sweep at that n — with the screen's pattern
+text-heavy 8 of 12 against image-heavy-and-control 2 of 16. Branch B bred six arms and four needed
+composers: `v2A`, `v6A`, and the two crossings the enumeration yields from the two leaders (`m2` and
+`m4`, the other four masks being duplicates of arms already in the pool — pure logic, recomputed in
+the suite). What building them turned up: **`AMPLIFICATION.v2` is an empty rung** — its junction
+table adds no number the arm already stated — so `v2A` carries it for the register change plus a
+recorded extension, the wall's own metre grid in figures off `rulerX`/`wallY`; **`m4`'s demotion had
+to be scoped**, because its production text geometry does not state every number and v2's blanket
+sentence would be false inside it; and **the emitter wrote `manifest.json` unconditionally**, which
+would have replaced generation 1's manifest and made a re-measurement of that generation read the
+wrong wall geometry — one manifest per generation now, named like the id map. The emitter also no
+longer holds an arm list past generation 1: it reads the planner's plan file and refuses any arm
+whose composer declares a different channel triple than the rule bred.
+
+**What is still missing from this row's audit trail.** The generation-1 readings and report are not
+committed. The discipline rests on readings on disk beside an immutable id map, so until
+`design/plan-draft/measured/row34/*.json` and generation 1's `REPORT.md` land, `generation-2-plan.json`
+records the planner's output instead of being reproducible from the tree. The plan file carries that
+gap on its face rather than in a transcript.
+
 **A check that could not fail, found and replaced.** The first form of "the control is production"
 compared `armPrompt(control, ctx)` with `manorPrompt(...)` — a function against itself, true
 whatever production did. A deliberate mutation of `manorPrompt` left it green. It is now two checks

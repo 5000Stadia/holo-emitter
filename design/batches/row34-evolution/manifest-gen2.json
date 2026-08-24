@@ -1,0 +1,231 @@
+{
+  "_what_this_is": "The row-34 evolution run's order for one generation: two probe walls, their declared geometry and brackets, and every arm's packet. The measurement reads this file and assignment.json and nothing else.",
+  "_dispatch": "NOT DISPATCHED. Dispatch is the Navigator's act; this tool cuts packets and stops.",
+  "_sweep_independence": "This run never opens design/batches/row23-scaffold/manor/{manifest,run-state,retries}.json, never promotes, never bakes and never publishes. The manor sweep is symmetrically blind to it: its arrival scan matches ^row23-[0-9a-f]{8}\\.png$ and it walks its own manifest's rolls.",
+  "_probe_selection": "Both walls are from run-state.json's unfitted-horizon subset - camera PASS, horizon held - screened for corners and every bracket in frame, every stamped carrier in frame, and the fewest entries in the reading's own `_absent`. See design/specs/34-plan.md §2.",
+  "row": 34,
+  "generation": 2,
+  "budget": {
+    "generations_max": 3,
+    "rolls_per_arm_per_wall": 2,
+    "arms_gen1": 7,
+    "walls": 2,
+    "images_per_screening_generation": 28,
+    "images_confirmation_generation": 12,
+    "total_worst_case": 68,
+    "total_without_confirmation": 56,
+    "_superseded": "the first draft of the plan declared 6 arms, 24 a generation and 60 worst case; the governing frame's v7 added 4 per generation and the totals above were re-declared before anything was emitted",
+    "_authority": "design/specs/34-plan.md §3"
+  },
+  "walls": [
+    {
+      "key": "guest_chamber/E",
+      "packet": "design/batches/row34-evolution/gen2/guest_chamber-E",
+      "why_this_wall": "the only zero-fault wall in the hold family: camera PASS, nothing absent, every bracket and both corners in frame, no carrier at all - a clean single failure on the horizon and nothing else in the picture to explain it",
+      "px_per_m_at_wall": 155.15151515151516,
+      "camera_wall_m": 6.6,
+      "wall_width_m": 6.45,
+      "floor_line_y": 0.6930119554924243,
+      "horizon_y": 0.51376953125,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 267.6363636363636,
+      "corner_x1_px": 1268.3636363636365,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 709.6442424242425,
+          "half_width": 14.68,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 562.2503030303031,
+          "half_width": 11.79,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 275.2200000000001,
+          "half_width": 34.75,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            267.6363636363636,
+            1268.3636363636365
+          ]
+        ]
+      },
+      "stamped": [],
+      "chair_rail_y": 562.25,
+      "voice": {
+        "id": "bedchamber",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "sidecar_sha256": "d2b4bc5336414f5ed0481423e5091bcbc19e5de70312f8264b08e9b92a412482"
+    },
+    {
+      "key": "garden_room/E",
+      "packet": "design/batches/row34-evolution/gen2/garden_room-E",
+      "why_this_wall": "the nearest miss among clean walls (2.27x the licence against guest_chamber/E's 4.88x) and the opposite return geometry - the same camera to the last decimal, 492.6 px of return per side against 267.6 px",
+      "px_per_m_at_wall": 155.15151515151516,
+      "camera_wall_m": 6.6,
+      "wall_width_m": 3.55,
+      "floor_line_y": 0.6930119554924243,
+      "horizon_y": 0.51376953125,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 492.6060606060606,
+      "corner_x1_px": 1043.3939393939395,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 709.6442424242425,
+          "half_width": 14.68,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 562.2503030303031,
+          "half_width": 11.79,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 275.2200000000001,
+          "half_width": 34.75,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "op09",
+            "x0": 709.82,
+            "x1": 864.97,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            492.6060606060606,
+            709
+          ],
+          [
+            865,
+            1043.3939393939395
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 709.82,
+          "x1": 864.97
+        }
+      ],
+      "chair_rail_y": 562.25,
+      "voice": {
+        "id": "garden_parlour",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "sidecar_sha256": "bd5cedfed5071a6b771df03f687d1e42cdfa9bcf178eac805e445bf29eddd8b0"
+    }
+  ],
+  "arms": [
+    {
+      "id": "v3",
+      "name": "CONTROL",
+      "what": "the current production technique, unchanged",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "production"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "v2A",
+      "name": "TEXT-PRIMARY, AMPLIFIED",
+      "what": "v2 with the junction table and the wall's own grid in figures",
+      "channels": {
+        "text_geometry": "exhaustive",
+        "image": "scaffold_demoted",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "v6A",
+      "name": "CAMERA-LANGUAGE, AMPLIFIED",
+      "what": "v6 with the returns constructed row by row as an instruction to draw",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "v2xv6m2",
+      "name": "EXHAUSTIVE TEXT, SCAFFOLD PRIMARY",
+      "what": "every number in the text AND the scaffold left primary - the crossing that keeps both channels at full strength",
+      "channels": {
+        "text_geometry": "exhaustive",
+        "image": "scaffold_primary",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "v2xv6m4",
+      "name": "PRODUCTION TEXT, EXHAUSTIVE CAMERA, SCAFFOLD DEMOTED",
+      "what": "the camera constructed in full and the image demoted for it, with the carriers left to production's own sentences",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_demoted",
+        "camera_language": "exhaustive"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "v4",
+      "name": "SCAFFOLD-PRIMARY-MINIMAL-TEXT",
+      "what": "the rich labelled scaffold, and three sentences",
+      "channels": {
+        "text_geometry": "minimal",
+        "image": "scaffold_primary",
+        "camera_language": "none"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    }
+  ],
+  "control": "v3",
+  "rolls_per_arm_per_wall": 2,
+  "total_rolls": 24,
+  "_generated": "2026-08-24",
+  "git_commit": "9481fb8ff1429c3702eb10a5efdbe48a0ad3f601"
+}

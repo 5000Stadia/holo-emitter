@@ -57,6 +57,11 @@ def sha(path):
         return hashlib.sha256(fh.read()).hexdigest()
 
 
+def manifest_path(batch, generation):
+    return os.path.join(
+        batch, "manifest.json" if generation == 1 else "manifest-gen%d.json" % generation)
+
+
 def assignment_path(batch, generation):
     return os.path.join(
         batch, "assignment.json" if generation == 1 else "assignment-gen%d.json" % generation)
@@ -120,7 +125,11 @@ def sweep(generation, batch, out_dir, verbose=True):
                  ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
                  light=light, EYE_RANGE=EYE_RANGE)
 
-    manifest = json.load(open(os.path.join(batch, "manifest.json")))
+    # ONE MANIFEST PER GENERATION, named like the id map. Generation 1 keeps the
+    # bare name it was emitted under; every later generation carries its own, so
+    # re-measuring an earlier one reads that generation's own wall geometry
+    # rather than whatever the newest emission left behind.
+    manifest = json.load(open(manifest_path(batch, generation)))
     assign = json.load(open(assignment_path(batch, generation)))
     os.makedirs(out_dir, exist_ok=True)
 
