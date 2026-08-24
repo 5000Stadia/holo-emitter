@@ -2885,3 +2885,75 @@ test.describe("through an opening, on a PAINTED facing", () => {
       .toBeLessThanOrEqual(8);
   });
 });
+
+/* [ROW 32 — the Captain's suspect-painting tolerance ruling, 2026-08-24]
+ *
+ * A DECLARED-CAMERA META IS JUST NUMBERS, and this is where that claim is
+ * checked rather than asserted. The ruling adds four fields to the metas of the
+ * suspect family — `camera_source`, `suspect_perspective`, `tolerance_ruling`,
+ * `declared_fields` — and every one of them exists for a reader: the gate, the
+ * staging surface row 4 will read, and a human following the authority back to
+ * the log. None of them is a picture instruction, and the renderer must not
+ * have grown an opinion about any of them.
+ *
+ * The test that would catch it growing one: render the same facing twice with
+ * metas that differ ONLY in those four fields, and require the two pictures to
+ * be the same bytes. And then move a number the meta has always carried, and
+ * require the picture to move, so the comparison above is known to be capable
+ * of failing.
+ */
+test.describe("row 32 — a declared-camera meta is numbers, and the four flags are inert", () => {
+  /* BOTH TIERS, because they draw by different routes: `study/N` resolves a
+     PAINTED meta and composites sprites over a photograph, `study/S` resolves
+     the plan's derived one and draws the holodeck grid. A flag the renderer had
+     grown an opinion about could easily have been consulted in only one. */
+  for (const facing of ["N", "S"]) {
+    test(`the flags change no pixel on study/${facing}, and a real number does`, async ({ page }) => {
+      await page.goto(appUrl());
+      const res = await page.evaluate(async (facing) => {
+        const fx = window.HOLO_FIXTURE;
+        const vs = { location: "study", facing };
+        const key = vs.location + "/" + vs.facing;
+        /* The backdrop map the page renders with, copied so the doctoring
+           cannot reach the running app. The IMAGE is carried by reference: what
+           is under examination is the meta, and re-decoding the painting would
+           make the comparison about the decoder. */
+        const mapWith = (meta) => {
+          const bd = {};
+          for (const k of Object.keys(window.__T.bd())) {
+            bd[k] = { meta: window.__T.bd()[k].meta, image: window.__T.bd()[k].image };
+          }
+          bd[key] = { meta, image: window.__T.bd()[key] && window.__T.bd()[key].image };
+          return bd;
+        };
+        const draw = async (meta) => {
+          const c = document.createElement("canvas");
+          c.width = 1536; c.height = 1024;
+          window.HOLO.renderer.render(c, fx.world, fx.staging, window.__T.lib(),
+            mapWith(meta), vs, {});
+          return await window.__T.hashCanvas(c);
+        };
+        const plain = window.__T.clone(window.__T.metaOf(vs));
+        const declared = window.__T.clone(plain);
+        declared.camera_source = "declared";
+        declared.suspect_perspective = true;
+        declared.tolerance_ruling = "design/approvals.log 2026-08-24 [HUMAN]: " +
+          "\"I think its pretty close and we can accept a tolerance for drift here\"";
+        declared.declared_fields = ["horizon_y"];
+        /* The discrimination: one number the meta has always carried, moved by
+           a fifth. If this does not move the picture, the comparison above is
+           not measuring anything. */
+        const moved = window.__T.clone(declared);
+        moved.px_per_m_at_wall = plain.px_per_m_at_wall * 1.2;
+        return { plain: await draw(plain), declared: await draw(declared),
+          moved: await draw(moved) };
+      }, facing);
+      expect(res.declared,
+        "the four declaration fields moved a pixel — the renderer has grown an opinion about provenance")
+        .toBe(res.plain);
+      expect(res.moved,
+        "moving the scale moved nothing, so the comparison above could never have failed")
+        .not.toBe(res.plain);
+    });
+  }
+});

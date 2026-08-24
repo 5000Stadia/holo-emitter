@@ -2058,6 +2058,16 @@ export function report(plan, staging, records) {
   P("| `corner_x0_px` / `corner_x1_px` | **the approved image**, cross-checked against the plan | §5: \"measured from the image for generated backdrops; computed … for the grid\" |");
   P("| `key_dir`, `key_tint`, `calibration_ref`, `calibration_px` | **the approved image** | light and calibration are measured, never derived — this row emits none of them |");
   P();
+  P("**One exception, ruled by the Captain on 2026-08-24** (`design/approvals.log`, *\"I think its");
+  P("pretty close and we can accept a tolerance for drift here\"*): on a wall of the SUSPECT-PAINTING");
+  P("family — one whose ruler passes its ±8 % band while its own side walls converge where no eye");
+  P("stands, or converge nowhere the error bar admits — `horizon_y` comes from **this table's own");
+  P("derived camera** instead of from the approved image, because the picture's answer to it is");
+  P("self-contradictory. That is the whole exception: one field, on a named family, and the meta");
+  P("says so in `camera_source`, `suspect_perspective`, `tolerance_ruling` and `declared_fields`.");
+  P("Every other row above still reads as written on such a wall — the scale above all, which is");
+  P("gated off the painting exactly as it is everywhere else.");
+  P();
   P("Two consequences worth stating. The plan's `px_per_m_at_wall`, `floor_line_y` and");
   P("`px_per_m_at_bottom` are therefore **proposals**, which is why every derived meta carries");
   P("`provisional: true`. And a meta that ends up carrying both a measured and a derived value");

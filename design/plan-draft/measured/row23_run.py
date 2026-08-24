@@ -3,6 +3,11 @@
 
     python3 design/plan-draft/measured/row23_run.py            # one sweep
     python3 design/plan-draft/measured/row23_run.py --watch    # keep sweeping
+    python3 design/plan-draft/measured/row23_run.py --tolerance-sweep --dry-run
+                          # [row 32] what the suspect family would promote on
+                          # the declared camera, under the Captain's ruling —
+                          # measured, decided, nothing written. Drop --dry-run
+                          # to do it. See `tolerance_sweep`.
 
 [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go from
 schematic/description to full assets. To the degree we hope to one pass parallel
