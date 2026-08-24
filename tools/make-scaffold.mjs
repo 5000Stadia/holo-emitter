@@ -1492,7 +1492,25 @@ async function emitManor(outDir, opts) {
       packet: join(dir).slice(ROOT.length + 1),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       px_per_m_at_wall: meta.px_per_m_at_wall,
-      camera_wall_m: meta.camera_wall_m,
+      /* [row 29(a)] BOTH DEPTH ANCHORS AND THE FACING'S OWN TYPE.
+       *
+       * `camera_wall_m` alone was emitted, and an `open` facing does not have
+       * one — `deriveMeta` gives it `camera_far_m` instead, because the field
+       * name is the mechanism (row 11). So the manor's four open facings landed
+       * in the manifest with no distance at all and the sweep's arithmetic met
+       * `float × None`: sixteen candidates read as MEASURE-ERR, four walls
+       * re-asked four times for a crash in our own code, and every retry cap
+       * spent. Production law clause 6 — the fix folds into the EMITTER, so the
+       * next map's open facings arrive carrying their own anchor and no reader
+       * downstream has to go back to the drawing for it.
+       *
+       * `facing_type` is emitted for the same reason and is NOT `type` above:
+       * that one is the ROOM's type, so `entrance_court/N` — an enclosed facing
+       * of an open room — is `open` in it, and anything routing on it sends a
+       * walled painting down the vista path. */
+      camera_wall_m: meta.camera_wall_m ?? null,
+      camera_far_m: meta.camera_far_m ?? null,
+      facing_type: meta.facing_type,
       floor_line_y: meta.floor_line_y,
       horizon_y: meta.horizon_y,
       corner_x0_px: meta.corner_x0_px, corner_x1_px: meta.corner_x1_px,

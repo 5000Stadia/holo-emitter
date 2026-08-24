@@ -369,7 +369,24 @@ export const MECHANISMS = [
      loses it — the validator's `exit.via_unfilled` speaks only where an EXIT
      goes through the flight, and a flight you merely LOOK at from this facing
      had nobody speaking for it. */
-  "stair.painted_flight_lost"
+  "stair.painted_flight_lost",
+  /* [Row 29(a)] And the promotion's VISTA arms, minted the day the four `open`
+     facings could first be measured at all. An open facing has no wall plane,
+     no ceiling and no side walls, so three separate things that were true by
+     accident on every walled promotion have to be said out loud for it: which
+     instrument fixed its horizon, that the OTHER instrument did not, and that
+     the ask it was painted from was an outdoor one. The last is the backward
+     half of `prompt.interior_fabric_outdoors` above — that clause stops us
+     ASKING for panelling on a garden wall, and these stop us PROMOTING the art
+     we asked for before it existed. `entrance_court/S` is why: its pre-voice
+     roll is a panelled parlour with two enclosed corners, and the camera gate
+     measured its chair-rail, called it a boundary wall's coping and returned
+     +4.5 %. */
+  "vista.ask_unreadable",
+  "vista.indoor_ask",
+  "vista.no_far_line_ruler",
+  "vista.ramp_on_a_vista",
+  "vista.eye_band"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -2898,5 +2915,138 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
     expect(promoteTokens("library/E", (d) => { d._measured_px.openings = []; }),
       "a doorway the world walks through with no hole in the picture")
       .toEqual(["door.unmeasured_exit"]);
+  });
+});
+
+/* [Row 29(a)] THE PROMOTION'S VISTA MECHANISMS.
+ *
+ * Four facings of the manor are typed `open`: no wall plane, no ceiling, no
+ * side walls, and a scale quoted at the far line the plan draws. Until this row
+ * none of them could be measured at all — the instrument multiplied by
+ * `camera_wall_m`, which an open facing does not have, and sixteen candidates
+ * died as MEASURE-ERR — and the promotion refused them by design. Now they
+ * promote, and five things that were true by accident on every walled wall have
+ * to be said out loud for a vista:
+ *
+ *   which instrument fixed its horizon (the far-line ruler, not the ramp)
+ *   that the ramp did NOT fix it (an open frame has nothing to fit one to)
+ *   that the eye its ground row implies is inside the standing band — the only
+ *     place a vista's eye is ever judged, because it has no second reading
+ *   that the ask it was painted from was an outdoor ask, in two arms
+ *
+ * `entrance_approach/E` is the subject: a promoted vista with no doorway and no
+ * flight, so every door clause above is silent on it and a case here can only
+ * be tripping its own. Each case stages the tree, brings the candidate AND the
+ * prompt beside it, spoils exactly one thing and runs the real tool.
+ */
+test.describe("the clause ledger — the promotion's vista mechanisms", () => {
+  const VISTA = "entrance_approach/E";
+
+  /** Run the real promotion over a doctored vista reading; return its tokens.
+   *  `ask` may rewrite the prompt text the candidate was painted from, or
+   *  return null to leave the candidate with no ask beside it at all. */
+  function vistaTokens(doctor, ask) {
+    const dir = stageTree();
+    try {
+      const [loc, fac] = VISTA.split("/");
+      const meta = JSON.parse(readFileSync(
+        join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+      const cand = String(meta.camera_id).replace(/^measured:/, "");
+      mkdirSync(dirname(join(dir, cand)), { recursive: true });
+      cpSync(join(repoRoot, cand), join(dir, cand));
+      /* THE ASK COMES OVER TOO. On an open facing the prompt beside the
+         candidate is a second file the promotion reads, so a staged tree
+         without it is the `vista.ask_unreadable` case rather than a neutral
+         one — which is exactly what the last case below relies on. */
+      const askRel = cand.replace(/\.png$/i, ".prompt.txt");
+      const askText = ask === undefined
+        ? readFileSync(join(repoRoot, askRel), "utf8")
+        : ask;
+      if (askText !== null) writeFileSync(join(dir, askRel), askText);
+      const docRel = join("design", "plan-draft", "measured",
+        meta.measured_round || "", `${loc}-${fac}.json`);
+      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+      const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
+      doctor(doc);
+      writeFileSync(join(dir, docRel), JSON.stringify(doc, null, 2) + "\n");
+      let out = "";
+      try {
+        execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+          "--facing", VISTA, "--candidate", cand,
+          ...(meta.measured_round ? ["--round", meta.measured_round] : []),
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : [])],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+      return [...tokensOf([out])].sort();
+    } finally {
+      removeTree(dir);
+    }
+  }
+
+  test("the undoctored vista promotes clean", () => {
+    /* The discrimination every case below needs, and on a vista it is doing
+       more work than usual: if the tool still refused open facings — which it
+       did until this row, in as many words — every case below would be green
+       on the wrong refusal. */
+    expect(vistaTokens(() => {}),
+      "an open facing measured by the far-line ruler is promotable").toEqual([]);
+  });
+
+  ledgerCase("vista.no_far_line_ruler", () => {
+    /* The horizon of an open frame is not fitted, it is the camera's own eye
+       line — carried under `far_line_ruler` so a reader has to take it from
+       the instrument that produced it. Without it there is no horizon at all,
+       and the ramp is not a substitute. */
+    expect(vistaTokens((d) => { d._horizon_votes.far_line_ruler = null; }),
+      "a vista with no far-line ruler has no horizon and no eye")
+      .toEqual(["vista.no_far_line_ruler"]);
+  });
+
+  ledgerCase("vista.ramp_on_a_vista", () => {
+    /* An open facing has no ceiling and no side-wall junctions, so a reading
+       that produced a ceiling-ramp intersection for one fitted two edges that
+       are not side walls. The far-line ruler is left in place, so the wall
+       still has its true horizon and only this can fire. */
+    expect(vistaTokens((d) => {
+      d._horizon_votes.ceiling_ramp_intersection = { x: 760, y: 520, sigma_y_px: 0.4 };
+    }), "an open frame cannot have converged its side walls on anything")
+      .toEqual(["vista.ramp_on_a_vista"]);
+  });
+
+  ledgerCase("vista.eye_band", () => {
+    /* A walled facing's eye is a SECOND reading — the side walls' own
+       convergence — and `row23_lib` refuses the promotion where it disagrees
+       with the ruler. A vista has no second reading, so its measured far-line
+       ground row IS its eye, and this is the only clause that ever judges it.
+       The ground row alone is moved: the scale is untouched, so the lens band
+       stays silent and nothing else can fire. */
+    expect(vistaTokens((d) => { d.floor_line_y = 0.62; }),
+      "a ground row that puts the eye far off the height this project draws at")
+      .toEqual(["vista.eye_band"]);
+  });
+
+  ledgerCase("vista.indoor_ask", () => {
+    /* [HUMAN, 2026-08-24, verbatim] "exterior garden has interior wall
+       outside". `prompt_lint.py` refuses to ASK for panelling on an outdoor
+       wall; this refuses to PROMOTE the art we asked for before that clause
+       existed. It is not hypothetical: `entrance_court/S`'s roll-2 candidate is
+       a panelled parlour with two enclosed corners, it passed the camera gate
+       at +4.5 % by measuring the panelling's own chair-rail, and it was in the
+       store as the manor's front court until this fired. */
+    expect(vistaTokens(() => {},
+      "Materials and period detail: dark oak wall panelling with a chair-rail."),
+    "an outdoor wall promoted from an ask that named interior fabric")
+      .toEqual(["vista.indoor_ask"]);
+  });
+
+  ledgerCase("vista.ask_unreadable", () => {
+    /* And the arm beside it: a candidate with no ask beside it cannot be shown
+       to have been an outdoor ask, which on an open facing is the same answer
+       as a bad one. Said separately because it is a different situation and a
+       clause with two arms under one token is a clause half of which can be
+       deleted with the suite green. */
+    expect(vistaTokens(() => {}, null),
+      "an outdoor wall promoted from an ask nobody can read")
+      .toEqual(["vista.ask_unreadable"]);
   });
 });

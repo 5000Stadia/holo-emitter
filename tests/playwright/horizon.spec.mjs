@@ -222,3 +222,258 @@ for fam in ("suspect-painting", "unfitted-horizon", "something-else"):
     }
   });
 });
+
+/* Row 29(a) — the OTHER horizon instrument, the one an outdoor frame has.
+ *
+ * Four facings of the manor are typed `open`: `entrance_court/S` and
+ * `entrance_approach/E|S|W`. They have no wall plane, no ceiling and no side
+ * walls, so the row-20 ramp above has nothing to be fitted to, and until this
+ * row they could not be measured at all — `measure_candidate` multiplied its
+ * scale by `camera_wall_m`, which an open facing does not carry, and all
+ * sixteen of their candidates died in the sweep's per-candidate guard as
+ * MEASURE-ERR. Read as sixteen unpaintable frames, that spent four walls'
+ * entire retry caps on a `TypeError` in our own arithmetic.
+ *
+ * What replaced it is the ruler the emitter already DECLARED for these walls —
+ * `room-voices.mjs`'s `outdoors_open`: "What closes it and gives the gate its
+ * ruler is the low coursed-stone boundary wall that fences a forecourt of this
+ * date, its coping at the ruled height." Two lines the scaffold brackets: the
+ * far-line ground row and the coping 0.95 m above it. On the pinhole those fix
+ * the LENS and leave the eye and the horizon in one equation with two unknowns,
+ * so an open frame's horizon is the camera's own declared eye line and the
+ * picture's answer to it is the ground row, gated at the standing ±8 %.
+ *
+ * These four cases guard that where it can go wrong: the anchor resolves for
+ * every facing the plan holds, a facing with neither anchor withholds rather
+ * than crashes, an open frame is read by the far-line ruler and not by the
+ * ramp, and the record it produces can be said on a garden wall.
+ */
+test.describe("row 29(a) — the far-line ruler, an open facing's instrument", () => {
+  test.describe.configure({ timeout: 180_000 });
+
+  const OPEN = ["entrance_court/S", "entrance_approach/E",
+    "entrance_approach/S", "entrance_approach/W"];
+
+  /* ------------------------------------------------------------------ 1 */
+  /* The typed anchor, over the whole shipped plan. `camera_wall_m` and
+     `camera_far_m` are two field names for one meaning and the name is the
+     mechanism (row 11); what this asserts is that the resolver reads BOTH and
+     that no facing the manor holds reaches the instrument without one. A
+     regression here is either a silent default coming back or a facing losing
+     its distance, and the second is what the four open walls actually did. */
+  test("every facing the plan holds resolves a depth anchor, under the name its type gives it", () => {
+    const out = inMeasured(`
+import row23_run, row23_lib
+plan = row23_run.json.load(open(row23_run.PLAN))
+for room in plan["rooms"]:
+    for f in room.get("facings", {}):
+        key = "%s/%s" % (room["id"], f)
+        fac = row23_run.facing_of(key)
+        d, field = row23_lib.camera_distance(
+            {"camera_wall_m": fac.get("camera_wall_m"),
+             "camera_far_m": fac.get("camera_far_m")})
+        print("%s|%s|%s|%s" % (key, fac.get("type"), d, field))
+`);
+    const rows = out.trim().split("\n").map((l) => l.split("|"));
+    expect(rows.length, "no facing was read at all").toBe(88);
+    const opens = [];
+    for (const [key, type, dist, field] of rows) {
+      expect(Number(dist),
+        `${key} (${type}) reaches the instrument with no distance for its scale to be quoted at`)
+        .toBeGreaterThan(0);
+      expect(field, `${key} is typed ${type} and its anchor came from ${field}`)
+        .toBe(type === "open" ? "camera_far_m" : "camera_wall_m");
+      if (type === "open") opens.push(key);
+    }
+    expect(opens.sort(), "the plan's open facings are not the four this row is about")
+      .toEqual([...OPEN].sort());
+  });
+
+  /* ------------------------------------------------------------------ 2 */
+  /* A facing naming NEITHER anchor is the case the crash was: it must come
+     back as this round's own `measurement_withheld`, in a sentence naming both
+     fields, off a real frame — so what is exercised is the whole path from
+     `cfg_from_sidecar` through `measure_candidate`, not the helper alone. */
+  test("a facing with no depth anchor withholds and says so, where it used to raise TypeError", () => {
+    const out = inMeasured(`
+import json, row23_lib, row23_run
+from measure import (pick_floor, module_in_bands, pick_ceiling,
+                     find_corners_recession, ceiling_ramp_vp, horizon_votes,
+                     light, EYE_RANGE)
+picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
+             pick_ceiling=pick_ceiling,
+             find_corners_recession=find_corners_recession,
+             ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+             light=light, EYE_RANGE=EYE_RANGE)
+MAN = json.load(open(${JSON.stringify(join(repoRoot, "design", "batches", "row23-scaffold", "manor", "manifest.json"))}))
+e = [x for x in MAN["entries"] if x["key"] == "entrance_approach/E"][0]
+cand = ${JSON.stringify(join(repoRoot, "backdrops", "source"))} + "/entrance_approach-E/row23-e0de241b.png"
+def side(wall, far):
+    return {"facing": e["key"], "brackets": e["brackets"], "stamped": e["stamped"],
+            "candidate": "x",
+            "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
+                          "camera_wall_m": wall, "camera_far_m": far,
+                          "image_h_px": 1024, "floor_line_y": e["floor_line_y"],
+                          "horizon_y": e["horizon_y"], "wall_width_m": e["wall_width_m"],
+                          "corner_x0_px": None, "corner_x1_px": None,
+                          "facing_type": "open"}}
+ref = dict(focal_px=e["implied_focal_px"], eye_m=1.183,
+           horizon_y_px=1024 * 0.51377, band=0.08)
+for name, wall, far in (("neither", None, None), ("far", None, 24.0)):
+    s = side(wall, far)
+    d = row23_lib.measure_candidate(cand, s, row23_lib.cfg_from_sidecar(s), ref, picks)
+    print("%s|%s|%s|%s" % (name, d.get("verdict"), d.get("kind"),
+                           (d.get("blocked_on") or "").replace("\\n", " ")))
+`);
+    const rows = Object.fromEntries(out.trim().split("\n").map((l) => {
+      const p = l.split("|"); return [p[0], p.slice(1)];
+    }));
+    expect(rows["neither"][0], "a facing with no depth anchor was not withheld").toBe("WITHHELD");
+    expect(rows["neither"][1]).toBe("measurement_withheld");
+    expect(rows["neither"][2], "the withheld sentence names neither field")
+      .toMatch(/camera_wall_m/);
+    expect(rows["neither"][2]).toMatch(/camera_far_m/);
+    expect(rows["far"][0], "the same frame with a FAR anchor must measure")
+      .not.toBe("WITHHELD");
+  });
+
+  /* ------------------------------------------------------------------ 3 */
+  /* The instrument itself, on the four walls' own promoted frames. Three
+     things at once, and each of them is a way the vista path could quietly
+     become the walled one: the ramp instrument is not run, the ruler's own
+     arithmetic is the scale the gate admitted, and none of the three fields a
+     vista must not claim is claimed. */
+  test("an open facing is read by the far-line ruler, and the ceiling ramp is not run on it", () => {
+    const out = inMeasured(`
+import json, os, row23_lib, row23_run
+from measure import (pick_floor, module_in_bands, pick_ceiling,
+                     find_corners_recession, ceiling_ramp_vp, horizon_votes,
+                     light, EYE_RANGE)
+picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
+             pick_ceiling=pick_ceiling,
+             find_corners_recession=find_corners_recession,
+             ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+             light=light, EYE_RANGE=EYE_RANGE)
+ROOT = ${JSON.stringify(repoRoot)}
+MAN = json.load(open(os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor", "manifest.json")))
+for loc, f in (("entrance_approach", "E"), ("entrance_approach", "S"),
+               ("entrance_approach", "W")):
+    key = "%s/%s" % (loc, f)
+    meta = json.load(open(os.path.join(ROOT, "backdrops", loc, f + ".meta.json")))
+    cand = meta["camera_id"].replace("measured:", "")
+    e = [x for x in MAN["entries"] if x["key"] == key][0]
+    fac = row23_run.facing_of(key)
+    s = {"facing": key, "brackets": e["brackets"], "stamped": e["stamped"],
+         "candidate": cand,
+         "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
+                       "camera_wall_m": fac.get("camera_wall_m"),
+                       "camera_far_m": fac.get("camera_far_m"),
+                       "image_h_px": 1024, "floor_line_y": e["floor_line_y"],
+                       "horizon_y": e["horizon_y"], "wall_width_m": e["wall_width_m"],
+                       "corner_x0_px": None, "corner_x1_px": None,
+                       "facing_type": fac.get("type")}}
+    ref = dict(focal_px=e["implied_focal_px"], eye_m=1.183,
+               horizon_y_px=1024 * 0.51377, band=0.08)
+    d = row23_lib.measure_candidate(os.path.join(ROOT, cand), s,
+                                    row23_lib.cfg_from_sidecar(s), ref, picks)
+    p = d["_promotion"]
+    fr = p["far_line_ruler"]
+    doc, refusals = row23_lib.promotion_doc(d, s, ref, "manor", "0" * 64)
+    print(json.dumps({
+        "key": key, "verdict": d["verdict"],
+        "instrument": p["horizon_instrument"],
+        "ramp": p["ramp"], "ceiling_candidates": len(p["ceiling_candidates"]),
+        "corners": [p["corner_x0_px"], p["corner_x1_px"]],
+        "storey": p["storey_height_m"], "width": p["implied_wall_width_m"],
+        "coping_px": fr["coping_above_ground_px"], "ppm": fr["px_per_m_at_far_line"],
+        "ruled_m": fr["ruled_coping_m"], "horizon_px": fr["y"],
+        "refusals": refusals,
+        "doc_horizon_y": doc["horizon_y"], "doc_ramp": doc["_horizon_votes"]["ceiling_ramp_intersection"],
+        "calibration_ref": doc["calibration_ref"],
+        "which_horizon": doc["_which_horizon"],
+        "ruler_policy": doc["_ruler_policy"]["rule"],
+        "meta_ppm": meta["px_per_m_at_wall"], "meta_horizon_y": meta["horizon_y"]}))
+`);
+    const rows = out.trim().split("\n").map((l) => JSON.parse(l));
+    expect(rows.length, "no open facing was read").toBe(3);
+    for (const r of rows) {
+      expect(r.verdict, `${r.key} did not even measure`).toBe("PASS");
+      expect(r.instrument, `${r.key} was not read by the far-line ruler`)
+        .toBe("far-line-ruler");
+      expect(r.ramp, `${r.key} produced a ceiling ramp, on a frame with no ceiling`)
+        .toBe(null);
+      expect(r.ceiling_candidates,
+        `${r.key} ran pick_ceiling on an open frame — the ramp path is not skipped, it is short-circuited`)
+        .toBe(0);
+      expect(r.corners, `${r.key} claims corners, which the law refuses an open facing`)
+        .toEqual([null, null]);
+      expect(r.storey, `${r.key} claims a storey height, and an open space has nothing overhead`)
+        .toBe(null);
+      expect(r.width, `${r.key} claims a wall width read off corners it does not have`).toBe(null);
+      expect(r.refusals, `${r.key}'s promotion doc refused`).toEqual([]);
+      /* The ruler IS the arithmetic, not a number recorded beside it. */
+      expect(r.coping_px / r.ruled_m, `${r.key}: the ruler's own two numbers do not give its scale`)
+        .toBeCloseTo(r.ppm, 3);
+      expect(r.ppm, `${r.key}: the promoted meta's scale is not the one the ruler read`)
+        .toBeCloseTo(r.meta_ppm, 3);
+      /* The horizon is the DECLARED eye line, and the meta carries that row. */
+      expect(r.doc_ramp, `${r.key}'s record carries a ramp for a promotion to read`).toBe(null);
+      expect(r.doc_horizon_y * 1024, `${r.key}: the record's horizon is not the declared eye line`)
+        .toBeCloseTo(r.horizon_px, 3);
+      expect(r.meta_horizon_y, `${r.key}: the promoted meta's horizon moved off the record's`)
+        .toBeCloseTo(r.doc_horizon_y, 5);
+      /* And the record can be said on a garden wall. Finding (a) is "exterior
+         garden has interior wall outside"; a §5 record that calls an outdoor
+         ruler a wainscot chair-rail writes that finding into the ledger. */
+      for (const [what, text] of Object.entries({
+        calibration_ref: r.calibration_ref,
+        which_horizon: r.which_horizon,
+        ruler_policy: r.ruler_policy
+      })) {
+        expect(carryableOutdoors(text),
+          `${r.key}'s ${what} names interior fabric: ${text}`).toBe(true);
+      }
+      /* ...and it still parses for §5's calibration audit, which pulls the
+         ruled metres out of that same sentence. */
+      expect(r.calibration_ref, `${r.key}'s calibration_ref names no size in metres`)
+        .toMatch(/taken at 0\.95 m/);
+    }
+  });
+
+  /* ------------------------------------------------------------------ 4 */
+  /* Clause 6 again, on the vista's own correction. A wall refused by the
+     far-line ruler is refused for its GROUND ROW, and the sentence that goes
+     back to the generator must say so in words an outdoor prompt can carry —
+     the row-32 sentences cannot, because they speak of returns meeting a
+     surface overhead and an open frame has neither. */
+  test("a vista's correction speaks of its ground row, and survives an outdoor wall whole", () => {
+    const out = inMeasured(`
+import row23_run as R
+reading = {"_promotion": {"horizon_instrument": "far-line-ruler",
+                          "far_line_ruler": {"ground_row_px": 603.0,
+                                             "px_per_m_at_far_line": 67.4},
+                          "eye_height_m": 2.9}}
+entry = {"horizon_y": 0.51376953125, "floor_line_y": 0.5630611979166666}
+for fam in ("suspect-painting", "unfitted-horizon", "something-else"):
+    print("%s@@%s" % (fam, R._correction_for(fam, "why", reading, entry)))
+`);
+    const said = {};
+    for (const line of out.trim().split("\n")) {
+      const i = line.indexOf("@@");
+      if (i > 0) said[line.slice(0, i)] = line.slice(i + 2);
+    }
+    expect(said["something-else"],
+      "a refusal this row does not answer must not manufacture a correction").toBe("None");
+    for (const fam of ["suspect-painting", "unfitted-horizon"]) {
+      const s = said[fam];
+      expect(s, `${fam} produced no vista correction`).toBeTruthy();
+      expect(carryableOutdoors(s),
+        `${fam}'s vista correction names interior fabric, so an outdoor wall gets it redacted: ${s}`)
+        .toBe(true);
+      expect(s, `${fam}'s vista correction speaks of returns an open frame has none of`)
+        .not.toContain("returns");
+      expect(s, `${fam}'s vista correction never names the row the ground must land on`)
+        .toContain("row 577");
+    }
+  });
+});

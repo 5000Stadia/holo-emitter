@@ -10,9 +10,10 @@
     "great_hall/E": {
       "attempts": 4,
       "status": "parked",
-      "correction": "draw 0.854x larger: 93.5 px/m at the wall plane, not 109.5",
+      "correction": "draw 1.110x larger: 93.5 px/m at the wall plane, not 84.2",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "hold_family": "camera-miss"
+      "hold_family": "camera-miss",
+      "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png"
     },
     "great_hall/S": {
       "attempts": 4,
@@ -31,9 +32,10 @@
     "study/S": {
       "attempts": 4,
       "status": "parked",
-      "correction": "draw 1.164x larger: 266.0 px/m at the wall plane, not 228.4",
+      "correction": "draw 1.133x larger: 266.0 px/m at the wall plane, not 234.7",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "hold_family": "camera-miss"
+      "hold_family": "camera-miss",
+      "candidate": "backdrops/source/study-S/row23-08cd55d1.png"
     },
     "back_stair/N": {
       "attempts": 2,
@@ -289,9 +291,11 @@
     },
     "entrance_court/S": {
       "attempts": 4,
-      "status": "retry",
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "hold_family": "unmeasurable-candidate"
+      "status": "parked",
+      "correction": "draw 1.136x larger: 38.3 px/m at the far line, not 33.7",
+      "hold_family": "camera-miss",
+      "candidate": "backdrops/source/entrance_court-S/row23-f26273dd.png",
+      "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "entrance_court/W": {
       "attempts": 4,
@@ -336,21 +340,21 @@
     },
     "entrance_approach/E": {
       "attempts": 4,
-      "status": "retry",
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "hold_family": "unmeasurable-candidate"
+      "status": "promoted",
+      "candidate": "backdrops/source/entrance_approach-E/row23-e0de241b.png",
+      "answered_correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
     "entrance_approach/S": {
       "attempts": 4,
-      "status": "retry",
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "hold_family": "unmeasurable-candidate"
+      "status": "promoted",
+      "candidate": "backdrops/source/entrance_approach-S/row23-4cebd01f.png",
+      "answered_correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
     "entrance_approach/W": {
       "attempts": 4,
-      "status": "retry",
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "hold_family": "unmeasurable-candidate"
+      "status": "promoted",
+      "candidate": "backdrops/source/entrance_approach-W/row23-ec10aaae.png",
+      "answered_correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines"
     },
     "solar/N": {
       "attempts": 2,
@@ -547,9 +551,10 @@
     "closet_chamber/S": {
       "attempts": 4,
       "status": "parked",
-      "correction": "draw 1.113x larger: 330.3 px/m at the wall plane, not 296.8",
+      "correction": "draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "hold_family": "camera-miss"
+      "hold_family": "camera-miss",
+      "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png"
     },
     "closet_chamber/W": {
       "attempts": 2,

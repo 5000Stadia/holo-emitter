@@ -278,6 +278,8 @@
     "storey_height_m": 7.9112,
     "implied_wall_width_m": 13.3655,
     "eye_height_m": null,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
     "hold_family": "unfitted-horizon",
     "withheld_because": [
       "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the convergence lands at y 607.5, which is not between this frame's own ceiling line (y 116) and its own floor line (y 599). A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."

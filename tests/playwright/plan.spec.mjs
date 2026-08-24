@@ -2693,24 +2693,36 @@ test.describe("the schematic is a derived render of the plan", () => {
       "and names every kind, because reading one as another is the failure the class exists to prevent")
       .toEqual(["generation_miss", "measurement_withheld", "scaffold_feature_absent"]);
     expect(Object.keys(header._rounds || {}).sort(),
-      "and every round it holds entries for").toEqual(["cand-2", "cand-3", "cand-6", "row23", "row32"]);
+      "and every round it holds entries for")
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row32"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32"]);
     /* [Row 32] AND A ROUND WHOSE MISSES ARE NOT ABOUT ONE PAINTING STILL HAS TO
        CLOSE THEM. Row 32's entries are about the instrument, the emitter and two
        promotion gates, so they carry no facing and no delta and the per-facing
        loop below does not reach them — which is exactly how a line could sit in
        this file forever saying nothing. Each one names where its cause is baked
-       in, which is production law clause 3's whole test. */
-    for (const r of ledger.filter((x) => x.round === "row32")) {
-      expect(String(r.baked_in || ""), `row32 ${r.gate}: a miss with no baked-in cause is an OPEN miss and may not say CLOSED`)
+       in, which is production law clause 3's whole test.
+
+       [Row 29(a)] AND THE FACING-LESS ROUNDS ARE DERIVED, not typed. This read
+       `x.round === "row32"`, so row 29(a)'s three entries — the instrument
+       crash, the vista promoted from an indoor ask, and this ledger's own
+       writer — sat outside every assertion in this case. The set is now every
+       round whose misses name no facing, which is what the clause is actually
+       about; a fourth such round is covered the day it is written. */
+    const facingless = ledger.filter((x) => !x.facing);
+    expect([...new Set(facingless.map((x) => x.round))].sort(),
+      "a round whose misses are about the machinery rather than about a painting")
+      .toEqual(["row29a", "row32"]);
+    for (const r of facingless) {
+      expect(String(r.baked_in || ""), `${r.round} ${r.gate}: a miss with no baked-in cause is an OPEN miss and may not say CLOSED`)
         .not.toHaveLength(0);
-      expect(r.status, `row32 ${r.gate}: names a status this ledger does not use`).toBe("CLOSED");
-      expect(r.cause, `row32 ${r.gate}: a miss carries its diagnosed cause`).toBeTruthy();
+      expect(r.status, `${r.round} ${r.gate}: names a status this ledger does not use`).toBe("CLOSED");
+      expect(r.cause, `${r.round} ${r.gate}: a miss carries its diagnosed cause`).toBeTruthy();
     }
     /* [Row 23] AND A PASS IS NOT A MISS. The matrix puts twenty-four rolls in
        this file and most of them are admitted; a ledger whose every line is a

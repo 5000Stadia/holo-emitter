@@ -36,7 +36,8 @@ import { fileURLToPath } from "node:url";
 import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing } from "./plan-projection.mjs";
+import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M } from "./plan-projection.mjs";
+import { INTERIOR_FABRIC } from "./room-voices.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -132,7 +133,56 @@ if (!(ppm > 0)) {
   console.error(`promote refused: ${facingArg} has no px_per_m_at_wall — a WITHHELD measurement is not a verdict, and a facing without one is not admitted`);
   process.exit(1);
 }
-const drawn = fc.camera_wall_m;
+/* [row 29(a)] THE DEPTH ANCHOR, TYPED. An `enclosed` or `corridor` facing views
+ * a wall plane and the plan gives it `camera_wall_m`; an `open` facing views a
+ * drawn far line with no surface on it and the plan gives it `camera_far_m`
+ * INSTEAD — the field name is the mechanism, exactly as `groundplane`'s
+ * `cameraDistance` and the validator's `meta.open_needs_far` have had it since
+ * row 11. This file only ever read the first, so every open facing arrived here
+ * with `focal = ppm × undefined = NaN` and was refused by the band below with a
+ * sentence about a lens, which is not what was wrong. */
+const isOpen = fc.type === "open";
+/* [row 29(a)] AND AN OUTDOOR FACING IS NOT PROMOTED FROM AN INDOOR ASK.
+ *
+ * The Captain's first walk of the painted manor, verbatim: "exterior garden has
+ * interior wall outside". `prompt_lint.py` and `room-voices.mjs` answered the
+ * forward half of that — an outdoor prompt may not NAME interior fabric, not
+ * even inside a quotation of why the last attempt failed — and the emitter has
+ * refused to write one since. Nothing answered the backward half: the art
+ * already on disk was asked for BEFORE the outdoor voice existed, and those
+ * rolls are still in the manifest as candidates.
+ *
+ * `entrance_court/S` is the case, and it passed every gate this project owns.
+ * Its roll-2 candidate is a panelled interior with a chair-rail and two
+ * enclosed corners; the camera gate measured that chair-rail, called it the
+ * boundary wall's coping, and read +4.5 % — a correct measurement of the wrong
+ * building. The picture would have shipped as the manor's front court.
+ *
+ * So the ask is checked, not the picture: every candidate is written with its
+ * own prompt beside it, and a prompt that names interior fabric cannot have
+ * produced an outdoor frame. The word list is `room-voices.mjs`'s own — the
+ * lint's second copy, with the handshake the suite already pins — so this
+ * clause and the emitter's refusal are one rule read in two directions and
+ * cannot drift apart. On any map emitted after the voice table this is a no-op
+ * by construction, which is the honest statement of what it is for. */
+if (isOpen) {
+  const promptPath = join(root, candidate.replace(/\.png$/i, ".prompt.txt"));
+  if (!existsSync(promptPath)) {
+    console.error(`promote refused: ${facingArg} is an open facing and ${candidate} has no prompt beside it — an outdoor wall is promoted only from an ask that can be shown to have been an outdoor one [row29:vista.ask_unreadable]`);
+    process.exit(1);
+  }
+  const askText = readFileSync(promptPath, "utf8");
+  const hit = INTERIOR_FABRIC.exec(askText);
+  if (hit) {
+    console.error(`promote refused: ${facingArg} is an open facing and the prompt ${candidate} was painted from names interior fabric ("${hit[0]}") — this candidate was asked for before the wall had an outdoor voice, and a frame painted to that ask is an interior wherever the ruler happens to land on it. Its own re-asks under \`outdoors_open\` are the candidates for this wall [row29:vista.indoor_ask]`);
+    process.exit(1);
+  }
+}
+const drawn = isOpen ? fc.camera_far_m : fc.camera_wall_m;
+if (!(drawn > 0)) {
+  console.error(`promote refused: the plan gives ${facingArg} no ${isOpen ? "camera_far_m" : "camera_wall_m"} — a ${fc.type} facing's scale is quoted at ${isOpen ? "the far line it draws" : "the wall plane it views"}, and with no distance there is no lens for the band to judge`);
+  process.exit(1);
+}
 const focal = ppm * drawn;
 /* WHICH LAWFUL REFERENCE THIS WALL ANSWERS TO. There are exactly two cameras
  * the law knows: the MEASURED reference (819.6 px, the study's approved
@@ -172,16 +222,57 @@ if (!(focal >= band.lo && focal <= band.hi)) {
  * adopting it makes the study's four independently generated frames agree
  * about their eye height 2.6× better. `src/groundplane.js`'s HORIZON_Y is that
  * same number for the same reason. */
+/* [row 29(a)] AND WHICH HORIZON A VISTA ANSWERS TO, which is not this one.
+ *
+ * The ramp fits the two side-wall/ceiling junctions. An open facing has neither
+ * — no ceiling, no side walls, and `meta.open_no_corners` refuses it corners
+ * outright — so there is nothing for the instrument to be run on. Its two ruled
+ * lines are the far-line GROUND row and the boundary-wall COPING 0.95 m above
+ * it, and on the pinhole those fix the LENS and leave the eye and the horizon
+ * in one equation with two unknowns. So an open frame's horizon is the camera's
+ * own declared eye line, carried in the measurement under its OWN key
+ * (`far_line_ruler`) with `ceiling_ramp_intersection` left null, so that
+ * neither instrument's answer can be read as the other's.
+ *
+ * What keeps that from being a gate that cannot fail is the eye clause below:
+ * the horizon is declared, but the GROUND ROW the eye is read off is measured,
+ * and a painting that draws it anywhere else fails. */
 const votes = m._horizon_votes || {};
 const ramp = votes.ceiling_ramp_intersection;
-if (!ramp || typeof ramp.y !== "number") {
+const farRuler = votes.far_line_ruler;
+const horizonPx = isOpen ? (farRuler && farRuler.y) : (ramp && ramp.y);
+if (isOpen) {
+  if (!farRuler || typeof farRuler.y !== "number") {
+    console.error(`promote refused: ${facingArg} is an open facing and its measurement carries no far-line ruler, which is the instrument an outdoor frame is read by — a vista promoted off a ceiling ramp would be a horizon fitted to two edges that are not side walls [row29:vista.no_far_line_ruler]`);
+    process.exit(1);
+  }
+  if (ramp) {
+    console.error(`promote refused: ${facingArg} is an open facing and its measurement carries a ceiling-ramp horizon — an open frame has no ceiling and no side-wall junctions for the row-20 instrument to be fitted to, so a reading that produced one measured something else [row29:vista.ramp_on_a_vista]`);
+    process.exit(1);
+  }
+} else if (!ramp || typeof ramp.y !== "number") {
   console.error(`promote refused: ${facingArg}'s measurement carries no ceiling-ramp horizon, which is the instrument row 20 ruled`);
   process.exit(1);
 }
 const imageH = m.image_h_px;
-const horizonY = ramp.y / imageH;
+const horizonY = horizonPx / imageH;
 const floorLineY = m.floor_line_y;
 const eyeM = (floorLineY - horizonY) * imageH / ppm;
+/* THE VISTA'S OWN EYE CLAUSE, and it exists because a vista has no ramp.
+ *
+ * On a walled facing the eye is a SECOND, independent reading — the side walls'
+ * convergence — and `row23_lib` refuses the promotion where it disagrees with
+ * the ruler. A vista has no second reading, so the eye it ships is its measured
+ * far-line ground row against the declared eye line at its own measured scale,
+ * and this is the only place that number is ever judged. Same band as
+ * everything else (±MEASURED_BAND); nothing is widened to admit an open frame. */
+if (isOpen) {
+  const d = Math.abs(eyeM - DRAWING_EYE_M) / DRAWING_EYE_M;
+  if (!(d <= MEASURED_BAND)) {
+    console.error(`promote refused: ${facingArg} draws its far-line ground row at ${(floorLineY * imageH).toFixed(1)} px, which at its own ${ppm.toFixed(2)} px/m puts the eye ${eyeM.toFixed(3)} m above the ground there — ${(d * 100).toFixed(1)}% from the ${DRAWING_EYE_M} m this project draws at, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band. An open frame fixes no horizon of its own, so the ground row IS its eye reading and there is no second one to appeal to. [row29:vista.eye_band]`);
+    process.exit(1);
+  }
+}
 
 const meta = {
   floor_line_y: round(floorLineY, 6),
@@ -194,7 +285,14 @@ const meta = {
   key_dir: m.key_dir,
   calibration_ref: m.calibration_ref,
   calibration_px: m.calibration_px,
-  camera_wall_m: drawn,
+  /* [row 29(a)] UNDER THE FIELD NAME ITS TYPE GIVES IT. The validator refuses a
+   * walled meta that carries `camera_far_m` and an open one that carries
+   * `camera_wall_m` (`row11:meta.walled_rejects_far`, `meta.open_rejects_wall`)
+   * — "a depth model handed a far line as a wall distance puts a horizon where
+   * a wall goes" — so exactly one of the two is written, and `far_line` beside
+   * it, which is the drawing's own line and is what `deriveMeta` emits. */
+  ...(isOpen ? { camera_far_m: drawn, far_line: fc.far_line }
+             : { camera_wall_m: drawn }),
   facing_type: fc.type,
   wall_continuous: null,
   wall_segments: null,
@@ -234,7 +332,14 @@ const meta = {
    * scale and sprites by construction, so nothing composited missizes, and the
    * clause may not become a failure until it has been clocked. */
   measured_room: {
-    storey_height_m: round(m._derived.storey_height_m, 3),
+    /* [row 29(a)] `round(null, 3)` IS 0 IN JAVASCRIPT, and an open facing is
+     * the first wall to reach here with a null storey — an open space has no
+     * ceiling to have a height to. Written as 0 it would say this vista's room
+     * is nought metres tall, in the one field a reader consults to see where
+     * the painting and the drawing disagree. Guarded the way the width beside
+     * it already is. */
+    storey_height_m: m._derived.storey_height_m == null ? null
+      : round(m._derived.storey_height_m, 3),
     wall_width_m: m._derived.implied_wall_width_m == null ? null
       : round(m._derived.implied_wall_width_m, 3),
     ruled_storey_height_m: meta_storey_ruled(),
@@ -244,6 +349,13 @@ const meta = {
 };
 function meta_storey_ruled() {
   const r = (plan.rooms || []).find((x) => x.id === loc);
+  /* [row 29(a)] An OPEN facing has nothing overhead to have a height, and this
+   * field is what the record compares the painting's room against — so on a
+   * vista it is null rather than the floor's 2.8 m, which would be this record
+   * saying the manor's front court is a two-storey room. Scoped to the FACING:
+   * an enclosed facing of an open room (`privy_garden/N`, promoted) still
+   * answers to its floor's storey, which is what its own painting draws. */
+  if (isOpen) return null;
   const f2 = (plan.floors || []).find((x) => x.id === (r && r.floor));
   return (f2 && f2.storey_height_m != null) ? f2.storey_height_m : null;
 }
@@ -504,8 +616,12 @@ writeFileSync(png, readFileSync(src));
 writeFileSync(join(outDir, `${facing}.meta.json`), JSON.stringify(meta, null, 2) + "\n");
 console.log(`promoted ${facingArg}: ${candidate} -> backdrops/${loc}/${facing}.png`);
 console.log(`  ${ppm.toFixed(3)} px/m at the drawn ${drawn} m = a ${focal.toFixed(1)} px lens (${((focal - MEASURED_REFERENCE_PX) / MEASURED_REFERENCE_PX * 100).toFixed(1)}% from the approved ${MEASURED_REFERENCE_PX})`);
-console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (ceiling ramp), floor line ${(floorLineY * imageH).toFixed(0)} px`);
-console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
+console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (${isOpen ? "declared eye line, far-line ruler" : "ceiling ramp"}), ${isOpen ? "far-line ground row" : "floor line"} ${(floorLineY * imageH).toFixed(0)} px`);
+if (isOpen) {
+  console.log(`  no corners: an open facing runs to its ${fc.far_line} m far line and a corner there would be an invented enclosure`);
+} else {
+  console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
+}
 for (const c of carriers) {
   if (c.centre_delta_px === null) {
     console.log(`  carrier ${c.kind}${c.id ? " " + c.id : ""}: the plan puts it at ${c.plan_px[0]}..${c.plan_px[1]} px; the measurement reads no such feature in the painting`);

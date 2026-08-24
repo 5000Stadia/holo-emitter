@@ -1,0 +1,98 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 580,
+    "chair_rail_y_px": 535,
+    "dado_rail_above_floor_px": 45,
+    "capping_above_floor_px": 45
+  },
+  "_windows": {
+    "floor": [
+      572,
+      580
+    ],
+    "rail": [
+      532,
+      539
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 47.368,
+  "implied_focal_px": 1136.8,
+  "eye_height_m": 1.1379,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": null,
+    "ceiling_candidates": [],
+    "ceiling_rows_tried": [],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "corner_evidence": null,
+    "horizon_bracket_px": 4.04,
+    "ramp": null,
+    "votes": {},
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 80,
+      "key_dir_brightest_y": 18,
+      "key_tint": "#c87422",
+      "key_tint_patch": [
+        0,
+        280,
+        465,
+        527
+      ],
+      "key_tint_patch_mean_rgb": [
+        19.76,
+        11.42,
+        3.35
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8721b",
+        "floor_bottom_strip": "#c89059",
+        "mid_wall_right": "#c8722c",
+        "mid_wall_left": "#c87e2d",
+        "brightest_21x21_patch": "#c8c4c0"
+      },
+      "brightest_21x21_patch_centre_px": [
+        80,
+        18
+      ],
+      "sobel_bright_side_deg_whole_frame": 96.43,
+      "sobel_bright_side_deg_wall_band": 90.86,
+      "left_third_minus_right_third_luminance_whole_frame": -3.708,
+      "left_third_minus_right_third_luminance_wall_band": -1.832
+    },
+    "storey_height_m": null,
+    "implied_wall_width_m": null,
+    "eye_height_m": 1.1379,
+    "horizon_instrument": "far-line-ruler",
+    "far_line_ruler": {
+      "instrument": "far-line-ruler",
+      "y": 526.10048,
+      "ground_row_px": 580.0,
+      "coping_row_px": 535.0,
+      "coping_above_ground_px": 45.0,
+      "ruled_coping_m": 0.95,
+      "px_per_m_at_far_line": 47.368,
+      "eye_height_m": 1.1379,
+      "camera_far_m": 24,
+      "_which_horizon": "DECLARED, not fitted. An open frame's two ruled lines \u2014 the far-line ground row and the coping 0.95 m above it \u2014 fix the LENS and leave the eye and the horizon in one equation with two unknowns, so this row is the camera's own eye line and the picture's answer to it is the ground row, which the camera gate holds at the standing +/-8 %."
+    },
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 11.02,
+  "delta_eye_pct": -3.81,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "62b652fc",
+  "candidate": "backdrops/source/entrance_approach-W/row23-62b652fc.png"
+}
