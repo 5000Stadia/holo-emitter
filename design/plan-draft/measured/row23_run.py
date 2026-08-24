@@ -73,6 +73,36 @@ def _load_retries():
 RETRIES = _load_retries()
 OUT = os.path.join(HERE, "manor")
 
+PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
+_PLAN_CACHE = {}
+
+
+def facing_of(key):
+    """[row 29(a)] The PLAN's own facing record for a wall, read once.
+
+    `design/plan-draft/projection.md`'s authority table makes the drawing law
+    (a) for two fields this sweep needs and cannot get anywhere honest else:
+    the facing's TYPE, and the depth anchor it carries under that type —
+    `camera_wall_m` on an enclosed or corridor facing, `camera_far_m` on an
+    open one.
+
+    The manifest is not that authority for either. Its `type` is the ROOM's
+    type, so `entrance_court/N` — an enclosed facing of an open room — is
+    labelled `open` by it, and a reader routing on that sends four walled
+    facings down the vista path. And its `camera_wall_m` is simply absent on an
+    open facing, which is the float x None the four open walls died on. The
+    emitter now emits `camera_far_m` and `facing_type` beside it
+    (`tools/make-scaffold.mjs`) so the NEXT map arrives carrying both; this
+    reads the drawing so that THIS map, whose manifest predates that, is not
+    stuck behind a re-emit that would move every scaffold digest in it.
+    """
+    if "plan" not in _PLAN_CACHE:
+        _PLAN_CACHE["plan"] = json.load(open(PLAN))
+    loc, f = key.split("/")
+    room = next((r for r in _PLAN_CACHE["plan"].get("rooms", [])
+                 if r.get("id") == loc), None)
+    return ((room or {}).get("facings") or {}).get(f) or {}
+
 #: The experiment's own walls. Promotion here would overwrite the ground truth
 #: every row-23 number is measured against.
 NEVER_PROMOTE = {"study/N", "study/W"}
@@ -111,6 +141,27 @@ def sha(p):
 
 
 
+def _indoor_ask(cand_rel):
+    """[row 29(a)] Was this candidate asked for with interior fabric in the ask?
+
+    THROUGH THE LINT'S OWN WORD LIST, never a third copy of it. `prompt_lint.py`
+    holds the Python one and `tools/room-voices.mjs` holds the JavaScript one,
+    and their agreement is already the handshake the suite pins; a list written
+    out again here would be the drift that handshake exists to catch.
+
+    Every candidate is written with its own prompt beside it by the emitter, so
+    the ask is on disk next to the picture. A candidate with no prompt beside it
+    cannot be shown to have been an outdoor ask, and on an outdoor wall that is
+    the same answer as a bad one.
+    """
+    import prompt_lint
+    p = os.path.join(ROOT, cand_rel)
+    p = p[:-4] + ".prompt.txt" if p.lower().endswith(".png") else p + ".prompt.txt"
+    if not os.path.exists(p):
+        return True
+    return bool(prompt_lint.INTERIOR_FABRIC.search(open(p, encoding="utf-8").read()))
+
+
 def _correction_for(family, why, reading, entry):
     """[row 32] The forward half of a hold, in words a prompt can act on.
 
@@ -140,6 +191,25 @@ def _correction_for(family, why, reading, entry):
         return None
     hz = entry.get("horizon_y")
     p = (reading or {}).get("_promotion") or {}
+    # [row 29(a)] A VISTA HAS NO RETURNS AND NO SURFACE OVERHEAD, so the
+    # sentence below cannot be carried onto one: it would tell an outdoor
+    # painter to make two side walls meet a ceiling that is not in the picture.
+    # An open facing is refused only where its far-line ground row and its own
+    # coping ruler disagree about the eye, and the forward half of that is the
+    # ground row's position — the one thing a repaint can move.
+    if p.get("horizon_instrument") == "far-line-ruler":
+        far = p.get("far_line_ruler") or {}
+        return (
+            "the ground at the far line must meet the foot of the low boundary "
+            "wall at row %d of the 1024-row frame — the line Image 2 draws it "
+            "on — and the wall's stone coping must run straight across %d "
+            "pixels above that, which is its ruled 0.95 m at this view's scale. "
+            "This frame puts the ground line at row %d instead. The open sky, "
+            "the ground running to the bottom edge and everything else stay "
+            "exactly where Image 2 puts them."
+            % (round((entry.get("floor_line_y") or 0) * 1024),
+               round((far.get("px_per_m_at_far_line") or 0) * 0.95),
+               round(far.get("ground_row_px") or 0)))
     row = ("row %d of the %d-row frame"
            % (round(hz * 1024), 1024)) if hz else "the eye line Image 2 marks"
     common = (
@@ -178,9 +248,16 @@ def promote_reading(key, cand_rel, e, side, ref, reading):
     `row23_lib._promotion_half`), and this shapes that one reading into the §5
     record. Nothing is measured here.
     """
-    if e.get("camera_wall_m") is None:
-        return None, ("an open facing's far-line frame has no wall plane to "
-                      "carry a scale; its promotion path is not built yet")
+    # [row 29(a)] THE OPEN FACING'S PROMOTION IS BUILT NOW, and this is where it
+    # was refused. The refusal read "an open facing's far-line frame has no wall
+    # plane to carry a scale; its promotion path is not built yet" — true of the
+    # path and false of the frame: the scale is carried at the FAR LINE, by the
+    # boundary-wall coping the `outdoors_open` voice declares, and
+    # `row23_lib._promotion_half_open` reads it there. What survives of the
+    # refusal is the honest half: a facing whose record names NEITHER depth
+    # anchor still has nothing for a lens to be quoted at, and that is a
+    # WITHHELD the instrument itself issues (see `measure_candidate`), so by the
+    # time a reading reaches here it has already been said once.
     import row23_lib
     doc, refusals = row23_lib.promotion_doc(
         reading, side, ref, "manor", sha(os.path.join(ROOT, cand_rel)))
@@ -330,16 +407,39 @@ def sweep(manifest, state, do_promote=True):
                   % key)
             st["status"] = "waiting"
             st.pop("hold_family", None)
-        if st["status"] in ("promoted", "parked"):
-            # [row 32] A PARKED WALL NAMES ITS SUB-FAMILY TOO, even though the
-            # sweep does not re-read it. A wall parked before row 32 spent its
-            # cap on the CAMERA gate — its correction is a scale, not a horizon
-            # — and leaving it unnamed is the state row 32 exists to end: a
-            # ledger that cannot say how many of its stalled walls are one
-            # thing. This stamps what the wall's own record already says and
-            # measures nothing.
-            if st["status"] == "parked" and not st.get("hold_family"):
-                st["hold_family"] = "camera-miss"
+        # [row 29(a)] A PARKED WALL IS RE-DECIDED FROM THE PIXELS TOO, which is
+        # the same sentence the RE-DECIDE guard above is written in and the same
+        # doctrine — it was simply never applied to this status. A parked wall
+        # was skipped entirely, so whatever correction it happened to be
+        # carrying when its cap ran out stayed on it forever, whichever route
+        # wrote it. `entrance_court/S` is the case: `--recheck-doors` took it
+        # back out of the store with a sentence about its indoor ASK, the next
+        # sweep parked it, and the record then read `hold_family: camera-miss`
+        # beside a correction about a candidate the wall no longer has. The cap
+        # still governs — a parked wall buys no roll and stays parked — but what
+        # it says about itself is re-derived from the frames on disk. The cost is
+        # four walls' candidates a sweep.
+        #
+        # This also replaces row 32's stamp, which stood here and read: "A
+        # PARKED WALL NAMES ITS SUB-FAMILY TOO, even though the sweep does not
+        # re-read it... this stamps what the wall's own record already says and
+        # measures nothing." Its claim — every stalled wall names which thing is
+        # true of it, so the ledger can say how many are one thing — is
+        # unchanged and now holds by MEASUREMENT rather than by assertion: the
+        # parked branch below writes the family and the diagnosed correction
+        # together, off this pass's own reading.
+        if st["status"] == "promoted":
+            # [row 29(a)] AND NOTHING IS STAMPED ON AN ALREADY-PROMOTED WALL.
+            # A draft of this cleared `correction` here as well as at the
+            # promotion below, on the reasoning that a painted wall is not
+            # waiting for a repaint. It is not that simple: `privy_garden/N` is
+            # promoted and its `correction` is KABE'S OWN VETO, the sentence
+            # that sent it back — a record of how the wall got here rather than
+            # a claim about where it is going, and the one human-authored line
+            # in this file. `room-voices.spec` reads it. A wall the sweep is not
+            # re-deciding is a wall it has nothing new to say about, so it says
+            # nothing; the clearing happens where the promotion is actually
+            # performed, against a correction that promotion just answered.
             continue
         # THE STORE IS CHECKED, NOT THE STATE FILE ALONE. A wall promoted by any
         # route already has art, and a late duplicate return for it must not
@@ -362,11 +462,50 @@ def sweep(manifest, state, do_promote=True):
         # sweep read none of them). The manifest's geometry cfg still governs:
         # the voiced scaffolds move labels, never geometry, and every anchor
         # stamps at the same row — the voice table's own test pins that.
+        # [row 29(a)] The DRAWING's own facing record, read before anything
+        # routes on the facing's type — see `facing_of`.
+        fac = facing_of(key)
         all_rolls = list(e["rolls"])
         for rr in RETRIES.get(key, []):
             all_rolls.append(rr)
         arrivals = [r for r in all_rolls
                     if os.path.exists(os.path.join(ROOT, r["candidate"]))]
+        # [row 29(a)] AN OUTDOOR WALL'S CANDIDATES ARE THE ONES IT WAS ASKED FOR
+        # OUTDOORS. `entrance_court/S`'s two ORIGINAL rolls were painted before
+        # the `outdoors_open` voice existed, from a prompt that asked for oak
+        # panelling and a chair-rail, and they are panelled interiors with two
+        # enclosed corners. The camera gate reads them happily — it measures the
+        # panelling's chair-rail, calls it the boundary wall's coping and
+        # returns +4.5 % — so left in the pool they are chosen OVER the wall's
+        # own outdoor re-asks and the manor's front court ships as a parlour.
+        # `promote-backdrop.mjs` refuses them too (one rule, both ends); they
+        # are dropped HERE as well so the wall falls to its outdoor rolls and
+        # earns their correction, rather than holding on a refusal about an ask
+        # nobody will make again.
+        if fac.get("type") == "open":
+            keep, dropped = [], []
+            for r in arrivals:
+                if _indoor_ask(r["candidate"]):
+                    dropped.append(r["id"])
+                else:
+                    keep.append(r)
+            for rid in dropped:
+                print("  %-24s INDOOR-ASK %s: painted from a prompt that names "
+                      "interior fabric, before this wall had an outdoor voice"
+                      % (key, rid))
+            if dropped and not keep:
+                # Every roll this wall has was asked for indoors. That is not a
+                # wall waiting for art — the art arrived and is of the wrong
+                # building — so it holds under its own name and says so.
+                st["status"] = "held"
+                st["hold_family"] = "indoor-ask-outdoor-wall"
+                st["correction"] = (
+                    "every candidate of this open facing was painted from a "
+                    "prompt naming interior fabric, before the wall had an "
+                    "outdoor voice; it needs a roll asked under `outdoors_open`")
+                failed.append((key, {}, st["correction"]))
+                continue
+            arrivals = keep
         if not arrivals:
             waiting.append(key)
             continue
@@ -381,9 +520,19 @@ def sweep(manifest, state, do_promote=True):
         side = {"facing": key,
                 "meta_used": {"px_per_m_at_wall": e["px_per_m_at_wall"],
                               # An OPEN facing has no wall to be a distance
-                              # from; its scale is quoted at the far line and
-                              # nothing in the cfg needs the distance itself.
-                              "camera_wall_m": e.get("camera_wall_m"),
+                              # from; its scale is quoted at the FAR LINE, and
+                              # the field name is the mechanism (row 11) — so
+                              # both are carried and `row23_lib.camera_distance`
+                              # resolves which one this facing has. The manifest
+                              # is preferred where it carries the wall distance,
+                              # and the drawing supplies the far one, which the
+                              # manifest of this map never emitted.
+                              "camera_wall_m": (e.get("camera_wall_m")
+                                                if e.get("camera_wall_m") is not None
+                                                else fac.get("camera_wall_m")),
+                              "camera_far_m": (e.get("camera_far_m")
+                                               if e.get("camera_far_m") is not None
+                                               else fac.get("camera_far_m")),
                               "image_h_px": 1024,
                               "floor_line_y": e.get("floor_line_y", 0.7857),
                               "horizon_y": 0.51377,
@@ -394,7 +543,23 @@ def sweep(manifest, state, do_promote=True):
                 "brackets": e["brackets"], "stamped": e["stamped"],
                 "outputs": {"scaffold": e["packet"] + "/scaffold.png",
                             "scaffold_sha256": e["scaffold_sha256"]}}
-        side["meta_used"]["facing_type"] = e.get("type")
+        # [row 29(a)] THE FACING'S TYPE, FROM THE DRAWING. This read `e["type"]`,
+        # which is the ROOM's type in the manor manifest — so the four enclosed
+        # facings of the two open rooms (`entrance_court/N|E|W`,
+        # `entrance_approach/N`) were labelled `open` in every reading they
+        # wrote, and a promotion routing on it would take a walled painting down
+        # the vista path. The manifest's own `facing_type` is preferred where
+        # the emitter now writes one; the drawing answers where it does not.
+        side["meta_used"]["facing_type"] = (
+            e.get("facing_type") or fac.get("type") or e.get("type"))
+        # The anchor's NAME, so an outdoor record does not say "chair-rail".
+        # The scaffold's own voice named it when the packet was cut.
+        side["meta_used"]["anchor_label"] = {
+            "coping": "boundary-wall coping",
+            "string_course": "string course",
+            "dado_capping": "dado capping",
+            "chair_rail": "chair-rail",
+        }.get((e.get("voice") or {}).get("anchor"))
         # HOTFIX (Navigator, live run 2026-08-24): the manifest's `stamped`
         # copies carry only (kind, x0, x1); the verticals are re-derived from
         # the scaffold's own convention table in `row23_lib._conv_y`. Found
@@ -470,6 +635,26 @@ def sweep(manifest, state, do_promote=True):
                 if ok:
                     st["status"] = "promoted"
                     st["candidate"] = r["candidate"]
+                    # [row 29(a)] A PROMOTED WALL CARRIES NO FORWARD HALF, AND
+                    # NOTHING IS DELETED TO GIVE IT ONE. The three vistas came
+                    # out of this branch still carrying `hold_family:
+                    # unmeasurable-candidate` and the correction "no candidate
+                    # of this wall could be measured at all" — written while the
+                    # instrument was crashing on them, and true of nothing now.
+                    # A record saying a painted wall is waiting for a repaint is
+                    # the ledger lying about the store, which is the RE-DECIDE
+                    # guard's own defect read from the other side.
+                    #
+                    # But a correction is not only a forward half: on
+                    # `privy_garden/N` it is KABE'S OWN VETO, the one
+                    # human-authored line in this file, and a first draft of
+                    # this deleted it. So it MOVES rather than goes — the
+                    # correction this promotion answered, kept under a name that
+                    # is past tense — and the two present-tense fields stop
+                    # claiming a wall in the store is waiting for anything.
+                    if st.get("correction") is not None:
+                        st["answered_correction"] = st.pop("correction")
+                    st.pop("hold_family", None)
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
@@ -558,24 +743,46 @@ def sweep(manifest, state, do_promote=True):
                                     % worst.get("blocked_on"))
                 failed.append((key, worst, st["correction"]))
                 continue
+            # [row 29(a)] THE DIAGNOSED CAUSE IS WRITTEN BEFORE THE ROUTE IS
+            # CHOSEN, so a PARKED wall carries it too. Production law clause 2
+            # asks for every miss logged WITH ITS WHY, and the parked branch
+            # below wrote only "the retry cap is spent" — which is the route,
+            # not the cause. `entrance_court/S` came out of it carrying a
+            # correction left over from a different pass, about a candidate it
+            # no longer has: the ledger describing a wall that no longer exists.
+            ppm = worst.get("px_per_m_at_wall")
+            want = e["px_per_m_at_wall"]
+            # THE PLANE THE SCALE IS QUOTED AT HAS TWO NAMES. An open facing has
+            # no wall plane, so a correction telling its painter to draw N px/m
+            # "at the wall plane" names a surface that is not in the picture —
+            # and the second sentence named interior fabric ("the chair-rail")
+            # on a wall where `room-voices.mjs` would redact the whole
+            # correction for it.
+            where = ("the far line" if (side["meta_used"].get("facing_type")
+                                        == "open") else "the wall plane")
+            anchor_name = side["meta_used"].get("anchor_label") or (
+                "boundary-wall coping"
+                if side["meta_used"].get("facing_type") == "open"
+                else "chair-rail")
+            st["correction"] = (
+                "draw %.3fx larger: %.1f px/m at %s, not %.1f"
+                % (want / ppm, want, where, ppm)) if ppm else (
+                "the %s the prompt declares is not in the frame the licence "
+                "allows; nothing in this painting converts to a scale"
+                % anchor_name)
+            st["candidate"] = worst.get("candidate")
+            st["hold_family"] = "camera-miss"
             if st["attempts"] >= e.get("retry_cap", 3):
                 st["status"] = "parked"
-                st["hold_family"] = "camera-miss"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
                 _now = time.time()                                # [row 33]
                 timings.record("park.wall", _now, _now, key,
-                               {"why": "retry cap spent", "attempts": st["attempts"]})
+                               {"why": "retry cap spent", "attempts": st["attempts"],
+                                "correction": st["correction"]})
                 parked.append((key, worst))
             else:
                 st["status"] = "retry"
-                st["hold_family"] = "camera-miss"
-                ppm = worst.get("px_per_m_at_wall")
-                want = e["px_per_m_at_wall"]
-                st["correction"] = (
-                    "draw %.3fx larger: %.1f px/m at the wall plane, not %.1f"
-                    % (want / ppm, want, ppm)) if ppm else (
-                    "the chair-rail the prompt declares is not in the frame the licence "
-                    "allows; nothing in this painting converts to a scale")
+                st.pop("why", None)
                 failed.append((key, worst, st["correction"]))
     return promoted, failed, parked, waiting
 

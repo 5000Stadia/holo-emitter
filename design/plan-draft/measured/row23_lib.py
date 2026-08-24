@@ -75,6 +75,29 @@ REFLEX_PX = {"study/N": (330.4, 569.2), "study/E": (673.0, 860.0)}
 
 # ----------------------------------------------------------------- the config
 
+#: [row 29(a)] THE DEPTH ANCHOR HAS TWO FIELD NAMES AND EXACTLY ONE MEANING.
+#:
+#: `src/groundplane.js`'s `cameraDistance` has been typed since row 11: an
+#: `enclosed` or `corridor` facing views a wall plane and carries
+#: `camera_wall_m`; an `open` facing views a drawn ground line with no surface
+#: on it and carries `camera_far_m` INSTEAD. This file never learned that. It
+#: multiplied by `camera_wall_m` unconditionally, which on the manor's four
+#: open facings is `None`, and `float * None` took every one of their sixteen
+#: candidates down as a MEASURE-ERR — read by the loop as sixteen bad
+#: paintings, and paid for with the whole retry cap of four walls.
+#:
+#: Resolved once, here, with the same precedence and the same refusal as the
+#: renderer's: a facing naming NEITHER is an error the caller sees rather than
+#: a default it never learns about.
+def camera_distance(meta_used):
+    """(distance_m, which_field) for a facing's depth anchor, or (None, None)."""
+    if meta_used.get("camera_wall_m") is not None:
+        return meta_used["camera_wall_m"], "camera_wall_m"
+    if meta_used.get("camera_far_m") is not None:
+        return meta_used["camera_far_m"], "camera_far_m"
+    return None, None
+
+
 def _conv_y(kind, floor_y, ppm):
     """Vertical extent of a stamped carrier where the manifest carries none.
 
@@ -120,10 +143,31 @@ def cfg_from_sidecar(side):
             cols.append((lo, hi))
     rail_band = (int(rb["centre"] - rb["half_width"]),
                  int(rb["centre"] + rb["half_width"]))
+    cam_m, cam_field = camera_distance(m)
     return dict(
         wall=side["facing"],
         ppm=ppm,
+        # [row 29(a)] The typed depth anchor, resolved once — see
+        # `camera_distance`. `camera_wall_m` is kept beside it because the
+        # withheld sentence below quotes the wall case by name.
         camera_wall_m=m.get("camera_wall_m"),
+        camera_m=cam_m,
+        camera_field=cam_field,
+        # [row 29(a)] The FACING's type, not its room's. The manor manifest's
+        # `type` is `room.type` (`entrance_court/N` is an enclosed facing of an
+        # open room and the manifest calls it `open`), so a reader that routes
+        # on it routes four enclosed facings down the vista path. The sweep
+        # sets this from the plan's own facing.
+        facing_type=m.get("facing_type"),
+        # [row 29(a)] WHAT THE ANCHOR IS CALLED, so a record of an outdoor frame
+        # does not say "chair-rail". The scaffold's own voice names it (the
+        # manifest carries `voice.anchor` per wall); where a caller supplies
+        # nothing, the facing type decides, because an open facing's anchor is
+        # the boundary wall's coping by `room-voices.mjs`'s own ruling. The
+        # ruled height is one number either way — see `CHAIR_RAIL_M`.
+        anchor_label=(m.get("anchor_label") or
+                      ("boundary-wall coping" if m.get("facing_type") == "open"
+                       else "chair-rail")),
         image_h_px=m["image_h_px"],
         corner_x0=m["corner_x0_px"], corner_x1=m["corner_x1_px"],
         floor_window=(int(fw["centre"] - fw["half_width"]),
@@ -255,7 +299,134 @@ def _admissible(ramp, ceil_y, floor_y, bracket):
     return True, None
 
 
-def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=()):
+#: [row 29(a)] The name the vista's horizon answers to, so a reader routes on a
+#: token rather than on prose — and so a record that adopted the declared eye
+#: line can never be mistaken for one that fitted a ramp.
+FAR_LINE_RULER = "far-line-ruler"
+CEILING_RAMP = "ceiling-ramp"
+
+
+def _promotion_half_open(rgb, L, cfg, floor_y, rail_y, ppm, picks):
+    """[row 29(a)] The other half of a VISTA's reading — the far-line ruler.
+
+    WHAT AN OUTDOOR FRAME CAN HONESTLY BE MEASURED ON, and the three things it
+    cannot. An `open` facing has no wall plane, no ceiling and no side walls:
+    `deriveMeta` gives it `camera_far_m` instead of `camera_wall_m`, the
+    renderer's `wallBands` returns no band for it at all, and the fixture
+    validator refuses it corners outright (`row11:meta.open_no_corners`). So
+    every instrument the enclosed path runs — `pick_ceiling`,
+    `find_corners_recession`, `ceiling_ramp_vp` — is asked about something that
+    is not in the picture, and is not run here.
+
+    WHAT IS: the ruler the emitter DECLARED before any candidate existed.
+    `tools/room-voices.mjs`, voice `outdoors_open`: "What closes it and gives
+    the gate its ruler is the low coursed-stone boundary wall that fences a
+    forecourt of this date, its coping at the ruled height." That is two lines
+    the scaffold brackets and the corpus's own detectors read — the wall-GROUND
+    line at the far plane (`pick_floor`, inside `floor_window`) and the COPING
+    0.95 m above it (`module_in_bands`, inside `rail_band`) — and their
+    separation over 0.95 m IS `px_per_m_at_wall` at the far line. Both are the
+    gate's own readings, passed in; nothing is measured twice.
+
+    AND THE HORIZON IS NOT ONE OF THEM. Counted out on the pinhole, with the
+    ground at `d` and the coping at `h = 0.95` on it:
+
+        y_ground = y_h + f·e/d          y_coping = y_h + f·(e − h)/d
+
+    The difference fixes `f` from the ruled `d`, and one equation in two
+    unknowns (`y_h`, `e`) remains. AN OPEN FRAME FIXES THE LENS AND CANNOT FIX
+    THE EYE — there is no second ground datum at a second ruled distance in it.
+    The three candidates for one, and why each is refused:
+
+      the sky/ground boundary   would be the horizon if the ground ran level to
+                                infinity. In these paintings it is never that.
+                                Where the boundary wall occludes the distance it
+                                IS the coping — 0.95 m up at the far line, and
+                                therefore BELOW the eye line, by 8.9 px on
+                                `entrance_court/S` against a ±3.6 px licence.
+                                Where country shows over the wall it is a RIDGE
+                                (`entrance_approach/W` draws its treeline at
+                                y 430, ~96 px ABOVE the declared eye line),
+                                which is what ground standing higher than the
+                                viewer looks like and is not a vanishing line at
+                                all. Fitting either would report a horizon the
+                                picture never fixed, and neither could say so.
+      the ceiling ramp          has no subject: no ceiling, no side walls. Run
+                                anyway on these frames it returns nothing on
+                                nine of sixteen candidates and, on the rest, a
+                                fit through two unrelated edges.
+      a second ground datum     the frame has exactly one ruled distance.
+
+    So the horizon here is the CAMERA'S OWN DECLARED EYE LINE — the row the
+    scaffold drew and the prompt names — and it is reported as a declaration,
+    under its own instrument name, never as a reading. That does not make this
+    a gate that cannot fail: the scaffold placed the far-line GROUND row at
+    `horizon + eye × px_per_m`, `measure_candidate` reads the eye off it at the
+    frame's own measured scale, and the camera gate holds it to the same ±8 %
+    every other wall answers to. What is genuinely absent is the SECOND,
+    independent perspective reading an enclosed frame carries, and this record
+    says so rather than fitting a ramp to nothing.
+
+    THE LIGHT, off a row the frame gives. `measure.light` reads the surface
+    OVERHEAD — the plane the key bounces off — in a band above the junction it
+    is handed. Outdoors that surface is the sky, and the top of the only built
+    thing in frame is the coping, so the coping row is what is passed: the
+    tint patch lands in sky, and the function's own "wall band" lands on the
+    boundary wall's face, which is the one built surface an open frame has.
+    """
+    eye_range = picks["EYE_RANGE"]
+    horizon_y = cfg["horizon_declared"]
+    lit = picks["light"](rgb, L, int(rail_y), floor_y, None, None)
+    eye = (floor_y - horizon_y) / ppm if ppm else None
+
+    why, family = [], None
+    if eye is None or not (eye_range[0] <= eye <= eye_range[1]):
+        family = SUSPECT_PAINTING
+        why.append(
+            "SUSPECT PAINTING: this frame draws its far-line ground row at y "
+            "%.1f, which at the scale its own coping declares (%.1f px/m at the "
+            "far line) puts the eye %.3f m above the ground there, outside "
+            "%.1f-%.1f m. The ruler and the ground row are two readings of one "
+            "picture and they cannot both be true, and no band is widened to "
+            "admit that."
+            % (floor_y, ppm, eye if eye is not None else float("nan"),
+               eye_range[0], eye_range[1]))
+
+    return dict(
+        # An open facing has no ceiling line, no corners, no storey and no wall
+        # width. Every one of those is None because the thing is absent from the
+        # picture, not because the detector failed to find it — and the law
+        # forbids three of them on a vista outright.
+        ceiling_y_px=None, ceiling_candidates=[], ceiling_rows_tried=[],
+        corner_x0_px=None, corner_x1_px=None, corner_evidence=None,
+        horizon_bracket_px=round(cfg["horizon_bracket_px"], 2),
+        ramp=None, votes={}, light=lit,
+        storey_height_m=None,
+        implied_wall_width_m=None,
+        eye_height_m=(None if eye is None else round(eye, 4)),
+        horizon_instrument=FAR_LINE_RULER,
+        far_line_ruler=dict(
+            instrument=FAR_LINE_RULER,
+            y=horizon_y,
+            ground_row_px=round(float(floor_y), 2),
+            coping_row_px=round(float(rail_y), 2),
+            coping_above_ground_px=round(float(floor_y) - float(rail_y), 2),
+            ruled_coping_m=CHAIR_RAIL_M,
+            px_per_m_at_far_line=round(ppm, 3) if ppm else None,
+            eye_height_m=(None if eye is None else round(eye, 4)),
+            camera_far_m=cfg["camera_m"],
+            _which_horizon=(
+                "DECLARED, not fitted. An open frame's two ruled lines — the "
+                "far-line ground row and the coping 0.95 m above it — fix the "
+                "LENS and leave the eye and the horizon in one equation with "
+                "two unknowns, so this row is the camera's own eye line and "
+                "the picture's answer to it is the ground row, which the "
+                "camera gate holds at the standing +/-8 %.")),
+        hold_family=family,
+        withheld_because=why)
+
+
+def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
     """Everything a PROMOTION needs that a camera verdict does not.
 
     ONE INSTRUMENT, AND THIS IS THE OTHER HALF OF IT. Until 2026-08-24 the
@@ -320,6 +491,11 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=()):
     to keep a second copy of it. NO BAND MOVED at row 32 and none may: the
     suspect family is separated by the error bar, never by widening this.
     """
+    # [row 29(a)] A VISTA IS READ BY THE OTHER INSTRUMENT, and the branch is
+    # here rather than at the call site so that one function still answers
+    # "everything a promotion needs" for every facing type.
+    if cfg.get("facing_type") == "open":
+        return _promotion_half_open(rgb, L, cfg, floor_y, rail_y, ppm, picks)
     eye_range = picks["EYE_RANGE"]
     ceil_y, ceil_cands, _ = picks["pick_ceiling"](
         L, dict(ceil_cols=cfg["rail_columns"], ceil_range=cfg["ceiling_search"]))
@@ -415,6 +591,11 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=()):
         storey_height_m=(None if storey is None else round(storey, 4)),
         implied_wall_width_m=(None if width is None else round(width, 4)),
         eye_height_m=(None if eye is None else round(eye, 4)),
+        # [row 29(a)] Which instrument fixed the horizon, as a token. A walled
+        # facing's is row 20's ramp; a vista's is the far-line ruler and says so
+        # under its own name, so no reader can mistake one for the other.
+        horizon_instrument=CEILING_RAMP,
+        far_line_ruler=None,
         hold_family=family,
         withheld_because=why)
 
@@ -578,6 +759,22 @@ def measure_candidate(path, side, cfg, ref, picks):
     # It is not: no painting of this facing can put the declared anchor's datum
     # in frame, because the STANDPOINT is what puts it out. Said plainly, once,
     # so the loop holds the wall instead of spending rolls on it.
+    # [row 29(a)] A FACING WITH NO DEPTH ANCHOR IS A WITHHELD, NOT A TypeError.
+    # Until this row the arithmetic below multiplied by `camera_wall_m`
+    # unconditionally; on the four `open` facings that field is None and every
+    # candidate died in the sweep's per-candidate guard as a MEASURE-ERR — which
+    # reads as sixteen unpaintable frames and spent four walls' retry caps. Said
+    # once, here, in the same voice as the standpoint case below.
+    if cfg["camera_m"] is None:
+        return dict(verdict="WITHHELD", kind="measurement_withheld",
+                    blocked_on=(
+                        "this facing's record names neither camera_wall_m nor "
+                        "camera_far_m, so there is no distance for the scale this "
+                        "frame carries to be quoted AT — an enclosed facing views a "
+                        "wall plane and an open one views a drawn far line, and a "
+                        "reading with no plane behind it converts to no lens. "
+                        "Nothing about the painting is at fault and no repainting "
+                        "answers it: the record does."))
     for name, lo, hi in (("floor bracket", *cfg["floor_window"]),
                          ("chair-rail bracket", *cfg["rail_band"])):
         if lo >= H or hi <= 0 or hi <= lo:
@@ -589,8 +786,7 @@ def measure_candidate(path, side, cfg, ref, picks):
                             "There is no datum in this frame for the declared anchor "
                             "to be a height above, and no repainting moves it: the "
                             "standpoint does."
-                            % (name, lo, hi, H,
-                               side["meta_used"].get("camera_wall_m"),
+                            % (name, lo, hi, H, cfg["camera_m"],
                                side["meta_used"].get("wall_width_m"))))
     if not cfg["rail_columns"]:
         return dict(verdict="WITHHELD", kind="measurement_withheld",
@@ -622,21 +818,25 @@ def measure_candidate(path, side, cfg, ref, picks):
         absent.append("the floor line reads y %d, outside the y %d..%d the standing "
                       "licence allows" % (floor_y, a, b))
     if not rail_in_band:
-        absent.append("the chair-rail reads y %d, outside the y %d..%d the standing "
+        absent.append("the %s reads y %d, outside the y %d..%d the standing "
                       "licence allows - this frame declares the anchor the gate votes "
-                      "on and does not paint it there" % (rail_y, ra, rb))
+                      "on and does not paint it there"
+                      % (cfg["anchor_label"], rail_y, ra, rb))
 
     # ---- the camera, off the declared anchor and nothing else ---------------
     ppm = focal = eye = None
     if floor_in_band and rail_in_band and rail_above > 4:
         ppm = rail_above / 0.95
-        focal = ppm * side["meta_used"]["camera_wall_m"]
+        # [row 29(a)] Through the typed anchor. On an open facing this is
+        # `camera_far_m` and the scale is quoted at the FAR LINE, which is the
+        # only plane that frame has; the arithmetic is otherwise the same one.
+        focal = ppm * cfg["camera_m"]
         # The eye rides the identity §5 asserts: the floor-to-horizon separation
         # IS eye x px_per_m_at_wall, read against this wall's own horizon.
         eye = (floor_y - ref["horizon_y_px"]) / ppm
     elif rail_above <= 4:
-        absent.append("the chair-rail reads %d px above the floor line, which is not "
-                      "a height" % rail_above)
+        absent.append("the %s reads %d px above the floor line, which is not "
+                      "a height" % (cfg["anchor_label"], rail_above))
 
     # ---- the carriers, inside their declared windows -----------------------
     carriers = []
@@ -667,7 +867,7 @@ def measure_candidate(path, side, cfg, ref, picks):
     # ships and the reading a gate admitted are one measurement of one frame.
     out["_promotion"] = (None if ppm is None else
                          _promotion_half(rgb, L, cfg, floor_y, ppm, picks,
-                                         carriers))
+                                         carriers, rail_y=rail_y))
 
     band = ref["band"]
     if ppm is None:
@@ -719,6 +919,20 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
     m = reading["_measured_px"]
     ramp = p["ramp"]
     lit = p["light"]
+    # [row 29(a)] WHICH INSTRUMENT FIXED THE HORIZON, and the record says so in
+    # a token before it says so in prose. A walled facing's horizon is row 20's
+    # ceiling-ramp intersection, FITTED. A vista's is the camera's own declared
+    # eye line, DECLARED — an open frame's two ruled lines fix the lens and
+    # leave the eye and the horizon in one equation with two unknowns, so there
+    # is no ramp to fit and none is manufactured. `ceiling_ramp_intersection`
+    # stays null on a vista precisely so a reader has to handle the case.
+    far = p.get("far_line_ruler")
+    is_open = p.get("horizon_instrument") == FAR_LINE_RULER
+    horizon_px = (ramp["y"] if ramp else (far["y"] if far else None))
+    anchor = ("the low boundary wall's stone coping above the ground at the "
+              "far line" if is_open else
+              "the wainscot chair-rail's undercut shadow above the wall's own "
+              "floor line")
     doc = {
       "_source_sha256": source_sha256,
       "_what_this_is": (
@@ -735,45 +949,61 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
       "facing_type": side["meta_used"].get("facing_type", "enclosed"),
       "image_h_px": side["meta_used"]["image_h_px"],
       "floor_line_y": round(m["wall_floor_line_y_px"] / float(side["meta_used"]["image_h_px"]), 6),
-      "horizon_y": (round(ramp["y"] / float(side["meta_used"]["image_h_px"]), 6)
-                    if ramp else None),
+      "horizon_y": (round(horizon_px / float(side["meta_used"]["image_h_px"]), 6)
+                    if horizon_px is not None else None),
       "px_per_m_at_wall": ppm,
       "px_per_m_at_bottom": (
-          round((side["meta_used"]["image_h_px"] - ramp["y"]) / p["eye_height_m"], 2)
-          if (ramp and p["eye_height_m"]) else None),
+          round((side["meta_used"]["image_h_px"] - horizon_px) / p["eye_height_m"], 2)
+          if (horizon_px is not None and p["eye_height_m"]) else None),
       "implied_focal_px": reading["implied_focal_px"],
       "eye_height_m": p["eye_height_m"],
       "storey_height_m": p["storey_height_m"],
-      "drawn_standpoint_m": side["meta_used"].get("camera_wall_m"),
+      "drawn_standpoint_m": (side["meta_used"].get("camera_wall_m")
+                             if not is_open
+                             else side["meta_used"].get("camera_far_m")),
       "delta_focal_pct": reading.get("delta_focal_pct"),
       "delta_eye_pct": reading.get("delta_eye_pct"),
       "band_pct": ref["band"] * 100,
       "wall_width_m": p["implied_wall_width_m"],
       "camera_wall_m": side["meta_used"].get("camera_wall_m"),
+      # [row 29(a)] An open facing's depth anchor, under the field name the law
+      # gives it: `src/groundplane.js` types the two apart on purpose, so this
+      # record does too rather than quoting a far line as a wall distance.
+      "camera_far_m": side["meta_used"].get("camera_far_m"),
       "corner_x0_px": p["corner_x0_px"],
       "corner_x1_px": p["corner_x1_px"],
       "key_tint": lit["key_tint"],
       "key_dir": "%s-%s" % (
           lit["key_dir_measured"],
-          "ABOVE" if (ramp and lit["key_dir_brightest_y"] < ramp["y"])
-          else ("BELOW" if ramp else "NO-HORIZON")),
+          "ABOVE" if (horizon_px is not None and
+                      lit["key_dir_brightest_y"] < horizon_px)
+          else ("BELOW" if horizon_px is not None else "NO-HORIZON")),
+      # [row 29(a)] AND THE ANCHOR IS NAMED FOR WHAT IT IS. This sentence used
+      # to say "wainscot chair-rail" on every wall, which on an outdoor frame
+      # is the Captain's finding (a) — interior fabric outside — written into
+      # the ledger itself. The RULED HEIGHT is one number for both (see
+      # `CHAIR_RAIL_M`), and the `taken at <n> m` phrase is kept verbatim
+      # because `geometry.spec`'s calibration audit parses it.
       "calibration_ref": (
-        "the wainscot chair-rail's undercut shadow above the wall's own floor "
-        "line, taken at %.2f m — blueprint §11 rules it there on every "
-        "panelled wall in the manor and this facing's own scaffold declares it "
-        "as the measurement anchor" % CHAIR_RAIL_M),
+        "%s, taken at %.2f m — %s and this facing's own scaffold declares it "
+        "as the measurement anchor"
+        % (anchor, CHAIR_RAIL_M,
+           "tools/room-voices.mjs's `outdoors_open` voice rules the coping "
+           "there on a forecourt wall of this date" if is_open else
+           "blueprint §11 rules it there on every panelled wall in the manor")),
       "calibration_px": m["dado_rail_above_floor_px"],
       "calibration_tier": 1,
       "_ruler_policy": {
-        "adopted": "chair_rail",
+        "adopted": "coping" if is_open else "chair_rail",
         "ruled_m": CHAIR_RAIL_M,
         "rule": (
           "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera "
           "verdict, the calibration feature and this document's scale are all "
-          "the same chair-rail reading inside the same +/-8 % bracket, taken "
-          "once. There is no second window and no second pass."),
+          "the same %s reading inside the same +/-8 %% bracket, taken "
+          "once. There is no second window and no second pass."
+          % ("coping" if is_open else "chair-rail")),
       },
-      "_which_horizon": (
+      "_which_horizon": (far["_which_horizon"] if is_open else
         "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 "
         "over the vanishing-point vote. The two side-wall/ceiling junctions "
         "run parallel to the view axis and must converge on the horizon; they "
@@ -788,13 +1018,22 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
         "row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px "
         "in _measured_px's siblings on the reading)."),
       "_horizon_votes": {"per_region": p["votes"],
-                         "adopted_y": (ramp["y"] if ramp else None),
-                         "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
-                         "ceiling_ramp_intersection": ramp},
+                         "adopted_y": horizon_px,
+                         "adopted_instrument": p.get("horizon_instrument"),
+                         "adopted_rule": (
+                             "the far-line ruler's declared eye line - see "
+                             "_which_horizon" if is_open else
+                             "the ceiling-ramp intersection - see _which_horizon"),
+                         "ceiling_ramp_intersection": ramp,
+                         # [row 29(a)] The vista's own instrument, under its own
+                         # key. A reader takes ONE of these two and the other is
+                         # null, so a promotion cannot be handed a horizon that
+                         # was fixed by an instrument it did not ask for.
+                         "far_line_ruler": far},
       "_measured_px": dict(m, wall_ceiling_line_y_px=p["ceiling_y_px"],
                            corner_x0_px=p["corner_x0_px"],
                            corner_x1_px=p["corner_x1_px"],
-                           horizon_y_px=(ramp["y"] if ramp else None)),
+                           horizon_y_px=horizon_px),
       "_windows": reading["_windows"],
       "_carriers": reading["carriers"],
       "_light": lit,
@@ -803,8 +1042,8 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
           "storey_height_m": p["storey_height_m"],
           "implied_wall_width_m": p["implied_wall_width_m"],
           "px_per_m_at_bottom": (
-              round((side["meta_used"]["image_h_px"] - ramp["y"]) / p["eye_height_m"], 4)
-              if (ramp and p["eye_height_m"]) else None),
+              round((side["meta_used"]["image_h_px"] - horizon_px) / p["eye_height_m"], 4)
+              if (horizon_px is not None and p["eye_height_m"]) else None),
           "implied_camera_wall_m": (round(side["meta_used"]["image_h_px"] / ppm, 4)
                                     if ppm else None)},
       "_withheld_because": p["withheld_because"],
