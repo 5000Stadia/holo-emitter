@@ -31,10 +31,12 @@ for f in ("design/batches/row23-scaffold/manor/manifest.json",
           "design/batches/row23-scaffold/manor/retries.json",
           "design/batches/row36-assembly/swatches/swatch-index.json"):
     if not os.path.exists(f): continue
-    for e in json.load(open(f)).get("entries", []):
+    doc = json.load(open(f))
+    for e in (doc.get("entries") or doc.get("packets") or []):
         if e.get("skipped"): continue
         for r in e.get("rolls", []):
-            if not os.path.exists(r["candidate"]): owed += 1
+            path = r.get("candidate") or r.get("dest")
+            if path and not os.path.exists(path): owed += 1
 # unmeasured: rolls of LIVING walls whose candidate exists but has no reading.
 # Orphan candidates of terminal walls (promoted/parked/fenced) are the sweep's
 # to ignore by design; counting them held the baton at "loop owed 50" forever,
