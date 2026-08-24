@@ -1,0 +1,32 @@
+Paint one flat, square sample of a single building material: a floor of square stone paviours.
+
+This is a MATERIAL SAMPLE and not a picture of a room. There is no
+  room, no wall meeting another wall, no corner, no floor line, no
+  ceiling, no window, no door, no furniture and no horizon. The
+  floor surface fills the whole image, edge to edge.
+
+Viewpoint: square on, looking straight at the surface from directly
+  in front of it. No perspective, no vanishing point, no convergence,
+  nothing receding. The surface is parallel to the picture plane, so a
+  straight joint runs straight and stays the same width across the
+  whole image.
+
+Light: completely even and sourceless. No sun, no window light, no
+  firelight, no lamp, no highlight, no cast shadow, no vignette, no
+  gradient from one side to the other. The same brightness in every
+  corner as in the middle. This sample will be lit later by the scene
+  it is used in, so any light painted into it is light in the wrong
+  place forever.
+
+Scale, and this is exact: exactly 8 square paviours lie side by side across the image, each one exactly 0.450 m wide measured across it.
+  They run the other way — along their own length — from one edge of the image to the other, unbroken.
+  So the image spans 3.600 m across. Every square paviour is the same width as every other, and the count must be exact: it is measured off the returned image and a miscount is a re-ask.
+
+Medium: fine oil realism with tactile brush detail, the material's own
+  colour, honest to English building work of about 1660. Age and wear
+  are welcome in the SURFACE — worn, scrubbed, weathered, settled — but
+  not as staining that reads as a shadow.
+
+Avoid: any room, any object, any perspective, any directional light,
+  any border or frame or margin, any caption, any colour chart, any
+  watermark. The material and nothing else.

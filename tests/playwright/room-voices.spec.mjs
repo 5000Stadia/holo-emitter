@@ -37,7 +37,8 @@ import {
   materialKeysOf, materialOf, assertMaterialsComplete, emitMaterials,
   scaleContract, swatchCount, canonicalMaterial, aliasTable
 } from "../../tools/room-voices.mjs";
-import { manorPrompt, scaffoldRects, chairRail, assertLabelChars } from "../../tools/make-scaffold.mjs";
+import { manorPrompt, scaffoldRects, chairRail, assertLabelChars, swatchPrompt, swatchId }
+  from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
 
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
@@ -601,5 +602,62 @@ test.describe("row 36 — material types for the texture library", () => {
     const onDisk = readFileSync(out, "utf8");
     const fresh = JSON.stringify(emitMaterials(VOICES), null, 2) + "\n";
     expect(onDisk, "run `node tools/room-voices.mjs --emit-materials`").toBe(fresh);
+  });
+
+  /* ---- the swatch ask ---------------------------------------------- */
+  test("a swatch ask names its material, its scale and nothing else", () => {
+    const doc = emitMaterials(VOICES);
+    const swatches = Object.values(doc.materials).filter((m) => m.lane === "swatch");
+    expect(swatches.length).toBe(12);
+    for (const m of swatches) {
+      const p = swatchPrompt(m.id, m);
+      /* the material is named in the voice's own words, never a placeholder */
+      expect(p, `${m.id} names its material`).toContain(m.swatch_prose || m.prose);
+      expect(p).not.toMatch(/undefined|\[object/);
+      /* neutral, because row 37 rules that pieces carry material not light */
+      expect(p, `${m.id} forbids painted light`).toMatch(/completely even and sourceless/);
+      expect(p).toMatch(/no cast shadow/);
+      /* flat, because a swatch has no room in it */
+      expect(p, `${m.id} forbids perspective`).toMatch(/No perspective/);
+      expect(p).toMatch(/not a picture of a room/);
+      /* and it carries a derivable scale — N1 */
+      expect(p, `${m.id} carries a scale`).toMatch(/^Scale/m);
+      if (m.scale_contract.kind === "periodic") {
+        expect(p).toContain(`exactly ${m.scale_contract.count} `);
+        expect(p, "the pitch is stated ACROSS the feature, not along it")
+          .toMatch(/lie side\s+by side across the image/);
+      }
+    }
+  });
+
+  test("a swatch ask refuses prose that talks about the picture instead of the material", () => {
+    /* `outdoors_open.floor` says "...running to the bottom edge of frame" —
+       true of a facing, meaningless in a flat sample, and contradicted by the
+       same prompt's own Avoid line. The ask refuses rather than silently
+       regexing the request into something nobody wrote. */
+    const doc = emitMaterials(VOICES);
+    const m = doc.materials["floor/gravel-and-turf"];
+    expect(m.prose, "the voice really does carry frame-talk").toMatch(/edge of frame/i);
+    expect(m.swatch_prose, "and the material overrides it for the flat ask").toBeTruthy();
+    expect(swatchPrompt(m.id, m)).not.toMatch(/edge of frame/i);
+
+    const doctored = { ...m, swatch_prose: undefined };
+    expect(() => swatchPrompt(m.id, doctored)).toThrow(/picture terms|swatch_prose/i);
+  });
+
+  test("swatch roll ids are opaque, stable and cannot collide with a wall roll", () => {
+    const a = swatchId("floor/wide-oak-boards", 1);
+    expect(a).toMatch(/^[0-9a-f]{8}$/);
+    expect(swatchId("floor/wide-oak-boards", 1)).toBe(a);
+    expect(swatchId("floor/wide-oak-boards", 2)).not.toBe(a);
+    expect(swatchId("floor/worn-stone-flags", 1)).not.toBe(a);
+  });
+
+  test("every swatch's delivered ppm clears the demand its slot actually makes", () => {
+    const doc = emitMaterials(VOICES);
+    for (const m of Object.values(doc.materials)) {
+      if (m.lane !== "swatch") continue;
+      expect(m.scale_contract.ppm, `${m.id}`).toBeGreaterThanOrEqual(SLOT_DEMAND_PPM[m.slot]);
+    }
   });
 });

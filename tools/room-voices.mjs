@@ -997,6 +997,11 @@ export const MATERIALS = {
               feature: "raked gravel grain" }
   },
   "floor/gravel-and-turf": {
+    /* The voice says "...running to the bottom edge of frame", which is a true
+       and useful thing to tell a painter about a FACING and a meaningless one
+       to tell a flat sample -- the swatch ask refuses picture-talk, and this is
+       the same ground said without the picture. */
+    swatch_prose: "raked gravel and worn turf, the two running together",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.02,
@@ -1198,10 +1203,36 @@ export function emitMaterials(voices) {
   /* Only STORED textures are emitted: an alias is a naming fact, not an asset,
      and the assembler must never be handed a tile id that nothing keeps. The
      aliases travel beside them as their own table so the merge is auditable. */
+  /* THE PROSE IS LOOKED UP, NEVER COPIED. A material's words live in VOICES as
+     their one home; an ask needs them, so they are resolved here from the
+     binding and stamped with the voice they came from. Preference order is
+     deliberate: a voice's `walls`/`floor`/`ceiling` prose describes the
+     material, while its `blank` phrasing describes the same material with
+     nothing on it -- the second is lossy and must not become the ask. */
+  const proseOf = new Map();
+  for (const [vid, voice] of Object.entries(voices)) {
+    for (const key of materialKeysOf(voice)) {
+      const m = materialOf(vid, key);
+      const str = key.startsWith("hangings.")
+        ? voice.hangings[key.slice("hangings.".length)]
+        : voice[key];
+      /* Two ranks, both deliberate. A voice that names the CANONICAL id
+         outright beats one that reaches it through an alias, because the
+         alias sources are the strings the ruling merged AWAY and the ask
+         should speak in the surviving material's own words. Within that, a
+         `walls`/`floor`/`ceiling` prose beats the lossy `blank` phrasing. */
+      const rank = (m.aliased ? 10 : 0) + (key === "blank" ? 2 : 1);
+      const prev = proseOf.get(m.id);
+      if (!prev || rank < prev.rank) proseOf.set(m.id, { rank, prose: str, from: `${vid}.${key}` });
+    }
+  }
   const materials = {};
   for (const [id, m] of Object.entries(MATERIALS)) {
     if (m.same_as) continue;
-    materials[id] = { id, ...m, scale_contract: scaleContract(m.slot, m.tiling) };
+    const p = proseOf.get(id);
+    if (!p) throw new Error(`room-voices: material \`${id}\` has no prose in any voice`);
+    materials[id] = { id, ...m, prose: p.prose, prose_from: p.from,
+                      scale_contract: scaleContract(m.slot, m.tiling) };
   }
   const bindings = {};
   for (const [vid, voice] of Object.entries(voices)) {
