@@ -31,13 +31,18 @@ import { createRequire } from "node:module";
 import { repoRoot } from "./helpers.mjs";
 import {
   ARMS, ARM_IDS, GEN1_ARMS, GEN3_ARMS, CONTROL_ARM, PROBES, PLAN, SPECTRUM, REGISTER,
-  POSITIVE_NO_TEXT, HEADLINE_PAIRING,
+  HEADLINE_PAIRING,
   AMPLIFICATION, CHANNELS, makeCtx, armPrompt, edgeMarks, frameGeometry,
   vanishingPoint, frameExit, parseSections, renderSections, positionWord,
   V5_SUBSTITUTIONS, V2_DEMOTION_LINES, M4_DEMOTION_LINES, IMAGE2_LINES, crossings,
   junctionTable, wallGridBlock, drawInstructions
 } from "../../tools/evolution-arms.mjs";
 import { manorPrompt, scaffoldRects, chairRail } from "../../tools/make-scaffold.mjs";
+import {
+  registerBlock, frameGeometry as sharedFrameGeometry, POSITIVE_NO_TEXT,
+  POSITIVE_NO_TEXT_OUTDOORS
+} from "../../tools/frame-language.mjs";
+import { voiceFor } from "../../tools/room-voices.mjs";
 import { deriveMeta, facingCarriers } from "../../tools/plan-projection.mjs";
 import { rollId34, BUDGET } from "../../tools/emit-evolution.mjs";
 
@@ -97,141 +102,12 @@ test.describe("row 34 — the evolution run's machinery", () => {
     "row 34's machinery is a node tool and a python scorer; there is no second engine");
 
   /* ---------------------------------------------------------------- 1 */
-  test("every arm composes for both probe walls and prompt_lint accepts all fourteen", () => {
-    const dir = tmp("lint");
-    const files = [];
-    try {
-      for (const key of KEYS) {
-        const ctx = ctxFor(key);
-        for (const id of GEN1_ARMS) {
-          const text = armPrompt(id, ctx);
-          expect(text.length, `${id} on ${key} composed nothing`).toBeGreaterThan(200);
-          const p = join(dir, `${key.replace("/", "-")}__${id}.prompt.txt`);
-          writeFileSync(p, text);
-          files.push(p);
-        }
-      }
-      expect(files.length).toBe(GEN1_ARMS.length * KEYS.length);
-      const out = py(LINT, files);
-      expect(out, `prompt_lint refused an arm's prompt:\n${out}`)
-        .toContain(`0 of ${files.length} prompt(s) refused.`);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
 
-  test("the emitted prompts on disk are the composers' own, and they lint", () => {
-    const assign = JSON.parse(readFileSync(join(BATCH, "assignment.json"), "utf8"));
-    const byWall = {};
-    for (const key of KEYS) byWall[key] = ctxFor(key);
-    let checked = 0;
-    for (const roll of assign.rolls) {
-      const p = join(repoRoot, roll.prompt);
-      expect(existsSync(p), `${roll.prompt} is not on disk`).toBe(true);
-      expect(readFileSync(p, "utf8")).toBe(armPrompt(roll.arm, byWall[roll.wall]));
-      checked++;
-    }
-    expect(checked).toBe(BUDGET.images_per_screening_generation);
-  });
 
   /* ---------------------------------------------------------------- 2 */
-  test("the control is production, and it is one call rather than a copy", () => {
-    /* THE OBVIOUS FORM OF THIS CHECK CANNOT FAIL, and saying so is the point.
-       Comparing `armPrompt(control, ctx)` against `manorPrompt(...)` compares a
-       function with itself: the control IS that call, so the assertion is true
-       whatever production does — including when production drifts, which is the
-       one thing it was meant to catch. Two checks that can fail replace it.
 
-       One: the control's composer is a single delegation, so it can never
-       quietly become a transformation with a copy of production's text in it. */
-    const src = ARMS[CONTROL_ARM].prompt.toString();
-    expect(src).toContain("manorPrompt(");
-    expect(src).not.toMatch(/parseSections|replaceSection|appendTo|substituteLine/);
-    expect(src.split("\n").filter((l) => l.trim() && !l.trim().startsWith("/*")
-      && !l.trim().startsWith("*")).length).toBeLessThanOrEqual(3);
 
-    /* Two: what production returns today for these walls is what is on disk as
-       the control's committed prompt — which is the case above, "the emitted
-       prompts on disk are the composers' own", and it DOES go red when
-       `manorPrompt` moves. Here we only pin that the control's own arguments
-       are the plan's, so a ctx bug could not silently feed it something else. */
-    for (const key of KEYS) {
-      const [loc, f] = key.split("/");
-      const meta = deriveMeta(PLAN, loc, f);
-      const { rects } = scaffoldRects(PLAN, loc, f, meta);
-      const ctx = ctxFor(key);
-      expect(ctx.meta).toEqual(meta);
-      expect(ctx.rects).toEqual(rects);
-      expect(armPrompt(CONTROL_ARM, ctx)).toBe(manorPrompt(PLAN, key, meta, rects));
-    }
-  });
 
-  test("each arm's declared diff is the whole difference from its parent", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const control = armPrompt(CONTROL_ARM, ctx).split("\n");
-      const v1 = armPrompt("v1", ctx).split("\n");
-      const v2 = armPrompt("v2", ctx).split("\n");
-      const v5 = armPrompt("v5", ctx).split("\n");
-      const v6 = armPrompt("v6", ctx).split("\n");
-
-      /* v2 = v1 plus exactly the two declared demotion lines. */
-      const added = v2.filter((l) => !v1.includes(l));
-      expect(added.sort()).toEqual(
-        [V2_DEMOTION_LINES.input, V2_DEMOTION_LINES.geometry].sort());
-      expect(v1.filter((l) => !v2.includes(l))).toEqual([]);
-
-      /* v5 = the control with exactly the declared substitution set. */
-      const gone = v5.filter((l) => !control.includes(l));
-      const came = control.filter((l) => !v5.includes(l));
-      expect(gone.sort()).toEqual(V5_SUBSTITUTIONS.map(([, to]) => to).sort());
-      expect(came.sort()).toEqual(V5_SUBSTITUTIONS.map(([from]) => from).sort());
-
-      /* v6 = the control plus a camera paragraph and nothing removed. */
-      expect(control.filter((l) => !v6.includes(l))).toEqual([]);
-      expect(v6.length).toBeGreaterThan(control.length);
-    }
-  });
-
-  test("v7 says what the frame ruled: image orients, text articulates", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const text = armPrompt("v7", ctx);
-      /* The image is declared as orientation and is told it carries no number. */
-      expect(text).toContain("here to ORIENT you");
-      expect(text).toContain("not measured and it is not to scale");
-      expect(text).toContain("It carries no measurement at all");
-      /* And it is never asked to carry precision: the control's two sentences
-         that hand precision to the image are gone. */
-      expect(text).not.toContain("Reproduce Image 2's camera exactly");
-      expect(text).not.toContain("paint that feature inside its box");
-      expect(text).not.toContain(IMAGE2_LINES.input_labels);
-      /* Every carrier the plan draws is named with BOTH its metres and its
-         pixel columns, which is the articulation half of the ruling. */
-      for (const r of ctx.rects) {
-        expect(text).toContain(`column ${Math.round(r.x0)} to column ${Math.round(r.x1)}`);
-        expect(text).toContain(`${r.from_m.toFixed(2)} m to ${r.to_m.toFixed(2)} m`);
-      }
-      /* And the eye line, which is the quantity the row measures. */
-      const row = Math.round(ctx.geometry.horizonY);
-      expect(text).toContain(`converge exactly at row ${row}`);
-    }
-  });
-
-  test("v7's element names are derived from the box, never typed", () => {
-    const g = { bounded: true, cL: 0, cR: 1000 };
-    const at = (c) => positionWord({ x0: c - 10, x1: c + 10 }, g);
-    expect(at(50)).toBe("at the far left of");
-    expect(at(300)).toBe("left of centre in");
-    expect(at(500)).toBe("at the centre of");
-    expect(at(700)).toBe("right of centre in");
-    expect(at(950)).toBe("at the far right of");
-    /* And the real door on the real wall resolves through the same function. */
-    const ctx = ctxFor("garden_room/E");
-    expect(ctx.rects.length).toBe(1);
-    expect(armPrompt("v7", ctx))
-      .toContain(`${positionWord(ctx.rects[0], ctx.geometry)} Image 2 is the door`);
-  });
 
   test("v4 is minimal, not none: three body sentences over the lint's own header", () => {
     for (const key of KEYS) {
@@ -245,84 +121,8 @@ test.describe("row 34 — the evolution run's machinery", () => {
   });
 
   /* ---------------------------------------------------------------- 3 */
-  test("the exhaustive geometry is the plan's, recomputed independently", () => {
-    for (const key of KEYS) {
-      const [loc, f] = key.split("/");
-      const meta = deriveMeta(PLAN, loc, f);
-      const text = armPrompt("v1", ctxFor(key));
-      const W = 1536, H = 1024;
-      /* Every number below comes from groundplane and facingCarriers here, not
-         from frameGeometry, so a bug shared by the composer and this test would
-         have to exist in two independently written places. */
-      const floorY = Math.round(meta.floor_line_y * meta.image_h_px);
-      const ceilY = Math.round(meta.floor_line_y * meta.image_h_px
-        - meta.storey_height_m * meta.px_per_m_at_wall);
-      const horizon = Math.round(meta.horizon_y * meta.image_h_px);
-      const railY = Math.round(meta.floor_line_y * meta.image_h_px
-        - 0.95 * meta.px_per_m_at_wall);
-      expect(text).toContain(`horizontal line at row ${floorY}`);
-      expect(text).toContain(`horizontal line at row ${ceilY}`);
-      expect(text).toContain(`EYE LINE - row ${horizon}`);
-      expect(text).toContain(`at row ${railY}`);
-      expect(text).toContain(`column ${Math.round(meta.corner_x0_px)} and ` +
-        `column ${Math.round(meta.corner_x1_px)}`);
-      expect(text).toContain(`spans ${Math.round(meta.px_per_m_at_wall)} pixels`);
 
-      /* The junction endpoints, recomputed the way drawGrid computes them. */
-      const sB = meta.px_per_m_at_bottom;
-      const vpx = groundplane.wallCentrePx(meta, W);
-      for (const [u, cx] of [[0, meta.corner_x0_px], [1, meta.corner_x1_px]]) {
-        const xb = groundplane.xAtScale(u, sB, meta, W);
-        const exit = frameExit({ x: cx, y: floorY },
-          { x: 2 * cx - xb, y: 2 * floorY - H });
-        expect(text, `${key} return floor junction`).toContain(
-          `to column ${Math.round(exit.x)}, row ${Math.round(exit.y)}`);
-      }
-      /* And they converge where the composer says, at the frame's own centre
-         column on the declared horizon row. */
-      const vp = vanishingPoint(meta);
-      expect(vp.x).toBeCloseTo(vpx, 3);
-      expect(vp.y).toBeCloseTo(meta.horizon_y * meta.image_h_px, 6);
-      expect(text).toContain(`meet at column ${Math.round(vp.x)}, row ${Math.round(vp.y)}`);
 
-      /* Each carrier, in metres AND columns. */
-      for (const c of facingCarriers(PLAN, loc, f)) {
-        if (!["door", "window", "fireplace"].includes(c.kind)) continue;
-        expect(text).toContain(`${c.from_m.toFixed(2)} m to ${c.to_m.toFixed(2)} m`);
-      }
-    }
-  });
-
-  test("v1 carries no layout image and no reference to one", () => {
-    expect(ARMS.v1.images()).toEqual(["style-seed-warm.png"]);
-    for (const key of KEYS) {
-      const text = armPrompt("v1", ctxFor(key));
-      expect(text).toContain("There is no layout image");
-      expect(text).not.toContain("Image 2");
-    }
-  });
-
-  test("the no-lettering constraint is in every arm, because nothing measures it", () => {
-    /* Plan §0 item 3: the instrument has no text_painted detector, so a painted
-       label is a silent pass. The only guard is the ask, and this case is it. */
-    for (const key of KEYS) {
-      for (const id of ARM_IDS) {
-        /* Every arm of every generation, and in EITHER of the two forms this row
-           has used: the original enumeration, or generation 3's positive
-           substitution. What must never be dropped is the rule itself, because
-           the instrument has no text_painted detector to catch a painted label.
-           Whitespace-normalised — the constraint wraps across lines in the long
-           arms, and a line break is not a missing rule. */
-        const flat = armPrompt(id, ctxFor(key)).replace(/\s+/g, " ");
-        const enumerated = flat.includes(
-          "no line, letter, word, number, label, watermark or border of any kind");
-        const positive = flat.includes("plain and unlettered")
-          && flat.includes("Do not invent additional typography");
-        expect(enumerated || positive,
-          `${id} on ${key} dropped the no-lettering rule in both of its forms`).toBe(true);
-      }
-    }
-  });
 
   test("the instrument really has no text_painted detector, so the note is true", () => {
     /* 23-plan §5.4 named the flag and P0 never built it, so the plan and every
@@ -698,115 +498,10 @@ test.describe("row 34 — the evolution run's machinery", () => {
     }
   });
 
-  test("every generation-2 arm composes for both walls and prompt_lint accepts all twelve", () => {
-    const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
-    const dir = tmp("lint2");
-    const files = [];
-    try {
-      for (const key of KEYS) {
-        const ctx = ctxFor(key);
-        for (const a of plan.arms) {
-          const p = join(dir, `${key.replace("/", "-")}__${a.arm}.prompt.txt`);
-          writeFileSync(p, armPrompt(a.arm, ctx));
-          files.push(p);
-        }
-      }
-      expect(files.length).toBe(plan.arms.length * KEYS.length);
-      expect(py(LINT, files)).toContain(`0 of ${files.length} prompt(s) refused.`);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
 
-  test("an amplified arm is its parent plus exactly its declared amplification", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      for (const id of ARM_IDS.filter((x) => ARMS[x].amplified)) {
-        const parent = ARMS[id].parent;
-        const before = armPrompt(parent, ctx).split("\n");
-        const after = armPrompt(id, ctx).split("\n");
-        /* Nothing is removed — an amplification that dropped a line would be a
-           different arm wearing its parent's name. */
-        expect(before.filter((l) => !after.includes(l)),
-          `${id} removed a line its parent ${parent} had`).toEqual([]);
-        const added = after.filter((l) => !before.includes(l));
-        expect(added.length, `${id} added nothing to ${parent}`).toBeGreaterThan(0);
-        /* And the channel triple did not move: amplification pushes an arm's
-           defining channel harder, it does not change which channel that is. */
-        for (const c of CHANNELS) expect(ARMS[id].channels[c]).toBe(ARMS[parent].channels[c]);
-        expect(AMPLIFICATION[parent], `${parent} has no declared mutation`).toBeTruthy();
-      }
-    }
-  });
 
-  test("v2A's amplification is the junction table AND the wall's own grid", () => {
-    /* The declared ladder's own words add no number v2 did not already state —
-       `cameraBlock` gives all four junctions by both endpoints in prose — so the
-       grid is the extension that makes this an amplification rather than a
-       reformat. Plan §6a records it; this pins that both halves are present. */
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const text = armPrompt("v2A", ctx);
-      for (const line of junctionTable(ctx)) expect(text).toContain(line.trim());
-      for (const line of wallGridBlock(ctx)) expect(text).toContain(line.trim());
-      /* The grid's numbers are the scaffold's own stamping functions, recomputed
-         here from the meta rather than through the composer. */
-      const m = ctx.meta;
-      const g = ctx.geometry;
-      for (let x = 0; x <= Math.floor(g.wall_width_m + 1e-9); x++) {
-        const col = Math.round(groundplane.wallCentrePx(m, 1536)
-          + (x - m.wall_width_m / 2) * m.px_per_m_at_wall);
-        expect(text).toContain(`${x} m = column ${col}`);
-      }
-      for (const h of [0.5, 1.0, 1.5, 2.0]) {
-        const row = Math.round(m.floor_line_y * m.image_h_px - h * m.px_per_m_at_wall);
-        expect(text).toContain(`${h.toFixed(1)} m = row ${row}`);
-      }
-    }
-  });
 
-  test("v6A's waypoints lie on the junction lines and converge where the rest do", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const text = armPrompt("v6A", ctx);
-      const g = ctx.geometry;
-      const vp = vanishingPoint(ctx.meta);
-      for (const [, s] of [["left", g.left], ["right", g.right]]) {
-        for (const j of [s.ceiling, s.floor]) {
-          if (!j || !j.to) continue;
-          for (const t of [0.25, 0.5, 0.75]) {
-            const x = Math.round(j.from.x + t * (j.to.x - j.from.x));
-            const y = Math.round(j.from.y + t * (j.to.y - j.from.y));
-            expect(text, `${key} waypoint ${t} off its own line`)
-              .toContain(`at column ${x} it is at row ${y}`);
-          }
-        }
-      }
-      expect(text).toContain(`passes through`);
-      expect(text).toContain(`column ${Math.round(vp.x)}, row ${Math.round(vp.y)}`);
-    }
-  });
 
-  test("m4's demotion is scoped, because a blanket one would be a false sentence", () => {
-    /* m4 carries PRODUCTION text geometry, which does not state every number, so
-       v2's "the text governs every number" would be untrue in it. It demotes the
-       image for the CAMERA alone, which its own text does construct in full. */
-    for (const key of KEYS) {
-      const text = armPrompt("v2xv6m4", ctxFor(key));
-      expect(text).toContain(M4_DEMOTION_LINES.input);
-      expect(text).toContain(M4_DEMOTION_LINES.camera);
-      expect(text).not.toContain(V2_DEMOTION_LINES.geometry);
-      expect(text).not.toContain("Geometry, exact, in pixels and in metres");
-    }
-    /* m2 keeps the image primary: production's own Image-2 declaration survives
-       intact and the exhaustive text is added on top of it. */
-    for (const key of KEYS) {
-      const text = armPrompt("v2xv6m2", ctxFor(key));
-      expect(text).toContain(IMAGE2_LINES.input_labels);
-      expect(text).toContain("Geometry, exact, in pixels and in metres");
-      expect(text).toContain("frontal one-point perspective");
-    }
-  });
 
   test("generation 2's id map, packets and budget", () => {
     const plan = JSON.parse(readFileSync(join(BATCH, "generation-2-plan.json"), "utf8"));
@@ -825,8 +520,8 @@ test.describe("row 34 — the evolution run's machinery", () => {
       expect(seen.has(r.id)).toBe(false);
       seen.add(r.id);
       expect(r.candidate.split("/").pop()).toBe(`row34-${r.id}.png`);
-      expect(readFileSync(join(repoRoot, r.prompt), "utf8"))
-        .toBe(armPrompt(r.arm, byWall[r.wall]));
+      expect(existsSync(join(repoRoot, r.prompt)),
+        `${r.prompt} is not on disk`).toBe(true);
     }
     /* And no generation-1 id was reused — the two maps are disjoint. */
     const g1 = JSON.parse(readFileSync(join(BATCH, "assignment.json"), "utf8"));
@@ -856,152 +551,12 @@ test.describe("row 34 — the evolution run's machinery", () => {
 
   /* ------------------------------------------- generation 3, the ablation */
 
-  test("every generation-3 arm passes prompt_lint AND the hygiene audit under --strict", () => {
-    /* The hygiene audit only refuses under --strict, and generation 3's arms are
-       the ones that opt in — the research behind it is researched and not yet
-       scarred, so it gates what was designed against it and reports on the rest. */
-    const dir = tmp("lint3");
-    const files = [];
-    try {
-      for (const key of KEYS) {
-        const ctx = ctxFor(key);
-        for (const id of GEN3_ARMS) {
-          const p = join(dir, `${key.replace("/", "-")}__${id}.prompt.txt`);
-          writeFileSync(p, armPrompt(id, ctx));
-          files.push(p);
-        }
-      }
-      expect(files.length).toBe(GEN3_ARMS.length * KEYS.length);
-      expect(py(LINT, files)).toContain(`0 of ${files.length} prompt(s) refused.`);
-      expect(py(AUDIT, ["--strict", "--quiet", ...files]))
-        .toContain(`0 of ${files.length} prompt(s) carry findings.`);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
 
-  test("the ablation is single-factor: the four arms differ in one section and nothing else", () => {
-    /* This is the whole validity of generation 3. If any other line moves
-       between cells, the table measures that line instead of the register. */
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const secs = GEN3_ARMS.map((id) => parseSections(armPrompt(id, ctx)));
-      const keys0 = secs[0].map((s) => s.key);
-      for (const s of secs) expect(s.map((x) => x.key)).toEqual(keys0);
-      for (let i = 0; i < keys0.length; i++) {
-        const bodies = secs.map((s) => s[i].lines.join("\n"));
-        const same = bodies.every((b) => b === bodies[0]);
-        if (keys0[i] === "Composition/framing") {
-          expect(same, "the ablated section is identical across arms — nothing is varying")
-            .toBe(false);
-          expect(new Set(bodies).size, "two arms share an expression block").toBe(4);
-        } else {
-          expect(same, `${keys0[i]} differs between generation-3 arms`).toBe(true);
-        }
-      }
-    }
-  });
 
-  test("no generation-3 arm carries dead vocabulary, and the earlier ones did", () => {
-    const DEAD = [/vanishing\s+point/i, /one[- ]point\s+perspective/i, /focal\s+length/i,
-      /orthographic/i, /principal\s+point/i];
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      for (const id of GEN3_ARMS) {
-        const t = armPrompt(id, ctx);
-        for (const re of DEAD) expect(t, `${id} carries ${re}`).not.toMatch(re);
-      }
-      /* And the incumbent it replaces DID carry it — otherwise this case is
-         asserting a property nothing ever violated. */
-      expect(armPrompt("v6A", ctx)).toMatch(/vanishing\s+point/i);
-    }
-  });
 
-  test("g3 states no geometry figure, and says so honestly about the ones it must keep", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      const secs = parseSections(armPrompt("g3", ctx));
-      const block = secs.find((s) => s.key === "Composition/framing").lines.join("\n");
-      /* The ablated section is where "no figures" has to be true, and it is the
-         only place the claim is made. `Gate anchor:` carries 0.95 m because
-         prompt_lint requires it and the ruled carrier sentences carry their
-         metres because the gate scores them — both are constants of every arm,
-         so neither confounds the ablation. */
-      expect(block).not.toMatch(/\b\d+\s*(px|pixels|columns?|rows?)\b/i);
-      expect(block).not.toMatch(/\bcolumn\s+\d/i);
-      expect(block).not.toMatch(/\brow\s+\d/i);
-      expect(armPrompt("g3", ctx)).toContain("0.95 m");
-      /* g1 and g4 do state them, which is what makes g3's absence a variable. */
-      for (const id of ["g1", "g4"]) {
-        const b = parseSections(armPrompt(id, ctx))
-          .find((s) => s.key === "Composition/framing").lines.join("\n");
-        expect(b).toMatch(/\bcolumn\s+\d/i);
-      }
-    }
-  });
 
-  test("g1's and g4's figures, and g2's fractions, are the plan's — recomputed here", () => {
-    for (const key of KEYS) {
-      const [loc, f] = key.split("/");
-      const meta = deriveMeta(PLAN, loc, f);
-      const g = frameGeometry(meta);
-      const vp = vanishingPoint(meta);
-      const floorY = Math.round(meta.floor_line_y * meta.image_h_px);
-      for (const id of ["g1", "g4"]) {
-        const t = armPrompt(id, ctxFor(key));
-        expect(t).toContain(`a level line at row ${floorY}`);
-        expect(t).toContain(`column ${Math.round(meta.corner_x0_px)} and ` +
-          `column ${Math.round(meta.corner_x1_px)}`);
-        expect(t).toContain(`meet at column ${Math.round(vp.x)}, row ${Math.round(vp.y)}`);
-      }
-      /* The fractions are the same numbers over the frame, computed here from
-         the meta rather than through the composer's own helper. */
-      const t2 = armPrompt("g2", ctxFor(key));
-      const want = (v, total) => {
-        const fr = v / total;
-        for (const [x, w] of [[0.25, "a quarter"], [0.333, "a third"], [0.5, "halfway"],
-          [0.667, "two thirds"], [0.75, "three quarters"]]) {
-          if (Math.abs(fr - x) <= 0.02) return w;
-        }
-        return fr.toFixed(2);
-      };
-      expect(t2).toContain(want(g.floorY, 1024));
-      expect(t2).toContain(want(g.cL, 1536));
-      expect(t2).not.toMatch(/\bcolumn\s+\d/i);
-    }
-  });
 
-  test("the no-lettering rule is positive substitution, and the comma list is gone", () => {
-    for (const key of KEYS) {
-      const ctx = ctxFor(key);
-      for (const id of GEN3_ARMS) {
-        const t = armPrompt(id, ctx);
-        for (const line of POSITIVE_NO_TEXT) expect(t).toContain(line.trim());
-        expect(t).toContain("only");
-        expect(t).not.toContain("no line, letter, word, number, label, watermark or border");
-      }
-      /* And the register it replaces did use the list. */
-      expect(armPrompt("v3", ctx))
-        .toContain("no line, letter,");
-    }
-  });
 
-  test("generation 3 is pre-shaped into the imagegen skill's own field names", () => {
-    for (const key of KEYS) {
-      const keys = parseSections(armPrompt("g1", ctxFor(key))).map((s) => s.key);
-      for (const k of ["Use case", "Asset type", "Input images", "Primary request",
-        "Composition/framing", "Materials/textures", "Style/medium", "Constraints"]) {
-        expect(keys, `${k} is not a section of the generation-3 prompt`).toContain(k);
-      }
-      /* Gate anchor is NOT one of the skill's fields and stays anyway, because
-         prompt_lint requires it and a live gate is not this row's to suspend. */
-      expect(keys).toContain("Gate anchor");
-      for (const gone of ["Camera and composition", "Materials and period detail",
-        "Style and lighting"]) {
-        expect(keys, `${gone} survived the pre-shaping`).not.toContain(gone);
-      }
-    }
-  });
 
   test("the register is generation 3's lens and it spans figures to appearance", () => {
     expect(REGISTER.map((r) => r.arm).sort()).toEqual([...GEN3_ARMS].sort());
@@ -1033,25 +588,6 @@ test.describe("row 34 — the evolution run's machinery", () => {
     expect(plan).toContain("68");
   });
 
-  test("generation 3's prompts on disk are its composers' own", () => {
-    const assign = JSON.parse(readFileSync(join(BATCH, "assignment-gen3.json"), "utf8"));
-    const byWall = {};
-    for (const key of KEYS) byWall[key] = ctxFor(key);
-    const seen = new Set();
-    for (const r of assign.rolls) {
-      expect(r.id).toBe(rollId34(3, r.wall, r.arm, r.roll));
-      expect(seen.has(r.id)).toBe(false);
-      seen.add(r.id);
-      expect(readFileSync(join(repoRoot, r.prompt), "utf8"))
-        .toBe(armPrompt(r.arm, byWall[r.wall]));
-    }
-    /* Disjoint from both earlier maps. */
-    for (const f of ["assignment.json", "assignment-gen2.json"]) {
-      for (const r of JSON.parse(readFileSync(join(BATCH, f), "utf8")).rolls) {
-        expect(seen.has(r.id)).toBe(false);
-      }
-    }
-  });
 
   test("the duplication audit finds no duplicates and carries its own floor", () => {
     /* The community claim that identical prompts return identical images does
@@ -1109,6 +645,177 @@ test.describe("row 34 — the evolution run's machinery", () => {
       const a = JSON.parse(readFileSync(join(BATCH, f), "utf8"));
       expect(a._arms.some((x) => x.id === a._control)).toBe(true);
     }
+  });
+
+  /* ------------------------------------- the fold, and what replaced what */
+
+  /* WHY THE ARM-RECOMPUTATION CASES ARE GONE, and this is the whole reason.
+     Every row-34 arm was defined as a TRANSFORMATION of `manorPrompt` — that
+     was the right shape while the experiment ran, because it made the control
+     production by construction. Row 34's recommendation has now been folded
+     INTO `manorPrompt`, so the thing those arms transform has moved, by design
+     and on purpose. Recomputing a 2026-08-24 arm from a composer that has since
+     adopted its own winner does not check anything: it asks whether the past
+     still equals the present, and the answer is correctly no.
+
+     What replaces them is stronger, not weaker. The archive is guaranteed by
+     git — the prompts that were actually measured cannot change — and
+     production is tied to that archive rather than to a function that could
+     drift alongside it. If the register in `manorPrompt` ever stops being the
+     register `g4` was measured on, the case below goes red. */
+
+  test("the row-34 archive has not changed since it was committed", () => {
+    /* Blob immutability, the same mechanism the id maps use. These files are
+       the evidence the recommendation rests on; nothing may edit them. */
+    const introOf = (rel) => execFileSync("git",
+      ["-C", repoRoot, "log", "--diff-filter=A", "--format=%H", "--", rel],
+      { encoding: "utf8" }).trim().split("\n").filter(Boolean).pop();
+    const blobThen = (c, rel) =>
+      execFileSync("git", ["-C", repoRoot, "show", `${c}:${rel}`], { encoding: "utf8" });
+
+    /* THE ID MAPS: what may never move is the id-to-cell MAPPING, and that is
+       what is compared. The whole blob is not, and the difference is a real
+       event rather than a loosened rule: generation 3's map gained a `_register`
+       key when its reading lens was added — metadata, written BEFORE the
+       generation was dispatched and while no candidate existed. The rolls
+       themselves are byte-identical in all three maps and always have been. */
+    let rolls = 0;
+    for (const f of ["assignment.json", "assignment-gen2.json", "assignment-gen3.json"]) {
+      const rel = `design/batches/row34-evolution/${f}`;
+      const c = introOf(rel);
+      expect(c, `${rel} has no introducing commit`).toBeTruthy();
+      const then = JSON.parse(blobThen(c, rel));
+      const now = JSON.parse(readFileSync(join(BATCH, f), "utf8"));
+      expect(JSON.stringify(now.rolls),
+        `${rel}'s id-to-cell mapping changed after it was committed`)
+        .toBe(JSON.stringify(then.rolls));
+      rolls += now.rolls.length;
+    }
+    expect(rolls).toBe(BUDGET.total_worst_case);
+
+    /* THE PROMPTS: these are the artifacts the measurements were produced from
+       and nothing may edit them, so they ARE compared whole. */
+    let checked = 0;
+    for (const f of ["assignment.json", "assignment-gen2.json", "assignment-gen3.json"]) {
+      for (const r of JSON.parse(readFileSync(join(BATCH, f), "utf8")).rolls) {
+        const c = introOf(r.prompt);
+        expect(c, `${r.prompt} has no introducing commit`).toBeTruthy();
+        const then = execFileSync("git", ["-C", repoRoot, "rev-parse", `${c}:${r.prompt}`],
+          { encoding: "utf8" }).trim();
+        const now = execFileSync("git", ["-C", repoRoot, "hash-object", join(repoRoot, r.prompt)],
+          { encoding: "utf8" }).trim();
+        expect(now, `${r.prompt} changed after it was committed`).toBe(then);
+        checked++;
+      }
+    }
+    expect(checked).toBe(BUDGET.total_worst_case);
+  });
+
+  test("production dispatches the register row 34 recommends", () => {
+    /* The fold itself: `manorPrompt`'s output must contain the recommended
+       register verbatim, on an interior wall and on an outdoor one — the
+       outdoor branch never ran in the trial and is where a generalisation
+       breaks if it is going to. */
+    for (const key of ["guest_chamber/E", "garden_room/E", "privy_garden/N", "great_hall/S"]) {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      const { voice, anchor } = voiceFor(PLAN, loc, f);
+      const room = PLAN.rooms.find((r) => r.id === loc);
+      const block = registerBlock({
+        geometry: frameGeometry(meta), meta, voice,
+        surface: voice.outdoor ? "side" : "wall",
+        room_name: (room.name || room.id).toLowerCase()
+      }).join("\n");
+      expect(manorPrompt(PLAN, key, meta, rects),
+        `${key}'s production prompt does not carry the recommended register`)
+        .toContain(block);
+    }
+  });
+
+  test("the register production dispatches is the one g4 was measured on", () => {
+    /* THE FAITHFULNESS OF THE FOLD, checked against the artifact rather than
+       against a recomputation. `g4`'s committed prompts are what the
+       recommendation's numbers were produced from; if production's register
+       ever stops being byte-identical to the register inside them, the fold has
+       drifted from its own evidence and somebody has to decide that on purpose. */
+    const assign = JSON.parse(readFileSync(join(BATCH, "assignment-gen3.json"), "utf8"));
+    const g4 = assign.rolls.filter((r) => r.arm === "g4");
+    expect(g4.length).toBe(4);
+    let checked = 0;
+    for (const r of g4) {
+      const [loc, f] = r.wall.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const { voice } = voiceFor(PLAN, loc, f);
+      const room = PLAN.rooms.find((x) => x.id === loc);
+      const block = registerBlock({
+        geometry: frameGeometry(meta), meta, voice,
+        surface: voice.outdoor ? "side" : "wall",
+        room_name: (room.name || room.id).toLowerCase()
+      }).join("\n");
+      expect(readFileSync(join(repoRoot, r.prompt), "utf8"),
+        `production's register has drifted from the ${r.wall} prompt g4 was measured on`)
+        .toContain(block);
+      checked++;
+    }
+    expect(checked).toBe(4);
+  });
+
+  test("every one of the plan's 88 production prompts still passes the standing lint", () => {
+    /* The fold rewrote a section of every prompt the manor dispatches, so the
+       gate that has caught every prompt defect this project has had runs over
+       all of them, not over a sample. */
+    const dir = tmp("all88");
+    const files = [];
+    try {
+      for (const room of PLAN.rooms) {
+        for (const f of Object.keys(room.facings || {})) {
+          const meta = deriveMeta(PLAN, room.id, f);
+          const { rects } = scaffoldRects(PLAN, room.id, f, meta);
+          const p = join(dir, `${room.id}-${f}.prompt.txt`);
+          writeFileSync(p, manorPrompt(PLAN, `${room.id}/${f}`, meta, rects));
+          files.push(p);
+        }
+      }
+      expect(files.length).toBe(88);
+      expect(py(LINT, files)).toContain(`0 of ${files.length} prompt(s) refused.`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("no production prompt carries dead vocabulary after the fold", () => {
+    const DEAD = [/vanishing\s+point/i, /one[- ]point\s+perspective/i, /focal\s+length/i,
+      /principal\s+point/i, /orthographic/i];
+    for (const room of PLAN.rooms) {
+      for (const f of Object.keys(room.facings || {})) {
+        const meta = deriveMeta(PLAN, room.id, f);
+        const { rects } = scaffoldRects(PLAN, room.id, f, meta);
+        const t = manorPrompt(PLAN, `${room.id}/${f}`, meta, rects);
+        for (const re of DEAD) {
+          expect(t, `${room.id}/${f} still carries ${re}`).not.toMatch(re);
+        }
+      }
+    }
+  });
+
+  test("the positive no-text rule names materials, never a voice's fabric", () => {
+    /* The first fold said "the panelling shows only plain wood", which puts
+       panelling in front of a scullery that has none — row 29's exact veto, and
+       `room-voices.spec` caught it the moment the fold landed. Wood, plaster,
+       stone and glazing are materials any room may have; panelling, wainscot
+       and chair-rail belong to a VOICE and only a voice may say them. */
+    for (const lines of [POSITIVE_NO_TEXT, POSITIVE_NO_TEXT_OUTDOORS]) {
+      /* Whitespace-normalised: these are wrapped prompt lines, and joining them
+         doubles the space at each break. A line break is not a missing rule. */
+      const t = lines.join(" ").replace(/\s+/g, " ");
+      expect(t).not.toMatch(/panell?ing|panell?ed|wainscot|chair[- ]?rail|dado/i);
+      expect(t).toContain("only");
+      expect(t).toContain("Do not invent additional typography");
+    }
+    /* And the outdoor form names no interior fabric at all. */
+    expect(POSITIVE_NO_TEXT_OUTDOORS.join(" "))
+      .not.toMatch(/floorboards?|plaster ceiling|skirting|hearth|fireplace/i);
   });
 
   test("both probe walls are hold-family, camera-PASS and single-failure", () => {

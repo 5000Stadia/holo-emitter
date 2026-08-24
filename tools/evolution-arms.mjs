@@ -38,6 +38,16 @@ import { deriveMeta, facingCarriers } from "./plan-projection.mjs";
 import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars, rulerX, wallY }
   from "./make-scaffold.mjs";
 import { voiceFor } from "./room-voices.mjs";
+/* THE GEOMETRY AND THE RECOMMENDED REGISTER LIVE IN ONE HOME, shared with
+ * `manorPrompt`, so the arm the recommendation rests on and the composer
+ * production dispatches cannot drift apart quietly. Re-exported because the
+ * suite recomputes several of these independently. */
+import {
+  frameGeometry, vanishingPoint, frameExit, edgeName, registerBlock,
+  openingLines, appearanceLines as sharedAppearanceLines, coordinateLines,
+  positiveNoText, POSITIVE_NO_TEXT
+} from "./frame-language.mjs";
+export { frameGeometry, vanishingPoint, frameExit, edgeName, POSITIVE_NO_TEXT };
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -52,107 +62,9 @@ const r2 = (x) => Math.round(x * 100) / 100;
 /* The frame's own geometry, read the way the renderer draws it        */
 /* ------------------------------------------------------------------ */
 
-/**
- * The single vanishing point of a level, square-on camera.
- *
- * IT IS NOT ASSUMED TO BE THE FRAME CENTRE — it is the intersection of the two
- * junction lines `drawGrid` actually draws, computed here and asserted in the
- * suite. On both probe walls it comes out at column 768.0, row 526.1, which is
- * `wallCentrePx` on the horizon row; stating it as a derivation rather than as
- * a constant is what makes a future facing with an off-centre wall correct
- * instead of silently wrong.
- */
-export function vanishingPoint(meta) {
-  const g = frameGeometry(meta);
-  const a = g.left.ceiling, b = g.left.floor;
-  return intersect(a.from, a.toRaw, b.from, b.toRaw);
-}
 
-function intersect(a, b, c, d) {
-  const d1x = b.x - a.x, d1y = b.y - a.y, d2x = d.x - c.x, d2y = d.y - c.y;
-  const den = d1x * d2y - d1y * d2x;
-  const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / den;
-  return { x: a.x + t * d1x, y: a.y + t * d1y };
-}
 
-/**
- * Where a junction line leaves the picture: the first frame edge it meets,
- * travelling from its corner AWAY from the vanishing point.
- *
- * `drawGrid` traces the same two cases by hand — "through the bottom edge on a
- * narrow room (hall/E: x 390 at y 1024), through the side edge on a wide one" —
- * and the general form is here so a wall of any width says the true thing. The
- * prompt has to name a point that is IN the picture, because a painter cannot
- * put ink at row 1178.
- */
-export function frameExit(from, toward) {
-  const dx = from.x - toward.x, dy = from.y - toward.y;
-  let best = null;
-  const cands = [];
-  if (dx !== 0) {
-    cands.push({ t: (0 - from.x) / dx, x: 0, y: null });
-    cands.push({ t: (CANVAS_W - from.x) / dx, x: CANVAS_W, y: null });
-  }
-  if (dy !== 0) {
-    cands.push({ t: (0 - from.y) / dy, x: null, y: 0 });
-    cands.push({ t: (CANVAS_H - from.y) / dy, x: null, y: CANVAS_H });
-  }
-  for (const c of cands) {
-    if (!(c.t > 0)) continue;                       // only away from the corner
-    const p = { x: c.x === null ? from.x + c.t * dx : c.x,
-                y: c.y === null ? from.y + c.t * dy : c.y };
-    if (p.x < -0.001 || p.x > CANVAS_W + 0.001) continue;
-    if (p.y < -0.001 || p.y > CANVAS_H + 0.001) continue;
-    if (best === null || c.t < best.t) best = { t: c.t, p };
-  }
-  return best ? best.p : null;
-}
 
-/**
- * The four junctions, the two corners and the three horizontal rows — every
- * quantity the exhaustive text states, computed once.
- *
- * `toRaw` is the renderer's own unclipped endpoint (`xAtScale` at the bottom
- * scale for the floor junction, at the ceiling scale for the ceiling junction);
- * `to` is where that line leaves the frame, which is what a prompt may name.
- */
-export function frameGeometry(meta) {
-  const floorY = meta.floor_line_y * meta.image_h_px;
-  const horizonY = meta.horizon_y * meta.image_h_px;
-  const storey = meta.storey_height_m;
-  const ceilY = storey > 0 ? floorY - storey * meta.px_per_m_at_wall : null;
-  const bounded = groundplane.hasCorners(meta);
-  const cL = bounded ? meta.corner_x0_px : null;
-  const cR = bounded ? meta.corner_x1_px : null;
-  const sB = meta.px_per_m_at_bottom;
-  /* drawGrid's own two scales: the floor junction leaves at the bottom-of-frame
-   * scale, the ceiling junction at the scale that puts the ceiling plane a
-   * frame-height away. Both quoted from it rather than re-derived. */
-  const sC = Math.max(sB, storey > 0 ? (CANVAS_H + 2) / storey : sB);
-  const yC = storey > 0 ? groundplane.yAtScale(sC, meta) - storey * sC : null;
-  const mk = (u, cx) => {
-    if (cx === null) return null;
-    const xb = groundplane.xAtScale(u, sB, meta, CANVAS_W);
-    const xc = groundplane.xAtScale(u, sC, meta, CANVAS_W);
-    const floor = { from: { x: cx, y: floorY }, toRaw: { x: xb, y: CANVAS_H } };
-    floor.to = frameExit(floor.from, { x: 2 * cx - xb, y: 2 * floorY - CANVAS_H });
-    const out = { floor };
-    if (ceilY !== null) {
-      const ceiling = { from: { x: cx, y: ceilY }, toRaw: { x: xc, y: yC } };
-      ceiling.to = frameExit(ceiling.from, { x: 2 * cx - xc, y: 2 * ceilY - yC });
-      out.ceiling = ceiling;
-    }
-    return out;
-  };
-  return {
-    floorY, ceilY, horizonY, cL, cR, bounded,
-    px_per_m: meta.px_per_m_at_wall,
-    wall_width_m: meta.wall_width_m,
-    storey_height_m: storey,
-    corner_span_px: bounded ? cR - cL : null,
-    left: mk(0, cL), right: mk(1, cR)
-  };
-}
 
 /* ------------------------------------------------------------------ */
 /* The prompt as sections                                              */
@@ -924,13 +836,6 @@ ARMS.v2xv6m4 = {
  *      re-expressing itself as objects — and "only" is the highest-leverage
  *      token in the community's worked example. */
 
-/** Which frame edge a point sits on, in the words a viewer would use. */
-export function edgeName(p) {
-  if (p.x <= 0.5) return "the left edge";
-  if (p.x >= CANVAS_W - 0.5) return "the right edge";
-  if (p.y <= 0.5) return "the top edge";
-  return "the bottom edge";
-}
 
 const SIMPLE = [[0.25, "a quarter"], [0.333, "a third"], [0.5, "halfway"],
   [0.667, "two thirds"], [0.75, "three quarters"]];
@@ -988,6 +893,7 @@ export function expressionBlock(ctx, mode) {
   L.push("  the room with the two side walls running away from you to left and right. The wall you");
   L.push("  face shows its whole width, and the floor is visible and reaches the bottom of the");
   L.push("  picture.");
+  if (mode === "appearance_pixels") return registerBlock(ctx);   // g4 IS the recipe
   const wantsAppearance = mode === "appearance" || mode === "appearance_pixels";
   const wantsFigures = mode === "frame_pixels" || mode === "appearance_pixels";
   const wantsFractions = mode === "frame_fractions";
@@ -1051,11 +957,6 @@ export function expressionBlock(ctx, mode) {
  * the forbidden text re-expressing itself as objects. This names the surfaces
  * that normally carry writing and gives each one a positive substitute, and it
  * leans on "only", which the community's worked example puts the most weight on. */
-export const POSITIVE_NO_TEXT = [
-  "  Every surface here is plain and unlettered. The panelling shows only plain wood and the",
-  "  plaster shows only plain plaster; the glass holds only plain glazing and the stone is left",
-  "  plain. This picture carries only the room itself. Do not invent additional typography."
-];
 
 /** Generation 3's shared prompt: the control, hygiene-corrected, with the one
  *  ablated section swapped in. Everything but that section is identical across

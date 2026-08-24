@@ -3,10 +3,10 @@
   "_cumulative": "Entries accumulate across passes, keyed by wall and attempt. `row23_run.py` finds a retry roll's candidate only through this file, so an entry dropped here hides an image that is already on disk — which is how the second coat went unread once.",
   "_never_overwrites": "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
-  "_generated": "2026-08-23",
-  "emitted": 27,
-  "carried": 16,
-  "refused": 4,
+  "_generated": "2026-08-24",
+  "emitted": 19,
+  "carried": 43,
+  "refused": 0,
   "entries": [
     {
       "key": "back_stair_head/E",
@@ -37,6 +37,28 @@
       ]
     },
     {
+      "key": "back_stair_head/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/back_stair_head-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "back_stair",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_capping"
+      },
+      "px_per_m_at_wall": 250.36674816625919,
+      "scaffold_sha256": "d4b34db270669e7aa054ba134b540abc0d2c279c3bcea23a9c13acdef539ae90",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e81eacd3",
+          "candidate": "backdrops/source/back_stair_head-E/row23-e81eacd3.png",
+          "prompt": "backdrops/source/back_stair_head-E/row23-e81eacd3.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "back_stair/E",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/back_stair-E/retry-3",
@@ -61,6 +83,28 @@
           "id": "30cb8ffb",
           "candidate": "backdrops/source/back_stair-E/row23-30cb8ffb.png",
           "prompt": "backdrops/source/back_stair-E/row23-30cb8ffb.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "back_stair/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/back_stair-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "back_stair",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_capping"
+      },
+      "px_per_m_at_wall": 250.36674816625919,
+      "scaffold_sha256": "7702ea6f4a8877d146af1e72a24d36bd806e18e5fa6bc127761a58d541ab9d94",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f85d7699",
+          "candidate": "backdrops/source/back_stair-E/row23-f85d7699.png",
+          "prompt": "backdrops/source/back_stair-E/row23-f85d7699.prompt.txt"
         }
       ]
     },
@@ -117,6 +161,28 @@
           "id": "0f623c34",
           "candidate": "backdrops/source/closet_chamber-N/row23-0f623c34.png",
           "prompt": "backdrops/source/closet_chamber-N/row23-0f623c34.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "closet_chamber/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/closet_chamber-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 330.3225806451613,
+      "scaffold_sha256": "87bb2fc4686a8a1fd30149583831acd1b57fcd06929eb9b40dbedf0315445d61",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "8a081865",
+          "candidate": "backdrops/source/closet_chamber-N/row23-8a081865.png",
+          "prompt": "backdrops/source/closet_chamber-N/row23-8a081865.prompt.txt"
         }
       ]
     },
@@ -289,6 +355,28 @@
       ]
     },
     {
+      "key": "entrance_court/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/entrance_court-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 119.76608187134502,
+      "scaffold_sha256": "c20eaf3c4aa2e30fecac06a423edd46a36c688ed291dc15ac3f0898e237cc0d7",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "307b2b08",
+          "candidate": "backdrops/source/entrance_court-N/row23-307b2b08.png",
+          "prompt": "backdrops/source/entrance_court-N/row23-307b2b08.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "entrance_court/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/entrance_court-S/retry-3",
@@ -345,6 +433,28 @@
       ]
     },
     {
+      "key": "entrance_court/W",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/entrance_court-W/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 66.9281045751634,
+      "scaffold_sha256": "a23216137a5993fac0a4efe3d79878dd07f08fe830bc33e91be0b76cf7656054",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "1e6273e4",
+          "candidate": "backdrops/source/entrance_court-W/row23-1e6273e4.png",
+          "prompt": "backdrops/source/entrance_court-W/row23-1e6273e4.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "garden_room/E",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/garden_room-E/retry-3",
@@ -369,6 +479,28 @@
           "id": "0fbffa51",
           "candidate": "backdrops/source/garden_room-E/row23-0fbffa51.png",
           "prompt": "backdrops/source/garden_room-E/row23-0fbffa51.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "garden_room/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/garden_room-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "garden_parlour",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 155.15151515151516,
+      "scaffold_sha256": "fab5d4faa93f73c8f608582ed2adb0bde91d83bd1b6b8faf7d382ca720cf3025",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "78bced76",
+          "candidate": "backdrops/source/garden_room-E/row23-78bced76.png",
+          "prompt": "backdrops/source/garden_room-E/row23-78bced76.prompt.txt"
         }
       ]
     },
@@ -425,6 +557,28 @@
           "id": "ab42bebe",
           "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
           "prompt": "backdrops/source/garden_room-S/row23-ab42bebe.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "garden_room/S",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/garden_room-S/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "garden_parlour",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 330.3225806451613,
+      "scaffold_sha256": "245a68bfd472ad2ddfd7a450cb3e2282f74f1b9c5c778b1109b042886fee4e1b",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e7df8bee",
+          "candidate": "backdrops/source/garden_room-S/row23-e7df8bee.png",
+          "prompt": "backdrops/source/garden_room-S/row23-e7df8bee.prompt.txt"
         }
       ]
     },
@@ -597,6 +751,28 @@
       ]
     },
     {
+      "key": "great_stair_hall/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/great_stair_hall-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "great_stair",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 196.9230769230769,
+      "scaffold_sha256": "c4b94270fa9afe3f58829c865f5d0962e6e3fe232eb9a9664500b774d8e831cf",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "00634dd1",
+          "candidate": "backdrops/source/great_stair_hall-N/row23-00634dd1.png",
+          "prompt": "backdrops/source/great_stair_hall-N/row23-00634dd1.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "great_stair_hall/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/great_stair_hall-S/retry-3",
@@ -621,6 +797,28 @@
           "id": "77e46675",
           "candidate": "backdrops/source/great_stair_hall-S/row23-77e46675.png",
           "prompt": "backdrops/source/great_stair_hall-S/row23-77e46675.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "great_stair_hall/S",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/great_stair_hall-S/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "great_stair",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 196.9230769230769,
+      "scaffold_sha256": "843b0fce4a20ce95728e2f9b9e2de92909488c618f6c977f721f394884cf562d",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "95ff8b0a",
+          "candidate": "backdrops/source/great_stair_hall-S/row23-95ff8b0a.png",
+          "prompt": "backdrops/source/great_stair_hall-S/row23-95ff8b0a.prompt.txt"
         }
       ]
     },
@@ -653,6 +851,28 @@
       ]
     },
     {
+      "key": "guest_chamber/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/guest_chamber-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 155.15151515151516,
+      "scaffold_sha256": "c94f3149030a846bfbd0d0d96ca4db3996da59e34f0e22002c89a8f2b4c16fc3",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ea2ffb6b",
+          "candidate": "backdrops/source/guest_chamber-E/row23-ea2ffb6b.png",
+          "prompt": "backdrops/source/guest_chamber-E/row23-ea2ffb6b.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "guest_chamber/N",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/guest_chamber-N/retry-3",
@@ -677,6 +897,28 @@
           "id": "152af36d",
           "candidate": "backdrops/source/guest_chamber-N/row23-152af36d.png",
           "prompt": "backdrops/source/guest_chamber-N/row23-152af36d.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "guest_chamber/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/guest_chamber-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 170.66666666666666,
+      "scaffold_sha256": "b8f094188c377fb0b68890c95c0c441f1026e1b9e6fb789f02ee0e3ee5e7a918",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "8f6e6824",
+          "candidate": "backdrops/source/guest_chamber-N/row23-8f6e6824.png",
+          "prompt": "backdrops/source/guest_chamber-N/row23-8f6e6824.prompt.txt"
         }
       ]
     },
@@ -849,6 +1091,28 @@
       ]
     },
     {
+      "key": "long_gallery/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/long_gallery-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "long_gallery",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 56.2019758507135,
+      "scaffold_sha256": "848361eecf9d396022d27147253421cc2b56a16445a193742e105ab138975599",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "bd4d9cf4",
+          "candidate": "backdrops/source/long_gallery-N/row23-bd4d9cf4.png",
+          "prompt": "backdrops/source/long_gallery-N/row23-bd4d9cf4.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "long_gallery/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/long_gallery-S/retry-3",
@@ -901,6 +1165,28 @@
           "id": "331b2816",
           "candidate": "backdrops/source/master_bedchamber-N/row23-331b2816.png",
           "prompt": "backdrops/source/master_bedchamber-N/row23-331b2816.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "master_bedchamber/N",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/master_bedchamber-N/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 143.2167832167832,
+      "scaffold_sha256": "ff637cab64f23bed5fdbf0ea76366a5b1ac21c1393cb0c5d35358a01574743cc",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "cf4b6e81",
+          "candidate": "backdrops/source/master_bedchamber-N/row23-cf4b6e81.png",
+          "prompt": "backdrops/source/master_bedchamber-N/row23-cf4b6e81.prompt.txt"
         }
       ]
     },
@@ -961,6 +1247,28 @@
       ]
     },
     {
+      "key": "muniment_room/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/muniment_room-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "parlour_wainscot",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 250.36674816625919,
+      "scaffold_sha256": "dda522f0c27d9f33498f7783f2ff5268fc808874e4b9eef7a6dc3ec960f79d47",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "42b9aee5",
+          "candidate": "backdrops/source/muniment_room-E/row23-42b9aee5.png",
+          "prompt": "backdrops/source/muniment_room-E/row23-42b9aee5.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "privy_garden/E",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/privy_garden-E/retry-3",
@@ -985,6 +1293,28 @@
           "id": "b9f5efa5",
           "candidate": "backdrops/source/privy_garden-E/row23-b9f5efa5.png",
           "prompt": "backdrops/source/privy_garden-E/row23-b9f5efa5.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "privy_garden/E",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/privy_garden-E/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 66.9281045751634,
+      "scaffold_sha256": "a9c8247b2e709b1f1497278089429c132f7ae7766a3e309bb4be47be23cce44d",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "99540534",
+          "candidate": "backdrops/source/privy_garden-E/row23-99540534.png",
+          "prompt": "backdrops/source/privy_garden-E/row23-99540534.prompt.txt"
         }
       ]
     },
@@ -1045,6 +1375,28 @@
       ]
     },
     {
+      "key": "privy_garden/S",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/privy_garden-S/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 200.78431372549022,
+      "scaffold_sha256": "4ebe9dd3eca2f442593691657785e55fe2e5e654ea2c784b344aad3828c313ed",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "8573c041",
+          "candidate": "backdrops/source/privy_garden-S/row23-8573c041.png",
+          "prompt": "backdrops/source/privy_garden-S/row23-8573c041.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "privy_garden/W",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/privy_garden-W/retry-3",
@@ -1069,6 +1421,28 @@
           "id": "f1d9fdd5",
           "candidate": "backdrops/source/privy_garden-W/row23-f1d9fdd5.png",
           "prompt": "backdrops/source/privy_garden-W/row23-f1d9fdd5.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "privy_garden/W",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/privy_garden-W/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "outdoors_walled",
+        "via": "room id",
+        "outdoor": true,
+        "anchor": "string_course"
+      },
+      "px_per_m_at_wall": 66.9281045751634,
+      "scaffold_sha256": "c01428b3d2129f8c7dd9bb8d018230eff16e42c3fb663558cb28edc3e875b505",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d92a997c",
+          "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
+          "prompt": "backdrops/source/privy_garden-W/row23-d92a997c.prompt.txt"
         }
       ]
     },
@@ -1129,6 +1503,28 @@
       ]
     },
     {
+      "key": "servants_hall/W",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-W/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 170.66666666666666,
+      "scaffold_sha256": "224aa8bfad249359d70b1f8233ee31584446f450b96024043fadb52a9cb530ba",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "09380c8b",
+          "candidate": "backdrops/source/servants_hall-W/row23-09380c8b.png",
+          "prompt": "backdrops/source/servants_hall-W/row23-09380c8b.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "solar/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/solar-S/retry-3",
@@ -1185,6 +1581,28 @@
       ]
     },
     {
+      "key": "stair_landing/S",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/stair_landing-S/retry-5",
+      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "voice": {
+        "id": "great_stair",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 196.9230769230769,
+      "scaffold_sha256": "e2641f6404fbb4efcd4a9f6c2bbbfdb21c555a4aed4900b0d7b9dac5f4349e63",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9976389d",
+          "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
+          "prompt": "backdrops/source/stair_landing-S/row23-9976389d.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "study/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/study-S/retry-3",
@@ -1213,30 +1631,5 @@
       ]
     }
   ],
-  "refused_entries": [
-    {
-      "key": "entrance_approach/E",
-      "attempts": 4,
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "refused": "the retry cap is spent (4 of 3)"
-    },
-    {
-      "key": "entrance_approach/S",
-      "attempts": 4,
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "refused": "the retry cap is spent (4 of 3)"
-    },
-    {
-      "key": "entrance_approach/W",
-      "attempts": 4,
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "refused": "the retry cap is spent (4 of 3)"
-    },
-    {
-      "key": "entrance_court/S",
-      "attempts": 4,
-      "correction": "no candidate of this wall could be measured at all; see MEASURE-ERR lines",
-      "refused": "the retry cap is spent (4 of 3)"
-    }
-  ]
+  "refused_entries": []
 }
