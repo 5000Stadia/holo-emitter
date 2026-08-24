@@ -515,9 +515,14 @@ one canvas has no second engine):
 
 1. **Every arm composes for both probe walls, and `prompt_lint.py` accepts all fourteen prompts.**
    Run against the real lint, the real composer, both walls, all seven arms.
-2. **The control is production.** `ARMS.v3.prompt(ctx)` is byte-identical to
-   `manorPrompt(plan, key, meta, rects)`. If the emitter moves and the control does not, this goes
-   red.
+2. **The control is production, checked in a form that can fail.** The obvious assertion —
+   `ARMS.v3.prompt(ctx)` equals `manorPrompt(...)` — compares a function with itself, because the
+   control *is* that call; it is true whatever production does, including when production drifts,
+   which is the one thing it was meant to catch. It was written that way, found unfailable under a
+   deliberate mutation of `manorPrompt`, and replaced by two checks that do fail: the control's
+   composer must be a **single delegation** (it can never quietly become a transformation carrying
+   a copy of production's text), and **every committed prompt on disk must equal what its composer
+   returns today** — which goes red the moment `manorPrompt` moves, verified by mutation.
 3. **The declared diffs are the whole difference.** `v2`'s text is `v1`'s plus exactly the declared
    demotion lines; `v5`'s text is `v3`'s but for exactly the declared substitution set (the lines
    that say what Image 2 *is*, all of which move when it becomes a line drawing); `v6`'s text is

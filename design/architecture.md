@@ -3991,6 +3991,101 @@ leaves a rim of painted void around it. (c) `hall/W`'s hand reading in the cand-
 in `_measured_px.opening_*`; nothing reads those fields any more, and a promotion of that wall
 would go through `door_measure.py` like every other.
 
+## The breakout evolution run (row 34) — where precision belongs, machine-judged
+
+**What it is.** An evolutionary search over the *prompting-technique* space, scored by the
+instrument the manor run already uses. Kabe's hypothesis is verbatim in the row; his governing
+frame, ruled mid-allocation, is verbatim there too: *"Visual reference for visual orientation
+generalities, text for well defined articulation of anchored requirements and detail of the
+reference generalizations."* `design/specs/34-plan.md` is the contract and it fixes every selection
+rule before a candidate exists, the way `assignment.json` did at row 23. **Nothing is dispatched by
+the build; dispatch is the Navigator's act.**
+
+**The quantity.** The admissible horizon — `_promotion.ramp is not None`, the row-20 ruled
+instrument having fitted the two side-wall junctions through row 32's three tests. It is chosen
+because it is what the corpus is failing: 42 of 85 manor walls still hold, 21 of them under
+`unfitted-horizon`, and **every one of those passes the camera gate**. So what is failing is whether
+the returns read as receding surfaces converging where an eye could be — a drawing property, and the
+kind a sentence might move where a box did not. The ledger's own evidence for that: box labels never
+separated the row-23 techniques (p = 1.0), while the eye-line SENTENCE row 32 added to the composer
+promoted three walls at once.
+
+**Four files, and what each may touch.**
+
+| file | does | may not |
+|---|---|---|
+| `tools/evolution-arms.mjs` | the seven arms as composer functions, the exhaustive geometry and camera blocks, the edge marks, the spectrum | hold a second copy of production's text |
+| `tools/emit-evolution.mjs` | cuts one generation's images and packets, writes the id map | dispatch, or exceed the declared budget |
+| `design/plan-draft/measured/row34_run.py` | measures arrivals through `row23_lib` | promote, bake, publish, or open the manor run's state |
+| `design/plan-draft/measured/row34_fitness.py` | scores, applies the discipline, breeds the next generation | **name any arm id at all** |
+
+**An arm is a transformation of the production prompt, not a second prompt.** `manorPrompt`'s output
+is parsed into `Key: value` sections and each arm edits the sections it is defined to edit. Two
+consequences worth having: the control is production by construction rather than by a test noticing
+a stale copy, and every other arm inherits the room's voice, its ruled carrier clauses and its
+constraints without this machinery knowing what a voice is. An arm is also a **channel triple** —
+`text_geometry`, `image`, `camera_language` — which is what makes recombination mechanical instead
+of editorial.
+
+**Every number an arm states is the renderer's.** The exhaustive geometry and the verbal camera
+construction quote the quantities `drawGrid` draws with, and the two side-wall junctions are
+computed through `groundplane.xAtScale` / `yAtScale` exactly as it computes them. The vanishing
+point is **derived** — the intersection of those two junction lines — rather than assumed to be the
+frame centre; on both probes it comes out at column 768.0 on row 526.1, and stating it as a
+derivation is what makes a future off-centre wall correct instead of silently wrong. `frameExit`
+generalises the two cases `drawGrid` traces by hand, so a prompt names a point that is actually in
+the picture.
+
+**The probes, and why two.** `guest_chamber/E` and `garden_room/E`, both from the `unfitted-horizon`
+subset, picked by a screen over all 21 for corners and every bracket in frame, every stamped carrier
+in frame, and the fewest `_absent` entries. `guest_chamber/E` is the only zero-fault wall in the
+hold family and carries no carrier at all. The two share a camera **to the last decimal** — same
+155.152 px/m, same declared horizon row 526, same ±14.68 px bracket — and differ in the quantity
+under test: 267.6 px of return per side against 492.6 px, and best convergence σ 71.6 px against
+33.3 px. Same ask, different amount of junction to fit a line to. That also fixes the limitation:
+generation 1 says nothing about walls at other scales, and the fold-back re-run of the hold family
+is what tests that.
+
+**The discipline, and its honest weakness.** Exact one-sided Fisher by enumeration, Holm–Bonferroni
+over the whole arm-versus-control family at a screening α of 0.10, and a ≥2-roll margin.
+`min_detectable_effect()` enumerates every possible pair of counts and prints the floor rather than
+this document asserting it: at generation 1 the only result that clears is **4 of 4 against 0 of 4**
+(p = 0.014286 against Holm's tightest step 0.016667). The margin clause therefore does no
+independent work at this n — Holm is strictly tighter — and it is kept because it is the guard that
+survives a change in n, tested as a unit for that reason. A crown requires the confirmation
+generation, scored on fresh rolls only.
+
+**Two things the round cannot see, both said in every report.** There is **no `text_painted`
+detector** — 23-plan §5.4 named the flag and P0 never built it, and this row adds no detector — so a
+painted label is a silent pass; what guards the ask instead is `prompt_lint.py` plus a suite case
+asserting the no-lettering constraint is in all seven arms, and a scan asserting no such detector has
+quietly appeared. And the **edge scaffold does not carry row 23 §7.1's guarantee**: `frame.png` and
+`scaffold.png` come out of the shipped renderer, the edge drawing is composed from the same declared
+numbers, and re-establishing that guarantee is a named condition on folding that arm into production.
+
+**The fence around the Captain's own arm.** [HUMAN, 2026-08-24] *"Yeah but test my direction against
+our tests as well."* The cross-referenced arm runs on terms byte-identical to every other: same
+rolls, same blind detector configuration, same Holm family, no seat by name in the breeding.
+`row34_fitness.py` contains **no arm literal at all** — not even the control's, which it reads out
+of `assignment.json` — so there is no place in the scorer where a privileged arm could be written
+down, and the suite scans it to keep that true. One planted fixture makes that arm the loser
+specifically so the report's loss path is exercised before any real candidate exists.
+
+**The fence around the manor run.** No row-34 tool opens the manor's `manifest.json`,
+`run-state.json` or `retries.json`, promotes, bakes or publishes; the suite checks that structurally
+and by hashing the three files across a real run. The manor sweep is symmetrically blind: its
+arrival scan is `^row23-[0-9a-f]{8}\.png$` and it walks its own manifest's rolls, so `row34-` files
+in the same source directories are invisible to it. The measure path was smoke-tested against a real
+held frame and reproduced that frame's manor reading exactly — PASS, −0.27 % focal, `_absent` empty,
+min σ 71.64, `unfitted-horizon` — which is the evidence that it is the same instrument and not a
+second one.
+
+**A check that could not fail, found and replaced.** The first form of "the control is production"
+compared `armPrompt(control, ctx)` with `manorPrompt(...)` — a function against itself, true
+whatever production did. A deliberate mutation of `manorPrompt` left it green. It is now two checks
+that do go red: the control's composer must be a single delegation, and every committed prompt on
+disk must equal what its composer returns today.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went

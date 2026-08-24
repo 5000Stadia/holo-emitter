@@ -29,8 +29,8 @@
 import { chromium } from "playwright";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { join, resolve } from "node:path";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { PAGE_RENDER, GLYPH_TABLE, sourceDirFor, chairRail, assertLabelChars }
   from "./make-scaffold.mjs";
@@ -377,7 +377,14 @@ result: generate, save to the named paths, and report the paths back.
 `;
 }
 
-const argv = process.argv.slice(2);
-const gi = argv.indexOf("--generation");
-const generation = gi >= 0 ? Number(argv[gi + 1]) : 1;
-emit(generation).catch((e) => { console.error(e); process.exit(1); });
+/* ONLY WHEN RUN, NEVER WHEN IMPORTED. `evolution.spec.mjs` imports `BUDGET` and
+ * `rollId34` from this file to check the declared budget and the id grammar
+ * against the emitter itself rather than against a copy; without this guard
+ * that import would launch a browser and re-cut the generation under the
+ * suite's feet. */
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const argv = process.argv.slice(2);
+  const gi = argv.indexOf("--generation");
+  const generation = gi >= 0 ? Number(argv[gi + 1]) : 1;
+  emit(generation).catch((e) => { console.error(e); process.exit(1); });
+}
