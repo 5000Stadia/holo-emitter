@@ -1,0 +1,189 @@
+{
+  "_source_sha256": "314029ad9280c46c601450939e79b545bc1ce8ebcad2e7f3ff18c29d4f28ffaa",
+  "_what_this_is": "The manor production reading for stair_landing/S, measured off backdrops/source/stair_landing-S/row23-9976389d.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.725586,
+  "horizon_y": null,
+  "px_per_m_at_wall": 195.789,
+  "px_per_m_at_bottom": null,
+  "implied_focal_px": 1018.1,
+  "eye_height_m": null,
+  "storey_height_m": 2.7581,
+  "drawn_standpoint_m": 5.2,
+  "delta_focal_pct": -0.58,
+  "delta_eye_pct": -6.36,
+  "band_pct": 8.0,
+  "wall_width_m": 7.4825,
+  "camera_wall_m": 5.2,
+  "camera_far_m": null,
+  "corner_x0_px": 43,
+  "corner_x1_px": 1508,
+  "key_tint": "#c89865",
+  "key_dir": "C-NO-HORIZON",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 186,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "chair_rail",
+    "ruled_m": 0.95,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero. Row 32 left that ruling where it stood and changed only what the ramps are given: corners read off where the wall stops being square to the camera rather than off a plaster step, the junction row chosen from pick_ceiling's own candidates by which one the side walls converge on most sharply, and an error bar on the intersection measured against the standing licence for the horizon row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px in _measured_px's siblings on the reading).",
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 756,
+        "y": 555,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 764,
+        "y": 578,
+        "edge_px": 17318
+      },
+      "side_walls": {
+        "x": 1458,
+        "y": 538,
+        "edge_px": 1775
+      }
+    },
+    "adopted_y": null,
+    "adopted_instrument": "ceiling-ramp",
+    "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+    "ceiling_ramp_intersection": null,
+    "far_line_ruler": null
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 743,
+    "chair_rail_y_px": 557,
+    "dado_rail_above_floor_px": 186,
+    "capping_above_floor_px": 186,
+    "wall_ceiling_line_y_px": 203,
+    "corner_x0_px": 43,
+    "corner_x1_px": 1508,
+    "horizon_y_px": null,
+    "openings": [
+      {
+        "x0_px": 729,
+        "x1_px": 925,
+        "y0_px": 339,
+        "y1_px": 743,
+        "width_px": 196,
+        "width_m": 1.001,
+        "centre_px": 827.0,
+        "head_m": 2.063,
+        "void_luminance": 0.0,
+        "wall_luminance": 33.27,
+        "threshold": 17,
+        "threshold_span": [
+          1,
+          33
+        ],
+        "stability": 33
+      }
+    ]
+  },
+  "_windows": {
+    "floor": [
+      740,
+      777
+    ],
+    "rail": [
+      557,
+      586
+    ],
+    "ceiling": [
+      163,
+      251
+    ],
+    "columns": [
+      [
+        0,
+        768
+      ],
+      [
+        965,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 768,
+      "asked_x1": 964.92,
+      "ruled_m": 1.0,
+      "window": [
+        571,
+        1161
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 726..933 (37 px from the ask) and another admissible pair sits 933..1122 (161 px from the ask), which disagree by more than the 16 px this arm can resolve"
+    }
+  ],
+  "_light": {
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 602,
+    "key_dir_brightest_y": 504,
+    "key_tint": "#c89865",
+    "key_tint_patch": [
+      402,
+      802,
+      133,
+      195
+    ],
+    "key_tint_patch_mean_rgb": [
+      53.09,
+      40.22,
+      26.78
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c88852",
+      "floor_bottom_strip": "#c88044",
+      "mid_wall_right": "#c8b79e",
+      "mid_wall_left": "#c8a270",
+      "brightest_21x21_patch": "#c8beb0"
+    },
+    "brightest_21x21_patch_centre_px": [
+      602,
+      504
+    ],
+    "sobel_bright_side_deg_whole_frame": 97.47,
+    "sobel_bright_side_deg_wall_band": 93.56,
+    "left_third_minus_right_third_luminance_whole_frame": -15.202,
+    "left_third_minus_right_third_luminance_wall_band": -26.766
+  },
+  "_derived": {
+    "eye_height_m": null,
+    "storey_height_m": 2.7581,
+    "implied_wall_width_m": 7.4825,
+    "px_per_m_at_bottom": null,
+    "implied_camera_wall_m": 5.2301
+  },
+  "_withheld_because": [
+    "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: no pair of side-wall junctions could be fitted at all. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+  ],
+  "_hold_family": "unfitted-horizon",
+  "_round": "manor",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      410,
+      684
+    ],
+    "wall_band_px": [
+      43,
+      1508
+    ],
+    "wall_median_luminance": 33.27,
+    "min_enumerated_px": 78,
+    "min_head_m": 1.4,
+    "storey_m": 2.8,
+    "candidates_before_head_test": 3
+  }
+}

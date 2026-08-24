@@ -1,0 +1,92 @@
+{
+  "floor_line_y": 0.737305,
+  "px_per_m_at_wall": 189.474,
+  "px_per_m_at_bottom": 412.14,
+  "wall_width_m": 20.4,
+  "key_tint": "#c8c3bd",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 180,
+  "camera_wall_m": 5.1,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 20.4,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 97,
+  "corner_x1_px": 1420,
+  "storey_height_m": null,
+  "camera_id": "measured:backdrops/source/privy_garden-S/row23-506337da.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "camera_source": "declared",
+  "suspect_perspective": true,
+  "tolerance_ruling": "design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: \"I think its pretty close and we can accept a tolerance for drift here\"",
+  "declared_fields": [
+    "horizon_y"
+  ],
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 966.3,
+  "nearest_floor_m": 2.3446,
+  "measured_room": {
+    "storey_height_m": 3.378,
+    "wall_width_m": 6.983,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 20.4,
+    "carriers": [
+      {
+        "kind": "door",
+        "id": "op10",
+        "plan_px": [
+          218.5,
+          521.7
+        ],
+        "plan_centre_px": 370.1,
+        "painted_px": [
+          439,
+          527
+        ],
+        "painted_centre_px": 483,
+        "centre_delta_px": 112.9,
+        "centre_delta_m": 0.596,
+        "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+      },
+      {
+        "kind": "window",
+        "id": null,
+        "plan_px": [
+          995.4,
+          1279.6
+        ],
+        "plan_centre_px": 1137.5,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op10",
+      "kind": "door",
+      "via": null,
+      "x": 439,
+      "y": 472,
+      "w": 88,
+      "h": 283,
+      "beyond_m": 9.9,
+      "beyond_offset_m": 2.9,
+      "measured": true
+    }
+  ]
+}

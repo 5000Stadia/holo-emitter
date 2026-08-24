@@ -1,562 +1,37 @@
 {
   "_source_sha256": "10f65df70f7e6391861431b063c441366680319ce56a31a47e7a55818e873aae",
-  "_what_this_is": "THE STANDING CAMERA REFERENCE SET for kitchen/W, measured off backdrops/source/kitchen-W/row23-3da016f1.png by design/plan-draft/measured/measure.py --round cand5ref. This is the frame [HUMAN 2026-08-22] \"B\" routes the manor through, and what it measures is what src/groundplane.js's DRAWING_EYE_M and HORIZON_Y, tools/validate-fixtures.mjs's MEASURED_REFERENCE_PX and the cand-6 gate all carry. It is read, not admitted: there is no band over a reference.",
-  "_role": "manor production wall, technique-2 recipe, measured by the wave instrument against its own manifest camera",
-  "verdict": "REFERENCE",
+  "_what_this_is": "The manor production reading for kitchen/W, measured off backdrops/source/kitchen-W/row23-3da016f1.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
   "floor_line_y": 0.725586,
-  "horizon_y": 0.671387,
-  "px_per_m_at_wall": null,
-  "px_per_m_at_bottom": null,
-  "implied_focal_px": null,
-  "eye_height_m": null,
-  "storey_height_m": null,
+  "horizon_y": 0.679395,
+  "px_per_m_at_wall": 174.737,
+  "px_per_m_at_bottom": 1212.78,
+  "implied_focal_px": 1048.4,
+  "eye_height_m": 0.2707,
+  "storey_height_m": 2.9759,
   "drawn_standpoint_m": 6,
-  "delta_focal_pct": null,
-  "delta_eye_pct": null,
-  "band_pct": null,
-  "wall_width_m": null,
-  "camera_wall_m": null,
-  "corner_x0_px": 134,
-  "corner_x1_px": 1450,
-  "key_tint": "#c89b67",
+  "delta_focal_pct": 2.38,
+  "delta_eye_pct": 4.93,
+  "band_pct": 8.0,
+  "wall_width_m": 7.766,
+  "camera_wall_m": 6,
+  "camera_far_m": null,
+  "corner_x0_px": 104,
+  "corner_x1_px": 1461,
+  "key_tint": "#c88f56",
   "key_dir": "L-ABOVE",
-  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own prompt declares it as the measurement anchor",
-  "calibration_px": 140,
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 166,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
     "ruled_m": 0.95,
-    "rule": "ONE RULER, AND IT IS THE ONE THE PROMPT DECLARES. Every cand-6 prompt and the reference's own carry a single `Measurement anchor:` line - blueprint \u00a711's universal wainscot chair-rail, 0.95 m above the floor on every panelled wall in the manor - so the camera verdict is computed from that line on all eight frames. One instrument across the corpus AND the reference, because a reference read with a different ruler from the corpus puts that instrument's own offset into every delta in the table.",
-    "cross_rulers_do_not_vote": "Every other ruled feature is measured and printed in `_cross_rulers` with its own implied focal length and its disagreement with the anchor, and votes on nothing. A door drawn 2.19 m tall against a ruled 2.00, three window bays 5.7 % apart, a storey painted 3.35 m against a ruled 2.80 are facts about THE ROOM THE PAINTING DEPICTS, which the Navigator ruled WARN-TIER on 2026-08-22. Folding them into the camera verdict fails a wall for its joinery.",
-    "what_was_seen_first": "The eight frames were measured with the cand-2 detectors before this policy was written down, so it cannot be claimed as fixed-before-the-answers the way the cand-2 tier rule was. It is cand-3's own policy inherited unchanged, and `counterfactual` below states what the cand-2 straddle rule over all tier-1 rulers would have said, so the choice is visible rather than argued.",
-    "counterfactual": "Under the cand-2 straddle rule study/E would be WITHHELD - its chair-rail reads 204.21 px/m and its door opening 224.0 px/m from the head and 188.0 from the jambs, a 18 % span - and study/S would take its window bays (250.0 px/m, FAIL +17.4 %) instead of being withheld for a chair-rail it does not paint. No other facing's verdict moves."
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
   },
-  "_cross_rulers": [],
-  "_withheld_because": [
-    "the two moulding lines stand 0.142 m apart at the scale they themselves imply, where a dado capping sits 0.05-0.14 m above its rail (0.082 m on the frame row 21 promoted). Two lines at that spacing are not one chair-rail."
-  ],
-  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote and which this round adopts as the ONLY horizon - the vote is recorded beside it and is not read. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; on the four frames of this wave that carry corners they fit to a residual under a third of a pixel over 61 columns a side. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-  "_measured_px": {
-    "wall_ceiling_line_y_px": 175,
-    "wall_floor_line_y_px": 743,
-    "horizon_y_px": 687.5,
-    "horizon_x_px": 678.9,
-    "corner_x0_px": 134,
-    "corner_x1_px": 1450,
-    "dado_rail_top_y_px": 589,
-    "dado_rail_above_floor_px": 140,
-    "corner_midpoint_px": 792.0
-  },
-  "_how_each_was_measured": {
-    "wall_ceiling_line_y_px": "Strongest row-to-row luminance step in the upper band, over columns clear of the wall's own features, kept only if it is a TRUE horizontal - present in >=90 % of the columns of that span with a step-strength coefficient of variation <=0.5. Reported as the last row belonging to the ceiling, so the junction lies between this row and the next. All candidates, with their horizontality, are in _candidates.",
-    "wall_floor_line_y_px": "NOT the strongest step, and NOT fully automatic - read the qualification. The strongest step in the lower band is the SKIRTING CAP: on study/N it is at y 743 and the floor is 34 px lower, and all eight show the same cap / face / shadow-seam / boards sequence. The lower band also holds floorboard seams, which are strong but converge, and the panelling's own base rails, which are horizontal but are not the floor. The rule is therefore 'the lowest TRUE horizontal in the band', horizontality being the fraction of columns carrying the same step (an architectural horizontal lights ~0.95 of them with a step-strength CV below 0.5; a converging floorboard seam lights ~0.73 with CV above 1.0). The line is then placed on the darkest row of the shadow seam at the skirting foot. THE QUALIFICATION: that rule lands unaided on study/N, study/W, hall/N and hall/S only. On study/E and study/S the band is too crowded and on the two axial corridor views the far end wall's foot is too soft a transition, so for all eight the row-by-row luminance profile was read by eye and a 16-28 row bracket recorded per facing (`floor_window`); the line is the luminance minimum inside it. Both the bracket and its profile are emitted in _candidates, along with what the automatic rule would have said, so the hand-read part is visible and can be overturned.",
-    "horizon_y_px": "Vanishing-point vote, not an assumption. 3x3 Sobel over the region; keep the top 12 % of gradient magnitudes WITHIN the region; discard edges whose tangent is within 15 degrees of horizontal or vertical, because those two families are degenerate (an exactly vertical edge is perpendicular to the ray from every point on its own column and so votes for a whole line of candidates - without this filter the side-wall vote is captured by the panel stiles and returns x=52); then, for a coarse-to-fine grid of candidate vanishing points, count edge pixels whose gradient is perpendicular to the ray from that candidate. Run on three disjoint regions - floor below the floor line, ceiling above the ceiling line, and the side-wall bands outside the corners - reported per region in _horizon_votes. ADOPTED value is the edge-pixel-weighted mean of the regions that voted, so a thin dark side band cannot outvote the floor. The voted x says whether the camera is square to the wall.",
-    "corner_x_px": "The x at which the wall-ceiling line stops being horizontal: f(x) is the step strength at the ceiling line in column x, and a corner is declared where f collapses below 25 % of its mid-wall median for 10 consecutive columns - the run requirement stops a panel head crossing the line from faking a corner. Confirmed against the strongest vertical edge within +-18 px, measured over the wall's own height (_corner_vertical_edge_x*). Where the wall runs past the frame edge no corner is emitted: null, not a guess.",
-    "px_per_m_at_wall": "calibration_px / the calibration feature's assumed size in metres.",
-    "px_per_m_at_bottom": "(image_h_px - horizon_y_px) / eye_height_m.",
-    "key_tint": "Mean RGB of the dominant light's bounce off the ceiling - the one broad near-neutral diffuser every facing has - sampled from a 400 px window centred on the x of the frame's brightest 21x21 patch, in the 62 rows above the wall-ceiling line, then normalised so the largest channel is 200. Alternates measured on the floor, on both mid-wall bands and on the brightest patch itself are in _light.key_tint_alternates; where they disagree widely the facing has two lights and a single key_tint is a compromise.",
-    "key_dir": "The honest direction: where the brightest 21x21 patch actually sits relative to the frame centre and the measured horizon. Gate (e)'s Sobel bright-side estimator and the left-third-minus-right-third luminance are reported beside it, on the whole frame and on the wall band, because they frequently disagree with the eye when a frame has two lights.",
-    "ceiling_ramp_vp": "An independent, better-conditioned cross-check on the horizon that the draft does not run. The side walls meet the ceiling along lines parallel to the view axis, which in a rectilinear image converge on the principal point and therefore lie on the horizon. Both ramps are fitted outside the corners by robust least squares and intersected. Residuals are given: where they are a fraction of a pixel over 100+ columns, the intersection is a sharper statement than the vote, and where the two disagree the IMAGE is inconsistent, not the measurement."
-  },
-  "_panelling_module": {
-    "band": [
-      526,
-      604
-    ],
-    "col_bands": [
-      [
-        29,
-        610
-      ],
-      [
-        781,
-        1506
-      ]
-    ],
-    "band_median_luma": 34.7,
-    "capping_y_px": 582,
-    "dado_rail_y_px": 603,
-    "capping_above_floor_px": 161,
-    "dado_rail_above_floor_px": 140,
-    "profile": [
-      37.28,
-      35.26,
-      36.82,
-      35.23,
-      36.97,
-      35.39,
-      37.13,
-      35.88,
-      37.42,
-      35.56,
-      37.37,
-      35.69,
-      37.62,
-      36.02,
-      37.07,
-      35.27,
-      37.02,
-      35.18,
-      36.73,
-      34.71,
-      36.33,
-      34.96,
-      36.69,
-      35.01,
-      36.76,
-      34.9,
-      36.45,
-      34.65,
-      36.49,
-      35.04,
-      36.71,
-      34.73,
-      35.78,
-      33.5,
-      34.84,
-      32.93,
-      34.43,
-      32.84,
-      34.56,
-      33.16,
-      34.7,
-      32.8,
-      34.58,
-      32.63,
-      34.11,
-      32.38,
-      33.86,
-      32.02,
-      33.22,
-      31.22,
-      32.66,
-      30.44,
-      31.17,
-      28.84,
-      29.48,
-      24.48,
-      19.92,
-      41.63,
-      33.45,
-      25.97,
-      26.57,
-      21.17,
-      40.77,
-      47.79,
-      10.25,
-      18.0,
-      32.71,
-      24.66,
-      19.86,
-      16.78,
-      31.8,
-      37.05,
-      39.74,
-      45.7,
-      29.05,
-      12.84,
-      7.99,
-      7.03,
-      8.81
-    ],
-    "profile_first_row": 526
-  },
-  "_window_bays": null,
-  "_candidates": {
-    "wall_ceiling_line": [
-      {
-        "y": 176,
-        "strength": 28.36,
-        "horiz": 0.626,
-        "cv": 0.865
-      },
-      {
-        "y": 224,
-        "strength": 13.72,
-        "horiz": 0.626,
-        "cv": 0.984
-      },
-      {
-        "y": 245,
-        "strength": 10.7,
-        "horiz": 0.683,
-        "cv": 0.791
-      },
-      {
-        "y": 200,
-        "strength": 10.66,
-        "horiz": 0.732,
-        "cv": 0.988
-      },
-      {
-        "y": 183,
-        "strength": 9.31,
-        "horiz": 0.773,
-        "cv": 0.892
-      },
-      {
-        "y": 215,
-        "strength": 8.99,
-        "horiz": 0.775,
-        "cv": 1.069
-      },
-      {
-        "y": 251,
-        "strength": 7.71,
-        "horiz": 0.612,
-        "cv": 0.843
-      },
-      {
-        "y": 144,
-        "strength": 4.55,
-        "horiz": 0.714,
-        "cv": 0.797
-      },
-      {
-        "y": 152,
-        "strength": 4.48,
-        "horiz": 0.717,
-        "cv": 0.838
-      },
-      {
-        "y": 134,
-        "strength": 4.43,
-        "horiz": 0.727,
-        "cv": 0.802
-      },
-      {
-        "y": 120,
-        "strength": 4.36,
-        "horiz": 0.749,
-        "cv": 0.867
-      },
-      {
-        "y": 104,
-        "strength": 4.17,
-        "horiz": 0.748,
-        "cv": 0.823
-      }
-    ],
-    "wall_floor_line": [
-      {
-        "y": 632,
-        "strength": 31.16,
-        "horiz": 0.632,
-        "cv": 0.982
-      },
-      {
-        "y": 780,
-        "strength": 24.52,
-        "horiz": 0.721,
-        "cv": 0.869
-      },
-      {
-        "y": 753,
-        "strength": 23.77,
-        "horiz": 0.598,
-        "cv": 1.151
-      },
-      {
-        "y": 761,
-        "strength": 23.6,
-        "horiz": 0.635,
-        "cv": 0.863
-      },
-      {
-        "y": 775,
-        "strength": 18.18,
-        "horiz": 0.703,
-        "cv": 0.794
-      },
-      {
-        "y": 638,
-        "strength": 13.88,
-        "horiz": 0.624,
-        "cv": 0.898
-      },
-      {
-        "y": 807,
-        "strength": 12.41,
-        "horiz": 0.733,
-        "cv": 0.687
-      },
-      {
-        "y": 785,
-        "strength": 7.28,
-        "horiz": 0.705,
-        "cv": 0.739
-      },
-      {
-        "y": 824,
-        "strength": 5.19,
-        "horiz": 0.729,
-        "cv": 1.234
-      },
-      {
-        "y": 818,
-        "strength": 4.96,
-        "horiz": 0.749,
-        "cv": 1.197
-      },
-      {
-        "y": 796,
-        "strength": 4.64,
-        "horiz": 0.688,
-        "cv": 1.163
-      },
-      {
-        "y": 812,
-        "strength": 4.35,
-        "horiz": 0.697,
-        "cv": 1.186
-      },
-      {
-        "y": 768,
-        "strength": 3.96,
-        "horiz": 0.697,
-        "cv": 1.261
-      },
-      {
-        "y": 790,
-        "strength": 3.81,
-        "horiz": 0.713,
-        "cv": 1.135
-      },
-      {
-        "y": 643,
-        "strength": 3.5,
-        "horiz": 0.679,
-        "cv": 1.227
-      },
-      {
-        "y": 669,
-        "strength": 3.27,
-        "horiz": 0.694,
-        "cv": 1.107
-      },
-      {
-        "y": 681,
-        "strength": 3.26,
-        "horiz": 0.693,
-        "cv": 1.027
-      },
-      {
-        "y": 687,
-        "strength": 3.19,
-        "horiz": 0.69,
-        "cv": 1.13
-      },
-      {
-        "y": 659,
-        "strength": 3.16,
-        "horiz": 0.683,
-        "cv": 1.036
-      },
-      {
-        "y": 649,
-        "strength": 3.15,
-        "horiz": 0.687,
-        "cv": 1.089
-      },
-      {
-        "y": 675,
-        "strength": 3.12,
-        "horiz": 0.691,
-        "cv": 1.07
-      },
-      {
-        "y": 697,
-        "strength": 2.99,
-        "horiz": 0.693,
-        "cv": 1.083
-      },
-      {
-        "y": 703,
-        "strength": 2.92,
-        "horiz": 0.69,
-        "cv": 0.974
-      },
-      {
-        "y": 801,
-        "strength": 2.91,
-        "horiz": 0.733,
-        "cv": 1.109
-      },
-      {
-        "y": 664,
-        "strength": 2.87,
-        "horiz": 0.707,
-        "cv": 1.15
-      },
-      {
-        "y": 715,
-        "strength": 2.87,
-        "horiz": 0.693,
-        "cv": 1.086
-      },
-      {
-        "y": 731,
-        "strength": 2.86,
-        "horiz": 0.706,
-        "cv": 1.086
-      },
-      {
-        "y": 654,
-        "strength": 2.83,
-        "horiz": 0.681,
-        "cv": 1.204
-      },
-      {
-        "y": 741,
-        "strength": 2.83,
-        "horiz": 0.689,
-        "cv": 1.034
-      },
-      {
-        "y": 709,
-        "strength": 2.77,
-        "horiz": 0.732,
-        "cv": 1.095
-      },
-      {
-        "y": 721,
-        "strength": 2.74,
-        "horiz": 0.699,
-        "cv": 1.055
-      },
-      {
-        "y": 747,
-        "strength": 2.72,
-        "horiz": 0.707,
-        "cv": 1.035
-      },
-      {
-        "y": 692,
-        "strength": 2.61,
-        "horiz": 0.713,
-        "cv": 1.085
-      },
-      {
-        "y": 726,
-        "strength": 2.5,
-        "horiz": 0.729,
-        "cv": 1.146
-      },
-      {
-        "y": 736,
-        "strength": 2.29,
-        "horiz": 0.723,
-        "cv": 1.156
-      }
-    ],
-    "wall_floor_line_hand_read_window": {
-      "window": [
-        711,
-        744
-      ],
-      "window_profile": [
-        23.79,
-        25.29,
-        24.17,
-        25.16,
-        23.68,
-        24.85,
-        23.58,
-        24.6,
-        23.09,
-        24.21,
-        22.71,
-        23.99,
-        22.92,
-        23.96,
-        22.9,
-        24.35,
-        22.94,
-        23.94,
-        22.64,
-        23.71,
-        22.36,
-        23.51,
-        22.29,
-        23.39,
-        21.95,
-        22.95,
-        21.43,
-        22.61,
-        21.71,
-        22.85,
-        21.51,
-        22.44,
-        21.1,
-        22.34
-      ],
-      "window_profile_first_row": 711,
-      "automatic_lowest_true_horizontal": null
-    },
-    "dado_rail": [
-      {
-        "y": 590,
-        "strength": 39.1,
-        "horiz": 0.651,
-        "cv": 0.914
-      },
-      {
-        "y": 600,
-        "strength": 19.29,
-        "horiz": 0.67,
-        "cv": 1.495
-      },
-      {
-        "y": 582,
-        "strength": 6.04,
-        "horiz": 0.679,
-        "cv": 0.99
-      },
-      {
-        "y": 559,
-        "strength": 4.2,
-        "horiz": 0.682,
-        "cv": 1.109
-      },
-      {
-        "y": 527,
-        "strength": 4.09,
-        "horiz": 0.687,
-        "cv": 1.081
-      },
-      {
-        "y": 543,
-        "strength": 4.07,
-        "horiz": 0.682,
-        "cv": 1.039
-      },
-      {
-        "y": 551,
-        "strength": 4.06,
-        "horiz": 0.674,
-        "cv": 1.109
-      },
-      {
-        "y": 573,
-        "strength": 3.89,
-        "horiz": 0.664,
-        "cv": 1.068
-      },
-      {
-        "y": 535,
-        "strength": 3.76,
-        "horiz": 0.706,
-        "cv": 1.113
-      }
-    ]
-  },
-  "_corner_evidence": {
-    "rule": "the cand-2 rule, unchanged: the ceiling-line step must collapse below 30 % of its median over the 80 columns on the WALL side of the candidate, for 10 consecutive columns.",
-    "vertical_edge_confirming_x0": 145,
-    "vertical_edge_confirming_x1": 1461
-  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero. Row 32 left that ruling where it stood and changed only what the ramps are given: corners read off where the wall stops being square to the camera rather than off a plaster step, the junction row chosen from pick_ceiling's own candidates by which one the side walls converge on most sharply, and an error bar on the intersection measured against the standing licence for the horizon row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px in _measured_px's siblings on the reading).",
   "_horizon_votes": {
     "per_region": {
       "floor": {
@@ -567,56 +42,139 @@
       "ceiling": {
         "x": 1078,
         "y": 400,
-        "edge_px": 18986
+        "edge_px": 17074
       },
       "side_walls": {
-        "x": 1360,
-        "y": 255,
-        "edge_px": 1452
+        "x": 1374,
+        "y": 204,
+        "edge_px": 980
       }
     },
-    "adopted_y": 687.5,
+    "adopted_y": 695.7,
+    "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
     "ceiling_ramp_intersection": {
-      "x": 678.9,
-      "y": 687.5,
-      "left_slope": 0.9964,
-      "right_slope": -0.6818,
-      "left_n": 58,
-      "left_resid_px": 43.45,
-      "right_n": 61,
-      "right_resid_px": 0.3
+      "x": 670.6,
+      "y": 695.7,
+      "left_slope": 0.9761,
+      "right_slope": -0.6848,
+      "left_n": 61,
+      "left_resid_px": 0.27,
+      "right_n": 58,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.22
+    },
+    "far_line_ruler": null
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 743,
+    "chair_rail_y_px": 577,
+    "dado_rail_above_floor_px": 166,
+    "capping_above_floor_px": null,
+    "wall_ceiling_line_y_px": 223,
+    "corner_x0_px": 104,
+    "corner_x1_px": 1461,
+    "horizon_y_px": 695.7,
+    "openings": [
+      {
+        "x0_px": 630,
+        "x1_px": 793,
+        "y0_px": 403,
+        "y1_px": 743,
+        "width_px": 163,
+        "width_m": 0.933,
+        "centre_px": 711.5,
+        "head_m": 1.946,
+        "void_luminance": 5.56,
+        "wall_luminance": 22.74,
+        "threshold": 19,
+        "threshold_span": [
+          14,
+          23
+        ],
+        "stability": 10
+      },
+      {
+        "x0_px": 709,
+        "x1_px": 793,
+        "y0_px": 403,
+        "y1_px": 743,
+        "width_px": 84,
+        "width_m": 0.481,
+        "centre_px": 751.0,
+        "head_m": 1.946,
+        "void_luminance": 5.35,
+        "wall_luminance": 22.74,
+        "threshold": 11,
+        "threshold_span": [
+          9,
+          13
+        ],
+        "stability": 5
+      }
+    ]
+  },
+  "_windows": {
+    "floor": [
+      711,
+      744
+    ],
+    "rail": [
+      552,
+      578
+    ],
+    "ceiling": [
+      211,
+      288
+    ],
+    "columns": [
+      [
+        29,
+        610
+      ],
+      [
+        781,
+        1506
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 610.13,
+      "asked_x1": 780.8,
+      "ruled_m": 1.0,
+      "window": [
+        439,
+        951
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 628..798 (18 px from the ask) and another admissible pair sits 798..947 (177 px from the ask), which disagree by more than the 14 px this arm can resolve"
     }
-  },
-  "_derived": {
-    "eye_height_m": null,
-    "storey_height_m": null,
-    "px_per_m_at_bottom": null,
-    "nearest_visible_floor_m": null,
-    "implied_camera_wall_m": null,
-    "implied_wall_width_m": null
-  },
+  ],
   "_light": {
     "key_dir_measured": "L",
     "key_dir_brightest_x": 502,
     "key_dir_brightest_y": 133,
-    "key_tint": "#c89b67",
+    "key_tint": "#c88f56",
     "key_tint_patch": [
       302,
       702,
-      105,
-      167
+      153,
+      215
     ],
     "key_tint_patch_mean_rgb": [
-      121.27,
-      93.87,
-      62.71
+      57.44,
+      41.0,
+      24.68
     ],
     "key_tint_alternates": {
       "floor_under_brightest": "#c88850",
       "floor_bottom_strip": "#c88349",
-      "mid_wall_right": "#c86d24",
-      "mid_wall_left": "#c89569",
+      "mid_wall_right": "#c8702a",
+      "mid_wall_left": "#c89467",
       "brightest_21x21_patch": "#c89e6e"
     },
     "brightest_21x21_patch_centre_px": [
@@ -624,32 +182,36 @@
       133
     ],
     "sobel_bright_side_deg_whole_frame": 100.34,
-    "sobel_bright_side_deg_wall_band": 137.72,
+    "sobel_bright_side_deg_wall_band": 120.06,
     "left_third_minus_right_third_luminance_whole_frame": 16.69,
-    "left_third_minus_right_third_luminance_wall_band": 9.344
+    "left_third_minus_right_third_luminance_wall_band": 9.816
   },
-  "_plan": {
-    "wall_width_m": 8.65,
+  "_derived": {
+    "eye_height_m": 0.2707,
+    "storey_height_m": 2.9759,
+    "implied_wall_width_m": 7.766,
+    "px_per_m_at_bottom": 1212.7817,
+    "implied_camera_wall_m": 5.8602
+  },
+  "_withheld_because": [
+    "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 695.7, fixed to +/-1.2 px, inside the +/-16.2 px the standing licence allows the horizon row) puts the eye at 0.271 m above its own floor line at the scale its own gate anchor declares (174.7 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
+  ],
+  "_hold_family": "suspect-painting",
+  "_round": "manor",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      446,
+      691
+    ],
+    "wall_band_px": [
+      104,
+      1461
+    ],
+    "wall_median_luminance": 22.74,
+    "min_enumerated_px": 70,
+    "min_head_m": 1.4,
     "storey_m": 2.8,
-    "camera_wall_m_in_standpoints_tsv_now": 6
-  },
-  "_prompt_forbids": null,
-  "_harness": "EVERY DETECTOR WINDOW IS RE-TUNED against the frame it reads, which is the opposite of the cand-3 round and is deliberate: that round asked whether the recipe puts a feature where the approved composition has it, and this one asks what the camera IS, which cannot be read through a window pointed at where a feature used to be. What the windows are, and the rule that placed them, is `cfg` in measure.py's CFG_WAVE.",
-  "_control": null,
-  "_reference_set": {
-    "focal_px": null,
-    "eye_m": null,
-    "floor_line_y_px": 743,
-    "horizon_y_px": 687.5,
-    "corner_x0_px": 134,
-    "corner_x1_px": 1450,
-    "storey_height_m": null,
-    "px_per_m_at_wall": null,
-    "_what_carries_it": [
-      "src/groundplane.js DRAWING_EYE_M and HORIZON_Y",
-      "tools/validate-fixtures.mjs MEASURED_REFERENCE_PX and MEASURED_BAND",
-      "design/plan-draft/measured/gate.py --round cand6",
-      "backdrops/study/N.meta.json, via tools/promote-backdrop.mjs"
-    ]
+    "candidates_before_head_test": 4
   }
 }

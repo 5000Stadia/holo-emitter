@@ -5,7 +5,8 @@
       "status": "held",
       "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "why": "the tolerance promotion was refused: promote refused: great_hall/N: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo"
     },
     "great_hall/E": {
       "attempts": 4,
@@ -20,7 +21,8 @@
       "status": "held",
       "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "why": "the tolerance promotion was refused: promote refused: great_hall/S: the way through the painting shows for \"op01\" is 80 px \u2014 1.51\u00d7 the 52.9 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (52.9 px/m; its ruler reads 1"
     },
     "great_hall/W": {
       "attempts": 4,
@@ -49,14 +51,16 @@
       "status": "held",
       "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: back_stair/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
     },
     "back_stair/S": {
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "why": "the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
     },
     "back_stair/W": {
       "attempts": 2,
@@ -116,10 +120,13 @@
     },
     "kitchen/W": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "buttery_pantry/N": {
       "attempts": 2,
@@ -159,10 +166,13 @@
     },
     "servants_hall/S": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/servants_hall-S/row23-aa3b7fd3.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 56.1, which puts the viewer's eye 4.141 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 56.1, which puts the viewer's eye 4.141 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "servants_hall/W": {
       "attempts": 5,
@@ -200,7 +210,8 @@
       "status": "held",
       "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (125.3 px/m; its rule"
     },
     "great_stair_hall/E": {
       "attempts": 4,
@@ -214,7 +225,8 @@
       "status": "held",
       "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/S: the way through the painting shows for \"op06\" is 258 px \u2014 1.73\u00d7 the 149.5 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (149.5 px/m; its rule"
     },
     "great_stair_hall/W": {
       "attempts": 2,
@@ -225,10 +237,13 @@
     },
     "library/N": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/library-N/row23-3eb92ee4.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 628.8, which puts the viewer's eye 0.657 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 628.8, which puts the viewer's eye 0.657 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "library/E": {
       "attempts": 2,
@@ -249,10 +264,13 @@
     },
     "garden_room/N": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/garden_room-N/row23-88dcb306.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 154.0, which puts the viewer's eye 2.309 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 154.0, which puts the viewer's eye 2.309 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "garden_room/E": {
       "attempts": 5,
@@ -265,7 +283,8 @@
       "status": "held",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler rea"
     },
     "garden_room/W": {
       "attempts": 2,
@@ -279,7 +298,8 @@
       "status": "held",
       "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 2.42\u00d7 the 48.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (48.3 px/m; its ruler re"
     },
     "entrance_court/E": {
       "attempts": 2,
@@ -301,7 +321,8 @@
       "status": "held",
       "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: entrance_court/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe"
     },
     "privy_garden/N": {
       "attempts": 2,
@@ -314,14 +335,18 @@
       "status": "held",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: privy_garden/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player "
     },
     "privy_garden/S": {
       "attempts": 5,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/privy_garden-S/row23-506337da.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "privy_garden/W": {
       "attempts": 5,
@@ -335,7 +360,8 @@
       "status": "held",
       "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "why": "the tolerance promotion was refused: promoted, and taken back out because the bake refused: fixtures/nav-manor: 1. meta entrance_approach/N: a discontinuous wall carries corners \u2014 a view that is part building and part open ground has segments, not two corners [row11:meta.segmented_no_corners]\nbake refused: 1 validator finding(s)"
     },
     "entrance_approach/E": {
       "attempts": 4,
@@ -369,10 +395,13 @@
     },
     "solar/S": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/solar-S/row23-0d788619.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 195.0, which puts the viewer's eye 3.915 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "solar/W": {
       "attempts": 2,
@@ -386,10 +415,13 @@
     },
     "muniment_room/E": {
       "attempts": 5,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/muniment_room-E/row23-60d54205.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "muniment_room/S": {
       "attempts": 2,
@@ -413,7 +445,8 @@
       "status": "held",
       "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: back_stair_head/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player"
     },
     "back_stair_head/S": {
       "attempts": 2,
@@ -431,10 +464,13 @@
     },
     "long_gallery/N": {
       "attempts": 5,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/long_gallery-N/row23-59887309.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "long_gallery/E": {
       "attempts": 2,
@@ -445,10 +481,13 @@
     },
     "long_gallery/S": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/long_gallery-S/row23-1d39131d.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "suspect-painting"
+      "hold_family": "suspect-painting",
+      "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 233.5, which puts the viewer's eye 6.498 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "long_gallery/W": {
       "attempts": 2,
@@ -459,10 +498,13 @@
     },
     "master_bedchamber/N": {
       "attempts": 5,
-      "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "status": "promoted",
       "candidate": "backdrops/source/master_bedchamber-N/row23-331b2816.png",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "master_bedchamber/E": {
       "attempts": 2,
@@ -500,7 +542,8 @@
       "status": "held",
       "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "why": "the tolerance promotion was refused: promote refused: stair_landing/S: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left"
     },
     "stair_landing/W": {
       "attempts": 2,
@@ -511,10 +554,13 @@
     },
     "guest_chamber/N": {
       "attempts": 5,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/guest_chamber-N/row23-96eb20b1.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "guest_chamber/E": {
       "attempts": 5,
@@ -537,10 +583,13 @@
     },
     "closet_chamber/N": {
       "attempts": 5,
-      "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "status": "promoted",
       "candidate": "backdrops/source/closet_chamber-N/row23-0f623c34.png",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "closet_chamber/E": {
       "attempts": 2,
