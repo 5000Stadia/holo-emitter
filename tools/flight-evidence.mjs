@@ -19,6 +19,16 @@
  * that is what the meta carries; this file answers only whether this candidate
  * is one a flight may be attached to at all, and records what its pixels say.
  *
+ * WHAT THIS FILE SUPPLIES, in the order the promotion uses it: `askTextFor`
+ * resolves the ask a candidate was painted from (following a snapped frame
+ * back to the roll it was rectified from); `flightMask` and `maskCentroid`
+ * rasterise a projected flight so the promotion can ask whether its own
+ * reading of the wall and the drawing's put the staircase in the same place
+ * (`row39:stair.projection_disagrees` — the clause the first attachment
+ * earned, and the promotion's own comment carries its reasoning);
+ * `paintedFlightReading` takes the pixel statistic that is recorded and never
+ * gated on, for the reason the calibration below sets out at length.
+ *
  * ------------------------------------------------------------------------
  * WHY THE GATE IS THE ASK AND NOT THE PIXELS — measured, on a labelled corpus
  * ------------------------------------------------------------------------
