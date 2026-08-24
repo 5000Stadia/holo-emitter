@@ -4321,6 +4321,176 @@ whatever production did. A deliberate mutation of `manorPrompt` left it green. I
 that do go red: the control's composer must be a single delegation, and every committed prompt on
 disk must equal what its composer returns today.
 
+## The snap (row 35) — `design/plan-draft/measured/row35_snap.py`
+
+**What it is.** Post-generation planar rectification. A returned painting whose corners, junctions
+and floor line sit off the declared geometry is *warped onto it*, deterministically, with no model
+in the loop. [HUMAN, 2026-08-24, verbatim] *"Can we use the prompts producing the results then auto
+snap the room corners to our expected geometry?"* and, on the eye, *"Maybe skew the eye height in
+some creative way too?"* — which is why `--target-eye` is the one target-camera parameter exposed.
+
+**Its standing.** [HUMAN, 2026-08-24, relayed mid-row] *"Use our lessons to make the best prompt,
+allow the single return to then be processed and roll with it without gating its result in tests
+and retries."* So the measurement here is INPUT GEOMETRY and never a gate. One generation, one
+snap, ship. Exactly two things refuse and each carries its number: a frame whose anchors the
+instrument cannot read at all, and a correction past a stated budget.
+
+### Six numbers, five planes, and why the seams cannot come apart
+
+A one-point interior is described in image space by a BOX: `x0`, `x1` (the wall's corners at the
+wall plane), `yc`, `yf` (its ceiling and floor lines there), and `vx`, `vy` (the point the two
+returns converge on, which is the principal point and lies on the horizon). Those six cut the frame
+into exactly five regions — the wall rectangle, and the four trapezoids the rays from `(vx, vy)`
+through its corners sweep — and nothing else does. Each region is one plane, parameterised by two
+numbers with a physical meaning (`wall` by `(u, h)`, `floor` and `ceiling` by `(u, t)`, the returns
+by `(h, t)`, where `t` is depth over the camera-to-wall distance), and each parameterisation is a
+3×3 on `(p, q, 1)` — `region_matrix`. The map from one box to another is therefore, region by
+region, the target's inverse then the source's.
+
+**Seam continuity is algebra, not tolerance.** Two regions share an edge exactly where one of their
+parameters is pinned — the wall's left edge is `u = 0` and the left return's is `t = 1` — and along
+it both parameterisations name the same physical line, so both matrices evaluate to the same image
+point in both boxes. `--emit-seams` prints the two mappings so a test computes the distance rather
+than reading a verdict the tool wrote about itself.
+
+**And the property that makes the snap snap:** a straight line through the source vanishing point IS
+a ray; it crosses the box boundary at one point, that point maps to one point on the target
+boundary, and the whole ray maps onto the whole target ray. So every line through the painting's own
+convergence comes out straight through the declared one — including the two ceiling-junction lines
+the row-20 ramp instrument fits. That is why the snapped frame re-measures with its horizon where
+the plan declares it, and it is a construction rather than a fit.
+
+### What is snapped and what is preserved — the row's one design ruling
+
+SNAPPED: the camera. Scale (to the declared lens over the declared standpoint), principal point (to
+the declared horizon row), the wall's centre (to the scaffold's own corner midpoint), and the eye
+(`--target-eye`, defaulting to the declared standing camera).
+
+PRESERVED: the room's painted proportions — the storey height and the wall width the picture drew,
+carried across at the declared scale. This is blueprint §5's approved-image authority applied to the
+same question `door_measure.py` answers about doorways. The alternative, pinning corners and the
+ceiling line to what the plan rules, is rejected on arithmetic and the arithmetic is in the module
+docstring: on `great_hall/N` it is a 27 % horizontal stretch against a 27 % vertical squash — a 1.7:1
+aspect distortion over every painted board — *and* it would drag the chair-rail out of the bracket
+the camera gate reads the scale off, so the wall would fail the instrument it was rectified to
+satisfy. Preserving the painted proportions makes the facing wall's own map a pure similarity.
+
+**Every residual has a closed form** and `residuals()` writes them out before a pixel moves: the
+wall a uniform `k = ppm_target/ppm_source`; the returns an affine shear of
+`ppm_target·(eye_target − eye_source)/(vx − x0)`, which is the ~9 % the row anticipated; the floor
+`k` across and `k·(eye_target/eye_source)` down; the ceiling `k` across and
+`k·(storey − eye_target)/(storey − eye_source)` down. The floor and ceiling terms are exact
+re-projections, so what they cost is RESAMPLING and not geometry — which is what
+`--stretch-budget` is a budget on.
+
+### The two budgets, and that they are craft numbers
+
+Unlike every bracket in `row23_lib` — each of which is MEASURED_BAND propagated through a geometry
+the scaffold declares — no instrument derives these. They are stated, they are flags, and the
+corpus's own spread is recorded beside them.
+
+* `--reveal-budget-px`, default **100**. Raising the eye is what spends it: a standing camera sees
+  more ceiling than a crouching one and the paint for that ceiling does not exist, so the reveal
+  lands in the ceiling's two top corners and is almost nothing anywhere else. Inside the budget the
+  frame's own border pixel is repeated; past it the snap would be painting room the generator never
+  drew. Measured: `library/N` 58 px, `great_hall/N` 91 px, `kitchen/W` 196 px.
+* `--stretch-budget`, default **3.0**. Measured: `library/N` 1.8×, `great_hall/N` 2.4×, `kitchen/W`
+  4.9×, and the seven suspect walls whose ramps are flat edges 3.7× to 470×.
+
+### `--vp auto` is two attempts and the record says which
+
+A frame does not always fix a convergence. The precondition is physics, not a threshold: on a level
+camera whose ceiling is above the horizon the LEFT junction must rise going left (positive fitted
+slope) and the RIGHT one going right (negative), and a fit that moves the line less than one pixel
+across the 64 px `ceiling_ramp_vp` fitted it over has found a horizontal edge. Seven of the manor's
+ten `suspect-painting` walls fail that on one side or both, with a fitted slope of exactly ±0.0.
+
+Those fall back to the DECLARED principal point, and the fallback is not a no-op: the box is then
+the frame's own floor line, corners and ceiling read against the declared horizon, so the warp
+degenerates to a similarity about that point and still corrects the scale and the floor line. `auto`
+also falls back when the measured convergence's own snap is over budget — `kitchen/W`'s returns are
+64 px slivers at the edges of an almost flat-on wall, they fit to a third of a pixel, and the
+0.271 m eye they imply magnifies the floor 4.9× — and `source_anchors.vanishing_point_why` then
+carries what the first attempt cost. `--vp measured` refuses instead of falling back.
+
+### Transform, and where re-detection would be honester
+
+Transform suffices for everything that is a POSITION on a plane, and nothing is re-detected: the
+measured door and opening rectangles (they lie in the facing-wall region, whose map is a similarity,
+so a rectangle stays a rectangle — `_rect` asserts the skew and it is 0.0 on every pilot wall), the
+carrier boxes and their windows, the corners, the floor line, the chair-rail row, the ceiling line
+and the ramp intersection. That is what keeps a wall at one generation plus seconds.
+
+Three things would be honester re-detected. The LIGHT is, in the tool: `key_tint` and `key_dir` are
+statistics over regions the warp redistributes, so a transformed answer would describe a frame that
+no longer exists. The CARRIER EDGE READING is not — its verdict is "could this detector resolve this
+feature here", the positions are carried and the finding is marked as the pre-snap detector's word
+about post-snap coordinates. The DOOR VOID is not either, and the reason is measured rather than
+assumed: `--acceptance` re-reads the doors off the snapped frame beside the carried ones, and on
+`servants_hall/W` the two agree to 1.8 px and 0.0 px of centre — while on `back_stair/W`, magnified
+only 1.19×, the re-read finds *nothing at all* because resampling softens the void's edges past
+`_stable_dark_runs`'s stability test. On this corpus the transform is not merely faster than
+re-detection, it is more robust.
+
+### The acceptance test is the instrument, and it is a report
+
+`--acceptance` puts the snapped frame back through `row23_lib.measure_candidate` with the same
+scaffold windows, no band moved and nothing re-derived. Under the Captain's ruling it is how the
+doctrine is checked and never how a wall is refused.
+
+### What it does not do
+
+It promotes nothing, it writes nothing into `backdrops/`, and it moves no row of
+`run-state.json` — `--sweep` included. The routing (which snapped wall the loop promotes, what a
+refusal costs it, how it sequences against the tolerance path) is the follow-on the Navigator
+sequences after the pilot is judged.
+
+### The pilot, and where it lives
+
+`design/batches/row35-snap/<loc>-<F>/` carries, per wall, `before.png` / `after.png`, the same two
+with the box and its rays drawn on (`*-marked.png`), `before-reading.json` (the row-23 reading that
+was the snap's input geometry, stamped with the candidate and its digest so `--reading` can refuse a
+reading of another roll), `after-reading.json` (the acceptance re-measurement) and `snap.json` (the
+record: both boxes, the residuals, the magnification, the reveal, the budgets, the doors). The
+rewritten §5 readings are `design/plan-draft/measured/row35snap/<loc>-<F>.json`, which is a round
+directory `tools/promote-backdrop.mjs --round row35snap` reads. `sweep.json` beside them is every
+held wall put through the snap and back through the instrument.
+
+`snap.wall` is on the row-33 clock, refusals included.
+
+### What the pilot measured (2026-08-24)
+
+Three held walls, before and after, on the standing instrument with no band moved:
+
+| wall | held as | eye before → after | what the warp cost | acceptance after |
+|---|---|---|---|---|
+| `great_hall/N` | `suspect-painting` | **0.485 → 1.183 m** | 2.40× magnification, 91 px reveal on 8.7 % of the frame | **PASS, no hold** — ramp y 525.2 against a declared 526.1, focal +4.62 %, eye +2.58 % |
+| `library/S` | `promotion-refused` | 1.084 → 1.183 m | 1.08×, 42 px on 3.3 % | **PASS, no hold** — ramp y 527.9, focal −0.08 %, eye +4.54 % |
+| `servants_hall/W` | `unfitted-horizon` | 1.237 → 1.183 m | 1.03×, 33 px on 3.3 % | **PASS, no hold** — ramp y 560.3, focal +3.00 %, eye +4.30 % |
+
+`great_hall/N` is the wall the row names; the other two are what the click check needed — a held
+wall carrying a door the world walks through that the snap returns clean.
+
+**The rest of the suspect family, so the pilot is not a selection.** Ten manor walls are held as
+`suspect-painting` and only THREE fit a convergence the warp can use — the other seven have a fitted
+ramp slope of exactly ±0.0 on one side or both. Of the three: `great_hall/N` comes back clean;
+`library/N` (0.657 → 1.183 m) comes back with its camera arm essentially exact (focal −0.08 %, eye
++0.08 %) but its ramps do not refit on the resampled frame, so it moves from `suspect-painting` to
+`unfitted-horizon`; `kitchen/W` goes over budget on the measured convergence and is snapped from the
+declared one instead, which corrects its scale and floor line and leaves it `suspect-painting`.
+
+**A snapped wall is not automatically a promotable one, and this row moved no promotion clause.**
+`back_stair/W` snaps clean — 1.19×, no reveal at all, acceptance PASS with no hold — and
+`promote-backdrop.mjs` still refuses it on row 32's flight clause, because the plan draws a
+staircase in that view and a promoted meta carries none.
+
+**The whole held corpus** (`design/batches/row35-snap/sweep.json`, produced by `--sweep`): 46 walls,
+30 snapped, 16 refused (13 over a stated budget with its number, 2 whose standpoint puts the anchor
+below the frame so the instrument cannot run at all, 1 open facing), and **12 re-measure completely
+clean against 0 before**. 607 s total, **11.7 s median per wall** — and that median is the whole of
+it: the row-23 measurement, the warp, the rewritten reading and the acceptance re-measurement. The
+three pilot walls cost 42.0 s between them, post-return, both marked frames included.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went
@@ -4628,7 +4798,17 @@ reading the derivation back cannot — and the grid scans re-pointed per facing)
 `nav-walkthrough` (row 21: the world the BARE URL boots, which no other spec opens — the painting on
 screen and not a grid, four facings by real arrow keys, the doorway clicked through in both
 directions, dead space still dead in an empty world, and the same two things in a hand at 390×844
-with the opening measured in CSS pixels against the 44 px platform minimum).
+with the opening measured in CSS pixels against the 44 px platform minimum);
+`snap` (row 35: the seams computed BY THE SPEC from the samples the tool emits, so a construction
+that came apart shows as a distance and not as a verdict the tool wrote about itself; the round
+trip over all five planes; the acceptance on a room drawn at a planted 0.609 m eye, with the BEFORE
+reading checked against the planted camera first so that "the instrument reads 1.18 m afterwards"
+cannot be satisfied by an instrument that reads 1.18 m off anything; both budget refusals matched on
+tag AND on number and asserted to write no frame; determinism by bytes; the corpus invariant that a
+rewritten reading names the image it describes, carries its digest and agrees with its own recorded
+box; the carried door rectangles against a fresh read of the snapped frame at
+`door_measure.py`'s own 6 px control tolerance; and a real click, in both engines, on the door of a
+snapped wall promoted into a SCRATCH staged tree).
 
 **A GUARD'S TEETH ARE PROVEN BY A CRITIC FAILING TO BREAK IT, NOT BY ITS AUTHOR WATCHING ONE
 MUTATION GO RED.** [felt, row 11] This is the fourth bite of the same family on this project and the

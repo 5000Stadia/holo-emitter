@@ -1150,6 +1150,84 @@ def _state_candidate(key):
     return (json.load(open(STATE))["walls"].get(key) or {}).get("candidate")
 
 
+def sweep(statuses=("held", "retry", "parked"), acceptance=True, out=None):
+    """Every wall the production loop is holding, snapped and re-measured.
+
+    IT WRITES NOTHING INTO THE STORE AND IT MOVES NOTHING IN THE RUN STATE. The
+    routing — which snapped wall the loop promotes, and what a refusal costs it
+    — is the follow-on the Navigator sequences after this row is judged. What
+    this is, is the doctrine's own evidence: how many held walls the snap
+    corrects, what each correction costs in magnification and reveal, what the
+    standing instrument says about the result, and how long a wall takes from
+    the frame being on disk to the reading being written.
+    """
+    state = json.load(open(STATE))["walls"]
+    keys = sorted(k for k, v in state.items()
+                  if v.get("status") in statuses and v.get("candidate"))
+    rows, t_all = [], time.time()
+    for key in keys:
+        cand = state[key]["candidate"]
+        t0 = time.time()
+        try:
+            r, why = snap_wall(key, cand)
+        except Exception as ex:                       # one bad wall is one row
+            rows.append(dict(facing=key, candidate=cand, snapped=False,
+                             error=str(ex)[:300], seconds=round(time.time() - t0, 2)))
+            continue
+        if r is None:
+            rows.append(dict(facing=key, candidate=cand, snapped=False,
+                             was_holding=state[key].get("hold_family"),
+                             refused=why, seconds=round(time.time() - t0, 2)))
+            continue
+        row = dict(facing=key, candidate=cand, snapped=True,
+                   was_holding=state[key].get("hold_family"),
+                   vanishing_point=r["source_notes"]["vanishing_point"],
+                   eye_source_m=r["residuals"]["eye_source_m"],
+                   eye_target_m=r["residuals"]["eye_target_m"],
+                   scale_k=r["residuals"]["scale_k"],
+                   max_magnification=r["magnification"]["max_magnification"],
+                   max_overshoot_px=r["edge"]["max_overshoot_px"])
+        if acceptance:
+            tmp = os.path.join(HERE, "_sweep-frame.png")
+            write_png(tmp, r["after"])
+            try:
+                acc = measure(tmp, r["side"], r["cfg"], r["ref"])
+            finally:
+                os.remove(tmp)
+            s = acceptance_summary(acc, r)
+            row["acceptance"] = {k: s[k] for k in
+                                 ("verdict", "hold_family", "delta_focal_pct",
+                                  "delta_eye_pct", "ramp_eye_m")}
+            row["acceptance"]["ramp_y"] = (s.get("ramp") or {}).get("y")
+        row["seconds"] = round(time.time() - t0, 2)
+        timings.record("snap.wall", t0, time.time(), key,
+                       {"candidate": cand, "refused": False, "sweep": True,
+                        "vp": row["vanishing_point"],
+                        "max_magnification": row["max_magnification"]})
+        rows.append(row)
+    snapped = [r for r in rows if r.get("snapped")]
+    clean = [r for r in snapped
+             if r.get("acceptance", {}).get("verdict") == "PASS"
+             and not r.get("acceptance", {}).get("hold_family")]
+    doc = {
+        "_what_this_is": (
+            "every wall the manor loop is holding, put through the row-35 snap "
+            "and then back through the row-23 instrument. Nothing was promoted, "
+            "nothing was written into the store and no run-state row moved."),
+        "statuses": list(statuses),
+        "walls": len(rows), "snapped": len(snapped), "refused": len(rows) - len(snapped),
+        "clean_after_snap": len(clean),
+        "clean_facings": [r["facing"] for r in clean],
+        "seconds_total": round(time.time() - t_all, 1),
+        "seconds_per_wall_median": round(
+            sorted(r["seconds"] for r in rows)[len(rows) // 2], 2) if rows else None,
+        "rows": rows,
+    }
+    if out:
+        _emit(out, doc)
+    return doc
+
+
 def _emit(path, obj):
     if not path:
         return
@@ -1194,10 +1272,34 @@ def main():
     ap.add_argument("--emit-roundtrip", action="store_true")
     ap.add_argument("--synthetic-acceptance", action="store_true",
                     help="draw a room at a wrong camera, snap it, and re-measure")
+    ap.add_argument("--sweep", default="",
+                    help="snap and re-measure EVERY wall the loop is holding, "
+                         "writing the record here. Promotes nothing, writes "
+                         "nothing into the store and moves no run-state row")
     a = ap.parse_args()
 
     if a.synthetic_acceptance:
         return synthetic_acceptance()
+    if a.sweep:
+        doc = sweep(out=a.sweep)
+        for r in doc["rows"]:
+            if r.get("snapped"):
+                acc = r.get("acceptance") or {}
+                print("  %-22s %-24s mag %5.2f rev %6.1f | %-5s %-18s "
+                      "focal %+6.2f eye %+6.2f  %5.1fs"
+                      % (r["facing"], r["vanishing_point"], r["max_magnification"],
+                         r["max_overshoot_px"], acc.get("verdict"),
+                         acc.get("hold_family") or "-",
+                         acc.get("delta_focal_pct") or 0.0,
+                         acc.get("delta_eye_pct") or 0.0, r["seconds"]))
+            else:
+                print("  %-22s REFUSED %s"
+                      % (r["facing"], (r.get("refused") or r.get("error"))[:120]))
+        print("%d walls: %d snapped, %d refused, %d re-measure clean; %.0fs total, "
+              "%.1fs median" % (doc["walls"], doc["snapped"], doc["refused"],
+                                doc["clean_after_snap"], doc["seconds_total"],
+                                doc["seconds_per_wall_median"]))
+        return 0
     if not a.facing:
         ap.error("--facing is required")
 
