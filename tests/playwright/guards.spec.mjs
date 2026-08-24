@@ -296,6 +296,18 @@ export const MECHANISMS = [
   "prompt.interior_fabric_outdoors",
   "prompt.voice_incoherent",
   "prompt.heraldry_unrationed",
+  /* [Row 34] THE PROMPT-HYGIENE CLAUSES, and why they are clauses rather than
+     report lines. `row34_promptaudit.py` reports by default and REFUSES under
+     `--strict`, and the row-34 composers opt in: `evolution.spec` runs it with
+     `--strict` over every generation-3 arm and requires zero findings. A rule
+     that can turn work red is a clause whatever its default is, and the ledger's
+     own rule is that a clause nobody can make fail is a clause nobody is
+     checking. They were emitted for a day without declarations, which is the
+     hole this scan exists to find, and it found it. */
+  "prompt.dead_vocabulary",
+  "prompt.noun_repetition",
+  "prompt.style_of_trigger",
+  "prompt.tag_style_prose",
   // row 20: the lens, the standpoint law, and the doorway as a building fact
   "meta.one_lens",
   "meta.one_lens_measured",
@@ -2672,6 +2684,95 @@ test.describe("the clause ledger — prompt-lint mechanisms", () => {
       "Gate anchor: the wainscot chair-rail above the floor, 0.95 m.",
       "Armorial glass: set the family arms in the window head."
     ]), "and the one room entitled to them is not refused")
+      .toEqual([]);
+  });
+
+  /* ---------------------------------------------------------------- row 34 */
+  /* THE HYGIENE AUDIT'S OWN ARMS. Same shape as the lint cases above: build the
+     smallest prompt that trips exactly ONE rule and assert the token set is that
+     one clause. The base below is deliberately inert — no countable noun, no
+     comma run, no dead term — so each case's added line is the only thing that
+     can fire.
+
+     THE DIRECTORY NAME IS PART OF THE FIXTURE, and that is a real property of
+     the tool rather than a trick. The noun rule needs the wall's carrier licence
+     and derives it from the containing directory's name; outside a wall it knows,
+     it ABSTAINS rather than scoring against a denominator it cannot compute. So
+     the cases are written into a `guest_chamber-E` directory — a wall whose plan
+     draws no carrier, hence a licence of one mention — and the noun case can
+     therefore fire at all. */
+  const AUDIT = join(repoRoot, "design", "plan-draft", "measured", "row34_promptaudit.py");
+  const AUDIT_BASE = [
+    "Use case: historical-scene, interior",
+    "Asset type: gameplay backdrop for the east wall of the guest chamber",
+    "Gate anchor: the wainscot chair-rail above the floor, 0.95 m.",
+    "Primary request: Paint the surface. It is plain."
+  ];
+
+  function auditTokens(extra) {
+    const dir = mkdtempSync(join(tmpdir(), "holo-auditcase-"));
+    const wall = join(dir, "guest_chamber-E");
+    mkdirSync(wall, { recursive: true });
+    const f = join(wall, "case.prompt.txt");
+    try {
+      writeFileSync(f, AUDIT_BASE.concat(extra).join("\n") + "\n");
+      let out = "";
+      try {
+        out = execFileSync("python3", [AUDIT, "--strict", "--quiet", f],
+          { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+      expect(out, "the hygiene audit did not run").toMatch(/prompt\(s\) carry findings/);
+      return [...tokensOf([out])].sort();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  test("the hygiene audit's base fixture trips nothing at all", () => {
+    /* Without this the four cases below could each be passing on a base that
+       already fires, and every one of them would be green for the wrong reason. */
+    expect(auditTokens([]), "the inert base is not inert").toEqual([]);
+  });
+
+  ledgerCase("prompt.dead_vocabulary", () => {
+    /* Zero occurrences across the attributed corpus for this model family, so
+       the term is untested vocabulary rather than craft. 28 of row 34's own 52
+       prompts carried this one and its sibling. */
+    expect(auditTokens(["  The vanishing point is at the middle of the picture."]),
+      "a prompt naming a zero-occurrence term")
+      .toEqual(["prompt.dead_vocabulary"]);
+  });
+
+  ledgerCase("prompt.noun_repetition", () => {
+    /* Repeating a countable noun multiplies the object. The licence is one
+       mention plus two per carrier the plan actually draws, and this wall draws
+       none — so three doors asked for is three doors. */
+    expect(auditTokens(["  The door is open. The door is oak. The door is tall."]),
+      "a wall with no carrier asked three times for a door")
+      .toEqual(["prompt.noun_repetition"]);
+    /* And one mention on the same wall is not a finding, so the rule is a
+       licence rather than a ban. */
+    expect(auditTokens(["  The door is open."]),
+      "a single mention was refused, which would make the rule a ban")
+      .toEqual([]);
+  });
+
+  ledgerCase("prompt.style_of_trigger", () => {
+    expect(auditTokens(["  Paint it in the style of Image 1."]),
+      "a prompt carrying the pastiche trigger")
+      .toEqual(["prompt.style_of_trigger"]);
+  });
+
+  ledgerCase("prompt.tag_style_prose", () => {
+    /* A comma-separated fragment list with no finite verb is the shape that
+       induces grid and collage artefacts where prose does not. An IMPERATIVE is
+       prose, not a tag list — the second assertion is why the rule does not
+       refuse the positive-substitution line the research recommends. */
+    expect(auditTokens(["  Oak, brass, vellum, leaded glass."]),
+      "a tag-style fragment list")
+      .toEqual(["prompt.tag_style_prose"]);
+    expect(auditTokens(["  Do not invent typography, signage, plaques, inscriptions."]),
+      "an imperative with commas was read as a tag list")
       .toEqual([]);
   });
 });
