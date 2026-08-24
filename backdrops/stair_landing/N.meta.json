@@ -66,7 +66,20 @@
         "prompt": "backdrops/source/stair_landing-N/row23-e594b388.prompt.txt",
         "via": "beside the candidate"
       },
-      "geometry": "this painting's own measured camera"
+      "geometry": "this painting's own measured camera",
+      "against_the_ask": [
+        {
+          "id": "great_stair",
+          "agreed_px": 56669,
+          "disputed_px": 36976,
+          "agreed_of_union": 0.605,
+          "aim_of_this_lands_on_the_ask": true,
+          "aim_of_the_ask_lands_on_this": true,
+          "apart_px": 62.9,
+          "apart_m": 0.327,
+          "over": false
+        }
+      ]
     }
   },
   "openings": [

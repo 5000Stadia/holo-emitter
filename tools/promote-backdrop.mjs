@@ -40,7 +40,7 @@ import {
 import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC } from "./room-voices.mjs";
 import { askNamesAFlight } from "./frame-language.mjs";
-import { askTextFor, paintedFlightReading } from "./flight-evidence.mjs";
+import { askTextFor, paintedFlightReading, flightMask, maskCentroid } from "./flight-evidence.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -575,15 +575,91 @@ if (drawnFlights.length) {
      * the message says which act closes it rather than only what is wrong. */
     refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and the ask ${candidate} was painted from never named a staircase (${ask.path}, read ${ask.via || "beside the candidate"}) — this roll was asked for before the flight language existed, so the picture cannot be shown to hold the staircase the room holds, and promoting it leaves a player looking at the place a stair used to be. Its own re-ask under the flight paragraph is the candidate for this wall [row32:stair.painted_flight_lost]`);
   } else {
-    /* THE ATTACHING BRANCH. The reading is taken first, so that a wall whose
-     * pixels disagree with its own ask is on the record even though nothing
-     * refuses it: `flight-evidence.mjs` explains at length why nothing does. */
-    flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights);
-    flightEvidence.asked = { prompt: ask.path, via: ask.via };
-    flightEvidence.geometry = declaredCamera ? "declared-camera, exact by construction"
-      : roundDir === "row35snap" ? "snapped onto the declared camera, exact by construction"
-        : "this painting's own measured camera";
-    meta.stairs = drawnFlights;
+    /* THE ATTACHING BRANCH — after one more question, which the first walls
+     * through this door made unavoidable.
+     *
+     * WHOSE u-DOMAIN THE FLIGHT LANDS IN, and why that can be the wrong one.
+     * `xAtScale` maps `u` across the wall through the meta's CORNERS where it
+     * has them, and a promoted meta's corners are what someone measured off
+     * this painting. The painter, meanwhile, was given a scaffold box computed
+     * from the DRAWING's own camera, and `flight.spec` pins the prompt's stated
+     * columns to exactly that box. So a wall whose corner reading is off puts
+     * the projected flight somewhere the painted staircase is not, and nothing
+     * else on the wall notices: a painted DOOR is measured off the picture
+     * (row 27) and is immune, and the grid and the staging are drawn in the
+     * same displaced domain and so agree with each other.
+     *
+     * `great_stair_hall/W` is the case, found by rendering the attachment over
+     * its own painting: its corner detector read the staircase's own stringer
+     * against the wainscot as the wall's right-hand return and returned
+     * 219..944 for a wall the picture centres — a wall centre 186 px left of
+     * the frame's — and the flight came out 1.19 m along the wall from where
+     * the ask put it, running up the window instead of the stair.
+     *
+     * THE TEST CARRIES NO NUMBER SOMEBODY CHOSE: THE TWO READINGS MUST AGREE
+     * ABOUT MORE OF THE STAIRCASE THAN THEY DISPUTE. Rasterise both bodies on
+     * the frame; the agreed part is their intersection and the disputed part
+     * is everything else in their union, and the agreed part has to be at
+     * least as large as the disputed one. (That is `intersection / union >=
+     * 1/2` written out, which is where the one halving in this clause comes
+     * from — the definition of "as much as", not a tuned bound.)
+     *
+     * A DISPLACEMENT IN METRES WOULD NEED A BOUND, and a "does the middle of
+     * one land inside the other" test is too weak to be one: on
+     * `great_stair_hall/W` both centroids DO land inside, because two long
+     * triangles crossing at a shallow angle contain each other's middles while
+     * their treads run up two different parts of the picture. The area is what
+     * a player's aim actually meets.
+     *
+     * MEASURED OVER THE PART ON THE FRAME, because a run climbing out of the
+     * picture diverges without bound at depth and the tail of it is not what
+     * anybody clicks.
+     *
+     * On this corpus: `great_stair_hall/W` agrees about 41 % and disputes 59 %
+     * — refused, and the overlay of its own meta over its own painting shows
+     * exactly that, the treads running up the window instead of the stair.
+     * `stair_landing/N` agrees about 61 % — attached.
+     *
+     * AND IT IS THE WALL'S CORNERS THAT ARE WRONG, not the flight. The refusal
+     * says so, because the fix is a re-read of that wall and not a repaint. */
+    const byPlan = stairsForFacing(plan, loc, facing, deriveMeta(plan, loc, facing));
+    const apart = [];
+    for (const s of drawnFlights) {
+      const there = byPlan.find((b) => b.id === s.id);
+      if (!there) continue;
+      const A = flightMask([s], CANVAS_W, imageH).mask;
+      const B = flightMask([there], CANVAS_W, imageH).mask;
+      const ca = maskCentroid(A, CANVAS_W), cb = maskCentroid(B, CANVAS_W);
+      if (!ca || !cb) continue;
+      let inter = 0, uni = 0;
+      for (let i = 0; i < A.length; i++) { if (A[i] && B[i]) inter++; if (A[i] || B[i]) uni++; }
+      const aInB = !!B[Math.round(ca.y) * CANVAS_W + Math.round(ca.x)];
+      const bInA = !!A[Math.round(cb.y) * CANVAS_W + Math.round(cb.x)];
+      const agreed = uni ? inter / uni : 0;
+      apart.push({
+        id: s.id,
+        agreed_px: inter, disputed_px: uni - inter, agreed_of_union: round(agreed, 3),
+        aim_of_this_lands_on_the_ask: aInB, aim_of_the_ask_lands_on_this: bInA,
+        apart_px: round(Math.hypot(ca.x - cb.x, ca.y - cb.y), 1),
+        apart_m: round(Math.hypot(ca.x - cb.x, ca.y - cb.y) / ppm, 3),
+        over: !(inter >= uni - inter)
+      });
+    }
+    const over = apart.filter((a) => a.over);
+    if (over.length) {
+      refusals.push(`${facingArg}: ${over.map((a) => `this meta and the ask disagree about where the flight "${a.id}" stands — they agree about ${a.agreed_px} px of it and dispute ${a.disputed_px}, ${round(a.agreed_of_union * 100, 0)}% of their union, with the two bodies ${a.apart_m} m apart`).join("; ")} — a flight is carried only where the two readings of the wall agree about more of the staircase than they dispute, because the disputed part is where a player aims and finds no stair. The wall's own corners are the reading to look at: this meta carries ${meta.corner_x0_px}..${meta.corner_x1_px} px, a span of ${round((meta.corner_x1_px || 0) - (meta.corner_x0_px || 0), 0)} against the ${round(fc.wall_width_m * ppm, 0)} its ${fc.wall_width_m} m implies, and a staircase standing against a wainscot is exactly what a recession detector reads as a return [row39:stair.projection_disagrees]`);
+    } else {
+      /* The reading is taken here, so that a wall whose pixels disagree with
+       * its own ask is on the record even though nothing refuses it:
+       * `flight-evidence.mjs` explains at length why nothing does. */
+      flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights);
+      flightEvidence.asked = { prompt: ask.path, via: ask.via };
+      flightEvidence.geometry = declaredCamera ? "declared-camera; the horizon is the drawing's, the u-domain this painting's own corners"
+        : roundDir === "row35snap" ? "snapped onto the declared camera; the u-domain is this painting's own corners"
+          : "this painting's own measured camera";
+      flightEvidence.against_the_ask = apart;
+      meta.stairs = drawnFlights;
+    }
   }
 }
 /* AND NO SECOND ASSERTION THAT THE ATTACHMENT HAPPENED, deliberately. The

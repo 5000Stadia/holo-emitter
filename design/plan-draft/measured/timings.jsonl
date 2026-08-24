@@ -20930,3 +20930,12 @@
 {"ts_start":1787598925.583,"ts_end":1787598925.695,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
 {"ts_start":1787599921.37,"ts_end":1787599923.249,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":0,"refused":false}}
 {"ts_start":1787599965.996,"ts_end":1787599966.083,"step":"promote.backdrop","key":"back_stair/W","detail":{"candidate":"backdrops/source-snapped/back_stair-W/snapped.png","exit_code":1,"refused":true}}
+{"ts_start":1787600413.941,"ts_end":1787600414.016,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":1,"refused":true}}
+{"ts_start":1787600421.18,"ts_end":1787600421.296,"step":"promote.backdrop","key":"stair_landing/N","detail":{"candidate":"backdrops/source/stair_landing-N/row23-e594b388.png","exit_code":1,"refused":true}}
+{"ts_start":1787600517.621,"ts_end":1787600519.906,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":0,"refused":false}}
+{"ts_start":1787600622.705,"ts_end":1787600623.34,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":1,"refused":true}}
+{"ts_start":1787600631.239,"ts_end":1787600633.671,"step":"promote.backdrop","key":"stair_landing/N","detail":{"candidate":"backdrops/source/stair_landing-N/row23-e594b388.png","exit_code":0,"refused":false}}
+{"ts_start":1787600934.576,"ts_end":1787601129.863,"step":"bake.backdrops","key":null,"detail":{"paintings":55,"out_bytes":36251796,"fp":"a141d520","png_bytes":142101318,"jpeg_bytes":27180508}}
+{"ts_start":1787601122.354,"ts_end":1787601158.774,"step":"bake.backdrops","key":null,"detail":{"paintings":55,"out_bytes":36251796,"fp":"a141d520","png_bytes":142101318,"jpeg_bytes":27180508}}
+{"ts_start":1787601169.335,"ts_end":1787601169.772,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"920666c8","out_bytes":418459,"facings":88,"locations":22}}
+{"ts_start":1787601170.094,"ts_end":1787601170.294,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}

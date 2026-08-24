@@ -3043,20 +3043,20 @@ test.describe("the schematic is a derived render of the plan", () => {
    *   the unreadable  — `row39:stair.ask_unreadable`, a candidate whose prompt
    *                     is gone, so the ask cannot be shown to have named one.
    *
-   * `great_stair_hall/W` is the subject because it is the wall row 32 was
-   * written about: the sweep promoted it, the staircase vanished from the
-   * picture, and `manor.spec`'s "a flight seen across its run is a body, not a
-   * line" stopped having a subject.
+   * `stair_landing/N` is the subject because it is the manor's one wall that
+   * carries a painted flight and is in the store: `great_stair_hall/W` — the
+   * wall row 32 was written about — is refused by the third clause below, its
+   * own corner reading having taken the staircase's stringer for the wall's
+   * return.
    */
   test("a promoted meta carries the flight its room draws, or says which way it did not", () => {
-    const CAND = "backdrops/source/great_stair_hall-W/row23-9635a378.png";
-    const tree = stagePromotionTree("great_stair_hall/W", CAND, "manor");
+    const CAND = "backdrops/source/stair_landing-N/row23-e594b388.png";
+    const tree = stagePromotionTree("stair_landing/N", CAND, "manor");
     const promote = () => {
       try {
         return { code: 0, out: execFileSync("node",
-          [join(tree, "tools", "promote-backdrop.mjs"), "--facing", "great_stair_hall/W",
-            "--candidate", CAND, "--round", "manor", "--reference", "ruled",
-            "--camera-source", "declared"],
+          [join(tree, "tools", "promote-backdrop.mjs"), "--facing", "stair_landing/N",
+            "--candidate", CAND, "--round", "manor", "--reference", "ruled"],
           { cwd: tree, encoding: "utf8", stdio: "pipe" }) };
       } catch (e) {
         return { code: e.status, out: String(e.stdout || "") + String(e.stderr || "") };
@@ -3067,9 +3067,9 @@ test.describe("the schematic is a derived render of the plan", () => {
     try {
       /* THE ATTACHMENT. */
       const ok = promote();
-      expect(ok.code, `the wall the flight clause was written about promotes:\n${ok.out}`).toBe(0);
+      expect(ok.code, `the manor's painted stair wall promotes:\n${ok.out}`).toBe(0);
       const meta = JSON.parse(readFileSync(
-        join(tree, "backdrops", "great_stair_hall", "W.meta.json"), "utf8"));
+        join(tree, "backdrops", "stair_landing", "N.meta.json"), "utf8"));
       expect(Array.isArray(meta.stairs) && meta.stairs.length,
         "and its meta carries the flight the plan draws in this view").toBe(1);
       const s = meta.stairs[0];
@@ -3077,8 +3077,8 @@ test.describe("the schematic is a derived render of the plan", () => {
          validator's `row15:meta.stairs_list` reads both and the renderer draws
          from either, so a promoted flight that is a different record is a
          second shape for one thing. */
-      const derived = deriveMeta(PLAN, "great_stair_hall", "W");
-      const drawn = stairsForFacing(PLAN, "great_stair_hall", "W", meta)[0];
+      const derived = deriveMeta(PLAN, "stair_landing", "N");
+      const drawn = stairsForFacing(PLAN, "stair_landing", "N", meta)[0];
       expect(Object.keys(s).sort(),
         "the promoted flight has the fields a derived one has")
         .toEqual(Object.keys(derived.stairs[0]).sort());
@@ -3100,13 +3100,13 @@ test.describe("the schematic is a derived render of the plan", () => {
 
       /* THE RE-ASK BRANCH. The ask loses its flight paragraph and nothing else
          moves; the promotion refuses on that clause and writes no file. */
-      rmSync(join(tree, "backdrops", "great_stair_hall"), { recursive: true, force: true });
+      rmSync(join(tree, "backdrops", "stair_landing"), { recursive: true, force: true });
       writeFileSync(prompt, spent.split("\n").filter((l) => !/^Stairs: /.test(l)).join("\n"));
       let r = promote();
       expect(r.code, "a roll whose ask never named a staircase is not promotable").not.toBe(0);
       expect(r.out).toMatch(/row32:stair\.painted_flight_lost/);
       expect(r.out, "and the refusal says which act closes it").toMatch(/re-ask/);
-      expect(existsSync(join(tree, "backdrops", "great_stair_hall", "W.meta.json")),
+      expect(existsSync(join(tree, "backdrops", "stair_landing", "N.meta.json")),
         "a refused promotion writes nothing").toBe(false);
 
       /* THE UNREADABLE BRANCH. */

@@ -414,6 +414,15 @@ export const MECHANISMS = [
      same pair `vista.ask_unreadable` makes with `vista.indoor_ask`, and for
      the same reason. */
   "stair.ask_unreadable",
+  /* [Row 39] And the third, minted by rendering the first attachment over its
+     own painting and looking: a flight is PROJECTED through the meta's own
+     corners while the painter was given a box computed from the drawing's, so
+     a wall whose corner reading is off carries a staircase the picture does
+     not have. `great_stair_hall/W` is the case and the mechanism is a fair
+     mistake — a stair standing against a wainscot is what a recession
+     detector is built to find. A painted door is immune because row 27
+     measures it off the picture; a flight has no such instrument. */
+  "stair.projection_disagrees",
   /* [Row 29(a)] And the promotion's VISTA arms, minted the day the four `open`
      facings could first be measured at all. An open facing has no wall plane,
      no ceiling and no side walls, so three separate things that were true by
@@ -3238,25 +3247,51 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
       .toEqual(["stair.ask_unreadable"]);
   });
 
+  ledgerCase("stair.projection_disagrees", () => {
+    /* [Row 39] THE META'S OWN CORNERS ARE WHAT `xAtScale` MAPS `u` THROUGH,
+       and the painter was given a box computed from the DRAWING's camera — so
+       a wall whose corner reading is off carries a flight the picture does not
+       have, and nothing else on the wall notices. The construction is that
+       reading and only that reading: the corner span is squeezed toward the
+       left of the frame, which is what `great_stair_hall/W`'s own detector did
+       when it took the staircase's stringer for the wall's return. The ask
+       still names the flight, so neither clause above can fire, and the door
+       reading is untouched.
+
+       The corners move but the SPAN keeps its width, so `meta.corner_pairing`
+       and the corner-versus-scale clauses stay silent: what is wrong here is
+       where the wall is, not how wide it was read. */
+    const paragraph = flightParagraph();
+    expect(promoteTokens("library/E", (d) => {
+      const span = d.corner_x1_px - d.corner_x0_px;
+      d.corner_x0_px = Math.round(d.corner_x0_px - span * 0.45);
+      d.corner_x1_px = d.corner_x0_px + span;
+    }, INTO_THE_LIBRARY, [], paragraph),
+    "a flight projected through a wall whose corners are read somewhere else")
+      .toEqual(["stair.projection_disagrees"]);
+  });
+
+  /** The emitter's own flight paragraph for the moved stair, composed rather
+   *  than typed so a change to the sentence moves these cases with it. */
+  function flightParagraph() {
+    const doctored = clone(PLAN);
+    INTO_THE_LIBRARY(doctored);
+    const meta = deriveMeta(doctored, "library", "E");
+    const text = flightLines({
+      flights: flightsForFacing(doctored, "library", "E", meta), meta
+    }).join("\n") + "\n";
+    expect(text, "the emitter says nothing about the flight these cases moved")
+      .toMatch(/^Stairs: /);
+    return text;
+  }
+
   test("a wall whose ask named the flight trips neither of them", () => {
     /* [Row 39] THE DISCRIMINATION THE TWO ARMS ABOVE STAND ON. Without it both
        would be green on a tool that simply refuses every flight-bearing wall,
        which is what the tool did before this row and is the state the clause
        was written for. That the meta it then writes actually CARRIES the
-       flight is `plan.spec`'s arm, which keeps its tree to look at it.
-
-       The plan is doctored the same way; the ask gains the emitter's own
-       flight paragraph, composed here by the emitter rather than typed, so
-       that a change to the sentence moves this case with it. */
-    const doctored = clone(PLAN);
-    INTO_THE_LIBRARY(doctored);
-    const meta = deriveMeta(doctored, "library", "E");
-    const paragraph = flightLines({
-      flights: flightsForFacing(doctored, "library", "E", meta), meta
-    }).join("\n");
-    expect(paragraph, "the emitter says nothing about the flight this case moved")
-      .toMatch(/^Stairs: /);
-    expect(promoteTokens("library/E", () => {}, INTO_THE_LIBRARY, [], paragraph + "\n"),
+       flight is `plan.spec`'s arm, which keeps its tree to look at it. */
+    expect(promoteTokens("library/E", () => {}, INTO_THE_LIBRARY, [], flightParagraph()),
       "a flight-bearing wall whose ask named the staircase is promotable")
       .toEqual([]);
   });

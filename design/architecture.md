@@ -3737,11 +3737,39 @@ included), so a page built from a promoted stair wall and a page built from the 
 hold the same kind of thing.
 
 **How true it is, per route.** On a DECLARED-camera wall (row 32's tolerance route) and on a SNAPPED
-one (`--round row35snap`, where the frame has been rectified *onto* the declared camera) the meta's
-geometry IS the camera the page derives with, so the projection is exact by construction: the flight
-lands where the same arithmetic put the scaffold box the painter was given. On a measured-camera wall
-it carries that reading's residual and nothing more — the residual every other number on the meta
-carries, gated at ±8 %.
+one (`--round row35snap`) the meta's HORIZON, scale and eye are the drawing's own, so that half of
+the projection is exact by construction. What is never the drawing's on any route is the **u-domain**:
+`xAtScale` maps `u` across the wall through the meta's own CORNERS, and a promoted meta's corners are
+what somebody measured off this painting. That is the right space for everything else on the wall —
+the doors, the staging, the grid all live in it — and it is where the flight met its first real
+defect, below.
+
+#### The wall's corners are what put a flight in the wrong place
+
+**Found by rendering the attachment over its own painting and looking.** `great_stair_hall/W`'s
+corner detector read the staircase's own stringer against the wainscot as the wall's right-hand
+return and returned 219..944 px — a wall centre 186 px left of the frame's, on a wall the picture
+centres. The flight projected through those corners runs up the **window** instead of the stair, 1.39
+m from where the ask put it. Nothing else on that wall notices: a painted door is measured off the
+picture (row 27) and is immune, and the grid and the staging are drawn in the same displaced domain
+and so agree with each other. **A stair standing against a wainscot is exactly what a recession
+detector is built to find**, so this is a fair mistake and it is a fact about flight-bearing walls
+rather than about this one painting.
+
+**The clause, and it carries no number anybody chose** (`row39:stair.projection_disagrees`): a flight
+is carried only where **the two readings of the wall agree about more of the staircase than they
+dispute** — the meta's own projection and the drawing's, rasterised on the frame, agreed part at
+least as large as the disputed part. (That is `intersection / union ≥ ½` written out: the definition
+of *as much as*, not a tuned bound.) A displacement in metres would need a bound, and the weaker
+"does the middle of one land inside the other" is not one — on `great_stair_hall/W` both centroids
+*do* land inside, because two long triangles crossing at a shallow angle contain each other's middles
+while their treads run up two different parts of the picture. Area is what a player's aim meets. It
+is measured over the part **on the frame**, because a run climbing out of the picture diverges
+without bound at depth and that tail is not what anybody clicks.
+
+On the corpus: `great_stair_hall/W` agrees about 41 % and is refused; `stair_landing/N` agrees about
+61 %, 0.33 m apart, and is carried. **The fix for the refused wall is a re-read of its corners, not a
+repaint**, and the refusal says so.
 
 #### The permission is the ASK, and that is a measured decision
 
@@ -3821,19 +3849,21 @@ turns it red, verified by doing it. The ledger's *one token, one emit site, one 
 the completeness scan counting emit sites, and reusing the row-32 token for a second assertion is
 exactly what it catches.
 
-**The three ledger arms** live with the promotion's others in `guards.spec.mjs`, on one shared
+**The four ledger arms** live with the promotion's others in `guards.spec.mjs`, on one shared
 construction — the great stair moved into the library in front of `library/E`'s own standpoint, so
 the door clauses stay silent and the only new thing that wall does is hold a flight. The ask is then
 the only thing that moves: the real prompt trips `stair.painted_flight_lost`, no prompt at all trips
 `stair.ask_unreadable`, and the emitter's own flight paragraph — composed by `flightLines` in the
-case rather than typed into it — trips neither.
+case rather than typed into it — trips neither. The fourth slides the reading's corner span
+sideways, keeping its width so the corner clauses stay silent, and trips
+`stair.projection_disagrees`.
 
 **Where it left the corpus** (2026-08-24, the same instrument and no band moved):
 
 | wall | camera | outcome |
 |---|---|---|
-| `great_stair_hall/W` | PASS, `unfitted-horizon` → declared | **promoted**, `great_stair` attached, exact by construction |
-| `stair_landing/N` | PASS, clean → measured | **promoted**, `great_stair` attached at its own reading |
+| `stair_landing/N` | PASS, clean → measured | **promoted**, `great_stair` attached; 61 % agreed, 0.33 m apart |
+| `great_stair_hall/W` | PASS, `unfitted-horizon` → declared | refused on `stair.projection_disagrees`: 41 % agreed, 1.39 m apart, its corners read 219..944 |
 | `back_stair/W` | FAIL −11.7 % | refused on the LENS band (904.1 px against 942.1–1105.9) |
 | `back_stair_head/S` | FAIL −17.9 % | refused on the lens band (841.3 px) |
 | `back_stair_head/W` | FAIL −15.9 % | refused on the lens band (861.1 px) |
@@ -3841,7 +3871,10 @@ case rather than typed into it — trips neither.
 | `back_stair/E`, `back_stair/S`, `back_stair_head/E`, `stair_landing/S` | — | refused as re-asks: their rolls were asked for before the flight language |
 
 The four lens refusals are **camera misses, not flight ones** — the flight clause no longer stands
-between them and the store, and what does is the scale their painter drew at.
+between them and the store, and what does is the scale their painter drew at. `great_stair_hall/W`'s
+is a third thing again, and the one worth acting on: **the manor's corner detector is unreliable on a
+flight-bearing wall**, which no gate in this project had a way to see before a flight was projected
+through one.
 
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 

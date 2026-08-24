@@ -318,6 +318,27 @@ function round(v, n) {
 }
 
 /**
+ * WHERE A DRAWN BODY STANDS ON THE FRAME, as one point — the centroid of the
+ * pixels of a mask, which is *the place a player aims at*.
+ *
+ * Off the RASTER and never off the polygon vertices, and the difference is not
+ * pedantry: a flight climbing out of the picture has most of its vertices
+ * beyond the frame, where two projections of one staircase diverge without
+ * bound at depth, and a vertex centroid is dominated by the tail nobody can
+ * click. The mask is already clipped to the frame, so this is the middle of
+ * what is actually shown.
+ */
+export function maskCentroid(mask, w) {
+  let n = 0, sx = 0, sy = 0;
+  for (let i = 0; i < mask.length; i++) {
+    if (!mask[i]) continue;
+    const x = i % w;
+    sx += x; sy += (i - x) / w; n++;
+  }
+  return n ? { x: sx / n, y: sy / n, n } : null;
+}
+
+/**
  * THE ASK THIS CANDIDATE WAS PAINTED FROM, resolved.
  *
  * Every candidate is written with its own prompt beside it — that is what
