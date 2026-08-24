@@ -35,7 +35,7 @@ import {
   carryableOutdoors, REDACTED_CORRECTION,
   MATERIALS, MATERIAL_BINDING, SLOT_DEMAND_PPM, SWATCH_W_PX,
   materialKeysOf, materialOf, assertMaterialsComplete, emitMaterials,
-  scaleContract, swatchCount
+  scaleContract, swatchCount, canonicalMaterial, aliasTable
 } from "../../tools/room-voices.mjs";
 import { manorPrompt, scaffoldRects, chairRail, assertLabelChars } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
@@ -421,7 +421,8 @@ test.describe("row 36 — material types for the texture library", () => {
   test("every material-bearing key on every voice resolves, and the keys are found by walking the object", () => {
     expect(() => assertMaterialsComplete(VOICES)).not.toThrow();
     const stats = assertMaterialsComplete(VOICES);
-    expect(stats.reached, "every declared material is reached by some voice").toBe(stats.materials);
+    expect(stats.declared, "every declared material -- alias or texture -- is named by some voice")
+      .toBe(stats.stored + stats.aliases);
 
     /* THE KEYS ARE DERIVED, NOT LISTED. Walking the objects must find strictly
        more than the three-slot census did, and the difference is exactly the
@@ -459,10 +460,17 @@ test.describe("row 36 — material types for the texture library", () => {
     const b = materialOf("long_gallery", "walls").id;
     expect(a, "two different fabrics keep two different ids").not.toBe(b);
 
-    /* And they do not share a lane by accident either: the passage has no
-       promoted facing to harvest from, so it is the one wall swatch. */
-    expect(materialOf("cross_passage", "walls").lane).toBe("swatch");
-    expect(materialOf("long_gallery", "walls").lane).toBe("harvest");
+    /* AND THE RULED MERGE DISAGREES WITH THE AUTOMATIC ONE, which is the whole
+       argument for authoring ids. A truncating slug would have merged the
+       passage into the GALLERY, because the gallery's string is the passage's
+       plus a cornice clause -- handing a working corridor a moulded cornice it
+       has no business carrying. The alias that was actually ruled sends it to
+       `great_stair`'s cornice-less wainscot instead. Same two words of
+       difference; opposite answers. */
+    expect(canonicalMaterial("wall/plain-oak-wainscot-limewash"))
+      .toBe("wall/oak-wainscot-limewash");
+    expect(canonicalMaterial("wall/plain-oak-wainscot-limewash"))
+      .not.toBe(canonicalMaterial("wall/oak-wainscot-limewash-cornice"));
   });
 
   test("`blank` names the same material as `walls` — 47 strings are 33 materials", () => {
@@ -473,7 +481,7 @@ test.describe("row 36 — material types for the texture library", () => {
         .toBe(materialOf(vid, "walls").id);
     }
     const stats = assertMaterialsComplete(VOICES);
-    expect(stats.base, "33 base materials cover the whole manor").toBe(33);
+    expect(stats.base, "23 base textures cover the whole manor after the alias ruling").toBe(23);
   });
 
   test("the lane split is the measurement's, not a preference: walls harvest, floors and ceilings are asked", () => {
@@ -484,8 +492,62 @@ test.describe("row 36 — material types for the texture library", () => {
     }
     const walls = Object.entries(MATERIALS).filter(([, m]) => m.slot === "walls");
     expect(walls.filter(([, m]) => m.lane === "harvest").length).toBeGreaterThan(0);
-    const swatches = Object.values(MATERIALS).filter((m) => m.lane === "swatch").length;
-    expect(swatches, "the plan's arithmetic: 21 swatch asks for the whole building").toBe(21);
+    const stats = assertMaterialsComplete(VOICES);
+    expect(stats.swatch, "after the alias ruling: 12 swatch asks for the whole building").toBe(12);
+    expect(stats.harvest, "and 14 textures harvested from promoted walls").toBe(14);
+  });
+
+  test("an alias points at a stored texture, never at another alias", () => {
+    /* A chain is a merge nobody reviewed: two hops means the texture a voice
+       ends up with is not the one the ruling named. */
+    for (const [id, m] of Object.entries(MATERIALS)) {
+      if (!m.same_as) continue;
+      expect(MATERIALS[m.same_as], `${id} aliases a material that exists`).toBeTruthy();
+      expect(MATERIALS[m.same_as].same_as, `${id} -> ${m.same_as} is one hop`).toBeUndefined();
+      expect(m.alias_reason, `${id} records WHY it was merged`).toBeTruthy();
+      expect(MATERIALS[m.same_as].slot, `${id} merges within its own slot`).toBe(m.slot);
+    }
+    expect(aliasTable().length, "ten merges under the Captain's alias ruling").toBe(10);
+    for (const row of aliasTable()) expect(row.reason.length).toBeGreaterThan(20);
+  });
+
+  test("the alias ruling kept materials apart wherever the MATERIAL differs", () => {
+    /* The ruling merges a synonym or a non-material adjective and keeps a
+       different material. These are the pairs a careless merge would have
+       eaten, and each is a distinct texture on purpose. */
+    const distinct = [
+      ["ceiling/lime-plaster-ribs", "ceiling/plain-lime-plaster", "moulded ribs are geometry, not an adjective"],
+      ["ceiling/parchment-plaster", "ceiling/plain-lime-plaster", "an aged parchment tone is the tile's own colour"],
+      ["ceiling/smoke-darkened-joists", "ceiling/plain-exposed-joists", "soot is a finish, and a service ceiling reads darker"],
+      ["floor/square-stone-paviours", "floor/worn-stone-flags", "square paviours are a different LAYING PATTERN"],
+      ["floor/red-brick-on-edge", "floor/worn-stone-flags", "brick is not stone"],
+      ["floor/wide-oak-boards", "floor/broad-oak-treads-boards", "treads are a stair surface, not a floor"],
+      ["wall/oak-wainscot-limewash-cornice", "wall/oak-wainscot-limewash", "a moulded cornice is geometry"],
+      ["wall/light-oak-wainscot-limewash", "wall/oak-wainscot-limewash", "light-toned oak is a different tone of the material"],
+      ["wall/boarded-oak-dado-limewash", "wall/oak-wainscot-limewash", "a boarded dado is not wainscot"],
+      ["wall/hangings-tapestry", "wall/hangings-red-worsted", "tapestry is not worsted"],
+      ["wall/garden-brick-english-bond", "wall/low-boundary-wall", "brick is not coursed stone"]
+    ];
+    for (const [a, b, why] of distinct) {
+      expect(canonicalMaterial(a), `${a} vs ${b}: ${why}`).not.toBe(canonicalMaterial(b));
+    }
+  });
+
+  test("aliasing the cross passage turned the library's last wall SWATCH into a harvest", () => {
+    /* The consequence worth naming: cross_passage has no promoted facing
+       anywhere in the manor, so its fabric was an ask. great_stair's wainscot
+       is the same material and IS promoted, so the merge pays for it. */
+    const m = materialOf("cross_passage", "walls");
+    expect(m.aliased, "the passage's wainscot is named by an alias").toBe(true);
+    expect(m.named_as).toBe("wall/plain-oak-wainscot-limewash");
+    expect(m.id).toBe("wall/oak-wainscot-limewash");
+    expect(m.lane, "and it is now harvested rather than asked for").toBe("harvest");
+
+    const stats = assertMaterialsComplete(VOICES);
+    const wallSwatches = Object.entries(MATERIALS)
+      .filter(([id, x]) => !x.same_as && x.slot === "walls" && x.lane === "swatch");
+    expect(wallSwatches.length, "no wall fabric is asked for any more").toBe(0);
+    expect(stats.swatch, "every remaining swatch is a floor or a ceiling").toBe(12);
   });
 
   test("every material carries a derivable scale, and the ask's own arithmetic clears its slot's demand", () => {

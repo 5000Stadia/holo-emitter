@@ -791,6 +791,9 @@ export const MATERIALS = {
               scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
   },
   "wall/plain-oak-wainscot-limewash": {
+    same_as: "wall/oak-wainscot-limewash",
+    alias_reason:
+      "differ only by \"plain\" and \"to chair height\" -- both are oak wainscot below limewashed plaster. THE CONSEQUENCE IS THE POINT: cross_passage had no promoted facing and was the library's only wall swatch; great_stair has one, so this alias turns an ask into a harvest.",
     slot: "walls", lane: "swatch",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
@@ -808,6 +811,9 @@ export const MATERIALS = {
               scale_kind: "periodic", pitch_m: 0.25, feature: "square-edged dado board" }
   },
   "wall/rough-limewash-over-stone": {
+    same_as: "wall/plain-limewash-to-floor",
+    alias_reason:
+      "\"rough ... over stone\" and \"plain\" are finish adjectives over the same material: limewashed plaster carried straight to the floor with no joinery.",
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.05,
@@ -871,6 +877,9 @@ export const MATERIALS = {
               scale_kind: "featureless" }
   },
   "ceiling/flat-lime-plaster": {
+    same_as: "ceiling/plain-lime-plaster",
+    alias_reason:
+      "plain and flat are synonyms here; the material is lime plaster either way.",
     slot: "ceiling", lane: "swatch",
     tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
               scale_kind: "featureless" }
@@ -881,6 +890,9 @@ export const MATERIALS = {
               scale_kind: "featureless" }
   },
   "ceiling/boarded-oak-joists": {
+    same_as: "ceiling/plain-exposed-joists",
+    alias_reason:
+      "the same ceiling said twice -- plain oak boards on exposed joists.",
     slot: "ceiling", lane: "swatch",
     tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
@@ -896,6 +908,9 @@ export const MATERIALS = {
               scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
   },
   "ceiling/plain-plastered-soffit": {
+    same_as: "ceiling/plain-lime-plaster",
+    alias_reason:
+      "a soffit is where the plaster is, not what it is; plain plaster and plain lime plaster are one material in this period.",
     slot: "ceiling", lane: "swatch",
     tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
               scale_kind: "featureless" }
@@ -903,6 +918,9 @@ export const MATERIALS = {
 
   /* ---- floors: all swatch (0 of 51 facings clear the demand, §1.2) ---- */
   "floor/broad-stone-flags": {
+    same_as: "floor/worn-stone-flags",
+    alias_reason:
+      "broad/large/worn are size adjectives on one material. NO voice's period justification names a different stone or a different laying pattern -- checked, all three say worn stone flags.",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.70,
@@ -914,11 +932,17 @@ export const MATERIALS = {
               scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
   },
   "floor/wide-worn-oak-boards": {
+    same_as: "floor/wide-oak-boards",
+    alias_reason:
+      "worn is a finish adjective on wide oak floorboards.",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
   },
   "floor/gallery-long-oak-boards": {
+    same_as: "floor/wide-oak-boards",
+    alias_reason:
+      "\"running the length of the gallery\" is a LAYING DIRECTION, and direction is already carried by grain_axis room_long, which all three share -- so it is not a second material.",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" },
@@ -942,6 +966,9 @@ export const MATERIALS = {
               scale_kind: "periodic", pitch_m: 0.25, feature: "board" }
   },
   "floor/scrubbed-oak-treads-boards": {
+    same_as: "floor/broad-oak-treads-boards",
+    alias_reason:
+      "broad and plain scrubbed are finish adjectives on oak treads and boards. Kept separate from the floorboards: treads name a stair surface.",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.25, feature: "board" },
@@ -950,6 +977,9 @@ export const MATERIALS = {
           "because stair rooms are not assembly customers (36-plan.md §2.6)"
   },
   "floor/large-worn-stone-flags": {
+    same_as: "floor/worn-stone-flags",
+    alias_reason:
+      "as above: a size adjective, not a different stone.",
     slot: "floor", lane: "swatch",
     tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.80,
@@ -1051,6 +1081,34 @@ export function materialKeysOf(voice) {
  *  string-valued key that looks like a surface and is not bound. */
 export const MATERIAL_KEYS = new Set(["walls", "blank", "walls_with_openings", "ceiling", "floor"]);
 
+/** Follow `same_as` to the texture that is actually stored. One hop is all the
+ *  table declares and a chain is refused: an alias of an alias is a merge
+ *  nobody reviewed. */
+export function canonicalMaterial(id) {
+  const m = MATERIALS[id];
+  if (!m) throw new Error(`room-voices: unknown material \`${id}\``);
+  if (!m.same_as) return id;
+  const next = MATERIALS[m.same_as];
+  if (!next) throw new Error(`room-voices: \`${id}\` aliases unknown \`${m.same_as}\``);
+  if (next.same_as) {
+    throw new Error(
+      `room-voices: \`${id}\` -> \`${m.same_as}\` -> \`${next.same_as}\` is a chain of ` +
+      `aliases. Point every alias at the texture that is stored, so a reader ` +
+      `sees one merge and not a path.`);
+  }
+  return m.same_as;
+}
+
+/** Every alias, with the reason it was ruled -- the table that goes to Kabe. */
+export function aliasTable() {
+  const rows = [];
+  for (const [id, m] of Object.entries(MATERIALS)) {
+    if (!m.same_as) continue;
+    rows.push({ from: id, to: m.same_as, slot: m.slot, reason: m.alias_reason });
+  }
+  return rows.sort((a, b) => (a.slot + a.from).localeCompare(b.slot + b.from));
+}
+
 /** The material a voice's key names. Refuses rather than guessing. */
 export function materialOf(voiceId, key) {
   const bound = MATERIAL_BINDING[voiceId];
@@ -1064,7 +1122,13 @@ export function materialOf(voiceId, key) {
   }
   const mat = MATERIALS[id];
   if (!mat) throw new Error(`room-voices: \`${voiceId}.${key}\` names unknown material \`${id}\``);
-  return { id, ...mat, scale_contract: scaleContract(mat.slot, mat.tiling) };
+  /* `named_as` is what the voice said; `id` is the texture that is stored. They
+     differ exactly where an alias was ruled, and both travel so a reader can
+     see which merge produced a tile. */
+  const canon = canonicalMaterial(id);
+  const stored = MATERIALS[canon];
+  return { id: canon, named_as: id, aliased: canon !== id,
+           ...stored, scale_contract: scaleContract(stored.slot, stored.tiling) };
 }
 
 /** Completeness and bijection, asserted over the voices that exist.
@@ -1078,46 +1142,65 @@ export function materialOf(voiceId, key) {
  *  silently -- and would "solve" the passage's swatch by handing it the
  *  gallery's cornice. */
 export function assertMaterialsComplete(voices) {
-  const seenIds = new Set();
-  const stringOf = new Map();
+  const namedIds = new Set();       // what voices SAY, aliases included
+  const storedIds = new Set();      // what is actually kept as a texture
+  const perVoice = new Map();       // `${storedId}|${voiceId}` -> Set(strings)
   for (const [vid, voice] of Object.entries(voices)) {
     for (const key of materialKeysOf(voice)) {
       const m = materialOf(vid, key);
-      seenIds.add(m.id);
+      namedIds.add(m.named_as);
+      storedIds.add(m.id);
       const str = key.startsWith("hangings.")
         ? voice.hangings[key.slice("hangings.".length)]
         : voice[key];
-      const prev = stringOf.get(m.id);
-      if (prev === undefined) stringOf.set(m.id, new Set([str]));
-      else prev.add(str);
+      const k = `${m.id}|${vid}`;
+      if (!perVoice.has(k)) perVoice.set(k, new Set());
+      perVoice.get(k).add(str);
     }
   }
-  const unreachable = Object.keys(MATERIALS).filter((id) => !seenIds.has(id));
+  const unreachable = Object.keys(MATERIALS).filter((id) => !namedIds.has(id));
   if (unreachable.length) {
     throw new Error(
       `room-voices: ${unreachable.length} material(s) no voice reaches: ` +
       `${unreachable.join(", ")}. A texture nothing asks for is a texture ` +
       `nobody will notice going stale.`);
   }
-  for (const [id, strs] of stringOf) {
+  /* ONE VOICE may name a wall material at most twice -- its `walls` prose and
+     its `blank` phrasing. Counting per (material, voice) rather than per
+     material is what lets an ALIAS merge several voices onto one texture while
+     still catching a single voice whose two keys have drifted into two
+     different fabrics. */
+  for (const [k, strs] of perVoice) {
+    const [id, vid] = k.split("|");
     const mat = MATERIALS[id];
     if (mat.slot === "walls" && strs.size > 2 && !mat.variant_of) {
       throw new Error(
-        `room-voices: material \`${id}\` is named by ${strs.size} different ` +
-        `strings. A wall material carries at most its \`walls\` prose and its ` +
+        `room-voices: voice \`${vid}\` names material \`${id}\` with ${strs.size} ` +
+        `different strings. A voice carries at most its \`walls\` prose and its ` +
         `\`blank\` phrasing; more than that is two materials wearing one id.`);
     }
   }
-  return { materials: Object.keys(MATERIALS).length, reached: seenIds.size,
-           base: Object.keys(MATERIALS).filter((id) => !MATERIALS[id].variant_of).length };
+  const stored = [...storedIds];
+  return {
+    declared: Object.keys(MATERIALS).length,
+    aliases: Object.values(MATERIALS).filter((m) => m.same_as).length,
+    stored: stored.length,
+    base: stored.filter((id) => !MATERIALS[id].variant_of).length,
+    harvest: stored.filter((id) => MATERIALS[id].lane === "harvest").length,
+    swatch: stored.filter((id) => MATERIALS[id].lane === "swatch").length
+  };
 }
 
 /** The payload the Python assembler reads. One home in JS, crossed as data --
  *  the way `MEASURED_BAND` already crosses into `row23_lib`. */
 export function emitMaterials(voices) {
   const stats = assertMaterialsComplete(voices);
+  /* Only STORED textures are emitted: an alias is a naming fact, not an asset,
+     and the assembler must never be handed a tile id that nothing keeps. The
+     aliases travel beside them as their own table so the merge is auditable. */
   const materials = {};
   for (const [id, m] of Object.entries(MATERIALS)) {
+    if (m.same_as) continue;
     materials[id] = { id, ...m, scale_contract: scaleContract(m.slot, m.tiling) };
   }
   const bindings = {};
@@ -1134,6 +1217,7 @@ export function emitMaterials(voices) {
     slot_demand_ppm: SLOT_DEMAND_PPM,
     swatch_w_px: SWATCH_W_PX,
     counts: stats,
+    aliases: aliasTable(),
     materials,
     bindings
   };
@@ -1157,11 +1241,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const out = join(root, "backdrops", "textures", "materials.json");
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, JSON.stringify(doc, null, 2) + "\n");
-    const swatch = Object.values(doc.materials).filter((m) => m.lane === "swatch").length;
-    const harvest = Object.values(doc.materials).filter((m) => m.lane === "harvest").length;
+    const c = doc.counts;
     process.stdout.write(
-      `materials: ${doc.counts.base} base (${doc.counts.materials} with variants)\n` +
-      `  harvest ${harvest}   swatch ${swatch}\n` +
+      `materials: ${c.declared} declared, ${c.aliases} aliased away, ` +
+      `${c.stored} stored (${c.base} base + ${c.stored - c.base} variants)\n` +
+      `  harvest ${c.harvest}   swatch ${c.swatch}\n` +
+      `aliases ruled (${doc.aliases.length}):\n` +
+      doc.aliases.map((a) => `  ${a.from}\n    -> ${a.to}\n`).join("") +
       `wrote ${out}\n`);
   } else {
     process.stdout.write("usage: node tools/room-voices.mjs --emit-materials\n");

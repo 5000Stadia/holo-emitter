@@ -7,10 +7,75 @@
   },
   "swatch_w_px": 1536,
   "counts": {
-    "materials": 36,
-    "reached": 36,
-    "base": 33
+    "declared": 36,
+    "aliases": 10,
+    "stored": 26,
+    "base": 23,
+    "harvest": 14,
+    "swatch": 12
   },
+  "aliases": [
+    {
+      "from": "ceiling/boarded-oak-joists",
+      "to": "ceiling/plain-exposed-joists",
+      "slot": "ceiling",
+      "reason": "the same ceiling said twice -- plain oak boards on exposed joists."
+    },
+    {
+      "from": "ceiling/flat-lime-plaster",
+      "to": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "reason": "plain and flat are synonyms here; the material is lime plaster either way."
+    },
+    {
+      "from": "ceiling/plain-plastered-soffit",
+      "to": "ceiling/plain-lime-plaster",
+      "slot": "ceiling",
+      "reason": "a soffit is where the plaster is, not what it is; plain plaster and plain lime plaster are one material in this period."
+    },
+    {
+      "from": "floor/broad-stone-flags",
+      "to": "floor/worn-stone-flags",
+      "slot": "floor",
+      "reason": "broad/large/worn are size adjectives on one material. NO voice's period justification names a different stone or a different laying pattern -- checked, all three say worn stone flags."
+    },
+    {
+      "from": "floor/gallery-long-oak-boards",
+      "to": "floor/wide-oak-boards",
+      "slot": "floor",
+      "reason": "\"running the length of the gallery\" is a LAYING DIRECTION, and direction is already carried by grain_axis room_long, which all three share -- so it is not a second material."
+    },
+    {
+      "from": "floor/large-worn-stone-flags",
+      "to": "floor/worn-stone-flags",
+      "slot": "floor",
+      "reason": "as above: a size adjective, not a different stone."
+    },
+    {
+      "from": "floor/scrubbed-oak-treads-boards",
+      "to": "floor/broad-oak-treads-boards",
+      "slot": "floor",
+      "reason": "broad and plain scrubbed are finish adjectives on oak treads and boards. Kept separate from the floorboards: treads name a stair surface."
+    },
+    {
+      "from": "floor/wide-worn-oak-boards",
+      "to": "floor/wide-oak-boards",
+      "slot": "floor",
+      "reason": "worn is a finish adjective on wide oak floorboards."
+    },
+    {
+      "from": "wall/plain-oak-wainscot-limewash",
+      "to": "wall/oak-wainscot-limewash",
+      "slot": "walls",
+      "reason": "differ only by \"plain\" and \"to chair height\" -- both are oak wainscot below limewashed plaster. THE CONSEQUENCE IS THE POINT: cross_passage had no promoted facing and was the library's only wall swatch; great_stair has one, so this alias turns an ask into a harvest."
+    },
+    {
+      "from": "wall/rough-limewash-over-stone",
+      "to": "wall/plain-limewash-to-floor",
+      "slot": "walls",
+      "reason": "\"rough ... over stone\" and \"plain\" are finish adjectives over the same material: limewashed plaster carried straight to the floor with no joinery."
+    }
+  ],
   "materials": {
     "wall/oak-fielded-bays-frieze": {
       "id": "wall/oak-fielded-bays-frieze",
@@ -118,28 +183,6 @@
         "ppm": 480
       }
     },
-    "wall/plain-oak-wainscot-limewash": {
-      "id": "wall/plain-oak-wainscot-limewash",
-      "slot": "walls",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": "v",
-        "grain_frame": "surface",
-        "mirror": "across",
-        "scale_kind": "periodic",
-        "pitch_m": 0.8,
-        "feature": "wainscot bay"
-      },
-      "note": "SWATCH because `cross_passage` has no promoted facing anywhere in the manor -- `hall` is unpainted -- so there is nothing to harvest from",
-      "scale_contract": {
-        "kind": "periodic",
-        "feature": "wainscot bay",
-        "pitch_m": 0.8,
-        "count": 4,
-        "span_m": 3.2,
-        "ppm": 480
-      }
-    },
     "wall/oak-wainscot-limewash": {
       "id": "wall/oak-wainscot-limewash",
       "slot": "walls",
@@ -180,26 +223,6 @@
         "count": 12,
         "span_m": 3,
         "ppm": 512
-      }
-    },
-    "wall/rough-limewash-over-stone": {
-      "id": "wall/rough-limewash-over-stone",
-      "slot": "walls",
-      "lane": "harvest",
-      "tiling": {
-        "grain_axis": null,
-        "grain_frame": "surface",
-        "mirror": "both",
-        "scale_kind": "stochastic",
-        "characteristic_m": 0.05,
-        "feature": "the trowelled undulation of limewash over rubble"
-      },
-      "scale_contract": {
-        "kind": "stochastic",
-        "feature": "the trowelled undulation of limewash over rubble",
-        "characteristic_m": 0.05,
-        "span_m": 3.2269,
-        "ppm": 476
       }
     },
     "wall/plain-limewash-to-floor": {
@@ -388,24 +411,6 @@
         "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
       }
     },
-    "ceiling/flat-lime-plaster": {
-      "id": "ceiling/flat-lime-plaster",
-      "slot": "ceiling",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": null,
-        "grain_frame": "plan",
-        "mirror": "both",
-        "scale_kind": "featureless"
-      },
-      "scale_contract": {
-        "kind": "featureless",
-        "feature": null,
-        "span_m": 4.7262,
-        "ppm": 325,
-        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
-      }
-    },
     "ceiling/plain-lime-plaster": {
       "id": "ceiling/plain-lime-plaster",
       "slot": "ceiling",
@@ -422,27 +427,6 @@
         "span_m": 4.7262,
         "ppm": 325,
         "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
-      }
-    },
-    "ceiling/boarded-oak-joists": {
-      "id": "ceiling/boarded-oak-joists",
-      "slot": "ceiling",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": "room_short",
-        "grain_frame": "plan",
-        "mirror": "across",
-        "scale_kind": "periodic",
-        "pitch_m": 0.9,
-        "feature": "exposed joist"
-      },
-      "scale_contract": {
-        "kind": "periodic",
-        "feature": "exposed joist",
-        "pitch_m": 0.9,
-        "count": 5,
-        "span_m": 4.5,
-        "ppm": 341.33
       }
     },
     "ceiling/smoke-darkened-joists": {
@@ -487,44 +471,6 @@
         "ppm": 341.33
       }
     },
-    "ceiling/plain-plastered-soffit": {
-      "id": "ceiling/plain-plastered-soffit",
-      "slot": "ceiling",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": null,
-        "grain_frame": "plan",
-        "mirror": "both",
-        "scale_kind": "featureless"
-      },
-      "scale_contract": {
-        "kind": "featureless",
-        "feature": null,
-        "span_m": 4.7262,
-        "ppm": 325,
-        "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
-      }
-    },
-    "floor/broad-stone-flags": {
-      "id": "floor/broad-stone-flags",
-      "slot": "floor",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": null,
-        "grain_frame": "plan",
-        "mirror": "both",
-        "scale_kind": "stochastic",
-        "characteristic_m": 0.7,
-        "feature": "the spread of a broad worn flag"
-      },
-      "scale_contract": {
-        "kind": "stochastic",
-        "feature": "the spread of a broad worn flag",
-        "characteristic_m": 0.7,
-        "span_m": 3.6835,
-        "ppm": 417
-      }
-    },
     "floor/wide-oak-boards": {
       "id": "floor/wide-oak-boards",
       "slot": "floor",
@@ -537,49 +483,6 @@
         "pitch_m": 0.25,
         "feature": "floorboard"
       },
-      "scale_contract": {
-        "kind": "periodic",
-        "feature": "floorboard",
-        "pitch_m": 0.25,
-        "count": 14,
-        "span_m": 3.5,
-        "ppm": 438.86
-      }
-    },
-    "floor/wide-worn-oak-boards": {
-      "id": "floor/wide-worn-oak-boards",
-      "slot": "floor",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": "room_long",
-        "grain_frame": "plan",
-        "mirror": "across",
-        "scale_kind": "periodic",
-        "pitch_m": 0.25,
-        "feature": "floorboard"
-      },
-      "scale_contract": {
-        "kind": "periodic",
-        "feature": "floorboard",
-        "pitch_m": 0.25,
-        "count": 14,
-        "span_m": 3.5,
-        "ppm": 438.86
-      }
-    },
-    "floor/gallery-long-oak-boards": {
-      "id": "floor/gallery-long-oak-boards",
-      "slot": "floor",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": "room_long",
-        "grain_frame": "plan",
-        "mirror": "across",
-        "scale_kind": "periodic",
-        "pitch_m": 0.25,
-        "feature": "floorboard"
-      },
-      "note": "the gallery's voice says the boards run its LENGTH, which is what `room_long` means and why grain is a plan fact and not a facing one",
       "scale_contract": {
         "kind": "periodic",
         "feature": "floorboard",
@@ -651,48 +554,6 @@
         "ppm": 438.86
       }
     },
-    "floor/scrubbed-oak-treads-boards": {
-      "id": "floor/scrubbed-oak-treads-boards",
-      "slot": "floor",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": "room_long",
-        "grain_frame": "plan",
-        "mirror": "across",
-        "scale_kind": "periodic",
-        "pitch_m": 0.25,
-        "feature": "board"
-      },
-      "note": "NAMES TWO GEOMETRIES IN ONE STRING -- stair treads and floor boards are not the same surface. Recorded rather than split, because stair rooms are not assembly customers (36-plan.md §2.6)",
-      "scale_contract": {
-        "kind": "periodic",
-        "feature": "board",
-        "pitch_m": 0.25,
-        "count": 14,
-        "span_m": 3.5,
-        "ppm": 438.86
-      }
-    },
-    "floor/large-worn-stone-flags": {
-      "id": "floor/large-worn-stone-flags",
-      "slot": "floor",
-      "lane": "swatch",
-      "tiling": {
-        "grain_axis": null,
-        "grain_frame": "plan",
-        "mirror": "both",
-        "scale_kind": "stochastic",
-        "characteristic_m": 0.8,
-        "feature": "the spread of a large worn flag"
-      },
-      "scale_contract": {
-        "kind": "stochastic",
-        "feature": "the spread of a large worn flag",
-        "characteristic_m": 0.8,
-        "span_m": 3.6835,
-        "ppm": 417
-      }
-    },
     "floor/red-brick-on-edge": {
       "id": "floor/red-brick-on-edge",
       "slot": "floor",
@@ -759,7 +620,7 @@
     "hall_state": {
       "blank": "wall/oak-fielded-bays-frieze",
       "ceiling": "ceiling/lime-plaster-ribs",
-      "floor": "floor/broad-stone-flags",
+      "floor": "floor/worn-stone-flags",
       "walls": "wall/oak-fielded-bays-frieze"
     },
     "great_chamber": {
@@ -771,19 +632,19 @@
     "parlour_wainscot": {
       "blank": "wall/dark-oak-panelling",
       "ceiling": "ceiling/parchment-plaster",
-      "floor": "floor/wide-worn-oak-boards",
+      "floor": "floor/wide-oak-boards",
       "walls": "wall/dark-oak-panelling"
     },
     "parlour_armorial": {
       "blank": "wall/dark-oak-panelling",
       "ceiling": "ceiling/parchment-plaster",
-      "floor": "floor/wide-worn-oak-boards",
+      "floor": "floor/wide-oak-boards",
       "walls": "wall/dark-oak-panelling"
     },
     "long_gallery": {
       "blank": "wall/oak-wainscot-limewash-cornice",
-      "ceiling": "ceiling/flat-lime-plaster",
-      "floor": "floor/gallery-long-oak-boards",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
       "walls": "wall/oak-wainscot-limewash-cornice"
     },
     "bedchamber": {
@@ -802,10 +663,10 @@
       "walls": "wall/light-oak-wainscot-limewash"
     },
     "cross_passage": {
-      "blank": "wall/plain-oak-wainscot-limewash",
-      "ceiling": "ceiling/boarded-oak-joists",
+      "blank": "wall/oak-wainscot-limewash",
+      "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/worn-stone-flags",
-      "walls": "wall/plain-oak-wainscot-limewash"
+      "walls": "wall/oak-wainscot-limewash"
     },
     "great_stair": {
       "blank": "wall/oak-wainscot-limewash",
@@ -815,15 +676,15 @@
     },
     "back_stair": {
       "blank": "wall/boarded-oak-dado-limewash",
-      "ceiling": "ceiling/plain-plastered-soffit",
-      "floor": "floor/scrubbed-oak-treads-boards",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
       "walls": "wall/boarded-oak-dado-limewash"
     },
     "service": {
-      "blank": "wall/rough-limewash-over-stone",
+      "blank": "wall/plain-limewash-to-floor",
       "ceiling": "ceiling/smoke-darkened-joists",
-      "floor": "floor/large-worn-stone-flags",
-      "walls": "wall/rough-limewash-over-stone"
+      "floor": "floor/worn-stone-flags",
+      "walls": "wall/plain-limewash-to-floor"
     },
     "servants_hall": {
       "blank": "wall/plain-limewash-to-floor",
