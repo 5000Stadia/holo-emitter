@@ -291,6 +291,8 @@
     "storey_height_m": 2.4618,
     "implied_wall_width_m": 6.5325,
     "eye_height_m": 0.7947,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
     "hold_family": "unfitted-horizon",
     "withheld_because": [
       "the horizon this painting's side walls converge on (y 587.4 +/- 1.3 px) puts the eye at 0.795 m, outside 0.8-2.2 m by less than the reading's own error bar (0.007 m). That is not a painting disagreeing with its ruler; it is a reading that has not decided, and a WITHHELD is what a reading that has not decided issues."

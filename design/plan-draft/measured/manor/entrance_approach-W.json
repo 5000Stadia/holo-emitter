@@ -1,0 +1,161 @@
+{
+  "_source_sha256": "0496f61b7883771b1b14f0eba2d9cb52fa5add5edf47a0ac5e39121611fb433d",
+  "_what_this_is": "The manor production reading for entrance_approach/W, measured off backdrops/source/entrance_approach-W/row23-ec10aaae.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
+  "facing_type": "open",
+  "image_h_px": 1024,
+  "floor_line_y": 0.56543,
+  "horizon_y": 0.51377,
+  "px_per_m_at_wall": 43.158,
+  "px_per_m_at_bottom": 406.22,
+  "implied_focal_px": 1035.8,
+  "eye_height_m": 1.2257,
+  "storey_height_m": null,
+  "drawn_standpoint_m": 24,
+  "delta_focal_pct": 1.15,
+  "delta_eye_pct": 3.61,
+  "band_pct": 8.0,
+  "wall_width_m": null,
+  "camera_wall_m": null,
+  "camera_far_m": 24,
+  "corner_x0_px": null,
+  "corner_x1_px": null,
+  "key_tint": "#c8be8d",
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the low boundary wall's stone coping above the ground at the far line, taken at 0.95 m \u2014 tools/room-voices.mjs's `outdoors_open` voice rules the coping there on a forecourt wall of this date and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 41,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "coping",
+    "ruled_m": 0.95,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same coping reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "DECLARED, not fitted. An open frame's two ruled lines \u2014 the far-line ground row and the coping 0.95 m above it \u2014 fix the LENS and leave the eye and the horizon in one equation with two unknowns, so this row is the camera's own eye line and the picture's answer to it is the ground row, which the camera gate holds at the standing +/-8 %.",
+  "_horizon_votes": {
+    "per_region": {},
+    "adopted_y": 526.10048,
+    "adopted_instrument": "far-line-ruler",
+    "adopted_rule": "the far-line ruler's declared eye line - see _which_horizon",
+    "ceiling_ramp_intersection": null,
+    "far_line_ruler": {
+      "instrument": "far-line-ruler",
+      "y": 526.10048,
+      "ground_row_px": 579.0,
+      "coping_row_px": 538.0,
+      "coping_above_ground_px": 41.0,
+      "ruled_coping_m": 0.95,
+      "px_per_m_at_far_line": 43.158,
+      "eye_height_m": 1.2257,
+      "camera_far_m": 24,
+      "_which_horizon": "DECLARED, not fitted. An open frame's two ruled lines \u2014 the far-line ground row and the coping 0.95 m above it \u2014 fix the LENS and leave the eye and the horizon in one equation with two unknowns, so this row is the camera's own eye line and the picture's answer to it is the ground row, which the camera gate holds at the standing +/-8 %."
+    }
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 579,
+    "chair_rail_y_px": 538,
+    "dado_rail_above_floor_px": 41,
+    "capping_above_floor_px": null,
+    "wall_ceiling_line_y_px": null,
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "horizon_y_px": 526.10048,
+    "openings": [
+      {
+        "x0_px": 86,
+        "x1_px": 148,
+        "y0_px": 505,
+        "y1_px": 579,
+        "width_px": 62,
+        "width_m": 1.437,
+        "centre_px": 117.0,
+        "head_m": 1.715,
+        "void_luminance": 27.61,
+        "wall_luminance": 48.38,
+        "threshold": 35,
+        "threshold_span": [
+          34,
+          36
+        ],
+        "stability": 3
+      }
+    ]
+  },
+  "_windows": {
+    "floor": [
+      572,
+      580
+    ],
+    "rail": [
+      532,
+      539
+    ],
+    "ceiling": null,
+    "columns": [
+      [
+        0,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [],
+  "_light": {
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 970,
+    "key_dir_brightest_y": 204,
+    "key_tint": "#c8be8d",
+    "key_tint_patch": [
+      770,
+      1170,
+      468,
+      530
+    ],
+    "key_tint_patch_mean_rgb": [
+      63.76,
+      60.7,
+      45.02
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8a26c",
+      "floor_bottom_strip": "#c89e63",
+      "mid_wall_right": "#c8b176",
+      "mid_wall_left": "#c8b377",
+      "brightest_21x21_patch": "#c8c2bc"
+    },
+    "brightest_21x21_patch_centre_px": [
+      970,
+      204
+    ],
+    "sobel_bright_side_deg_whole_frame": 94.84,
+    "sobel_bright_side_deg_wall_band": 85.96,
+    "left_third_minus_right_third_luminance_whole_frame": -15.557,
+    "left_third_minus_right_third_luminance_wall_band": -2.351
+  },
+  "_derived": {
+    "eye_height_m": 1.2257,
+    "storey_height_m": null,
+    "implied_wall_width_m": null,
+    "px_per_m_at_bottom": 406.2165,
+    "implied_camera_wall_m": 23.7268
+  },
+  "_withheld_because": [],
+  "_hold_family": null,
+  "_round": "manor",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      506,
+      566
+    ],
+    "wall_band_px": [
+      0,
+      1536
+    ],
+    "wall_median_luminance": 48.38,
+    "min_enumerated_px": 17,
+    "min_head_m": 1.4,
+    "storey_m": 2.8,
+    "candidates_before_head_test": 2
+  }
+}

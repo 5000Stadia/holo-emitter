@@ -291,6 +291,8 @@
     "storey_height_m": 4.1763,
     "implied_wall_width_m": 3.3497,
     "eye_height_m": 4.0424,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
     "hold_family": "suspect-painting",
     "withheld_because": [
       "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 60.7, fixed to +/-2.0 px, inside the +/-16.2 px the standing licence allows the horizon row) puts the eye at 4.042 m above its own floor line at the scale its own gate anchor declares (162.1 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."

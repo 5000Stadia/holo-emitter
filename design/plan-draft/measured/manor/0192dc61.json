@@ -145,17 +145,121 @@
         "cv": 1.102
       }
     ],
-    "corner_x0_px": 148,
-    "corner_x1_px": 1375,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 83,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 125,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 90,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 148,
+        "admissible": true,
+        "sigma_y_px": 1.21,
+        "horizon_y_px": 528.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 107,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 25,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 46,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 31,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 39,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 60,
+        "admissible": true,
+        "sigma_y_px": 1.11,
+        "horizon_y_px": 528.6,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 114,
+    "corner_x1_px": 1414,
+    "corner_evidence": {
+      "left_fit_r2": 0.6704,
+      "right_fit_r2": 0.685,
+      "block_px": 16,
+      "excluded": [
+        [
+          282,
+          654
+        ],
+        [
+          894,
+          1266
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 25.17,
     "ramp": {
-      "x": 773.5,
-      "y": 526.8,
-      "left_slope": 0.715,
-      "right_slope": -0.7434,
+      "x": 766.9,
+      "y": 528.6,
+      "left_slope": 0.7244,
+      "right_slope": -0.7387,
       "left_n": 61,
-      "left_resid_px": 0.31,
-      "right_n": 61,
-      "right_resid_px": 0.3
+      "left_resid_px": 0.3,
+      "right_n": 55,
+      "right_resid_px": 0.28,
+      "sigma_y_px": 1.11
     },
     "votes": {
       "floor": {
@@ -169,9 +273,9 @@
         "edge_px": 8961
       },
       "side_walls": {
-        "x": 750,
-        "y": 536,
-        "edge_px": 3542
+        "x": 760,
+        "y": 539,
+        "edge_px": 2406
       }
     },
     "light": {
@@ -193,8 +297,8 @@
       "key_tint_alternates": {
         "floor_under_brightest": "#c8b2a0",
         "floor_bottom_strip": "#c8af9a",
-        "mid_wall_right": "#c8ad87",
-        "mid_wall_left": "#c8ae87",
+        "mid_wall_right": "#c89a6d",
+        "mid_wall_left": "#c89c6a",
         "brightest_21x21_patch": "#c7c7c8"
       },
       "brightest_21x21_patch_centre_px": [
@@ -202,13 +306,16 @@
         266
       ],
       "sobel_bright_side_deg_whole_frame": 90.14,
-      "sobel_bright_side_deg_wall_band": -6.34,
+      "sobel_bright_side_deg_wall_band": -5.22,
       "left_third_minus_right_third_luminance_whole_frame": 3.595,
       "left_third_minus_right_third_luminance_wall_band": 0.657
     },
     "storey_height_m": 3.2046,
-    "implied_wall_width_m": 5.3717,
-    "eye_height_m": 1.2617,
+    "implied_wall_width_m": 5.6912,
+    "eye_height_m": 1.2538,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
     "withheld_because": []
   },
   "delta_focal_pct": -14.12,

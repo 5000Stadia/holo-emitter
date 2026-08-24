@@ -97,17 +97,82 @@
         "cv": 0.809
       }
     ],
-    "corner_x0_px": 108,
-    "corner_x1_px": 1480,
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 63,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 11,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 27,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 38,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 56,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 46,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 579.3,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 109,
+    "corner_x1_px": 1467,
+    "corner_evidence": {
+      "left_fit_r2": 0.5121,
+      "right_fit_r2": 0.7423,
+      "block_px": 16,
+      "excluded": [
+        [
+          768,
+          1098
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 31.26,
     "ramp": {
-      "x": 790.8,
-      "y": 580.0,
-      "left_slope": 0.7625,
-      "right_slope": -0.7122,
+      "x": 791.0,
+      "y": 579.3,
+      "left_slope": 0.7612,
+      "right_slope": -0.7114,
       "left_n": 60,
-      "left_resid_px": 0.32,
-      "right_n": 48,
-      "right_resid_px": 0.29
+      "left_resid_px": 0.31,
+      "right_n": 56,
+      "right_resid_px": 0.28,
+      "sigma_y_px": 1.15
     },
     "votes": {
       "floor": {
@@ -121,9 +186,9 @@
         "edge_px": 6441
       },
       "side_walls": {
-        "x": 1130,
-        "y": 692,
-        "edge_px": 8617
+        "x": 1230,
+        "y": 732,
+        "edge_px": 9137
       }
     },
     "light": {
@@ -154,13 +219,16 @@
         598
       ],
       "sobel_bright_side_deg_whole_frame": 107.64,
-      "sobel_bright_side_deg_wall_band": 123.17,
+      "sobel_bright_side_deg_wall_band": 133.39,
       "left_third_minus_right_third_luminance_whole_frame": 8.687,
       "left_third_minus_right_third_luminance_wall_band": 7.193
     },
     "storey_height_m": 3.0385,
-    "implied_wall_width_m": 5.0716,
-    "eye_height_m": 1.1274,
+    "implied_wall_width_m": 5.0198,
+    "eye_height_m": 1.13,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
     "withheld_because": []
   },
   "delta_focal_pct": -18.1,

@@ -18,6 +18,7 @@
   "band_pct": 8.0,
   "wall_width_m": 7.571,
   "camera_wall_m": 6,
+  "camera_far_m": null,
   "corner_x0_px": 145,
   "corner_x1_px": 1452,
   "key_tint": "#c87937",
@@ -50,6 +51,7 @@
       }
     },
     "adopted_y": 549.9,
+    "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
     "ceiling_ramp_intersection": {
       "x": 796.7,
@@ -61,7 +63,8 @@
       "right_n": 61,
       "right_resid_px": 0.29,
       "sigma_y_px": 1.05
-    }
+    },
+    "far_line_ruler": null
   },
   "_measured_px": {
     "wall_floor_line_y_px": 737,

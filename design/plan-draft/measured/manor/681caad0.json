@@ -302,6 +302,8 @@
     "storey_height_m": 3.6473,
     "implied_wall_width_m": 18.6437,
     "eye_height_m": 1.4657,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
     "hold_family": null,
     "withheld_because": []
   },
