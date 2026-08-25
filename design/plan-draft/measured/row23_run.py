@@ -1090,31 +1090,48 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
 #   2. That roll is measured on the standing instrument exactly as any arrival
 #      (`measure_roll`, cached by id) and must be a camera PASS, and the
 #      ordinary promotion must admit it — no snap, no tolerance, no waiver.
-#   3. It is then promoted for real, the room is re-audited with it in place,
-#      and it STANDS only if the room's worst-band distance did not get worse
-#      AND no wall of the set is still an outlier (or the room reached
-#      consistent, or a no-majority room gained a majority); otherwise the
-#      previous png and meta go back byte-for-byte and the record reads
+#   3. It is then promoted for real, the room is re-audited with the whole set
+#      in place, and it STANDS unless the room got WORSE — past that veto, on
+#      the worst-band distance falling by `SUPERSEDE_IMPROVEMENT`, or no wall of
+#      the set still being an outlier, or the room reaching consistent, or a
+#      no-majority room gaining a majority. Otherwise the previous png, meta and
+#      promotion documents go back byte-for-byte and the record reads
 #      `supersede: refused`.
 #
-# THE UNIT OF JUDGEMENT IS THE ROOM, NOT THE WALL, AND THE FIRST PASS PAID TO
-# LEARN IT. `master_bedchamber/S` and `/W` each refused "the room got worse:
-# 4.474 -> 4.716 / 6.321" — because each was judged ALONE against a room whose
-# OTHER outliers were still their old paintings. A 2-2 split has no majority to
-# join: move one wall to the ruling materials and it now disagrees with the two
-# it used to agree with, so the worst pair gets further apart on the way to
-# agreement. A room being transitioned wall by wall can never pass one wall at a
-# time, and the veto that is right for a room with a majority is exactly wrong
-# for a room without one.
+# THE UNIT OF JUDGEMENT IS THE ROOM, NOT THE WALL, AND TWO PRODUCTION PASSES
+# PAID TO LEARN THE SHAPE OF IT.
 #
-# So a NO-MAJORITY room is superseded as a SET: every eligible consistency roll
-# of that room goes into the store, the room is audited ONCE with all of them in
-# place, and the set is kept or restored WHOLE. A room that HAS a majority keeps
-# the single-wall path — there the majority is the thing being joined, and one
-# wall at a time is the honest question. The only per-wall restore inside a set
-# is for a wall whose OWN camera or promotion refused it: that wall never
-# reached the store, and it is dropped from the set rather than taken down with
-# it.
+# Pass 1 judged every wall alone. `master_bedchamber/S` and `/W` each refused
+# "the room got worse: 4.474 -> 4.716 / 6.321" — because each was measured
+# against a room whose OTHER outliers were still their old paintings. A 2-2
+# split has no majority to join: move one wall to the ruling materials and it
+# now disagrees with the two it used to agree with, so the worst pair gets
+# further apart ON THE WAY TO agreement. Judged one at a time such a room can
+# never pass. Pass 2 superseded all four together and the room came to 4.144.
+#
+# That fix was scoped to NO-MAJORITY rooms, and pass 2 showed the scope was the
+# wrong shape rather than the wrong idea. `guest_chamber`'s pixel majority is
+# E+N — and E+N are the half that DISOBEYS the room's voice. The ruling comes
+# from the plan, so both rolls going out are moving AWAY from the biggest
+# cluster and TOWARD the ruling; measured one at a time, the first is a facing
+# walking away from its room, which is what the distance says and the wrong
+# reading of what it is doing. So the rule is now simply: EVERY eligible
+# consistency roll of one room is judged together, majority or no majority,
+# because a room has two returns exactly when one measure named two facings
+# against one ruling. A room with one roll is a set of one and the same code.
+#
+# The only per-wall restore inside a set is for a wall whose OWN camera or
+# promotion refused it: that wall never reached the store, and it is dropped
+# from the set rather than taken down with it.
+#
+# AND THE VERDICT KEEPS PROGRESS, NOT ONLY PERFECTION. Pass 2 refused
+# `garden_room/W` at 6.208 -> 3.904 — a 37 % cut toward the ruling — because it
+# was still the furthest facing from the room's median and the outlier clause
+# was the only door past the veto. That clause exists to stop REGRESSIONS; made
+# the only door, it demanded the whole distance in one roll and threw away a
+# store plainly better than the one before it. `SUPERSEDE_IMPROVEMENT` is the
+# fourth door: a measurable step toward one room is kept. Only no-improvement
+# and worsening are refused.
 #
 # THE SNAP IS ON THIS ROUTE; THE TOLERANCE RULING IS NOT.
 #
@@ -1165,6 +1182,29 @@ CONSISTENCY_MARK = "This room is ruled to ONE set of materials"
 #: A distance is not "worse" for a rounding tick. `audit_room` rounds its score
 #: to three places, so this is a hair below that.
 SUPERSEDE_EPS = 1e-4
+
+#: HOW MUCH CLOSER TO ONE ROOM A REPAINT HAS TO GET BEFORE THE STORE KEEPS IT,
+#: as a fraction of the worst-band distance it started from. [Navigator ruling,
+#: 2026-08-25, on the second production pass's own returns.]
+#:
+#: The number is 10 % and it is a FLOOR ON MEANING, not a bar on quality — the
+#: bar is `room_consistency.CUT`, which is calibrated on twelve labelled rooms
+#: and is not moved by anything here. This says only how much movement counts as
+#: movement rather than as noise, and there are two reasons it sits where it
+#: does. The instrument reports its score to three decimals and the twelve-room
+#: calibration ordered 34 of 36 pairs, so a fraction of a percent is inside what
+#: the measure can honestly distinguish; and the returns this rule was written
+#: on are nowhere near the line — `garden_room/W` cut 37 % (6.208 -> 3.904) and
+#: the room-worsening refusals of pass 1 were negative. Ten per cent is
+#: comfortably above the noise and comfortably below every real result, which is
+#: the whole job of a floor: nothing in the corpus is decided BY it.
+#:
+#: WHY A FLOOR AT ALL, rather than admitting any improvement. A repaint that
+#: moves the room 0.4 % has not answered the correction it was asked for, and
+#: keeping it would spend the wall's one supersede — `_supersede_tried` — on a
+#: roll that did nothing, so the next return would find the attempt already
+#: made. A wall is kept for progress or it is left for the next roll.
+SUPERSEDE_IMPROVEMENT = 0.10
 
 
 def consistency_rolls(key):
@@ -1247,14 +1287,22 @@ def supersede_roll(key, st):
 #: `master_bedchamber` walls on "the room got worse" that only a SET can mend,
 #: three camera FAILs and one promotion refusal that the SNAP is for.
 #:
-#: Without this the once-per-roll guard would keep all eight of those refusals
-#: standing forever against rolls that are still on disk, and the fix would
-#: reach nothing — the Navigator would have to hand-edit the run state to let a
+#: Rule 2 (the second pass, same day) judged NO-MAJORITY rooms as a set and put
+#: the snap on the route. `master_bedchamber`'s four stood together at 4.474 ->
+#: 4.144. It refused `garden_room/W` at 6.208 -> 3.904 for want of an
+#: improvement clause, and it would have judged `guest_chamber`'s two rolls one
+#: at a time because that room HAS a majority — the half that disobeys the
+#: voice. Rule 3 is those two: `SUPERSEDE_IMPROVEMENT`, and joint judging
+#: wherever a room has more than one roll.
+#:
+#: Without this the once-per-roll guard would keep every refusal standing
+#: forever against rolls that are still on disk, and each fix would reach
+#: nothing — the Navigator would have to hand-edit the run state to let a
 #: corrected rule see the work it was written for. A refusal is a verdict of a
 #: rule, so it is recorded with the rule's number and re-decided when that
 #: number moves. Bump this whenever what the route ADMITS changes; never for a
 #: message or a field.
-SUPERSEDE_RULE = 2
+SUPERSEDE_RULE = 3
 
 
 def _supersede_tried(st, cand_rel):
@@ -1278,19 +1326,28 @@ def audit_for(room):
 def supersede_stands(keys, before, after):
     """Did the repaint earn the store? (stands, sentence with both numbers).
 
-    `keys` is the SET being judged — one wall on the single path, every eligible
-    wall of the room on the joint one. The verdict is one verdict for the whole
-    set, because the set went into the store together.
+    `keys` is the SET being judged — every eligible wall of the room, which is
+    one wall where the room returned one roll. The verdict is one verdict for
+    the whole set, because the set went into the store together.
 
-    THE TWO HALVES ARE BOTH REQUIRED, and the second has three ways to be true.
-    A repaint that leaves the room's worst pair further apart than it found it
-    has made the room worse whatever else it did, so the distance is a veto. A
-    repaint that leaves the distance alone but leaves a wall of the set standing
-    outside its room has not done the thing it was asked for. The alternatives
-    to "no longer an outlier" are the two ways a room can come right without any
-    facing being singled out: the room drops below the cut entirely, or a room
-    that had NO majority (master_bedchamber's 2-2 split, the one Kabe named)
-    now has one.
+    ONE VETO, FOUR WAYS TO STAND. The veto is regression: a repaint that leaves
+    the room's worst pair further apart than it found them has made the room
+    worse whatever else it did, and no other clause can buy that back. Past the
+    veto the question is whether the room got better, and it can answer yes four
+    ways — the distance fell by a stated margin, no wall of the set is still an
+    outlier, the room dropped below the cut entirely, or a room that had NO
+    majority (master_bedchamber's 2-2 split, the one Kabe named) now has one.
+
+    THE MARGIN CLAUSE IS THE SECOND PASS'S CORRECTION AND IT COST A REAL WALL.
+    `garden_room/W` came back from its consistency roll at 6.208 -> 3.904 — a
+    37 % cut toward the room's ruling materials — and was REFUSED, because it
+    was still the furthest facing from the room's median and the outlier clause
+    was the only way past the veto. That clause was written to stop regressions
+    and it was made to demand the whole distance in one roll instead. Progress
+    the store should keep was thrown away and the previous painting put back.
+    So `SUPERSEDE_IMPROVEMENT` stands beside it: a room measurably closer to
+    reading as one room is a better store than the one before it, whether or not
+    one more roll is still owed.
     """
     fs = [k.split("/")[1] for k in keys]
     b, a = before.get("score"), after.get("score")
@@ -1304,6 +1361,8 @@ def supersede_stands(keys, before, after):
             % (b, band_b, a, band_a))
     if a > b + SUPERSEDE_EPS:
         return False, "the room got worse: " + nums
+    cut = (b - a) / b if b > 0 else 0.0
+    nums = "%s, %.0f%% closer" % (nums, cut * 100.0)
     still = [f for f in fs if f in (after.get("outliers") or [])]
     consistent = (before.get("verdict") == "mismatched"
                   and after.get("verdict") in ("consistent", "consistent-incomplete"))
@@ -1317,11 +1376,16 @@ def supersede_stands(keys, before, after):
     if not still:
         return True, ("%s no longer stand%s outside the room; %s"
                       % (who, "" if len(fs) > 1 else "s", nums))
-    return False, ("%s still stand%s outside the room (%s agree) and the room is "
-                   "still %s; %s"
+    if cut >= SUPERSEDE_IMPROVEMENT:
+        return True, ("%s still stand%s outside the room, and the room is that "
+                      "much closer to reading as one anyway; %s"
+                      % ("+".join(still), "" if len(still) > 1 else "s", nums))
+    return False, ("%s still stand%s outside the room (%s agree), the room is "
+                   "still %s, and the repaint moved it less than the %.0f%% this "
+                   "route keeps a wall for; %s"
                    % ("+".join(still), "" if len(still) > 1 else "s",
                       "".join(after.get("majority") or []) or "none",
-                      after.get("verdict"), nums))
+                      after.get("verdict"), SUPERSEDE_IMPROVEMENT * 100.0, nums))
 
 
 def _supersede_files(key):
@@ -1476,10 +1540,10 @@ def _supersede_admit(key, e, st, roll, promote_fn):
 def _supersede_set(room, cands, before, promote_fn):
     """One room, one audit, one verdict for the whole set. See the block above.
 
-    `cands` is [(key, entry, st, roll, prov)] — one wall on the single path,
-    every eligible wall of a no-majority room on the joint one. Returns
-    (stood, lines): `stood` is [(key, reason, reading)] for the sweep's own
-    promoted list, so the single end-of-sweep bake covers them.
+    `cands` is [(key, entry, st, roll, prov)] — every eligible wall of the room,
+    which is one wall where the room returned one roll. Returns (stood, lines):
+    `stood` is [(key, reason, reading)] for the sweep's own promoted list, so
+    the single end-of-sweep bake covers them.
     """
     t0 = time.time()
     if before is None:
@@ -1542,8 +1606,7 @@ def _supersede_set(room, cands, before, promote_fn):
                 st, key, roll, prov, SUPERSEDE_REFUSED,
                 "%s%s, so the consistency roll %s is out and the previous "
                 "painting is back byte-for-byte (it went in %s; provenance: %s)"
-                % ("the room was judged as a set of %d because it has no "
-                   "majority to join one wall at a time — " % len(keys)
+                % ("the room's %d rolls were judged together — " % len(keys)
                    if joint else "", sentence, roll["id"], how, prov),
                 t0, before, after, how, d))
             continue
@@ -1565,15 +1628,26 @@ def _supersede_set(room, cands, before, promote_fn):
 
 
 def supersede_room(room, cands, promote_fn=None):
-    """One room's eligible consistency rolls, judged the way that room needs.
+    """One room's eligible consistency rolls, judged together.
 
-    JOINT where the room has NO MAJORITY, one wall at a time where it has one.
-    See the SUPERSEDE block above: a 2-2 split has no majority to join, so
-    moving one wall to the ruling materials puts it at odds with the two it used
-    to agree with and the worst pair gets FURTHER apart on the way to agreement.
-    Judged one at a time such a room can never pass. A room that has a majority
-    is the opposite case — the majority is the thing being joined — and there
-    one wall at a time is the honest question.
+    EVERY ROLL OF ONE ROOM IS ONE ACT. A room with two returns has them because
+    ONE measure named two facings against ONE ruling; they were asked in the
+    same breath and they answer the same sentence, so putting one in and asking
+    whether the room improved is asking about half a repaint. This was scoped to
+    no-majority rooms first — master_bedchamber's 2-2 split, where a wall moved
+    alone provably makes the worst pair worse — and the second pass showed the
+    scope was the wrong shape rather than the wrong idea.
+
+    `guest_chamber` is why. Its pixel majority is E+N, and E+N are the half that
+    DISOBEYS the room's voice: the ruling is the plan's, not the pixels', so the
+    two rolls going out are both moving AWAY from the majority and toward the
+    ruling. Judge them one at a time and the first one measured is a facing
+    walking away from the room's biggest cluster — which is exactly what the
+    distance says, and exactly the wrong reading of what it is doing. Two rolls
+    toward one ruling are judged together or they are not judged at all.
+
+    A room with ONE roll is the same code with a set of one: one audit before,
+    one after, one verdict. There is no second path left to keep in step.
     """
     promote_fn = promote_fn or globals()["do_promote"]
     try:
@@ -1585,15 +1659,7 @@ def supersede_room(room, cands, promote_fn=None):
                                       "repaint (%s); the promoted wall stands"
                                       % str(_aex)[:200], _t)
                     for key, e, st, roll, prov in cands]
-    if before.get("no_majority"):
-        return _supersede_set(room, cands, before, promote_fn)
-    stood, lines, first = [], [], True
-    for c in cands:
-        s, l = _supersede_set(room, [c], before if first else None, promote_fn)
-        first = False
-        stood += s
-        lines += l
-    return stood, lines
+    return _supersede_set(room, cands, before, promote_fn)
 
 
 def supersede_eligible(manifest, state, only=None):
@@ -1663,7 +1729,7 @@ def supersede_sweep(manifest, state, only=None, dry_run=False):
                 before = audit_for(room)
             except Exception as _aex:
                 before = {}
-            joint = bool(before.get("no_majority"))
+            n_room = len(by_room[room])
             for key, e, st, roll, prov in sorted(by_room[room],
                                                  key=lambda c: c[0]):
                 fac = facing_of(key)
@@ -1683,8 +1749,9 @@ def supersede_sweep(manifest, state, only=None, dry_run=False):
                     "outcome": ("would try" if cam == "PASS"
                                 else "would try via the snap"),
                     "why": "%s; judged %s" % (
-                        prov, "as a set (%s has no majority)" % room if joint
-                        else "on its own")})
+                        prov, "with %s's other %d roll(s), as one act"
+                        % (room, n_room - 1) if n_room > 1
+                        else "alone (this room returned one roll)")})
         return rows, notes, 0
 
     stood, lines, notes, touched = supersede_pass(manifest, state, only)
@@ -1722,9 +1789,9 @@ def sweep(manifest, state, do_promote=True):
     promoted, failed, parked, waiting = [], [], [], []
     # [row 40 seam] THE SUPERSEDE ROUTE RUNS FIRST AND A ROOM AT A TIME. It is
     # about walls already in the store, so it has nothing to do with the
-    # arrivals below and cannot be folded into their per-wall loop: a room with
-    # no majority is judged as a SET, and a loop that visits one wall at a time
-    # can only ever ask the question that room cannot answer. Stands go on
+    # arrivals below and cannot be folded into their per-wall loop: every roll
+    # of one room answers one ruling and is judged as one act, and a loop that
+    # visits one wall at a time can only ever ask half of it. Stands go on
     # `promoted` so the sweep's ONE end-of-sweep bake covers them exactly as it
     # covers any other promotion, and so the tally counts them where they
     # belong.
@@ -1798,9 +1865,9 @@ def sweep(manifest, state, do_promote=True):
             # performed, against a correction that promotion just answered.
             #
             # [row 40 seam] EXCEPT WHERE ITS OWN ROOM RE-ASKED IT — and that is
-            # decided a ROOM at a time, above this loop, because a room with no
-            # majority has to be judged as a set. See `supersede_pass` and the
-            # SUPERSEDE block.
+            # decided a ROOM at a time, above this loop, because every roll of
+            # one room answers one ruling and is judged as one act. See
+            # `supersede_pass` and the SUPERSEDE block.
             continue
         # THE STORE IS CHECKED, NOT THE STATE FILE ALONE. A wall promoted by any
         # route already has art, and a late duplicate return for it must not
