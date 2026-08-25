@@ -965,6 +965,19 @@ export function g5PictureLines(ctx) {
       L.push(`  The ${SURFACE} you face is square on and shows its whole width, and the two side ` +
         `walls run away from you to left and right and leave the picture through ${edgeWords(edges)}.`);
     }
+    /* [2026-08-25] THE SCALE, IN WORDS. Four production returns under this
+     * register drew the wall 10-17 % too large with the corners right: the
+     * "one metre covers N columns" fact had no words. Said as a fraction of
+     * the picture's width, from the scaffold's own ruler. */
+    const ppm = m.px_per_m_at_wall;
+    if (ppm > 0 && m.wall_width_m > 0) {
+      const share = (m.wall_width_m * ppm) / CANVAS_W;
+      const shareWords = share > 0.95 ? "almost the whole width of the picture" : share > 0.85 ? "about nine tenths of the picture's width"
+        : share > 0.75 ? "about four fifths of the picture's width" : share > 0.65 ? "about seven tenths of the picture's width"
+        : share > 0.55 ? "about three fifths of the picture's width" : "about half the picture's width";
+      L.push(`  Seen from where you stand, the whole ${m.wall_width_m.toFixed(1)} m of the ${SURFACE} spans ${shareWords} — ` +
+        `no closer and no larger than that; the ${SURFACE} does not crowd the frame.`);
+    }
     L.push(`  The ${GROUND} is visible and reaches the bottom of the picture, and the eye line sits ` +
       "a little above the middle of the picture's height — that is where those receding lines would " +
       "meet if they were carried back into the distance.");
