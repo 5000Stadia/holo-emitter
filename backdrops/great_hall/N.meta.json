@@ -1,0 +1,100 @@
+{
+  "floor_line_y": 0.647442,
+  "px_per_m_at_wall": 115.706,
+  "px_per_m_at_bottom": 420.88,
+  "wall_width_m": 14.6,
+  "key_tint": "#c89862",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 110,
+  "camera_wall_m": 8.85,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 14.6,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 85.9,
+  "corner_x1_px": 1450.1,
+  "storey_height_m": 2.8,
+  "camera_id": "measured:backdrops/source-doors/great_hall-N/doored.png",
+  "camera_reference": "ruled",
+  "measured_round": "row36doors",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1024,
+  "nearest_floor_m": 2.433,
+  "measured_room": {
+    "storey_height_m": 3.376,
+    "wall_width_m": 11.79,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 14.6,
+    "carriers": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "plan_px": [
+          212.6,
+          559.7
+        ],
+        "plan_centre_px": 386.2,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      },
+      {
+        "kind": "window",
+        "id": null,
+        "plan_px": [
+          791.1,
+          964.7
+        ],
+        "plan_centre_px": 877.9,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      },
+      {
+        "kind": "door",
+        "id": "op10",
+        "plan_px": [
+          1254,
+          1439.1
+        ],
+        "plan_centre_px": 1346.5,
+        "painted_px": [
+          1230,
+          1439
+        ],
+        "painted_centre_px": 1334.5,
+        "centre_delta_px": -12,
+        "centre_delta_m": -0.104,
+        "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op10",
+      "kind": "door",
+      "via": null,
+      "x": 1230,
+      "y": 432,
+      "w": 209,
+      "h": 231,
+      "beyond_m": 6.15,
+      "beyond_offset_m": 2.9,
+      "measured": true
+    }
+  ]
+}

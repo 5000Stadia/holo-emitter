@@ -1,0 +1,78 @@
+{
+  "floor_line_y": 0.591797,
+  "px_per_m_at_wall": 68.421,
+  "px_per_m_at_bottom": 426.37,
+  "wall_width_m": 9,
+  "key_tint": "#c8c2bd",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 65,
+  "camera_wall_m": 15.3,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 9,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 98,
+  "corner_x1_px": 1425,
+  "storey_height_m": null,
+  "camera_id": "measured:backdrops/source/entrance_court-E/row23-d4ef2d94.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "camera_source": "declared",
+  "suspect_perspective": true,
+  "tolerance_ruling": "design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: \"I think its pretty close and we can accept a tolerance for drift here\"",
+  "declared_fields": [
+    "horizon_y"
+  ],
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1046.8,
+  "nearest_floor_m": 2.4552,
+  "measured_room": {
+    "storey_height_m": 3.405,
+    "wall_width_m": 19.395,
+    "ruled_storey_height_m": 2.8,
+    "ruled_wall_width_m": 9,
+    "carriers": [
+      {
+        "kind": "door",
+        "id": "op02",
+        "plan_px": [
+          733.8,
+          802.2
+        ],
+        "plan_centre_px": 768,
+        "painted_px": [
+          718,
+          820
+        ],
+        "painted_centre_px": 769,
+        "centre_delta_px": 1,
+        "centre_delta_m": 0.015,
+        "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op02",
+      "kind": "door",
+      "via": null,
+      "x": 718,
+      "y": 489,
+      "w": 102,
+      "h": 117,
+      "beyond_m": 8.6,
+      "beyond_offset_m": -0.425,
+      "measured": true
+    }
+  ]
+}

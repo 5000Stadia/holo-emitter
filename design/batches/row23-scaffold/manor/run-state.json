@@ -2,11 +2,11 @@
   "walls": {
     "great_hall/N": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "the tolerance promotion was refused: promote refused: great_hall/N: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player wo"
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
     "great_hall/E": {
       "attempts": 4,
@@ -72,7 +72,14 @@
       "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: back_stair/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
+      "why": "the tolerance promotion was refused: promote refused: back_stair/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 337.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 337.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: back_stair/E: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair-E/row23-34d13ff2.png was painted from never named a staircase (backdr",
+      "exit_attempt": {
+        "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:05:46"
+      }
     },
     "back_stair/S": {
       "attempts": 4,
@@ -80,7 +87,14 @@
       "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l"
+      "why": "the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 211.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 211.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair-S/row23-0476d1f5.png was painted from never named a staircase (backdr",
+      "exit_attempt": {
+        "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:05:52"
+      }
     },
     "back_stair/W": {
       "attempts": 3,
@@ -264,7 +278,14 @@
       "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (125.3 px/m; its rule"
+      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (125.3 px/m; its rule",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 108.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 108.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px the plan's own 1.00 m opening spans at this wall's corner scale (125.3 px/m; its ruler",
+      "exit_attempt": {
+        "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:05:58"
+      }
     },
     "great_stair_hall/E": {
       "attempts": 4,
@@ -279,7 +300,14 @@
       "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/S: the way through the painting shows for \"op06\" is 258 px \u2014 1.73\u00d7 the 149.5 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (149.5 px/m; its rule"
+      "why": "the tolerance promotion was refused: promote refused: great_stair_hall/S: the way through the painting shows for \"op06\" is 258 px \u2014 1.73\u00d7 the 149.5 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (149.5 px/m; its rule",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; tolerance: the tolerance promotion was refused: promote refused: great_stair_hall/S: the way through the painting shows for \"op06\" is 258 px \u2014 1.73\u00d7 the 149.5 px the plan's own 1.00 m opening spans at this wall's corner scale (149.5 px/m; its ruler",
+      "exit_attempt": {
+        "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:06:10"
+      }
     },
     "great_stair_hall/W": {
       "attempts": 3,
@@ -367,7 +395,14 @@
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler rea"
+      "why": "the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler rea",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap corrected this frame and the standing instrument still refuses it: FAIL [unfitted-horizon]; tolerance: the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px the plan's own 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler read",
+      "exit_attempt": {
+        "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:06:23"
+      }
     },
     "garden_room/W": {
       "attempts": 2,
@@ -382,13 +417,19 @@
       "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 2.42\u00d7 the 48.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (48.3 px/m; its ruler re"
+      "why": "the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 2.42\u00d7 the 48.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (48.3 px/m; its ruler re",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 868.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 868.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 1.51\u00d7 the 77.3 px the plan's own 1.60 m opening spans at this wall's corner scale (48.3 px/m; its ruler rea",
+      "exit_attempt": {
+        "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:06:31"
+      }
     },
     "entrance_court/E": {
       "attempts": 3,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/entrance_court-E/row23-d4ef2d94.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
       "content_gap_grants": {
         "ways_never_named_apart": {
@@ -408,7 +449,18 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "content gap re-ask: the ask never named the ways through apart from each other"
+      "why": "content gap re-ask: the ask never named the ways through apart from each other",
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "camera_source": "declared",
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
+      "exit": "tolerated",
+      "exit_reason": "the snap could not correct this frame and its camera passes, so it ships on the DECLARED horizon under the Captain's ruling, flagged suspect_perspective: 2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session) (the snap first: the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon])",
+      "exit_attempt": {
+        "candidate": "backdrops/source/entrance_court-E/row23-d4ef2d94.png",
+        "exit": "tolerated",
+        "at": "2026-08-24T19:06:45"
+      }
     },
     "entrance_court/S": {
       "attempts": 4,
@@ -430,7 +482,14 @@
       "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: entrance_court/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe"
+      "why": "the tolerance promotion was refused: promote refused: entrance_court/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 109.1 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 109.1 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: entrance_court/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
+      "exit_attempt": {
+        "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:06:55"
+      }
     },
     "privy_garden/N": {
       "attempts": 2,
@@ -462,6 +521,13 @@
           "emitter_commit": "5426c75d06c2446307c56beca308ecabdd66c00b",
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
+      },
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); tolerance: the tolerance promotion was refused: promote refused: privy_garden/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+      "exit_attempt": {
+        "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:07:04"
       }
     },
     "privy_garden/S": {
@@ -524,6 +590,13 @@
           "emitter_commit": "5dd7d1cdac4ab6f1ca9bafefbd364429337813f1",
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
+      },
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap refused this frame: the measured convergence's snap is over budget (the correction this frame needs magnifies its left by 21.34x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]) and the declared one is too (the correction this frame needs magnifies its left by 21.34x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]); tolerance: the tolerance promotion was refused: promoted, and taken back out because the validator refused: validate-fixtures: 1 finding(s) in /home/k/Projects/holo-emitter/fixtures/nav-manor meta entrance_approach/N",
+      "exit_attempt": {
+        "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:07:07"
       }
     },
     "entrance_approach/E": {
@@ -609,7 +682,14 @@
       "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: back_stair_head/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player"
+      "why": "the tolerance promotion was refused: promote refused: back_stair_head/E: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; tolerance: the tolerance promotion was refused: promote refused: back_stair_head/E: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair_head-E/row23-89ae5671.png was painted from never named a stairca",
+      "exit_attempt": {
+        "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:07:16"
+      }
     },
     "back_stair_head/S": {
       "attempts": 3,
@@ -815,7 +895,14 @@
       "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: stair_landing/S: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left"
+      "why": "the tolerance promotion was refused: promote refused: stair_landing/S: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
+      "exit": "grid",
+      "exit_reason": "neither exit could carry this wall \u2014 snap: the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; tolerance: the tolerance promotion was refused: promote refused: stair_landing/S: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source/stair_landing-S/row23-9976389d.png was painted from never named a staircase (backdr",
+      "exit_attempt": {
+        "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
+        "exit": "grid",
+        "at": "2026-08-24T19:07:30"
+      }
     },
     "stair_landing/W": {
       "attempts": 3,

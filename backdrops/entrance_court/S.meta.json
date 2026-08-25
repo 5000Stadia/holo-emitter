@@ -1,0 +1,64 @@
+{
+  "floor_line_y": 0.553711,
+  "px_per_m_at_wall": 36.842,
+  "px_per_m_at_bottom": 448.5,
+  "wall_width_m": 20.4,
+  "key_tint": "#c8bdae",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the low boundary wall's stone coping above the ground at the far line, taken at 0.95 m — tools/room-voices.mjs's `outdoors_open` voice rules the coping there on a forecourt wall of this date and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 35,
+  "camera_far_m": 26.75,
+  "far_line": -20,
+  "facing_type": "open",
+  "wall_continuous": false,
+  "wall_segments": [],
+  "corner_x0_px": null,
+  "corner_x1_px": null,
+  "storey_height_m": null,
+  "camera_id": "measured:backdrops/source/entrance_court-S/row23-e117db11.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "vista",
+  "focal_px": 985.5,
+  "nearest_floor_m": 2.1974,
+  "measured_room": {
+    "storey_height_m": null,
+    "wall_width_m": null,
+    "ruled_storey_height_m": null,
+    "ruled_wall_width_m": 20.4,
+    "carriers": [
+      {
+        "kind": "open_edge",
+        "id": "op_court_mouth",
+        "plan_px": [
+          392.2,
+          1143.8
+        ],
+        "plan_centre_px": 768,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": [
+    {
+      "id": "op_court_mouth",
+      "kind": "threshold",
+      "via": null,
+      "x": -779.38,
+      "y": 0,
+      "w": 3094.76,
+      "h": 694.51,
+      "beyond_m": 0,
+      "beyond_offset_m": 0.4,
+      "measured": false
+    }
+  ]
+}
