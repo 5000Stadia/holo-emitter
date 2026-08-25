@@ -20939,3 +20939,17 @@
 {"ts_start":1787601122.354,"ts_end":1787601158.774,"step":"bake.backdrops","key":null,"detail":{"paintings":55,"out_bytes":36251796,"fp":"a141d520","png_bytes":142101318,"jpeg_bytes":27180508}}
 {"ts_start":1787601169.335,"ts_end":1787601169.772,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"920666c8","out_bytes":418459,"facings":88,"locations":22}}
 {"ts_start":1787601170.094,"ts_end":1787601170.294,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787619091.188,"ts_end":1787619091.608,"step":"promote.backdrop","key":"stair_landing/N","detail":{"candidate":"backdrops/source/stair_landing-N/row23-e594b388.png","exit_code":0,"refused":false}}
+{"ts_start":1787619091.683,"ts_end":1787619091.815,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-9635a378.png","exit_code":1,"refused":true}}
+{"ts_start":1787619091.895,"ts_end":1787619091.903,"step":"promote.backdrop","key":"back_stair/W","detail":{"candidate":"backdrops/source/back_stair-W/row23-7d7caa79.png","exit_code":1,"refused":true}}
+{"ts_start":1787619091.984,"ts_end":1787619091.993,"step":"promote.backdrop","key":"back_stair_head/S","detail":{"candidate":"backdrops/source/back_stair_head-S/row23-4df7ac87.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.074,"ts_end":1787619092.083,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-1eb02ae9.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.163,"ts_end":1787619092.172,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-72110eaf.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.245,"ts_end":1787619092.261,"step":"promote.backdrop","key":"back_stair/E","detail":{"candidate":"backdrops/source/back_stair-E/row23-34d13ff2.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.325,"ts_end":1787619092.34,"step":"promote.backdrop","key":"back_stair/S","detail":{"candidate":"backdrops/source/back_stair-S/row23-0476d1f5.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.408,"ts_end":1787619092.423,"step":"promote.backdrop","key":"back_stair_head/E","detail":{"candidate":"backdrops/source/back_stair_head-E/row23-89ae5671.png","exit_code":1,"refused":true}}
+{"ts_start":1787619092.518,"ts_end":1787619092.533,"step":"promote.backdrop","key":"stair_landing/S","detail":{"candidate":"backdrops/source/stair_landing-S/row23-9976389d.png","exit_code":1,"refused":true}}
+{"ts_start":1787619107.005,"ts_end":1787619107.011,"step":"promote.backdrop","key":"back_stair/W","detail":{"candidate":"backdrops/source/back_stair-W/row23-7d7caa79.png","exit_code":1,"refused":true}}
+{"ts_start":1787619107.079,"ts_end":1787619107.086,"step":"promote.backdrop","key":"back_stair_head/S","detail":{"candidate":"backdrops/source/back_stair_head-S/row23-4df7ac87.png","exit_code":1,"refused":true}}
+{"ts_start":1787619107.162,"ts_end":1787619107.169,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-1eb02ae9.png","exit_code":1,"refused":true}}
+{"ts_start":1787619107.244,"ts_end":1787619107.25,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-72110eaf.png","exit_code":1,"refused":true}}

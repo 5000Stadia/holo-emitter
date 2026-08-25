@@ -549,8 +549,8 @@ const refusals = [];
  * one hold the same kind of record.
  *
  * HOW TRUE IT IS. On a DECLARED-camera wall (the row-32 tolerance route) and
- * on a SNAPPED one (`--round row35snap`, where `row35_snap.py` has rectified
- * the frame ONTO the declared camera) the meta's geometry IS the camera the
+ * on a SNAPPED one (a reading carrying `_snap`, where `row35_snap.py` has
+ * rectified the frame ONTO the declared camera) the meta's geometry IS the camera the
  * page derives with, so the projection is exact by construction: the flight
  * lands where the same arithmetic put the scaffold box the painter was given.
  * On a measured-camera wall the geometry is this painting's own reading, so
@@ -654,8 +654,17 @@ if (drawnFlights.length) {
        * `flight-evidence.mjs` explains at length why nothing does. */
       flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights);
       flightEvidence.asked = { prompt: ask.path, via: ask.via };
+      /* WHICH ROUTE THIS FLIGHT CAME IN ON, read off the READING and not off
+       * the round's NAME. A rectified frame says so in its own `_snap` block —
+       * the same field `askTextFor` follows back to the roll — so a snapped
+       * candidate promoted under any round records the geometry it actually
+       * has. Keyed on the string `row35snap`, the second snapped round this
+       * project opens would write "this painting's own measured camera" onto a
+       * meta whose camera is the declared one, which is the record lying about
+       * itself for want of a name. No promoted meta's bytes move: the store's
+       * two snapped walls draw no flight and carry no `flight_evidence`. */
       flightEvidence.geometry = declaredCamera ? "declared-camera; the horizon is the drawing's, the u-domain this painting's own corners"
-        : roundDir === "row35snap" ? "snapped onto the declared camera; the u-domain is this painting's own corners"
+        : m._snap ? "snapped onto the declared camera; the u-domain is this painting's own corners"
           : "this painting's own measured camera";
       flightEvidence.against_the_ask = apart;
       meta.stairs = drawnFlights;

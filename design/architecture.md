@@ -3737,7 +3737,9 @@ included), so a page built from a promoted stair wall and a page built from the 
 hold the same kind of thing.
 
 **How true it is, per route.** On a DECLARED-camera wall (row 32's tolerance route) and on a SNAPPED
-one (`--round row35snap`) the meta's HORIZON, scale and eye are the drawing's own, so that half of
+one (any reading carrying its own `_snap` block — the fact, not the round's name; a route keyed on
+the string `row35snap` would write the wrong geometry onto the second snapped round this project
+opens) the meta's HORIZON, scale and eye are the drawing's own, so that half of
 the projection is exact by construction. What is never the drawing's on any route is the **u-domain**:
 `xAtScale` maps `u` across the wall through the meta's own CORNERS, and a promoted meta's corners are
 what somebody measured off this painting. That is the right space for everything else on the wall —
@@ -3796,6 +3798,15 @@ rolls are **4 absences and 2 presences**, not six absences. Labels below are wha
 | `stair_landing/N` | re-ask | present | 1.232 | 1.501 | 0.029 | 1.110 |
 | `stair_landing/W` | pre-38 | **present** | 2.885 | 1.022 | 0.464 | 1.047 |
 | `stair_landing/W` | re-ask | present | 1.090 | 1.369 | 0.040 | 0.761 |
+
+The body ratio is the one column the shipped code still computes (`paintedFlightReading`), and it
+reproduces: re-run 2026-08-24 over the same twelve frames, at each wall's own meta, it returns the
+figures above. Re-run instead at the PLAN's derived meta for all twelve — one projection for
+everything — eight are identical and the four walls with a measured or snapped reading of their own
+move (`back_stair_head/S` 1.803/1.227, `stair_landing/N` 0.718/1.549, `stair_landing/W` 2.969/1.230),
+which changes no conclusion: the absences then sit at 1.803, 1.431, 0.791, 0.718 inside presences
+running 0.614 to 2.969, still straddled from both sides. The other three columns were exploratory,
+were not kept in the code, and live here only as the record of what was tried.
 
 **Every column interleaves the two classes completely.** The four absences sit at 1.568, 1.431, 0.791
 and 0.738 on the body ratio while the presences run 0.614 to 2.885 and straddle all of them; no
@@ -3875,6 +3886,28 @@ between them and the store, and what does is the scale their painter drew at. `g
 is a third thing again, and the one worth acting on: **the manor's corner detector is unreliable on a
 flight-bearing wall**, which no gate in this project had a way to see before a flight was projected
 through one.
+
+**Re-run 2026-08-24 after the clause landed, every flight-bearing wall, same instrument**: the table
+above reproduces exactly — `stair_landing/N` re-promotes byte-identical, the four lens numbers come
+back to the tenth of a pixel, and the six pre-flight rolls are refused on the ask. The one thing the
+re-run adds is the ORDER the refusals arrive in, which the table above flattens: the four
+lens-refused walls are all `unfitted-horizon` or `suspect-painting`, so on the ordinary measured
+route they stop one clause earlier at `row32:tolerance.suspect_undeclared` and reach the lens band
+only under `--camera-source declared`. Both refusals are about the camera and neither is about the
+flight.
+
+**And the snapped route does not reach them today, for a reason worth writing down.** Four of these
+walls have a rectified frame on disk (`backdrops/source-snapped/<loc>-<F>/snapped.png`) whose
+acceptance re-measures clean, which is exactly the camera fix they need — but every one of those
+frames is a snap of the wall's PRE-FLIGHT roll, because the row-35 pilot ran before row 38's re-asks
+landed. `askTextFor` follows the snap back to that roll and the flight clause correctly refuses it:
+promoting it would ship a rectified picture of a room with no staircase in it, which is the harm row
+32 exists to name. Confirmed live on `back_stair/W`, whose snap resolves to
+`row23-4e3755a6.prompt.txt` and trips `row32:stair.painted_flight_lost`. **The snapped corpus tracks
+the candidate it was cut from, and nothing re-cuts it when a newer roll arrives** — so these four
+walls need their row-38 re-asks snapped, which is the production loop's act and not this clause's.
+Trial-snapped here to confirm it is available: `back_stair/W`'s re-ask rectifies with `ACCEPTANCE
+PASS (unfitted-horizon) focal +0.48 % eye −0.24 %`, magnification 1.33× against a budget of 3.00.
 
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 

@@ -52,8 +52,8 @@
  * against the same lines displaced 16-24 px along their own normal — all
  * interleave the two classes completely. The absences score 1.427, 1.431,
  * 0.979 and 0.727 on the body ratio; the presences score 0.614 to 2.885 and
- * straddle every one of those. `design/architecture.md`, "The flight evidence",
- * carries the whole table.
+ * straddle every one of those. `design/architecture.md`, "The flight
+ * attachment (row 39)", carries the whole table.
  *
  * That is not a threshold waiting to be tuned, and this project's own
  * discipline says so in as many words (row 23's separation report, row 34's
