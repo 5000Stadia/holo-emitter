@@ -8,7 +8,6 @@
     "servants_hall",
     "entrance_court",
     "back_stair_head",
-    "stair_landing",
     "guest_chamber",
     "closet_chamber"
   ],
@@ -364,13 +363,15 @@
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
-            "underfoot": "a floor of worn red brick laid on edge",
+            "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
             "hangings": null
           },
           "ask_path": "backdrops/source/servants_hall-N/row23-e7912869.prompt.txt",
           "ask_via": "beside the candidate",
-          "missing": [],
-          "verdict": "current",
+          "missing": [
+            "underfoot"
+          ],
+          "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
           "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
         },
@@ -381,7 +382,7 @@
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
-            "underfoot": "a floor of worn red brick laid on edge",
+            "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
             "hangings": null
           },
           "ask_path": "backdrops/source/servants_hall-E/row23-a1213e7d.prompt.txt",
@@ -402,13 +403,15 @@
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
-            "underfoot": "a floor of worn red brick laid on edge",
+            "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
             "hangings": null
           },
           "ask_path": "backdrops/source/servants_hall-S/row23-aa3b7fd3.prompt.txt",
           "ask_via": "beside the candidate",
-          "missing": [],
-          "verdict": "current",
+          "missing": [
+            "underfoot"
+          ],
+          "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
           "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
         },
@@ -419,13 +422,15 @@
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
-            "underfoot": "a floor of worn red brick laid on edge",
+            "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
             "hangings": null
           },
           "ask_path": "backdrops/source/servants_hall-W/row23-ee63b93c.prompt.txt",
           "ask_via": "the roll this snapped frame was rectified from (backdrops/source/servants_hall-W/row23-ee63b93c.png)",
-          "missing": [],
-          "verdict": "current",
+          "missing": [
+            "underfoot"
+          ],
+          "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
           "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
         }
@@ -433,7 +438,10 @@
       "distinct_asks": 2,
       "split": true,
       "stale": [
-        "E"
+        "N",
+        "E",
+        "S",
+        "W"
       ],
       "unprovable": [],
       "verdict": "split-ask"
@@ -1228,32 +1236,26 @@
         {
           "facing": "E",
           "voice": "great_stair",
-          "candidate": "backdrops/source/stair_landing-E/row23-178cf7b9.png",
+          "candidate": "backdrops/source/stair_landing-E/row23-00cd0f8e.png",
           "ruling": {
             "walls": "oak wainscot to chair height below limewashed plaster",
             "overhead": "a plain lime-plastered ceiling",
             "underfoot": "broad oak treads and boards",
             "hangings": null
           },
-          "ask_path": "backdrops/source/stair_landing-E/row23-178cf7b9.prompt.txt",
+          "ask_path": "backdrops/source/stair_landing-E/row23-00cd0f8e.prompt.txt",
           "ask_via": "beside the candidate",
-          "missing": [
-            "walls",
-            "overhead",
-            "underfoot"
-          ],
-          "verdict": "stale",
-          "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "missing": [],
+          "verdict": "current",
+          "asked": "oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. broad oak treads and boards.",
+          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards"
         }
       ],
-      "distinct_asks": 2,
-      "split": true,
-      "stale": [
-        "E"
-      ],
+      "distinct_asks": 1,
+      "split": false,
+      "stale": [],
       "unprovable": [],
-      "verdict": "split-ask"
+      "verdict": "current"
     },
     {
       "room": "guest_chamber",
@@ -1375,24 +1377,19 @@
         {
           "facing": "E",
           "voice": "bedchamber",
-          "candidate": "backdrops/source/closet_chamber-E/row23-8aa286a9.png",
+          "candidate": "backdrops/source/closet_chamber-E/row23-4a1211ed.png",
           "ruling": {
             "walls": "oak wainscot to chair height with wall hangings above it",
             "overhead": "a plain lime-plastered ceiling",
             "underfoot": "wide oak floorboards",
             "hangings": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
           },
-          "ask_path": "backdrops/source/closet_chamber-E/row23-8aa286a9.prompt.txt",
+          "ask_path": "backdrops/source/closet_chamber-E/row23-4a1211ed.prompt.txt",
           "ask_via": "beside the candidate",
-          "missing": [
-            "walls",
-            "overhead",
-            "underfoot",
-            "hangings"
-          ],
-          "verdict": "stale",
-          "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "missing": [],
+          "verdict": "current",
+          "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping.",
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping"
         },
         {
           "facing": "W",
@@ -1420,7 +1417,6 @@
       "distinct_asks": 2,
       "split": true,
       "stale": [
-        "E",
         "W"
       ],
       "unprovable": [],
