@@ -277,12 +277,29 @@ export function flightMask(flights, w, h) {
  *
  * Returns `{ read, ratio, body_px, ring_px, body_edge, ring_edge, why }`;
  * `read` is false where there was nothing to read, with `why` saying what.
+ *
+ * `canvasW` IS THE WIDTH THE FLIGHTS WERE PROJECTED AT, and it is REQUIRED
+ * rather than defaulted: a flight's polygons are frame coordinates on a canvas
+ * of a stated width (`stairsForFacing`'s own `canvasW`, 1536 for every frame
+ * this project has painted), and this function rasterises them onto the pixels
+ * of the PNG. Let the two differ and the mask lands somewhere the staircase is
+ * not — and the number still comes out, a mean and a ring and a ratio all
+ * taken over the wrong part of the picture, with nothing saying so. That is
+ * the failure this parameter exists to make impossible, and defaulting it to
+ * 1536 would only move the assumption one line down, so a caller that does not
+ * say gets no reading either. Both refusals carry the numbers.
  */
-export function paintedFlightReading(pngPath, flights) {
+export function paintedFlightReading(pngPath, flights, canvasW) {
+  if (!(canvasW > 0)) {
+    return { read: false, why: `this reading was asked for without the canvas width the flight was projected at (${JSON.stringify(canvasW)}), and a projection read off a picture of some other width is a number taken over the wrong pixels` };
+  }
   let img;
   try { img = readLuma(pngPath); }
   catch (e) { return { read: false, why: String(e.message || e) }; }
   const { w, h } = img;
+  if (w !== canvasW) {
+    return { read: false, why: `this flight is projected on a ${canvasW} px canvas and ${pngPath} is ${w} px wide, so the two do not describe the same picture` };
+  }
   const { mask, quads } = flightMask(flights, w, h);
   if (!quads) {
     return { read: false, why: "the projection puts no tread of this flight in the frame — what this view holds of it is the opening in the floor it drops through" };

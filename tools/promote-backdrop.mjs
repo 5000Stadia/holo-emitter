@@ -652,7 +652,7 @@ if (drawnFlights.length) {
       /* The reading is taken here, so that a wall whose pixels disagree with
        * its own ask is on the record even though nothing refuses it:
        * `flight-evidence.mjs` explains at length why nothing does. */
-      flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights);
+      flightEvidence = paintedFlightReading(join(root, candidate), drawnFlights, CANVAS_W);
       flightEvidence.asked = { prompt: ask.path, via: ask.via };
       /* WHICH ROUTE THIS FLIGHT CAME IN ON, read off the READING and not off
        * the round's NAME. A rectified frame says so in its own `_snap` block —

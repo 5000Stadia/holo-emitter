@@ -3831,6 +3831,16 @@ the emitter's own output back through the reader.
 unasked are sent back by this clause. Both already have a row-38 re-ask on disk, so the live cost is
 nil, and on any map emitted after the flight language the clause is a no-op by construction.
 
+**And the reading has to be taken off the picture it was projected onto.** A flight's polygons are
+frame coordinates on a canvas of a stated width, and `paintedFlightReading` walks them over the PNG's
+own pixels: let those widths differ and every number still comes out — a mean, a ring, a ratio, all
+taken over the wrong part of the frame and none of them saying so. Because this reading is *recorded
+rather than gated on*, a silently wrong number here is worse than a refusal would be: it sits on the
+meta as evidence. So the canvas width is a REQUIRED argument, and a caller that does not say gets no
+reading rather than the 1536 one — the assumption cannot be moved one line down into a default.
+`flight.spec`'s "the pixel reading and the picture it is taken from" holds both halves. The corpus is
+1536 px throughout, so this is stated rather than discovered.
+
 **The pixel reading is still taken and still recorded**, on `measured_room.flight_evidence` beside
 the carrier disagreements row 21 put there for the same reason — two artifacts can disagree and the
 disagreement must never be invisible. `tools/flight-evidence.mjs` computes it and deliberately

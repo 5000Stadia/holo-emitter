@@ -20953,3 +20953,4 @@
 {"ts_start":1787619107.079,"ts_end":1787619107.086,"step":"promote.backdrop","key":"back_stair_head/S","detail":{"candidate":"backdrops/source/back_stair_head-S/row23-4df7ac87.png","exit_code":1,"refused":true}}
 {"ts_start":1787619107.162,"ts_end":1787619107.169,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-1eb02ae9.png","exit_code":1,"refused":true}}
 {"ts_start":1787619107.244,"ts_end":1787619107.25,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-72110eaf.png","exit_code":1,"refused":true}}
+{"ts_start":1787619607.544,"ts_end":1787619608.364,"step":"promote.backdrop","key":"stair_landing/N","detail":{"candidate":"backdrops/source/stair_landing-N/row23-e594b388.png","exit_code":0,"refused":false}}

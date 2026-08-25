@@ -41,6 +41,7 @@ import {
 import { deriveMeta, stairsForFacing, flightsForFacing, stairPlanFacts }
   from "../../tools/plan-projection.mjs";
 import { flightLines, askNamesAFlight } from "../../tools/frame-language.mjs";
+import { paintedFlightReading } from "../../tools/flight-evidence.mjs";
 import {
   REASONS, GRANTS_KEY, eligible, grant, spentPromptPath, DEFAULT_OUT
 } from "../../tools/grant-content-gap.mjs";
@@ -217,6 +218,57 @@ test.describe("the ask names the flight", () => {
       said.add(line);
     }
     expect(said.size, "two climbs produce the same sentence").toBe(4);
+  });
+});
+
+/* ------------------------------------------------------------- 1(a) */
+
+/* [ROW 39] THE PIXEL READING RASTERISES A PROJECTION ONTO A PICTURE, and the
+   two have to be the same picture. A flight's polygons are frame coordinates on
+   a canvas of a stated width; `paintedFlightReading` walks them over the PNG's
+   own pixels. Let those widths differ and every number still comes out — a
+   mean, a ring, a ratio, all of them taken over the wrong part of the frame,
+   with nothing in the record saying so. The reading is not gated on, which is
+   exactly why a silent wrong number here is worse than a refusal: it would sit
+   on the meta as evidence.
+
+   The real corpus is 1536 px wide throughout, so this is stated rather than
+   discovered — the guard is checked by declaring the wrong canvas over a real
+   candidate, which is the same disagreement a 1024 px frame would create. */
+test.describe("the pixel reading and the picture it is taken from", () => {
+  const CANDIDATE = join(repoRoot, "backdrops", "source", "stair_landing-N",
+    "row23-e594b388.png");
+
+  const flightsHere = () => {
+    const meta = deriveMeta(PLAN, "stair_landing", "N");
+    const flights = stairsForFacing(PLAN, "stair_landing", "N", meta);
+    expect(flights.length, "stair_landing/N draws no flight and this case has no subject")
+      .toBeGreaterThan(0);
+    return flights;
+  };
+
+  test("reads at the canvas the flight was projected on", () => {
+    expect(existsSync(CANDIDATE), `${CANDIDATE} is missing and this case proves nothing`)
+      .toBe(true);
+    const r = paintedFlightReading(CANDIDATE, flightsHere(), CANVAS_W);
+    expect(r.read, r.why).toBe(true);
+    expect(r.ratio).toBeGreaterThan(0);
+    expect(r.body_px).toBeGreaterThan(0);
+  });
+
+  test("and refuses to read one canvas's projection off another's pixels", () => {
+    const r = paintedFlightReading(CANDIDATE, flightsHere(), 1024);
+    expect(r.read, "a 1024 px projection was read off a 1536 px painting").toBe(false);
+    expect(r.why).toContain("1024");
+    expect(r.why).toContain("1536");
+    expect(r.ratio, "an unread reading carries no number").toBeUndefined();
+    /* Verified by removing the check: without it this same call returns
+       read:true with a ratio, over pixels two thirds of the way across the
+       wrong part of the frame. Which is why the width is not defaulted — a
+       caller that does not say gets no reading rather than the 1536 one. */
+    const silent = paintedFlightReading(CANDIDATE, flightsHere(), undefined);
+    expect(silent.read, "a reading taken without a declared canvas").toBe(false);
+    expect(silent.why).toContain("without the canvas width");
   });
 });
 
