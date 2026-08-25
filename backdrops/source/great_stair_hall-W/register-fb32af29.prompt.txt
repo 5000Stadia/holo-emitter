@@ -1,0 +1,67 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the west wall of the great stair hall, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
+  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the west wall of the empty great stair hall of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of
+  the room with the two side walls running away from you to left and right. The wall you
+  face shows its whole width, and the floor is visible and reaches the bottom of the
+  picture.
+  The line where the left-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the left edge.
+  The line where the left-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the left edge.
+  The line where the right-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the right edge.
+  The line where the right-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the right edge.
+  Carry all four of those lines the other way instead, back into the distance, and they
+    converge on a single place: the middle of the picture's width, a little above its
+    half-height, at about the eye level of someone standing on the floor you can see.
+  The same lines, as picture coordinates — column counted from the left edge,
+    row counted from the top:
+    The faced wall meets the floor along a level line at row 710.
+    It meets the surface overhead along a level line at row 275.
+    Its two upright edges stand at column 330 and column 1206.
+    The left side wall's upper line runs from column 330, row 275 to column 0, row 87.
+    The left side wall's lower line runs from column 330, row 710 to column 0, row 848.
+    The right side wall's upper line runs from column 1206, row 275 to column 1536, row 87.
+    The right side wall's lower line runs from column 1206, row 710 to column 1536, row 848.
+    Carried on, all four of those meet at column 768, row 526.
+    One metre of the faced wall covers 155 columns.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture — it is built into this room and cannot be left out of the picture.
+  It is a straight stair of 17 steps, 1.60 m wide, carrying a person 2.80 m up to the storey above.
+    18 of its steps are in the picture. The front edge of each step reads as a
+    level line across the width of the flight, and those lines stack one above the next,
+    climbing toward the right of the picture, so the flight reads as a stair going up to the right.
+    Where it stands, as picture coordinates — column counted from the left edge, row
+    counted from the top: what is in view of it fills columns 262 to 1379
+    and rows 150 to 801.
+    The surface overhead is open where the flight climbs through it. There is a stairwell
+      cut in it directly over the flight, and nothing is drawn closing that opening.
+    The space the flight climbs into, beyond its topmost step, is deep unlit shadow — no lit
+      room there, no visible far wall, and no light source beyond the end of the stair.
+Materials/textures: oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling.
+  Underfoot: broad oak treads and boards.
+Windows: this wall carries one window opening, and it is not the window in Image 1 — Image 1 is a reference for paint handling, palette and light only, never for how many openings this wall has or how their glass is laid out.
+  The window is 2.50 m wide, set under a moulded stone label mould, divided by four stone mullions into five equal upright lights, and crossed by a single stone transom, the only transom on this wall, the sill 0.90 m above the floor and the head 2.00 m above it.
+  One light in it is a casement hung on iron hinges: the left-hand light.
+  Every light is glazed with small diamond quarrels of plain, faintly greenish crown glass set in lead cames, with iron saddle-bars across them.
+  The glass is plain: no coloured glass, no painted or stained glass, no armorial shield, crest, badge, monogram, motto or insignia of any kind appears in any window on this wall.
+Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the great stair hall is completely empty. No furniture stands in it and nobody is in it;
+  there are no loose props and no animals.
+  Image 2 is a layout drawing and its marks are instructions rather than things to paint.
+  Every surface here is plain and unlettered. Wood is left plain, plaster is left plain, stone
+  is left plain and the glazing is plain. This picture carries only the room itself. Do not
+  invent additional typography.

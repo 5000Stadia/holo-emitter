@@ -1,0 +1,258 @@
+{
+  "_what_this_is": "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
+  "row": null,
+  "trial": "register",
+  "generation": 1,
+  "wall": "guest_chamber/E",
+  "why_this_wall": "row 34's probe 1, unchanged: the only zero-fault wall in the hold family - camera PASS, nothing absent, every bracket and both corners in frame, and no carrier at all. Interior, blank.",
+  "held_best_sigma_px": null,
+  "voice": {
+    "id": "bedchamber",
+    "anchor": "chair_rail",
+    "outdoor": false,
+    "via": "room id"
+  },
+  "meta_used": {
+    "floor_line_y": 0.693012,
+    "px_per_m_at_wall": 155.152,
+    "px_per_m_at_bottom": 420.88,
+    "wall_width_m": 6.45,
+    "key_tint": "#c88e49",
+    "image_h_px": 1024,
+    "horizon_y": 0.51377,
+    "key_dir": "L-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 147,
+    "camera_wall_m": 6.6,
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 6.45,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": 206.5,
+    "corner_x1_px": 1329.5,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source-snapped/guest_chamber-E/snapped.png",
+    "camera_reference": "ruled",
+    "measured_round": "row35snap",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1024,
+    "nearest_floor_m": 2.433,
+    "measured_room": {
+      "storey_height_m": 3.774,
+      "wall_width_m": 7.238,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 6.45,
+      "carriers": []
+    },
+    "openings": []
+  },
+  "meta_origin": "the meta the page holds for this facing (derived: this wall is not promoted)",
+  "declared_horizon_row": 526,
+  "vanishing_point": {
+    "x": 768,
+    "y": 526.1,
+    "_derivation": "the intersection of this facing's own two side-wall junction lines as renderer.js drawGrid draws them, computed rather than assumed to be the frame centre"
+  },
+  "frame_geometry": {
+    "floorY": 709.644288,
+    "ceilY": 275.21868800000004,
+    "horizonY": 526.10048,
+    "cL": 206.5,
+    "cR": 1329.5,
+    "bounded": true,
+    "px_per_m": 155.152,
+    "wall_width_m": 6.45,
+    "storey_height_m": 2.8,
+    "corner_span_px": 1123,
+    "left": {
+      "floor": {
+        "from": {
+          "x": 206.5,
+          "y": 709.644288
+        },
+        "toRaw": {
+          "x": -755.1780447561102,
+          "y": 1024
+        },
+        "to": {
+          "x": 0,
+          "y": 777.1455217881363
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 206.5,
+          "y": 275.21868800000004
+        },
+        "toRaw": {
+          "x": -755.1780447561102,
+          "y": -154.46399999999994
+        },
+        "to": {
+          "x": 0,
+          "y": 182.95342775429845
+        }
+      }
+    },
+    "right": {
+      "floor": {
+        "from": {
+          "x": 1329.5,
+          "y": 709.644288
+        },
+        "toRaw": {
+          "x": 2291.1780447561105,
+          "y": 1024
+        },
+        "to": {
+          "x": 1536,
+          "y": 777.1455217881362
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 1329.5,
+          "y": 275.21868800000004
+        },
+        "toRaw": {
+          "x": 2291.1780447561105,
+          "y": -154.46399999999994
+        },
+        "to": {
+          "x": 1536,
+          "y": 182.95342775429845
+        }
+      }
+    }
+  },
+  "stamped": [],
+  "chair_rail": {
+    "y": 562.25,
+    "x0": 206.5,
+    "x1": 1329.5,
+    "word": "CHAIR-RAIL"
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 709.644288,
+      "half_width": 14.68,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 562.2498879999999,
+      "half_width": 11.79,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 275.21868800000004,
+      "half_width": 34.75,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [],
+    "carrier_tolerance_px": 0,
+    "rail_columns": [
+      [
+        206.5,
+        1329.5
+      ]
+    ]
+  },
+  "edge_marks": {
+    "lines": [
+      {
+        "x0": 206.5,
+        "y0": 709.64,
+        "x1": 1329.5,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "wall-floor line"
+      },
+      {
+        "x0": 206.5,
+        "y0": 275.22,
+        "x1": 1329.5,
+        "y1": 275.22,
+        "weight": "heavy",
+        "what": "wall-ceiling line"
+      },
+      {
+        "x0": 206.5,
+        "y0": 275.22,
+        "x1": 206.5,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "left corner"
+      },
+      {
+        "x0": 1329.5,
+        "y0": 275.22,
+        "x1": 1329.5,
+        "y1": 709.64,
+        "weight": "heavy",
+        "what": "right corner"
+      },
+      {
+        "x0": 206.5,
+        "y0": 709.64,
+        "x1": 0,
+        "y1": 777.15,
+        "weight": "heavy",
+        "what": "left return, floor junction"
+      },
+      {
+        "x0": 206.5,
+        "y0": 275.22,
+        "x1": 0,
+        "y1": 182.95,
+        "weight": "heavy",
+        "what": "left return, ceiling junction"
+      },
+      {
+        "x0": 1329.5,
+        "y0": 709.64,
+        "x1": 1536,
+        "y1": 777.15,
+        "weight": "heavy",
+        "what": "right return, floor junction"
+      },
+      {
+        "x0": 1329.5,
+        "y0": 275.22,
+        "x1": 1536,
+        "y1": 182.95,
+        "weight": "heavy",
+        "what": "right return, ceiling junction"
+      },
+      {
+        "x0": 206.5,
+        "y0": 562.25,
+        "x1": 1329.5,
+        "y1": 562.25,
+        "weight": "light",
+        "what": "gate anchor"
+      }
+    ],
+    "rects": [],
+    "ink": "#000000",
+    "ground": "#ffffff"
+  },
+  "_edge_provenance": "COMPOSED FROM DECLARED GEOMETRY, NOT A SHIPPED-RENDERER CAPTURE. frame.png and scaffold.png come out of window.HOLO.renderer.render and carry row 23 §7.1's guarantee that the picture a painter is given is the picture a player sees; edge.png does not. Plan §1.2 makes re-establishing that guarantee a named condition on folding v5 into production.",
+  "images": {
+    "frame": "08c04018d7ac458aa3aa653517ded86e2d036431b865737fc1ea49c3b87a5a27",
+    "scaffold": "bf3720fe449b1008c0f6f91f79112df8d239da7bbdf6d19857f41e52e899a94b",
+    "edge": "ac88de553297f4314ae06ae839a302028da157f670f150164204d526abfadd61"
+  },
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "57da3ce6039622fd2e89a19faa1439a4993d9277e84ce7ed5f40eb5b7b7fc09c",
+  "groundplane_sha256": "7e5217511b751eb0a20582e2982de9905797b984c2085dca6794896114d60957",
+  "git_commit": "6c2132b3d9e142d702546f0a2464f52be1b9579b"
+}

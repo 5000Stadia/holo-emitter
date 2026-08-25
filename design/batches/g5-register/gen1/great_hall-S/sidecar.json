@@ -1,0 +1,483 @@
+{
+  "_what_this_is": "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
+  "row": null,
+  "trial": "register",
+  "generation": 1,
+  "wall": "great_hall/S",
+  "why_this_wall": "the most carried wall in the house: four windows and a doorway, the heraldry ration live, and the one shape where 'between the two windows' has to be derived rather than typed",
+  "held_best_sigma_px": null,
+  "voice": {
+    "id": "hall_state",
+    "anchor": "chair_rail",
+    "outdoor": false,
+    "via": "room id"
+  },
+  "meta_used": {
+    "floor_line_y": 0.638672,
+    "px_per_m_at_wall": 112.632,
+    "px_per_m_at_bottom": 438.46,
+    "wall_width_m": 14.6,
+    "key_tint": "#c8b99e",
+    "image_h_px": 1024,
+    "horizon_y": 0.51377,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 107,
+    "camera_wall_m": 8.85,
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 14.6,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": 673,
+    "corner_x1_px": 1446,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source/great_hall-S/row23-0bc11e98.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "camera_source": "declared",
+    "suspect_perspective": true,
+    "tolerance_ruling": "design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: \"I think its pretty close and we can accept a tolerance for drift here\"",
+    "declared_fields": [
+      "horizon_y"
+    ],
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 996.8,
+    "nearest_floor_m": 2.2734,
+    "measured_room": {
+      "storey_height_m": 3.765,
+      "wall_width_m": 6.863,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 14.6,
+      "carriers": [
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            13.4,
+            182.3
+          ],
+          "plan_centre_px": 97.8,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            294.9,
+            463.9
+          ],
+          "plan_centre_px": 379.4,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "door",
+          "id": "op01",
+          "plan_px": [
+            677.9,
+            858.1
+          ],
+          "plan_centre_px": 768,
+          "painted_px": [
+            697,
+            777
+          ],
+          "painted_centre_px": 737,
+          "centre_delta_px": -31,
+          "centre_delta_m": -0.275,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            970.7,
+            1139.7
+          ],
+          "plan_centre_px": 1055.2,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "window",
+          "id": null,
+          "plan_px": [
+            1252.3,
+            1421.3
+          ],
+          "plan_centre_px": 1336.8,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": [
+      {
+        "id": "op01",
+        "kind": "door",
+        "via": null,
+        "x": 697,
+        "y": 433,
+        "w": 80,
+        "h": 221,
+        "beyond_m": 29.6,
+        "beyond_offset_m": -2.9,
+        "measured": true
+      }
+    ]
+  },
+  "meta_origin": "the meta the page holds for this facing (derived: this wall is not promoted)",
+  "declared_horizon_row": 526,
+  "vanishing_point": {
+    "x": 1059.5,
+    "y": 526.1,
+    "_derivation": "the intersection of this facing's own two side-wall junction lines as renderer.js drawGrid draws them, computed rather than assumed to be the frame centre"
+  },
+  "frame_geometry": {
+    "floorY": 654.000128,
+    "ceilY": 338.630528,
+    "horizonY": 526.10048,
+    "cL": 673,
+    "cR": 1446,
+    "bounded": true,
+    "px_per_m": 112.632,
+    "wall_width_m": 14.6,
+    "storey_height_m": 2.8,
+    "corner_span_px": 773,
+    "left": {
+      "floor": {
+        "from": {
+          "x": 673,
+          "y": 654.000128
+        },
+        "toRaw": {
+          "x": -445.08830527736336,
+          "y": 1024
+        },
+        "to": {
+          "x": 0,
+          "y": 876.7105460239397
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 673,
+          "y": 338.630528
+        },
+        "toRaw": {
+          "x": -445.08830527736336,
+          "y": -203.68799999999987
+        },
+        "to": {
+          "x": 0,
+          "y": 12.198020280084734
+        }
+      }
+    },
+    "right": {
+      "floor": {
+        "from": {
+          "x": 1446,
+          "y": 654.000128
+        },
+        "toRaw": {
+          "x": 2564.0883052773634,
+          "y": 1024
+        },
+        "to": {
+          "x": 1536,
+          "y": 683.7830962349994
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 1446,
+          "y": 338.630528
+        },
+        "toRaw": {
+          "x": 2564.0883052773634,
+          "y": -203.68799999999987
+        },
+        "to": {
+          "x": 1536,
+          "y": 294.976849404469
+        }
+      }
+    }
+  },
+  "stamped": [
+    {
+      "kind": "window",
+      "id": null,
+      "x0": 304.87,
+      "x1": 473.81,
+      "y0": 428.74,
+      "y1": 552.63,
+      "from_m": 0.6,
+      "to_m": 2.1
+    },
+    {
+      "kind": "window",
+      "id": null,
+      "x0": 586.45,
+      "x1": 755.39,
+      "y0": 428.74,
+      "y1": 552.63,
+      "from_m": 3.1,
+      "to_m": 4.6
+    },
+    {
+      "kind": "door",
+      "id": "op01",
+      "x0": 969.39,
+      "x1": 1149.61,
+      "y0": 428.74,
+      "y1": 654,
+      "from_m": 6.5,
+      "to_m": 8.1
+    },
+    {
+      "kind": "window",
+      "id": null,
+      "x0": 1262.24,
+      "x1": 1431.19,
+      "y0": 428.74,
+      "y1": 552.63,
+      "from_m": 9.1,
+      "to_m": 10.6
+    },
+    {
+      "kind": "window",
+      "id": null,
+      "x0": 1543.82,
+      "x1": 1712.77,
+      "y0": 428.74,
+      "y1": 552.63,
+      "from_m": 11.6,
+      "to_m": 13.1
+    }
+  ],
+  "chair_rail": {
+    "y": 547,
+    "x0": 673,
+    "x1": 1446,
+    "word": "CHAIR-RAIL"
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 654.000128,
+      "half_width": 10.23,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 546.999728,
+      "half_width": 8.56,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 338.630528,
+      "half_width": 25.23,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "window",
+        "id": null,
+        "x0": 304.87,
+        "x1": 473.81,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      },
+      {
+        "kind": "window",
+        "id": null,
+        "x0": 586.45,
+        "x1": 755.39,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      },
+      {
+        "kind": "door",
+        "id": "op01",
+        "x0": 969.39,
+        "x1": 1149.61,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      },
+      {
+        "kind": "window",
+        "id": null,
+        "x0": 1262.24,
+        "x1": 1431.19,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      },
+      {
+        "kind": "window",
+        "id": null,
+        "x0": 1543.82,
+        "x1": 1712.77,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 0,
+    "rail_columns": [
+      [
+        756,
+        969
+      ],
+      [
+        1150,
+        1262
+      ]
+    ]
+  },
+  "edge_marks": {
+    "lines": [
+      {
+        "x0": 673,
+        "y0": 654,
+        "x1": 1446,
+        "y1": 654,
+        "weight": "heavy",
+        "what": "wall-floor line"
+      },
+      {
+        "x0": 673,
+        "y0": 338.63,
+        "x1": 1446,
+        "y1": 338.63,
+        "weight": "heavy",
+        "what": "wall-ceiling line"
+      },
+      {
+        "x0": 673,
+        "y0": 338.63,
+        "x1": 673,
+        "y1": 654,
+        "weight": "heavy",
+        "what": "left corner"
+      },
+      {
+        "x0": 1446,
+        "y0": 338.63,
+        "x1": 1446,
+        "y1": 654,
+        "weight": "heavy",
+        "what": "right corner"
+      },
+      {
+        "x0": 673,
+        "y0": 654,
+        "x1": 0,
+        "y1": 876.71,
+        "weight": "heavy",
+        "what": "left return, floor junction"
+      },
+      {
+        "x0": 673,
+        "y0": 338.63,
+        "x1": 0,
+        "y1": 12.2,
+        "weight": "heavy",
+        "what": "left return, ceiling junction"
+      },
+      {
+        "x0": 1446,
+        "y0": 654,
+        "x1": 1536,
+        "y1": 683.78,
+        "weight": "heavy",
+        "what": "right return, floor junction"
+      },
+      {
+        "x0": 1446,
+        "y0": 338.63,
+        "x1": 1536,
+        "y1": 294.98,
+        "weight": "heavy",
+        "what": "right return, ceiling junction"
+      },
+      {
+        "x0": 673,
+        "y0": 547,
+        "x1": 1446,
+        "y1": 547,
+        "weight": "light",
+        "what": "gate anchor"
+      }
+    ],
+    "rects": [
+      {
+        "kind": "window",
+        "x0": 304.87,
+        "y0": 428.74,
+        "x1": 473.81,
+        "y1": 552.63,
+        "weight": "medium"
+      },
+      {
+        "kind": "window",
+        "x0": 586.45,
+        "y0": 428.74,
+        "x1": 755.39,
+        "y1": 552.63,
+        "weight": "medium"
+      },
+      {
+        "kind": "door",
+        "x0": 969.39,
+        "y0": 428.74,
+        "x1": 1149.61,
+        "y1": 654,
+        "weight": "medium"
+      },
+      {
+        "kind": "window",
+        "x0": 1262.24,
+        "y0": 428.74,
+        "x1": 1431.19,
+        "y1": 552.63,
+        "weight": "medium"
+      },
+      {
+        "kind": "window",
+        "x0": 1543.82,
+        "y0": 428.74,
+        "x1": 1712.77,
+        "y1": 552.63,
+        "weight": "medium"
+      }
+    ],
+    "ink": "#000000",
+    "ground": "#ffffff"
+  },
+  "_edge_provenance": "COMPOSED FROM DECLARED GEOMETRY, NOT A SHIPPED-RENDERER CAPTURE. frame.png and scaffold.png come out of window.HOLO.renderer.render and carry row 23 §7.1's guarantee that the picture a painter is given is the picture a player sees; edge.png does not. Plan §1.2 makes re-establishing that guarantee a named condition on folding v5 into production.",
+  "images": {
+    "frame": "8d9777d853cb563e61c7c92df92c4d22b214dfea47e81baf56578b8beaaf8871",
+    "scaffold": "d0eb4f580646257afb94b99fab442173bc80252010cf548751b479ef15333521",
+    "edge": "530440f57b3d6e14e62cbe97bbb86efd22f4f184f09f355e9304064001432d45"
+  },
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "57da3ce6039622fd2e89a19faa1439a4993d9277e84ce7ed5f40eb5b7b7fc09c",
+  "groundplane_sha256": "7e5217511b751eb0a20582e2982de9905797b984c2085dca6794896114d60957",
+  "git_commit": "6c2132b3d9e142d702546f0a2464f52be1b9579b"
+}

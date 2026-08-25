@@ -37,7 +37,8 @@ import { PAGE_RENDER, GLYPH_TABLE, sourceDirFor, chairRail, assertLabelChars }
 import {
   ROOT, PLAN, PROBES, ARMS, ARM_IDS, GEN1_ARMS, CONTROL_ARM, SPECTRUM, REGISTER, HEADLINE_PAIRING,
   AMPLIFICATION, STYLE_SEED, CANVAS_W, CANVAS_H,
-  makeCtx, armPrompt, edgeMarks, frameGeometry, vanishingPoint
+  makeCtx, armPrompt, edgeMarks, frameGeometry, vanishingPoint,
+  REGISTER_TRIAL, CLEAN_REGISTER, styleImageFor
 } from "./evolution-arms.mjs";
 import { voiceFor } from "./room-voices.mjs";
 
@@ -63,18 +64,48 @@ export const BUDGET = {
  * not cryptographic and it is reproducible from this file. What actually
  * carries the blinding is that the detector configuration is a function of the
  * WALL's scaffold, so it cannot vary by arm even in principle. */
-export function rollId34(generation, wall, arm, roll) {
+export function rollIdFor(tag, generation, wall, arm, roll) {
   return createHash("sha256")
-    .update(`row34|${generation}|${wall}|${arm}|${roll}`)
+    .update(`${tag}|${generation}|${wall}|${arm}|${roll}`)
     .digest("hex").slice(0, 8);
 }
 
-const ID_RE = /^row34-[0-9a-f]{8}\.(png|prompt\.txt)$/;
+/** Row 34's own ids, unchanged and still reproducible from this file — the
+ *  suite recomputes every committed id through this exact call. */
+export function rollId34(generation, wall, arm, roll) {
+  return rollIdFor("row34", generation, wall, arm, roll);
+}
+
+const idRe = (tag) => new RegExp(`^${tag}-[0-9a-f]{8}\\.(png|prompt\\.txt)$`);
 
 function gitCommit() {
   try {
     return execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   } catch { return null; }
+}
+
+/** What an arm attaches, said without a wall in hand. An arm whose attach list
+ *  is a function of the WALL — the ruled style-image policy — declares it in
+ *  words; every other arm's list is the same on every wall and is asked for. */
+/** A trial with no generations still declares a budget, and it is declared in
+ *  the shape the SCORER already reads — `row34_fitness.py`'s report prints
+ *  `_budget.rolls_per_arm_per_wall` off the id map, and a trial that omitted it
+ *  would take the scorer down on a KeyError after the images were spent. One
+ *  shape, one reader, and the number itself comes from the declaration in
+ *  `tools/evolution-arms.mjs` rather than from anything this file chooses. */
+function declaredBudget(trial) {
+  return {
+    rolls_per_arm_per_wall: trial.rolls,
+    walls: trial.walls.length,
+    arms: trial.armsFor(1).length,
+    declared_rolls: trial.exact_rolls,
+    _authority: "tools/evolution-arms.mjs REGISTER_TRIAL, declared before anything was emitted",
+    _one_generation: "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
+  };
+}
+
+function armImages(arm) {
+  return arm.declared_images || arm.images();
 }
 
 function sha256File(p) {
@@ -192,13 +223,126 @@ function armsFor(generation) {
   return ids;
 }
 
-async function emit(generation) {
-  if (generation > BUDGET.generations_max) {
-    throw new Error(`emit-evolution refused: generation ${generation} is past the declared ` +
-      `maximum of ${BUDGET.generations_max} (design/specs/34-plan.md §3)`);
+/* ------------------------------------------------------------------ */
+/* What a trial IS                                                     */
+/* ------------------------------------------------------------------ */
+/* ONE EMITTER, TWO TRIALS, AND THE SECOND ONE PROVED THE FIRST WAS A TRIAL.
+ * Everything below `emit` was written for row 34 and every one of its parts is
+ * general: cut this generation's images, compose every arm's prompt, write the
+ * packets, write the id map before any candidate exists, and stop. What was
+ * row-34-specific was the batch directory, the wall set, the roll count, the id
+ * prefix, the budget and the reading lens — six values, now a descriptor.
+ *
+ * ROW 34's OWN PATH IS BYTE-FOR-BYTE WHAT IT WAS. Its ids come through
+ * `rollId34`, which is still `sha256("row34|…")`; its budget clauses are still
+ * its own; its committed artifacts are guaranteed by git and by
+ * `evolution.spec.mjs`'s blob-immutability case either way. A second copy of
+ * this emitter would have been the alternative, and a second copy is how the
+ * detector configuration ends up varying by arm. */
+const ROW34_TRIAL = {
+  tag: "row34",
+  row: 34,
+  batch: BATCH,
+  walls: PROBES,
+  rolls: ROLLS_PER_ARM_PER_WALL,
+  armsFor,
+  control: CONTROL_ARM,
+  genDir: (g) => `gen${g}`,
+  assignName: (g) => (g === 1 ? "assignment.json" : `assignment-gen${g}.json`),
+  manifestName: (g) => (g === 1 ? "manifest.json" : `manifest-gen${g}.json`),
+  budget: BUDGET,
+  lens: () => ({
+    _spectrum: SPECTRUM, _register: REGISTER, _headline_pairing: HEADLINE_PAIRING,
+    _amplification: AMPLIFICATION,
+    _no_privileged_arm: "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" v7 is the governing frame's own arm and it runs on terms byte-identical to every other arm: same rolls, same blind measurement, same pre-committed rules, same Holm family, no seat by name. The only standing entrant is the control, which is the yardstick and never a candidate for the crown."
+  }),
+  manifest_what: "The row-34 evolution run's order for one generation: two probe walls, their declared geometry and brackets, and every arm's packet. The measurement reads this file and assignment.json and nothing else.",
+  probe_selection: "Both walls are from run-state.json's unfitted-horizon subset - camera PASS, horizon held - screened for corners and every bracket in frame, every stamped carrier in frame, and the fewest entries in the reading's own `_absent`. See design/specs/34-plan.md §2."
+};
+
+/* THE REGISTER TRIAL — Kabe's clean register against the register row 34 folded
+ * into production. Six walls, three arms, one roll each: a SCREEN, and its own
+ * `min_detectable_effect` is computed into the manifest before dispatch so the
+ * run's weakness is a number rather than a discovery. The wall set, the arms
+ * and the reading order are all declared in `tools/evolution-arms.mjs` and read
+ * from there — an emitter that could choose its own arms is an emitter that
+ * could quietly keep a losing one alive (row 34 §6, and it governs here). */
+const REGISTER_TRIAL_SPEC = {
+  tag: REGISTER_TRIAL.tag,
+  row: null,
+  batch: join(ROOT, REGISTER_TRIAL.batch),
+  walls: REGISTER_TRIAL.walls,
+  rolls: REGISTER_TRIAL.rolls_per_arm_per_wall,
+  armsFor: () => REGISTER_TRIAL.arms,
+  control: REGISTER_TRIAL.control,
+  genDir: () => "gen1",
+  assignName: () => "assignment.json",
+  manifestName: () => "manifest.json",
+  budget: null,
+  exact_rolls: REGISTER_TRIAL.walls.length * REGISTER_TRIAL.arms.length *
+    REGISTER_TRIAL.rolls_per_arm_per_wall,
+  lens: () => ({
+    _reading: CLEAN_REGISTER,
+    _no_privileged_arm: REGISTER_TRIAL._no_privileged_arm,
+    _the_confound: REGISTER_TRIAL._the_confound,
+    _min_detectable_effect: minDetectableEffect(
+      REGISTER_TRIAL.walls.length * REGISTER_TRIAL.rolls_per_arm_per_wall,
+      REGISTER_TRIAL.walls.length * REGISTER_TRIAL.rolls_per_arm_per_wall,
+      REGISTER_TRIAL.arms.length - 1, 0.10, 2)
+  }),
+  manifest_what: REGISTER_TRIAL._what_this_is,
+  probe_selection: "Six walls, declared in tools/evolution-arms.mjs as REGISTER_WALLS with the fact that picked each: row 34's two probes unchanged so this trial can be read beside the generation-3 table, plus an interior wall with a fireplace and a doorway, the most carried wall in the house, a flight wall and the outdoor open facing - the four shapes the register changes that the two probes cannot exercise."
+};
+
+/**
+ * The smallest arm-versus-control result that could clear the discipline, at
+ * this n and this many comparisons.
+ *
+ * `row34_fitness.py`'s own function, in JavaScript, and it is here rather than
+ * shelled out for one reason: it goes into the MANIFEST, which is written
+ * before anything is dispatched, and the scorer that owns the python version
+ * runs after. The two are checked against each other in the suite rather than
+ * trusted to agree.
+ */
+export function minDetectableEffect(nA, nC, comparisons, alpha, marginMin) {
+  const logFact = [0];
+  for (let i = 1; i <= nA + nC + 1; i++) logFact.push(logFact[i - 1] + Math.log(i));
+  const C = (n, k) => (k < 0 || k > n) ? 0 : Math.round(Math.exp(logFact[n] - logFact[k] - logFact[n - k]));
+  const fisher = (a, c) => {
+    const total = a + c, n = nA + nC;
+    if (!n || !total || total === n) return 1;
+    let num = 0;
+    for (let x = a; x <= Math.min(nA, total); x++) {
+      if (total - x >= 0 && total - x <= nC) num += C(nA, x) * C(nC, total - x);
+    }
+    return num / C(n, total);
+  };
+  const thresh = comparisons ? alpha / comparisons : alpha;
+  let best = null;
+  for (let c = 0; c <= nC; c++) {
+    for (let a = 0; a <= nA; a++) {
+      if (a - c < marginMin) continue;
+      const pv = fisher(a, c);
+      if (pv > thresh) continue;
+      const key = [a - c, a];
+      if (!best || key[0] < best.key[0] || (key[0] === best.key[0] && key[1] < best.key[1])) {
+        best = { key, out: { arm_admissible: a, arm_n: nA, control_admissible: c, control_n: nC,
+          margin: a - c, fisher_p: Math.round(pv * 1e6) / 1e6,
+          holm_tightest_threshold: Math.round(thresh * 1e6) / 1e6 } };
+      }
+    }
   }
-  const armIds = armsFor(generation);
-  const genDir = join(BATCH, `gen${generation}`);
+  return best ? best.out : null;
+}
+
+async function emit(generation, trial = ROW34_TRIAL) {
+  if (trial.budget && generation > trial.budget.generations_max) {
+    throw new Error(`emit-evolution refused: generation ${generation} is past the declared ` +
+      `maximum of ${trial.budget.generations_max} (design/specs/34-plan.md §3)`);
+  }
+  const ID_RE = idRe(trial.tag);
+  const armIds = trial.armsFor(generation);
+  const genDir = join(trial.batch, trial.genDir(generation));
   mkdirSync(genDir, { recursive: true });
 
   const browser = await chromium.launch();
@@ -208,7 +352,7 @@ async function emit(generation) {
 
   const walls = [];
   const rolls = [];
-  for (const probe of PROBES) {
+  for (const probe of trial.walls) {
     const key = probe.key;
     /* THE META THE PAGE HOLDS, which is what a player's build resolves. Both
      * probes are unpainted, so it is the derived meta — and the suite asserts
@@ -237,9 +381,9 @@ async function emit(generation) {
     const vp = vanishingPoint(pageMeta);
     const sidecar = {
       _what_this_is: "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
-      row: 34, generation, wall: key,
+      row: trial.row, trial: trial.tag, generation, wall: key,
       why_this_wall: probe.why,
-      held_best_sigma_px: probe.held_sigma_px,
+      held_best_sigma_px: probe.held_sigma_px === undefined ? null : probe.held_sigma_px,
       voice: { id: ctx.voice.id, anchor: ctx.anchor.id, outdoor: !!ctx.voice.outdoor, via: ctx.via },
       meta_used: pageMeta,
       meta_origin: "the meta the page holds for this facing (derived: this wall is not promoted)",
@@ -265,6 +409,16 @@ async function emit(generation) {
     };
     writeFileSync(join(dir, "sidecar.json"), JSON.stringify(sidecar, null, 2) + "\n");
 
+    /* ---- the style image the ruling allows, if any ---- */
+    /* [HUMAN, 2026-08-24] "So why do we give it the reference image of the
+     * study? I think it biases it too much." Image 1 is never a wall from
+     * another room: an arm that asks for a style reference gets this room's own
+     * agreeing majority wall or nothing at all. It is cut into the wall's own
+     * directory under the name the arm asks for, so the copy below stays one
+     * rule for every image an arm names. */
+    const style = styleImageFor(ctx.loc, ctx.facing);
+    if (style) copyFileSync(join(ROOT, style.file), join(dir, style.name));
+
     /* ---- one packet per arm ---- */
     const srcDir = sourceDirFor(key);
     mkdirSync(join(ROOT, srcDir), { recursive: true });
@@ -275,14 +429,14 @@ async function emit(generation) {
       const text = armPrompt(armId, ctx);
       writeFileSync(join(armDir, "prompt.txt"), text);
       const ids = [];
-      for (let n = 1; n <= ROLLS_PER_ARM_PER_WALL; n++) {
-        const id = rollId34(generation, key, armId, n);
+      for (let n = 1; n <= trial.rolls; n++) {
+        const id = rollIdFor(trial.tag, generation, key, armId, n);
         const rec = {
           id, generation, wall: key, arm: armId, roll: n,
-          candidate: `${srcDir}/row34-${id}.png`,
-          prompt: `${srcDir}/row34-${id}.prompt.txt`
+          candidate: `${srcDir}/${trial.tag}-${id}.png`,
+          prompt: `${srcDir}/${trial.tag}-${id}.prompt.txt`
         };
-        for (const f of [`row34-${id}.png`, `row34-${id}.prompt.txt`]) {
+        for (const f of [`${trial.tag}-${id}.png`, `${trial.tag}-${id}.prompt.txt`]) {
           if (!ID_RE.test(f)) throw new Error(`emit-evolution: bad return path ${f}`);
         }
         writeFileSync(join(ROOT, rec.prompt), text);
@@ -296,7 +450,8 @@ async function emit(generation) {
         if (img !== "style-seed-warm.png") copyFileSync(join(dir, img), join(armDir, img));
         else copyFileSync(join(ROOT, STYLE_SEED), join(armDir, img));
       }
-      writeFileSync(join(armDir, "PACKET.md"), packetMd(key, arm, ids, ctx, generation));
+      writeFileSync(join(armDir, "PACKET.md"),
+        packetMd(key, arm, ids, ctx, generation, style));
     }
 
     walls.push({
@@ -315,10 +470,14 @@ async function emit(generation) {
       stamped: ctx.rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 })),
       chair_rail_y: ctx.chair_rail.y,
       voice: { id: ctx.voice.id, anchor: ctx.anchor.id, outdoor: !!ctx.voice.outdoor },
+      style_image: style
+        ? { key: style.key, file: style.file, name: style.name, why: style.why }
+        : { key: null, why: "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words" },
       sidecar_sha256: sha256File(join(dir, "sidecar.json"))
     });
     console.log(`  ${key.padEnd(20)} ${ctx.rects.length} carrier(s)  ` +
-      `${armIds.length} arms x ${ROLLS_PER_ARM_PER_WALL} rolls`);
+      `${armIds.length} arms x ${trial.rolls} roll(s)  ` +
+      `style ${style ? style.key : "none"}`);
   }
   await browser.close();
 
@@ -328,7 +487,17 @@ async function emit(generation) {
    * the breeding, and branch B can honestly come in UNDER when the leaders are
    * near-identical and their crossings are already in the pool — plan §6 says
    * under is fine and over is refused, and this is that sentence. */
-  const ceiling = BUDGET.images_per_screening_generation;
+  if (!trial.budget) {
+    /* A TRIAL WITH NO GENERATIONS DECLARES ONE NUMBER AND MEETS IT EXACTLY.
+     * There is nothing to breed and nothing to carry forward, so over and under
+     * are the same defect: the count was declared before dispatch and this is
+     * where it is held to. */
+    if (rolls.length !== trial.exact_rolls) {
+      throw new Error(`emit-evolution refused: ${rolls.length} rolls against a declared ` +
+        `${trial.exact_rolls} for the ${trial.tag} trial`);
+    }
+  } else {
+  const ceiling = trial.budget.images_per_screening_generation;
   const over = generation === 1 ? rolls.length !== ceiling : rolls.length > ceiling;
   if (over) {
     throw new Error(`emit-evolution refused: ${rolls.length} rolls against a declared ` +
@@ -343,48 +512,46 @@ async function emit(generation) {
    * re-emission cannot double-count and a deleted map cannot hide a spend. */
   let spent = rolls.length;
   for (let g = 1; g < generation; g++) {
-    const p = join(BATCH, g === 1 ? "assignment.json" : `assignment-gen${g}.json`);
+    const p = join(trial.batch, trial.assignName(g));
     if (existsSync(p)) spent += JSON.parse(readFileSync(p, "utf8")).rolls.length;
   }
-  if (spent > BUDGET.total_worst_case) {
+  if (spent > trial.budget.total_worst_case) {
     throw new Error(`emit-evolution refused: ${spent} rolls across the row against a declared ` +
-      `total of ${BUDGET.total_worst_case} (design/specs/34-plan.md §3). A generation may move ` +
-      "its own line; the total is what was declared before dispatch and it does not move.");
+      `total of ${trial.budget.total_worst_case} (design/specs/34-plan.md §3). A generation may ` +
+      "move its own line; the total is what was declared before dispatch and it does not move.");
   }
-  console.log(`  budget      ${spent} of ${BUDGET.total_worst_case} declared, across the row`);
+  console.log(`  budget      ${spent} of ${trial.budget.total_worst_case} declared, across the row`);
+  }
 
   /* ---- the id map, committed before any candidate exists ---- */
-  const assignPath = join(BATCH, generation === 1 ? "assignment.json" : `assignment-gen${generation}.json`);
+  const assignPath = join(trial.batch, trial.assignName(generation));
   writeFileSync(assignPath, JSON.stringify({
     _what_this_is: "The row-34 evolution's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with `git log --diff-filter=A` and asserts that commit's blob equals the current one.",
     _why_opaque: "A return path carrying its arm would tell a measuring hand which condition it is looking at. What actually carries the blinding is that the detector configuration is a function of the WALL's declared geometry, so it cannot vary by arm even in principle; the opaque id keeps the arm out of the path as well. The id is reproducible from tools/emit-evolution.mjs and is not cryptographic, which is said here rather than implied.",
     _what_it_cannot_blind: "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
-    _budget: BUDGET,
+    _budget: trial.budget || declaredBudget(trial),
     _generation: generation,
     _arms: armIds.map((id) => ({ id, name: ARMS[id].name, channels: ARMS[id].channels,
-      images: ARMS[id].images(), what: ARMS[id].what })),
-    _control: CONTROL_ARM,
-    _no_privileged_arm: "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" v7 is the governing frame's own arm and it runs on terms byte-identical to every other arm: same rolls, same blind measurement, same pre-committed rules, same Holm family, no seat by name. The only standing entrant is the control, which is the yardstick and never a candidate for the crown.",
-    _spectrum: SPECTRUM,
-    _register: REGISTER,
-    _headline_pairing: HEADLINE_PAIRING,
-    _amplification: AMPLIFICATION,
+      images: armImages(ARMS[id]), what: ARMS[id].what })),
+    _control: trial.control,
+    ...trial.lens(armIds),
     _generated: new Date().toISOString().slice(0, 10),
     rolls
   }, null, 2) + "\n");
 
   const manifest = {
-    _what_this_is: "The row-34 evolution run's order for one generation: two probe walls, their declared geometry and brackets, and every arm's packet. The measurement reads this file and assignment.json and nothing else.",
+    _what_this_is: trial.manifest_what,
     _dispatch: "NOT DISPATCHED. Dispatch is the Navigator's act; this tool cuts packets and stops.",
     _sweep_independence: "This run never opens design/batches/row23-scaffold/manor/{manifest,run-state,retries}.json, never promotes, never bakes and never publishes. The manor sweep is symmetrically blind to it: its arrival scan matches ^row23-[0-9a-f]{8}\\.png$ and it walks its own manifest's rolls.",
-    _probe_selection: "Both walls are from run-state.json's unfitted-horizon subset - camera PASS, horizon held - screened for corners and every bracket in frame, every stamped carrier in frame, and the fewest entries in the reading's own `_absent`. See design/specs/34-plan.md §2.",
-    row: 34, generation,
-    budget: BUDGET,
+    _probe_selection: trial.probe_selection,
+    row: trial.row, trial: trial.tag, generation,
+    budget: trial.budget || declaredBudget(trial),
+    ...trial.lens(armIds),
     walls,
     arms: armIds.map((id) => ({ id, name: ARMS[id].name, what: ARMS[id].what,
-      channels: ARMS[id].channels, images: ARMS[id].images() })),
-    control: CONTROL_ARM,
-    rolls_per_arm_per_wall: ROLLS_PER_ARM_PER_WALL,
+      channels: ARMS[id].channels, images: armImages(ARMS[id]) })),
+    control: trial.control,
+    rolls_per_arm_per_wall: trial.rolls,
     total_rolls: rolls.length,
     _generated: new Date().toISOString().slice(0, 10),
     git_commit: gitCommit()
@@ -395,8 +562,7 @@ async function emit(generation) {
    * 1's manifest is what points the measure path at generation 1's sidecars, so
    * re-measuring an earlier generation would have silently read the wrong
    * wall geometry. Caught before generation 2 was emitted, not after. */
-  const manifestPath = join(BATCH, generation === 1
-    ? "manifest.json" : `manifest-gen${generation}.json`);
+  const manifestPath = join(trial.batch, trial.manifestName(generation));
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
 
   console.log(`\ngeneration ${generation}: ${rolls.length} rolls, ${armIds.length} arms, ` +
@@ -414,13 +580,13 @@ function drawnDigest() {
   return m ? m[1] : null;
 }
 
-function packetMd(key, arm, ids, ctx, generation) {
+function packetMd(key, arm, ids, ctx, generation, style) {
   const imgs = arm.images(ctx);
   return `# Packet — ${key}, arm ${arm.id} (${arm.name})
 
 ${arm.what}
 
-**Generate ${ids.length} images. Save each to the exact path in the table.** The measurement runs the
+**Generate ${ids.length} image${ids.length > 1 ? "s" : ""}. Save ${ids.length > 1 ? "each" : "it"} to the exact path in the table.** The measurement runs the
 moment a file appears at one of those paths, so a return in the right place under the wrong name
 costs a roll.
 
@@ -430,8 +596,10 @@ ${imgs.map((f, i) => `${i + 1}. \`${f}\` — **Image ${i + 1}**${
   f === "style-seed-warm.png"
     ? " — the style reference, Kabe's approved seed (\"Warm\", `design/approvals.log`, 2026-08-21)"
     : f === "scaffold.png" ? " — the annotated layout scaffold"
-      : " — the layout as black-ink line art"}`).join("\n")}
-${imgs.length === 1 ? "\n**There is no second image, and that is this arm.** The whole geometry is in the prompt.\n" : ""}
+      : (style && f === style.name)
+        ? ` — **${style.key}**, this room's own already-painted wall: ${style.why}`
+        : " — the layout as black-ink line art"}`).join("\n")}
+${imgs.length === 1 ? `\n**There is no style image, and that is not an omission.** [HUMAN, 2026-08-24] "So why do we give it the reference image of the study? I think it biases it too much." Image 1 is never a wall from another room, this room has no agreeing majority wall to lend, and the medium is in the prompt's own words. Attach the one image above as **Image 1**.\n` : ""}
 Then send the prompt text verbatim from \`prompt.txt\`.
 
 ## The rolls
@@ -465,5 +633,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const argv = process.argv.slice(2);
   const gi = argv.indexOf("--generation");
   const generation = gi >= 0 ? Number(argv[gi + 1]) : 1;
-  emit(generation).catch((e) => { console.error(e); process.exit(1); });
+  const trial = argv.includes("--register-trial") ? REGISTER_TRIAL_SPEC : ROW34_TRIAL;
+  emit(generation, trial).catch((e) => { console.error(e); process.exit(1); });
 }

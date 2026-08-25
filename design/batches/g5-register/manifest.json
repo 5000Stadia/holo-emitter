@@ -1,0 +1,579 @@
+{
+  "_what_this_is": "Kabe's clean register, measured against the register row 34 folded into production, on the same instrument and the same walls, with the appendix ablated as its own arm.",
+  "_dispatch": "NOT DISPATCHED. Dispatch is the Navigator's act; this tool cuts packets and stops.",
+  "_sweep_independence": "This run never opens design/batches/row23-scaffold/manor/{manifest,run-state,retries}.json, never promotes, never bakes and never publishes. The manor sweep is symmetrically blind to it: its arrival scan matches ^row23-[0-9a-f]{8}\\.png$ and it walks its own manifest's rolls.",
+  "_probe_selection": "Six walls, declared in tools/evolution-arms.mjs as REGISTER_WALLS with the fact that picked each: row 34's two probes unchanged so this trial can be read beside the generation-3 table, plus an interior wall with a fireplace and a doorway, the most carried wall in the house, a flight wall and the outdoor open facing - the four shapes the register changes that the two probes cannot exercise.",
+  "row": null,
+  "trial": "register",
+  "generation": 1,
+  "budget": {
+    "rolls_per_arm_per_wall": 1,
+    "walls": 6,
+    "arms": 3,
+    "declared_rolls": 18,
+    "_authority": "tools/evolution-arms.mjs REGISTER_TRIAL, declared before anything was emitted",
+    "_one_generation": "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
+  },
+  "_reading": [
+    {
+      "arm": "g4-production",
+      "order": "row 34's",
+      "figures": "attached inline",
+      "images": "study style seed + scaffold",
+      "reads": "the incumbent: the finished picture described in image-frame terms with the coordinates attached, inside production's own section order"
+    },
+    {
+      "arm": "g5",
+      "order": "Kabe's",
+      "figures": "appendix",
+      "images": "the room's own majority wall, or none, + scaffold",
+      "reads": "THE CLEAN REGISTER: room and materials first, this wall's carriers, the picture in words, the medium, nothing else - coordinates last"
+    },
+    {
+      "arm": "g5-noappendix",
+      "order": "Kabe's",
+      "figures": "none",
+      "images": "the room's own majority wall, or none, + scaffold",
+      "reads": "the same order with the figures gone: generation 3's one clear loss, re-asked of the new order"
+    }
+  ],
+  "_no_privileged_arm": "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" The clean register is the Captain's own direction and it runs on terms identical to the control's: same walls, same rolls, same opaque ids, same blind detector configuration (a function of the WALL's declared geometry, so it cannot vary by arm even in principle), same scorer.",
+  "_the_confound": "g5 moves TWO channels against g4 - the order of the ask AND the style image, the second because it was ruled the same day. A g5 win is a win for both together and this n cannot separate them.",
+  "_min_detectable_effect": {
+    "arm_admissible": 4,
+    "arm_n": 6,
+    "control_admissible": 0,
+    "control_n": 6,
+    "margin": 4,
+    "fisher_p": 0.030303,
+    "holm_tightest_threshold": 0.05
+  },
+  "walls": [
+    {
+      "key": "guest_chamber/E",
+      "packet": "design/batches/g5-register/gen1/guest_chamber-E",
+      "why_this_wall": "row 34's probe 1, unchanged: the only zero-fault wall in the hold family - camera PASS, nothing absent, every bracket and both corners in frame, and no carrier at all. Interior, blank.",
+      "px_per_m_at_wall": 155.152,
+      "camera_wall_m": 6.6,
+      "wall_width_m": 6.45,
+      "floor_line_y": 0.693012,
+      "horizon_y": 0.51377,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 206.5,
+      "corner_x1_px": 1329.5,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 709.644288,
+          "half_width": 14.68,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 562.2498879999999,
+          "half_width": 11.79,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 275.21868800000004,
+          "half_width": 34.75,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            206.5,
+            1329.5
+          ]
+        ]
+      },
+      "stamped": [],
+      "chair_rail_y": 562.25,
+      "voice": {
+        "id": "bedchamber",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": "guest_chamber/N",
+        "file": "backdrops/guest_chamber/N.png",
+        "name": "style-guest_chamber-N.png",
+        "why": "the room's own agreeing majority wall (room_consistency.json: majority EN, verdict mismatched)"
+      },
+      "sidecar_sha256": "493ec58d8f81c006d29357db67efe86b772119422c54b52e8cba92b42c16eefd"
+    },
+    {
+      "key": "garden_room/E",
+      "packet": "design/batches/g5-register/gen1/garden_room-E",
+      "why_this_wall": "row 34's probe 2, unchanged: the nearest miss among clean walls and the opposite return geometry. Interior, one doorway.",
+      "px_per_m_at_wall": 154.737,
+      "camera_wall_m": 6.6,
+      "wall_width_m": 3.55,
+      "floor_line_y": 0.702148,
+      "horizon_y": 0.569922,
+      "declared_horizon_row": 584,
+      "corner_x0_px": 331,
+      "corner_x1_px": 1207,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1021.3,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 718.999552,
+          "half_width": 10.83,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 571.999402,
+          "half_width": 11.76,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 285.73595200000005,
+          "half_width": 34.66,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "op09",
+            "x0": 710.97,
+            "x1": 865.71,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            331,
+            710
+          ],
+          [
+            866,
+            1207
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 710.97,
+          "x1": 865.71
+        }
+      ],
+      "chair_rail_y": 572,
+      "voice": {
+        "id": "garden_parlour",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": "garden_room/N",
+        "file": "backdrops/garden_room/N.png",
+        "name": "style-garden_room-N.png",
+        "why": "the room's own agreeing majority wall (room_consistency.json: majority EN, verdict mismatched)"
+      },
+      "sidecar_sha256": "2df315a267df67843cb6bc292dafd40ca6866062679e5c819fbb4bf93616bcac"
+    },
+    {
+      "key": "master_bedchamber/N",
+      "packet": "design/batches/g5-register/gen1/master_bedchamber-N",
+      "why_this_wall": "the wall whose production prompt Kabe read - fireplace and doorway on one wall, and a room the measure says has NO agreeing majority, so the ruling leaves it no style image at all",
+      "px_per_m_at_wall": 143.217,
+      "camera_wall_m": 7.15,
+      "wall_width_m": 8.8,
+      "floor_line_y": 0.679224,
+      "horizon_y": 0.51377,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 114.21,
+      "corner_x1_px": 1421.79,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 695.525376,
+          "half_width": 13.55,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 559.469226,
+          "half_width": 10.88,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 294.517776,
+          "half_width": 32.08,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "fireplace",
+            "id": null,
+            "x0": 266.74,
+            "x1": 553.17,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "door",
+            "id": "op18",
+            "x0": 624.78,
+            "x1": 768,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            114.21,
+            266
+          ],
+          [
+            554,
+            624
+          ],
+          [
+            768,
+            1421.79
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "fireplace",
+          "x0": 266.74,
+          "x1": 553.17
+        },
+        {
+          "kind": "door",
+          "x0": 624.78,
+          "x1": 768
+        }
+      ],
+      "chair_rail_y": 559.47,
+      "voice": {
+        "id": "bedchamber",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": null,
+        "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
+      },
+      "sidecar_sha256": "64fb61ba7e1022ad430ac5f4f673ab9f62b33d326d22c8ad51bb12bd13c16745"
+    },
+    {
+      "key": "great_hall/S",
+      "packet": "design/batches/g5-register/gen1/great_hall-S",
+      "why_this_wall": "the most carried wall in the house: four windows and a doorway, the heraldry ration live, and the one shape where 'between the two windows' has to be derived rather than typed",
+      "px_per_m_at_wall": 112.632,
+      "camera_wall_m": 8.85,
+      "wall_width_m": 14.6,
+      "floor_line_y": 0.638672,
+      "horizon_y": 0.51377,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 673,
+      "corner_x1_px": 1446,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 996.8,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 654.000128,
+          "half_width": 10.23,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 546.999728,
+          "half_width": 8.56,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 338.630528,
+          "half_width": 25.23,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 304.87,
+            "x1": 473.81,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 586.45,
+            "x1": 755.39,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "door",
+            "id": "op01",
+            "x0": 969.39,
+            "x1": 1149.61,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 1262.24,
+            "x1": 1431.19,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 1543.82,
+            "x1": 1712.77,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            756,
+            969
+          ],
+          [
+            1150,
+            1262
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 304.87,
+          "x1": 473.81
+        },
+        {
+          "kind": "window",
+          "x0": 586.45,
+          "x1": 755.39
+        },
+        {
+          "kind": "door",
+          "x0": 969.39,
+          "x1": 1149.61
+        },
+        {
+          "kind": "window",
+          "x0": 1262.24,
+          "x1": 1431.19
+        },
+        {
+          "kind": "window",
+          "x0": 1543.82,
+          "x1": 1712.77
+        }
+      ],
+      "chair_rail_y": 547,
+      "voice": {
+        "id": "hall_state",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": null,
+        "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
+      },
+      "sidecar_sha256": "302fae6b86a8272eed151d455f790c072537c54f3ddd64ff505966a95f017865"
+    },
+    {
+      "key": "great_stair_hall/W",
+      "packet": "design/batches/g5-register/gen1/great_stair_hall-W",
+      "why_this_wall": "a flight wall: the shortened stair paragraph and the FLIGHT_ASK handshake with promote-backdrop.mjs, on a wall that also carries a window",
+      "px_per_m_at_wall": 155.15151515151516,
+      "camera_wall_m": 6.6,
+      "wall_width_m": 5.65,
+      "floor_line_y": 0.6930119554924243,
+      "horizon_y": 0.51376953125,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 329.69696969696963,
+      "corner_x1_px": 1206.3030303030305,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 709.6442424242425,
+          "half_width": 14.68,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 562.2503030303031,
+          "half_width": 11.79,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 275.2200000000001,
+          "half_width": 34.75,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 554.67,
+            "x1": 942.55,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            329.69696969696963,
+            554
+          ],
+          [
+            943,
+            1206.3030303030305
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 554.67,
+          "x1": 942.55
+        }
+      ],
+      "chair_rail_y": 562.25,
+      "voice": {
+        "id": "great_stair",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": null,
+        "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
+      },
+      "sidecar_sha256": "c8c54b3e177779a63b556ee9041d62900eaaa8cd2896e089077d57b7568167fe"
+    },
+    {
+      "key": "entrance_court/S",
+      "packet": "design/batches/g5-register/gen1/entrance_court-S",
+      "why_this_wall": "the outdoor open facing: no corners, no returns, the piers at the mouth as the ruler, and row 29's veto live - one interior word in this prompt and the lint refuses the packet",
+      "px_per_m_at_wall": 36.842,
+      "wall_width_m": 20.4,
+      "floor_line_y": 0.553711,
+      "horizon_y": 0.51377,
+      "declared_horizon_row": 526,
+      "corner_x0_px": null,
+      "corner_x1_px": null,
+      "storey_height_m": null,
+      "implied_focal_px": 985.5,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 567.000064,
+          "half_width": 3.27,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 532.0001639999999,
+          "half_width": 2.8,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": null,
+        "carrier_windows": [
+          {
+            "kind": "open_edge",
+            "id": "op_court_mouth",
+            "x0": 392.21,
+            "x1": 1143.79,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            0,
+            392
+          ],
+          [
+            1144,
+            1536
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "open_edge",
+          "x0": 392.21,
+          "x1": 1143.79
+        }
+      ],
+      "chair_rail_y": 532,
+      "voice": {
+        "id": "outdoors_open",
+        "anchor": "coping",
+        "outdoor": true
+      },
+      "style_image": {
+        "key": null,
+        "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
+      },
+      "sidecar_sha256": "06f36f857405c02514a08389d9dec1d780981ab08bc936c877ab651c6f474593"
+    }
+  ],
+  "arms": [
+    {
+      "id": "g4-production",
+      "name": "APPEARANCE-PLUS-FIGURES, AS PRODUCTION SENDS IT",
+      "what": "the incumbent: row 34's g4 register — the finished picture described in image-frame terms with the coordinates attached — inside production's own section order, with the study style seed as Image 1, exactly as manorPrompt composes it today",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "appearance_pixels"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "g5",
+      "name": "CLEAN-REGISTER",
+      "what": "Kabe's order: the room and its materials first, then this wall's carriers, then the picture in words with the layout image carrying the lines, then the medium, then nothing else - with the coordinate block kept as an appendix at the end",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "own_room_or_none",
+        "camera_language": "appearance_appendix"
+      },
+      "images": [
+        "<the room's own agreeing majority wall, where room_consistency.json names one; otherwise no style image at all>",
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "g5-noappendix",
+      "name": "CLEAN-REGISTER, NO APPENDIX",
+      "what": "the same register with the coordinate appendix deleted - generation 3's ablation said the figures were load-bearing, and this is the same question asked again of the new order",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "own_room_or_none",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "<the room's own agreeing majority wall, where room_consistency.json names one; otherwise no style image at all>",
+        "scaffold.png"
+      ]
+    }
+  ],
+  "control": "g4-production",
+  "rolls_per_arm_per_wall": 1,
+  "total_rolls": 18,
+  "_generated": "2026-08-25",
+  "git_commit": "6c2132b3d9e142d702546f0a2464f52be1b9579b"
+}

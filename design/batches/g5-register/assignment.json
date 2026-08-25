@@ -1,0 +1,258 @@
+{
+  "_what_this_is": "The row-34 evolution's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with `git log --diff-filter=A` and asserts that commit's blob equals the current one.",
+  "_why_opaque": "A return path carrying its arm would tell a measuring hand which condition it is looking at. What actually carries the blinding is that the detector configuration is a function of the WALL's declared geometry, so it cannot vary by arm even in principle; the opaque id keeps the arm out of the path as well. The id is reproducible from tools/emit-evolution.mjs and is not cryptographic, which is said here rather than implied.",
+  "_what_it_cannot_blind": "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
+  "_budget": {
+    "rolls_per_arm_per_wall": 1,
+    "walls": 6,
+    "arms": 3,
+    "declared_rolls": 18,
+    "_authority": "tools/evolution-arms.mjs REGISTER_TRIAL, declared before anything was emitted",
+    "_one_generation": "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
+  },
+  "_generation": 1,
+  "_arms": [
+    {
+      "id": "g4-production",
+      "name": "APPEARANCE-PLUS-FIGURES, AS PRODUCTION SENDS IT",
+      "channels": {
+        "text_geometry": "production",
+        "image": "scaffold_primary",
+        "camera_language": "appearance_pixels"
+      },
+      "images": [
+        "style-seed-warm.png",
+        "scaffold.png"
+      ],
+      "what": "the incumbent: row 34's g4 register — the finished picture described in image-frame terms with the coordinates attached — inside production's own section order, with the study style seed as Image 1, exactly as manorPrompt composes it today"
+    },
+    {
+      "id": "g5",
+      "name": "CLEAN-REGISTER",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "own_room_or_none",
+        "camera_language": "appearance_appendix"
+      },
+      "images": [
+        "<the room's own agreeing majority wall, where room_consistency.json names one; otherwise no style image at all>",
+        "scaffold.png"
+      ],
+      "what": "Kabe's order: the room and its materials first, then this wall's carriers, then the picture in words with the layout image carrying the lines, then the medium, then nothing else - with the coordinate block kept as an appendix at the end"
+    },
+    {
+      "id": "g5-noappendix",
+      "name": "CLEAN-REGISTER, NO APPENDIX",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "own_room_or_none",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "<the room's own agreeing majority wall, where room_consistency.json names one; otherwise no style image at all>",
+        "scaffold.png"
+      ],
+      "what": "the same register with the coordinate appendix deleted - generation 3's ablation said the figures were load-bearing, and this is the same question asked again of the new order"
+    }
+  ],
+  "_control": "g4-production",
+  "_reading": [
+    {
+      "arm": "g4-production",
+      "order": "row 34's",
+      "figures": "attached inline",
+      "images": "study style seed + scaffold",
+      "reads": "the incumbent: the finished picture described in image-frame terms with the coordinates attached, inside production's own section order"
+    },
+    {
+      "arm": "g5",
+      "order": "Kabe's",
+      "figures": "appendix",
+      "images": "the room's own majority wall, or none, + scaffold",
+      "reads": "THE CLEAN REGISTER: room and materials first, this wall's carriers, the picture in words, the medium, nothing else - coordinates last"
+    },
+    {
+      "arm": "g5-noappendix",
+      "order": "Kabe's",
+      "figures": "none",
+      "images": "the room's own majority wall, or none, + scaffold",
+      "reads": "the same order with the figures gone: generation 3's one clear loss, re-asked of the new order"
+    }
+  ],
+  "_no_privileged_arm": "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" The clean register is the Captain's own direction and it runs on terms identical to the control's: same walls, same rolls, same opaque ids, same blind detector configuration (a function of the WALL's declared geometry, so it cannot vary by arm even in principle), same scorer.",
+  "_the_confound": "g5 moves TWO channels against g4 - the order of the ask AND the style image, the second because it was ruled the same day. A g5 win is a win for both together and this n cannot separate them.",
+  "_min_detectable_effect": {
+    "arm_admissible": 4,
+    "arm_n": 6,
+    "control_admissible": 0,
+    "control_n": 6,
+    "margin": 4,
+    "fisher_p": 0.030303,
+    "holm_tightest_threshold": 0.05
+  },
+  "_generated": "2026-08-25",
+  "rolls": [
+    {
+      "id": "d1a3c11c",
+      "generation": 1,
+      "wall": "guest_chamber/E",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/register-d1a3c11c.png",
+      "prompt": "backdrops/source/guest_chamber-E/register-d1a3c11c.prompt.txt"
+    },
+    {
+      "id": "7c1b1056",
+      "generation": 1,
+      "wall": "guest_chamber/E",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/register-7c1b1056.png",
+      "prompt": "backdrops/source/guest_chamber-E/register-7c1b1056.prompt.txt"
+    },
+    {
+      "id": "e7303e5a",
+      "generation": 1,
+      "wall": "guest_chamber/E",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/guest_chamber-E/register-e7303e5a.png",
+      "prompt": "backdrops/source/guest_chamber-E/register-e7303e5a.prompt.txt"
+    },
+    {
+      "id": "2c3e7a96",
+      "generation": 1,
+      "wall": "garden_room/E",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/register-2c3e7a96.png",
+      "prompt": "backdrops/source/garden_room-E/register-2c3e7a96.prompt.txt"
+    },
+    {
+      "id": "5b2e543d",
+      "generation": 1,
+      "wall": "garden_room/E",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/register-5b2e543d.png",
+      "prompt": "backdrops/source/garden_room-E/register-5b2e543d.prompt.txt"
+    },
+    {
+      "id": "3d0690c9",
+      "generation": 1,
+      "wall": "garden_room/E",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/garden_room-E/register-3d0690c9.png",
+      "prompt": "backdrops/source/garden_room-E/register-3d0690c9.prompt.txt"
+    },
+    {
+      "id": "e8039f30",
+      "generation": 1,
+      "wall": "master_bedchamber/N",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/master_bedchamber-N/register-e8039f30.png",
+      "prompt": "backdrops/source/master_bedchamber-N/register-e8039f30.prompt.txt"
+    },
+    {
+      "id": "fa4992ef",
+      "generation": 1,
+      "wall": "master_bedchamber/N",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/master_bedchamber-N/register-fa4992ef.png",
+      "prompt": "backdrops/source/master_bedchamber-N/register-fa4992ef.prompt.txt"
+    },
+    {
+      "id": "cb2a934a",
+      "generation": 1,
+      "wall": "master_bedchamber/N",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/master_bedchamber-N/register-cb2a934a.png",
+      "prompt": "backdrops/source/master_bedchamber-N/register-cb2a934a.prompt.txt"
+    },
+    {
+      "id": "e89702c4",
+      "generation": 1,
+      "wall": "great_hall/S",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/great_hall-S/register-e89702c4.png",
+      "prompt": "backdrops/source/great_hall-S/register-e89702c4.prompt.txt"
+    },
+    {
+      "id": "c8f7156e",
+      "generation": 1,
+      "wall": "great_hall/S",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/great_hall-S/register-c8f7156e.png",
+      "prompt": "backdrops/source/great_hall-S/register-c8f7156e.prompt.txt"
+    },
+    {
+      "id": "9abd025c",
+      "generation": 1,
+      "wall": "great_hall/S",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/great_hall-S/register-9abd025c.png",
+      "prompt": "backdrops/source/great_hall-S/register-9abd025c.prompt.txt"
+    },
+    {
+      "id": "fb32af29",
+      "generation": 1,
+      "wall": "great_stair_hall/W",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/great_stair_hall-W/register-fb32af29.png",
+      "prompt": "backdrops/source/great_stair_hall-W/register-fb32af29.prompt.txt"
+    },
+    {
+      "id": "4eab59a2",
+      "generation": 1,
+      "wall": "great_stair_hall/W",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/great_stair_hall-W/register-4eab59a2.png",
+      "prompt": "backdrops/source/great_stair_hall-W/register-4eab59a2.prompt.txt"
+    },
+    {
+      "id": "3f21465c",
+      "generation": 1,
+      "wall": "great_stair_hall/W",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/great_stair_hall-W/register-3f21465c.png",
+      "prompt": "backdrops/source/great_stair_hall-W/register-3f21465c.prompt.txt"
+    },
+    {
+      "id": "4077eda4",
+      "generation": 1,
+      "wall": "entrance_court/S",
+      "arm": "g4-production",
+      "roll": 1,
+      "candidate": "backdrops/source/entrance_court-S/register-4077eda4.png",
+      "prompt": "backdrops/source/entrance_court-S/register-4077eda4.prompt.txt"
+    },
+    {
+      "id": "c1cc614d",
+      "generation": 1,
+      "wall": "entrance_court/S",
+      "arm": "g5",
+      "roll": 1,
+      "candidate": "backdrops/source/entrance_court-S/register-c1cc614d.png",
+      "prompt": "backdrops/source/entrance_court-S/register-c1cc614d.prompt.txt"
+    },
+    {
+      "id": "0da260f6",
+      "generation": 1,
+      "wall": "entrance_court/S",
+      "arm": "g5-noappendix",
+      "roll": 1,
+      "candidate": "backdrops/source/entrance_court-S/register-0da260f6.png",
+      "prompt": "backdrops/source/entrance_court-S/register-0da260f6.prompt.txt"
+    }
+  ]
+}

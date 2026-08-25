@@ -1,0 +1,33 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the west wall of the great stair hall, circa-1660 English manor
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Primary request: Paint the west wall of the great stair hall of a circa-1660 English manor.
+  Its walls are oak wainscot to chair height below limewashed plaster.
+  Overhead: a plain lime-plastered ceiling. Underfoot: broad oak treads and boards.
+  A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+On this wall: one window opening stands at the centre, exactly 2.50 m wide, the sill 0.90 m and the head 2.00 m above the floor, divided by four stone mullions into five equal upright lights.
+  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or monogram anywhere on this wall.
+Stairs: a flight of stairs stands in this view, and it is part of the architecture rather than furniture.
+  It is a straight stair of 17 steps, 1.60 m wide, carrying a person 2.80 m up to the storey above.
+    18 of its steps are in the picture: the front edge of each reads as a level line across the width of the flight, and those lines stack one above the next, climbing toward the right of the picture.
+    The surface overhead is open directly over it, and nothing is drawn closing that stairwell.
+    The space it climbs into, beyond its topmost step, is deep unlit shadow — no lit room,
+      no visible far wall and no light source beyond the end of the stair.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and fills the picture's width, and the two side walls run away from you to left and right and leave the picture through the left and right edges.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: fine oil realism with tactile brush detail, deep warm browns, cool ambient light and gentle natural falloff.
+Constraints: the great stair hall is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface in it is plain and unlettered, and Image 1's lines, boxes and lettering are instructions rather than things to paint.
+Reference lines (from Image 1): column counted from the left edge, row counted from the top.
+    The faced wall meets the floor along a level line at row 710.
+    It meets the surface overhead along a level line at row 275.
+    Its two upright edges stand at column 330 and column 1206.
+    The left side wall's upper line runs from column 330, row 275 to column 0, row 87.
+    The left side wall's lower line runs from column 330, row 710 to column 0, row 848.
+    The right side wall's upper line runs from column 1206, row 275 to column 1536, row 87.
+    The right side wall's lower line runs from column 1206, row 710 to column 1536, row 848.
+    Carried on, all four of those meet at column 768, row 526.
+    One metre of the faced wall covers 155 columns.
+    What is in view of the stair fills columns 262 to 1379 and rows 150 to 801.

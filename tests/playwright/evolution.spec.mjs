@@ -398,7 +398,15 @@ test.describe("row 34 — the evolution run's machinery", () => {
        constant and varies the register the geometry is written in, so all four
        of its arms would sit at one point here and read as though nothing
        varied; they have their own lens and the next case checks it. */
-    const onAxis = ARM_IDS.filter((id) => ARMS[id].generation !== 3);
+    /* AN ARM IS ON THIS AXIS UNTIL IT DECLARES A GENERATION OF ITS OWN. That
+       was `generation !== 3` while generation 3 was the only later one; the
+       register trial's arms are generation 4 and would have been silently
+       required here, which is the same mistake one release later. Both later
+       generations hold the image roughly constant and vary how the ask is
+       WRITTEN, so neither belongs on an axis that measures how much precision
+       the image carries — and each carries its own lens instead (`REGISTER`,
+       `CLEAN_REGISTER`). */
+    const onAxis = ARM_IDS.filter((id) => ARMS[id].generation === undefined);
     expect(SPECTRUM.map((s) => s.arm).sort()).toEqual([...onAxis].sort());
     expect(SPECTRUM[0].precision_in).toBe("image");
     expect(SPECTRUM[SPECTRUM.length - 1].precision_in).toBe("text");
