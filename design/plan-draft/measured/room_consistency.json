@@ -1009,54 +1009,54 @@
             "E",
             "W"
           ],
-          "spread": 2.527,
+          "spread": 0.938,
           "pairwise": [
             {
-              "dLum": 0.0725,
-              "dChroma": 0.3046,
-              "dH": 0.6667,
-              "dT": 0.514,
-              "D": 2.527,
+              "dLum": 0.0553,
+              "dChroma": 0.1308,
+              "dH": 0.2758,
+              "dT": 0.033,
+              "D": 0.938,
               "a": "E",
               "b": "W"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.0363,
-              "dChroma": 0.1524,
-              "dH": 0.3333,
-              "dT": 0.28,
-              "D": 1.294
+              "dLum": 0.0277,
+              "dChroma": 0.0654,
+              "dH": 0.1379,
+              "dT": 0.016,
+              "D": 0.469
             },
             "W": {
-              "dLum": 0.0362,
-              "dChroma": 0.1523,
-              "dH": 0.3333,
-              "dT": 0.234,
-              "D": 1.235
+              "dLum": 0.0276,
+              "dChroma": 0.0654,
+              "dH": 0.1379,
+              "dT": 0.017,
+              "D": 0.469
             }
           },
           "median": {
-            "lum": 0.0915,
+            "lum": 0.0277,
             "chroma": [
-              0.4181,
-              -0.5038
+              0.4536,
+              -0.5904
             ],
-            "tex": 0.70752
+            "tex": 0.84198
           },
           "tex": {
-            "E": 0.58272,
+            "E": 0.85166,
             "W": 0.83231
           },
           "lum": {
-            "E": 0.1278,
+            "E": 0.0,
             "W": 0.0553
           },
           "chroma": {
             "E": [
-              0.3282,
-              -0.3808
+              0.3993,
+              -0.554
             ],
             "W": [
               0.508,
@@ -1065,9 +1065,9 @@
           },
           "srgb": {
             "E": [
-              20,
-              16,
-              11
+              61,
+              50,
+              37
             ],
             "W": [
               37,
@@ -1082,23 +1082,23 @@
             "N",
             "W"
           ],
-          "spread": 3.856,
+          "spread": 3.538,
           "pairwise": [
             {
-              "dLum": 0.4239,
-              "dChroma": 0.2064,
-              "dH": 1.0,
-              "dT": 0.235,
-              "D": 1.587,
+              "dLum": 0.4804,
+              "dChroma": 0.0557,
+              "dH": 0.4631,
+              "dT": 0.19,
+              "D": 0.62,
               "a": "E",
               "b": "N"
             },
             {
-              "dLum": 0.3365,
-              "dChroma": 0.4213,
-              "dH": 1.0,
-              "dT": 0.964,
-              "D": 3.856,
+              "dLum": 0.5678,
+              "dChroma": 0.2837,
+              "dH": 0.6955,
+              "dT": 1.009,
+              "D": 3.236,
               "a": "E",
               "b": "W"
             },
@@ -1114,49 +1114,49 @@
           ],
           "deviation": {
             "E": {
-              "dLum": 0.3365,
-              "dChroma": 0.2064,
-              "dH": 1.0,
+              "dLum": 0.4804,
+              "dChroma": 0.0299,
+              "dH": 0.367,
               "dT": 0.0,
-              "D": 1.474
+              "D": 0.214
             },
             "N": {
-              "dLum": 0.0874,
-              "dChroma": 0.0,
-              "dH": 0.3919,
-              "dT": 0.235,
-              "D": 0.588
+              "dLum": 0.0,
+              "dChroma": 0.047,
+              "dH": 0.2333,
+              "dT": 0.19,
+              "D": 0.582
             },
             "W": {
-              "dLum": 0.0,
-              "dChroma": 0.2628,
-              "dH": 0.1743,
-              "dT": 0.964,
-              "D": 3.055
+              "dLum": 0.0874,
+              "dChroma": 0.2539,
+              "dH": 0.4003,
+              "dT": 1.009,
+              "D": 3.108
             }
           },
           "median": {
-            "lum": 0.3321,
+            "lum": 0.4195,
             "chroma": [
               0.462,
-              -0.5811
+              -0.6281
             ],
-            "tex": 1.05246
+            "tex": 1.01997
           },
           "tex": {
-            "E": 1.05246,
+            "E": 1.01997,
             "N": 0.89406,
             "W": 2.05325
           },
           "lum": {
-            "E": -0.0044,
+            "E": 0.8999,
             "N": 0.4195,
             "W": 0.3321
           },
           "chroma": {
             "E": [
-              0.387,
-              -0.3888
+              0.4321,
+              -0.6281
             ],
             "N": [
               0.462,
@@ -1169,9 +1169,9 @@
           },
           "srgb": {
             "E": [
-              21,
-              16,
-              11
+              62,
+              49,
+              35
             ],
             "N": [
               41,
@@ -1191,23 +1191,23 @@
             "N",
             "W"
           ],
-          "spread": 3.692,
+          "spread": 3.01,
           "pairwise": [
             {
-              "dLum": 0.7702,
-              "dChroma": 0.0742,
-              "dH": 0.8854,
-              "dT": 0.262,
-              "D": 0.842,
+              "dLum": 0.6884,
+              "dChroma": 0.036,
+              "dH": 0.1932,
+              "dT": 0.134,
+              "D": 0.421,
               "a": "E",
               "b": "N"
             },
             {
-              "dLum": 0.1696,
-              "dChroma": 0.3292,
-              "dH": 0.925,
-              "dT": 1.139,
-              "D": 3.692,
+              "dLum": 1.289,
+              "dChroma": 0.3126,
+              "dH": 0.8773,
+              "dT": 0.743,
+              "D": 2.905,
               "a": "E",
               "b": "W"
             },
@@ -1223,49 +1223,49 @@
           ],
           "deviation": {
             "E": {
-              "dLum": 0.1696,
-              "dChroma": 0.0706,
-              "dH": 0.5672,
-              "dT": 0.262,
-              "D": 0.826
+              "dLum": 0.6884,
+              "dChroma": 0.0358,
+              "dH": 0.1089,
+              "dT": 0.0,
+              "D": 0.256
             },
             "N": {
-              "dLum": 0.6006,
-              "dChroma": 0.0227,
-              "dH": 0.7272,
-              "dT": 0.0,
-              "D": 0.162
+              "dLum": 0.0,
+              "dChroma": 0.0039,
+              "dH": 0.09,
+              "dT": 0.134,
+              "D": 0.335
             },
             "W": {
-              "dLum": 0.0,
-              "dChroma": 0.2733,
-              "dH": 0.7544,
-              "dT": 0.877,
-              "D": 2.935
+              "dLum": 0.6006,
+              "dChroma": 0.2862,
+              "dH": 0.8403,
+              "dT": 0.743,
+              "D": 2.762
             }
           },
           "median": {
-            "lum": -0.2439,
+            "lum": -0.8445,
             "chroma": [
               0.4585,
-              -0.3848
+              -0.366
             ],
-            "tex": 1.18484
+            "tex": 1.29976
           },
           "tex": {
-            "E": 0.98818,
+            "E": 1.29976,
             "N": 1.18484,
             "W": 2.17555
           },
           "lum": {
-            "E": -0.0743,
+            "E": -1.5329,
             "N": -0.8445,
             "W": -0.2439
           },
           "chroma": {
             "E": [
-              0.3879,
-              -0.3848
+              0.4227,
+              -0.366
             ],
             "N": [
               0.4585,
@@ -1278,9 +1278,9 @@
           },
           "srgb": {
             "E": [
-              21,
-              16,
-              11
+              61,
+              49,
+              40
             ],
             "N": [
               41,
@@ -1299,54 +1299,54 @@
             "E",
             "W"
           ],
-          "spread": 2.726,
+          "spread": 2.755,
           "pairwise": [
             {
-              "dLum": 0.4845,
-              "dChroma": 0.1417,
-              "dH": 0.7778,
-              "dT": 1.012,
-              "D": 2.726,
+              "dLum": 1.6171,
+              "dChroma": 0.2155,
+              "dH": 0.6333,
+              "dT": 0.914,
+              "D": 2.755,
               "a": "E",
               "b": "W"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.2422,
-              "dChroma": 0.0709,
-              "dH": 0.3889,
-              "dT": 0.593,
-              "D": 1.567
+              "dLum": 0.8085,
+              "dChroma": 0.1077,
+              "dH": 0.3167,
+              "dT": 0.528,
+              "D": 1.528
             },
             "W": {
-              "dLum": 0.2423,
-              "dChroma": 0.0708,
-              "dH": 0.3889,
-              "dT": 0.419,
-              "D": 1.164
+              "dLum": 0.8086,
+              "dChroma": 0.1078,
+              "dH": 0.3167,
+              "dT": 0.386,
+              "D": 1.234
             }
           },
           "median": {
-            "lum": -0.1648,
+            "lum": -1.2157,
             "chroma": [
-              0.4227,
-              -0.4199
+              0.4042,
+              -0.3756
             ],
-            "tex": 1.01846
+            "tex": 1.04231
           },
           "tex": {
-            "E": 0.67506,
+            "E": 0.72275,
             "W": 1.36186
           },
           "lum": {
-            "E": 0.0774,
+            "E": -2.0242,
             "W": -0.4071
           },
           "chroma": {
             "E": [
-              0.3548,
-              -0.3996
+              0.3179,
+              -0.3112
             ],
             "W": [
               0.4906,
@@ -1355,9 +1355,9 @@
           },
           "srgb": {
             "E": [
-              20,
-              16,
-              11
+              59,
+              50,
+              42
             ],
             "W": [
               37,
@@ -1368,21 +1368,21 @@
         }
       },
       "wall_split": {
-        "E": 0.229,
+        "E": 2.067,
         "N": 1.865,
         "W": 0.752
       },
       "reference_log_luma": {
-        "E": -5.2255,
+        "E": -3.3881,
         "N": -4.1603,
         "W": -4.3975
       },
       "worst_band": "wall_upper",
-      "score": 3.856,
+      "score": 3.538,
       "outlier_deviation": {
-        "W": 3.055,
-        "E": 1.474,
-        "N": 0.588
+        "W": 3.108,
+        "N": 0.582,
+        "E": 0.214
       },
       "clusters": [
         [
@@ -1393,15 +1393,14 @@
       ],
       "majority": [
         "E",
-        "N"
-      ],
-      "outliers": [
+        "N",
         "W"
       ],
+      "outliers": [],
       "no_majority": false,
-      "wall_split_spread": 1.636,
-      "verdict": "mismatched",
-      "why": "wall_upper disagrees most: worst pair E/W at D=3.86 (colour 0.421, contrast x1.95; brightness x1.40 and spread 1.000 reported, not counted). EN agree; W stands outside them."
+      "wall_split_spread": 1.315,
+      "verdict": "consistent-incomplete",
+      "why": "wall_upper disagrees most: worst pair N/W at D=3.54 (colour 0.263, contrast x2.30; brightness x1.09 and spread 0.537 reported, not counted). no facing stands outside the rest."
     },
     {
       "room": "dining_parlour",
@@ -6862,54 +6861,54 @@
             "E",
             "N"
           ],
-          "spread": 2.125,
+          "spread": 0.633,
           "pairwise": [
             {
-              "dLum": 0.3769,
-              "dChroma": 0.1424,
-              "dH": 0.4603,
-              "dT": 0.746,
-              "D": 2.125,
+              "dLum": 0.5416,
+              "dChroma": 0.0258,
+              "dH": 0.2444,
+              "dT": 0.242,
+              "D": 0.633,
               "a": "E",
               "b": "N"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.1885,
-              "dChroma": 0.0712,
-              "dH": 0.2302,
-              "dT": 0.325,
-              "D": 0.959
+              "dLum": 0.2708,
+              "dChroma": 0.0129,
+              "dH": 0.1222,
+              "dT": 0.126,
+              "D": 0.328
             },
             "N": {
-              "dLum": 0.1884,
-              "dChroma": 0.0712,
-              "dH": 0.2302,
-              "dT": 0.421,
-              "D": 1.169
+              "dLum": 0.2708,
+              "dChroma": 0.013,
+              "dH": 0.1222,
+              "dT": 0.116,
+              "D": 0.304
             }
           },
           "median": {
-            "lum": -0.73,
+            "lum": -0.2708,
             "chroma": [
-              0.5401,
-              -0.5869
+              0.4802,
+              -0.6105
             ],
-            "tex": 0.87804
+            "tex": 0.60521
           },
           "tex": {
-            "E": 1.10021,
+            "E": 0.55455,
             "N": 0.65587
           },
           "lum": {
-            "E": -0.9185,
+            "E": 0.0,
             "N": -0.5416
           },
           "chroma": {
             "E": [
-              0.6013,
-              -0.5505
+              0.4815,
+              -0.5977
             ],
             "N": [
               0.479,
@@ -6918,9 +6917,9 @@
           },
           "srgb": {
             "E": [
-              49,
-              35,
-              25
+              76,
+              60,
+              43
             ],
             "N": [
               61,
@@ -6934,54 +6933,54 @@
             "E",
             "N"
           ],
-          "spread": 1.802,
+          "spread": 0.214,
           "pairwise": [
             {
-              "dLum": 0.533,
-              "dChroma": 0.2248,
-              "dH": 0.2778,
-              "dT": 0.327,
-              "D": 1.802,
+              "dLum": 0.3983,
+              "dChroma": 0.0217,
+              "dH": 0.2111,
+              "dT": 0.059,
+              "D": 0.214,
               "a": "E",
               "b": "N"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.2665,
-              "dChroma": 0.1124,
-              "dH": 0.1389,
-              "dT": 0.154,
-              "D": 0.89
+              "dLum": 0.1991,
+              "dChroma": 0.0108,
+              "dH": 0.1056,
+              "dT": 0.029,
+              "D": 0.106
             },
             "N": {
-              "dLum": 0.2665,
-              "dChroma": 0.1124,
-              "dH": 0.1389,
-              "dT": 0.173,
-              "D": 0.912
+              "dLum": 0.1992,
+              "dChroma": 0.0109,
+              "dH": 0.1056,
+              "dT": 0.03,
+              "D": 0.108
             }
           },
           "median": {
-            "lum": 1.3058,
+            "lum": 1.3731,
             "chroma": [
-              0.4453,
-              -0.6472
+              0.3688,
+              -0.5538
             ],
-            "tex": 0.4842
+            "tex": 0.43854
           },
           "tex": {
-            "E": 0.53881,
+            "E": 0.44748,
             "N": 0.4296
           },
           "lum": {
-            "E": 1.0393,
+            "E": 1.174,
             "N": 1.5723
           },
           "chroma": {
             "E": [
-              0.5217,
-              -0.7296
+              0.3686,
+              -0.543
             ],
             "N": [
               0.3689,
@@ -6990,9 +6989,9 @@
           },
           "srgb": {
             "E": [
-              48,
-              36,
-              23
+              73,
+              61,
+              45
             ],
             "N": [
               59,
@@ -7006,54 +7005,54 @@
             "E",
             "N"
           ],
-          "spread": 0.992,
+          "spread": 1.311,
           "pairwise": [
             {
-              "dLum": 0.6473,
-              "dChroma": 0.0504,
-              "dH": 0.3175,
-              "dT": 0.37,
-              "D": 0.992,
+              "dLum": 0.0798,
+              "dChroma": 0.1148,
+              "dH": 0.2944,
+              "dT": 0.409,
+              "D": 1.311,
               "a": "E",
               "b": "N"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.3237,
-              "dChroma": 0.0251,
-              "dH": 0.1587,
-              "dT": 0.173,
-              "D": 0.468
+              "dLum": 0.0399,
+              "dChroma": 0.0574,
+              "dH": 0.1472,
+              "dT": 0.219,
+              "D": 0.684
             },
             "N": {
-              "dLum": 0.3236,
-              "dChroma": 0.0253,
-              "dH": 0.1587,
-              "dT": 0.197,
-              "D": 0.524
+              "dLum": 0.0399,
+              "dChroma": 0.0574,
+              "dH": 0.1472,
+              "dT": 0.19,
+              "D": 0.628
             }
           },
           "median": {
-            "lum": -0.5139,
+            "lum": -0.8774,
             "chroma": [
-              0.6097,
-              -0.5849
+              0.6394,
+              -0.5975
             ],
-            "tex": 1.73002
+            "tex": 1.3232
           },
           "tex": {
-            "E": 1.95042,
+            "E": 1.13679,
             "N": 1.50962
           },
           "lum": {
-            "E": -0.1902,
+            "E": -0.9173,
             "N": -0.8375
           },
           "chroma": {
             "E": [
-              0.6315,
-              -0.5974
+              0.691,
+              -0.6226
             ],
             "N": [
               0.5878,
@@ -7062,9 +7061,9 @@
           },
           "srgb": {
             "E": [
-              49,
-              35,
-              24
+              81,
+              57,
+              41
             ],
             "N": [
               64,
@@ -7078,54 +7077,54 @@
             "E",
             "N"
           ],
-          "spread": 1.207,
+          "spread": 0.732,
           "pairwise": [
             {
-              "dLum": 0.634,
-              "dChroma": 0.0575,
-              "dH": 0.4683,
-              "dT": 0.454,
-              "D": 1.207,
+              "dLum": 0.6896,
+              "dChroma": 0.0586,
+              "dH": 0.3889,
+              "dT": 0.24,
+              "D": 0.732,
               "a": "E",
               "b": "N"
             }
           ],
           "deviation": {
             "E": {
-              "dLum": 0.317,
-              "dChroma": 0.0287,
-              "dH": 0.2341,
-              "dT": 0.209,
-              "D": 0.562
+              "dLum": 0.3448,
+              "dChroma": 0.0293,
+              "dH": 0.1944,
+              "dT": 0.115,
+              "D": 0.356
             },
             "N": {
-              "dLum": 0.317,
-              "dChroma": 0.0287,
-              "dH": 0.2341,
-              "dT": 0.245,
-              "D": 0.645
+              "dLum": 0.3448,
+              "dChroma": 0.0293,
+              "dH": 0.1944,
+              "dT": 0.125,
+              "D": 0.376
             }
           },
           "median": {
-            "lum": -0.7321,
+            "lum": -1.3939,
             "chroma": [
-              0.6274,
-              -0.6199
+              0.6064,
+              -0.5879
             ],
-            "tex": 1.47667
+            "tex": 1.35909
           },
           "tex": {
-            "E": 1.70711,
+            "E": 1.47197,
             "N": 1.24622
           },
           "lum": {
-            "E": -0.4151,
+            "E": -1.7387,
             "N": -1.0491
           },
           "chroma": {
             "E": [
-              0.6559,
-              -0.6235
+              0.614,
+              -0.5596
             ],
             "N": [
               0.5989,
@@ -7134,9 +7133,9 @@
           },
           "srgb": {
             "E": [
-              50,
-              35,
-              24
+              79,
+              58,
+              43
             ],
             "N": [
               64,
@@ -7147,18 +7146,18 @@
         }
       },
       "wall_split": {
-        "E": 4.799,
+        "E": 4.115,
         "N": 4.795
       },
       "reference_log_luma": {
-        "E": -3.9518,
+        "E": -3.0163,
         "N": -3.4385
       },
-      "worst_band": "ceiling",
-      "score": 2.125,
+      "worst_band": "wall_lower",
+      "score": 1.311,
       "outlier_deviation": {
-        "N": 1.169,
-        "E": 0.959
+        "E": 0.684,
+        "N": 0.628
       },
       "clusters": [
         [
@@ -7172,9 +7171,9 @@
       ],
       "outliers": [],
       "no_majority": false,
-      "wall_split_spread": 0.004,
+      "wall_split_spread": 0.68,
       "verdict": "consistent",
-      "why": "ceiling disagrees most: worst pair E/N at D=2.12 (colour 0.142, contrast x1.68; brightness x1.46 and spread 0.460 reported, not counted). no facing stands outside the rest."
+      "why": "wall_lower disagrees most: worst pair E/N at D=1.31 (colour 0.115, contrast x1.33; brightness x1.08 and spread 0.294 reported, not counted). no facing stands outside the rest."
     },
     {
       "room": "study",
@@ -7620,16 +7619,6 @@
       "wall_lower"
     ],
     [
-      3.856,
-      "closet_chamber",
-      "wall_upper"
-    ],
-    [
-      3.692,
-      "closet_chamber",
-      "wall_lower"
-    ],
-    [
       3.623,
       "long_gallery",
       "floor"
@@ -7637,6 +7626,11 @@
     [
       3.56,
       "master_bedchamber",
+      "wall_upper"
+    ],
+    [
+      3.538,
+      "closet_chamber",
       "wall_upper"
     ],
     [
@@ -7648,6 +7642,11 @@
       3.282,
       "dining_parlour",
       "ceiling"
+    ],
+    [
+      3.01,
+      "closet_chamber",
+      "wall_lower"
     ],
     [
       2.975,
@@ -7675,7 +7674,7 @@
       "wall_upper"
     ],
     [
-      2.726,
+      2.755,
       "closet_chamber",
       "floor"
     ],
@@ -7705,11 +7704,6 @@
       "wall_lower"
     ],
     [
-      2.527,
-      "closet_chamber",
-      "ceiling"
-    ],
-    [
       2.502,
       "garden_room",
       "wall_upper"
@@ -7722,11 +7716,6 @@
     [
       2.414,
       "great_hall",
-      "ceiling"
-    ],
-    [
-      2.125,
-      "stair_landing",
       "ceiling"
     ],
     [
@@ -7758,11 +7747,6 @@
       1.938,
       "library",
       "ceiling"
-    ],
-    [
-      1.802,
-      "stair_landing",
-      "wall_upper"
     ],
     [
       1.756,
@@ -7850,9 +7834,9 @@
       "wall_upper"
     ],
     [
-      1.207,
+      1.311,
       "stair_landing",
-      "floor"
+      "wall_lower"
     ],
     [
       1.166,
@@ -7875,9 +7859,9 @@
       "floor"
     ],
     [
-      0.992,
-      "stair_landing",
-      "wall_lower"
+      0.938,
+      "closet_chamber",
+      "ceiling"
     ],
     [
       0.814,
@@ -7888,6 +7872,16 @@
       0.805,
       "library",
       "wall_lower"
+    ],
+    [
+      0.732,
+      "stair_landing",
+      "floor"
+    ],
+    [
+      0.633,
+      "stair_landing",
+      "ceiling"
     ],
     [
       0.572,
@@ -7908,6 +7902,11 @@
       0.231,
       "study",
       "ceiling"
+    ],
+    [
+      0.214,
+      "stair_landing",
+      "wall_upper"
     ]
   ],
   "packets": [
@@ -10021,6 +10020,116 @@
       ]
     },
     {
+      "key": "servants_hall/E",
+      "attempt": 2,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-E/retry-2",
+      "register": "g5-noappendix",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else \u2014 not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NSW against E), so it was painted as 2 rooms and not one. No facing of it was asked for the materials above, so the ruling comes from the plan and not from another wall.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 173.684,
+      "flights": [],
+      "scaffold_sha256": "0fbef72df1a6079073a778c3af711447c70042948c57b904b41dbf396cd0d300",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "servants_hall/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "consistency": {
+        "band": "materials",
+        "D": 2,
+        "cut": "the plan's own ruling materials",
+        "clusters": [
+          [
+            "N",
+            "S",
+            "W"
+          ],
+          [
+            "E"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ec3bc181",
+          "candidate": "backdrops/source/servants_hall-E/row23-ec3bc181.png",
+          "prompt": "backdrops/source/servants_hall-E/row23-ec3bc181.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "servants_hall/E",
+      "attempt": 3,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-E/retry-3",
+      "register": "g5-noappendix",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else \u2014 not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NSW against E), so it was painted as 2 rooms and not one. No facing of it was asked for the materials above, so the ruling comes from the plan and not from another wall.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 173.684,
+      "flights": [],
+      "scaffold_sha256": "0fbef72df1a6079073a778c3af711447c70042948c57b904b41dbf396cd0d300",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "servants_hall/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "consistency": {
+        "band": "materials",
+        "D": 2,
+        "cut": "the plan's own ruling materials",
+        "clusters": [
+          [
+            "N",
+            "S",
+            "W"
+          ],
+          [
+            "E"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "fab34914",
+          "candidate": "backdrops/source/servants_hall-E/row23-fab34914.png",
+          "prompt": "backdrops/source/servants_hall-E/row23-fab34914.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "servants_hall/N",
       "attempt": 1,
       "packet": "design/batches/row23-scaffold/manor/servants_hall-N/retry-1",
@@ -10121,6 +10230,116 @@
           "id": "e7912869",
           "candidate": "backdrops/source/servants_hall-N/row23-e7912869.png",
           "prompt": "backdrops/source/servants_hall-N/row23-e7912869.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "servants_hall/W",
+      "attempt": 6,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-W/retry-6",
+      "register": "g5-noappendix",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else \u2014 not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NSW against E), so it was painted as 2 rooms and not one. No facing of it was asked for the materials above, so the ruling comes from the plan and not from another wall.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 170.667,
+      "flights": [],
+      "scaffold_sha256": "6ae3819c99fc2b102ce87339db6fda1885f7f9515f36be1386ff2cfd968f3fe2",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "servants_hall/E",
+      "is_lead": false,
+      "continues": "servants_hall/E",
+      "order_position": 3,
+      "consistency": {
+        "band": "materials",
+        "D": 2,
+        "cut": "the plan's own ruling materials",
+        "clusters": [
+          [
+            "N",
+            "S",
+            "W"
+          ],
+          [
+            "E"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "83740f95",
+          "candidate": "backdrops/source/servants_hall-W/row23-83740f95.png",
+          "prompt": "backdrops/source/servants_hall-W/row23-83740f95.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "servants_hall/W",
+      "attempt": 7,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-W/retry-7",
+      "register": "g5-noappendix",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else \u2014 not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NSW against E), so it was painted as 2 rooms and not one. No facing of it was asked for the materials above, so the ruling comes from the plan and not from another wall.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 170.667,
+      "flights": [],
+      "scaffold_sha256": "6ae3819c99fc2b102ce87339db6fda1885f7f9515f36be1386ff2cfd968f3fe2",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "servants_hall/E",
+      "is_lead": false,
+      "continues": "servants_hall/E",
+      "order_position": 3,
+      "consistency": {
+        "band": "materials",
+        "D": 2,
+        "cut": "the plan's own ruling materials",
+        "clusters": [
+          [
+            "N",
+            "S",
+            "W"
+          ],
+          [
+            "E"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "69e542da",
+          "candidate": "backdrops/source/servants_hall-W/row23-69e542da.png",
+          "prompt": "backdrops/source/servants_hall-W/row23-69e542da.prompt.txt"
         }
       ]
     },

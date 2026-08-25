@@ -1,0 +1,62 @@
+{
+  "_what_this_is": "What every derived artifact was last regenerated FROM, written by design/plan-draft/measured/derived.py. `--check` recomputes each input digest and reports an artifact whose inputs have moved. Do not hand-edit: an entry here is a claim that the artifact beside it was written from exactly these bytes.",
+  "artifacts": {
+    "baked": {
+      "artifacts": {
+        "backdrops/baked.js": "b445d7d68912df37a13a511bc97dde85ecfcff293ff8ce35b5fac84098555525"
+      },
+      "at": "2026-08-25T03:28:48",
+      "input_digest": "4cd46fb6d1a66e2d42134d9dc7cb490c61a1eef7fc6a631c1d7c9ae6e37c4bea",
+      "inputs": 128
+    },
+    "material_legacy": {
+      "artifacts": {
+        "design/plan-draft/measured/material_legacy.json": "a5dd4784fb6b5773e6b0e93a6ac6010281563f5ef0cc6e795169f0a90b5852dd"
+      },
+      "at": "2026-08-25T03:43:26",
+      "input_digest": "6b1046f1aff02c701e61ef3921ea5370377981aba34098281a25d0e111dbe213",
+      "inputs": 659
+    },
+    "material_provenance": {
+      "artifacts": {
+        "design/plan-draft/measured/material_provenance.json": "1f2573812f68d217c561cc819407956ce7de233d023bffcee3669f48533b86e7"
+      },
+      "at": "2026-08-25T03:43:26",
+      "input_digest": "6b1046f1aff02c701e61ef3921ea5370377981aba34098281a25d0e111dbe213",
+      "inputs": 659
+    },
+    "room_consistency": {
+      "artifacts": {
+        "design/plan-draft/measured/room_consistency.json": "244e02ffc4938bdd36bc26e0936d0ac1f724df9e6771950b5a9712a1512c4ce9"
+      },
+      "at": "2026-08-25T03:28:47",
+      "input_digest": "49452b1aa2a13d56fd2eb56efd5e5307e439740531ae1a16feb5789fdc6dbf9b",
+      "inputs": 124
+    },
+    "room_consistency_readme": {
+      "artifacts": {
+        "design/batches/row40-consistency/README.md": "cc3340974fa271683754b34bfad70783b64fce25f518fc10fa62068425c22aa4"
+      },
+      "at": "2026-08-25T03:28:48",
+      "input_digest": "49452b1aa2a13d56fd2eb56efd5e5307e439740531ae1a16feb5789fdc6dbf9b",
+      "inputs": 124
+    },
+    "texture_library": {
+      "artifacts": {
+        "backdrops/textures/facings.json": "304ec250140acbed41fc7233cb32bfa288ee514b7715fe4a900f31458267a1f0",
+        "backdrops/textures/materials.json": "89d68328a0162faa639a7f25fafdfc07b8bfcfbd76dba8c7935aedf586b65bdf"
+      },
+      "at": "2026-08-25T03:43:25",
+      "input_digest": "0f84109d0620070449a9e0d1cd4d539b6d13004a5cedff1e39031267b46b4ad9",
+      "inputs": 4
+    },
+    "window_calibration": {
+      "artifacts": {
+        "design/plan-draft/measured/window_calibration.json": "f5c6f0a45822f9fc6b4d4f7602a046dd5cec88cf71da407e628d23eee786d838"
+      },
+      "at": "2026-08-25T01:57:21",
+      "input_digest": "3700c7d882dfa9482c2bc2589bfc005f0ba59991624c77394e6541a0353f076f",
+      "inputs": 125
+    }
+  }
+}

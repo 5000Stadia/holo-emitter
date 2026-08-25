@@ -29,6 +29,23 @@ for fd in fixtures/*/; do
   fi
 done
 
+# [production law clause 6, 2026-08-25] NO STALE DERIVED ARTIFACT SHIPS EITHER,
+# and for the fixture's own reason. The bake above is one derived artifact out
+# of a dozen: the material provenance report and its legacy ledger, the room
+# consistency measure and its README, the window calibration, the snapped and
+# repaired readings, the edge-strip records — every one of them is generated
+# FROM the store, and the loop that moves the store used to leave them behind.
+# A publish that ships a store nobody's audit describes is the "Still just 2
+# rooms" incident wearing a different artifact, so it is refused here on exactly
+# the same terms, by exactly the check the suite reads. The check writes
+# nothing; the regen is a separate, deliberate act.
+if ! derive=$(python3 design/plan-draft/measured/derived.py --check 2>&1); then
+  echo "publish refused: a derived artifact is stale against the store —" >&2
+  echo "$derive" | grep -E '^(STALE|UNPROVEN)|^ ' >&2
+  echo "run: python3 design/plan-draft/measured/derived.py --regen  (then commit what moves)" >&2
+  exit 2
+fi
+
 # [row 33] THE PUBLISH CLOCKS ITSELF, and it is the step with the least evidence
 # behind it: this script force-pushes an ORPHAN branch, so each publish erases
 # the previous one's commit and the whole published history is one commit deep.

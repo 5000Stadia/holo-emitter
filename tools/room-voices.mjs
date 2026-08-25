@@ -1411,7 +1411,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (process.argv.includes("--emit-materials")) {
     const plan = JSON.parse(readFileSync(join(root, "fixtures", "demo-study", "plan.json"), "utf8"));
     const doc = emitMaterials(VOICES, plan);
-    const out = join(root, "backdrops", "textures", "materials.json");
+    /* `--out` so a FRESHNESS CHECK can emit into a temp file and byte-compare
+     * without writing over the committed one — the shape every other generator
+     * in this project already offers (`bake-fixtures --out`, `--audit-materials
+     * --out`), and what `design/plan-draft/measured/derived.py --check --deep`
+     * needs to cover this artifact without touching it. */
+    const outFlag = process.argv.indexOf("--out");
+    const out = outFlag >= 0 && process.argv[outFlag + 1]
+      ? process.argv[outFlag + 1]
+      : join(root, "backdrops", "textures", "materials.json");
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, JSON.stringify(doc, null, 2) + "\n");
     const c = doc.counts;

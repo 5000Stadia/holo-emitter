@@ -723,9 +723,68 @@ test.describe("the content-gap grant", () => {
     const flightRefused = Object.entries(state.walls)
       .filter(([k, w]) => REASONS.flight_never_named.refusal.test(w.correction || "") && !inStore(k))
       .map(([k]) => k).sort();
-    expect(flightRefused.length).toBeGreaterThan(0);
+    /* [2026-08-25] THE SUBJECT IS BUILT, NOT BORROWED — because the corpus ran
+       out of one. `expect(flightRefused.length).toBeGreaterThan(0)` stood here,
+       and every wall the flight clause ever refused has since been painted and
+       promoted: the set went empty and the assertion went red for the loop
+       SUCCEEDING. A guard that fires when the work finishes is a guard that has
+       to be re-armed by hand every time the corpus moves, which is the same
+       disease as a committed artifact nobody regenerates.
+       So the subject is made here, out of the corpus's own parts and never out
+       of invented ones: a facing whose PLAN really draws a flight, the refusal
+       sentence the gate really wrote (taken verbatim off the run state, and
+       checked against the reason's own pattern), and the ask that was really
+       sent with the Stairs paragraph cut out of it — which is precisely the
+       state those six walls were in. `inStore` is injected so the wall counts as
+       waiting; nothing in production passes it. */
     expect(take.filter((t) => t.reason === "flight_never_named").map((t) => t.key).sort())
       .toEqual(flightRefused);
+    const anyFlightRefusal = Object.values(liveState().walls)
+      .map((w) => w.correction || "")
+      .find((c) => REASONS.flight_never_named.refusal.test(c));
+    expect(anyFlightRefusal,
+      "no wall in the ledger has ever been refused by the row-32 flight clause, so this " +
+      "reason answers a refusal this project has never issued").toBeTruthy();
+    const subject = everyFacing()
+      .map(([loc, f]) => [`${loc}/${f}`, deriveMeta(PLAN, loc, f)])
+      .find(([key, meta]) => meta && flightsForFacing(PLAN, ...key.split("/"), meta).length > 0);
+    expect(subject, "no facing in this plan draws a flight — the reason has no subject at all")
+      .toBeTruthy();
+    const [synthKey, synthMeta] = subject;
+    const synthDir = mkdtempSync(join(tmpdir(), "holo-grant-subject-"));
+    try {
+      const { rects } = scaffoldRects(PLAN, ...synthKey.split("/"), synthMeta);
+      const fresh = manorPrompt(PLAN, synthKey, synthMeta, rects, anyFlightRefusal);
+      const lines = fresh.split("\n");
+      const at = lines.findIndex((l) => /^Stairs:/.test(l));
+      expect(at, `${synthKey} draws a flight and the emitter's ask does not name one`)
+        .toBeGreaterThan(-1);
+      let end = at + 1;
+      while (end < lines.length && /^\s/.test(lines[end])) end++;
+      const spentPath = join(synthDir, "prompt.txt");
+      writeFileSync(spentPath, lines.slice(0, at).concat(lines.slice(end)).join("\n"));
+      const synthState = { walls: { [synthKey]: {
+        status: "held", attempts: 1, hold_family: "promotion-refused",
+        correction: anyFlightRefusal } } };
+      const got = eligible(synthState, {
+        plan: PLAN, spentPrompt: () => spentPath, inStore: () => false
+      });
+      expect(got.take.map((t) => `${t.key} ${t.reason}`),
+        `${synthKey} was refused for want of a flight, its ask never named one, and the grant ` +
+        `did not reach it: ${JSON.stringify(got.skip)}`)
+        .toEqual([`${synthKey} flight_never_named`]);
+      expect(got.take[0].gained.join("\n"),
+        "the grant reached it for something other than the staircase").toMatch(/^Stairs:/);
+      /* AND IT IS THE STORE THAT STOPS IT, not the wording: the same subject
+         with the same ask, counted as painted, is refused by name. */
+      const painted = eligible(synthState, {
+        plan: PLAN, spentPrompt: () => spentPath, inStore: () => true
+      });
+      expect(painted.take, "a wall already in the store was granted a re-ask").toEqual([]);
+      expect(painted.skip[0].why).toMatch(/promoted meta is already on disk/);
+    } finally {
+      rmSync(synthDir, { recursive: true, force: true });
+    }
     /* And nothing outside a content gap is touched: a camera miss, an unfitted
        horizon and a suspect painting are facts about a picture. */
     for (const s of skip) {

@@ -2638,10 +2638,20 @@ test.describe("the schematic is a derived render of the plan", () => {
            same reason the four above are: `measure.py` has never written it
            and no ruler in it can. It shrinks as the sweep re-measures those
            walls, and its numbers answer to `test_window_measure.py` and to the
-           overlays, not to this comparison. */
+           overlays, not to this comparison.
+
+           And the sixth is not a report at all: `derived-state.json` is the
+           RECORD of what each of the five above was last regenerated from,
+           written by `design/plan-draft/measured/derived.py` so that
+           `--derive-check` can tell a stale artifact from a fresh one without
+           regenerating it. It holds digests of inputs and no measurement of
+           anything; `measure.py` has never written it and no ruler in it can.
+           Its own honesty is checked by `derived.py --check --deep`, which
+           regenerates every artifact into a temp tree and byte-compares — the
+           same shape as this case, one directory over. */
         const NOT_A_READING = new Set(["misses.jsonl", "room_consistency.json",
           "material_provenance.json", "material_legacy.json",
-          "window_calibration.json"]);
+          "window_calibration.json", "derived-state.json"]);
         const names = readdirSync(committed)
           .filter((f) => f.endsWith(".json") && !NOT_A_READING.has(f));
         /* cand5ref writes ONE file — it measures the reference and nothing

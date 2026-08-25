@@ -54,7 +54,7 @@
  * required to have a case that goes red on it alone.
  */
 import { test, expect } from "@playwright/test";
-import { repoRoot } from "./helpers.mjs";
+import { repoRoot, expectDerived } from "./helpers.mjs";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
@@ -303,6 +303,16 @@ test.describe("row 40 — the origin: what else could have differed per facing",
 
 test.describe("row 40 — the origin: the ask audit reads what the pixels only imply", () => {
   test("it names every room the pixel measure calls mismatched, and one more", () => {
+    /* [production law clause 6] TWO INSTRUMENTS, ONE STORE, AND ONLY ONE OF
+       THEM IS LIVE HERE. `materialProvenance` is computed against the store as
+       it stands; `room_consistency.json` is COMMITTED, because the pixel measure
+       resamples 57 paintings and costs seventeen seconds. Comparing a live
+       reading with a committed one is exactly the seam this case kept falling
+       into: the loop promoted, superseded and re-snapped walls, the committed
+       measure went on describing the store before all that, and the disagreement
+       read as a finding about the two instruments. The freshness of the
+       committed half is asked first and by machine. */
+    expectDerived("room_consistency");
     expect(existsSync(CONSISTENCY),
       "room_consistency.json has never been written — run the measure").toBe(true);
     const pixels = JSON.parse(readFileSync(CONSISTENCY, "utf8"));
@@ -368,18 +378,61 @@ test.describe("row 40 — the origin: the ask audit reads what the pixels only i
         .toBe("current");
     }
 
-    /* AND THE MISS ROW 40 LOGGED OPEN. `stair_landing` scores 2.12, well under
-       the 3.75 cut, because its two ceilings differ almost purely in
-       BRIGHTNESS — the one axis the pixel sweep proved must not vote. In the
-       asks there is nothing subtle about it at all: N was asked for "a plain
-       lime-plastered ceiling" and E for a "boarded ceiling". A measurement
-       that reads the instruction cannot be fooled by exposure, and this is the
-       claim that the ask audit is strictly stronger rather than merely
-       different. */
-    expect(split.has("stair_landing"),
-      "stair_landing is the miss room 40's own report logs OPEN — the pixel measure cannot " +
-      "see it because the difference is brightness. If the ask audit cannot see it either, " +
-      "the miss has no closing route").toBe(true);
+    /* STRICTLY STRONGER, AND MEASURED RATHER THAN NAMED.
+     *
+     * This stood as `split.has("stair_landing")`: that room scored 2.12, well
+     * under the 3.75 cut, because its two ceilings differed almost purely in
+     * BRIGHTNESS — the one axis the pixel sweep proved must not vote — while in
+     * the asks there was nothing subtle about it at all (N asked for "a plain
+     * lime-plastered ceiling", E for a "boarded ceiling"). One room, named, as
+     * the whole evidence that reading the INSTRUCTION beats reading the pixels.
+     *
+     * Then the repair route this file's own section 4 drives did its work:
+     * `--emit-consistency --from-ask` re-asked `stair_landing/E` naming the
+     * room's ruling materials, the supersede route promoted the return, and the
+     * audit has called that room `current` ever since. The assertion went red
+     * for the repair succeeding — a guard firing on success, the same shape as
+     * the flight grant's — and every wall of the manor finishing would have
+     * taken it down whatever happened.
+     *
+     * So the claim is asserted as the claim, over whatever the store holds: the
+     * audit must name at least one room the pixel measure calls consistent. That
+     * is what "strictly stronger" MEANS, it cannot be satisfied by a room the
+     * pixels already found, and it survives the corpus being repaired. */
+    const pixelVerdict = new Map((pixels.rooms || []).map((r) => [r.room, String(r.verdict || "")]));
+    const seenOnlyInTheAsks = [...split]
+      .filter((r) => pixelVerdict.has(r) && !pixelVerdict.get(r).startsWith("mismatched"));
+    expect(seenOnlyInTheAsks.length,
+      "every room the ask audit calls split is one the pixel measure had already flagged, so " +
+      "reading the instruction has bought nothing over reading the paint. The audit is either " +
+      "blind or redundant, and both are findings").toBeGreaterThan(0);
+
+    /* AND THE ONE THE LEDGER NAMES, held either way. `stair_landing` is the miss
+       `misses.jsonl` logs OPEN against the pixel instrument. It may leave the
+       audit's list for exactly one reason — every one of its promoted facings
+       was actually asked for the room's ruling materials — and never by the
+       audit quietly losing sight of it (an `unprovable` facing, a room that
+       dropped out of the report). The disjunction is stronger than the
+       assertion it replaces: on the closed branch it demands a per-facing
+       verdict for the whole room. */
+    if (split.has("stair_landing")) {
+      expect(pixelVerdict.get("stair_landing") || "",
+        "stair_landing is the miss the pixel measure cannot see, and it now sees it — the " +
+        "instrument miss has closed and its OPEN entry in misses.jsonl should say so")
+        .not.toMatch(/^mismatched/);
+    } else {
+      const sl = asks.rooms.find((r) => r.room === "stair_landing");
+      expect(sl, "stair_landing has left the ask audit's report altogether, which is the audit " +
+        "going blind rather than the room being repaired").toBeTruthy();
+      expect(sl.verdict, "stair_landing is no longer split and the audit does not call it current " +
+        "either, so nothing here says the ask repair is what closed it").toBe("current");
+      for (const f of sl.facings) {
+        expect(f.verdict,
+          `stair_landing/${f.facing} is promoted and the audit cannot say its ask was this ` +
+          `room's ruling — the room left the split list without every wall being repaired`)
+          .toBe("current");
+      }
+    }
 
     /* AND IT DOES NOT CRY WOLF. The row-40 README labelled six rooms as
        plainly ONE room by eye, before any weight was chosen. Not one of them
@@ -529,6 +582,14 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
    * exists, and a stale observer is worse than none because it reads like an
    * all-clear. */
   test("the committed audit report byte-equals a fresh run of --audit-materials", () => {
+    /* [production law clause 6] AND NOBODY HAS TO RE-RUN IT BY HAND ANY MORE.
+       The paragraph above is exactly right about what makes this report stale
+       and was silent about whose job it is to notice: the sweep's. It now
+       regenerates this report after any pass that moved the store
+       (`derived.py`), so the byte-compare below is a claim about the AUDIT and
+       the freshness question is asked first, in the one place that answers it
+       for every derived artifact at once. */
+    expectDerived("material_provenance");
     const rp = join(repoRoot, "design", "plan-draft", "measured", "material_provenance.json");
     expect(existsSync(rp), "the audit has never been written — run --audit-materials").toBe(true);
     /* Composed exactly as `--audit-materials` composes it, so this compares the
@@ -546,6 +607,15 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
        the audit actually calls not-current and a candidate that is on disk —
        an entry for a wall that is fine is a door standing open, and an entry
        naming bytes nobody has is an admission nobody can check. */
+    /* AND THE LEDGER SHRINKS BY MACHINE. Its own header says the list can only
+       shrink and that an entry is deleted in the same commit that re-asks its
+       wall — which was a human's promise until the sweep started re-sealing it
+       after every pass that moved the store. `stair_landing/E` was the case:
+       the supersede route repainted it from a roll that names the room's ruling
+       materials, the audit called it current the same minute, and the ledger
+       went on admitting it. That is the door standing open below, opened by the
+       repair rather than by anyone's edit. */
+    expectDerived("material_legacy");
     const lp = join(repoRoot, "design", "plan-draft", "measured", "material_legacy.json");
     if (!existsSync(lp)) return;                       // not sealed in this tree
     const ledger = JSON.parse(readFileSync(lp, "utf8"));

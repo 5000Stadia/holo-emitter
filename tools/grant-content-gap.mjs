@@ -251,9 +251,18 @@ export function spentPromptPath(outDir, key) {
  * closes, correctly and permanently. The grant's own record keeps the path it
  * diffed, so a reader — or a test — can put the tool back in front of the state
  * it decided on. Nothing in production passes it.
+ *
+ * `inStore` overrides the same question about the STORE, and it exists for the
+ * same reason one level up. Every wall this tool has ever granted has since been
+ * painted, so the corpus no longer holds a single subject for "a flight-refused
+ * wall still waiting" — the case that guarded that clause was left asserting
+ * over an empty set, which is a guard firing on success. A test can now build
+ * its subject in a temporary store rather than borrowing one from the corpus,
+ * and it stays a real exercise of this function on the day the corpus finishes.
+ * Nothing in production passes it either; the default is the store on disk.
  */
 export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, walls = null,
-  spentPrompt = null } = {}) {
+  spentPrompt = null, inStore = null } = {}) {
   const take = [], skip = [];
   for (const [key, w] of Object.entries(state.walls || {})) {
     if (walls && !walls.includes(key)) continue;
@@ -277,7 +286,7 @@ export function eligible(state, { plan, outDir = DEFAULT_OUT, only = null, walls
       skip.push({ key, why: `already carries a ${reason.id} grant; this grant is once-only per wall per reason` });
       continue;
     }
-    if (existsSync(join(ROOT, "backdrops", ...key.split("/")) + ".meta.json")) {
+    if (inStore ? inStore(key) : existsSync(join(ROOT, "backdrops", ...key.split("/")) + ".meta.json")) {
       skip.push({ key, why: "a promoted meta is already on disk for this facing" });
       continue;
     }

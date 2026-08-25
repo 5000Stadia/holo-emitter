@@ -1124,7 +1124,9 @@
       "ceiling": null,
       "floor": "floor/gravel-and-turf",
       "facing_type": "open",
-      "carriers": [],
+      "carriers": [
+        "open_edge"
+      ],
       "declared_ppm": 38.2803738317757,
       "declared": {
         "ppm": 38.2803738317757,
@@ -1267,6 +1269,7 @@
       "facing_type": "enclosed",
       "carriers": [
         "window",
+        "open_edge",
         "window"
       ],
       "declared_ppm": 52.37851662404092,
