@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-LEAVES | row 42 (3): door leaves and window casements as sprites placed in the DETECTED frames, open/close by tap, painter asks cut for the real sprites | building |
 | B-PROD | row 43: g5-noappendix becomes the production register everywhere an ask is composed; per-register camera pass-rate in the timings report | building |
 
 ## Recently landed (for "issue with…" back-reference)
