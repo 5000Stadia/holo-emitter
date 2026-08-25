@@ -21,7 +21,7 @@ composite carried an edge extension (the flat fill), one of them in the furnishe
 | `05-great_stair_hall-S-flight-from-beside` | A flight drawn on a facing its exit is not stated on. Eight of the twelve were like this and answered no click at all; a click here now turns you to the stair and climbs it. |
 | `06-hall-N-doorway-through` | 476 × 953 px of doorway that was **9.6 % room and 90 % one column of it stretched sideways** — the horizontal banding. The extension claims colour now and no structure. |
 | `07-great_hall-N-zero-coverage-door` | A door whose destination frame does not reach the opening at all: the whole of it was one stretched pixel. |
-| `08-entrance_court-S-mouth` | **The row's two open questions, both below.** A 3095 × 706 px mouth, 37.7 % of it real destination frame. Before: the rest is smeared sky and ground. After: flat bands of the destination's own edge colour. The smear invents detail nobody drew; the flat fill is honest and shows its seams at this size. Kabe's call, and it is reversible in one constant. |
+| `08-entrance_court-S-mouth` | **The row's two open questions, both below.** A 3095 × 706 px mouth, 37.7 % of it real destination frame. Before: the rest is smeared sky and ground. After: flat bands of the destination's own edge colour. The smear invents detail nobody drew; the flat fill is honest and shows its seams at this size. Kabe's call. |
 | `09-entrance_approach-N-mouth` | The manor's own front way in, from the other side. |
 | `10-demo-study-E-door-open-through` | The furnished world, which this row touches in exactly one way: the composite through the study's own doorway. |
 
@@ -40,8 +40,9 @@ side.
 **1. The look, on a mouth this size.** On a doorway the flat fill is plainly the better picture —
 `06-hall-N-doorway-through` stops reading as corduroy. On the court's 3095 × 706 mouth, where the
 fill dwarfs the 37.7 % that is real destination frame, the flat bands show their own edges, and
-the Builder's judgement is that they read no better than the smear did. Reversible in one
-constant.
+the Builder's judgement is that they read no better than the smear did. Reversing it is a real
+change rather than a constant: the eight flat fills are the mechanism, so the smear comes back
+only by restoring the eight blits and dropping the case that refuses them.
 
 **2. The sky walks you.** Measured on the shipped build, through the page's own `resolve()` at
 1536 × 1200, every 2 px over the whole frame:

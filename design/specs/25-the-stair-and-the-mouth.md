@@ -180,8 +180,11 @@ needs no shrinking at all, because everything it claims is drawn from the docume
       DOORWAY the flat fill is plainly better — `hall/N` stops reading as corduroy. On the
       entrance court's 3095 × 706 mouth, where the fill dwarfs the real frame, the flat bands show
       their edges and my own judgement is that they read no better than the smear did. Both frames
-      are in `design/batches/row25-stair/` as `08-entrance_court-S-mouth`, and the trade is
-      reversible in one constant.
+      are in `design/batches/row25-stair/` as `08-entrance_court-S-mouth`. **The trade is NOT
+      reversible in one constant** and revision 3 said it was: the eight flat fills ARE the
+      mechanism, so the smear comes back only by restoring the eight blits and deleting
+      `ways.spec`'s colour-not-detail case with them. `EDGE_BAND` (16 px) moves the colour the
+      fill averages, not the kind of claim it makes.
     - **The structural cure is named and is not this row's**: the composite looks through an
       opening with the DESTINATION STANDPOINT'S camera, which is the wrong camera — that is why
       coverage collapses to zero when two standpoints are far apart laterally. A destination view

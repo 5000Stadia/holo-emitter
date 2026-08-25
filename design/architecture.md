@@ -2970,7 +2970,11 @@ at 140.
 **The look trade, named, and it is Kabe's.** On a doorway the flat fill is plainly better. On the
 entrance court's 3095 × 706 mouth, where the fill dwarfs the real frame, the flat bands show their
 edges and the Builder's own judgement is that they read no better than the smear did. Both frames
-are in `design/batches/row25-stair/` and the trade is reversible in one constant.
+are in `design/batches/row25-stair/`. **Reversing it is not one constant** and this document said
+it was: the eight flat fills ARE the mechanism, so going back to the smear means restoring the
+eight `drawImage` blits this row replaced and deleting the case that refuses them
+(`ways.spec`'s colour-not-detail). What one constant does buy is the WIDTH the fill averages —
+`EDGE_BAND`, 16 px — which moves the colour and not the kind of claim.
 
 **The structural cure is named and is not this row's.** The composite looks through an opening with
 the DESTINATION STANDPOINT'S camera, which is the wrong camera — that is why coverage collapses to
