@@ -22,7 +22,7 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-LEAVES | row 42 (3): door leaves and window casements as sprites placed in the DETECTED frames, open/close by tap, painter asks cut for the real sprites | building |
-| B-PROD | row 43: g5-noappendix becomes the production register everywhere an ask is composed; per-register camera pass-rate in the timings report | building |
+| B-PROD | row 43 landed on its branch (5f24c3a); a reconcile builder is merging it with row 42's lead ordering (conflicts in the emitter, edge-seed, seams spec) | reconciling |
 
 ## Recently landed (for "issue with…" back-reference)
 
