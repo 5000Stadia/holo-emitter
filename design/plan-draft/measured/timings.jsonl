@@ -30264,3 +30264,8 @@
 {"detail":{"camera_source":"measured","candidate":"backdrops/source/stair_landing-W/row23-572c742a.png","refused":true,"why":"promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source/stair_landing-W/row23-572c742a.png was painted from never named a staircase (backdr"},"key":"stair_landing/W","step":"promote.wall","ts_end":1787631234.837508,"ts_start":1787631234.664676}
 {"detail":{"attempts":4,"correction":"draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2","why":"retry cap spent"},"key":"closet_chamber/S","step":"park.wall","ts_end":1787631234.838922,"ts_start":1787631234.838921}
 {"detail":{"fixture":"nav-manor","refused":false},"key":null,"step":"validate.sweep","ts_end":1787631234.964351,"ts_start":1787631234.839}
+{"ts_start":1787631235.032,"ts_end":1787631251.939,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39715127,"fp":"d1a5f643","png_bytes":156162574,"jpeg_bytes":29777147}}
+{"ts_start":1787631252.032,"ts_end":1787631252.094,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787631252.169,"ts_end":1787631252.295,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"c6b4e4ca","out_bytes":629291,"facings":88,"locations":22}}
+{"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787631252.323729,"ts_start":1787631234.964488}
+{"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787631252.324259,"ts_start":1787631233.460559}
