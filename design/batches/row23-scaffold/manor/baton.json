@@ -1,8 +1,8 @@
 {
- "ts": 1787653220.1720293,
- "baton": "seat",
- "active": "yes",
+ "ts": 1787653820.8527043,
+ "baton": "publish",
+ "active": "waiting-on-navigator",
  "nudged": "no",
- "detail": "2 image(s) owed - the painter is owed",
- "loop_pass_age_s": 33
+ "detail": "2 promoted wall(s) newer than the last publish - Navigator's publish-site.sh is owed",
+ "loop_pass_age_s": 19
 }

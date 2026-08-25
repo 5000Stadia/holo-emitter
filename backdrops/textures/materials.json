@@ -708,7 +708,7 @@
         "pitch_m": 0.115,
         "feature": "brick laid on edge"
       },
-      "prose": "a floor of worn red brick laid on edge",
+      "prose": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
       "prose_from": "servants_hall.floor",
       "scale_contract": {
         "kind": "periodic",
