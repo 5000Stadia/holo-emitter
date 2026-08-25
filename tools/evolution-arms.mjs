@@ -1364,12 +1364,17 @@ export function styleImageFor(loc, facing) {
  * The arm was measured under its declaration and keeps it, which is why the
  * style is passed IN rather than resolved inside.
  */
-export function g5Ctx(ctx, { reask = false } = {}) {
+export function g5Ctx(ctx, { reask = false, style, scaffoldStyle } = {}) {
   const { plan, key, loc, facing, meta, rects } = ctx;
   return {
     ...ctx,
-    ...g5CtxFor(plan, key || `${loc}/${facing}`, meta, rects,
-      { style: styleImageFor(loc, facing), reask })
+    ...g5CtxFor(plan, key || `${loc}/${facing}`, meta, rects, {
+      /* `undefined` means "resolve the arm's own declaration"; `null` means an
+       * arm that DECLARES no Image 1, which is not the same statement and must
+       * not be reachable by accident. */
+      style: style !== undefined ? style : styleImageFor(loc, facing),
+      scaffoldStyle, reask
+    })
   };
 }
 
@@ -1496,6 +1501,94 @@ export const REGISTER_WALLS = [
   { key: "entrance_court/S",
     why: "the outdoor open facing: no corners, no returns, the piers at the mouth as the ruler, and row 29's veto live - one interior word in this prompt and the lint refuses the packet" }
 ];
+
+/* ------------------------------------------------------------------ */
+/* The scaffold-sheet trial — what the layout image IS                 */
+/* ------------------------------------------------------------------ */
+/* THE FINDING THIS ASKS ABOUT IS ALREADY IN THE LEDGER, TWICE, ON ONE DAY.
+ *
+ *   `master_bedchamber/N`, asked cold with only the scaffold attached
+ *   (`design/prompts/cold-guide-master_bedchamber-N.md`), came back a flat
+ *   modern render in the DIAGRAM's own dark grey with a lit fire — every period
+ *   word in the prompt lost to the one image in the packet.
+ *
+ *   `servants_hall/E`'s retry-4 packet carried no Image 1 at all: one scaffold,
+ *   two dashed boxes labelled WINDOW and FIREPLACE. The return
+ *   (`backdrops/source/servants_hall-E/row23-230bb67d.png`) painted TWO DARK
+ *   DOORWAYS exactly where those two boxes stood.
+ *
+ * Both walls are here, because a screen run on the walls that produced the
+ * finding is a screen that can see it come back. The manipulation is the SHEET:
+ * `grid-v1` is the dark frame the shipped renderer draws and `ink-on-paper-v2`
+ * is the line drawing that replaces it. Everything else is production's:
+ * `g5-noappendix`, no Image 1, one roll each.
+ *
+ * THE CONFOUND IS DECLARED AND IT IS DELIBERATE. The register's one sentence
+ * about the layout image moves WITH the sheet, because it describes it — a
+ * prompt saying "a line drawing in ink on paper" beside a dark grid frame is
+ * neither the ask that was sent nor the ask being proposed, and measuring it
+ * would answer a question nobody has. So this pair is one change measured
+ * whole, and it cannot say which half moved a number.
+ *
+ * FOUR ROLLS IS A LOOK, NOT A TEST, and the manifest says so with the same
+ * `min_detectable_effect` every trial in this file prints before dispatch:
+ * at n=2 a side nothing clears the discipline, so nothing here can crown
+ * anything. What four rolls CAN do is put the two sheets' returns beside each
+ * other on the two walls that failed, with the count clause reading them. */
+export const SCAFFOLD_SHEET_ARMS = [
+  ["s1-grid-sheet", "THE INCUMBENT SHEET",
+    "production's own ask, unchanged: g5-noappendix, no Image 1, and the layout image as the shipped renderer draws it - dark ground, dark-filled carrier boxes - with the register's incumbent sentence about it",
+    "grid-v1"],
+  ["s2-ink-sheet", "INK ON PAPER",
+    "the same ask with the layout image cut as a line drawing on paper: thin ink where surfaces meet, carrier boxes as outlines with a hatched interior, no tone anywhere a painter could read as a material or an opening - and the register's one sentence saying that is what it is",
+    "ink-on-paper-v2"]
+];
+
+for (const [id, name, what, sheet] of SCAFFOLD_SHEET_ARMS) {
+  ARMS[id] = {
+    id, name, what, generation: 5, scaffold_sheet: sheet,
+    channels: {
+      /* The words are production's on both arms; what moves is the picture. */
+      text_geometry: "clean_register",
+      image: sheet === "grid-v1" ? "layout_grid_only" : "layout_ink_only",
+      camera_language: "appearance_only"
+    },
+    ruling: "[AI, 2026-08-25] two returns on one day read the diagram as the picture: master_bedchamber/N painted the diagram's grey, servants_hall/E painted its two boxes as two doorways",
+    declared_images: ["scaffold.png"],
+    images: () => ["scaffold.png"],
+    /* THE PACKET NAMES ONE FILE AND BOTH ARMS NAME THE SAME ONE. What differs
+     * is which sheet was cut into it, so a seat holding a packet cannot pick
+     * the wrong picture and the two packets differ in exactly the two things
+     * the arm moves. */
+    image_source: () => ({ "scaffold.png": sheet === "grid-v1" ? "scaffold.png" : "scaffold-ink.png" }),
+    prompt(ctx) {
+      return g5Prompt(g5Ctx(ctx, { style: null, scaffoldStyle: sheet }), { appendix: false });
+    }
+  };
+}
+
+export const SCAFFOLD_SHEET_ARM_IDS = SCAFFOLD_SHEET_ARMS.map(([id]) => id);
+
+/** The two walls, and the return that put each of them here. */
+export const SCAFFOLD_WALLS = [
+  { key: "servants_hall/E",
+    why: "retry-4 went out with no Image 1 and one scaffold carrying two dashed boxes labelled WINDOW and FIREPLACE; the return (backdrops/source/servants_hall-E/row23-230bb67d.png) painted TWO DARK DOORWAYS exactly where those boxes stood. A window and a fireplace on one wall, no doorway ruled - so the door count clause reads 0 against whatever the painting shows." },
+  { key: "master_bedchamber/N",
+    why: "the wall Kabe asked cold with only the scaffold attached (design/prompts/cold-guide-master_bedchamber-N.md); the return was a flat modern render in the diagram's dark grey with a lit fire. A fireplace and a doorway on one wall, and a room the measure gives no agreeing majority - so the ruling leaves it no style image and the layout picture is the whole of what it is shown." }
+];
+
+export const SCAFFOLD_TRIAL = {
+  batch: "design/batches/scaffold-ink",
+  tag: "scafink",
+  arms: SCAFFOLD_SHEET_ARM_IDS,
+  control: "s1-grid-sheet",
+  rolls_per_arm_per_wall: 1,
+  walls: SCAFFOLD_WALLS,
+  _what_this_is: "What the layout image IS, measured: the shipped renderer's dark grid frame against the same geometry drawn as ink on paper, on the two walls whose returns read the diagram as the picture. Production's own register on both arms, no Image 1 on either.",
+  _the_confound: "The sheet and the register's one sentence about the sheet move together, because the sentence describes the sheet. A win is a win for the pair and this trial cannot separate them.",
+  _no_privileged_arm: "Both arms compose through g5Prompt with appendix:false, attach exactly one image under the same name, run on the same two walls with the same roll count, and are read by the same scorer through the same opaque ids. The control is the ask production was sending on 2026-08-25.",
+  _what_the_count_clause_reads: "Beside the row-34 primaries (admissible horizon, camera pass), each return is read for the ways-through it PAINTS - door_measure.py's own enumeration at this wall's declared geometry - against the doors and windows the plan rules on it. That is the quantity the servants_hall/E return failed and no fitness column could see."
+};
 
 export const REGISTER_TRIAL = {
   batch: "design/batches/g5-register",
