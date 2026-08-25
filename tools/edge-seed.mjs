@@ -148,6 +148,24 @@ export function adjacencyTable() {
   });
 }
 
+/* ------------------------------------------------------------------ */
+/* [row 43] WHICH INDEX EACH PICTURE HAS                                */
+/* ------------------------------------------------------------------ */
+/* Row 38 wrote "Image 3" for the strip because every packet then carried a
+ * style seed as Image 1 and the scaffold as Image 2. Row 40's ruling took the
+ * style seed away from most packets — Image 1 is this room's own agreeing wall
+ * or there is none — so the scaffold is often Image 1 and the first strip is
+ * Image 2. A prompt naming an Image 3 the packet does not hold is a reference
+ * the seat has to go and invent, which is how a study wall ended up in a garden
+ * once already.
+ *
+ * So the numbering is arithmetic, in one place, and both readers use it: the
+ * register (`frame-language.mjs`'s `scaffoldIndex`, the same expression) and
+ * the attach list below. `seams.spec` asserts the two agree on every emitted
+ * packet. */
+export const scaffoldImageIndex = (style) => (style ? 2 : 1);
+export const seedImageIndex = (style, n = 0) => scaffoldImageIndex(style) + 1 + n;
+
 /**
  * The role sentence, verbatim per row 38. The image is named by INDEX and by
  * ROLE and the interaction is stated — reference images carry appearance, text
@@ -494,7 +512,13 @@ export const seedFileName = (side) => `edge-seed-${side}.png`;
  * this facing has no painted neighbour. The returned object is what the
  * manifest entry carries and what `manorPrompt` is handed.
  */
-export function attachSeed(plan, key, packetDir, opts = isPainted) {
+/* [row 42 + row 43] TWO THINGS WIDENED THIS SIGNATURE AND THEY ARE DIFFERENT
+ * QUESTIONS. `opts` is row 42's — a predicate, or an options object carrying
+ * `painted` and the emitter's wider `imageOf` so a lead still in the
+ * measurement loop can be followed. The trailing `{ style }` is row 43's — not
+ * about WHICH strip is cut but about what INDEX it is given, because under row
+ * 40's ruling the layout image is Image 1 whenever no style image rode. */
+export function attachSeed(plan, key, packetDir, opts = isPainted, { style = null } = {}) {
   const plan_ = seedPlan(plan, key, opts);
   /* A PACKET HOLDS AT MOST ONE STRIP, and the emitter is re-runnable — so a
    * packet cut again after its seam neighbour changed (the other side painted,
@@ -514,6 +538,8 @@ export function attachSeed(plan, key, packetDir, opts = isPainted) {
   return {
     seed: {
       ...plan_,
+      image_index: seedImageIndex(style),
+      role_sentence: roleSentence(plan_.side, seedImageIndex(style)),
       file: join(packetDir, seedFileName(plan_.side)).slice(ROOT.length + 1),
       width_px: cut.width_px,
       height_px: cut.height_px,
@@ -541,7 +567,7 @@ export function packetNote(seed, plan_) {
    * RODE. Under row 38 a waiting facing never had a seed, so the two were the
    * same sentence; under row 42 a facing can hold a strip from one painted
    * neighbour and still be waiting for its room's LEAD, and a packet that says
-   * only "here is your Image 3" is a packet a seat will paint out of order. */
+   * only "here is your edge seed" is a packet a seat will paint out of order. */
   const wait = s.depends_on
     ? `> **This ask WAITS for \`${s.depends_on}\`. Do not paint it until that wall's picture ` +
       `is on disk.**\n>\n> [row 42] Every location paints one wall first — its LEAD, the ` +
@@ -554,8 +580,12 @@ export function packetNote(seed, plan_) {
       `\n\n`
     : "";
   if (!seed) return wait;
+  /* [row 43] THE INDEX IS THE SEED'S OWN, NEVER 3 BY HABIT — row 38 wrote 3
+   * because every packet then carried a style image as 1 and the scaffold as 2,
+   * and row 40's ruling took the style image off most packets. */
   return wait +
-    `**Image 3 is this wall's edge seed.** \`${seedFileName(s.side)}\` is the ` +
+    `**Image ${s.image_index || 3} is this wall's edge seed.** ` +
+    `\`${seedFileName(s.side)}\` is the ` +
     `${Math.round(s.fraction * 100)} % of \`${s.source}\` that abuts this picture — its ` +
     `${s.neighbour_edge}-hand ${s.width_px} columns, full frame height, cut by ` +
     `\`tools/crop-edge-seed.py\` (sha256 \`${s.sha256.slice(0, 12)}\` from a painting at ` +
@@ -576,8 +606,10 @@ export function attachLine(seed, style) {
   const one = style
     ? `\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`
     : null;
-  const two = "`scaffold.png` as **Image 2**";
-  const three = seed ? `\`${seedFileName(seed.side)}\` as **Image 3**` : null;
+  const two = `\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`;
+  const three = seed
+    ? `\`${seedFileName(seed.side)}\` as **Image ${seed.image_index || seedImageIndex(style)}**`
+    : null;
   const parts = [one, two, three].filter(Boolean);
   const list = parts.length > 1
     ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1]
@@ -640,10 +672,12 @@ export function seedPlansAll(plan, key, { painted = isPainted, allow = null } = 
 }
 
 /**
- * Cut a strip for every allowed side into `packetDir`, numbering the roles
- * from Image 3 upward in SIDES order. Returns the seeds actually cut.
+ * Cut a strip for every allowed side into `packetDir`, numbering the roles from
+ * one above the layout image upward in SIDES order — `opts.style` is what
+ * decides which index that is. Returns the seeds actually cut.
  */
 export function attachSeeds(plan, key, packetDir, opts = {}) {
+  const style = opts.style || null;
   const plans = seedPlansAll(plan, key, opts);
   for (const sd of SIDES) {                      // never leave a stale strip
     const stale = join(packetDir, seedFileName(sd));
@@ -659,8 +693,8 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
     });
     seeds.push({
       ...pl,
-      image_index: 3 + seeds.length,
-      role_sentence: roleSentence(pl.side, 3 + seeds.length),
+      image_index: seedImageIndex(style, seeds.length),
+      role_sentence: roleSentence(pl.side, seedImageIndex(style, seeds.length)),
       file: join(packetDir, seedFileName(pl.side)).slice(ROOT.length + 1),
       width_px: cut.width_px, height_px: cut.height_px,
       columns: cut.columns, sha256: cut.sha256,
@@ -698,7 +732,7 @@ export function attachLineAll(seeds, style) {
   const parts = (style
     ? [`\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`]
     : [])
-    .concat(["`scaffold.png` as **Image 2**"])
+    .concat([`\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`])
     .concat(seeds.map((s) => `\`${seedFileName(s.side)}\` as **Image ${s.image_index}**`));
   const lead = style ? "Attach " : "There is NO Image 1 in this packet and none is to be found " +
     "elsewhere — the medium is in the prompt's own words. Attach ";

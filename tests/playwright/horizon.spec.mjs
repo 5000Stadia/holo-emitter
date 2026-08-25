@@ -434,24 +434,45 @@ for e in MAN["entries"]:
   /* Clause 6, as a check rather than as a promise: the eye-line row reaches
    * the generator on EVERY wall, not only on a re-ask, and it is the row this
    * wall's own meta declares. */
-  test("every manor prompt states the row the returns must converge on", () => {
-    for (const key of ["great_hall/N", "privy_garden/N", "kitchen/S"]) {
-      const [loc, f] = key.split("/");
-      const meta = deriveMeta(PLAN, loc, f);
-      const { rects } = scaffoldRects(PLAN, loc, f, meta);
-      const text = manorPrompt(PLAN, key, meta, rects);
-      const row = Math.round(meta.horizon_y * meta.image_h_px);
-      /* [row 34] THE ROW IS CHECKED, NOT THE SENTENCE. Row 32 earned this clause
-       * with the words "the left and right returns run back to meet each other
-       * at row N"; row 34's fold replaced that whole section with the register
-       * three generations recommended, which states the same row as "Carried on,
-       * all four of those meet at column X, row N" — and on an OPEN facing, which
-       * has no returns to converge, as "Lines running away from you converge at
-       * column X, row N". The clause is that the eye-line row reaches the
-       * generator on every wall; the phrasing was never the clause. */
-      expect(text, `${key}'s prompt never says where the returns converge`)
-        .toMatch(new RegExp(`(meet|converge)[^.]*\\brow ${row}\\b`));
+  test("every manor prompt states where the returns converge", () => {
+    /* [row 32] THE CLAUSE IS THAT THE EYE LINE REACHES THE GENERATOR ON EVERY
+       WALL — including the open ones, which have no corners to hang a return on
+       and are the omission this row was allocated for. The clause has never been
+       a phrasing.
+
+       [row 34] It was "the left and right returns run back to meet each other at
+       row N"; the fold replaced the section with the recommended register, which
+       said the same row as "Carried on, all four of those meet at column X, row
+       N".
+
+       [row 43] AND NOW IT IS SAID IN WORDS RATHER THAN AS A ROW NUMBER, because
+       the ruling removed the coordinate block from the ask — and the evidence
+       for removing it is this very quantity. `g5-noappendix`, the register with
+       no figure anywhere in it, took 4 of 5 ADMISSIBLE against `g4`'s 3 of 5,
+       and admissibility IS the horizon fit: an inadmissible return is one whose
+       two side-wall junctions do not converge inside the standing licence. The
+       arm carrying the row number was WORSE at putting the horizon where it
+       belongs than the arm describing it. So what is checked is the clause: the
+       eye line is stated, on every facing the plan holds, and the receding lines
+       are said to meet on it. */
+    let checked = 0, open = 0;
+    for (const room of PLAN.rooms) {
+      for (const f of Object.keys(room.facings || {})) {
+        const key = `${room.id}/${f}`;
+        const meta = deriveMeta(PLAN, room.id, f);
+        const { rects } = scaffoldRects(PLAN, room.id, f, meta);
+        const text = manorPrompt(PLAN, key, meta, rects);
+        expect(text, `${key}'s prompt never names the eye line`)
+          .toMatch(/the eye line sits a little above the middle of the picture's height/i);
+        expect(text, `${key}'s prompt never says the receding lines meet on it`)
+          .toMatch(/(would meet if they were carried back|leans toward one place on it)/);
+        checked++;
+        if (meta.facing_type === "open") open++;
+      }
     }
+    expect(checked, "no facing was checked at all").toBe(88);
+    expect(open, "no open facing was checked — the omission row 32 was allocated for is unguarded")
+      .toBeGreaterThan(0);
   });
 
   /* A correction that cannot be carried onto a garden wall is a fix that does

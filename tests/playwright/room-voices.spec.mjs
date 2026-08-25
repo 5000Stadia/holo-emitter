@@ -198,7 +198,11 @@ test.describe("row 29 — per-room material voices", () => {
        omission is what let the style seed's heraldry through. */
     for (const [key, t] of everyPrompt()) {
       if (/^armorial glass:/im.test(t)) continue;
-      if (/carries no window/i.test(t)) continue;
+      /* [row 43] THE CLEAN REGISTER'S OWN WORDS FOR A WALL WITH NO GLASS IN IT.
+         It was "carries no window"; it is now "there is no window: this wall
+         carries no glazed opening of any kind" — the same clause, said once,
+         and [Kabe] "No window" WHEN NONE is why it is said at all. */
+      if (/carries no (window|glazed opening)/i.test(t)) continue;
       expect(t, `${key} has windows, no armorial ration, and does not forbid heraldic glass`)
         .toMatch(/no armorial shield/i);
     }
@@ -226,11 +230,27 @@ test.describe("row 29 — per-room material voices", () => {
       const n = scaffoldRects(PLAN, loc, f, meta).rects.filter((r) => r.kind === "window").length;
       if (n === 0) {
         expect(t, `${key} has no window in the plan and its prompt does not say so`)
-          .toMatch(/carries no window/i);
+          .toMatch(/carries no (window|glazed opening)/i);
       } else {
-        const word = ["no", "one", "two", "three", "four", "five", "six"][n];
-        expect(t, `${key} draws ${n} window(s) in the plan and its prompt says otherwise`)
-          .toMatch(new RegExp(`carries ${word} window opening`, "i"));
+        /* [row 43] THE COUNT IS STILL IN WORDS AND IT IS STILL THE PLAN'S. The
+           incumbent said "this wall carries four window openings"; the clean
+           register says "four window openings stand at the far left, left of
+           centre, right of centre and at the far right" — the count, and then
+           where each one is, which is what a painter needs and what the
+           incumbent's bay-by-bay repetition was trying to say four times. */
+        /* AND THE COUNT IS SUMMED ACROSS THE CLAUSES, because the register
+           groups windows by their RULED WIDTH: `entrance_court/N` carries six
+           openings in two widths and says so as two clauses ("four window
+           openings stand …" and "two window openings stand …"), which is one
+           instruction per distinct window rather than one repeated six times.
+           What the plan rules is the TOTAL, so the total is what is checked. */
+        const WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+        const said = [...t.matchAll(/\b(\w+) window opening(?:s)? stands?\b/gi)]
+          .map((m) => WORDS.indexOf(m[1].toLowerCase()))
+          .filter((x) => x >= 0)
+          .reduce((a, b) => a + b, 0);
+        expect(said, `${key} draws ${n} window(s) in the plan and its prompt asks for ${said}`)
+          .toBe(n);
       }
     }
     /* AND THE REPETITION IS GONE. `great_hall/S` used to restate "The leaded

@@ -28,7 +28,7 @@ import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
-  EDGE_FRACTION, SIDES, neighbourAt, neighbourEdge, adjacencyTable, roleSentence,
+  EDGE_FRACTION, SIDES, neighbourAt, neighbourEdge, adjacencyTable, roleSentence, seedImageIndex,
   seedPlan, openOrder, cutEdgeSeed, seedFileName, wallLineEnd, isOpenLocation,
   roomOrder, leadFacing, entryDoorFacing, opposite, packetNote
 } from "../../tools/edge-seed.mjs";
@@ -189,28 +189,42 @@ test.describe("row 38 — the crop", () => {
 /* ------------------------------------------------------------------ */
 
 test.describe("row 38 — the sentence rides with the strip and never without it", () => {
-  test("manorPrompt names Image 3 when and only when it is given a seed", () => {
+  test("manorPrompt names the strip when and only when it is given one", () => {
     const key = "entrance_approach/N";
     const [loc, f] = key.split("/");
     const meta = deriveMeta(PLAN, loc, f);
     const { rects } = scaffoldRects(PLAN, loc, f, meta);
-    const bare = manorPrompt(PLAN, key, meta, rects);
-    expect(bare).not.toContain("Image 3");
-    for (const side of SIDES) {
-      const seeded = manorPrompt(PLAN, key, meta, rects, null,
-        { ...seedPlan(PLAN, key), side, role_sentence: roleSentence(side) });
-      expect(seeded).toContain(roleSentence(side));
-      /* In the Input images paragraph, on one physical line, after Image 2's —
-       * the composer's own idiom, and what the line-counting t1/t2 control
-       * depends on. */
-      const lines = seeded.split("\n");
-      const at = lines.findIndex((l) => l.includes("Image 3 is a reference"));
-      expect(at, "Image 3 must be introduced with the other images").toBeGreaterThan(
-        lines.findIndex((l) => /^Input images:/.test(l)));
-      expect(at).toBeLessThan(lines.findIndex((l) => /^Primary request:/.test(l)));
-      expect(lines[at].trim()).toBe(roleSentence(side));
-      /* And nothing else moved. */
-      expect(lines.filter((l, i) => i !== at).join("\n")).toBe(bare);
+    /* [row 43] THE INDEX IS DERIVED FROM THE ATTACH LIST, NEVER TYPED. Row 38
+       wrote "Image 3" because every packet then carried a style seed as Image 1
+       and the scaffold as Image 2; row 40's ruling took the style seed away
+       from most packets, so the scaffold is Image 1 and the first strip is
+       Image 2. `scaffoldImageIndex(style)` is the one home for the arithmetic
+       and both readers use it — the register and `PACKET.md`'s attach list. A
+       prompt naming an Image 3 the packet does not hold is a reference the seat
+       has to go and invent, which is how a study wall reached a garden once. */
+    for (const style of [null, { file: "style-reference.png", room: loc, facing: "S",
+      facing_word: "south" }]) {
+      const n = seedImageIndex(style);
+      expect(n).toBe(style ? 3 : 2);
+      const bare = manorPrompt(PLAN, key, meta, rects, null, null, { style });
+      expect(bare, "a bare ask names a strip it was never given")
+        .not.toMatch(/Image \d+ is a reference of exactly/);
+      for (const side of SIDES) {
+        const seeded = manorPrompt(PLAN, key, meta, rects, null,
+          { ...seedPlan(PLAN, key), side }, { style });
+        expect(seeded).toContain(roleSentence(side, n));
+        /* On one physical line, with the other images, in the picture paragraph
+           — the composer's own idiom, and what the line-counting t1/t2 control
+           depends on. */
+        const lines = seeded.split("\n");
+        const at = lines.findIndex((l) => /Image \d+ is a reference of exactly/.test(l));
+        expect(at, "the strip must be introduced with the other images").toBeGreaterThan(
+          lines.findIndex((l) => /^Composition\/framing:/.test(l)));
+        expect(at).toBeLessThan(lines.findIndex((l) => /^Style\/medium:/.test(l)));
+        expect(lines[at].trim()).toBe(roleSentence(side, n));
+        /* And nothing else moved. */
+        expect(lines.filter((l, i) => i !== at).join("\n")).toBe(bare);
+      }
     }
   });
 
@@ -230,16 +244,33 @@ test.describe("row 38 — the sentence rides with the strip and never without it
     let seeded = 0;
     for (const p of packets) {
       /* IN `SIDES` ORDER, WHICH IS THE ORDER THE EMITTER NUMBERS THEM IN.
-         `attachSeeds` walks `SIDES`, hands the nth cut strip `image_index =
-         3 + n`, and `roleSentence(side, index)` writes that number into the
-         sentence — so the index a strip must be called by is its position in
-         this filtered list and nothing else. */
-      const sides = SIDES.filter((s) => existsSync(join(p, seedFileName(s))));
+         `attachSeeds` walks `SIDES` and hands the nth cut strip
+         `seedImageIndex(style, n)`, and `roleSentence(side, index)` writes that
+         number into the sentence — so the index a strip must be called by is
+         its position in this filtered list and nothing else.
+
+*/
       const text = readFileSync(join(p, "prompt.txt"), "utf8");
       const md = readFileSync(join(p, "PACKET.md"), "utf8");
+      const sides = SIDES.filter((s) => existsSync(join(p, seedFileName(s))));
+      /* AND THE BASE IS READ OFF THE PACKET'S OWN ATTACH LIST, not assumed.
+         The strips are numbered from one above the layout image, and which
+         index THAT has is the packet's own declaration — Image 2 behind a style
+         picture, Image 1 where row 40's ruling leaves none. Reading it here is
+         what makes this case true of the packets emitted before the ruling and
+         of the ones emitted after it, and it is the agreement itself that is
+         worth checking: a prompt and an attach list that disagree send a seat
+         looking for a file that is not in the directory. */
+      const declared = md.match(/`scaffold\.png` as \*\*Image (\d+)\*\*/);
+      expect(declared, `${p}'s attach list never names the layout image`).toBeTruthy();
+      const base = Number(declared[1]) + 1;
       if (!sides.length) {
-        expect(text, `${p} names Image 3 with no strip beside it`).not.toContain("Image 3");
-        expect(md).not.toContain("**Image 3**");
+        expect(text, `${p} names a strip with none beside it`)
+          .not.toMatch(/Image \d+ is a reference of exactly/);
+        for (const sd of SIDES) {
+          expect(md, `${p}'s attach list names a strip the packet does not carry`)
+            .not.toContain(seedFileName(sd));
+        }
         continue;
       }
       /* A SECOND STRIP IS A SECOND IMAGE, NOT A FORBIDDEN ONE. This case used
@@ -254,7 +285,7 @@ test.describe("row 38 — the sentence rides with the strip and never without it
          no longer the subject and every strip is checked at its own index. */
       seeded += 1;
       sides.forEach((side, i) => {
-        const n = 3 + i;
+        const n = base + i;
         expect(text, `${p} carries a ${side} strip and does not name it as Image ${n}`)
           .toContain(roleSentence(side, n));
         expect(md, `${p}'s attach list must name the ${side} strip as Image ${n}`)
@@ -265,10 +296,10 @@ test.describe("row 38 — the sentence rides with the strip and never without it
          carry sends the painter looking for a file that is not in the
          directory — the same failure as an unexplained strip, from the other
          side. */
-      expect(text, `${p} names an Image ${3 + sides.length} it carries no strip for`)
-        .not.toContain(`Image ${3 + sides.length} is a reference`);
-      expect(md, `${p}'s attach list names an Image ${3 + sides.length} that is not in it`)
-        .not.toContain(`**Image ${3 + sides.length}**`);
+      expect(text, `${p} names an Image ${base + sides.length} it carries no strip for`)
+        .not.toContain(`Image ${base + sides.length} is a reference`);
+      expect(md, `${p}'s attach list names an Image ${base + sides.length} that is not in it`)
+        .not.toContain(`**Image ${base + sides.length}**`);
     }
     expect(seeded, "no packet carries a seed — the pilot is not on disk").toBeGreaterThan(0);
   });

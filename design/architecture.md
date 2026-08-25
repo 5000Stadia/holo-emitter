@@ -3807,15 +3807,23 @@ note in a spec file that is deleted along with the spec file.
 ### The edge seed (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) — row 38
 
 A fresh full-frame ask whose adjacent facing is already painted carries that neighbour's abutting
-10 % as **Image 3**, and the prompt names its role in one sentence in the Input images paragraph:
-*Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from
-it seamlessly.* That is row 34's division applied to a seam — the strip carries appearance, which is
-what a reference image is good at, and the words carry the role, which is what text is good at. An
-unlabelled third image is a guess.
+10 % as an additional reference image, and the prompt names its role in one sentence beside the
+other images: *Image N is a reference of exactly what sits at this picture's left edge - the scene
+continues from it seamlessly.* That is row 34's division applied to a seam — the strip carries
+appearance, which is what a reference image is good at, and the words carry the role, which is what
+text is good at. An unlabelled extra image is a guess.
+
+**The index was 3 and is now derived** [row 43]. Row 38 wrote "Image 3" because every packet then
+carried a style seed as Image 1 and the scaffold as Image 2. Row 40's ruling took the style seed off
+most packets, so the scaffold is often Image 1 and the first strip Image 2, and the numbering is
+arithmetic in one place — see *Image indices are derived, never typed* in the row-43 section below.
+Row 42 changed which picture Image 1 is (the room's LEAD wall, its candidate accepted), not how the
+list is numbered.
 
 **And a packet may ride with more than one.** Row 40's repair route seeds an outlier from every
 agreeing wall its room has, so `attachSeeds` cuts a strip per allowed side in `SIDES` order and
-hands the nth `image_index = 3 + n`; `packetNoteAll` and `attachLineAll` are the plurals of
+hands the nth `image_index = seedImageIndex(style, n)` — one above the layout image, whose own index
+is `style ? 2 : 1`; `packetNoteAll` and `attachLineAll` are the plurals of
 `packetNote` and `attachLine`, and `roleSentence(side, index)` writes the number into the sentence.
 `servants_hall/E`'s consistency re-ask carries both. The invariant is one claim per strip and it
 holds at any count: a strip is never handed over unexplained, and a sentence never stands without
@@ -4199,10 +4207,12 @@ three of them. The label block sits at the top of the region and is lifted clear
 a descending flight's box begins in the legend's own rows and the legend is drawn last, so a block
 placed inside the box regardless would be buried by it.
 
-**The paragraph is `frame-language.flightLines`**, in row 34's `g4` register like everything else the
-prompt says about the picture — the finished appearance with the figures attached. It states where
-the flight stands in the frame, its width, its tread count, how many steps are in view, which way it
-climbs, and the two standing constraints a way through a building always carries:
+**The paragraph is `frame-language.g5FlightLines`** in production and `flightLines` in the declared
+control arm — the same facts in the two registers, and [row 43] the production one no longer states
+where the flight stands in columns and rows, because that block rode in the coordinate appendix and
+the appendix is not in the ask. What it states is the flight's width, its tread count, how many steps
+are in view, which way it climbs, and the two standing constraints a way through a building always
+carries:
 
 1. **A rising flight needs the space over it.** The renderer cuts the surface overhead to the
    flight's own footprint lifted a storey (`well_poly`), so a painting that closes that hole paints a
@@ -4893,6 +4903,14 @@ do not: that spread is the measurement of the omission. Every manor prompt now n
 and asks for one straight unbroken junction from each corner to the frame edge, so the next map gets
 it with none of this in context.
 
+**[row 43] AND IT NOW NAMES IT IN WORDS RATHER THAN AS A ROW.** The register ruling removed the
+coordinate block from the ask, and the evidence for removing it is this very quantity: the arm with
+no figure anywhere in it (`g5-noappendix`) fitted 4 of 5 admissible horizons against the incumbent's
+3 of 5. The clause is unchanged and is still checked on all 88 — the eye line reaches the generator
+on every wall, open facings included — and what changed is that it arrives as *"the eye line sits a
+little above the middle of the picture's height, and that is where those receding lines would meet if
+they were carried back into the distance"* instead of as a row number.
+
 **A promotion that cannot be baked is not a promotion.** `do_promote` runs `promote-backdrop.mjs`,
 then bakes `backdrops/baked.js` AND every world's `fixture.js` — a promoted wall changes two baked
 artifacts, and baking only the first leaves `fixtures/nav-manor/fixture.js` stale. The bake runs the
@@ -5410,11 +5428,15 @@ promoted three walls at once.
 | `design/plan-draft/measured/row34_run.py` | measures arrivals through `row23_lib` | promote, bake, publish, or open the manor run's state |
 | `design/plan-draft/measured/row34_fitness.py` | scores, applies the discipline, breeds the next generation | **name any arm id at all** |
 
-**An arm is a transformation of the production prompt, not a second prompt.** `manorPrompt`'s output
-is parsed into `Key: value` sections and each arm edits the sections it is defined to edit. Two
-consequences worth having: the control is production by construction rather than by a test noticing
-a stale copy, and every other arm inherits the room's voice, its ruled carrier clauses and its
-constraints without this machinery knowing what a voice is. An arm is also a **channel triple** —
+**An arm is a transformation of a composer, not a second prompt.** That composer's output is parsed
+into `Key: value` sections and each arm edits the sections it is defined to edit. Two consequences
+worth having: the control is that composer by construction rather than by a test noticing a stale
+copy, and every other arm inherits the room's voice, its ruled carrier clauses and its constraints
+without this machinery knowing what a voice is. **[row 43] Which composer: `g4ManorPrompt`** — the
+register production sent until row 43, and the declared control arm since. It is deliberately not
+`manorPrompt`, which now composes the clean register: an arm defined against August's section order
+and quietly re-pointed at whatever production writes next would stop being the arm that was measured
+with nothing going red. An arm is also a **channel triple** —
 `text_geometry`, `image`, `camera_language` — which is what makes recombination mechanical instead
 of editorial.
 
@@ -5581,6 +5603,99 @@ compared `armPrompt(control, ctx)` with `manorPrompt(...)` — a function agains
 whatever production did. A deliberate mutation of `manorPrompt` left it green. It is now two checks
 that do go red: the control's composer must be a single delegation, and every committed prompt on
 disk must equal what its composer returns today.
+
+## The register production composes (row 43) — `tools/frame-language.mjs`, `tools/make-scaffold.mjs`
+
+**Which one it is.** `g5` **without the coordinate appendix**, and it is the only register any
+emitter composes. `manorPrompt` is one line — `g5Prompt(g5CtxFor(...), { appendix: false })` — and
+`--emit-manor`, `--emit-retries` and `--emit-consistency` all go through it.
+
+**Where it came from.** [HUMAN, 2026-08-24, verbatim, reading `master_bedchamber/N`'s production
+prompt] *"That prompt seems like a mess too…."* and, on the same walk, *"Yeah but test my direction
+against our tests as well."* The mess was not the register `g4` recommended — it was the ORDER
+around it and the repetition: two paragraphs about what the attached images are and are not before
+the first fact about the room, the room's materials stated three times, the four junction lines
+stated twice (as appearance and again as figures), and the materials — the thing every one of row
+40's nine re-asks was about — forty lines of geometry below the top.
+
+**And it was tested rather than argued.** `design/batches/g5-register`: six walls, three arms, blind
+ids, one roll a cell, the appendix ablated as its own arm.
+
+| arm | admissible | camera gate |
+|---|--:|--:|
+| `g4-production` (the incumbent) | 3/5 | 2/5 |
+| `g5` (clean order, appendix kept) | 3/5 | 4/5 |
+| `g5-noappendix` (clean order, no figures) | 4/5 | 5/5 |
+
+Materials came back right on every arm with **no style image attached at all**, which is row 40's
+ruling standing on its own words. Nothing separated at that n — the trial printed its
+`min_detectable_effect` before it ran and said so — so the ruling is a labelled judgment in the
+open, exactly as row 34's was, and the row keeps measuring it (below).
+
+**The appendix argued for its life and lost.** Row 34's generation-3 ablation said the figures were
+load-bearing (`g3`, the same appearance register with them stripped out: 2/4, the worst horizon
+error, one probe wall with no horizon fittable at all), which is why `g5` carried them into this
+trial as its own arm. Asked again of the new order, the answer came back the other way, and on the
+very quantity the figures were kept for: **admissibility IS the horizon fit**, and the arm with no
+figure anywhere in it fitted more horizons than the arm carrying the row numbers. Production law
+clause 5 applies to the appendix as apparatus and it is removed from the ask. The code stays as the
+`g5` arm's, because the arm is how the question gets asked a third time.
+
+**`g4` is now the declared control arm and nothing dispatches it.** `g4ManorPrompt` in
+`make-scaffold.mjs` is the composer that was production until this row; `ARMS["g4-production"]` IS
+that function rather than a copy of its output, and every generation-1-to-3 arm transforms it rather
+than transforming whatever production happens to write today. It is kept live and tested for two
+reasons: the next natural batch measures the clean register against the incumbent instead of taking
+a screen that separated nothing as settled, and `evolution.spec.mjs` holds its register against row
+34's archived prompts case by case, so the control cannot drift away from its own evidence.
+
+**What the clean order is, item by item** (`frame-language.mjs`, `g5Prompt`):
+
+1. **The room, in one breath** — the correction where there is one, then the wall, the fabric, what
+   is overhead and underfoot, and the anchor sentence.
+2. **What is on this wall** — the carriers, ruled, positioned in words (`positionPhrase`), with
+   carriers of one width grouped into one clause naming every place; then the flight, shortened.
+3. **The picture** — the finished frame in words, one line handing the lines themselves to the
+   layout image, and each edge strip named by index and by role.
+4. **The medium** — one line naming the era as a painting tradition, plus the clause that tells the
+   layout diagram's colours apart from the picture's where no style image is attached.
+5. **Nothing else** — two lines.
+
+**Everything the incumbent's order carried survives in it**, and each one is a live clause somewhere
+else in the pipeline: the flight opener still matches `FLIGHT_ASK` to the character, which is what
+`promote-backdrop.mjs` reads a spent prompt with; the open-edge sentence and the pier anchor (Kabe's
+*"Entrance court s looks very weird on the edges"*); the row-38 edge-strip role lines; the correction
+line, verbatim, at the top of item 1, redacted on an outdoor wall whose correction names interior
+fabric; the outdoor veto, which `prompt_lint.py` holds; the heraldry ration at column zero where the
+lint's `^armorial glass:` clause can see it, and the positive plain-quarrel sentence everywhere else;
+and the row-40 rule that a blank facing is told no second fabric.
+
+**The figures that went with the appendix.** The eye-line ROW and the flight's column-and-row block
+are no longer stated as numbers. Row 32's clause survives as what it always was — the eye line
+reaches the generator on every wall, open facings included — said in words instead of in a row, and
+row 43's own numbers are the evidence that the sentence does the job the figure was kept for. The
+scaffold still stamps the flight's region, which is where that geometry belongs.
+
+**Image indices are derived, never typed.** `scaffoldIndex(ctx)` is `style ? 2 : 1`, and
+`edge-seed.mjs`'s `scaffoldImageIndex` / `seedImageIndex` are the same arithmetic for `PACKET.md`'s
+attach list. Under row 40's ruling most packets carry no style image, so the scaffold is Image 1 and
+the first edge strip is Image 2; row 38 wrote "Image 3" when every packet carried a style seed, and a
+prompt naming an image the packet does not hold is a reference the seat goes and invents.
+
+**One ctx builder.** `g5CtxFor(plan, key, meta, rects, opts)` resolves the fabric (`roomRuling`,
+`materialParts`), the flight (`flightsForFacing`), the window lights (`lightsFor`), the pier anchor,
+the heraldry ration and Image 1 (`styleImageFor`) — and `evolution-arms.mjs`'s `g5Ctx` delegates to
+it rather than resolving any of them a second way. The one thing the arm keeps is its own declared
+image policy, because that is the arm's declaration and not production's.
+
+**How the ruling keeps being measured.** Every emitted packet record and every `PACKET.md` names the
+register its ask was composed in (`register: g5-noappendix`); an entry with no `register` key
+predates 2026-08-25 and is `g4`, because every ask cut before then composed through `g4ManorPrompt`.
+`timings_report.py` joins each reading to its register through the roll id in that record — the
+emitter's own declaration at emit time, not a register pattern-matched out of a prompt afterwards —
+and reports each register's camera pass rate over its last 20 production returns against the
+trailing `g4` rate, on `--monitor`'s second line and in the report's own section. The exit code stays
+the regression's alone: a register whose rate falls is a finding for the Navigator, not a red build.
 
 ## The snap (row 35) — `design/plan-draft/measured/row35_snap.py`
 
