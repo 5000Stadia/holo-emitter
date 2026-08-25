@@ -1,0 +1,351 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 655,
+    "chair_rail_y_px": 559,
+    "dado_rail_above_floor_px": 96,
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      652,
+      673
+    ],
+    "rail": [
+      544,
+      561
+    ],
+    "ceiling": [
+      313,
+      364
+    ],
+    "columns": [
+      [
+        0,
+        212
+      ],
+      [
+        560,
+        791
+      ],
+      [
+        965,
+        1253
+      ],
+      [
+        1428,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "fireplace",
+      "asked_x0": 212.61,
+      "asked_x1": 559.73,
+      "ruled_m": 3.0,
+      "window": [
+        -134,
+        906
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 333..644 (102 px from the ask) and another admissible pair sits 260..644 (66 px from the ask), which disagree by more than the 28 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 791.14,
+      "asked_x1": 964.7,
+      "ruled_m": 1.5,
+      "window": [
+        444,
+        1311
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 1077..1226 (274 px from the ask) and another admissible pair sits 1077..1285 (303 px from the ask), which disagree by more than the 28 px this arm can resolve"
+    },
+    {
+      "kind": "window",
+      "asked_x0": 1253.97,
+      "asked_x1": 1427.53,
+      "ruled_m": 1.5,
+      "window": [
+        906,
+        1774
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 1077..1226 (189 px from the ask) and another admissible pair sits 1151..1334 (98 px from the ask), which disagree by more than the 28 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 101.053,
+  "implied_focal_px": 894.3,
+  "eye_height_m": 1.2756,
+  "_absent": [
+    "the fireplace: the choice of edge pair would choose the verdict: the strongest pair sits 333..644 (102 px from the ask) and another admissible pair sits 260..644 (66 px from the ask), which disagree by more than the 28 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 1077..1226 (274 px from the ask) and another admissible pair sits 1077..1285 (303 px from the ask), which disagree by more than the 28 px this arm can resolve",
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 1077..1226 (189 px from the ask) and another admissible pair sits 1151..1334 (98 px from the ask), which disagree by more than the 28 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 301,
+    "ceiling_candidates": [
+      {
+        "y": 302,
+        "strength": 25.04,
+        "horiz": 0.729,
+        "cv": 0.589
+      },
+      {
+        "y": 251,
+        "strength": 23.99,
+        "horiz": 0.745,
+        "cv": 0.57
+      },
+      {
+        "y": 284,
+        "strength": 21.09,
+        "horiz": 0.742,
+        "cv": 0.564
+      },
+      {
+        "y": 263,
+        "strength": 19.6,
+        "horiz": 0.742,
+        "cv": 0.649
+      },
+      {
+        "y": 137,
+        "strength": 19.08,
+        "horiz": 0.709,
+        "cv": 0.714
+      },
+      {
+        "y": 144,
+        "strength": 18.58,
+        "horiz": 0.692,
+        "cv": 0.688
+      },
+      {
+        "y": 126,
+        "strength": 17.92,
+        "horiz": 0.768,
+        "cv": 0.615
+      },
+      {
+        "y": 292,
+        "strength": 17.54,
+        "horiz": 0.806,
+        "cv": 0.634
+      },
+      {
+        "y": 362,
+        "strength": 7.95,
+        "horiz": 0.729,
+        "cv": 0.828
+      },
+      {
+        "y": 257,
+        "strength": 6.98,
+        "horiz": 0.703,
+        "cv": 1.076
+      },
+      {
+        "y": 276,
+        "strength": 6.53,
+        "horiz": 0.733,
+        "cv": 1.092
+      },
+      {
+        "y": 212,
+        "strength": 6.41,
+        "horiz": 0.726,
+        "cv": 1.075
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 301,
+        "admissible": true,
+        "sigma_y_px": 1.08,
+        "horizon_y_px": 608.4,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 250,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 608.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 283,
+        "admissible": true,
+        "sigma_y_px": 1.1,
+        "horizon_y_px": 608.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 262,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 608.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 136,
+        "admissible": false,
+        "sigma_y_px": 1866.47,
+        "horizon_y_px": 2866.5,
+        "why": "the two side-wall junctions converge at y 2866.5 but only to +/-1866.5 px, and the standing licence on the horizon row is +/-11.0 px"
+      },
+      {
+        "ceiling_y_px": 143,
+        "admissible": false,
+        "sigma_y_px": 1866.47,
+        "horizon_y_px": 2866.5,
+        "why": "the two side-wall junctions converge at y 2866.5 but only to +/-1866.5 px, and the standing licence on the horizon row is +/-11.0 px"
+      },
+      {
+        "ceiling_y_px": 125,
+        "admissible": false,
+        "sigma_y_px": 1555.89,
+        "horizon_y_px": 2558.3,
+        "why": "the two side-wall junctions converge at y 2558.3 but only to +/-1555.9 px, and the standing licence on the horizon row is +/-11.0 px"
+      },
+      {
+        "ceiling_y_px": 291,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 608.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 361,
+        "admissible": false,
+        "sigma_y_px": 1172.04,
+        "horizon_y_px": 38.9,
+        "why": "the two side-wall junctions converge at y 38.9 but only to +/-1172.0 px, and the standing licence on the horizon row is +/-11.0 px"
+      },
+      {
+        "ceiling_y_px": 256,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 608.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 275,
+        "admissible": true,
+        "sigma_y_px": 1.09,
+        "horizon_y_px": 608.2,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 211,
+        "admissible": false,
+        "sigma_y_px": 124.26,
+        "horizon_y_px": 1306.4,
+        "why": "the two side-wall junctions converge at y 1306.4 but only to +/-124.3 px, and the standing licence on the horizon row is +/-11.0 px"
+      }
+    ],
+    "corner_x0_px": 98,
+    "corner_x1_px": 1451,
+    "corner_evidence": {
+      "left_fit_r2": 0.7342,
+      "right_fit_r2": 0.6446,
+      "block_px": 16,
+      "excluded": [
+        [
+          212,
+          559
+        ],
+        [
+          791,
+          964
+        ],
+        [
+          1253,
+          1427
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 10.95,
+    "ramp": {
+      "x": 803.1,
+      "y": 608.4,
+      "left_slope": 0.5662,
+      "right_slope": -0.3757,
+      "left_n": 56,
+      "left_resid_px": 0.31,
+      "right_n": 51,
+      "right_resid_px": 0.26,
+      "sigma_y_px": 1.08
+    },
+    "votes": {
+      "floor": {
+        "x": 756,
+        "y": 579,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 782,
+        "y": 592,
+        "edge_px": 24802
+      },
+      "side_walls": {
+        "x": 766,
+        "y": 612,
+        "edge_px": 1822
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 289,
+      "key_dir_brightest_y": 476,
+      "key_tint": "#c8ac86",
+      "key_tint_patch": [
+        108,
+        489,
+        231,
+        293
+      ],
+      "key_tint_patch_mean_rgb": [
+        152.65,
+        131.55,
+        102.18
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c89462",
+        "floor_bottom_strip": "#c89664",
+        "mid_wall_right": "#c8ad87",
+        "mid_wall_left": "#c8ad88",
+        "brightest_21x21_patch": "#c8c5b9"
+      },
+      "brightest_21x21_patch_centre_px": [
+        289,
+        476
+      ],
+      "sobel_bright_side_deg_whole_frame": 107.57,
+      "sobel_bright_side_deg_wall_band": 92.81,
+      "left_third_minus_right_third_luminance_whole_frame": 13.646,
+      "left_third_minus_right_third_luminance_wall_band": 4.441
+    },
+    "storey_height_m": 3.5031,
+    "implied_wall_width_m": 13.3891,
+    "eye_height_m": 0.4611,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": "suspect-painting",
+    "withheld_because": [
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 608.4, fixed to +/-1.1 px, inside the +/-11.0 px the standing licence allows the horizon row) puts the eye at 0.461 m above its own floor line at the scale its own gate anchor declares (101.1 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
+    ]
+  },
+  "delta_focal_pct": -12.66,
+  "delta_eye_pct": 7.82,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "a727abd8",
+  "candidate": "backdrops/source/solar-N/row23-a727abd8.png"
+}

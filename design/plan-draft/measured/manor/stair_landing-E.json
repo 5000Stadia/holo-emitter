@@ -1,29 +1,30 @@
 {
-  "_source_sha256": "4109eb470de69c7da9cc54bd142943a663f74231b63ee34375a22b92c3e151f2",
-  "_what_this_is": "The manor production reading for stair_landing/E, measured off backdrops/source/stair_landing-E/row23-178cf7b9.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_source_sha256": "95509e135e6a17361eaeb6d9d0c53ecd2fb7574e6f89e547bd8ab8f2bec3cced",
+  "_what_this_is": "The manor production reading for stair_landing/E, measured off backdrops/source/stair_landing-E/row23-00cd0f8e.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
   "verdict": "PASS",
-  "facing_type": "corridor",
+  "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.700195,
-  "horizon_y": 0.504395,
-  "px_per_m_at_wall": 158.947,
-  "px_per_m_at_bottom": 402.33,
-  "implied_focal_px": 1049.1,
-  "eye_height_m": 1.2614,
-  "storey_height_m": 3.0765,
+  "floor_line_y": 0.704102,
+  "horizon_y": 0.518262,
+  "px_per_m_at_wall": 161.053,
+  "px_per_m_at_bottom": 417.48,
+  "implied_focal_px": 1062.9,
+  "eye_height_m": 1.1816,
+  "storey_height_m": 2.6948,
   "drawn_standpoint_m": 6.6,
-  "delta_focal_pct": 2.45,
-  "delta_eye_pct": 1.52,
+  "delta_focal_pct": 3.8,
+  "delta_eye_pct": 2.3,
   "band_pct": 8.0,
-  "wall_width_m": 6.0964,
+  "wall_width_m": 7.0039,
   "camera_wall_m": 6.6,
-  "corner_x0_px": 275,
-  "corner_x1_px": 1244,
-  "key_tint": "#c89c67",
-  "key_dir": "R-ABOVE",
+  "camera_far_m": null,
+  "corner_x0_px": 216,
+  "corner_x1_px": 1344,
+  "key_tint": "#c8a478",
+  "key_dir": "C-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 151,
+  "calibration_px": 153,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -34,62 +35,64 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 746,
-        "y": 500,
-        "edge_px": 30000
+        "x": 1096,
+        "y": 673,
+        "edge_px": 7910
       },
       "ceiling": {
-        "x": 768,
-        "y": 532,
-        "edge_px": 25558
+        "x": 792,
+        "y": 510,
+        "edge_px": 23745
       },
       "side_walls": {
-        "x": 1224,
-        "y": 212,
-        "edge_px": 10060
+        "x": 1266,
+        "y": 827,
+        "edge_px": 7506
       }
     },
-    "adopted_y": 516.5,
+    "adopted_y": 530.7,
+    "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
     "ceiling_ramp_intersection": {
-      "x": 760.3,
-      "y": 516.5,
-      "left_slope": 0.611,
-      "right_slope": -0.5834,
-      "left_n": 61,
-      "left_resid_px": 0.29,
+      "x": 775.0,
+      "y": 530.7,
+      "left_slope": 0.6147,
+      "right_slope": -0.6013,
+      "left_n": 58,
+      "left_resid_px": 0.3,
       "right_n": 61,
-      "right_resid_px": 0.31,
-      "sigma_y_px": 0.83
-    }
+      "right_resid_px": 0.29,
+      "sigma_y_px": 0.96
+    },
+    "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 717,
-    "chair_rail_y_px": 566,
-    "dado_rail_above_floor_px": 151,
-    "capping_above_floor_px": 160,
-    "wall_ceiling_line_y_px": 228,
-    "corner_x0_px": 275,
-    "corner_x1_px": 1244,
-    "horizon_y_px": 516.5,
+    "wall_floor_line_y_px": 721,
+    "chair_rail_y_px": 568,
+    "dado_rail_above_floor_px": 153,
+    "capping_above_floor_px": 159,
+    "wall_ceiling_line_y_px": 287,
+    "corner_x0_px": 216,
+    "corner_x1_px": 1344,
+    "horizon_y_px": 530.7,
     "openings": [
       {
-        "x0_px": 683,
-        "x1_px": 865,
-        "y0_px": 339,
-        "y1_px": 717,
-        "width_px": 182,
-        "width_m": 1.145,
-        "centre_px": 774.0,
-        "head_m": 2.378,
-        "void_luminance": 0.0,
-        "wall_luminance": 21.85,
-        "threshold": 12,
+        "x0_px": 669,
+        "x1_px": 863,
+        "y0_px": 305,
+        "y1_px": 721,
+        "width_px": 194,
+        "width_m": 1.205,
+        "centre_px": 766.0,
+        "head_m": 2.583,
+        "void_luminance": 1.35,
+        "wall_luminance": 83.14,
+        "threshold": 46,
         "threshold_span": [
-          1,
-          22
+          9,
+          83
         ],
-        "stability": 22
+        "stability": 75
       }
     ]
   },
@@ -130,47 +133,47 @@
       ],
       "hypothesis": null,
       "found": false,
-      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 683..869 (27 px from the ask) and another admissible pair sits 551..673 (137 px from the ask), which disagree by more than the 12 px this arm can resolve"
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 517..667 (157 px from the ask) and another admissible pair sits 517..635 (173 px from the ask), which disagree by more than the 12 px this arm can resolve"
     }
   ],
   "_light": {
-    "key_dir_measured": "R",
-    "key_dir_brightest_x": 1476,
-    "key_dir_brightest_y": 516,
-    "key_tint": "#c89c67",
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 538,
+    "key_dir_brightest_y": 492,
+    "key_tint": "#c8a478",
     "key_tint_patch": [
-      1276,
-      1535,
-      158,
-      220
+      338,
+      738,
+      217,
+      279
     ],
     "key_tint_patch_mean_rgb": [
-      75.34,
-      58.67,
-      38.86
+      121.09,
+      99.21,
+      72.64
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c87a3e",
-      "floor_bottom_strip": "#c8864f",
-      "mid_wall_right": "#c89963",
-      "mid_wall_left": "#c89b68",
-      "brightest_21x21_patch": "#c8b192"
+      "floor_under_brightest": "#c87e41",
+      "floor_bottom_strip": "#c87839",
+      "mid_wall_right": "#c8a377",
+      "mid_wall_left": "#c8a276",
+      "brightest_21x21_patch": "#c8b6a0"
     },
     "brightest_21x21_patch_centre_px": [
-      1476,
-      516
+      538,
+      492
     ],
-    "sobel_bright_side_deg_whole_frame": 108.89,
-    "sobel_bright_side_deg_wall_band": 112.97,
-    "left_third_minus_right_third_luminance_whole_frame": -12.538,
-    "left_third_minus_right_third_luminance_wall_band": -25.989
+    "sobel_bright_side_deg_whole_frame": 86.19,
+    "sobel_bright_side_deg_wall_band": 97.2,
+    "left_third_minus_right_third_luminance_whole_frame": -1.419,
+    "left_third_minus_right_third_luminance_wall_band": -17.397
   },
   "_derived": {
-    "eye_height_m": 1.2614,
-    "storey_height_m": 3.0765,
-    "implied_wall_width_m": 6.0964,
-    "px_per_m_at_bottom": 402.3307,
-    "implied_camera_wall_m": 6.4424
+    "eye_height_m": 1.1816,
+    "storey_height_m": 2.6948,
+    "implied_wall_width_m": 7.0039,
+    "px_per_m_at_bottom": 417.4848,
+    "implied_camera_wall_m": 6.3582
   },
   "_withheld_because": [],
   "_hold_family": null,
@@ -179,13 +182,13 @@
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
       447,
-      669
+      673
     ],
     "wall_band_px": [
-      275,
-      1244
+      216,
+      1344
     ],
-    "wall_median_luminance": 21.85,
+    "wall_median_luminance": 83.14,
     "min_enumerated_px": 64,
     "min_head_m": 1.4,
     "storey_m": 2.8,

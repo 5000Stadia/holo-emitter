@@ -1,8 +1,8 @@
 {
- "ts": 1787634293.3688626,
- "baton": "seat",
+ "ts": 1787636095.7237267,
+ "baton": "loop",
  "active": "yes",
  "nudged": "no",
- "detail": "13 image(s) owed - the painter is owed",
- "loop_pass_age_s": 22
+ "detail": "2 candidate(s) on disk with no reading - the sweep loop is owed (last pass completed 3s ago)",
+ "loop_pass_age_s": 3
 }
