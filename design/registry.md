@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-GREEN | merged main's suite: 24 failures across 9 specs after today's four merges → green with the right fixes | building |
 | B-CONSISTENCY | per-room wall/ceiling/floor consistency measure over the legacy store + forced edge-seeded re-asks (master_bedchamber the named case) | building |
 
 ## Recently landed (for "issue with…" back-reference)
