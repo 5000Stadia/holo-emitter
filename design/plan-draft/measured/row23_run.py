@@ -601,8 +601,8 @@ def promote_document(key, cand_rel, round_dir):
         # THE REFUSAL IS RETURNED WHOLE AND TRUNCATED ONLY FOR THE LEDGER. A
         # first draft cut it to 200 characters at both ends at once, and
         # `promote-backdrop.mjs` puts its ledger token LAST — so `great_hall/N`
-        # came back refused for want of a painted way through with
-        # `[row27:door.unmeasured_exit]` sliced off the end, `_is_door_refusal`
+        # came back refused for want of a painted way through with the
+        # door.unmeasured_exit token sliced off the end, `_is_door_refusal`
         # said no, and the door-void exit never fired on the one wall in the
         # run that needed it. A router that reads a message it also shortens is
         # reading its own scissors.
@@ -687,11 +687,19 @@ DOOR_VOID_TOOL = os.path.join(ROOT, "tools", "paint-door-voids.mjs")
 
 #: The row-27 clauses this repair answers, by their LEDGER TOKENS. Routing on
 #: the token and not on the prose is row 35's own lesson (`_snap_once` returns
-#: its clause beside its sentence): a caller that decides a route by
-#: substring-matching a message someone else formats is a second occurrence of
-#: a token whose whole discipline is one token, one emit site. The second entry
-#: has no token to cite because `promote-backdrop.mjs` exits on it before the
-#: refusal list exists; it is quoted whole rather than paraphrased.
+#: its clause beside its sentence): a router that decides by substring-matching
+#: a sentence someone else writes breaks the day the sentence is reworded.
+#:
+#: THESE ARE READ, NOT EMITTED, and the bracket is what separates the two. The
+#: ledger's discipline is one token one EMIT SITE — `guards.spec` counts the
+#: BRACKETED form across every source this project produces findings from, and
+#: `tools/promote-backdrop.mjs` holds the only one of each. What is written here
+#: is the name a reader looks FOR inside somebody else's bracket, so it is
+#: written without one: nothing here mints a finding. (The suite caught the
+#: first draft of this comment quoting the bracketed token and counted it as a
+#: second arm, which is the guard doing exactly its job.) The second entry has
+#: no token at all, because that refusal exits before the refusal list exists;
+#: it is quoted whole rather than paraphrased.
 DOOR_CLAUSES = ("row27:door.unmeasured_exit", "carries no door reading")
 
 
