@@ -156,7 +156,7 @@ let plan;
   // Blueprint §4b: the validator asserts staging ≡ plan projection. One
   // divergence is named in tools/plan-projection.mjs with its reason; a new
   // one, or the disappearance of a named one, refuses the bake.
-  const div = stagingDivergence(plan, parsed.staging);
+  const div = stagingDivergence(plan, parsed.staging, null, undefined, parsed.world);
   for (const u of div.unplanned) console.error(`plan warning: staged "${u.id}" on ${u.facing} is not judged — ${u.why}`);
   for (const r of div.unexpected) {
     console.error(`bake refused: staging ≠ plan projection — ${r.id} @ ${r.facing}: staging u ${r.shipped_u}, plan projects ${r.projected_u}`);

@@ -63,6 +63,15 @@
  *   doorway aperture is NOT painted — the scene shows through.
  * - candlestick: stem ≥ 6 px wide throughout at authoring scale.
  * - takeable thumbs: 128×128, content-centred, ≥ 500 opaque px, distinct.
+ *
+ * [ROW 42] Two records carry `placeholder: true` and a `provenance.painter_ask`
+ * path — `door-leaf-plank-oak-v1` and `casement-leaded-v1`, the sprites the
+ * renderer fits into a DETECTED door frame and a DETECTED window light. The
+ * flag is on the record rather than in a comment because the page, the ask
+ * register and any future gate all read records and none of them read this
+ * header; the ask that replaces each is committed beside it at
+ * `design/batches/row42-leaves/`. `door-plank` is NOT one of them: it is
+ * authored symmetric on purpose (§11) and the row-2 world is unchanged.
  */
 (function () {
   "use strict";
@@ -179,6 +188,81 @@
       "airborne": false,
       "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
         "v1_apparent_size": "the doorway this leaf stands in draws ~22 CSS px wide on a 390 px phone, and the leaf itself takes about a quarter of that when it is open — so the way between the two rooms is under any platform tap floor. Apparent size follows the open camera question in blueprint §5. The takeables declare the same residue." }
+    },
+
+    /* [ROW 42] THE TWO SPRITES THAT GO IN A DETECTED FRAME, and both are
+     * PLACEHOLDERS that say so in their own record (`placeholder: true`, and
+     * `provenance.painter_ask` naming the packet that replaces them).
+     *
+     * [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window
+     * assets we literally place in the door frame to open/close and same with
+     * the windows possibly". `door-plank` above cannot be that door: it is
+     * authored VISUALLY SYMMETRIC on purpose (§11 — one image serving a doorway
+     * seen from both rooms, so no hinge side is readable), and a leaf that
+     * swings to its hinge side has to have one. This leaf does, on the
+     * viewer-left, and `door-plank` keeps the row-2 world exactly as it is.
+     *
+     * The renderer fits both of these to the rectangle the PAINTING measured,
+     * so `dims_m` here is the honest size of the thing rather than the size it
+     * will draw — the aspect residue that leaves is the painter's ask to close
+     * and is stated in the packet. */
+    "door-leaf-plank-oak-v1": {
+      "schema": "sprite/0.1",
+      "id": "door-leaf-plank-oak-v1",
+      "noun": "oak plank door",
+      "archetype": "swap",
+      "attachment": "wall_mounted",
+      "dims_m": { "h": 2, "w": 0.9, "d": 0.05 },
+      "px": { "w": 180, "h": 400 },
+      "view_side": "left",
+      "light": "UL45",
+      "period": { "earliest": 1640, "latest": 1700, "region": "England" },
+      "anchors": {
+        "base": { "x": 90, "y": 400 },
+        "footprint": { "x0": 0, "x1": 180 }
+      },
+      "states_images": {
+        "open": { "image": "states/open.png", "origin": { "x": 0, "y": 0 } }
+      },
+      "takeable": false,
+      "airborne": false,
+      "placeholder": true,
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "painter_ask": "design/batches/row42-leaves/door-leaf-plank-oak/",
+        "v1_apparent_size": "fitted to the painted frame, so its drawn size is the doorway's: great_hall/S's op01 measures 80 x 221 scene px, which is 20 x 56 CSS px on a 390 px phone — under any platform tap floor in one dimension, reached through the page's pointing tolerance. Apparent size follows the open camera question in blueprint §5, exactly as door-plank's does.",
+        "v1_aspect": "the record is 0.90 x 2.00 m and the painted frames of this manor run narrower (op01 is 0.71 x 1.96 m at its wall's scale), so the fit bends the leaf's proportions. A door that does not fill its frame is not a shut door; the painter's ask is what closes the gap." }
+    },
+
+    /* Authored at 200 px/m like the furniture: 1.40 x 1.10 m -> 280 x 220 px.
+     * 1.10 m is the plan's own light — sill 0.90 m, head 2.00 m
+     * (`tools/room-voices.mjs` WINDOW_SILL_M / WINDOW_HEAD_M) — and 1.40 m is
+     * the narrow end of the widths the plan rules, so the record is the
+     * building's smallest real light rather than an invented one. */
+    "casement-leaded-v1": {
+      "schema": "sprite/0.1",
+      "id": "casement-leaded-v1",
+      "noun": "leaded casement",
+      "archetype": "swap",
+      "attachment": "wall_mounted",
+      "dims_m": { "h": 1.1, "w": 1.4, "d": 0.04 },
+      "px": { "w": 280, "h": 220 },
+      "view_side": "left",
+      "light": "UL45",
+      "period": { "earliest": 1640, "latest": 1700, "region": "England" },
+      "anchors": {
+        "base": { "x": 140, "y": 220 },
+        "footprint": { "x0": 0, "x1": 280 }
+      },
+      "states_images": {
+        "open": { "image": "states/open.png", "origin": { "x": 0, "y": 0 } }
+      },
+      "takeable": false,
+      "airborne": false,
+      "placeholder": true,
+      "provenance": { "source": "procedural-placeholder", "tool": "placeholders-v1",
+        "painter_ask": "design/batches/row42-leaves/casement-leaded/",
+        "v1_apparent_size": "fitted to the measured light: kitchen/E's win10 measures 233 x 192 scene px, which is 59 x 49 CSS px on a 390 px phone — over the tap floor, unlike every other interactable this project ships.",
+        "v1_aspect": "the lights this manor paints run wider than they are tall (233 x 192 px on kitchen/E) and the plan's own 1.40 x 1.10 m is the same proportion within a few per cent, so the fit bends this sprite far less than it bends the leaf." }
     },
 
     /* surface_top rides the board whose top sits at y = 112:
@@ -446,6 +530,159 @@
     return c;
   }
 
+  /* [ROW 42] THE LEAF THAT GOES IN A DETECTED FRAME — closed, 180×400, fully
+   * opaque. Five planks in the same symmetric tone pattern the row-2 door
+   * uses, two full-width iron straps, and — the one thing `door-plank` must
+   * NOT have — a READABLE HINGE SIDE: the straps end in hinge plates and
+   * pintle knuckles at the viewer-left edge, and the ring pull sits over on
+   * the latch side where a hand would find it. A leaf that swings to its
+   * hinge side has to have one, and §11's symmetry device (one image, two
+   * rooms) is what forbids it on `door-plank`.
+   *
+   * The hinge iron is kept small and the straps stay full-width so the
+   * UL45 ramp still leaves the left of the form brighter than its right,
+   * which is the library-wide key check every sprite answers to. */
+  function paintDoorLeaf(doc) {
+    var c = canvasOf(doc, 180, 400);
+    var ctx = c.getContext("2d");
+    var LINE = shade(OAK, 0.5);
+    var tones = [OAK, shade(OAK, 0.9), OAK, shade(OAK, 0.9), OAK];
+    for (var i = 0; i < 5; i++) box(ctx, i * 36, 0, 36, 400, tones[i], LINE);
+    // Ledges: two full-width iron straps.
+    ctx.fillStyle = IRON;
+    ctx.fillRect(0, 56, 180, 12);
+    ctx.fillRect(0, 332, 180, 12);
+    // Hinge plates and pintle knuckles, viewer-left — the hinge side, read
+    // from the picture rather than from a field in the record.
+    ctx.fillRect(0, 44, 26, 36);
+    ctx.fillRect(0, 320, 26, 36);
+    ctx.fillStyle = shade(IRON, 1.35);
+    ctx.fillRect(0, 50, 10, 24);
+    ctx.fillRect(0, 326, 10, 24);
+    // Latch-side ring pull, off centre: the hand goes to the far stile.
+    ctx.fillStyle = IRON;
+    ctx.fillRect(146, 188, 12, 12);
+    ctx.strokeStyle = IRON;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(152, 212, 14, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    return c;
+  }
+
+  /* Open, 64×400 — the leaf swung back to the hinge side and seen close to
+   * edge-on, in its own trimmed canvas at origin.x = 0 (viewer-left, the
+   * hinge). The aperture is NOT painted: transparency, and the room beyond
+   * shows through the part of the frame the leaf has left. Opaque across its
+   * full width so the swung leaf carries the same key tilt its body does. */
+  function paintDoorLeafOpen(doc) {
+    var c = canvasOf(doc, 64, 400);
+    var ctx = c.getContext("2d");
+    box(ctx, 0, 0, 64, 400, shade(OAK, 0.86), shade(OAK, 0.5));   // receding face
+    ctx.fillStyle = shade(OAK_LIGHT, 0.9);                        // hinge-edge stile, lit
+    ctx.fillRect(0, 0, 16, 400);
+    ctx.fillStyle = IRON;                                          // strap ends over the edge
+    ctx.fillRect(0, 56, 64, 12);
+    ctx.fillRect(0, 332, 64, 12);
+    ctx.fillStyle = shade(IRON, 1.35);                             // the knuckles again
+    ctx.fillRect(0, 50, 10, 24);
+    ctx.fillRect(0, 326, 10, 24);
+    ctx.fillStyle = IRON;                                          // the pull, edge-on
+    ctx.fillRect(52, 200, 8, 20);
+    return c;
+  }
+
+  /* [ROW 42] THE CASEMENT THAT GOES IN A DETECTED LIGHT — closed, 280×220.
+   * Leaded diamond quarries: an iron frame, a came lattice at 45° in both
+   * directions, and glass that is a PALE WASH rather than a fill, so the
+   * painting's own light reads through the leading instead of being replaced
+   * by it. The frame is opaque and runs the full width top and bottom, which
+   * is what makes the record's `base` and `footprint` true of these pixels. */
+  /* The casement's iron, as HEX rather than through `shade` twice: `shade`
+   * parses a hex string and returns an `rgb(...)` one, so shading its own
+   * output silently produces NaN channels. Four named tones instead — the same
+   * UL45 ladder every other painter draws with. */
+  var IRON_LIT = "#5c626b";
+  var IRON_MID = "#474c54";
+  var IRON_DEEP = "#2b2e33";
+  var LEAD_CAME = "#6e7276";
+
+  function paintCasement(doc) {
+    var c = canvasOf(doc, 280, 220);
+    var ctx = c.getContext("2d");
+    var LEAD = LEAD_CAME;
+    // Glass first, as a wash over the whole light.
+    ctx.fillStyle = "rgba(206, 219, 219, 0.38)";
+    ctx.fillRect(0, 0, 280, 220);
+    // Came lattice: 0.14 m quarries at this record's 200 px/m, both diagonals.
+    ctx.strokeStyle = LEAD;
+    ctx.lineWidth = 3;
+    var step = 28;
+    var d;
+    for (d = -220; d <= 280 + 220; d += step) {
+      ctx.beginPath();
+      ctx.moveTo(d, 0);
+      ctx.lineTo(d + 220, 220);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(d, 220);
+      ctx.lineTo(d + 220, 0);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    // Frame: opaque, and the bottom rail touches the bottom row edge to edge.
+    box(ctx, 0, 0, 280, 14, IRON_LIT, IRON_DEEP);      // head, lit
+    box(ctx, 0, 206, 280, 14, IRON_MID, IRON_DEEP);    // sill
+    box(ctx, 0, 0, 16, 220, IRON_LIT, IRON_DEEP);      // hinge stile, viewer-left
+    box(ctx, 264, 0, 16, 220, IRON, IRON_DEEP);        // latch stile, darkest
+    // Hinge plates on the left, latch bar and ring on the right — the same
+    // hinge-side-is-readable rule the leaf carries.
+    ctx.fillStyle = IRON_LIT;
+    ctx.fillRect(0, 34, 30, 14);
+    ctx.fillRect(0, 172, 30, 14);
+    ctx.fillStyle = IRON;
+    ctx.fillRect(246, 96, 34, 10);
+    ctx.strokeStyle = IRON;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(258, 122, 11, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    return c;
+  }
+
+  /* Open, 72×220 — the casement swung in on its hinge side, seen close to
+   * edge-on at the viewer-left of its own light (origin.x = 0). Opaque: edge
+   * on, what you see is the frame's thickness and the back of the leading,
+   * not the glass. What the casement has uncovered is drawn by the renderer,
+   * which darkens the painting's own glass region behind it — no outside
+   * view is invented at V1. */
+  function paintCasementOpen(doc) {
+    var c = canvasOf(doc, 72, 220);
+    var ctx = c.getContext("2d");
+    box(ctx, 0, 0, 72, 220, IRON, IRON_DEEP);        // receding back, darkest
+    ctx.fillStyle = IRON_LIT;                        // hinge edge, lit
+    ctx.fillRect(0, 0, 22, 220);
+    ctx.fillStyle = IRON_MID;                        // the turn off that edge
+    ctx.fillRect(22, 0, 14, 220);
+    ctx.strokeStyle = LEAD_CAME;                     // leading, seen askew
+    ctx.lineWidth = 3;
+    for (var y = 10; y < 220; y += 28) {
+      ctx.beginPath();
+      ctx.moveTo(22, y);
+      ctx.lineTo(72, y + 12);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    ctx.fillStyle = IRON_LIT;                        // knuckles
+    ctx.fillRect(0, 34, 14, 14);
+    ctx.fillRect(0, 172, 14, 14);
+    box(ctx, 0, 206, 72, 14, IRON_MID, IRON_DEEP);   // sill edge
+    box(ctx, 0, 0, 72, 14, IRON_LIT, IRON_DEEP);     // head edge
+    return c;
+  }
+
   /* Shelf, 224×360, back-panelled bookcase — the whole case is opaque
    * (back panel + sides + boards), so the stick1 overlap region in the
    * lower half is solid. Board front edges (lightest) at 1.5 / 1.2 / 0.8 /
@@ -559,6 +796,8 @@
     "desk-joined-oak-1660": { body: paintDesk, parts: { "drawer_front": paintDrawerFront } },
     "chair-joined": { body: paintChair },
     "door-plank": { body: paintDoorClosed, states: { "open": paintDoorOpen } },
+    "door-leaf-plank-oak-v1": { body: paintDoorLeaf, states: { "open": paintDoorLeafOpen } },
+    "casement-leaded-v1": { body: paintCasement, states: { "open": paintCasementOpen } },
     "shelf-oak": { body: paintShelf },
     "candlestick-brass": { body: paintCandlestick },
     "key-iron": { body: paintKey },

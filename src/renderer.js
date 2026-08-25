@@ -1152,6 +1152,13 @@
    * non-exit apertures of kind "window". Off by default and deliberately so —
    * see the block at the end of this function.
    *
+   * [row 42 part 3] Every entry also carries `leaf` — the id of the door leaf
+   * or window casement standing in it, or null for unfilled architecture — and
+   * `light_state`, the open/closed bit row 37's lighting pass reads. And where
+   * the facing's meta carries a MEASURED rectangle for the hole, that is the
+   * rectangle: the painting decides where the aperture is, the document decides
+   * what fills it.
+   *
    * A doorway exists whether or not its leaf is shut, so the opening is
    * drawn for every exit on the facing and the closed leaf occludes it
    * exactly. §11 gives real backdrops a painted door frame/opening; grid
@@ -1213,10 +1220,10 @@
           if (!seenHere || seenHere.kind !== "stair") continue;
           offFacing = exit.facing;
         }
-        var entity = null;
-        for (var e = 0; e < world.entities.length; e++) {
-          if (world.entities[e].id === exit.via) { entity = world.entities[e]; break; }
-        }
+        /* [row 42] Through `groundplane.leafFor`, the one home of which entity
+         * fills the hole `via` names — the leaf's own id in the row-2 world,
+         * the opening id the leaf DECLARES it fills in the manor. */
+        var entity = gp.leafFor(world, exit.via);
         var rect = null;
         var source = null;
         var open_ = true;
@@ -1224,13 +1231,51 @@
         var kind = "door";
         var polys = null;
         var direction = null;
-        if (entity) {
+        var leafId = null;
+        /* [row 42] THE MEASURED HOLE, where the painting has one. `found` is
+         * this facing's own §5 record of the opening; `measured: true` means
+         * `door_measure.py` read it off the approved image rather than the
+         * plan's drawing having projected it. */
+        var found = gp.openingFor(meta, exit.via);
+        var measured = !!(found && found.measured === true && found.w > 0 && found.h > 0);
+        if (entity && !known[entity.id]) {
+          /* KNOWLEDGE FILTERS THE LEAF; IT DOES NOT FILL IN THE HOLE.
+           *
+           * Row 21 filtered the whole aperture, and that was right while the
+           * rectangle CAME FROM the leaf: a hole derived from a door the player
+           * has not been told about is the shape of an unknown thing. Where the
+           * painting measured the hole it is a fact about the wall — the
+           * backdrop paints it either way, and row 21's own building path says
+           * so — so an unknown leaf leaves the doorway standing and simply is
+           * not in it. Both readings are here rather than one, because the two
+           * rectangles have different authors. */
+          if (!measured) continue;
+          entity = null;
+        }
+        if (measured) {
+          /* [row 42] THE PAINTING DECIDES WHERE THE HOLE IS, and the leaf lives
+           * where the painting put it. `source` still says whether anything
+           * fills it, because the page's naming and its `go` targets read that
+           * and a hole with a leaf in it is not an unfilled doorway. */
+          rect = { x: found.x, y: found.y, w: found.w, h: found.h };
+          source = entity ? "leaf" : "building";
+          beyond = found;
+          kind = found.kind || "door";
+          polys = found.hit_polys || null;
+          direction = found.direction || null;
+          if (entity) {
+            leafId = entity.id;
+            open_ = entity.state === "open";
+          }
+        } else if (entity) {
           /* A LEAF IS AN ENTITY, and everything that follows from that holds:
            * the opening is derived from its own §4 placement, and it is
            * knowledge-filtered, because a door the player has not been told
-           * about must leave no hole. */
-          if (!known[exit.via]) continue;
-          var placement = (staging.placements || {})[exit.via];
+           * about must leave no hole. (The filter itself moved above this
+           * branch at row 42 — it now has two rectangles to choose between —
+           * and it still lands here unchanged: an unmeasured facing whose leaf
+           * is unknown draws no hole.) */
+          var placement = (staging.placements || {})[entity.id];
           if (!placement) continue;
           var list = (Object.prototype.toString.call(placement) === "[object Array]")
             ? placement : [placement];
@@ -1245,6 +1290,7 @@
           if (!place) continue;
           rect = { x: place.x0, y: place.y0, w: place.x1 - place.x0, h: place.y1 - place.y0 };
           source = "leaf";
+          leafId = entity.id;
           open_ = entity.state === "open";
         } else {
           /* [Row 21] A DOORWAY WITH NO LEAF IS ARCHITECTURE — a hole in the
@@ -1266,8 +1312,8 @@
            * own name for the hole, the threshold or the flight. 25 of the
            * manor's 26 openings carry no entity and neither of its stairs ever
            * will, so a leaf-or-nothing lookup made all but one of the building
-           * unwalkable. */
-          var found = gp.openingFor(meta, exit.via);
+           * unwalkable. ([row 42] `found` is resolved once, above, because the
+           * measured branch reads the same record.) */
           if (!found) continue;
           rect = { x: found.x, y: found.y, w: found.w, h: found.h };
           source = "building";
@@ -1312,6 +1358,19 @@
           turn_to: offFacing,
           direction: direction,
           open: open_,
+          /* [row 42] THE LEAF STANDING IN THIS HOLE, by id, or null where the
+           * hole is unfilled architecture. Every reader that has to know
+           * whether a click means "walk" or "open the door" asks this rather
+           * than looking `via` up in the entity list, because `via` names the
+           * plan's opening on 26 of the manor's 26 ways through and the entity
+           * on the study's one. */
+          leaf: leafId,
+          /* [row 42, for row 37] THE LIGHT HOOK. What row 37's lighting pass
+           * needs of an aperture is one bit — does light pass through it — and
+           * this is that bit, written where the geometry already is. An
+           * unfilled hole is always open; a leaf or a casement says what the
+           * document says. Nothing here draws light. */
+          light_state: leafId ? (open_ ? "open" : "closed") : "open",
           beyond_m: beyond ? beyond.beyond_m : null,
           beyond_offset_m: beyond ? beyond.beyond_offset_m : null,
           x: rect.x,
@@ -1357,9 +1416,9 @@
      * the destination room into each rectangle. A window appended to the
      * default list would be a `go` target on a pane of glass and a room pasted
      * through a window — so windows ride only where a caller has asked for
-     * them, and the caller that will is part (3)'s sprite placement. Nothing
-     * here draws anything: `render` calls this WITHOUT the flag, so the picture
-     * is byte-identical to what it was before this row.
+     * them, and the callers that ask are part (3)'s: the renderer's own glass
+     * pass and the page's pointer resolver, both of which route on `kind`.
+     * `render` still calls this WITHOUT the flag for its `go`-shaped work.
      *
      * `exit`, `to` and `via` are null and `kind` is "window", so a reader that
      * routes on any of them can tell a casement from a doorway without knowing
@@ -1372,10 +1431,23 @@
         /* A WINDOW NEEDS A WALL TO BE A HOLE IN, exactly as a doorway does —
          * law (b) at the resolution the law is written at. */
         if (!spannedByBand(wrect.x, wrect.x + wrect.w, bandsHere, meta)) continue;
+        /* [row 42 part 3] THE CASEMENT STANDING IN THIS LIGHT, resolved the same
+         * way a leaf is — the entity that declares it `fills` this window —
+         * and knowledge-filtered like every other entity. A window with no
+         * casement is a glazed opening and nothing more: it opens onto nothing,
+         * toggles nothing, and still tells row 37 that light comes through it. */
+        var casement = gp.leafFor(world, wrect.id);
+        if (casement && !known[casement.id]) casement = null;
+        var wopen = !!(casement && casement.state === "open");
         out.push({
           exit: null, via: null, to: null, arrive_facing: null,
-          source: "building", kind: "window", polys: null, turn_to: null,
-          direction: null, open: false,
+          source: casement ? "leaf" : "building",
+          kind: "window", polys: null, turn_to: null,
+          direction: null, open: wopen,
+          leaf: casement ? casement.id : null,
+          /* A window with no casement is a hole full of glass and light passes
+           * through it; a casement says what the document says. */
+          light_state: casement ? (wopen ? "open" : "closed") : "open",
           window_id: wrect.id || null,
           measured: !!wrect.measured,
           sill_m: wrect.sill_m == null ? null : wrect.sill_m,
@@ -1623,6 +1695,38 @@
     return true;
   }
 
+  /* [ROW 42] AN OPEN CASEMENT SHOWS THE PAINTING'S OWN GLASS, DARKENED.
+   *
+   * The row's part (3) asks for "the painting's own glass region dimmed/offset
+   * (no outside view drawn yet)", and the two halves are drawn in two places.
+   * The OFFSET is the casement sprite itself, which swings to its hinge side
+   * in the entity pass like any other swap state. This is the DIM: the light
+   * the casement has just uncovered is the reveal behind a swung leaf, and at
+   * V1 nothing is known about what stands outside the building — the plan's
+   * `beyond_m` is a fact about the room on the other side of a DOORWAY and
+   * there is no such room through a window. So the picture says less rather
+   * than inventing a landscape: the glass the casement was covering goes back,
+   * which reads as depth where a flat pane read as wall.
+   *
+   * Row 37 is where this becomes light rather than paint — a window is one of
+   * its named emitters, and `light_state` on this same aperture is what it
+   * reads. This is a placeholder in the same sense the sprites are, and it is
+   * inside the backdrop layer because the glass is the WALL's, exactly as the
+   * doorway's through-view is. */
+  var LIGHT_OPEN_DIM = 0.38;
+
+  function drawOpenLights(ctx, list) {
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.kind !== "window" || a.open !== true) continue;
+      ctx.save();
+      ctx.globalAlpha = LIGHT_OPEN_DIM;
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(a.x, a.y, a.w, a.h);
+      ctx.restore();
+    }
+  }
+
   function drawApertures(ctx, list, meta, world, staging, library, backdrops, doc, options) {
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
@@ -1754,7 +1858,18 @@
    *   hostId:    hosting entity id for children, null for hosts
    *   record:    the §6 sprite record (reference, never copied)
    *   images:    library[record-sprite].images (body/parts/states/thumb)
-   *   f:         sprite-px -> scene-px factor (heightPx / record.px.h)
+   *   f:         sprite-px -> scene-px factor, VERTICAL (heightPx / record.px.h)
+   *   fx:        sprite-px -> scene-px factor, HORIZONTAL. Equal to `f` for
+   *              everything §4 places — a sprite is not stretched by standing
+   *              somewhere. It differs only for a [row 42] leaf or casement
+   *              fitted to a MEASURED aperture, where the rectangle the
+   *              painting drew is what the sprite must fill on both axes.
+   *   aperture:  [row 42] the id of the measured aperture this entry is fitted
+   *              to, or null — the only entries whose x scale is not their y
+   *              scale, and the only ones whose geometry came off a painting.
+   *   light_state: [row 42, for row 37] "open" | "closed" for a leaf or a
+   *              casement, null for everything else. A hook the lighting pass
+   *              reads; this row draws no lighting.
    *   drawX/Y:   scene coords of the BODY image's top-left (the body frame;
    *              swap-state images and parts offset from it via record data)
    *   baseX:     scene x where anchors.base lands (closed shadow centre)
@@ -1849,13 +1964,60 @@
       var lib = libFor(entity);
       var record = lib.record;
 
-      /* Placement through groundplane.placeHost — the one home shared with
-       * the fixture validator's static overlap check (never re-derived on
-       * either side). */
-      var place = gp.placeHost(facingPlacement, record, meta, CANVAS_W);
-      if (!place) {
-        throw new Error("unknown attachment \"" + facingPlacement.attachment +
-          "\" staging entity " + entity.id);
+      /* [ROW 42] A LEAF IS PLACED IN THE FRAME THE PAINTING DREW.
+       *
+       * [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window
+       * assets we literally place in the door frame to open/close and same with
+       * the windows possibly." An entity that declares which aperture it
+       * `fills` takes the MEASURED rectangle of that aperture — the one
+       * `door_measure.py` / `window_measure.py` read off the approved image —
+       * and fills it exactly, both axes. Its staging placement still says which
+       * FACINGS it stands on (a leaf hangs in one doorway seen from two rooms);
+       * what the placement no longer decides, on a measured wall, is WHERE.
+       *
+       * FILLED EXACTLY, and that is why `fx` exists. A painted doorway is
+       * whatever shape the painter drew it — `great_hall/S`'s op01 is 0.71 m ×
+       * 1.96 m — and the leaf's own record is 0.90 × 2.00. Fitted by height it
+       * stands 24 % proud of its own jamb; fitted by width it leaves 43 px of
+       * lit room above a shut door. A door that does not fill its frame is not
+       * a shut door, so the two axes scale independently and the record's
+       * proportions bend to the hole the painting cut. At V1 the leaf is
+       * placeholder art (its own record says so); the aspect residue is the
+       * painter's ask to answer, not a reason to leave the frame unfilled.
+       *
+       * A CASEMENT WITH NO MEASURED LIGHT IS NOT DRAWN. `apertureRect` returns
+       * null on an unmeasured wall, and for a door that means "stand where §4
+       * puts you", which is exactly what the row-2 world does today. For a
+       * window it means silence: a casement placed from the plan onto paint
+       * nobody measured is the sprite-standing-on-blank-wall that the
+       * promotion's own `window.unpainted` clause refuses, and the
+       * renderer must not do by default what the pipeline refuses to promote. */
+      var fitRect = gp.apertureRect(meta, entity);
+      var place, fx;
+      if (fitRect) {
+        place = {
+          baselineY: fitRect.y + fitRect.h,
+          heightPx: fitRect.h,
+          f: fitRect.h / record.px.h,
+          baseX: fitRect.x + fitRect.w / 2,
+          drawX: fitRect.x,
+          drawY: fitRect.y,
+          x0: fitRect.x,
+          x1: fitRect.x + fitRect.w
+        };
+        fx = fitRect.w / record.px.w;
+      } else if (entity.kind === "window") {
+        continue;
+      } else {
+        /* Placement through groundplane.placeHost — the one home shared with
+         * the fixture validator's static overlap check (never re-derived on
+         * either side). */
+        place = gp.placeHost(facingPlacement, record, meta, CANVAS_W);
+        if (!place) {
+          throw new Error("unknown attachment \"" + facingPlacement.attachment +
+            "\" staging entity " + entity.id);
+        }
+        fx = place.f;
       }
       /* NOTHING HANGS ON A WALL THAT IS NOT THERE. Blueprint §5 law (b): a
        * wall exists only where the building stands, so a `wall_mounted`
@@ -1899,14 +2061,31 @@
         record: record,
         images: lib.images,
         f: f,
+        fx: fx,
         drawX: place.drawX,
         drawY: place.drawY,
         baseX: baseX,
         baselineY: baselineY,
         state: state,
         swap: swap,
-        hangs: facingPlacement.attachment === "wall_mounted" &&
-          (facingPlacement.v || 0) > 0,
+        /* [row 42] A LEAF STANDING ON THE FLOOR STILL POOLS UNDER ITSELF. The
+         * §4 rule is "a wall placement raised off the floor gets no contact
+         * shadow", and a measured aperture answers the same question from the
+         * painting instead of from `v`: a casement's sill is a metre up the
+         * wall and a doorway's foot is on the floor line, so the rectangle's
+         * own bottom edge is what says which this is. */
+        hangs: fitRect
+          ? (fitRect.y + fitRect.h) < (meta.floor_line_y * meta.image_h_px - 1)
+          : (facingPlacement.attachment === "wall_mounted" &&
+            (facingPlacement.v || 0) > 0),
+        /* [row 42] Which aperture this entity fills, where the PAINTING
+         * measured it — null for everything placed by §4. */
+        aperture: fitRect ? entity.fills : null,
+        /* [row 42, for row 37] The light hook, on the entity side: the same
+         * bit `apertures` carries, so the lighting pass can read either the
+         * hole or the thing standing in it. Null where the entity is not an
+         * aperture's leaf at all. Nothing here draws light. */
+        light_state: entity.fills == null ? null : (state === "open" ? "open" : "closed"),
         parts: stateParts(record, state),
         clip: null
       });
@@ -1992,6 +2171,9 @@
           record: childRecord,
           images: childLib.images,
           f: childF,
+          fx: childF,
+          aperture: null,
+          light_state: null,
           drawX: bx - childF * childRecord.anchors.base.x,
           drawY: by - childF * childRecord.anchors.base.y,
           baseX: bx,
@@ -2051,22 +2233,23 @@
    * to the canvas. Used to bound the tint pass's per-pixel work. */
   function drawnRect(e, W, H) {
     var x0, y0, x1, y1;
+    var fx = (e.fx == null) ? e.f : e.fx;
     if (e.swap) {
-      x0 = e.drawX + e.f * e.swap.origin.x;
+      x0 = e.drawX + fx * e.swap.origin.x;
       y0 = e.drawY + e.f * e.swap.origin.y;
-      x1 = x0 + e.swap.image.width * e.f;
+      x1 = x0 + e.swap.image.width * fx;
       y1 = y0 + e.swap.image.height * e.f;
     } else {
       x0 = e.drawX; y0 = e.drawY;
-      x1 = x0 + e.images.body.width * e.f;
+      x1 = x0 + e.images.body.width * fx;
       y1 = y0 + e.images.body.height * e.f;
     }
     for (var p = 0; p < e.parts.length; p++) {
       for (var t = 0; t <= 1; t++) {
         var pp = partPlacement(e, e.parts[p], t);
         x0 = Math.min(x0, pp.x); y0 = Math.min(y0, pp.y);
-        x1 = Math.max(x1, pp.x + pp.image.width * pp.k);
-        y1 = Math.max(y1, pp.y + pp.image.height * pp.k);
+        x1 = Math.max(x1, pp.x + pp.image.width * pp.kx);
+        y1 = Math.max(y1, pp.y + pp.image.height * pp.ky);
       }
     }
     var ix = Math.max(0, Math.floor(x0) - 2);
@@ -2080,14 +2263,21 @@
 
   /* Effective part transform for a given t: draw position offsets by slide
    * fractions of the BODY's pixel dims; size lerps to scale_open. Shared by
-   * render (options-resolved t) and hitTest (state-derived t). */
+   * render (options-resolved t) and hitTest (state-derived t).
+   *
+   * [row 42] `kx`/`ky` rather than one `k`, because a [row 42] aperture-fitted
+   * entry scales differently on the two axes. Every §4-placed entry has
+   * `fx === f` and the two come out equal, which is every sprite that carries
+   * parts today. */
   function partPlacement(entry, part, t) {
     var image = entry.images.parts[part.id];
+    var fx = (entry.fx == null) ? entry.f : entry.fx;
     return {
       image: image,
-      x: entry.drawX + entry.f * (part.origin.x + t * part.slide.dx * entry.record.px.w),
+      x: entry.drawX + fx * (part.origin.x + t * part.slide.dx * entry.record.px.w),
       y: entry.drawY + entry.f * (part.origin.y + t * part.slide.dy * entry.record.px.h),
-      k: entry.f * (1 + t * (part.slide.scale_open - 1))
+      kx: fx * (1 + t * (part.slide.scale_open - 1)),
+      ky: entry.f * (1 + t * (part.slide.scale_open - 1))
     };
   }
 
@@ -2101,16 +2291,17 @@
    */
   function stamp(ctx, e, options) {
     options = options || {};
+    var fx = (e.fx == null) ? e.f : e.fx;
     if (e.swap) {
       ctx.drawImage(e.swap.image,
-        e.drawX + e.f * e.swap.origin.x,
+        e.drawX + fx * e.swap.origin.x,
         e.drawY + e.f * e.swap.origin.y,
-        e.swap.image.width * e.f,
+        e.swap.image.width * fx,
         e.swap.image.height * e.f);
     } else {
       ctx.drawImage(e.images.body,
         e.drawX, e.drawY,
-        e.images.body.width * e.f,
+        e.images.body.width * fx,
         e.images.body.height * e.f);
     }
     for (var p = 0; p < e.parts.length; p++) {
@@ -2120,7 +2311,7 @@
           ? options.part_t[e.id] : part.t;
       var pp = partPlacement(e, part, t);
       ctx.drawImage(pp.image, pp.x, pp.y,
-        pp.image.width * pp.k, pp.image.height * pp.k);
+        pp.image.width * pp.kx, pp.image.height * pp.ky);
     }
   }
 
@@ -2163,19 +2354,32 @@
          * that true by construction. What the painting cannot hold is the room
          * on the other side, which is a fact about the world rather than about
          * this wall: the destination shows through the measured rectangle. */
-        var painted = options.no_through ? []
-          : apertures(world, staging, library, meta, viewstate);
-        for (var ai = 0; ai < painted.length; ai++) {
-          drawThroughOpening(ctx, painted[ai], meta, world, staging, library, backdrops, doc0, options);
+        var painted = apertures(world, staging, library, meta, viewstate, { windows: true });
+        if (!options.no_through) {
+          for (var ai = 0; ai < painted.length; ai++) {
+            if (painted[ai].kind === "window") continue;
+            drawThroughOpening(ctx, painted[ai], meta, world, staging, library, backdrops, doc0, options);
+          }
         }
+        drawOpenLights(ctx, painted);
       } else {
         // The doorway belongs to the wall, not to the entity pass: it is
         // backdrop content (§11) and so must be inside backdrop_only, or a
         // flip pair would differ by a hole in the wall. The grid takes the
         // openings first so it can stand its facing glyph clear of them.
-        var openings = apertures(world, staging, library, meta, viewstate);
+        var all = apertures(world, staging, library, meta, viewstate, { windows: true });
+        var openings = [];
+        for (var gi = 0; gi < all.length; gi++) {
+          if (all[gi].kind !== "window") openings.push(all[gi]);
+        }
         drawGrid(ctx, meta, viewstate.facing, W, H, openings);
         drawApertures(ctx, openings, meta, world, staging, library, backdrops, doc0, options);
+        /* A grid facing carries no `meta.windows` — only a promotion writes
+         * them and a promoted wall has a painting — so this draws nothing
+         * today. It is here rather than in the painted branch alone because
+         * the glass belongs to the WALL, and a wall that later has both a
+         * measurement and no painting must not lose it silently. */
+        drawOpenLights(ctx, all);
       }
     }
     if (options.backdrop_only) return target;
@@ -2200,15 +2404,16 @@
        * which is exactly why it is here before row 4 uses it. */
       if (options.shadows !== false && !e.record.airborne && !e.hangs) {
         var cx, rx;
+        var efx = (e.fx == null) ? e.f : e.fx;
         if (e.swap) {
           // Non-closed swap state: shadow under the DRAWN extent, not the
           // closed footprint (a full-width shadow under an edge-on sliver
           // is the lie this rule exists to prevent).
-          cx = e.drawX + e.f * (e.swap.extent.x0 + e.swap.extent.x1) / 2;
-          rx = e.f * (e.swap.extent.x1 - e.swap.extent.x0) / 2;
+          cx = e.drawX + efx * (e.swap.extent.x0 + e.swap.extent.x1) / 2;
+          rx = efx * (e.swap.extent.x1 - e.swap.extent.x0) / 2;
         } else {
           cx = e.baseX;
-          rx = e.f * (e.record.anchors.footprint.x1 - e.record.anchors.footprint.x0) / 2;
+          rx = efx * (e.record.anchors.footprint.x1 - e.record.anchors.footprint.x0) / 2;
         }
         ctx.save();
         if (e.clip) applyClip(ctx, e.clip);
@@ -2322,17 +2527,18 @@
       // Parts draw over the body — sample them first, at state-derived t
       // (hitTest takes no options; the settled scene is what is clickable).
       var hit = false;
+      var hfx = (e.fx == null) ? e.f : e.fx;
       for (var p = e.parts.length - 1; p >= 0 && !hit; p--) {
         var pp = partPlacement(e, e.parts[p], e.parts[p].t);
-        if (sampleAlpha(pp.image, (px - pp.x) / pp.k, (py - pp.y) / pp.k) >= 16) hit = true;
+        if (sampleAlpha(pp.image, (px - pp.x) / pp.kx, (py - pp.y) / pp.ky) >= 16) hit = true;
       }
       if (!hit) {
         if (e.swap) {
-          var sx0 = e.drawX + e.f * e.swap.origin.x;
+          var sx0 = e.drawX + hfx * e.swap.origin.x;
           var sy0 = e.drawY + e.f * e.swap.origin.y;
-          if (sampleAlpha(e.swap.image, (px - sx0) / e.f, (py - sy0) / e.f) >= 16) hit = true;
+          if (sampleAlpha(e.swap.image, (px - sx0) / hfx, (py - sy0) / e.f) >= 16) hit = true;
         } else if (sampleAlpha(e.images.body,
-            (px - e.drawX) / e.f, (py - e.drawY) / e.f) >= 16) {
+            (px - e.drawX) / hfx, (py - e.drawY) / e.f) >= 16) {
           hit = true;
         }
       }

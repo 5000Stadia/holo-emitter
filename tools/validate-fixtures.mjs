@@ -34,7 +34,7 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 
-import { metaForFacing as planMetaForFacing, waysThrough } from "./plan-projection.mjs";
+import { metaForFacing as planMetaForFacing, waysThrough, windowIds } from "./plan-projection.mjs";
 /* [Row 26] The BAR — "enough of this way through is on screen for a hand to
  * land on it" — which the exit clause below applies.
  *
@@ -181,8 +181,18 @@ const WORLD_TOP_KEYS = ["schema", "locations", "entities", "relations", "knowled
 const LOCATION_KEYS = ["id", "facings", "exits"];
 const LOCATION_REQ = ["id", "facings"];
 const EXIT_KEYS = ["id", "from", "facing", "to", "arrive_facing", "via"];
-const ENTITY_KEYS = ["id", "sprite", "location", "states", "state", "takeable", "transition"];
+/* [ROW 42] `kind` and `fills` join the whitelist, and they are truth rather
+ * than presentation: `kind` is what the thing IS (a door, a window) and `fills`
+ * names the hole in the building it stands in, by the plan's own id. Neither is
+ * a coordinate — where the leaf DRAWS is the painting's to say and the meta's
+ * to record, which is the whole of the row's ruling. */
+const ENTITY_KEYS = ["id", "sprite", "location", "states", "state", "takeable",
+  "transition", "kind", "fills"];
 const ENTITY_REQ = ["id", "sprite"];
+/* [ROW 42] What an entity may claim to be. Openings in a §5 meta already carry
+ * `kind` from a fixed vocabulary (`OPENING_KINDS` below); these are the two of
+ * them a sprite can stand in. */
+const ENTITY_KINDS = ["door", "window"];
 const STAGING_TOP_KEYS = ["schema", "placements"];
 const FACING_PLACEMENT_KEYS = ["facing", "attachment", "u", "v", "depth_m", "mirror"];
 const FACING_PLACEMENT_REQ = ["facing", "attachment", "u"];
@@ -1188,6 +1198,77 @@ export function validate(fixtureDir, records, derivedMetas) {
     }
   }
 
+  /* ---- [ROW 42] A LEAF DECLARES THE HOLE IT STANDS IN ------------------- */
+  /* [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window
+   * assets we literally place in the door frame to open/close and same with the
+   * windows possibly." The binding that makes that possible is `fills`: the
+   * entity names the aperture by the PLAN's own id, and the renderer puts the
+   * sprite in the rectangle the PAINTING measured for it.
+   *
+   * The two halves of the declaration are checked against each other and then
+   * against the building, because either half alone is a claim nobody tested:
+   * `kind` with no `fills` is a door that stands in no doorway, `fills` with no
+   * `kind` leaves the renderer to guess which list to look the id up in, and a
+   * `fills` naming nothing the building holds is a sprite standing on blank
+   * paint — the defect the promotion's own `window.unpainted` clause
+   * exists to stop, arriving from the document side instead.
+   *
+   * WHAT COUNTS AS THE BUILDING HOLDING IT differs by kind, and the difference
+   * is the state of the measurement rather than a preference. A DOORWAY is in
+   * every facing's meta whether or not the wall is promoted, so a door's
+   * `fills` must resolve in a meta of some facing it is staged on. A WINDOW is
+   * in a meta only where `window_measure.py` has read that wall — no wall in
+   * the store carries one yet, and `window_calibration.json` is the list —
+   * so a casement's `fills` resolves against the PLAN's own window ids where
+   * the meta is still silent. The plan is what rules the window either way; the
+   * measurement is what says where it was painted. */
+  if (entities.size > 0) {
+    const planWindows = plan ? new Set(windowIds(plan).values()) : null;
+    for (const [id, ent] of entities) {
+      const hasKind = ent.kind !== undefined;
+      const hasFills = ent.fills !== undefined;
+      if (!hasKind && !hasFills) continue;
+      /* ONE ARM FOR THE DECLARATION, three ways to get it wrong, because they
+       * are one defect from the reader's side: the pair `kind` + `fills` does
+       * not say what this entity stands in. The ledger's law is one token per
+       * emit site, and splitting a malformed declaration into three sites
+       * would be three clauses nobody can tell apart by what they DO. */
+      let malformed = null;
+      if (hasKind && !ENTITY_KINDS.includes(ent.kind)) {
+        malformed = `kind ${JSON.stringify(ent.kind)} is not one of ${ENTITY_KINDS.join(" | ")} — a sprite placed in an aperture is a door or a casement, and the renderer routes on this`;
+      } else if (hasKind && !hasFills) {
+        malformed = `declares kind ${JSON.stringify(ent.kind)} and fills nothing — a leaf that names no aperture is a sprite with nowhere to be, and the renderer would place it from the plan on a wall the painting has already answered for`;
+      } else if (hasFills && !hasKind) {
+        malformed = `fills ${JSON.stringify(ent.fills)} and declares no kind — a doorway and a window light are two lists in a §5 meta and nothing here says which to read`;
+      }
+      if (malformed) {
+        findings.push(`world.json: entity "${id}" ${malformed} [row42:entity.aperture_declaration]`);
+        continue;
+      }
+      const staged = placementList(placements[id] ?? [])
+        .filter((pl) => isObj(pl) && !isAnchorPlacement(pl) && typeof pl.facing === "string");
+      let held = false;
+      for (const pl of staged) {
+        const m = metaForFacing(pl.facing, findings, derived);
+        const hole = ent.kind === "window"
+          ? groundplane.windowFor(m, ent.fills)
+          : groundplane.openingFor(m, ent.fills);
+        if (hole) { held = true; break; }
+      }
+      if (!held && ent.kind === "window" && planWindows && planWindows.has(ent.fills)) {
+        /* The plan rules this window and no wall it is staged on has been
+         * measured for glass yet. That is row 42's own stated edge, not a
+         * broken document: the renderer draws no casement there and says so by
+         * drawing nothing, and the day that wall is re-measured the sprite
+         * appears in the light the painting drew. */
+        held = true;
+      }
+      if (!held) {
+        findings.push(`world.json: entity "${id}" fills ${JSON.stringify(ent.fills)}, which is no ${ent.kind === "window" ? "window the plan rules and no meta measures" : "opening in the meta of any facing it is staged on"} — a leaf standing in a hole the building does not have [row42:entity.fills_unheld]`);
+      }
+    }
+  }
+
   /* Exits: via -> entity, to/from -> locations, arrive_facing in target
    * facings, facing in from-location facings. */
   for (const [exId, ex] of exits) {
@@ -1487,11 +1568,22 @@ export function validate(fixtureDir, records, derivedMetas) {
   /* ---- 6. Placement <-> truth consistency ------------------------------ */
 
   /* Locations whose exits name an entity via — the transition entity's
-   * required staged-location set. */
+   * required staged-location set.
+   *
+   * [ROW 42] Keyed by the LEAF the exit resolves to rather than by the token
+   * `via` carries, through `groundplane.leafFor` — the one home of that
+   * question, shared with the renderer, the harness and the page. The manor
+   * names its exits after the plan's openings (`op01`) and the study after the
+   * leaf (`door1`); this clause is what makes the two-sided rule hold either
+   * way, and it is the clause that stops a leaf being hung on ONE side of a
+   * doorway — where `handleGo` would refuse a shut door from a room whose
+   * picture shows an open hole. */
   const viaLocations = new Map(); // entity id -> Set of location ids
   for (const [, ex] of exits) {
-    if (!viaLocations.has(ex.via)) viaLocations.set(ex.via, new Set());
-    viaLocations.get(ex.via).add(ex.from);
+    const leaf = groundplane.leafFor(world, ex.via);
+    const key = leaf ? leaf.id : ex.via;
+    if (!viaLocations.has(key)) viaLocations.set(key, new Set());
+    viaLocations.get(key).add(ex.from);
   }
 
   for (const [id, value] of Object.entries(placements)) {

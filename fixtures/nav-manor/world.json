@@ -692,9 +692,38 @@
       ]
     }
   ],
-  "entities": [],
+  "entities": [
+    {
+      "id": "casement_win10",
+      "kind": "window",
+      "fills": "win10",
+      "sprite": "casement-leaded-v1",
+      "location": "kitchen",
+      "states": [
+        "closed",
+        "open"
+      ],
+      "state": "closed"
+    },
+    {
+      "id": "leaf_op01",
+      "kind": "door",
+      "fills": "op01",
+      "sprite": "door-leaf-plank-oak-v1",
+      "location": "great_hall",
+      "states": [
+        "closed",
+        "open"
+      ],
+      "state": "open",
+      "transition": true
+    }
+  ],
   "relations": [],
   "knowledge": {
-    "player": []
+    "player": [
+      "casement_win10",
+      "leaf_op01"
+    ]
   }
 }

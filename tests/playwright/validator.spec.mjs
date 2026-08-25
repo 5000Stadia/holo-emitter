@@ -561,9 +561,17 @@ test.describe("what an exit's `via` names is bound to one function", () => {
        in the wall you are facing and appears once. What this case is about is
        unchanged: displace the lookup and the building has no ways through at
        all. */
+    /* [ROW 42] AND TWO OF THEM ARE NOT THE BUILDING'S. The manor now hangs one
+       LEAF, seen from both rooms the doorway joins, and a leaf carries its own
+       §4 placement rectangle — which is exactly the reading `openingFor` is not
+       the home of. So displacing the lookup leaves those two standing and takes
+       every other hole in the manor away, which is a sharper statement of the
+       same thing this case was written to say: what comes from the BUILDING
+       comes from one function, and nothing else does. */
     expect(r.before, "56 ways through, plus the 8 facings that see a flight from beside it")
       .toBe(64);
-    expect(r.during, "with the lookup displaced the building has no ways through at all").toBe(0);
+    expect(r.during,
+      "with the lookup displaced only the leaf's own two placements are left").toBe(2);
     expect(r.after, "and restored").toBe(64);
   });
 

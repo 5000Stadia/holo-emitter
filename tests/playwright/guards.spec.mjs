@@ -504,7 +504,12 @@ export const MECHANISMS = [
      nothing, because the plan amends to the painting (row 22) and an extra
      painted window is something to look at rather than a reason to refuse. */
   "window.unpainted",
-  "window.painted_width"
+  "window.painted_width",
+  /* [row 42 part 3] The document side of a PLACED leaf. `fills` is the binding
+     that lets a sprite be hung in a hole the plan named and the painting
+     measured; these two are what stop it becoming a sprite hung in nothing. */
+  "entity.aperture_declaration",
+  "entity.fills_unheld"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -1276,10 +1281,14 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * other with the whole suite otherwise green. */
     /* [Row 15] The marker moved when the lookup got its one home: the branch
      * is `groundplane.openingFor` now, so what this case removes is the CALL,
-     * which is the whole of the building-fact path. */
+     * which is the whole of the building-fact path.
+     * [Row 42] It moved again, up out of the `else` and above the branch,
+     * because the measured-rectangle path reads the same record: one call now
+     * serves both, and removing it still removes every hole the BUILDING
+     * carries while leaving a leaf's own §4 placement standing. */
     const dir = stageWithout(
-      "          var found = gp.openingFor(meta, exit.via);",
-      "          var found = null;");
+      "        var found = gp.openingFor(meta, exit.via);",
+      "        var found = null;");
     try {
       expect(await navApertureCount(page, dir),
         "with the branch gone the navigation world's doorway is not in the wall").toBe(0);
@@ -3490,6 +3499,32 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
       d._measured_px.windows = [{ ...KITCHEN_E_WINDOW, x1_px: 724, width_px: 24 }];
     }), "a 24 px light is not the window the plan rules here")
       .toEqual(["window.painted_width"]);
+  });
+
+  ledgerCase("entity.aperture_declaration", () => {
+    /* The pair that says what a placed sprite stands in. `kind` alone decides
+       WHICH list of the §5 meta the renderer looks `fills` up in — openings or
+       windows — so a kind outside the vocabulary is a lookup with no list, and
+       the renderer would fall back to §4 placement and paint a casement
+       wherever the plan happens to put it. Doctored on the casement because it
+       is not a transition entity: the leaf's own two-sided staging rule would
+       answer at the same time and this ledger is built on isolation. */
+    expect([...tokensOf(validateNavWorld((w) => {
+      w.entities.find((e) => e.id === "casement_win10").kind = "hatch";
+    }))].sort(), "an entity claiming to be something no aperture is")
+      .toEqual(["entity.aperture_declaration"]);
+  });
+
+  ledgerCase("entity.fills_unheld", () => {
+    /* A casement hung in a light nothing has: not in the meta (no wall in the
+       store carries `windows` yet) and not in the plan either. That second half
+       is what makes the clause reachable at all — row 42's stated edge is that
+       a plan-ruled window with no measurement yet is SILENCE rather than a
+       finding, so the case has to name a window the drawing does not rule. */
+    expect([...tokensOf(validateNavWorld((w) => {
+      w.entities.find((e) => e.id === "casement_win10").fills = "win99";
+    }))].sort(), "a casement in a window the building does not have")
+      .toEqual(["entity.fills_unheld"]);
   });
 });
 

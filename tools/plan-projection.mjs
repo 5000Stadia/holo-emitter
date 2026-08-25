@@ -564,6 +564,35 @@ export function windowIds(plan) {
   return m;
 }
 const rectKey = (floor, r) => `${floor}|${r.x0}:${r.x1}:${r.y0}:${r.y1}`;
+
+/**
+ * [ROW 42] The plan's own rect for an APERTURE id — an opening's `id`, or a
+ * window's minted `win<nn>`.
+ *
+ * Row 42 binds a leaf to a hole the other way round from row 2: the ENTITY
+ * declares `fills: "op01"` rather than the plan's opening declaring
+ * `entity: "door1"`. The alternative would have been writing an `entity` onto
+ * openings in `plan.json`, which moves the drawn digest of the drawing Kabe
+ * approved — a redline that ends at a human, for a change no human asked for
+ * (`groundplane.openingFor` states the same reason for the same choice).
+ *
+ * So the projection needs one lookup the plan side did not have: given an
+ * aperture id, which rect is it. Windows have no `id` in the plan at all — the
+ * ids are minted by `windowIds` from plan order — so this is the only place
+ * that inversion lives.
+ */
+export function apertureRectOf(plan, id) {
+  if (!plan || id == null) return null;
+  const op = (plan.openings || []).find((o) => o.id === id);
+  if (op) return { rect: op.rect, floor: op.floor, kind: "opening" };
+  const ids = windowIds(plan);
+  for (const w of plan.windows || []) {
+    if (ids.get(rectKey(w.floor, w.rect)) === id) {
+      return { rect: w.rect, floor: w.floor, kind: "window" };
+    }
+  }
+  return null;
+}
 /* `facingCarriers` gives a window its VIEW span and drops the world rect, so
  * the id is recovered by finding the plan window whose view span this is —
  * through `facingCarriers` itself, which is the only thing that knows how a
@@ -1515,7 +1544,13 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
   const obj = (plan.objects || []).find((o) => o.id === objectId);
-  const opening = (plan.openings || []).find((o) => o.entity === objectId);
+  /* [ROW 42] Two bindings resolve to the same rect: an opening that names the
+   * entity filling it (row 2's `entity` field), and an APERTURE ID — the
+   * caller having already resolved `fills` to it. `apertureRectOf` is the one
+   * home of the second, and it reaches windows, which carry no id in the plan
+   * at all. */
+  const opening = (plan.openings || []).find((o) => o.entity === objectId) ||
+    apertureRectOf(plan, objectId);
   if (!obj && !opening) {
     throw new Error(`plan-projection: nothing in the plan is "${objectId}" (an anchor_on entity has no plan position by §4 — it derives from its host)`);
   }
@@ -1602,7 +1637,10 @@ export function projectPlacement(plan, objectId, roomId, facing, meta) {
     id: objectId, room: roomId, facing, attachment,
     footprint: rect, offset_m, depth_m, in_wall: inWall,
     u, view_angle_deg, scale_px_per_m: s, screen_x: targetX,
-    source: obj ? "object" : "opening"
+    /* [row 42] A window resolved through `apertureRectOf` says so — the label
+     * is read by the report, and "opening" over a window light would be this
+     * function naming the wrong thing in the plan. */
+    source: obj ? "object" : (opening.kind === "window" ? "window" : "opening")
   };
 }
 
@@ -1821,8 +1859,18 @@ export const STAGING_TOLERANCE = 1e-9;
  * row 11 gave every planned facing its own. Passing a plain object still
  * works (the tests that displace `xAtScale` and want one fixed meta rely on
  * it) and is treated as that meta for every facing.
+ *
+ * [ROW 42] `world` is optional and carries one thing: the `fills` binding. An
+ * aperture's leaf has no `plan.objects` entry and no opening naming it, so
+ * without the world it reads as a placement the plan holds no position for —
+ * which refuses the bake. With it, the leaf answers to the plan's own opening
+ * rect exactly as row 2's door does, and the law "staging ≡ plan projection"
+ * keeps its full reach over the two entities this row adds. That law is about
+ * the DOCUMENTS agreeing; where the leaf actually draws on a promoted wall is
+ * the painting's to say, and `groundplane.apertureRect` is where that happens.
  */
-export function stagingDivergence(plan, staging, meta = null, tolerance = STAGING_TOLERANCE) {
+export function stagingDivergence(plan, staging, meta = null, tolerance = STAGING_TOLERANCE,
+  world = null) {
   const metaAt = typeof meta === "function" ? meta
     : meta ? () => meta
       : (roomId, facing) => metaForFacing(plan, roomId, facing);
@@ -1837,6 +1885,15 @@ export function stagingDivergence(plan, staging, meta = null, tolerance = STAGIN
    * position for it, is a gap in the document, and that refuses: a warning
    * there let an emptied `objects[]` bake green. */
   const straddlesUnplanned = new Set();
+  /* [ROW 42] entity id -> the aperture id it declares it fills, where a world
+   * was supplied. Empty otherwise, and every existing caller behaves exactly
+   * as it did. */
+  const fillsOf = new Map();
+  if (world) {
+    for (const e of world.entities || []) {
+      if (e && e.fills != null) fillsOf.set(e.id, e.fills);
+    }
+  }
   for (const [id, placement] of Object.entries(staging.placements || {})) {
     const list = Array.isArray(placement) ? placement : [placement];
     for (const pl of list) {
@@ -1857,8 +1914,13 @@ export function stagingDivergence(plan, staging, meta = null, tolerance = STAGIN
         unplanned.push({ id, facing: pl.facing, why: `no plan room "${roomId}"` });
         continue;
       }
-      const hasPosition = (plan.objects || []).some((o) => o.id === id) ||
+      /* [ROW 42] The third way an entity can have a plan position: it declares
+       * which aperture it `fills`, and the plan holds that aperture. */
+      const bound = fillsOf.get(id);
+      const ownPosition = (plan.objects || []).some((o) => o.id === id) ||
         (plan.openings || []).some((o) => o.entity === id);
+      const hasPosition = ownPosition ||
+        (bound != null && apertureRectOf(plan, bound) != null);
       if (!hasPosition) {
         const where = straddlesUnplanned.has(id) ? unplanned : unexpectedMissing;
         where.push({ id, facing: pl.facing, why: straddlesUnplanned.has(id)
@@ -1866,7 +1928,8 @@ export function stagingDivergence(plan, staging, meta = null, tolerance = STAGIN
           : `the plan holds "${roomId}" but no position for "${id}"` });
         continue;
       }
-      const p = projectPlacement(plan, id, roomId, facing, metaAt(roomId, facing));
+      const p = projectPlacement(plan, ownPosition ? id : bound, roomId, facing,
+        metaAt(roomId, facing));
       const duOk = Math.abs(p.u - pl.u) <= tolerance;
       const shippedDepth = pl.depth_m == null ? null : pl.depth_m;
       const ddOk = shippedDepth == null || Math.abs(p.depth_m - shippedDepth) <= tolerance;
@@ -2476,7 +2539,7 @@ if (import.meta.url === invokedPath) {
     process.exit(1);
   }
   const staging = JSON.parse(readFileSync(join(fixtureDir, "staging.json"), "utf8"));
-  const div = stagingDivergence(plan, staging);
+  const div = stagingDivergence(plan, staging, null, undefined, world);
   for (const u of div.unplanned) console.error(`plan warning: staged "${u.id}" on ${u.facing} is not judged — ${u.why}`);
   if (div.unexpected.length) {
     for (const r of div.unexpected) {

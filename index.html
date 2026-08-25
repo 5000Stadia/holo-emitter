@@ -994,6 +994,33 @@
       return window.HOLO.renderer.apertures(
         harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
     }
+    /* [ROW 42] THE WINDOWS OF THIS WALL, AND THEY ARE NEVER A WAY THROUGH.
+       `apertures` keeps them out of the default list on purpose — every reader
+       of that list turns an entry into a `go` — so the one place that asks for
+       them is the pointer resolver, which routes them to their casement and to
+       nothing else. A window with no casement resolves to nothing at all: there
+       is no third intent, and inventing one ("look through") would be a control
+       the keyboard has no equivalent for. */
+    function windowList() {
+      var all = window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, metaFor(harness.viewstate),
+        harness.viewstate, { windows: true });
+      var out = [];
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].kind === "window" && all[i].leaf) out.push(all[i]);
+      }
+      return out;
+    }
+    function casementAt(p, marginPx) {
+      var list = windowList();
+      var best = null;
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        if (!apertureHolds(a, p.x, p.y, marginPx || 0)) continue;
+        if (!best || a.w * a.h < best.w * best.h) best = a;
+      }
+      return best;
+    }
     function apertureAt(p) {
       var list = apertureList();
       for (var i = 0; i < list.length; i++) {
@@ -1076,9 +1103,20 @@
         }
         return { kind: "entity", id: exact };
       }
+      /* [ROW 42] A TAP ON A CASEMENT'S OWN LIGHT OPENS OR SHUTS IT, and it
+         never travels — a window is not a way through, and the resolver says so
+         by having no branch that could make it one. It sits above the doorway
+         branch because a window is never an exit, so nothing here can be eaten;
+         and below the exact-pixel branch, so the casement's own sprite (and
+         anything standing in front of it) still wins on its own pixels. This is
+         what makes an OPEN casement reachable: swung to its hinge side, the
+         sprite is a sliver, and the light it has uncovered is the rest of the
+         target a hand aims at. */
+      var win = casementAt(p, 0);
+      if (win) return { kind: "entity", id: win.leaf };
       var ap = apertureAt(p);
       if (ap) {
-        var leaf = entityById(ap.via);
+        var leaf = entityById(ap.leaf);
         /* [Row 21] AN OPENING WITH NO LEAF IS ALWAYS A WAY THROUGH. Where the
            world holds a leaf it governs, exactly as before — open, you walk;
            shut, the click belongs to the door. Where it holds none the doorway
@@ -1090,7 +1128,7 @@
         if (leaf.state === "open") return { kind: "doorway", aperture: ap };
         // A shut leaf fills its own opening, so this only happens where the
         // leaf's own pixels do not reach; the doorway still belongs to it.
-        return { kind: "entity", id: ap.via };
+        return { kind: "entity", id: ap.leaf };
       }
       var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
       if (near) return { kind: "entity", id: near };
@@ -1098,9 +1136,14 @@
          exactly — after everything, so it eats nothing. */
       var nearAp = nearAperture(p, TAKEABLE_MARGIN_CSS * k);
       if (nearAp) {
-        var nearLeaf = entityById(nearAp.via);
+        var nearLeaf = entityById(nearAp.leaf);
         if (!nearLeaf || nearLeaf.state === "open") return { kind: "doorway", aperture: nearAp };
       }
+      /* [ROW 42] and a casement too small to hit exactly — AFTER the way
+         through, because a near miss between a window and a door is a player
+         trying to leave the room. */
+      var nearWin = casementAt(p, TAKEABLE_MARGIN_CSS * k);
+      if (nearWin) return { kind: "entity", id: nearWin.leaf };
       return { kind: "none" };
     }
 
@@ -1262,7 +1305,7 @@
         harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
       for (var j = 0; j < apList.length; j++) {
         var ap = apList[j];
-        var leaf = entityById(ap.via);
+        var leaf = entityById(ap.leaf);
         if (leaf && leaf.state !== "open") continue;
         var goBtn = document.createElement("button");
         goBtn.type = "button";
