@@ -552,6 +552,15 @@ def _bake_if_promoted(n_promoted):
 #: same refusal, at ~12 s a wall, which is the row-30 cut being paid all over
 #: again on the other side of the pipeline.
 SNAP_ROUND = "row35snap"
+#: WHERE A SNAPPED FRAME LIVES, and it is not a new place: the eleven walls the
+#: Navigator snapped and promoted by hand put theirs at
+#: `backdrops/source-snapped/<loc>-<F>/snapped.png`, and the metas in the store
+#: name that path as their `camera_id`. A routed snap writing somewhere else
+#: would give one kind of thing two homes, and the store would answer "where is
+#: the frame this wall was promoted from" two different ways depending on who
+#: promoted it. `row35_snap.py`'s own default (a row-35 batch directory) is a
+#: BATCH's home — evidence for a row under judgement — and stays that.
+SNAP_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-snapped")
 EXIT_MEASURED, EXIT_SNAPPED = "measured", "snapped"
 #: The snap, plus B-ASSEMBLY's door-void repair — see `DOOR_VOID_TOOL`. It is
 #: its own name rather than a flag on `snapped` because the frame that shipped
@@ -611,9 +620,12 @@ def _exit_snap(key, cand_rel, reading):
     """
     import row35_snap
     _t = time.time()
+    loc, fac = key.split("/")
+    out_png = os.path.join(SNAP_SOURCE_DIR, "%s-%s" % (loc, fac), "snapped.png")
     try:
         res, why = row35_snap.snap_to_round(key, cand_rel, reading=reading,
-                                            round_dir=SNAP_ROUND, acceptance=True)
+                                            round_dir=SNAP_ROUND, out_png=out_png,
+                                            acceptance=True)
     except Exception as ex:
         # ONE BAD WALL IS ONE ROW. A snap that raises costs this wall its exit
         # and costs the sweep nothing else.
@@ -702,7 +714,7 @@ def _exit_void_repair(key, st, res, promo_why):
                         "why": "tool absent"})
         return False, why
     out_png = os.path.join(os.path.dirname(os.path.abspath(res["out_png"])),
-                           "after-voided.png")
+                           "voided.png")
     r = subprocess.run(["node", DOOR_VOID_TOOL, "--facing", key,
                         "--candidate", res["candidate"],
                         "--out", os.path.relpath(out_png, ROOT)],
