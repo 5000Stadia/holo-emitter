@@ -944,8 +944,27 @@ export function g5PictureLines(ctx) {
   L.push(`Composition/framing: a ${CANVAS_W} by ${CANVAS_H} landscape picture, seen from the eye of ` +
     `someone standing on the ${GROUND} in this ${out ? "place" : "room"}.`);
   if (edges.length) {
-    L.push(`  The ${SURFACE} you face is square on and fills the picture's width, and the two side ` +
-      `walls run away from you to left and right and leave the picture through ${edgeWords(edges)}.`);
+    /* [2026-08-25] "FILLS THE PICTURE'S WIDTH" WAS TAKEN LITERALLY. The first two
+     * production returns under this register (servants_hall E and W) pushed the
+     * wall's corners to the frame edges and failed the camera at +10 % and
+     * +17 % focal — the one fact the retired coordinate block carried that the
+     * words had dropped was WHERE THE CORNERS STAND. Said in words, from the
+     * scaffold's own corner columns, never as pixel figures. */
+    const m = ctx.meta || {};
+    const fracWords = (f) => f < 0.045 ? "just inside" : f < 0.11 ? "about a tenth of the way in from"
+      : f < 0.17 ? "about a seventh of the way in from" : f < 0.22 ? "about a fifth of the way in from"
+      : f < 0.29 ? "about a quarter of the way in from" : f < 0.38 ? "about a third of the way in from"
+      : "well inside";
+    const fL = m.corner_x0_px != null ? m.corner_x0_px / CANVAS_W : null;
+    const fR = m.corner_x1_px != null ? 1 - m.corner_x1_px / CANVAS_W : null;
+    if (fL != null && fR != null) {
+      L.push(`  The ${SURFACE} you face is square on and shows its whole width: its left corner stands ` +
+        `${fracWords(fL)} the picture's left edge and its right corner ${fracWords(fR)} the right edge, ` +
+        `and from each corner a side wall runs toward you and leaves the picture through ${edgeWords(edges)}.`);
+    } else {
+      L.push(`  The ${SURFACE} you face is square on and shows its whole width, and the two side ` +
+        `walls run away from you to left and right and leave the picture through ${edgeWords(edges)}.`);
+    }
     L.push(`  The ${GROUND} is visible and reaches the bottom of the picture, and the eye line sits ` +
       "a little above the middle of the picture's height — that is where those receding lines would " +
       "meet if they were carried back into the distance.");
