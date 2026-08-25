@@ -13,32 +13,32 @@
       "artifacts": {
         "design/plan-draft/measured/material_legacy.json": "a5dd4784fb6b5773e6b0e93a6ac6010281563f5ef0cc6e795169f0a90b5852dd"
       },
-      "at": "2026-08-25T03:43:26",
-      "input_digest": "6b1046f1aff02c701e61ef3921ea5370377981aba34098281a25d0e111dbe213",
-      "inputs": 659
+      "at": "2026-08-25T04:19:00",
+      "input_digest": "20cce3fd306a8489ebb2b0e31bb03c4f2170f053cb947581c92e606076b532c1",
+      "inputs": 661
     },
     "material_provenance": {
       "artifacts": {
         "design/plan-draft/measured/material_provenance.json": "1f2573812f68d217c561cc819407956ce7de233d023bffcee3669f48533b86e7"
       },
-      "at": "2026-08-25T03:43:26",
-      "input_digest": "6b1046f1aff02c701e61ef3921ea5370377981aba34098281a25d0e111dbe213",
-      "inputs": 659
+      "at": "2026-08-25T04:19:00",
+      "input_digest": "20cce3fd306a8489ebb2b0e31bb03c4f2170f053cb947581c92e606076b532c1",
+      "inputs": 661
     },
     "room_consistency": {
       "artifacts": {
-        "design/plan-draft/measured/room_consistency.json": "244e02ffc4938bdd36bc26e0936d0ac1f724df9e6771950b5a9712a1512c4ce9"
+        "design/plan-draft/measured/room_consistency.json": "ecbedd36c3024e7539e2f56c858de5d8214837cbf638131c208b75d137b5ea96"
       },
-      "at": "2026-08-25T03:28:47",
-      "input_digest": "49452b1aa2a13d56fd2eb56efd5e5307e439740531ae1a16feb5789fdc6dbf9b",
+      "at": "2026-08-25T04:15:10",
+      "input_digest": "fa6047d5bebccddf0b0063867499a9dd8db2e8b2255506655877f1d6194deea3",
       "inputs": 124
     },
     "room_consistency_readme": {
       "artifacts": {
-        "design/batches/row40-consistency/README.md": "cc3340974fa271683754b34bfad70783b64fce25f518fc10fa62068425c22aa4"
+        "design/batches/row40-consistency/README.md": "1828074920766edd6595f0a82b12827e99fb1b6a31ceba3d86caf88f5ba46832"
       },
-      "at": "2026-08-25T03:28:48",
-      "input_digest": "49452b1aa2a13d56fd2eb56efd5e5307e439740531ae1a16feb5789fdc6dbf9b",
+      "at": "2026-08-25T04:15:10",
+      "input_digest": "fa6047d5bebccddf0b0063867499a9dd8db2e8b2255506655877f1d6194deea3",
       "inputs": 124
     },
     "texture_library": {
