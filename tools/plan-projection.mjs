@@ -1564,6 +1564,26 @@ export function facingCarriers(plan, roomId, facing) {
     if (Math.abs(near - fc.wall_line) > EPS) continue;
     add("door", o.id, o.rect, o.entity ? { entity: o.entity } : {});
   }
+  /* AN OPEN EDGE IS A CARRIER TOO. `op_court_mouth` is a 20.4 m `open_edge`,
+   * and until this existed the only carrier kinds were door/window/fireplace —
+   * so the court's south facing was scaffolded and ASKED as a blank wall
+   * ("carries no opening... unbroken"), and the painter obediently built a
+   * parapet across the mouth. The page already knew the mouth
+   * (`thresholdsForFacing`); the ask did not. Same detection as there. */
+  {
+    const edge = sign > 0 ? room.rect[normalAxis + "1"] : room.rect[normalAxis + "0"];
+    for (const o of plan.openings || []) {
+      if (o.floor !== room.floor || o.kind !== "open_edge") continue;
+      if (!(o.joins || []).includes(roomId) || !o.rect) continue;
+      const line = o.rect[normalAxis + "0"];
+      if (Math.abs(line - o.rect[normalAxis + "1"]) > EPS) continue;
+      if (Math.abs(line - edge) > EPS) continue;
+      const lo = Math.max(o.rect[span.axis + "0"], span.lo), hi = Math.min(o.rect[span.axis + "1"], span.hi);
+      if (!(hi > lo)) continue;
+      const beyond = (o.joins || []).find((j) => j !== roomId) || null;
+      add("open_edge", o.id, { [span.axis + "0"]: lo, [span.axis + "1"]: hi }, { beyond });
+    }
+  }
   for (const w of plan.windows || []) {
     if (w.floor !== room.floor) continue;
     if (!(w.rect[span.axis + "0"] >= span.lo - EPS && w.rect[span.axis + "1"] <= span.hi + EPS)) continue;

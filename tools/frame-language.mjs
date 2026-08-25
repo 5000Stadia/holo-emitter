@@ -409,6 +409,15 @@ export function flightLines(ctx) {
       L.push(`    ${s.treads_in_view} of its steps are in the picture. The front edge of each step reads as a`);
       L.push(`    level line across the width of the flight, and those lines stack one above the next,`);
       L.push(`    ${how}, ${tail}.`);
+      /* [Kabe, 2026-08-24: stair_landing/N "shows stairs going up on the left"
+       * where the plan's flight goes DOWN] "dropping" alone did not hold: the
+       * painter drew a rising flight. A descending flight seen from its head
+       * is stated as what it is — nothing above this floor. */
+      if (s.direction === "down") {
+        L.push(`    This flight goes DOWN from the ${GROUND} you stand on: its top step is level with this ${GROUND}`);
+        L.push(`    and every other step is BELOW it. No step of it rises above this ${GROUND}, and no`);
+        L.push(`    staircase climbs upward anywhere in this picture.`);
+      }
     } else {
       /* A FLIGHT CAN BE PRESENT AS NOTHING BUT ITS HOLE. Two of the manor's
        * facings look across a stairwell whose every tread is below the frame,

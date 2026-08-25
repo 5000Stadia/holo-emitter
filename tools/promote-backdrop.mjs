@@ -738,11 +738,19 @@ const DOORWAY_BAND = [0.50, 1.50];
 const apertureScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
                        fc.wall_width_m > 0)
   ? (meta.corner_x1_px - meta.corner_x0_px) / fc.wall_width_m : ppm;
+/* ...AND THE PLAN DOES NOT RULE THEM ALL AT 1.00 m. `op01` (court → great
+ * hall) and `op10` (great hall → garden) are drawn 1.60 m wide, and judged
+ * against a fixed 1.00 m both facings of op01 refused at 1.51× and 2.42× while
+ * painting the door the plan itself drew. The band is a floor on doorway-ness,
+ * so it is taken against the plan's OWN width for that opening; 1.00 m stands
+ * only where the plan gives no width. */
+const planWidthM = new Map(facingCarriers(plan, loc, facing).filter((c) => c.kind === "door").map((c) => [c.id, c.width_m]));
 for (const [id, cand] of assigned) {
-  const ruledPx = RULED_DOOR_M * apertureScale;
+  const ownM = planWidthM.get(id) > 0 ? planWidthM.get(id) : RULED_DOOR_M;
+  const ruledPx = ownM * apertureScale;
   const ratio = cand.width_px / ruledPx;
   if (ratio < DOORWAY_BAND[0] || ratio > DOORWAY_BAND[1]) {
-    refusals.push(`${facingArg}: the way through the painting shows for "${id}" is ${cand.width_px} px — ${ratio.toFixed(2)}× the ${ruledPx.toFixed(1)} px blueprint §11's 1.00 m opening spans at this wall's corner scale (${apertureScale.toFixed(1)} px/m; its ruler reads ${ppm.toFixed(1)}), outside ${DOORWAY_BAND[0]}–${DOORWAY_BAND[1]}× — that is not a doorway, whatever else it is [row27:door.painted_width]`);
+    refusals.push(`${facingArg}: the way through the painting shows for "${id}" is ${cand.width_px} px — ${ratio.toFixed(2)}× the ${ruledPx.toFixed(1)} px the plan's own ${ownM.toFixed(2)} m opening spans at this wall's corner scale (${apertureScale.toFixed(1)} px/m; its ruler reads ${ppm.toFixed(1)}), outside ${DOORWAY_BAND[0]}–${DOORWAY_BAND[1]}× — that is not a doorway, whatever else it is [row27:door.painted_width]`);
   }
 }
 for (const p of planned) {

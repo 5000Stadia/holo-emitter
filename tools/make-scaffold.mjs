@@ -322,6 +322,15 @@ export function scaffoldRects(plan, loc, facing, meta) {
       rect.sub = `${c.width_m.toFixed(2)} M WIDE`;
       rect.ruled = ["width"];
       rect.convention = ["sill height", "head height"];
+    } else if (c.kind === "open_edge") {
+      /* No wall here at all: the box is the whole height of where a wall
+       * would stand, and the sentence says the ground runs out through it. */
+      rect.y0 = 0;
+      rect.y1 = floorY;
+      rect.label = "OPEN SIDE";
+      rect.sub = `NO WALL · OPEN ${c.width_m.toFixed(2)} M`;
+      rect.ruled = ["width"];
+      rect.beyond = c.beyond || null;
     } else {
       continue;
     }
@@ -1307,6 +1316,9 @@ asks you to judge a result: generate, save to the named paths, and report the pa
  * THE RULED SIZES ARE THE GATE'S OWN. A prompt may only declare a dimension the
  * acceptance gate can measure, at the size this project rules it — `prompt_lint`
  * refuses anything else, and it is the whole reason `Gate anchor:` exists. */
+const PIER_ANCHOR_SENTENCE = "The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.";
+const OPEN_SIDE_FABRIC = "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky";
+
 const CARRIER_SENTENCE = {
   /* "…and the space beyond is unlit": row 27's lesson folded in per production
    * law clause 6. The promotion instrument reads a painted doorway as a VOID —
@@ -1316,7 +1328,11 @@ const CARRIER_SENTENCE = {
    * room into the opening, so painted light back there fights the through-view. */
   door: (w, which, where) => `The ${which}door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it${where}. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
   window: (w, which, where) => `The ${which}leaded window opening is exactly ${w.toFixed(2)} m wide${where}.`,
-  fireplace: (w, which, where) => `The ${which}stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide${where}.`
+  fireplace: (w, which, where) => `The ${which}stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide${where}.`,
+  /* [Kabe, 2026-08-24: "Entrance court s looks very weird on the edges"] The
+   * mouth was asked as a blank wall and painted as a parapet. An open edge is
+   * the ABSENCE of a wall, said as such, with nothing across it. */
+  open_edge: (w, which, where) => `This side is not a wall at all: it is open across its full ${w.toFixed(2)} m width, with no wall, gate, parapet, railing or hedge across any part of it${where}. This place's own ground runs straight out through the open side and continues as the same ground beyond it, under open sky, to the far horizon.`
 };
 
 /* WHICH ONE OF THEM, when a wall carries more than one of a kind.
@@ -1463,7 +1479,13 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
   for (const line of registerBlock({
     geometry: frameGeometry(meta), meta, voice, surface: SURFACE, room_name: name
   })) L.push(line);
-  L.push(`Architecture and measurement anchors: ${anchor.sentence}`);
+  /* [Kabe, 2026-08-24] THE COPING CANNOT RUN ACROSS A MOUTH. `outdoors_open`'s
+   * anchor sentence closes the view with a boundary wall — right for the
+   * court's blank sides, and the parapet the painter built across the 20 m
+   * mouth on the south. Where the facing carries an open edge the ruler moves
+   * to the piers at its ends and the sentence says nothing stands between. */
+  const openSide = rects.find((r) => r.kind === "open_edge") || null;
+  L.push(`Architecture and measurement anchors: ${openSide ? PIER_ANCHOR_SENTENCE : anchor.sentence}`);
   for (const r of ruled) L.push("  " + r);
   if (rects.length) {
     L.push("  Each feature stands where Image 2's box for it stands, filling that box's width.");
@@ -1492,7 +1514,12 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
     /* AN OUTDOOR FACING WITH OPENINGS IN IT IS THE HOUSE'S OWN ELEVATION, and
      * the plan decides which by whether it draws any carrier on that wall line
      * — `entrance_court/N` six windows and a door, `privy_garden/N` nothing. */
-    const fabric = (rects.length && voice.walls_with_openings) || voice.walls;
+    /* AND AN OPEN EDGE IS NOT AN OPENING IN A WALL. Counting the court's
+     * mouth as a carrier would dress its south side as the house's brick
+     * elevation; it is the absence of a wall, and the fabric says so. */
+    const built = rects.filter((r) => r.kind !== "open_edge");
+    const fabric = (openSide && !built.length) ? OPEN_SIDE_FABRIC
+      : (built.length && voice.walls_with_openings) || voice.walls;
     L.push(`Materials/textures: ${fabric}. Underfoot: ${voice.floor}.`);
     L.push("  Overhead is open sky with weather in it, and daylight falls from it onto everything");
     L.push("  in frame. This place is out of doors and everything in it is built for weather.");

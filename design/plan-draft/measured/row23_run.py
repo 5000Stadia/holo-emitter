@@ -750,7 +750,7 @@ def sweep(manifest, state, do_promote=True):
                            if isinstance(d, dict) else None)
                     corr = _correction_for(fam, why, d, e)
                     st["candidate"] = r["candidate"]
-                    if corr and st["attempts"] < e.get("retry_cap", 3):
+                    if corr and st["attempts"] < (e.get("retry_cap", 3) + st.get("cap_extension", 0)):
                         st["status"] = "retry"
                         st["correction"] = corr
                         st["hold_family"] = fam
@@ -828,7 +828,7 @@ def sweep(manifest, state, do_promote=True):
                 % anchor_name)
             st["candidate"] = worst.get("candidate")
             st["hold_family"] = "camera-miss"
-            if st["attempts"] >= e.get("retry_cap", 3):
+            if st["attempts"] >= (e.get("retry_cap", 3) + st.get("cap_extension", 0)):
                 st["status"] = "parked"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
                 _now = time.time()                                # [row 33]

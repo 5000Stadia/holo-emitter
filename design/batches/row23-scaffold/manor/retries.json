@@ -4,9 +4,9 @@
   "_never_overwrites": "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as Image 3 — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
-  "_generated": "2026-08-24",
-  "emitted": 2,
-  "carried": 72,
+  "_generated": "2026-08-25",
+  "emitted": 1,
+  "carried": 74,
   "refused": 0,
   "entries": [
     {
@@ -664,6 +664,38 @@
           "id": "f26273dd",
           "candidate": "backdrops/source/entrance_court-S/row23-f26273dd.png",
           "prompt": "backdrops/source/entrance_court-S/row23-f26273dd.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "entrance_court/S",
+      "attempt": 5,
+      "packet": "design/batches/row23-scaffold/manor/entrance_court-S/retry-5",
+      "correction": "draw 1.136x larger: 38.3 px/m at the far line, not 33.7",
+      "voice": {
+        "id": "outdoors_open",
+        "via": "facing type `open` — no wall stands at this wall line",
+        "outdoor": true,
+        "anchor": "coping"
+      },
+      "px_per_m_at_wall": 38.2803738317757,
+      "flights": [],
+      "scaffold_sha256": "4c58f24156d2f886834aa61a0de6394d50849de1a7d39a201f5e0679d0af3975",
+      "edge_seed": null,
+      "seed_policy": "required",
+      "depends_on": "entrance_court/E",
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e117db11",
+          "candidate": "backdrops/source/entrance_court-S/row23-e117db11.png",
+          "prompt": "backdrops/source/entrance_court-S/row23-e117db11.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "39248dd0",
+          "candidate": "backdrops/source/entrance_court-S/row23-39248dd0.png",
+          "prompt": "backdrops/source/entrance_court-S/row23-39248dd0.prompt.txt"
         }
       ]
     },

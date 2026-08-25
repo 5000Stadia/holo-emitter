@@ -18,11 +18,11 @@
     },
     "great_hall/S": {
       "attempts": 4,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "the tolerance promotion was refused: promote refused: great_hall/S: the way through the painting shows for \"op01\" is 80 px \u2014 1.51\u00d7 the 52.9 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (52.9 px/m; its ruler reads 1"
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
     "great_hall/W": {
       "attempts": 5,
@@ -155,7 +155,7 @@
       "attempts": 2,
       "status": "held",
       "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: kitchen/N: the way through the painting shows for \"op14\" is 68 px \u2014 0.41\u00d7 the 165.9 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (165.9 px/m; its ruler reads 16",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: kitchen/N: the way through the painting shows for \"op14\" is 68 px \u2014 0.41\u00d7 the 165.9 px the plan's own 1.00 m opening spans at this wall's corner scale (165.9 px/m; its ruler reads 166",
       "hold_family": "promotion-refused"
     },
     "kitchen/E": {
@@ -416,7 +416,14 @@
       "correction": "draw 1.136x larger: 38.3 px/m at the far line, not 33.7",
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/entrance_court-S/row23-f26273dd.png",
-      "why": "the retry cap is spent; the wall stays grid and the run continues"
+      "why": "the retry cap is spent; the wall stays grid and the run continues",
+      "lifted": {
+        "ts": 1787622262.249324,
+        "from": "parked",
+        "why": "ask defect, not a painter miss: the plan draws this side as op_court_mouth (open_edge, 20.4 m) and the emitter knew no such carrier, so the ask said \"carries no opening... unbroken\" and the voice's coping anchor said a boundary wall runs right across the view; the painting obeyed both. Emitter fixed (open_edge is a carrier; the anchor moves to flanking piers). Kabe, 2026-08-24: \"Entrance court s looks very weird on the edges\".",
+        "how": "cap_extension 3: the loop honours retry_cap + cap_extension, so the lift is a recorded field, not a hand-edited count"
+      },
+      "cap_extension": 3
     },
     "entrance_court/W": {
       "attempts": 5,
@@ -607,7 +614,7 @@
     },
     "back_stair_head/S": {
       "attempts": 3,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair_head-S/row23-2fe57dfb.png was painted from never named a stairca",
       "hold_family": "promotion-refused",
@@ -640,7 +647,7 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "content gap re-ask: the ask never named the flight"
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
     "back_stair_head/W": {
       "attempts": 3,
