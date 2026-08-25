@@ -378,10 +378,15 @@ def measure_roll(key, r, side, cfg, ref, picks):
         # [row 33] A MEASURE-ERR is a measurement that ran and cost its time;
         # leaving it out would make the instrument look faster than it is on
         # exactly the frames it struggles with.
+        import traceback as _tb
+        _where = _tb.extract_tb(_mex.__traceback__)[-1]
+        _at = "%s:%d in %s" % (os.path.basename(_where.filename), _where.lineno, _where.name)
         timings.record("measure.candidate", _t, time.time(), key,
                        {"roll_id": r["id"], "candidate": r["candidate"],
-                        "verdict": "MEASURE-ERR", "error": str(_mex)[:200]})
-        print("  %-24s MEASURE-ERR %s: %s" % (key, r["id"], _mex))
+                        "verdict": "MEASURE-ERR", "error": str(_mex)[:200], "where": _at})
+        # [guards-that-cannot-fail] an error with no location is a guard nobody
+        # can act on: entrance_approach/W sat unread for a day behind one.
+        print("  %-24s MEASURE-ERR %s: %s  (at %s)" % (key, r["id"], _mex, _at))
         return None
     timings.record("measure.candidate", _t, time.time(), key,      # [row 33]
                    {"roll_id": r["id"], "candidate": r["candidate"],
