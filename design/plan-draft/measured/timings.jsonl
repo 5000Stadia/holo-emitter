@@ -45309,3 +45309,11 @@
 {"ts_start":1787660047.92,"ts_end":1787660048.065,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
 {"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787660048.101927,"ts_start":1787660030.813852}
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787660048.102517,"ts_start":1787660025.894907}
+{"ts_start":1787661673.57,"ts_end":1787661674.184,"step":"emit.facing","key":"servants_hall/E","detail":{"carriers":2,"voice":"servants_hall","consistency":5}}
+{"ts_start":1787661674.185,"ts_end":1787661674.194,"step":"emit.packet","key":"servants_hall/E","detail":{"rolls":1,"roll_ids":["ce4ea35f"],"prompt_chars":4248,"consistency":5}}
+{"ts_start":1787661671.31,"ts_end":1787661674.316,"step":"emit.run","key":null,"detail":{"mode":"consistency","emitted":1,"refused":0}}
+{"detail":{"prompts":499,"refused":28},"key":null,"step":"lint.prompts","ts_end":1787662152.058567,"ts_start":1787662151.649477}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787662172.343634,"ts_start":1787662172.277077}
+{"detail":{"action":"texture_library","files":0,"note":null,"refused":false,"wrote":[]},"key":"texture_library","step":"derive.regen","ts_end":1787662740.345126,"ts_start":1787662740.107167}
+{"detail":{"action":"materials","files":0,"note":null,"refused":false,"wrote":[]},"key":"material_provenance","step":"derive.regen","ts_end":1787662740.49413,"ts_start":1787662740.345395}
+{"detail":{"action":"room_consistency","files":2,"note":null,"refused":false,"wrote":["design/plan-draft/measured/room_consistency.json","design/batches/row40-consistency/README.md"]},"key":"room_consistency","step":"derive.regen","ts_end":1787662750.107691,"ts_start":1787662740.494378}
