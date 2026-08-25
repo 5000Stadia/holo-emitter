@@ -1303,7 +1303,9 @@ def sweep(manifest, state, do_promote=True):
                         if ex in (EXIT_SNAPPED, EXIT_TOLERATED):
                             promoted.append((key, "%s - %s" % (ex.upper(), reason), d))
                             continue
-                    failed.append((key, d, st["correction"]))
+                    # [guards-that-cannot-fail] a wall routed to grid may have had its
+                    # correction waived/answered by the exit; the reason is what remains.
+                    failed.append((key, d, st.get("correction") or st.get("exit_reason") or why))
             else:
                 st["status"] = "admitted"
                 promoted.append((key, "PASS %+.1f%% focal (promotion not run)"
