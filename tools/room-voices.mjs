@@ -761,34 +761,103 @@ export function scaleContract(slot, tiling) {
  * already imply; brick course 0.075 and brick-on-edge 0.115 are standard
  * English-bond dimensions. Each is the spacing ACROSS the grain.
  */
+
+/* ------------------------------------------------------------------ */
+/* THE FRAME — row 41. A wall is architecture, not texture.            */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim on the kitchen flip] "the paneling needs to
+ * frame in the wall properly. It looks like a chopped up repeating wallpaper
+ * thats glitched out. It runs off the corner and doesnt complete" — and the
+ * ruling in `design/approvals.log`: tiled texture crops are REJECTED as wall
+ * construction. A material that carries JOINERY carries a `frame` here, and
+ * `row41_bays.py` lays the wall out from it: bay count from the wall's own
+ * width, a stile in every boundary including both corners, and the fabric
+ * demoted to what fills a field INSIDE that frame.
+ *
+ * WHERE THESE NUMBERS COME FROM, since "not invented" is the whole requirement.
+ * They are the dimensions of English oak joinery of the manor's own date
+ * (c. 1660), and each is stated in the imperial it was actually worked in:
+ *
+ *   module_m 0.80    THE BAY. It is not a new number: it is this material's own
+ *                    `pitch_m`, which is where the panel bay already lived. A
+ *                    riven oak panel of this period runs 2 ft to 2 ft 9 in
+ *                    between stile centres — the width the timber gives before
+ *                    it has to be jointed — and 0.80 m is 2 ft 7.5 in, in the
+ *                    upper half of that because the manor's rooms are large.
+ *                    Blueprint §11 records that the 0.90 m module inferred off
+ *                    four cand-1 facings disagreed by +/-7% and was superseded;
+ *                    this is the ruled figure, not that inference.
+ *   stile_m 0.11     THE STILE, 4.33 in, cut from 4.5 in stuff with the
+ *                    mouldings worked on its own face — so the visible member
+ *                    is the stile, mouldings included, and one number covers it.
+ *   plinth_m 0.17    THE PLINTH / SKIRTING, 6.7 in: the base member takes the
+ *                    knocks and stands taller than the framing.
+ *   chair_rail_m     0.95 EXACTLY, and it is RULED, not craft: blueprint §11's
+ *                    universal chair rail, the one instrument the whole corpus
+ *                    reads scale through (`row36_assemble.ANCHOR_M`). Nothing
+ *                    in this table may move it.
+ *   chair_rail_h_m   0.14, which is `row36_assemble.ANCHOR_BAND_M` — the same
+ *                    band, said once.
+ *   cornice_m 0.24   THE WALL HEAD, 9.4 in of cornice and frieze together.
+ *   architrave_m     0.13, 5.1 in: the surround a door or window is framed by.
+ *   bevel_m 0.035    THE FIELDING, 1.4 in: the chamfer from the frame plane
+ *                    down to the panel face.
+ *
+ * `kind` says how far up the wall the joinery goes. "full_height" is panelling
+ * to the cornice; "dado" is wainscot to the chair rail with a field above it —
+ * plaster, or one of the `hangings-*` variants — which the layout frames as a
+ * field rather than tiling across the wall.
+ *
+ * AND THE MATERIALS WITH NO FRAME still answer for the corner. Limewash has no
+ * bays and inventing some would be worse than tiling, so an unframed material
+ * carries an `edge` instead: the one member that stops the fabric AT the corner
+ * so nothing runs off it. A return stile where the wall is plaster; a quoin —
+ * blocks coursed up the angle — where it is masonry, which is what masonry
+ * actually does at a corner. `width_m` 0.11 is the same stile; the quoin's
+ * 0.225 m is a 9 in brick laid header-on, and its 0.15 m course is the two
+ * English-bond courses (0.075 m each) a quoin block spans. */
+const PANELLED_FRAME = {
+  kind: "full_height", module_m: 0.80, stile_m: 0.11, plinth_m: 0.17,
+  chair_rail_m: 0.95, chair_rail_h_m: 0.14, cornice_m: 0.24,
+  architrave_m: 0.13, bevel_m: 0.035
+};
+const WAINSCOT_FRAME = { ...PANELLED_FRAME, kind: "dado" };
+const PLASTER_EDGE = { kind: "return_stile", width_m: 0.11 };
+const MASONRY_EDGE = { kind: "quoin", width_m: 0.225, course_m: 0.15 };
+
 export const MATERIALS = {
   /* ---- wall fabrics: the harvest lane (anisotropy 1.000, §1.2) ---- */
   "wall/oak-fielded-bays-frieze": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "fielded panel bay" }
+              scale_kind: "periodic", pitch_m: 0.80, feature: "fielded panel bay" },
+    frame: PANELLED_FRAME
   },
   "wall/dark-oak-panelling": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "panel bay" }
+              scale_kind: "periodic", pitch_m: 0.80, feature: "panel bay" },
+    frame: PANELLED_FRAME
   },
   "wall/oak-wainscot-limewash-cornice": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
+    frame: WAINSCOT_FRAME
   },
   "wall/oak-wainscot-with-hangings": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
     note: "the DADO band only; the field band above it is one of the three " +
-          "`wall/hangings-*` variants, chosen per room by `hangingsFor`"
+          "`wall/hangings-*` variants, chosen per room by `hangingsFor`",
+    frame: WAINSCOT_FRAME
   },
   "wall/light-oak-wainscot-limewash": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
+    frame: WAINSCOT_FRAME
   },
   "wall/plain-oak-wainscot-limewash": {
     same_as: "wall/oak-wainscot-limewash",
@@ -798,17 +867,20 @@ export const MATERIALS = {
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
               scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
     note: "SWATCH because `cross_passage` has no promoted facing anywhere in " +
-          "the manor -- `hall` is unpainted -- so there is nothing to harvest from"
+          "the manor -- `hall` is unpainted -- so there is nothing to harvest from",
+    frame: WAINSCOT_FRAME
   },
   "wall/oak-wainscot-limewash": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" }
+              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
+    frame: WAINSCOT_FRAME
   },
   "wall/boarded-oak-dado-limewash": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "square-edged dado board" }
+              scale_kind: "periodic", pitch_m: 0.25, feature: "square-edged dado board" },
+    frame: WAINSCOT_FRAME
   },
   "wall/rough-limewash-over-stone": {
     same_as: "wall/plain-limewash-to-floor",
@@ -817,18 +889,21 @@ export const MATERIALS = {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.05,
-              feature: "the trowelled undulation of limewash over rubble" }
+              feature: "the trowelled undulation of limewash over rubble" },
+    edge: PLASTER_EDGE
   },
   "wall/plain-limewash-to-floor": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
               scale_kind: "stochastic", characteristic_m: 0.04,
-              feature: "the trowelled undulation of plain limewash" }
+              feature: "the trowelled undulation of plain limewash" },
+    edge: PLASTER_EDGE
   },
   "wall/garden-brick-english-bond": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" }
+              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" },
+    edge: MASONRY_EDGE
   },
   "wall/manor-exterior-elevation": {
     slot: "walls", lane: "harvest",
@@ -837,12 +912,14 @@ export const MATERIALS = {
     note: "the THIRTEENTH wall fabric, invisible to a walls/ceiling/floor " +
           "census: `outdoors_walled.walls_with_openings`, selected in " +
           "`make-scaffold.mjs` when the plan draws any carrier on that wall " +
-          "line. 7 of the 8 outdoor facings render it"
+          "line. 7 of the 8 outdoor facings render it",
+    edge: MASONRY_EDGE
   },
   "wall/low-boundary-wall": {
     slot: "walls", lane: "harvest",
     tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.12, feature: "stone course" }
+              scale_kind: "periodic", pitch_m: 0.12, feature: "stone course" },
+    edge: MASONRY_EDGE
   },
 
   /* ---- the bedchamber's three field bands ---- */
