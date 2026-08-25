@@ -42766,3 +42766,4 @@
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787655454.112416,"ts_start":1787655434.710257}
 {"detail":{"action":"texture_library","files":1,"note":null,"refused":false,"wrote":["backdrops/textures/facings.json"]},"key":"texture_library","step":"derive.regen","ts_end":1787654605.848278,"ts_start":1787654605.575171}
 {"detail":{"action":"materials","files":0,"note":null,"refused":false,"wrote":[]},"key":"material_provenance","step":"derive.regen","ts_end":1787654605.989352,"ts_start":1787654605.848476}
+{"detail":{"action":"snap_readings","files":1,"note":null,"refused":false,"wrote":["backdrops/source-snapped/servants_hall-W/snapped.png"]},"key":"snap_readings","step":"derive.regen","ts_end":1787655485.534721,"ts_start":1787655478.275133}
