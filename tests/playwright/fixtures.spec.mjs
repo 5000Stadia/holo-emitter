@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, re
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { askTextFor } from "../../tools/flight-evidence.mjs";
 
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
 
@@ -157,6 +158,27 @@ test.describe("fixtures", () => {
            against, exactly as the measurement and the round already are. */
         const ask = candidate.replace(/\.png$/i, ".prompt.txt");
         if (existsSync(join(repoRoot, ask))) cpSync(join(repoRoot, ask), join(dir, ask));
+        /* [row 39] AND THE ASK THE FLIGHT ATTACHMENT FOLLOWS, which is not
+         * always that sibling. A SNAPPED candidate is rectified into
+         * `backdrops/source-snapped/<loc>-<F>/snapped.png` and nothing was
+         * ever asked for there: the ask is the ORIGINAL roll's, named by the
+         * reading's own `_snap` block, and `askTextFor` is the one place that
+         * rule lives. Staging only the sibling made `back_stair/W` — a wall
+         * the plan draws a flight in — refuse re-promotion with
+         * `row39:stair.ask_unreadable` inside a tree that simply had not been
+         * handed the file, which says nothing about staleness. The resolution
+         * is imported rather than re-derived so this staging cannot drift from
+         * what the tool reads. */
+        const measuredFile = join(repoRoot, "design", "plan-draft", "measured",
+          ...(meta.measured_round ? [meta.measured_round] : []), `${loc}-${facing}.json`);
+        if (existsSync(measuredFile)) {
+          const followed = askTextFor(repoRoot, candidate,
+            JSON.parse(readFileSync(measuredFile, "utf8")), join);
+          if (followed.text !== null && followed.path !== ask) {
+            mkdirSync(join(dir, followed.path, ".."), { recursive: true });
+            cpSync(join(repoRoot, followed.path), join(dir, followed.path));
+          }
+        }
         /* AND THE ROUND IT WAS MEASURED IN, which the meta carries: rounds
            have their own directories, so re-running the tool without naming
            one reads the cand-2 corpus — a different painting's numbers — and
