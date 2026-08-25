@@ -1,0 +1,173 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "master_bedchamber/S",
+  "source": "backdrops/master_bedchamber/S.png",
+  "source_sha256": "06b5a0a7934aa2c5e044b98755833d1c2602895bc420793959cf2c270c5bc81f",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/master_bedchamber-S.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 146,
+    "x1": 1389,
+    "yc": 165.053,
+    "yf": 693,
+    "ppm": 135.789,
+    "storey_m": 3.888,
+    "width_m": 9.154
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        324,
+        421,
+        528,
+        571
+      ],
+      "px": [
+        324,
+        165.05256000000008,
+        528,
+        611.526792
+      ],
+      "px_filled": [
+        262,
+        165,
+        590,
+        673
+      ]
+    },
+    {
+      "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        992,
+        421,
+        1196,
+        571
+      ],
+      "px": [
+        992,
+        165.05256000000008,
+        1196,
+        611.526792
+      ],
+      "px_filled": [
+        930,
+        165,
+        1258,
+        673
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "window",
+      "id": null,
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        2.497,
+        4.057
+      ],
+      "u_m_ruled": [
+        2.4,
+        3.9
+      ],
+      "wall_scale": 1.04022,
+      "h_m": [
+        0.9,
+        2
+      ],
+      "px": [
+        484.99999999999994,
+        165.05256000000008,
+        696.8749999999999,
+        611.526792
+      ],
+      "dropped": "the instrument reads 2 window(s) on this painting against the 2 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    },
+    {
+      "kind": "window",
+      "id": null,
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        6.137,
+        7.698
+      ],
+      "u_m_ruled": [
+        5.9,
+        7.4
+      ],
+      "wall_scale": 1.04022,
+      "h_m": [
+        0.9,
+        2
+      ],
+      "px": [
+        979.3749999999999,
+        165.05256000000008,
+        1191.25,
+        611.526792
+      ],
+      "dropped": "the instrument reads 2 window(s) on this painting against the 2 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    }
+  ],
+  "fill": {
+    "rows_filled": 1016,
+    "pixels_filled": 333248,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 13.58,
+    "blend_px": 27.16,
+    "light_field_radius_px": 136,
+    "light_field_radii_used_px": [
+      136,
+      272,
+      544
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 589148,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 707267,
+  "masked_px": 333248,
+  "masked_pct_of_wall": 47.12,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [],
+    "doors_after": [],
+    "windows_before": [
+      {
+        "x0_px": 324,
+        "x1_px": 528,
+        "y0_px": 421,
+        "y1_px": 571,
+        "width_m": 1.502
+      },
+      {
+        "x0_px": 992,
+        "x1_px": 1196,
+        "y0_px": 421,
+        "y1_px": 571,
+        "width_m": 1.502
+      }
+    ],
+    "windows_after": [],
+    "residual_readings": []
+  },
+  "sha256": "5b2e0ed1f50f666c594c662ac9093d78824edf75d7f21cf47ab9ce6db36a3be5",
+  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 2 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/master_bedchamber/S.meta.json"
+}

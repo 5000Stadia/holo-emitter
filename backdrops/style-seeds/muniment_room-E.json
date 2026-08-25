@@ -1,0 +1,146 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "muniment_room/E",
+  "source": "backdrops/muniment_room/E.png",
+  "source_sha256": "d8c19b59544845a74fe96355b4cbc16116d011811fdf4ee9572a28131774bfe3",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/muniment_room-E.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 170,
+    "x1": 1384,
+    "yc": 53.005,
+    "yf": 802,
+    "ppm": 244.211,
+    "storey_m": 3.067,
+    "width_m": 4.971
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "door",
+      "origin": "door_measure.measure_openings",
+      "why": "a way through this painting shows, read off the pixels",
+      "px_read": [
+        843,
+        230,
+        1051,
+        802
+      ],
+      "px": [
+        843,
+        53.00473499999987,
+        1051,
+        801.999872
+      ],
+      "px_filled": [
+        733,
+        53,
+        1161,
+        876
+      ]
+    },
+    {
+      "kind": "door",
+      "origin": "door_measure.measure_openings",
+      "why": "a way through this painting shows, read off the pixels",
+      "px_read": [
+        945,
+        241,
+        1051,
+        802
+      ],
+      "px": [
+        945,
+        53.00473499999987,
+        1051,
+        801.999872
+      ],
+      "px_filled": [
+        835,
+        53,
+        1161,
+        876
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "door",
+      "id": "op25",
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        2.486,
+        3.521
+      ],
+      "u_m_ruled": [
+        2.4,
+        3.4
+      ],
+      "wall_scale": 1.03565,
+      "h_m": [
+        0,
+        2
+      ],
+      "px": [
+        777,
+        53.00473499999987,
+        1029.9166666666665,
+        801.999872
+      ],
+      "dropped": "the instrument reads 2 door(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    }
+  ],
+  "fill": {
+    "rows_filled": 823,
+    "pixels_filled": 352244,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 24.42,
+    "blend_px": 48.84,
+    "light_field_radius_px": 244,
+    "light_field_radii_used_px": [
+      244
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 940942,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 999122,
+  "masked_px": 352244,
+  "masked_pct_of_wall": 35.26,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [
+      {
+        "x0_px": 843,
+        "x1_px": 1051,
+        "y0_px": 230,
+        "y1_px": 802,
+        "width_m": 0.852
+      },
+      {
+        "x0_px": 945,
+        "x1_px": 1051,
+        "y0_px": 241,
+        "y1_px": 802,
+        "width_m": 0.434
+      }
+    ],
+    "doors_after": [],
+    "windows_before": [],
+    "windows_after": [],
+    "residual_readings": []
+  },
+  "sha256": "cc6e53d8312f0f604e744d45ca5b926b2c6f94951d0d8869cb816942b675ea79",
+  "verified": "every opening that was in this painting is gone from the seed: 2 way(s) through and 0 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/muniment_room/E.meta.json"
+}

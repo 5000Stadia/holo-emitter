@@ -42,6 +42,12 @@ ARTIFACT EACH ACT INVALIDATES. This file is that knowledge, in one place.
       + its snapped.png          rewritten under the reading that describes it
     row36doors/<loc>-<F>.json    a re-repair, or a change to the snapped frame
       + its doored.png           the voids were painted onto
+    backdrops/style-seeds/       the wall a style seed was cut from being
+      <loc>-<F>.png + .json      re-promoted, superseded or repainted, or a
+                                 change to the two `style-seed` tools. Image 1
+                                 IS a picture of the room's own fabric, so a
+                                 stale one is the study-seed disease one
+                                 promotion later
     manor/retries.json           a neighbour's RE-PROMOTION: an edge strip was
       (edge_seed records)        cut from a painting the store has replaced
     backdrops/<loc>/<F>.meta     the candidate it names, and the reading that
@@ -603,6 +609,53 @@ def _regen_snap_readings(findings=None):
     return wrote, ("; ".join(notes) or None)
 
 
+def _regen_style_seeds(findings=None):
+    """Every derived style seed the witness calls stale, cut again.
+
+    The tool is idempotent by its own report — same painting, same tool, same
+    wall and it reuses — so one `--refresh` is enough however many are stale, and
+    a seed whose wall has been repainted is re-cut from the new pixels. A wall
+    whose architecture can no longer be removed to the detectors' satisfaction
+    loses its seed rather than keeping a stale one: the tool refuses, the file
+    stays as it was, and the check says so again next run.
+    """
+    ok, out = _run(["node", os.path.join(ROOT, "tools", "style-seed.mjs"),
+                    "--refresh", "--force"])
+    wrote = []
+    for line in out.splitlines():
+        if " -> " in line:
+            wrote.append(line.split(" -> ", 1)[1].split(" ")[0])
+    if not ok:
+        return wrote, "style-seed refused for at least one wall: " + out.splitlines()[-1][:200]
+    return wrote, None
+
+
+def witness_style_seeds():
+    """A derived style seed must answer to the wall it was cut from.
+
+    The seed's whole claim is that it is THIS room, so a wall re-promoted under
+    it turns the picture into one of a room that no longer exists — which is
+    exactly the failure mode row 40 named for the study seed, one promotion later.
+    The report carries the source path, the source's digest, the tool's digest and
+    the seed's own, and `tools/style-seed.mjs --check` is where all four are
+    compared; this reads its answer rather than keeping a second copy of the rule.
+    """
+    d = os.path.join(ROOT, "backdrops", "style-seeds")
+    if not os.path.isdir(d):
+        return []
+    ok, out = _run(["node", os.path.join(ROOT, "tools", "style-seed.mjs"), "--check"])
+    if ok:
+        return []
+    bad = []
+    for line in out.splitlines():
+        if line.startswith("STALE "):
+            body = line[len("STALE "):]
+            path, _, why = body.partition(" — ")
+            bad.append((path.strip(), why.strip() or "it no longer answers to its own generator"))
+    return bad or [("backdrops/style-seeds",
+                    "style-seed --check refused: " + (out.splitlines() or [""])[-1][:200])]
+
+
 def _regen_door_readings(findings=None):
     """A repaired frame and its reading, re-derived: snap the roll, paint the
     plan's voids onto it, re-read the doors off the result.
@@ -906,6 +959,17 @@ ARTIFACTS = [
         "regen": "python3 design/plan-draft/measured/derived.py --regen --only door_readings",
     },
     {
+        "id": "style_seeds",
+        "paths": ["backdrops/style-seeds"],
+        "invalidated_by": "the wall a seed was cut from being re-promoted, "
+                          "superseded or repainted, or a change to "
+                          "tools/style-seed.py or tools/style-seed.mjs — the "
+                          "seed IS that wall's fabric and a stale one is a "
+                          "picture of a room that no longer exists",
+        "witness": witness_style_seeds, "action": "style_seeds",
+        "regen": "node tools/style-seed.mjs --refresh --force",
+    },
+    {
         "id": "edge_seed_records",
         "paths": ["design/batches/row23-scaffold/manor/retries.json"],
         "invalidated_by": "a neighbour's re-promotion: the strip was cut from a "
@@ -1000,6 +1064,7 @@ ACTIONS = {
     "snap_readings": _regen_snap_readings,
     "door_readings": _regen_door_readings,
     "edge_seeds": _regen_edge_seeds,
+    "style_seeds": _regen_style_seeds,
     "bake": _regen_bake,
 }
 

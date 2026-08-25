@@ -170,6 +170,7 @@ Two things make the re-ask FORCED rather than nudged. First, the correction name
 | `servants_hall/E` | `servants_hall-E/retry-2` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/E` | `servants_hall-E/retry-3` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/E` | `servants_hall-E/retry-4` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
+| `servants_hall/E` | `servants_hall-E/retry-5` | wall_lower | 3.89 | servants_hall/N, servants_hall/S | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/N` | `servants_hall-N/retry-1` | ceiling | 3.90 | servants_hall/W | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/W` | `servants_hall-W/retry-6` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/W` | `servants_hall-W/retry-7` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |

@@ -1,0 +1,134 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "muniment_room/W",
+  "source": "backdrops/muniment_room/W.png",
+  "source_sha256": "9302c9bbdeff6182b9694434c28865aca6aabdd8e222318a6fbfbb43bc1f3493",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/muniment_room-W.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 172,
+    "x1": 1379,
+    "yc": 88.999,
+    "yf": 809,
+    "ppm": 252.632,
+    "storey_m": 2.85,
+    "width_m": 4.778
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "door",
+      "origin": "door_measure.measure_openings",
+      "why": "a way through this painting shows, read off the pixels",
+      "px_read": [
+        592,
+        276,
+        810,
+        809
+      ],
+      "px": [
+        592,
+        88.99873600000001,
+        810,
+        808.999936
+      ],
+      "px_filled": [
+        478,
+        88,
+        924,
+        885
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "door",
+      "id": "op22",
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        1.393,
+        2.389
+      ],
+      "u_m_ruled": [
+        1.4,
+        2.4
+      ],
+      "wall_scale": 0.99535,
+      "h_m": [
+        0,
+        2
+      ],
+      "px": [
+        524.0416666666666,
+        88.99873600000001,
+        775.5,
+        808.999936
+      ],
+      "dropped": "the instrument reads 1 door(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    }
+  ],
+  "fill": {
+    "rows_filled": 797,
+    "pixels_filled": 355462,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 25.26,
+    "blend_px": 50.53,
+    "light_field_radius_px": 253,
+    "light_field_radii_used_px": [
+      253
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 782370,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 961979,
+  "masked_px": 355462,
+  "masked_pct_of_wall": 36.95,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [
+      {
+        "x0_px": 592,
+        "x1_px": 810,
+        "y0_px": 276,
+        "y1_px": 809,
+        "width_m": 0.863
+      }
+    ],
+    "doors_after": [
+      {
+        "x0_px": 172,
+        "x1_px": 282,
+        "y0_px": 92,
+        "y1_px": 809,
+        "width_m": 0.435
+      }
+    ],
+    "windows_before": [],
+    "windows_after": [],
+    "residual_readings": [
+      {
+        "kind": "door",
+        "x0_px": 172,
+        "x1_px": 282,
+        "y0_px": 92,
+        "y1_px": 809,
+        "width_m": 0.435,
+        "why_allowed": "it stands clear of every rectangle the fill touched, so it is the detector's next stable run on this wall's own fabric and not an opening the fill left behind"
+      }
+    ]
+  },
+  "sha256": "f267ee2f2ae91162f367bcc71a2bef0142891016381d7e2c4b99b17ef78d8ed5",
+  "verified": "every opening that was in this painting is gone from the seed: 1 way(s) through and 0 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either (1 run(s) the detectors still name are listed as residual_readings: they are the next-darkest or next-brightest stable run on plain fabric, standing clear of every filled rectangle, and the picture is what says so)",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/muniment_room/W.meta.json"
+}

@@ -202,8 +202,8 @@ test.describe("row 38 — the sentence rides with the strip and never without it
        and both readers use it — the register and `PACKET.md`'s attach list. A
        prompt naming an Image 3 the packet does not hold is a reference the seat
        has to go and invent, which is how a study wall reached a garden once. */
-    for (const style of [null, { file: "style-reference.png", room: loc, facing: "S",
-      facing_word: "south" }]) {
+    for (const style of [null, { file: `style-${loc}.png`, room: loc, facing: "S",
+      facing_word: "south", derived: true }]) {
       const n = seedImageIndex(style);
       expect(n).toBe(style ? 3 : 2);
       const bare = manorPrompt(PLAN, key, meta, rects, null, null, { style });

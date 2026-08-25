@@ -1,0 +1,117 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "closet_chamber/N",
+  "source": "backdrops/closet_chamber/N.png",
+  "source_sha256": "21808eb0772fe76ce4bb697718b64d65cee4df308bf4acb7fe5e6043bc2d5425",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/closet_chamber-N.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 95,
+    "x1": 1460,
+    "yc": 16.931,
+    "yf": 903,
+    "ppm": 324.211,
+    "storey_m": 2.733,
+    "width_m": 4.21
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        342,
+        229,
+        738,
+        581
+      ],
+      "px": [
+        342,
+        16.931400999999937,
+        738,
+        708.4734639999999
+      ],
+      "px_filled": [
+        196,
+        16,
+        884,
+        855
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "window",
+      "id": null,
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        0.67,
+        1.387
+      ],
+      "u_m_ruled": [
+        1.4,
+        2.9
+      ],
+      "wall_scale": 0.47843,
+      "h_m": [
+        0.9,
+        2
+      ],
+      "px": [
+        312.1590909090909,
+        16.931400999999937,
+        544.8295454545455,
+        708.4734639999999
+      ],
+      "dropped": "the instrument reads 1 window(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    }
+  ],
+  "fill": {
+    "rows_filled": 839,
+    "pixels_filled": 577232,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 32.42,
+    "blend_px": 64.84,
+    "light_field_radius_px": 324,
+    "light_field_radii_used_px": [
+      324,
+      648
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 768742,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 1344525,
+  "masked_px": 577232,
+  "masked_pct_of_wall": 42.93,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [],
+    "doors_after": [],
+    "windows_before": [
+      {
+        "x0_px": 342,
+        "x1_px": 738,
+        "y0_px": 229,
+        "y1_px": 581,
+        "width_m": 1.221
+      }
+    ],
+    "windows_after": [],
+    "residual_readings": []
+  },
+  "sha256": "0fca5dc52fca299bbcda80b94cc1facf29fb713c01800dace8504448eb53a0da",
+  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 1 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/closet_chamber/N.meta.json"
+}

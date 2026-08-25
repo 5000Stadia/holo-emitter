@@ -1027,9 +1027,26 @@ export function g5MediumLines(ctx) {
   }
   if (ctx.style) {
     /* THE ONLY CLAUSE IN THE REGISTER ABOUT WHAT AN IMAGE IS NOT, and it is one
-     * clause because one clause is what was ruled. */
-    L.push(`  Image 1 is the ${ctx.style.facing_word} ${ctx.surface || "wall"} of this same room, ` +
-      "already painted: match its paint handling, palette and light, and take nothing else from it.");
+     * clause because one clause is what was ruled.
+     *
+     * [2026-08-25] AND IT NOW DESCRIBES THE PICTURE RATHER THAN ARGUING WITH IT.
+     * What stood here was "Image 1 is the north wall of this same room, already
+     * painted: match its paint handling, palette and light, and take nothing
+     * else from it" — a clause that names a photograph of a wall and then asks
+     * for half of it. `servants_hall/E`'s ask ruled a fireplace at the centre
+     * and one three-light window left of it; the return came back with TWO
+     * DOORWAYS and no window, which is what the room's other walls carry. The
+     * clause was obeyed in its first half and ignored in its second, which is
+     * how an image reference always behaves: it carries everything in it.
+     *
+     * So Image 1 is no longer that wall. `tools/style-seed.mjs` derives a
+     * picture of it with every opening and carrier filled in from the wall's own
+     * adjacent fabric, and this clause says what that picture is. The sentence
+     * only has to be true, and `attachStyle` is what makes it true — where the
+     * seed cannot be cut, no style image is attached and this clause is not
+     * reached at all. */
+    L.push(`  Image 1 shows this room's materials, palette and light on another of its walls, ` +
+      "with its openings removed: match those, and take no architecture from it.");
   }
   return L;
 }

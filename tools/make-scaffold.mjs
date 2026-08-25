@@ -86,8 +86,16 @@ import { frameGeometry, registerBlock, positiveNoText, flightLines, col,
  * words. The adjacency table, the crop, the ordering exception for open
  * locations and the packet's own wording all live in `edge-seed.mjs`; nothing
  * about a seam is decided here. */
-import { attachSeed, packetNote, attachLine, isOpenLocation, roleSentence }
+import { attachSeed, packetNote, attachLine, isOpenLocation, roleSentence, stylePacketNote }
   from "./edge-seed.mjs";
+/* [row 43 close, 2026-08-25] IMAGE 1 IS DERIVED, NOT THE RAW WALL. Rows 40 and
+ * 42 decide WHICH wall a packet may show; `style-seed.mjs` decides what is IN
+ * the picture it shows, which is the room's fabric with every opening and
+ * carrier filled in from that wall's own adjacent paint. `servants_hall/E` is
+ * the finding: an ask that ruled a hearth at the centre and a three-light window
+ * left of it came back with two doorways and no window, and doorways are what
+ * the room's other walls carry. See that file's header. */
+import { deriveStyleSeed } from "./style-seed.mjs";
 /* [row 42] The first wall leads, in every room — the lead choice, the order it
  * puts a location's facings in, and the sentence that says why. */
 import { roomOrder, leadFacing, leadWhy } from "./edge-seed.mjs";
@@ -2243,6 +2251,7 @@ async function emitManor(outDir, opts) {
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
     writeFileSync(join(dir, "PACKET.md"),
       `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
+      stylePacketNote(style) +
       packetNote(seed, seedPlan) +
       `${attachLine(seed, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
@@ -2533,6 +2542,7 @@ async function emitRetries(outDir, opts) {
           `\`prompt_lint.py\` refuses a packet that does. The prompt carries the forward half instead; ` +
           `the reason lives here.\n\n`
         : "") +
+      stylePacketNote(style) +
       packetNote(seed, seedPlan) +
       `${attachLine(seed, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
@@ -2950,8 +2960,46 @@ export function materialProvenance(plan, opts = {}) {
  *  the sentence beside it can never disagree about what Image 1 is. */
 export function attachStyle(plan, key, dir, opts = {}) {
   const style = styleImageFor(plan, key, opts);
-  if (style) copyFileSync(join(opts.root || ROOT, style.rel), join(dir, style.file));
-  return style;
+  if (!style) return null;
+  /* WHAT IS COPIED IS THE DERIVED SEED AND NEVER THE WALL ITSELF [2026-08-25].
+   * `styleImageFor` names the wall; `deriveStyleSeed` cuts the picture of it a
+   * packet may hold — every opening and carrier filled in with that wall's own
+   * adjacent fabric, its floor and its ceiling untouched — and the seed is only
+   * written where `door_measure` and `window_measure` read nothing at all in it.
+   *
+   * A WALL WHOSE ARCHITECTURE CANNOT BE REMOVED GETS NO IMAGE 1, and that is the
+   * right answer rather than a shortfall: row 40's own fallback is a packet with
+   * no style image and the medium in words, and it is still the common case. The
+   * reason is printed, because a seat reading the packet would otherwise wonder
+   * why a room with four painted walls shows none of them. */
+  const root = opts.root || ROOT;
+  const seed = deriveStyleSeed(plan, `${style.room}/${style.facing}`, {
+    root, rel: style.rel, source_kind: style.source_kind, metaFromReading
+  });
+  if (!seed.ok) {
+    console.error(`make-scaffold: ${key} gets NO Image 1 — ${style.room}/${style.facing} ` +
+      `cannot be cut into a style seed: ${seed.why}`);
+    return null;
+  }
+  /* NAMED FOR THE ROOM IT IS OF, because that is the one fact a seat holding the
+   * packet needs from the filename: this is a picture of THIS room. */
+  const file = style.file;
+  const reportFile = file.replace(/\.png$/, ".json");
+  copyFileSync(join(root, seed.png), join(dir, file));
+  copyFileSync(join(root, seed.report), join(dir, reportFile));
+  const rec = seed.record || {};
+  return {
+    ...style, file, report_file: reportFile,
+    derived: true,
+    derived_by: "tools/style-seed.mjs + tools/style-seed.py",
+    derived_from: style.rel,
+    derived_store: seed.png,
+    source_sha256: rec.source_sha256 || null,
+    sha256: rec.sha256 || null,
+    filled_rects: (rec.rects || []).length,
+    filled_pct_of_wall: rec.masked_pct_of_wall ?? null,
+    verified: rec.verified || null
+  };
 }
 
 const _provByRoot = new Map();
@@ -3012,19 +3060,31 @@ export function styleImageFor(plan, key, opts = {}) {
   const [loc, f] = key.split("/");
   const name0 = ((plan.rooms || []).find((r) => r.id === loc) || {}).name || loc;
   const say = (pick, rel, why, extra) => ({
-    rel, file: "style-reference.png", room: loc, facing: pick, why, ...extra,
+    /* [2026-08-25] NAMED FOR THE ROOM, because the file in the packet is no
+     * longer the wall — it is the seed derived from it, and `style-reference`
+     * described a picture that no longer exists. One name, decided here, so the
+     * prompt, the attach line and the file on disk cannot disagree. */
+    rel, file: `style-${loc}.png`, room: loc, facing: pick, why, ...extra,
     /* [row 43] THE COMPASS WORD, because the register names Image 1 in words a
      * painter uses ("the north wall of this same room") rather than by a
      * letter. It rides on BOTH answers this function can give — the promoted
      * wall and row 42's lead candidate — because the register does not know
      * which one it was handed. */
     facing_word: { N: "north", E: "east", S: "south", W: "west" }[pick],
+    /* [2026-08-25] AND IT SAYS WHAT THE PICTURE IS, which is not the wall. The
+     * old sentence described a painting of another wall and then spent its
+     * second half telling the painter not to take the architecture out of it —
+     * and `servants_hall/E` took it anyway. What rides now is a DERIVED picture
+     * with no architecture in it, so the sentence stops arguing and describes
+     * what is there. `attachStyle` is what makes the description true. */
     role_sentence:
-      `Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM, the ${pick} wall of the ` +
-      `${String(name0).toLowerCase()}. It is the reference for this room's materials, its paint ` +
-      `medium, its palette and its light, and for nothing else: how many openings this wall ` +
-      `carries, where they stand and every dimension of them come from Image 2 and the words ` +
-      `below. Paint this wall as the same room on the same day.`
+      `Image 1 shows this room's materials, palette and light on ANOTHER WALL OF THIS SAME ROOM, ` +
+      `the ${pick} wall of the ${String(name0).toLowerCase()}, WITH ITS OPENINGS REMOVED: there ` +
+      `is no door, no window, no fireplace and no stair anywhere in it, because they have been ` +
+      `filled in with that wall's own plain fabric. Match its paint handling, its palette and its ` +
+      `light, and take NO ARCHITECTURE from it: how many openings this wall carries, where they ` +
+      `stand and every dimension of them come from Image 2 and the words below. Paint this wall ` +
+      `as the same room on the same day.`
   });
   /* THE LEAD, always known; its CANDIDATE only reachable where the caller has
    * told us where unpromoted pictures live. */
@@ -3303,6 +3363,7 @@ async function emitConsistency(outDir, opts) {
           `with no majority — so every facing is being re-asked and the ruling comes from the ` +
           `room's voice, not from another wall.\n\n`
         : `${(w.room.majority || []).join("")} agree with each other while this one does not.\n\n`) +
+      stylePacketNote(style) +
       packetNoteAll(seeds, plans) +
       `${attachLineAll(seeds, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} image(s) and save them to the\n` +
