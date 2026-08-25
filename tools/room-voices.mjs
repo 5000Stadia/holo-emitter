@@ -1238,6 +1238,124 @@ export function aliasTable() {
   return rows.sort((a, b) => (a.slot + a.from).localeCompare(b.slot + b.from));
 }
 
+/* ------------------------------------------------------------------ */
+/* WHAT A MATERIAL USED TO BE CALLED                                   */
+/* ------------------------------------------------------------------ */
+/* A REFINEMENT OF WORDING IS NOT A CHANGE OF MATERIAL, and this table is
+ * where that claim is DECLARED rather than guessed. The rule it serves, with
+ * its reason, is stated once in `make-scaffold.mjs` under "VOUCHING FOLLOWS
+ * THE MATERIAL, NOT THE WORDING"; this is the only input that rule cannot
+ * derive.
+ *
+ * WHY IT CANNOT BE DERIVED. `MATERIAL_BINDING`'s own note says it: a binding
+ * is keyed on (voice, key) and never on the string, because two voices can say
+ * the same words about different fabrics and one voice can say two different
+ * sets of words about one fabric. The corollary is that no rule reading prose
+ * alone can tell "the same material, said better" from "a different material".
+ * The tempting shortcut — the old wording is a PREFIX of the new one, so it is
+ * the same thing — is wrong in this very table: `cross_passage.walls` is a
+ * strict prefix of `long_gallery.walls` and they are two fabrics. So the claim
+ * is authored, exactly as the ids are.
+ *
+ * THE ENTRY RULE. When a voice string is REWORDED without changing which
+ * material it names, the superseded string moves in here in the SAME commit
+ * that changes the voice, with the commit that retired it and the reason. That
+ * is the whole maintenance cost, and it is what makes the next map get this for
+ * free (production law clause 6): a Navigator who refines a phrase declares the
+ * refinement, and every wall already painted in that material stays vouched.
+ *
+ * AND FORGETTING IS SAFE. A refinement whose old wording is not declared here
+ * reads as a material change: the audit refuses to guess, the wall goes
+ * unvouched, and it is re-asked. The failure direction is a wasted roll, never
+ * a wrong photograph handed to the next painter. */
+export const SAID_BEFORE = {
+  "floor/red-brick-on-edge": [{
+    said: "a floor of worn red brick laid on edge",
+    retired: "2026-08-25",
+    commit: "2c93dce",
+    why: "[Kabe, 2026-08-25: \"Servants hall has multiple different floor types\"] The " +
+      "material alone let one wall lay its bricks as squares beside two laid in courses, " +
+      "so the BOND was named in the voice. Worn red brick laid on edge is the same floor " +
+      "before and after; what the added words rule is how it is laid, which is a finish " +
+      "of the material and not a second material."
+  }]
+};
+
+/** How a voice key stands in a manor ask's material sentences. `blank` is
+ *  absent on purpose: it is the carrier-less phrasing of the SAME fabric and it
+ *  is not one of `materialParts`' slots, so admitting it would let a wall's
+ *  blank prose answer for its walls prose. */
+export const MATERIAL_PART_OF_KEY = {
+  walls: "walls", walls_with_openings: "walls",
+  ceiling: "overhead", floor: "underfoot"
+};
+
+/**
+ * Every prose a manor ask may state for a material, with the material it names
+ * and the material PART it stands in — current wordings from the voices, plus
+ * every wording `SAID_BEFORE` retires.
+ *
+ * This is the registry that lets a reader of an OLD ask on disk answer "which
+ * material was this wall commissioned in?" rather than only "does it say what
+ * we say today?". Ids come back canonical, so an alias and its target compare
+ * equal: `floor/wide-worn-oak-boards` is `floor/wide-oak-boards` with a finish
+ * adjective on it and a wall asked for either was asked for one floor.
+ */
+export function declaredMaterialPhrases() {
+  const out = [];
+  const partsOfId = new Map();
+  for (const [vid, bound] of Object.entries(MATERIAL_BINDING)) {
+    const voice = VOICES[vid];
+    if (!voice) throw new Error(`room-voices: MATERIAL_BINDING names voice \`${vid}\`, which is not defined`);
+    for (const [key, id] of Object.entries(bound)) {
+      const part = key.startsWith("hangings.") ? "hangings" : MATERIAL_PART_OF_KEY[key];
+      if (!part) continue;
+      const phrase = key.startsWith("hangings.")
+        ? (voice.hangings || {})[key.slice("hangings.".length)]
+        : voice[key];
+      if (!phrase) continue;
+      const canon = canonicalMaterial(id);
+      out.push({ phrase, id: canon, part, said_by: `${vid}.${key}`, current: true });
+      if (!partsOfId.has(canon)) partsOfId.set(canon, new Set());
+      partsOfId.get(canon).add(part);
+    }
+  }
+  /* THE RETIRED WORDINGS, CHECKED RATHER THAN TRUSTED. An entry that names an
+     unknown material, a material no voice reaches, or a phrase that is some
+     OTHER material's current wording is not a refinement record — it is a merge
+     nobody reviewed, and it would vouch a wall painted in the wrong fabric. */
+  for (const [id, entries] of Object.entries(SAID_BEFORE)) {
+    if (!MATERIALS[id]) throw new Error(`room-voices: SAID_BEFORE names unknown material \`${id}\``);
+    const canon = canonicalMaterial(id);
+    const parts = partsOfId.get(canon);
+    if (!parts || !parts.size) {
+      throw new Error(
+        `room-voices: SAID_BEFORE carries \`${id}\`, which no voice names in any material ` +
+        `sentence. A retired wording for a material nothing asks for vouches nothing and ` +
+        `hides a binding that was deleted.`);
+    }
+    for (const e of entries || []) {
+      for (const k of ["said", "retired", "commit", "why"]) {
+        if (!e[k]) throw new Error(`room-voices: SAID_BEFORE[\`${id}\`] has an entry with no \`${k}\``);
+      }
+      const clash = out.find((x) => x.phrase === e.said);
+      if (clash) {
+        throw new Error(
+          `room-voices: SAID_BEFORE[\`${id}\`] retires "${e.said}", which is ` +
+          (clash.id === canon
+            ? `still what \`${clash.said_by}\` says today. A wording is retired or it is current, not both.`
+            : `\`${clash.said_by}\`'s CURRENT wording for \`${clash.id}\`. Retiring another ` +
+              `material's live phrase would vouch a wall painted in that other fabric.`));
+      }
+      for (const part of parts) {
+        out.push({ phrase: e.said, id: canon, part, said_by: `SAID_BEFORE.${id}`,
+          current: false, retired: e.retired, commit: e.commit, why: e.why });
+      }
+    }
+  }
+  return out;
+}
+
 /** The material a voice's key names. Refuses rather than guessing. */
 export function materialOf(voiceId, key) {
   const bound = MATERIAL_BINDING[voiceId];

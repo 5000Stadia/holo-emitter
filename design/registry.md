@@ -22,12 +22,12 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary): two correct servants_hall/E frames read as "no window" on a bright limewash wall | building |
-| B-VOUCH | vouching follows the material, not the wording: a voice REFINEMENT (same material ids) keeps a sealed wall vouched as an Image 1 source; only a material change unvouches | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-VOUCH | vouching follows the material: `current`/`refined`/`split-ask`/`stale-material` per facing, refinements declared in `SAID_BEFORE`; servants_hall N/S/W vouched (35 of 61 store-wide), Image 1 resolves for 41 of 88 |
 | L-INK | the scaffold as ink on paper (paper ground, ink junctions, outline+hatch boxes; grid-v1 kept for committed sheets); the register names it as a line drawing; harness count clause (doors/windows painted vs ruled); 2×2 trial batch at design/batches/scaffold-ink |
 | L-SEEDMASK | the own-room style image is derived: apertures and hearths filled from the wall's own fabric (mirror + cross-fade + relight, verified by the door/window instruments), so Image 1 carries materials/palette/light and no architecture; 27 seeds, flights refused |
 | L-DRIFT | `derived.py`: every derived artifact registered with its invalidator; the sweep derives → validates → bakes through one door; `--derive-check` guards the publish; the 8 store-drift suite cases read freshness through one helper (suite 2020/0) |

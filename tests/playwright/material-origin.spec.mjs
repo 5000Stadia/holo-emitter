@@ -61,8 +61,11 @@ import { createHash } from "node:crypto";
 import { VOICES, voiceFor, hangingsFor } from "../../tools/room-voices.mjs";
 import {
   manorPrompt, scaffoldRects, materialParts, materialLines, rulingSentences,
-  normMaterial, materialProvenance, provenanceAsConsistencyReport, styleImageFor
+  normMaterial, materialProvenance, provenanceAsConsistencyReport, styleImageFor,
+  isVouched, classifyAsk, materialNamedIn
 } from "../../tools/make-scaffold.mjs";
+import { SAID_BEFORE, declaredMaterialPhrases, MATERIALS, canonicalMaterial }
+  from "../../tools/room-voices.mjs";
 import { attachLine, attachLineAll } from "../../tools/edge-seed.mjs";
 import { OPEN_SIDE_FABRIC, g4ManorPrompt } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
@@ -541,15 +544,20 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
         .toBeGreaterThan(0);
       for (const f of r.outliers) {
         const rec = src.facings.find((x) => x.facing === f);
-        expect(rec.verdict, `${r.room}/${f} is being re-asked though its ask WAS the ruling`)
+        expect(rec.class,
+          `${r.room}/${f} is being re-asked by default though its ask named this room's own ` +
+          `ruling materials — a roll spent to change wording changes nothing on the wall`)
           .not.toBe("current");
+        expect(rec.class,
+          `${r.room}/${f} is being re-asked by DEFAULT and it is only \`refined\` — the words ` +
+          `moved and the material did not, so this needs --refined-too`).not.toBe("refined");
       }
       for (const f of r.majority) {
         const rec = src.facings.find((x) => x.facing === f);
-        expect(rec.verdict,
-          `${r.room}/${f} may be cut for an edge seed and its own ask was not the ruling — ` +
-          `seeding an outlier off another outlier spreads the wrong material round the room`)
-          .toBe("current");
+        expect(isVouched(rec.class),
+          `${r.room}/${f} may be cut for an edge seed and its own ask was not this room's ` +
+          `ruling material (class ${rec.class}) — seeding an outlier off another outlier ` +
+          `spreads the wrong material round the room`).toBe(true);
       }
       expect(r.no_majority).toBe(r.majority.length === 0);
       expect(r.measured, `${r.room}'s re-ask must state what was measured, in its own words`)
@@ -764,10 +772,19 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
         .toContain(st.facing);
       const pr = (asks.rooms || []).find((x) => x.room === r.room);
       const rec = pr.facings.find((x) => x.facing === st.facing);
-      expect(rec.verdict,
-        `${r.key}'s Image 1 is ${st.facing}, whose own ask was not this room's ruling — ` +
-        `a photograph of a wall we know was wrongly commissioned is worse than no photograph`)
-        .toBe("current");
+      /* VOUCHED, WHICH IS THE MATERIAL AND NOT THE WORDING. This read
+         `verdict === "current"` — the verbatim sentence test — and that is
+         precisely the gap the class exists to close: the day the servants' hall
+         floor gained its bond, three walls painted in exactly that floor stopped
+         being able to stand as pictures of their own room. The condition is and
+         always was "we know this wall was commissioned in this room's fabric",
+         and `refined` is a wall we know that about. What must never pass is a
+         wall commissioned in a DIFFERENT fabric, which is what the second half
+         of this case's own list holds. */
+      expect(isVouched(rec.class),
+        `${r.key}'s Image 1 is ${st.facing}, whose own ask was not this room's ruling ` +
+        `material (class ${rec.class}) — a photograph of a wall we know was wrongly ` +
+        `commissioned is worse than no photograph`).toBe(true);
     }
     /* AND THE ROOM THAT MUST GET NOTHING, WHICH IS THE ONE THE SECOND
        CONDITION IS FOR. Every facing of `guest_chamber` stands on words alone:
@@ -809,14 +826,29 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       const text = manorPrompt(PLAN, r.key, meta, rects, null, null, { style: st });
       const line = attachLine(null, st);
       if (st) {
-        /* [row 43] THE CLEAN REGISTER NAMES IT IN ONE CLAUSE, in the words a
-           painter uses — "Image 1 is the east wall of this same room, already
-           painted" — and says what to take from it and what not to. */
-        expect(text, `${r.key}: its ask does not name the wall it is given`)
-          .toContain("of this same room, already painted");
-        expect(text).toContain(`Image 1 is the ${st.facing_word} ${r.voice.outdoor ? "side" : "wall"}`);
+        /* [row 43] THE CLEAN REGISTER NAMES IT IN ONE CLAUSE, and says what to
+           take from it and what not to.
+
+           [2026-08-25] THE CLAUSE THIS CHECKED NO LONGER EXISTS, and the change
+           that retired it is the right one — this assertion was simply left
+           behind by it. `frame-language.mjs` used to say "Image 1 is the north
+           wall of this same room, already painted: match its paint handling,
+           palette and light, and take nothing else from it", a clause that
+           names a photograph of a wall and then asks for half of it.
+           `servants_hall/E`'s ask ruled a fireplace and one window and the
+           return came back with TWO DOORWAYS — the clause obeyed in its first
+           half and ignored in its second. Image 1 is no longer that wall: it is
+           a picture DERIVED from it with every opening filled in
+           (`style-seed.mjs`, `attachStyle`), and the clause now describes what
+           is actually in the packet. What this case is about is unchanged and
+           is what is checked: the ask names what Image 1 shows, and it fences
+           what may be taken from it. */
+        expect(text, `${r.key}: its ask does not say what Image 1 shows`)
+          .toContain("Image 1 shows this room's materials, palette and light on another of its walls");
+        expect(text, `${r.key}: the ask does not say the openings were taken out of Image 1`)
+          .toContain("with its openings removed");
         expect(text, `${r.key}: the ask does not fence what Image 1 is for`)
-          .toContain("take nothing else from it");
+          .toContain("take no architecture from it");
         expect(line).toContain(st.file);
         expect(line).toContain("this room's own wall");
       } else {
@@ -842,7 +874,7 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
            says so, correctly — what must never appear is a reference to a
            PAINTING of a wall the packet does not hold. */
         expect(text, `${r.key}: the ask points at a painted wall as Image 1, and its packet holds none`)
-          .not.toMatch(/Image 1 is the (north|east|south|west) (wall|side)|of this same room, already painted|as Image 1|Image 1's paint|in Image 1/);
+          .not.toMatch(/Image 1 is the (north|east|south|west) (wall|side)|of this same room, already painted|Image 1 shows this room|as Image 1|Image 1's paint|in Image 1/);
         expect(text, `${r.key}: no picture carries the medium and the words do not either`)
           .toMatch(/^Style\/medium: a high-realism oil painting/m);
         expect(text, `${r.key}: nothing tells the layout diagram apart from the picture`)
@@ -932,5 +964,273 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       .toBeGreaterThan(0);
     expect(armorial, "no rationed-glass wall in the sweep — the control is missing")
       .toBeGreaterThan(0);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* 7. VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING                   */
+/* ------------------------------------------------------------------ */
+/* THE MISS THIS SECTION CLOSES, dated 2026-08-25. The Navigator refined ONE
+ * voice string — the servants' hall floor gained its bond, "…in straight
+ * courses… no square pavers", after Kabe saw one wall lay its bricks as squares
+ * beside two laid in courses — and the audit, which compared SENTENCES, called
+ * every wall of the room asked before the ruling. All three were sealed legacy,
+ * so the room held no wall it could vouch for, so `styleImageFor` attached no
+ * Image 1 to any of its re-asks — including for walls painted that same day in
+ * exactly the floor the voice rules. A refinement of wording was being spent as
+ * a change of material, and the words meant to make the floor MORE consistent
+ * left the room less able to be consistent.
+ *
+ * The cure is not a looser comparison: a looser comparison is how the cross
+ * passage's "plain oak wainscot below limewashed plaster" would come to vouch
+ * for the long gallery, which says those words and then adds a cornice. It is
+ * to compare the material ID, and to require the move in wording to be DECLARED
+ * (`room-voices.mjs`'s `SAID_BEFORE`) rather than inferred. Both halves are
+ * checked here, and the second is the one with teeth. */
+
+test.describe("vouching follows the material, not the wording", () => {
+  const CLASSES = ["current", "refined", "split-ask", "stale-material"];
+
+  test("every promoted facing carries one of the four classes, and vouched means current or refined", () => {
+    const asks = materialProvenance(PLAN);
+    let vouched = 0, refined = 0, wrong = 0;
+    for (const r of asks.rooms) {
+      for (const f of r.facings) {
+        expect(CLASSES, `${r.room}/${f.facing} is classed "${f.class}"`).toContain(f.class);
+        expect(isVouched(f.class)).toBe(f.class === "current" || f.class === "refined");
+        if (isVouched(f.class)) vouched += 1;
+        if (f.class === "refined") refined += 1;
+        if (!isVouched(f.class)) wrong += 1;
+      }
+      /* THE ROOM'S OWN VERDICT AND ITS FACINGS' CLASSES ARE ONE STATEMENT. A
+         report that can disagree with itself is not a report. */
+      expect(r.refined).toEqual(r.facings.filter((f) => f.class === "refined").map((f) => f.facing));
+      if (r.verdict === "refined") {
+        expect(r.refined.length, `${r.room} is called refined and no facing of it is`)
+          .toBeGreaterThan(0);
+        expect(r.facings.every((f) => isVouched(f.class)),
+          `${r.room} is called refined and carries a facing in another material`).toBe(true);
+      }
+    }
+    expect(asks.vouched_facings).toBe(vouched);
+    expect(refined, "no facing in the store is `refined` — this whole section is blind")
+      .toBeGreaterThan(0);
+    expect(wrong, "every facing is vouched, so the unvouched arm is never exercised")
+      .toBeGreaterThan(0);
+  });
+
+  test("a refined facing's ask resolves, part by part, to the materials the voice rules now", () => {
+    /* RE-DERIVED RATHER THAN READ BACK. The ask is opened again and each part
+       the verbatim test called missing is resolved through the phrase registry,
+       so a report that simply wrote "refined" everywhere would fail this. */
+    const asks = materialProvenance(PLAN);
+    const refined = asks.rooms.flatMap((r) =>
+      r.facings.filter((f) => f.class === "refined").map((f) => ({ room: r.room, f })));
+    expect(refined.length, "nothing in the store is refined — this case is blind").toBeGreaterThan(0);
+    for (const { room, f } of refined) {
+      expect(f.missing.length,
+        `${room}/${f.facing} is called refined and states its ruling verbatim — that is "current"`)
+        .toBeGreaterThan(0);
+      const text = readFileSync(join(repoRoot, f.ask_path), "utf8");
+      for (const k of f.missing) {
+        const ruled = materialNamedIn(f.ruling[k], k);
+        const asked = materialNamedIn(text, k);
+        expect(ruled,
+          `${room}/${f.facing} is refined on ${k} and the RULING phrase names no declared ` +
+          `material at all, so there was nothing to be refined from`).toBeTruthy();
+        expect(asked,
+          `${room}/${f.facing} is refined on ${k} and its own ask names no declared material — ` +
+          `an unreadable ask is not evidence that it named this one`).toBe(ruled);
+      }
+      /* AND THE PARTS IT DOES STATE VERBATIM ARE STILL STATED VERBATIM: a class
+         that quietly relaxed the whole comparison would pass everything above. */
+      const flat = normMaterial(text);
+      for (const k of Object.keys(f.ruling)) {
+        if (f.missing.includes(k) || !f.ruling[k]) continue;
+        expect(flat.includes(normMaterial(f.ruling[k])),
+          `${room}/${f.facing} is called refined only on ${f.missing.join("/")} and it does not ` +
+          `carry the ruled ${k} either`).toBe(true);
+      }
+    }
+  });
+
+  test("the red arm: the same words about a different fabric are NOT a refinement", () => {
+    /* THE PREFIX TRAP, NAMED, because it is the rule a lazier cure would have
+       adopted: "the old wording is a prefix of the new one, so it is the same
+       material". `cross_passage.walls` is a strict PREFIX of
+       `long_gallery.walls` and they are two fabrics — a gallery wall carries a
+       moulded cornice at its head. This is the store's own case: the gallery's
+       N, E and S were asked in the passage's words. */
+    const gallery = rulingSentences({
+      voice: VOICES.long_gallery, loc: "long_gallery", out: false, openSide: false, built: true
+    });
+    expect(VOICES.long_gallery.walls.startsWith(VOICES.cross_passage.walls),
+      "the prefix this case is about is gone from the voice table, so it no longer traps anything")
+      .toBe(true);
+    const asked = `Materials/textures: ${VOICES.cross_passage.walls}. ` +
+      `Overhead: ${gallery.overhead}. Underfoot: ${gallery.underfoot}.`;
+    const cls = classifyAsk(asked, gallery, ["walls"], "red-arm");
+    expect(cls.class,
+      "an ask carrying the CROSS PASSAGE's wall fabric was read as a refinement of the " +
+      "GALLERY's. A rule that reads prose instead of ids vouches a wall painted in the wrong " +
+      "material, which is exactly what Image 1 must never be").toBe("wrong");
+    expect(cls.ask_materials.walls).not.toBe(cls.ruling_materials.walls);
+
+    /* AND THE GREEN ARM BESIDE IT, so the case cannot pass by refusing
+       everything: the same ruling, asked in a wording `SAID_BEFORE` declares. */
+    const hall = rulingSentences({
+      voice: VOICES.servants_hall, loc: "servants_hall", out: false, openSide: false, built: true
+    });
+    const retired = SAID_BEFORE["floor/red-brick-on-edge"][0].said;
+    const ok = classifyAsk(
+      `Materials/textures: ${hall.walls}. Overhead: ${hall.overhead}. Underfoot: ${retired}.`,
+      hall, ["underfoot"], "green-arm");
+    expect(ok.class, "a wall asked for this floor in the wording the voice used that day is not " +
+      "vouched, and it is the same floor").toBe("refined");
+    expect(ok.ask_materials.underfoot).toBe("floor/red-brick-on-edge");
+  });
+
+  test("a retired wording is declared, checked, and may not be another material's live phrase", () => {
+    /* THE DECLARATION IS THE WHOLE MECHANISM, so it is the thing that must not
+       be able to lie. An entry naming an unknown material, a material no voice
+       reaches, or a phrase some other material says TODAY would vouch a wall
+       painted in that other fabric — the one outcome this rule exists to
+       prevent. Built here rather than asserted. */
+    expect(() => declaredMaterialPhrases()).not.toThrow();
+    const live = declaredMaterialPhrases().filter((p) => p.current);
+    expect(live.length, "no current wording resolves — the registry is empty").toBeGreaterThan(0);
+    for (const [id, entries] of Object.entries(SAID_BEFORE)) {
+      expect(MATERIALS[id], `SAID_BEFORE names \`${id}\`, which is not a material`).toBeTruthy();
+      expect(canonicalMaterial(id), `\`${id}\` is an alias and its target is what is stored`)
+        .toBeTruthy();
+      for (const e of entries) {
+        for (const k of ["said", "retired", "commit", "why"]) {
+          expect(e[k], `SAID_BEFORE[${id}] has an entry with no \`${k}\` — a refinement with no ` +
+            `commit and no reason is a merge nobody reviewed`).toBeTruthy();
+        }
+        expect(live.map((p) => p.phrase),
+          `SAID_BEFORE retires "${e.said}", which some voice still says today`)
+          .not.toContain(e.said);
+      }
+    }
+    /* THE RED ARM: the table refuses a wording that is another material's live
+       phrase, rather than quietly merging the two. */
+    const stolen = VOICES.cross_passage.walls;
+    SAID_BEFORE["floor/red-brick-on-edge"].push({
+      said: stolen, retired: "never", commit: "none", why: "a merge nobody reviewed"
+    });
+    try {
+      expect(() => declaredMaterialPhrases(),
+        "SAID_BEFORE accepted another material's CURRENT wording as a retired one, which would " +
+        "vouch every wall painted in that other fabric").toThrow(/CURRENT wording/);
+    } finally {
+      SAID_BEFORE["floor/red-brick-on-edge"].pop();
+    }
+  });
+
+  test("the store's own case: the servants' hall can show a painter its own walls again", () => {
+    /* THE GAP, AS THE STORE HOLDS IT. `servants_hall` N, S and W were asked for
+       "a floor of worn red brick laid on edge"; the voice now says that floor
+       and its bond. One material, two wordings, and before this rule the room
+       had exactly one wall it could vouch for (E, re-asked under the new words)
+       — which is not enough, because a wall may not be its own Image 1. */
+    const asks = materialProvenance(PLAN);
+    const hall = asks.rooms.find((r) => r.room === "servants_hall");
+    expect(hall, "the servants' hall has left the audit altogether").toBeTruthy();
+    expect(hall.verdict).toBe("refined");
+    expect(hall.refined.slice().sort()).toEqual(["N", "S", "W"]);
+    expect(hall.facings.find((f) => f.facing === "E").class).toBe("current");
+    for (const f of hall.facings) {
+      expect(isVouched(f.class), `servants_hall/${f.facing} is not vouched`).toBe(true);
+      expect(f.ruling_materials.underfoot).toBe("floor/red-brick-on-edge");
+      expect(f.ask_materials.underfoot,
+        `servants_hall/${f.facing} was not asked for the room's own floor`)
+        .toBe("floor/red-brick-on-edge");
+    }
+    /* AND THE CONSEQUENCE, WHICH IS THE POINT: every facing of it now resolves
+       an Image 1, and it is a wall of this room and never the wall itself. */
+    for (const f of ["N", "E", "S", "W"]) {
+      const st = styleImageFor(PLAN, `servants_hall/${f}`);
+      expect(st, `servants_hall/${f} still gets no Image 1, so the room still cannot seed itself`)
+        .toBeTruthy();
+      expect(st.room).toBe("servants_hall");
+      expect(st.facing).not.toBe(f);
+      expect(existsSync(join(repoRoot, st.rel))).toBe(true);
+      expect(st.why, `servants_hall/${f}'s Image 1 does not say on what authority it was picked`)
+        .toBeTruthy();
+    }
+  });
+
+  test("the default re-ask set is the wrong-material walls; --refined-too is what forces the words", () => {
+    const asks = materialProvenance(PLAN);
+    const dflt = provenanceAsConsistencyReport(asks);
+    const forced = provenanceAsConsistencyReport(asks, { refinedToo: true });
+    const byRoom = new Map(asks.rooms.map((r) => [r.room, r]));
+
+    /* BY DEFAULT: nothing merely refined is re-asked, anywhere. A roll spent to
+       change wording on a wall already painted in the right material buys a
+       wait and changes nothing on the wall. */
+    for (const r of dflt.rooms) {
+      for (const f of r.outliers) {
+        const rec = byRoom.get(r.room).facings.find((x) => x.facing === f);
+        expect(rec.class, `${r.room}/${f} is re-asked by default and it is only refined`)
+          .not.toBe("refined");
+      }
+    }
+    const hallDefault = dflt.rooms.find((r) => r.room === "servants_hall");
+    expect(hallDefault,
+      "the servants' hall is in the DEFAULT repair list, so three walls painted in this room's " +
+      "own floor are being repainted to change their wording").toBeFalsy();
+
+    /* WITH THE FLAG: it is there, its outliers are exactly its refined walls,
+       and its correction says the fabric is not in dispute — a painter told its
+       materials were wrong would repaint a floor that is already right. */
+    const hallForced = forced.rooms.find((r) => r.room === "servants_hall");
+    expect(hallForced, "--refined-too re-asks nothing in a room whose only fault is its wording")
+      .toBeTruthy();
+    expect(hallForced.outliers.slice().sort()).toEqual(["N", "S", "W"]);
+    expect(hallForced.majority, "the wall the room may be seeded from is the one standing still")
+      .toEqual(["E"]);
+    expect(hallForced.no_majority).toBe(false);
+    expect(hallForced.measured).toMatch(/in the ASKS rather than in the pixels/);
+    expect(hallForced.measured,
+      "the correction tells the painter its materials were wrong, and they were not")
+      .toContain("The fabric is not in dispute");
+
+    /* AND THE FLAG ONLY EVER ADDS. Every wall the default re-asks is still
+       re-asked with it. */
+    const set = (rep) => new Set(rep.rooms.flatMap((r) => r.outliers.map((f) => `${r.room}/${f}`)));
+    const a = set(dflt), b = set(forced);
+    for (const k of a) expect(b, `--refined-too dropped ${k} from the re-ask set`).toContain(k);
+    expect(b.size, "--refined-too added nothing at all").toBeGreaterThan(a.size);
+  });
+
+  test("the legacy ledger says which of its admissions are vouched and which are not", () => {
+    /* THE LEDGER'S REASON USED TO SAY ONE THING ABOUT TWO. "It predates the
+       voice the room now speaks" was written about a wall painted in another
+       fabric AND about a wall painted in this one before the words were
+       tightened — and only the second may stand as a picture of its room. A
+       reader of the file could not tell which they were holding. */
+    expectDerived("material_legacy");
+    const lp = join(repoRoot, "design", "plan-draft", "measured", "material_legacy.json");
+    if (!existsSync(lp)) return;
+    const ledger = JSON.parse(readFileSync(lp, "utf8"));
+    const asks = materialProvenance(PLAN);
+    const cls = new Map(asks.rooms.flatMap((r) =>
+      r.facings.map((f) => [`${r.room}/${f.facing}`, f.class])));
+    let vouched = 0;
+    for (const [key, e] of Object.entries(ledger.admitted || {})) {
+      expect(e.class, `${key}'s admission does not say what class it was admitted as`).toBeTruthy();
+      expect(e.class).toBe(cls.get(key));
+      expect(e.vouched).toBe(isVouched(e.class));
+      if (e.vouched) {
+        vouched += 1;
+        expect(e.why, `${key} is admitted as vouched and its reason does not say the material held`)
+          .toContain("WORDING that has since been refined");
+        expect(e.closes_when, `${key} is refined and its closing command would not re-ask it`)
+          .toContain("--refined-too");
+      }
+    }
+    expect(vouched, "no admission in the ledger is vouched — this case is blind").toBeGreaterThan(0);
   });
 });
