@@ -450,6 +450,35 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
     expect(gc.outliers.sort()).toEqual(["E", "N", "W"]);
   });
 
+  /* THE AUDIT'S OWN REPORT IS WHAT THE AUDIT WRITES TODAY.
+   *
+   * `material_provenance.json` is committed, and until this case existed the
+   * only thing standing over it was an accident: it sits in the cand-2 round's
+   * home, `design/plan-draft/measured/`, and `plan.spec.mjs`'s corpus re-run
+   * demanded `measure.py` reproduce every `.json` in that directory. It cannot
+   * — `measure.py` reads pixels and this report reads asks — so the accident
+   * was a red case that said nothing about staleness, and naming the file out
+   * of that comparison would have left the report guarded by nothing at all.
+   *
+   * This is the project's own staleness shape put where it belongs: run the
+   * generator and byte-compare. Its subject is the same one the whole file has
+   * — the instant anyone corrects `room-voices.mjs`, or a promotion moves a
+   * wall in the store, this report is a description of a manor that no longer
+   * exists, and a stale observer is worse than none because it reads like an
+   * all-clear. */
+  test("the committed audit report byte-equals a fresh run of --audit-materials", () => {
+    const rp = join(repoRoot, "design", "plan-draft", "measured", "material_provenance.json");
+    expect(existsSync(rp), "the audit has never been written — run --audit-materials").toBe(true);
+    /* Composed exactly as `--audit-materials` composes it, so this compares the
+       report against the audit and never against a second formatter. */
+    const fresh = JSON.stringify(materialProvenance(PLAN), null, 2) + "\n";
+    expect(readFileSync(rp, "utf8"),
+      "design/plan-draft/measured/material_provenance.json is not what the audit writes today — " +
+      "the voice table moved, or the store moved, and nobody re-ran " +
+      "`node tools/make-scaffold.mjs --audit-materials`")
+      .toBe(fresh);
+  });
+
   test("the legacy ledger names candidates that exist and walls the audit calls stale", () => {
     /* THE LEDGER IS HONEST OR IT IS A LOOPHOLE. Every entry must name a wall
        the audit actually calls not-current and a candidate that is on disk —

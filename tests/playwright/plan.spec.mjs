@@ -2610,8 +2610,20 @@ test.describe("the schematic is a derived render of the plan", () => {
            produce it — so the re-run reported it as a corpus edited by hand.
            Named one by one rather than pattern-matched: a second report
            arriving is a line to add here, where a reader sees it, and never a
-           reading quietly falling out of the comparison. */
-        const NOT_A_READING = new Set(["misses.jsonl", "room_consistency.json"]);
+           reading quietly falling out of the comparison.
+
+           Row 40's ORIGIN pass put two more instrument reports in this same
+           directory, and they are the lines that arriving costs. Both are
+           written by `tools/make-scaffold.mjs --audit-materials`, which reads
+           ASKS rather than pixels: `material_provenance.json` is the audit's
+           own report, and `material_legacy.json` is the ledger
+           `promote-backdrop.mjs`'s row-40 clause admits against. `measure.py`
+           has never written either and no ruler in it can. Their own staleness
+           is checked where it belongs -- `material-origin.spec.mjs` re-derives
+           the audit live and holds the ledger against it entry for entry -- so
+           naming them here takes nothing out of anybody's guard. */
+        const NOT_A_READING = new Set(["misses.jsonl", "room_consistency.json",
+          "material_provenance.json", "material_legacy.json"]);
         const names = readdirSync(committed)
           .filter((f) => f.endsWith(".json") && !NOT_A_READING.has(f));
         /* cand5ref writes ONE file — it measures the reference and nothing
