@@ -95,9 +95,20 @@ CARRIER_MARGIN_M = 0.30
 #: same number `row36_light.py` relights with, so moving it moves both.
 FIRELIGHT_R_M = 2.6
 
-#: The smallest window worth harvesting, in metres of wall. Below this a tile is
-#: mostly its own edges.
-MIN_WINDOW_M = 0.55
+#: THE SMALLEST WINDOW WORTH HARVESTING, and it was 0.55 m until the demo batch
+#: showed what that buys. `wall/plain-limewash-to-floor` harvested a 0.60 m
+#: window off `servants_hall/E`; mirror-tiled across the kitchen's 8 m wall that
+#: is thirteen repeats, and it does not read as limewashed plaster -- it reads
+#: as PANELLING, because a repeat at that pitch is a feature whether or not
+#: anyone painted one. Repetition was named as this row's likeliest loss and
+#: this is it, arriving exactly where it was expected.
+#:
+#: 2.00 m is a craft number with its evidence: the swatch lane asks for 3.5 m of
+#: material for the same slot, and a harvest under two metres cannot come within
+#: sight of that on any wall the manor actually has. A material that cannot
+#: offer this much clear wall converts to a swatch, which is the same conversion
+#: path the supply shortfall uses.
+MIN_WINDOW_M = 2.00
 
 #: The lattice is laid out at the slot's declared demand times this. 1.0 exactly
 #: — a harvest stores what the view asks for and no more, because storing above
@@ -428,6 +439,7 @@ def harvest_material(mid, mat, cands, plan, facings, tile_ppm, verbose=True):
                      "carriers": [s[0] for s in spans],
                      "supply_across": round(sa, 1), "supply_along": round(sl, 1),
                      "supply_ratio": round(tile_ppm / min(sa, sl), 3),
+                     "repeats_on_widest_consumer": None,
                      "neutrality": n,
                      "png": "backdrops/%s/%s.png" % (loc, f),
                      "meta": "backdrops/%s/%s.meta.json" % (loc, f),

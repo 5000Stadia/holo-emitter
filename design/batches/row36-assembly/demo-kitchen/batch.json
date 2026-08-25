@@ -1,0 +1,67 @@
+{
+  "room": "kitchen",
+  "commit": "09ad2563b12d",
+  "frames": [
+    "design/batches/row36-assembly/demo-kitchen/N-albedo.png",
+    "design/batches/row36-assembly/demo-kitchen/E-albedo.png",
+    "design/batches/row36-assembly/demo-kitchen/S-albedo.png",
+    "design/batches/row36-assembly/demo-kitchen/W-albedo.png",
+    "design/batches/row36-assembly/demo-kitchen/N-lit.png",
+    "design/batches/row36-assembly/demo-kitchen/E-lit.png",
+    "design/batches/row36-assembly/demo-kitchen/S-lit.png",
+    "design/batches/row36-assembly/demo-kitchen/W-lit.png"
+  ],
+  "seams": [
+    {
+      "turn": "N -> E",
+      "which": "albedo",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-N-E-albedo.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "albedo",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-E-S-albedo.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "albedo",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-S-W-albedo.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "albedo",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-W-N-albedo.png"
+    },
+    {
+      "turn": "N -> E",
+      "which": "lit",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-N-E-lit.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "lit",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-E-S-lit.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "lit",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-S-W-lit.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "lit",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-W-N-lit.png"
+    }
+  ],
+  "seams_promoted": [
+    {
+      "turn": "E -> S",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-E-S-promoted.png"
+    },
+    {
+      "turn": "S -> W",
+      "file": "design/batches/row36-assembly/demo-kitchen/seam-S-W-promoted.png"
+    }
+  ],
+  "placeholder_art": true
+}

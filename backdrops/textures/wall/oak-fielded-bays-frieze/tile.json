@@ -122,25 +122,17 @@
     },
     {
       "facing": "solar/N",
-      "refused": null,
-      "window_m": 1.428,
-      "neutrality": {
-        "field_range_pct": 129.213,
-        "chroma_drift": 0.44281,
-        "mean_luma": 52.8
-      },
-      "supply_ratio": 0.981
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "solar/S",
-      "refused": null,
-      "window_m": 1.707,
-      "neutrality": {
-        "field_range_pct": 124.299,
-        "chroma_drift": 0.44245,
-        "mean_luma": 51.44
-      },
-      "supply_ratio": 0.948
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "solar/W",

@@ -8,25 +8,25 @@
     "demand_from": "the largest declared wall scale among the facings that use this material",
     "demand_ppm": 155.15,
     "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
-    "source_facing": "master_bedchamber/E",
-    "source_ppm_at_wall": 157.895,
-    "supply_across": 157.9,
-    "supply_along": 157.9,
-    "supply_ratio": 0.983
+    "source_facing": "master_bedchamber/N",
+    "source_ppm_at_wall": 146.316,
+    "supply_across": 146.3,
+    "supply_along": 146.3,
+    "supply_ratio": 1.06
   },
-  "source_facing": "master_bedchamber/E",
-  "source_png": "backdrops/master_bedchamber/E.png",
-  "source_sha256": "5fe93dc6dd5eaa6ac38500e3c0b550e978c8130bccaec62369e23c17cf428c07",
-  "source_meta_sha256": "ad5599b741678301077c87dbf6b55dc33f7a9631eb1ca4c5aec3bd84e3a16467",
+  "source_facing": "master_bedchamber/N",
+  "source_png": "backdrops/master_bedchamber/N.png",
+  "source_sha256": "9f80dcf2d6f5302150470e95725d3c3f91b39be429d071c2a991a948854706cd",
+  "source_meta_sha256": "d5b11b76668336356b00f1f6a09820ecdef2c48d3080107c843880bb2c5fe2da",
   "window_u_m": [
-    2.716,
-    4.253
+    4.876,
+    9.151
   ],
   "carriers_avoided": [
-    "window",
-    "window"
+    "door",
+    "hearth"
   ],
-  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 13.22% of its own mean over 1.54 m of clear wall, against 4 candidate facing(s)",
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 72.67% of its own mean over 4.28 m of clear wall, against 4 candidate facing(s)",
   "tiling": {
     "grain_axis": null,
     "grain_frame": "surface",
@@ -51,12 +51,12 @@
       ],
       "file": "backdrops/textures/wall/hangings-tapestry/dado.png",
       "size_px": [
-        238,
+        663,
         137
       ],
       "rows": [
-        426,
-        563
+        489,
+        626
       ]
     },
     {
@@ -67,57 +67,53 @@
       ],
       "file": "backdrops/textures/wall/hangings-tapestry/anchor.png",
       "size_px": [
-        238,
+        663,
         21
       ],
       "rows": [
-        405,
-        426
+        468,
+        489
       ]
     },
     {
       "band": "field",
       "v_m": [
         1.02,
-        3.629
+        4.032
       ],
       "file": "backdrops/textures/wall/hangings-tapestry/field.png",
       "size_px": [
-        238,
-        405
+        663,
+        468
       ],
       "rows": [
         0,
-        405
+        468
       ]
     }
   ],
   "delighting": {
     "before": {
-      "field_range_pct": 23.894,
-      "chroma_drift": 0.14719,
-      "mean_luma": 19.9
+      "field_range_pct": 67.242,
+      "chroma_drift": 0.20126,
+      "mean_luma": 21.26
     },
     "after": {
-      "field_range_pct": 10.547,
-      "chroma_drift": 0.0507,
-      "mean_luma": 19.84
+      "field_range_pct": 34.702,
+      "chroma_drift": 0.12897,
+      "mean_luma": 20.49
     },
-    "flattened_pct": 13.347,
+    "flattened_pct": 32.54,
     "sigma_m": 0.8,
     "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
   },
   "candidates_considered": [
     {
       "facing": "master_bedchamber/E",
-      "refused": null,
-      "window_m": 1.537,
-      "neutrality": {
-        "field_range_pct": 13.225,
-        "chroma_drift": 0.06468,
-        "mean_luma": 21.12
-      },
-      "supply_ratio": 0.983
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "master_bedchamber/N",

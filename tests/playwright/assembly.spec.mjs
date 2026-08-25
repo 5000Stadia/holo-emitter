@@ -133,4 +133,85 @@ print("REFUSED" if rec.get("refused") else "ADMITTED", rec.get("refused", ""))
       .toMatch(/REFUSED/);
     expect(said).toMatch(/luma/);
   });
+
+  /* ---- the turn, which is the row's own claim ---------------------- */
+  test("four facings of one room put every surface in the same place", () => {
+    const out = py([join(repoRoot, "design", "plan-draft", "measured",
+                         "row36_crossfacing.py"), "--room", "kitchen"]);
+    /* floors and ceilings are anchored to the storey SLAB, so all four
+       facings' samples must lie inside the room's own rect -- exactly, not
+       nearly. A frame-anchored texture fails this on the first turn. */
+    const outside = [...out.matchAll(/outside the room by ([\d.]+) m/g)]
+      .map((m) => Number(m[1]));
+    expect(outside.length, "floor and ceiling both reported").toBeGreaterThanOrEqual(2);
+    for (const v of outside) expect(v).toBe(0);
+
+    /* and every side return must land on its neighbour's own perimeter range:
+       a return IS that wall, seen from ninety degrees away */
+    const pairs = [...out.matchAll(/overlap ([\d.]+) m/g)].map((m) => Number(m[1]));
+    expect(pairs.length, "all eight return/wall pairs").toBe(8);
+    for (const v of pairs) expect(v, "the return overlaps the wall it is").toBeGreaterThan(0);
+  });
+
+  test("the lighting stub's key is a compass direction, not a frame ramp", () => {
+    /* THE BUG THIS CATCHES ACTUALLY SHIPPED IN A DRAFT. The key was
+       `(1 - x/W)` -- brightest at the left of every FRAME -- so the right edge
+       of one facing met the left edge of the next dark-against-bright, and the
+       same physical wall changed brightness when the camera turned. That is the
+       row's own disease reintroduced by the lighting after the geometry had
+       been cured of it. The source falloff had the same defect a layer down,
+       addressing hearths in wall-local metres.
+
+       So: the same PLAN point, sampled from two different facings, must get the
+       same light. */
+    const script = `
+import json, os, sys
+import numpy as np
+sys.path.insert(0, ${JSON.stringify(join(repoRoot, "design", "plan-draft", "measured"))})
+os.chdir(${JSON.stringify(repoRoot)})
+import row35_snap as S, row36_assemble as A, row36_light as Lg
+plan = json.load(open(A.PLAN)); fac = json.load(open(A.FACINGS))["facings"]
+room = next(r for r in plan["rooms"] if r["id"] == "kitchen")
+rect = room["rect"]
+span = max(rect["x1"]-rect["x0"], rect["y1"]-rect["y0"])
+cx, cy = 0.5*(rect["x0"]+rect["x1"]), 0.5*(rect["y0"]+rect["y1"])
+F = {}
+for f in "NESW":
+    d = fac["kitchen/"+f]["declared"]
+    ppm, imh, storey = d["ppm"], d["image_h_px"], d["storey_height_m"]
+    yf = d["floor_line_y"]*imh; vy = d["horizon_y"]*imh; yc = yf - storey*ppm
+    b = S.box(d["corner_x0_px"], d["corner_x1_px"], yc, yf, S.W/2.0, vy)
+    width_m = (d["corner_x1_px"]-d["corner_x0_px"])/ppm
+    decl = {"width_m": width_m, "storey_m": storey, "camera_m": d["camera_wall_m"]}
+    ys, xs = np.mgrid[0:S.H:6, 0:S.W:6].astype(np.float64)
+    idx, p, q = S.assign(b, xs, ys)
+    X, Y = Lg.plan_positions(idx, p, q, decl, room, f)
+    t = (Lg.KEY_DIR_PLAN[0]*(X-cx) + Lg.KEY_DIR_PLAN[1]*(Y-cy))/span
+    key = Lg.AMBIENT + Lg.KEY_RAMP*np.clip(0.5+t, 0.0, 1.0)
+    fl = idx == S.REGIONS.index("floor")
+    F[f] = (X[fl], Y[fl], key[fl])
+worst = 0.0
+for a, b_ in (("N","E"),("E","S"),("S","W"),("W","N")):
+    xa, ya, va = F[a]; xb, yb, vb = F[b_]
+    if not len(xa) or not len(xb): continue
+    sel = np.random.default_rng(36).choice(len(xa), size=min(300,len(xa)), replace=False)
+    for i in sel:
+        dd = (xb-xa[i])**2 + (yb-ya[i])**2
+        j = int(np.argmin(dd))
+        if dd[j] > 0.02**2: continue
+        worst = max(worst, abs(va[i]-vb[j]))
+print("WORST %.8f" % worst)
+# and the sources are addressed in plan metres, not wall-local ones
+srcs = Lg.sources_for(plan, "kitchen")
+print("SRCKEYS " + ",".join(sorted(srcs[0].keys())) if srcs else "SRCKEYS none")
+`;
+    const said = py(["-c", script]);
+    const worst = Number((said.match(/WORST ([\d.]+)/) || [])[1]);
+    expect(Number.isFinite(worst), "the check ran").toBe(true);
+    expect(worst, "the same plan point gets the same key from any facing")
+      .toBeLessThan(0.01);
+    expect(said, "a source is at a place in the building, not along a wall")
+      .toMatch(/SRCKEYS.*x_m/);
+    expect(said).not.toMatch(/SRCKEYS[^\n]*u_m/);
+  });
 });

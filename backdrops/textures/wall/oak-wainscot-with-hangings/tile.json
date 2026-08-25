@@ -111,14 +111,10 @@
   "candidates_considered": [
     {
       "facing": "closet_chamber/E",
-      "refused": "the source supplies 156/156 px/m against a 330 px/m lattice \u2014 2.12x short",
-      "window_m": 1.649,
-      "neutrality": {
-        "field_range_pct": 177.023,
-        "chroma_drift": 0.44414,
-        "mean_luma": 20.67
-      },
-      "supply_ratio": 2.12
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "closet_chamber/N",
@@ -177,25 +173,17 @@
     },
     {
       "facing": "guest_chamber/W",
-      "refused": "the source supplies 160/160 px/m against a 330 px/m lattice \u2014 2.06x short",
-      "window_m": 1.217,
-      "neutrality": {
-        "field_range_pct": 186.877,
-        "chroma_drift": 0.73423,
-        "mean_luma": 40.83
-      },
-      "supply_ratio": 2.065
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "master_bedchamber/E",
-      "refused": "the source supplies 158/158 px/m against a 330 px/m lattice \u2014 2.09x short",
-      "window_m": 1.537,
-      "neutrality": {
-        "field_range_pct": 11.676,
-        "chroma_drift": 0.06659,
-        "mean_luma": 21.09
-      },
-      "supply_ratio": 2.092
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "master_bedchamber/N",

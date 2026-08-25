@@ -142,14 +142,10 @@
     },
     {
       "facing": "guest_chamber/W",
-      "refused": null,
-      "window_m": 1.217,
-      "neutrality": {
-        "field_range_pct": 186.877,
-        "chroma_drift": 0.73423,
-        "mean_luma": 40.83
-      },
-      "supply_ratio": 1.067
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     }
   ]
 }

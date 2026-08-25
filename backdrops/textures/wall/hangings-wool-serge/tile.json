@@ -110,14 +110,10 @@
   "candidates_considered": [
     {
       "facing": "closet_chamber/E",
-      "refused": "the source supplies 156/156 px/m against a 330 px/m lattice \u2014 2.12x short",
-      "window_m": 1.649,
-      "neutrality": {
-        "field_range_pct": 177.023,
-        "chroma_drift": 0.44414,
-        "mean_luma": 20.67
-      },
-      "supply_ratio": 2.12
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
     },
     {
       "facing": "closet_chamber/N",
