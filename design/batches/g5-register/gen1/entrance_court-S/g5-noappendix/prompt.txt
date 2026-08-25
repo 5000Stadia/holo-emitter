@@ -10,6 +10,7 @@ Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of some
   The view runs away from you into the distance, and the ground is visible and reaches the bottom of the picture, with the sky overhead.
   The eye line sits a little above the middle of the picture's height, and everything running away from you leans toward one place on it, at the middle of the picture's width.
   Image 1 draws these lines exactly; follow it.
-Style/medium: fine oil realism with tactile brush detail, deep warm browns, cool ambient light and gentle natural falloff.
+Style/medium: a high-realism oil painting in the manner of a seventeenth-century Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient daylight and gentle natural falloff; a period painting, not a modern render.
+  The layout diagram's flat dark colours are NOT the picture's colours: the picture is this painting, in the materials named above.
 Constraints: the entrance court is completely empty — no furniture, nobody in it, no animals and no loose props of any kind, and nothing grown crosses the wall plane.
   Every surface in it is plain and unlettered, and Image 1's lines, boxes and lettering are instructions rather than things to paint.

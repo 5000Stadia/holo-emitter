@@ -103,7 +103,7 @@
         "name": "style-guest_chamber-N.png",
         "why": "the room's own agreeing majority wall (room_consistency.json: majority EN, verdict mismatched)"
       },
-      "sidecar_sha256": "493ec58d8f81c006d29357db67efe86b772119422c54b52e8cba92b42c16eefd"
+      "sidecar_sha256": "f698194681dce8d46edafe3bad136f3c890bc3ac319ca91bb2a884010eaa55d0"
     },
     {
       "key": "garden_room/E",
@@ -177,7 +177,7 @@
         "name": "style-garden_room-N.png",
         "why": "the room's own agreeing majority wall (room_consistency.json: majority EN, verdict mismatched)"
       },
-      "sidecar_sha256": "2df315a267df67843cb6bc292dafd40ca6866062679e5c819fbb4bf93616bcac"
+      "sidecar_sha256": "b24ce43c3039c902ec1d9f26ac760ace3563d4ff2af5360bc51d5b8158cce063"
     },
     {
       "key": "master_bedchamber/N",
@@ -265,7 +265,7 @@
         "key": null,
         "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
       },
-      "sidecar_sha256": "64fb61ba7e1022ad430ac5f4f673ab9f62b33d326d22c8ad51bb12bd13c16745"
+      "sidecar_sha256": "92e84c24e0a82c9a09af8c2a9c748eb3d43a90a663ce2d5b6684385a059b22c5"
     },
     {
       "key": "great_hall/S",
@@ -385,7 +385,7 @@
         "key": null,
         "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
       },
-      "sidecar_sha256": "302fae6b86a8272eed151d455f790c072537c54f3ddd64ff505966a95f017865"
+      "sidecar_sha256": "ffb30c360619046165e9134d2bd8106846602570c592e77687bb89fdedfcf764"
     },
     {
       "key": "great_stair_hall/W",
@@ -457,7 +457,7 @@
         "key": null,
         "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
       },
-      "sidecar_sha256": "c8c54b3e177779a63b556ee9041d62900eaaa8cd2896e089077d57b7568167fe"
+      "sidecar_sha256": "607c466a877bf09ae972990e880b51645cb4800bbb8ec731749a559ff9640a27"
     },
     {
       "key": "entrance_court/S",
@@ -524,7 +524,7 @@
         "key": null,
         "why": "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words"
       },
-      "sidecar_sha256": "06f36f857405c02514a08389d9dec1d780981ab08bc936c877ab651c6f474593"
+      "sidecar_sha256": "3511eeae89b8732206de80a93bbf20faf0c5c5a9c794a5c5274cf04bb16df73c"
     }
   ],
   "arms": [
@@ -575,5 +575,5 @@
   "rolls_per_arm_per_wall": 1,
   "total_rolls": 18,
   "_generated": "2026-08-25",
-  "git_commit": "6c2132b3d9e142d702546f0a2464f52be1b9579b"
+  "git_commit": "fd56ac1ca35f67171ab5fe61d4d1e05fe1660641"
 }

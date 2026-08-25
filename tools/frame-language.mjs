@@ -866,8 +866,20 @@ export function g5PictureLines(ctx) {
 /* ---- item 4: the medium ---- */
 
 export function g5MediumLines(ctx) {
-  const L = ["Style/medium: fine oil realism with tactile brush detail, deep warm browns, cool " +
-    "ambient light and gentle natural falloff."];
+  /* [Kabe, 2026-08-24] THE ERA IS A LOOK, NOT ONLY A MATERIALS LIST. His own
+   * working seed came from "Sherlock Holmes era office, high realism oil
+   * painting" — an era named as a painting tradition — and his cold-ask test
+   * with only the layout diagram attached came back as a flat modern render in
+   * the DIAGRAM's dark grey, every period word lost to the one image in the
+   * packet. So the medium names the tradition, and when no style image is
+   * attached the diagram is told apart from the picture in one clause. */
+  const L = ["Style/medium: a high-realism oil painting in the manner of a seventeenth-century " +
+    "Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient " +
+    "daylight and gentle natural falloff; a period painting, not a modern render."];
+  if (!ctx.style) {
+    L.push("  The layout diagram's flat dark colours are NOT the picture's colours: the picture is " +
+      "this painting, in the materials named above.");
+  }
   if (ctx.style) {
     /* THE ONLY CLAUSE IN THE REGISTER ABOUT WHAT AN IMAGE IS NOT, and it is one
      * clause because one clause is what was ruled. */

@@ -1,13 +1,14 @@
 Use case: historical-scene, interior
 Asset type: gameplay backdrop for the east wall of the guest chamber, circa-1660 English manor
-Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
-  and brush handling. It is NOT a reference for this place's materials, for how many
-  openings this wall has, or for what is in its glass — those are the words below, and
-  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
-  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+Input images: THERE IS NO IMAGE 1 IN THIS PACKET. No painting of any wall is given,
+  because this room has none yet that it can vouch for, and a picture of some other
+  room would be worse than none. Every quality of this picture — its medium, its
+  palette, its light and its materials — is in the words below and in nothing else.
+  Image 2 is a geometric layout diagram of the surface to be painted: it is a
+  technical drawing, not artwork to imitate.
   Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
 Primary request: Paint the east wall of the empty guest chamber of a circa-1660 English manor,
-  matching Image 1's paint handling and Image 2's geometry exactly.
+  in the medium described below and matching Image 2's geometry exactly.
 Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
 Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of
   the room with the two side walls running away from you to left and right. The wall you
@@ -36,15 +37,20 @@ Composition/framing: a 1536 by 1024 landscape picture, looking straight at one w
     Carried on, all four of those meet at column 768, row 526.
     One metre of the faced wall covers 155 columns.
 Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
-  This wall carries no opening and no built feature at all: it is unbroken wainscot below and hangings above, and
+  This wall carries no opening and no built feature at all: the fabric named under
+  Materials/textures below runs across the whole of it, unbroken corner to corner, and
   the anchor above is the one ruled feature in it.
   Make these dimensions physically coherent and unmistakable in the architecture.
 Materials/textures: oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling.
   Underfoot: wide oak floorboards.
   Hangings: hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping.
 Windows: this wall carries no window and no glazed opening of any kind.
-Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
-  browns, cool ambient light, gentle natural falloff.
+Style/medium: fine oil realism, painted alla prima on a warm ground, with tactile
+  brush detail and visible impasto in the lit passages and thin scumbled shadow in the
+  dark ones. The palette is deep warm browns, umber and ochre, with cool grey-green
+  daylight; the light is soft, even and sourceless, with gentle natural falloff into
+  the corners and no hot spot anywhere. Photographic sharpness is wrong for this: it
+  is a painting, and the brush is visible in it.
 Constraints: the guest chamber is completely empty. No furniture stands in it and nobody is in it;
   there are no loose props and no animals.
   Image 2 is a layout drawing and its marks are instructions rather than things to paint.

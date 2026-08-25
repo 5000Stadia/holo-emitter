@@ -1,10 +1,8 @@
 Use case: historical-scene, interior
 Asset type: gameplay backdrop for the east wall of the garden room, circa-1660 English manor
-Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
-  and brush handling. It is NOT a reference for this place's materials, for how many
-  openings this wall has, or for what is in its glass — those are the words below, and
-  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
-  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+Input images: Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM, the N wall of the garden room. It is the reference for this room's materials, its paint medium, its palette and its light, and for nothing else: how many openings this wall carries, where they stand and every dimension of them come from Image 2 and the words below. Paint this wall as the same room on the same day.
+  Image 2 is a geometric layout diagram of the surface to be painted: it is a
+  technical drawing, not artwork to imitate.
   Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
 Primary request: Paint the east wall of the empty garden room of a circa-1660 English manor,
   matching Image 1's paint handling and Image 2's geometry exactly.

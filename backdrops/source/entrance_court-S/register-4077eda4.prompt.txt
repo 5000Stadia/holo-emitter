@@ -1,13 +1,14 @@
 Use case: historical-scene, exterior
 Asset type: gameplay backdrop for the south side of the entrance court, circa-1660 English manor
-Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
-  and brush handling. It is NOT a reference for this place's materials, for how many
-  openings this wall has, or for what is in its glass — those are the words below, and
-  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
-  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+Input images: THERE IS NO IMAGE 1 IN THIS PACKET. No painting of any wall is given,
+  because this room has none yet that it can vouch for, and a picture of some other
+  room would be worse than none. Every quality of this picture — its medium, its
+  palette, its light and its materials — is in the words below and in nothing else.
+  Image 2 is a geometric layout diagram of the surface to be painted: it is a
+  technical drawing, not artwork to imitate.
   Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
 Primary request: Paint the south side of the empty entrance court of a circa-1660 English manor,
-  matching Image 1's paint handling and Image 2's geometry exactly.
+  in the medium described below and matching Image 2's geometry exactly.
 Gate anchor: the boundary wall coping above the ground, 0.95 m.
 Composition/framing: a 1536 by 1024 landscape picture, looking straight out
   across the entrance court with the ground running away from you into the distance. The
@@ -30,8 +31,12 @@ Materials/textures: no wall at all on this side: open ground running out through
   Overhead is open sky with weather in it, and daylight falls from it onto everything
   in frame. This place is out of doors and everything in it is built for weather.
 Windows: this side carries no window and no glazed opening of any kind.
-Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
-  browns, cool ambient light, gentle natural falloff.
+Style/medium: fine oil realism, painted alla prima on a warm ground, with tactile
+  brush detail and visible impasto in the lit passages and thin scumbled shadow in the
+  dark ones. The palette is deep warm browns, umber and ochre, with cool grey-green
+  daylight; the light is soft, even and sourceless, with gentle natural falloff into
+  the corners and no hot spot anywhere. Photographic sharpness is wrong for this: it
+  is a painting, and the brush is visible in it.
 Constraints: the entrance court is completely empty. Nobody is in it and no animal is in it;
   it holds no cart and no garden furniture, and it carries no tub and no statuary. Its
   planting is low and kept, and nothing grown crosses the wall plane.
