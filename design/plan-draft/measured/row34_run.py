@@ -111,6 +111,63 @@ def ref_from_sidecar(doc):
     }
 
 
+def aperture_counts(cand, doc):
+    """[row 43(a)] THE COUNT CLAUSE, on a trial's own measure path.
+
+    What the PAINTING put through this wall, against what the plan rules on it —
+    `promote-backdrop.mjs`'s `row27:door.unmeasured_exit` and
+    `row42:window.unpainted` reduced to the two numbers they compare, so an
+    experiment can read them before anything is promotable.
+
+    WHY IT IS HERE AND NOT IN THE FITNESS. The instruments are
+    `door_measure.measure_openings` and `window_measure.measure_windows`, the
+    same two the promotion runs, called at the WALL's own declared geometry off
+    its sidecar — so the configuration is a function of the wall and cannot vary
+    by arm even in principle, which is this row's whole blinding argument.
+    Nothing new measures a pixel.
+
+    WHAT EARNED IT. `servants_hall/E`'s retry-4 return painted TWO DARK DOORWAYS
+    on a wall the plan rules NO doorway on, at exactly the two places the
+    scaffold's two dashed boxes stood. Every fitness column in the row was blind
+    to it: the camera passed, the horizon fitted, and the picture was of another
+    room. A count is the smallest quantity that can see that.
+
+    `None` where the sidecar declares no `plan_apertures` — every row-34 and
+    register-trial reading predates this and stays exactly as it was.
+    """
+    pa = doc.get("plan_apertures")
+    if not pa:
+        return None
+    import door_measure
+    import window_measure
+    m = doc["meta_used"]
+    ppm = m["px_per_m_at_wall"]
+    floor_y = m["floor_line_y"] * m["image_h_px"]
+    args = (cand, m.get("corner_x0_px"), m.get("corner_x1_px"), floor_y, ppm,
+            m.get("storey_height_m"))
+    doors, dnote = door_measure.measure_openings(*args)
+    windows, wnote = window_measure.measure_windows(*args)
+    return {
+        "_what_this_is": (
+            "What this painting put through the wall, against what the plan rules. "
+            "The instruments are the promotion's own (door_measure.measure_openings, "
+            "window_measure.measure_windows) at the wall's declared geometry, so the "
+            "configuration is a function of the wall and not of the arm."),
+        "ruled_doors": pa["door_count"],
+        "ruled_windows": pa["window_count"],
+        "painted_ways_through": len(doors),
+        "painted_glazed_openings": len(windows),
+        "doors_match": len(doors) == pa["door_count"],
+        "windows_match": len(windows) == pa["window_count"],
+        "counts_match": (len(doors) == pa["door_count"]
+                         and len(windows) == pa["window_count"]),
+        "doors": doors,
+        "windows": windows,
+        "_door_note": dnote,
+        "_window_note": wnote,
+    }
+
+
 def sweep(generation, batch, out_dir, verbose=True):
     import row23_lib
     # THE CORPUS'S RULES, INJECTED — identical to `row23_run.sweep`'s injection,
@@ -165,6 +222,12 @@ def sweep(generation, batch, out_dir, verbose=True):
         reading["_candidate_sha256"] = sha(cand)
         reading["_ref"] = ref
         reading["_declared_horizon_row"] = sidecars[roll["wall"]]["declared_horizon_row"]
+        # [row 43(a)] THE COUNT CLAUSE, where the wall's sidecar declares what the
+        # plan rules on it. Absent on every reading taken before this row, which
+        # is what keeps the row-34 tables exactly as they were measured.
+        ap = aperture_counts(cand, sidecars[roll["wall"]])
+        if ap is not None:
+            reading["_apertures"] = ap
         reading["_arm_is_not_recorded_here"] = (
             "by design: design/specs/34-plan.md §4. The id maps to its arm in "
             "design/batches/row34-evolution/assignment.json, which was committed "
@@ -176,9 +239,13 @@ def sweep(generation, batch, out_dir, verbose=True):
         if verbose:
             p = reading.get("_promotion") or {}
             adm = "yes" if p.get("ramp") else "no "
-            print("  %s  %-20s  %-8s  horizon %s  admissible %s"
+            ap = reading.get("_apertures")
+            counts = ("  doors %d/%d  windows %d/%d"
+                      % (ap["painted_ways_through"], ap["ruled_doors"],
+                         ap["painted_glazed_openings"], ap["ruled_windows"])) if ap else ""
+            print("  %s  %-20s  %-8s  horizon %s  admissible %s%s"
                   % (roll["id"], roll["wall"], reading.get("verdict"),
-                     ("%.1f" % p["ramp"]["y"]) if p.get("ramp") else "   -  ", adm))
+                     ("%.1f" % p["ramp"]["y"]) if p.get("ramp") else "   -  ", adm, counts))
 
     if verbose:
         print("\ngeneration %d: %d measured, %d not yet returned"

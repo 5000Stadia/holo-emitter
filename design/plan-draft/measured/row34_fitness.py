@@ -35,6 +35,19 @@ family; a minimum margin; and `min_detectable_effect` printed beside every table
 so the run's own weakness is a number rather than a claim. If nothing clears,
 the headline is NO SEPARATION and the breeding takes the declared null branch.
 No clause anywhere in this file turns a number into a crown.
+
+[row 43(a)] AND ONE SECONDARY THAT IS NOT A HORIZON: THE COUNT CLAUSE.
+--------------------------------------------------------------------
+`counts` is `k/n` over the rolls whose reading carries `_apertures` -- the
+ways-through and glazed openings the painting SHOWS against the ones the plan
+RULES, read by the promotion's own two instruments at the wall's declared
+geometry (`row34_run.aperture_counts`). It is here because `servants_hall/E`'s
+retry-4 return painted TWO DARK DOORWAYS on a wall the plan rules none on, at
+exactly the two places the scaffold's dashed boxes stood, and every column in
+this table passed it: the camera passed, the horizon fitted, and the picture was
+of a different room. Nothing about it is primary -- no separation clause reads
+it, no branch of the breeding turns on it -- and `-` where it was not read is
+the honest answer rather than a zero.
 """
 import argparse
 import json
@@ -66,6 +79,15 @@ NOTE_NO_TEXT_PAINTED = (
 NOTE_MINIMAL_TEXT = (
     "NOTE: the minimal-text arm is MINIMAL, not none: three body sentences plus the three "
     "header lines prompt_lint.py requires of every prompt in this project.")
+NOTE_COUNTS = (
+    "NOTE: the `counts` column is [row 43(a)]'s count clause and it is NOT a primary. It is "
+    "promote-backdrop.mjs's own two refusals (row27:door.unmeasured_exit, row42:window.unpainted) "
+    "reduced to the numbers they compare - the ways-through and glazed openings the painting "
+    "SHOWS against the ones the plan RULES - read by the promotion's own instruments at the "
+    "wall's declared geometry. It exists because servants_hall/E's retry-4 return painted two "
+    "doorways on a wall the plan rules none on, at exactly the two places the scaffold's dashed "
+    "boxes stood, and every column in this table passed it. `-` means the trial's sidecars "
+    "declare no plan_apertures and the clause was not read; it is never a zero.")
 NOTE_CAMERA = (
     "NOTE: the camera column is SECONDARY. Every arm asks for the same camera and all 21 "
     "hold-family walls already pass it, so a camera separation would be evidence about "
@@ -122,6 +144,11 @@ def roll_metrics(reading, declared_row):
                              if best and best.get("horizon_y_px") is not None else None),
         "sigma_best_px": (best["sigma_y_px"] if best else None),
         "hold_family": p.get("hold_family"),
+        # [row 43(a)] THE COUNT CLAUSE, where the reading carries one. `None` on
+        # every reading taken before that row, and a `None` is counted nowhere
+        # — the row-34 tables are the numbers they were measured as.
+        "apertures_ok": ((reading.get("_apertures") or {}).get("counts_match")
+                         if reading.get("_apertures") else None),
     }
 
 
@@ -156,6 +183,12 @@ def summarise(rolls):
         "n": len(live),
         "admissible": sum(1 for m in live if m["admissible"]),
         "camera_pass": sum(1 for m in live if m["camera_pass"]),
+        # [row 43(a)] SCORED WHERE IT WAS READ AND NOWHERE ELSE. `n_counted` is
+        # its own denominator, so a trial that carries the clause reports k of n
+        # over the rolls it was actually read on and a trial that does not
+        # reports 0 of 0 — never a silent zero inside the admissible column.
+        "n_counted": sum(1 for m in live if m.get("apertures_ok") is not None),
+        "apertures_ok": sum(1 for m in live if m.get("apertures_ok")),
         "d_horizon_px": _med([m["d_horizon_px"] for m in live]),
         "d_horizon_any_px": _med([m["d_horizon_any_px"] for m in live]),
         "sigma_best_px": _med([m["sigma_best_px"] for m in live]),
@@ -333,6 +366,12 @@ def evaluate(assign, docs, generation, alpha=None, margin_min=MARGIN_MIN):
             "d_horizon_px": s["d_horizon_px"],
             "d_horizon_any_px": s["d_horizon_any_px"],
             "sigma_best_px": s["sigma_best_px"],
+            # [row 43(a)] SECONDARY AND SAID TO BE. It is carried beside the
+            # primary rather than folded into it: no separation clause reads it
+            # and no branch of the breeding turns on it.
+            "apertures_ok": s["apertures_ok"], "n_counted": s["n_counted"],
+            "control_apertures_ok": cp["apertures_ok"],
+            "control_n_counted": cp["n_counted"],
         })
     rej, th = holm([c["fisher_p"] for c in comps], alpha)
     for c, r, t in zip(comps, rej, th):
@@ -567,17 +606,22 @@ def report(assign, result, gen_next=None):
                 len(result["arms"]), len(result["walls"]),
                 assign["_budget"]["rolls_per_arm_per_wall"]))
     L.append("")
-    L.append("| arm | wall | adm | cam | d_horizon_px | d_horizon_any_px | sigma_best_px | withheld |")
-    L.append("|---|---|---|---|---|---|---|---|")
+    L.append("| arm | wall | adm | cam | counts | d_horizon_px | d_horizon_any_px | sigma_best_px | withheld |")
+    L.append("|---|---|---|---|---|---|---|---|---|")
     for a in result["arms"]:
         for w in result["walls"]:
             s = result["per_cell"].get((a, w))
             if not s:
                 continue
-            L.append("| %s | %s | %d/%d | %d/%d | %s | %s | %s | %d |"
+            # [row 43(a)] The count clause, printed where it was read. A trial
+            # whose sidecars declare no plan_apertures prints `-`, which is the
+            # honest answer and not a zero.
+            counts = ("%d/%d" % (s["apertures_ok"], s["n_counted"])
+                      if s.get("n_counted") else "-")
+            L.append("| %s | %s | %d/%d | %d/%d | %s | %s | %s | %s | %d |"
                      % (a, w, s["admissible"], s["n"], s["camera_pass"], s["n"],
-                        s["d_horizon_px"], s["d_horizon_any_px"], s["sigma_best_px"],
-                        s["n_withheld"]))
+                        counts, s["d_horizon_px"], s["d_horizon_any_px"],
+                        s["sigma_best_px"], s["n_withheld"]))
     L.append("")
     L.append("## Pooled, against the reference arm `%s`" % result["control"])
     L.append("")
@@ -592,6 +636,15 @@ def report(assign, result, gen_next=None):
                     "yes" if c["clears_holm"] else "no",
                     "yes" if c["split"] else "no",
                     "YES" if c["separates"] else "no"))
+    counted = [c for c in result["comparisons"] if c.get("n_counted")]
+    if counted:
+        c0 = counted[0]
+        L.append("")
+        L.append("COUNT CLAUSE (secondary, [row 43(a)] — doors and windows PAINTED against "
+                 "doors and windows RULED): `%s` %d/%d; %s."
+                 % (result["control"], c0["control_apertures_ok"], c0["control_n_counted"],
+                    "; ".join("`%s` %d/%d" % (c["arm"], c["apertures_ok"], c["n_counted"])
+                              for c in counted)))
     L.append("")
     mde = result.get("min_detectable_effect")
     L.append("MIN DETECTABLE EFFECT AT THIS N: " + (
@@ -663,7 +716,7 @@ def report(assign, result, gen_next=None):
         L.append(_exhausted_line(result))
         L.append("")
 
-    for n in (NOTE_CAMERA, NOTE_NO_TEXT_PAINTED, NOTE_MINIMAL_TEXT):
+    for n in (NOTE_CAMERA, NOTE_COUNTS, NOTE_NO_TEXT_PAINTED, NOTE_MINIMAL_TEXT):
         L.append(n)
         L.append("")
     if gen_next:
