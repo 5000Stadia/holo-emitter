@@ -2817,18 +2817,37 @@ it, and the four defects it was allocated for are (a) the hit region, (b) the un
 fills and strokes — `mass_poly`, `treads_poly`, `floor_poly`. A point is on the flight when it is
 inside one of them.
 
-**What the old field did, measured before anything was changed** (page's own `resolve()`, every
-drawn body pixel at 2 px, 1536 × 1200):
+**What the old field did, and what the rings do — all twelve facings that draw a flight, both
+directions**, measured the same way on both trees (a `git archive` of `6f578b1` and this one),
+through the page's own `resolve()`, every pixel of the whole frame at 2 px, 1536 × 1200. BODY is
+what the renderer fills (`mass_poly` ∪ `treads_poly`); +FOOT adds `floor_poly`, the footprint ring
+it strokes, which on a descending flight is the mouth of the well you step into. The four marked
+**stated** are the facings the exit itself is on; on the other eight the click turns you to the
+flight and then walks it.
 
-| facing | direction | drawn body px | body travelled | with the footprint ring |
-|---|---|---|---|---|
-| `back_stair/E` | up | 514,856 | 100 % | 100 % |
-| `great_stair_hall/N` | up | 209,600 | 100 % | 100 % |
-| `back_stair_head/W` | **down** | 29,240 | **71.3 %** | 88.3 % |
-| `stair_landing/S` | **down** | 42,864 | **0 %** | 31.5 % |
+| facing | direction | body px | body before | body after | +foot px | +foot before | +foot after |
+|---|---|---|---|---|---|---|---|
+| `back_stair/E` **stated** | up | 514,856 | 100 % | 100 % | 514,896 | 100 % | 100 % |
+| `back_stair/S` | up | 898,476 | **0 %** | 100 % | 898,476 | **0 %** | 100 % |
+| `back_stair/W` | up | 311,856 | **0 %** | 100 % | 311,856 | **0 %** | 100 % |
+| `great_stair_hall/N` **stated** | up | 209,600 | 100 % | 100 % | 209,600 | 100 % | 100 % |
+| `great_stair_hall/S` | up | 44,584 | **0 %** | 100 % | 44,584 | **0 %** | 100 % |
+| `great_stair_hall/W` | up | 363,628 | **0 %** | 100 % | 363,628 | **0 %** | 100 % |
+| `back_stair_head/W` **stated** | **down** | 29,240 | **71.3 %** | 100 % | 71,676 | 88.3 % | 100 % |
+| `back_stair_head/E` | **down** | 69,012 | **0 %** | 100 % | 71,048 | **0 %** | 100 % |
+| `back_stair_head/S` | **down** | 168,304 | **0 %** | 100 % | 220,444 | **0 %** | 100 % |
+| `stair_landing/S` **stated** | **down** | 42,864 | **0 %** | 100 % | 62,560 | 31.5 % | 100 % |
+| `stair_landing/N` | **down** | 65,976 | **0 %** | 100 % | 65,976 | **0 %** | 100 % |
+| `stair_landing/W` | **down** | 278,116 | **0 %** | 100 % | 284,652 | **0 %** | 100 % |
 
-The hand-off's 0 % and 71.8 % are the body column and the artifact critics' 31.76 % is the last
-one, which is what says this is the same defect and not a new one. **The cause was not the clamped
+The hand-off's 0 % and 71.8 % are `stair_landing/S` and `back_stair_head/W` in the body column and
+the artifact critics' 31.76 % is `stair_landing/S`'s +foot, which is what says this is the same
+defect and not a new one. Of the **2,996,512 px** of flight the manor draws, **2,251,220 answered
+no click at all** — 2,199,952 of that the eight facings the exit is not stated on, which drew a
+staircase and answered nothing anywhere on it. The share of points
+that answer "climb" from OUTSIDE the drawn body — §7's forgiveness ring and nothing more — runs
+0.77–5.46 % of the claim per facing, against 0 % before, and is bounded by `stair.spec`'s own
+ring clause rather than by this table. **The cause was not the clamped
 rect.** `poly` read `stepPts.length >= 6 && onFrame(stepPts) ? hull(stepPts + floorRing) :
 floorRing` — the noses' hull where enough noses were on the frame, and THE FOOTPRINT ALONE where
 they were not. A descending flight is exactly that case and its body is drawn BELOW its own
@@ -2993,8 +3012,19 @@ so neither change can make it stale.
 
 ### Row 25's residue, named
 
-1. **The entrance court's mouth is the row's one open look question** — see the batch. A ruling
-   either way costs one constant.
+1. **The entrance court's mouth carries the row's two open questions** — both on one frame, both
+   in the batch. The LOOK: a ruling either way costs one constant. And THE SKY WALKS YOU: on
+   `entrance_court/S` **69.3 % of the frame answers "walk" and 74.4 % of that lies above the
+   horizon**, so **51.6 % of everything a player sees is sky that walks them out of the court**
+   (`entrance_approach/N`: 40.6 % and 88.9 %, so 36.1 %). Both figures are unchanged from the
+   before tree to the pixel — the region was not widened by this row and was not narrowed by it.
+   The clause is met the way (c) says it is, by the picture rather than by the claim: inside that
+   band 31.3 % is the approach's own painted sky and the rest is now the flat colour of the sky
+   beside it, so no pixel of it is undrawn. Whether a band that size should mean "go" is a look
+   ruling, it is Kabe's, and it is asked with the frame rather than assumed. Stopping the region
+   at the destination's horizon is the alternative and it is not free: it hands 74.4 % of the
+   court's walk area back to the pointer as nothing, over picture that still draws the room
+   beyond — this row's own headline defect, pointed the other way.
 2. **The through-view's camera is still the destination standpoint's**, which is what makes five
    doors show a room their own frame never saw. Named above as rows 35/36's.
 3. **A promoted stair wall has no owner for the click.** No painted facing draws a flight today

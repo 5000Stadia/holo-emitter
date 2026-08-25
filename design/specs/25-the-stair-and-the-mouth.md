@@ -246,7 +246,10 @@ needs no shrinking at all, because everything it claims is drawn from the docume
   `git archive` of it, so neither (b) nor (d) can make it stale (F23/F52). This row's own batch,
   `design/batches/row25-stair/`, carries both sides drawn by one script from two trees.
 - **The human's eye** (F24, F50): ten before/after pairs including a 0 %-coverage door and the
-  court's mouth, with the one open look question named in the README. The Navigator surfaces it
+  court's mouth, with BOTH open questions named in the README and measured there — the look on a
+  mouth that size, and the sky that walks you (69.3 % of `entrance_court/S` answers "walk" and
+  74.4 % of that is above the horizon; identical on the before tree, so the region moved by
+  nothing and only the picture in it changed). The Navigator surfaces it
   with the live-link note the playbook requires.
 - **Row 26's `usablyInFrame`** is untouched: its flight arm still reads `raw_w`/`raw_h`, still
   derived from the noses and the footprint, and this row moved neither.
