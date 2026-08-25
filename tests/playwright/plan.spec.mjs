@@ -35,6 +35,8 @@ import {
   DRAWING_EYE_M, stairsForFacing
 } from "../../tools/plan-projection.mjs";
 import { askTextFor } from "../../tools/flight-evidence.mjs";
+import { voiceFor } from "../../tools/room-voices.mjs";
+import { rulingSentences } from "../../tools/make-scaffold.mjs";
 
 const require = createRequire(import.meta.url);
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
@@ -3192,7 +3194,30 @@ test.describe("the schematic is a derived render of the plan", () => {
     for (const f of readdirSync(join(repoRoot, srcDir)).filter((n) => n.endsWith(".png") || n.endsWith(".prompt.txt"))) {
       cpSync(join(repoRoot, srcDir, f), join(dir, srcDir, f));
     }
-    void loc;
+    /* [row 40] AND THE STAGED ASK CARRIES THE ROOM'S RULING MATERIALS.
+       `row40:material.voice_stale` refuses a candidate whose own ask never
+       named them, and the cand-2 corpus these cases run on was written by hand
+       before the voice table existed — so a tree staged with the ask exactly as
+       it sits in the repository refuses at that clause before any of the six
+       refusals a case here is actually about, which is the same shape as an
+       unstated `--round`. The ruling is COMPOSED from `room-voices.mjs`
+       through the emitter's own `rulingSentences`, never typed, so this cannot
+       drift from what the promotion looks for; and it is appended, so whatever
+       the original ask said is still there for the vista and flight clauses to
+       read. Only the staged copy is touched. */
+    {
+      const { voice } = voiceFor(PLAN, loc, facing.split("/")[1]);
+      const ruling = rulingSentences({
+        voice, loc, out: !!voice.outdoor, openSide: false, built: true
+      });
+      const askRel = candidate.replace(/\.png$/i, ".prompt.txt");
+      const askPath = join(dir, askRel);
+      if (existsSync(askPath)) {
+        writeFileSync(askPath, readFileSync(askPath, "utf8") +
+          "\n" + Object.entries(ruling)
+            .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}.`).join("\n") + "\n");
+      }
+    }
     return dir;
   }
 

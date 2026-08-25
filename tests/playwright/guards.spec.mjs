@@ -447,7 +447,15 @@ export const MECHANISMS = [
   "vista.indoor_ask",
   "vista.no_far_line_ruler",
   "vista.ramp_on_a_vista",
-  "vista.eye_band"
+  "vista.eye_band",
+  /* [Row 40 — the ORIGIN] The vista pair asked whether an OUTDOOR wall was
+     asked as an outdoor one. These two ask the general form of it — whether
+     ANY wall was asked as its own room — because the five rooms Kabe saw as
+     two rooms each were not painted badly: their facings were commissioned,
+     verbatim, from different materials, and every geometric gate this project
+     owns passed each of them. */
+  "material.ask_unreadable",
+  "material.voice_stale"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -3150,6 +3158,20 @@ function promoteTokens(key, doctor, planDoctor, extraArgs = [], ask) {
       ? (existsSync(join(repoRoot, askRel)) ? readFileSync(join(repoRoot, askRel), "utf8") : null)
       : ask;
     if (askText !== null) writeFileSync(join(dir, askRel), askText);
+    /* [Row 40] AND THE MATERIAL LEDGER, which is the third file the promotion
+       reads and the newest. `row40:material.voice_stale` refuses a candidate
+       whose ask never named the materials its room is ruled to, and 36 of the
+       61 paintings already in the store are exactly that — they were asked
+       before row 29's voice table existed. `material_legacy.json` is what
+       admits those, by name AND by candidate bytes; a staged tree without it
+       turns every case below that happens to use a legacy wall (`solar/E` is
+       one) into a two-token result, which is the same failure as an unstated
+       round or an unstaged ask. */
+    const ledgerRel = join("design", "plan-draft", "measured", "material_legacy.json");
+    if (existsSync(join(repoRoot, ledgerRel))) {
+      mkdirSync(dirname(join(dir, ledgerRel)), { recursive: true });
+      cpSync(join(repoRoot, ledgerRel), join(dir, ledgerRel));
+    }
     const docRel = join("design", "plan-draft", "measured",
       meta.measured_round || "", `${loc}-${fac}.json`);
     mkdirSync(dirname(join(dir, docRel)), { recursive: true });
@@ -3288,7 +3310,18 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
     }).join("\n") + "\n";
     expect(text, "the emitter says nothing about the flight these cases moved")
       .toMatch(/^Stairs: /);
-    return text;
+    /* [Row 40] AND IT STANDS ON THE WALL'S REAL ASK RATHER THAN REPLACING IT.
+       A paragraph alone is not an ask this emitter would ever write: every
+       manor prompt also names the room's ruled materials, and
+       `row40:material.voice_stale` reads them. Handing the tool a
+       flight-paragraph-only ask made these cases two-token results for a
+       reason that has nothing to do with staircases — the same shape as an
+       unstaged measurement. */
+    const promoted = JSON.parse(readFileSync(
+      join(repoRoot, "backdrops", "library", "E.meta.json"), "utf8"));
+    const askRel = String(promoted.camera_id).replace(/^measured:/, "")
+      .replace(/\.png$/i, ".prompt.txt");
+    return readFileSync(join(repoRoot, askRel), "utf8") + text;
   }
 
   test("a wall whose ask named the flight trips neither of them", () => {
@@ -3439,6 +3472,14 @@ test.describe("the clause ledger — the promotion's vista mechanisms", () => {
         ? readFileSync(join(repoRoot, askRel), "utf8")
         : ask;
       if (askText !== null) writeFileSync(join(dir, askRel), askText);
+      /* [Row 40] AND THE MATERIAL LEDGER, for the reason `promoteTokens`
+         states in full: it is the third file the promotion reads, and a staged
+         tree without it turns a legacy wall into a two-token result. */
+      const ledgerRel = join("design", "plan-draft", "measured", "material_legacy.json");
+      if (existsSync(join(repoRoot, ledgerRel))) {
+        mkdirSync(dirname(join(dir, ledgerRel)), { recursive: true });
+        cpSync(join(repoRoot, ledgerRel), join(dir, ledgerRel));
+      }
       const docRel = join("design", "plan-draft", "measured",
         meta.measured_round || "", `${loc}-${fac}.json`);
       mkdirSync(dirname(join(dir, docRel)), { recursive: true });
@@ -3524,5 +3565,105 @@ test.describe("the clause ledger — the promotion's vista mechanisms", () => {
     expect(vistaTokens(() => {}, null),
       "an outdoor wall promoted from an ask nobody can read")
       .toEqual(["vista.ask_unreadable"]);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* [Row 40 — the ORIGIN] THE ROOM'S OWN MATERIALS WERE ACTUALLY ASKED FOR */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "Make sure we're not just fixing it. We need
+ * to hunt down the cause, determine its origin and bake in the consistent
+ * solution."
+ *
+ * The cause, found: the manor's 85 packets went out at 2026-08-23 03:54 under
+ * a composer that keyed materials on `room.archetype` and fell through to the
+ * panelled-parlour default. Row 29's voice table landed at 11:03 and re-emitted
+ * THIRTEEN walls under it. `--emit-manor` skips a facing that is promoted or
+ * already has candidates, so the correction could not reach any of the others —
+ * and from that hour on, whether a facing spoke its room's voice was decided by
+ * whether it happened to need a re-ask. A camera property deciding a room
+ * property. All five of the rooms row 40 measured split exactly along it.
+ *
+ * `dining_parlour/N` is the subject: a walled interior whose ask IS the
+ * plan's current ruling, so an undoctored run is clean and each case here can
+ * only be tripping its own clause. The ask is the one thing doctored — the same
+ * discipline the vista pair above uses, for the same reason. What is checked is
+ * the INSTRUCTION rather than the picture, because a painting that obeyed the
+ * wrong instruction passes every geometric gate in this repository. */
+test.describe("the clause ledger — the promotion's row-40 material mechanisms", () => {
+  const WALL = "dining_parlour/N";
+
+  /** Run the real promotion with the wall's ask rewritten; return its tokens.
+   *  `ask === undefined` leaves the ask as it stands; `null` removes it. */
+  function materialTokens(ask) {
+    const dir = stageTree();
+    try {
+      const [loc, fac] = WALL.split("/");
+      const meta = JSON.parse(readFileSync(
+        join(repoRoot, "backdrops", loc, `${fac}.meta.json`), "utf8"));
+      const cand = String(meta.camera_id).replace(/^measured:/, "");
+      mkdirSync(dirname(join(dir, cand)), { recursive: true });
+      cpSync(join(repoRoot, cand), join(dir, cand));
+      const askRel = cand.replace(/\.png$/i, ".prompt.txt");
+      const askText = ask === undefined
+        ? readFileSync(join(repoRoot, askRel), "utf8")
+        : ask;
+      if (askText !== null) writeFileSync(join(dir, askRel), askText);
+      const docRel = join("design", "plan-draft", "measured",
+        meta.measured_round || "", `${loc}-${fac}.json`);
+      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+      cpSync(join(repoRoot, docRel), join(dir, docRel));
+      /* THE LEDGER COMES OVER TOO, because it is what separates a legacy
+         admission from a refusal, and a staged tree without it would make
+         every case here green for the wrong reason. */
+      const ledgerRel = join("design", "plan-draft", "measured", "material_legacy.json");
+      if (existsSync(join(repoRoot, ledgerRel))) {
+        cpSync(join(repoRoot, ledgerRel), join(dir, ledgerRel));
+      }
+      let out = "";
+      try {
+        execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
+          "--facing", WALL, "--candidate", cand,
+          ...(meta.measured_round ? ["--round", meta.measured_round] : []),
+          ...(meta.camera_reference ? ["--reference", meta.camera_reference] : []),
+          ...(meta.camera_source ? ["--camera-source", meta.camera_source] : [])],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" });
+      } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
+      return [...tokensOf([out])].sort();
+    } finally {
+      removeTree(dir);
+    }
+  }
+
+  test("the undoctored wall promotes clean", () => {
+    /* The discrimination every case below needs. It is also the statement that
+       this clause is a NO-OP on a packet this emitter cut: the sentences it
+       looks for come from the same `rulingSentences` `manorPrompt` composes
+       with, so it can only fire on an ask made under a superseded voice. */
+    expect(materialTokens(),
+      "a wall whose ask names its room's ruled materials is promotable").toEqual([]);
+  });
+
+  ledgerCase("material.voice_stale", () => {
+    /* The disease itself, in one line: this is a parlour and the ask is the
+       servants' hall's. It is exactly what `guest_chamber/N`, `/E` and `/W`
+       were sent — the parlour default on a bedchamber — while `/S` alone got
+       the bedchamber voice, and the room has read as two rooms ever since. */
+    expect(materialTokens(
+      "Materials/textures: plain limewashed plaster carried straight down to the floor. " +
+      "Overhead: plain exposed oak joists with boards between them.\n" +
+      "  Underfoot: a floor of worn red brick laid on edge.\n"),
+    "a parlour promoted from an ask that named the servants' hall's materials")
+      .toEqual(["material.voice_stale"]);
+  });
+
+  ledgerCase("material.ask_unreadable", () => {
+    /* And the arm beside it, said separately because it is a different
+       situation: a painting whose ask nobody can read is not evidence that it
+       was asked for this room. A clause with two arms under one token is a
+       clause half of which can be deleted with the suite green. */
+    expect(materialTokens(null),
+      "a wall promoted from an ask nobody can read")
+      .toEqual(["material.ask_unreadable"]);
   });
 });

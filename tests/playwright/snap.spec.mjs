@@ -25,11 +25,12 @@
  * the painted door of a snapped wall promoted into a SCRATCH store.
  */
 import { test, expect, repoRoot, POINTER_VIEWPORT, stageTree, removeTree } from "./helpers.mjs";
-import { readFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, copyFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, copyFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
+import { askTextFor } from "../../tools/flight-evidence.mjs";
 
 const SNAP = join(repoRoot, "design", "plan-draft", "measured", "row35_snap.py");
 const BATCH = join(repoRoot, "design", "batches", "row35-snap");
@@ -275,6 +276,28 @@ test.describe("row 35 — the snap", () => {
       for (const p of [READING, rel]) {
         mkdirSync(join(dir, dirname(p)), { recursive: true });
         copyFileSync(join(repoRoot, p), join(dir, p));
+      }
+      /* [row 40] AND THE ASK BEHIND THE SNAPPED FRAME. Nothing was ever asked
+         for at `backdrops/source-snapped/<wall>/snapped.png`; the ask is the
+         original roll's, and `askTextFor` follows this reading's own `_snap`
+         block to it. `row40:material.voice_stale` reads that ask to decide
+         whether the wall was commissioned with its room's ruled materials, so
+         a tree staged without it refuses before this case reaches the click it
+         is about. `material_legacy.json` comes over for the same reason: it
+         is what admits a wall painted before row 29's voice table, and
+         servants_hall/W is one of them. */
+      {
+        const reading = JSON.parse(readFileSync(join(repoRoot, READING), "utf8"));
+        const ask = askTextFor(repoRoot, rel, reading, join);
+        if (ask.text) {
+          mkdirSync(join(dir, dirname(ask.path)), { recursive: true });
+          writeFileSync(join(dir, ask.path), ask.text);
+        }
+        const ledger = join("design", "plan-draft", "measured", "material_legacy.json");
+        if (existsSync(join(repoRoot, ledger))) {
+          mkdirSync(join(dir, dirname(ledger)), { recursive: true });
+          copyFileSync(join(repoRoot, ledger), join(dir, ledger));
+        }
       }
       execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
         "--facing", "servants_hall/W", "--candidate", rel,

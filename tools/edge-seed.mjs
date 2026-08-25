@@ -366,12 +366,26 @@ export function packetNote(seed, plan_) {
     `Seeding here is **${s.policy}** — ${s.why}.\n\n`;
 }
 
-/** The attach line's own sentence, so the two emit paths cannot word it differently. */
-export function attachLine(seed) {
-  return seed
-    ? "Attach `style-seed-warm.png` as **Image 1**, `scaffold.png` as **Image 2** and " +
-      `\`${seedFileName(seed.side)}\` as **Image 3**, in that`
-    : "Attach `style-seed-warm.png` as **Image 1** and `scaffold.png` as **Image 2**, in that";
+/** The attach line's own sentence, so the two emit paths cannot word it differently.
+ *
+ *  [row 40, Kabe's ruling] IMAGE 1 IS THIS ROOM'S OWN WALL OR THERE IS NO
+ *  IMAGE 1. `style` is what `attachStyle` returned — `null` where the room
+ *  has no agreeing wall whose own ask was its ruling, which is most of them
+ *  today. A packet that ships no style picture says so in as many words, here
+ *  and in the prompt, because a seat told to attach a file that is not in the
+ *  directory will go and find one. */
+export function attachLine(seed, style) {
+  const one = style
+    ? `\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`
+    : null;
+  const two = "`scaffold.png` as **Image 2**";
+  const three = seed ? `\`${seedFileName(seed.side)}\` as **Image 3**` : null;
+  const parts = [one, two, three].filter(Boolean);
+  const list = parts.length > 1
+    ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1]
+    : parts[0];
+  return (one ? "Attach " : "There is NO Image 1 in this packet and none is to be found " +
+    "elsewhere — the medium is in the prompt's own words. Attach ") + list + ", in that";
 }
 
 /* ------------------------------------------------------------------ */
@@ -482,11 +496,17 @@ export function packetNoteAll(seeds, plans) {
 }
 
 /** The attach line for a list of strips — the plural of `attachLine`. */
-export function attachLineAll(seeds) {
-  const parts = ["`style-seed-warm.png` as **Image 1**", "`scaffold.png` as **Image 2**"]
+export function attachLineAll(seeds, style) {
+  const parts = (style
+    ? [`\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`]
+    : [])
+    .concat(["`scaffold.png` as **Image 2**"])
     .concat(seeds.map((s) => `\`${seedFileName(s.side)}\` as **Image ${s.image_index}**`));
-  return "Attach " + parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] +
-    ", in that";
+  const lead = style ? "Attach " : "There is NO Image 1 in this packet and none is to be found " +
+    "elsewhere — the medium is in the prompt's own words. Attach ";
+  return lead + (parts.length > 1
+    ? parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1]
+    : parts[0]) + ", in that";
 }
 
 /**

@@ -94,7 +94,16 @@ export const VOICES = {
     walls: "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
     ceiling: "a flat lime-plastered ceiling with moulded plaster ribs",
     floor: "a broad worn stone flagstone floor",
-    blank: "unbroken oak wainscot under a carved frieze",
+    /* [row 40] THE SAME FABRIC AS `walls`, IN FEWER WORDS — not a second one.
+     * This read "unbroken oak wainscot under a carved frieze" while `walls`
+     * ruled fielded PANELLING with a lime-plastered wall head, and only a
+     * facing carrying no carrier ever saw it: a blank wall of the great hall
+     * or the solar was told panelling in one sentence and wainscot in another
+     * while its carrier-bearing neighbours were told only panelling. A
+     * per-FACING property deciding a per-ROOM one is row 40's whole disease.
+     * Row 36's MATERIAL_BINDING already binds `blank` and `walls` here to ONE
+     * texture id; the words were the only thing dissenting. */
+    blank: "unbroken oak panelling in fielded bays under its carved frieze, with the lime-plastered wall head above it",
     anchor: "chair_rail",
     glass: "armorial",
     window_status: "state"
@@ -106,7 +115,9 @@ export const VOICES = {
     walls: "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
     ceiling: "a flat lime-plastered ceiling with moulded plaster ribs",
     floor: "wide oak floorboards",
-    blank: "unbroken oak wainscot under a carved frieze",
+    /* [row 40] The hall's own correction, for the same reason and the same
+     * fabric — `great_chamber` carries the hall's walls by design. */
+    blank: "unbroken oak panelling in fielded bays under its carved frieze, with the lime-plastered wall head above it",
     anchor: "chair_rail",
     glass: "plain",
     window_status: "state"
@@ -530,7 +541,7 @@ const count = (n) => COUNT_WORD[n] || String(n);
  * read. What must not repeat is the description ACROSS ROOMS, and it cannot:
  * every number below comes off this facing's own carriers.
  */
-export function windowLines(voice, windows, roomName, surfaceWord) {
+export function windowLines(voice, windows, roomName, surfaceWord, hasStyleImage = true) {
   const surface = surfaceWord || "wall";
   const datum = voice.outdoor ? "ground" : "floor";
   const L = [];
@@ -540,9 +551,19 @@ export function windowLines(voice, windows, roomName, surfaceWord) {
   }
   const status = voice.window_status;
   const many = windows.length > 1;
-  L.push(`Windows: this ${surface} carries ${count(windows.length)} window opening${many ? "s" : ""}, and ` +
-    `${many ? "they are" : "it is"} not the window in Image 1 — Image 1 is a reference for paint handling, ` +
-    `palette and light only, never for how many openings this ${surface} has or how their glass is laid out.`);
+  /* [row 40, Kabe's ruling] THE SENTENCE THAT ARGUES WITH IMAGE 1 IS ONLY
+   * SPOKEN WHERE THERE IS AN IMAGE 1 TO ARGUE WITH. Where the packet carries no
+   * style picture at all, naming one is naming a thing that is not there — and
+   * a prompt that mentions a window "in Image 1" when no Image 1 exists has
+   * just described a window nobody asked for, which is the disease this ruling
+   * is curing. */
+  L.push(`Windows: this ${surface} carries ${count(windows.length)} window opening${many ? "s" : ""}` +
+    (hasStyleImage
+      ? `, and ${many ? "they are" : "it is"} not the window in Image 1 — Image 1 is a reference ` +
+        `for this room's materials, paint handling, palette and light only, never for how many ` +
+        `openings this ${surface} has or how their glass is laid out.`
+      : `, and every one of them is described here in words. There is no picture of a window in ` +
+        `this packet to copy, and none is to be invented from memory.`));
   /* Grouped by ruled width, in order of first appearance along the wall. */
   const groups = [];
   for (const w of windows) {
@@ -576,8 +597,16 @@ export function windowLines(voice, windows, roomName, surfaceWord) {
       `${surface}'s centre, and the right-hand light in the ${count(right)} right of it.`
     : `the ${left ? "left" : "right"}-hand light${many ? ", in every one of them" : ""}.`;
   L.push(`  One light in ${many ? "each window" : "it"} is a casement hung on iron hinges: ${side}`);
-  L.push("  Every light is glazed with small diamond quarrels of plain, faintly greenish crown glass set in " +
-    "lead cames, with iron saddle-bars across them.");
+  /* [row 40, Kabe's ruling] THE GLASS IS NAMED POSITIVELY, because the seed can
+   * no longer supply it. This sentence used to sit downstream of a photograph
+   * that showed four painted shields, and it is now the only description of the
+   * glass the packet contains — so it says what IS in every quarry before
+   * anything says what is not. Diamond quarrels, not rectangular ones: the
+   * lozenge quarry is the c.1660 leaded form the voice table's own period notes
+   * rule, and stating it plainly is the thing being asked for. */
+  L.push("  Every light is glazed edge to edge with small plain diamond quarries of faintly greenish " +
+    "crown glass, each quarry a plain lozenge of clear glass and nothing else, set in lead cames " +
+    "with iron saddle-bars across them.");
   if (voice.glass === "armorial") {
     L.push(`Armorial glass: the ${roomName} is the one room in this house entitled to it. Set a small painted ` +
       "armorial shield in coloured glass into the head of each window, and nowhere else in the picture. Every " +
@@ -587,8 +616,10 @@ export function windowLines(voice, windows, roomName, surfaceWord) {
       "set into the head of the first window only. Every other light on this wall, and every other pane-field of " +
       "that same window, is plain diamond quarrels.");
   } else {
-    L.push("  The glass is plain: no coloured glass, no painted or stained glass, no armorial shield, crest, " +
-      `badge, monogram, motto or insignia of any kind appears in any window on this ${surface}.`);
+    L.push("  Every quarry on this " + surface + " is that plain lozenge and no other thing: no coloured " +
+      "glass, no painted or stained glass, no armorial shield, crest, badge, monogram, motto or " +
+      "insignia of any kind appears in any window here. This room is not entitled to arms and has " +
+      "none.");
   }
   return L;
 }

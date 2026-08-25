@@ -38,7 +38,8 @@ import {
   TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, CAMERA_SOURCES
 } from "./validate-fixtures.mjs";
 import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
-import { INTERIOR_FABRIC } from "./room-voices.mjs";
+import { INTERIOR_FABRIC, voiceFor } from "./room-voices.mjs";
+import { rulingSentences, scaffoldRects, normMaterial } from "./make-scaffold.mjs";
 import { askNamesAFlight } from "./frame-language.mjs";
 import { askTextFor, paintedFlightReading, flightMask, maskCentroid } from "./flight-evidence.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
@@ -789,6 +790,114 @@ for (let a = 0; a < meta.openings.length; a++) {
     const lo = Math.max(A.x, B.x), hi = Math.min(A.x + A.w, B.x + B.w);
     if (hi > lo && Math.min(A.y + A.h, B.y + B.h) > Math.max(A.y, B.y)) {
         refusals.push(`${facingArg}: openings "${A.id}" (${A.x}..${round(A.x + A.w, 1)}) and "${B.id}" (${B.x}..${round(B.x + B.w, 1)}) share ${round(hi - lo, 1)} px of this wall — one hole cannot be two ways through, and the second one is a control nobody can reach [row27:door.painted_overlap]`);
+    }
+  }
+}
+/* ------------------------------------------------------------------ */
+/* [row 40] THE ROOM'S RULING MATERIALS WERE ACTUALLY ASKED FOR         */
+/* ------------------------------------------------------------------ */
+/* THE ORIGIN CLAUSE. Row 40 measured five rooms Kabe saw as two rooms each,
+ * and the hunt for the cause ended in the asks: their facings had been
+ * commissioned, verbatim, from DIFFERENT materials. The manor's 85 packets
+ * went out at 2026-08-23 03:54 under a composer that keyed materials on
+ * `room.archetype` and fell through to the panelled-parlour default; row 29's
+ * voice table landed at 11:03 and re-emitted THIRTEEN walls under it. Every
+ * other facing kept the ask it already had, because `--emit-manor` skips a
+ * facing that is promoted or has candidates on disk. From that hour on,
+ * whether a facing spoke its room's voice was decided by whether it happened
+ * to need a re-ask - a camera property deciding a room property. All five
+ * rooms split exactly along it.
+ *
+ * The forward half of the cure is that `manorPrompt` now composes every
+ * material sentence in one place (`materialParts`). This is the backward half,
+ * and it is the one that matters, because the store is what the player walks
+ * through: A CANDIDATE MAY NOT ENTER THE STORE UNLESS ITS OWN ASK NAMED THE
+ * MATERIALS THIS PLAN RULES FOR ITS ROOM. It is the row-29 vista clause
+ * generalised - that one asks whether an OUTDOOR wall was asked as an outdoor
+ * one, this asks whether ANY wall was asked as its own room - and it is
+ * checked on the ASK rather than on the picture for the same reason: a
+ * painting that obeyed the wrong instruction passes every geometric gate this
+ * project owns, exactly as `entrance_court/S` did.
+ *
+ * WHAT MAKES IT A NO-OP ON A CLEAN RUN, and the honest statement of its cost:
+ * the sentences come from the same `rulingSentences` the emitter composes
+ * with, so any packet this emitter cuts passes by construction. It can only
+ * fire on a candidate asked under a superseded voice - which is precisely the
+ * event nothing was watching for. Compare `--audit-materials` for the reading
+ * over the walls already promoted; this clause holds the door from here on.
+ *
+ * TWO THINGS ABOUT WHERE IT SITS AND HOW IT READS.
+ *
+ * The ask is resolved the way row 39 already resolves one, through
+ * `askTextFor`, so a SNAPPED candidate is read through the roll it was
+ * rectified from rather than refused for having no sidecar of its own. Row 35
+ * writes `backdrops/source-snapped/<wall>/snapped.png`, which never had a
+ * prompt beside it and never should: the ask that made the picture is the
+ * roll's, and the snap is a rectification of that picture, not a second one.
+ * Two clauses reading one file by two rules is how they drift apart.
+ *
+ * And it speaks WITH the other collected refusals rather than ahead of them.
+ * Row 39 already refuses a flight wall whose ask cannot be read
+ * (`row39:stair.ask_unreadable`); an early exit here answered that wall with
+ * the general clause instead of the specific one - one token displacing
+ * another, which is exactly what the clause ledger's one-token-one-arm rule
+ * exists to keep visible. The specific clause speaks first where it applies
+ * and this one covers every wall it does not. */
+const askRead = askTextFor(root, candidate, m, join);
+{
+  const alreadySaid = refusals.some((r) => r.includes("row39:stair.ask_unreadable"));
+  const { voice } = voiceFor(plan, loc, facing);
+  if (!askRead.text && !alreadySaid) {
+    refusals.push(`${facingArg}: there is no recoverable ask behind ${candidate} (${askRead.path}) - a wall is promoted only from an ask that can be SHOWN to have named this room's own materials, and an unrecoverable ask is not evidence that it did [row40:material.ask_unreadable]`);
+  }
+  if (askRead.text) {
+    const { rects } = scaffoldRects(plan, loc, facing, deriveMeta(plan, loc, facing));
+    const want = rulingSentences({
+      voice, loc, out: !!voice.outdoor,
+      openSide: rects.some((r) => r.kind === "open_edge"),
+      built: rects.some((r) => r.kind !== "open_edge")
+    });
+    const flat = normMaterial(askRead.text);
+    const absent = Object.entries(want)
+      .filter(([, v]) => v && !flat.includes(normMaterial(v)));
+    /* THE LEDGER, NOT AN EXEMPTION. Thirty-six of the sixty-one paintings
+     * already in the store were made before this clause could exist - they were
+     * asked before row 29's voice table - and a gate that
+     * refused them all would refuse the corpus rather than the defect. Production
+     * law clause 2 says what to do instead: log the miss with its why, in a
+     * machine-readable file, and CLOSE it when the cause is baked in. So the
+     * legacy walls are admitted by NAME AND BY CANDIDATE BYTES - the exact pair
+     * that was promoted before the clause landed - and by nothing else.
+     *
+     * WHAT MAKES IT A LEDGER RATHER THAN A LOOPHOLE: the list can only shrink.
+     * A re-ask produces a new candidate id, which is not in the list, so a wall
+     * repaired under this clause can never fall back through it; and a wall
+     * NOBODY repairs stays visible in the file with its own `why` instead of
+     * disappearing into a silent pass. It is written once, by
+     * `--audit-materials --seal-legacy`, and reviewed like any other ledger. */
+    const ledgerPath = join(root, "design", "plan-draft", "measured", "material_legacy.json");
+    const ledger = existsSync(ledgerPath)
+      ? (JSON.parse(readFileSync(ledgerPath, "utf8")).admitted || {}) : {};
+    const admitted = ledger[facingArg];
+    if (absent.length && admitted && admitted.candidate === candidate) {
+      console.error(`promote: ${facingArg} is a LEGACY material admission - its ask predates the ` +
+        `\`${voice.id}\` voice and names no ${absent.map(([k]) => k).join(" or ")} this plan rules. ` +
+        `Admitted by design/plan-draft/measured/material_legacy.json, which names this exact ` +
+        `candidate and no other. The miss stays OPEN until this wall is re-asked.`);
+      /* AND IT CARRIES NO LEDGER TOKEN, deliberately. The clause ledger's tokens
+       * name REFUSALS - one token, one emit site, one red case - and this is a
+       * pass with a note. A token here would ride along in the stderr of every
+       * other clause's red case that happens to fire on a legacy wall, and
+       * `everyArm` would start seeing two tokens where the case names one. */
+    } else if (absent.length) {
+      refusals.push(`${facingArg}: it was painted from an ask that never named this room's ` +
+        `ruled ${absent.map(([k]) => k).join(" or ")}. The \`${voice.id}\` voice rules ` +
+        absent.map(([k, v]) => `${k} = "${v}"`).join("; ") +
+        ` and the ask ${askRead.path} (${askRead.via}) says none of it. A room whose ` +
+        `facings are commissioned from different materials is painted as two rooms and reads as two ` +
+        `rooms when you turn - that is row 40's whole finding. Re-ask this wall with ` +
+        `\`node tools/make-scaffold.mjs --emit-consistency --from-ask --wall ${facingArg}\` ` +
+        `[row40:material.voice_stale]`);
     }
   }
 }

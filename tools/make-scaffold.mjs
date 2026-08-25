@@ -42,13 +42,24 @@
  * aperture rect beside it. Which rectangle a PROMOTED door answers to is row
  * 27's ruling and is not decided here.
  */
-import { chromium } from "playwright";
+/* [row 40] PLAYWRIGHT IS LOADED WHEN A BROWSER IS ACTUALLY WANTED, not when
+ * this module is imported. Five functions in here launch one; the material
+ * vocabulary the rest of the pipeline now reads out of this file
+ * (`materialParts`, `rulingSentences`, `normMaterial`,
+ * `materialProvenance`) launches nothing, and `promote-backdrop.mjs` is run
+ * from staged trees that carry the tools and none of node_modules. A static
+ * import made those trees fail to resolve `playwright` before a line of the
+ * promotion ran, which is a build-shaped refusal wearing a gate's clothes. */
+const chromium = {
+  async launch(...a) { return (await import("playwright")).chromium.launch(...a); }
+};
 import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
+import { askTextFor } from "./flight-evidence.mjs";
 import { facingCarriers, openingsForFacing, deriveMeta, flightsForFacing }
   from "./plan-projection.mjs";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
@@ -861,12 +872,98 @@ async function main() {
     console.log(`facings ${Object.keys(fm).length}  wrote ${out.slice(ROOT.length + 1)}`);
     return;
   }
+  if (argv.includes("--audit-materials")) {
+    /* [row 40 - the ORIGIN] The observer that did not exist on 2026-08-23.
+     * Deterministic, no browser, no model: it reads the ask every promoted
+     * painting was made from and compares it with the ask this composer writes
+     * for that room today. Run it after ANY edit to `tools/room-voices.mjs` -
+     * that is the moment the store goes stale, and it is the moment nothing
+     * used to notice. */
+    const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+    const rep = materialProvenance(plan);
+    const out = resolve(argOf("--out",
+      join(ROOT, "design", "plan-draft", "measured", "material_provenance.json")));
+    writeFileSync(out, JSON.stringify(rep, null, 2) + "\n");
+    console.log(`promoted facings   ${rep.promoted_facings}`);
+    for (const r of rep.rooms) {
+      const flags = [];
+      if (r.split) flags.push(`asked as ${r.distinct_asks} different rooms`);
+      if (r.stale.length) flags.push(`superseded ask on ${r.stale.join("")}`);
+      if (r.unprovable.length) flags.push(`ask unrecoverable on ${r.unprovable.join("")}`);
+      console.log(`  ${r.verdict.padEnd(20)} ${r.room.padEnd(20)} ${flags.join("; ")}`);
+    }
+    console.log(`report             ${out.slice(ROOT.length + 1)}`);
+    if (argv.includes("--seal-legacy")) {
+      /* THE LEDGER OF WHAT WAS ALREADY IN THE STORE WHEN THE GATE LANDED.
+       * Written once. `promote-backdrop.mjs`'s row-40 clause admits a wall
+       * only if this file names it AND names the exact candidate bytes it is
+       * being promoted from, so a re-ask - which produces a new candidate id -
+       * can never fall back through it, and a wall nobody repairs stays
+       * visible here with its own reason instead of passing silently.
+       * Production law clause 2: the miss is logged with its why. Clause 3:
+       * it CLOSES when the wall is re-asked, and its line here is deleted in
+       * the same commit. */
+      const admitted = {};
+      for (const r of rep.rooms) {
+        for (const f of r.facings) {
+          if (f.verdict === "current") continue;
+          admitted[`${r.room}/${f.facing}`] = {
+            candidate: f.candidate,
+            voice: f.voice,
+            why: f.verdict === "unrecoverable"
+              ? f.why
+              : `the ask this painting was made from names no ${f.missing.join(" or ")} ` +
+                `this plan rules for the room; it predates the voice the room now speaks`,
+            asked: f.asked || null,
+            ruled: f.ruling,
+            closes_when: `node tools/make-scaffold.mjs --emit-consistency --from-ask --wall ${r.room}/${f.facing}`
+          };
+        }
+      }
+      const lp = join(ROOT, "design", "plan-draft", "measured", "material_legacy.json");
+      writeFileSync(lp, JSON.stringify({
+        _what_this_is:
+          "[row 40 - the ORIGIN] The paintings that were already promoted when " +
+          "promote-backdrop.mjs's row40:material.voice_stale clause landed. Each was " +
+          "made from an ask that does not name the materials this plan rules for its " +
+          "room, because the manor's 85 packets went out at 2026-08-23 03:54 under a " +
+          "composer that keyed materials on room.archetype and row 29's voice table " +
+          "landed at 11:03 and re-emitted only thirteen walls. This file is a LEDGER, " +
+          "not an exemption: an entry admits one facing from one exact candidate, a " +
+          "re-ask produces a new candidate id that is not in here, and the list can " +
+          "only shrink. Delete an entry in the same commit that re-asks its wall.",
+        _sealed: new Date().toISOString().slice(0, 10),
+        _closes_with: "node tools/make-scaffold.mjs --emit-consistency --from-ask",
+        open: Object.keys(admitted).length,
+        admitted
+      }, null, 2) + "\n");
+      console.log(`legacy ledger      ${lp.slice(ROOT.length + 1)}  (${Object.keys(admitted).length} open)`);
+      return;
+    }
+    /* A NON-ZERO EXIT IS THE POINT. This is a gate, and a gate that cannot
+     * refuse is a report. `--warn-only` exists for the ledger pass that has to
+     * write the report while the legacy store is still being repaired. */
+    const bad = rep.rooms.filter((r) => r.verdict !== "current");
+    if (bad.length && !argv.includes("--warn-only")) {
+      console.error(`\nmake-scaffold refused: ${bad.length} room(s) in the store were not painted ` +
+        `from this plan's own ruling materials. Cut their re-asks with ` +
+        `\`--emit-consistency --from-ask\`.`);
+      process.exitCode = 1;
+    }
+    return;
+  }
   if (argv.includes("--emit-consistency")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
     await emitConsistency(out, {
       technique: argOf("--technique", "t2"),
       rolls: Number(argOf("--rolls", "1")),
       report: argOf("--report", ""),
+      /* [row 40 - the ORIGIN] Source the outliers from the ASK rather than
+       * from the pixels. The pixel measure needs every facing of a room
+       * painted before it can speak, and it is blind on the one axis its own
+       * sweep proved must not vote (stair_landing). The ask is on disk the
+       * moment a roll is made and it cannot be fooled by exposure. */
+      fromAsk: argv.includes("--from-ask"),
       rooms: argv.reduce((a, x, i) => (x === "--room" ? a.concat(argv[i + 1]) : a), []),
       walls: argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), [])
     });
@@ -1234,6 +1331,11 @@ export function emitPackets(outDir) {
     for (const t of TECHNIQUES) {
       const dir = join(outDir, "packets", `${loc}-${f}`, t.id);
       mkdirSync(dir, { recursive: true });
+      /* [row 40] THE ROW-23 MATRIX KEEPS ITS SEED. It is a two-wall experiment
+         on the STUDY, and the style seed IS a painting of the study - Kabe's
+         ruling that Image 1 must be a wall of the room being painted is
+         satisfied here by the seed itself, and its arms are the hall's ration
+         being measured, not leaking. */
       copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
       const img2 = `${loc}-${f}-${t.image2}.png`;
       copyFileSync(join(outDir, img2), join(dir, img2));
@@ -1333,6 +1435,100 @@ asks you to judge a result: generate, save to the named paths, and report the pa
 const PIER_ANCHOR_SENTENCE = "The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.";
 const OPEN_SIDE_FABRIC = "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky";
 
+/* ------------------------------------------------------------------ */
+/* [row 40] THE ROOM'S MATERIAL ASK HAS ONE HOME                        */
+/* ------------------------------------------------------------------ */
+/* Row 40's ORIGIN hunt ended here. The five rooms Kabe saw as two rooms were
+ * not painted badly and were not painted from divergent prompts by accident:
+ * their facings were asked, verbatim, for DIFFERENT MATERIALS, seven hours
+ * apart in the commit history.
+ *
+ *   `4efd69d` 2026-08-23 03:54  the manor run emits 85 packets. The composer
+ *                              then keyed materials on `room.archetype` and
+ *                              fell through to the panelled-parlour default,
+ *                              so a bedchamber, a garden parlour, a kitchen
+ *                              and the servants' hall were all asked for
+ *                              "dark hand-finished oak wall panelling, aged
+ *                              parchment-toned plaster ceiling, wide worn oak
+ *                              floorboards".
+ *   `e0f02b6` 2026-08-23 11:03  row 29 lands the voice table — and re-emits
+ *                              THIRTEEN walls under it. Every other facing
+ *                              keeps the packet it already has, because
+ *                              `--emit-manor`'s reuse rule skips a facing that
+ *                              is promoted or has candidates on disk.
+ *   `d223961` 2026-08-23 14:16  the sweep re-asks 27 held walls, and those
+ *                              carry the voice.
+ *
+ * So from 11:03 onward, WHETHER A FACING SPOKE ITS ROOM'S VOICE WAS DECIDED BY
+ * WHETHER IT HAPPENED TO NEED A RE-ASK — a camera property, not a room
+ * property. Four walls of one room, rolled independently, landed on both sides
+ * of that line and the room stopped being one room. guest_chamber S is voiced
+ * and N/E/W are not; master_bedchamber N/S are and E/W are not;
+ * servants_hall S/W are and N/E are not; garden_room N/E are and W is not;
+ * closet_chamber N is and E/W are not. That is the whole of the disease and it
+ * matches the pixel measure facing for facing.
+ *
+ * THE STRUCTURAL CAUSE IS NOT THE OLD TABLE — a table gets corrected. It is
+ * that a correction to the table CANNOT REACH THE STORE: idempotence-by-
+ * existence means the emitter never re-asks a wall it has already got, and
+ * nothing anywhere noticed that a promoted painting was made from an ask the
+ * current composer would no longer write. `materialProvenance` below is that
+ * missing observer, and it needs no pixels and no model.
+ *
+ * THE FIRST HALF OF THE CURE IS THIS FUNCTION. Every material sentence in a
+ * manor ask is composed HERE and nowhere else, so the auditor asks the same
+ * code the emitter answers with, and a room's four facings cannot be given
+ * different words unless the plan itself makes them different rooms. */
+export function materialParts({ voice, loc, out, openSide, built }) {
+  if (out) {
+    /* AN OUTDOOR FACING WITH OPENINGS IN IT IS THE HOUSE'S OWN ELEVATION, and
+     * the plan decides which by whether it draws any carrier on that wall line
+     * - `entrance_court/N` six windows and a door, `privy_garden/N` nothing.
+     *
+     * THIS IS THE ONE LICENSED PER-FACING DIFFERENCE and it is declared rather
+     * than accidental: a side with no wall on it genuinely is not the fabric
+     * the walled sides are, and the row-40 gate exempts exactly this branch
+     * by name. Every other per-facing difference in a room's materials is the
+     * disease. */
+    return {
+      walls: (openSide && !built) ? OPEN_SIDE_FABRIC
+        : (built && voice.walls_with_openings) || voice.walls,
+      overhead: null,
+      underfoot: voice.floor,
+      hangings: null
+    };
+  }
+  return {
+    walls: voice.walls,
+    overhead: voice.ceiling,
+    underfoot: voice.floor,
+    hangings: voice.hangings ? hangingsFor(loc) : null
+  };
+}
+
+/** The same parts, as the physical lines the ask states them on. */
+export function materialLines(ctx) {
+  const p = materialParts(ctx);
+  const L = [];
+  if (ctx.out) {
+    L.push(`Materials/textures: ${p.walls}. Underfoot: ${p.underfoot}.`);
+    L.push("  Overhead is open sky with weather in it, and daylight falls from it onto everything");
+    L.push("  in frame. This place is out of doors and everything in it is built for weather.");
+  } else {
+    L.push(`Materials/textures: ${p.walls}. Overhead: ${p.overhead}.`);
+    L.push(`  Underfoot: ${p.underfoot}.`);
+    if (p.hangings) L.push(`  Hangings: ${p.hangings}.`);
+  }
+  return L;
+}
+
+/** The ruling material phrases alone - what the row-40 gate compares one
+ *  facing against another with, and what the provenance auditor looks for in
+ *  the prompt a promoted painting was actually made from. Carrier and opening
+ *  wording is deliberately not in here: a door is a per-facing fact and the
+ *  room's fabric is not. */
+export const rulingSentences = materialParts;
+
 const CARRIER_SENTENCE = {
   /* "…and the space beyond is unlit": row 27's lesson folded in per production
    * law clause 6. The promotion instrument reads a painted doorway as a VOID —
@@ -1389,7 +1585,7 @@ function whichWords(n) {
  * and by role and the interaction is stated. The pixels are the appearance; this
  * sentence is the only thing that says what to do with them.
  */
-export function manorPrompt(plan, key, meta, rects, correction, seed) {
+export function manorPrompt(plan, key, meta, rects, correction, seed, opts = {}) {
   const [loc, f] = key.split("/");
   const room = plan.rooms.find((r) => r.id === loc);
   const side = { N: "north", E: "east", S: "south", W: "west" }[f];
@@ -1434,6 +1630,13 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
    * `promote-backdrop.mjs`'s row-32 refusal reads, so the ask and the refusal
    * cannot be describing two different staircases. */
   const flights = flightsForFacing(plan, loc, f, meta, CANVAS_W);
+  /* [row 40, Kabe's ruling] WHICH PICTURE, IF ANY, STANDS AS IMAGE 1. Derived
+   * here rather than handed in, so EVERY caller of this composer - the manor
+   * emit, the re-ask, the consistency re-ask, the suite's own 88-prompt sweep -
+   * gets the ruling without having to remember it. `null` is a real answer and
+   * the common one: a room with no wall this can vouch for gets no style image,
+   * and the medium goes in words. */
+  const style = opts.style !== undefined ? opts.style : styleImageFor(plan, key);
   /* Underfoot and overhead: an outdoor facing has ground and sky where an
    * interior has a floor and a ceiling, and every line below that would
    * otherwise say "floor" or "room" asks the voice instead. */
@@ -1462,18 +1665,39 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
     L.push(`Correction on a previous attempt at this exact wall: ${say}`);
     L.push("  Everything else below still holds; this correction is the change being asked for.");
   }
-  L.push("Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality");
-  L.push("  and brush handling. It is NOT a reference for this place's materials, for how many");
-  L.push("  openings this wall has, or for what is in its glass — those are the words below, and");
-  L.push("  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout");
-  L.push("  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.");
+  /* [row 40, Kabe's ruling] IMAGE 1 IS A WALL OF THIS ROOM OR IT IS NOTHING.
+   * What stood here made a painting of the STUDY the reference for every wall
+   * in the house, and then spent four lines telling the painter not to copy its
+   * materials or its glass. It copied them anyway: `privy_garden/N` was asked
+   * for weathered ashlar under open sky and came back with the study's oak
+   * wainscot round a garden, and seven of the nineteen promoted plain-glass
+   * window walls carry the study window's coloured shields. A reference that
+   * has to be argued with in every packet is a reference in the wrong place. */
+  if (style) {
+    L.push(`Input images: ${style.role_sentence}`);
+    L.push("  Image 2 is a geometric layout diagram of the surface to be painted: it is a");
+    L.push("  technical drawing, not artwork to imitate.");
+  } else {
+    /* AND THE REASON IS TRUE OF EVERY ROOM THIS BRANCH REACHES. Some have no
+     * painted wall at all; some have four and cannot vouch for any of them —
+     * `guest_chamber` is the second kind, and saying "none has been painted"
+     * there would be a lie in the first sentence of the ask. */
+    L.push("Input images: THERE IS NO IMAGE 1 IN THIS PACKET. No painting of any wall is given,");
+    L.push("  because this room has none yet that it can vouch for, and a picture of some other");
+    L.push("  room would be worse than none. Every quality of this picture — its medium, its");
+    L.push("  palette, its light and its materials — is in the words below and in nothing else.");
+    L.push("  Image 2 is a geometric layout diagram of the surface to be painted: it is a");
+    L.push("  technical drawing, not artwork to imitate.");
+  }
   L.push("  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.");
   /* [row 38] ONE PHYSICAL LINE, like every other declared sentence in this
    * composer — the t1/t2 control counts lines, and a sentence wrapped across
    * two of them has changed the diff. */
   if (seed) L.push(`  ${seed.role_sentence}`);
   L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a circa-1660 English manor,`);
-  L.push("  matching Image 1's paint handling and Image 2's geometry exactly.");
+  L.push(style
+    ? "  matching Image 1's paint handling and Image 2's geometry exactly."
+    : "  in the medium described below and matching Image 2's geometry exactly.");
   L.push(`Gate anchor: ${anchor.line}, ${CHAIR_RAIL_M.toFixed(2)} m.`);
   /* [row 34] THE CAMERA IS ASKED FOR AS A FINISHED PICTURE, NOT AS AN OPERATION.
    * What stood here described the camera and told the painter to reproduce
@@ -1512,7 +1736,22 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
      * staircase across most of its picture — `great_stair_hall/W` is exactly
      * that. Saying "no built feature at all" there contradicts the Stairs
      * paragraph below it, so the wall's blankness is stated as the WALL's. */
-    L.push(`  This ${SURFACE} carries no opening and no built feature at all: it is ${voice.blank}, and`);
+    /* [row 40] AND IT IS THE SAME FABRIC AS EVERY OTHER FACING OF THIS ROOM.
+     * What stood here was `voice.blank` — a SECOND material sentence, written
+     * per voice and reached only by a facing that carries no carrier. In
+     * `hall_state` and `great_chamber` the two disagreed in words: `walls`
+     * said "dark oak wall panelling in fielded bays ... lime-plastered wall
+     * head" and `blank` said "unbroken oak wainscot under a carved frieze", so
+     * a blank facing of the great hall or the solar was told panelling in one
+     * sentence and wainscot in another while its carrier-bearing neighbours
+     * were told only panelling. That is the row-40 disease in miniature — a
+     * per-FACING property deciding a per-ROOM one — and row 36's
+     * MATERIAL_BINDING already binds `blank` and `walls` to one texture id, so
+     * the words were the only thing dissenting. A blank facing now carries no
+     * fabric vocabulary of its own at all: it points at the one
+     * `Materials/textures` sentence every facing of the room shares. */
+    L.push(`  This ${SURFACE} carries no opening and no built feature at all: the fabric named under`);
+    L.push(`  Materials/textures below runs across the whole of it, unbroken corner to corner, and`);
     L.push(flights.length
       ? `  the anchor above is the one ruled feature in it. What else this view holds stands on the`
       : "  the anchor above is the one ruled feature in it.");
@@ -1524,28 +1763,30 @@ export function manorPrompt(plan, key, meta, rects, correction, seed) {
     L.push(line);
   }
   /* ── the voice ── */
-  if (out) {
-    /* AN OUTDOOR FACING WITH OPENINGS IN IT IS THE HOUSE'S OWN ELEVATION, and
-     * the plan decides which by whether it draws any carrier on that wall line
-     * — `entrance_court/N` six windows and a door, `privy_garden/N` nothing. */
-    /* AND AN OPEN EDGE IS NOT AN OPENING IN A WALL. Counting the court's
-     * mouth as a carrier would dress its south side as the house's brick
-     * elevation; it is the absence of a wall, and the fabric says so. */
-    const built = rects.filter((r) => r.kind !== "open_edge");
-    const fabric = (openSide && !built.length) ? OPEN_SIDE_FABRIC
-      : (built.length && voice.walls_with_openings) || voice.walls;
-    L.push(`Materials/textures: ${fabric}. Underfoot: ${voice.floor}.`);
-    L.push("  Overhead is open sky with weather in it, and daylight falls from it onto everything");
-    L.push("  in frame. This place is out of doors and everything in it is built for weather.");
-  } else {
-    L.push(`Materials/textures: ${voice.walls}. Overhead: ${voice.ceiling}.`);
-    L.push(`  Underfoot: ${voice.floor}.`);
-    if (voice.id === "bedchamber") L.push(`  Hangings: ${hangingsFor(loc)}.`);
-  }
+  /* AND AN OPEN EDGE IS NOT AN OPENING IN A WALL. Counting the court's mouth
+   * as a carrier would dress its south side as the house's brick elevation; it
+   * is the absence of a wall, and the fabric says so. */
+  for (const line of materialLines({
+    voice, loc, out, openSide: !!openSide,
+    built: rects.some((r) => r.kind !== "open_edge")
+  })) L.push(line);
   /* ── the windows, and the heraldry ration ── */
-  for (const line of windowLines(voice, windows, name, SURFACE)) L.push(line);
-  L.push("Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm");
-  L.push("  browns, cool ambient light, gentle natural falloff.");
+  for (const line of windowLines(voice, windows, name, SURFACE, !!style)) L.push(line);
+  /* [row 40, Kabe's ruling] AND WHERE NO PICTURE CARRIES THE MEDIUM, THE WORDS
+   * DO, at the resolution a picture was carrying. This is the sentence that has
+   * to stand on its own in a packet with no Image 1, so it names the paint, the
+   * handling, the palette and the light rather than pointing at a photograph. */
+  if (style) {
+    L.push("Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm");
+    L.push("  browns, cool ambient light, gentle natural falloff.");
+  } else {
+    L.push("Style/medium: fine oil realism, painted alla prima on a warm ground, with tactile");
+    L.push("  brush detail and visible impasto in the lit passages and thin scumbled shadow in the");
+    L.push("  dark ones. The palette is deep warm browns, umber and ochre, with cool grey-green");
+    L.push("  daylight; the light is soft, even and sourceless, with gentle natural falloff into");
+    L.push("  the corners and no hot spot anywhere. Photographic sharpness is wrong for this: it");
+    L.push("  is a painting, and the brush is visible in it.");
+  }
   if (out) {
     L.push(`Constraints: the ${name} is completely empty. Nobody is in it and no animal is in it;`);
     L.push("  it holds no cart and no garden furniture, and it carries no tub and no statuary. Its");
@@ -1732,15 +1973,18 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = manorPrompt(plan, fac.key, meta, rects, null, seed);
+    /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
+     * never any wall of another room: this room's own agreeing wall, or no
+     * picture at all and the medium in words. */
+    const style = attachStyle(plan, fac.key, dir);
+    const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style });
     writeFileSync(join(dir, "prompt.txt"), text);
-    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
     writeFileSync(join(dir, "PACKET.md"),
       `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
       packetNote(seed, seedPlan) +
-      `${attachLine(seed)}\n` +
+      `${attachLine(seed, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
@@ -1951,7 +2195,10 @@ async function emitRetries(outDir, opts) {
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
-    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
+     * never any wall of another room: this room's own agreeing wall, or no
+     * picture at all and the medium in words. */
+    const style = attachStyle(plan, w.key, dir);
     /* [row 38] A RE-ASK IS A FRESH FULL-FRAME ASK, so it seeds like one. It is
      * also where seeding lands first in practice: the corpus's unpainted walls
      * mostly have painted neighbours by now, and this is the path that carries
@@ -1961,7 +2208,7 @@ async function emitRetries(outDir, opts) {
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
-    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed);
+    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style });
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 2); i++) {
@@ -1986,7 +2233,7 @@ async function emitRetries(outDir, opts) {
           `the reason lives here.\n\n`
         : "") +
       packetNote(seed, seedPlan) +
-      `${attachLine(seed)}\n` +
+      `${attachLine(seed, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
@@ -2132,18 +2379,384 @@ export function consistencySentence(ruling, room, band, measured) {
     `different ceiling, not a different floor. ${measured}`;
 }
 
+/* ------------------------------------------------------------------ */
+/* [row 40 — the ORIGIN] THE MATERIAL-PROVENANCE AUDIT                  */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "Make sure we're not just fixing it. We need
+ * to hunt down the cause, determine its origin and bake in the consistent
+ * solution."
+ *
+ * `room_consistency.py` measures PIXELS and needs a promoted painting of each
+ * facing before it can say anything. This measures the ASK, and it needs
+ * neither pixels nor a model. For every promoted facing it recovers the exact
+ * prompt its promoted candidate was painted from — the sidecar every roll
+ * writes beside its image — and asks two questions the pixel measure cannot:
+ *
+ *   1. does this painting's ask carry the material sentences the CURRENT
+ *      composer would write for this room?  A `no` means the store holds a
+ *      painting made under a superseded voice, which is the exact way the
+ *      five mismatched rooms came to be.
+ *   2. do all the promoted facings of one room share ONE material ask?  A `no`
+ *      is a room that was literally commissioned as two rooms.
+ *
+ * IT IS STRICTLY STRONGER THAN THE PIXEL MEASURE ON ITS OWN GROUND. It names
+ * every room the pixel measure flagged, and it also names `stair_landing` —
+ * the miss row 40 logged OPEN because its two ceilings differ almost purely in
+ * brightness, the one axis the pixel sweep proved must not vote. In the asks
+ * there is nothing subtle about it: N was asked for "a plain lime-plastered
+ * ceiling" and E for a "boarded ceiling". A measurement that reads the
+ * instruction cannot be fooled by exposure.
+ *
+ * AND IT IS THE OBSERVER THAT DID NOT EXIST. The emitter is idempotent by
+ * existence — a promoted backdrop removes its facing from the order — so a
+ * correction to the voice table can never reach a wall that is already
+ * painted. Nothing was watching for that. This is.
+ */
+/* THE COMPARISON IS OF MATERIALS, NOT OF PROSE. The composer's wording moved
+ * three times while the manor was being painted — "Materials and period
+ * detail:" became "Materials/textures:" at row 34, and the flat comma list
+ * became three sentences at row 29 — and none of that is a different room.
+ * `library` is the case that proves the point: N carries "Overhead: an aged
+ * parchment-toned plaster ceiling" and E/W carry "aged parchment-toned plaster
+ * ceiling" inside a comma list. Same ceiling. A gate that cut a re-ask packet
+ * for that would spend a model call on an article, so leading articles,
+ * punctuation and case are normalised away and what is compared is the
+ * material phrase itself. */
+export const normMaterial = (s) => String(s || "")
+  .toLowerCase()
+  .replace(/\b(materials\/textures|materials and period detail|materials|overhead|underfoot|hangings)\s*:/g, " ")
+  .replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+  .replace(/\b(?:a|an|the)\s+/g, " ")
+  .replace(/[.,;:]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+export function materialProvenance(plan, opts = {}) {
+  const root = opts.root || ROOT;
+  const statePath = opts.runState ||
+    join(root, "design", "batches", "row23-scaffold", "manor", "run-state.json");
+  const walls = existsSync(statePath)
+    ? (JSON.parse(readFileSync(statePath, "utf8")).walls || {}) : {};
+
+  const rooms = [];
+  for (const room of plan.rooms || []) {
+    const facings = [];
+    for (const f of Object.keys(room.facings || {})) {
+      const key = `${room.id}/${f}`;
+      const metaPath = join(root, "backdrops", room.id, `${f}.meta.json`);
+      if (!existsSync(metaPath)) continue;                       // not promoted
+      const meta = JSON.parse(readFileSync(metaPath, "utf8"));
+      /* WHICH CANDIDATE IS IN THE STORE. `run-state.json` is the loop's own
+       * record; the promoted meta's `camera_id` is the promotion's. They agree
+       * where both exist, and either alone is enough to find the ask. */
+      const cand = walls[key] && walls[key].candidate
+        ? walls[key].candidate
+        : String(meta.camera_id || "").replace(/^measured:/, "") || null;
+      const { voice } = voiceFor(plan, room.id, f);
+      const derived = deriveMeta(plan, room.id, f);
+      const { rects } = scaffoldRects(plan, room.id, f, derived);
+      const want = rulingSentences({
+        voice, loc: room.id, out: !!voice.outdoor,
+        openSide: rects.some((r) => r.kind === "open_edge"),
+        built: rects.some((r) => r.kind !== "open_edge")
+      });
+      const rec = { facing: f, voice: voice.id, candidate: cand || null, ruling: want };
+      /* THE ASK IS RESOLVED THE WAY THE PROMOTION RESOLVES IT, through
+       * `askTextFor`, so a row-35 SNAPPED candidate is read through the roll
+       * it was rectified from rather than counted as unrecoverable. Two
+       * readers of the same file with two rules is how a gate and its audit
+       * come to disagree about the same wall. */
+      const measured = meta.measured_round
+        ? join(root, "design", "plan-draft", "measured", meta.measured_round, `${room.id}-${f}.json`)
+        : join(root, "design", "plan-draft", "measured", `${room.id}-${f}.json`);
+      const mm = existsSync(measured) ? JSON.parse(readFileSync(measured, "utf8")) : null;
+      const ask = cand ? askTextFor(root, cand, mm, join) : { text: null, path: null, via: null };
+      if (!ask.text) {
+        /* REPORTED, NEVER SKIPPED — production law leaves no gate that cannot
+         * fail. A painting in the store whose ask cannot be recovered is not a
+         * pass; it is a wall nobody can prove was asked for this room. */
+        rec.verdict = "unrecoverable";
+        rec.why = cand
+          ? `the ask this candidate was painted from is not on disk: no ${ask.path}, and the ` +
+            `measurement names no roll it was rectified from`
+          : "neither run-state.json nor the promoted meta names the candidate this was painted from";
+        rec.asked = null;
+        facings.push(rec);
+        continue;
+      }
+      const text = ask.text;
+      rec.ask_path = ask.path;
+      rec.ask_via = ask.via;
+      const flat = normMaterial(text);
+      const missing = [];
+      for (const [k, v] of Object.entries(want)) {
+        if (!v) continue;
+        if (!flat.includes(normMaterial(v))) missing.push(k);
+      }
+      rec.missing = missing;
+      rec.verdict = missing.length ? "stale" : "current";
+      /* THE ASK'S OWN FINGERPRINT, so two facings can be compared on what they
+       * were told rather than on whether they match today. A room whose
+       * facings were all asked the same superseded thing is at least ONE room;
+       * a room whose facings were asked different things is two. */
+      const said = [];
+      for (const line of text.split("\n")) {
+        const t = line.trim();
+        /* THE HEADINGS THE MANOR'S ASKS HAVE ACTUALLY USED, which is more than
+         * the composer writes today: `study/W` was hand-written before the
+         * manor composer existed and states its fabric under "Style and
+         * materials:". A heading this list does not know is not a wall with no
+         * materials — it is a wall this fingerprint cannot read, and the two
+         * are recorded differently below. */
+        if (/^(Materials\b|Materials\/textures:|Style and materials:|Overhead:|Underfoot:|Hangings:)/.test(t)) {
+          /* THE LABELS ARE STRIPPED, because the composer renamed them twice
+           * while the manor was being painted ("Materials and period detail:"
+           * became "Materials/textures:" at row 34; the flat comma list became
+           * three labelled sentences at row 29) and a renamed label is not a
+           * different room. What is compared is the material words. */
+          said.push(t.replace(/^(Materials(\/textures| and period detail)?|Style and materials|Overhead|Underfoot|Hangings):/, "").trim());
+        }
+      }
+      rec.asked = said.join(" ");
+      /* AND AN ASK WHOSE MATERIALS THIS CANNOT FIND NEVER COMPARES EQUAL TO
+       * ANOTHER ONE. Two unreadable asks are not evidence that a room was
+       * commissioned once; keying them both to a shared "(none)" would make a
+       * room of two illegible facings read as one ask and pass. */
+      rec.ask_key = normMaterial(said.join(" ")) ||
+        `(no material sentence this audit can read, in ${ask.path})`;
+      facings.push(rec);
+    }
+    if (!facings.length) continue;
+    /* AN UNRECOVERABLE ASK IS NOT A SECOND ASK. It is an unanswerable
+     * question, and counting it as a split would cut a re-ask packet for a
+     * wall that may be perfectly correct. It gets its own verdict and its own
+     * line, because production law leaves no gate that cannot fail. */
+    const known = facings.filter((x) => x.verdict !== "unrecoverable");
+    const asks = new Set(known.map((x) => x.ask_key));
+    const stale = known.filter((x) => x.verdict !== "current");
+    const unprovable = facings.filter((x) => x.verdict === "unrecoverable");
+    rooms.push({
+      room: room.id,
+      facings,
+      distinct_asks: asks.size,
+      /* A ROOM COMMISSIONED AS TWO ROOMS. This is the finding Kabe walked into. */
+      split: asks.size > 1,
+      stale: stale.map((x) => x.facing),
+      unprovable: unprovable.map((x) => x.facing),
+      verdict: asks.size > 1 ? "split-ask"
+        : stale.length ? "one-ask-superseded"
+        : unprovable.length ? "unprovable"
+        : "current"
+    });
+  }
+  return {
+    instrument: "tools/make-scaffold.mjs materialProvenance()",
+    what: "the material sentences every promoted painting was actually asked for, " +
+      "against the sentences this composer writes today",
+    promoted_facings: rooms.reduce((n, r) => n + r.facings.length, 0),
+    split_rooms: rooms.filter((r) => r.split).map((r) => r.room),
+    superseded_rooms: rooms.filter((r) => r.verdict === "one-ask-superseded").map((r) => r.room),
+    unrecoverable: rooms.flatMap((r) =>
+      r.facings.filter((f) => f.verdict === "unrecoverable").map((f) => `${r.room}/${f.facing}`)),
+    rooms
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* [row 40] IMAGE 1 IS NEVER A WALL FROM ANOTHER ROOM                   */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "So why do we give it the reference image of
+ * the study? I think it biases it too much. I mean I know why that window with
+ * the botched insignias is every window generated for example."
+ *
+ * He is right, and the store says so twice.
+ *
+ *   `privy_garden/N`, roll `row23-1b134204`. Its ask reads, in full,
+ *   "Materials and period detail: weathered ashlar and brick, open sky above,
+ *   packed earth and stone paving underfoot." It names no wood at all. The
+ *   painting has dark oak FIELDED WAINSCOT running round an outdoor garden
+ *   under open sky. Image 1 is the only place in that packet where fielded oak
+ *   panelling exists, so it is where the panelling came from. That picture is
+ *   what Kabe vetoed as "exterior garden has interior wall outside".
+ *
+ *   The glass, counted rather than asserted: of the 19 promoted facings the
+ *   plan gives a window and whose voice rules PLAIN glass, SEVEN carry
+ *   saturated daylight-bright coloured glass their ask never asked for. The
+ *   control is what makes it evidence — `great_hall`, the one room this
+ *   project's own heraldry ration allows arms in quantity, scores 71 px and
+ *   20 px, LESS than nine of the rooms forbidden them. The shields went
+ *   everywhere except the room entitled to them.
+ *
+ * STATED HONESTLY, because it bounds the claim: all seven of those walls were
+ * painted from asks that predate row 29 and carry no plain-glass refusal at
+ * all, so the store cannot tell us whether words alone would have beaten the
+ * seed. That experiment has never been run. This ruling removes the need to
+ * run it.
+ *
+ * AND IT IS NOT THE ORIGIN OF THE FIVE MISMATCHED ROOMS. Those split exactly
+ * on the archetype/voice date, facing for facing, and wherever an ask named a
+ * fabric far from the seed's the PAINTING FOLLOWED THE ASK — servants_hall S/W
+ * came back limewash over brick under exposed joists, garden_room N/E light
+ * wainscot over paviours, master_bedchamber N/S tapestry hangings,
+ * guest_chamber/S a red worsted hanging, which is as far from a panelled study
+ * as this house goes. Two different diseases, two different causes, and the
+ * seed owns the second one.
+ *
+ * SO THE RULING, ruled by Kabe and folded in here: Image 1 is NEVER a wall
+ * from another room. Where the room has an agreeing painted majority it is
+ * that room's OWN wall, and it references this room's materials, medium and
+ * light and nothing else — geometry comes from Image 2. Where the room has no
+ * majority to trust, NO style image is attached at all and the medium is
+ * carried in words. A packet that cannot show a wall of this room shows none.
+ *
+ * TWO CONDITIONS, and the second is row 40's own. The pixel measure must put
+ * the wall inside the room's agreeing majority, AND the ask audit must say
+ * that wall's own ask was this room's ruling — because a majority wall painted
+ * from the wrong ask would hand the next roll the wrong material with a
+ * photograph behind it. `guest_chamber` is why: its pixel majority is the
+ * three facings that are wrong. */
+/** Put this facing's Image 1 into its packet, or put none there and say so.
+ *  Returns what `manorPrompt` must be told, so the picture in the packet and
+ *  the sentence beside it can never disagree about what Image 1 is. */
+export function attachStyle(plan, key, dir, opts = {}) {
+  const style = styleImageFor(plan, key, opts);
+  if (style) copyFileSync(join(opts.root || ROOT, style.rel), join(dir, style.file));
+  return style;
+}
+
+const _provByRoot = new Map();
+function provenanceCache(plan, root) {
+  if (!_provByRoot.has(root)) _provByRoot.set(root, materialProvenance(plan, { root }));
+  return _provByRoot.get(root);
+}
+
+export function styleImageFor(plan, key, opts = {}) {
+  const root = opts.root || ROOT;
+  const [loc, f] = key.split("/");
+  const reportPath = opts.report ||
+    join(root, "design", "plan-draft", "measured", "room_consistency.json");
+  /* NO MEASUREMENT IS NOT A MAJORITY. A room nobody has compared has no wall
+   * this can vouch for, and the safe answer is no picture. */
+  if (!existsSync(reportPath)) return null;
+  const rep = JSON.parse(readFileSync(reportPath, "utf8"));
+  const room = (rep.rooms || []).find((r) => r.room === loc);
+  if (!room) return null;
+  const mismatched = String(room.verdict || "").startsWith("mismatched");
+  if (mismatched && room.no_majority) return null;
+  const agreeing = mismatched ? (room.majority || []) : (room.facings || []);
+  /* THE AUDIT IS READ ONCE PER PROCESS, not once per facing. This composer is
+   * called 88 times in one sweep and `materialProvenance` walks the whole
+   * store; without the memo the row-40 test alone re-read 61 prompts 88 times.
+   * Keyed by root so a staged tree in a test never reads the repository's. */
+  const prov = opts.provenance || provenanceCache(plan, root);
+  const pr = (prov.rooms || []).find((r) => r.room === loc);
+  const ruled = new Set((pr ? pr.facings : [])
+    .filter((x) => x.verdict === "current").map((x) => x.facing));
+  const pick = agreeing
+    .filter((g) => g !== f)
+    .filter((g) => ruled.has(g))
+    .filter((g) => existsSync(join(root, "backdrops", loc, `${g}.png`)))
+    .sort()[0];
+  if (!pick) return null;
+  const name = ((plan.rooms || []).find((r) => r.id === loc) || {}).name || loc;
+  return {
+    rel: `backdrops/${loc}/${pick}.png`,
+    file: "style-reference.png",
+    room: loc,
+    facing: pick,
+    why: `${loc}/${pick} is inside this room's agreeing walls (room_consistency.json) ` +
+      `and its own ask was this room's ruling (materialProvenance)`,
+    role_sentence:
+      `Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM, the ${pick} wall of the ` +
+      `${String(name).toLowerCase()}. It is the reference for this room's materials, its paint ` +
+      `medium, its palette and its light, and for nothing else: how many openings this wall ` +
+      `carries, where they stand and every dimension of them come from Image 2 and the words ` +
+      `below. Paint this wall as the same room on the same day.`
+  };
+}
+
+/* THE ASK AUDIT, SPOKEN IN THE PIXEL MEASURE'S OWN SHAPE.
+ *
+ * `--emit-consistency` already knows how to cut a forced re-ask from a report
+ * of mismatched rooms; what it did not have was a second way to be told which
+ * rooms those are. This is that second way, and it is strictly earlier than
+ * the first: the pixel measure cannot speak until every facing of a room is
+ * painted and promoted, and it is blind on the one axis its own sweep proved
+ * must not vote - which is why `stair_landing` sits in row 40's ledger as an
+ * OPEN miss. In the ASKS there is nothing subtle about stair_landing at all:
+ * N was asked for "a plain lime-plastered ceiling", E for a "boarded ceiling".
+ *
+ * THE MAJORITY IS NOT A VOTE HERE EITHER, and this is the stronger form of
+ * row 40's own rule. The pixel route may seed a re-ask only from a facing
+ * inside the room's agreeing majority; this route may seed only from a facing
+ * whose ASK was the plan's ruling. guest_chamber is the case that separates
+ * them: three of its four facings agree with each other in pixels and all
+ * three were asked for the wrong fabric, so the pixel majority is the half
+ * that is wrong while the ask majority is the one facing that is right. */
+export function provenanceAsConsistencyReport(prov) {
+  const rooms = [];
+  for (const r of prov.rooms || []) {
+    if (r.verdict === "current") continue;
+    const known = r.facings.filter((x) => x.verdict !== "unrecoverable");
+    const right = known.filter((x) => x.verdict === "current").map((x) => x.facing);
+    /* An unrecoverable ask is re-asked too: a painting nobody can prove was
+     * asked for this room is not evidence that it was. */
+    const outliers = r.facings
+      .filter((x) => x.verdict !== "current").map((x) => x.facing);
+    if (!outliers.length) continue;
+    const byAsk = new Map();
+    for (const x of known) byAsk.set(x.ask_key, (byAsk.get(x.ask_key) || []).concat(x.facing));
+    const stale = known.filter((x) => x.verdict !== "current").map((x) => x.facing);
+    const said = r.split
+      ? `Measured, in the ASKS rather than in the pixels: this room's promoted facings were ` +
+        `commissioned from ${r.distinct_asks} different sets of materials ` +
+        `(${[...byAsk.values()].map((g) => g.join("")).join(" against ")}), so it was painted as ` +
+        `${r.distinct_asks} rooms and not one. ` +
+        (right.length
+          ? `${right.join(" and ")} ${right.length > 1 ? "were" : "was"} asked for the materials ` +
+            `above and ${stale.length > 1 ? "the others were" : "this one was"} not.`
+          : `No facing of it was asked for the materials above, so the ruling comes from the plan ` +
+            `and not from another wall.`)
+      : `Measured, in the ASKS rather than in the pixels: every promoted facing of this room was ` +
+        `commissioned from ONE set of materials, and that set is not the one this plan rules for ` +
+        `the room. The materials above are the plan's ruling.`;
+    rooms.push({
+      room: r.room,
+      facings: r.facings.map((x) => x.facing),
+      verdict: "mismatched (ask)",
+      worst_band: "materials",
+      score: r.distinct_asks,
+      bands: {},
+      outliers,
+      majority: right,
+      no_majority: right.length === 0,
+      clusters: [...byAsk.values()],
+      measured: said
+    });
+  }
+  return { instrument: prov.instrument, cut: "the plan's own ruling materials", rooms };
+}
+
 async function emitConsistency(outDir, opts) {
   const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
-  const reportPath = opts.report ||
-    join(ROOT, "design", "plan-draft", "measured", "room_consistency.json");
-  if (!existsSync(reportPath)) {
-    console.error(`make-scaffold refused: ${reportPath.slice(ROOT.length + 1)} does not exist, so ` +
-      `no room has been measured for consistency and there is nothing to correct. Run ` +
-      `\`python3 design/plan-draft/measured/room_consistency.py\` first.`);
-    process.exit(1);
+  let report;
+  if (opts.fromAsk) {
+    /* [row 40 - the ORIGIN] No file to be stale, no pixels to be fooled: the
+     * audit runs here, now, off the store and this composer. */
+    report = provenanceAsConsistencyReport(materialProvenance(plan));
+  } else {
+    const reportPath = opts.report ||
+      join(ROOT, "design", "plan-draft", "measured", "room_consistency.json");
+    if (!existsSync(reportPath)) {
+      console.error(`make-scaffold refused: ${reportPath.slice(ROOT.length + 1)} does not exist, so ` +
+        `no room has been measured for consistency and there is nothing to correct. Run ` +
+        `\`python3 design/plan-draft/measured/room_consistency.py\` first, or cut the re-asks ` +
+        `from the asks instead with \`--from-ask\`.`);
+      process.exit(1);
+    }
+    report = JSON.parse(readFileSync(reportPath, "utf8"));
   }
-  const report = JSON.parse(readFileSync(reportPath, "utf8"));
   const mp = join(outDir, "retries.json");
   const prior = existsSync(mp) ? JSON.parse(readFileSync(mp, "utf8")).entries || [] : [];
   const spent = new Map();
@@ -2196,7 +2809,10 @@ async function emitConsistency(outDir, opts) {
     const { voice, anchor, via } = ruling;
     const band = w.room.bands[w.room.worst_band] || {};
     const worst = (band.pairwise || []).reduce((a, b) => (b.D > (a ? a.D : -1) ? b : a), null);
-    const measured = w.room.no_majority
+    /* THE SOURCE STATES ITS OWN FINDING. The ask audit measures a different
+     * quantity from the pixel measure and says so in its own words rather than
+     * borrowing a band name and a D it does not have. */
+    const measured = w.room.measured ? w.room.measured : w.room.no_majority
       ? `Measured: this room's ${w.room.worst_band} splits ` +
         `${(w.room.clusters || []).map((c) => c.join("")).join(" against ")} with NO majority ` +
         `(worst pair D=${w.room.score}), so the materials above are the plan's ruling and not ` +
@@ -2219,7 +2835,13 @@ async function emitConsistency(outDir, opts) {
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
-    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
+     * never any wall of another room: this room's own agreeing wall, or no
+     * picture at all and the medium in words. On THIS path it is very often
+     * none, and correctly so - a room being re-asked for consistency is a room
+     * whose walls are in dispute, and a disputed wall is exactly what must not
+     * be handed to the next roll as a photograph. */
+    const style = attachStyle(plan, w.key, dir);
     /* THE SEEDS, AND THE RULE THAT MAKES THEM SAFE: only a neighbour the
      * measure puts in this room's agreeing majority may be cut from. Seeding
      * an outlier off another outlier spreads the wrong material round the room
@@ -2235,7 +2857,7 @@ async function emitConsistency(outDir, opts) {
     /* `manorPrompt` names one Image 3 sentence; with two strips it must name
      * both, so the extra role sentences are appended in the same voice the
      * cookbook rule asks for. */
-    const text = manorPrompt(plan, w.key, meta, rects, correction, seeds[0] || null) +
+    const text = manorPrompt(plan, w.key, meta, rects, correction, seeds[0] || null, { style }) +
       (seeds.length > 1
         ? seeds.slice(1).map((s) => `  ${s.role_sentence}\n`).join("")
         : "");
@@ -2262,7 +2884,7 @@ async function emitConsistency(outDir, opts) {
           `room's voice, not from another wall.\n\n`
         : `${(w.room.majority || []).join("")} agree with each other while this one does not.\n\n`) +
       packetNoteAll(seeds, plans) +
-      `${attachLineAll(seeds)}\n` +
+      `${attachLineAll(seeds, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} image(s) and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
       ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
