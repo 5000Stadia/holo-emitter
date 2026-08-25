@@ -1,0 +1,157 @@
+{
+  "id": "wall/oak-fielded-bays-frieze",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 115.70621468926554,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 115.71,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "solar/E",
+    "source_ppm_at_wall": 95.789,
+    "supply_across": 95.8,
+    "supply_along": 95.8,
+    "supply_ratio": 1.208
+  },
+  "source_facing": "solar/E",
+  "source_png": "backdrops/solar/E.png",
+  "source_sha256": "4787944954f8742772df674962e6a912db229ce417d03b419c01740eda92e1e1",
+  "source_meta_sha256": "40ee2e615a4b01937bf52e9200f026c02d19760b952f7fa5dce96adc96606f7b",
+  "window_u_m": [
+    3.342,
+    7.811
+  ],
+  "carriers_avoided": [
+    "door",
+    "door"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 66.78% of its own mean over 4.47 m of clear wall, against 4 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.8,
+    "feature": "fielded panel bay"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "fielded panel bay",
+    "pitch_m": 0.8,
+    "count": 4,
+    "span_m": 3.2,
+    "ppm": 480
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/oak-fielded-bays-frieze/dado.png",
+      "size_px": [
+        517,
+        102
+      ],
+      "rows": [
+        423,
+        525
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/oak-fielded-bays-frieze/anchor.png",
+      "size_px": [
+        517,
+        16
+      ],
+      "rows": [
+        407,
+        423
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        4.541
+      ],
+      "file": "backdrops/textures/wall/oak-fielded-bays-frieze/field.png",
+      "size_px": [
+        517,
+        407
+      ],
+      "rows": [
+        0,
+        407
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 94.151,
+      "chroma_drift": 0.35769,
+      "mean_luma": 28.16
+    },
+    "after": {
+      "field_range_pct": 28.807,
+      "chroma_drift": 0.11147,
+      "mean_luma": 27.68
+    },
+    "flattened_pct": 65.344,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "solar/E",
+      "refused": null,
+      "window_m": 4.469,
+      "neutrality": {
+        "field_range_pct": 66.781,
+        "chroma_drift": 0.24161,
+        "mean_luma": 32.76
+      },
+      "supply_ratio": 1.208
+    },
+    {
+      "facing": "solar/N",
+      "refused": null,
+      "window_m": 1.428,
+      "neutrality": {
+        "field_range_pct": 129.213,
+        "chroma_drift": 0.44281,
+        "mean_luma": 52.8
+      },
+      "supply_ratio": 0.981
+    },
+    {
+      "facing": "solar/S",
+      "refused": null,
+      "window_m": 1.707,
+      "neutrality": {
+        "field_range_pct": 124.299,
+        "chroma_drift": 0.44245,
+        "mean_luma": 51.44
+      },
+      "supply_ratio": 0.948
+    },
+    {
+      "facing": "solar/W",
+      "refused": null,
+      "window_m": 7.852,
+      "neutrality": {
+        "field_range_pct": 111.413,
+        "chroma_drift": 0.32072,
+        "mean_luma": 26.23
+      },
+      "supply_ratio": 1.195
+    }
+  ]
+}

@@ -1,0 +1,675 @@
+#!/usr/bin/env python3
+"""Row 36 — ASSEMBLY FROM ESTABLISHED PIECES. The snap's five planes, backward.
+
+    python3 design/plan-draft/measured/row36_assemble.py --harvest-all
+    python3 design/plan-draft/measured/row36_assemble.py --harvest wall/dark-oak-panelling
+
+[HUMAN, 2026-08-24, verbatim] "I believe once we establish a few of these floor,
+ceiling and wall textures we can assemble them intelligently and fast."
+
+WHAT THIS IS, IN ONE SENTENCE. `row35_snap.py` maps a target image through the
+five planes back to a source image; harvest stops at the middle of that journey
+— surface metres to surface parameters to source pixels — and keeps what it
+finds as a tile. Same `region_matrix`, same five `REGIONS`, same file. There is
+no second copy of the plane math anywhere in this row.
+
+WHY WALLS AND NOT FLOORS. `design/specs/36-plan.md` §1.2 measured every promoted
+facing's own box and asked, per region, what resolution the painting supplies
+along each of that surface's two axes. A facing WALL's map is a similarity — row
+35 preserves the painted proportions precisely so it is — and the measurement
+agrees: anisotropy exactly 1.000 on all 51 facings. Floors and ceilings are
+grazing surfaces: 2.0x and 1.8x anisotropic at the median, and NOT ONE of the 51
+supplies the resolution a declared view demands of them. So walls are harvested
+here and floors and ceilings are asked for flat, which is the swatch lane.
+
+THE SCALE CONTRACT (§1.4a), and the half of it that lives in this file. A
+harvested tile's ppm is CHOSEN, not measured: the sampling lattice is laid out
+in surface metres, so the number is an input. What is measured is whether the
+source can carry it — `supply_across` and `supply_along` against the lattice —
+and a source that cannot is refused rather than interpolated up to the ask.
+
+WHY A WALL IS THREE TILES AND NOT ONE. The instrument reads scale off the
+voice's anchor at exactly 0.95 m. A wall tiled from one patch at an arbitrary
+vertical phase would either lose that anchor or repeat it at the wrong heights,
+so the fabric is harvested as bands whose vertical position is fixed in metres —
+dado, the anchor strip itself, and the field above it — and only the horizontal
+direction tiles. That makes measurability a property of the assembly, the way
+blueprint §11's wainscot ruling made it a property of the wall specification.
+
+NEUTRALITY, AND WHAT DIVISION CANNOT DO. Row 37 rules that pieces carry material
+and not illumination, and the promoted corpus was painted lit. Two mechanisms,
+in this order:
+
+  the RULE     a window whose centre lies within the firelight radius of a lit
+               hearth is refused outright, never merely ranked down. Ranking
+               still admits a firelit wall when nothing better exists, and
+               nothing better existing is exactly when a bad tile does the most
+               damage.
+  the DIVISION per-channel, because dividing by a scalar luminance field leaves
+               a warm cast exactly where it was. Its cost is stated rather than
+               hidden: per-channel division also flattens real low-frequency
+               material colour, so a wall whose oak genuinely darkens along its
+               length comes back more uniform than it is. That is why the rule
+               is primary and the division is residual cleanup.
+"""
+import argparse
+import hashlib
+import json
+import os
+import sys
+import time
+
+import numpy as np
+from PIL import Image
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+sys.path.insert(0, HERE)
+
+import row35_snap as S                                           # noqa: E402
+from measure_lib import load                                     # noqa: E402
+
+W, H = S.W, S.H
+PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
+TEXDIR = os.path.join(ROOT, "backdrops", "textures")
+MATERIALS = os.path.join(TEXDIR, "materials.json")
+FACINGS = os.path.join(TEXDIR, "facings.json")
+
+#: The anchor every voice puts at this height, and the instrument's own divisor.
+#: `row23_lib` converts one measured horizontal by `rail_above / 0.95`; that
+#: number is the instrument's and this file may not move it.
+ANCHOR_M = 0.95
+
+#: How tall the anchor's own strip is. A craft number and it says so: wide
+#: enough to carry a rail's moulding and its undercut shadow, narrow enough that
+#: the bands either side of it are most of the wall.
+ANCHOR_BAND_M = 0.14
+
+#: How far from a carrier's edge a harvest window must stay. A door's reveal and
+#: a window's splay are not wall fabric, and they run a little wider than the
+#: opening the plan rules.
+CARRIER_MARGIN_M = 0.30
+
+#: THE FIRELIGHT RULE'S RADIUS. Derived rather than chosen: it is the distance
+#: at which a hearth's own falloff drops to the ambient it sits in, which is the
+#: same number `row36_light.py` relights with, so moving it moves both.
+FIRELIGHT_R_M = 2.6
+
+#: The smallest window worth harvesting, in metres of wall. Below this a tile is
+#: mostly its own edges.
+MIN_WINDOW_M = 0.55
+
+#: The lattice is laid out at the slot's declared demand times this. 1.0 exactly
+#: — a harvest stores what the view asks for and no more, because storing above
+#: the demand is inventing detail the painting never had.
+LATTICE_OVER_DEMAND = 1.0
+
+#: A source must supply at least this fraction of the lattice on BOTH axes.
+#: `36-plan.md` §1.8: the corpus's worst wall demand-to-supply ratio is 1.41x and
+#: the median 1.06x, so 1/1.5 admits the corpus and refuses a genuine shortfall.
+MIN_SUPPLY_RATIO = 1.0 / 1.5
+
+
+# ------------------------------------------------------------------ the store
+
+def read_json(p):
+    with open(p) as fh:
+        return json.load(fh)
+
+
+def sha256(path):
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def promoted_facings(facings):
+    out = []
+    for key in facings:
+        loc, f = key.split("/")
+        png = os.path.join(ROOT, "backdrops", loc, f + ".png")
+        meta = os.path.join(ROOT, "backdrops", loc, f + ".meta.json")
+        if os.path.exists(png) and os.path.exists(meta):
+            out.append(key)
+    return sorted(out)
+
+
+def source_box(meta):
+    """The box the PROMOTED meta already states. Nothing is re-detected.
+
+    Every number here was written by `promote-backdrop.mjs` off the painting it
+    admitted, so the box is that promotion's own reading and not a second
+    opinion about the same pixels.
+    """
+    ppm = meta.get("px_per_m_at_wall")
+    imh = meta.get("image_h_px")
+    if not (ppm and imh):
+        return None, "no scale"
+    storey = (meta.get("measured_room") or {}).get("storey_height_m") or meta.get("storey_height_m")
+    if not storey:
+        return None, "no storey height"
+    yf = meta["floor_line_y"] * imh
+    vy = meta["horizon_y"] * imh
+    yc = yf - storey * ppm
+    x0, x1 = meta.get("corner_x0_px"), meta.get("corner_x1_px")
+    if x0 is None or x1 is None:
+        # An unbounded wall overruns the frame; its corners are where the
+        # painted width puts them, which is what the meta's own wall_width says.
+        half = (meta.get("wall_width_m") or 6.0) * ppm / 2.0
+        x0, x1 = W / 2.0 - half, W / 2.0 + half
+    b = S.box(x0, x1, yc, yf, W / 2.0, vy)
+    bad = S.box_refusal(b)
+    if bad:
+        return None, bad
+    return b, None
+
+
+# ------------------------------------------------------- carriers, in metres
+
+def facing_geometry(plan, loc, facing):
+    room = next((r for r in plan["rooms"] if r["id"] == loc), None)
+    if room is None:
+        return None
+    fac = (room.get("facings") or {}).get(facing)
+    if not fac:
+        return None
+    return room, fac
+
+
+def carrier_spans_m(plan, loc, facing, width_m):
+    """Where every plan carrier sits ALONG this wall, in metres from its left.
+
+    Taken from the plan rather than from the meta's measured openings, because a
+    meta records the doorway it could read and the plan records every window and
+    hearth as well — and a harvest window that crosses a painted window is a
+    tile with a window in it.
+    """
+    got = facing_geometry(plan, loc, facing)
+    if not got:
+        return [], []
+    room, fac = got
+    rect, wl = room["rect"], fac.get("wall_line")
+    if wl is None:
+        return [], []
+    horiz = facing in ("N", "S")
+    lo = rect["x0"] if horiz else rect["y0"]
+    hi = rect["x1"] if horiz else rect["y1"]
+    # The wall runs left-to-right in the picture; which plan direction that is
+    # depends on which way the camera looks. N looks +y, so left is -x; S looks
+    # -y, so left is +x; E looks +x, left is +y; W looks -x, left is -y.
+    flip = facing in ("S", "W")
+    spans, hearths = [], []
+    src = ([("door", o["rect"], o.get("joins"), None) for o in plan["openings"]] +
+           [("window", w["rect"], None, None) for w in plan["windows"]] +
+           [("hearth", fp["rect"], None, fp.get("room")) for fp in plan["fireplaces"]])
+    for kind, cr, joins, rm in src:
+        near = (min(abs(cr["y0"] - wl), abs(cr["y1"] - wl)) if horiz
+                else min(abs(cr["x0"] - wl), abs(cr["x1"] - wl)))
+        if near > 0.35:
+            continue
+        if kind == "hearth" and rm and rm != loc:
+            continue
+        if kind == "door" and joins and loc not in joins:
+            continue
+        a = cr["x0"] if horiz else cr["y0"]
+        b = cr["x1"] if horiz else cr["y1"]
+        if b <= lo or a >= hi:
+            continue
+        # into wall-local metres, measured from the picture's left corner
+        if flip:
+            u0, u1 = hi - min(b, hi), hi - max(a, lo)
+        else:
+            u0, u1 = max(a, lo) - lo, min(b, hi) - lo
+        u0, u1 = sorted((u0, u1))
+        # the plan's wall may be wider than the painting's; scale into it
+        span = hi - lo
+        if span > 0 and abs(span - width_m) > 1e-6:
+            u0, u1 = u0 * width_m / span, u1 * width_m / span
+        spans.append((kind, max(0.0, u0), min(width_m, u1)))
+        if kind == "hearth":
+            hearths.append(0.5 * (u0 + u1))
+    return spans, hearths
+
+
+def free_windows(width_m, spans, hearths, margin=CARRIER_MARGIN_M):
+    """The stretches of wall with no carrier on them and no firelight.
+
+    Returns (windows, refusals) so a refusal is reported rather than a gap
+    silently not existing.
+    """
+    blocked = []
+    for kind, a, b in spans:
+        blocked.append((max(0.0, a - margin), min(width_m, b + margin)))
+    for c in hearths:
+        blocked.append((c - FIRELIGHT_R_M, c + FIRELIGHT_R_M))
+    blocked.sort()
+    merged = []
+    for a, b in blocked:
+        if merged and a <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], b)
+        else:
+            merged.append([a, b])
+    out, cur = [], 0.0
+    for a, b in merged:
+        if a - cur >= MIN_WINDOW_M:
+            out.append((cur, a))
+        cur = max(cur, b)
+    if width_m - cur >= MIN_WINDOW_M:
+        out.append((cur, width_m))
+    return out
+
+
+# ----------------------------------------------------------------- the bands
+
+def bands_for(storey_m):
+    """dado / anchor / field, in metres above the floor.
+
+    Vertical position is fixed in metres and only the horizontal tiles, which is
+    what puts the anchor at exactly 0.95 m on every wall assembled from this
+    fabric — the property the instrument measures scale off.
+    """
+    half = ANCHOR_BAND_M / 2.0
+    return [
+        ("dado", 0.0, max(0.0, ANCHOR_M - half)),
+        ("anchor", ANCHOR_M - half, ANCHOR_M + half),
+        ("field", ANCHOR_M + half, storey_m),
+    ]
+
+
+# ------------------------------------------------------------- the resolution
+
+def local_supply(b, ppm, width_m, storey_m, u_m, v_m, d=0.001):
+    """px per surface metre at one point on the wall plane, along each axis."""
+    p, q = u_m / width_m, v_m / storey_m
+    x0, y0 = S.image(b, "wall", np.array([p]), np.array([q]))
+    xa, ya = S.image(b, "wall", np.array([p + d / width_m]), np.array([q]))
+    xb, yb = S.image(b, "wall", np.array([p]), np.array([q + d / storey_m]))
+    return (float(np.hypot(xa - x0, ya - y0)[0] / d),
+            float(np.hypot(xb - x0, yb - y0)[0] / d))
+
+
+# --------------------------------------------------------------- neutrality
+
+#: THE DE-LIGHTING FIELD'S SCALE, IN METRES OF WALL, and it is the number that
+#: decides whether this operation removes light or removes joinery.
+#:
+#: Fitted as a fraction of the PATCH, it is a fraction of whatever the patch
+#: happens to be -- and the anchor band is 0.14 m tall, so a quarter of its
+#: short side is 35 mm. A "low-frequency field" at 35 mm follows the chair-rail
+#: itself, and dividing by it erases the rail: the band whose whole purpose is
+#: to carry the anchor the instrument measures scale from would come back
+#: without one. Measured on the first run before this was fixed: the anchor band
+#: reported 793 % "removed", which was not light leaving, it was the moulding.
+#:
+#: Fixed in metres it is a fact about walls instead. Light across a room varies
+#: over metres; joinery varies over centimetres. 0.80 m sits between them -- a
+#: craft number, and the two failure modes either side of it are named above and
+#: below: much smaller eats mouldings, much larger stops following the light.
+DELIGHT_SIGMA_M = 0.80
+
+
+def lowfreq(rgb, sigma_px):
+    """A low-frequency field, per channel, by box-blur iteration.
+
+    Three passes of a moving average approximate a gaussian closely enough for a
+    field this smooth, and it costs no scipy.
+    """
+    a = rgb.astype(np.float64)
+    r = max(2, int(round(sigma_px)))
+    r = min(r, max(2, min(a.shape[0], a.shape[1]) // 2 - 1))
+    for _ in range(3):
+        a = _boxblur(a, r)
+    return a
+
+
+def _boxblur(a, r):
+    pad = np.pad(a, ((r, r), (r, r), (0, 0)), mode="edge")
+    c = np.cumsum(np.cumsum(pad, axis=0), axis=1)
+    c = np.pad(c, ((1, 0), (1, 0), (0, 0)), mode="constant")
+    h, w = a.shape[:2]
+    y0, y1 = 0, 2 * r + 1
+    out = np.empty_like(a)
+    for i in range(h):
+        out[i] = (c[i + y1, 2 * r + 1:, :] - c[i, 2 * r + 1:, :]
+                  - c[i + y1, :w, :] + c[i, :w, :])[:w] / ((2 * r + 1) ** 2)
+    return out
+
+
+def neutrality(rgb, sigma_px):
+    """How much light is baked into this patch, and how coloured it is.
+
+    `field_range_pct` is the low-frequency luminance swing as a percentage of
+    its own mean — how much brighter one end is than the other. `chroma_drift`
+    is the same swing in the channel RATIOS, which is the half a scalar division
+    cannot remove and which F5 is about.
+    """
+    f = lowfreq(rgb, sigma_px)
+    lum = f.mean(axis=2)
+    m = float(lum.mean())
+    rng = float(lum.max() - lum.min())
+    denom = np.maximum(lum, 1e-6)[..., None]
+    ratios = f / denom
+    drift = float(np.max(ratios.reshape(-1, 3).max(axis=0)
+                         - ratios.reshape(-1, 3).min(axis=0)))
+    return {"field_range_pct": round(100.0 * rng / m, 3) if m else None,
+            "chroma_drift": round(drift, 5),
+            "mean_luma": round(m, 2)}
+
+
+def delight(rgb, sigma_px):
+    """Per-channel division by the fitted field. Returns (albedo, how much).
+
+    PER CHANNEL, and that is the whole point of F5: dividing by a scalar
+    luminance leaves a warm cast exactly where it was, because a cast is a fact
+    about the ratios between channels and a scalar cannot touch it.
+
+    RUN ONCE OVER THE WHOLE WALL, never per band. A band is a horizontal slice
+    of one lit surface, and the lighting that crosses it is a fact about the
+    wall it was cut from -- fitting a field inside a 0.14 m strip finds the
+    strip's own contents instead. The caller harvests the full storey, de-lights
+    it here, and slices the bands out of the result.
+    """
+    f = lowfreq(rgb, sigma_px)
+    target = f.reshape(-1, 3).mean(axis=0)
+    out = np.clip(rgb.astype(np.float64) * (target / np.maximum(f, 1e-6)), 0, 255)
+    before = neutrality(rgb, sigma_px)
+    after = neutrality(out, sigma_px)
+    removed = (before["field_range_pct"] or 0) - (after["field_range_pct"] or 0)
+    return out, {"before": before, "after": after,
+                 "flattened_pct": round(removed, 3)}
+
+
+# ------------------------------------------------------------------ harvest
+
+def sample_wall(rgb, b, width_m, storey_m, u0, u1, v0, v1, ppm_tile):
+    """A rectified tile of the wall plane, laid out in surface metres."""
+    nu = max(2, int(round((u1 - u0) * ppm_tile)))
+    nv = max(2, int(round((v1 - v0) * ppm_tile)))
+    us = u0 + (np.arange(nu) + 0.5) / ppm_tile
+    vs = v0 + (np.arange(nv) + 0.5) / ppm_tile
+    U, V = np.meshgrid(us, vs)
+    # v is metres ABOVE the floor and the tile is written top row first
+    V = V[::-1]
+    x, y = S.image(b, "wall", U / width_m, V / storey_m)
+    px, _over = S.sample(rgb, x, y)
+    return px
+
+
+def harvest_material(mid, mat, cands, plan, facings, tile_ppm, verbose=True):
+    """One material, from the best source its promoted facings offer."""
+    rows = []
+    for key in cands:
+        loc, f = key.split("/")
+        meta = read_json(os.path.join(ROOT, "backdrops", loc, f + ".meta.json"))
+        b, why = source_box(meta)
+        if b is None:
+            rows.append({"facing": key, "refused": "no box: %s" % why})
+            continue
+        ppm = meta["px_per_m_at_wall"]
+        storey = ((meta.get("measured_room") or {}).get("storey_height_m")
+                  or meta.get("storey_height_m"))
+        width_m = (b["x1"] - b["x0"]) / ppm
+        spans, hearths = carrier_spans_m(plan, loc, f, width_m)
+        wins = free_windows(width_m, spans, hearths)
+        if not wins:
+            rows.append({"facing": key, "carriers": [s[0] for s in spans],
+                         "refused": "no stretch of this wall is clear of a "
+                                    "carrier and its firelight"})
+            continue
+        u0, u1 = max(wins, key=lambda w: w[1] - w[0])
+        sa, sl = local_supply(b, ppm, width_m, storey,
+                              0.5 * (u0 + u1), ANCHOR_M)
+        rgb = load(os.path.join(ROOT, "backdrops", loc, f + ".png"))
+        probe_ppm = min(tile_ppm, 160.0)
+        probe = sample_wall(rgb, b, width_m, storey, u0, u1,
+                            0.0, min(storey, 2.4), probe_ppm)
+        n = neutrality(probe, DELIGHT_SIGMA_M * probe_ppm)
+        rows.append({"facing": key, "window_u_m": [round(u0, 3), round(u1, 3)],
+                     "window_m": round(u1 - u0, 3),
+                     "carriers": [s[0] for s in spans],
+                     "supply_across": round(sa, 1), "supply_along": round(sl, 1),
+                     "supply_ratio": round(tile_ppm / min(sa, sl), 3),
+                     "neutrality": n,
+                     "png": "backdrops/%s/%s.png" % (loc, f),
+                     "meta": "backdrops/%s/%s.meta.json" % (loc, f),
+                     "storey_m": storey, "ppm": ppm, "width_m": round(width_m, 3),
+                     "box": b})
+    usable = [r for r in rows if "refused" not in r
+              and r["supply_ratio"] <= 1.0 / MIN_SUPPLY_RATIO]
+    for r in rows:
+        if "refused" not in r and r not in usable:
+            r["refused"] = ("the source supplies %.0f/%.0f px/m against a %.0f "
+                            "px/m lattice — %.2fx short"
+                            % (r["supply_across"], r["supply_along"], tile_ppm,
+                               r["supply_ratio"]))
+    if not usable:
+        return None, rows
+    usable.sort(key=lambda r: (r["neutrality"]["field_range_pct"] or 1e9,
+                               -r["window_m"]))
+    return usable[0], rows
+
+
+def write_tile(path, arr):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    Image.fromarray(np.clip(np.round(arr), 0, 255).astype(np.uint8)).save(path)
+
+
+def do_harvest(only=None, out_dir=TEXDIR, verbose=True):
+    plan = read_json(PLAN)
+    doc = read_json(MATERIALS)
+    facings = read_json(FACINGS)["facings"]
+    prom = promoted_facings(facings)
+
+    by_material = {}
+    for key in prom:
+        r = facings[key]
+        for mid in (r.get("walls"), r.get("field")):
+            if mid:
+                by_material.setdefault(mid, []).append(key)
+
+    # THE LATTICE IS SIZED TO THIS MATERIAL'S OWN CONSUMERS. The wall map is a
+    # similarity, so a facing's wall demand is exactly its own declared scale.
+    # Sizing every material to the BUILDING's maximum refuses a harvest for the
+    # sake of a wall the material never appears on -- which it did, on the first
+    # run: 476 px/m asked of a corpus that supplies 161 at the median.
+    demand_of = {}
+    for key, r in facings.items():
+        d = r.get("declared_ppm")
+        if not d:
+            continue
+        for mid in (r.get("walls"), r.get("field")):
+            if mid:
+                demand_of[mid] = max(demand_of.get(mid, 0.0), float(d))
+
+    wanted = [(mid, m) for mid, m in doc["materials"].items()
+              if m["lane"] == "harvest" and (only is None or mid == only)]
+    report, t0 = [], time.time()
+    for mid, mat in sorted(wanted):
+        cands = by_material.get(mid, [])
+        # A VISTA IS NOT AN ASSEMBLY CUSTOMER (36-plan.md §1.10), so a fabric
+        # that appears only on `open` facings has nothing to be harvested FOR.
+        # Refusing it as a supply failure would be a false negative: the supply
+        # is fine, there is simply no consumer.
+        consumers = [k for k, r in facings.items()
+                     if r.get("facing_type") != "open"
+                     and mid in (r.get("walls"), r.get("field"))]
+        if not consumers:
+            report.append({"material": mid, "out_of_scope": True,
+                           "refused": "no ENCLOSED facing uses it -- it appears "
+                                      "only on open vistas, which assembly "
+                                      "excludes"})
+            continue
+        demand = demand_of.get(mid) or doc["slot_demand_ppm"][mat["slot"]]
+        tile_ppm = demand * LATTICE_OVER_DEMAND
+        if not cands:
+            report.append({"material": mid, "refused": "no promoted facing shows it"})
+            continue
+        best, rows = harvest_material(mid, mat, cands, plan, facings, tile_ppm)
+        if best is None:
+            short = [r.get("refused", "") for r in rows]
+            report.append({
+                "material": mid, "candidates": rows, "converts_to_swatch": True,
+                "demand_ppm": round(demand, 2),
+                "refused": "no promoted facing supplies the lattice this "
+                           "material's own consumers demand (%.0f px/m): %s"
+                           % (demand, "; ".join(short[:2]))})
+            continue
+        b = best["box"]
+        rgb = load(os.path.join(ROOT, best["png"]))
+        u0, u1 = best["window_u_m"]
+        # ONE PATCH, ONE FIELD, THEN THE BANDS. See `delight`.
+        storey_m = best["storey_m"]
+        whole = sample_wall(rgb, b, best["width_m"], storey_m,
+                            u0, u1, 0.0, storey_m, tile_ppm)
+        albedo, light = delight(whole, DELIGHT_SIGMA_M * tile_ppm)
+        rows_total = albedo.shape[0]
+        tiles = []
+        for band, v0, v1 in bands_for(storey_m):
+            if v1 - v0 < 0.02:
+                continue
+            # the tile was written top row first, so v maps from the bottom up
+            r0 = int(round((storey_m - v1) / storey_m * rows_total))
+            r1 = int(round((storey_m - v0) / storey_m * rows_total))
+            r0, r1 = max(0, min(r0, rows_total - 1)), max(1, min(r1, rows_total))
+            cut = albedo[r0:r1]
+            rel = os.path.join("wall", mid.split("/", 1)[1], "%s.png" % band)
+            write_tile(os.path.join(out_dir, rel), cut)
+            tiles.append({"band": band, "v_m": [round(v0, 4), round(v1, 4)],
+                          "file": os.path.join("backdrops", "textures", rel),
+                          "size_px": [cut.shape[1], cut.shape[0]],
+                          "rows": [r0, r1]})
+        rec = {
+            "id": mid, "slot": mat["slot"], "lane": "harvest",
+            "ppm": tile_ppm, "ppm_provenance": {
+                "lane": "harvest",
+                "demand_from": "the largest declared wall scale among the "
+                               "facings that use this material",
+                "demand_ppm": round(demand, 2),
+                "how": "CHOSEN: the lattice is laid out in surface metres, so "
+                       "the tile's ppm is an input to the sampling and not a "
+                       "reading off it. What is measured is whether the source "
+                       "can carry it.",
+                "source_facing": best["facing"],
+                "source_ppm_at_wall": best["ppm"],
+                "supply_across": best["supply_across"],
+                "supply_along": best["supply_along"],
+                "supply_ratio": best["supply_ratio"]},
+            "source_facing": best["facing"],
+            "source_png": best["png"], "source_sha256": sha256(os.path.join(ROOT, best["png"])),
+            "source_meta_sha256": sha256(os.path.join(ROOT, best["meta"])),
+            "window_u_m": best["window_u_m"],
+            "carriers_avoided": best["carriers"],
+            "why_this_source": (
+                "the flattest carrier-free stretch any promoted facing of this "
+                "material offers: low-frequency luminance swing %.2f%% of its "
+                "own mean over %.2f m of clear wall, against %d candidate "
+                "facing(s)"
+                % (best["neutrality"]["field_range_pct"], best["window_m"],
+                   len(cands))),
+            "tiling": mat["tiling"],
+            "scale_contract": mat["scale_contract"],
+            "bands": tiles,
+            "delighting": dict(light, sigma_m=DELIGHT_SIGMA_M,
+                               _note="fitted once over the whole storey and "
+                                     "divided per channel; the bands are cut "
+                                     "out of the result"),
+            "candidates_considered": [
+                {k: r.get(k) for k in ("facing", "refused", "window_m", "neutrality",
+                                       "supply_ratio")} for r in rows],
+        }
+        with open(os.path.join(out_dir, "wall", mid.split("/", 1)[1], "tile.json"), "w") as fh:
+            json.dump(rec, fh, indent=2, default=float)
+            fh.write("\n")
+        report.append(rec)
+        if verbose:
+            print("%-38s <- %-22s %5.2f m clear, field %5.2f%%, supply %.2fx"
+                  % (mid, best["facing"], best["window_m"],
+                     best["neutrality"]["field_range_pct"], best["supply_ratio"]))
+    good = [r for r in report if "refused" not in r]
+    bad = [r for r in report if "refused" in r]
+
+    # THE NEUTRALITY BAR IS DERIVED FROM WHAT THE CORPUS ACTUALLY YIELDS, per
+    # `36-plan.md` §1.7: as neutral as the best quarter of what we already have.
+    # It is RECORDED AND FLAGGED HERE, NOT ENFORCED, and that is a deliberate
+    # stop. The bar was authored before this distribution existed; applied as a
+    # refusal it rejects three quarters of the library in one pass and converts
+    # them to model calls, which trades neutrality against generation cost --
+    # a cost decision, and cost decisions are the Captain's. The numbers are
+    # printed so the ruling has something to be made on.
+    resid = sorted((r["delighting"]["after"]["field_range_pct"] or 0.0) for r in good)
+    bar = None
+    if len(resid) >= 4:
+        k = max(0, int(round(0.25 * (len(resid) - 1))))
+        bar = resid[k]
+    for r in good:
+        v = r["delighting"]["after"]["field_range_pct"] or 0.0
+        r["neutrality_verdict"] = {
+            "residual_field_pct": v, "bar_best_quartile": bar,
+            "above_bar": (bar is not None and v > bar),
+            "enforced": False,
+            "_note": "flagged, not refused: see the note in do_harvest"}
+    return {"harvested": good, "refused": bad,
+            "converted_to_swatch": [r["material"] for r in bad
+                                    if r.get("converts_to_swatch")],
+            "out_of_scope": [r["material"] for r in bad if r.get("out_of_scope")],
+            "neutrality": {
+                "bar_best_quartile": bar,
+                "residuals": {"min": resid[0] if resid else None,
+                              "median": resid[len(resid) // 2] if resid else None,
+                              "max": resid[-1] if resid else None},
+                "above_bar": sum(1 for r in good if r["neutrality_verdict"]["above_bar"]),
+                "of": len(good)},
+            "seconds": round(time.time() - t0, 1)}
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--harvest", default="", help="one material id")
+    ap.add_argument("--harvest-all", action="store_true")
+    ap.add_argument("--out", default=TEXDIR)
+    ap.add_argument("--json", default="")
+    args = ap.parse_args()
+    if not (args.harvest or args.harvest_all):
+        ap.error("nothing to do: pass --harvest-all or --harvest <id>")
+    r = do_harvest(args.harvest or None, out_dir=args.out)
+    print("\nharvested %d, refused %d, %.1fs"
+          % (len(r["harvested"]), len(r["refused"]), r["seconds"]))
+    for x in r["refused"]:
+        print("  %-9s %-36s %s"
+              % ("SWATCH" if x.get("converts_to_swatch") else "OUT-OF-SCOPE",
+                 x["material"], x["refused"][:96]))
+    n = r["neutrality"]
+    if n["bar_best_quartile"] is not None:
+        print("neutrality residual after de-lighting: min %.1f%%  median %.1f%%  "
+              "max %.1f%%" % (n["residuals"]["min"], n["residuals"]["median"],
+                              n["residuals"]["max"]))
+        print("best-quartile bar %.1f%% -- %d of %d sit above it, FLAGGED not "
+              "refused (the ruling is the Captain's)"
+              % (n["bar_best_quartile"], n["above_bar"], n["of"]))
+    conv = os.path.join(TEXDIR, "harvest-conversions.json")
+    os.makedirs(TEXDIR, exist_ok=True)
+    with open(conv, "w") as fh:
+        json.dump({
+            "_what_this_is":
+                "Materials the harvest could not serve, and why. The swatch "
+                "emitter reads this and asks for them flat instead -- which is "
+                "the conversion path `36-plan.md` §8 costs, so the arithmetic "
+                "moves with the evidence rather than assuming zero.",
+            "converted_to_swatch": [
+                {"material": x["material"], "reason": x["refused"],
+                 "demand_ppm": x.get("demand_ppm")}
+                for x in r["refused"] if x.get("converts_to_swatch")],
+            "out_of_scope": [
+                {"material": x["material"], "reason": x["refused"]}
+                for x in r["refused"] if x.get("out_of_scope")]
+        }, fh, indent=2, default=float)
+        fh.write("\n")
+    print("conversions -> %s" % os.path.relpath(conv, ROOT))
+    if args.json:
+        with open(args.json, "w") as fh:
+            json.dump(r, fh, indent=2, default=float)
+            fh.write("\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

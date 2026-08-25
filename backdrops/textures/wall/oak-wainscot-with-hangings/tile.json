@@ -1,0 +1,234 @@
+{
+  "id": "wall/oak-wainscot-with-hangings",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 330.3225806451613,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 330.32,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "closet_chamber/N",
+    "source_ppm_at_wall": 324.211,
+    "supply_across": 324.2,
+    "supply_along": 324.2,
+    "supply_ratio": 1.019
+  },
+  "source_facing": "closet_chamber/N",
+  "source_png": "backdrops/closet_chamber/N.png",
+  "source_sha256": "21808eb0772fe76ce4bb697718b64d65cee4df308bf4acb7fe5e6043bc2d5425",
+  "source_meta_sha256": "b1c161337e9029ae31bfb89abc87fe9c920f77d284fbf16e3f63274d8706e64f",
+  "window_u_m": [
+    1.687,
+    4.21
+  ],
+  "carriers_avoided": [
+    "window",
+    "window"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 135.15% of its own mean over 2.52 m of clear wall, against 11 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.8,
+    "feature": "wainscot bay"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "wainscot bay",
+    "pitch_m": 0.8,
+    "count": 4,
+    "span_m": 3.2,
+    "ppm": 480
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-with-hangings/dado.png",
+      "size_px": [
+        833,
+        291
+      ],
+      "rows": [
+        612,
+        903
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-with-hangings/anchor.png",
+      "size_px": [
+        833,
+        46
+      ],
+      "rows": [
+        566,
+        612
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        2.733
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-with-hangings/field.png",
+      "size_px": [
+        833,
+        566
+      ],
+      "rows": [
+        0,
+        566
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 147.15,
+      "chroma_drift": 0.35641,
+      "mean_luma": 40.99
+    },
+    "after": {
+      "field_range_pct": 58.613,
+      "chroma_drift": 0.15539,
+      "mean_luma": 37.27
+    },
+    "flattened_pct": 88.537,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "closet_chamber/E",
+      "refused": "the source supplies 156/156 px/m against a 330 px/m lattice \u2014 2.12x short",
+      "window_m": 1.649,
+      "neutrality": {
+        "field_range_pct": 177.023,
+        "chroma_drift": 0.44414,
+        "mean_luma": 20.67
+      },
+      "supply_ratio": 2.12
+    },
+    {
+      "facing": "closet_chamber/N",
+      "refused": null,
+      "window_m": 2.523,
+      "neutrality": {
+        "field_range_pct": 135.145,
+        "chroma_drift": 0.36454,
+        "mean_luma": 38.87
+      },
+      "supply_ratio": 1.019
+    },
+    {
+      "facing": "closet_chamber/W",
+      "refused": "the source supplies 157/157 px/m against a 330 px/m lattice \u2014 2.11x short",
+      "window_m": 4.546,
+      "neutrality": {
+        "field_range_pct": 97.209,
+        "chroma_drift": 0.2518,
+        "mean_luma": 22.9
+      },
+      "supply_ratio": 2.106
+    },
+    {
+      "facing": "guest_chamber/E",
+      "refused": "the source supplies 155/155 px/m against a 330 px/m lattice \u2014 2.13x short",
+      "window_m": 7.238,
+      "neutrality": {
+        "field_range_pct": 139.734,
+        "chroma_drift": 0.42543,
+        "mean_luma": 25.11
+      },
+      "supply_ratio": 2.129
+    },
+    {
+      "facing": "guest_chamber/N",
+      "refused": "the source supplies 174/174 px/m against a 330 px/m lattice \u2014 1.90x short",
+      "window_m": 3.509,
+      "neutrality": {
+        "field_range_pct": 54.637,
+        "chroma_drift": 0.15934,
+        "mean_luma": 21.92
+      },
+      "supply_ratio": 1.902
+    },
+    {
+      "facing": "guest_chamber/S",
+      "refused": "the source supplies 175/175 px/m against a 330 px/m lattice \u2014 1.89x short",
+      "window_m": 2.521,
+      "neutrality": {
+        "field_range_pct": 112.195,
+        "chroma_drift": 0.34239,
+        "mean_luma": 8.84
+      },
+      "supply_ratio": 1.89
+    },
+    {
+      "facing": "guest_chamber/W",
+      "refused": "the source supplies 160/160 px/m against a 330 px/m lattice \u2014 2.06x short",
+      "window_m": 1.217,
+      "neutrality": {
+        "field_range_pct": 186.877,
+        "chroma_drift": 0.73423,
+        "mean_luma": 40.83
+      },
+      "supply_ratio": 2.065
+    },
+    {
+      "facing": "master_bedchamber/E",
+      "refused": "the source supplies 158/158 px/m against a 330 px/m lattice \u2014 2.09x short",
+      "window_m": 1.537,
+      "neutrality": {
+        "field_range_pct": 11.676,
+        "chroma_drift": 0.06659,
+        "mean_luma": 21.09
+      },
+      "supply_ratio": 2.092
+    },
+    {
+      "facing": "master_bedchamber/N",
+      "refused": "the source supplies 146/146 px/m against a 330 px/m lattice \u2014 2.26x short",
+      "window_m": 4.276,
+      "neutrality": {
+        "field_range_pct": 70.556,
+        "chroma_drift": 0.21321,
+        "mean_luma": 20.82
+      },
+      "supply_ratio": 2.258
+    },
+    {
+      "facing": "master_bedchamber/S",
+      "refused": "the source supplies 143/143 px/m against a 330 px/m lattice \u2014 2.31x short",
+      "window_m": 2.039,
+      "neutrality": {
+        "field_range_pct": 205.692,
+        "chroma_drift": 0.53593,
+        "mean_luma": 46.43
+      },
+      "supply_ratio": 2.307
+    },
+    {
+      "facing": "master_bedchamber/W",
+      "refused": "the source supplies 158/158 px/m against a 330 px/m lattice \u2014 2.09x short",
+      "window_m": 3.193,
+      "neutrality": {
+        "field_range_pct": 238.927,
+        "chroma_drift": 0.61478,
+        "mean_luma": 36.65
+      },
+      "supply_ratio": 2.092
+    }
+  ]
+}

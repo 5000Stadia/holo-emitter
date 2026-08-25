@@ -1,0 +1,145 @@
+{
+  "id": "wall/hangings-wool-serge",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 330.3225806451613,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 330.32,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "closet_chamber/N",
+    "source_ppm_at_wall": 324.211,
+    "supply_across": 324.2,
+    "supply_along": 324.2,
+    "supply_ratio": 1.019
+  },
+  "source_facing": "closet_chamber/N",
+  "source_png": "backdrops/closet_chamber/N.png",
+  "source_sha256": "21808eb0772fe76ce4bb697718b64d65cee4df308bf4acb7fe5e6043bc2d5425",
+  "source_meta_sha256": "b1c161337e9029ae31bfb89abc87fe9c920f77d284fbf16e3f63274d8706e64f",
+  "window_u_m": [
+    1.687,
+    4.21
+  ],
+  "carriers_avoided": [
+    "window",
+    "window"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 135.15% of its own mean over 2.52 m of clear wall, against 3 candidate facing(s)",
+  "tiling": {
+    "grain_axis": null,
+    "grain_frame": "surface",
+    "mirror": "both",
+    "scale_kind": "stochastic",
+    "characteristic_m": 0.02,
+    "feature": "the weave of undyed wool serge"
+  },
+  "scale_contract": {
+    "kind": "stochastic",
+    "feature": "the weave of undyed wool serge",
+    "characteristic_m": 0.02,
+    "span_m": 3.2269,
+    "ppm": 476
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/hangings-wool-serge/dado.png",
+      "size_px": [
+        833,
+        291
+      ],
+      "rows": [
+        612,
+        903
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/hangings-wool-serge/anchor.png",
+      "size_px": [
+        833,
+        46
+      ],
+      "rows": [
+        566,
+        612
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        2.733
+      ],
+      "file": "backdrops/textures/wall/hangings-wool-serge/field.png",
+      "size_px": [
+        833,
+        566
+      ],
+      "rows": [
+        0,
+        566
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 147.15,
+      "chroma_drift": 0.35641,
+      "mean_luma": 40.99
+    },
+    "after": {
+      "field_range_pct": 58.613,
+      "chroma_drift": 0.15539,
+      "mean_luma": 37.27
+    },
+    "flattened_pct": 88.537,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "closet_chamber/E",
+      "refused": "the source supplies 156/156 px/m against a 330 px/m lattice \u2014 2.12x short",
+      "window_m": 1.649,
+      "neutrality": {
+        "field_range_pct": 177.023,
+        "chroma_drift": 0.44414,
+        "mean_luma": 20.67
+      },
+      "supply_ratio": 2.12
+    },
+    {
+      "facing": "closet_chamber/N",
+      "refused": null,
+      "window_m": 2.523,
+      "neutrality": {
+        "field_range_pct": 135.145,
+        "chroma_drift": 0.36454,
+        "mean_luma": 38.87
+      },
+      "supply_ratio": 1.019
+    },
+    {
+      "facing": "closet_chamber/W",
+      "refused": "the source supplies 157/157 px/m against a 330 px/m lattice \u2014 2.11x short",
+      "window_m": 4.546,
+      "neutrality": {
+        "field_range_pct": 97.209,
+        "chroma_drift": 0.2518,
+        "mean_luma": 22.9
+      },
+      "supply_ratio": 2.106
+    }
+  ]
+}

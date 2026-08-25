@@ -1,0 +1,234 @@
+{
+  "id": "wall/plain-limewash-to-floor",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 227.55555555555554,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 227.56,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "servants_hall/E",
+    "source_ppm_at_wall": 173.684,
+    "supply_across": 173.7,
+    "supply_along": 173.7,
+    "supply_ratio": 1.31
+  },
+  "source_facing": "servants_hall/E",
+  "source_png": "backdrops/servants_hall/E.png",
+  "source_sha256": "51b1f15f4a078646eea885b83a7e12c9f61e01bb19c4a846f722d365893ed402",
+  "source_meta_sha256": "d5f4c38b8a362f01c6fc60ae27c696ebe3f45f9f260dfd6198a89ee89080356d",
+  "window_u_m": [
+    6.468,
+    7.07
+  ],
+  "carriers_avoided": [
+    "window",
+    "window",
+    "hearth"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 33.25% of its own mean over 0.60 m of clear wall, against 11 candidate facing(s)",
+  "tiling": {
+    "grain_axis": null,
+    "grain_frame": "surface",
+    "mirror": "both",
+    "scale_kind": "stochastic",
+    "characteristic_m": 0.04,
+    "feature": "the trowelled undulation of plain limewash"
+  },
+  "scale_contract": {
+    "kind": "stochastic",
+    "feature": "the trowelled undulation of plain limewash",
+    "characteristic_m": 0.04,
+    "span_m": 3.2269,
+    "ppm": 476
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/dado.png",
+      "size_px": [
+        137,
+        200
+      ],
+      "rows": [
+        583,
+        783
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/anchor.png",
+      "size_px": [
+        137,
+        32
+      ],
+      "rows": [
+        551,
+        583
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.443
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/field.png",
+      "size_px": [
+        137,
+        551
+      ],
+      "rows": [
+        0,
+        551
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 79.19,
+      "chroma_drift": 0.37838,
+      "mean_luma": 8.65
+    },
+    "after": {
+      "field_range_pct": 37.086,
+      "chroma_drift": 0.16593,
+      "mean_luma": 8.38
+    },
+    "flattened_pct": 42.104,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "buttery_pantry/E",
+      "refused": null,
+      "window_m": 2.266,
+      "neutrality": {
+        "field_range_pct": 105.251,
+        "chroma_drift": 0.343,
+        "mean_luma": 17.93
+      },
+      "supply_ratio": 1.31
+    },
+    {
+      "facing": "buttery_pantry/N",
+      "refused": null,
+      "window_m": 2.031,
+      "neutrality": {
+        "field_range_pct": 80.711,
+        "chroma_drift": 0.07453,
+        "mean_luma": 38.74
+      },
+      "supply_ratio": 1.01
+    },
+    {
+      "facing": "buttery_pantry/S",
+      "refused": null,
+      "window_m": 3.723,
+      "neutrality": {
+        "field_range_pct": 57.46,
+        "chroma_drift": 0.22749,
+        "mean_luma": 20.75
+      },
+      "supply_ratio": 1.049
+    },
+    {
+      "facing": "buttery_pantry/W",
+      "refused": null,
+      "window_m": 5.723,
+      "neutrality": {
+        "field_range_pct": 123.687,
+        "chroma_drift": 0.56577,
+        "mean_luma": 19.81
+      },
+      "supply_ratio": 1.294
+    },
+    {
+      "facing": "kitchen/E",
+      "refused": null,
+      "window_m": 2.336,
+      "neutrality": {
+        "field_range_pct": 102.268,
+        "chroma_drift": 0.34139,
+        "mean_luma": 67.92
+      },
+      "supply_ratio": 1.302
+    },
+    {
+      "facing": "kitchen/S",
+      "refused": null,
+      "window_m": 0.834,
+      "neutrality": {
+        "field_range_pct": 170.294,
+        "chroma_drift": 0.60545,
+        "mean_luma": 53.0
+      },
+      "supply_ratio": 1.413
+    },
+    {
+      "facing": "kitchen/W",
+      "refused": null,
+      "window_m": 2.753,
+      "neutrality": {
+        "field_range_pct": 87.433,
+        "chroma_drift": 0.40058,
+        "mean_luma": 24.29
+      },
+      "supply_ratio": 1.302
+    },
+    {
+      "facing": "servants_hall/E",
+      "refused": null,
+      "window_m": 0.603,
+      "neutrality": {
+        "field_range_pct": 33.247,
+        "chroma_drift": 0.22769,
+        "mean_luma": 9.28
+      },
+      "supply_ratio": 1.31
+    },
+    {
+      "facing": "servants_hall/N",
+      "refused": null,
+      "window_m": 3.715,
+      "neutrality": {
+        "field_range_pct": 86.296,
+        "chroma_drift": 0.23258,
+        "mean_luma": 14.71
+      },
+      "supply_ratio": 1.422
+    },
+    {
+      "facing": "servants_hall/S",
+      "refused": null,
+      "window_m": 2.96,
+      "neutrality": {
+        "field_range_pct": 67.309,
+        "chroma_drift": 0.18729,
+        "mean_luma": 92.64
+      },
+      "supply_ratio": 1.413
+    },
+    {
+      "facing": "servants_hall/W",
+      "refused": null,
+      "window_m": 1.762,
+      "neutrality": {
+        "field_range_pct": 36.748,
+        "chroma_drift": 0.12726,
+        "mean_luma": 61.56
+      },
+      "supply_ratio": 1.333
+    }
+  ]
+}

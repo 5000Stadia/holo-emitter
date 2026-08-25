@@ -58,7 +58,7 @@ import * as timings from "./timings.mjs";                 // [row 33] the stopwa
  * material sentence, every window sentence and the STAMPED ANCHOR LABEL below
  * come out of it, so a room can only be asked for the study's panelling if the
  * plan says it is that kind of room. */
-import { VOICES, emitMaterials }                          // [row 36] the swatch lane
+import { VOICES, emitMaterials, canonicalMaterial }       // [row 36] the swatch lane
   from "./room-voices.mjs";
 import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
   from "./room-voices.mjs";
@@ -823,6 +823,22 @@ async function main() {
       rolls: Number(argOf("--rolls", "2")),
       retries: Number(argOf("--retries", "3"))
     });
+    return;
+  }
+  if (argv.includes("--emit-facing-materials")) {
+    const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+    const doc = emitMaterials(VOICES, plan);
+    const fm = facingMaterials(plan, doc);
+    const out = join(ROOT, "backdrops", "textures", "facings.json");
+    writeFileSync(out, JSON.stringify({
+      _what_this_is:
+        "Which texture each facing of the plan actually shows. Emitted from " +
+        "tools/make-scaffold.mjs, which owns the walls_with_openings rule and " +
+        "reads the same scaffoldRects the prompts are generated from. Do not " +
+        "hand-edit -- regenerate with `--emit-facing-materials`.",
+      facings: fm
+    }, null, 2) + "\n");
+    console.log(`facings ${Object.keys(fm).length}  wrote ${out.slice(ROOT.length + 1)}`);
     return;
   }
   if (argv.includes("--emit-swatch")) {
@@ -2454,8 +2470,21 @@ export function swatchPrompt(materialId, mat) {
 /** Emit one packet per swatch material. Writes no image and reads no plan. */
 export function emitSwatches(outDir, opts = {}) {
   const rolls = Number(opts.rolls || 2);
-  const doc = emitMaterials(VOICES);
-  const wanted = Object.values(doc.materials).filter((m) => m.lane === "swatch");
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const doc = emitMaterials(VOICES, plan);
+  /* THE HARVEST'S OWN CONVERSIONS JOIN THE ASK. A material whose promoted
+     sources cannot supply the lattice its consumers demand is not a harvest,
+     whatever the table says -- so the harvester writes what it could not serve
+     and this reads it. `36-plan.md` §8 costed that conversion path explicitly
+     and said the build reports the count rather than assuming zero; this is
+     where the arithmetic actually moves. */
+  const convPath = join(ROOT, "backdrops", "textures", "harvest-conversions.json");
+  const conv = existsSync(convPath)
+    ? JSON.parse(readFileSync(convPath, "utf8")) : { converted_to_swatch: [] };
+  const converted = new Map(
+    (conv.converted_to_swatch || []).map((c) => [c.material, c.reason]));
+  const wanted = Object.values(doc.materials).filter(
+    (m) => m.lane === "swatch" || converted.has(m.id));
   mkdirSync(outDir, { recursive: true });
   const index = [];
   for (const mat of wanted) {
@@ -2473,8 +2502,10 @@ export function emitSwatches(outDir, opts = {}) {
       writeFileSync(join(ROOT, dest.replace(/\.png$/, ".prompt.txt")), prompt + "\n");
     }
     const sc = mat.scale_contract;
+    const why = converted.get(mat.id);
     writeFileSync(join(dir, "PACKET.md"),
       `# ${mat.id} — flat material swatch\n\n` +
+      (why ? `**Converted from the harvest lane.** ${why}\n\n` : "") +
       `Send \`prompt.txt\` verbatim. **Attach no image** — this ask carries no\n` +
       `reference on purpose: there is no geometry to show, and the style seed is a\n` +
       `LIGHTING reference which is the one thing a neutral sample must not inherit.\n\n` +
@@ -2491,6 +2522,7 @@ export function emitSwatches(outDir, opts = {}) {
             `the sample must be genuinely featureless.\n`) +
       `\nWrite only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     index.push({ material: mat.id, slot: mat.slot, dir: dir.slice(ROOT.length + 1),
+                 converted_from_harvest: why || null,
                  scale_contract: sc, rolls: ids });
   }
   const idxPath = join(outDir, "swatch-index.json");
@@ -2502,4 +2534,73 @@ export function emitSwatches(outDir, opts = {}) {
     emitted: index.length, rolls_each: rolls, packets: index
   }, null, 2) + "\n");
   return { packets: index, indexPath: idxPath };
+}
+
+/* ------------------------------------------------------------------ */
+/* Row 36 — which texture each facing actually shows                   */
+/* ------------------------------------------------------------------ */
+/* The harvester holds a promoted FACING and needs the material it renders.
+ * Three of the library's fabrics are not reachable from `voice.walls` at all,
+ * and each is reached by a rule that lives here rather than in the voice table:
+ *
+ *   `walls_with_openings` — an outdoor facing whose plan draws any carrier on
+ *   its wall line is the manor's own exterior elevation rather than a garden
+ *   wall. The rule is one line in `manorPrompt` and it is applied here from the
+ *   same `scaffoldRects` it reads, so the two cannot drift.
+ *
+ *   the three `hangings` ranks — chosen by `hangingsFor(roomId)` off the room's
+ *   own id vocabulary, so which tapestry a bedchamber shows is a fact about
+ *   which bedchamber it is.
+ *
+ *   `blank` — the same fabric as `walls`, which the binding already knows.
+ *
+ * Re-deriving any of that on the Python side would be a second copy of a rule
+ * whose first copy is what the prompts are actually generated from. */
+export function facingMaterials(plan, doc) {
+  const out = {};
+  for (const room of plan.rooms || []) {
+    for (const f of Object.keys(room.facings || {})) {
+      const key = `${room.id}/${f}`;
+      const { voice } = voiceFor(plan, room.id, f);
+      const bound = doc.bindings[voice.id] || {};
+      let meta = null, rects = [];
+      try {
+        meta = deriveMeta(plan, room.id, f);
+        rects = scaffoldRects(plan, room.id, f, meta).rects || [];
+      } catch { /* a facing whose meta will not derive still names its voice */ }
+      const carriers = rects.filter((r) => r.kind && r.kind !== "flight");
+
+      /* THE SAME CONDITION `manorPrompt` USES, read from the same rects. */
+      const wallsKey = (carriers.length && voice.walls_with_openings)
+        ? "walls_with_openings" : "walls";
+      const walls = bound[wallsKey] || bound.walls || null;
+
+      let field = null;
+      if (voice.id === "bedchamber") {
+        const rank = Object.entries(voice.hangings || {})
+          .find(([, s]) => s === hangingsFor(room.id));
+        if (rank) field = bound[`hangings.${rank[0]}`] || null;
+      }
+      out[key] = {
+        voice: voice.id,
+        walls: walls && canonicalMaterial(walls),
+        walls_key: wallsKey,
+        field: field && canonicalMaterial(field),
+        ceiling: bound.ceiling ? canonicalMaterial(bound.ceiling) : null,
+        floor: bound.floor ? canonicalMaterial(bound.floor) : null,
+        facing_type: room.facings[f].type,
+        carriers: carriers.map((r) => r.kind),
+        /* THE WALL'S OWN DEMAND, and it is exactly this number. The facing
+           wall's map is a similarity — row 35 preserves the painted
+           proportions so that it is, and §1.2's measurement found anisotropy
+           1.000 on all 51 promoted facings — so one metre of wall is
+           `px_per_m_at_wall` pixels everywhere on it. A material's lattice is
+           sized to the largest demand among the facings that USE it, never to
+           the building's global maximum, which would refuse every harvest to
+           satisfy a wall the material never appears on. */
+        declared_ppm: meta ? meta.px_per_m_at_wall : null
+      };
+    }
+  }
+  return out;
 }

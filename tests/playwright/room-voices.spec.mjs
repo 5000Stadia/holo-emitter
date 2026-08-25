@@ -600,7 +600,7 @@ test.describe("row 36 — material types for the texture library", () => {
     const out = join(repoRoot, "backdrops", "textures", "materials.json");
     expect(existsSync(out), "the emitted material table is committed").toBe(true);
     const onDisk = readFileSync(out, "utf8");
-    const fresh = JSON.stringify(emitMaterials(VOICES), null, 2) + "\n";
+    const fresh = JSON.stringify(emitMaterials(VOICES, PLAN), null, 2) + "\n";
     expect(onDisk, "run `node tools/room-voices.mjs --emit-materials`").toBe(fresh);
   });
 

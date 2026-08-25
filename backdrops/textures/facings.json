@@ -1,0 +1,1165 @@
+{
+  "_what_this_is": "Which texture each facing of the plan actually shows. Emitted from tools/make-scaffold.mjs, which owns the walls_with_openings rule and reads the same scaffoldRects the prompts are generated from. Do not hand-edit -- regenerate with `--emit-facing-materials`.",
+  "facings": {
+    "great_hall/N": {
+      "voice": "hall_state",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "window",
+        "door"
+      ],
+      "declared_ppm": 115.70621468926554
+    },
+    "great_hall/E": {
+      "voice": "hall_state",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 93.51598173515983
+    },
+    "great_hall/S": {
+      "voice": "hall_state",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window",
+        "door",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 115.70621468926554
+    },
+    "great_hall/W": {
+      "voice": "hall_state",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door",
+        "door"
+      ],
+      "declared_ppm": 93.51598173515983
+    },
+    "study/N": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace"
+      ],
+      "declared_ppm": 235.40229885057474
+    },
+    "study/E": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "study/S": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 265.97402597402595
+    },
+    "study/W": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 250.36674816625919
+    },
+    "back_stair/N": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 329.2604501607717
+    },
+    "back_stair/E": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "back_stair/S": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 276.7567567567567
+    },
+    "back_stair/W": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "hall/N": {
+      "voice": "cross_passage",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 476.27906976744185
+    },
+    "hall/E": {
+      "voice": "cross_passage",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "corridor",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "hall/S": {
+      "voice": "cross_passage",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 476.27906976744185
+    },
+    "hall/W": {
+      "voice": "cross_passage",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "corridor",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "kitchen/N": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 157.78120184899845
+    },
+    "kitchen/E": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "kitchen/S": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "window"
+      ],
+      "declared_ppm": 157.78120184899845
+    },
+    "kitchen/W": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "buttery_pantry/N": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 227.55555555555554
+    },
+    "buttery_pantry/E": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "buttery_pantry/S": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 227.55555555555554
+    },
+    "buttery_pantry/W": {
+      "voice": "service",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/smoke-darkened-joists",
+      "floor": "floor/worn-stone-flags",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 170.66666666666666
+    },
+    "servants_hall/N": {
+      "voice": "servants_hall",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/red-brick-on-edge",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "servants_hall/E": {
+      "voice": "servants_hall",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/red-brick-on-edge",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "fireplace"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "servants_hall/S": {
+      "voice": "servants_hall",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/red-brick-on-edge",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "servants_hall/W": {
+      "voice": "servants_hall",
+      "walls": "wall/plain-limewash-to-floor",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-exposed-joists",
+      "floor": "floor/red-brick-on-edge",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door",
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "dining_parlour/N": {
+      "voice": "parlour_armorial",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "door"
+      ],
+      "declared_ppm": 143.2167832167832
+    },
+    "dining_parlour/E": {
+      "voice": "parlour_armorial",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "dining_parlour/S": {
+      "voice": "parlour_armorial",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 143.2167832167832
+    },
+    "dining_parlour/W": {
+      "voice": "parlour_armorial",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "great_stair_hall/N": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 196.9230769230769
+    },
+    "great_stair_hall/E": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "great_stair_hall/S": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 196.9230769230769
+    },
+    "great_stair_hall/W": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "library/N": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "library/E": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "library/S": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "library/W": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "garden_room/N": {
+      "voice": "garden_parlour",
+      "walls": "wall/light-oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/square-stone-paviours",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 330.3225806451613
+    },
+    "garden_room/E": {
+      "voice": "garden_parlour",
+      "walls": "wall/light-oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/square-stone-paviours",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "garden_room/S": {
+      "voice": "garden_parlour",
+      "walls": "wall/light-oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/square-stone-paviours",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 330.3225806451613
+    },
+    "garden_room/W": {
+      "voice": "garden_parlour",
+      "walls": "wall/light-oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/square-stone-paviours",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 155.15151515151516
+    },
+    "entrance_court/N": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window",
+        "door",
+        "window",
+        "window",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 119.76608187134502
+    },
+    "entrance_court/E": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 66.9281045751634
+    },
+    "entrance_court/S": {
+      "voice": "outdoors_open",
+      "walls": "wall/low-boundary-wall",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/gravel-and-turf",
+      "facing_type": "open",
+      "carriers": [],
+      "declared_ppm": 38.2803738317757
+    },
+    "entrance_court/W": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 66.9281045751634
+    },
+    "privy_garden/N": {
+      "voice": "outdoors_walled",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 200.78431372549022
+    },
+    "privy_garden/E": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 66.9281045751634
+    },
+    "privy_garden/S": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door",
+        "window"
+      ],
+      "declared_ppm": 200.78431372549022
+    },
+    "privy_garden/W": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 66.9281045751634
+    },
+    "entrance_approach/N": {
+      "voice": "outdoors_walled",
+      "walls": "wall/manor-exterior-elevation",
+      "walls_key": "walls_with_openings",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/raked-gravel-box-turf",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 52.37851662404092
+    },
+    "entrance_approach/E": {
+      "voice": "outdoors_open",
+      "walls": "wall/low-boundary-wall",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/gravel-and-turf",
+      "facing_type": "open",
+      "carriers": [],
+      "declared_ppm": 42.666666666666664
+    },
+    "entrance_approach/S": {
+      "voice": "outdoors_open",
+      "walls": "wall/low-boundary-wall",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/gravel-and-turf",
+      "facing_type": "open",
+      "carriers": [],
+      "declared_ppm": 68.26666666666667
+    },
+    "entrance_approach/W": {
+      "voice": "outdoors_open",
+      "walls": "wall/low-boundary-wall",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": null,
+      "floor": "floor/gravel-and-turf",
+      "facing_type": "open",
+      "carriers": [],
+      "declared_ppm": 42.666666666666664
+    },
+    "solar/N": {
+      "voice": "great_chamber",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 115.70621468926554
+    },
+    "solar/E": {
+      "voice": "great_chamber",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door",
+        "door"
+      ],
+      "declared_ppm": 93.51598173515983
+    },
+    "solar/S": {
+      "voice": "great_chamber",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 115.70621468926554
+    },
+    "solar/W": {
+      "voice": "great_chamber",
+      "walls": "wall/oak-fielded-bays-frieze",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/lime-plaster-ribs",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 93.51598173515983
+    },
+    "muniment_room/N": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace"
+      ],
+      "declared_ppm": 235.40229885057474
+    },
+    "muniment_room/E": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "muniment_room/S": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 265.97402597402595
+    },
+    "muniment_room/W": {
+      "voice": "parlour_wainscot",
+      "walls": "wall/dark-oak-panelling",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/parchment-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "back_stair_head/N": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 329.2604501607717
+    },
+    "back_stair_head/E": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "back_stair_head/S": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 276.7567567567567
+    },
+    "back_stair_head/W": {
+      "voice": "back_stair",
+      "walls": "wall/boarded-oak-dado-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 250.36674816625919
+    },
+    "long_gallery/N": {
+      "voice": "long_gallery",
+      "walls": "wall/oak-wainscot-limewash-cornice",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "corridor",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 56.2019758507135
+    },
+    "long_gallery/E": {
+      "voice": "long_gallery",
+      "walls": "wall/oak-wainscot-limewash-cornice",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "fireplace",
+        "window",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 135.6291390728477
+    },
+    "long_gallery/S": {
+      "voice": "long_gallery",
+      "walls": "wall/oak-wainscot-limewash-cornice",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "corridor",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 56.2019758507135
+    },
+    "long_gallery/W": {
+      "voice": "long_gallery",
+      "walls": "wall/oak-wainscot-limewash-cornice",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window",
+        "door",
+        "door",
+        "window",
+        "window"
+      ],
+      "declared_ppm": 135.6291390728477
+    },
+    "master_bedchamber/N": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-tapestry",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "door"
+      ],
+      "declared_ppm": 143.2167832167832
+    },
+    "master_bedchamber/E": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-tapestry",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "master_bedchamber/S": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-tapestry",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 143.2167832167832
+    },
+    "master_bedchamber/W": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-tapestry",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "stair_landing/N": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 196.9230769230769
+    },
+    "stair_landing/E": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "stair_landing/S": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 196.9230769230769
+    },
+    "stair_landing/W": {
+      "voice": "great_stair",
+      "walls": "wall/oak-wainscot-limewash",
+      "walls_key": "walls",
+      "field": null,
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/broad-oak-treads-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "guest_chamber/N": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-red-worsted",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "guest_chamber/E": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-red-worsted",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 155.15151515151516
+    },
+    "guest_chamber/S": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-red-worsted",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "fireplace",
+        "door"
+      ],
+      "declared_ppm": 170.66666666666666
+    },
+    "guest_chamber/W": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-red-worsted",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window",
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "closet_chamber/N": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-wool-serge",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 330.3225806451613
+    },
+    "closet_chamber/E": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-wool-serge",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "window"
+      ],
+      "declared_ppm": 155.15151515151516
+    },
+    "closet_chamber/S": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-wool-serge",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [
+        "door"
+      ],
+      "declared_ppm": 330.3225806451613
+    },
+    "closet_chamber/W": {
+      "voice": "bedchamber",
+      "walls": "wall/oak-wainscot-with-hangings",
+      "walls_key": "walls",
+      "field": "wall/hangings-wool-serge",
+      "ceiling": "ceiling/plain-lime-plaster",
+      "floor": "floor/wide-oak-boards",
+      "facing_type": "enclosed",
+      "carriers": [],
+      "declared_ppm": 155.15151515151516
+    }
+  }
+}
