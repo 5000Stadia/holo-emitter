@@ -598,10 +598,18 @@ def promote_document(key, cand_rel, round_dir):
          "--reference", "ruled"],
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
-        why = (r.stdout + r.stderr).strip().split("\n")[-1][:200]
+        # THE REFUSAL IS RETURNED WHOLE AND TRUNCATED ONLY FOR THE LEDGER. A
+        # first draft cut it to 200 characters at both ends at once, and
+        # `promote-backdrop.mjs` puts its ledger token LAST — so `great_hall/N`
+        # came back refused for want of a painted way through with
+        # `[row27:door.unmeasured_exit]` sliced off the end, `_is_door_refusal`
+        # said no, and the door-void exit never fired on the one wall in the
+        # run that needed it. A router that reads a message it also shortens is
+        # reading its own scissors.
+        why = (r.stdout + r.stderr).strip().split("\n")[-1]
         timings.record("promote.wall", _t, time.time(), key,
                        {"candidate": cand_rel, "refused": True, "round": round_dir,
-                        "camera_source": "measured", "why": why})
+                        "camera_source": "measured", "why": why[:300]})
         return False, why
     ok, why = _validate_promoted(key)
     timings.record("promote.wall", _t, time.time(), key,

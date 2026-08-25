@@ -109,8 +109,15 @@ def fake_snap_to_round(key, candidate, reading=None, round_dir="row35snap",
 def fake_promote_document(key, cand_rel, round_dir):
     CALLS["promote_document"].append((key, cand_rel, round_dir))
     if key in DOOR_REFUSED:
-        return False, ("%s: the plan rules 1 way(s) through this wall and the "
-                       "painting shows 0 [row27:door.unmeasured_exit]" % key)
+        # THE REAL REFUSAL'S SHAPE, and its length is the point: the ledger
+        # token is LAST, past the 200 characters a caller might think a
+        # sentence is worth keeping. great_hall/N was routed to grid instead of
+        # to the repair by exactly that truncation.
+        return False, ("promote refused: %s: the plan rules 1 way(s) through "
+                       "this wall and the painting shows 0 — a doorway the "
+                       "world walks through with no hole in the picture is not "
+                       "promotable, because a player would click on paint "
+                       "[row27:door.unmeasured_exit]" % key)
     return True, None
 
 
@@ -317,6 +324,31 @@ test.describe("the sweep takes the ruled exits itself", () => {
       + "R._is_door_refusal(None))"],
       { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
     expect(out.trim()).toBe("True False False");
+  });
+
+  test("a refusal reaches the router whole, token and all", () => {
+    /* THE ROUTER MUST NOT READ ITS OWN SCISSORS. `promote-backdrop.mjs` puts
+       its ledger token LAST, so a promotion refusal shortened on the way back
+       loses the very clause the routing decides on — which is not
+       hypothetical: `great_hall/N` snapped clean, was refused for want of a
+       painted way through, and went to grid because the token had been sliced
+       off the end of the sentence before anyone looked for it. */
+    const out = execFileSync("python3", ["-c", `
+import os, sys
+os.environ["HOLO_TIMINGS"] = "off"
+sys.path.insert(0, os.path.join("design", "plan-draft", "measured"))
+import row23_run as R
+REAL = ("promote refused: great_hall/N: the plan rules 1 way(s) through this "
+        "wall and the painting shows 0 - a doorway the world walks through "
+        "with no hole in the picture is not promotable, because a player would "
+        "click on paint [row27:door.unmeasured_exit]")
+class Refused:
+    returncode, stdout, stderr = 1, REAL, ""
+R.subprocess.run = lambda a, **kw: Refused()
+ok, why = R.promote_document("great_hall/N", "backdrops/source-snapped/x.png", "row35snap")
+print(ok, R._is_door_refusal(why))
+`], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+    expect(out.trim()).toBe("False True");
   });
 
   test("every exit step leaves a timing line", () => {
