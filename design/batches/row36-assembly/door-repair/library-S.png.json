@@ -1,0 +1,38 @@
+{
+  "painted": [
+    {
+      "u0_m": 4.4,
+      "u1_m": 5.4,
+      "width_m": 1.0,
+      "head_m": 2.0,
+      "pixels": 57970,
+      "lintel_px": 4272
+    }
+  ],
+  "wall_median_luma": 16.67,
+  "void_luma": 3.0,
+  "separation_luma": 13.67,
+  "min_separation_required": 3.0,
+  "feather_m": 0.02,
+  "lintel": {
+    "m": 0.14,
+    "luma": 19.17,
+    "why": "door_measure._head walks up the void's columns until they stop being dark; without a lintel it walks past the storey and the candidate is rejected after being found"
+  },
+  "facing": "library/S",
+  "candidate": "backdrops/source-snapped/library-S/snapped.png",
+  "out": "/home/k/Projects/holo-emitter/.claude/worktrees/agent-a3556e121f5697c28/design/batches/row36-assembly/door-repair/library-S.png",
+  "declared_box": {
+    "x0": 17.066666666666606,
+    "x1": 1518.9333333333334,
+    "yc": 250.132,
+    "yf": 727.9986666666666,
+    "vx": 768.0,
+    "vy": 526.1
+  },
+  "width_m": 8.8,
+  "doors_ruled": 1,
+  "doors_read_before": 0,
+  "left_alone": [],
+  "painted_because_missing": 1
+}

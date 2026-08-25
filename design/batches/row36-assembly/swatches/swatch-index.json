@@ -1,12 +1,39 @@
 {
   "_what_this_is": "Row 36's flat material swatches. One packet per material the library cannot harvest. A NEW index file rather than an edit to assignment.json, whose blob scaffold.spec asserts has never changed.",
-  "emitted": 12,
+  "emitted": 13,
   "rolls_each": 2,
   "packets": [
+    {
+      "material": "wall/oak-wainscot-limewash",
+      "slot": "walls",
+      "dir": "design/batches/row36-assembly/swatches/wall-oak-wainscot-limewash",
+      "converted_from_harvest": "no promoted facing supplies the lattice this material's own consumers demand (476 px/m): the source supplies 161/161 px/m against a 476 px/m lattice — 2.96x short; the source supplies 159/159 px/m against a 476 px/m lattice — 3.00x short",
+      "scale_contract": {
+        "kind": "periodic",
+        "feature": "wainscot bay",
+        "pitch_m": 0.8,
+        "count": 4,
+        "span_m": 3.2,
+        "ppm": 480
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "91add664",
+          "dest": "backdrops/textures/source/wall-oak-wainscot-limewash/row36-91add664.png"
+        },
+        {
+          "roll": 2,
+          "id": "51cfd593",
+          "dest": "backdrops/textures/source/wall-oak-wainscot-limewash/row36-51cfd593.png"
+        }
+      ]
+    },
     {
       "material": "ceiling/lime-plaster-ribs",
       "slot": "ceiling",
       "dir": "design/batches/row36-assembly/swatches/ceiling-lime-plaster-ribs",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "moulded plaster rib bay",
@@ -32,6 +59,7 @@
       "material": "ceiling/parchment-plaster",
       "slot": "ceiling",
       "dir": "design/batches/row36-assembly/swatches/ceiling-parchment-plaster",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "featureless",
         "feature": null,
@@ -56,6 +84,7 @@
       "material": "ceiling/plain-lime-plaster",
       "slot": "ceiling",
       "dir": "design/batches/row36-assembly/swatches/ceiling-plain-lime-plaster",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "featureless",
         "feature": null,
@@ -80,6 +109,7 @@
       "material": "ceiling/smoke-darkened-joists",
       "slot": "ceiling",
       "dir": "design/batches/row36-assembly/swatches/ceiling-smoke-darkened-joists",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "exposed joist",
@@ -105,6 +135,7 @@
       "material": "ceiling/plain-exposed-joists",
       "slot": "ceiling",
       "dir": "design/batches/row36-assembly/swatches/ceiling-plain-exposed-joists",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "exposed joist",
@@ -130,6 +161,7 @@
       "material": "floor/wide-oak-boards",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-wide-oak-boards",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "floorboard",
@@ -155,6 +187,7 @@
       "material": "floor/square-stone-paviours",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-square-stone-paviours",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "square paviour",
@@ -180,6 +213,7 @@
       "material": "floor/worn-stone-flags",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-worn-stone-flags",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "stochastic",
         "feature": "the spread of a worn flag",
@@ -204,6 +238,7 @@
       "material": "floor/broad-oak-treads-boards",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-broad-oak-treads-boards",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "board",
@@ -229,6 +264,7 @@
       "material": "floor/red-brick-on-edge",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-red-brick-on-edge",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "periodic",
         "feature": "brick laid on edge",
@@ -254,6 +290,7 @@
       "material": "floor/raked-gravel-box-turf",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-raked-gravel-box-turf",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "stochastic",
         "feature": "raked gravel grain",
@@ -278,6 +315,7 @@
       "material": "floor/gravel-and-turf",
       "slot": "floor",
       "dir": "design/batches/row36-assembly/swatches/floor-gravel-and-turf",
+      "converted_from_harvest": null,
       "scale_contract": {
         "kind": "stochastic",
         "feature": "raked gravel grain",

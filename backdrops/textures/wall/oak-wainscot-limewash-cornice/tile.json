@@ -1,0 +1,153 @@
+{
+  "id": "wall/oak-wainscot-limewash-cornice",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 135.6291390728477,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 135.63,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "long_gallery/E",
+    "source_ppm_at_wall": 132.632,
+    "supply_across": 132.6,
+    "supply_along": 132.6,
+    "supply_ratio": 1.023
+  },
+  "source_facing": "long_gallery/E",
+  "source_png": "backdrops/long_gallery/E.png",
+  "source_sha256": "ade3455716c63b6436e10c83c33f8347f59a0c19f6ac2fda0ba29018f019cd40",
+  "source_meta_sha256": "a4a6186da9bcfe6ca54b17aedd85f6077f51420876f2deb3c5fe553bd64a1ae6",
+  "window_u_m": [
+    1.899,
+    2.733
+  ],
+  "carriers_avoided": [
+    "window",
+    "window",
+    "window",
+    "window",
+    "window",
+    "window",
+    "window",
+    "window",
+    "hearth"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 116.48% of its own mean over 0.83 m of clear wall, against 3 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.8,
+    "feature": "wainscot bay"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "wainscot bay",
+    "pitch_m": 0.8,
+    "count": 4,
+    "span_m": 3.2,
+    "ppm": 480
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-limewash-cornice/dado.png",
+      "size_px": [
+        113,
+        119
+      ],
+      "rows": [
+        292,
+        411
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-limewash-cornice/anchor.png",
+      "size_px": [
+        113,
+        19
+      ],
+      "rows": [
+        273,
+        292
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.031
+      ],
+      "file": "backdrops/textures/wall/oak-wainscot-limewash-cornice/field.png",
+      "size_px": [
+        113,
+        273
+      ],
+      "rows": [
+        0,
+        273
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 105.188,
+      "chroma_drift": 0.56207,
+      "mean_luma": 110.59
+    },
+    "after": {
+      "field_range_pct": 33.496,
+      "chroma_drift": 0.16045,
+      "mean_luma": 106.0
+    },
+    "flattened_pct": 71.692,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "long_gallery/E",
+      "refused": null,
+      "window_m": 0.835,
+      "neutrality": {
+        "field_range_pct": 116.483,
+        "chroma_drift": 0.53371,
+        "mean_luma": 103.55
+      },
+      "supply_ratio": 1.023
+    },
+    {
+      "facing": "long_gallery/N",
+      "refused": "the source supplies 57/57 px/m against a 136 px/m lattice \u2014 2.39x short",
+      "window_m": 5.242,
+      "neutrality": {
+        "field_range_pct": 178.25,
+        "chroma_drift": 0.40873,
+        "mean_luma": 74.84
+      },
+      "supply_ratio": 2.386
+    },
+    {
+      "facing": "long_gallery/S",
+      "refused": "the source supplies 56/56 px/m against a 136 px/m lattice \u2014 2.43x short",
+      "window_m": 3.536,
+      "neutrality": {
+        "field_range_pct": 169.305,
+        "chroma_drift": 0.60199,
+        "mean_luma": 64.97
+      },
+      "supply_ratio": 2.431
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "wall/oak-wainscot-limewash",
+  "slot": "walls",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 480,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.8,
+    "feature": "wainscot bay"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "wainscot bay",
+    "pitch_m": 0.8,
+    "count": 4,
+    "span_m": 3.2,
+    "ppm": 480
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/wall/oak-wainscot-limewash/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}

@@ -1198,7 +1198,23 @@ export function assertMaterialsComplete(voices) {
 
 /** The payload the Python assembler reads. One home in JS, crossed as data --
  *  the way `MEASURED_BAND` already crosses into `row23_lib`. */
-export function emitMaterials(voices) {
+/** Which voice each FACING of a plan resolves to.
+ *
+ *  The bindings are keyed by voice; a harvester holds a facing. Without this
+ *  the Python side would have to re-implement `voiceFor`'s resolution order
+ *  (room id, then archetype, then type) and would drift from it the first time
+ *  a fallback changed. Emitted rather than re-derived: one home. */
+export function facingVoices(plan) {
+  const out = {};
+  for (const room of plan.rooms || []) {
+    for (const f of Object.keys(room.facings || {})) {
+      out[`${room.id}/${f}`] = voiceFor(plan, room.id, f).voice.id;
+    }
+  }
+  return out;
+}
+
+export function emitMaterials(voices, plan) {
   const stats = assertMaterialsComplete(voices);
   /* Only STORED textures are emitted: an alias is a naming fact, not an asset,
      and the assembler must never be handed a tile id that nothing keeps. The
@@ -1250,7 +1266,8 @@ export function emitMaterials(voices) {
     counts: stats,
     aliases: aliasTable(),
     materials,
-    bindings
+    bindings,
+    facings: plan ? facingVoices(plan) : null
   };
 }
 
@@ -1262,13 +1279,14 @@ export function emitMaterials(voices) {
  * already holds two staleness tests of exactly this shape: re-emit, compare
  * bytes, refuse a committed artifact that has drifted from its generator. */
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { writeFileSync, mkdirSync } = await import("node:fs");
+  const { writeFileSync, mkdirSync, readFileSync } = await import("node:fs");
   const { dirname, join } = await import("node:path");
   const { fileURLToPath } = await import("node:url");
   const here = dirname(fileURLToPath(import.meta.url));
   const root = join(here, "..");
   if (process.argv.includes("--emit-materials")) {
-    const doc = emitMaterials(VOICES);
+    const plan = JSON.parse(readFileSync(join(root, "fixtures", "demo-study", "plan.json"), "utf8"));
+    const doc = emitMaterials(VOICES, plan);
     const out = join(root, "backdrops", "textures", "materials.json");
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, JSON.stringify(doc, null, 2) + "\n");

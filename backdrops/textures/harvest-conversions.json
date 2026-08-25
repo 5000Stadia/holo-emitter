@@ -1,0 +1,26 @@
+{
+  "_what_this_is": "Materials the harvest could not serve, and why. The swatch emitter reads this and asks for them flat instead -- which is the conversion path `36-plan.md` \u00a78 costs, so the arithmetic moves with the evidence rather than assuming zero.",
+  "converted_to_swatch": [
+    {
+      "material": "wall/light-oak-wainscot-limewash",
+      "reason": "no promoted facing supplies the lattice this material's own consumers demand (330 px/m): no stretch of this wall is clear of a carrier and its firelight; no stretch of this wall is clear of a carrier and its firelight",
+      "demand_ppm": 330.32
+    },
+    {
+      "material": "wall/oak-wainscot-limewash",
+      "reason": "no promoted facing supplies the lattice this material's own consumers demand (476 px/m): the source supplies 161/161 px/m against a 476 px/m lattice \u2014 2.96x short; the source supplies 159/159 px/m against a 476 px/m lattice \u2014 3.00x short",
+      "demand_ppm": 476.28
+    },
+    {
+      "material": "wall/oak-wainscot-limewash-cornice",
+      "reason": "no promoted facing supplies the lattice this material's own consumers demand (136 px/m): no stretch of this wall is clear of a carrier and its firelight; the source supplies 57/57 px/m against a 136 px/m lattice \u2014 2.39x short",
+      "demand_ppm": 135.63
+    }
+  ],
+  "out_of_scope": [
+    {
+      "material": "wall/low-boundary-wall",
+      "reason": "no ENCLOSED facing uses it -- it appears only on open vistas, which assembly excludes"
+    }
+  ]
+}

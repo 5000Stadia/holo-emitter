@@ -1,0 +1,121 @@
+{
+  "id": "wall/garden-brick-english-bond",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 200.78431372549022,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 200.78,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "privy_garden/N",
+    "source_ppm_at_wall": 198.947,
+    "supply_across": 198.9,
+    "supply_along": 198.9,
+    "supply_ratio": 1.009
+  },
+  "source_facing": "privy_garden/N",
+  "source_png": "backdrops/privy_garden/N.png",
+  "source_sha256": "8cdd6778d4c4eacce61b34d40b3d896962388869922ac95ce968a59c952fa942",
+  "source_meta_sha256": "45ff005789c77f9114985edf37611244d59745d5287badb79eef96dcfdaa5da2",
+  "window_u_m": [
+    0.0,
+    6.394
+  ],
+  "carriers_avoided": [],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 88.35% of its own mean over 6.39 m of clear wall, against 1 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "u",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.075,
+    "feature": "brick course"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "brick course",
+    "pitch_m": 0.075,
+    "count": 43,
+    "span_m": 3.225,
+    "ppm": 476.28
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/garden-brick-english-bond/dado.png",
+      "size_px": [
+        1284,
+        177
+      ],
+      "rows": [
+        479,
+        656
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/garden-brick-english-bond/anchor.png",
+      "size_px": [
+        1284,
+        28
+      ],
+      "rows": [
+        451,
+        479
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.267
+      ],
+      "file": "backdrops/textures/wall/garden-brick-english-bond/field.png",
+      "size_px": [
+        1284,
+        451
+      ],
+      "rows": [
+        0,
+        451
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 170.702,
+      "chroma_drift": 0.4051,
+      "mean_luma": 29.87
+    },
+    "after": {
+      "field_range_pct": 48.77,
+      "chroma_drift": 0.11372,
+      "mean_luma": 28.54
+    },
+    "flattened_pct": 121.932,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "privy_garden/N",
+      "refused": null,
+      "window_m": 6.394,
+      "neutrality": {
+        "field_range_pct": 88.347,
+        "chroma_drift": 0.11028,
+        "mean_luma": 24.27
+      },
+      "supply_ratio": 1.009
+    }
+  ]
+}

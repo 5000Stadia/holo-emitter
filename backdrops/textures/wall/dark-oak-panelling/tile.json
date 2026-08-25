@@ -1,0 +1,235 @@
+{
+  "id": "wall/dark-oak-panelling",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 265.97402597402595,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 265.97,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "muniment_room/E",
+    "source_ppm_at_wall": 244.211,
+    "supply_across": 244.2,
+    "supply_along": 244.2,
+    "supply_ratio": 1.089
+  },
+  "source_facing": "muniment_room/E",
+  "source_png": "backdrops/muniment_room/E.png",
+  "source_sha256": "d8c19b59544845a74fe96355b4cbc16116d011811fdf4ee9572a28131774bfe3",
+  "source_meta_sha256": "030c2019f051db206bed83e346ddb230fb61c67b2f89eaff4c84a41e3f2285e5",
+  "window_u_m": [
+    2.786,
+    4.971
+  ],
+  "carriers_avoided": [
+    "door"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 50.65% of its own mean over 2.19 m of clear wall, against 13 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.8,
+    "feature": "panel bay"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "panel bay",
+    "pitch_m": 0.8,
+    "count": 4,
+    "span_m": 3.2,
+    "ppm": 480
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/dark-oak-panelling/dado.png",
+      "size_px": [
+        581,
+        234
+      ],
+      "rows": [
+        582,
+        816
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/dark-oak-panelling/anchor.png",
+      "size_px": [
+        581,
+        37
+      ],
+      "rows": [
+        545,
+        582
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.067
+      ],
+      "file": "backdrops/textures/wall/dark-oak-panelling/field.png",
+      "size_px": [
+        581,
+        545
+      ],
+      "rows": [
+        0,
+        545
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 87.31,
+      "chroma_drift": 0.16866,
+      "mean_luma": 14.93
+    },
+    "after": {
+      "field_range_pct": 42.722,
+      "chroma_drift": 0.09116,
+      "mean_luma": 14.4
+    },
+    "flattened_pct": 44.588,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "dining_parlour/E",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "dining_parlour/N",
+      "refused": "the source supplies 146/146 px/m against a 266 px/m lattice \u2014 1.82x short",
+      "window_m": 4.013,
+      "neutrality": {
+        "field_range_pct": 40.461,
+        "chroma_drift": 0.37214,
+        "mean_luma": 15.2
+      },
+      "supply_ratio": 1.818
+    },
+    {
+      "facing": "dining_parlour/S",
+      "refused": "the source supplies 147/147 px/m against a 266 px/m lattice \u2014 1.80x short",
+      "window_m": 2.034,
+      "neutrality": {
+        "field_range_pct": 165.312,
+        "chroma_drift": 0.4447,
+        "mean_luma": 27.04
+      },
+      "supply_ratio": 1.805
+    },
+    {
+      "facing": "dining_parlour/W",
+      "refused": "the source supplies 160/160 px/m against a 266 px/m lattice \u2014 1.66x short",
+      "window_m": 3.077,
+      "neutrality": {
+        "field_range_pct": 199.392,
+        "chroma_drift": 0.61735,
+        "mean_luma": 30.97
+      },
+      "supply_ratio": 1.662
+    },
+    {
+      "facing": "library/E",
+      "refused": "the source supplies 147/147 px/m against a 266 px/m lattice \u2014 1.80x short",
+      "window_m": 4.401,
+      "neutrality": {
+        "field_range_pct": 132.039,
+        "chroma_drift": 0.21765,
+        "mean_luma": 18.31
+      },
+      "supply_ratio": 1.805
+    },
+    {
+      "facing": "library/N",
+      "refused": "the source supplies 174/174 px/m against a 266 px/m lattice \u2014 1.53x short",
+      "window_m": 3.212,
+      "neutrality": {
+        "field_range_pct": 53.854,
+        "chroma_drift": 0.23493,
+        "mean_luma": 11.18
+      },
+      "supply_ratio": 1.531
+    },
+    {
+      "facing": "library/W",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "muniment_room/E",
+      "refused": null,
+      "window_m": 2.186,
+      "neutrality": {
+        "field_range_pct": 50.649,
+        "chroma_drift": 0.13322,
+        "mean_luma": 13.33
+      },
+      "supply_ratio": 1.089
+    },
+    {
+      "facing": "muniment_room/N",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "muniment_room/S",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "muniment_room/W",
+      "refused": null,
+      "window_m": 2.089,
+      "neutrality": {
+        "field_range_pct": 76.692,
+        "chroma_drift": 0.10901,
+        "mean_luma": 21.78
+      },
+      "supply_ratio": 1.053
+    },
+    {
+      "facing": "study/N",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "study/W",
+      "refused": null,
+      "window_m": 6.048,
+      "neutrality": {
+        "field_range_pct": 97.262,
+        "chroma_drift": 0.5165,
+        "mean_luma": 27.51
+      },
+      "supply_ratio": 1.381
+    }
+  ]
+}

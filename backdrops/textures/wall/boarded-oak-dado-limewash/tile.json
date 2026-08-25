@@ -1,0 +1,132 @@
+{
+  "id": "wall/boarded-oak-dado-limewash",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 329.2604501607717,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 329.26,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "back_stair/N",
+    "source_ppm_at_wall": 337.895,
+    "supply_across": 337.9,
+    "supply_along": 337.9,
+    "supply_ratio": 0.974
+  },
+  "source_facing": "back_stair/N",
+  "source_png": "backdrops/back_stair/N.png",
+  "source_sha256": "5b8fd8012dbb43c345e464dd67e774411aa254608e4ffe7ed2f1148ef8492f48",
+  "source_meta_sha256": "5931d7aeb0c1388c4d9d1bdbdfb01717e5400fa73a3e000fb520df6ba88bd4df",
+  "window_u_m": [
+    0.0,
+    3.978
+  ],
+  "carriers_avoided": [],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 73.48% of its own mean over 3.98 m of clear wall, against 2 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.25,
+    "feature": "square-edged dado board"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "square-edged dado board",
+    "pitch_m": 0.25,
+    "count": 12,
+    "span_m": 3,
+    "ppm": 512
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/boarded-oak-dado-limewash/dado.png",
+      "size_px": [
+        1310,
+        290
+      ],
+      "rows": [
+        567,
+        857
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/boarded-oak-dado-limewash/anchor.png",
+      "size_px": [
+        1310,
+        46
+      ],
+      "rows": [
+        521,
+        567
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        2.604
+      ],
+      "file": "backdrops/textures/wall/boarded-oak-dado-limewash/field.png",
+      "size_px": [
+        1310,
+        521
+      ],
+      "rows": [
+        0,
+        521
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 85.836,
+      "chroma_drift": 0.20358,
+      "mean_luma": 31.15
+    },
+    "after": {
+      "field_range_pct": 64.88,
+      "chroma_drift": 0.16213,
+      "mean_luma": 29.35
+    },
+    "flattened_pct": 20.956,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "back_stair/N",
+      "refused": null,
+      "window_m": 3.978,
+      "neutrality": {
+        "field_range_pct": 73.477,
+        "chroma_drift": 0.21741,
+        "mean_luma": 33.89
+      },
+      "supply_ratio": 0.974
+    },
+    {
+      "facing": "back_stair_head/N",
+      "refused": null,
+      "window_m": 4.205,
+      "neutrality": {
+        "field_range_pct": 106.047,
+        "chroma_drift": 0.22067,
+        "mean_luma": 47.94
+      },
+      "supply_ratio": 1.043
+    }
+  ]
+}

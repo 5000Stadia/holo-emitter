@@ -1,0 +1,38 @@
+{
+  "id": "ceiling/plain-exposed-joists",
+  "slot": "ceiling",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 341.33,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": "room_short",
+    "grain_frame": "plan",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.9,
+    "feature": "exposed joist"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "exposed joist",
+    "pitch_m": 0.9,
+    "count": 5,
+    "span_m": 4.5,
+    "ppm": 341.33
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/ceiling/plain-exposed-joists/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}

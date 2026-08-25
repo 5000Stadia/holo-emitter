@@ -1,0 +1,220 @@
+{
+  "id": "wall/plain-limewash-to-floor",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 227.55555555555554,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 227.56,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "buttery_pantry/S",
+    "source_ppm_at_wall": 216.842,
+    "supply_across": 216.8,
+    "supply_along": 216.8,
+    "supply_ratio": 1.049
+  },
+  "source_facing": "buttery_pantry/S",
+  "source_png": "backdrops/buttery_pantry/S.png",
+  "source_sha256": "664cdbc9a6d742358fe043af1da5b4e2e7da53e9955e93715208f2cd237b6950",
+  "source_meta_sha256": "03ea17b3697787b088ea21685a273bf12d81dc416d388dcf72f2e7386a74169c",
+  "window_u_m": [
+    2.129,
+    5.852
+  ],
+  "carriers_avoided": [
+    "door"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 57.46% of its own mean over 3.72 m of clear wall, against 11 candidate facing(s)",
+  "tiling": {
+    "grain_axis": null,
+    "grain_frame": "surface",
+    "mirror": "both",
+    "scale_kind": "stochastic",
+    "characteristic_m": 0.04,
+    "feature": "the trowelled undulation of plain limewash"
+  },
+  "scale_contract": {
+    "kind": "stochastic",
+    "feature": "the trowelled undulation of plain limewash",
+    "characteristic_m": 0.04,
+    "span_m": 3.2269,
+    "ppm": 476
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/dado.png",
+      "size_px": [
+        847,
+        200
+      ],
+      "rows": [
+        545,
+        745
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/anchor.png",
+      "size_px": [
+        847,
+        32
+      ],
+      "rows": [
+        513,
+        545
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.274
+      ],
+      "file": "backdrops/textures/wall/plain-limewash-to-floor/field.png",
+      "size_px": [
+        847,
+        513
+      ],
+      "rows": [
+        0,
+        513
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 90.471,
+      "chroma_drift": 0.29646,
+      "mean_luma": 19.83
+    },
+    "after": {
+      "field_range_pct": 29.772,
+      "chroma_drift": 0.09212,
+      "mean_luma": 19.46
+    },
+    "flattened_pct": 60.699,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "buttery_pantry/E",
+      "refused": null,
+      "window_m": 2.266,
+      "neutrality": {
+        "field_range_pct": 105.251,
+        "chroma_drift": 0.343,
+        "mean_luma": 17.93
+      },
+      "supply_ratio": 1.31
+    },
+    {
+      "facing": "buttery_pantry/N",
+      "refused": null,
+      "window_m": 2.031,
+      "neutrality": {
+        "field_range_pct": 80.711,
+        "chroma_drift": 0.07453,
+        "mean_luma": 38.74
+      },
+      "supply_ratio": 1.01
+    },
+    {
+      "facing": "buttery_pantry/S",
+      "refused": null,
+      "window_m": 3.723,
+      "neutrality": {
+        "field_range_pct": 57.46,
+        "chroma_drift": 0.22749,
+        "mean_luma": 20.75
+      },
+      "supply_ratio": 1.049
+    },
+    {
+      "facing": "buttery_pantry/W",
+      "refused": null,
+      "window_m": 5.723,
+      "neutrality": {
+        "field_range_pct": 123.687,
+        "chroma_drift": 0.56577,
+        "mean_luma": 19.81
+      },
+      "supply_ratio": 1.294
+    },
+    {
+      "facing": "kitchen/E",
+      "refused": null,
+      "window_m": 2.336,
+      "neutrality": {
+        "field_range_pct": 102.268,
+        "chroma_drift": 0.34139,
+        "mean_luma": 67.92
+      },
+      "supply_ratio": 1.302
+    },
+    {
+      "facing": "kitchen/S",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "kitchen/W",
+      "refused": null,
+      "window_m": 2.753,
+      "neutrality": {
+        "field_range_pct": 87.433,
+        "chroma_drift": 0.40058,
+        "mean_luma": 24.29
+      },
+      "supply_ratio": 1.302
+    },
+    {
+      "facing": "servants_hall/E",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    },
+    {
+      "facing": "servants_hall/N",
+      "refused": null,
+      "window_m": 3.715,
+      "neutrality": {
+        "field_range_pct": 86.296,
+        "chroma_drift": 0.23258,
+        "mean_luma": 14.71
+      },
+      "supply_ratio": 1.422
+    },
+    {
+      "facing": "servants_hall/S",
+      "refused": null,
+      "window_m": 2.96,
+      "neutrality": {
+        "field_range_pct": 67.309,
+        "chroma_drift": 0.18729,
+        "mean_luma": 92.64
+      },
+      "supply_ratio": 1.413
+    },
+    {
+      "facing": "servants_hall/W",
+      "refused": "no stretch of this wall is clear of a carrier and its firelight",
+      "window_m": null,
+      "neutrality": null,
+      "supply_ratio": null
+    }
+  ]
+}

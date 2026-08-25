@@ -1,0 +1,38 @@
+{
+  "id": "floor/red-brick-on-edge",
+  "slot": "floor",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 417.39,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": "room_long",
+    "grain_frame": "plan",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.115,
+    "feature": "brick laid on edge"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "brick laid on edge",
+    "pitch_m": 0.115,
+    "count": 32,
+    "span_m": 3.68,
+    "ppm": 417.39
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/floor/red-brick-on-edge/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}

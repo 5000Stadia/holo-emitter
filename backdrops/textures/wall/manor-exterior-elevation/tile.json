@@ -1,0 +1,126 @@
+{
+  "id": "wall/manor-exterior-elevation",
+  "slot": "walls",
+  "lane": "harvest",
+  "ppm": 200.78431372549022,
+  "ppm_provenance": {
+    "lane": "harvest",
+    "demand_from": "the largest declared wall scale among the facings that use this material",
+    "demand_ppm": 200.78,
+    "how": "CHOSEN: the lattice is laid out in surface metres, so the tile's ppm is an input to the sampling and not a reading off it. What is measured is whether the source can carry it.",
+    "source_facing": "privy_garden/S",
+    "source_ppm_at_wall": 189.474,
+    "supply_across": 189.5,
+    "supply_along": 189.5,
+    "supply_ratio": 1.06
+  },
+  "source_facing": "privy_garden/S",
+  "source_png": "backdrops/privy_garden/S.png",
+  "source_sha256": "7902d8e773330c031cda9279a9f283d55f41703da0a0876f7070fab818ccf0d6",
+  "source_meta_sha256": "6ea3b3c3145b84e906e512e827004acd32a9edbe8ca04d86027e660d0701dd02",
+  "window_u_m": [
+    4.715,
+    6.982
+  ],
+  "carriers_avoided": [
+    "door",
+    "window",
+    "window",
+    "window"
+  ],
+  "why_this_source": "the flattest carrier-free stretch any promoted facing of this material offers: low-frequency luminance swing 52.54% of its own mean over 2.27 m of clear wall, against 1 candidate facing(s)",
+  "tiling": {
+    "grain_axis": "u",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.075,
+    "feature": "brick course"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "brick course",
+    "pitch_m": 0.075,
+    "count": 43,
+    "span_m": 3.225,
+    "ppm": 476.28
+  },
+  "bands": [
+    {
+      "band": "dado",
+      "v_m": [
+        0.0,
+        0.88
+      ],
+      "file": "backdrops/textures/wall/manor-exterior-elevation/dado.png",
+      "size_px": [
+        455,
+        177
+      ],
+      "rows": [
+        501,
+        678
+      ]
+    },
+    {
+      "band": "anchor",
+      "v_m": [
+        0.88,
+        1.02
+      ],
+      "file": "backdrops/textures/wall/manor-exterior-elevation/anchor.png",
+      "size_px": [
+        455,
+        28
+      ],
+      "rows": [
+        473,
+        501
+      ]
+    },
+    {
+      "band": "field",
+      "v_m": [
+        1.02,
+        3.378
+      ],
+      "file": "backdrops/textures/wall/manor-exterior-elevation/field.png",
+      "size_px": [
+        455,
+        473
+      ],
+      "rows": [
+        0,
+        473
+      ]
+    }
+  ],
+  "delighting": {
+    "before": {
+      "field_range_pct": 102.828,
+      "chroma_drift": 0.19033,
+      "mean_luma": 37.51
+    },
+    "after": {
+      "field_range_pct": 36.321,
+      "chroma_drift": 0.07294,
+      "mean_luma": 36.25
+    },
+    "flattened_pct": 66.507,
+    "sigma_m": 0.8,
+    "_note": "fitted once over the whole storey and divided per channel; the bands are cut out of the result"
+  },
+  "candidates_considered": [
+    {
+      "facing": "privy_garden/S",
+      "refused": null,
+      "window_m": 2.267,
+      "neutrality": {
+        "field_range_pct": 52.542,
+        "chroma_drift": 0.19273,
+        "mean_luma": 32.36
+      },
+      "supply_ratio": 1.06
+    }
+  ]
+}
