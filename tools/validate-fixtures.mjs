@@ -1863,6 +1863,46 @@ export function validate(fixtureDir, records, derivedMetas) {
   return findings;
 }
 
+/**
+ * [B-ROUTING] ONE FACING'S META, and nothing else in the fixture.
+ *
+ * WHAT A PER-WALL VALIDATION IS FOR, which is the whole reason this stands
+ * beside `validate` rather than instead of it: ATTRIBUTION. The sweep promotes
+ * wall after wall into one store, and when a promotion writes a meta the law
+ * refuses, the promoted wall has to be the one named and the one taken back
+ * out — the fixture-wide validator says the fixture is bad and cannot say
+ * which of this pass's twelve promotions made it so.
+ *
+ * That attribution was being bought by running the WHOLE validator once per
+ * wall — the row-33 ledger flagged `promote.wall` at 121x against it — which
+ * re-reads the world, the plan and all eighty-eight derived metas to check
+ * one. The clause a promotion can newly break is the meta clause and only
+ * that; the fixture-wide clauses (the truth/presentation split, the exits, the
+ * narration domain) are about the fixture rather than about this wall, they
+ * cannot be made false by writing one meta the meta clause admits, and the
+ * sweep checks them ONCE at its end through the bake — `bake-fixtures.mjs`
+ * runs `validate` whole before it writes a line.
+ *
+ * A facing the world does not name is a finding, never a quiet pass: a
+ * promotion onto a wall no fixture renders would otherwise report success
+ * forever, which is the same silence `metaForFacing` refuses to fall back into.
+ */
+export function validateFacing(fixtureDir, facingKey) {
+  const findings = [];
+  const world = loadJson(fixtureDir, "world.json", findings);
+  const named = isObj(world) && Array.isArray(world.locations)
+    && world.locations.some((loc) => isObj(loc) && Array.isArray(loc.facings)
+      && loc.facings.some((f) => `${loc.id}/${f}` === facingKey));
+  if (!named) {
+    findings.push(`--only ${facingKey}: this fixture's world names no such facing — checking the meta of a wall nothing renders is not a validation of the promotion that wrote it`);
+    return findings;
+  }
+  const derived = derivedMetasFor(fixtureDir, world, findings);
+  checkMeta(`meta ${facingKey}`, metaForFacing(facingKey, findings, derived), findings,
+    CANVAS_W, GRID_META.image_h_px, derived && derived[facingKey]);
+  return findings;
+}
+
 /* ---- CLI wrapper -------------------------------------------------------- */
 
 const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : "";
@@ -1883,11 +1923,22 @@ if (import.meta.url === invokedPath) {
     process.exit(1);
   }
 
-  const findings = validate(fixtureDir, records);
+  /* [B-ROUTING] `--only <loc>/<F>` checks that one facing's meta and nothing
+     else — see `validateFacing`. Absent, this is the fixture-wide check it has
+     always been, byte for byte. */
+  const j = args.indexOf("--only");
+  const only = j !== -1 ? args[j + 1] : null;
+  if (only != null && !/^[A-Za-z0-9_-]+\/[NESW]$/.test(only)) {
+    console.error(`validate-fixtures: --only ${only} is not a <loc>/<F> facing`);
+    process.exit(2);
+  }
+  const where = only ? `${fixtureDir} meta ${only}` : fixtureDir;
+
+  const findings = only ? validateFacing(fixtureDir, only) : validate(fixtureDir, records);
   if (findings.length > 0) {
     findings.forEach((f, n) => console.error(`${n + 1}. ${f}`));
-    console.error(`validate-fixtures: ${findings.length} finding(s) in ${fixtureDir}`);
+    console.error(`validate-fixtures: ${findings.length} finding(s) in ${where}`);
     process.exit(1);
   }
-  console.log(`validate-fixtures: ${fixtureDir} valid`);
+  console.log(`validate-fixtures: ${where} valid`);
 }

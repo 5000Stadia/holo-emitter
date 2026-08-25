@@ -1257,9 +1257,7 @@ def sweep(statuses=("held", "retry", "parked"), acceptance=True, out=None):
                         "max_magnification": row["max_magnification"]})
         rows.append(row)
     snapped = [r for r in rows if r.get("snapped")]
-    clean = [r for r in snapped
-             if r.get("acceptance", {}).get("verdict") == "PASS"
-             and not r.get("acceptance", {}).get("hold_family")]
+    clean = [r for r in snapped if snap_is_clean(r.get("acceptance"))]
     doc = {
         "_what_this_is": (
             "every wall the manor loop is holding, put through the row-35 snap "
@@ -1296,6 +1294,103 @@ def _emit(path, obj):
         # NaN is not JSON; the promotion (node) refuses the whole reading for one.
         json.dump(_no_nan(obj), fh, indent=2, default=float)
         fh.write("\n")
+
+
+def snap_to_round(key, candidate, snapped=None, round_dir="row35snap",
+                  out_png=None, doc_out=None, acceptance=False, **snap_kw):
+    """One wall, snapped and written where a PROMOTION can read it.
+
+    Everything between the warp and the promotion, in one place: the rectified
+    png, the §5 record rewritten into post-snap coordinates, the doors read off
+    the pre-snap frame and carried through the map, and — when asked — the
+    snapped frame put back through the standing instrument.
+
+    THIS EXISTS BECAUSE IT HAS TWO CALLERS AND MUST NOT HAVE TWO HOMES. It was
+    the body of `main()` while the snap was a tool the Navigator ran by hand;
+    the sweep's standing exit (`row23_run.take_exit`) now walks the same route,
+    and a second copy of it would be a second answer to "which document does
+    the promotion read" the first time either moved. `main()` keeps what is
+    genuinely the CLI's — the batch directory, the marked frames, the printing.
+
+    Returns `(result, refusal)`. The result names `candidate` — the SNAPPED png,
+    relative to the root, which is what a promotion of this document is a
+    promotion of — beside `source_candidate`, the frame the generator returned.
+    """
+    r = snapped
+    if r is None:
+        r, why = snap_wall(key, candidate, **snap_kw)
+        if r is None:
+            return None, why
+    loc, fac = key.split("/")
+    out_png = out_png or os.path.join(ROOT, "design", "batches", "row35-snap",
+                                      "%s-%s" % (loc, fac), "after.png")
+    write_png(out_png, r["after"])
+    rel_out = os.path.relpath(os.path.abspath(out_png), ROOT)
+
+    doc, _refusals = row23_lib.promotion_doc(
+        r["reading"], dict(r["side"], candidate=candidate), r["ref"], round_dir,
+        sha256(os.path.join(ROOT, candidate)))
+    if doc is None:
+        return None, ("the reading carries no scale, so there is nothing for a "
+                      "meta to be a meta of")
+    import door_measure
+    plan = json.load(open(PLAN))
+    tmp_doc = os.path.join(os.path.dirname(os.path.abspath(out_png)), "_pre-snap.json")
+    _emit(tmp_doc, doc)
+    try:
+        door_measure.patch(tmp_doc, os.path.join(ROOT, candidate), loc, plan)
+        doc = json.load(open(tmp_doc))
+    finally:
+        if os.path.exists(tmp_doc):
+            os.remove(tmp_doc)
+
+    rec = snap_record(r)
+    rec["source_candidate"] = candidate
+    rec["source_candidate_sha256"] = sha256(os.path.join(ROOT, candidate))
+    out_doc = transform_doc(doc, r["source_box"], r["target_box"], r["declared"],
+                            r["target_notes"]["target_eye_m"], r["after"],
+                            dict(ref=r["ref"], record=rec))
+    out_doc["_source_sha256"] = sha256(out_png)
+    out_doc["_what_this_is"] = (
+        "The row-35 SNAPPED reading for %s, measured off %s by "
+        "design/plan-draft/measured/row23_lib.py through the row-23 instrument "
+        "and then rectified onto this facing's declared camera by "
+        "design/plan-draft/measured/row35_snap.py. The image it describes is "
+        "%s. Every search window is the wall's own scaffold's, declared in "
+        "design/batches/row23-scaffold/manor/manifest.json before any candidate "
+        "existed; every coordinate below is post-snap."
+        % (key, candidate, rel_out))
+    out_doc["_round"] = round_dir
+    doc_out = doc_out or os.path.join(HERE, round_dir, "%s-%s.json" % (loc, fac))
+    _emit(doc_out, out_doc)
+
+    acc = None
+    if acceptance:
+        acc = measure(out_png, r["side"], r["cfg"], r["ref"])
+        rec["acceptance"] = acceptance_summary(acc, r)
+        # THE DOORS, RE-READ ON THE SNAPPED FRAME BESIDE THE TRANSFORMED ONES.
+        # The module docstring says re-detection would be honester here and
+        # that the transform is used for the latency; this is that claim made
+        # checkable rather than asserted. The re-read goes into the REPORT and
+        # never into the reading the promotion takes.
+        rec["acceptance"]["doors"] = door_check(out_png, out_doc, loc, plan)
+    return dict(snap=r, facing=key, candidate=rel_out, source_candidate=candidate,
+                out_png=out_png, doc_out=doc_out, round=round_dir, record=rec,
+                acceptance=rec.get("acceptance"), reading_after=acc,
+                plan=plan), None
+
+
+def snap_is_clean(acc):
+    """Did the snapped frame come back with nothing left to refuse?
+
+    ONE HOME FOR THE WORD "CLEAN", because two readers now route on it: the
+    `--sweep` report counts it, and the production loop's exit promotes on it.
+    A PASS with a hold family is not clean — the camera is admitted and the
+    promotion instrument still refuses the frame, which is the same wall in the
+    same hold with a warp spent on it.
+    """
+    acc = acc or {}
+    return acc.get("verdict") == "PASS" and not acc.get("hold_family")
 
 
 def main():
@@ -1407,60 +1502,14 @@ def main():
         print(json.dumps(out))
         return 0
 
-    loc, fac = a.facing.split("/")
-    out_png = a.out or os.path.join(ROOT, "design", "batches", "row35-snap",
-                                    "%s-%s" % (loc, fac), "after.png")
-    write_png(out_png, r["after"])
-    rel_out = os.path.relpath(os.path.abspath(out_png), ROOT)
-
-    doc, _refusals = row23_lib.promotion_doc(
-        r["reading"], dict(r["side"], candidate=cand), r["ref"], a.round,
-        sha256(os.path.join(ROOT, cand)))
-    if doc is None:
-        print("snap refused: %s: the reading carries no scale, so there is "
-              "nothing for a meta to be a meta of" % a.facing)
+    res, why = snap_to_round(a.facing, cand, snapped=r, round_dir=a.round,
+                             out_png=(a.out or None), doc_out=(a.doc_out or None),
+                             acceptance=a.acceptance)
+    if res is None:
+        print("snap refused: %s: %s" % (a.facing, why))
         return 1
-    import door_measure
-    plan = json.load(open(PLAN))
-    tmp_doc = os.path.join(os.path.dirname(os.path.abspath(out_png)), "_pre-snap.json")
-    _emit(tmp_doc, doc)
-    try:
-        door_measure.patch(tmp_doc, os.path.join(ROOT, cand), loc, plan)
-        doc = json.load(open(tmp_doc))
-    finally:
-        if os.path.exists(tmp_doc):
-            os.remove(tmp_doc)
-
-    rec = snap_record(r)
-    rec["source_candidate"] = cand
-    rec["source_candidate_sha256"] = sha256(os.path.join(ROOT, cand))
-    out_doc = transform_doc(doc, r["source_box"], r["target_box"], r["declared"],
-                            r["target_notes"]["target_eye_m"], r["after"],
-                            dict(ref=r["ref"], record=rec))
-    out_doc["_source_sha256"] = sha256(out_png)
-    out_doc["_what_this_is"] = (
-        "The row-35 SNAPPED reading for %s, measured off %s by "
-        "design/plan-draft/measured/row23_lib.py through the row-23 instrument "
-        "and then rectified onto this facing's declared camera by "
-        "design/plan-draft/measured/row35_snap.py. The image it describes is "
-        "%s. Every search window is the wall's own scaffold's, declared in "
-        "design/batches/row23-scaffold/manor/manifest.json before any candidate "
-        "existed; every coordinate below is post-snap."
-        % (a.facing, cand, rel_out))
-    out_doc["_round"] = a.round
-    doc_out = a.doc_out or os.path.join(HERE, a.round, "%s-%s.json" % (loc, fac))
-    _emit(doc_out, out_doc)
-
-    acc = None
-    if a.acceptance:
-        acc = measure(out_png, r["side"], r["cfg"], r["ref"])
-        rec["acceptance"] = acceptance_summary(acc, r)
-        # THE DOORS, RE-READ ON THE SNAPPED FRAME BESIDE THE TRANSFORMED ONES.
-        # The module docstring says re-detection would be honester here and
-        # that the transform is used for the latency; this is that claim made
-        # checkable rather than asserted. The re-read goes into the REPORT and
-        # never into the reading the promotion takes.
-        rec["acceptance"]["doors"] = door_check(out_png, out_doc, loc, plan)
+    out_png, rel_out = res["out_png"], res["candidate"]
+    doc_out, rec, acc = res["doc_out"], res["record"], res["reading_after"]
     if a.json:
         _emit(a.json, rec)
 

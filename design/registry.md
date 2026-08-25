@@ -23,6 +23,7 @@ keeps it current at every board change; reports cite these handles.
 |---|---|---|
 | B-ROUTING | the loop's standing exits: snap-first, tolerance-second, grid-last; once-per-sweep validation; pass-completed liveness | building |
 | B-ASSEMBLY | row 36 builder: scale contract + MATERIALS landed; harvester, lighting stub, assembler, kitchen demo next | building |
+| B-ROUTING | the loop's standing exits: snap-first / tolerance-second / grid-last routed inside the sweep, one validation per sweep, pass-completed liveness | building |
 
 ## Recently landed (for "issue with…" back-reference)
 

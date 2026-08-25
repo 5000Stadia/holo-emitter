@@ -4296,6 +4296,71 @@ because the STANDPOINT puts the datum out of frame. The bracket is checked again
 any detector runs, the wall is HELD rather than re-asked, and its retry cap is untouched — a re-ask
 with no correction is the one thing the miss ledger exists to prevent.
 
+### Every wall leaves by a named door — the standing exits (B-ROUTING)
+
+The loop measured, promoted and retried, and that was the whole of it. The two ways a wall the
+promotion instrument refuses can still reach the store — row 35's SNAP and row 32's TOLERANCE ruling
+— were one-shot tools somebody ran by hand between passes. So a pass could measure twelve fresh
+returns, find every one of them a camera PASS, and leave all twelve holding for want of a command
+nobody was in the room to type. `route_exit` takes them inside the pass, in the order they were being
+applied by hand.
+
+**The order, and why it is that order.** SNAP first: it spends no roll and no ruling, the correction
+is deterministic, and the snapped frame is put back through the standing instrument — so a wall that
+comes back clean is promoted on its own MEASURED numbers with nothing waived. Then the DOOR-VOID
+REPAIR, which is the snap's own second half rather than a third opinion: a corrected frame the row-27
+door clause refuses (`row27:door.unmeasured_exit` — the plan rules a way through and the painting
+shows no measurable void) gets the plan's apertures painted in at the declared geometry, and the
+doors are then MEASURED off the repaired frame the way row 27 requires of every promotion. Then
+TOLERANCE, the Captain's ruling, spent only where the correction could not carry the wall. Then GRID,
+which is the honest answer and what unestablished space renders as anyway.
+
+**Once per candidate.** Every attempt is recorded against the candidate it was tried on
+(`exit_attempt`), and nothing is routed again until the roll changes — a snap costs ~12 s a wall, and
+re-snapping the same frame to the same refusal every 45 seconds is the row-30 cut being paid again on
+the other side of the pipeline. A pass that finds a wall already routed claims no exit for it: the
+hold stands and the wall's own record still carries the exit it took.
+
+**What each wall's record then says.** `exit` is one of `measured`, `snapped`, `snapped+voided`,
+`tolerated`, `grid`, with `exit_reason` beside it. A corrected wall's correction is ANSWERED
+(`answered_correction`) and its `hold_family` is gone, because nothing is holding it; a tolerated
+wall's is WAIVED (`waived_correction`), it keeps its family, and it carries `suspect_perspective`,
+`camera_source: declared` and the ruling's own line — which is what `--recheck-doors` reads back to
+re-decide it under the same ruling. The pass prints the tally by door.
+
+**The door-void painter is row 36's** (`row36_assemble.repair_doors`, its `--paint-doors` arm),
+called in process because it is a module in the same directory and the record it returns is what the
+promoted reading's `_doors_repair` is made of. It is minimal-touch: a way through the detector
+already reads is left alone, and a wall with nothing missing is refused rather than given a second
+doorway.
+
+**A repaired frame gets its own round, `row36doors`, and this is not bookkeeping.** The reading a
+promotion reads must be a reading of the image being promoted — `promote-backdrop.mjs` refuses a
+document whose `_what_this_is` does not name the candidate, and it is right to, because a reading
+dressed on another picture is the one failure nothing downstream can see. Promoting `doored.png`
+against `row35snap/<loc>-<F>.json` was refused by name on all five walls it was tried on. So
+`row36doors/<loc>-<F>.json` is the snapped reading RE-POINTED: the camera numbers are carried
+untouched (the repair moves pixels only inside the plan's apertures, at the geometry that document
+already states), the image path and digest name the repaired frame, `_doors_repair` names what was
+painted and what was left alone, and the openings are re-read off the repaired frame by
+`door_measure.patch` — measured, never carried.
+
+**Two kinds of hold reach the exits**, and the second was found live: the two ruled families, and a
+DOOR REFUSAL in any family. Four of the five walls the repair exists for hold under
+`promotion-refused` with nothing else wrong — camera passes, snap corrects, plan rules a way through
+the painting does not draw — so gating the doors on the families alone left exactly those four
+outside the door built for them.
+
+**Validation, per wall and per sweep.** A promotion validates its own wall's meta and nothing else
+(`validate-fixtures --only <loc>/<F>`) — that is the clause a promotion can newly break and the only
+one that can be attributed to a wall. The fixture-wide clauses are checked once a sweep, before the
+bake rather than inside it, so a store the law refuses costs a validator run rather than a 15 MB
+re-encode. The per-wall check used to be the whole validator, which the row-33 ledger flagged at 121x.
+
+`exit.snap`, `exit.voidrepair`, `exit.tolerance`, `exit.route` and `validate.sweep` are on the row-33
+clock; a promotion through an exit still writes `promote.wall`, so the analyzer's leave-step counting
+is unchanged.
+
 ### The horizon instrument reads boarded ceilings (row 32)
 
 **The gap this row closed, stated as it stood.** The production run held **58 of 85** walls, and
@@ -4498,9 +4563,12 @@ to stand between.
 one painted facing and one grid facing with metas differing only in them and requires the same bytes,
 with a moved `px_per_m_at_wall` as the discrimination that proves the comparison can fail.
 
-**The route.** `row23_run.py --tolerance-sweep [--dry-run]`. It takes only walls the ordinary sweep
-has FINISHED with — `held` and `parked` — because a `retry` wall has rolls coming and a cap unspent,
-and spending the tolerance on it buys drift the standing loop was about to fix for free. It skips
+**The route.** Two callers, one rule. The standing one is the sweep's own second exit (`route_exit`,
+above), which reaches it only after the snap has failed to correct the frame; the batch one is
+`row23_run.py --tolerance-sweep [--dry-run]`, which is how a run of already-held and parked walls is
+decided in one go. Both take only walls the ordinary sweep has FINISHED with — `held` and `parked` —
+because a `retry` wall has rolls coming and a cap unspent, and spending the tolerance on it buys
+drift the standing loop was about to fix for free. It skips
 fenced walls, walls already in the store, open facings, and any wall that does not produce a camera
 PASS on this pass's own reading. It reads the Captain's line out of `design/approvals.log` rather than
 restating it, so the mode cannot outlive the ruling. `--dry-run` measures, decides and writes nothing.
@@ -4702,7 +4770,8 @@ one. Live writers clamp `ts_end` to `ts_start + 1 µs` so a real step can never 
 **What is instrumented, and where generation comes from.** `make-scaffold.mjs` writes `emit.facing`,
 `emit.packet` and `emit.run` in both the manor order and the re-ask; `row23_run.py` writes
 `measure.candidate` per candidate (MEASURE-ERR included — a measurement that fails still costs its
-time), `promote.wall`, `bake.sweep` and `sweep.pass`; `promote-backdrop.mjs` writes
+time), `promote.wall`, `bake.sweep`, `sweep.pass`, `validate.sweep` and one line per exit step
+(`exit.snap`, `exit.voidrepair`, `exit.tolerance`, `exit.route`); `promote-backdrop.mjs` writes
 `promote.backdrop` from an EXIT HANDLER, because it refuses from fifteen places and a refusal is the
 outcome most worth timing; both bakes and `prompt_lint.py` write their own; `publish-site.sh` splits
 `publish.site` from `publish.verify`, since the push is ours and the CDN wait is not.
@@ -4711,6 +4780,17 @@ prompt-file mtime to candidate-file mtime, per roll.
 
 Every edit row 33 made to `row23_run.py` is a timing line marked `[row 33]`, and `row23_lib.py` is
 untouched; `timings.spec` asserts both, so the corner/horizon instrument's home stays one owner's.
+
+**And `sweep.pass` has a second reader: the watchdog.** `tools/baton-watch.sh` reads the loop's
+liveness off the newest `sweep.pass` in this ledger — a PASS THAT COMPLETED, since the record is
+written when the pass returns and never before — rather than off `tmux has-session`. The session test
+could not tell a working loop from one wedged inside a pass it will never finish, which is not
+hypothetical: after the host restart a pass had not finished in two hours, `manor-loop` was up the
+whole time, and the baton read held-and-active. Past `LOOP_STALE_S` (default 1800 s, which is well
+past the longest honest pass and well short of those two hours) the loop reads stalled, the wedged
+session is killed and a fresh one started, and `baton.json` carries `loop_pass_age_s` so the status
+says what it was read off. So a step that stops being written stops the loop reading as alive — which
+is the correct direction for a liveness signal to fail in.
 
 **The analyzer** (`timings_report.py`) computes per-step count/p50/p95/total/throughput, the top
 contributor with its number, idle gaps, queue latency, and regression against the ledger's own
@@ -5165,12 +5245,15 @@ and the two paths do not make the same claim, so it carries `_snap_basis`:
 scaffold windows, no band moved and nothing re-derived. Under the Captain's ruling it is how the
 doctrine is checked and never how a wall is refused.
 
-### What it does not do
+### What the tool does not do, and who does
 
-It promotes nothing, it writes nothing into `backdrops/`, and it moves no row of
-`run-state.json` — `--sweep` included. The routing (which snapped wall the loop promotes, what a
-refusal costs it, how it sequences against the tolerance path) is the follow-on the Navigator
-sequences after the pilot is judged.
+The tool promotes nothing, writes nothing into `backdrops/` and moves no row of `run-state.json` —
+`--sweep` included. THE ROUTING IS THE LOOP'S: `row23_run.route_exit` is what decides which snapped
+wall is promoted and what a refusal costs it (see *Every wall leaves by a named door*), and it calls
+`snap_to_round` — everything between the warp and a promotable document, which is also what the CLI
+does between its own two halves, so there is one route and not two. A routed snap's frame goes to
+`backdrops/source-snapped/<loc>-<F>/snapped.png`, which is where the hand-snapped walls already in
+the store name theirs.
 
 ### The pilot, and where it lives
 
@@ -5597,7 +5680,21 @@ unlit-void rule and, where the wall carries two, each in its own distinct senten
 columns; the lint over the RE-ASK form of every held wall, which is the form nobody composed; and the
 content-gap grant — that it grants exactly the walls whose spent prompt is missing the thing they
 were refused for, that it is once-only per wall per reason, that it refuses a wall whose ask already
-said it, and that a reason whose fix has left the emitter grants nothing).
+said it, and that a reason whose fix has left the emitter grants nothing);
+`routing` (B-ROUTING: the exit table over a synthetic manifest with four walls, one out of each door,
+driving the REAL `sweep` and `route_exit` with exactly three seams stubbed and each for a stated
+reason — the snap, the promotion and the instrument each have their own spec, and re-checking them
+through this door would be a second copy of somebody else's claim; that a snapped wall's correction
+is answered and a tolerated wall's is waived, with the flag, the declared camera and the ruling on
+the second and none of them on the first; that the ruling is never asked about a wall still retrying;
+that a grid wall says what BOTH exits said and keeps the hold the sweep recorded; that an exit is
+tried once per candidate and again when the roll changes, including through the RE-DECIDE guard,
+which is the harshest re-entry the loop has; that the door refusal routes on the ledger TOKEN rather
+than on prose; that every exit step leaves a timing line; that a promotion validates its own wall by
+name and the fixture is validated whole exactly once a sweep, before the bake; and the watchdog's
+liveness against a planted ledger with `tmux` stubbed — fresh pass active and untouched, a
+two-hour-old pass stalled with the wedged session killed BEFORE the restart, and a ledger with no
+completed pass reading stalled rather than healthy).
 
 **A GUARD'S TEETH ARE PROVEN BY A CRITIC FAILING TO BREAK IT, NOT BY ITS AUTHOR WATCHING ONE
 MUTATION GO RED.** [felt, row 11] This is the fourth bite of the same family on this project and the
