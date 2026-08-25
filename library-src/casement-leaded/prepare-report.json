@@ -1,0 +1,93 @@
+{
+  "border_ring": {
+    "median_rgb": [
+      199.0,
+      199.0,
+      199.0
+    ],
+    "off_ground_fraction": 0.0,
+    "sigma": 0.0
+  },
+  "ground_choice": {
+    "best_five": [
+      {
+        "grey": 199,
+        "object_px_within_radius": 7374
+      },
+      {
+        "grey": 202,
+        "object_px_within_radius": 7377
+      },
+      {
+        "grey": 198,
+        "object_px_within_radius": 7378
+      },
+      {
+        "grey": 197,
+        "object_px_within_radius": 7388
+      },
+      {
+        "grey": 201,
+        "object_px_within_radius": 7393
+      }
+    ],
+    "chosen": 199,
+    "object_px_within_radius": 7374,
+    "object_px_within_radius_fraction": 0.012246,
+    "radius_px": 17.6,
+    "rule": "the mid-grey in the contract's plausible band 40..215 with the fewest object pixels inside gate (b)'s re-hunt radius",
+    "studio_grey_128": 21619
+  },
+  "ground_luminance": 199.0,
+  "ground_rgb": [
+    199,
+    199,
+    199
+  ],
+  "key": {
+    "keyed_components": 927,
+    "keyed_components_under_one_tile": {
+      "components": 841,
+      "one_tile_px": 484,
+      "px": 1429
+    },
+    "keyed_fraction": 0.61721,
+    "keyed_px": 970891,
+    "object_components_over_one_tile": 1,
+    "object_largest_component_fraction": 0.995,
+    "object_largest_component_px": 599143,
+    "object_px": 602153,
+    "tile_px": 22.0,
+    "tile_run_histogram_peak_quarter": {
+      "2": 4598,
+      "19": 3947,
+      "20": 5785,
+      "21": 9495,
+      "22": 13803,
+      "23": 9651,
+      "24": 4400
+    },
+    "tile_runs_measured": 99156,
+    "tones": {
+      "band": [
+        238.0,
+        259.0
+      ],
+      "candidate_px": 975517,
+      "chroma_max": 8.0,
+      "grey": 244.0,
+      "white": 253.0
+    }
+  },
+  "out": "library-src/casement-leaded/prepared.png",
+  "out_px": [
+    1626,
+    1346
+  ],
+  "pad_px": 112,
+  "source": "library-src/casement-leaded/source.png",
+  "source_px": [
+    1402,
+    1122
+  ]
+}

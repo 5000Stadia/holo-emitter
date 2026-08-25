@@ -11,7 +11,7 @@ here.
     python3 -m replicator.ingest IMAGE --id desk-joined-oak-1660 \\
         --noun "joined oak writing desk" --archetype sliding \\
         --attachment floor_against --height-m 0.78 --width-m 0.81 --depth-m 0.55 \\
-        --view-side left \\
+        --view-side left [--light neutral] \\
         [--part drawer_front:MASK.png --slide -0.03,0.08,1.04] \\
         [--anchor surface_top:x0,y0,x1,y1] [--footprint x0,x1] \\
         [--state open:IMG --state-datum x0,y0,x1,y1 | --state-origin open:x,y] \\
@@ -147,6 +147,11 @@ def build_parser():
                    help="from period reference — never derived through §5's unsettled camera")
     p.add_argument("--depth-m", type=float, required=True, help="likewise")
     p.add_argument("--view-side", default=None)
+    p.add_argument("--light", default=None,
+                   help="the key this image was painted under, DECLARED like --view-side\n"
+                        "(no stage measures it; gate (e) estimates one and warns). \n"
+                        "Defaults to the contract's light.key. Row 37 rules generated\n"
+                        "assets NEUTRAL, and `--light neutral` is how a record says so.")
     p.add_argument("--takeable", action="store_true")
     p.add_argument("--airborne", action="store_true")
     p.add_argument("--source", default="generated")
@@ -266,7 +271,8 @@ def run(args):
         source_rgb=source, contract=contract, sprite_id=args.id, noun=args.noun,
         archetype=args.archetype, attachment=args.attachment,
         dims_m={"h": args.height_m, "w": args.width_m, "d": args.depth_m},
-        view_side=args.view_side, period=period, takeable=args.takeable,
+        view_side=args.view_side, light=args.light, period=period,
+        takeable=args.takeable,
         airborne=args.airborne, source=args.source, object_class=args.object_class,
         environment=dict(environment(), source_image=source_meta),
         anchor_regions=regions, footprint_src=footprint,

@@ -1,0 +1,58 @@
+{
+  "border_ring": {
+    "median_rgb": [
+      195.0,
+      195.0,
+      195.0
+    ],
+    "off_ground_fraction": 0.0,
+    "sigma": 0.0
+  },
+  "ground_choice": {
+    "best_five": [
+      {
+        "grey": 195,
+        "object_px_within_radius": 7
+      },
+      {
+        "grey": 215,
+        "object_px_within_radius": 7
+      },
+      {
+        "grey": 194,
+        "object_px_within_radius": 8
+      },
+      {
+        "grey": 197,
+        "object_px_within_radius": 8
+      },
+      {
+        "grey": 198,
+        "object_px_within_radius": 8
+      }
+    ],
+    "chosen": 195,
+    "object_px_within_radius": 7,
+    "object_px_within_radius_fraction": 4e-06,
+    "radius_px": 17.6,
+    "rule": "the mid-grey in the contract's plausible band 40..215 with the fewest object pixels inside gate (b)'s re-hunt radius",
+    "studio_grey_128": 817
+  },
+  "ground_luminance": 195.0,
+  "ground_rgb": [
+    195,
+    195,
+    195
+  ],
+  "out": "library-src/door-leaf-plank-oak/prepared.png",
+  "out_px": [
+    1139,
+    2175
+  ],
+  "pad_px": 150,
+  "source": "library-src/door-leaf-plank-oak/source.png",
+  "source_px": [
+    839,
+    1875
+  ]
+}
