@@ -127,3 +127,7 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
   ONE pass in two hours. ACTED: readings are now cached by candidate id (re-measure only on
   --remeasure); next cut when it flags again: validate once per sweep too, with per-wall
   attribution kept by validating only the promoted wall's meta.
+- 2026-08-24 17:42 tick: post second restart, services up, loop passes completing every few
+  minutes on the reading cache (was: none in two hours). promote.wall still 41x (per-wall full
+  validator) - B-ROUTING is moving validation to once-per-sweep; measure.candidate 2.75x is the
+  door/flight readers' honest cost. 24/24 swatches returned. Nominal.
