@@ -37,7 +37,7 @@ import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand,
   TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, CAMERA_SOURCES
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
+import { openingsForFacing, windowsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC, voiceFor } from "./room-voices.mjs";
 import { rulingSentences, scaffoldRects, normMaterial } from "./make-scaffold.mjs";
 import { askNamesAFlight } from "./frame-language.mjs";
@@ -793,6 +793,139 @@ for (let a = 0; a < meta.openings.length; a++) {
     }
   }
 }
+/* ------------------------------------------------------------------ */
+/* [row 42] THE WINDOW, WHERE THE PAINTING PUT IT                       */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "after the fact detect the door location on the
+ * image and put the effective door geometry in the images doorframe? Same with
+ * stairs, maybe Windows? Then we can have door assets and window assets we
+ * literally place in the door frame to open/close and same with the windows"
+ *
+ * This is row 27's clause with a different opening in it, and it is here for
+ * the same reason: a casement sprite placed from the PLAN would stand beside
+ * the painted window exactly as the clickable hole once stood beside the
+ * painted door — "library door doesnt match up", the Captain, walking the
+ * building. Blueprint §5 makes the approved image the geometric authority and
+ * row 22 is the precedent, so ON A PROMOTED WALL THE PAINTED WINDOW GOVERNS ITS
+ * OWN RECTANGLE, and `design/plan-draft/measured/window_measure.py` is the
+ * instrument that says where it is.
+ *
+ * TWO THINGS ARE DIFFERENT FROM THE DOOR, and both are stated rather than
+ * inherited:
+ *
+ *   THE VERTICAL IS MEASURED TOO. A doorway's foot is the wall's own floor
+ *   line, so row 27 needed only the head. A window floats: it has a sill AND a
+ *   head, the plan rules them at 0.90 and 2.00 m, and every overlay of this
+ *   corpus shows the paintings drawing them taller than that. So `y` and `h`
+ *   come off the painting like `x` and `w`, inside a clamp.
+ *
+ *   THE COUNT IS GATED IN ONE DIRECTION ONLY. A window the plan rules and the
+ *   painting does not show is a REFUSAL — a casement placed on blank wall is
+ *   the row's own defect — while a window the painting shows that the plan does
+ *   not rule is RECORDED and nothing else. It is the plan that amends to the
+ *   painting here (row 22), so an extra painted window is a fact about the
+ *   drawing to be looked at, not a reason to send a good painting back.
+ *
+ * AND IT IS SILENT WHERE NOTHING WAS READ, which is a boundary and not an
+ * exemption. `meta.windows` is written where the measurement carries a window
+ * reading and is absent where it does not, so a wall measured before this row
+ * promotes exactly as it did. What closes it is the sweep: `row23_run.py`'s
+ * `window_reading` runs beside `door_reading` on every reading it takes from
+ * here on, so the set of walls this clause cannot see can only shrink, and
+ * `design/plan-draft/measured/window_calibration.json` is the list of them. */
+const plannedWindows = windowsForFacing(plan, loc, facing, meta);
+const paintedWindows = m._measured_px && Array.isArray(m._measured_px.windows)
+  ? m._measured_px.windows : null;
+if (paintedWindows !== null) {
+  /* THE ASSIGNMENT IS ORDER-PRESERVING BY CONSTRUCTION, the same dynamic
+   * programme the doorway assignment above runs on and for the same reason:
+   * windows keep their order along a wall however far the painter slides them,
+   * and a nearest-neighbour walk can cross two of them over each other on a
+   * wall that carries four — which the long gallery does. */
+  const byX = [...plannedWindows].sort((a, b) => (a.x + a.w / 2) - (b.x + b.w / 2));
+  const cands = [...paintedWindows].sort((a, b) => a.centre_px - b.centre_px);
+  const n = byX.length, k = cands.length;
+  const INF = Infinity;
+  const cost = Array.from({ length: n + 1 }, () => new Array(k + 1).fill(INF));
+  const back = Array.from({ length: n + 1 }, () => new Array(k + 1).fill(-1));
+  for (let j = 0; j <= k; j++) cost[0][j] = 0;
+  for (let i = 1; i <= n; i++) {
+    for (let j = i; j <= k; j++) {
+      const c = cost[i - 1][j - 1] +
+        Math.abs(cands[j - 1].centre_px - (byX[i - 1].x + byX[i - 1].w / 2));
+      const skip = cost[i][j - 1];
+      if (c <= skip) { cost[i][j] = c; back[i][j] = j - 1; }
+      else { cost[i][j] = skip; back[i][j] = back[i][j - 1]; }
+    }
+  }
+  const assignedW = new Map();
+  if (cost[n][k] === INF) {
+    refusals.push(`${facingArg}: the plan rules ${n} window(s) on this wall and the painting shows ${k} — a window the drawing puts here with no glazed opening in the picture is a casement sprite standing on blank paint, which is the defect this row exists to stop [row42:window.unpainted]`);
+  } else {
+    let j = k;
+    for (let i = n; i >= 1; i--) {
+      const pick = back[i][j];
+      assignedW.set(byX[i - 1].id, cands[pick]);
+      j = pick;
+    }
+  }
+  /* THE PAINTED LIGHT MUST PLAUSIBLY BE THIS WINDOW. Judged against the plan's
+   * OWN width for that window rather than a fixed one — the manor draws windows
+   * from 1.40 m to 1.50 m and the band is a floor on window-ness, not a scale
+   * verdict, exactly as row 27 argues for its doorways. The scale of the wall is
+   * already gated at ±8 % by the lens band above. The band is wider than the
+   * door's because what is measured is the LIGHT and the plan rules the
+   * OPENING: a stone surround eats a hand's width off each side, and a bay
+   * painted with its reveals showing reads wider than its own rect. */
+  const WINDOW_BAND = [0.35, 1.90];
+  const apScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
+                   fc.wall_width_m > 0)
+    ? (meta.corner_x1_px - meta.corner_x0_px) / fc.wall_width_m : ppm;
+  const planWinM = new Map(plannedWindows.map((w) => [w.id, w.width_m]));
+  for (const [id, cand] of assignedW) {
+    const ownM = planWinM.get(id) > 0 ? planWinM.get(id) : 1.40;
+    const ruledPx = ownM * apScale;
+    const ratio = cand.width_px / ruledPx;
+    if (ratio < WINDOW_BAND[0] || ratio > WINDOW_BAND[1]) {
+      refusals.push(`${facingArg}: the glazed opening the painting shows for "${id}" is ${cand.width_px} px — ${ratio.toFixed(2)}× the ${ruledPx.toFixed(1)} px the plan's own ${ownM.toFixed(2)} m window spans at this wall's corner scale (${apScale.toFixed(1)} px/m; its ruler reads ${ppm.toFixed(1)}), outside ${WINDOW_BAND[0]}–${WINDOW_BAND[1]}× — that is not a window, whatever else it is [row42:window.painted_width]`);
+    }
+  }
+  meta.windows = [];
+  for (const w of plannedWindows) {
+    const cand = assignedW.get(w.id) || null;
+    meta.windows.push({
+      id: w.id,
+      kind: "window",
+      x: round(cand ? cand.x0_px : w.x, 2),
+      y: round(cand ? cand.y0_px : w.y, 2),
+      w: round(cand ? cand.width_px : w.w, 2),
+      h: round(cand ? (cand.y1_px - cand.y0_px) : w.h, 2),
+      sill_m: cand && cand.sill_m != null ? cand.sill_m : w.sill_m,
+      head_m: cand && cand.head_m != null ? cand.head_m : w.head_m,
+      measured: !!cand
+    });
+  }
+  /* THE PAINTING'S OWN EXTRA WINDOWS, recorded and never gated. The plan amends
+   * to the painting (row 22), so a glazed opening the drawing does not rule is
+   * something for a human to look at with the calibration table beside them —
+   * not a reason to refuse a wall that is doing its job. */
+  const taken = new Set([...assignedW.values()]);
+  const extra = paintedWindows.filter((c) => !taken.has(c));
+  meta.window_evidence = {
+    read_by: "design/plan-draft/measured/window_measure.py",
+    ruled: plannedWindows.length,
+    painted: paintedWindows.length,
+    unruled: extra.map((c) => ({
+      x: round(c.x0_px, 2), y: round(c.y0_px, 2),
+      w: round(c.width_px, 2), h: round(c.y1_px - c.y0_px, 2),
+      lattice: c.lattice ? c.lattice.score : null, lift: c.lift ?? null
+    })),
+    note: extra.length
+      ? "the painting shows glazed opening(s) the plan does not rule; recorded, never gated - the plan amends to the painting (row 22) and this is the list to amend from"
+      : "every glazed opening the painting shows answers to a window the plan rules"
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /* [row 40] THE ROOM'S RULING MATERIALS WERE ACTUALLY ASKED FOR         */
 /* ------------------------------------------------------------------ */

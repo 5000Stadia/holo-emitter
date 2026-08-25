@@ -494,7 +494,17 @@ export const MECHANISMS = [
      verbatim, from different materials, and every geometric gate this project
      owns passed each of them. */
   "material.ask_unreadable",
-  "material.voice_stale"
+  "material.voice_stale",
+  /* [row 42] The painted WINDOW's two, and they are row 27's door clauses read
+     on a different opening: a window the plan rules and the painting does not
+     show is a casement sprite standing on blank paint, and a "window" whose
+     painted light bears no relation to the size the drawing rules is not a
+     window at all. The other half of the row — a window the PAINTING shows that
+     the plan does not rule — is recorded in `meta.window_evidence` and gated by
+     nothing, because the plan amends to the painting (row 22) and an extra
+     painted window is something to look at rather than a reason to refuse. */
+  "window.unpainted",
+  "window.painted_width"
 ];
 
 /* ------------------------------------------------------------------ cases */
@@ -3430,6 +3440,56 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
     expect(promoteTokens("library/E", (d) => { d._measured_px.openings = []; }),
       "a doorway the world walks through with no hole in the picture")
       .toEqual(["door.unmeasured_exit"]);
+  });
+
+  /* ------------------------------------------------------- [row 42] windows
+   *
+   * The same rig, one aperture along. `kitchen/E` is the wall: the plan rules
+   * exactly ONE window on it and nothing else about it is in dispute, so a
+   * doctored window reading is the only thing these two cases change.
+   *
+   * WHY THE READING HAS TO BE INJECTED AT ALL, and it is the row's own stated
+   * boundary rather than a convenience: `promote-backdrop.mjs` writes
+   * `meta.windows` where the MEASUREMENT carries a window reading and is silent
+   * where it does not, and no measurement taken before this row has one. So the
+   * undoctored tree exercises the silence and these two exercise the clause.
+   * `design/plan-draft/measured/window_calibration.json` is the list of walls
+   * the clause cannot yet see, and `row23_run.py` shortens it on every reading
+   * it takes from here on. */
+  const KITCHEN_E_WINDOW = { x0_px: 700, x1_px: 880, y0_px: 380, y1_px: 560,
+    width_px: 180, centre_px: 790, head_m: 2.1, sill_m: 0.8 };
+
+  test("a window reading that agrees with the drawing promotes clean", () => {
+    /* The discrimination the two cases below need: the same wall, the same
+       tool, a window reading that says what the plan says, and no clause. */
+    expect(promoteTokens("kitchen/E", (d) => {
+      d._measured_px.windows = [{ ...KITCHEN_E_WINDOW }];
+    }), "kitchen/E's painted window is measured and its promotion is granted")
+      .toEqual([]);
+  });
+
+  ledgerCase("window.unpainted", () => {
+    /* A reading that found no glazed opening is not a wall without windows: the
+       plan rules one here, and part (3) of this row places a casement sprite in
+       the rectangle this reading gives — so a promotion granted on an empty
+       reading puts a casement on blank paint, which is the defect row 42 exists
+       to stop, one aperture along from the one row 27 stopped. The list is
+       EMPTIED rather than removed, because a missing list is the row's own
+       silence and a different sentence. */
+    expect(promoteTokens("kitchen/E", (d) => { d._measured_px.windows = []; }),
+      "a window the drawing rules with no glazed opening in the picture")
+      .toEqual(["window.unpainted"]);
+  });
+
+  ledgerCase("window.painted_width", () => {
+    /* The reading keeps its place on the wall and loses its size, so nothing
+       else can fire: it still pairs with the window the plan rules, and it is
+       still the only one. A 24 px light on a wall whose ruled window spans
+       something over a hundred is not a window, whatever else it is. */
+    expect(promoteTokens("kitchen/E", (d) => {
+      d._measured_px.windows = [{ ...KITCHEN_E_WINDOW, x1_px: 724, width_px: 24 }];
+    }), "a 24 px light is not the window the plan rules here")
+      .toEqual(["window.painted_width"]);
   });
 });
 

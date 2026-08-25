@@ -2392,7 +2392,8 @@ def write_misses(raw, round_name="cand-2", records=None):
                           "three false positives - so the miss carries "
                           "`closes_when` instead of a commit, exactly as "
                           "production law clause 3 requires of a cause that is "
-                          "not baked in yet."},
+                          "not baked in yet.",
+                 "row42": 'THE PAINTED WINDOW. [HUMAN 2026-08-24, verbatim] "after the fact detect the door location on the image and put the effective door geometry in the images doorframe? Same with stairs, maybe Windows?" - row 27 made the painted DOOR govern its own rectangle on a promoted wall and row 42 does the same for a glazed opening, because part (3) of that row places a casement SPRITE in it and a rectangle taken off the plan would stand the casement beside the painted window. Its miss is about the INSTRUMENT (design/plan-draft/measured/window_measure.py) and the GATE (tools/promote-backdrop.mjs) rather than about one painting\'s camera, so it carries no facing and no delta. It is OPEN with a `baked_in`: the clause is silent on every wall measured before the row, and what closes that is the sweep rather than a commit - row23_run.py now takes a window reading beside every door reading, so the list in window_calibration.json can only shrink.'},
         _round_of_each_entry="every miss carries its own `round` field",
         _evidence=("design/plan-draft/measured/<loc>-<facing>.json carries every "
                    "ruler measured per facing with its own delta; "

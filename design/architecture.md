@@ -3850,14 +3850,80 @@ right from the first completed direction and the finished picture is therefore a
 edge. The one not taken is recorded in the manifest entry as an alternative; the image list stays
 three long, which is the row's ruling.
 
-**Required outdoors, opportunistic indoors.** On an OPEN location (`room.type === "open"` — the
-three the voice table gives an outdoor voice) continuity across the turn is the point, so the seed
-is required and the location's facings are ordered for it: the ring from the first completed
-direction, each facing depending on the one at its left edge, written whole into the manifest's
-`open_location_order` and per entry as `depends_on`. **That is the one licensed exception to one-pass
-parallelism and it is scoped in code**: `seedPlan` returns `depends_on: null` for every indoor facing
-by construction, so a reader ordering on that field orders nothing indoors. Indoors the seed is taken
-when it is there and the ask goes unseeded when it is not, exactly as before the row.
+**The STRIP is required outdoors and opportunistic indoors.** On an OPEN location (`room.type ===
+"open"` — the three the voice table gives an outdoor voice) continuity across the turn is the point,
+so the seed is required. Indoors the seed is taken when it is there and the ask goes unseeded when it
+is not, exactly as before the row.
+
+**The ORDERING was row 38's alone and is row 42's for everyone.** Row 38 scoped `depends_on` to open
+locations and this document said, in as many words, that `seedPlan` returns null for every indoor
+facing by construction. That sentence is dead — see *The first wall leads* below. What survives from
+row 38 unchanged is the RING: outdoors each facing continues the one at its left edge, because an
+open turn has no corner to hide a seam in. Indoors all three continue the lead directly.
+
+### The first wall leads (`tools/edge-seed.mjs`, `tools/make-scaffold.mjs`) — row 42, part (1)
+
+[HUMAN, 2026-08-24, verbatim]: *"Can we paint the whole scene on wall 1 for a room, use it to
+influence wall 2-4 direct where the doors should be but after the fact detect the door location on
+the image and put the effective door geometry in the images doorframe? Same with stairs, maybe
+Windows?"*
+
+**Every location picks one LEAD facing and paints it first.** The lead is the MOST-CARRIED wall —
+doors, windows and fireplaces counted off `facingCarriers`; an `open_edge` is the absence of a wall
+and is not counted. The lead has to be the wall that SHOWS the room, because it is what the other
+three are painted against, and a blank wall painted first hands them a picture of nothing. Ties break
+to the wall the room's ENTRY DOOR faces — the room's entry is the lowest-ordered door in
+`plan.openings` that joins it (the plan's openings run from the entrance inward), the wall it stands
+in is the one you come through, and the wall it *faces* is the one opposite, which is what a person
+walking in is looking at. Ties past that break to compass order, which is what a room with no door
+has anyway. `leadFacing` decides it, `leadWhy` says why in the manifest's own words.
+
+**The lead per room, as the plan stands.** great_hall/S · study/S · back_stair/E · hall/E ·
+kitchen/S · buttery_pantry/N · servants_hall/E · dining_parlour/N · great_stair_hall/W · library/W ·
+garden_room/N · entrance_court/N · privy_garden/S · entrance_approach/N · solar/S · muniment_room/S ·
+back_stair_head/E · long_gallery/W · master_bedchamber/S · stair_landing/N · guest_chamber/S ·
+closet_chamber/N. Eight are decided by the count alone; thirteen by the entry-door tie-break; two
+(dining_parlour, guest_chamber) fall through to compass order because the entry door faces neither of
+the tied walls.
+
+**`roomOrder(plan, room, has)` is the whole order** and the manifest carries it per room as
+`room_order` — the lead, the sentence saying why it leads, and each facing's `position`, `carriers`,
+`continues` and `depends_on`. It replaces `open_location_order`, which held the same fact for three
+rooms out of twenty-two.
+
+**`continues` and `depends_on` are different fields on purpose.** `continues` is the ORDER — a fact
+about the room, the lead indoors and the ring's predecessor outdoors, and never null except on the
+lead. `depends_on` is that same key narrowed to *and it has no picture yet*, which is a fact about
+NOW: it is what says THIS ASK WAITS. Conflating them gives you either a packet waiting on a wall that
+is already painted or a packet painted out of order. Row 38's readers all route on `depends_on` and
+its meaning is unchanged; what changed is that an indoor entry can now carry one.
+
+**A lead's picture may be a CANDIDATE.** `imageFor` / `leadImageResolver` in `make-scaffold.mjs`
+resolve a facing to its promoted painting or, failing that, to the candidate `run-state.json` names
+(then to the newest roll on disk, recorded as such). The lead is painted first and followed
+immediately; waiting for its promotion would put a room's other three walls behind a measurement
+sweep that can take hours or refuse outright. This resolver READS `run-state.json` and never writes
+it, and row 38's own path is untouched: `seedPlan` called without a resolver still means PROMOTED.
+
+**Image 1 is the lead, on row 40's two conditions read one step early.** `styleImageFor` gains the
+lead: where the lead has a picture it wins, and where that picture is only a candidate it is admitted
+on its ASK alone — the prompt beside the roll must carry the material sentences `rulingSentences`
+composes for that room today, or it is refused and the row-40 promoted path stands. That second
+condition is the one that actually carries row 40 (`guest_chamber`'s pixel majority is the wrong
+half), and it is checkable on a candidate exactly as on a promotion. As the store stands,
+`long_gallery/W` — the one unpromoted lead with a candidate on disk — is REFUSED by it: its ask
+predates row 29's voice table, which is precisely the disease row 40's ORIGIN account is about.
+
+**The seat's standing order had to change with it, and this was verified rather than assumed.**
+Before row 42, `tools/baton-watch.sh`'s `ORDER` told the seat to paint every roll whose candidate is
+missing and said nothing at all about waiting, and its `owed` count counted a blocked roll as owed.
+Under this row three quarters of the manor carries a `depends_on` at any moment, so that order would
+have painted the house out of sequence and the watchdog would have nudged the seat to keep doing it.
+The order now names `depends_on` and tells the seat to skip such an entry; `owed` skips them too, so
+the baton passes to the loop where it belongs. `packetNote` states the wait in the packet's FIRST
+line, and — new at row 42 — states it even when a strip rides, which row 38 could never produce and
+this row can: a facing may hold a strip from one painted neighbour and still be waiting for its
+room's lead. `seams.spec.mjs` asserts both halves.
 
 **The crop is a shell-out for the same reason the bake is.** Node has no image codec and this project
 rules pixels to numpy + PIL; `crop-edge-seed.py` cuts `round(w × 0.10)` = 154 columns at full height
@@ -5153,6 +5219,83 @@ a concurrent instrument re-ran 132 of the 214 manor readings to byte-identical f
 mtimes hours past the sweep that took them — which is what `--until` exists for, and what the live
 ledger cures, because an append cannot be overwritten. The report carries all four limits in its
 own "What the backfill cannot know" section rather than in a transcript.
+
+## The painted window governs (row 42, part 2) — where a glazed opening is
+
+Row 27's argument, one aperture along, and the same reason: part (3) of row 42 places a CASEMENT
+SPRITE in this rectangle, so a rectangle taken off the plan would put the casement beside the painted
+window exactly as the clickable hole once stood beside the painted door.
+
+**The instrument** (`design/plan-draft/measured/window_measure.py`). A painted window is the reverse
+of a painted doorway — a lit opening against a darker wall rather than a dark void against a lit one
+— so the column statistic is the same and the inequality is turned round. The threshold sweep and the
+maximal-stability grouping therefore live in `measure_lib.maximally_stable_runs`, which both
+detectors read; `door_measure.py` was refactored onto it in the same change and its control frame
+still reads 673..861.
+
+Turned round, brightness is much less discriminating: over the store a bright piece of wall lifts up
+to **85** above its own median and a window lifts from **54**, and two walls with no window at all
+carry the brightest columns in their band. So a candidate is admitted on TWO things —
+
+- **the lift**, at least `ADMIT_LIFT` = 60 above the wall's own median; and
+- **the lattice**, a periodicity score of at least `LATTICE_MIN` = 0.20. §11's glazing is leaded
+  lights in a came grid, so a window's light is crossed by fine edges that REPEAT at the quarry
+  pitch (0.04–0.30 m), which rough plaster does not. The score is the mean of the two axes and the
+  alternative was measured rather than argued: taking the WEAKER axis at the same floor loses nine
+  painted windows to remove one false positive, while the mean loses one and removes two.
+
+**Said plainly, because the row asked for the lattice to be the discriminator and on this store it
+is the junior one:** the lift does most of the separating. Both are kept because they fail
+differently, and row 37 is about to change what a painted wall's brightness means — when
+illumination becomes a runtime pass over neutral backdrops the lift stops separating and the
+lattice, which is a fact about the GLAZING rather than about the light on it, does not.
+
+**Two more things the doorway did not need.** A window is MULLIONED, so one opening reads as two or
+three bright runs with a narrow dark bar between them — runs closer than `MULLION_MAX_M` = 0.25 m are
+merged, and the muniment room's heraldic windows (two lights of 0.33 m) were invisible until the
+enumeration floor came down to 0.20 m to see one light rather than one window. And a window FLOATS:
+a doorway's foot is the wall's own floor line, so row 27 needed only the head, while a window has a
+sill and a head and every overlay showed the paintings drawing them taller than the plan's ruled
+0.90–2.00 m band. So the band bounds the SEARCH and the light's own edges give the answer, walked out
+from the middle of the band, stepping over a transom no thicker than a bar and clamped to
+1.20–2.80 m of head and 0.20–1.60 m of sill.
+
+**The calibration** (`design/plan-draft/measured/window_calibration.json`, `--calibrate`). Over the
+24 promoted walls the plan rules a window on — 41 windows — the detector pairs **33** at a median
+centre distance of **0.635 m** (p90 2.27 m), in metres at the wall's APERTURE scale, which is the
+space a placed sprite lives in (row 27's ruling). Eight walls disagree on the COUNT, and most of that
+is the corpus rather than the instrument: `great_hall/S` and `long_gallery/E` are drawn with two
+windows where the plan rules four, and `solar/S` with three where it rules four. Three overlays were
+read by eye at the build: `master_bedchamber/E` and `muniment_room/S` sit on their painted windows to
+within a few pixels in all four edges, and `long_gallery/E` shows the residual false positive — a lit
+plaster field left of the window.
+
+**What the promotion does with it** (`tools/promote-backdrop.mjs`). `windowsForFacing` in
+`plan-projection.mjs` projects the plan's windows in APERTURE space and mints their ids — `win01`
+upward over `plan.windows`, keyed by floor AND rect because the manor is built one storey over
+another and nineteen windows share an (x, y) with a window on the other floor. The painted reading is
+assigned to them by the same order-preserving dynamic programme the doorways use, and `meta.windows`
+carries `id/kind/x/y/w/h/sill_m/head_m/measured`. Two clauses gate it —
+`[row42:window.unpainted]` (the plan rules a window the painting does not show: a casement on blank
+paint) and `[row42:window.painted_width]` (the painted light is outside 0.35–1.90× the plan's own
+ruled width for that window; the band is wider than the doorway's because what is measured is the
+LIGHT and the plan rules the OPENING). The other direction is RECORDED and gates nothing:
+`meta.window_evidence` lists every glazed opening the painting shows that the plan does not rule,
+because the plan amends to the painting (row 22) and an extra painted window is something to look at.
+
+**The row's stated edge.** `meta.windows` is written where the MEASUREMENT carries a window reading
+and is absent where it does not, so a wall measured before this row promotes byte-identically to
+before it. What closes the gap is the sweep: `row23_run.py`'s `window_reading` now runs beside
+`door_reading` on every reading it takes and on every door-repaired frame, so the set of walls the
+clause cannot see can only shrink, and `window_calibration.json` is the list of them.
+
+**The renderer** carries windows in its aperture list as non-exit apertures of kind `window` — but
+ONLY when a caller passes `{ windows: true }`, and `render` does not. Every existing caller treats an
+aperture as a way through: `index.html` builds a `go` button per entry and `render` composites the
+destination room into each rectangle, so a window in the default list would be a `go` target on a
+pane of glass and a room pasted through a window. `exit`, `to` and `via` are null and `kind` is
+`window`, so a router can tell a casement from a doorway without knowing this row exists. Nothing new
+is drawn; part (3) is the caller that will ask.
 
 ## The painted door governs (row 27) — where a way through is, on a promoted wall
 

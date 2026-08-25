@@ -1143,10 +1143,14 @@
   /* ------------------------------------------------------------------ */
 
   /**
-   * apertures(world, staging, library, meta, viewstate) -> [ { exit, via,
-   * x, y, w, h } ] — the wall opening of every exit the player is facing,
+   * apertures(world, staging, library, meta, viewstate, options) -> [ { exit,
+   * via, x, y, w, h } ] — the wall opening of every exit the player is facing,
    * in scene px, derived from the document (`locations[].exits`) and the
    * leaf's own §4 wall placement. Never from coordinates in truth.
+   *
+   * [row 42] `options.windows` appends the promoted meta's painted WINDOWS as
+   * non-exit apertures of kind "window". Off by default and deliberately so —
+   * see the block at the end of this function.
    *
    * A doorway exists whether or not its leaf is shut, so the opening is
    * drawn for every exit on the facing and the closed leaf occludes it
@@ -1162,7 +1166,7 @@
    * unfiltered doorway would draw the shape of a thing the player has not
    * been told about.
    */
-  function apertures(world, staging, library, meta, viewstate) {
+  function apertures(world, staging, library, meta, viewstate, options) {
     var gp = groundplane();
     /* A DOORWAY NEEDS A WALL TO BE A HOLE IN. Blueprint §5 law (b) [HUMAN,
      * 2026-08-21]: "outdoor walls are only present as represented by exterior
@@ -1337,6 +1341,49 @@
        * stair; `siblings` counts doorways, because a stair is named by
        * climbing and never needs a hand.) */
       unfilled[oj2].hand = unfilled.length !== 2 ? null : (oj2 === 0 ? "left" : "right");
+    }
+    /* [row 42] A WINDOW IS AN APERTURE AND IT IS NOT A WAY THROUGH.
+     *
+     * [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window
+     * assets we literally place in the door frame to open/close and same with
+     * the windows possibly" — so a casement sprite needs the same thing a leaf
+     * needs: the rectangle the PAINTING put the opening at, which a promoted
+     * meta now carries as `windows` (row 42's `window_measure.py` reads it,
+     * `promote-backdrop.mjs` writes it).
+     *
+     * OPT-IN, AND THAT IS THE WHOLE OF WHY. Every caller of this function
+     * treats what it returns as a way through: `index.html` builds a `go`
+     * button per entry and wires `walkThrough` to it, and `render` composites
+     * the destination room into each rectangle. A window appended to the
+     * default list would be a `go` target on a pane of glass and a room pasted
+     * through a window — so windows ride only where a caller has asked for
+     * them, and the caller that will is part (3)'s sprite placement. Nothing
+     * here draws anything: `render` calls this WITHOUT the flag, so the picture
+     * is byte-identical to what it was before this row.
+     *
+     * `exit`, `to` and `via` are null and `kind` is "window", so a reader that
+     * routes on any of them can tell a casement from a doorway without knowing
+     * this row exists. */
+    if (options && options.windows) {
+      var wins = (meta && meta.windows) || [];
+      for (var wi = 0; wi < wins.length; wi++) {
+        var wrect = wins[wi];
+        if (!wrect || !(wrect.w > 0) || !(wrect.h > 0)) continue;
+        /* A WINDOW NEEDS A WALL TO BE A HOLE IN, exactly as a doorway does —
+         * law (b) at the resolution the law is written at. */
+        if (!spannedByBand(wrect.x, wrect.x + wrect.w, bandsHere, meta)) continue;
+        out.push({
+          exit: null, via: null, to: null, arrive_facing: null,
+          source: "building", kind: "window", polys: null, turn_to: null,
+          direction: null, open: false,
+          window_id: wrect.id || null,
+          measured: !!wrect.measured,
+          sill_m: wrect.sill_m == null ? null : wrect.sill_m,
+          head_m: wrect.head_m == null ? null : wrect.head_m,
+          beyond_m: null, beyond_offset_m: null,
+          x: wrect.x, y: wrect.y, w: wrect.w, h: wrect.h
+        });
+      }
     }
     return out;
   }

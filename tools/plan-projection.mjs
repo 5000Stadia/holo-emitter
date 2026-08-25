@@ -42,6 +42,10 @@ import {
   facingGeometry, ruleStandpoint, measuredDistance, standpointFor, facingOfOpening,
   projectionFault, MIN_STANDOFF_M
 } from "./validate-plan.mjs";
+/* [row 42] The plan's ruled window band. ONE HOME, and it is `room-voices.mjs`:
+ * every ask names those two numbers and the scaffold stamps them, so the
+ * projection reads them from there rather than restating them. */
+import { WINDOW_SILL_M, WINDOW_HEAD_M } from "./room-voices.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -486,6 +490,97 @@ export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W
   }
   out.push(...thresholdsForFacing(plan, roomId, facing, meta, canvasW));
   return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* [row 42] THE WINDOWS ON A FACING, AND THE ID EACH ONE ANSWERS TO      */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window assets
+ * we literally place in the door frame to open/close and same with the windows
+ * possibly" — so a window becomes a thing with a rectangle and a state, and the
+ * first thing a thing needs is a NAME. The plan's `openings` carry ids (`op01`);
+ * its `windows` carry none at all, because until this row nothing downstream
+ * ever had to refer to one.
+ *
+ * THE ID IS THE PLAN'S OWN ORDER, `win01` upward over `plan.windows`. It is
+ * minted here and nowhere else, so a window has one name in the measurement,
+ * one in the meta and one in the renderer's aperture list — and it is derived
+ * from the plan rather than typed into it, so a window cannot be given two
+ * names by two authors. It is stable while the plan's window list is, which is
+ * the same footing `op01` stands on.
+ *
+ * THE RECTANGLE IS PROJECTED IN APERTURE SPACE, through `xAtScale`, exactly as
+ * `openingsForFacing` projects a door — row 27's ruling, which says the space a
+ * placed target lives in is the corner span and not the ruler. The vertical
+ * band is the plan's ruled sill and head out of `tools/room-voices.mjs`, which
+ * is the one home for both and what every ask names.
+ *
+ * WHAT THIS IS NOT is where the window IS on a promoted wall. That is the
+ * PAINTING's, read by `design/plan-draft/measured/window_measure.py` and written
+ * into `meta.windows` by `tools/promote-backdrop.mjs` — the same division row 27
+ * made for doors. This function is the drawing's half of it. */
+export function windowsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
+  const width = meta.wall_width_m;
+  if (!(width > 0)) return [];
+  const room = roomOf(plan, roomId);
+  const s = meta.px_per_m_at_wall;
+  const baseY = meta.floor_line_y * meta.image_h_px;
+  const ids = windowIds(plan);
+  const out = [];
+  for (const c of facingCarriers(plan, roomId, facing)) {
+    if (c.kind !== "window") continue;
+    const x0 = groundplane.xAtScale(c.from_m / width, s, meta, canvasW);
+    const x1 = groundplane.xAtScale(c.to_m / width, s, meta, canvasW);
+    out.push({
+      id: ids.get(windowKey(plan, roomId, facing, c)) || null,
+      kind: "window",
+      x: Math.min(x0, x1),
+      y: baseY - WINDOW_HEAD_M * s,
+      w: Math.abs(x1 - x0),
+      h: (WINDOW_HEAD_M - WINDOW_SILL_M) * s,
+      sill_m: WINDOW_SILL_M,
+      head_m: WINDOW_HEAD_M,
+      /* The plan's own width for THIS window, carried beside the projection so
+       * a guard judging a painted light against it never has to re-pair a
+       * carrier list with a projected one by index. */
+      width_m: c.width_m
+    });
+  }
+  return out;
+}
+
+/** `win01`… over `plan.windows`, keyed by the rect the carrier came from.
+ *
+ * THE FLOOR IS PART OF THE KEY, and it has to be: the manor is built one storey
+ * over another, so the solar's window and the great hall's stand at the same
+ * (x, y) and differ only in which floor they are on. Keyed by the rect alone,
+ * 48 windows collapsed to 29 keys and nineteen of them answered to another
+ * room's name. */
+export function windowIds(plan) {
+  const m = new Map();
+  (plan.windows || []).forEach((w, i) => {
+    m.set(rectKey(w.floor, w.rect), `win${String(i + 1).padStart(2, "0")}`);
+  });
+  return m;
+}
+const rectKey = (floor, r) => `${floor}|${r.x0}:${r.x1}:${r.y0}:${r.y1}`;
+/* `facingCarriers` gives a window its VIEW span and drops the world rect, so
+ * the id is recovered by finding the plan window whose view span this is —
+ * through `facingCarriers` itself, which is the only thing that knows how a
+ * rect becomes a span. One walk per facing; the manor has 48 windows. */
+function windowKey(plan, roomId, facing, carrier) {
+  const room = roomOf(plan, roomId);
+  for (const w of plan.windows || []) {
+    if (w.floor !== room.floor) continue;
+    const probe = facingCarriers(
+      { ...plan, windows: [w], openings: [], fireplaces: [] }, roomId, facing)
+      .find((c) => c.kind === "window");
+    if (probe && Math.abs(probe.from_m - carrier.from_m) < 1e-6 &&
+        Math.abs(probe.to_m - carrier.to_m) < 1e-6) {
+      return rectKey(w.floor, w.rect);
+    }
+  }
+  return null;
 }
 
 /**

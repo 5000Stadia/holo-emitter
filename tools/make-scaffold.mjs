@@ -53,7 +53,7 @@
 const chromium = {
   async launch(...a) { return (await import("playwright")).chromium.launch(...a); }
 };
-import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -85,8 +85,11 @@ import { frameGeometry, registerBlock, positiveNoText, flightLines, col }
  * words. The adjacency table, the crop, the ordering exception for open
  * locations and the packet's own wording all live in `edge-seed.mjs`; nothing
  * about a seam is decided here. */
-import { attachSeed, packetNote, attachLine, openOrder, isOpenLocation, isPainted }
+import { attachSeed, packetNote, attachLine, isOpenLocation }
   from "./edge-seed.mjs";
+/* [row 42] The first wall leads, in every room — the lead choice, the order it
+ * puts a location's facings in, and the sentence that says why. */
+import { roomOrder, leadFacing, leadWhy } from "./edge-seed.mjs";
 /* [row 40] A consistency re-ask is shown BOTH painted neighbours, and only
  * neighbours the measure puts inside the room's agreeing walls. */
 import { attachSeeds, packetNoteAll, attachLineAll } from "./edge-seed.mjs";
@@ -1161,6 +1164,60 @@ export const sourceDirFor = (key) => {
   return `backdrops/source/${SOURCE_DIR[loc] || loc}-${f}`;
 };
 
+/* ------------------------------------------------------------------ */
+/* [row 42] WHERE A FACING'S PICTURE IS, INCLUDING BEFORE IT IS PROMOTED */
+/* ------------------------------------------------------------------ */
+/* Row 38 and row 40 both ask one question of a neighbouring wall — is there a
+ * picture of it — and both answer it with `isPainted`, which means PROMOTED.
+ * That is right for them: a promoted painting has passed the camera gate, the
+ * door reading and the material clause, so seeding from one cannot spread a
+ * frame nobody has checked.
+ *
+ * Row 42 needs the same question answered one step earlier. The lead is painted
+ * FIRST and followed IMMEDIATELY, and its promotion runs through a measurement
+ * sweep that can take hours or refuse outright — so a room whose other three
+ * walls waited for the lead's promotion would be a room that is ordered and
+ * then stalled. What they wait for is the lead's CANDIDATE.
+ *
+ * WHICH candidate, decided from the loop's own record rather than from a
+ * directory listing, because a wall can hold several rolls and "the newest
+ * file" is not a fact anyone wrote down: `run-state.json` names the candidate
+ * the sweep is working from, and that is the picture the lead currently IS.
+ * The directory is only the fallback for a roll that has landed before the
+ * sweep has seen it, and there the newest file is the honest answer and is
+ * recorded as such.
+ *
+ * This file READS run-state.json and never writes it. */
+export function imageFor(key, opts = {}) {
+  const root = opts.root || ROOT;
+  const [loc, f] = key.split("/");
+  if (existsSync(join(root, "backdrops", loc, `${f}.png`)) &&
+      existsSync(join(root, "backdrops", loc, `${f}.meta.json`))) {
+    return { rel: `backdrops/${loc}/${f}.png`, kind: "promoted" };
+  }
+  if (!opts.candidates) return null;
+  const state = opts.state || {};
+  const named = ((state.walls || {})[key] || {}).candidate;
+  if (named && existsSync(join(root, named))) {
+    return { rel: named, kind: "candidate", via: "run-state.json" };
+  }
+  const dir = join(root, sourceDirFor(key));
+  if (!existsSync(dir)) return null;
+  const rolls = readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isFile() && /^row\d+-[0-9a-f]{8}\.png$/.test(d.name))
+    .map((d) => ({ name: d.name, t: statSync(join(dir, d.name)).mtimeMs }))
+    .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
+  if (!rolls.length) return null;
+  return {
+    rel: `${sourceDirFor(key)}/${rolls[0].name}`, kind: "candidate",
+    via: "the newest roll on disk; the sweep has not recorded one for this wall yet"
+  };
+}
+
+/** The resolver row 42's ordering runs on: promoted first, then the candidate. */
+export const leadImageResolver = (state, root) =>
+  (key) => imageFor(key, { state, root, candidates: true });
+
 /* THE OPAQUE ID. Deterministic, so the emission is re-runnable and the map can
  * be committed before anything exists; opaque in the FILENAME, which is the
  * thing that would otherwise tell a measuring hand which technique it is
@@ -1888,6 +1945,12 @@ async function emitManor(outDir, opts) {
    * wall nobody noticed. */
   const state = existsSync(join(outDir, "run-state.json"))
     ? JSON.parse(readFileSync(join(outDir, "run-state.json"), "utf8")) : { walls: {} };
+  /* [row 42] WHERE EVERY WALL'S PICTURE IS, resolved once for the whole pass —
+   * promoted painting, else the candidate the sweep is working from. This is
+   * what the room order, the edge seed and Image 1 all read, so a lead that
+   * has landed but not been promoted is followed by all three or by none. */
+  const imageOf = leadImageResolver(state, ROOT);
+  const hasImage = (k) => !!imageOf(k);
   const skipped = [];
   const outstanding = [];
   for (const x of all) {
@@ -1956,7 +2019,7 @@ async function emitManor(outDir, opts) {
     writePng(scafPng, join(dir, "scaffold.png"));
     /* [row 38] THE SEAM SEED, cut beside the packet before the prompt is
      * composed, because the prompt only names Image 3 where Image 3 exists. */
-    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir);
+    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir, { imageOf });
     timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row 33]
       { carriers: rects.length, voice: voice.id, technique: opts.technique || "t2" });
 
@@ -1976,7 +2039,10 @@ async function emitManor(outDir, opts) {
     /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
      * never any wall of another room: this room's own agreeing wall, or no
      * picture at all and the medium in words. */
-    const style = attachStyle(plan, fac.key, dir);
+    /* [row 42] ...and the room's LEAD is that wall wherever it has a picture,
+     * promoted or still in the loop, because the lead is what the other three
+     * are being painted to. */
+    const style = attachStyle(plan, fac.key, dir, { imageOf });
     const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
@@ -2044,37 +2110,65 @@ async function emitManor(outDir, opts) {
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       /* [row 38] THE SEAM, IN THE ENTRY THE SEAT AND THE SWEEP BOTH READ.
        * `edge_seed` is the strip that went out (null where none did) and
-       * `depends_on` is the ordering — non-null only on an open location whose
-       * seed neighbour is unpainted, which is the row's one licensed exception
-       * to one-pass parallelism. An indoor entry can never carry one, so a
-       * reader ordering on this field orders nothing indoors. */
+       * `depends_on` is the ordering — non-null while what this facing
+       * CONTINUES has no picture yet, which is the wall the seat must wait for.
+       * [row 42] It is no longer scoped to open locations: every room paints
+       * its lead first, so an indoor entry carries one too. What did NOT
+       * change is the field's meaning — a reader routing on it still reads
+       * "this ask waits" and nothing else. */
       edge_seed: seed,
       seed_policy: seedPlan.policy,
       depends_on: seedPlan.depends_on,
+      /* [row 42] THE ORDER THIS ENTRY STANDS IN, so a reader never has to
+       * recompute it: which wall leads this room, what this facing continues
+       * (the lead indoors, the ring's predecessor outdoors), and where the
+       * lead's own picture is right now. `depends_on` is `continues` narrowed
+       * to "and it does not exist yet". */
+      lead: seedPlan.lead,
+      is_lead: seedPlan.is_lead,
+      continues: seedPlan.continues,
+      order_position: seedPlan.order_position,
+      lead_image: seedPlan.lead ? imageOf(seedPlan.lead) : null,
+      style_image: style ? { file: style.file, rel: style.rel, room: style.room,
+        facing: style.facing, lead: !!style.lead, source_kind: style.source_kind || null } : null,
       rolls: ids,
       retry_cap: opts.retries || 2
     });
     console.log(`  ${fac.key.padEnd(24)} ${rects.length} carrier(s)  ${ids.length} roll(s)`
-      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}`
-        : seedPlan.depends_on ? `  WAITS for ${seedPlan.depends_on}` : ""));
+      + (seedPlan.is_lead ? "  LEADS" : "")
+      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}` : "")
+      + (seedPlan.depends_on ? `  WAITS for ${seedPlan.depends_on}` : ""));
   }
   await browser.close();
 
-  /* [row 38] THE ORDER OPEN LOCATIONS ARE PAINTED IN — the ring from the first
-   * completed direction, per location, with each facing's dependency. Written
-   * whole rather than only for the facings this pass emitted, because the order
-   * is a fact about the LOCATION and a seat reading it needs to see the painted
-   * ones it starts from. */
-  const openOrders = {};
+  /* [row 38, generalised at row 42] THE ORDER EVERY LOCATION IS PAINTED IN —
+   * its lead, why that wall leads, and each facing's position and dependency.
+   * Written whole rather than only for the facings this pass emitted, because
+   * the order is a fact about the LOCATION and a seat reading it needs to see
+   * the painted ones it starts from.
+   *
+   * ONE BLOCK, NOT TWO. `open_location_order` used to hold this for open
+   * locations alone; row 42 gives every room a lead, so a second block for the
+   * open ones would be the same fact written twice. */
+  const roomOrders = {};
   for (const room of plan.rooms) {
-    if (!isOpenLocation(plan, room.id)) continue;
-    openOrders[room.id] = openOrder(plan, room.id, isPainted);
+    const lead = leadFacing(plan, room.id);
+    roomOrders[room.id] = {
+      lead: lead ? `${room.id}/${lead}` : null,
+      lead_why: lead ? leadWhy(plan, room.id, lead) : "this room has no facings",
+      type: isOpenLocation(plan, room.id) ? "open" : "indoor",
+      shape: isOpenLocation(plan, room.id)
+        ? "row 38's ring from the lead — each facing continues the one at its left edge"
+        : "a star — the other three all continue the lead",
+      order: roomOrder(plan, room.id, hasImage)
+    };
   }
   const manifest = {
     _what_this_is: "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
-    _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. ONE EXCEPTION, row 38's and scoped to it: a facing of an OPEN location whose edge-seed neighbour is not painted yet carries `depends_on`, and is painted after it. Every other facing, indoor or out, carries `depends_on: null` and the parallelism is unchanged.",
-    _seams: "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out as Image 3, where it was cut from, and its sha256. Open locations REQUIRE it and are ordered for it; indoor ones take it opportunistically and order nothing.",
-    open_location_order: openOrders,
+    _arrivals_are_unordered: "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. THE ONE ORDERING, row 38's mechanism made the default at row 42: every location paints its LEAD wall first — the most-carried one, named in `room_order` below — and the other three carry `depends_on` until that wall's picture is on disk. A packet whose `depends_on` is set is NOT PAINTED YET; its PACKET.md says so in its first line. Once the lead has landed, its three followers go out together and the parallelism inside a room is unchanged.",
+    _seams: "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out as Image 3, where it was cut from, and its sha256. Open locations REQUIRE the strip; indoor ones take it opportunistically. ORDERING is no longer scoped to open locations - see `_lead_rule` and `room_order` below - and what is still scoped to them is the RING: outdoors each facing continues the one at its left edge, indoors all three continue the lead.",
+    _lead_rule: "[HUMAN 2026-08-24] \"Can we paint the whole scene on wall 1 for a room, use it to influence wall 2-4\" — one facing of each room is painted first and the other three take it as Image 1 (row 40's own-room rule, extended to accept the lead's CANDIDATE) plus row 38's edge strip where it abuts. The lead is the MOST-CARRIED wall: doors, windows and fireplaces counted; ties break to the wall the room's entry door faces, then to compass order.",
+    room_order: roomOrders,
     _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
     _reuse_rule: "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
     _technique: opts.technique || "t2",
@@ -2153,6 +2247,10 @@ async function emitRetries(outDir, opts) {
    * a record of the sweep. */
   const want = retryWalls(state, opts.walls && opts.walls.length ? opts.walls : null);
   const cap = opts.retries || 3;
+  /* [row 42] The same resolver `--emit-manor` uses: a re-ask is a fresh
+   * full-frame ask, so it takes its room's lead as Image 1 and waits for it
+   * exactly as a first ask does. */
+  const imageOf = leadImageResolver(state, ROOT);
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
@@ -2198,12 +2296,12 @@ async function emitRetries(outDir, opts) {
     /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
      * never any wall of another room: this room's own agreeing wall, or no
      * picture at all and the medium in words. */
-    const style = attachStyle(plan, w.key, dir);
+    const style = attachStyle(plan, w.key, dir, { imageOf });
     /* [row 38] A RE-ASK IS A FRESH FULL-FRAME ASK, so it seeds like one. It is
      * also where seeding lands first in practice: the corpus's unpainted walls
      * mostly have painted neighbours by now, and this is the path that carries
      * the pilot. */
-    const { seed, plan: seedPlan } = attachSeed(plan, w.key, dir);
+    const { seed, plan: seedPlan } = attachSeed(plan, w.key, dir, { imageOf });
     timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
@@ -2265,14 +2363,25 @@ async function emitRetries(outDir, opts) {
       })),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       /* [row 38] The same two fields the manifest carries, for the same two
-       * readers: what went out as Image 3, and what this ask waited for. */
+       * readers: what went out as Image 3, and what this ask waited for.
+       * [row 42] ...and the same order block, so a re-ask entry and a first-ask
+       * entry are read by one rule. */
       edge_seed: seed,
       seed_policy: seedPlan.policy,
       depends_on: seedPlan.depends_on,
+      lead: seedPlan.lead,
+      is_lead: seedPlan.is_lead,
+      continues: seedPlan.continues,
+      order_position: seedPlan.order_position,
+      lead_image: seedPlan.lead ? imageOf(seedPlan.lead) : null,
+      style_image: style ? { file: style.file, rel: style.rel, room: style.room,
+        facing: style.facing, lead: !!style.lead, source_kind: style.source_kind || null } : null,
       rolls: ids
     });
     console.log(`  ${w.key.padEnd(24)} retry-${attempt}  voice ${voice.id.padEnd(18)} ${ids.length} roll(s)`
-      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}` : ""));
+      + (seedPlan.is_lead ? "  LEADS" : "")
+      + (seed ? `  seed ${seed.side} <- ${seed.neighbour}` : "")
+      + (seedPlan.depends_on ? `  WAITS for ${seedPlan.depends_on}` : ""));
   }
   await browser.close();
 
@@ -2644,9 +2753,86 @@ function provenanceCache(plan, root) {
   return _provByRoot.get(root);
 }
 
+/* ------------------------------------------------------------------ */
+/* [row 42] AND THE ROOM'S LEAD IS IMAGE 1 WHERE IT HAS A PICTURE       */
+/* ------------------------------------------------------------------ */
+/* Row 40's rule stands whole: Image 1 is never another room's wall, and it is
+ * only a wall of THIS room that the pixel measure puts inside the agreeing
+ * majority AND whose own ask was this room's ruling. Row 42 adds one wall to
+ * the set that can satisfy it — the room's LEAD, painted first precisely so
+ * that the other three can be painted with it in front of the painter — and it
+ * adds it under the SAME two conditions read one step earlier:
+ *
+ *   the pixel measure   has nothing to say about an unpromoted lead, and NO
+ *                       MEASUREMENT IS NOT A MAJORITY — but it is also not a
+ *                       minority, and the wall it would be voting on is one
+ *                       this emitter cut the ask for itself.
+ *   the ask audit       is the condition that actually carries row 40, and it
+ *                       is checkable on a candidate exactly as it is on a
+ *                       promotion: the prompt sits beside the roll. A lead
+ *                       whose own ask does not name this room's ruling
+ *                       materials is REFUSED as Image 1, which is the whole
+ *                       point of row 40's second condition and the reason
+ *                       `guest_chamber`'s pixel majority is the wrong half.
+ *
+ * So an unpromoted lead is admitted on its ask and on nothing else, and it says
+ * so in the packet: a seat reading "this room's own lead wall, not yet
+ * promoted" knows what it is holding. A promoted lead goes through row 40's
+ * original path unchanged, and simply wins the tie against its siblings —
+ * because the lead is the wall the room is being painted to. */
+function leadAskIsRuling(plan, loc, f, root, candidateRel) {
+  const { voice } = voiceFor(plan, loc, f);
+  const derived = deriveMeta(plan, loc, f);
+  const { rects } = scaffoldRects(plan, loc, f, derived);
+  const want = rulingSentences({
+    voice, loc, out: !!voice.outdoor,
+    openSide: rects.some((r) => r.kind === "open_edge"),
+    built: rects.some((r) => r.kind !== "open_edge")
+  });
+  const ask = askTextFor(root, candidateRel, null, join);
+  if (!ask.text) return { ok: false, why: `no ask is on disk beside ${candidateRel}` };
+  const flat = normMaterial(ask.text);
+  const missing = Object.entries(want)
+    .filter(([, v]) => v && !flat.includes(normMaterial(v)))
+    .map(([k]) => k);
+  return missing.length
+    ? { ok: false, why: `its own ask never named this room's ${missing.join(" or ")}` }
+    : { ok: true, ask_path: ask.path };
+}
+
 export function styleImageFor(plan, key, opts = {}) {
   const root = opts.root || ROOT;
   const [loc, f] = key.split("/");
+  const name0 = ((plan.rooms || []).find((r) => r.id === loc) || {}).name || loc;
+  const say = (pick, rel, why, extra) => ({
+    rel, file: "style-reference.png", room: loc, facing: pick, why, ...extra,
+    role_sentence:
+      `Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM, the ${pick} wall of the ` +
+      `${String(name0).toLowerCase()}. It is the reference for this room's materials, its paint ` +
+      `medium, its palette and its light, and for nothing else: how many openings this wall ` +
+      `carries, where they stand and every dimension of them come from Image 2 and the words ` +
+      `below. Paint this wall as the same room on the same day.`
+  });
+  /* THE LEAD, always known; its CANDIDATE only reachable where the caller has
+   * told us where unpromoted pictures live. */
+  const lead = leadFacing(plan, loc);
+  if (opts.imageOf && lead && lead !== f) {
+    const img = opts.imageOf(`${loc}/${lead}`);
+    if (img && img.kind === "candidate") {
+      const ok = leadAskIsRuling(plan, loc, lead, root, img.rel);
+      if (ok.ok) {
+        return say(lead, img.rel,
+          `${loc}/${lead} LEADS this room [row 42] and is painted but not promoted yet; its own ` +
+          `ask named this room's ruling materials (${ok.ask_path}), which is row 40's second ` +
+          `condition read on the candidate`,
+          { lead: true, source_kind: "candidate" });
+      }
+      /* A LEAD THAT FAILS ROW 40's CONDITION IS NOT IMAGE 1 — it falls through
+       * to the promoted path below, which may find a proper wall or none.
+       * Recorded on the returned object where one is found, and silent where
+       * none is, because the packet already says there is no Image 1. */
+    }
+  }
   const reportPath = opts.report ||
     join(root, "design", "plan-draft", "measured", "room_consistency.json");
   /* NO MEASUREMENT IS NOT A MAJORITY. A room nobody has compared has no wall
@@ -2666,27 +2852,21 @@ export function styleImageFor(plan, key, opts = {}) {
   const pr = (prov.rooms || []).find((r) => r.room === loc);
   const ruled = new Set((pr ? pr.facings : [])
     .filter((x) => x.verdict === "current").map((x) => x.facing));
-  const pick = agreeing
+  const eligible = agreeing
     .filter((g) => g !== f)
     .filter((g) => ruled.has(g))
     .filter((g) => existsSync(join(root, "backdrops", loc, `${g}.png`)))
-    .sort()[0];
+    .sort();
+  /* [row 42] THE LEAD WINS THE TIE among walls that already satisfy row 40 —
+   * it is the wall this room is being painted TO — and where it is not one of
+   * them, row 40's own alphabetical pick stands exactly as before. */
+  const pick = (lead && eligible.includes(lead)) ? lead : eligible[0];
   if (!pick) return null;
-  const name = ((plan.rooms || []).find((r) => r.id === loc) || {}).name || loc;
-  return {
-    rel: `backdrops/${loc}/${pick}.png`,
-    file: "style-reference.png",
-    room: loc,
-    facing: pick,
-    why: `${loc}/${pick} is inside this room's agreeing walls (room_consistency.json) ` +
-      `and its own ask was this room's ruling (materialProvenance)`,
-    role_sentence:
-      `Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM, the ${pick} wall of the ` +
-      `${String(name).toLowerCase()}. It is the reference for this room's materials, its paint ` +
-      `medium, its palette and its light, and for nothing else: how many openings this wall ` +
-      `carries, where they stand and every dimension of them come from Image 2 and the words ` +
-      `below. Paint this wall as the same room on the same day.`
-  };
+  return say(pick, `backdrops/${loc}/${pick}.png`,
+    `${loc}/${pick} is inside this room's agreeing walls (room_consistency.json) ` +
+    `and its own ask was this room's ruling (materialProvenance)` +
+    (pick === lead ? "; it also LEADS this room [row 42]" : ""),
+    { lead: pick === lead, source_kind: "promoted" });
 }
 
 /* THE ASK AUDIT, SPOKEN IN THE PIXEL MEASURE'S OWN SHAPE.
@@ -2808,9 +2988,22 @@ async function emitConsistency(outDir, opts) {
   await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
+  /* [row 42] The same resolver the other two emit paths use. On this path
+   * every wall is already promoted, so it never resolves a candidate — but the
+   * lead preference for Image 1 is the same rule and reads through the same
+   * function rather than a second one. */
+  const cstate = existsSync(join(outDir, "run-state.json"))
+    ? JSON.parse(readFileSync(join(outDir, "run-state.json"), "utf8")) : { walls: {} };
+  const imageOf = leadImageResolver(cstate, ROOT);
+  const hasImage = (k) => !!imageOf(k);
+
   const emitted = [];
   for (const w of want) {
     const [loc, f] = w.key.split("/");
+    const order = {
+      lead: (() => { const l = leadFacing(plan, loc); return l ? `${loc}/${l}` : null; })(),
+      order: roomOrder(plan, loc, hasImage)
+    };
     const meta = await page.evaluate((k) => {
       const e = window.HOLO_APP.backdrops[k];
       return e && e.meta ? e.meta : null;
@@ -2855,7 +3048,7 @@ async function emitConsistency(outDir, opts) {
      * none, and correctly so - a room being re-asked for consistency is a room
      * whose walls are in dispute, and a disputed wall is exactly what must not
      * be handed to the next roll as a photograph. */
-    const style = attachStyle(plan, w.key, dir);
+    const style = attachStyle(plan, w.key, dir, { imageOf });
     /* THE SEEDS, AND THE RULE THAT MAKES THEM SAFE: only a neighbour the
      * measure puts in this room's agreeing majority may be cut from. Seeding
      * an outlier off another outlier spreads the wrong material round the room
@@ -2930,7 +3123,17 @@ async function emitConsistency(outDir, opts) {
       edge_seed: seeds[0] || null,
       edge_seeds: seeds,
       seed_policy: isOpenLocation(plan, loc) ? "required" : "opportunistic",
+      /* [row 42] A CONSISTENCY RE-ASK NEVER WAITS, and it is the one path that
+       * does not. Every wall it touches is ALREADY PROMOTED — that is the
+       * clause it is emitted under — so the room's lead has a picture by
+       * construction, and there is nothing for a dependency to be waiting on.
+       * The order block is still recorded, because a reader of this file
+       * should not have to know that in order to read one entry. */
       depends_on: null,
+      lead: order.lead,
+      is_lead: order.lead === w.key,
+      continues: (order.order.find((x) => x.key === w.key) || {}).continues || null,
+      order_position: (order.order.find((x) => x.key === w.key) || {}).position ?? null,
       /* [row 40] What the measure said, carried with the packet so a reader
        * never has to go and re-derive why this wall was asked. */
       consistency: {

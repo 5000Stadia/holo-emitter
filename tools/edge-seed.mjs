@@ -13,8 +13,13 @@
  * Extended the same day, verbatim: "It may be helpful to even do that inside if
  * we are having to generate anytging fresh" — so a seed is the DEFAULT for any
  * fresh full-frame ask whose adjacent facing is already painted. An OPEN
- * location requires it and orders its facings for it; an indoor one takes it
- * opportunistically and orders nothing.
+ * location REQUIRES the strip; an indoor one takes it opportunistically.
+ *
+ * ORDERING IS EVERY LOCATION'S AT ROW 42, and the sentence that used to stand
+ * here — "an indoor one … orders nothing" — is false from that row on. Each
+ * room now picks a LEAD facing and paints it first; see the row-42 block below.
+ * What is still scoped to open locations is the RING: outdoors each facing
+ * continues the one at its left edge, indoors all three continue the lead.
  *
  * THE DIVISION IS ROW 34's, APPLIED TO A SEAM. The reference carries appearance
  * — what a reference image is actually good at — and the words carry the ROLE,
@@ -81,6 +86,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 import { RIGHT, NORMAL, FACINGS, viewSpan } from "./validate-plan.mjs";
+import { facingCarriers } from "./plan-projection.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CROP = join(ROOT, "tools", "crop-edge-seed.py");
@@ -171,42 +177,189 @@ export function isOpenLocation(plan, roomId) {
   return room.type === "open";
 }
 
-/**
- * One open location's generation order: the ring, starting at the first
- * completed direction, each facing depending on the one at its left edge.
+/* ------------------------------------------------------------------ */
+/* [row 42] THE FIRST WALL LEADS — in every room, not only the open ones */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim] "Can we paint the whole scene on wall 1 for a
+ * room, use it to influence wall 2-4 direct where the doors should be but after
+ * the fact detect the door location on the image…"
  *
- * "the next picture to draw should automatically be one of the 90° walls in
- * reference to the original complete direction" — so the origin is a PAINTED
- * facing where the location has one, and the first facing in compass order
- * where it has none (that one is the original complete direction, painted
- * unseeded, because nothing exists yet for it to continue).
+ * Row 38 ordered OPEN locations because an open seam has no corner to hide in.
+ * Row 42 makes the mechanism the default everywhere for a different reason: a
+ * room reads as one room when its other three walls were painted with the first
+ * one in front of the painter. So every location picks ONE LEAD facing, paints
+ * it first, and hands it to the other three as Image 1.
+ *
+ * WHICH FACING LEADS, and why it is the most-carried one. The lead is the wall
+ * the room's other three are answering to, so it has to be the wall that
+ * actually SHOWS the room: its doorcases, its window bays, its chimneypiece.
+ * A blank wall painted first hands the next three a picture of nothing, and the
+ * manor has plenty of blank walls. Doors, windows and fireplaces are counted;
+ * an `open_edge` is not, because it is the absence of a wall rather than
+ * something standing in one.
  */
-export function openOrder(plan, roomId, painted = isPainted) {
+export const LEAD_KINDS = ["door", "window", "fireplace"];
+
+/** How much of the room this facing shows — the lead choice's whole statistic. */
+export function carrierLoad(plan, roomId, facing) {
+  return facingCarriers(plan, roomId, facing)
+    .filter((c) => LEAD_KINDS.includes(c.kind)).length;
+}
+
+/** The facing directly across the room from `facing` — two right turns. */
+export function opposite(facing) {
+  return neighbourAt(neighbourAt(facing, "right"), "right");
+}
+
+/**
+ * The facing whose wall holds the room's ENTRY DOOR, or null where the room
+ * has no door at all.
+ *
+ * The plan gives no room an "entry" field, so this is derived from the one
+ * ordering the plan does carry: its `openings` are written from the entrance
+ * inward (`op01` is the court into the great hall), so a room's entry is the
+ * lowest-ordered door that joins it. Stated rather than assumed, because it is
+ * the only part of the lead choice that is not a count.
+ */
+export function entryDoorFacing(plan, roomId) {
+  const room = (plan.rooms || []).find((r) => r.id === roomId);
+  if (!room) throw new Error(`edge-seed: the plan holds no room \`${roomId}\``);
+  const entry = (plan.openings || [])
+    .find((o) => o.kind === "door" && (o.joins || []).includes(roomId));
+  if (!entry) return null;
+  for (const f of FACINGS) {
+    if (!(room.facings || {})[f]) continue;
+    if (facingCarriers(plan, roomId, f).some((c) => c.kind === "door" && c.id === entry.id)) {
+      return f;
+    }
+  }
+  return null;
+}
+
+/**
+ * The facing this room paints FIRST. The most-carried wall; on a tie, the wall
+ * the entry door faces — which is the wall a person walking in is looking at,
+ * and the one the room is most likely to be judged by; on a tie past that,
+ * compass order, which is what a room with no door has anyway.
+ */
+export function leadFacing(plan, roomId) {
+  const room = (plan.rooms || []).find((r) => r.id === roomId);
+  if (!room) throw new Error(`edge-seed: the plan holds no room \`${roomId}\``);
+  const have = FACINGS.filter((f) => (room.facings || {})[f]);
+  if (!have.length) return null;
+  const load = new Map(have.map((f) => [f, carrierLoad(plan, roomId, f)]));
+  const most = Math.max(...load.values());
+  const tied = have.filter((f) => load.get(f) === most);
+  if (tied.length === 1) return tied[0];
+  const entry = entryDoorFacing(plan, roomId);
+  if (entry) {
+    const faces = opposite(entry);
+    if (tied.includes(faces)) return faces;
+  }
+  return tied[0];
+}
+
+/** Why this facing leads, in the words the manifest carries. */
+export function leadWhy(plan, roomId, lead) {
+  const room = (plan.rooms || []).find((r) => r.id === roomId);
+  const have = FACINGS.filter((f) => (room.facings || {})[f]);
+  const load = new Map(have.map((f) => [f, carrierLoad(plan, roomId, f)]));
+  const most = load.get(lead);
+  const tied = have.filter((f) => load.get(f) === most);
+  const counts = have.map((f) => `${f}:${load.get(f)}`).join(" ");
+  if (tied.length === 1) {
+    return `the most-carried wall of this room (${counts}) — doors, windows and fireplaces`;
+  }
+  const entry = entryDoorFacing(plan, roomId);
+  if (entry && opposite(entry) === lead) {
+    return `${tied.join("/")} carry equally (${counts}), so the tie breaks to the wall the ` +
+      `room's entry door (its ${entry} wall) faces`;
+  }
+  return `${tied.join("/")} carry equally (${counts}) and the room's entry door breaks no tie ` +
+    `here, so the first in compass order leads`;
+}
+
+/**
+ * One location's generation order: the lead first, then the facings that
+ * continue it.
+ *
+ * INDOORS IT IS A STAR. "every room paints ONE facing first … the other three
+ * wait for it and take it as Image 1" — so all three continue the lead
+ * directly and, once the lead has a picture, all three may be painted at once.
+ *
+ * ON AN OPEN LOCATION IT STAYS ROW 38's RING, re-origined at the lead. That
+ * row's sequence is [HUMAN] and unrevoked — "the next picture to draw should
+ * automatically be one of the 90° walls in reference to the original complete
+ * direction" — and it is the only construction that leaves the FOURTH facing
+ * with a seam neighbour to continue, which is what an outdoor turn needs and an
+ * indoor corner does not. Row 42 changes which facing the ring starts at, not
+ * that there is a ring.
+ *
+ * `has` is what makes a facing's picture available to the next one. It defaults
+ * to `isPainted` — a promoted painting — and the emitter hands in a wider one:
+ * a lead that is still in the measurement loop has a CANDIDATE, and the whole
+ * point of the row is that the other three follow it rather than wait for its
+ * promotion.
+ */
+export function roomOrder(plan, roomId, has = isPainted) {
   const room = (plan.rooms || []).find((r) => r.id === roomId);
   if (!room) throw new Error(`edge-seed: the plan holds no room \`${roomId}\``);
   const have = FACINGS.filter((f) => (room.facings || {})[f]);
   if (!have.length) return [];
-  const origin = have.find((f) => painted(`${roomId}/${f}`)) || have[0];
-  const chain = [];
-  let f = origin;
-  for (let i = 0; i < have.length; i++) {
-    chain.push(f);
-    let g = neighbourAt(f, "right");
-    let guard = 0;
-    while (!have.includes(g) && guard++ < FACINGS.length) g = neighbourAt(g, "right");
-    f = g;
-    if (chain.includes(f)) break;
+  const lead = leadFacing(plan, roomId);
+  const open = isOpenLocation(plan, roomId);
+  let chain;
+  if (open) {
+    chain = [];
+    let f = lead;
+    for (let i = 0; i < have.length; i++) {
+      chain.push(f);
+      let g = neighbourAt(f, "right");
+      let guard = 0;
+      while (!have.includes(g) && guard++ < FACINGS.length) g = neighbourAt(g, "right");
+      f = g;
+      if (chain.includes(f)) break;
+    }
+  } else {
+    chain = [lead, ...have.filter((f) => f !== lead)];
   }
-  return chain.map((facing, i) => ({
-    facing,
-    key: `${roomId}/${facing}`,
-    position: i,
-    painted: painted(`${roomId}/${facing}`),
-    origin: i === 0,
-    /* The origin continues nothing; every other facing continues the picture at
-     * its left edge, which is the one before it in a right-turning ring. */
-    depends_on: i === 0 ? null : `${roomId}/${chain[i - 1]}`
-  }));
+  const leadKey = `${roomId}/${lead}`;
+  return chain.map((facing, i) => {
+    /* WHAT THIS FACING CONTINUES — the lead indoors, the ring's predecessor
+     * outdoors. Distinct from `depends_on`, which is that same key only while
+     * it has no picture: the order is a fact about the ROOM and the dependency
+     * is a fact about NOW, and a reader that conflates them either waits for a
+     * wall that is already painted or paints out of order. */
+    const continues = i === 0 ? null : (open ? `${roomId}/${chain[i - 1]}` : leadKey);
+    return {
+      facing,
+      key: `${roomId}/${facing}`,
+      position: i,
+      lead: i === 0,
+      /* Kept from row 38's shape so its own readers are unchanged: on an open
+       * location position 0 IS the original complete direction. */
+      origin: i === 0,
+      lead_key: leadKey,
+      carriers: carrierLoad(plan, roomId, facing),
+      /* HAS A PICTURE, which under the emitter's own resolver is wider than
+       * PROMOTED — a lead still in the measurement loop has a candidate and is
+       * followed. `painted` kept its row-38 name and would have been a lie
+       * here, so the field says what it means. */
+      has_image: has(`${roomId}/${facing}`),
+      painted: isPainted(`${roomId}/${facing}`),
+      continues,
+      depends_on: continues && !has(continues) ? continues : null
+    };
+  });
+}
+
+/**
+ * An OPEN location's order — row 38's own name for it, now one view of
+ * `roomOrder` rather than a second ring. Kept because the manifest, the specs
+ * and `grant-content-gap` all speak of it by this name.
+ */
+export function openOrder(plan, roomId, painted = isPainted) {
+  return roomOrder(plan, roomId, painted);
 }
 
 /**
@@ -224,21 +377,48 @@ export function openOrder(plan, roomId, painted = isPainted) {
  * for every indoor facing by construction, so one-pass parallelism survives
  * everywhere the row did not license an exception.
  */
-export function seedPlan(plan, key, painted = isPainted) {
+export function seedPlan(plan, key, opts = isPainted) {
+  /* Row 38 took a `painted` predicate here and row 42 needs two more things —
+   * where a wall's picture actually IS, and whether a candidate counts — so
+   * the parameter widened to an options object. The old positional form is
+   * still accepted, because `grant-content-gap` and the seam spec both call it
+   * that way and a signature change is not what either of them is about. */
+  const o = typeof opts === "function" ? { painted: opts } : (opts || {});
+  const painted = o.painted || isPainted;
+  /* WHERE A FACING'S PICTURE IS, and what counts as one. The default is row
+   * 38's exactly: a promoted painting or nothing. The emitter hands in a wider
+   * resolver so that a LEAD still in the measurement loop can be followed —
+   * see `roomOrder`. */
+  const imageOf = o.imageOf ||
+    ((k) => painted(k) ? { rel: paintingPath(k), kind: "promoted" } : null);
+  const has = (k) => !!imageOf(k);
   const [loc, facing] = key.split("/");
   const open = isOpenLocation(plan, loc);
   const room = (plan.rooms || []).find((r) => r.id === loc);
+  const order = roomOrder(plan, loc, has);
+  const mine = order.find((x) => x.facing === facing) || null;
+  const continues = mine ? mine.continues : null;
   const candidates = SIDES.map((side) => {
     const g = neighbourAt(facing, side);
+    const nk = `${loc}/${g}`;
+    const exists = !!(room.facings || {})[g];
+    /* A STRIP MAY BE CUT FROM A PROMOTED NEIGHBOUR — row 38 — OR FROM THE WALL
+     * THIS ONE CONTINUES, whose picture may still be a candidate. The second is
+     * row 42's: the lead is painted first and followed immediately, so waiting
+     * for its promotion would put the room's other three walls behind the
+     * measurement loop for no gain the seam can see. */
+    const img = exists && (painted(nk) || nk === continues) ? imageOf(nk) : null;
     return {
       side,
-      neighbour: `${loc}/${g}`,
+      neighbour: nk,
       neighbour_edge: neighbourEdge(facing, side),
-      exists: !!(room.facings || {})[g],
-      painted: !!(room.facings || {})[g] && painted(`${loc}/${g}`)
+      exists,
+      painted: exists && painted(nk),
+      image: img,
+      usable: !!img
     };
   });
-  const take = candidates.find((c) => c.painted) || null;   // SIDES is left-first
+  const take = candidates.find((c) => c.usable) || null;   // SIDES is left-first
   const out = {
     key,
     location: loc,
@@ -248,40 +428,48 @@ export function seedPlan(plan, key, painted = isPainted) {
     side: take ? take.side : null,
     neighbour: take ? take.neighbour : null,
     neighbour_edge: take ? take.neighbour_edge : null,
-    source: take ? paintingPath(take.neighbour) : null,
+    source: take ? take.image.rel : null,
+    source_kind: take ? take.image.kind : null,
     /* The words that will ride with the strip, decided here rather than at the
      * cut, so a caller can ask what the ask WOULD gain without writing a file —
      * which is exactly what the grant tool's eligibility does. */
     role_sentence: take ? roleSentence(take.side) : null,
     alternatives: candidates.filter((c) => c !== take && c.exists)
       .map((c) => ({ side: c.side, neighbour: c.neighbour, painted: c.painted })),
-    depends_on: null,
+    /* [row 42] THE ORDER IS EVERY ROOM'S NOW, so these four come off
+     * `roomOrder` rather than being open-only. `depends_on` keeps row 38's
+     * meaning exactly — non-null means THIS ASK WAITS — which is why every
+     * reader that already routes on it keeps working. */
+    lead: mine ? mine.lead_key : null,
+    is_lead: !!(mine && mine.lead),
+    continues,
+    order_position: mine ? mine.position : null,
+    depends_on: mine ? mine.depends_on : null,
     why: null
   };
+  if (out.depends_on) {
+    /* A LEAD NEVER REACHES HERE: it continues nothing, so its `depends_on` is
+     * null by construction and the room's first wall can never wait on itself. */
+    out.why = `this facing continues \`${out.depends_on}\`, which has no picture yet, so the ` +
+      `ask waits for it. [row 42] Every location paints its LEAD wall first and the rest ` +
+      `follow it; ` + (open
+        ? "an open location follows row 38's ring from the lead, so this one waits for the " +
+          "facing at its left edge"
+        : "indoors the other three all follow the lead directly");
+    return out;
+  }
   if (take) {
     out.why = open
-      ? "an open location: continuity across the turn is the point, and this neighbour is painted"
-      : "an indoor location: the strip anchors material tone and the wainscot line across the corner";
+      ? "an open location: continuity across the turn is the point, and this neighbour has a " +
+        `picture (${take.image.kind})`
+      : "an indoor location: the strip anchors material tone and the wainscot line across the " +
+        `corner (${take.image.kind})`;
     return out;
   }
-  if (!open) {
-    out.why = "no neighbour of this facing is painted; indoors the seed is opportunistic, so the " +
-      "ask goes unseeded exactly as it did before this row";
-    return out;
-  }
-  /* AN OPEN FACING WITH NOTHING PAINTED BESIDE IT — the licensed exception.
-   * Which one it waits for is the ring's, not a preference: the facing at its
-   * left edge, unless this facing IS the location's origin, in which case it
-   * is the original complete direction and waits for nothing. */
-  const order = openOrder(plan, loc, painted);
-  const mine = order.find((o) => o.facing === facing);
-  out.depends_on = mine ? mine.depends_on : null;
-  out.order_position = mine ? mine.position : null;
-  out.why = out.depends_on
-    ? `an open location whose seed neighbour \`${out.depends_on}\` is not painted: this facing ` +
-      `waits for it. That is row 38's one licensed exception to one-pass parallelism and it is ` +
-      `scoped to open locations`
-    : "an open location's origin — the first completed direction, which continues nothing";
+  out.why = out.is_lead
+    ? "this facing LEADS its room — the first wall painted, which continues nothing"
+    : "no neighbour of this facing has a picture and what it continues is already painted; the " +
+      "ask goes unseeded and the medium is carried in words";
   return out;
 }
 
@@ -306,8 +494,8 @@ export const seedFileName = (side) => `edge-seed-${side}.png`;
  * this facing has no painted neighbour. The returned object is what the
  * manifest entry carries and what `manorPrompt` is handed.
  */
-export function attachSeed(plan, key, packetDir, painted = isPainted) {
-  const plan_ = seedPlan(plan, key, painted);
+export function attachSeed(plan, key, packetDir, opts = isPainted) {
+  const plan_ = seedPlan(plan, key, opts);
   /* A PACKET HOLDS AT MOST ONE STRIP, and the emitter is re-runnable — so a
    * packet cut again after its seam neighbour changed (the other side painted,
    * or a demotion) must not be left holding yesterday's strip beside today's
@@ -349,15 +537,25 @@ export function attachSeed(plan, key, packetDir, painted = isPainted) {
 export function packetNote(seed, plan_) {
   const s = seed || plan_;
   if (!s) return "";
-  if (!seed) {
-    if (!s.depends_on) return "";
-    return `> **This ask waits for \`${s.depends_on}\`.**\n>\n> ${s.location} is an open ` +
-      `location — no wall corners stand between its facings, so a seam here is a seam in open ` +
-      `country. Its facings are painted in adjacency order from the first completed direction, ` +
-      `and this one continues \`${s.depends_on}\`, which is not painted yet. Row 38's one ` +
-      `licensed exception to one-pass parallelism, and it is scoped to open locations.\n\n`;
-  }
-  return `**Image 3 is this wall's edge seed.** \`${seedFileName(s.side)}\` is the ` +
+  /* [row 42] THE WAIT IS STATED FIRST AND IT IS STATED WHETHER OR NOT A STRIP
+   * RODE. Under row 38 a waiting facing never had a seed, so the two were the
+   * same sentence; under row 42 a facing can hold a strip from one painted
+   * neighbour and still be waiting for its room's LEAD, and a packet that says
+   * only "here is your Image 3" is a packet a seat will paint out of order. */
+  const wait = s.depends_on
+    ? `> **This ask WAITS for \`${s.depends_on}\`. Do not paint it until that wall's picture ` +
+      `is on disk.**\n>\n> [row 42] Every location paints one wall first — its LEAD, the ` +
+      `most-carried wall — and the other three are painted with the lead's own picture in ` +
+      `front of the painter, which is what makes the four read as one room. ` +
+      (s.location_type === "open"
+        ? `${s.location} is an open location, so its facings follow row 38's ring from the ` +
+          `lead and this one continues \`${s.depends_on}\`.`
+        : `This facing continues \`${s.depends_on}\`, which has no picture yet.`) +
+      `\n\n`
+    : "";
+  if (!seed) return wait;
+  return wait +
+    `**Image 3 is this wall's edge seed.** \`${seedFileName(s.side)}\` is the ` +
     `${Math.round(s.fraction * 100)} % of \`${s.source}\` that abuts this picture — its ` +
     `${s.neighbour_edge}-hand ${s.width_px} columns, full frame height, cut by ` +
     `\`tools/crop-edge-seed.py\` (sha256 \`${s.sha256.slice(0, 12)}\` from a painting at ` +

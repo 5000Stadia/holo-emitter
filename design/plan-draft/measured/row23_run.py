@@ -445,6 +445,7 @@ def promote_reading(key, cand_rel, e, side, ref, reading, tolerance=False):
     path = os.path.join(d, "%s-%s.json" % (loc, f))
     json.dump(doc, open(path, "w"), indent=2)
     door_reading(path, cand_rel, loc)
+    window_reading(path, cand_rel, loc)
     return path, None
 
 
@@ -463,6 +464,21 @@ def door_reading(doc_path, cand_rel, loc):
     import door_measure
     plan = json.load(open(os.path.join(ROOT, "fixtures", "demo-study", "plan.json")))
     return door_measure.patch(doc_path, os.path.join(ROOT, cand_rel), loc, plan)
+
+
+def window_reading(doc_path, cand_rel, loc):
+    """[Row 42] And where this frame's WINDOWS are, added to the same reading.
+
+    Beside `door_reading` and for its reason exactly: the promotion reads a
+    measurement and writes a document, so a window read at promotion time would
+    be a number no measurement ever took. `promote-backdrop.mjs` writes
+    `meta.windows` only where this reading exists, so the set of promoted walls
+    with no window reading can only shrink -- every reading taken from this row
+    on carries one.
+    """
+    import window_measure
+    plan = json.load(open(os.path.join(ROOT, "fixtures", "demo-study", "plan.json")))
+    return window_measure.patch(doc_path, os.path.join(ROOT, cand_rel), loc, plan)
 
 
 def _bake():
@@ -936,6 +952,11 @@ def _doors_document(key, res, repaired_rel, rec):
     plan = json.load(open(PLAN))
     try:
         door_measure.patch(doc_out, os.path.join(ROOT, repaired_rel), loc, plan)
+        # [row 42] and the windows off the same repaired frame, for the same
+        # reason the openings are re-read here: the document describes THIS
+        # image and every reading in it has to have been taken off THIS image.
+        import window_measure
+        window_measure.patch(doc_out, os.path.join(ROOT, repaired_rel), loc, plan)
     except Exception as ex:
         return None, ("the doors could not be read off the repaired frame: %s"
                       % str(ex)[:200])
