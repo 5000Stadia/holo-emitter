@@ -84,10 +84,10 @@
     },
     "back_stair/W": {
       "attempts": 3,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
       "hold_family": "promotion-refused",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair/W: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair-W/row23-4e3755a6.png was painted from never named a staircase (backdr",
       "content_gap_grants": {
         "flight_never_named": {
           "granted": 1,
@@ -119,7 +119,7 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "content gap re-ask: the ask never named the flight"
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
     "hall/N": {
       "attempts": 2,
@@ -285,7 +285,7 @@
       "attempts": 3,
       "status": "held",
       "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_stair_hall/W: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source/great_stair_hall-W/row23-a58332e0.png was painted from never named a staircase (",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "flight_never_named": {
@@ -609,7 +609,7 @@
       "attempts": 3,
       "status": "held",
       "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/S: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair_head-S/row23-2fe57dfb.png was painted from never named a stairca",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "flight_never_named": {
@@ -646,7 +646,7 @@
       "attempts": 3,
       "status": "held",
       "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: back_stair_head/W: the plan draws 1 flight(s) in this view (back_stair_flight) and the ask backdrops/source/back_stair_head-W/row23-0f79ba13.png was painted from never named a stairca",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "flight_never_named": {
@@ -761,7 +761,7 @@
     },
     "stair_landing/N": {
       "attempts": 3,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/stair_landing-N/row23-e594b388.png",
       "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/N: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
       "hold_family": "promotion-refused",
@@ -794,7 +794,7 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "content gap re-ask: the ask never named the flight"
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
     "stair_landing/E": {
       "attempts": 2,
@@ -815,7 +815,7 @@
       "attempts": 3,
       "status": "held",
       "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is left",
+      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: stair_landing/W: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source/stair_landing-W/row23-572c742a.png was painted from never named a staircase (backdr",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "flight_never_named": {

@@ -1279,12 +1279,22 @@ def sweep(statuses=("held", "retry", "parked"), acceptance=True, out=None):
     return doc
 
 
+def _no_nan(o):
+    """NaN/inf -> None, recursively: JSON has no spelling for them."""
+    import math
+    if isinstance(o, float) and not math.isfinite(o): return None
+    if isinstance(o, dict): return {k: _no_nan(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)): return [_no_nan(v) for v in o]
+    return o
+
+
 def _emit(path, obj):
     if not path:
         return
     os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
     with open(path, "w") as fh:
-        json.dump(obj, fh, indent=2, default=float)
+        # NaN is not JSON; the promotion (node) refuses the whole reading for one.
+        json.dump(_no_nan(obj), fh, indent=2, default=float)
         fh.write("\n")
 
 

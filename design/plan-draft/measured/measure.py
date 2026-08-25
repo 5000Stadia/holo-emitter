@@ -1405,8 +1405,11 @@ def light(rgb, L, ceil_y, floor_y, cx0, cx1):
         sobel_bright_side_deg_wall_band=round(sobel_bright_side_deg(L, wall), 2)
         if wall.sum() > 5000 else None,
         left_third_minus_right_third_luminance_whole_frame=round(third_tilt(L), 3),
+        # [guards-that-cannot-fail] an empty band (ceiling within 20 px of the
+        # floor line) averages nothing: NaN, which JSON.parse refuses downstream.
         left_third_minus_right_third_luminance_wall_band=round(
-            third_tilt(L, ceil_y + 10, floor_y - 10), 3),
+            third_tilt(L, ceil_y + 10, floor_y - 10), 3)
+        if floor_y - 10 > ceil_y + 10 else None,
     )
 
 
