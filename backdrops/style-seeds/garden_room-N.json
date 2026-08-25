@@ -1,0 +1,90 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "garden_room/N",
+  "source": "backdrops/garden_room/N.png",
+  "source_sha256": "f05eab07f4fc9ddc972090059ee35455c90bb0847bd7f3c3e185936d30351ebd",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/garden_room-N.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 313,
+    "x1": 1394,
+    "yc": 14.913,
+    "yf": 922,
+    "ppm": 332.632,
+    "storey_m": 2.727,
+    "width_m": 3.25
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "window",
+      "id": null,
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        0.517,
+        1.071
+      ],
+      "u_m_ruled": [
+        1.4,
+        2.9
+      ],
+      "wall_scale": 0.3693,
+      "h_m": [
+        0.9,
+        2
+      ],
+      "px": [
+        484.9772727272727,
+        14.9129200000001,
+        669.2386363636363,
+        722.421184
+      ],
+      "why": "the plan rules this carrier on this wall and the instruments do not account for it — a hearth has no instrument, and a painting can hide an opening",
+      "px_filled": [
+        335,
+        14,
+        819,
+        873
+      ]
+    }
+  ],
+  "rects_dropped": [],
+  "fill": {
+    "rows_filled": 859,
+    "pixels_filled": 415756,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 33.26,
+    "blend_px": 66.53,
+    "light_field_radius_px": 333,
+    "light_field_radii_used_px": [
+      333
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 591824,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 1089648,
+  "masked_px": 415756,
+  "masked_pct_of_wall": 38.16,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [],
+    "doors_after": [],
+    "windows_before": [],
+    "windows_after": [],
+    "residual_readings": []
+  },
+  "sha256": "764bb1d030018b5206e165198eda91287e42339e8df710098115dc88a6688900",
+  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 0 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/garden_room/N.meta.json"
+}
