@@ -4132,9 +4132,36 @@ painting followed the ask.
   Image 2 only. Both conditions are load-bearing and `guest_chamber` is why — its pixel majority is
   the three facings commissioned from the wrong voice, so it gets no picture at all.
 - **Where there is none, no style image is attached.** The packet says so in its first sentence and
-  in its attach line, and the medium goes into words at a picture's resolution. `attachStyle` copies
-  the chosen wall in as `style-reference.png`; no manor packet carries `style-seed-warm.png` again.
-  As the store stands, 29 of 88 facings resolve an Image 1 and 59 get none.
+  in its attach line, and the medium goes into words at a picture's resolution. No manor packet
+  carries `style-seed-warm.png` again.
+
+**[2026-08-25] AND WHAT `attachStyle` COPIES IS NOT THE WALL.** Row 40 ruled *which* wall a packet
+may show. `servants_hall/E` is the finding that the *content* had to be ruled too: its ask
+(`backdrops/source/servants_hall-E/row23-230bb67d.png`) named a stone fireplace at the centre of the
+wall and one three-light window left of centre, and the return painted **two doorways, no window and
+no hearth** — doorways being what the room's other walls carry. The register's Image-1 clause had
+already said to take the paint and nothing else. It was obeyed in its first half and ignored in its
+second, which is the study-seed finding one room boundary in: **an image reference carries everything
+in it**, and a sentence that argues with a photograph loses.
+
+So Image 1 is DERIVED. `tools/style-seed.mjs` + `tools/style-seed.py` take the chosen wall's promoted
+painting and its measured meta, union what `door_measure` and `window_measure` read off *that
+painting* with what the plan projects onto the wall (doors, windows, hearths), grow every rectangle by
+0.45 m — a light's own edge is not its stone surround — take each carrier's **columns** full height
+(the instruments' vertical falls back to the plan's ruled band, and this corpus draws its windows
+taller than the ruling: `master_bedchamber/S` proved it), and fill by mirroring each row's own clear
+columns outward from both ends of the run, relighting every donor by the wall's own low-frequency
+illumination field. Height above the floor never moves, so wainscot, rail, field and cornice continue
+at their own heights; the floor and ceiling are outside the wall rectangle and are kept. The seed is
+written only where the two instruments read nothing anywhere the fill touched **and** no more openings
+than the painting had; a wall with a **flight** in view is refused outright, because a stair is on the
+floor and not on the wall plane (row 41's own distinction). Seeds live in `backdrops/style-seeds/`
+with a fill report beside each, are registered in `derived.py` as `style_seeds`, and go stale the
+moment their wall is re-promoted or either tool changes.
+
+As the store stands, **27 of 88 facings resolve a derived Image 1**, 51 have no wall row 40 can vouch
+for, and 10 resolve a wall whose architecture cannot be removed and therefore get none — which is row
+40's own safe answer rather than a new failure.
 - **The glass is named positively**, because the seed can no longer supply it — *"small plain diamond
   quarries of faintly greenish crown glass, each quarry a plain lozenge of clear glass and nothing
   else"* — and the sentence that argues with Image 1 is spoken only where an Image 1 exists to argue
