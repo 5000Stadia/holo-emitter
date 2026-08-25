@@ -1,8 +1,8 @@
 {
- "ts": 1787638197.5500863,
+ "ts": 1787641803.1650648,
  "baton": "loop",
  "active": "yes",
  "nudged": "no",
- "detail": "2 candidate(s) on disk with no reading - the sweep loop is owed (last pass completed 44s ago)",
- "loop_pass_age_s": 44
+ "detail": "2 candidate(s) on disk with no reading - the sweep loop is owed (last pass completed 56s ago)",
+ "loop_pass_age_s": 56
 }
