@@ -99,12 +99,29 @@ MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
 RETRIES_FILE = os.path.join(MANOR, "retries.json")
 PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
 SNAP_ROUND, DOOR_ROUND = "row35snap", "row36doors"
-SNAP_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-snapped")
-DOOR_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-doors")
+
+
+def snap_frame(loc, fac):
+    """Where a wall's snapped frame lives — `row23_run.SNAP_SOURCE_DIR`'s rule.
+
+    A function rather than a constant because everything here is addressed
+    relative to ROOT, and a path frozen at import time is a path that stops
+    meaning what it says the moment ROOT is anything but this checkout — which
+    `test_derived.py` does deliberately, and which caught this exact coupling.
+    """
+    return os.path.join(ROOT, "backdrops", "source-snapped",
+                        "%s-%s" % (loc, fac), "snapped.png")
+
+
+def door_frame(loc, fac):
+    """And where its repaired one does. See `row23_run.DOOR_SOURCE_DIR`."""
+    return os.path.join(ROOT, "backdrops", "source-doors",
+                        "%s-%s" % (loc, fac), "doored.png")
 
 #: Where the input digests live. Excluded from every input set by construction —
-#: see `EXCLUDED` — because an artifact that is an input to itself can never
-#: settle.
+#: see `_is_own` — because a record of what everything was derived from cannot
+#: also be one of the things they were derived from: it would move every time
+#: anything moved, and nothing could ever settle.
 STATE_PATH = os.path.join(HERE, "derived-state.json")
 
 FRESH, STALE, UNPROVEN = "fresh", "stale", "unproven"
@@ -135,9 +152,9 @@ def _read_json(p, default=None):
         return default
 
 
-def _run(cmd, cwd=ROOT):
+def _run(cmd, cwd=None):
     """A generator, run. Returns (ok, output) and never raises on a refusal."""
-    r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
+    r = subprocess.run(cmd, cwd=cwd or ROOT, capture_output=True, text=True,
                        env=dict(os.environ, HOLO_TIMINGS="off"))
     return r.returncode == 0, (r.stdout + r.stderr).strip()
 
@@ -224,8 +241,7 @@ def _snap_pairs():
         escaped = bool(frame) and (frame.startswith("..") or os.path.isabs(frame))
         out.append({"key": "%s/%s" % (loc, fac), "doc": rel(os.path.join(d, f)),
                     "frame": None if escaped else frame, "escaped": escaped,
-                    "production_frame": rel(os.path.join(
-                        SNAP_SOURCE_DIR, "%s-%s" % (loc, fac), "snapped.png")),
+                    "production_frame": rel(snap_frame(loc, fac)),
                     "candidate": snap.get("source_candidate"),
                     "recorded": doc.get("_source_sha256")})
     return out
@@ -412,8 +428,10 @@ def witness_edge_seeds():
 
 def _write_if_moved(path, data):
     """Write `data` (bytes) at `path` only if it is not already there."""
-    if os.path.exists(path) and open(path, "rb").read() == data:
-        return False
+    if os.path.exists(path):
+        with open(path, "rb") as fh:
+            if fh.read() == data:
+                return False
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "wb") as fh:
         fh.write(data)
@@ -567,13 +585,13 @@ def _regen_door_readings(findings=None):
             continue
         # The snapped half first: the voids are painted onto THAT frame, so a
         # repair over a stale one would carry the stale one forward.
-        frame = os.path.join(SNAP_SOURCE_DIR, "%s-%s" % (loc, fac), "snapped.png")
+        frame = snap_frame(loc, fac)
         w, why = _snap_pair_regen(key, cand, os.path.join(HERE, SNAP_ROUND, f), frame)
         wrote += w
         if why:
             notes.append("%s: %s" % (key, why))
             continue
-        out_png = os.path.join(DOOR_SOURCE_DIR, "%s-%s" % (loc, fac), "doored.png")
+        out_png = door_frame(loc, fac)
         tmp = tempfile.mkdtemp(prefix="holo-derive-doors-")
         try:
             staged = os.path.join(tmp, "doored.png")
@@ -1035,9 +1053,15 @@ def regenerate(only=None, verbose=True):
             done.add(act)
             t0 = time.time()
             wrote, why = ACTIONS[act](r["why"] if a.get("witness") else None)
+            # REFUSED MEANS NOTHING WAS WRITTEN AND THE TOOL SAID WHY. An action
+            # also returns a NOTE where it did the work in the second of its two
+            # licensed ways — the strip record marked `stale_from` rather than
+            # re-cut — and a first draft flagged that as a refusal, which would
+            # have put a successful derivation in the ledger's failure column.
             timings.record("derive.regen", t0, time.time(), r["id"],
                            {"action": act, "wrote": wrote[:12], "files": len(wrote),
-                            "refused": bool(why), "why": (why or "")[:300] or None})
+                            "refused": bool(why) and not wrote,
+                            "note": (why or "")[:300] or None})
             wrote_all += wrote
             moved = moved or bool(wrote)
             if why:

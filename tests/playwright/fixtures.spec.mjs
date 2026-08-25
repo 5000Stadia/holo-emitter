@@ -304,6 +304,67 @@ test.describe("fixtures", () => {
     }
   });
 
+  /* [production law clause 6] THE STALENESS SHAPE, GENERALISED.
+   *
+   * The two cases above are one artifact each: run the generator into a scratch
+   * tree and byte-compare. A dozen more committed files are derived from the
+   * same store — the material audit and its ledger, the room consistency
+   * measure and its README, the window calibration, the snapped and repaired
+   * readings, the edge-strip records — and nothing regenerated any of them when
+   * the loop moved a wall. `design/plan-draft/measured/derived.py` is the one
+   * place that knows which act invalidates which artifact; these two cases are
+   * about the machine rather than about any one file, because a freshness guard
+   * every other case now leans on is a guard that has to be able to fail. */
+  test("the derivation's own decisions suite is green", () => {
+    /* it exits non-zero on a failure, so the throw IS the assertion */
+    const said = execFileSync("python3",
+      [join(repoRoot, "design", "plan-draft", "measured", "test_derived.py")],
+      { cwd: repoRoot, encoding: "utf8", stdio: "pipe",
+        env: { ...process.env, HOLO_TIMINGS: "off" } });
+    expect(typeof said, "the suite ran").toBe("string");
+  });
+
+  test("--derive-check writes nothing, and every artifact it names exists", () => {
+    /* THE GUARD THE PUBLISH AND THE SUITE SHARE MUST BE A READ. `publish-site.sh`
+       refuses on this check and eight cases call it before their own claim; a
+       check that quietly regenerated what it found would make every one of them
+       green by writing, and would let a `npm test` dirty the tree. Digests
+       before and after, over the artifacts the registry itself names — so a new
+       artifact is covered the day it is registered. */
+    const derived = join(repoRoot, "design", "plan-draft", "measured", "derived.py");
+    /* A stale tree exits non-zero — that is the whole point of the guard — so
+       the report is read off either path rather than thrown on. Whether THIS
+       tree is fresh is not what this case is about. */
+    const py = (args) => {
+      try {
+        return execFileSync("python3", [derived, ...args], {
+          cwd: repoRoot, encoding: "utf8", stdio: "pipe",
+          env: { ...process.env, HOLO_TIMINGS: "off" }
+        });
+      } catch (e) {
+        if (e.stdout) return String(e.stdout);
+        throw e;
+      }
+    };
+    const report = JSON.parse(py(["--check", "--json"]));
+    const paths = report.artifacts.flatMap((a) => a.paths);
+    expect(paths.length, "the registry names no artifact at all").toBeGreaterThan(5);
+    for (const a of report.artifacts) {
+      expect(a.invalidated_by, `${a.id} does not say what invalidates it`).toBeTruthy();
+      expect(a.regen, `${a.id} does not say how it is remade`).toBeTruthy();
+    }
+    const digest = (p) => {
+      const abs = join(repoRoot, p);
+      expect(existsSync(abs), `the registry names ${p} and there is no such path`).toBe(true);
+      return execFileSync("bash", ["-c",
+        `find ${JSON.stringify(abs)} -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum`],
+      { encoding: "utf8" });
+    };
+    const before = paths.map(digest);
+    py(["--check"]);
+    expect(paths.map(digest), "--derive-check wrote to the tree").toEqual(before);
+  });
+
   /* [ROW 42] AND THE BAKED SPRITES ARE THE INGESTED ONES. The same hole in the
    * same shape, one layer over: `library/baked.js` is what the page draws and
    * `library/<id>/sprite.png` is what the replicator certified, and nothing but
