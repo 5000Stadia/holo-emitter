@@ -35,7 +35,14 @@ const OUT = HERE;
 const { chromium } = createRequire(join(ROOT, "package.json"))("playwright");
 
 const STAGE = mkdtempSync(join(tmpdir(), "holo-row42-demo-"));
-for (const d of ["tools", "src", "fixtures"]) cpSync(join(ROOT, d), join(STAGE, d), { recursive: true });
+/* [row 42, ingested] `library/` joins the stage: `library/baked.js` is a script
+ * the page loads, and `library/<id>/record.json` is what a `require` of
+ * src/placeholders.js resolves a promoted id to — so a stage without it would
+ * capture the procedural leaf and the procedural casement while claiming to
+ * show the returns. */
+for (const d of ["tools", "src", "fixtures", "library"]) {
+  cpSync(join(ROOT, d), join(STAGE, d), { recursive: true });
+}
 cpSync(join(ROOT, "index.html"), join(STAGE, "index.html"));
 cpSync(join(ROOT, "backdrops"), join(STAGE, "backdrops"), {
   recursive: true,
