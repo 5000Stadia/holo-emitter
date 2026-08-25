@@ -21,8 +21,6 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | continuation builder on the predecessor's 15 commits (second host restart) |
-| B-FLIGHT | flight attachment: painted staircases written into promoted metas | continuation builder on the predecessor's 8 commits (second host restart) |
 | B-ROUTING | the loop's standing exits: snap-first, tolerance-second, grid-last; once-per-sweep validation; pass-completed liveness | building |
 | B-ASSEMBLY | row 36 builder: scale contract + MATERIALS landed; harvester, lighting stub, assembler, kitchen demo next | building |
 
@@ -30,6 +28,8 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | what landed |
 |---|---|
+| L-STAIRS | row 25: every drawn flight pixel answers a tap both directions (12 facings; 2.25M px that answered nothing now do); the sky-walks-you question on entrance_court/S sits in its batch for Kabe |
+| L-FLIGHT | row 39: painted staircases attached into promoted metas at the meta's own camera; back_stair/W and back_stair_head/S promoted through it |
 | L-SEAMS | row 38: edge-seeded generation — adjacency, 10% seed strips, seam metric |
 | L-OVERLAY | the `study · N` corner readout (whereami) |
 | L-SNAP | row 35: planar rectification + eye retarget |
