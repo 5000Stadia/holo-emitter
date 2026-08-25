@@ -87,6 +87,22 @@
     return null;
   }
 
+  /* [ROW 42] WHICH LEAF AN EXIT'S `via` NAMES, through groundplane's one home
+   * for it. The manor's exits name the PLAN's opening (`op01`) and the study's
+   * name the leaf (`door1`); a leaf that declares `fills: "op01"` is the same
+   * shut door either way, and this module must refuse a `go` through it just as
+   * it always has. Resolved there and not here because the renderer, the page
+   * and the fixture validator ask the identical question, and row 21 was paid
+   * for by four code paths reading one document and disagreeing. */
+  function groundplane() {
+    return (typeof window !== "undefined" && window.HOLO && window.HOLO.groundplane)
+      ? window.HOLO.groundplane : require("./groundplane.js");
+  }
+
+  function leafOf(world, via) {
+    return groundplane().leafFor(world, via);
+  }
+
   function findExit(world, id) {
     for (var i = 0; i < world.locations.length; i++) {
       var exits = world.locations[i].exits || [];
@@ -377,7 +393,9 @@
        * the world holds no such entity the doorway is a fact about the
        * BUILDING — the wall has a hole in it, the backdrop paints it, and the
        * §5 meta carries its rectangle — so there is nothing to refuse on.
-       * Where the world DOES hold the leaf, it governs exactly as before.
+       * Where the world DOES hold the leaf, it governs exactly as before —
+       * [row 42] whether `via` is the leaf's own id or the plan's name for the
+       * hole it declares it fills; `leafOf` is the one place that is decided.
        *
        * A typo in `via` reads as an unfilled doorway here, which is why the
        * fixture validator refuses an exit whose `via` resolves to neither a
@@ -385,7 +403,7 @@
        * This module is the stand-in for a transport that ships unvalidated
        * worlds, so its own rule is the simple one and the document's rule is
        * where the typo is caught. */
-      var door = findEntity(world, exit.via);
+      var door = leafOf(world, exit.via);
       if (door && door.state !== "open") {
         return refuse(envelope, "go", id, OUTCOME.REFUSED_CLOSED);
       }
@@ -505,7 +523,7 @@
          * the navigation world's two — can never emit it, and enumerating it
          * anyway would demand an authored line for something that cannot
          * happen. */
-        if (findEntity(world, exit.via)) {
+        if (leafOf(world, exit.via)) {
           keys.push("go." + exit.id + "." + OUTCOME.REFUSED_CLOSED);
         }
         for (var s = 0; s < standpoints.length; s++) {

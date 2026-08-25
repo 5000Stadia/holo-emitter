@@ -112,20 +112,25 @@ test.describe("the audit itself", () => {
   });
 
   test("`observed: no` is derived from the fixture, not written by hand", () => {
-    const world = JSON.parse(
-      readFileSync(join(repoRoot, "fixtures", "demo-study", "world.json"), "utf8"));
+    /* [ROW 42] Across every shipped world, for the reason the noun case below
+       states: a record's noun row is bound to whichever world holds an entity
+       using it, and row 42's two belong to the navigation world. */
+    const entities = readdirSync(join(repoRoot, "fixtures"))
+      .filter((id) => existsSync(join(repoRoot, "fixtures", id, "world.json")))
+      .flatMap((id) => JSON.parse(readFileSync(
+        join(repoRoot, "fixtures", id, "world.json"), "utf8")).entities);
     const takeable = new Set(
-      world.entities.filter((e) => e.takeable).map((e) => e.sprite));
+      entities.filter((e) => e.takeable).map((e) => e.sprite));
     for (const r of STRINGS.filter((x) => x.observed === "no")) {
       expect(r.surface, `#${r.id} may only be unobserved as a tile name`)
         .toBe("inventory tile name");
-      const owner = world.entities.find((e) => e.id === r.state.split(" ")[0]);
+      const owner = entities.find((e) => e.id === r.state.split(" ")[0]);
       expect(owner, `#${r.id} names an entity`).toBeTruthy();
       expect(takeable.has(owner.sprite), `#${r.id}'s entity is not takeable`).toBe(false);
     }
     // And the converse: a takeable's noun may not hide behind `observed: no`.
     for (const r of STRINGS.filter((x) => x.surface === "inventory tile name")) {
-      const owner = world.entities.find((e) => e.id === r.state.split(" ")[0]);
+      const owner = entities.find((e) => e.id === r.state.split(" ")[0]);
       if (owner && takeable.has(owner.sprite)) expect(r.observed).toBe("yes");
     }
   });
@@ -182,14 +187,25 @@ test.describe("the audit itself", () => {
       for (const id of Object.keys(lib)) out[id] = lib[id].record.noun;
       return out;
     });
-    const world = JSON.parse(
-      readFileSync(join(repoRoot, "fixtures", "demo-study", "world.json"), "utf8"));
+    /* [ROW 42] EVERY WORLD'S ENTITIES, not the demo world's. This read one
+       fixture, which was true while every record in the library belonged to a
+       demo-study entity. Row 42's leaf and casement belong to the navigation
+       world, and a lookup in one world returned `undefined` for them and threw
+       on the next line — so the check that every record's noun is enumerated
+       could not survive a record used anywhere else. The world list is read off
+       the tree for the same reason the narration case above reads it that way. */
+    const entities = readdirSync(join(repoRoot, "fixtures"))
+      .filter((id) => existsSync(join(repoRoot, "fixtures", id, "world.json")))
+      .flatMap((id) => JSON.parse(readFileSync(
+        join(repoRoot, "fixtures", id, "world.json"), "utf8")).entities);
     const rows = STRINGS.filter((r) => r.surface === "inventory tile name" &&
       r.text !== "something you carry");
     expect(rows.length, "every record's noun is enumerated")
       .toBe(Object.keys(nouns).length);
     for (const r of rows) {
-      const owner = world.entities.find((e) => e.id === r.state.split(" ")[0]);
+      const key = r.state.split(" ")[0];
+      const owner = entities.find((e) => e.id === key);
+      expect(owner, `#${r.id} names "${key}", which no shipped world holds`).toBeTruthy();
       expect(nouns[owner.sprite], `#${r.id} byte-equals the bound record`).toBe(r.text);
     }
   });

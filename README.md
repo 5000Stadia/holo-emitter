@@ -43,8 +43,15 @@ meet there is no door at all, only the line on the ground where one ends and the
 ground of the far one showing through the gap, and you walk across it. The words of the room appear beneath the picture as you go, and every room
 names itself as you come into it.
 
-The house is empty while the furniture is being made: nothing in it can be picked up or opened
-yet. The furnished world — the desk whose drawer opens on something, the door with a latch,
+The house is unfurnished while the furniture is being made — there is nothing in it to pick up —
+but one door in it opens and shuts. It is the door between the great chamber and the muniment room,
+and it is worth a moment for what it is: the leaf is not drawn at a size, it is drawn IN the
+doorway the painter painted, measured off the picture afterwards. The two rooms drew that same
+doorway at different sizes, from where each of them stands, and the same door fills both. Pull it
+to and the room beyond goes; open it and it swings back against the jamb and the muniment room is
+there through the gap. Shut, it is shut from both sides.
+
+The furnished world — the desk whose drawer opens on something, the door with a latch,
 the things that ride in the strip at the bottom of the page — is one link away, at
 [`index.html?world=demo-study`](https://5000stadia.github.io/holo-emitter/?world=demo-study).
 Go there to see what the world *does*, not what it looks like: its objects are flat stand-in

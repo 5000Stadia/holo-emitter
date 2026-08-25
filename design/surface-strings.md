@@ -220,9 +220,9 @@ Every reachable surface string. `observed: no` is **derived, not written**: admi
 the sink is the inventory tile name and the entity is not `takeable` in the committed `world.json`,
 which the test computes from the fixture so it cannot be widened by hand.
 
-The 38 narration lines and the record nouns are carried **verbatim** here and byte-compared against
-their homes (`fixtures/demo-study/narration.json`, the bound library), so the copy cannot drift and
-a human still reads the whole product face in one place.
+The narration lines of every shipped world and every record's noun are carried **verbatim** here and
+byte-compared against their homes (each `fixtures/<world>/narration.json`, the bound library), so the
+copy cannot drift and a human still reads the whole product face in one place.
 
 The `id` is a stable handle and not an ordering: rows sit where their string belongs, and a row
 added later takes the next free number rather than renumbering the ones a question already cites.
@@ -469,16 +469,28 @@ id | surface | state | verdict | observed | adjudicator | string
 219 | #whereami facing | standing on any facing whose aspect is E | PASS | yes | kabe-ask-2026-08-24 | E
 220 | #whereami facing | standing on any facing whose aspect is S | PASS | yes | kabe-ask-2026-08-24 | S
 221 | #whereami facing | standing on any facing whose aspect is W | PASS | yes | kabe-ask-2026-08-24 | W
+222 | #narration | toggle.leaf_op22.open (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door swings back on its straps, and the muniment room's dry paper smell reaches the solar.
+223 | #narration | toggle.leaf_op22.closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | You pull the plank door to. The iron ring settles against the boards and the room beyond is shut away.
+224 | #narration | toggle.leaf_op22.refused_unreachable (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The door between the solar and the muniment room is not the door in front of you.
+225 | #narration | take.leaf_op22.refused_fixed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The door is hung on strap hinges older than you; it goes nowhere but back and forth.
+226 | #narration | go.door_solar_muniment_room.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door is shut against the muniment room. It would open, if you laid a hand on it.
+227 | #narration | go.door_muniment_room_solar.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door is shut against the solar. It would open, if you laid a hand on it.
+228 | #narration | toggle.casement_win10.open (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The leaded casement swings inward and the kitchen takes a breath of outside air.
+229 | #narration | toggle.casement_win10.closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | You draw the casement to and drop the latch. The quarries hold the light in their lead again.
+230 | #narration | toggle.casement_win10.refused_unreachable (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | That window is in the kitchen, and you are not looking at it.
+231 | #narration | take.casement_win10.refused_fixed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The casement is hung in its own stone light and will not come away from it.
+232 | inventory tile name | leaf_op22 held — not takeable on the shipped tree | PASS | no | not on a surface — enumerated only | oak plank door
+233 | inventory tile name | casement_win10 held — not takeable on the shipped tree | PASS | no | not on a surface — enumerated only | leaded casement
 ```
 
 ```COUNT
-STRINGS 221
+STRINGS 233
 STATES 36
 ```
 
-**Enumerated is not swept.** `COUNT` is the authority for how many rows there are; five of them
-(#17–21) reach no surface on the shipped tree, so any report cites *enumerated* and *swept*
-separately rather than letting one number stand for both. The two figures are read off the fenced
+**Enumerated is not swept.** `COUNT` is the authority for how many rows there are; seven of them
+(#17–21, and row 42's #232–233) reach no surface on the shipped tree, so any report cites *enumerated*
+and *swept* separately rather than letting one number stand for both. The two figures are read off the fenced
 blocks, never written beside them — a prose count went stale the moment a row was added.
 
 The chevron glyphs `‹` and `›` are marks, not words, and are not `STRINGS` members; the runtime

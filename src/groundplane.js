@@ -379,6 +379,94 @@
   }
 
   /**
+   * [ROW 42] leafFor(world, via) -> entity | null — WHICH ENTITY FILLS THE HOLE
+   * `via` NAMES, and the one home of that question.
+   *
+   * `openingFor` above resolves `via` to a hole in the BUILDING. This resolves
+   * the same token to the LEAF standing in it, and the two are separate
+   * lookups because the manor names its exits after the plan's own openings
+   * (`op01`) while the study names its after the leaf (`door1`). Both readings
+   * are live and both must keep working:
+   *
+   *   - `via` IS the entity's id — the row-2 world, where an exit walks through
+   *     a door the document declares and the plan's opening carries `via:
+   *     "door1"` to say which hole that is;
+   *   - the entity declares `fills: "<opening id>"` — row 42's binding, which
+   *     is what lets a leaf be hung in a doorway the PLAN named and the
+   *     PAINTING measured without rewriting 26 exits or the approved drawing.
+   *
+   * Three readers call this and none may re-derive it: the renderer (which hole
+   * has a leaf in it), the harness (a shut leaf refuses `go`) and the fixture
+   * validator (a transition entity is staged in exactly the locations whose
+   * exits name it). Row 21 paid for that lesson from the other side — the leaf,
+   * the opening, the hit region and the keyboard control were four code paths
+   * reading one document, and a plank stood in open void because they
+   * disagreed.
+   *
+   * The order is fixed and matches `openingFor`'s: an id that names an entity
+   * wins, because a leaf governs the hole it stands in.
+   */
+  function leafFor(world, via) {
+    if (!world || via == null) return null;
+    var ents = world.entities || [];
+    var i;
+    for (i = 0; i < ents.length; i++) if (ents[i] && ents[i].id === via) return ents[i];
+    for (i = 0; i < ents.length; i++) if (ents[i] && ents[i].fills === via) return ents[i];
+    return null;
+  }
+
+  /**
+   * [ROW 42] windowFor(meta, id) — the painted WINDOW `id` names in this
+   * facing's meta, or null. `meta.windows` is the promotion's record of where
+   * `window_measure.py` read each glazed opening off the painting, and it is
+   * absent on every wall measured before row 42 — so "not found" is the common
+   * case and it is a silence, never a zero.
+   */
+  function windowFor(meta, id) {
+    if (!meta || id == null) return null;
+    var list = (meta && meta.windows) || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].id === id) return list[i];
+    }
+    return null;
+  }
+
+  /**
+   * [ROW 42] apertureRect(meta, entity) -> { x, y, w, h } | null — THE RECTANGLE
+   * THE PAINTING MEASURED for the hole this entity fills.
+   *
+   * [HUMAN, 2026-08-24, verbatim] "Then we can have door assets and window
+   * assets we literally place in the door frame to open/close and same with the
+   * windows possibly" — so the leaf's rectangle is the DETECTED frame, not the
+   * plan's. `door_measure.py` (row 27) and `window_measure.py` (row 42) read
+   * those two frames off the approved image and the promotion writes them into
+   * `meta.openings` / `meta.windows` with `measured: true`.
+   *
+   * MEASURED, AND ONLY MEASURED. A derived meta's opening is the PLAN's
+   * rectangle wearing the same field names, and fitting a leaf to it would be
+   * this function claiming a measurement nobody took — on `entrance_court/N`
+   * that plan rectangle is 1.60 m wide where the painting of the other side of
+   * the same doorway draws 0.71 m. So an unmeasured facing returns null and its
+   * leaf stands where §4 puts it, exactly as it did before this row; the leaf
+   * moves onto the paint the day that wall is promoted, and not before.
+   *
+   * The caller decides what null MEANS, because the two kinds of aperture
+   * answer differently: a doorway is architecture the plan guarantees and its
+   * leaf falls back to §4 placement, while a casement on a wall whose glass
+   * nobody has measured is exactly the sprite-on-blank-paint the promotion's
+   * `window.unpainted` clause refuses, so the renderer refuses it too.
+   */
+  function apertureRect(meta, entity) {
+    if (!meta || !entity || entity.fills == null) return null;
+    var r = (entity.kind === "window")
+      ? windowFor(meta, entity.fills)
+      : openingFor(meta, entity.fills);
+    if (!r || r.measured !== true) return null;
+    if (!(r.w > 0) || !(r.h > 0)) return null;
+    return { x: r.x, y: r.y, w: r.w, h: r.h };
+  }
+
+  /**
    * placeHost — the ONE home of §4/§5 placement for a directly-staged
    * entity. The renderer's layout and the fixture validator's static overlap
    * check both call this, so the static guarantee is bound to the pixels the
@@ -451,6 +539,9 @@
     xAtScale: xAtScale,
     uDomain: uDomain,
     openingFor: openingFor,
+    leafFor: leafFor,
+    windowFor: windowFor,
+    apertureRect: apertureRect,
     hasCorners: hasCorners,
     wallSpanPxAtWall: wallSpanPxAtWall,
     wallCentrePx: wallCentrePx,

@@ -51,6 +51,8 @@ async function state(page) {
       paints: window.HOLO_APP.paints,
       world: window.HOLO_FIXTURE.id,
       entities: h.world.entities.length,
+      /* [row 42] The ids of every entity that declares an aperture it fills. */
+      fitted: h.world.entities.filter((e) => e.fills != null).map((e) => e.id).sort(),
       narration: [...document.querySelectorAll("#narration p")].map((p) => p.textContent),
       lastIntent: env ? env.intent : null,
       lastEvents: env ? env.events : null
@@ -68,7 +70,17 @@ test.describe("the painted world a visitor opens", () => {
     expect(s.world, "the bare URL boots nav-manor — no query, the way a visitor arrives").toBe("nav-manor");
     expect(s.viewstate, "and stands in the study, facing the painted wall")
       .toEqual({ location: "study", facing: "N" });
-    expect(s.entities, "an empty world: nothing staged, nothing to click").toBe(0);
+    /* [ROW 42] NO FURNITURE, AND TWO FITTINGS. This said "an empty world:
+       nothing staged, nothing to click", and the sentence stopped being true
+       when the row hung a door leaf in a measured doorway and a casement in a
+       measured light. What has not changed is what it was written to hold: the
+       navigation world furnishes nothing — no desk, no chair, no takeable —
+       and its rooms are walkable because the BUILDING carries its doorways,
+       not because a leaf fills them. So the count is named, and what it is
+       named as is checked: every entity in this world stands in an aperture. */
+    expect(s.entities, "the navigation world's only entities are the building's own fittings").toBe(2);
+    expect(s.fitted, "and every one of them fills an aperture — this world has no furniture")
+      .toEqual(["casement_win10", "leaf_op22"]);
     expect(s.paints, "and it painted").toBeGreaterThan(0);
 
     /* THE PAINTING IS ON SCREEN, not a grid that looks like one. Read as

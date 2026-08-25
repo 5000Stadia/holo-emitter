@@ -5313,7 +5313,79 @@ aperture as a way through: `index.html` builds a `go` button per entry and `rend
 destination room into each rectangle, so a window in the default list would be a `go` target on a
 pane of glass and a room pasted through a window. `exit`, `to` and `via` are null and `kind` is
 `window`, so a router can tell a casement from a doorway without knowing this row exists. Nothing new
-is drawn; part (3) is the caller that will ask.
+is drawn; part (3) is the caller that asks.
+
+## The placed leaf and the placed casement (row 42, part 3)
+
+[HUMAN, 2026-08-24, verbatim] *"Then we can have door assets and window assets we literally place in
+the door frame to open/close and same with the windows possibly."* Parts (1) and (2) put the detected
+geometry into the meta. This is the sprite that goes in it.
+
+**The binding is `fills`, and it points the other way from row 2's.** A world entity may declare
+`kind` (`door` | `window`) and `fills` (the plan's own aperture id — `op22`, `win10`). Row 2's
+binding is the opposite: `plan.json`'s opening carries `entity: "door1"` and the meta inherits it as
+`via`. Both are live and `groundplane.leafFor(world, via)` is the ONE home that resolves either —
+entity id first, then `fills` — because the manor names its 26 exits after the plan's openings and
+the study names its one after the leaf. Four readers call it and none re-derives it: the renderer
+(which hole has a leaf), the harness (`handleGo` refuses a shut one, and
+`enumerateNarrationDomain` enumerates the refusal that makes possible), the fixture validator
+(`viaLocations`, which holds a transition entity staged in exactly the rooms whose exits name it) and
+`index.html` (`ap.leaf`). Row 21 was paid for by four code paths reading one document and disagreeing;
+this is that lesson applied before the fact. The inverse binding exists because writing an `entity`
+onto 26 openings in `plan.json` moves the drawn digest of the drawing Kabe approved.
+
+**Where the sprite draws.** `groundplane.apertureRect(meta, entity)` returns the MEASURED rectangle
+for what the entity fills — `meta.openings` for a door, `meta.windows` for a casement, `measured:
+true` required — or null. `layout` fits the sprite to it on both axes, which is why a layout entry
+now carries **`fx` beside `f`**: `fx = rect.w / record.px.w` horizontally and `f = rect.h /
+record.px.h` vertically, equal for every §4 placement and different only here. A painted doorway is
+whatever shape the painter drew it, and the same `op22` is 139 × 261 px from the solar and 218 × 533
+from the muniment room, so one uniform factor either stands the leaf proud of its jamb or leaves lit
+room over a shut door. `stamp`, `drawnRect`, `partPlacement`, `hitTest` and the contact shadow all
+read both; `partPlacement` returns `kx`/`ky` rather than one `k`.
+
+**Null means two different things and the caller decides which.** For a DOOR it means "stand where §4
+puts you", which is row 2's behaviour unchanged and what every unpromoted wall in the manor still
+does. For a CASEMENT it means DRAW NOTHING: a casement placed from the plan onto paint nobody has
+measured is the sprite-on-blank-wall that the promotion's own `window.unpainted` clause refuses, and
+the renderer must not do by default what the pipeline refuses to promote. No wall in the store
+carries `meta.windows` yet, so on the committed tree `casement_win10` is in the document and not in
+the picture — the row's stated edge, and it closes as the sweep re-measures.
+
+**What is drawn for a window.** The casement sprite, in the entity pass, like any other. Plus one
+thing in the backdrop layer: an OPEN casement darkens the painting's own glass region
+(`drawOpenLights`, `LIGHT_OPEN_DIM` = 0.38) — the reveal behind a swung leaf. No outside view is
+invented: `beyond_m` is a fact about the room on the other side of a DOORWAY and there is no such
+room through a window. It sits inside `backdrop_only` because the glass belongs to the WALL, exactly
+as the doorway's through-view does.
+
+**The page.** `apertures` entries carry `leaf` (the entity in the hole, or null) and `light_state`.
+`index.html` resolves a point to the casement when it falls in a window's own light — above the
+doorway branch, because a window is never an exit, and below the exact-pixel branch, so the
+casement's own sprite still wins on its own pixels. That is what keeps an OPEN casement reachable:
+swung to its hinge side it is a sliver, and the light it uncovered is the rest of the target. A
+window is in nobody's `go` list and there is no third intent.
+
+**Row 37's hook, and nothing more.** Every aperture entry and every fitted layout entry carries
+`light_state` — `"open" | "closed"`, and `"open"` for an unfilled hole, which is true of a hole.
+Row 42 draws no lighting.
+
+**The library.** `door-leaf-plank-oak-v1` and `casement-leaded-v1`, both procedural, both carrying
+`placeholder: true` and `provenance.painter_ask` naming the packet that replaces them
+(`design/batches/row42-leaves/`). `door-plank` could not be the leaf: §11 authors it visually
+symmetric on purpose, one image serving a doorway seen from two rooms, and a leaf that swings to its
+hinge side needs one. The row-2 world is untouched by either.
+
+**The demo, and the four walls it flagged.** `design/batches/row42-leaves/demo/` — `capture.mjs`
+walks the manor and toggles. The door half runs on the committed tree at `op22`, whose rectangle both
+rooms measured; the window half stages a throwaway tree, runs `window_measure.py` and
+`promote-backdrop.mjs` on `kitchen/E` for real, and captures from there, because this seat does not
+write to `backdrops/`. The survey that picked `op22` compared every measured door rectangle against
+the dark run its own painting draws: 23 of 27 agree within 0.94–1.02×, and four do not —
+`great_hall/S` 0.65×, `buttery_pantry/S` 1.95×, `dining_parlour/N` 1.67×, `privy_garden/S` 1.21×. On
+those four the leaf faithfully fills a rectangle that is not the doorway. **That is a
+`door_measure.py` reading to re-take and it is open**, recorded here and in the demo README rather
+than worked around in the renderer, which has no way to tell a good measurement from a bad one.
 
 ## The painted door governs (row 27) — where a way through is, on a promoted wall
 

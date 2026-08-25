@@ -1,0 +1,52 @@
+Paint one object on its own: an English leaded casement of about 1660 — a hinged iron window frame filled with diamond quarries of leaded glass.
+
+This is a SINGLE OBJECT and not a picture of a room or of a window in a
+  wall. There is no wall, no stone surround, no reveal, no sill, no
+  mullion, no room behind it, no view through it, no curtain, no
+  landscape, no sky. The casement and nothing else.
+
+Ground: fully transparent, AND THE GLASS IS TRANSPARENT TOO. The lead
+  cames and the iron frame are solid; every diamond quarry between them
+  is clear, with at most the faintest wash of old green glass. There is
+  a painted window behind this sprite carrying its own daylight, and an
+  opaque pane would blot it out. No background colour, no card, no drop
+  shadow, no reflection, no vignette, no border.
+
+Viewpoint: square on, looking straight at the casement from directly in
+  front of it, as if standing in the room. No perspective, no vanishing
+  point, no convergence, no tilt. The frame is parallel to the picture
+  plane, so a came runs straight and keeps the same width across the
+  whole light. The casement fills the image edge to edge with no margin
+  on any side.
+
+Light: completely even and sourceless. No sun, no daylight streaming
+  through, no glare, no directional key, no highlight, no cast shadow,
+  no gradient from one side to the other, no bloom. This casement will
+  be lit later by the room and the daylight behind it, so any light
+  painted into it is light in the wrong place forever.
+
+The construction, and it is exact where it says exact: a wrought iron
+  casement frame — four flat bars, head, sill and two stiles — filled
+  with small diamond quarries in a lead came grid, each quarry roughly
+  0.10 to 0.15 m across, the same size and the same angle over the whole
+  light. THE HINGE SIDE IS THE VIEWER'S LEFT and it must be readable as
+  such: two or three iron hinges and their pins on the left stile,
+  standing at the very edge. On the RIGHT stile, a wrought iron
+  fastener — a cockspur handle or a ring — at about hand height. No
+  heraldry, no coloured glass, no painted roundel, no inscription.
+
+Proportion: roughly 1.4 m wide by 1.1 m tall, so a little WIDER than it
+  is tall. It does not have to be exact — the casement is scaled to
+  whatever window light it is placed in.
+
+Medium: fine oil realism with tactile brush detail, the material's own
+  colour, honest to English glazing of about 1660. Age and wear are
+  welcome in the SURFACE — the lead dulled and buckled a little, the
+  iron dark and pitted, the glass slightly uneven — but not as staining
+  that reads as a shadow.
+
+Avoid: any wall, any stone surround, any room, any view through the
+  glass, any background of any kind, any perspective, any directional
+  light, any cast shadow, any border or frame or margin beyond the
+  casement's own iron, any caption, any colour chart, any watermark.
+  The casement and nothing else.

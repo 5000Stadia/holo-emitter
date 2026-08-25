@@ -1498,8 +1498,20 @@ export function validatePlan(plan, world, records) {
        * weaker run is never silently weaker. The discriminator is the world's
        * own emptiness, not this object's absence, because "the plan draws a
        * desk this world does not hold" means one thing in a furnished world
-       * and another in an empty one. */
-      if (!rec && records && (worldLocation.has(o.id) || worldLocation.size > 0)) {
+       * and another in an empty one.
+       *
+       * [ROW 42] AND "EMPTY" MEANS NO FURNITURE, NOT NO ENTITIES. The
+       * discriminator used to be `worldLocation.size > 0` — any entity at all
+       * — and the navigation world now holds two that are not furniture: a
+       * door leaf and a window casement, the building's own fittings, which
+       * the plan draws as an OPENING and a WINDOW and never as an object. One
+       * leaf hung in a doorway made all four of the manor plan's unfurnished
+       * footprints report as records the world could not produce. The question
+       * the clause is asking is whether this world furnishes the plan at all,
+       * so that is what it asks. */
+      if (!rec && records &&
+          (worldLocation.has(o.id) ||
+           (plan.objects || []).some((other) => worldLocation.has(other.id)))) {
         push(`object "${o.id}": no §6 record — nothing binds this footprint to an object of a known size`);
       }
       if (rec && rec.dims_m) {

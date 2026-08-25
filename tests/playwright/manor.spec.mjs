@@ -795,18 +795,28 @@ test.describe("leave a room and return, in a world where something changed", () 
          entity at all. Merging is also the honest construction: this is the
          world the project is heading for, and it is where "leave a room and
          return" has a subject. */
+      /* [ROW 42] MERGED, NOT REPLACED. The manor now holds two entities of its
+         own — a door leaf and a window casement, the building's own fittings —
+         and overwriting the list dropped them while their narration stayed,
+         which the §12.9 domain check reads as prose for a world that does not
+         exist. Merging is what the paragraph above already claims this
+         construction does. */
       const world = JSON.parse(readFileSync(join(fx, "world.json"), "utf8"));
       const demoWorld = JSON.parse(readFileSync(
         join(repoRoot, "fixtures", "demo-study", "world.json"), "utf8"));
-      world.entities = demoWorld.entities;
-      world.relations = demoWorld.relations;
-      world.knowledge = demoWorld.knowledge;
+      world.entities = [...world.entities, ...demoWorld.entities];
+      world.relations = [...(world.relations || []), ...demoWorld.relations];
+      world.knowledge = {
+        player: [...world.knowledge.player, ...demoWorld.knowledge.player]
+      };
       for (const l of world.locations) {
         for (const e of l.exits || []) if (e.id === "door_study_hall" || e.id === "door_hall_study") e.via = "door1";
       }
       writeFileSync(join(fx, "world.json"), JSON.stringify(world, null, 2) + "\n");
-      const staging = JSON.parse(readFileSync(
+      const staging = JSON.parse(readFileSync(join(fx, "staging.json"), "utf8"));
+      const demoStaging = JSON.parse(readFileSync(
         join(repoRoot, "fixtures", "demo-study", "staging.json"), "utf8"));
+      staging.placements = { ...staging.placements, ...demoStaging.placements };
       writeFileSync(join(fx, "staging.json"), JSON.stringify(staging, null, 2) + "\n");
       const narration = JSON.parse(readFileSync(join(fx, "narration.json"), "utf8"));
       const demo = JSON.parse(readFileSync(

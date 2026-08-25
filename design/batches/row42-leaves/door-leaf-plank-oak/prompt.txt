@@ -1,0 +1,51 @@
+Paint one object on its own: an English oak plank door leaf of about 1660, hung on iron strap hinges.
+
+This is a SINGLE OBJECT and not a picture of a room. There is no wall,
+  no doorway, no floor, no room behind it, no furniture, no hand, no
+  person, no landscape, no sky. The leaf and its ironwork, and nothing
+  else.
+
+Ground: fully transparent. The leaf is cut out to its own edge with
+  clean alpha, no background colour, no card, no drop shadow, no
+  reflection, no vignette, no border. It will be placed into a doorway
+  someone else painted, and anything drawn around it would sit on top
+  of that doorway.
+
+Viewpoint: square on, looking straight at the face of the leaf from
+  directly in front of it, as if standing in the doorway. No
+  perspective, no vanishing point, no convergence, no tilt. The face
+  is parallel to the picture plane, so a plank joint runs straight and
+  keeps the same width from top to bottom. The leaf fills the image
+  edge to edge with no margin on any side.
+
+Light: completely even and sourceless. No sun, no window light, no
+  firelight, no candle, no directional key, no highlight, no cast
+  shadow, no gradient from one side to the other, no bloom. The same
+  brightness at the top as at the bottom and at both edges. This leaf
+  will be lit later by the room it is hung in, so any light painted
+  into it is light in the wrong place forever.
+
+The construction, and it is exact where it says exact: vertical oak
+  boards, five or six of them, butted or lightly V-jointed, running the
+  full height. Two full-width wrought iron ledges (strap hinges) across
+  the face — one about a quarter down, one about a quarter up from the
+  bottom. THE HINGE SIDE IS THE VIEWER'S LEFT and it must be readable
+  as such: each strap ends on the left in a broadened hinge plate and a
+  pintle knuckle at the very edge of the leaf. A single wrought iron
+  ring pull with its boss is on the RIGHT, at about hand height. No
+  lock plate, no letter slot, no numbers, no knocker.
+
+Proportion: roughly 0.9 m wide by 2.0 m tall, so a little over twice as
+  tall as it is wide. It does not have to be exact — the leaf is scaled
+  to whatever doorway it is placed in.
+
+Medium: fine oil realism with tactile brush detail, the material's own
+  colour, honest to English joinery of about 1660. Age and wear are
+  welcome in the SURFACE — worn, scrubbed, weathered, the boards
+  shrunken a little apart, the iron dark and pitted — but not as
+  staining that reads as a shadow.
+
+Avoid: any room, any doorway, any wall, any floor, any background of
+  any kind, any perspective, any directional light, any cast shadow,
+  any border or frame or margin, any caption, any colour chart, any
+  watermark. The leaf and nothing else.
