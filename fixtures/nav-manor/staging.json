@@ -7,17 +7,17 @@
       "u": 0.6358381502890174,
       "v": 0.9
     },
-    "leaf_op01": [
+    "leaf_op22": [
       {
-        "facing": "great_hall/S",
+        "facing": "solar/E",
         "attachment": "wall_mounted",
-        "u": 0.5,
+        "u": 0.7956989247311828,
         "v": 0
       },
       {
-        "facing": "entrance_court/N",
+        "facing": "muniment_room/W",
         "attachment": "wall_mounted",
-        "u": 0.357843137254902,
+        "u": 0.3958333333333333,
         "v": 0
       }
     ]

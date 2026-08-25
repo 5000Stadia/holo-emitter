@@ -238,15 +238,19 @@ const IN_PAGE = () => {
      * intersected with its clip), in scene coords. */
     entryBBox(entry) {
       let x, y, w, h;
+      /* [row 42] `fx` horizontally, `f` vertically — the same number for
+         everything §4 places, and two numbers for a leaf or casement fitted to
+         a painted rectangle. */
+      const fx = entry.fx == null ? entry.f : entry.fx;
       if (entry.swap) {
-        x = entry.drawX + entry.f * entry.swap.origin.x;
+        x = entry.drawX + fx * entry.swap.origin.x;
         y = entry.drawY + entry.f * entry.swap.origin.y;
-        w = entry.f * entry.swap.image.width;
+        w = fx * entry.swap.image.width;
         h = entry.f * entry.swap.image.height;
       } else {
         x = entry.drawX;
         y = entry.drawY;
-        w = entry.f * entry.record.px.w;
+        w = fx * entry.record.px.w;
         h = entry.f * entry.record.px.h;
       }
       if (entry.clip) {

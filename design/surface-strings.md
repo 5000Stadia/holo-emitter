@@ -469,17 +469,17 @@ id | surface | state | verdict | observed | adjudicator | string
 219 | #whereami facing | standing on any facing whose aspect is E | PASS | yes | kabe-ask-2026-08-24 | E
 220 | #whereami facing | standing on any facing whose aspect is S | PASS | yes | kabe-ask-2026-08-24 | S
 221 | #whereami facing | standing on any facing whose aspect is W | PASS | yes | kabe-ask-2026-08-24 | W
-222 | #narration | toggle.leaf_op01.open (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door swings back on its straps, and the court's own light comes over the threshold to meet you.
-223 | #narration | toggle.leaf_op01.closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | You pull the plank door to. The iron ring settles against the boards and the court is a sound on the other side of it.
-224 | #narration | toggle.leaf_op01.refused_unreachable (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The hall door into the court is not the door in front of you.
-225 | #narration | take.leaf_op01.refused_fixed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The door is hung on strap hinges that are older than you; it goes nowhere but back and forth.
-226 | #narration | go.door_great_hall_entrance_court.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door is shut. It would open, if you laid a hand on it.
-227 | #narration | go.door_entrance_court_great_hall.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The hall door stands shut against the court. It would open, if you laid a hand on it.
+222 | #narration | toggle.leaf_op22.open (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door swings back on its straps, and the muniment room's dry paper smell reaches the solar.
+223 | #narration | toggle.leaf_op22.closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | You pull the plank door to. The iron ring settles against the boards and the room beyond is shut away.
+224 | #narration | toggle.leaf_op22.refused_unreachable (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The door between the solar and the muniment room is not the door in front of you.
+225 | #narration | take.leaf_op22.refused_fixed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The door is hung on strap hinges older than you; it goes nowhere but back and forth.
+226 | #narration | go.door_solar_muniment_room.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door is shut against the muniment room. It would open, if you laid a hand on it.
+227 | #narration | go.door_muniment_room_solar.refused_closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The plank door is shut against the solar. It would open, if you laid a hand on it.
 228 | #narration | toggle.casement_win10.open (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The leaded casement swings inward and the kitchen takes a breath of outside air.
 229 | #narration | toggle.casement_win10.closed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | You draw the casement to and drop the latch. The quarries hold the light in their lead again.
 230 | #narration | toggle.casement_win10.refused_unreachable (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | That window is in the kitchen, and you are not looking at it.
 231 | #narration | take.casement_win10.refused_fixed (the placed leaf and casement, painted navigation world) | PASS | yes | row42-leaves | The casement is hung in its own stone light and will not come away from it.
-232 | inventory tile name | leaf_op01 held — not takeable on the shipped tree | PASS | no | not on a surface — enumerated only | oak plank door
+232 | inventory tile name | leaf_op22 held — not takeable on the shipped tree | PASS | no | not on a surface — enumerated only | oak plank door
 233 | inventory tile name | casement_win10 held — not takeable on the shipped tree | PASS | no | not on a surface — enumerated only | leaded casement
 ```
 

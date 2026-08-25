@@ -131,6 +131,25 @@ Notes:
   fiction demands a turn — the schema carries no field naming that exception yet, since M0's two
   single-exit rooms never need one; a future exit that does is a new-row decision, not one this
   note can pre-authorize.
+- **[ROW 42] `kind` and `fills` — the sprite that stands in a detected aperture.**
+  [HUMAN, 2026-08-24, verbatim] *"Then we can have door assets and window assets we literally
+  place in the door frame to open/close and same with the windows possibly."* An entity may
+  declare `"kind": "door" | "window"` and `"fills": "<aperture id>"`, naming the hole in the
+  BUILDING it stands in by the plan's own id for it — `op22` for a doorway, `win10` for a window
+  light. Both are truth: `kind` is what the thing IS, `fills` is which hole it is in. Neither is
+  a coordinate, because where the sprite DRAWS is the painting's to say (§5's measured
+  `openings` / `windows`) and the renderer's to resolve.
+  - This is the inverse of the row-2 binding, where an opening carries `"via": "door1"` naming the
+    entity that fills it, and both are live: `groundplane.leafFor` is the one home of the
+    question and resolves either. The inverse exists because writing an `entity` onto 26 openings
+    in `plan.json` would move the drawn digest of the drawing Kabe approved, which is a redline
+    that ends at a human, for a change no human asked for.
+  - `fills` is what makes an exit's `via` — the plan's opening id on every manor exit — reach a
+    leaf: the harness refuses `go` through a shut one from **both** rooms the doorway joins, the
+    fixture validator holds the leaf staged in exactly those two rooms, and the page's pointer
+    resolves the leaf's own pixels to `toggle` and the gap beside them to `go`.
+  - The fixture validator refuses a declaration that does not resolve
+    (`[row42:entity.aperture_declaration]`, `[row42:entity.fills_unheld]`).
 - Static-demo caveat: the full document ships to the client, so "hidden" is honesty-by-convention here. In integrated mode (later), knowledge filtering happens host-side before emission; the client never receives unknown entities. Nothing in the renderer may depend on reading unknown entities — treat them as absent.
 
 ## 4. Staging — `staging.json`
@@ -837,6 +856,31 @@ Pure function per frame: `(world, staging, library, backdropMeta, viewstate) →
     and this is a product mode, not placeholder art.
 - **Swap-archetype draw rule**: for sprites carrying `states_images`, draw step 4's body image is
   `states_images[state]` — whole-image swap, no parts, all other steps unchanged.
+- **[ROW 42] A LEAF IS PLACED IN THE FRAME THE PAINTING DREW, and that is the one case where a
+  sprite's two scales differ.** An entity declaring §3's `fills` takes the MEASURED rectangle of
+  that aperture — `door_measure.py`'s (row 27) for a doorway, `window_measure.py`'s (row 42) for a
+  window light — and fills it on both axes. Step 4's `scale = dims_m.h × groundplane(baseline_y)`
+  is replaced for that entity by `rect.h / record.px.h` vertically and `rect.w / record.px.w`
+  horizontally; every other step is unchanged, and its staging placement still says which FACINGS
+  it stands on. A painted doorway is whatever shape the painter drew it — `solar/E`'s `op22` is
+  139 × 261 px and the same doorway from the muniment room is 218 × 533 — so a single factor
+  either stands the leaf proud of its own jamb or leaves lit room above a shut door, and neither
+  is a shut door.
+  - **MEASURED, and only measured.** A derived meta's opening is the PLAN's rectangle wearing the
+    same field names; fitting to it would claim a measurement nobody took. On an unmeasured wall a
+    door falls back to its §4 placement exactly as it did at row 2, and a CASEMENT is not drawn at
+    all — a casement on paint nobody has measured is the sprite-on-blank-wall that the promotion's
+    own `window.unpainted` clause refuses, so the renderer refuses it too. `groundplane.apertureRect`
+    is the one home of both readings.
+  - **A window is an aperture and is not a way through.** `apertures(..., { windows: true })`
+    appends the meta's painted windows as entries of kind `"window"` with `exit`, `to` and `via`
+    null; the default list omits them, because every other reader of that list turns an entry into
+    a `go`. An OPEN casement darkens the painting's own glass region — the reveal behind a swung
+    leaf — and draws no outside view: `beyond_m` is a fact about the room through a DOORWAY and
+    there is no such room through a window.
+  - **The light hook (row 37).** Every aperture entry and every fitted layout entry carries
+    `light_state` — `"open" | "closed"`, and always `"open"` for an unfilled hole. Row 42 draws no
+    lighting; this is the bit row 37's pass reads.
 - **Hover highlight lives on a separate overlay canvas** (chrome, like the fade): the scene
   canvas hash is cursor-independent; flip pairs and all hash tests capture the scene canvas only.
 
@@ -1247,6 +1291,18 @@ Backdrops (8 + meta): Study N/E/S/W, Hall N/E/S/W. One style: c. 1660 English in
   diverge, the picture shows a doorway in one place and accepts the click in another. This is a
   constraint on row 4's per-facing prompt sheets and on the wall-map measurement, not a renderer
   setting.
+  **[ROW 42] AND IT IS NOW SATISFIED FROM THE OTHER END.** The clause above asks the PAINTING to
+  come to the leaf's §4 rectangle, which is what a prompt sheet can ask for and not what a painter
+  reliably delivers — the manor's painted doorways run 0.71 m to 1.78 m against a plan that rules
+  1.60 m. Row 27 made the painted door govern the click target; row 42 makes it govern the LEAF, so
+  on a measured wall the two coincide by construction and this clause has nothing left to enforce
+  there. It still governs every UNMEASURED wall, where the leaf stands where §4 puts it, and it
+  still governs grid mode, which draws its own opening from the same meta.
+  The residue that is not closed: a measured rectangle can be WRONG about its own painting, and
+  four of the manor's 27 read 0.65× to 1.95× the dark run their painting draws
+  (`design/batches/row42-leaves/demo/README.md` has the survey). The leaf then fills a rectangle
+  that is not the doorway. That is a `door_measure.py` reading to re-take, not a renderer setting
+  either.
 
 Sprites (7): desk (with drawer_front part) · key (takeable) · notebook (takeable) · coin (takeable) · chair · candlestick · door leaf (hinged: two-state = closed image + open image for M0, no decomposition needed — swap, don't slide). Shelf may be baked into a Hall backdrop **only if nothing interactable sits on it — but coin1 sits on it, so shelf1 is a sprite too** (8th sprite, static; id `shelf-oak` [AI]).
 

@@ -856,10 +856,16 @@
 
     /* The drawn rectangle of a layout entry, clipped as the entry is. */
     function entryRect(e) {
+      /* [row 42] `fx` horizontally, `f` vertically. They are the same number
+         for everything §4 places, and different for a leaf or a casement fitted
+         to the rectangle a painting measured — where a single factor would put
+         this control, and the tolerance ring measured from it, beside the thing
+         it names. */
+      var fx = (e.fx == null) ? e.f : e.fx;
       var b = e.swap
-        ? { x: e.drawX + e.f * e.swap.origin.x, y: e.drawY + e.f * e.swap.origin.y,
-            w: e.f * e.swap.image.width, h: e.f * e.swap.image.height }
-        : { x: e.drawX, y: e.drawY, w: e.f * e.record.px.w, h: e.f * e.record.px.h };
+        ? { x: e.drawX + fx * e.swap.origin.x, y: e.drawY + e.f * e.swap.origin.y,
+            w: fx * e.swap.image.width, h: e.f * e.swap.image.height }
+        : { x: e.drawX, y: e.drawY, w: fx * e.record.px.w, h: e.f * e.record.px.h };
       if (e.clip) {
         var x0 = Math.max(b.x, e.clip.x), y0 = Math.max(b.y, e.clip.y);
         var x1 = Math.min(b.x + b.w, e.clip.x + e.clip.w);

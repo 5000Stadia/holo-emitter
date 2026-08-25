@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "3ea0fc80",
+  fp: "dd275018",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -725,11 +725,11 @@ window.HOLO_FIXTURES["nav-manor"] = {
       "state": "closed"
     },
     {
-      "id": "leaf_op01",
+      "id": "leaf_op22",
       "kind": "door",
-      "fills": "op01",
+      "fills": "op22",
       "sprite": "door-leaf-plank-oak-v1",
-      "location": "great_hall",
+      "location": "solar",
       "states": [
         "closed",
         "open"
@@ -742,7 +742,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
   "knowledge": {
     "player": [
       "casement_win10",
-      "leaf_op01"
+      "leaf_op22"
     ]
   }
 },
@@ -755,17 +755,17 @@ window.HOLO_FIXTURES["nav-manor"] = {
       "u": 0.6358381502890174,
       "v": 0.9
     },
-    "leaf_op01": [
+    "leaf_op22": [
       {
-        "facing": "great_hall/S",
+        "facing": "solar/E",
         "attachment": "wall_mounted",
-        "u": 0.5,
+        "u": 0.7956989247311828,
         "v": 0
       },
       {
-        "facing": "entrance_court/N",
+        "facing": "muniment_room/W",
         "attachment": "wall_mounted",
-        "u": 0.357843137254902,
+        "u": 0.3958333333333333,
         "v": 0
       }
     ]
@@ -796,7 +796,6 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_entrance_court_dining_parlour.arrive": "You pass from the entrance court into the dining parlour. A room kept for company, and the air in it is still. The doorway stands open behind you.",
     "go.door_entrance_court_dining_parlour.refused_unreachable": "That way — the entrance court to the dining parlour — lies elsewhere in the house.",
     "go.door_entrance_court_great_hall.arrive": "You cross out of the entrance court and into the great hall. The floor rings under you, and the room runs on further than a voice would carry. The doorway stands open behind you.",
-    "go.door_entrance_court_great_hall.refused_closed": "The hall door stands shut against the court. It would open, if you laid a hand on it.",
     "go.door_entrance_court_great_hall.refused_unreachable": "You are not at the passage between the entrance court and the great hall.",
     "go.door_entrance_court_kitchen.arrive": "The entrance court lets you go, and the kitchen takes you. Ash and cold fat hang in the air, and everything here is built for work. The doorway stands open behind you.",
     "go.door_entrance_court_kitchen.refused_unreachable": "The door between the entrance court and the kitchen is not the one before you.",
@@ -807,7 +806,6 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_great_hall_back_stair.arrive": "The great hall gives onto the back stair, and you step through into it. The walls draw close, plastered and plain, and the air smells of tallow. The doorway stands open behind you.",
     "go.door_great_hall_back_stair.refused_unreachable": "The great hall does not open into the back stair from here.",
     "go.door_great_hall_entrance_court.arrive": "You pass from the great hall into the entrance court. The air moves here, and the house stands back from you on every side but one. The doorway stands open behind you.",
-    "go.door_great_hall_entrance_court.refused_closed": "The plank door is shut. It would open, if you laid a hand on it.",
     "go.door_great_hall_entrance_court.refused_unreachable": "That way — the great hall to the entrance court — lies elsewhere in the house.",
     "go.door_great_hall_great_stair_hall.arrive": "You cross out of the great hall and into the great stair hall. The stair goes up out of the dark, and your voice goes up with it. The doorway stands open behind you.",
     "go.door_great_hall_great_stair_hall.refused_unreachable": "You are not at the passage between the great hall and the great stair hall.",
@@ -850,6 +848,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_muniment_room_long_gallery.arrive": "You cross out of the muniment room and into the long gallery. The gallery runs off further than a room has any right to, and your steps run off with it. The doorway stands open behind you.",
     "go.door_muniment_room_long_gallery.refused_unreachable": "You are not at the passage between the muniment room and the long gallery.",
     "go.door_muniment_room_solar.arrive": "The muniment room lets you go, and the solar takes you. The great chamber over the hall, and it runs away from you further than it should. The doorway stands open behind you.",
+    "go.door_muniment_room_solar.refused_closed": "The plank door is shut against the solar. It would open, if you laid a hand on it.",
     "go.door_muniment_room_solar.refused_unreachable": "The door between the muniment room and the solar is not the one before you.",
     "go.door_privy_garden_garden_room.arrive": "Out of the privy garden, you come into the garden room. The floor is flagged and cool, and the garden is a step away. The doorway stands open behind you.",
     "go.door_privy_garden_garden_room.refused_unreachable": "The way from the privy garden into the garden room is not before you.",
@@ -866,6 +865,7 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.door_solar_back_stair_head.arrive": "Out of the solar, you come into the back stair head. A landing barely wide enough to turn in, with the flight dropping away. The doorway stands open behind you.",
     "go.door_solar_back_stair_head.refused_unreachable": "The way from the solar into the back stair head is not before you.",
     "go.door_solar_muniment_room.arrive": "You leave the solar and come into the muniment room. Deeds and dust, and a silence kept on purpose. The doorway stands open behind you.",
+    "go.door_solar_muniment_room.refused_closed": "The plank door is shut against the muniment room. It would open, if you laid a hand on it.",
     "go.door_solar_muniment_room.refused_unreachable": "No passage from the solar to the muniment room stands where you are looking.",
     "go.door_solar_stair_landing.arrive": "The solar gives onto the stair landing, and you step through into it. The stair-head, and the house below sounding faintly up the well. The doorway stands open behind you.",
     "go.door_solar_stair_landing.refused_unreachable": "The solar does not open into the stair landing from here.",
@@ -891,14 +891,14 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "go.way_entrance_court_entrance_approach.refused_unreachable": "The mouth of the court between the entrance court and the entrance approach is not before you.",
     "take.*.refused_unknown": "You reach, and your hand closes on nothing of the sort.",
     "take.casement_win10.refused_fixed": "The casement is hung in its own stone light and will not come away from it.",
-    "take.leaf_op01.refused_fixed": "The door is hung on strap hinges that are older than you; it goes nowhere but back and forth.",
+    "take.leaf_op22.refused_fixed": "The door is hung on strap hinges older than you; it goes nowhere but back and forth.",
     "toggle.*.refused_unknown": "Nothing of that description offers itself to your hand.",
     "toggle.casement_win10.closed": "You draw the casement to and drop the latch. The quarries hold the light in their lead again.",
     "toggle.casement_win10.open": "The leaded casement swings inward and the kitchen takes a breath of outside air.",
     "toggle.casement_win10.refused_unreachable": "That window is in the kitchen, and you are not looking at it.",
-    "toggle.leaf_op01.closed": "You pull the plank door to. The iron ring settles against the boards and the court is a sound on the other side of it.",
-    "toggle.leaf_op01.open": "The plank door swings back on its straps, and the court's own light comes over the threshold to meet you.",
-    "toggle.leaf_op01.refused_unreachable": "The hall door into the court is not the door in front of you.",
+    "toggle.leaf_op22.closed": "You pull the plank door to. The iron ring settles against the boards and the room beyond is shut away.",
+    "toggle.leaf_op22.open": "The plank door swings back on its straps, and the muniment room's dry paper smell reaches the solar.",
+    "toggle.leaf_op22.refused_unreachable": "The door between the solar and the muniment room is not the door in front of you.",
     "turn.*.refused": "The room offers no other aspect; you face all there is to face."
   }
 },

@@ -706,11 +706,11 @@
       "state": "closed"
     },
     {
-      "id": "leaf_op01",
+      "id": "leaf_op22",
       "kind": "door",
-      "fills": "op01",
+      "fills": "op22",
       "sprite": "door-leaf-plank-oak-v1",
-      "location": "great_hall",
+      "location": "solar",
       "states": [
         "closed",
         "open"
@@ -723,7 +723,7 @@
   "knowledge": {
     "player": [
       "casement_win10",
-      "leaf_op01"
+      "leaf_op22"
     ]
   }
 }

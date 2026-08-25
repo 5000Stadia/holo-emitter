@@ -606,18 +606,21 @@
   var IRON_LIT = "#5c626b";
   var IRON_MID = "#474c54";
   var IRON_DEEP = "#2b2e33";
-  var LEAD_CAME = "#6e7276";
+  var LEAD_CAME = "#4b5157";
 
   function paintCasement(doc) {
     var c = canvasOf(doc, 280, 220);
     var ctx = c.getContext("2d");
     var LEAD = LEAD_CAME;
-    // Glass first, as a wash over the whole light.
-    ctx.fillStyle = "rgba(206, 219, 219, 0.38)";
+    /* Glass first, as a WASH rather than a fill — the painting behind this
+     * sprite has already drawn a leaded light, and a casement that replaced it
+     * with a flat grey pane would be the sticker the flip test exists to catch.
+     * The wash is what a hand's worth of old glass does to what is behind it. */
+    ctx.fillStyle = "rgba(206, 219, 219, 0.14)";
     ctx.fillRect(0, 0, 280, 220);
     // Came lattice: 0.14 m quarries at this record's 200 px/m, both diagonals.
     ctx.strokeStyle = LEAD;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     var step = 28;
     var d;
     for (d = -220; d <= 280 + 220; d += step) {
@@ -632,21 +635,21 @@
     }
     ctx.lineWidth = 1;
     // Frame: opaque, and the bottom rail touches the bottom row edge to edge.
-    box(ctx, 0, 0, 280, 14, IRON_LIT, IRON_DEEP);      // head, lit
-    box(ctx, 0, 206, 280, 14, IRON_MID, IRON_DEEP);    // sill
-    box(ctx, 0, 0, 16, 220, IRON_LIT, IRON_DEEP);      // hinge stile, viewer-left
-    box(ctx, 264, 0, 16, 220, IRON, IRON_DEEP);        // latch stile, darkest
+    box(ctx, 0, 0, 280, 10, IRON_LIT, IRON_DEEP);      // head, lit
+    box(ctx, 0, 210, 280, 10, IRON_MID, IRON_DEEP);    // sill
+    box(ctx, 0, 0, 11, 220, IRON_LIT, IRON_DEEP);      // hinge stile, viewer-left
+    box(ctx, 269, 0, 11, 220, IRON, IRON_DEEP);        // latch stile, darkest
     // Hinge plates on the left, latch bar and ring on the right — the same
     // hinge-side-is-readable rule the leaf carries.
     ctx.fillStyle = IRON_LIT;
-    ctx.fillRect(0, 34, 30, 14);
-    ctx.fillRect(0, 172, 30, 14);
+    ctx.fillRect(0, 34, 26, 10);
+    ctx.fillRect(0, 176, 26, 10);
     ctx.fillStyle = IRON;
-    ctx.fillRect(246, 96, 34, 10);
+    ctx.fillRect(252, 100, 28, 8);
     ctx.strokeStyle = IRON;
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(258, 122, 11, 0, Math.PI * 2);
+    ctx.arc(261, 124, 10, 0, Math.PI * 2);
     ctx.stroke();
     ctx.lineWidth = 1;
     return c;

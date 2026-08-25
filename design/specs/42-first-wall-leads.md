@@ -1,6 +1,7 @@
-# 42 — parts (1) and (2)
+# 42 — parts (1), (2) and (3)
 
-Part (3) — the placed leaf and casement sprites — is a later builder's and nothing here draws one.
+Parts (1) and (2) landed first and are below. Part (3) — the placed leaf and casement sprites — is
+the section at the end.
 
 ## (1) The first wall leads, everywhere
 
@@ -88,3 +89,61 @@ through. Nothing new is drawn.
   OPEN miss in `misses.jsonl`.
 - **`door_measure.py` was refactored** onto the shared `measure_lib.maximally_stable_runs` so the two
   detectors read one sweep. Its control frame still reads 673..861.
+
+---
+
+## (3) Leaves are placed
+
+**Where the binding lives.** On the ENTITY, as `kind` + `fills`, and resolved by
+`groundplane.leafFor` — beside `openingFor`, which is already the one home of what an exit's `via`
+names. The inverse (an opening in `plan.json` naming its entity) exists and stays for the row-2
+world; a second home for the same question is how the renderer, the harness, the page and the
+validator would come to disagree about which doorways have doors in them. Writing `entity` onto 26
+manor openings was the alternative and it moves the drawn digest of the approved drawing.
+
+**Where the sprite draws.** `groundplane.apertureRect` — the measured rect for what the entity
+fills, or null. `layout` fits to it on both axes, which is why the layout entry gains `fx` beside
+`f`. Fitted only where the rectangle is MEASURED, because a derived opening is the plan's rectangle
+wearing the painting's field names.
+
+**What null means, per kind, and it is not the same answer.** A door falls back to §4 placement (row
+2 unchanged, every unpromoted wall). A casement is not drawn: the promotion's own
+`window.unpainted` clause refuses a casement on unmeasured paint, and the renderer must not do by
+default what the pipeline refuses to promote.
+
+**The light hook.** `light_state` on every aperture entry and every fitted layout entry. Row 42
+draws no lighting; row 37 reads the bit.
+
+**The library.** Two new placeholder records with `placeholder: true` and their painter ask named on
+the record. `door-plank` is NOT reused: §11 authors it symmetric so one image serves both rooms, and
+a leaf that swings to its hinge side needs a hinge side.
+
+## Edges
+
+- `backdrops/` and `run-state.json` are read, never written. The window demo therefore runs the real
+  promotion in a staged copy of the tree and captures from there.
+- `door-plank`, `fixtures/demo-study` and every unmeasured wall in the manor render byte-identically.
+- `tools/validate-plan.mjs`'s "no §6 record" clause discriminated on `worldLocation.size > 0` — any
+  entity at all. A world holding only the building's own fittings is still an unfurnished world, so
+  the discriminator became "does this world furnish the plan"; without it, hanging one leaf reported
+  four unfurnished plan footprints as missing records.
+- `stagingDivergence` needs the world to see `fills`, or an aperture-bound placement reads as one the
+  plan holds no position for and refuses the bake.
+
+## What the build settled that the plan left open
+
+- **The demo doorway is `op22`, not the row's own suggestion.** Every measured door rectangle was
+  compared against the dark run its own painting draws: 23 of 27 agree within 0.94–1.02×, and four do
+  not — `great_hall/S` 0.65×, `buttery_pantry/S` 1.95×, `dining_parlour/N` 1.67×, `privy_garden/S`
+  1.21×. `great_hall/S` was the row's suggested wall and its leaf faithfully fills two thirds of the
+  doorway the painter drew. `op22` is measured on BOTH its facings and at two different scales, so
+  one leaf in two painted frames is what the demo shows instead. **The four flagged walls are an
+  open `door_measure.py` reading**, recorded in `design/architecture.md` and the demo README.
+- **`solar/S` and `long_gallery/E` cannot carry a demo casement.** Both were named in the handoff and
+  both REFUSE promotion under `[row42:window.unpainted]` — the plan rules four windows on each and
+  the painting shows three. `kitchen/E` (1 ruled, 1 painted, lattice 0.493, confidence 0.91) is the
+  wall the demo uses.
+- **The glass is a wash, not a fill.** The first casement painted an opaque leaded pane and put a
+  grey slab over a painting that had already drawn daylight through leaded glass. The came lattice
+  and the ironwork are opaque; the quarries are a 0.14-alpha wash. The painter ask says so as a rule
+  rather than as a note.

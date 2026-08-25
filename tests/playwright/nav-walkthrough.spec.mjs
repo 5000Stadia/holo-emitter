@@ -80,7 +80,7 @@ test.describe("the painted world a visitor opens", () => {
        named as is checked: every entity in this world stands in an aperture. */
     expect(s.entities, "the navigation world's only entities are the building's own fittings").toBe(2);
     expect(s.fitted, "and every one of them fills an aperture — this world has no furniture")
-      .toEqual(["casement_win10", "leaf_op01"]);
+      .toEqual(["casement_win10", "leaf_op22"]);
     expect(s.paints, "and it painted").toBeGreaterThan(0);
 
     /* THE PAINTING IS ON SCREEN, not a grid that looks like one. Read as
