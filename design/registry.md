@@ -22,12 +22,12 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-LEAVES | row 42 (3): door leaves and window casements as sprites placed in the DETECTED frames, open/close by tap, painter asks cut for the real sprites | building |
-| B-PROD | row 43 landed on its branch (5f24c3a); a reconcile builder is merging it with row 42's lead ordering (conflicts in the emitter, edge-seed, seams spec) | reconciling |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-PROD | row 43: the clean register (g5, no coordinates) is the one production composer; g4 declared as control; register tag per packet; per-register camera rate in the timings report; reconciled with row 42's lead ordering |
 | L-LEAD | row 42 (1)+(2): one lead wall per room, the other three wait for it and take it as Image 1 + edge strips (the standing order now honours depends_on); windows measured off the painting (33/41 paired, median 0.64 m) with `window.unpainted` / `window.painted_width` clauses |
 | L-REGISTER | the g5 register trial: 18 rolls, no separation on admissibility, camera 5/5 without the coordinate block, materials right with no style image → row 43 |
 | L-BAYS | row 41: walls as fitted bays — n bays dividing W exactly, a stile in every corner (16 corner gaps at 0.000 m), openings snapped to whole bays; kitchen + bedchamber proof batches |
