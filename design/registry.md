@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-GREEN2 | 4 staleness cases after the origin merge (fixtures:126, material-origin:291/453, plan:2595) → green | building |
 | B-REGISTER | the clean prompt register g5 (Kabe: "that prompt seems like a mess") as an evolution arm against g4, with/without the coordinate appendix | building |
 | B-BAYS | row 41: walls laid out as fitted bays (stiles in the corners, frame completes, fields filled inside the frame) — replaces row 36's tiled walls after Kabe's flip | building |
 
