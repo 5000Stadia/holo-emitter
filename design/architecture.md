@@ -3917,8 +3917,17 @@ and the flight clause correctly refuses it — which is the harm row 32 exists t
 new road. Confirmed live: `back_stair/W`'s snapped frame resolves to `row23-4e3755a6.prompt.txt` and
 trips `row32:stair.painted_flight_lost`.
 
-**The two facts have to move together, and only one of them has.** The camera fix is on the snapped
-frame; the staircase is on the re-ask roll; nothing has yet cut a snap from a re-ask. Doing it works
+**And the reason run-state still names the old roll is not neglect — it is the sweep obeying its own
+rule.** The loop picks a wall's candidate as the PASSing arrival with the smallest `|delta_focal_pct|`,
+and on all six of these walls the row-38 re-ask FAILS the camera gate (−11.7 %, −17.9 %, −15.9 %,
++9.9 %) while the pre-flight roll passes it. So the pre-flight roll is the only candidate the sweep
+can see, and it stays the wall's candidate — which is an honest reading of the frames and not a bug.
+
+**The gap is that the snap is being run on the wrong roll.** The snap exists to rescue a camera miss;
+it is being cut from the roll that already passes the camera, and withheld from the roll that has the
+staircase in it and needs the camera fixed. Both facts have to move together — the camera fix is on
+the snapped frame and the staircase is on the re-ask roll — and nothing has yet cut a snap from a
+re-ask. Doing it works
 — trial-snapped here to confirm the route is available before recommending it: `back_stair/W`'s
 row-38 re-ask (`row23-7d7caa79.png`) rectifies with `ACCEPTANCE PASS (unfitted-horizon) focal
 +0.48 % eye −0.24 %`, magnification 1.33× against a budget of 3.00, and the resulting reading names
