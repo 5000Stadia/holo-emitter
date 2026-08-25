@@ -43,6 +43,12 @@ keeps it current at every board change; reports cite these handles.
 | L-GATE | row 26: the manor's gate doors + 56th exit |
 | L-RECIPE | row 34: the g4 prompt register (evolution run) |
 
+## References for Kabe's eye
+
+| handle | what |
+|---|---|
+| R-KITCHEN-FLIP | the kitchen made both ways (painted whole vs row-36 assembly), facing by facing with corner seams: https://claude.ai/code/artifact/7be98489-7244-4381-8f6f-080215070e30 |
+
 ## How to use it
 
 "Issue with SVC-LOOP" / "B-STAIRS taking too long" / "L-DOORS broke something in
