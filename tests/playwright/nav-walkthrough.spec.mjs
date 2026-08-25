@@ -348,12 +348,26 @@ async function walkByClick(page, exit) {
       fx.world, fx.staging, A.library, A.metaFor(vs), vs).find((x) => x.exit === id);
     if (!a) return null;
     /* The middle of what the resolver actually claims: for a flight that is
-       its own outline, whose bounding box takes in bare floor beside it. */
-    if (a.poly && a.poly.length >= 4) {
-      const half = a.poly.length / 2;
-      const i = Math.floor(half / 2);
-      return { x: (a.poly[i][0] + a.poly[a.poly.length - 1 - i][0]) / 2,
-        y: (a.poly[i][1] + a.poly[a.poly.length - 1 - i][1]) / 2 };
+       the rings it is drawn with, whose bounding box takes in bare floor
+       beside it. [Row 25] The centroid of the LARGEST ring, which is a point
+       inside the body on a flight of any shape — the old midpoint-of-a-hull
+       trick assumed one convex outline. */
+    if (a.polys && a.polys.length) {
+      let best = null, bestArea = -1;
+      for (const ring of a.polys) {
+        if (!ring || ring.length < 3) continue;
+        let area = 0, cx = 0, cy = 0;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          const f = ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+          area += f;
+          cx += (ring[j][0] + ring[i][0]) * f;
+          cy += (ring[j][1] + ring[i][1]) * f;
+        }
+        if (Math.abs(area) < 1e-9) continue;
+        const a2 = Math.abs(area / 2);
+        if (a2 > bestArea) { bestArea = a2; best = { x: cx / (3 * area), y: cy / (3 * area) }; }
+      }
+      if (best) return best;
     }
     return { x: a.x + a.w / 2, y: a.y + a.h / 2 };
   }, exit);

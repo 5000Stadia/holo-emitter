@@ -838,7 +838,7 @@ const DOCUMENT_CASES = {
     no_direction: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ direction: "sideways" })]; }),
     no_rise: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ rise_m: 0 })]; }),
     no_treads: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ treads: 2.5 })]; }),
-    no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ poly: [] })]; }),
+    no_outline: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ hit_polys: [] })]; }),
     broken_ring: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ floor_poly: [[0, 0]] })]; }),
     point_not_a_point: () => tokensFromMetas((m) => { m["study/S"].stairs = [flight({ well_poly: [[0, 0], [1, NaN], [2, 2]] })]; }),
     /* [ROW 26] AND THE TWO WAYS A FLIGHT CAN STOP SAYING HOW BIG IT IS.
@@ -998,7 +998,7 @@ const flight = (over) => ({
      so nothing was cut and the two legitimately agree; a flight touching an
      edge may not say that, which is its own arm below. */
   raw_w: 300, raw_h: 700,
-  poly: [[10, 200], [10, 900], [310, 900], [310, 200]],
+  hit_polys: [[[10, 200], [10, 900], [310, 900], [310, 200]]],
   floor_poly: [[10, 700], [10, 900], [310, 900], [310, 700]],
   well_poly: [[10, 100], [10, 300], [310, 300], [310, 100]],
   beyond_m: null, beyond_offset_m: null, ...over
@@ -1279,13 +1279,19 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * the corner regions measure 0 px wide on every facing this world has and
      * a critic deleted all four calls with the suite green. The subject is a
      * FAR destination: at 40 m the far room draws 209 px inside a 250 px
-     * opening and all four corners are real. */
+     * opening and all four corners are real.
+     *
+     * [ROW 25] THE MECHANISM IS THE SAME AND ITS CALLS ARE NOT: the corners
+     * are flat fills of the destination's own corner block now rather than a
+     * single pixel of it stretched, because a stretched pixel manufactures
+     * structure nobody drew. The case moves to the new call sites and stays
+     * what it was — delete the corners, the corner regions go void. */
     const dir = stageWithout(
-      "    ctx.drawImage(off, 0, 0, 1, 1, a.x, a.y, lft, top);\n" +
-      "    ctx.drawImage(off, W - 1, 0, 1, 1, dx + dw, a.y, rgt, top);\n" +
-      "    ctx.drawImage(off, 0, H - 1, 1, 1, a.x, dy + dh, lft, bot);\n" +
-      "    ctx.drawImage(off, W - 1, H - 1, 1, 1, dx + dw, dy + dh, rgt, bot);",
-      "    void [lft, rgt, top, bot];");
+      "      if (lft > 0 && top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, a.y, lft, top); }\n" +
+      "      if (rgt > 0 && top > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, a.y, rgt, top); }\n" +
+      "      if (lft > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, dy + dh, lft, bot); }\n" +
+      "      if (rgt > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, dy + dh, rgt, bot); }",
+      "      void [lft, rgt, top, bot];");
     try {
       const broken = await farApertureVoid(page, dir);
       const clean = await farApertureVoid(page, repoRoot);

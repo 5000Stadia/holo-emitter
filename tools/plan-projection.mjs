@@ -744,7 +744,7 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
      * is the other one, and a tread's nose is a segment across it. One home:
      * `stairPlanFacts` below, so the projection and the emitter's flight
      * sentence cannot disagree about which way a flight is climbed. */
-    const { runAxis, across, foot, head, w0, w1 } = stairPlanFacts(st);
+    const { runAxis, across, upSign, foot, head, w0, w1 } = stairPlanFacts(st);
     /* Height above THIS room's floor: a flight climbed out of this room rises,
      * and the same flight seen from the landing above it descends. */
     /* EVERY RANK IS KEPT WITH ITS INDEX. The nose of tread `i` and the floor
@@ -835,7 +835,38 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
         noses.push([[round6(s[0].x), round6(s[0].y)], [round6(s[1].x), round6(s[1].y)]]);
       }
     }
-    const quads = [];
+    /* [ROW 25] WHICH FACE EACH QUAD IS, AND WHICH WAY IT POINTS, said rather
+     * than left to be inferred from a list's parity — the same rule that made
+     * the noses a list of their own. `going` is the top of a tread, `riser` the
+     * vertical face a toe meets, `ramp` the sloping plane between two noses
+     * where the riser's own foot was clipped away. §7 rules one key, and a
+     * renderer cannot light a face it has not been told the orientation of.
+     *
+     * The normals are in VIEW space — x right across the frame, y INTO it, z up
+     * — because that is the space `key_dir` is stated in ("UL" is the upper left
+     * of the picture). The plan's own axes map into it here, where `span.axis`,
+     * `alongRight` and the facing's normal already are; deriving it renderer-side
+     * would need the plan and the facing geometry a second time. */
+    const N_UP = [0, 0, 1];
+    /* A plan direction (+1 along `axis`) as a view-space unit vector. Along the
+     * lateral axis it is left/right by `alongRight`; along the facing's own
+     * normal it is depth, and MORE depth is NEARER the eye — the standpoint
+     * stands off the wall line — so it points OUT of the frame. */
+    const roomMid = { x: (room.rect.x0 + room.rect.x1) / 2, y: (room.rect.y0 + room.rect.y1) / 2 };
+    const depthSign = Math.sign(roomMid[normalAxis] - line) || 1;
+    const viewDir = (axis, sign) => axis === span.axis
+      ? [(alongRight > 0 ? 1 : -1) * sign, 0, 0]
+      : [0, -depthSign * sign, 0];
+    const unit = (v) => {
+      const n = Math.hypot(v[0], v[1], v[2]) || 1;
+      return [round6(v[0] / n), round6(v[1] / n), round6(v[2] / n)];
+    };
+    /* THE RISER FACES BACK DOWN THE RUN — toward the foot, which is the face a
+     * climber sees. `upSign` runs foot to head, so the outward normal is its
+     * negation. */
+    const nRiser = unit(viewDir(runAxis, -upSign));
+    const nRamp = unit([N_UP[0] + nRiser[0], N_UP[1] + nRiser[1], N_UP[2] + nRiser[2]]);
+    const quads = [], quadFace = [], quadNormal = [];
     for (const run of runsOf([...stepAt.keys()])) {
       for (let j = 0; j + 1 < run.length; j++) {
         const k = run[j], kn = run[j + 1];
@@ -847,24 +878,15 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
            * step is. Joining nose to nose instead draws the sloping plane
            * BETWEEN them: a ramp with a line on it. */
           quads.push([s0[0], s0[1], rs[1], rs[0]].map((q) => [round6(q.x), round6(q.y)]));
+          quadFace.push("going"); quadNormal.push(N_UP);
           quads.push([rs[0], rs[1], s1[1], s1[0]].map((q) => [round6(q.x), round6(q.y)]));
+          quadFace.push("riser"); quadNormal.push(nRiser);
         } else {
           quads.push([s0[0], s0[1], s1[1], s1[0]].map((q) => [round6(q.x), round6(q.y)]));
+          quadFace.push("ramp"); quadNormal.push(nRamp);
         }
       }
     }
-    /* And the HIT REGION is the convex hull of the treads — a shape the page
-     * can test a point against, which a bow-tie is not. */
-    const hull = (pts) => {
-      if (pts.length < 3) return pts.slice();
-      const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-      const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-      const lo = [], up = [];
-      for (const q of p) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
-      for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length > 1 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
-      lo.pop(); up.pop();
-      return lo.concat(up);
-    };
     const stepPts = [];
     for (const [a0, a1] of steps) { stepPts.push([round6(a0.x), round6(a0.y)]); stepPts.push([round6(a1.x), round6(a1.y)]); }
     /* THE MASS, which is what makes a flight read as a flight from the side.
@@ -879,19 +901,67 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
      * are both in reach, in adjacent runs, one polygon per stringer per run.
      * A flight climbing out of the frame keeps the body of the part you can
      * see, which is the part you are standing at. */
-    const mass = [];
+    /* [ROW 25] AND EACH STRINGER KNOWS WHICH WAY IT FACES AND HOW FAR OFF IT
+     * IS. A stringer's outward normal is across the run, away from the other
+     * side; under one key that is the difference between the face that catches
+     * the light and the face that does not, which is the whole of §7's rule for
+     * the two returns applied to the one solid in the room.
+     *
+     * They are emitted FAR-TO-NEAR, because both are drawn and the near one
+     * hides the far one: painted in list order with the far one last, a flight
+     * seen across its run took the tone of the face nobody can see. Depth is
+     * the plan's own — distance from this facing's wall line, where MORE is
+     * nearer the eye — and it is constant along a stringer only when the run
+     * lies across the view; when it lies into the view the two sides are
+     * side by side, share a depth range, and the stable order is kept. */
+    const mass = [], massNormal = [], massDepth = [];
     const both = [...stepAt.keys()].filter((k) => floorAt.has(k));
+    const sideCoord = [w0, w1];
     for (const run of runsOf(both)) {
       if (run.length < 2) continue;
       for (const side of [0, 1]) {
         const top = run.map((k) => { const s = stepAt.get(k); return [round6(s[side].x), round6(s[side].y)]; });
         const bot = run.map((k) => { const f = floorAt.get(k); return [round6(f[side].x), round6(f[side].y)]; });
         mass.push(top.concat(bot.slice().reverse()));
+        massNormal.push(unit(viewDir(across, Math.sign(sideCoord[side] - sideCoord[1 - side]) || 1)));
+        massDepth.push(across === normalAxis ? Math.abs(line - sideCoord[side]) : 0);
+      }
+    }
+    for (let i = 1; i < mass.length; i++) {
+      for (let j = i; j > 0 && massDepth[j] < massDepth[j - 1]; j--) {
+        [mass[j], mass[j - 1]] = [mass[j - 1], mass[j]];
+        [massNormal[j], massNormal[j - 1]] = [massNormal[j - 1], massNormal[j]];
+        [massDepth[j], massDepth[j - 1]] = [massDepth[j - 1], massDepth[j]];
       }
     }
     const floorRing = ring(floorQuad);
     const wellRing = ring(wellQuad);
-    const onFrame = (r) => r.some((q) => q[1] > -EPS && q[1] < H && q[0] > -EPS && q[0] < canvasW);
+    /* [ROW 25] EVERY POINT OF THE DRAWN BODY, in one list, for the hit region
+     * below: the stringers, the goings and risers, and the footprint ring — the
+     * three things `renderer.js` fills and strokes for a flight. Built from the
+     * rings THEMSELVES rather than from the points they were built out of,
+     * because the riser feet are in the quads and in nothing else, and a hit
+     * region derived from a narrower set than the drawing is the whole of this
+     * row's first defect. */
+    const hitPolys = [];
+    for (const r of mass) if (r.length >= 3) hitPolys.push(r);
+    for (const q of quads) if (q.length >= 3) hitPolys.push(q);
+    if (floorRing.length >= 3) hitPolys.push(floorRing);
+    const bodyPts = [];
+    for (const r of hitPolys) for (const q of r) bodyPts.push(q);
+    /* AND THE DECLARED EXTENT STAYS THE NOSES AND THE FOOTPRINT, which is a
+     * strictly narrower set than the rings the renderer fills — the foot of
+     * every riser lives in the quads and in nothing else, so `x/y/w/h` and
+     * `raw_w`/`raw_h` describe a body a little smaller than the one a player
+     * clicks. That divergence is DELIBERATE and it is not this row's to close:
+     * `flightsForFacing` feeds the emitter, whose inputs are frozen while
+     * round-locked corpora and in-flight re-asks depend on them, and moving the
+     * declared extent moves every flight sentence and every scaffold box with
+     * it [Navigator ruling, row 25]. The region is a list of RINGS and is
+     * tested as one, so nothing about a click depends on this rectangle; what
+     * row 26's usability clause scores is the declared body, which is what the
+     * painter was shown. Named here so the next reader finds the divergence
+     * rather than the drift. */
     const all = stepPts.concat(floorRing);
     if (!all.length) continue;
     const xs = all.map((q) => q[0]), ys = all.map((q) => q[1]);
@@ -924,21 +994,43 @@ export function stairsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) 
        * width is a real claim and this one was not. */
       raw_w: Math.max(...xs) - Math.min(...xs),
       raw_h: Math.max(...ys) - Math.min(...ys),
-      /* THE OUTLINE A PLAYER AIMS AT: the convex hull of the flight's WHOLE
-       * visible body — the noses and the footprint they stand on together —
-       * where any of it is in the frame, and the footprint alone where no nose
-       * is, which is a descending flight at this eye height whose steps drop
-       * below the frame within a metre and leave only the well in the floor.
+      /* [ROW 25] THE REGION A PLAYER AIMS AT IS THE BODY THE PICTURE DRAWS —
+       * the same rings, not a shape around them. The stringers, the goings and
+       * risers, and the footprint ring the flight stands in: the three things
+       * `renderer.js` fills and strokes for a flight and nothing else. A point
+       * is on the flight when it is inside one of them.
        *
-       * The noses alone are not it. On a flight climbing away from you they
-       * bunch into a patch high on the far wall, and a player standing AT THE
-       * FOOT of the stair, aiming at the bottom step beside them, missed it
-       * entirely: the only place a click climbed was a corner of the frame
-       * nowhere near the stair. The body a person aims at reaches the floor. */
-      poly: (stepPts.length >= 6 && onFrame(stepPts))
-        ? hull(stepPts.concat(floorRing))
-        : floorRing,
+       * WHAT USED TO STAND HERE IS THE DESCENDING BUG. It read
+       * `stepPts.length >= 6 && onFrame(stepPts) ? hull(stepPts + floorRing) :
+       * floorRing` — the noses' own hull where enough noses were on the frame,
+       * and THE FOOTPRINT ALONE where they were not. A descending flight is
+       * exactly that case, and its body is drawn BELOW its footprint: on
+       * `stair_landing/S` the region and the picture were disjoint sets, so
+       * 42,864 px of drawn staircase took 0 % of a click on its own solid, and
+       * 31.5 % counting the footprint ring. The fallback was a proxy for a
+       * question the body answers directly, and the body is asked now.
+       *
+       * A CONVEX HULL OF THE SAME POINTS WAS BUILT FIRST AND REFUSED. On this
+       * corpus it measures identical — 100 % of the body, 0.0 % over-claim on
+       * all four travel facings — but only because a flight's visible body
+       * happens to be convex here: the mass is built in RUNS of adjacent
+       * treads, so a flight the frame cuts in two has two bodies, and a hull
+       * bridges the gap and answers "climb the stair" for the floor between
+       * them. The union of the drawn rings cannot over-claim at all, whatever
+       * the geometry does, and this project has paid six times for a guarantee
+       * that held by accident of the corpus.
+       *
+       * The noses alone were never it either, for the mirror-image reason: on a
+       * flight climbing away from you they bunch into a patch high on the far
+       * wall, and a player standing AT THE FOOT of the stair, aiming at the
+       * bottom step beside them, missed it entirely. */
+      hit_polys: hitPolys,
       treads_poly: quads,
+      /* Parallel to `treads_poly` and `mass_poly`: what each face is, and the
+       * view-space direction it turns. §7's light, applied in the renderer. */
+      treads_face: quadFace,
+      treads_normal: quadNormal,
+      mass_normal: massNormal,
       noses: noses,
       mass_poly: mass,
       floor_poly: floorRing,
@@ -997,7 +1089,10 @@ export function flightsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W)
      * from: `stairsForFacing` takes its rectangle from the nose endpoints and
      * the footprint ring together, and those are both carried on the record.
      * Recomputing them here rather than storing a second copy is what keeps
-     * `raw_w`/`raw_h` the only declared extent (row 26's clause reads those). */
+     * `raw_w`/`raw_h` the only declared extent (row 26's clause reads those).
+     * [ROW 25] It is NOT the hit region's own extent, deliberately: see
+     * `stairsForFacing`. This function is an emitter input and its numbers are
+     * frozen. */
     const pts = [];
     for (const n of s.noses) { pts.push(n[0]); pts.push(n[1]); }
     for (const p of s.floor_poly) pts.push(p);
