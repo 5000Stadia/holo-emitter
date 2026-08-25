@@ -28,7 +28,7 @@ STALE_S=${STALE_S:-900}
 # was found after.
 LOOP_STALE_S=${LOOP_STALE_S:-1800}
 SCRATCH="/tmp/claude-1000/-home-k-Projects-holo-emitter/5e2abd72-bfa5-4129-bf0e-f0d5de0c1360/scratchpad"
-ORDER="Standing paint order. Run: git pull. Then read design/batches/row23-scaffold/manor/retries.json, design/batches/row23-scaffold/manor/manifest.json and design/batches/row36-assembly/swatches/swatch-index.json (swatch packets attach NO image - their PACKET.md says so; other packets name their images incl. any edge-seed Image 3). For every roll listed anywhere in them whose candidate file does not exist on disk: attach that packet directory's style-seed-warm.png as Image 1 and scaffold.png as Image 2, send its prompt.txt verbatim to image generation, save the image to the exact candidate path. Do not judge results; work straight through; reply with counts when done. Fence: write only under backdrops/, never src/, never design/."
+ORDER="Standing paint order. Run: git pull. Then read design/batches/row23-scaffold/manor/retries.json, design/batches/row23-scaffold/manor/manifest.json and design/batches/row36-assembly/swatches/swatch-index.json (swatch packets attach NO image - their PACKET.md says so; other packets name their images incl. any edge-seed Image 3). SKIP ANY ENTRY WHOSE depends_on IS NOT null: that ask WAITS for the wall named there - its room paints its lead wall first and this packet is not complete until the lead's picture is on disk. Its PACKET.md says so in its first line. For every OTHER roll listed anywhere in them whose candidate file does not exist on disk: attach the images that packet's PACKET.md names, in the order it names them, send its prompt.txt verbatim to image generation, save the image to the exact candidate path. Do not judge results; work straight through; reply with counts when done, including how many you skipped as waiting. Fence: write only under backdrops/, never src/, never design/."
 
 read -r OWED UNMEASURED UNPUBLISHED PASS_AGE <<EOF2
 $(python3 - <<'EOF'
@@ -41,6 +41,14 @@ for f in ("design/batches/row23-scaffold/manor/manifest.json",
     doc = json.load(open(f))
     for e in (doc.get("entries") or doc.get("packets") or []):
         if e.get("skipped"): continue
+        # [row 42] A PACKET THAT IS WAITING IS NOT OWED. Every location paints
+        # its lead wall first and the other three carry `depends_on` until that
+        # wall's picture exists, so under this row three quarters of the manor
+        # is legitimately unpainted at any moment. Counted as owed, the baton
+        # would sit on the seat forever and nudge it to paint out of order --
+        # which is the one thing the ordering exists to prevent. The wait is
+        # the LOOP's to clear, not the seat's.
+        if e.get("depends_on"): continue
         for r in e.get("rolls", []):
             path = r.get("candidate") or r.get("dest")
             if path and not os.path.exists(path): owed += 1

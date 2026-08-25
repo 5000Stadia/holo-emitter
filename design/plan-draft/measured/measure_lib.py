@@ -227,3 +227,83 @@ def third_tilt(L, y0=0, y1=1023):
     band = L[y0:y1 + 1, :]
     w = band.shape[1]
     return float(band[:, :w // 3].mean() - band[:, 2 * w // 3:].mean())
+
+
+# ------------------------------------------------------------------ runs, and
+# the maximally stable ones - the shape both painted-aperture detectors read.
+#
+# `door_measure.py` (row 27) reads a doorway as the maximally stable DARK run in
+# a column profile; `window_measure.py` (row 42) reads a glazed opening as the
+# maximally stable BRIGHT one. The threshold sweep and the grouping are the same
+# arithmetic in both directions, so they live here once rather than twice - the
+# second copy is where the two would drift, and a drifted copy would mean a door
+# and a window on one wall were found by two different instruments.
+
+def runs(mask, min_len):
+    """Contiguous True runs of `mask` at least `min_len` long, as [lo, hi)."""
+    out, start = [], None
+    for i, on in enumerate(mask):
+        if on and start is None:
+            start = i
+        elif not on and start is not None:
+            if i - start >= min_len:
+                out.append((start, i))
+            start = None
+    if start is not None and len(mask) - start >= min_len:
+        out.append((start, len(mask)))
+    return out
+
+
+def maximally_stable_runs(v, x0, x1, minw, cuts, side,
+                          min_stability=3, stable_tol=0.05):
+    """Every maximally stable run in v[x0:x1] over a swept threshold.
+
+    THE THRESHOLD IS NOT CHOSEN, IT IS SWEPT. A single cut cannot be honest
+    across this corpus - `library/E` reads its door void at 3 and `study/E`
+    reads its own at 12 - so every cut in `cuts` is taken in turn, the runs at
+    each are collected, and the ones that keep the SAME EDGES over many cuts
+    are the features. A panel groove or a shadowed corner drifts with the cut;
+    a hole in a wall does not, and neither does a window's light.
+
+    That is 1-D maximal stability (the idea behind MSER), and it is chosen for
+    the property that matters here: nothing in it knows what width it is
+    looking for, so an opening painted the wrong size still reads at the size
+    it was painted and the guard downstream can see that.
+
+    `side` is "dark" (v < t) or "bright" (v > t). Returns a list of
+    {span, t, stability, t_lo, t_hi}, left to right.
+    """
+    if side not in ("dark", "bright"):
+        raise ValueError("side is 'dark' or 'bright', not %r" % (side,))
+    groups = []
+    for t in cuts:
+        mask = np.zeros(len(v), bool)
+        mask[x0:x1] = (v[x0:x1] < t) if side == "dark" else (v[x0:x1] > t)
+        for a, b in runs(mask, minw):
+            centre = (a + b) / 2.0
+            found = None
+            for g in groups:
+                pa, pb = g["spans"][-1]
+                # the same feature grown or shrunk, not a different one: each
+                # contains the other's midpoint
+                if (pa < centre < pb) or (a < (pa + pb) / 2.0 < b):
+                    found = g
+                    break
+            if found is None:
+                groups.append({"spans": [(a, b)], "ts": [t]})
+            else:
+                found["spans"].append((a, b))
+                found["ts"].append(t)
+    out = []
+    for g in groups:
+        widths = np.array([b - a for a, b in g["spans"]], float)
+        med = float(np.median(widths))
+        stable = [(s, t) for s, t in zip(g["spans"], g["ts"])
+                  if abs((s[1] - s[0]) - med) <= stable_tol * med]
+        if len(stable) < min_stability:
+            continue
+        span, t_rep = stable[len(stable) // 2]
+        out.append({"span": span, "t": t_rep, "stability": len(stable),
+                    "t_lo": stable[0][1], "t_hi": stable[-1][1]})
+    out.sort(key=lambda z: z["span"][0])
+    return out

@@ -2621,9 +2621,20 @@ test.describe("the schematic is a derived render of the plan", () => {
            has never written either and no ruler in it can. Their own staleness
            is checked where it belongs -- `material-origin.spec.mjs` re-derives
            the audit live and holds the ledger against it entry for entry -- so
-           naming them here takes nothing out of anybody's guard. */
+           naming them here takes nothing out of anybody's guard.
+
+           Row 42 adds the fifth and last of that family:
+           `window_calibration.json`, written by
+           `design/plan-draft/measured/window_measure.py --calibrate --write`.
+           It is the list of promoted walls the painted-window clause cannot
+           yet see — the row's own stated edge — and it is a REPORT for the
+           same reason the four above are: `measure.py` has never written it
+           and no ruler in it can. It shrinks as the sweep re-measures those
+           walls, and its numbers answer to `test_window_measure.py` and to the
+           overlays, not to this comparison. */
         const NOT_A_READING = new Set(["misses.jsonl", "room_consistency.json",
-          "material_provenance.json", "material_legacy.json"]);
+          "material_provenance.json", "material_legacy.json",
+          "window_calibration.json"]);
         const names = readdirSync(committed)
           .filter((f) => f.endsWith(".json") && !NOT_A_READING.has(f));
         /* cand5ref writes ONE file — it measures the reference and nothing
@@ -2720,13 +2731,13 @@ test.describe("the schematic is a derived render of the plan", () => {
       .toEqual(["generation_miss", "measurement_withheld", "scaffold_feature_absent"]);
     expect(Object.keys(header._rounds || {}).sort(),
       "and every round it holds entries for")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40", "row42"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40", "row42"]);
     /* [Row 32] AND A ROUND WHOSE MISSES ARE NOT ABOUT ONE PAINTING STILL HAS TO
        CLOSE THEM. Row 32's entries are about the instrument, the emitter and two
        promotion gates, so they carry no facing and no delta and the per-facing
@@ -2743,7 +2754,7 @@ test.describe("the schematic is a derived render of the plan", () => {
     const facingless = ledger.filter((x) => !x.facing);
     expect([...new Set(facingless.map((x) => x.round))].sort(),
       "a round whose misses are about the machinery rather than about a painting")
-      .toEqual(["row29a", "row32", "row40"]);
+      .toEqual(["row29a", "row32", "row40", "row42"]);
     /* [row 40] AND AN OPEN MISS IS A KIND THIS LEDGER NOW HOLDS, which is the
        clause read straight rather than a licence. Production law clause 3 says
        a miss closes only when its cause is baked in algorithmically, cited by

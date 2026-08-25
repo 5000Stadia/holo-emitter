@@ -102,21 +102,6 @@ MIN_STABILITY = 3
 STABLE_TOL = 0.05
 
 
-def _runs(mask, min_len):
-    """Contiguous True runs of `mask` at least `min_len` long, as [lo, hi)."""
-    out, start = [], None
-    for i, on in enumerate(mask):
-        if on and start is None:
-            start = i
-        elif not on and start is not None:
-            if i - start >= min_len:
-                out.append((start, i))
-            start = None
-    if start is not None and len(mask) - start >= min_len:
-        out.append((start, len(mask)))
-    return out
-
-
 def _body_profile(L, floor_y, ppm):
     """v(x): the median luminance of each column over a door's body rows.
 
@@ -135,53 +120,22 @@ def _body_profile(L, floor_y, ppm):
 def _stable_dark_runs(v, x0, x1, minw):
     """Every maximally stable dark run in v[x0:x1], with its stability.
 
-    THE THRESHOLD IS NOT CHOSEN, IT IS SWEPT. A single darkness cut cannot be
-    honest across this corpus: `library/E` reads its void at 3 and `study/E`
-    reads its own at 12, because one is a black passage and the other has a lit
-    floor a few metres behind it. So every cut from 1 to the wall's own median
-    luminance is taken in turn — the wall's median is the ceiling because past
-    it "darker than the wall" stops meaning anything — the runs at each are
-    collected, and the ones that keep the SAME EDGES over many cuts are the
-    features. A panel groove or a shadowed corner drifts with the cut; a hole
-    in a wall does not.
+    THE THRESHOLD IS NOT CHOSEN, IT IS SWEPT, and the sweep itself lives in
+    `measure_lib.maximally_stable_runs` because `window_measure.py` reads a
+    glazed opening as the same feature with the inequality turned round: two
+    copies of one arithmetic is where a door detector and a window detector on
+    the same wall would come to disagree about what a stable run is.
 
-    That is 1-D maximal stability (the idea behind MSER), and it is chosen for
-    the property that matters here: nothing in it knows what width it is
-    looking for, so a wall whose painted door is the wrong size still reads at
-    the size it was painted, and the guard downstream can see that.
+    What is this file's own is the CEILING on the sweep. Every cut from 1 to
+    the wall's own median luminance is taken - past that, "darker than the
+    wall" stops meaning anything - and `library/E` reads its void at 3 while
+    `study/E` reads its own at 12, which is why a single cut cannot be honest
+    here.
     """
     top = float(np.median(v[x0:x1]))
-    groups = []
-    for t in range(1, max(2, int(round(top)) + 1)):
-        mask = np.zeros(len(v), bool)
-        mask[x0:x1] = v[x0:x1] < t
-        for a, b in _runs(mask, minw):
-            centre = (a + b) / 2.0
-            found = None
-            for g in groups:
-                pa, pb = g["spans"][-1]
-                # the same feature grown or shrunk, not a different one: each
-                # contains the other's midpoint
-                if (pa < centre < pb) or (a < (pa + pb) / 2.0 < b):
-                    found = g
-                    break
-            if found is None:
-                groups.append({"spans": [(a, b)], "ts": [t]})
-            else:
-                found["spans"].append((a, b))
-                found["ts"].append(t)
-    out = []
-    for g in groups:
-        widths = np.array([b - a for a, b in g["spans"]], float)
-        med = float(np.median(widths))
-        stable = [(s, t) for s, t in zip(g["spans"], g["ts"])
-                  if abs((s[1] - s[0]) - med) <= STABLE_TOL * med]
-        if len(stable) < MIN_STABILITY:
-            continue
-        span, t_rep = stable[len(stable) // 2]
-        out.append({"span": span, "t": t_rep, "stability": len(stable),
-                    "t_lo": stable[0][1], "t_hi": stable[-1][1]})
-    out.sort(key=lambda z: z["span"][0])
+    out = ml.maximally_stable_runs(
+        v, x0, x1, minw, range(1, max(2, int(round(top)) + 1)), "dark",
+        min_stability=MIN_STABILITY, stable_tol=STABLE_TOL)
     return out, top
 
 

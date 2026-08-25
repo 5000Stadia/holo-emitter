@@ -315,7 +315,15 @@ const META_KEYS = [
   // carries this, the aperture a player walks through IS the painted opening
   // and §11's "the painted opening must coincide with the click target" is
   // true by construction rather than by prompt discipline.
-  "openings"
+  "openings",
+  /* [row 42] ...and the painted WINDOW, read the same way and written by the
+   * same act. A window is not a way through, so it is not an `openings` entry
+   * and the renderer never hands it a `go` target; it is where a casement
+   * sprite is placed, and it is here so that a meta carrying one is a meta this
+   * validator knows rather than one it refuses on `meta.unknown_key`.
+   * `window_evidence` is the reading's own account of what the painting showed
+   * that the plan does not rule — recorded, never gated. */
+  "windows", "window_evidence"
 ];
 
 /**

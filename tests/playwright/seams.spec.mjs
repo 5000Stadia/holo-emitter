@@ -29,7 +29,8 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
   EDGE_FRACTION, SIDES, neighbourAt, neighbourEdge, adjacencyTable, roleSentence,
-  seedPlan, openOrder, cutEdgeSeed, seedFileName, wallLineEnd, isOpenLocation
+  seedPlan, openOrder, cutEdgeSeed, seedFileName, wallLineEnd, isOpenLocation,
+  roomOrder, leadFacing, entryDoorFacing, opposite, packetNote
 } from "../../tools/edge-seed.mjs";
 import { RIGHT, NORMAL, FACINGS } from "../../tools/validate-plan.mjs";
 import { manorPrompt, scaffoldRects } from "../../tools/make-scaffold.mjs";
@@ -277,39 +278,123 @@ test.describe("row 38 — the sentence rides with the strip and never without it
 /* 4. THE ORDERING, AND ITS SCOPE                                      */
 /* ------------------------------------------------------------------ */
 
-test.describe("row 38 — ordering is an open location's, and nobody else's", () => {
-  test("seedPlan never makes an indoor facing depend on anything", () => {
+/* WHAT ROW 42 CHANGED HERE, AND THE SENTENCE THAT DIED WITH IT. This block used
+ * to be headed "ordering is an open location's, and nobody else's" and its first
+ * case asserted that no indoor facing may ever carry a `depends_on`. Row 42
+ * revokes exactly that: [HUMAN] "Can we paint the whole scene on wall 1 for a
+ * room, use it to influence wall 2-4" — every location now paints a LEAD wall
+ * first and the other three follow it. What survives unchanged, and is asserted
+ * below, is the RING: outdoors each facing continues the one at its left edge
+ * because an open turn has no corner to hide a seam in; indoors all three
+ * continue the lead. */
+test.describe("row 38/42 — the ring is an open location's, the lead is everyone's", () => {
+  test("the policy still splits open from indoor, and the lead never waits", () => {
     for (const room of PLAN.rooms) {
       for (const f of Object.keys(room.facings || {})) {
         const s = seedPlan(PLAN, `${room.id}/${f}`);
-        if (isOpenLocation(PLAN, room.id)) {
-          expect(s.policy).toBe("required");
-        } else {
-          expect(s.policy).toBe("opportunistic");
-          expect(s.depends_on, `${room.id}/${f} is indoors and may not be ordered`).toBeNull();
-        }
-        /* A facing that has a seed never waits: it has what it needs. */
-        if (s.neighbour) expect(s.depends_on).toBeNull();
+        expect(s.policy).toBe(isOpenLocation(PLAN, room.id) ? "required" : "opportunistic");
+        /* A room's first wall continues nothing, so it can never be waiting. */
+        if (s.is_lead) expect(s.depends_on, `${room.id}/${f} LEADS its room`).toBeNull();
+        /* And whatever it waits for, it is the wall it continues and nothing
+         * else — the dependency is the order narrowed to "and it does not
+         * exist yet", never a second opinion about which wall comes first. */
+        if (s.depends_on) expect(s.depends_on).toBe(s.continues);
       }
     }
   });
 
-  test("an open location's order is the ring from the first completed direction", () => {
-    const order = openOrder(PLAN, "entrance_approach");
-    expect(order.map((o) => o.facing)).toEqual(["E", "S", "W", "N"]);
-    expect(order[0].origin).toBe(true);
-    expect(order[0].depends_on).toBeNull();
-    for (let i = 1; i < order.length; i++) {
-      expect(order[i].depends_on).toBe(`entrance_approach/${order[i - 1].facing}`);
-      expect(neighbourAt(order[i].facing, "left")).toBe(order[i - 1].facing);
+  test("every room has exactly one lead and it is the most-carried wall", () => {
+    for (const room of PLAN.rooms) {
+      const order = roomOrder(PLAN, room.id, () => false);
+      const leads = order.filter((o) => o.lead);
+      expect(leads.length, `${room.id} does not have exactly one lead`).toBe(1);
+      expect(leads[0].position).toBe(0);
+      const most = Math.max(...order.map((o) => o.carriers));
+      expect(leads[0].carriers,
+        `${room.id} leads with ${leads[0].facing} (${leads[0].carriers} carriers) while a ` +
+        `wall of it carries ${most} — the lead is the wall that SHOWS the room`).toBe(most);
+      for (const o of order) expect(o.lead_key).toBe(leads[0].key);
     }
-    /* With nothing painted, the origin is the first facing in compass order and
-     * the chain still closes — this is what a location painted from scratch
-     * does, and it is the case the pilot's room can no longer show. */
+  });
+
+  test("a tie breaks to the wall the room's entry door faces", () => {
+    /* `hall` carries one thing on each of its four walls, so the count decides
+       nothing and the tie-break is the whole answer: its entry is the lowest-
+       ordered door the plan joins to it, and the wall that door FACES is the
+       one a person walking in is looking at. */
+    const entry = entryDoorFacing(PLAN, "hall");
+    expect(entry, "the cross passage has no door at all").toBeTruthy();
+    expect(leadFacing(PLAN, "hall")).toBe(opposite(entry));
+    /* ...and where the count DOES decide, the tie-break is not consulted: the
+       long gallery's W wall carries six and its E five. */
+    expect(leadFacing(PLAN, "long_gallery")).toBe("W");
+  });
+
+  test("indoors the other three continue the lead; outdoors they continue the ring", () => {
+    const indoor = roomOrder(PLAN, "long_gallery", () => false);
+    expect(indoor[0].continues).toBeNull();
+    for (const o of indoor.slice(1)) {
+      expect(o.continues, `${o.key} indoors must continue its room's lead`)
+        .toBe(indoor[0].key);
+    }
+    const open = roomOrder(PLAN, "entrance_approach", () => false);
+    expect(open[0].continues).toBeNull();
+    for (let i = 1; i < open.length; i++) {
+      expect(open[i].continues).toBe(`entrance_approach/${open[i - 1].facing}`);
+      expect(neighbourAt(open[i].facing, "left")).toBe(open[i - 1].facing);
+    }
+  });
+
+  test("the seat is told to wait, in the packet AND in its standing order", () => {
+    /* THE THING ROW 42 ACTUALLY DEPENDS ON. Three quarters of the manor now
+       carries a `depends_on`, so an order that says "paint every roll whose
+       candidate is missing" would paint the whole house out of sequence and the
+       row would buy nothing. Both halves are asserted because they are written
+       in two languages and neither can see the other.
+
+       VERIFIED AND STATED: before this row the standing order said NOTHING
+       about waiting and `baton-watch.sh` counted a blocked roll as owed, so the
+       baton would have sat on the seat and nudged it to paint out of order. */
+    const packet = packetNote(null, {
+      location: "kitchen", location_type: "indoor", depends_on: "kitchen/S" });
+    expect(packet, "a waiting packet does not say so").toContain("WAITS for `kitchen/S`");
+    expect(packet).toContain("Do not paint it");
+
+    /* ...and a packet that carries a strip AND waits says both, which row 38
+       could never produce and row 42 can: a facing can hold a strip from one
+       painted neighbour and still be waiting for its room's lead. */
+    const both = packetNote(
+      { side: "left", fraction: 0.1, source: "backdrops/kitchen/W.png",
+        neighbour_edge: "right", width_px: 153, sha256: "a".repeat(64),
+        source_sha256: "b".repeat(64), role_sentence: "…", policy: "opportunistic",
+        why: "…", location: "kitchen", location_type: "indoor",
+        depends_on: "kitchen/S" }, null);
+    expect(both).toContain("WAITS for `kitchen/S`");
+    expect(both).toContain("Image 3 is this wall's edge seed");
+
+    const order = readFileSync(join(repoRoot, "tools", "baton-watch.sh"), "utf8");
+    const line = order.split("\n").find((l) => l.startsWith("ORDER="));
+    expect(line, "baton-watch.sh no longer carries a standing order").toBeTruthy();
+    expect(line, "the standing paint order does not tell the seat to skip a waiting packet")
+      .toContain("depends_on");
+    /* And the watchdog must not COUNT a waiting roll as owed, or the baton sits
+       on the seat forever and nudges it to do the one thing it must not. */
+    expect(order).toContain('if e.get("depends_on"): continue');
+  });
+
+  test("an open location's ring starts at its lead and closes", () => {
     const cold = openOrder(PLAN, "entrance_approach", () => false);
-    expect(cold.map((o) => o.facing)).toEqual(["N", "E", "S", "W"]);
+    expect(cold[0].facing).toBe(leadFacing(PLAN, "entrance_approach"));
+    expect(cold[0].origin).toBe(true);
     expect(cold[0].depends_on).toBeNull();
+    expect(cold.map((o) => o.facing).sort())
+      .toEqual(Object.keys(PLAN.rooms.find((r) => r.id === "entrance_approach").facings).sort());
     expect(cold.slice(1).every((o) => o.depends_on)).toBe(true);
+    /* And the dependency is a fact about NOW: hand it a resolver that says
+       every wall already has a picture and nothing waits for anything. */
+    const warm = openOrder(PLAN, "entrance_approach", () => true);
+    expect(warm.every((o) => o.depends_on === null)).toBe(true);
+    expect(warm.slice(1).every((o) => o.continues)).toBe(true);
   });
 
   test("the emitted records carry the dependency, and only where the row licenses one", () => {
@@ -321,11 +406,18 @@ test.describe("row 38 — ordering is an open location's, and nobody else's", ()
     for (const e of rows) {
       const open = isOpenLocation(PLAN, e.key.split("/")[0]);
       expect(e.seed_policy).toBe(open ? "required" : "opportunistic");
-      if (!open) expect(e.depends_on, `${e.key} is indoors`).toBeNull();
+      /* [row 42] An indoor entry MAY now carry a dependency — what it may not
+       * do is carry one that is not its room's own order. `continues` is
+       * written beside it on every entry cut from row 42 on; an older entry
+       * has neither field and is read by the ring rule it was written under. */
       if (e.depends_on) {
-        expect(e.edge_seed, `${e.key} waits AND carries a seed`).toBeNull();
-        expect(neighbourAt(e.key.split("/")[1], "left"))
-          .toBe(e.depends_on.split("/")[1]);
+        if (e.continues !== undefined) {
+          expect(e.depends_on, `${e.key} waits for something it does not continue`)
+            .toBe(e.continues);
+        } else {
+          expect(neighbourAt(e.key.split("/")[1], "left"))
+            .toBe(e.depends_on.split("/")[1]);
+        }
       }
       if (e.edge_seed) {
         expect(e.edge_seed.sha256).toMatch(/^[0-9a-f]{64}$/);
@@ -338,8 +430,18 @@ test.describe("row 38 — ordering is an open location's, and nobody else's", ()
           .toBe(neighbourEdge(e.key.split("/")[1], e.edge_seed.side));
       }
     }
-    /* The manifest's own ordering block, written whole per open location. */
-    if (manifest.open_location_order) {
+    /* The manifest's own ordering block. [row 42] `room_order` is written whole
+     * for EVERY location and carries the lead and why it leads; the older
+     * `open_location_order` is read where a manifest predates the row. */
+    if (manifest.room_order) {
+      for (const [room, block] of Object.entries(manifest.room_order)) {
+        expect(block.lead, `${room} has no lead`).toBeTruthy();
+        expect(block.lead_why, `${room}'s lead is unexplained`).toBeTruthy();
+        expect(block.order[0].key).toBe(block.lead);
+        expect(block.order[0].depends_on).toBeNull();
+        expect(block.type).toBe(isOpenLocation(PLAN, room) ? "open" : "indoor");
+      }
+    } else if (manifest.open_location_order) {
       for (const [room, chain] of Object.entries(manifest.open_location_order)) {
         expect(isOpenLocation(PLAN, room)).toBe(true);
         expect(chain[0].depends_on).toBeNull();
