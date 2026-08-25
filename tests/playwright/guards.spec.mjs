@@ -83,6 +83,45 @@ function tokensFromNavMetas(doctor) {
   return tokensOf(validate(NAV_DIR, RECORDS, metas));
 }
 
+/* THE FACING THE STOREY CASES DOCTOR IS CHOSEN FROM THE TREE, NOT NAMED —
+ * because naming one has now broken four times, and it is one family rather
+ * than four incidents.
+ *
+ * `meta.opening_over_storey` is reached by lowering a facing's storey under
+ * its own door head, and that lever only works on a facing whose meta comes
+ * from the DERIVED map: a promoted facing resolves its meta from
+ * `backdrops/<loc>/<F>.meta.json` before the map is consulted, so doctoring
+ * the map leaves this clause silent AND makes the measured meta disagree with
+ * the plan, which is `meta.building_fields` — a second clause, in a ledger
+ * built on isolation. The case has walked away from the painters three times
+ * already (study/N -> study/W at row 21, study/W -> study/S at the
+ * standing-eye wave, and the demo world -> the nav world's great_hall/S at
+ * row 21), and each move was one promotion away from the next break. Today's
+ * merge painted great_hall/S and broke it a fourth time.
+ *
+ * So the facing is DERIVED from the two properties the case actually needs and
+ * from nothing else: it is unpainted, and it carries a door opening at the
+ * ruled 2.00 m head this clause is about. Never from the outcome — a case that
+ * picked whichever facing made it pass would be green over a broken clause,
+ * which is the one thing this file exists to prevent. The nav world stages no
+ * leaf, so no staging clause can fire beside it wherever it lands. If the
+ * painters ever reach every such facing, this throws by name rather than
+ * going quiet. */
+const NAV_STOREY_FACING = (() => {
+  const RULED_DOOR_HEAD_M = 2.00;
+  for (const loc of NAV_WORLD.locations) {
+    for (const f of loc.facings) {
+      if (existsSync(join(repoRoot, "backdrops", loc.id, `${f}.meta.json`))) continue;
+      const meta = metaForFacing(PLAN, loc.id, f);
+      if (typeof meta.storey_height_m !== "number" || !(meta.px_per_m_at_wall > 0)) continue;
+      const head = (meta.openings || []).some((o) => o.kind === "door" &&
+        Math.abs(o.h / meta.px_per_m_at_wall - RULED_DOOR_HEAD_M) < 1e-3);
+      if (head) return `${loc.id}/${f}`;
+    }
+  }
+  throw new Error("no unpainted nav facing carries a 2.00 m door head — meta.opening_over_storey has nowhere left to be exercised from the derived map, and the two cases that use it would otherwise go green by absence");
+})();
+
 function tokensOf(findings) {
   const out = new Set();
   for (const f of findings) {
@@ -994,8 +1033,9 @@ const DOCUMENT_CASES = {
        an opening are the two `door1` hangs on — so lowering their storey trips
        `staging.wall_mounted_over_storey` in the same breath, and neither case
        would then be evidence about its own clause. The painted world stages
-       nothing, so no staging clause can fire beside this one. */
-    m["great_hall/S"].storey_height_m = 1.85;
+       nothing, so no staging clause can fire beside this one.
+       WHICH nav facing is `NAV_STOREY_FACING`'s to say — see its note. */
+    m[NAV_STOREY_FACING].storey_height_m = 1.85;
   }),
   "staging.wall_mounted_over_storey": () => tokensOf(validateWithStaging((st) => {
     /* `door1` is 2.00 m tall and hangs at `v: 0` in a 2.80 m room. Raised a
@@ -1832,7 +1872,19 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * no fill — but a 20.4 m `go` target on featureless ground is the same
      * defect the flights above are drawn to avoid. A line on the ground, at
      * the position the plan holds, is what the law does permit and what the
-     * grid already draws every half metre. */
+     * grid already draws every half metre.
+     *
+     * AND THE SECOND HALF IS READ OFF THE STROKE, NOT OFF THE SILL.
+     * `entrance_court/S` is promoted now, and its measured ground scale put
+     * the grid's own half-metre line at y 694 with the sill at y 695 — so "is
+     * there a contrasty line here" answers yes with this mechanism deleted,
+     * and the old subtraction fell to sixteen columns over a mark that was
+     * still being drawn in full. The manor has exactly two thresholds and the
+     * other one (`entrance_approach/N`) is coincident with its own wall-floor
+     * line by construction, so there is nowhere to move the reading to; what
+     * moves is the reading. `sillColumnsDrawn` differences the two trees
+     * column by column, and the stroke is the only thing that differs between
+     * them. */
     const dir = stageWithout(
       '      if (mth.kind !== "threshold") continue;',
       "      if (true) continue;");
@@ -1840,7 +1892,7 @@ test.describe("the clause ledger — renderer mechanisms", () => {
       const clean = await thresholdInk(page, repoRoot);
       const broken = await thresholdInk(page, dir);
       expect(clean.onLine, "the mouth's own ground line is drawn").toBeGreaterThan(200);
-      expect(clean.onLine - broken.onLine, "and it is the threshold that draws it")
+      expect(sillColumnsDrawn(clean, broken), "and it is the threshold that draws it")
         .toBeGreaterThan(200);
     } finally {
       removeTree(dir);
@@ -2049,8 +2101,39 @@ async function thresholdInk(page, root) {
       }
       if (here - beside > 40) onLine++;
     }
-    return { onLine };
+    /* AND THE STRIP THE STROKE ITSELF LANDS ON, column by column, so the
+       mechanism can be measured as WHAT IT PUT ON THE CANVAS rather than as
+       what stands at the sill after everyone has drawn. `onLine` above is a
+       contrast against the ground below, and a contrast cannot tell this
+       stroke from the grid's own transverse line when the two coincide — which
+       is exactly what happened when `entrance_court/S` was promoted: the
+       measured meta moved the ground scale, the half-metre line landed at
+       y 694 and the sill at y 695, and the whole 20.4 m mark went on being
+       drawn while the case measuring it read a difference of sixteen columns.
+       A per-column reading of the five rows the 2 px stroke can occupy is
+       differenced between the clean tree and the broken one, and nothing that
+       draws the same in both can show up in it. */
+    const band = [];
+    for (let x = x0; x < x1; x++) {
+      let m = 0;
+      for (let y = yLine - 2; y <= yLine + 2; y++) {
+        const i = (y * 1536 + x) << 2;
+        m = Math.max(m, d[i] + d[i + 1] + d[i + 2]);
+      }
+      band.push(m);
+    }
+    return { onLine, band };
   });
+}
+
+/** Columns of the sill strip the threshold's own stroke changed — the two
+ *  readings come from trees that differ only in whether that stroke is drawn,
+ *  so a column that moved is a column the mechanism painted. */
+function sillColumnsDrawn(clean, broken, floor = 20) {
+  const n = Math.min(clean.band.length, broken.band.length);
+  let moved = 0;
+  for (let i = 0; i < n; i++) if (Math.abs(clean.band[i] - broken.band[i]) > floor) moved++;
+  return moved;
 }
 
 /** [Row 15] Lit pixels inside the court mouth's own rectangle on
@@ -3010,10 +3093,13 @@ test.describe("row 19's bounds, from both sides", () => {
     /* Blueprint §11 rules every door opening at 2.00 m and the projection
        states that height in code because the plan has no vertical datum. The
        storey is the document field an agent can set, so the storey is what
-       moves — one centimetre either side of the ruled head. */
-    expect([...tokensFromNavMetas((m) => { m["great_hall/S"].storey_height_m = 2.01; })],
+       moves — one centimetre either side of the ruled head.
+       On `NAV_STOREY_FACING`, for the reason its note gives: a facing the
+       painters have reached answers off its own file and this lever moves
+       nothing there. */
+    expect([...tokensFromNavMetas((m) => { m[NAV_STOREY_FACING].storey_height_m = 2.01; })],
       "a door 1 cm under its own ceiling stands in the room").toEqual([]);
-    expect([...tokensFromNavMetas((m) => { m["great_hall/S"].storey_height_m = 1.99; })],
+    expect([...tokensFromNavMetas((m) => { m[NAV_STOREY_FACING].storey_height_m = 1.99; })],
       "and 1 cm over it goes through the ceiling").toEqual(["meta.opening_over_storey"]);
   });
 
