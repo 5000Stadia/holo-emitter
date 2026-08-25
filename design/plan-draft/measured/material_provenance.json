@@ -4,20 +4,20 @@
   "promoted_facings": 61,
   "split_rooms": [
     "study",
+    "back_stair",
     "servants_hall",
     "entrance_court",
+    "back_stair_head",
     "stair_landing",
     "guest_chamber",
     "closet_chamber"
   ],
   "superseded_rooms": [
     "great_hall",
-    "back_stair",
     "kitchen",
     "buttery_pantry",
     "privy_garden",
     "solar",
-    "back_stair_head",
     "long_gallery"
   ],
   "unrecoverable": [],
@@ -28,7 +28,7 @@
         {
           "facing": "N",
           "voice": "hall_state",
-          "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
+          "candidate": "backdrops/source-doors/great_hall-N/doored.png",
           "ruling": {
             "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
             "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
@@ -36,7 +36,7 @@
             "hangings": null
           },
           "ask_path": "backdrops/source/great_hall-N/row23-eb5c307d.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/great_hall-N/row23-eb5c307d.png)",
           "missing": [
             "walls",
             "overhead",
@@ -155,33 +155,28 @@
         {
           "facing": "W",
           "voice": "back_stair",
-          "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
+          "candidate": "backdrops/source-snapped/back_stair-W/snapped.png",
           "ruling": {
             "walls": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
             "overhead": "a plain plastered soffit",
             "underfoot": "plain scrubbed oak treads and boards",
             "hangings": null
           },
-          "ask_path": "backdrops/source/back_stair-W/row23-4e3755a6.prompt.txt",
-          "ask_via": "beside the candidate",
-          "missing": [
-            "walls",
-            "overhead",
-            "underfoot"
-          ],
-          "verdict": "stale",
-          "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_path": "backdrops/source/back_stair-W/row23-7d7caa79.prompt.txt",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/back_stair-W/row23-7d7caa79.png)",
+          "missing": [],
+          "verdict": "current",
+          "asked": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery. Overhead: a plain plastered soffit. plain scrubbed oak treads and boards.",
+          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards"
         }
       ],
-      "distinct_asks": 1,
-      "split": false,
+      "distinct_asks": 2,
+      "split": true,
       "stale": [
-        "N",
-        "W"
+        "N"
       ],
       "unprovable": [],
-      "verdict": "one-ask-superseded"
+      "verdict": "split-ask"
     },
     {
       "room": "kitchen",
@@ -420,7 +415,7 @@
         {
           "facing": "W",
           "voice": "servants_hall",
-          "candidate": "backdrops/source/servants_hall-W/row23-ee63b93c.png",
+          "candidate": "backdrops/source-snapped/servants_hall-W/snapped.png",
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
@@ -428,7 +423,7 @@
             "hangings": null
           },
           "ask_path": "backdrops/source/servants_hall-W/row23-ee63b93c.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/servants_hall-W/row23-ee63b93c.png)",
           "missing": [],
           "verdict": "current",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
@@ -649,7 +644,7 @@
         {
           "facing": "W",
           "voice": "garden_parlour",
-          "candidate": "backdrops/source/garden_room-W/row23-e0d4b50e.png",
+          "candidate": "backdrops/source-snapped/garden_room-W/snapped.png",
           "ruling": {
             "walls": "light-toned oak wainscot to chair height below limewashed plaster",
             "overhead": "a plain lime-plastered ceiling",
@@ -657,7 +652,7 @@
             "hangings": null
           },
           "ask_path": "backdrops/source/garden_room-W/row23-e0d4b50e.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/garden_room-W/row23-e0d4b50e.png)",
           "missing": [],
           "verdict": "current",
           "asked": "light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. a floor of square stone paviours.",
@@ -1032,33 +1027,28 @@
         {
           "facing": "S",
           "voice": "back_stair",
-          "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
+          "candidate": "backdrops/source-snapped/back_stair_head-S/snapped.png",
           "ruling": {
             "walls": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
             "overhead": "a plain plastered soffit",
             "underfoot": "plain scrubbed oak treads and boards",
             "hangings": null
           },
-          "ask_path": "backdrops/source/back_stair_head-S/row23-2fe57dfb.prompt.txt",
-          "ask_via": "beside the candidate",
-          "missing": [
-            "walls",
-            "overhead",
-            "underfoot"
-          ],
-          "verdict": "stale",
-          "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_path": "backdrops/source/back_stair_head-S/row23-4df7ac87.prompt.txt",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/back_stair_head-S/row23-4df7ac87.png)",
+          "missing": [],
+          "verdict": "current",
+          "asked": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery. Overhead: a plain plastered soffit. plain scrubbed oak treads and boards.",
+          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards"
         }
       ],
-      "distinct_asks": 1,
-      "split": false,
+      "distinct_asks": 2,
+      "split": true,
       "stale": [
-        "N",
-        "S"
+        "N"
       ],
       "unprovable": [],
-      "verdict": "one-ask-superseded"
+      "verdict": "split-ask"
     },
     {
       "room": "long_gallery",
@@ -1143,7 +1133,7 @@
         {
           "facing": "N",
           "voice": "bedchamber",
-          "candidate": "backdrops/source/master_bedchamber-N/row23-b2fa7b28.png",
+          "candidate": "backdrops/source-doors/master_bedchamber-N/doored.png",
           "ruling": {
             "walls": "oak wainscot to chair height with wall hangings above it",
             "overhead": "a plain lime-plastered ceiling",
@@ -1151,7 +1141,7 @@
             "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
           },
           "ask_path": "backdrops/source/master_bedchamber-N/row23-b2fa7b28.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/master_bedchamber-N/row23-b2fa7b28.png)",
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
@@ -1160,7 +1150,7 @@
         {
           "facing": "E",
           "voice": "bedchamber",
-          "candidate": "backdrops/source/master_bedchamber-E/row23-aff7a644.png",
+          "candidate": "backdrops/source-snapped/master_bedchamber-E/snapped.png",
           "ruling": {
             "walls": "oak wainscot to chair height with wall hangings above it",
             "overhead": "a plain lime-plastered ceiling",
@@ -1168,7 +1158,7 @@
             "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
           },
           "ask_path": "backdrops/source/master_bedchamber-E/row23-aff7a644.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/master_bedchamber-E/row23-aff7a644.png)",
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
@@ -1293,7 +1283,7 @@
         {
           "facing": "E",
           "voice": "bedchamber",
-          "candidate": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png",
+          "candidate": "backdrops/source-snapped/guest_chamber-E/snapped.png",
           "ruling": {
             "walls": "oak wainscot to chair height with wall hangings above it",
             "overhead": "a plain lime-plastered ceiling",
@@ -1301,7 +1291,7 @@
             "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
           },
           "ask_path": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.prompt.txt",
-          "ask_via": "beside the candidate",
+          "ask_via": "the roll this snapped frame was rectified from (backdrops/source/guest_chamber-E/row23-5dfe4cfe.png)",
           "missing": [
             "walls",
             "overhead",

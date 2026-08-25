@@ -299,11 +299,59 @@ test.describe("row 40 — the origin: the ask audit reads what the pixels only i
       .filter((r) => String(r.verdict || "").startsWith("mismatched")).map((r) => r.room);
     expect(mismatched.length, "the pixel measure flagged nothing — this case is blind")
       .toBeGreaterThan(0);
+    /* THE TWO ROOMS THE ASK REPAIR CLOSED AND THE PIXELS DID NOT FOLLOW —
+     * named one at a time, and held rather than skipped.
+     *
+     * The claim above was made of the store as it stood before any repair, and
+     * it was true of it: five rooms mismatched in pixels, five rooms split in
+     * the asks, facing for facing. It is NOT an invariant of the system, and it
+     * cannot be, because the repair route this file's own section 4 drives is
+     * what breaks it: `--emit-consistency --from-ask` re-asks a room naming its
+     * ruling materials, the returns are promoted, and the room leaves the
+     * audit's set that same moment — while its pixels move only as far as the
+     * painter took them. `master_bedchamber` (4.474 -> 4.144, ceiling band) and
+     * `garden_room` (6.208 -> 3.904) both went through it, both improved, and
+     * neither crossed the 3.75 cut. Their asks now agree; their paintings still
+     * do not. That is the residue an ask cannot reach — one instruction, two
+     * materially different surfaces back — and on master_bedchamber's worst
+     * pair it is carried by CONTRAST (dT 1.638) and not by colour (dChroma
+     * 0.088): the same plaster in the same brown, painted with far more grain
+     * on one facing than the other.
+     *
+     * Logged OPEN under production law clause 2 in
+     * `design/plan-draft/measured/misses.jsonl` (round row40), with what would
+     * close it: row 36's assembled rooms, where a room's facings are
+     * composited from one material library and one lighting solve instead of
+     * rolled independently. A re-ask cannot close it — it would ask for the
+     * materials the room has already asked for.
+     *
+     * WHAT MAKES THIS A LEDGER AND NOT AN EXEMPTION: the loop below does not
+     * skip these rooms, it PINS them. A named room must still be mismatched in
+     * the pixels AND still be current in the asks. The day either moves — the
+     * assembly lands and the pixels agree, or someone edits the voice table and
+     * the asks go stale again — this case goes red and the line has to be
+     * deleted or the room handed back to the assertion above. */
+    const ASK_CLOSED_PIXELS_OPEN = new Set(["master_bedchamber", "garden_room"]);
+
     for (const room of mismatched) {
+      if (ASK_CLOSED_PIXELS_OPEN.has(room)) continue;          // pinned below
       expect(split.has(room),
         `${room} does not read as one room in the pixels, and the asks behind those pixels ` +
         `look like one ask. Either the disease has a second cause this audit cannot see, or ` +
         `the audit has gone blind — both are findings`).toBe(true);
+    }
+    for (const room of ASK_CLOSED_PIXELS_OPEN) {
+      expect(mismatched,
+        `${room} is carried as a room whose ask repair closed and whose pixels did not follow, ` +
+        `and the pixel measure no longer calls it mismatched. The miss has closed: delete its ` +
+        `line here and its OPEN entry in misses.jsonl, in the same commit`)
+        .toContain(room);
+      const rec = asks.rooms.find((r) => r.room === room);
+      expect(rec && rec.verdict,
+        `${room} is carried here as a room the ask audit has nothing left to say about, and the ` +
+        `audit now calls it "${rec && rec.verdict}". Its mismatch is back inside this case's ` +
+        `reach — take it out of the list rather than letting the pin hide it`)
+        .toBe("current");
     }
 
     /* AND THE MISS ROW 40 LOGGED OPEN. `stair_landing` scores 2.12, well under
@@ -450,6 +498,35 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
     expect(gc.outliers.sort()).toEqual(["E", "N", "W"]);
   });
 
+  /* THE AUDIT'S OWN REPORT IS WHAT THE AUDIT WRITES TODAY.
+   *
+   * `material_provenance.json` is committed, and until this case existed the
+   * only thing standing over it was an accident: it sits in the cand-2 round's
+   * home, `design/plan-draft/measured/`, and `plan.spec.mjs`'s corpus re-run
+   * demanded `measure.py` reproduce every `.json` in that directory. It cannot
+   * — `measure.py` reads pixels and this report reads asks — so the accident
+   * was a red case that said nothing about staleness, and naming the file out
+   * of that comparison would have left the report guarded by nothing at all.
+   *
+   * This is the project's own staleness shape put where it belongs: run the
+   * generator and byte-compare. Its subject is the same one the whole file has
+   * — the instant anyone corrects `room-voices.mjs`, or a promotion moves a
+   * wall in the store, this report is a description of a manor that no longer
+   * exists, and a stale observer is worse than none because it reads like an
+   * all-clear. */
+  test("the committed audit report byte-equals a fresh run of --audit-materials", () => {
+    const rp = join(repoRoot, "design", "plan-draft", "measured", "material_provenance.json");
+    expect(existsSync(rp), "the audit has never been written — run --audit-materials").toBe(true);
+    /* Composed exactly as `--audit-materials` composes it, so this compares the
+       report against the audit and never against a second formatter. */
+    const fresh = JSON.stringify(materialProvenance(PLAN), null, 2) + "\n";
+    expect(readFileSync(rp, "utf8"),
+      "design/plan-draft/measured/material_provenance.json is not what the audit writes today — " +
+      "the voice table moved, or the store moved, and nobody re-ran " +
+      "`node tools/make-scaffold.mjs --audit-materials`")
+      .toBe(fresh);
+  });
+
   test("the legacy ledger names candidates that exist and walls the audit calls stale", () => {
     /* THE LEDGER IS HONEST OR IT IS A LOOPHOLE. Every entry must name a wall
        the audit actually calls not-current and a candidate that is on disk —
@@ -577,11 +654,29 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
         `a photograph of a wall we know was wrongly commissioned is worse than no photograph`)
         .toBe("current");
     }
-    /* AND THE ROOMS THAT MUST GET NOTHING. guest_chamber's agreeing walls are
-       the wrong ones; master_bedchamber splits two against two with no majority
-       at all. Both stand on words. */
-    for (const key of ["guest_chamber/N", "guest_chamber/E", "guest_chamber/W",
-      "master_bedchamber/N", "master_bedchamber/E", "master_bedchamber/S", "master_bedchamber/W"]) {
+    /* AND THE ROOM THAT MUST GET NOTHING, WHICH IS THE ONE THE SECOND
+       CONDITION IS FOR. Every facing of `guest_chamber` stands on words alone:
+       the room's agreeing walls are E and N, and both were commissioned from
+       the panelled-parlour default, so there is no wall in it fit to be a
+       photograph of it — including S, the one facing that WAS asked for the
+       bedchamber voice, because S has nobody to be seeded from either. A rule
+       that trusted the pixel vote alone would hand all four a picture of the
+       wrong room.
+
+       `master_bedchamber` used to be listed here beside it, on the ground that
+       it split two against two with no majority at all. That was the store
+       before the repair. Its four facings have since been re-asked under
+       `--emit-consistency --from-ask` and re-promoted, the ask audit calls all
+       four `current`, and the re-measure clusters the room E/S/W against N —
+       so N is now an outlier with three agreeing walls of its own room to be
+       seeded from, and it gets one. That is the ruling working rather than
+       being violated, and the room is held by the loop above instead: whatever
+       Image 1 it resolves must be a wall this room agrees on AND one whose own
+       ask was the ruling. (Its pixels are still over the cut with its ask
+       closed — that miss is logged OPEN in misses.jsonl and pinned by the
+       audit-versus-pixels case above; it is not this case's subject.) */
+    for (const key of ["guest_chamber/N", "guest_chamber/E",
+      "guest_chamber/S", "guest_chamber/W"]) {
       expect(styleImageFor(PLAN, key),
         `${key} was given a style picture, and there is no wall of its room fit to be one`)
         .toBeNull();

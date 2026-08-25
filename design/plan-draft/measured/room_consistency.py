@@ -908,6 +908,32 @@ def markdown(report):
     return "\n".join(L) + "\n"
 
 
+def kept_tail(path):
+    """Everything a HUMAN wrote under this report, returned unchanged.
+
+    `design/batches/row40-consistency/README.md` is this measurement's rendering
+    for Kabe, and row 40's ORIGIN account — the two material tables, the five
+    rooms facing by facing, what was checked and ruled out — was written under
+    it by hand. This function is the only reason a re-measure does not delete
+    that account: the tool wrote the file with mode "w" and nothing warned.
+
+    The boundary is a bare horizontal rule. `markdown()` above emits none — it
+    writes headings, tables and paragraphs and never a `---` line — so the first
+    one in the file is the seam where the generated report stops and the hand
+    begins, and everything from it on is carried through untouched. Write below
+    a `---` and the measure will keep it; write above one and the next run owns
+    that text, which is the same contract every generated artifact here has.
+    """
+    if not os.path.exists(path):
+        return ""
+    with open(path) as fh:
+        lines = fh.read().split("\n")
+    for i, line in enumerate(lines):
+        if line.strip() == "---":
+            return "\n" + "\n".join(lines[i:])
+    return ""
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--room", default="", help="audit one room and print detail")
@@ -983,8 +1009,13 @@ def main():
             json.dump(report, fh, indent=2)
             fh.write("\n")
         os.makedirs(os.path.dirname(args.md), exist_ok=True)
+        # Read the hand-written tail BEFORE opening for write: mode "w"
+        # truncates on open, and reading it inside the `with` reads the empty
+        # file it just made. That is not hypothetical - it deleted the ORIGIN
+        # account once, in this very change, before the order was fixed.
+        tail = kept_tail(args.md)
         with open(args.md, "w") as fh:
-            fh.write(markdown(report))
+            fh.write(markdown(report) + tail)
         print()
         print("wrote", os.path.relpath(args.json, ROOT))
         print("wrote", os.path.relpath(args.md, ROOT))

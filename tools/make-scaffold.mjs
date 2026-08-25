@@ -2446,12 +2446,26 @@ export function materialProvenance(plan, opts = {}) {
       const metaPath = join(root, "backdrops", room.id, `${f}.meta.json`);
       if (!existsSync(metaPath)) continue;                       // not promoted
       const meta = JSON.parse(readFileSync(metaPath, "utf8"));
-      /* WHICH CANDIDATE IS IN THE STORE. `run-state.json` is the loop's own
-       * record; the promoted meta's `camera_id` is the promotion's. They agree
-       * where both exist, and either alone is enough to find the ask. */
-      const cand = walls[key] && walls[key].candidate
-        ? walls[key].candidate
-        : String(meta.camera_id || "").replace(/^measured:/, "") || null;
+      /* WHICH CANDIDATE IS IN THE STORE, AND THE META IS THE ONE THAT KNOWS.
+       * This used to prefer `run-state.json` on the stated ground that the
+       * loop's record and the promotion's `camera_id` "agree where both
+       * exist". They do not, on eight of the sixty-one promoted walls, and
+       * they cannot: run-state names the ROLL the loop dispatched, while a
+       * wall that went through row 27's door-void painter or row 35's snap is
+       * promoted from a DERIVED frame - `backdrops/source-doors/<wall>/
+       * doored.png`, `backdrops/source-snapped/<wall>/snapped.png` - and it is
+       * that frame `backdrops/<loc>/<F>.png` is a byte copy of. Two costs, both
+       * paid: `material_legacy.json` was sealed with the roll's path while
+       * `promote-backdrop.mjs` compares the ledger against the candidate it is
+       * actually handed, so the ledger admitted none of those eight and the
+       * row-40 clause refused `great_hall/N` - a wall the ledger exists to
+       * admit; and where a snap was rectified from a roll other than the one
+       * run-state last recorded (`back_stair/W`, `back_stair_head/S`) the audit
+       * read a different ask than the gate did, which is the exact drift the
+       * `askTextFor` note below exists to prevent. The promotion's own record
+       * governs; run-state is the fallback for a meta that names no camera. */
+      const cand = String(meta.camera_id || "").replace(/^measured:/, "") ||
+        (walls[key] && walls[key].candidate) || null;
       const { voice } = voiceFor(plan, room.id, f);
       const derived = deriveMeta(plan, room.id, f);
       const { rects } = scaffoldRects(plan, room.id, f, derived);

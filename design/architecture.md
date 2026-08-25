@@ -3813,6 +3813,15 @@ it seamlessly.* That is row 34's division applied to a seam — the strip carrie
 what a reference image is good at, and the words carry the role, which is what text is good at. An
 unlabelled third image is a guess.
 
+**And a packet may ride with more than one.** Row 40's repair route seeds an outlier from every
+agreeing wall its room has, so `attachSeeds` cuts a strip per allowed side in `SIDES` order and
+hands the nth `image_index = 3 + n`; `packetNoteAll` and `attachLineAll` are the plurals of
+`packetNote` and `attachLine`, and `roleSentence(side, index)` writes the number into the sentence.
+`servants_hall/E`'s consistency re-ask carries both. The invariant is one claim per strip and it
+holds at any count: a strip is never handed over unexplained, and a sentence never stands without
+its strip. `seams.spec.mjs` checks every strip at its own index in both the prompt and the attach
+list, and refuses a sentence for an image the packet does not carry.
+
 **Which neighbour, and which side, is derived and not typed.** `RIGHT[F] === NORMAL[G]` means G is
 the facing F's right edge looks toward: standing facing N your right hand points east, and east is
 what facing E looks along. So the table is
@@ -3937,7 +3946,11 @@ independently, landed on both sides of that line, and the room stopped being one
 disease Kabe walked into: `guest_chamber` S voiced against N/E/W generic, `master_bedchamber` N/S
 against E/W, `servants_hall` S/W against N/E, `garden_room` N/E against W, `closet_chamber` N
 against E/W — the pixel measure's five rooms, facing for facing. The full trace, the ruled-out
-suspects and the before/after are in `design/batches/row40-consistency/README.md`.
+suspects and the before/after are in `design/batches/row40-consistency/README.md`. That file is
+`room_consistency.py`'s own rendering with the ORIGIN account written under it by hand, and the
+measure opens it `"w"`: everything from the first bare `---` line is carried through untouched by
+`kept_tail()` (`markdown()` emits no such line, so the seam is unambiguous). Write below a rule and
+the measure keeps it; write above one and the next run owns that text.
 
 Four things carry the cure, and none of them is in an artifact:
 
@@ -3953,26 +3966,56 @@ Four things carry the cure, and none of them is in an artifact:
   shared `Materials/textures` line, and those two `blank` strings were corrected to name the fabric
   their `walls` names — which is what row 36's `MATERIAL_BINDING` already binds them to.
 - **`materialProvenance()` — the observer that did not exist.** For every promoted facing it
-  recovers the prompt its painting was actually made from (through `askTextFor`, so a row-35 snapped
-  candidate resolves through the roll it was rectified from) and compares it with what this composer
+  recovers the prompt its painting was actually made from and compares it with what this composer
   writes for that room TODAY. Deterministic; no pixels, no browser, no model. Because it recomputes
   the ruling from `room-voices.mjs` on every run, editing the voice table makes every wall painted
   under the old one visibly stale on the next `node tools/make-scaffold.mjs --audit-materials`,
   which writes `design/plan-draft/measured/material_provenance.json` and exits non-zero on any room
-  that is not current. It is strictly stronger than the pixel measure on the pixel measure's own
-  corpus: 5 of its 5 mismatched rooms, plus `stair_landing` (the miss that report logs OPEN, because
-  its two ceilings differ almost purely in brightness), plus 8 rooms painted CONSISTENTLY to a
-  superseded voice — which look like one room in pixels because they are one room — with zero false
-  flags against the six the contact sheets labelled plainly one room.
+  that is not current. The committed report is held against a fresh run of the audit, byte for byte,
+  in `material-origin.spec.mjs` — it sits in the cand-2 round's home and `plan.spec.mjs`'s corpus
+  re-run used to be its only reader, which could never have worked, since `measure.py` reads pixels.
+  - **WHICH CANDIDATE A FACING IS AUDITED ON: the promoted meta's `camera_id`, always.**
+    `run-state.json` is the loop's record of the ROLL it dispatched; a wall that went through row
+    27's door-void painter or row 35's snap is promoted from a DERIVED frame
+    (`backdrops/source-doors/<wall>/doored.png`, `backdrops/source-snapped/<wall>/snapped.png`), and
+    it is that frame `backdrops/<loc>/<F>.png` is a byte copy of. They differ on 8 of the 61
+    promoted walls. Preferring run-state cost twice: `material_legacy.json` was sealed with the
+    roll's path while `promote-backdrop.mjs` compares the ledger against the candidate it is handed,
+    so the ledger admitted none of those 8 and the row-40 clause refused `great_hall/N` — a wall the
+    ledger exists to admit; and where a snap was rectified from a roll other than the one run-state
+    last recorded, the audit read a different ask than the gate did. run-state is the fallback for a
+    meta that names no camera and nothing else. The ask itself is then resolved through `askTextFor`
+    — one resolver for the audit and the gate both, so a snapped candidate is read through the roll
+    it was rectified from rather than counted unrecoverable.
+  - **It is stronger than the pixel measure, and where it is not is logged.** On the pixel
+    measure's corpus it names 3 of the 5 rooms called mismatched, plus `stair_landing` (the miss
+    that report logs OPEN, because its two ceilings differ almost purely in brightness), plus the
+    rooms painted CONSISTENTLY to a superseded voice — which look like one room in pixels because
+    they are one room — with zero false flags against the six the contact sheets labelled plainly
+    one room. The other 2, `master_bedchamber` and `garden_room`, are the rooms the repair route
+    already closed: re-asked under `--emit-consistency --from-ask`, re-promoted, ask audit
+    `current`, and still over the 3.75 cut in pixels (4.474 → 4.144 and 6.208 → 3.904). That is not
+    the audit going blind — it is the residue an ask cannot reach, one instruction returning two
+    materially different surfaces, and on master_bedchamber's worst pair it is carried by contrast
+    and not by colour. Logged OPEN in `misses.jsonl` (round row40), closing when row 36 rebuilds
+    those rooms as assemblies; pinned meanwhile by `material-origin.spec.mjs`, which holds BOTH
+    instruments' verdicts for the two so the entry can only be removed, never quietly kept. The
+    original "5 of 5" was a claim about the store as it stood before any repair, and it could not
+    survive the repair route running.
 - **The promotion holds the door.** `promote-backdrop.mjs` refuses a candidate whose own ask never
   named its room's ruled materials `[row40:material.voice_stale]`, or whose ask cannot be read at
   all `[row40:material.ask_unreadable]`. Both speak with the collected refusals rather than ahead of
   them, so row 39's more specific `stair.ask_unreadable` still answers a flight wall first. The
-  clause is a no-op by construction on any packet this emitter cuts. The 36 paintings already in the
-  store are admitted by `design/plan-draft/measured/material_legacy.json`, a **ledger and not an
-  exemption**: an entry admits one facing from one exact candidate, a re-ask produces a new
-  candidate id that is not in the file, so the list can only shrink, and each entry names the
-  command that closes it.
+  clause is a no-op by construction on any packet this emitter cuts. The paintings already in the
+  store when it landed are admitted by `design/plan-draft/measured/material_legacy.json`, a **ledger
+  and not an exemption**: an entry admits one facing from one exact candidate — the candidate the
+  PROMOTION names, which is what the gate compares against — a re-ask produces a new candidate id
+  that is not in the file, so the list can only shrink, and each entry names the command that closes
+  it. Sealed at 36, now 29: the walls that left are the ones the supersede route re-asked and
+  re-promoted (`servants_hall/N`, `master_bedchamber` ×4, `garden_room/W`) plus `back_stair/W` and
+  `back_stair_head/S`, whose snaps carry the ruling. Re-seal it with `--audit-materials
+  --seal-legacy` rather than editing it, and `material-origin.spec.mjs` holds every entry against
+  the live audit — an admission for a wall the audit calls current is a door standing open.
 
 The forced re-ask can now be sourced from the asks instead of the pixels —
 `--emit-consistency --from-ask` — which is strictly earlier (the pixel measure cannot speak until
