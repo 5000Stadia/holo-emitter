@@ -29,7 +29,7 @@
  */
 import { test, expect } from "@playwright/test";
 import { repoRoot } from "./helpers.mjs";
-import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync, spawn } from "node:child_process";
@@ -277,7 +277,7 @@ test.describe("row 33 — the analyzer finds planted defects, and only planted o
     }
   });
 
-  test("--monitor exits 1 on a flag and 0 without one, printing one line either way", () => {
+  test("--monitor exits 1 on a flag and 0 without one, printing its two lines either way", () => {
     const dir = scratch();
     try {
       const bad = join(dir, "bad.jsonl"), good = join(dir, "good.jsonl");
@@ -302,13 +302,100 @@ test.describe("row 33 — the analyzer finds planted defects, and only planted o
           { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" } });
       } catch (e) { code = e.status; out = String(e.stdout || ""); }
       expect(code, "a monitor that cannot go red is not a monitor").toBe(1);
-      expect(out.trim().split("\n").length, "the monitor speaks in one line").toBe(1);
+      /* [row 43] TWO LINES, AND THE VERDICT IS STILL THE FIRST OF THEM. Row 43
+         asks the monitor to report each register's camera pass rate over its
+         last returns, against the register the clean one replaced — a ruling
+         taken on a screen that separated nothing is only honest if it keeps
+         being measured, and a number nobody prints is not reported. A scheduler
+         reads line 1 and the exit code exactly as it did; the exit code stays
+         the regression's alone, because a register whose rate falls is a
+         finding for the Navigator and not a red build. */
+      const lines = out.trim().split("\n");
+      expect(lines.length, "the monitor speaks in two lines: the verdict, then the registers")
+        .toBe(2);
+      expect(lines[0], "the timing verdict is no longer the first line a scheduler reads")
+        .toMatch(/^timings: /);
+      expect(lines[1]).toMatch(/^registers/);
       expect(out).toMatch(/REGRESSION: bake\.fixtures 6\.00x/);
 
       const ok = execFileSync("python3", [REPORT, "--ledger", good, "--monitor"],
         { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" } });
       expect(ok).toMatch(/no regression/);
-      expect(ok.trim().split("\n").length).toBe(1);
+      expect(ok.trim().split("\n").length).toBe(2);
+      /* AND THE REGISTER LINE IS THE JOIN, NOT A LABEL: it names the register
+         production composes and the trailing rate of the one it replaced. */
+      expect(ok).toMatch(/^registers \(last \d+ return\(s\) each\): /m);
+      expect(ok).toMatch(/trailing `g4`|no production packet record names a register/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("[row 43] the camera pass rate is attributed per register, through the packet record", () => {
+    /* THE JOIN, END TO END, ON A TREE BUILT FOR IT. Row 43 ruled the clean
+       register production on a screen that separated nothing at one roll a
+       wall, so the ruling only stays honest while the next returns keep being
+       measured against the register it replaced. A reading names its
+       candidate's roll id; the packet record names every roll it cut and the
+       register its ask was composed in; the report joins them. Three things
+       have to be true and each one is planted here:
+
+         - a record with no `register` key is `g4`, because every ask cut before
+           2026-08-25 composed through `g4ManorPrompt` — the absence IS the fact,
+           not a default standing in for missing data;
+         - `camera` is `verdict == "PASS"`, the same quantity `row34_fitness.py`
+           scores an arm's camera column on;
+         - a reading no packet record claims is not counted at all. The corpus
+           carries candidates from the evolution batches and from hand-cut
+           probes, and this line does not speak for them. */
+    const dir = scratch();
+    try {
+      const tree = join(dir, "tree");
+      const manor = join(tree, "design", "batches", "row23-scaffold", "manor");
+      const meas = join(tree, "design", "plan-draft", "measured", "manor");
+      mkdirSync(manor, { recursive: true });
+      mkdirSync(meas, { recursive: true });
+      const reading = (id, verdict) => writeFileSync(join(meas, `${id}.json`),
+        JSON.stringify({ id, candidate: `backdrops/source/planted-N/row23-${id}.png`, verdict }));
+      writeFileSync(join(manor, "manifest.json"), JSON.stringify({
+        entries: [
+          /* no `register` key: the incumbent, by the absence itself */
+          { key: "planted/N", rolls: [{ id: "aaaa1111" }, { id: "aaaa2222" }, { id: "aaaa3333" }] },
+          { key: "planted/S", register: "g5-noappendix",
+            rolls: [{ id: "bbbb1111" }, { id: "bbbb2222" }] }
+        ]
+      }));
+      reading("aaaa1111", "PASS");
+      reading("aaaa2222", "PASS");
+      reading("aaaa3333", "WITHHELD");
+      reading("bbbb1111", "PASS");
+      reading("bbbb2222", "WITHHELD");
+      reading("cccc9999", "PASS");            // claimed by no packet record
+
+      const ledger = join(dir, "reg.jsonl");
+      writeLedger(ledger, [{ ts_start: 1000, ts_end: 1001, step: "bake.fixtures",
+        key: null, detail: {} }]);
+      const out = execFileSync("python3",
+        [REPORT, "--ledger", ledger, "--tree", tree, "--monitor"],
+        { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" } });
+      const line = out.trim().split("\n")[1];
+      expect(line, "the clean register's own rate is not reported")
+        .toContain("g5-noappendix camera 1/2");
+      expect(line, "the incumbent's trailing rate is not reported beside it")
+        .toContain("trailing `g4` 2/3");
+      expect(line, "a reading no packet record claims was counted as production")
+        .not.toContain("3/4");
+
+      /* AND IT CAN GO RED THE ONLY WAY THAT MATTERS: strip the register off the
+         record and the return is attributed to the incumbent instead. */
+      writeFileSync(join(manor, "manifest.json"), JSON.stringify({
+        entries: [{ key: "planted/S", rolls: [{ id: "bbbb1111" }, { id: "bbbb2222" }] }]
+      }));
+      const blind = execFileSync("python3",
+        [REPORT, "--ledger", ledger, "--tree", tree, "--monitor"],
+        { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" } });
+      expect(blind.trim().split("\n")[1]).not.toContain("g5-noappendix");
+      expect(blind.trim().split("\n")[1]).toContain("trailing `g4` 1/2");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

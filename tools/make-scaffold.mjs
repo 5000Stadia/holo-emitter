@@ -71,22 +71,23 @@ import * as timings from "./timings.mjs";                 // [row 33] the stopwa
  * plan says it is that kind of room. */
 import { VOICES, emitMaterials, canonicalMaterial }       // [row 36] the swatch lane
   from "./room-voices.mjs";
-import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION }
-  from "./room-voices.mjs";
-/* [row 34, AWAITING KABE] THE RECOMMENDED REGISTER, and it is shared rather than
- * copied: `frame-language.mjs` is the one home for it, and the arm the
- * recommendation was measured on (`g4`) is the same function. See that file's
- * header for the recommendation's whole basis and for what it deliberately does
- * not claim. */
-import { frameGeometry, registerBlock, positiveNoText, flightLines, col }
-  from "./frame-language.mjs";
+import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION,
+  lightsFor, surroundFor, transomFor, casementSentence } from "./room-voices.mjs";
+/* [row 43] THE REGISTER, and it is shared rather than copied:
+ * `frame-language.mjs` is the one home for both of them. `g5Prompt` is what
+ * production composes, without the coordinate appendix; `registerBlock` is
+ * `g4`'s, reached from this file only through `g4ManorPrompt`, which is the
+ * harness's declared control arm and is dispatched by no emitter. See that
+ * file's header for what each was measured at and for what neither claims. */
+import { frameGeometry, registerBlock, positiveNoText, flightLines, col,
+  g5Prompt, scaffoldIndex } from "./frame-language.mjs";
 /* [row 38] THE SEAM SEED. A fresh ask whose adjacent facing is already painted
  * carries that neighbour's abutting 10 % as Image 3, with its role stated in
  * words. The adjacency table, the crop, the ordering exception for open
  * locations and the packet's own wording all live in `edge-seed.mjs`; nothing
  * about a seam is decided here. */
-import { attachSeed, packetNote, attachLine, openOrder, isOpenLocation, isPainted }
-  from "./edge-seed.mjs";
+import { attachSeed, packetNote, attachLine, openOrder, isOpenLocation, isPainted,
+  roleSentence } from "./edge-seed.mjs";
 /* [row 40] A consistency re-ask is shown BOTH painted neighbours, and only
  * neighbours the measure puts inside the room's agreeing walls. */
 import { attachSeeds, packetNoteAll, attachLineAll } from "./edge-seed.mjs";
@@ -1570,22 +1571,31 @@ function whichWords(n) {
  * rather than a default for a room nothing resolves. */
 
 /**
- * One production wall's prompt: every clause a function of the plan's carriers,
- * this facing's meta, and the room's voice.
+ * `g4` — ROW 34's REGISTER, INSIDE THE SECTION ORDER PRODUCTION SENT UNTIL ROW 43.
  *
- * `correction` is optional. A re-ask carries the measured sentence the run loop
- * wrote into `run-state.json` verbatim, at the top where it cannot be missed —
- * that is the only difference between a first ask and a re-ask, so the two
- * cannot drift into differently-worded requests for one wall.
+ * THIS IS THE DECLARED CONTROL ARM AND NOTHING DISPATCHES IT. `manorPrompt`
+ * below is what every emitter composes, and it composes `g5` without the
+ * coordinate appendix — the register trial's own result, ruled 2026-08-25
+ * ([HUMAN] "That prompt seems like a mess too…." and "test my direction against
+ * our tests as well"; `design/batches/g5-register/REPORT.md`). This function
+ * stays for two reasons and neither of them is nostalgia:
  *
- * `seed` is optional and is row 38's: the completed neighbour's abutting strip,
- * already cut and recorded by `edge-seed.mjs`. It adds ONE line, in the Input
- * images paragraph where the other two images are introduced, because the
- * cookbook rule the row cites is that every reference image is named by index
- * and by role and the interaction is stated. The pixels are the appearance; this
- * sentence is the only thing that says what to do with them.
+ *   1. THE NEXT NATURAL BATCH MEASURES THE INCUMBENT AGAINST THE NEW REGISTER.
+ *      Row 43 ruled the clean register production on a screen that separated
+ *      nothing at n=1 a wall, exactly as it declared before it ran. An
+ *      incumbent nobody can compose any more is a ruling that can never be
+ *      re-tested, which is the shape of decision this project does not make.
+ *      `ARMS["g4-production"]` IS this function.
+ *   2. IT IS TIED TO ROW 34's EVIDENCE. `evolution.spec.mjs` holds the register
+ *      this composes against the archived prompts `g4` was actually measured
+ *      on, case by case, so the control cannot drift away from its own numbers
+ *      without going red.
+ *
+ * Every clause is a function of the plan's carriers, this facing's meta, and
+ * the room's voice. `correction` and `seed` behave exactly as they did the day
+ * this was production, so the control arm sends what the control arm sent.
  */
-export function manorPrompt(plan, key, meta, rects, correction, seed, opts = {}) {
+export function g4ManorPrompt(plan, key, meta, rects, correction, seed, opts = {}) {
   const [loc, f] = key.split("/");
   const room = plan.rooms.find((r) => r.id === loc);
   const side = { N: "north", E: "east", S: "south", W: "west" }[f];
@@ -1807,6 +1817,167 @@ export function manorPrompt(plan, key, meta, rects, correction, seed, opts = {})
 }
 
 /* ------------------------------------------------------------------ */
+/* [row 43] THE CLEAN REGISTER, AND THE ONE PATH PRODUCTION COMPOSES    */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim, reading `master_bedchamber/N`'s production
+ * prompt]: "That prompt seems like a mess too…." — and, on the same walk,
+ * "Yeah but test my direction against our tests as well."
+ *
+ * So it was tested. `design/batches/g5-register` ran the clean order against
+ * the incumbent on six walls, blind ids, one roll a cell, with the coordinate
+ * appendix ablated as its own arm: admissible g4 3/5, g5 3/5, g5-noappendix
+ * 4/5; camera gate g4 2/5, g5 4/5, g5-noappendix 5/5; materials correct on
+ * every arm with no style image attached. Nothing separated at that n, and the
+ * trial declared that before it ran. The ruling in `design/approvals.log` takes
+ * the clean register WITHOUT the appendix as production, as a labelled judgment
+ * in the open rather than as a crown from a number.
+ *
+ * ONE COMPOSITION PATH. `manorPrompt` is the only composer any emitter calls,
+ * and it calls `g5Prompt` with `appendix: false`. `g4ManorPrompt` above is the
+ * declared control arm and is dispatched by nothing.
+ *
+ * ONE CTX BUILDER, FOR THE SAME REASON THE REGISTER HAS ONE HOME. `g5CtxFor`
+ * resolves every ruled fact the register needs, and `evolution-arms.mjs`'s
+ * `g5Ctx` delegates to it rather than resolving them a second way — so the arm
+ * that measures the register and the emitter that sends it cannot come to
+ * disagree about what a room's fabric is. The one thing the arm keeps is its
+ * own declared image policy, because that is the arm's declaration and not
+ * production's.
+ */
+
+/** The heraldry ration, in the register's own words.
+ *
+ *  ONE HOME, and `prompt_lint.py` is the reason it has to be one: the ration is
+ *  a gate clause (`^armorial glass:`) as well as a sentence, and a second copy
+ *  of it worded differently is a packet the lint reads one way and a painter
+ *  reads another. [HUMAN, 2026-08-24] "this same window everywhere? With the
+ *  ensignias on it?" */
+export function armorialLine(voice, roomName, surface) {
+  if (voice.glass === "armorial") {
+    return `Armorial glass: the ${roomName} is the one room in this house entitled to it. Set a ` +
+      "small painted armorial shield in coloured glass into the head of each window and nowhere " +
+      `else in the picture; every other pane-field on this ${surface} stays plain diamond quarrels.`;
+  }
+  if (voice.glass === "one_shield") {
+    return `Armorial glass: the ${roomName} carries exactly ONE small painted armorial shield in ` +
+      "coloured glass, set into the head of the first window only; every other light on this " +
+      `${surface}, and every other pane-field of that same window, is plain diamond quarrels.`;
+  }
+  return null;
+}
+
+/**
+ * Everything `g5Prompt` needs about one facing, resolved from the plan.
+ *
+ * NOTHING RULED IS RETYPED HERE. The fabric comes through `roomRuling` and
+ * `materialParts` — the same two functions the row-40 audit compares a promoted
+ * painting's spent ask against — the flight through `flightsForFacing`, which is
+ * the projection `promote-backdrop.mjs`'s refusal reads, the window lights
+ * through `lightsFor`, and Image 1 through `styleImageFor`, which is the
+ * measure's ruling and not a taste.
+ *
+ * `opts.style` may be passed to override the ruling (an emitter that has already
+ * attached a file, or a test); `undefined` means "ask the ruling", and `null` is
+ * a real answer meaning no style image.
+ */
+export function g5CtxFor(plan, key, meta, rects, opts = {}) {
+  const [loc, f] = key.split("/");
+  const room = plan.rooms.find((r) => r.id === loc);
+  const { voice, anchor } = voiceFor(plan, loc, f);
+  const out = !!voice.outdoor;
+  const SURFACE = out ? "side" : "wall";
+  const room_name = (room.name || room.id).toLowerCase();
+  const openSide = rects.find((r) => r.kind === "open_edge") || null;
+  const built = rects.some((r) => r.kind !== "open_edge");
+  const ruling = roomRuling(plan, loc, f);
+  /* THE FABRIC. Outdoors it is `materialParts`' own answer, so the one licensed
+   * per-facing difference in this house — an open side is the ABSENCE of a wall
+   * and the walled sides are the house's own elevation — is decided in one
+   * place. Indoors it is the room's RULING, which is `voice.walls` plus the rank
+   * of a bedchamber's hangings: naming only the walls would leave the master
+   * bedchamber's ask silent about the very band it fails on. */
+  const fabric = out
+    ? materialParts({ voice, loc, out, openSide: !!openSide, built }).walls
+    : ruling.walls;
+  const style = opts.style !== undefined ? opts.style : styleImageFor(plan, key);
+  /* [row 38] THE STRIPS, RENUMBERED FROM THE INDEX THE LAYOUT IMAGE ACTUALLY
+   * HAS. A packet with no style image puts the scaffold at Image 1 and the
+   * first strip at Image 2; row 38 wrote "Image 3" because every packet then
+   * carried a style seed. The cut and the file name are `edge-seed.mjs`'s and
+   * are not touched here; only the sentence's number is decided, off the same
+   * `scaffoldIndex` the register numbers its own references with. */
+  const base = scaffoldIndex({ style }) + 1;
+  const seeds = (opts.seeds || []).filter(Boolean).map((s, i) => ({
+    ...s, image_index: base + i, role_sentence: roleSentence(s.side, base + i)
+  }));
+  /* THE CORRECTION, AND THE ONE SENTENCE THAT CANNOT BE QUOTED. `privy_garden/N`'s
+   * correction is Kabe's veto, and to say what went wrong it names "interior oak
+   * panelling and a chair-rail" — on the one wall those words were vetoed from.
+   * Carrying it verbatim put them straight back in front of the generator and
+   * `prompt_lint.py` refused the packet, correctly. An outdoor wall carries its
+   * correction only where it can be said without naming interior fabric;
+   * otherwise it carries the forward half and the verbatim reason goes to
+   * PACKET.md and `retries.json`, where a reader needs it and no generator reads
+   * it. */
+  const correction = opts.correction
+    ? ((out && !carryableOutdoors(opts.correction)) ? REDACTED_CORRECTION : opts.correction)
+    : null;
+  return {
+    plan, key, loc, facing: f, meta, rects,
+    geometry: frameGeometry(meta),
+    voice, anchor, ruling,
+    room_name, surface: SURFACE,
+    side: { N: "north", E: "east", S: "south", W: "west" }[f],
+    flights: flightsForFacing(plan, loc, f, meta, CANVAS_W),
+    fabric,
+    /* An open facing's ruler is the piers at the mouth, not a coping running
+     * across it — [Kabe, 2026-08-24] "Entrance court s looks very weird on the
+     * edges", the parapet painted across a 20 m opening. */
+    anchor_sentence: openSide ? PIER_ANCHOR_SENTENCE : anchor.sentence,
+    /* The open side's fabric IS its carrier sentence, ruled width and all, so
+     * item 1 leaves it to item 2 rather than saying it twice. */
+    fabric_in_carriers: !!(openSide && !built),
+    window_lights: lightsFor,
+    /* THE WINDOW'S OWN RULED DRESSING, from the one home each rule has: the
+     * surround by the room's rank (`surroundFor`), the transom only on an
+     * opening wide enough to need the member (`transomFor`), and the casement's
+     * hinge from where each opening sits along the wall (`casementSentence`).
+     * Two walls of equal bay count in different rooms must not read the same,
+     * and that is what these three carry. */
+    window_surround: surroundFor(voice.window_status),
+    window_transom: transomFor,
+    window_casement: casementSentence(
+      rects.filter((r) => r.kind === "window").map((r) => ({
+        width_m: (r.x1 - r.x0) / meta.px_per_m_at_wall,
+        u: (r.from_m + r.to_m) / 2 / meta.wall_width_m
+      })), SURFACE),
+    armorial_line: armorialLine(voice, room_name, SURFACE),
+    style, seeds, correction,
+    reask: !!opts.reask
+  };
+}
+
+/**
+ * ONE PRODUCTION WALL'S PROMPT, and the only composer any emitter calls.
+ *
+ * The signature is the one every caller already holds: `correction` is the
+ * sentence `run-state.json` wrote about this wall, carried verbatim at the top
+ * of the room paragraph; `seed` is row 38's strip, and `opts.seeds` is the
+ * consistency path's list of them, each named by index and by role in the
+ * picture paragraph. What row 43 changed is the REGISTER underneath, not what a
+ * caller passes.
+ */
+export function manorPrompt(plan, key, meta, rects, correction, seed, opts = {}) {
+  const seeds = opts.seeds !== undefined ? opts.seeds : (seed ? [seed] : []);
+  return g5Prompt(g5CtxFor(plan, key, meta, rects, { ...opts, correction, seeds }),
+    { appendix: false });
+}
+
+/** The register every emitted ask is composed in, named once, so a packet
+ *  record and the reading of its return can be joined by it. [row 43] */
+export const PRODUCTION_REGISTER = "g5-noappendix";
+
+/* ------------------------------------------------------------------ */
 /* The manor, in one pass                                              */
 /* ------------------------------------------------------------------ */
 /* [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go
@@ -1954,9 +2125,19 @@ async function emitManor(outDir, opts) {
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
     writePng(scafPng, join(dir, "scaffold.png"));
+    /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
+     * never any wall of another room: this room's own agreeing wall, or no
+     * picture at all and the medium in words.
+     *
+     * [row 43] IT IS RESOLVED BEFORE THE STRIP because the strip's own index
+     * depends on it: with no Image 1 the scaffold is Image 1 and the strip is
+     * Image 2. Cutting the strip first meant numbering it against an attach
+     * list that did not exist yet. */
+    const style = attachStyle(plan, fac.key, dir);
     /* [row 38] THE SEAM SEED, cut beside the packet before the prompt is
-     * composed, because the prompt only names Image 3 where Image 3 exists. */
-    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir);
+     * composed, because the prompt only names the strip where the strip
+     * exists. */
+    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir, isPainted, { style });
     timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row 33]
       { carriers: rects.length, voice: voice.id, technique: opts.technique || "t2" });
 
@@ -1973,10 +2154,6 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    /* [row 40, Kabe's ruling] IMAGE 1, IF THERE IS ONE. Never the study and
-     * never any wall of another room: this room's own agreeing wall, or no
-     * picture at all and the medium in words. */
-    const style = attachStyle(plan, fac.key, dir);
     const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
@@ -1992,6 +2169,8 @@ async function emitManor(outDir, opts) {
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
+      `Register: **${PRODUCTION_REGISTER}** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every\n` +
+      `roll below is attributable to it: the reading of a return joins to this line through the roll id.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     /* [row 33] The packet, and with it the moment the seat COULD have started —
      * `emit.packet` -> `generate.roll` is the dispatch queue, and the first
@@ -2002,6 +2181,12 @@ async function emitManor(outDir, opts) {
     entries.push({
       ...fac,
       packet: join(dir).slice(ROOT.length + 1),
+      /* [row 43] WHICH REGISTER THIS ASK WAS COMPOSED IN. The whole point of a
+       * ruling made on a screen that separated nothing is that the next twenty
+       * returns keep measuring it, and a return can only be attributed to a
+       * register if the packet record says which one went out. The reading
+       * documents join to this entry through the roll ids below. */
+      register: PRODUCTION_REGISTER,
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       px_per_m_at_wall: meta.px_per_m_at_wall,
       /* [row 29(a)] BOTH DEPTH ANCHORS AND THE FACING'S OWN TYPE.
@@ -2078,6 +2263,7 @@ async function emitManor(outDir, opts) {
     _speed_rule: "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
     _reuse_rule: "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
     _technique: opts.technique || "t2",
+    _register: "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
     _generated: new Date().toISOString().slice(0, 10),
     facings_in_plan: all.length,
     emitted: entries.filter((e) => !e.skipped).length,
@@ -2203,7 +2389,7 @@ async function emitRetries(outDir, opts) {
      * also where seeding lands first in practice: the corpus's unpainted walls
      * mostly have painted neighbours by now, and this is the path that carries
      * the pilot. */
-    const { seed, plan: seedPlan } = attachSeed(plan, w.key, dir);
+    const { seed, plan: seedPlan } = attachSeed(plan, w.key, dir, isPainted, { style });
     timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
@@ -2247,6 +2433,8 @@ async function emitRetries(outDir, opts) {
           `staircase in it is refused by the promotion gate, not by an eye.\n`
         : "") +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
+      `Register: **${PRODUCTION_REGISTER}** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every\n` +
+      `roll below is attributable to it: the reading of a return joins to this line through the roll id.\n` +
       `The earlier ask for this wall is still at \`../\` and is not overwritten.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
     timings.record("emit.packet", t_packet, Date.now() / 1000, w.key,     // [row 33]
@@ -2255,6 +2443,7 @@ async function emitRetries(outDir, opts) {
 
     emitted.push({
       key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
+      register: PRODUCTION_REGISTER,                                     // [row 43]
       correction: w.correction,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       px_per_m_at_wall: meta.px_per_m_at_wall,
@@ -2303,7 +2492,8 @@ async function emitRetries(outDir, opts) {
     _cumulative: "Entries accumulate across passes, keyed by wall and attempt. `row23_run.py` finds a retry roll's candidate only through this file, so an entry dropped here hides an image that is already on disk — which is how the second coat went unread once.",
     _never_overwrites: "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
     _voice: "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
-    _seams: "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as Image 3 — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
+    _register: "[row 43] Every entry names the REGISTER its prompt was composed in; an entry with no `register` key predates the 2026-08-25 ruling and is `g4`. `timings_report.py --monitor` joins each reading to its packet record through the roll id and reports the camera pass rate per register.",
+    _seams: "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
     _generated: new Date().toISOString().slice(0, 10),
     emitted: emitted.length, carried: entries.length - emitted.length,
     refused: refused.length,
@@ -2678,6 +2868,9 @@ export function styleImageFor(plan, key, opts = {}) {
     file: "style-reference.png",
     room: loc,
     facing: pick,
+    /* THE COMPASS WORD, because the register names Image 1 in words a painter
+     * uses ("the north wall of this same room") rather than by a letter. */
+    facing_word: { N: "north", E: "east", S: "south", W: "west" }[pick],
     why: `${loc}/${pick} is inside this room's agreeing walls (room_consistency.json) ` +
       `and its own ask was this room's ruling (materialProvenance)`,
     role_sentence:
@@ -2863,18 +3056,18 @@ async function emitConsistency(outDir, opts) {
      * and stands on the ruling alone. */
     const agreeing = new Set((w.room.majority || []).map((g) => `${loc}/${g}`));
     const { seeds, plans } = attachSeeds(plan, w.key, dir,
-      { allow: (nk) => agreeing.has(nk) });
+      { allow: (nk) => agreeing.has(nk), style });
     timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
       { carriers: rects.length, voice: voice.id, consistency: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
-    /* `manorPrompt` names one Image 3 sentence; with two strips it must name
-     * both, so the extra role sentences are appended in the same voice the
-     * cookbook rule asks for. */
-    const text = manorPrompt(plan, w.key, meta, rects, correction, seeds[0] || null, { style }) +
-      (seeds.length > 1
-        ? seeds.slice(1).map((s) => `  ${s.role_sentence}\n`).join("")
-        : "");
+    /* [row 43] BOTH STRIPS ARE NAMED BY THE COMPOSER, not appended after it.
+     * `manorPrompt` used to name one strip and this path glued the second role
+     * sentence onto the end of a finished prompt — below the constraints, in no
+     * section, after the register had said its last word. The clean register
+     * takes the whole list and names each strip in the picture paragraph where
+     * the other images are introduced. */
+    const text = manorPrompt(plan, w.key, meta, rects, correction, null, { style, seeds });
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 1); i++) {
@@ -2906,6 +3099,8 @@ async function emitConsistency(outDir, opts) {
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
+      `Register: **${PRODUCTION_REGISTER}** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every\n` +
+      `roll below is attributable to it: the reading of a return joins to this line through the roll id.\n` +
       `The promoted painting this replaces is still at \`backdrops/${loc}/${f}.png\` and is not ` +
       `overwritten by this packet; promotion is the sweep's decision, not this emitter's.\n` +
       `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
@@ -2915,6 +3110,7 @@ async function emitConsistency(outDir, opts) {
 
     emitted.push({
       key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
+      register: PRODUCTION_REGISTER,                                     // [row 43]
       correction,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       px_per_m_at_wall: meta.px_per_m_at_wall,

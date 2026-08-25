@@ -88,7 +88,41 @@ export const REASONS = {
       "asks predate the unlit-void rule the promotion instrument reads a " +
       "doorway by. `manorPrompt` now gives each way through its own position in " +
       "the picture, and every door sentence carries the unlit clause.",
-    gained: (fresh, spent) => gainedLines(fresh, spent, /door opening is exactly/)
+    /* [row 43] COMPARED ON SUBSTANCE, NOT ON WORDING, AND THAT IS THE WHOLE
+     * POINT OF THIS REASON. It read `/door opening is exactly/` and compared
+     * LINES: whatever the fresh ask said about a doorway that the spent one did
+     * not. That worked while only the content moved. The register change moves
+     * the WORDS on every wall at once — `g4` gave each doorway its own sentence
+     * and a column range, the clean register says the count in words and names
+     * every place in one clause — so a line comparison would report a gain on
+     * every door wall in the house and hand out a free roll for a rewording.
+     * "A content-gap grant would be a free roll dressed as an accounting
+     * correction" is this reason's own sentence, so what is compared is the two
+     * things row 27 and row 29 actually added: the space beyond every way
+     * through ruled UNLIT, and each way through told APART from the others. */
+    gained: (fresh, spent) => {
+      const f = doorFacts(fresh), s = doorFacts(spent);
+      const out = [];
+      if (f.named && !s.named) {
+        out.push("the ask names the ways through this wall at all");
+      }
+      if (f.unlit && !s.unlit) {
+        out.push("the space beyond every way through is ruled deep unlit shadow — the void the " +
+          "promotion instrument reads a doorway by, and what the renderer composites the " +
+          "destination room into");
+      }
+      /* AND ONLY WHERE THERE IS SOMETHING TO TELL APART. A wall with one
+       * doorway has no second one to be confused with, and the incumbent added
+       * no position word for a lone carrier for that exact reason - "the box on
+       * the layout image already says which". Counting the clean register's
+       * position phrase as a gain there would grant a free roll to every
+       * single-door wall in the house on the day the register changed. */
+      if (f.places.size > 1 && f.places.size > s.places.size) {
+        out.push(`${f.places.size} ways through are told apart from each other ` +
+          `(${[...f.places].join(", ")}), against ${s.places.size} in the ask that was sent`);
+      }
+      return out;
+    }
   },
   /* [row 38] THE THIRD REASON, AND THE FIRST THAT IS NOT KEYED ON A REFUSAL.
    *
@@ -129,10 +163,13 @@ export const REASONS = {
       return null;
     },
     what: "Row 38's edge seed: the emitter now cuts the abutting 10 % of the painted " +
-      "neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it as Image 3 " +
-      "with its role stated in words in the Input images paragraph. The strip carries " +
+      "neighbour (`tools/edge-seed.mjs`, `tools/crop-edge-seed.py`) and sends it beside the " +
+      "layout image with its role stated in words in the picture paragraph. The strip carries " +
       "appearance; the sentence carries the role.",
-    gained: (fresh, spent) => gainedLines(fresh, spent, /Image 3 is a reference of exactly/)
+    /* [row 43] THE INDEX IS DERIVED, so the pattern cannot hold one. A packet
+     * with no style image puts the scaffold at Image 1 and this strip at Image
+     * 2; row 38 wrote "Image 3" when every packet carried a style seed. */
+    gained: (fresh, spent) => gainedLines(fresh, spent, /Image \d+ is a reference of exactly/)
   }
 };
 
@@ -145,6 +182,37 @@ export function gainedSection(fresh, spent, head) {
   const out = [lines[at]];
   for (let i = at + 1; i < lines.length && /^\s/.test(lines[i]); i++) out.push(lines[i]);
   return spent.includes(out.join("\n")) ? [] : out;
+}
+
+/* [row 43] WHAT AN ASK SAYS ABOUT THE WAYS THROUGH A WALL, in either register.
+ *
+ * `named` — does it mention a door opening at all.
+ * `unlit` — does it rule the space beyond the opening deep unlit shadow. Row
+ *   27's clause, and the flight's own unlit sentence is deliberately not
+ *   matched: it says "beyond its topmost step", not "beyond the opening".
+ * `places` — where the ask puts each doorway. `g4` prefixed them ("left-hand ",
+ *   "right-hand ") and added a column range; the clean register uses the
+ *   position words `positionPhrase` derives. Two doorways told apart is two
+ *   places, in either vocabulary, and that is row 29's finding: `great_hall/W`
+ *   and `long_gallery/W` were asked for their second doorway in a sentence
+ *   byte-identical to the first, which is one instruction and not two.
+ */
+const DOOR_PLACE = new RegExp([
+  "left-hand", "right-hand", "middle",
+  "at the far left", "left of centre", "at the centre", "right of centre", "at the far right",
+  "between the two windows",
+  "\\b(?:first|second|third|fourth|fifth|sixth|seventh|eighth)-from-the-left\\b",
+  "between column \\d+ and column \\d+"
+].join("|"), "gi");
+
+export function doorFacts(text) {
+  const t = String(text || "");
+  const door = t.split("\n").filter((l) => /door opening/i.test(l));
+  return {
+    named: door.length > 0,
+    unlit: /beyond (?:the opening|it|them|those openings) is deep unlit shadow/i.test(t),
+    places: new Set((door.join(" ").match(DOOR_PLACE) || []).map((x) => x.toLowerCase()))
+  };
 }
 
 /** The matching lines that differ between the two prompts, fresh side. */

@@ -95,20 +95,29 @@ test.describe("the ask names the flight", () => {
         .toContain(`a straight stair of ${s.treads} steps`);
       expect(text, `${key}'s prompt never states the flight's width`)
         .toContain(`${s.width_m.toFixed(2)} m wide`);
-      expect(text, `${key}'s prompt never says where in the frame the flight stands`)
-        .toContain(`fills columns ${Math.round(s.x)} to ${Math.round(s.x + s.w)}`);
+      /* [row 43] WHERE IT STANDS IS THE SCAFFOLD'S JOB NOW, not a figure in the
+         prompt. The flight's column-and-row block was part of the coordinate
+         appendix, and the ruling removed the appendix from the ask: the register
+         trial ran `great_stair_hall/W` — a flight wall, chosen for this — and
+         `g5-noappendix` came back both ADMISSIBLE and camera-PASS on it, where
+         the incumbent's figures bought nothing. The scaffold still stamps the
+         flight's own region, which is where the geometry belongs. What the
+         prompt must still carry is the flight as a FACT of the picture, and
+         these are the clauses that make the row-32 refusal answerable. */
+      expect(text, `${key}'s prompt never says which way the flight climbs`)
+        .toMatch(/(climbing (toward|away)|falls away below the bottom edge)/);
       /* THE STANDING CONSTRAINT. A way through the building painted with a lit
          space behind it is unmeasurable by the promotion instrument and fights
          the through-view the renderer composites into it — the same rule the
          door sentence has carried since row 27, said in the flight's terms. */
       expect(text, `${key}'s prompt never rules the space beyond the flight unlit`)
-        .toMatch(/The space the flight (climbs|drops) into[^\n]*deep unlit shadow/);
+        .toMatch(/The space (it|the flight) (climbs|drops) into[^\n]*deep unlit shadow/);
       /* AND THE SPACE OVER A RISING FLIGHT. The renderer cuts the surface
          overhead to the flight's own footprint lifted a storey; a painting that
          closes that hole paints a staircase into a low box. */
       if (s.direction === "up" && s.well_poly.length) {
         expect(text, `${key} climbs through the surface overhead and the prompt never says so`)
-          .toContain("The surface overhead is open where the flight climbs through it");
+          .toMatch(/The surface overhead is open (where the flight climbs through it|directly over it)/);
       }
     }
   });
@@ -517,26 +526,40 @@ test.describe("the ways through, said apart", () => {
       const w = JSON.parse(readFileSync(STATE, "utf8")).walls[key];
       const text = manorPrompt(PLAN, key, meta, rects, w.correction);
       const doors = rects.filter((r) => r.kind === "door").length;
-      const said = text.split("\n").filter((l) => /door opening is exactly/.test(l));
-      expect(said.length, `${key}: the plan rules ${doors} way(s) through and the prompt states ${said.length}`)
+      const said = text.split("\n").filter((l) => /door opening/.test(l));
+      expect(said.length, `${key}: the plan rules ${doors} way(s) through and the prompt never names one`)
+        .toBeGreaterThan(0);
+      /* [row 43] EVERY WAY THROUGH IS PLACED, AND THE COUNT IS OF PLACES, NOT OF
+         SENTENCES. `great_hall/W` and `long_gallery/W` were once asked for their
+         second doorway in a sentence byte-identical to the first — one
+         instruction said twice — and both came back with fewer holes than the
+         plan rules. The incumbent answered it by giving each doorway its own
+         sentence and a column range; the clean register answers it by saying the
+         count in words and naming every place in one clause ("two door openings
+         stand at the far left and at the centre, each exactly 1.60 m wide"). The
+         defect is the same and so is the guard: as many places as the plan rules
+         ways through, all of them different. */
+      const where = said.join(" ").match(
+        /\b(at the far left|left of centre|at the centre|right of centre|at the far right|between the two windows|in this view)\b/g) || [];
+      expect(where.length,
+        `${key}: the plan rules ${doors} way(s) through and the prompt places ${where.length}`)
         .toBe(doors);
-      for (const line of said) {
-        expect(line, `${key}: a door sentence omits the unlit-void rule`)
-          .toContain("The space beyond the opening is deep unlit shadow");
-      }
-      /* AND TWO WAYS ARE TWO INSTRUCTIONS. `great_hall/W` and `long_gallery/W`
-         were asked for their second doorway in a sentence byte-identical to the
-         first, which is one instruction said twice; both came back with fewer
-         holes than the plan rules. */
-      expect(new Set(said.map((l) => l.trim())).size,
-        `${key}: ${said.length} ways through are asked for in ${new Set(said.map((l) => l.trim())).size} distinct sentence(s)`)
-        .toBe(said.length);
+      expect(new Set(where).size,
+        `${key}: ${doors} ways through are placed in ${new Set(where).size} distinct position(s)`)
+        .toBe(doors);
       if (doors > 1) {
-        for (const line of said) {
-          expect(line, `${key}: a door sentence never says where in the picture that door stands`)
-            .toMatch(/in the picture it stands between column \d+ and column \d+/);
-        }
+        expect(said.join(" "), `${key}: the prompt never says how many ways through there are`)
+          .toMatch(/\b(two|three|four|five|six|seven|eight) door openings stand\b/);
       }
+      /* AND THE UNLIT-VOID RULE, ONCE, COVERING EVERY ONE OF THEM. The promotion
+         instrument reads a way through as a VOID and the renderer composites the
+         destination room into it, so painted light back there fights the
+         through-view (row 27, library/S). */
+      const unlit = text.split("\n").filter((l) =>
+        /the space beyond (it|them|those openings) is deep unlit shadow/i.test(l));
+      expect(unlit.length, `${key}: the door paragraph omits the unlit-void rule`).toBe(1);
+      expect(unlit[0], `${key}: the unlit rule does not cover every opening on the wall`)
+        .toMatch(doors > 1 ? /every one of those openings stands empty/i : /it stands empty/i);
     }
   });
 
