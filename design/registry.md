@@ -21,13 +21,13 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-INGEST | the two row-42 sprite returns (plank oak leaf, leaded casement — painted checkerboard keyed to real alpha) ingested through the replicator into real records replacing the placeholders; `tools/prep-sprite-source.py` is the keying/padding step, `library/promoted.json` + `tools/bake-library.mjs` are how the page reads a library it had never read, and the merge rule lives in `src/placeholders.js` | built, awaiting review |
 | B-DRIFT | the sweep regenerates every derived artifact it invalidates (provenance, consistency, snap/door readings, strip shas) + `--derive-check` in the publish preflight; the 8 store-drift suite cases read freshness through one helper | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-INGEST | the row-42 sprites ingested through the replicator (checkerboard keyed to alpha by detected tone + 22 px tile; 99.5% of the cames intact); `library/` is read by the page for the first time via bake-library + promoted.json |
 | L-LEAVES | row 42 (3): door leaves and window casements placed in the MEASURED frames, open/closed in the document, a shut door refuses travel, a window never travels; placeholder sprites + two painter asks (dispatched) |
 | L-PROD | row 43: the clean register (g5, no coordinates) is the one production composer; g4 declared as control; register tag per packet; per-register camera rate in the timings report; reconciled with row 42's lead ordering |
 | L-LEAD | row 42 (1)+(2): one lead wall per room, the other three wait for it and take it as Image 1 + edge strips (the standing order now honours depends_on); windows measured off the painting (33/41 paired, median 0.64 m) with `window.unpainted` / `window.painted_width` clauses |
