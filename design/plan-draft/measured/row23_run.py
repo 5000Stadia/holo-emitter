@@ -832,10 +832,16 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
     """
     _t = time.time()
     if _exit_tried(st, cand_rel):
-        # Not an exit and not a decision: the routing already ran on this
-        # candidate and said what it said. Nothing is re-tried, nothing is
-        # re-timed, and the wall's own record still carries the answer.
-        return st.get("exit") or EXIT_GRID, "already routed on this candidate"
+        # NOTHING HAPPENED THIS PASS, and that is what is returned. The routing
+        # already ran on this candidate and said what it said; re-running it
+        # would re-snap the same frame to the same refusal at ~12 s a wall,
+        # every pass, forever. GRID here is not a new verdict about the wall —
+        # the hold the caller just recorded stands, and the wall's own record
+        # still carries the exit it took and the reason — it is this pass
+        # declining to claim an exit it did not take.
+        return EXIT_GRID, ("already routed on this candidate (%s); nothing is "
+                           "tried again until the candidate changes"
+                           % (st.get("exit") or "no exit"))
 
     def _promoted(exit_name, reason, answered=True):
         """The state a wall carries out of an exit it took.
@@ -933,6 +939,15 @@ def sweep(manifest, state, do_promote=True):
                   % key)
             st["status"] = "waiting"
             st.pop("hold_family", None)
+            # [B-ROUTING] AND THE DOOR IT LEFT BY GOES WITH THE CLAIM THAT IT
+            # LEFT. A wall whose art is gone is not out any exit, and a record
+            # saying `exit: snapped` beside a wall the page renders as grid is
+            # the ledger lying about the store — which is this guard's own
+            # defect read from one field over. `exit_attempt` STAYS: it is what
+            # stops the routing re-snapping this candidate every pass, and the
+            # candidate has not changed.
+            st.pop("exit", None)
+            st.pop("exit_reason", None)
         # [row 29(a)] A PARKED WALL IS RE-DECIDED FROM THE PIXELS TOO, which is
         # the same sentence the RE-DECIDE guard above is written in and the same
         # doctrine — it was simply never applied to this status. A parked wall
