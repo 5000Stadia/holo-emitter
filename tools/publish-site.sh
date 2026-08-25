@@ -14,6 +14,21 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 HEAD_SHA=$(git rev-parse --short HEAD)
 
+# [2026-08-24] NO STALE FIXTURE SHIPS. The manor fixture had been refused by
+# its own bake for hours (a pre-row-25 flight record on one meta) and every
+# publish in between served plan-derived doors 200 px from the painted ones —
+# Kabe: "The door just doesn't line up". A refused or out-of-date bake now
+# refuses the publish, with the finding, instead of shipping what it can.
+for fd in fixtures/*/; do
+  [ -f "$fd/world.json" ] || continue
+  if ! out=$(node tools/bake-fixtures.mjs --fixture-dir "$fd" 2>&1); then
+    echo "publish refused: $fd bake refused —" >&2; echo "$out" | head -5 >&2; exit 2
+  fi
+  if ! git diff --quiet -- "$fd/fixture.js"; then
+    echo "publish refused: $fd/fixture.js was stale against the promoted metas; it is re-baked now — commit it and publish again" >&2; exit 2
+  fi
+done
+
 # [row 33] THE PUBLISH CLOCKS ITSELF, and it is the step with the least evidence
 # behind it: this script force-pushes an ORPHAN branch, so each publish erases
 # the previous one's commit and the whole published history is one commit deep.
