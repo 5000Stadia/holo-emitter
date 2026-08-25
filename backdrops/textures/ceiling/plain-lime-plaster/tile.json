@@ -1,0 +1,35 @@
+{
+  "id": "ceiling/plain-lime-plaster",
+  "slot": "ceiling",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 325,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": null,
+    "grain_frame": "plan",
+    "mirror": "both",
+    "scale_kind": "featureless"
+  },
+  "scale_contract": {
+    "kind": "featureless",
+    "feature": null,
+    "span_m": 4.7262,
+    "ppm": 325,
+    "why": "scale is unobservable on a surface with nothing whose size could be wrong; the gate is that it really is featureless"
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/ceiling/plain-lime-plaster/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}

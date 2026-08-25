@@ -1005,6 +1005,244 @@ def repair_doors(key, candidate, out_png, plan, facings):
     return rec, None
 
 
+# ============================================================ placeholder art
+#
+# V1 IS CORRECT GEOMETRY ON PLACEHOLDER ART (playbook §5.3), and this is the
+# placeholder art. The floor and ceiling swatches are dispatched and have not
+# come back; without them the assembler could not be exercised at all, and a
+# geometry engine nobody has run is a geometry engine nobody has checked.
+#
+# These are DRAWN FROM THE MATERIAL'S OWN TILING SPEC -- the same `pitch_m` and
+# `grain_axis` the real swatch is asked for -- so every claim about grain
+# direction, joint phase, tiling and cross-facing agreement is exercised
+# truthfully. What they are not is a picture of a material. They are marked
+# `placeholder: true` in their own record, they live under a directory that says
+# so, and `assemble_facing` stamps the flag onto every frame that used one.
+#
+# THE ONE THING THEY MUST NOT DO is get promoted. A placeholder that reached the
+# store would be a lie in the shape of a texture, so the flag travels with the
+# frame and the promotion path refuses on it.
+
+def placeholder_tile(mat, ppm, span_m=None):
+    """A deterministic tile drawn from the material's own tiling spec."""
+    t = mat["tiling"]
+    span = span_m or (mat.get("scale_contract") or {}).get("span_m") or 3.0
+    n = max(64, int(round(span * ppm)))
+    ys, xs = np.mgrid[0:n, 0:n].astype(np.float64) / ppm      # metres
+    base = {"walls": 150.0, "ceiling": 120.0, "floor": 105.0}[mat["slot"]]
+    L = np.full((n, n), base)
+    seed = int(hashlib.sha256(mat["id"].encode()).hexdigest()[:8], 16)
+    rng = np.random.default_rng(seed)
+    L += rng.normal(0.0, 3.0, L.shape)                        # a little tooth
+    kind = t.get("scale_kind")
+    if kind == "periodic":
+        pitch = t.get("pitch_m") or 0.25
+        # the joint runs ACROSS the grain, which is what pitch measures
+        a = xs if t.get("grain_axis") in ("v", "room_short") else ys
+        phase = np.abs(np.mod(a / pitch, 1.0) - 0.5)
+        L -= 26.0 * (phase > 0.46)                            # the joint itself
+        L += 6.0 * np.cos(2 * np.pi * a / pitch)              # board-to-board tone
+    elif kind == "stochastic":
+        c = t.get("characteristic_m") or 0.05
+        f = max(1.0, 1.0 / max(c, 1e-3))
+        L += 9.0 * np.sin(2 * np.pi * xs * f / 7.0) * np.cos(2 * np.pi * ys * f / 5.0)
+    tint = {"walls": (1.00, 0.94, 0.82), "ceiling": (1.00, 0.99, 0.95),
+            "floor": (1.00, 0.90, 0.76)}[mat["slot"]]
+    return np.clip(np.stack([L * tint[0], L * tint[1], L * tint[2]], axis=-1), 0, 255)
+
+
+def ensure_placeholders(doc, out_dir=TEXDIR, verbose=True):
+    """One placeholder per material with no real tile on disk yet."""
+    made = []
+    for mid, mat in doc["materials"].items():
+        slot = mat["slot"]
+        d = os.path.join(out_dir, slot.replace("walls", "wall"),
+                         mid.split("/", 1)[1])
+        real = os.path.join(d, "tile.json")
+        if os.path.exists(real):
+            continue
+        ppm = (mat.get("scale_contract") or {}).get("ppm") or 300.0
+        px = placeholder_tile(mat, ppm)
+        os.makedirs(d, exist_ok=True)
+        write_tile(os.path.join(d, "placeholder.png"), px)
+        with open(os.path.join(d, "tile.json"), "w") as fh:
+            json.dump({"id": mid, "slot": slot, "lane": "placeholder",
+                       "placeholder": True,
+                       "_what_this_is":
+                           "V1 placeholder art drawn from this material's own "
+                           "tiling spec so the geometry can be exercised before "
+                           "its swatch returns. NOT PROMOTABLE.",
+                       "ppm": ppm, "ppm_provenance": {"lane": "placeholder"},
+                       "tiling": mat["tiling"],
+                       "scale_contract": mat.get("scale_contract"),
+                       "bands": [{"band": "all", "v_m": None,
+                                  "file": os.path.relpath(
+                                      os.path.join(d, "placeholder.png"), ROOT),
+                                  "size_px": [px.shape[1], px.shape[0]]}]},
+                      fh, indent=2, default=float)
+            fh.write("\n")
+        made.append(mid)
+    if verbose and made:
+        print("placeholders drawn for %d material(s) whose swatch has not "
+              "returned" % len(made))
+    return made
+
+
+# ================================================================== assemble
+
+def tile_dir(mid):
+    slot = mid.split("/", 1)[0]
+    return os.path.join(TEXDIR, "wall" if slot == "wall" else slot,
+                        mid.split("/", 1)[1])
+
+
+def load_material(mid):
+    p = os.path.join(tile_dir(mid), "tile.json")
+    if not os.path.exists(p):
+        return None
+    rec = read_json(p)
+    rec["_bands"] = {}
+    for b in rec["bands"]:
+        f = os.path.join(ROOT, b["file"])
+        if os.path.exists(f):
+            rec["_bands"][b["band"]] = (load_tile(f), b.get("v_m"))
+    return rec if rec["_bands"] else None
+
+
+def wall_pixels(rec, a_m, h_m):
+    """Sample a banded wall fabric at (perimeter metres, height above floor)."""
+    ppm = rec["ppm"]
+    mirror = rec["tiling"].get("mirror", "across")
+    out = np.zeros(a_m.shape + (3,))
+    if "all" in rec["_bands"]:
+        tile, _ = rec["_bands"]["all"]
+        return tile_lookup(tile, ppm, a_m, h_m, mirror)
+    for band, (tile, v) in rec["_bands"].items():
+        if not v:
+            continue
+        lo, hi = v
+        m = (h_m >= lo) & (h_m < hi if band != "field" else True)
+        if not np.any(m):
+            continue
+        # vertical position is FIXED IN METRES: the band is sampled from its own
+        # bottom, never tiled up the wall, which is what keeps the anchor at
+        # exactly 0.95 m on every wall assembled from this fabric
+        out[m] = tile_lookup(tile, ppm, a_m[m], (h_m[m] - lo), mirror)
+    return out
+
+
+def plan_pixels(rec, x_m, y_m, room, grain_axis):
+    """Sample a floor or ceiling at PLAN metres, anchored to the storey slab.
+
+    The slab and not the room: two rooms on one floor sharing a material share
+    their grain and their joint phase, so boards run through a doorway instead
+    of stopping at it. The plan's own coordinates already are the slab's, so
+    the anchoring is achieved by NOT introducing a room-local origin here.
+    """
+    ppm = rec["ppm"]
+    mirror = rec["tiling"].get("mirror", "both")
+    a, b = (x_m, y_m)
+    if grain_axis == "room_short":
+        a, b = (y_m, x_m)
+    return tile_lookup(rec["_bands"].get("all", list(rec["_bands"].values())[0])[0],
+                       ppm, a, b, mirror)
+
+
+def assemble_facing(key, plan, facings, doc, out_png, paint_doors=True):
+    """One facing, composed from the library at the geometry the plan rules."""
+    r = facings.get(key)
+    if not r:
+        return None, "no facing " + key
+    if r.get("facing_type") == "open":
+        return None, ("%s is an open facing: it has no wall plane, no ceiling "
+                      "and no side walls, so there are no five planes to "
+                      "assemble. A vista is the far-line ruler's" % key)
+    d = r.get("declared")
+    if not d:
+        return None, "no declared geometry for " + key
+    loc, f = key.split("/")
+    room = next((x for x in plan["rooms"] if x["id"] == loc), None)
+    ppm, imh = d["ppm"], d["image_h_px"] or H
+    storey = d["storey_height_m"]
+    yf = d["floor_line_y"] * imh
+    vy = d["horizon_y"] * imh
+    yc = yf - storey * ppm
+    x0, x1 = d["corner_x0_px"], d["corner_x1_px"]
+    if x0 is None or x1 is None:
+        half = (d["wall_width_m"] or 6.0) * ppm / 2.0
+        x0, x1 = W / 2.0 - half, W / 2.0 + half
+    b = S.box(x0, x1, yc, yf, W / 2.0, vy)
+    bad = S.box_refusal(b)
+    if bad:
+        return None, "the declared box is not a box: " + bad
+    decl = {"width_m": (x1 - x0) / ppm, "storey_m": storey,
+            "camera_m": d["camera_wall_m"]}
+    if not decl["camera_m"]:
+        return None, key + " names no camera distance"
+
+    mats = {}
+    for slot, mid in (("walls", r["walls"]), ("ceiling", r["ceiling"]),
+                      ("floor", r["floor"]), ("field", r.get("field"))):
+        if not mid:
+            continue
+        m = load_material(mid)
+        if m is None:
+            return None, "no tile on disk for %s (%s)" % (mid, slot)
+        mats[slot] = m
+
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    idx, p, q = S.assign(b, xs, ys)
+    if int((idx < 0).sum()):
+        return None, "%d output pixels lie on none of the five planes" % int((idx < 0).sum())
+    surf = surface_metres(idx, p, q, decl, room, f)
+
+    out = np.zeros((H, W, 3))
+    used = []
+    for name in ("wall", "floor", "ceiling", "left", "right"):
+        got = surf.get(name)
+        if not got:
+            continue
+        frame, a_m, b_m, m = got[0], got[1], got[2], got[3]
+        if frame == "wall":
+            rec = mats["walls"]
+            out[m] = wall_pixels(rec, a_m, b_m)
+            if "field" in mats:
+                hi = mats["field"]
+                fm = b_m >= ANCHOR_M + ANCHOR_BAND_M / 2.0
+                if np.any(fm):
+                    sub = np.zeros(a_m.shape + (3,))
+                    sub[fm] = wall_pixels(hi, a_m[fm], b_m[fm] - ANCHOR_M)
+                    o = out[m]
+                    o[fm] = sub[fm]
+                    out[m] = o
+            used.append((name, rec["id"]))
+        else:
+            slot = "floor" if name == "floor" else "ceiling"
+            rec = mats[slot]
+            out[m] = plan_pixels(rec, a_m, b_m, room,
+                                 rec["tiling"].get("grain_axis"))
+            used.append((name, rec["id"]))
+
+    doors_rec = None
+    if paint_doors:
+        doors = door_rects_m(plan, loc, f, decl["width_m"])
+        if doors:
+            out, doors_rec = paint_voids(out, b, decl["width_m"], storey, doors)
+
+    placeholder = any(m.get("placeholder") for m in mats.values())
+    write_tile(out_png, out)
+    return {
+        "facing": key, "out": out_png, "box": b,
+        "declared": d, "width_m": round(decl["width_m"], 3),
+        "materials": {k: v["id"] for k, v in mats.items()},
+        "lanes": {k: v.get("lane") for k, v in mats.items()},
+        "placeholder_art": placeholder,
+        "regions": {n: int((idx == i).sum()) for i, n in enumerate(S.REGIONS)},
+        "doors": doors_rec,
+        "_promotable": not placeholder,
+    }, None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--harvest", default="", help="one material id")
@@ -1015,8 +1253,41 @@ def main():
                          "candidate that the door detector cannot read")
     ap.add_argument("--candidate", default="")
     ap.add_argument("--out-png", default="")
+    ap.add_argument("--assemble", default="", help="<loc>/<F>")
+    ap.add_argument("--placeholders", action="store_true",
+                    help="draw V1 placeholder tiles for materials whose swatch "
+                         "has not returned")
     ap.add_argument("--json", default="")
     args = ap.parse_args()
+    if args.placeholders:
+        made = ensure_placeholders(read_json(MATERIALS))
+        print("placeholders: %d" % len(made))
+        return 0
+    if args.assemble:
+        plan = read_json(PLAN)
+        facings = read_json(FACINGS)["facings"]
+        doc = read_json(MATERIALS)
+        out = args.out_png or os.path.join(
+            ROOT, "backdrops", "source-assembled",
+            args.assemble.replace("/", "-"), "albedo.png")
+        rec, why = assemble_facing(args.assemble, plan, facings, doc, out)
+        if rec is None:
+            print("refused: %s" % why)
+            return 1
+        print("%s assembled -> %s" % (args.assemble, os.path.relpath(out, ROOT)))
+        print("  materials: %s" % ", ".join(
+            "%s=%s" % (k, v) for k, v in rec["materials"].items()))
+        print("  regions:   %s" % rec["regions"])
+        if rec["placeholder_art"]:
+            print("  V1: PLACEHOLDER ART -- not promotable")
+        if rec.get("doors"):
+            print("  doors:     %d void(s), %.1f luma clear"
+                  % (len(rec["doors"]["painted"]), rec["doors"]["separation_luma"]))
+        if args.json:
+            with open(args.json, "w") as fh:
+                json.dump(rec, fh, indent=2, default=float)
+                fh.write("\n")
+        return 0
     if args.paint_doors:
         plan = read_json(PLAN)
         facings = read_json(FACINGS)["facings"]
@@ -1039,7 +1310,8 @@ def main():
                 fh.write("\n")
         return 0
     if not (args.harvest or args.harvest_all):
-        ap.error("nothing to do: pass --harvest-all, --harvest <id> or "
+        ap.error("nothing to do: pass --harvest-all, --harvest <id>, "
+                 "--assemble <loc>/<F>, --placeholders or "
                  "--paint-doors <loc>/<F>")
     r = do_harvest(args.harvest or None, out_dir=args.out)
     print("\nharvested %d, refused %d, %.1fs"

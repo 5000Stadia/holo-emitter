@@ -1,0 +1,37 @@
+{
+  "id": "floor/raked-gravel-box-turf",
+  "slot": "floor",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 417,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": null,
+    "grain_frame": "plan",
+    "mirror": "both",
+    "scale_kind": "stochastic",
+    "characteristic_m": 0.02,
+    "feature": "raked gravel grain"
+  },
+  "scale_contract": {
+    "kind": "stochastic",
+    "feature": "raked gravel grain",
+    "characteristic_m": 0.02,
+    "span_m": 3.6835,
+    "ppm": 417
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/floor/raked-gravel-box-turf/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}

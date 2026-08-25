@@ -1,0 +1,38 @@
+{
+  "id": "floor/wide-oak-boards",
+  "slot": "floor",
+  "lane": "placeholder",
+  "placeholder": true,
+  "_what_this_is": "V1 placeholder art drawn from this material's own tiling spec so the geometry can be exercised before its swatch returns. NOT PROMOTABLE.",
+  "ppm": 438.86,
+  "ppm_provenance": {
+    "lane": "placeholder"
+  },
+  "tiling": {
+    "grain_axis": "room_long",
+    "grain_frame": "plan",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.25,
+    "feature": "floorboard"
+  },
+  "scale_contract": {
+    "kind": "periodic",
+    "feature": "floorboard",
+    "pitch_m": 0.25,
+    "count": 14,
+    "span_m": 3.5,
+    "ppm": 438.86
+  },
+  "bands": [
+    {
+      "band": "all",
+      "v_m": null,
+      "file": "backdrops/textures/floor/wide-oak-boards/placeholder.png",
+      "size_px": [
+        1536,
+        1536
+      ]
+    }
+  ]
+}
