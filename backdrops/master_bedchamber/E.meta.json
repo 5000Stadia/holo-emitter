@@ -1,14 +1,14 @@
 {
-  "floor_line_y": 0.706055,
-  "px_per_m_at_wall": 157.895,
-  "px_per_m_at_bottom": 456.43,
+  "floor_line_y": 0.693012,
+  "px_per_m_at_wall": 155.152,
+  "px_per_m_at_bottom": 420.88,
   "wall_width_m": 7.6,
-  "key_tint": "#c8a06d",
+  "key_tint": "#c8863b",
   "image_h_px": 1024,
-  "horizon_y": 0.550586,
-  "key_dir": "L-ABOVE",
+  "horizon_y": 0.51377,
+  "key_dir": "R-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 150,
+  "calibration_px": 147,
   "camera_wall_m": 6.6,
   "facing_type": "enclosed",
   "wall_continuous": true,
@@ -19,20 +19,20 @@
       "kind": "wall"
     }
   ],
-  "corner_x0_px": 218,
-  "corner_x1_px": 1333,
+  "corner_x0_px": 255.35,
+  "corner_x1_px": 1280.65,
   "storey_height_m": 2.8,
-  "camera_id": "measured:backdrops/source/master_bedchamber-E/row23-e6cad361.png",
+  "camera_id": "measured:backdrops/source-snapped/master_bedchamber-E/snapped.png",
   "camera_reference": "ruled",
-  "measured_round": "manor",
+  "measured_round": "row35snap",
   "provisional": false,
   "measured": true,
   "backdrop": "wall",
-  "focal_px": 1042.1,
-  "nearest_floor_m": 2.2832,
+  "focal_px": 1024,
+  "nearest_floor_m": 2.433,
   "measured_room": {
-    "storey_height_m": 3.629,
-    "wall_width_m": 7.062,
+    "storey_height_m": 2.773,
+    "wall_width_m": 6.608,
     "ruled_storey_height_m": 2.8,
     "ruled_wall_width_m": 7.6,
     "carriers": [
@@ -40,10 +40,10 @@
         "kind": "window",
         "id": null,
         "plan_px": [
-          404.8,
-          594.3
+          411.2,
+          597.3
         ],
-        "plan_centre_px": 499.6,
+        "plan_centre_px": 504.2,
         "painted_px": null,
         "painted_centre_px": null,
         "centre_delta_px": null,
@@ -54,10 +54,10 @@
         "kind": "window",
         "id": null,
         "plan_px": [
-          957.5,
-          1146.9
+          954.2,
+          1140.4
         ],
-        "plan_centre_px": 1052.2,
+        "plan_centre_px": 1047.3,
         "painted_px": null,
         "painted_centre_px": null,
         "centre_delta_px": null,
