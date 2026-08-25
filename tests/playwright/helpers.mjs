@@ -50,6 +50,15 @@ export function stageTree() {
     recursive: true,
     filter: (src) => !src.split(/[\\/]/).includes("source")
   });
+  /* [Row 42] The ingested library, for the same two reasons the backdrops are
+     copied: `library/baked.js` is a script the page loads, so a staged tree
+     without it fires the boot handler's missing-module fault and every test in
+     that tree reads an apology instead of a room; and `library/<id>/record.json`
+     is what `src/placeholders.js` resolves an id to under `require`, so a
+     staged tree without it bakes fixtures against a DIFFERENT record from the
+     committed one. `promoted.json` comes with them because it is what decides
+     which of the two the page draws. */
+  cpSync(join(repoRoot, "library"), join(dir, "library"), { recursive: true });
   /* Row 11: the bake asserts its ruled eye height against blueprint §10's
      authored home, `replicator/contract.json`, so that file is a bake input
      now and a staged tree without it refuses for a reason that has nothing to

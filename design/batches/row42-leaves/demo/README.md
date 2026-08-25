@@ -4,6 +4,35 @@ Reproduce every image here with `node design/batches/row42-leaves/demo/capture.m
 Nothing was retouched and nothing was posed: the script walks the manor from its
 boot standpoint by real exits, faces the wall, and toggles one entity.
 
+## The sprites are REAL now, and what that changed
+
+These captures were first taken with procedural placeholder art. Both painter
+asks have been answered and both returns are ingested — `library/door-leaf-plank-oak-v1/`
+and `library/casement-leaded-v1/`, written by `python3 -m replicator.ingest`,
+promoted in `library/promoted.json`, baked for the page by
+`tools/bake-library.mjs`. The **closed** state of each picture below is that
+sprite; the geometry is unchanged, because the geometry was never the sprite's.
+
+| | placeholder | ingested |
+|---|---|---|
+| leaf | 180 × 400 procedural, `light: "UL45"` | **171 × 384**, `light: "neutral"` |
+| casement | 280 × 220 procedural | **481 × 384**, `light: "neutral"` |
+
+`neutral` is row 37's rule [HUMAN, 2026-08-24, verbatim: *"all panels meed to
+have no light source and there should be a light lighting shader over the top
+regarding light sources"*], which both asks carry: the leaf is lit by the scene
+it is placed in, so no key ramp is multiplied over it.
+
+**The OPEN state of each is still the placeholder's**, and that is the ask's own
+ruling rather than a shortcut: *"Second state is a follow-up ask and NOT part of
+this one: the placeholder's own open state ships until then."* The replicator
+agrees from the other side — it refuses to declare a state it has no second
+generation for, and its registration gate derives the open state's origin by
+correlating a datum present in BOTH sources, so an open state manufactured from
+the closed one would be a typed number wearing a certificate. It is named on the
+merged record as `provenance.residual_placeholder`, and it is what the grey
+sliver in `*-open.png` is. The next roll of each ask is what replaces it.
+
 ## The door — `op22`, the solar to the muniment room
 
 Both sides of this doorway are promoted, and both measured it off their own

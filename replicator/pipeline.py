@@ -143,7 +143,8 @@ def _check_names(names, flag):
 
 
 def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachment,
-                  dims_m, view_side=None, period=None, takeable=False, airborne=False,
+                  dims_m, view_side=None, light=None, period=None,
+                  takeable=False, airborne=False,
                   source="generated", object_class=None, environment=None,
                   anchor_regions=None, footprint_src=None,
                   part_specs=None, state_specs=None, previews=True):
@@ -495,7 +496,17 @@ def ingest_sprite(*, source_rgb, contract, sprite_id, noun, archetype, attachmen
     result.record = record_mod.build(
         sprite_id=sprite_id, noun=noun, archetype=archetype, attachment=attachment,
         dims_m=dims_m, px=px, view_side=view_side or contract["camera"]["side"],
-        light=contract["light"]["key"],
+        # `light` is DECLARED, like `view_side` beside it and for the same
+        # reason: no stage measures which key an image was painted under (gate
+        # (e) estimates one and warns, which is blueprint §9.4(e)'s own ruling),
+        # so the field is the operator's. It defaults to the contract's key, so
+        # every earlier ingest re-runs byte-identical; it is a flag because row
+        # 37 rules some assets NEUTRAL [HUMAN, 2026-08-24, verbatim: "all
+        # panels meed to have no light source and there should be a light
+        # lighting shader over the top regarding light sources"], and a record
+        # that declares UL45 over pixels painted under no key is the exact lie
+        # `declared_unwitnessed` exists to stop the pipeline telling.
+        light=light or contract["light"]["key"],
         period=period or {k: v for k, v in contract["ingest"]["period"].items()},
         anchors=anch, takeable=takeable, airborne=airborne,
         parts=part_records or None, states_images=states_images or None,

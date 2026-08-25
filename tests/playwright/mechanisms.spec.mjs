@@ -1865,16 +1865,48 @@ test.describe("one light: the sprites carry the key's direction, not just its el
       }
       return out;
     });
+    /* [ROW 42] AND A SPRITE MAY DECLARE NO KEY AT ALL — which is a later
+     * ruling and not an exemption, so it gets its own clause rather than a
+     * skip. Row 37 [HUMAN, 2026-08-24, verbatim: "all panels meed to have no
+     * light source and there should be a light lighting shader over the top
+     * regarding light sources"] rules every GENERATED asset neutral, and both
+     * of row 42's ingested sprites carry `light: "neutral"` on their own
+     * records. The claim above stands unchanged for a sprite that declares
+     * UL45; for one that declares neutral the claim is the opposite and just
+     * as measurable: it must carry NO horizontal tilt.
+     *
+     * The band is 6 and the gap it sits in is real. `applyKeyDirection`'s
+     * ramp is +8 % of a channel at the left edge and -8 % at the right, which
+     * over these sprites' own mean luminance puts a keyed body at about +9.
+     * The two ingested ones measure -2.97 and -4.64 (the ingester's own gate
+     * (e) reports the same numbers, from the source side). Nothing lands
+     * between 6 and 9.
+     *
+     * Both halves are required to be present, because a rule with no members
+     * on one side is a rule that cannot fail. */
+    const NEUTRAL_BAND = 6;
     expect(res.length).toBeGreaterThanOrEqual(8);
     for (const r of res) {
-      expect(r.declared, `${r.id} declares a key`).toBe("UL45");
+      expect(["UL45", "neutral"], `${r.id} declares a key or declares none`)
+        .toContain(r.declared);
       expect(r.left, `${r.id} has left-third pixels`).not.toBeNull();
       expect(r.right, `${r.id} has right-third pixels`).not.toBeNull();
-      // A margin, not a tie: a 1-level difference is noise, not a key.
-      expect(r.left - r.right,
-        `${r.id}: left third ${r.left.toFixed(1)} vs right third ${r.right.toFixed(1)}`)
-        .toBeGreaterThan(2);
+      if (r.declared === "UL45") {
+        // A margin, not a tie: a 1-level difference is noise, not a key.
+        expect(r.left - r.right,
+          `${r.id}: left third ${r.left.toFixed(1)} vs right third ${r.right.toFixed(1)}`)
+          .toBeGreaterThan(2);
+      } else {
+        expect(Math.abs(r.left - r.right),
+          `${r.id} declares no key: left third ${r.left.toFixed(1)} vs right third ` +
+          `${r.right.toFixed(1)} — a key painted into a generated asset is light in the ` +
+          `wrong place forever`).toBeLessThanOrEqual(NEUTRAL_BAND);
+      }
     }
+    expect(res.some((r) => r.declared === "UL45"),
+      "the procedural hand still ships sprites and they still carry its key").toBe(true);
+    expect(res.some((r) => r.declared === "neutral"),
+      "and the ingested ones carry none — both clauses have members").toBe(true);
   });
 
   test("a sprite's parts and state images are lit like the body they belong to", async ({ page }) => {
@@ -1935,9 +1967,32 @@ test.describe("a record cannot lie about its own image", () => {
      *
      * §12.5's independence rule — never measure the code against its own
      * computed value — was applied to scale and not to these. Row 4's bake
-     * inherits the same clause when the images arrive as PNGs. */
+     * inherits the same clause when the images arrive as PNGs.
+     *
+     * [ROW 42] AND THE BAKE ARRIVED, WITH A SECOND DERIVATION. §9.2's
+     * bottom-two-rows midpoint is the PROCEDURAL library's rule and it is one
+     * reading of "where this thing meets the ground". The replicator writes a
+     * different one on purpose — the CONTACT BAND, the x-extent of the columns
+     * whose lowest opaque pixel lies within `gates.contact.band_fraction` of
+     * the content height of the bottom — because the two-row rule "would
+     * hard-fail every three-quarter sprite unless a human measured it first"
+     * (contract.json, gates.contact.basis). The casement is exactly that case:
+     * its bottom rail is soft at the corners, the two-row extent starts at
+     * x = 4 and the contact band at x = 0, and the base midpoints differ by
+     * 2 px.
+     *
+     * So the clause is not weakened, it is pointed at the right rule: WHICH
+     * derivation applies is read from the record's own `measured.contact.chosen`,
+     * and the NUMBERS are then re-derived here from the pixels, independently.
+     * Reading the rule from the record is not circular — reading its answer
+     * would be, and that is what this test refuses to do. `band_fraction`
+     * comes from the contract rather than from a literal, so a record and this
+     * witness cannot be made to agree by moving a number in one of them. */
+    const BAND_FRACTION = JSON.parse(readFileSync(
+      join(repoRoot, "replicator", "contract.json"), "utf8"))
+      .gates.contact.band_fraction;
     await page.goto(appUrl());
-    const res = await page.evaluate(() => {
+    const res = await page.evaluate((bandFraction) => {
       const lib = window.HOLO_APP.library;
       const out = [];
       for (const id of Object.keys(lib)) {
@@ -1953,6 +2008,20 @@ test.describe("a record cannot lie about its own image", () => {
             if (d[((y * W + x) * 4) + 3] >= 128) { bottom = y; break; }
           }
         }
+        /* The contact band, re-derived: the lowest opaque pixel of every
+           column, kept where it lies within `bandFraction` of the content
+           height of the bottom-most opaque row. */
+        let bx0 = W, bx1 = -1;
+        const reach = bandFraction * H;
+        for (let x = 0; x < W; x++) {
+          let low = -1;
+          for (let y = H - 1; y >= 0; y--) {
+            if (d[((y * W + x) * 4) + 3] >= 128) { low = y; break; }
+          }
+          if (low < 0 || (bottom - low) > reach) continue;
+          if (x < bx0) bx0 = x;
+          if (x > bx1) bx1 = x;
+        }
         let x0 = W, x1 = -1;
         for (let y = Math.max(0, bottom - 1); y <= bottom; y++) {
           for (let x = 0; x < W; x++) {
@@ -1962,20 +2031,26 @@ test.describe("a record cannot lie about its own image", () => {
             }
           }
         }
+        /* Which of the two rules this record was written under — the record's
+           own declaration, never its answer. A record with no `measured` block
+           is procedural and §9.2's two-row rule is the only one it can be. */
+        const rule = ((rec.measured || {}).contact || {}).chosen || "bottom_two_rows";
+        const span = rule === "contact_band" ? { x0: bx0, x1: bx1 } : { x0: x0, x1: x1 };
         out.push({
           id,
+          rule,
           declared: {
             px: rec.px, base: rec.anchors.base, footprint: rec.anchors.footprint
           },
           derived: {
             px: { w: W, h: H },
-            base: { x: (x0 + x1 + 1) / 2, y: bottom + 1 },
-            footprint: { x0: x0, x1: x1 + 1 }
+            base: { x: (span.x0 + span.x1 + 1) / 2, y: bottom + 1 },
+            footprint: { x0: span.x0, x1: span.x1 + 1 }
           }
         });
       }
       return out;
-    });
+    }, BAND_FRACTION);
     expect(res.length).toBeGreaterThanOrEqual(8);
     for (const r of res) {
       const D = r.declared, X = r.derived;
@@ -1984,15 +2059,21 @@ test.describe("a record cannot lie about its own image", () => {
       // base sits on the image's own bottom edge.
       expect(D.base.y, `${r.id}: base.y is the bottom edge`).toBe(X.px.h);
       expect(Math.abs(D.base.x - X.base.x),
-        `${r.id}: base.x ${D.base.x} vs the bottom-pixel midpoint ${X.base.x}`)
+        `${r.id}: base.x ${D.base.x} vs the ${r.rule} midpoint ${X.base.x}`)
         .toBeLessThanOrEqual(1.5);
       expect(Math.abs(D.footprint.x0 - X.footprint.x0),
-        `${r.id}: footprint.x0 ${D.footprint.x0} vs bottom-pixel extent ${X.footprint.x0}`)
+        `${r.id}: footprint.x0 ${D.footprint.x0} vs the ${r.rule} extent ${X.footprint.x0}`)
         .toBeLessThanOrEqual(1);
       expect(Math.abs(D.footprint.x1 - X.footprint.x1),
-        `${r.id}: footprint.x1 ${D.footprint.x1} vs bottom-pixel extent ${X.footprint.x1}`)
+        `${r.id}: footprint.x1 ${D.footprint.x1} vs the ${r.rule} extent ${X.footprint.x1}`)
         .toBeLessThanOrEqual(1);
     }
+    /* Both rules have members, so neither branch can rot unnoticed — and the
+       ingested pair is what makes the second one live. */
+    expect(res.some((r) => r.rule === "bottom_two_rows"),
+      "the procedural library still writes anchors §9.2's way").toBe(true);
+    expect(res.some((r) => r.rule === "contact_band"),
+      "and an ingested record writes them the replicator's way").toBe(true);
   });
 });
 

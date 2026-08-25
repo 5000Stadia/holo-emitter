@@ -694,6 +694,7 @@ index.html | render fault: <detail>
 index.html | BOOT ERROR: viewstate <json> names no location/facing in world.json — every turn will be refused. Fix fixtures/demo-study/viewstate.json and run: node tools/bake-fixtures.mjs
 index.html | BOOT ERROR: no baked world "<id>" — the page carries <list>. Bake it with: node tools/bake-fixtures.mjs --fixture-dir fixtures/<id>
 index.html | BACKDROP ERROR: the baked painting for <facing> did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs
+index.html | SPRITE ERROR: the baked sprite <id> did not decode — it will draw as nothing. Re-run: node tools/bake-library.mjs
 index.html | entity control: record has no usable noun: <sprite> (entity <id>)
 index.html | entity-controls fault: <detail>
 src/harness.js | missing narration: <key>

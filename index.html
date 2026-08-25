@@ -368,6 +368,7 @@
   <script src="fixtures/nav-manor/fixture.js"></script>
   <script src="fixtures/demo-study/fixture.js"></script>
   <script src="backdrops/baked.js"></script>
+  <script src="library/baked.js"></script>
   <script src="src/groundplane.js"></script>
   <script src="src/placeholders.js"></script>
   <script src="src/renderer.js"></script>
@@ -441,7 +442,13 @@
     var whereamiEl = document.getElementById("whereami");
     var whereamiPlace = document.getElementById("whereami-place");
     var whereamiFacing = document.getElementById("whereami-facing");
-    var library = window.HOLO.placeholders.build(document);
+    /* [Row 42] Everything the first frame has to wait for, in ONE list —
+       the promoted paintings AND the ingested sprites. Declared before the
+       library is built because the sprite bake fills it: a leaf drawn from an
+       undecoded PNG is a hole in the doorway, and the page has always held its
+       first frame rather than flip a grid to a painting a frame later. */
+    var pendingImages = [];
+    var library = window.HOLO.placeholders.build(document, pendingImages);
     /* The renderer's backdrop map: "location/facing" -> { image, meta }.
        Row 11 fills the META half from the bake — every facing the overhead
        plan holds carries its own §5 geometry, derived from plan.json by
@@ -471,7 +478,6 @@
        yet is drawn as the holodeck's own scaffold. */
     var bakedImages = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.images) || {};
     var imageStore = document.getElementById("backdrop-store");
-    var pendingImages = [];
     for (var ik in bakedImages) {
       if (!Object.prototype.hasOwnProperty.call(bakedImages, ik)) continue;
       if (!backdrops[ik]) continue;
@@ -1875,10 +1881,24 @@
       var left = pendingImages.length;
       var settle = function (ev) {
         if (ev && ev.type === "error") {
-          var key = ev.target && ev.target.dataset ? ev.target.dataset.facing : "?";
-          console.error("BACKDROP ERROR: the baked painting for " + key +
-            " did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs");
-          if (backdrops[key]) delete backdrops[key].image;
+          var ds = (ev.target && ev.target.dataset) || {};
+          /* [row 42] Two kinds of image are in this list now and they fail
+             differently. A painting that will not decode drops to the grid,
+             which is a room the visitor can still walk. A SPRITE that will
+             not decode leaves a canvas of the right size and no pixels — an
+             invisible leaf standing in a doorway that still hit-tests — so
+             it says which bake to re-run and by which id. Neither is a
+             surface string: the picture's own honesty is the product's
+             answer, and this is the developer's half. */
+          if (ds.sprite != null) {
+            console.error("SPRITE ERROR: the baked sprite " + ds.sprite +
+              " did not decode — it will draw as nothing. Re-run: node tools/bake-library.mjs");
+          } else {
+            var key = ds.facing != null ? ds.facing : "?";
+            console.error("BACKDROP ERROR: the baked painting for " + key +
+              " did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs");
+            if (backdrops[key]) delete backdrops[key].image;
+          }
         }
         if (--left === 0) bootPaint();
       };
