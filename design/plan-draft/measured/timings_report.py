@@ -349,6 +349,114 @@ def regressions(recs, window, min_baseline, factor):
 
 
 # ------------------------------------------------------------------ #
+# [row 43] THE CAMERA PASS RATE, PER REGISTER                         #
+# ------------------------------------------------------------------ #
+# The clean register was ruled production on a screen that separated nothing at
+# one roll a wall, and the row's own done condition is that the NEXT twenty
+# production returns keep measuring it against the register it replaced. That
+# needs two things this file already has one of: the readings, and a way to say
+# which register produced each one.
+#
+# THE JOIN IS THE PACKET RECORD, NOT THE PROMPT. A reading names its candidate's
+# roll id; `manifest.json` and `retries.json` name every roll they cut and, since
+# row 43, the register the ask was composed in. So the attribution is the
+# emitter's own declaration at emit time rather than a guess made afterwards by
+# reading the prompt back and pattern-matching a register out of it — which
+# would be a second definition of what `g5-noappendix` is, in a different
+# language, going stale on its own schedule.
+#
+# AN ENTRY WITH NO `register` KEY IS `g4`. That is not a default standing in for
+# missing data: every ask this project cut before 2026-08-25 composed through
+# `g4ManorPrompt`, so the absence of the key IS the fact. It is what the
+# trailing rate below is measured on.
+#
+# A READING NO PACKET RECORD CLAIMS IS NOT COUNTED. The corpus carries
+# candidates from the evolution batches and from hand-cut probes; those are not
+# production returns and this line does not speak for them.
+DEFAULT_REGISTER = "g4"
+PACKET_RECORDS = (
+    os.path.join("design", "batches", "row23-scaffold", "manor", "manifest.json"),
+    os.path.join("design", "batches", "row23-scaffold", "manor", "retries.json"),
+)
+
+
+def roll_registers(tree):
+    """roll id -> the register its ask was composed in, from the packet records."""
+    out = {}
+    for rel in PACKET_RECORDS:
+        path = os.path.join(tree, rel)
+        if not os.path.exists(path):
+            continue
+        try:
+            doc = json.load(open(path, encoding="utf-8"))
+        except Exception:
+            continue
+        for e in (doc.get("entries") or []):
+            reg = e.get("register") or DEFAULT_REGISTER
+            for r in (e.get("rolls") or []):
+                rid = r.get("id")
+                if rid:
+                    out[rid] = reg
+    return out
+
+
+def register_rates(tree, limit=20):
+    """[{register, k, n, rate, last}] — the camera gate over the last `limit`
+    returns of each register, newest first, in the readings' own order.
+
+    `camera_pass` is `verdict == "PASS"`, which is the same quantity
+    `row34_fitness.py` scores an arm's camera column on. One definition, two
+    readers.
+    """
+    regs = roll_registers(tree)
+    if not regs:
+        return []
+    rows = []
+    for j in glob.glob(os.path.join(tree, "design", "plan-draft", "measured",
+                                    "manor", "*.json")):
+        rid = os.path.basename(j)[:-5]
+        reg = regs.get(rid)
+        if reg is None:
+            continue
+        try:
+            doc = json.load(open(j, encoding="utf-8"))
+        except Exception:
+            continue
+        rows.append((os.path.getmtime(j), reg, doc.get("verdict") == "PASS"))
+    rows.sort(key=lambda r: -r[0])
+    out = []
+    for reg in sorted({r[1] for r in rows}):
+        take = [r for r in rows if r[1] == reg][:limit]
+        k = sum(1 for r in take if r[2])
+        out.append({"register": reg, "k": k, "n": len(take),
+                    "rate": (k / len(take)) if take else None,
+                    "last": max((r[0] for r in take), default=None),
+                    "limit": limit})
+    return out
+
+
+def register_line(rates, limit=20):
+    """The one line the monitor prints beside its verdict."""
+    if not rates:
+        return ("registers: no production packet record names a register yet — "
+                "nothing to attribute a return to.")
+    trailing = next((r for r in rates if r["register"] == DEFAULT_REGISTER), None)
+    live = [r for r in rates if r["register"] != DEFAULT_REGISTER]
+    parts = []
+    for r in live:
+        parts.append("%s camera %d/%d%s" % (
+            r["register"], r["k"], r["n"],
+            (" (%.0f%%)" % (100 * r["rate"])) if r["n"] else " — no return yet"))
+    if not live:
+        parts.append("no return under a register later than `%s` yet" % DEFAULT_REGISTER)
+    if trailing:
+        parts.append("trailing `%s` %d/%d%s" % (
+            DEFAULT_REGISTER, trailing["k"], trailing["n"],
+            (" (%.0f%%)" % (100 * trailing["rate"])) if trailing["n"] else ""))
+    return "registers (last %d return(s) each): %s." % (limit, "; ".join(parts))
+
+
+# ------------------------------------------------------------------ #
 # Backfill — Test 1's own history, honestly marked                    #
 # ------------------------------------------------------------------ #
 def _git(tree, *args):
@@ -618,7 +726,8 @@ def flattened_mtimes(tree):
 # Rendering                                                           #
 # ------------------------------------------------------------------ #
 def render(recs, bad_lines, stats, top, gaps, queues, flags, checked, opts, back=None,
-           flat=None, run_state_path=None):
+           flat=None, run_state_path=None, rates=None):
+    rates = rates or []
     L = []
     a = L.append
     a("# The pipeline's stopwatch — timings report")
@@ -673,6 +782,30 @@ def render(recs, bad_lines, stats, top, gaps, queues, flags, checked, opts, back
              human(s["min"]), human(s["max"]), human(s["total"]),
              ("%.1f" % s["per_min"]) if s["per_min"] else "--",
              clock(s["first"])[5:16], clock(s["last"])[5:16]))
+
+    a("")
+    a("## The camera gate, per register")
+    a("")
+    a("[row 43] The clean register (`g5-noappendix`) was ruled production on a screen "
+      "that separated nothing at one roll a wall, so the ruling keeps being measured: "
+      "each register's last %d production returns, against the register it replaced. "
+      "A reading is joined to its register through its roll id in the packet record — "
+      "the emitter's own declaration at emit time — and a packet record with no "
+      "`register` key is `%s`, because every ask cut before 2026-08-25 composed "
+      "through it. `camera` is `verdict == PASS`, the same quantity "
+      "`row34_fitness.py` scores an arm's camera column on."
+      % (opts.register_window, DEFAULT_REGISTER))
+    a("")
+    if not rates:
+        a("No production packet record names a register yet.")
+    else:
+        a("| register | camera pass | of | rate | most recent return |")
+        a("|---|--:|--:|--:|---|")
+        for r in rates:
+            a("| `%s` | %d | %d | %s | %s |"
+              % (r["register"], r["k"], r["n"],
+                 ("%.0f%%" % (100 * r["rate"])) if r["n"] else "--",
+                 clock(r["last"])[:16] if r["last"] else "--"))
 
     a("")
     a("## The top contributor")
@@ -852,6 +985,9 @@ def main(argv=None):
     ap.add_argument("--monitor", action="store_true",
                     help="one line, exit 1 on any regression flag. For a scheduler's "
                          "cadence; this process never loops")
+    ap.add_argument("--register-window", type=int, default=20,
+                    help="[row 43] how many of each register's most recent production "
+                         "returns the camera pass rate is taken over")
     ap.add_argument("--gap-threshold", type=float, default=300.0)
     ap.add_argument("--window", type=int, default=10)
     ap.add_argument("--min-baseline", type=int, default=5)
@@ -874,13 +1010,22 @@ def main(argv=None):
     gaps = idle_gaps(recs, run_state, a.gap_threshold)
     queues = queue_latency(recs)
     flags, checked = regressions(recs, a.window, a.min_baseline, a.regress_factor)
+    rates = register_rates(a.tree, a.register_window)
 
     if a.monitor:
+        # TWO LINES, AND THE FIRST IS STILL THE VERDICT [row 43]. A scheduler
+        # reading `--monitor` reads the timing verdict and the exit code exactly
+        # as it did; the register line is added beneath it because row 43's own
+        # done condition is that the next twenty returns are REPORTED, and a
+        # number nobody prints is not reported. The exit code stays the
+        # regression's alone: a register whose camera rate falls is a finding
+        # for the Navigator, not a red build.
         print(verdict_line(recs, top, gaps, queues, flags))
+        print(register_line(rates, a.register_window))
         return 1 if flags else 0
 
     text = render(recs, bad, stats, top, gaps, queues, flags, checked, a, back, flat,
-                  os.path.relpath(rs_path, ROOT) if run_state else None)
+                  os.path.relpath(rs_path, ROOT) if run_state else None, rates)
     if a.out != "-":
         out = a.out or DEFAULT_REPORT
         with open(out, "w", encoding="utf-8") as fh:

@@ -528,6 +528,30 @@ const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six",
 const count = (n) => COUNT_WORD[n] || String(n);
 
 /**
+ * WHICH LIGHT OPENS, derived from where each opening sits on the wall: one left
+ * of the wall's centre hangs its casement on the left, one right of centre on
+ * the right. It is the hinge a joiner would actually have hung, and it varies
+ * with the plan rather than with a choice — which is what stops a range of
+ * identical windows reading as one window stamped four times.
+ *
+ * [row 43] ITS OWN FUNCTION, because two registers say it now: the incumbent's
+ * `windowLines` below and the clean register's window clause, which reaches it
+ * through `g5CtxFor`. One home, so a change to the hinge rule cannot reach one
+ * register and not the other.
+ */
+export function casementSentence(windows, surfaceWord) {
+  const surface = surfaceWord || "wall";
+  const many = windows.length > 1;
+  const left = windows.filter((w) => (w.u == null ? 0.5 : w.u) < 0.5).length;
+  const right = windows.length - left;
+  const side = left && right
+    ? `the left-hand light in the ${count(left)} opening${left > 1 ? "s" : ""} left of the ` +
+      `${surface}'s centre, and the right-hand light in the ${count(right)} right of it.`
+    : `the ${left ? "left" : "right"}-hand light${many ? ", in every one of them" : ""}.`;
+  return `One light in ${many ? "each window" : "it"} is a casement hung on iron hinges: ${side}`;
+}
+
+/**
  * The window paragraph for one facing: the openings the plan draws, described
  * at the period module, plus the glazing rule and the heraldry ration.
  *
@@ -585,18 +609,7 @@ export function windowLines(voice, windows, roomName, surfaceWord, hasStyleImage
         : "") +
       `, the sill ${WINDOW_SILL_M.toFixed(2)} m above the ${datum} and the head ${WINDOW_HEAD_M.toFixed(2)} m above it.`);
   }
-  /* WHICH LIGHT OPENS is derived from where each opening sits on the wall: one
-   * left of the wall's centre hangs its casement on the left, one right of
-   * centre on the right. It is the hinge a joiner would actually have hung, and
-   * it varies with the plan rather than with a choice — which is what stops a
-   * range of identical windows reading as one window stamped four times. */
-  const left = windows.filter((w) => (w.u == null ? 0.5 : w.u) < 0.5).length;
-  const right = windows.length - left;
-  const side = left && right
-    ? `the left-hand light in the ${count(left)} opening${left > 1 ? "s" : ""} left of the ` +
-      `${surface}'s centre, and the right-hand light in the ${count(right)} right of it.`
-    : `the ${left ? "left" : "right"}-hand light${many ? ", in every one of them" : ""}.`;
-  L.push(`  One light in ${many ? "each window" : "it"} is a casement hung on iron hinges: ${side}`);
+  L.push(`  ${casementSentence(windows, surface)}`);
   /* [row 40, Kabe's ruling] THE GLASS IS NAMED POSITIVELY, because the seed can
    * no longer supply it. This sentence used to sit downstream of a photograph
    * that showed four painted shields, and it is now the only description of the

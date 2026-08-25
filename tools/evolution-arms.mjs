@@ -8,14 +8,18 @@
  *
  * THREE THINGS ABOUT THE SHAPE, AND ALL THREE ARE LOAD-BEARING.
  *
- * 1. AN ARM IS A TRANSFORMATION OF THE PRODUCTION PROMPT, NEVER A SECOND COPY
- *    OF IT. `manorPrompt` in `tools/make-scaffold.mjs` is what the manor run
- *    actually dispatches; every arm here parses its output into sections and
- *    edits the sections it is defined to edit. So the CONTROL is the identity
- *    transformation and is byte-identical to production by construction rather
- *    than by a test that has to notice a copy going stale — and every other arm
- *    carries the room's voice, its ruled carrier sentences and its constraints
- *    without this file knowing anything about voices at all.
+ * 1. AN ARM IS A TRANSFORMATION OF A COMPOSER, NEVER A SECOND COPY OF ONE.
+ *    Every arm here parses a composer's output into sections and edits the
+ *    sections it is defined to edit, so the CONTROL is the identity
+ *    transformation rather than a copy a test has to notice going stale — and
+ *    every other arm carries the room's voice, its ruled carrier sentences and
+ *    its constraints without this file knowing anything about voices at all.
+ *
+ *    [row 43] WHICH COMPOSER: `g4ManorPrompt`, the register production sent
+ *    until row 43 and the declared control arm since. It is not `manorPrompt`,
+ *    which now composes the clean register — an arm defined against August's
+ *    section order and re-pointed at whatever production writes next would stop
+ *    being the arm that was measured without anything going red.
  *
  * 2. EVERY NUMBER IS DERIVED, AND THE RENDERER IS ITS AUTHORITY. The exhaustive
  *    geometry and the verbal camera construction below quote the same
@@ -35,8 +39,15 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { deriveMeta, facingCarriers, flightsForFacing } from "./plan-projection.mjs";
-import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars, rulerX, wallY,
-  roomRuling, PIER_ANCHOR_SENTENCE, OPEN_SIDE_FABRIC } from "./make-scaffold.mjs";
+/* [row 43] EVERY ARM IN THIS FILE TRANSFORMS `g4ManorPrompt`, NOT `manorPrompt`.
+ * The arms below were all defined as edits to the sections of the prompt
+ * production sent in August 2026 — the `g4` register inside `g4`'s section
+ * order. Row 43 moved production to the clean register, and an arm that
+ * transformed whatever production happens to compose today would silently stop
+ * being the arm that was measured. `g4ManorPrompt` IS that composer, kept for
+ * exactly this and dispatched by no emitter. */
+import { scaffoldRects, g4ManorPrompt, g5CtxFor, chairRail, brackets, assertLabelChars,
+  rulerX, wallY, roomRuling, PIER_ANCHOR_SENTENCE, OPEN_SIDE_FABRIC } from "./make-scaffold.mjs";
 import { voiceFor, lightsFor } from "./room-voices.mjs";
 /* THE GEOMETRY AND THE RECOMMENDED REGISTER LIVE IN ONE HOME, shared with
  * `manorPrompt`, so the arm the recommendation rests on and the composer
@@ -248,11 +259,14 @@ export function geometryBlock(ctx) {
 
 export const STYLE_SEED = "design/references/style-seed-warm.png";
 
-/* The exact lines `manorPrompt` writes about Image 2. An arm that drops or
+/* The exact lines `g4ManorPrompt` writes about Image 2. An arm that drops or
  * demotes the scaffold has to remove or rewrite each of them, and naming them
  * here — rather than pattern-matching for "Image 2" — is what makes the arms'
- * declared diffs assertable line by line and what makes the emitter FAIL LOUDLY
- * the day `manorPrompt` rewords one of them. */
+ * declared diffs assertable line by line and what makes the harness FAIL LOUDLY
+ * the day that composer rewords one of them. [row 43] They are the INCUMBENT's
+ * lines: the clean register introduces the layout image in one clause inside
+ * its picture paragraph and names it by the index it actually has, which is
+ * Image 1 in a packet carrying no style picture. */
 export const IMAGE2_LINES = {
   input_head: "  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout",
   input_diagram: "  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.",
@@ -336,7 +350,7 @@ export const ARMS = {
     channels: { text_geometry: "exhaustive", image: "none", camera_language: "exhaustive" },
     images: () => ["style-seed-warm.png"],
     prompt(ctx) {
-      const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+      const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
       replaceSection(secs, "Input images", textOnlyInputSection(ctx));
       substituteLine(secs,
         "  matching Image 1's paint handling and Image 2's geometry exactly.",
@@ -373,7 +387,7 @@ export const ARMS = {
     /* THE IDENTITY TRANSFORMATION, and it is written as one call rather than as
      * a parse-and-render round trip so that "the control is production" is true
      * by construction and not by the parser being lossless. */
-    prompt(ctx) { return manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects); }
+    prompt(ctx) { return g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects); }
   },
 
   v4: {
@@ -389,7 +403,7 @@ export const ARMS = {
      * twice for exactly that. Suspending a live gate to make an arm purer would
      * be measuring a prompt this project would never send. */
     prompt(ctx) {
-      const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+      const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
       const keep = ["Use case", "Asset type", "Gate anchor"];
       const head = secs.filter((s) => keep.includes(s.key));
       const [, f] = ctx.key.split("/");
@@ -417,7 +431,7 @@ export const ARMS = {
     channels: { text_geometry: "production", image: "edge", camera_language: "production" },
     images: () => ["style-seed-warm.png", "edge.png"],
     prompt(ctx) {
-      const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+      const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
       for (const [from, to] of V5_SUBSTITUTIONS) substituteLine(secs, from, to);
       return renderSections(secs);
     }
@@ -430,7 +444,7 @@ export const ARMS = {
     channels: { text_geometry: "production", image: "scaffold_primary", camera_language: "exhaustive" },
     images: () => ["style-seed-warm.png", "scaffold.png"],
     prompt(ctx) {
-      const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+      const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
       appendTo(secs, "Camera and composition", cameraBlock(ctx, { lead: false }));
       return renderSections(secs);
     }
@@ -570,7 +584,7 @@ ARMS.v7 = {
   images: () => ["style-seed-warm.png", "scaffold.png"],
   ruling: "[HUMAN, 2026-08-24] \"Visual reference for visual orientation generalities, text for well defined articulation of anchored requirements and detail of the reference generalizations\"",
   prompt(ctx) {
-    const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+    const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
     /* Image 2 is re-declared as ORIENTATION, and the control's two sentences
      * that ask it to carry precision — "reproduce Image 2's camera exactly, to
      * the pixel" and "paint that feature inside its box" — are what this arm
@@ -766,7 +780,7 @@ ARMS.v2xv6m2 = {
    * channels for the same thing at full strength, which is the case neither
    * parent runs: v2 demotes the image, v6 leaves the text at production. */
   prompt(ctx) {
-    const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+    const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
     replaceSection(secs, "Camera and composition", cameraBlock(ctx));
     insertAfter(secs, "Camera and composition",
       { key: "Geometry, exact, in pixels and in metres", lines: geometryBlock(ctx) });
@@ -781,7 +795,7 @@ ARMS.v2xv6m4 = {
   channels: { text_geometry: "production", image: "scaffold_demoted", camera_language: "exhaustive" },
   images: () => ["style-seed-warm.png", "scaffold.png"],
   prompt(ctx) {
-    const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+    const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
     appendTo(secs, "Input images", [M4_DEMOTION_LINES.input]);
     replaceSection(secs, "Camera and composition", cameraBlock(ctx));
     appendTo(secs, "Camera and composition", [M4_DEMOTION_LINES.camera]);
@@ -963,7 +977,7 @@ export function expressionBlock(ctx, mode) {
  *  ablated section swapped in. Everything but that section is identical across
  *  the four arms by construction. */
 function gen3Prompt(ctx, mode) {
-  const secs = parseSections(manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
+  const secs = parseSections(g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects));
   /* (1) PRE-SHAPED. The skill's schema names four of our sections already; these
    * three are near-misses, and renaming them leaves the shaper nothing to do but
    * pass them through. `Gate anchor:` is not one of its fields and stays anyway,
@@ -1333,83 +1347,70 @@ export function styleImageFor(loc, facing) {
 
 /**
  * Everything `g5Prompt` needs about one facing that `makeCtx` does not already
- * hold. Every value is READ from the function `manorPrompt` reads it from;
- * nothing here is a second copy of a ruled sentence.
+ * hold.
+ *
+ * [row 43] IT DELEGATES, AND THAT IS THE POINT. The register is production's
+ * now, so its ctx is production's too: `g5CtxFor` in `make-scaffold.mjs`
+ * resolves the fabric, the ruling, the flight, the window lights, the pier
+ * anchor and the heraldry ration through the same functions the emitter reads
+ * them from, and this arm resolves none of them a second way. When this file
+ * held its own copy the two agreed; a copy that agrees today is the shape of
+ * every drift this project has had.
+ *
+ * WHAT THE ARM KEEPS IS ITS OWN DECLARED IMAGE POLICY. `styleImageFor` here is
+ * the arm's declaration — the room's agreeing majority wall off
+ * `room_consistency.json`, or nothing — and production's is stricter (it also
+ * demands the ask audit put that wall's own commission at the room's ruling).
+ * The arm was measured under its declaration and keeps it, which is why the
+ * style is passed IN rather than resolved inside.
  */
 export function g5Ctx(ctx, { reask = false } = {}) {
-  const { plan, loc, facing, meta, rects, voice, anchor } = ctx;
-  const flights = flightsForFacing(plan, loc, facing, meta, CANVAS_W);
-  const ruling = roomRuling(plan, loc, facing);
-  const openSide = rects.find((r) => r.kind === "open_edge") || null;
-  const built = rects.filter((r) => r.kind !== "open_edge");
-  /* THE FABRIC, RESOLVED EXACTLY AS `manorPrompt` RESOLVES IT: an outdoor
-   * facing that carries openings is the house's own elevation, an open side is
-   * the absence of a wall, and a bedchamber's wall is two fabrics. */
-  const fabric = voice.outdoor
-    ? ((openSide && !built.length) ? OPEN_SIDE_FABRIC
-      : ((built.length && voice.walls_with_openings) || voice.walls))
-    : ruling.walls;
-  const armorial = voice.glass === "armorial"
-    ? `Armorial glass: the ${ctx.room_name} is the one room in this house entitled to it. Set a ` +
-      "small painted armorial shield in coloured glass into the head of each window and nowhere " +
-      `else in the picture; every other pane-field on this ${ctx.surface} stays plain diamond quarrels.`
-    : voice.glass === "one_shield"
-      ? `Armorial glass: the ${ctx.room_name} carries exactly ONE small painted armorial shield in ` +
-        "coloured glass, set into the head of the first window only; every other light on this " +
-        `${ctx.surface}, and every other pane-field of that same window, is plain diamond quarrels.`
-      : null;
+  const { plan, key, loc, facing, meta, rects } = ctx;
   return {
     ...ctx,
-    side: SIDE_WORD[facing],
-    flights,
-    ruling,
-    fabric,
-    /* An open facing's ruler is the piers at the mouth, not a coping running
-     * across it — [Kabe, 2026-08-24] "Entrance court s looks very weird on the
-     * edges", the parapet painted across a 20 m opening. */
-    anchor_sentence: openSide ? PIER_ANCHOR_SENTENCE : anchor.sentence,
-    /* The open side's fabric IS its carrier sentence, ruled width and all, so
-     * item 1 leaves it to item 2 rather than saying it twice. */
-    fabric_in_carriers: !!(openSide && !built.length),
-    window_lights: lightsFor,
-    armorial_line: armorial,
-    style: styleImageFor(loc, facing),
-    reask
+    ...g5CtxFor(plan, key || `${loc}/${facing}`, meta, rects,
+      { style: styleImageFor(loc, facing), reask })
   };
 }
 
 /* THE CONTROL, AND WHY IT IS NOT `g4` ITSELF.
  *
- * `ARMS.g4` is a TRANSFORMATION of `manorPrompt`, and row 34 has since folded
- * its own winner INTO `manorPrompt` — so `g4`'s composer now looks for a
- * `Camera and composition:` section that production no longer writes, and
- * throws. That is not rot; `evolution.spec.mjs` says it in as many words
+ * `ARMS.g4` is a TRANSFORMATION: it looks for a `Camera and composition:`
+ * section, edits it, and throws where the composer beneath it no longer writes
+ * one. Row 34 folded its own winner into that composer, so `g4` has had nothing
+ * to transform since; `evolution.spec.mjs` says it in as many words
  * ("recomputing a 2026-08-24 arm from a composer that has since adopted its own
  * winner does not check anything").
  *
- * What the register trial actually needs as its yardstick is THE REGISTER
- * PRODUCTION SENDS TODAY, which is `g4`'s: the suite holds `manorPrompt`'s
- * register against `g4`'s committed, measured prompts case by case, so if the
- * two ever part company that case goes red rather than this arm going quietly
- * wrong. So the control is the identity transformation — production, byte for
- * byte, by construction rather than by a copy that has to be kept fresh — and
- * it is `v3`'s trick under a name that says which register it carries.
+ * What the register trial needed as its yardstick was THE REGISTER PRODUCTION
+ * WAS SENDING — `g4`'s, whole, in `g4`'s section order — so the control is the
+ * identity transformation of that composer rather than a copy of it kept fresh
+ * by hand.
  *
- * THE ONE HONEST FOOTNOTE: production is not byte-identical to the archived
- * `g4` prompts. Two lines moved after generation 3 was measured — a wrap, and
- * the no-lettering rule losing the words "panelling" and "wainscot" when row
- * 29's veto reached it (`POSITIVE_NO_TEXT`). The REGISTER is identical; the
- * difference is two sentences of constraint, and it is recorded here because a
- * control described as "g4" and quietly meaning "g4 plus two later fixes" is
- * the kind of small lie a table cannot recover from. */
+ * [row 43] AND IT IS STILL THAT COMPOSER, WHICH IS NOW ITS ONLY CALLER.
+ * Production has moved to the clean register, so `g4ManorPrompt` no longer
+ * describes what any emitter dispatches — it describes the INCUMBENT, which is
+ * exactly what a control arm is for. It is kept live and tested rather than
+ * deleted so the next natural batch can measure the new register against the
+ * old one instead of taking a screen that separated nothing as settled. Its
+ * name says which register it carries; nothing about it says it is production.
+ *
+ * THE ONE HONEST FOOTNOTE: it is not byte-identical to the archived `g4`
+ * prompts. Two lines moved after generation 3 was measured — a wrap, and the
+ * no-lettering rule losing the words "panelling" and "wainscot" when row 29's
+ * veto reached it (`POSITIVE_NO_TEXT`). The REGISTER is identical, and
+ * `evolution.spec.mjs` holds it against those archived prompts case by case;
+ * the difference is two sentences of constraint, and it is recorded here
+ * because a control described as "g4" and quietly meaning "g4 plus two later
+ * fixes" is the kind of small lie a table cannot recover from. */
 ARMS["g4-production"] = {
   id: "g4-production",
-  name: "APPEARANCE-PLUS-FIGURES, AS PRODUCTION SENDS IT",
-  what: "the incumbent: row 34's g4 register — the finished picture described in image-frame terms with the coordinates attached — inside production's own section order, with the study style seed as Image 1, exactly as manorPrompt composes it today",
+  name: "APPEARANCE-PLUS-FIGURES, THE INCUMBENT REGISTER",
+  what: "the declared control: row 34's g4 register — the finished picture described in image-frame terms with the coordinates attached — inside the section order production sent until row 43, with the study style seed as Image 1. `g4ManorPrompt` composes it and no emitter dispatches it",
   generation: 4,
   channels: { ...ARMS.g4.channels },
   images: () => ARMS.g4.images(),
-  prompt(ctx) { return manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects); }
+  prompt(ctx) { return g4ManorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects); }
 };
 
 /* THE TWO ARMS. One factor moves between them and it is the appendix; every

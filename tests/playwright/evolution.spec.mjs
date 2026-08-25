@@ -37,10 +37,11 @@ import {
   V5_SUBSTITUTIONS, V2_DEMOTION_LINES, M4_DEMOTION_LINES, IMAGE2_LINES, crossings,
   junctionTable, wallGridBlock, drawInstructions
 } from "../../tools/evolution-arms.mjs";
-import { manorPrompt, scaffoldRects, chairRail } from "../../tools/make-scaffold.mjs";
+import { manorPrompt, g4ManorPrompt, g5CtxFor, scaffoldRects, chairRail, PRODUCTION_REGISTER }
+  from "../../tools/make-scaffold.mjs";
 import {
   registerBlock, frameGeometry as sharedFrameGeometry, POSITIVE_NO_TEXT,
-  POSITIVE_NO_TEXT_OUTDOORS
+  POSITIVE_NO_TEXT_OUTDOORS, g5Prompt
 } from "../../tools/frame-language.mjs";
 import { voiceFor } from "../../tools/room-voices.mjs";
 import { deriveMeta, facingCarriers } from "../../tools/plan-projection.mjs";
@@ -719,25 +720,79 @@ test.describe("row 34 — the evolution run's machinery", () => {
     expect(checked).toBe(BUDGET.total_worst_case);
   });
 
-  test("production dispatches the register row 34 recommends", () => {
-    /* The fold itself: `manorPrompt`'s output must contain the recommended
-       register verbatim, on an interior wall and on an outdoor one — the
-       outdoor branch never ran in the trial and is where a generalisation
-       breaks if it is going to. */
-    for (const key of ["guest_chamber/E", "garden_room/E", "privy_garden/N", "great_hall/S"]) {
+  test("[row 43] production composes the clean register, and only it", () => {
+    /* THE RULING, AS A CLAUSE. [HUMAN, 2026-08-24] "That prompt seems like a
+       mess too…." + "Yeah but test my direction against our tests as well" —
+       and it was tested: `design/batches/g5-register`, six walls, three arms,
+       blind ids, one roll a cell. Admissible g4 3/5, g5 3/5, g5-noappendix 4/5;
+       camera gate g4 2/5, g5 4/5, g5-noappendix 5/5; materials right on every
+       arm with no style image. Nothing separated at that n, which the trial
+       declared before it ran, so the ruling is a labelled judgment in the open.
+
+       WHAT IS CHECKED IS THAT THERE IS ONE COMPOSITION PATH. Production is the
+       clean register WITHOUT the appendix, on an interior wall, an outdoor one,
+       a flight wall and the most carried wall in the house — and it is
+       byte-identical to `g5Prompt(..., { appendix: false })`, so no emitter can
+       be composing a private variant of it. */
+    for (const key of ["guest_chamber/E", "garden_room/E", "privy_garden/N", "great_hall/S",
+      "great_stair_hall/W", "entrance_court/S"]) {
       const [loc, f] = key.split("/");
       const meta = deriveMeta(PLAN, loc, f);
       const { rects } = scaffoldRects(PLAN, loc, f, meta);
-      const { voice, anchor } = voiceFor(PLAN, loc, f);
+      const text = manorPrompt(PLAN, key, meta, rects);
+      expect(text, `${key}: production is not composing the clean register`)
+        .toBe(g5Prompt(g5CtxFor(PLAN, key, meta, rects), { appendix: false }));
+      /* AND THE APPENDIX IS GONE, which is the one factor the trial ablated.
+         Its lead line, and the figures it carried, are absent from the ask. */
+      expect(text, `${key}: the coordinate appendix is still in the production ask`)
+        .not.toContain("Reference lines (from Image");
+      expect(text, `${key}: the production ask still states picture coordinates`)
+        .not.toMatch(/\bcolumn \d+, row \d+/);
+    }
+  });
+
+  test("[row 43] the register production tags its packets with is a declared arm", () => {
+    /* THE TAG AND THE ARM ARE ONE NAME. Every packet record and every PACKET.md
+       carries `register: g5-noappendix`, and the timings report joins a return
+       to it through the roll id — so if the arm were ever renamed and the tag
+       were not, the report would go on attributing returns to a register the
+       harness no longer knows. It is also the check that the register
+       production composes really is the one that was measured without the
+       appendix. */
+    expect(ARM_IDS, "production tags its asks with a register no arm declares")
+      .toContain(PRODUCTION_REGISTER);
+    expect(ARMS[PRODUCTION_REGISTER].appendix,
+      "the register production composes is not the one measured without the appendix")
+      .toBe(false);
+  });
+
+  test("[row 43] the incumbent register is still composable, as the control arm", () => {
+    /* A RULING TAKEN ON A SCREEN THAT SEPARATED NOTHING IS ONLY HONEST IF IT CAN
+       BE RE-TESTED. `g4ManorPrompt` is the incumbent, kept live so the next
+       natural batch measures the clean register against it rather than against
+       a memory — and `ARMS["g4-production"]` IS that function, not a copy of
+       its output. */
+    expect(ARMS["g4-production"]).toBeTruthy();
+    for (const key of ["guest_chamber/E", "privy_garden/N"]) {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      const { voice } = voiceFor(PLAN, loc, f);
       const room = PLAN.rooms.find((r) => r.id === loc);
       const block = registerBlock({
         geometry: frameGeometry(meta), meta, voice,
         surface: voice.outdoor ? "side" : "wall",
         room_name: (room.name || room.id).toLowerCase()
       }).join("\n");
-      expect(manorPrompt(PLAN, key, meta, rects),
-        `${key}'s production prompt does not carry the recommended register`)
+      const control = g4ManorPrompt(PLAN, key, meta, rects);
+      expect(control, `${key}: the control arm no longer carries the g4 register`)
         .toContain(block);
+      expect(ARMS["g4-production"].prompt({ plan: PLAN, key, meta, rects }),
+        `${key}: the control arm is a copy of the incumbent rather than the incumbent`)
+        .toBe(control);
+      /* AND IT IS NOT WHAT PRODUCTION SENDS. Two registers, two composers, and
+         the emitter reaches exactly one of them. */
+      expect(manorPrompt(PLAN, key, meta, rects)).not.toBe(control);
     }
   });
 

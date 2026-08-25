@@ -64,6 +64,7 @@ import {
   normMaterial, materialProvenance, provenanceAsConsistencyReport, styleImageFor
 } from "../../tools/make-scaffold.mjs";
 import { attachLine, attachLineAll } from "../../tools/edge-seed.mjs";
+import { OPEN_SIDE_FABRIC, g4ManorPrompt } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
 
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
@@ -152,6 +153,19 @@ test.describe("row 40 — the origin: one room is asked for one set of materials
       for (const { f, p } of parts) {
         for (const [k, v] of Object.entries(p)) {
           if (!v) continue;
+          /* [row 43] THE ONE FABRIC THAT IS SAID AS A CARRIER AND NOT AS A
+             FABRIC. An open side is the ABSENCE of a wall, and the clean
+             register states it once, in the carrier clause, with the ruled
+             width the emitter derived — "there is no wall here at all. It is
+             open across its full 20.40 m width". Saying it a second time as a
+             materials sentence is half of what Kabe was reading when he called
+             the production prompt a mess, so the ask is checked for the FACT
+             rather than for the phrase. */
+          if (v === OPEN_SIDE_FABRIC) {
+            expect(f.text, `${f.key}: its ask never says the open side has no wall on it`)
+              .toMatch(/there is no wall here at all\. It is open across its full \d+\.\d\d m width/);
+            continue;
+          }
           expect(f.text.includes(v),
             `${f.key}: its ask does not carry the ${k} the plan rules for the room ` +
             `(${JSON.stringify(v)})`).toBe(true);
@@ -562,25 +576,56 @@ test.describe("row 40 — the origin: the repair route the audit can drive", () 
 /* 5. THE COMPOSER HAS ONE HOME FOR A MATERIAL SENTENCE                */
 /* ------------------------------------------------------------------ */
 
-test("row 40 — every material sentence a manor ask states comes from materialLines()", () => {
+test("row 40 — every material phrase a manor ask states comes from materialParts(), once", () => {
   /* THE FORWARD HALF OF THE CURE, checked on the emitted text. `manorPrompt`
      used to compose these inline in two branches; the audit and the promotion
-     clause now both ask `materialParts` what a room's ask should say, so a
-     second composition site anywhere would let the emitter and its own gate
-     describe two different rooms and agree with each other about it. */
+     clause both ask `materialParts` what a room's ask should say, so a second
+     composition site anywhere would let the emitter and its own gate describe
+     two different rooms and agree with each other about it.
+
+     [row 43] THE PHRASE IS WHAT IS CHECKED, NOT `materialLines`' LINE. The
+     clean register states the same ruled phrases in its own item 1 ("Its walls
+     are …", "Overhead: …. Underfoot: …") rather than under a
+     `Materials/textures:` heading; `materialLines` composes the incumbent's
+     heading and is checked against the incumbent below, where it lives.
+
+     AND EXACTLY ONCE, WHICH IS THE STRONGER HALF AND IS NEW. [HUMAN,
+     2026-08-24] "That prompt seems like a mess too…." — the ask he was reading
+     stated its room's materials THREE times, in the correction, under
+     `Materials/textures:` and again inside the carrier sentences. One
+     occurrence of each ruled phrase, on all 88, is that complaint as a
+     mechanical clause. */
+  const count = (h, n) => h.split(n).length - 1;
   for (const f of everyFacing()) {
-    const lines = materialLines(f.ctx);
-    const text = f.text;
-    for (const line of lines) {
-      expect(text.includes(line),
-        `${f.key}: manorPrompt does not emit the material line materialLines composes ` +
-        `(${JSON.stringify(line)}) — the ask and the gate are reading two different rooms`)
-        .toBe(true);
+    const parts = materialParts(f.ctx);
+    for (const [k, v] of Object.entries(parts)) {
+      if (!v) continue;
+      if (v === OPEN_SIDE_FABRIC) continue;      // said as a carrier — see above
+      const n = count(f.text, v);
+      expect(n, `${f.key}: its ask states the ${k} the plan rules for the room ${n} time(s), ` +
+        `not once (${JSON.stringify(v)})`).toBe(1);
     }
-    /* And exactly one `Materials/textures:` sentence, so a second one cannot
-       be hiding further down the ask. */
+  }
+});
+
+test("row 40 — the control arm still emits the material line materialLines composes", () => {
+  /* `materialLines` is the INCUMBENT's material paragraph, and since row 43 the
+     incumbent is the declared control arm rather than production. It is checked
+     here, against the composer that actually writes it, so the arm the next
+     batch measures the clean register against cannot quietly stop naming its
+     rooms' materials. */
+  for (const f of everyFacing()) {
+    const [loc, fc] = f.key.split("/");
+    const meta = deriveMeta(PLAN, loc, fc);
+    const { rects } = scaffoldRects(PLAN, loc, fc, meta);
+    const text = g4ManorPrompt(PLAN, f.key, meta, rects);
+    for (const line of materialLines(f.ctx)) {
+      expect(text.includes(line),
+        `${f.key}: the control arm does not emit the material line materialLines composes ` +
+        `(${JSON.stringify(line)})`).toBe(true);
+    }
     const n = text.split("\n").filter((l) => /^Materials\/textures:/.test(l.trim())).length;
-    expect(n, `${f.key}: an ask states its materials exactly once`).toBe(1);
+    expect(n, `${f.key}: the control arm states its materials exactly once`).toBe(1);
   }
 });
 
@@ -694,16 +739,31 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       const text = manorPrompt(PLAN, r.key, meta, rects, null, null, { style: st });
       const line = attachLine(null, st);
       if (st) {
+        /* [row 43] THE CLEAN REGISTER NAMES IT IN ONE CLAUSE, in the words a
+           painter uses — "Image 1 is the east wall of this same room, already
+           painted" — and says what to take from it and what not to. */
         expect(text, `${r.key}: its ask does not name the wall it is given`)
-          .toContain("ANOTHER WALL OF THIS SAME ROOM");
-        expect(text).toContain(`the ${st.facing} wall of the`);
+          .toContain("of this same room, already painted");
+        expect(text).toContain(`Image 1 is the ${st.facing_word} ${r.voice.outdoor ? "side" : "wall"}`);
+        expect(text, `${r.key}: the ask does not fence what Image 1 is for`)
+          .toContain("take nothing else from it");
         expect(line).toContain(st.file);
         expect(line).toContain("this room's own wall");
       } else {
-        expect(text, `${r.key}: no picture is attached and the ask does not say so`)
-          .toContain("THERE IS NO IMAGE 1 IN THIS PACKET");
+        /* [row 43] AND WHERE THERE IS NONE, THE ASK DOES NOT MENTION ONE AT
+           ALL. The incumbent spent four lines saying there was no Image 1 and
+           why; the clean register simply never refers to a picture the packet
+           does not hold, and carries the medium in words instead — with the one
+           clause that tells the layout diagram apart from the picture, which is
+           the sentence Kabe's cold-ask test earned (a flat modern render in the
+           DIAGRAM's dark grey). What must never happen is the ask pointing at
+           an Image 1 that is not in the packet, and that is what is checked. */
         expect(text, `${r.key}: the ask points at an Image 1 that is not in its packet`)
-          .not.toMatch(/as Image 1|Image 1's|in Image 1/);
+          .not.toMatch(/Image 1 is|as Image 1|Image 1's paint|in Image 1/);
+        expect(text, `${r.key}: no picture carries the medium and the words do not either`)
+          .toMatch(/^Style\/medium: a high-realism oil painting/m);
+        expect(text, `${r.key}: nothing tells the layout diagram apart from the picture`)
+          .toContain("The layout diagram's flat dark colours are NOT the picture's colours");
         expect(line).toContain("NO Image 1 in this packet");
         expect(line).not.toContain("style-seed-warm.png");
         expect(attachLineAll([], st)).toContain("NO Image 1 in this packet");
@@ -722,11 +782,21 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
     const { rects } = scaffoldRects(PLAN, "guest_chamber", "N", meta);
     const text = manorPrompt(PLAN, key, meta, rects, null, null, { style: null });
     const style = text.split("Style/medium:")[1].split("\nConstraints:")[0];
-    for (const must of ["oil", "brush", "impasto", "palette", "falloff", "painting"]) {
+    /* [row 43] THE MEDIUM IS NAMED AS A TRADITION, which is the half a word
+       list missed. [Kabe, 2026-08-24] his own working seed was "Sherlock Holmes
+       era office, high realism oil painting" — an era named as a way of
+       painting — and his cold-ask test with only the layout diagram attached
+       came back a flat modern render in the DIAGRAM's dark grey, every period
+       word lost to the one image in the packet. So the paragraph must name the
+       paint, the tradition, the handling, the light, and refuse the render. */
+    for (const must of ["oil painting", "seventeenth-century", "brush", "falloff",
+      "not a modern render"]) {
       expect(style.toLowerCase(),
         `the medium paragraph never says "${must}", and it is the only description of the paint ` +
         `a packet with no reference picture has`).toContain(must);
     }
+    expect(style, "nothing tells the layout diagram's colours apart from the picture's")
+      .toContain("NOT the picture's colours");
     expect(style).not.toContain("Image 1");
   });
 
@@ -743,15 +813,26 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       const meta = deriveMeta(PLAN, r.room, r.facing);
       const { rects } = scaffoldRects(PLAN, r.room, r.facing, meta);
       const text = manorPrompt(PLAN, r.key, meta, rects, null, null, { style: st });
-      expect(text, `${r.key}: its glass is never described positively`)
-        .toContain("plain diamond quarries");
       if (r.voice.glass === "plain") {
         plain += 1;
+        /* [row 43] THE POSITIVE SENTENCE, in the clean register's own words:
+           what IS in every quarry first, and only then the refusal. */
+        expect(text, `${r.key}: its glass is never described positively`)
+          .toContain("plain diamond quarrels of faintly greenish crown glass in lead cames");
         expect(text, `${r.key} is ruled plain glass and its ask does not refuse arms`)
-          .toContain("no armorial shield, crest, badge, monogram, motto or insignia");
-        expect(text).toContain("This room is not entitled to arms and has none.");
+          .toContain("no armorial shield, crest, badge or monogram");
+        expect(text, `${r.key} is ruled plain glass and its ask does not refuse coloured glass`)
+          .toContain("no coloured glass, no painted or stained glass");
       } else {
         armorial += 1;
+        /* AND THE RATIONED ROOMS SAY WHERE THE ARMS GO AND WHERE THEY DO NOT,
+           at column zero, because `prompt_lint.py`'s ration clause reads
+           `^armorial glass:` and a gate that cannot see the line cannot hold
+           it. */
+        expect(text, `${r.key} is entitled to arms and its ask never rations them`)
+          .toMatch(/^Armorial glass: /m);
+        expect(text, `${r.key}'s ration does not say where the plain quarrels stay`)
+          .toContain("plain diamond quarrels");
       }
       if (!st) {
         expect(text, `${r.key} has no Image 1 and its window sentence still argues with one`)

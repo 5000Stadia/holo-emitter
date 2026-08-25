@@ -1,16 +1,30 @@
 /**
- * The frame's own geometry, and the language row 34 recommends for asking for it.
+ * The frame's own geometry, and the two registers this project has asked it in.
  *
- * ONE HOME FOR THE RECIPE. `manorPrompt` dispatches this to the manor and
- * `evolution-arms.mjs`'s `g4` was measured on it, and they are the same function
- * rather than two copies that agree today. That matters more here than
- * anywhere: `g4` is the arm the recommendation rests on, its prompts are
- * committed on disk, and `evolution.spec.mjs` compares those committed prompts
- * against what the composer returns now. So if production ever drifts from what
- * was actually measured, that comparison goes red and the drift becomes a
- * decision somebody takes rather than a thing that happened.
+ * WHICH ONE PRODUCTION SENDS [row 43, ruled 2026-08-25]. `g5` WITHOUT the
+ * coordinate appendix, and it is the only register `manorPrompt` composes.
+ * `g5Prompt(ctx, { appendix: false })` is that one path; the register trial
+ * scored the clean order admissible 4/5 against `g4`'s 3/5 and passed the
+ * camera gate 5/5 against `g4`'s 2/5, with the materials right on every arm and
+ * no style image attached (`design/batches/g5-register/REPORT.md`, and the
+ * ruling in `design/approvals.log`). Neither number separated at n=1 a wall, as
+ * the trial declared before it ran; what the row acted on is a labelled
+ * judgment in the open, exactly as row 34's was.
  *
- * WHAT THE RECOMMENDATION IS, AND ITS STANDING [AWAITING KABE]. Row 34 spent 68
+ * WHAT `g4` IS NOW. The declared CONTROL arm, and nothing else — `registerBlock`
+ * below, composed for the harness by `make-scaffold.mjs`'s `g4ManorPrompt` and
+ * dispatched by no emitter. It stays because the next natural batch measures the
+ * incumbent against the new register rather than taking this ruling on faith,
+ * and because row 34's committed prompts are the evidence its own
+ * recommendation rests on: `evolution.spec.mjs` holds `g4ManorPrompt`'s register
+ * against those archived prompts case by case, so the control cannot drift away
+ * from what was actually measured without going red.
+ *
+ * ONE HOME FOR BOTH RECIPES, which is why they are in one file. A register the
+ * emitter composes and a register the harness measures cannot be two copies
+ * that agree today.
+ *
+ * WHAT ROW 34's RECOMMENDATION WAS, AND ITS STANDING. Row 34 spent 68
  * declared rolls over three generations and separated NOTHING — the best Fisher
  * p in the whole row is 0.243 against Holm steps of 0.017 to 0.033. What it has
  * is a labelled judgment, made in the open, argued in `design/specs/34-plan.md`
@@ -30,13 +44,11 @@
  * worse than the middle, and this is the middle.
  *
  * Production law clause 6 puts the correction in the emitter rather than in a
- * note, so it is here. It proceeds as the standing recipe under the Captain's
- * no-wait directive with his review asynchronous; the row does not close until
- * the production test reports.
+ * note, so it is here.
  *
- * WHAT IS DELIBERATELY NOT CLAIMED: that this is better than what it replaces.
- * It did not separate. Nothing did. The honest summary is that it is the best
- * available judgment on a null result, and the plan says so in those words.
+ * WHAT IS DELIBERATELY NOT CLAIMED, of `g4` then and of `g5` now: that either
+ * is better than what it replaced. Neither separated. Both are the best
+ * available judgment on a null result, and both say so in those words.
  */
 import { createRequire } from "node:module";
 
@@ -461,6 +473,12 @@ function listWords(xs) {
 /**
  * ROW 34'S RECOMMENDED REGISTER, whole: the finished picture described in
  * image-frame terms, with the coordinates attached. This is `g4`.
+ *
+ * [row 43] IT IS THE DECLARED CONTROL ARM AND NO EMITTER COMPOSES IT. Production
+ * dispatches `g5Prompt(..., { appendix: false })` and nothing else; this block
+ * is reached only through `make-scaffold.mjs`'s `g4ManorPrompt`, which
+ * `ARMS["g4-production"]` is and which the suite holds against row 34's
+ * archived prompts.
  */
 export function registerBlock(ctx) {
   return openingLines(ctx)
@@ -531,14 +549,18 @@ export function positiveNoText(ctx) {
  *      lines themselves to the layout image.
  *   4. MEDIUM — one line.
  *   5. NOTHING ELSE — two lines.
- *   APPENDIX — the coordinate block, last, and kept ONLY because row 34's
- *      generation-3 ablation lost without it (`g3`, the same appearance
- *      register with the figures stripped out: 2 of 4 against `g4`'s 3 of 4,
- *      the worst horizon error in the generation, and one probe wall where no
- *      horizon could be fitted at all). Kabe's own standing rule — "test my
- *      direction against our tests as well" — is why the figures are kept AND
- *      why `g5-noappendix` runs beside `g5` as its own arm rather than being
- *      argued about.
+ *   APPENDIX — the coordinate block, last. IT IS NOT IN PRODUCTION [row 43].
+ *      It was kept into the trial because row 34's generation-3 ablation lost
+ *      without figures (`g3`: 2 of 4 against `g4`'s 3 of 4, the worst horizon
+ *      error in the generation, and one probe wall where no horizon could be
+ *      fitted at all), and Kabe's standing rule — "test my direction against
+ *      our tests as well" — is why it ran as its own arm instead of being
+ *      argued about. It then lost the argument it was given: the register trial
+ *      scored `g5-noappendix` 4/5 admissible and 5/5 on the camera gate against
+ *      `g5`'s 3/5 and 4/5, so production law clause 5 applies to it as
+ *      apparatus and it is removed from the ask. The code stays as the `g5`
+ *      arm's, because the arm is what a later batch re-measures the question
+ *      with.
  *
  * THE FIGURES IN THE APPENDIX ARE `g4`'s OWN, to the byte: `g5AppendixLines`
  * calls `coordinateLines` and replaces nothing but its two lead lines. That is
@@ -564,10 +586,21 @@ export function positiveNoText(ctx) {
  * telling the painter about one that is not there.
  */
 
-/** The layout image's own index in the attach order — Image 2 behind a style
- *  image, Image 1 when the ruling leaves us none. */
+/** The layout image's own index in the attach order — 2 behind a style image,
+ *  1 when the ruling leaves us none.
+ *
+ *  ONE RULE, TWO READERS. `tools/edge-seed.mjs` numbers the attach list in
+ *  PACKET.md off the same arithmetic (`scaffoldImageIndex`), and every edge
+ *  strip is numbered from this index upward, so the prompt and the attach list
+ *  cannot disagree about which picture is which. A seat told to attach the
+ *  layout diagram as Image 2 in a packet whose prompt calls it Image 1 has been
+ *  handed two instructions. */
+export function scaffoldIndex(ctx) {
+  return ctx.style ? 2 : 1;
+}
+
 export function scaffoldImage(ctx) {
-  return ctx.style ? "Image 2" : "Image 1";
+  return `Image ${scaffoldIndex(ctx)}`;
 }
 
 /** Where a carrier sits across the faced surface, in the words a viewer would
@@ -599,16 +632,38 @@ const nWord = (n) => N_WORD[n] || String(n);
 /** Carriers of one kind, grouped by their RULED width, in order along the wall.
  *  Two doorways of the same width are ONE clause with two places, which is what
  *  stops the register saying an identical sentence twice — the defect row 29
- *  named and `whichWords` was written for. */
+ *  named and `whichWords` was written for.
+ *
+ *  AND NO TWO OF THEM ARE GIVEN THE SAME PLACE. `positionPhrase`'s vocabulary
+ *  has five buckets across the corner span, and a wall carrying more carriers
+ *  than that — `long_gallery/W`'s four windows, `entrance_court/N`'s six —
+ *  collides: two openings both land "at the far right", which is one
+ *  instruction wearing two hats and is exactly the defect row 29 found on
+ *  `great_hall/W`'s two doorways. Where the places collide the whole kind falls
+ *  back to its position in the rank, which cannot collide because it is derived
+ *  from the order itself. */
+const ORDINAL = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth",
+  "ninth", "tenth"];
+
 function widthGroups(rects, kind, g, all) {
+  const mine = rects.filter((x) => x.kind === kind);
+  const mid = (r) => (r.x0 + r.x1) / 2;
+  let places = mine.map((r) => positionPhrase(r, g, all));
+  if (new Set(places).size !== places.length) {
+    const order = [...mine].sort((a, b) => mid(a) - mid(b));
+    places = mine.map((r) => {
+      const i = order.indexOf(r);
+      return `${ORDINAL[i] || `${i + 1}th`} from the left`;
+    });
+  }
   const groups = [];
-  for (const r of rects.filter((x) => x.kind === kind)) {
+  mine.forEach((r, i) => {
     const w = r.to_m - r.from_m;
     const key = w.toFixed(2);
     const found = groups.find((x) => x.key === key);
-    if (found) found.at.push(positionPhrase(r, g, all));
-    else groups.push({ key, width_m: w, at: [positionPhrase(r, g, all)] });
-  }
+    if (found) found.at.push(places[i]);
+    else groups.push({ key, width_m: w, at: [places[i]] });
+  });
   return groups;
 }
 
@@ -638,7 +693,23 @@ export function g5RoomLines(ctx) {
   const L = [];
   const paint = `Paint the ${ctx.side} ${SURFACE} of the ${ctx.room_name} of a circa-1660 ` +
     "English manor.";
-  if (ctx.reask) {
+  /* [row 43] THE MEASURED CORRECTION, ONE PHYSICAL LINE, AT THE TOP OF ITEM 1.
+   *
+   * A re-ask carries the sentence `run-state.json` holds about THIS wall —
+   * verbatim, because it is the measurement's own words and the reason the ask
+   * exists — and `manorPrompt` is what decides whether those words can be said
+   * on this facing at all (an outdoor wall whose correction names interior
+   * fabric carries the forward half instead; see `carryableOutdoors`). Nothing
+   * about that rule is re-decided here: the composer prints the sentence it is
+   * handed, at column zero where a reader and `prompt_lint.py` both find it.
+   *
+   * `ctx.reask` with no sentence is the OTHER kind of re-ask — the row-40
+   * forced ruling, whose correction is the ruled fact rather than a
+   * measurement, and `g5CorrectionSentence` is that fact in one imperative. */
+  if (ctx.correction) {
+    L.push(`Correction on a previous attempt at this exact wall: ${ctx.correction}`);
+    L.push(`Primary request: ${paint}`);
+  } else if (ctx.reask) {
     L.push(`Primary request: ${g5CorrectionSentence(ctx)}`);
     L.push(`  ${paint}`);
   } else {
@@ -717,16 +788,37 @@ export function g5WallLines(ctx) {
     const n = grp.at.length;
     const lights = ctx.window_lights ? ctx.window_lights(grp.width_m) : null;
     const mull = lights ? lights - 1 : 0;
+    /* THE DRESSING ROUND THE OPENING IS A STATUS MARKER IN 1660 and it is where
+     * a room's rank shows in its glazing — a state room's windows hooded by a
+     * moulded label mould, a service room's in a plain chamfer. It is the clause
+     * that keeps two walls of equal bay count in different rooms from reading
+     * identically, and it is the room's, so it arrives through `ctx` from
+     * `room-voices.mjs` rather than being decided here. */
     body.push(`${n > 1 ? `${nWord(n)} window openings stand` : "one window opening stands"} ` +
       `${listWords(grp.at)}, ${n > 1 ? "each " : ""}exactly ${grp.width_m.toFixed(2)} m wide, the ` +
       `sill 0.90 m and the head 2.00 m above the ${GROUND}` +
+      (ctx.window_surround ? `, set ${ctx.window_surround}` : "") +
       (lights ? `, divided by ${nWord(mull)} stone mullion${mull === 1 ? "" : "s"} into ` +
-        `${nWord(lights)} equal upright light${lights === 1 ? "" : "s"}` : ""));
+        `${nWord(lights)} equal upright light${lights === 1 ? "" : "s"}` : "") +
+      (ctx.window_transom && ctx.window_transom(grp.width_m)
+        ? `, and crossed by a single stone transom, the only transom on this ${SURFACE}`
+        : ""));
   }
 
   if (!rects.length) {
-    body.push(`nothing stands on it. It is ${ctx.voice.blank}, and the ` +
-      `${ctx.anchor.line.replace(/^the /, "")} is the one ruled feature in it`);
+    /* [row 40] A BLANK FACING IS TOLD NO SECOND FABRIC. What stood here was
+     * `voice.blank` — a fabric sentence written per voice and reached only by a
+     * facing carrying no carrier, so a blank wall of the great hall was told
+     * panelling in item 1 and wainscot here while its carrier-bearing
+     * neighbours were told only panelling. That is row 40's disease exactly: a
+     * per-FACING property deciding a per-ROOM one. The blankness now points at
+     * the one fabric sentence every facing of the room shares, and it names
+     * neither a material nor the anchor's own word — `material-origin.spec`
+     * reads this line and refuses any fabric vocabulary in it that the room's
+     * own material sentences do not carry. */
+    body.push(`nothing stands on it: this ${SURFACE} carries no opening and no built feature at ` +
+      "all. The fabric named above runs across the whole of it, unbroken corner to corner, and " +
+      "the anchor named above is the one ruled feature in it");
   }
   /* [Kabe] "No window" WHEN NONE — said, and said once, because a wall that
    * does not say it gets one painted into it. */
@@ -741,6 +833,11 @@ export function g5WallLines(ctx) {
     : `  ${s.charAt(0).toUpperCase()}${s.slice(1)}.`));
 
   if (wins.length) {
+    /* WHICH LIGHT OPENS, once for the whole wall. Derived from where each
+     * opening sits along it, in `room-voices.mjs` where the rule lives, so the
+     * incumbent register and this one cannot hang the same casement on two
+     * different sides. */
+    if (ctx.window_casement) L.push(`  ${ctx.window_casement}`);
     /* THE HERALDRY RATION, at column zero where its voice is entitled to it,
      * because `prompt_lint.py`'s clause reads `^armorial glass:` and a gate
      * that cannot see the line cannot hold it. [HUMAN] "this same window
@@ -860,6 +957,22 @@ export function g5PictureLines(ctx) {
   }
   /* THE ONE LINE THAT HANDS THE LINES THEMSELVES TO THE PICTURE. [Kabe] */
   L.push(`  ${scaffoldImage(ctx)} draws these lines exactly; follow it.`);
+  /* [row 38] THE EDGE STRIPS, EACH ON ONE PHYSICAL LINE, NAMED BY INDEX AND BY
+   * ROLE. They belong here and nowhere else in this register: an edge seed is a
+   * statement about what the FINISHED PICTURE holds at its own edge, which is
+   * what item 3 is. The sentence is `edge-seed.mjs`'s `roleSentence` — the
+   * cookbook rule the row cites is that a reference image is named by index and
+   * by role and the interaction is stated, and the pixels cannot say any of
+   * that themselves.
+   *
+   * THE INDEX IS DERIVED, NEVER 3 BY HABIT. Row 38 wrote "Image 3" because
+   * every packet then carried a style seed as Image 1 and the scaffold as Image
+   * 2. Under row 40's ruling most packets carry no style image at all, so the
+   * scaffold is Image 1 and the first strip is Image 2 — and a prompt naming an
+   * Image 3 that is not in the packet is a reference the seat has to go and
+   * invent. `g5CtxFor` renumbers every strip from `scaffoldIndex` before it
+   * gets here, and `edge-seed.mjs` numbers the attach list the same way. */
+  for (const s of ctx.seeds || []) L.push(`  ${s.role_sentence}`);
   return L;
 }
 
@@ -906,13 +1019,15 @@ export function g5NothingElseLines(ctx) {
 /**
  * The coordinate block, last.
  *
- * KEPT ONLY BECAUSE THE ABLATION LOST WITHOUT IT. Generation 3's `g3` — this
- * same appearance register with the figures stripped out — took 2 of 4 against
- * `g4`'s 3 of 4, carried the worst horizon error in the generation, and left
- * one probe wall on which no horizon could be fitted at all. That is the only
- * direction three generations produced on this question, so the figures stay,
- * and `g5-noappendix` measures the question again rather than settling it by
- * assertion.
+ * NOT PRODUCTION [row 43]. It was kept into the register trial because
+ * generation 3's `g3` — this same appearance register with the figures stripped
+ * out — took 2 of 4 against `g4`'s 3 of 4, carried the worst horizon error in
+ * the generation, and left one probe wall on which no horizon could be fitted at
+ * all. That was the only direction three generations produced on the question,
+ * so `g5-noappendix` asked it again of the new order and the answer came back
+ * the other way: 4/5 admissible and 5/5 on the camera gate, against `g5`'s 3/5
+ * and 4/5. `manorPrompt` passes `appendix: false`; this function is the `g5`
+ * arm's alone, and it is how the next batch asks the question a third time.
  *
  * EVERY FIGURE IS `coordinateLines`'s, unchanged — only its two lead lines are
  * replaced. So the appendix and `g4`'s attached block are the same numbers in
@@ -934,6 +1049,11 @@ export function g5AppendixLines(ctx) {
 /**
  * `g5`, whole: the three header lines `prompt_lint.py` requires of every prompt
  * in this project, then Kabe's five items in his order, then the appendix.
+ *
+ * [row 43] PRODUCTION CALLS IT WITH `appendix: false`, and `manorPrompt` is the
+ * only caller that composes an ask this project sends. The default stays `true`
+ * because the `g5` ARM was declared and measured with the appendix, and an arm
+ * whose meaning changes with a default is an arm that cannot be re-run.
  *
  * THE HEADER LINES ARE NOT AN ITEM AND ARE NOT DECORATION. `Gate anchor:` is
  * what makes the picture measurable at all — hall/N and hall/S came back
