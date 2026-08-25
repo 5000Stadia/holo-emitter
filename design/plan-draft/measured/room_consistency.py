@@ -90,7 +90,10 @@ sys.path.insert(0, HERE)
 
 import measure_lib as M                                          # noqa: E402
 
-BACKDROPS = os.path.join(ROOT, "backdrops")
+# Overridable so the test can point the whole instrument at a synthetic store
+# it built itself. A measure that can only ever be run on the real corpus is a
+# measure nobody can show going red.
+BACKDROPS = os.environ.get("HOLO_BACKDROPS") or os.path.join(ROOT, "backdrops")
 OUT_JSON = os.path.join(HERE, "room_consistency.json")
 OUT_MD = os.path.join(ROOT, "design", "batches", "row40-consistency", "README.md")
 
@@ -146,6 +149,72 @@ CUT = 3.75
 
 REQUIRED = ("floor_line_y", "storey_height_m", "px_per_m_at_wall",
             "corner_x0_px", "corner_x1_px")
+
+# What was actually looked at, and what was seen. This is the calibration
+# evidence, and it goes into the report so a reader is never asked to take the
+# threshold on trust.
+CALIBRATION = [
+    "## What was looked at, and what was seen",
+    "",
+    "The cut is not a round number picked for looking sensible. Twelve rooms "
+    "were opened as contact sheets — every promoted facing of the room side by "
+    "side — and labelled by eye before any weight was chosen. Then every "
+    "configuration of the instrument (column inset, tile size, the four terms' "
+    "divisors, band-to-band against contrast-to-contrast) was scored by how "
+    "many of the 36 mismatch-vs-match pairs it ordered correctly.",
+    "",
+    "**The six rooms that are plainly not one room:**",
+    "",
+    "- **garden_room** — N and E are limewashed plaster over a wainscot with a "
+    "stone flag floor. W is oak panelling from cornice to skirting over a wood "
+    "board floor. It is two different rooms sharing a name.",
+    "- **servants_hall** — N and E are full-height dark oak panelling under a "
+    "plastered ceiling. S and W are pale limewash with a plain rail, under "
+    "exposed dark joists, over brick. The panelled pair is a parlour; the "
+    "limewashed pair is the servants' hall the voice actually rules.",
+    "- **master_bedchamber** — the room Kabe named. N and S hang verdure "
+    "tapestry above the wainscot; E and W are panelled top to bottom. Two "
+    "against two, which is why it is reported as having no majority.",
+    "- **guest_chamber** — S has a deep red hanging above the wainscot; N, E "
+    "and W are panelled. Note that S is the one obeying the bedchamber voice "
+    "and the other three are not, so the majority here is WRONG — which is "
+    "exactly why the repair's ruling comes from the plan and not from a vote.",
+    "- **closet_chamber** — N is plaster above the wainscot, E and W are "
+    "panelled.",
+    "- **stair_landing** — N's ceiling is pale plaster, E's is dark boarded "
+    "oak. The walls and floor agree well.",
+    "",
+    "**The six that plainly are one room:** study (oak panelling, oak boards, "
+    "parchment plaster, on both facings); kitchen (E/S/W all oak panelling "
+    "over oak boards under plaster); buttery_pantry (four oak-panelled "
+    "facings, N simply darker); solar (four facings of panelling over stone "
+    "flags — the exposure varies a lot and the material does not); "
+    "muniment_room (four panelled facings); long_gallery (oak wainscot below "
+    "limewash under dark beams, on all three).",
+    "",
+    "**What the pictures decided.** The first cut of this instrument compared "
+    "mean CIE-Lab and ranked long_gallery, solar and kitchen ABOVE "
+    "master_bedchamber and garden_room. It was reading the exposure. Lab's L* "
+    "goes as the cube root of luminance, so a change of exposure scales it and "
+    "no subtraction undoes that; the second cut moved to log-luminance and log "
+    "channel ratios, where exposure is an additive offset that the facing's "
+    "own reference removes exactly. The third finding was the decisive one and "
+    "it came out of the sweep rather than out of an argument: **brightness "
+    "should carry no weight at all.** Every configuration that weighted it "
+    "scored worse than the same configuration with it at zero. That is row "
+    "37's law arrived at from the other end — a wall beside a window is not a "
+    "different wall.",
+    "",
+    "**The known miss, logged rather than hidden** (production law clause 2): "
+    "stair_landing scores 2.12 and sits well below the cut, though a human "
+    "plainly sees its two ceilings differ. Its two facings differ mostly in "
+    "how dark the ceiling is, which is the one axis this instrument was "
+    "calibrated to ignore, and its declared ceiling line sits far enough from "
+    "the painted one that the two bands are not sampling the same surface. "
+    "Recorded in `design/plan-draft/measured/misses.jsonl`. Raising the "
+    "brightness weight enough to catch it costs three false positives, which "
+    "is a worse trade for a repair route that spends a model call per flag.",
+]
 
 
 # ------------------------------------------------------------------ colour ---
@@ -371,7 +440,8 @@ def read_facing(room, f):
     if not (os.path.exists(png) and os.path.exists(mj)):
         return None, {"room": room, "facing": f, "missing": ["png/meta"],
                       "reason": "no promoted painting or no meta beside it"}
-    meta = json.load(open(mj))
+    with open(mj) as fh:
+        meta = json.load(fh)
     missing = [k for k in REQUIRED if meta.get(k) is None]
     if missing:
         return None, {"room": room, "facing": f, "missing": missing,
@@ -678,6 +748,24 @@ def distribution(rooms):
     return vals
 
 
+RETRIES = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor",
+                       "retries.json")
+
+
+def consistency_packets():
+    """The packets `--emit-consistency` has cut, read back off disk.
+
+    Read rather than predicted: the report says which facings are outside their
+    room, the emitter decides what to do about it, and this section shows what
+    it actually did.
+    """
+    if not os.path.exists(RETRIES):
+        return []
+    with open(RETRIES) as fh:
+        doc = json.load(fh)
+    return [e for e in doc.get("entries", []) if e.get("consistency")]
+
+
 def markdown(report):
     rooms = [r for r in report["rooms"] if r["score"] is not None]
     rooms.sort(key=lambda r: -r["score"])
@@ -697,15 +785,35 @@ def markdown(report):
              % report["promoted_facings"])
     L.append("")
     L.append("Each facing's own meta places its ceiling and floor lines; the "
-             "columns strictly inside the two corners are ceiling above the "
-             "ceiling line and floor below the floor line, so four bands cut "
-             "out with no perspective bookkeeping. Per band the facings are "
-             "compared on mean Lab (dE76), a coarse 4x4x4 Lab histogram "
-             "(half-L1) and Sobel texture energy normalised to %g px/m. "
-             "D = dE/5 + hist/0.25 + |log2 texture ratio|, so D ~ 1 is one "
-             "noticeable step. A room scores its WORST pairwise D over its "
-             "worst band. **Cut: D > %g** (calibrated below)."
-             % (report["target_ppm"], report["cut"]))
+             "columns strictly inside the two declared corners are ceiling "
+             "above the one and floor below the other, so four bands - "
+             "ceiling, upper wall, lower wall, floor - cut out with no "
+             "perspective bookkeeping. Each band is resampled to %g px/m, cut "
+             "into %.2f m tiles of WORLD, and described by the MEDIAN tile, so "
+             "a window or a doorway cannot decide that a wall changed; the "
+             "columns a carrier is declared on are dropped outright first."
+             % (report["target_ppm"], report["tile_m"]))
+    L.append("")
+    L.append("Per band, two facings are compared on **colour** - distance in "
+             "(log R/G, log B/G), where the exposure has already cancelled - "
+             "and **contrast** - the ratio of median tile log-luma gradient. "
+             "D is the length of that weighted pair (colour at %.2f per step, "
+             "contrast at %.1f per doubling), so D ~ 1 is one plainly "
+             "noticeable step. **Brightness and histogram spread are measured "
+             "and printed but carry no weight**, which is not a preference: "
+             "the sweep below found every configuration that weighted "
+             "brightness scored worse than the same one with it at zero. A "
+             "room scores its WORST pairwise D over its worst band. "
+             "**Cut: D > %g.**"
+             % (1.0 / report["weights"]["dChroma"],
+                1.0 / report["weights"]["dT"], report["cut"]))
+    L.append("")
+    L.append("The outlier is chosen by CLUSTERING the room's facings on that "
+             "band - two facings join when they agree within the cut - and not "
+             "by distance from the room's median, because a room can split two "
+             "against two and then the median is a place no facing stands. A "
+             "room with no majority has every facing returned and is marked "
+             "**all**.")
     L.append("")
     L.append("## Rooms, worst first")
     L.append("")
@@ -757,6 +865,43 @@ def markdown(report):
         L.append("%6.2f  %-20s %s" % (v, room, band))
     L.append("```")
     L.append("")
+    L.append("## The repair route")
+    L.append("")
+    L.append("Folded into the generation method, per production-law clause 6. "
+             "`node tools/make-scaffold.mjs --emit-consistency` reads this "
+             "report and cuts ONE re-ask packet per outlier facing into "
+             "`design/batches/row23-scaffold/manor/retries.json`, in the shape "
+             "the seat and the sweep already read. Nothing here dispatches and "
+             "nothing here touches `run-state.json`.")
+    L.append("")
+    L.append("Two things make the re-ask FORCED rather than nudged. First, the "
+             "correction names the room's RULING materials - walls, ceiling "
+             "and floor, plus the rank of a bedchamber's hangings - resolved "
+             "from `tools/room-voices.mjs` through the plan's own room id, and "
+             "instructs the painter to use those and nothing else. The ruling "
+             "does not come from the other walls, because the other walls are "
+             "what is in dispute: guest_chamber's majority is itself the half "
+             "that disobeys the bedchamber voice. Second, an edge seed may "
+             "only be cut from a facing this report puts inside the room's "
+             "AGREEING majority - seeding an outlier off another outlier is "
+             "how a wrong material spreads round a room instead of being "
+             "replaced - and a room with no majority carries no strip at all "
+             "and stands on the ruling alone.")
+    L.append("")
+    rows = report.get("packets") or []
+    if rows:
+        L.append("| wall | packet | band | D | seeded from | ruling wall material |")
+        L.append("|------|--------|------|---|-------------|----------------------|")
+        for e in rows:
+            seeds = e.get("edge_seeds") or []
+            L.append("| `%s` | `%s` | %s | %.2f | %s | %s |"
+                     % (e["key"], e["packet"].split("/")[-2] + "/" +
+                        e["packet"].split("/")[-1],
+                        e["consistency"]["band"], e["consistency"]["D"],
+                        ", ".join(s["neighbour"] for s in seeds) or
+                        "_none - no majority to trust_",
+                        e["consistency"]["ruling"]["walls"][:70] + "..."))
+        L.append("")
     for line in report.get("calibration_note", []):
         L.append(line)
     L.append("")
@@ -780,10 +925,13 @@ def main():
     report = {
         "instrument": "design/plan-draft/measured/room_consistency.py",
         "promoted_facings": n_prom,
-        "target_ppm": TARGET_PPM, "weights": WEIGHTS, "cut": CUT,
+        "target_ppm": TARGET_PPM, "tile_m": TILE_M, "weights": WEIGHTS,
+        "cut": CUT,
         "bands": list(BANDS),
         "rooms": rooms, "unmeasurable": unmeasurable,
-        "distribution": distribution(rooms)}
+        "distribution": distribution(rooms),
+        "packets": consistency_packets(),
+        "calibration_note": CALIBRATION}
 
     ranked = sorted([r for r in rooms if r["score"] is not None],
                     key=lambda r: -r["score"])

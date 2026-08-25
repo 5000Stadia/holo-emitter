@@ -4,7 +4,11 @@
 
 Rows 36 and 38 cure this by construction for walls painted from here on. The 57 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
-Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two corners are ceiling above the ceiling line and floor below the floor line, so four bands cut out with no perspective bookkeeping. Per band the facings are compared on mean Lab (dE76), a coarse 4x4x4 Lab histogram (half-L1) and Sobel texture energy normalised to 150 px/m. D = dE/5 + hist/0.25 + |log2 texture ratio|, so D ~ 1 is one noticeable step. A room scores its WORST pairwise D over its worst band. **Cut: D > 3.75** (calibrated below).
+Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
+
+Per band, two facings are compared on **colour** - distance in (log R/G, log B/G), where the exposure has already cancelled - and **contrast** - the ratio of median tile log-luma gradient. D is the length of that weighted pair (colour at 0.14 per step, contrast at 0.4 per doubling), so D ~ 1 is one plainly noticeable step. **Brightness and histogram spread are measured and printed but carry no weight**, which is not a preference: the sweep below found every configuration that weighted brightness scored worse than the same one with it at zero. A room scores its WORST pairwise D over its worst band. **Cut: D > 3.75.**
+
+The outlier is chosen by CLUSTERING the room's facings on that band - two facings join when they agree within the cut - and not by distance from the room's median, because a room can split two against two and then the median is a place no facing stands. A room with no majority has every facing returned and is marked **all**.
 
 ## Rooms, worst first
 
@@ -115,4 +119,40 @@ Every (room, band) spread in the store, worst first:
   0.23  study                ceiling
 ```
 
+## The repair route
+
+Folded into the generation method, per production-law clause 6. `node tools/make-scaffold.mjs --emit-consistency` reads this report and cuts ONE re-ask packet per outlier facing into `design/batches/row23-scaffold/manor/retries.json`, in the shape the seat and the sweep already read. Nothing here dispatches and nothing here touches `run-state.json`.
+
+Two things make the re-ask FORCED rather than nudged. First, the correction names the room's RULING materials - walls, ceiling and floor, plus the rank of a bedchamber's hangings - resolved from `tools/room-voices.mjs` through the plan's own room id, and instructs the painter to use those and nothing else. The ruling does not come from the other walls, because the other walls are what is in dispute: guest_chamber's majority is itself the half that disobeys the bedchamber voice. Second, an edge seed may only be cut from a facing this report puts inside the room's AGREEING majority - seeding an outlier off another outlier is how a wrong material spreads round a room instead of being replaced - and a room with no majority carries no strip at all and stands on the ruling alone.
+
+| wall | packet | band | D | seeded from | ruling wall material |
+|------|--------|------|---|-------------|----------------------|
+| `closet_chamber/W` | `closet_chamber-W/retry-1` | wall_upper | 3.86 | closet_chamber/N | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `garden_room/W` | `garden_room-W/retry-1` | wall_upper | 6.21 | garden_room/N | light-toned oak wainscot to chair height below limewashed plaster... |
+| `guest_chamber/S` | `guest_chamber-S/retry-4` | wall_upper | 8.96 | guest_chamber/E | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `guest_chamber/W` | `guest_chamber-W/retry-1` | wall_upper | 8.96 | guest_chamber/N | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `master_bedchamber/E` | `master_bedchamber-E/retry-1` | ceiling | 4.47 | _none - no majority to trust_ | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `master_bedchamber/N` | `master_bedchamber-N/retry-6` | ceiling | 4.47 | _none - no majority to trust_ | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `master_bedchamber/S` | `master_bedchamber-S/retry-4` | ceiling | 4.47 | _none - no majority to trust_ | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `master_bedchamber/W` | `master_bedchamber-W/retry-1` | ceiling | 4.47 | _none - no majority to trust_ | oak wainscot to chair height with wall hangings above it, those hangin... |
+| `servants_hall/N` | `servants_hall-N/retry-1` | ceiling | 3.90 | servants_hall/W | plain limewashed plaster carried straight down to the floor, unbroken ... |
+
+## What was looked at, and what was seen
+
+The cut is not a round number picked for looking sensible. Twelve rooms were opened as contact sheets — every promoted facing of the room side by side — and labelled by eye before any weight was chosen. Then every configuration of the instrument (column inset, tile size, the four terms' divisors, band-to-band against contrast-to-contrast) was scored by how many of the 36 mismatch-vs-match pairs it ordered correctly.
+
+**The six rooms that are plainly not one room:**
+
+- **garden_room** — N and E are limewashed plaster over a wainscot with a stone flag floor. W is oak panelling from cornice to skirting over a wood board floor. It is two different rooms sharing a name.
+- **servants_hall** — N and E are full-height dark oak panelling under a plastered ceiling. S and W are pale limewash with a plain rail, under exposed dark joists, over brick. The panelled pair is a parlour; the limewashed pair is the servants' hall the voice actually rules.
+- **master_bedchamber** — the room Kabe named. N and S hang verdure tapestry above the wainscot; E and W are panelled top to bottom. Two against two, which is why it is reported as having no majority.
+- **guest_chamber** — S has a deep red hanging above the wainscot; N, E and W are panelled. Note that S is the one obeying the bedchamber voice and the other three are not, so the majority here is WRONG — which is exactly why the repair's ruling comes from the plan and not from a vote.
+- **closet_chamber** — N is plaster above the wainscot, E and W are panelled.
+- **stair_landing** — N's ceiling is pale plaster, E's is dark boarded oak. The walls and floor agree well.
+
+**The six that plainly are one room:** study (oak panelling, oak boards, parchment plaster, on both facings); kitchen (E/S/W all oak panelling over oak boards under plaster); buttery_pantry (four oak-panelled facings, N simply darker); solar (four facings of panelling over stone flags — the exposure varies a lot and the material does not); muniment_room (four panelled facings); long_gallery (oak wainscot below limewash under dark beams, on all three).
+
+**What the pictures decided.** The first cut of this instrument compared mean CIE-Lab and ranked long_gallery, solar and kitchen ABOVE master_bedchamber and garden_room. It was reading the exposure. Lab's L* goes as the cube root of luminance, so a change of exposure scales it and no subtraction undoes that; the second cut moved to log-luminance and log channel ratios, where exposure is an additive offset that the facing's own reference removes exactly. The third finding was the decisive one and it came out of the sweep rather than out of an argument: **brightness should carry no weight at all.** Every configuration that weighted it scored worse than the same configuration with it at zero. That is row 37's law arrived at from the other end — a wall beside a window is not a different wall.
+
+**The known miss, logged rather than hidden** (production law clause 2): stair_landing scores 2.12 and sits well below the cut, though a human plainly sees its two ceilings differ. Its two facings differ mostly in how dark the ceiling is, which is the one axis this instrument was calibrated to ignore, and its declared ceiling line sits far enough from the painted one that the two bands are not sampling the same surface. Recorded in `design/plan-draft/measured/misses.jsonl`. Raising the brightness weight enough to catch it costs three false positives, which is a worse trade for a repair route that spends a model call per flag.
 

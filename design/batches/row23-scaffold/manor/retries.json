@@ -4,9 +4,9 @@
   "_never_overwrites": "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as Image 3 — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
-  "_generated": "2026-08-24",
-  "emitted": 2,
-  "carried": 72,
+  "_generated": "2026-08-25",
+  "emitted": 9,
+  "carried": 74,
   "refused": 0,
   "entries": [
     {
@@ -393,6 +393,110 @@
           "id": "86c991fd",
           "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
           "prompt": "backdrops/source/closet_chamber-S/row23-86c991fd.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "closet_chamber/W",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/closet_chamber-W/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In CLOSET CHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's wall_upper disagrees at D=3.856 (colour 0.4213, contrast x1.95); E and N agree with each other and this facing does not.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 156.842,
+      "flights": [],
+      "scaffold_sha256": "bf38b9cdb005c915a3b2d3d1583a7b07b285ffef2319a188148f4ca066dd9e2e",
+      "edge_seed": {
+        "key": "closet_chamber/W",
+        "location": "closet_chamber",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "closet_chamber/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/closet_chamber/N.png",
+        "exists": true,
+        "painted": true,
+        "allowed": true,
+        "depends_on": null,
+        "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+        "image_index": 3,
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "file": "design/batches/row23-scaffold/manor/closet_chamber-W/retry-1/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "4c79c18447a964006409c782aa0d5bb4c732d971ce0eee6a085e981e7e63a012",
+        "source_sha256": "21808eb0772fe76ce4bb697718b64d65cee4df308bf4acb7fe5e6043bc2d5425"
+      },
+      "edge_seeds": [
+        {
+          "key": "closet_chamber/W",
+          "location": "closet_chamber",
+          "location_type": "indoor",
+          "policy": "opportunistic",
+          "fraction": 0.1,
+          "side": "right",
+          "neighbour": "closet_chamber/N",
+          "neighbour_edge": "left",
+          "source": "backdrops/closet_chamber/N.png",
+          "exists": true,
+          "painted": true,
+          "allowed": true,
+          "depends_on": null,
+          "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+          "image_index": 3,
+          "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+          "file": "design/batches/row23-scaffold/manor/closet_chamber-W/retry-1/edge-seed-right.png",
+          "width_px": 154,
+          "height_px": 1024,
+          "columns": [
+            0,
+            154
+          ],
+          "sha256": "4c79c18447a964006409c782aa0d5bb4c732d971ce0eee6a085e981e7e63a012",
+          "source_sha256": "21808eb0772fe76ce4bb697718b64d65cee4df308bf4acb7fe5e6043bc2d5425"
+        }
+      ],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "wall_upper",
+        "D": 3.856,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "N",
+            "W"
+          ]
+        ],
+        "majority": [
+          "E",
+          "N"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "23127bb0",
+          "candidate": "backdrops/source/closet_chamber-W/row23-23127bb0.png",
+          "prompt": "backdrops/source/closet_chamber-W/row23-23127bb0.prompt.txt"
         }
       ]
     },
@@ -846,6 +950,112 @@
       ]
     },
     {
+      "key": "garden_room/W",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/garden_room-W/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In GARDEN ROOM, every wall is light-toned oak wainscot to chair height below limewashed plaster; every ceiling is a plain lime-plastered ceiling; every floor is a floor of square stone paviours. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's wall_upper disagrees at D=6.208 (colour 0.341, contrast x4.87); E and N agree with each other and this facing does not.",
+      "voice": {
+        "id": "garden_parlour",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 155.789,
+      "flights": [],
+      "scaffold_sha256": "d8a889c8dae9744835a7476b4921f01112cbe3f2fc53d1e81f1b6ec248ab7a41",
+      "edge_seed": {
+        "key": "garden_room/W",
+        "location": "garden_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "garden_room/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/garden_room/N.png",
+        "exists": true,
+        "painted": true,
+        "allowed": true,
+        "depends_on": null,
+        "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+        "image_index": 3,
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "file": "design/batches/row23-scaffold/manor/garden_room-W/retry-1/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "7744c5d6c98927e98a3d946c0e7c14be6ef1b9e1d632d9faf5c3e629cf35b5c7",
+        "source_sha256": "f05eab07f4fc9ddc972090059ee35455c90bb0847bd7f3c3e185936d30351ebd"
+      },
+      "edge_seeds": [
+        {
+          "key": "garden_room/W",
+          "location": "garden_room",
+          "location_type": "indoor",
+          "policy": "opportunistic",
+          "fraction": 0.1,
+          "side": "right",
+          "neighbour": "garden_room/N",
+          "neighbour_edge": "left",
+          "source": "backdrops/garden_room/N.png",
+          "exists": true,
+          "painted": true,
+          "allowed": true,
+          "depends_on": null,
+          "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+          "image_index": 3,
+          "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+          "file": "design/batches/row23-scaffold/manor/garden_room-W/retry-1/edge-seed-right.png",
+          "width_px": 154,
+          "height_px": 1024,
+          "columns": [
+            0,
+            154
+          ],
+          "sha256": "7744c5d6c98927e98a3d946c0e7c14be6ef1b9e1d632d9faf5c3e629cf35b5c7",
+          "source_sha256": "f05eab07f4fc9ddc972090059ee35455c90bb0847bd7f3c3e185936d30351ebd"
+        }
+      ],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "wall_upper",
+        "D": 6.208,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "N"
+          ],
+          [
+            "W"
+          ]
+        ],
+        "majority": [
+          "E",
+          "N"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "light-toned oak wainscot to chair height below limewashed plaster",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "a floor of square stone paviours",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e0d4b50e",
+          "candidate": "backdrops/source/garden_room-W/row23-e0d4b50e.png",
+          "prompt": "backdrops/source/garden_room-W/row23-e0d4b50e.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "great_hall/E",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/great_hall-E/retry-3",
@@ -1281,6 +1491,224 @@
       ]
     },
     {
+      "key": "guest_chamber/S",
+      "attempt": 4,
+      "packet": "design/batches/row23-scaffold/manor/guest_chamber-S/retry-4",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In GUEST CHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's wall_upper disagrees at D=8.96 (colour 1.0947, contrast x3.36); E and N agree with each other and this facing does not.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 174.737,
+      "flights": [],
+      "scaffold_sha256": "60bcbb708c15ae626f2177d9ee4b6bc98133a3491f816da0ad43b2aa884afe33",
+      "edge_seed": {
+        "key": "guest_chamber/S",
+        "location": "guest_chamber",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "guest_chamber/E",
+        "neighbour_edge": "right",
+        "source": "backdrops/guest_chamber/E.png",
+        "exists": true,
+        "painted": true,
+        "allowed": true,
+        "depends_on": null,
+        "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+        "image_index": 3,
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "file": "design/batches/row23-scaffold/manor/guest_chamber-S/retry-4/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "c672d012833fb9464dc19590543ebe28c309fc95dab012c1a94e87672baf6df4",
+        "source_sha256": "46ea82b1dd7c916b560df75e770aafd7ba866972932e5a331b6bb17f3adc8eed"
+      },
+      "edge_seeds": [
+        {
+          "key": "guest_chamber/S",
+          "location": "guest_chamber",
+          "location_type": "indoor",
+          "policy": "opportunistic",
+          "fraction": 0.1,
+          "side": "left",
+          "neighbour": "guest_chamber/E",
+          "neighbour_edge": "right",
+          "source": "backdrops/guest_chamber/E.png",
+          "exists": true,
+          "painted": true,
+          "allowed": true,
+          "depends_on": null,
+          "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+          "image_index": 3,
+          "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+          "file": "design/batches/row23-scaffold/manor/guest_chamber-S/retry-4/edge-seed-left.png",
+          "width_px": 154,
+          "height_px": 1024,
+          "columns": [
+            1382,
+            1536
+          ],
+          "sha256": "c672d012833fb9464dc19590543ebe28c309fc95dab012c1a94e87672baf6df4",
+          "source_sha256": "46ea82b1dd7c916b560df75e770aafd7ba866972932e5a331b6bb17f3adc8eed"
+        }
+      ],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "wall_upper",
+        "D": 8.96,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "N"
+          ],
+          [
+            "S"
+          ],
+          [
+            "W"
+          ]
+        ],
+        "majority": [
+          "E",
+          "N"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9d794908",
+          "candidate": "backdrops/source/guest_chamber-S/row23-9d794908.png",
+          "prompt": "backdrops/source/guest_chamber-S/row23-9d794908.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "guest_chamber/W",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/guest_chamber-W/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In GUEST CHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's wall_upper disagrees at D=8.96 (colour 1.0947, contrast x3.36); E and N agree with each other and this facing does not.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 160,
+      "flights": [],
+      "scaffold_sha256": "d1c9d7c98a95ba441fa25184abcc814ae6b61e16aca42a453cfb8cf9d4484fdb",
+      "edge_seed": {
+        "key": "guest_chamber/W",
+        "location": "guest_chamber",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "guest_chamber/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/guest_chamber/N.png",
+        "exists": true,
+        "painted": true,
+        "allowed": true,
+        "depends_on": null,
+        "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+        "image_index": 3,
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "file": "design/batches/row23-scaffold/manor/guest_chamber-W/retry-1/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "f81863bad457b22910eb8be20db13bb99d7686dcc4b6ea636bcd282d5f762637",
+        "source_sha256": "dfb7e04553982a35d96d7685cb4efe009ff88cbce05776121277ee2d8e941f69"
+      },
+      "edge_seeds": [
+        {
+          "key": "guest_chamber/W",
+          "location": "guest_chamber",
+          "location_type": "indoor",
+          "policy": "opportunistic",
+          "fraction": 0.1,
+          "side": "right",
+          "neighbour": "guest_chamber/N",
+          "neighbour_edge": "left",
+          "source": "backdrops/guest_chamber/N.png",
+          "exists": true,
+          "painted": true,
+          "allowed": true,
+          "depends_on": null,
+          "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+          "image_index": 3,
+          "role_sentence": "Image 3 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+          "file": "design/batches/row23-scaffold/manor/guest_chamber-W/retry-1/edge-seed-right.png",
+          "width_px": 154,
+          "height_px": 1024,
+          "columns": [
+            0,
+            154
+          ],
+          "sha256": "f81863bad457b22910eb8be20db13bb99d7686dcc4b6ea636bcd282d5f762637",
+          "source_sha256": "dfb7e04553982a35d96d7685cb4efe009ff88cbce05776121277ee2d8e941f69"
+        }
+      ],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "wall_upper",
+        "D": 8.96,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "N"
+          ],
+          [
+            "S"
+          ],
+          [
+            "W"
+          ]
+        ],
+        "majority": [
+          "E",
+          "N"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b22eae39",
+          "candidate": "backdrops/source/guest_chamber-W/row23-b22eae39.png",
+          "prompt": "backdrops/source/guest_chamber-W/row23-b22eae39.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "hall/W",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/hall-W/retry-3",
@@ -1526,6 +1954,56 @@
       ]
     },
     {
+      "key": "master_bedchamber/E",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/master_bedchamber-E/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In MASTER BEDCHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's ceiling splits EW against NS with NO majority (worst pair D=4.474), so the materials above are the plan's ruling and not another wall's.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 157.895,
+      "flights": [],
+      "scaffold_sha256": "c5de2223ed688d623554bf2960fc4e835dffe4c320014bb5117a72c9106d12d3",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "ceiling",
+        "D": 4.474,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "W"
+          ],
+          [
+            "N",
+            "S"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "aff7a644",
+          "candidate": "backdrops/source/master_bedchamber-E/row23-aff7a644.png",
+          "prompt": "backdrops/source/master_bedchamber-E/row23-aff7a644.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "master_bedchamber/N",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/master_bedchamber-N/retry-3",
@@ -1576,6 +2054,56 @@
       ]
     },
     {
+      "key": "master_bedchamber/N",
+      "attempt": 6,
+      "packet": "design/batches/row23-scaffold/manor/master_bedchamber-N/retry-6",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In MASTER BEDCHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's ceiling splits EW against NS with NO majority (worst pair D=4.474), so the materials above are the plan's ruling and not another wall's.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 146.316,
+      "flights": [],
+      "scaffold_sha256": "58566408e5c2754b219b2cbfdc398fb1be69fa2935e6273313a4c6ac238f95fc",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "ceiling",
+        "D": 4.474,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "W"
+          ],
+          [
+            "N",
+            "S"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b2fa7b28",
+          "candidate": "backdrops/source/master_bedchamber-N/row23-b2fa7b28.png",
+          "prompt": "backdrops/source/master_bedchamber-N/row23-b2fa7b28.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "master_bedchamber/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/master_bedchamber-S/retry-3",
@@ -1600,6 +2128,106 @@
           "id": "82cacbb3",
           "candidate": "backdrops/source/master_bedchamber-S/row23-82cacbb3.png",
           "prompt": "backdrops/source/master_bedchamber-S/row23-82cacbb3.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "master_bedchamber/S",
+      "attempt": 4,
+      "packet": "design/batches/row23-scaffold/manor/master_bedchamber-S/retry-4",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In MASTER BEDCHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's ceiling splits EW against NS with NO majority (worst pair D=4.474), so the materials above are the plan's ruling and not another wall's.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 143.158,
+      "flights": [],
+      "scaffold_sha256": "0d394962b5e71a4d2bcfc39bb72c7e38a7048bcce80011c9f15e32ae0e375ddd",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "ceiling",
+        "D": 4.474,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "W"
+          ],
+          [
+            "N",
+            "S"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "88c52bf2",
+          "candidate": "backdrops/source/master_bedchamber-S/row23-88c52bf2.png",
+          "prompt": "backdrops/source/master_bedchamber-S/row23-88c52bf2.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "master_bedchamber/W",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/master_bedchamber-W/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In MASTER BEDCHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's ceiling splits EW against NS with NO majority (worst pair D=4.474), so the materials above are the plan's ruling and not another wall's.",
+      "voice": {
+        "id": "bedchamber",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "chair_rail"
+      },
+      "px_per_m_at_wall": 157.895,
+      "flights": [],
+      "scaffold_sha256": "e47ea64012507541698e26798515834ca07d03806e8dc46f9d2d2f142255bbda",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "ceiling",
+        "D": 4.474,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "E",
+            "W"
+          ],
+          [
+            "N",
+            "S"
+          ]
+        ],
+        "majority": [],
+        "no_majority": true,
+        "ruling": {
+          "walls": "oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
+          "ceiling": "a plain lime-plastered ceiling",
+          "floor": "wide oak floorboards",
+          "hangings": "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping"
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "13474627",
+          "candidate": "backdrops/source/master_bedchamber-W/row23-13474627.png",
+          "prompt": "backdrops/source/master_bedchamber-W/row23-13474627.prompt.txt"
         }
       ]
     },
@@ -1942,6 +2570,110 @@
       ]
     },
     {
+      "key": "servants_hall/N",
+      "attempt": 1,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-N/retry-1",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured: this room's ceiling disagrees at D=3.899 (colour 0.2378, contrast x2.65); S and W agree with each other and this facing does not.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 160,
+      "flights": [],
+      "scaffold_sha256": "e8dbba33525e75b85ea0e642c47b6ac76114aae30ba0891ab2178a69cbdc4162",
+      "edge_seed": {
+        "key": "servants_hall/N",
+        "location": "servants_hall",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "servants_hall/W",
+        "neighbour_edge": "right",
+        "source": "backdrops/servants_hall/W.png",
+        "exists": true,
+        "painted": true,
+        "allowed": true,
+        "depends_on": null,
+        "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+        "image_index": 3,
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "file": "design/batches/row23-scaffold/manor/servants_hall-N/retry-1/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "536b9f3cf471981a3f1dc5455c8857522118bbf536e7707ac785e965256d455b",
+        "source_sha256": "63a94feb55f551f48760dbbc28eb55eb38324d31e5ec95fc31eab38025b95d65"
+      },
+      "edge_seeds": [
+        {
+          "key": "servants_hall/N",
+          "location": "servants_hall",
+          "location_type": "indoor",
+          "policy": "opportunistic",
+          "fraction": 0.1,
+          "side": "left",
+          "neighbour": "servants_hall/W",
+          "neighbour_edge": "right",
+          "source": "backdrops/servants_hall/W.png",
+          "exists": true,
+          "painted": true,
+          "allowed": true,
+          "depends_on": null,
+          "why": "a painted neighbour the measure puts inside the room's agreeing walls",
+          "image_index": 3,
+          "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+          "file": "design/batches/row23-scaffold/manor/servants_hall-N/retry-1/edge-seed-left.png",
+          "width_px": 154,
+          "height_px": 1024,
+          "columns": [
+            1382,
+            1536
+          ],
+          "sha256": "536b9f3cf471981a3f1dc5455c8857522118bbf536e7707ac785e965256d455b",
+          "source_sha256": "63a94feb55f551f48760dbbc28eb55eb38324d31e5ec95fc31eab38025b95d65"
+        }
+      ],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "consistency": {
+        "band": "ceiling",
+        "D": 3.899,
+        "cut": 3.75,
+        "clusters": [
+          [
+            "N",
+            "S",
+            "W"
+          ]
+        ],
+        "majority": [
+          "S",
+          "W"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e7912869",
+          "candidate": "backdrops/source/servants_hall-N/row23-e7912869.png",
+          "prompt": "backdrops/source/servants_hall-N/row23-e7912869.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "servants_hall/S",
       "attempt": 3,
       "packet": "design/batches/row23-scaffold/manor/servants_hall-S/retry-3",
@@ -2237,5 +2969,6 @@
       ]
     }
   ],
-  "refused_entries": []
+  "refused_entries": [],
+  "_consistency": "[row 40] An entry carrying a `consistency` block was cut by `--emit-consistency`, not by `--emit-retries`: the wall is already PROMOTED and is being asked again because its room does not read as one room. Its correction names the room's ruling materials out of tools/room-voices.mjs, and its edge seeds are cut only from facings the measure puts inside the room's agreeing majority."
 }

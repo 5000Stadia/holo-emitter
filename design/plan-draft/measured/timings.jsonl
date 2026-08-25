@@ -25013,3 +25013,23 @@
 {"detail":{"attempts":4,"correction":"draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2","why":"retry cap spent"},"key":"closet_chamber/S","step":"park.wall","ts_end":1787620772.62916,"ts_start":1787620772.629159}
 {"ts_start":1787620747.02,"ts_end":1787620790.93,"step":"bake.backdrops","key":null,"detail":{"paintings":57,"out_bytes":37167091,"fp":"68f28578","png_bytes":145831585,"jpeg_bytes":27866692}}
 {"ts_start":1787620802.485,"ts_end":1787620802.712,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787623790.395,"ts_end":1787623791.024,"step":"emit.facing","key":"closet_chamber/W","detail":{"carriers":0,"voice":"bedchamber","consistency":1}}
+{"ts_start":1787623791.024,"ts_end":1787623791.029,"step":"emit.packet","key":"closet_chamber/W","detail":{"rolls":1,"roll_ids":["23127bb0"],"prompt_chars":5409,"consistency":1}}
+{"ts_start":1787623791.035,"ts_end":1787623791.588,"step":"emit.facing","key":"garden_room/W","detail":{"carriers":0,"voice":"garden_parlour","consistency":1}}
+{"ts_start":1787623791.589,"ts_end":1787623791.59,"step":"emit.packet","key":"garden_room/W","detail":{"rolls":1,"roll_ids":["e0d4b50e"],"prompt_chars":5202,"consistency":1}}
+{"ts_start":1787623791.596,"ts_end":1787623792.109,"step":"emit.facing","key":"guest_chamber/S","detail":{"carriers":2,"voice":"bedchamber","consistency":4}}
+{"ts_start":1787623792.11,"ts_end":1787623792.112,"step":"emit.packet","key":"guest_chamber/S","detail":{"rolls":1,"roll_ids":["9d794908"],"prompt_chars":5688,"consistency":4}}
+{"ts_start":1787623792.116,"ts_end":1787623792.496,"step":"emit.facing","key":"guest_chamber/W","detail":{"carriers":2,"voice":"bedchamber","consistency":1}}
+{"ts_start":1787623792.496,"ts_end":1787623792.498,"step":"emit.packet","key":"guest_chamber/W","detail":{"rolls":1,"roll_ids":["b22eae39"],"prompt_chars":6163,"consistency":1}}
+{"ts_start":1787623792.504,"ts_end":1787623792.668,"step":"emit.facing","key":"master_bedchamber/E","detail":{"carriers":2,"voice":"bedchamber","consistency":1}}
+{"ts_start":1787623792.668,"ts_end":1787623792.671,"step":"emit.packet","key":"master_bedchamber/E","detail":{"rolls":1,"roll_ids":["aff7a644"],"prompt_chars":6168,"consistency":1}}
+{"ts_start":1787623792.677,"ts_end":1787623792.856,"step":"emit.facing","key":"master_bedchamber/N","detail":{"carriers":2,"voice":"bedchamber","consistency":6}}
+{"ts_start":1787623792.856,"ts_end":1787623792.857,"step":"emit.packet","key":"master_bedchamber/N","detail":{"rolls":1,"roll_ids":["b2fa7b28"],"prompt_chars":5697,"consistency":6}}
+{"ts_start":1787623792.868,"ts_end":1787623793.063,"step":"emit.facing","key":"master_bedchamber/S","detail":{"carriers":2,"voice":"bedchamber","consistency":4}}
+{"ts_start":1787623793.063,"ts_end":1787623793.064,"step":"emit.packet","key":"master_bedchamber/S","detail":{"rolls":1,"roll_ids":["88c52bf2"],"prompt_chars":6173,"consistency":4}}
+{"ts_start":1787623793.07,"ts_end":1787623793.31,"step":"emit.facing","key":"master_bedchamber/W","detail":{"carriers":1,"voice":"bedchamber","consistency":1}}
+{"ts_start":1787623793.31,"ts_end":1787623793.311,"step":"emit.packet","key":"master_bedchamber/W","detail":{"rolls":1,"roll_ids":["13474627"],"prompt_chars":6069,"consistency":1}}
+{"ts_start":1787623793.324,"ts_end":1787623794.017,"step":"emit.facing","key":"servants_hall/N","detail":{"carriers":1,"voice":"servants_hall","consistency":1}}
+{"ts_start":1787623794.017,"ts_end":1787623794.018,"step":"emit.packet","key":"servants_hall/N","detail":{"rolls":1,"roll_ids":["e7912869"],"prompt_chars":6212,"consistency":1}}
+{"ts_start":1787623787.762,"ts_end":1787623794.177,"step":"emit.run","key":null,"detail":{"mode":"consistency","emitted":9,"refused":0}}
+{"detail":{"prompts":83,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787623809.466469,"ts_start":1787623809.260043}
