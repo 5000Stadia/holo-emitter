@@ -524,15 +524,15 @@
       "why": "art already in the store; this loop read it rather than remaking it",
       "supersede": "refused",
       "superseded_from": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
-      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 119.5 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 160.6 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_reason": "the promotion instrument refused it: promote refused: servants_hall/E: the plan rules 1 window(s) on this wall and the painting shows 0 \u2014 a window the drawing puts here with no glazed opening in the picture is a casement sprite standing , and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [-]; the promoted wall stands",
       "supersede_attempt": {
-        "candidate": "backdrops/source/servants_hall-E/row23-fab34914.png",
-        "roll_id": "fab34914",
+        "candidate": "backdrops/source/servants_hall-E/row23-230bb67d.png",
+        "roll_id": "230bb67d",
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
         "rule": 3,
-        "at": "2026-08-25T03:29:27"
+        "at": "2026-08-25T04:17:40"
       },
       "supersede_room": {
         "room": "servants_hall",
@@ -567,15 +567,15 @@
       "why": "art already in the store; this loop read it rather than remaking it",
       "supersede": "refused",
       "superseded_from": "backdrops/source/servants_hall-W/row23-ee63b93c.png",
-      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [-]; the promoted wall stands",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
       "supersede_attempt": {
-        "candidate": "backdrops/source/servants_hall-W/row23-69e542da.png",
-        "roll_id": "69e542da",
+        "candidate": "backdrops/source/servants_hall-W/row23-62b88c65.png",
+        "roll_id": "62b88c65",
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
         "rule": 3,
-        "at": "2026-08-25T03:29:41"
+        "at": "2026-08-25T04:17:49"
       },
       "supersede_room": {
         "room": "servants_hall",
