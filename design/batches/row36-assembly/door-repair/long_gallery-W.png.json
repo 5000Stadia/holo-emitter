@@ -29,7 +29,7 @@
   },
   "facing": "long_gallery/W",
   "candidate": "backdrops/source-snapped/long_gallery-W/snapped.png",
-  "out": "/home/k/Projects/holo-emitter/.claude/worktrees/agent-a3556e121f5697c28/design/batches/row36-assembly/door-repair/long_gallery-W.png",
+  "out": "design/batches/row36-assembly/door-repair/long_gallery-W.png",
   "declared_box": {
     "x0": -879.8940397350996,
     "x1": 2415.8940397351,

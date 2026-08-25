@@ -626,11 +626,38 @@ test.describe("the content-gap grant", () => {
           `${key} was granted with nothing gained`).toBeGreaterThan(0);
         expect(rec.emitter_commit, `${key}'s grant does not name the emitter it is testing`).toBeTruthy();
         expect(rec.prior_status, `${key}'s grant does not record what it moved from`).toBeTruthy();
+        /* AND THE ASK IT AUTHORISED WAS ACTUALLY SENT.
+           This used to read `w.status === "retry"`, which was true of the
+           minute the grant ran and of no minute after it: the loop consumes a
+           re-ask, and the wall then moves to `promoted` or back to `held`
+           depending on what came back. Twelve granted walls, four promoted,
+           eight held, none of them still queued — a live file was being
+           asserted as a snapshot.
+           What the grant actually promises survives all of that: an extra ask
+           was emitted for this wall. `spent_prompt` is the prompt the decision
+           was diffed against, and the newest prompt on disk has moved past it
+           on every granted wall. A grant recorded with no ask behind it is the
+           failure this names, and it is the one the status could never see. */
+        const newest = spentPromptPath(DEFAULT_OUT, key);
+        expect(newest, `${key} was granted and has no prompt on disk at all`).toBeTruthy();
+        expect(newest.slice(repoRoot.length + 1),
+          `${key} was granted and no re-ask was ever emitted for it — the newest prompt is still the one the grant diffed`)
+          .not.toBe(rec.spent_prompt);
       }
-      expect(w.status, `${key} was granted and is not queued for a re-ask`).toBe("retry");
     }
-    expect(eligible(live, { plan: PLAN }).take,
-      "the grant would hand out a second ask on a state it has already granted").toEqual([]);
+    /* ONCE-ONLY IS PER WALL AND PER REASON, which is what `_once_only` records
+       and what the message here has always said. `.toEqual([])` over the whole
+       take said something else — that the tool wants nothing at all, anywhere —
+       and that stopped being true the moment `edge_never_seeded` reached the
+       entrance court: two of its facings are eligible for a FIRST grant under a
+       reason they have never been granted, which is the loop's ordinary next
+       work and not a second helping. What must never happen is a wall already
+       granted for a reason turning up again under that same reason. */
+    const alreadyGranted = new Set(granted.flatMap(([key, w]) =>
+      Object.keys(w[GRANTS_KEY]).map((reason) => `${key} ${reason}`)));
+    expect(eligible(live, { plan: PLAN }).take
+      .filter((t) => alreadyGranted.has(`${t.key} ${t.reason}`)),
+    "the grant would hand out a second ask on a state it has already granted").toEqual([]);
   });
 
   test("grants exactly the walls whose ask was missing the thing they were refused for", () => {

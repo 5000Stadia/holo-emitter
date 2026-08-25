@@ -4334,6 +4334,19 @@ promoted reading's `_doors_repair` is made of. It is minimal-touch: a way throug
 already reads is left alone, and a wall with nothing missing is refused rather than given a second
 doorway.
 
+**And it refuses a frame that is already dark where the void goes.** The minimal-touch match above
+is by CENTRE — the right question for *is this doorway already drawn* and the wrong one for *is it
+safe to draw*. A dark run can miss the ruled centre by more than `DOOR_MATCH_M` and still OVERLAP
+the rectangle about to be painted, and then the two are one run to a detector that reads maximally
+stable dark runs: `privy_garden/W`'s snapped frame carries a 1.55 m run at 2.00–3.55 m against a
+door the plan rules at 1.55–2.55 m, and painting the void merged them into a single 1.99 m reading
+whose right edge landed 67 px past the aperture. Row 27's `door.painted_width` refuses that at the
+promotion, so nothing was going to ship — but the repair had written a frame claiming a doorway it
+had not made readable. Adding darkness cannot separate darkness, so `repair_doors` compares each
+void it is about to paint against every run the detector already reads and refuses by name when
+they overlap; the wall stays held and is repainted rather than repaired. `assembly.spec` pins that
+refusal.
+
 **A repaired frame gets its own round, `row36doors`, and this is not bookkeeping.** The reading a
 promotion reads must be a reading of the image being promoted — `promote-backdrop.mjs` refuses a
 document whose `_what_this_is` does not name the candidate, and it is right to, because a reading

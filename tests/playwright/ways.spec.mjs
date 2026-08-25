@@ -23,17 +23,30 @@ const VIEWPORTS = [["desktop", POINTER_VIEWPORT], ["a phone", PHONE]];
    ran; a facing joining or leaving this list is a change in what a player can
    do with the chrome and has to be seen rather than absorbed.
 
-   Four of the six are chevrons sitting on a FLIGHT, and those still yield —
+   Three of the five are chevrons sitting on a FLIGHT, and those still yield —
    the rule asks the facing, not the button, so a covered chevron gives way
    while its partner can still turn the room. Only the entrance court has BOTH
    of its chevrons covered, and that is the one facing where yielding would
    leave no pointer turn at all. `stair.spec`'s "a flight under the chrome is
-   still a flight" drives the other four with a real mouse. */
+   still a flight" drives two of them — back_stair/E and great_stair_hall/N —
+   with a real mouse.
+
+   [row 39] `back_stair/W chevron-left` LEFT this list when the flight
+   attachment landed, and it left for the reason the row exists. That facing is
+   promoted, and a promoted meta's flight is the one row 39 writes into
+   `meta.stairs` at the meta's own camera — the painted staircase's own body.
+   Before the attachment the facing had no `meta.stairs` at all and its flight
+   came from the plan projection over a derived meta, a fatter shape that
+   swallowed all 49 samples of the button; the attached body leaves the
+   button's top-right corner over bare wall. Nothing a player does changed:
+   back_stair/W's right chevron was free before and is free now, so
+   `bothCovered` was false either way and a click over the flight climbs it in
+   both worlds. What changed is that the mouth on this facing is now the
+   painting's rather than the plan's guess at it. */
 const EXPECTED_SWALLOWED = {
   desktop: [
     "back_stair/E chevron-right",
     "back_stair/S chevron-left",
-    "back_stair/W chevron-left",
     "entrance_court/S chevron-left",
     "entrance_court/S chevron-right",
     "great_stair_hall/N chevron-left"
@@ -41,7 +54,6 @@ const EXPECTED_SWALLOWED = {
   "a phone": [
     "back_stair/E chevron-right",
     "back_stair/S chevron-left",
-    "back_stair/W chevron-left",
     "entrance_court/S chevron-left",
     "entrance_court/S chevron-right",
     "great_stair_hall/N chevron-left"

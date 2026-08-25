@@ -29,7 +29,7 @@
   },
   "facing": "great_hall/W",
   "candidate": "backdrops/source-snapped/great_hall-W/snapped.png",
-  "out": "/home/k/Projects/holo-emitter/.claude/worktrees/agent-a3556e121f5697c28/design/batches/row36-assembly/door-repair/great_hall-W.png",
+  "out": "design/batches/row36-assembly/door-repair/great_hall-W.png",
   "declared_box": {
     "x0": 333.15068493150676,
     "x1": 1202.8493150684933,

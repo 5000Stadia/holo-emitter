@@ -1,9 +1,17 @@
 """The walls the door clause refuses: paint the void, read it back.
 
 Run: python3 design/plan-draft/measured/row36_door_repair_report.py
+     python3 .../row36_door_repair_report.py --out-dir <dir>
 
 Per wall: what the plan rules, what the detector found BEFORE, what it finds
 AFTER the void is composited, and whether the rect lands at the aperture.
+
+WHERE THE REPAIRED FRAMES GO. By default beside the row's other evidence, in
+`design/batches/row36-assembly/door-repair/`, because a human running this
+wants the pictures where the batch keeps them. `--out-dir` moves them, and
+`assembly.spec` passes a scratch directory: the suite ran this on every `npm
+test` and rewrote six committed files each time, so a green run left the tree
+dirty and the next `git checkout` failed.
 """
 import json, os, subprocess, sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
@@ -17,6 +25,8 @@ plan = json.load(open("fixtures/demo-study/plan.json"))
 sweep = {r["facing"]: r for r in json.load(open("design/batches/row35-snap/sweep.json"))["rows"]}
 
 OUT = os.path.join(ROOT, "design", "batches", "row36-assembly", "door-repair")
+if "--out-dir" in sys.argv:
+    OUT = os.path.abspath(sys.argv[sys.argv.index("--out-dir") + 1])
 os.makedirs(OUT, exist_ok=True)
 
 def read_doors(png, d, loc):
