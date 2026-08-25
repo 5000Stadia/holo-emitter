@@ -3143,10 +3143,32 @@ test.describe("the schematic is a derived render of the plan", () => {
     expect(existsSync(join(repoRoot, snapped.replace(/\.png$/, ".prompt.txt"))),
       "the snapped frame has an ask beside it after all, and this case is guarding nothing")
       .toBe(false);
+    /* [row 39] AND THE ROLL IS NOT TYPED HERE ANY MORE. It was
+       `row23-4e3755a6`, and row 39 re-snapped this wall off `row23-7d7caa79`
+       instead — the sweep's own recorded cut, that the snap runs on the roll
+       which CARRIES the staircase (the row-38 re-ask) rather than on the one
+       that already passed the camera. A literal path pins which roll was
+       current on the day it was typed, which is not what this case is about.
+       What is asserted instead is agreement between two committed artifacts:
+       the ask this resolver follows is the ask the PROMOTION recorded
+       following, in the promoted meta's own `flight_evidence.asked.prompt`. A
+       re-snap moves both together; a resolver drifting from what the promotion
+       actually did moves one of them. */
+    const promotedMeta = readJson(join(repoRoot, "backdrops", "back_stair", "W.meta.json"));
+    const recorded = ((promotedMeta.measured_room || {}).flight_evidence || {}).asked || {};
+    expect(recorded.prompt, "the promoted meta records which ask its flight stood on")
+      .toBeTruthy();
     const ask = askTextFor(repoRoot, snapped, reading, join);
     expect(ask.path, "the ask is the original roll's, named by the snap's own record")
-      .toBe("backdrops/source/back_stair-W/row23-4e3755a6.prompt.txt");
+      .toBe(recorded.prompt);
+    expect(ask.path, "and it is a ROLL's ask, not something beside the snapped frame")
+      .toMatch(/^backdrops\/source\/back_stair-W\/.+\.prompt\.txt$/);
     expect(ask.text, "and it is read").toBeTruthy();
+    /* And it is an ask that named a staircase, which is the whole of what row
+       39's attachment stands on: a flight reaches a promoted meta only from a
+       candidate that can be SHOWN to have been asked for one. */
+    expect(ask.text, "and the roll it points at is the one that asked for the flight")
+      .toMatch(/stair/i);
     expect(ask.via).toMatch(/rectified from/);
     /* And a reading that names no origin returns null rather than an empty ask,
        which is the difference between "nobody asked for a staircase" and "we
