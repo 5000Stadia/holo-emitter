@@ -1,0 +1,20 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the east wall of the servants' hall, circa-1660 English manor
+Gate anchor: the plain oak hanging rail above the floor, 0.95 m.
+Correction on a previous attempt at this exact wall: This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NSW against E), so it was painted as 2 rooms and not one. No facing of it was asked for the materials above, so the ruling comes from the plan and not from another wall.
+Primary request: Paint the east wall of the servants' hall of a circa-1660 English manor.
+  Its walls are plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding.
+  Overhead: plain exposed oak joists with boards between them. Underfoot: a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone.
+  A plain scrubbed-oak hanging rail, pegged with iron hooks, runs continuously corner to corner at exactly 0.95 m above the floor, fixed straight onto the limewashed plaster on every exposed wall surface including the side-wall returns. It is a single square-edged batten on bare plaster, with no timber lining, no joinery and no moulding anywhere behind it or below it.
+On this wall: the stone fireplace stands at the centre, its firebox opening exactly 0.90 m wide and its stone breast exactly 2.00 m wide.
+  One window opening stands left of centre, exactly 1.50 m wide, the sill 0.90 m and the head 2.00 m above the floor, set in a plain chamfered stone surround, divided by two stone mullions into three equal upright lights.
+  One light in it is a casement hung on iron hinges: the left-hand light.
+  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or monogram anywhere on this wall.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and fills the picture's width, and the two side walls run away from you to left and right and leave the picture through the left and right edges.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: a high-realism oil painting in the manner of a seventeenth-century Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient daylight and gentle natural falloff; a period painting, not a modern render.
+  The layout diagram's flat dark colours are NOT the picture's colours: the picture is this painting, in the materials named above.
+Constraints: the servants' hall is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface in it is plain and unlettered, and Image 1's lines, boxes and lettering are instructions rather than things to paint.

@@ -242,7 +242,10 @@ export const VOICES = {
     outdoor: false,
     walls: "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
     ceiling: "plain exposed oak joists with boards between them",
-    floor: "a floor of worn red brick laid on edge",
+    /* [Kabe, 2026-08-25: "Servants hall has multiple different floor types"] The
+     * material alone let one wall lay its bricks as squares beside two laid in
+     * courses; the bond is named so the ask forces it. */
+    floor: "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
     blank: "unbroken plain limewashed plaster",
     anchor: "hanging_rail",
     glass: "plain",
