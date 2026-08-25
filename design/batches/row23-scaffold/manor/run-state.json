@@ -6,7 +6,30 @@
       "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 615.8, which puts the viewer's eye 0.485 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/great_hall-N/row23-eb5c307d.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/great_hall-N/row23-27564e3e.png",
+        "roll_id": "27564e3e",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:59:15"
+      },
+      "supersede_room": {
+        "room": "great_hall",
+        "before": {
+          "score": 2.755,
+          "band": "wall_upper",
+          "verdict": "consistent",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "great_hall/E": {
       "attempts": 4,
@@ -22,7 +45,30 @@
       "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
       "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 231.0, which puts the viewer's eye 3.756 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "suspect-painting",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/great_hall-S/row23-0bc11e98.png",
+      "supersede_reason": "the promotion instrument refused it: SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 639.6, fixed to +/-1.0 px, inside the +/-11.0 px the standing licence allows the horizon row) puts the eye at 0.283 m above its own floor line at the scale its own gate anchor declares (117.9 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that., and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (the correction this frame needs magnifies its floor by 4.10x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]) and the declared one is too (rectifying this frame reveals 397.5 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/great_hall-S/row23-8e00c42f.png",
+        "roll_id": "8e00c42f",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:59:28"
+      },
+      "supersede_room": {
+        "room": "great_hall",
+        "before": {
+          "score": 2.755,
+          "band": "wall_upper",
+          "verdict": "consistent",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "great_hall/W": {
       "attempts": 5,
@@ -64,7 +110,30 @@
       "status": "promoted",
       "candidate": "backdrops/source/back_stair-N/row23-98d329eb.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 60, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/back_stair-N/row23-98d329eb.png",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 530.3 but only to +/-86.8 px, and the standing licence on the horizon row is +/-31.2 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/back_stair-N/row23-05a05ace.png",
+        "roll_id": "05a05ace",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:52:49"
+      },
+      "supersede_room": {
+        "room": "back_stair",
+        "before": {
+          "score": 1.679,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "back_stair/E": {
       "attempts": 5,
@@ -133,7 +202,30 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/back_stair-W/row23-4e3755a6.png",
+      "supersede_reason": "the promotion instrument refused it: SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 100.9, fixed to +/-2.4 px, inside the +/-23.7 px the standing licence allows the horizon row) puts the eye at 2.779 m above its own floor line at the scale its own gate anchor declares (253.7 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that., and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 309.6 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 309.6 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/back_stair-W/row23-d0f323f6.png",
+        "roll_id": "d0f323f6",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:54:22"
+      },
+      "supersede_room": {
+        "room": "back_stair",
+        "before": {
+          "score": 1.679,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "hall/N": {
       "attempts": 2,
@@ -177,12 +269,58 @@
       "status": "promoted",
       "candidate": "backdrops/source/kitchen-E/row23-94a463ee.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 110, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/kitchen-E/row23-94a463ee.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 184.4 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 139.4 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/kitchen-E/row23-70aa864a.png",
+        "roll_id": "70aa864a",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T22:02:46"
+      },
+      "supersede_room": {
+        "room": "kitchen",
+        "before": {
+          "score": 2.871,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "kitchen/S": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/kitchen-S/row23-7de99c6d.png"
+      "candidate": "backdrops/source/kitchen-S/row23-7de99c6d.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/kitchen-S/row23-7de99c6d.png",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 482.9 but only to +/-31.2 px, and the standing licence on the horizon row is +/-14.9 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/kitchen-S/row23-a2e4341f.png",
+        "roll_id": "a2e4341f",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T22:05:39"
+      },
+      "supersede_room": {
+        "room": "kitchen",
+        "before": {
+          "score": 2.871,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "kitchen/W": {
       "attempts": 4,
@@ -192,31 +330,155 @@
       "waived_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 695.7, which puts the viewer's eye 0.271 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "camera_source": "declared",
-      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/kitchen-W/row23-3da016f1.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 199.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 199.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/kitchen-W/row23-76d5db8a.png",
+        "roll_id": "76d5db8a",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T22:05:48"
+      },
+      "supersede_room": {
+        "room": "kitchen",
+        "before": {
+          "score": 2.871,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "buttery_pantry/N": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/buttery_pantry-N/row23-27fc2560.png"
+      "candidate": "backdrops/source/buttery_pantry-N/row23-27fc2560.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/buttery_pantry-N/row23-27fc2560.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/buttery_pantry-N/row23-56c22121.png",
+        "roll_id": "56c22121",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:55:47"
+      },
+      "supersede_room": {
+        "room": "buttery_pantry",
+        "before": {
+          "score": 2.068,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "buttery_pantry/E": {
       "attempts": 2,
       "status": "promoted",
       "candidate": "backdrops/source/buttery_pantry-E/row23-7c019f47.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 181, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/buttery_pantry-E/row23-7c019f47.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 198.1 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 145.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/buttery_pantry-E/row23-cb601d91.png",
+        "roll_id": "cb601d91",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:55:35"
+      },
+      "supersede_room": {
+        "room": "buttery_pantry",
+        "before": {
+          "score": 2.068,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "buttery_pantry/S": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/buttery_pantry-S/row23-7f7836f8.png"
+      "candidate": "backdrops/source/buttery_pantry-S/row23-7f7836f8.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/buttery_pantry-S/row23-7f7836f8.png",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 38.3 but only to +/-878.1 px, and the standing licence on the horizon row is +/-21.5 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/buttery_pantry-S/row23-a396b0b5.png",
+        "roll_id": "a396b0b5",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:55:58"
+      },
+      "supersede_room": {
+        "room": "buttery_pantry",
+        "before": {
+          "score": 2.068,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "buttery_pantry/W": {
       "attempts": 2,
       "status": "promoted",
       "candidate": "backdrops/source/buttery_pantry-W/row23-f538206d.png",
       "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 223.5) puts the eye at 2.927 m above its own floor line at the scale its own chair-rail declares (175.8 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/buttery_pantry-W/row23-f538206d.png",
+      "supersede_reason": "the room got worse: worst-band distance 2.068 (ceiling) -> 6.572 (wall_lower), so the consistency roll d635106e is out and the previous painting is back byte-for-byte (it went in measured; provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/buttery_pantry-W/row23-d635106e.png",
+        "roll_id": "d635106e",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": "measured",
+        "rule": 3,
+        "at": "2026-08-24T21:56:07"
+      },
+      "supersede_exit": "measured",
+      "supersede_room": {
+        "room": "buttery_pantry",
+        "before": {
+          "score": 2.068,
+          "band": "ceiling",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": {
+          "score": 6.572,
+          "band": "wall_lower",
+          "verdict": "mismatched",
+          "outliers": [
+            "W"
+          ],
+          "no_majority": false
+        }
+      }
     },
     "servants_hall/N": {
       "attempts": 2,
@@ -739,7 +1001,30 @@
       "status": "promoted",
       "candidate": "backdrops/source/back_stair_head-N/row23-c08999db.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it neither corner at the ceiling line y 65, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/back_stair_head-N/row23-c08999db.png",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y -102.4 but only to +/-234.4 px, and the standing licence on the horizon row is +/-31.2 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/back_stair_head-N/row23-5b2f3316.png",
+        "roll_id": "5b2f3316",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:52:59"
+      },
+      "supersede_room": {
+        "room": "back_stair_head",
+        "before": {
+          "score": 1.717,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "back_stair_head/E": {
       "attempts": 5,
@@ -791,7 +1076,30 @@
           "_once_only": "A wall carrying this reason is refused by the grant tool. A second grant under one reason would put the fix on trial rather than the wall, and this tool cannot give it."
         }
       },
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y -1034.8 but only to +/-1336.0 px, and the standing licence on the horizon row is +/-26.2 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/back_stair_head-S/row23-5d1f43e9.png",
+        "roll_id": "5d1f43e9",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T21:53:11"
+      },
+      "supersede_room": {
+        "room": "back_stair_head",
+        "before": {
+          "score": 1.717,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "back_stair_head/W": {
       "attempts": 3,
@@ -1163,7 +1471,43 @@
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "camera_source": "declared",
-      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/guest_chamber-N/row23-96eb20b1.png",
+      "supersede_reason": "the room got worse: worst-band distance 8.960 (wall_upper) -> 12.148 (wall_upper), so the consistency roll 810574b4 is out and the previous painting is back byte-for-byte (it went in measured; provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/guest_chamber-N/row23-810574b4.png",
+        "roll_id": "810574b4",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": "measured",
+        "rule": 3,
+        "at": "2026-08-24T22:01:03"
+      },
+      "supersede_exit": "measured",
+      "supersede_room": {
+        "room": "guest_chamber",
+        "before": {
+          "score": 8.96,
+          "band": "wall_upper",
+          "verdict": "mismatched",
+          "outliers": [
+            "S",
+            "W"
+          ],
+          "no_majority": false
+        },
+        "after": {
+          "score": 12.148,
+          "band": "wall_upper",
+          "verdict": "mismatched",
+          "outliers": [
+            "E",
+            "W"
+          ],
+          "no_majority": false
+        }
+      }
     },
     "guest_chamber/E": {
       "attempts": 5,
@@ -1171,7 +1515,33 @@
       "candidate": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "hold_family": "unfitted-horizon",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/guest_chamber-E/row23-5dfe4cfe.png",
+      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [unfitted-horizon]; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/guest_chamber-E/row23-e3d18c78.png",
+        "roll_id": "e3d18c78",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": null,
+        "rule": 3,
+        "at": "2026-08-24T22:00:58"
+      },
+      "supersede_room": {
+        "room": "guest_chamber",
+        "before": {
+          "score": 8.96,
+          "band": "wall_upper",
+          "verdict": "mismatched",
+          "outliers": [
+            "S",
+            "W"
+          ],
+          "no_majority": false
+        },
+        "after": null
+      }
     },
     "guest_chamber/S": {
       "attempts": 4,
@@ -1212,15 +1582,15 @@
       "candidate": "backdrops/source/guest_chamber-W/row23-686d6ba6.png",
       "supersede": "refused",
       "superseded_from": "backdrops/source/guest_chamber-W/row23-686d6ba6.png",
-      "supersede_reason": "camera FAIL (generation_miss), and neither the snap nor the door repair could carry it \u2014 the snap refused this frame: the measured convergence's snap is over budget (rectifying this frame reveals 130.4 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 121.7 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]); the promoted wall stands",
+      "supersede_reason": "the promotion instrument refused it: the horizon this painting's side walls converge on (y 598.2 +/- 0.9 px) puts the eye at 0.796 m, outside 0.8-2.2 m by less than the reading's own error bar (0.006 m). That is not a painting disagreeing with its ruler; it is a reading that has not decided, and a WITHHELD is what a reading that has not decided issues., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [suspect-painting]; the promoted wall stands",
       "supersede_attempt": {
-        "candidate": "backdrops/source/guest_chamber-W/row23-b22eae39.png",
-        "roll_id": "b22eae39",
+        "candidate": "backdrops/source/guest_chamber-W/row23-3da7d4de.png",
+        "roll_id": "3da7d4de",
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
         "rule": 3,
-        "at": "2026-08-24T21:25:32"
+        "at": "2026-08-24T22:02:29"
       },
       "supersede_room": {
         "room": "guest_chamber",
@@ -1250,7 +1620,39 @@
     "closet_chamber/E": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/closet_chamber-E/row23-8aa286a9.png"
+      "candidate": "backdrops/source/closet_chamber-E/row23-4a1211ed.png",
+      "supersede": "stood",
+      "superseded_from": "backdrops/source/closet_chamber-E/row23-8aa286a9.png",
+      "supersede_reason": "the room now reads as one room; worst-band distance 3.856 (wall_upper) -> 3.538 (wall_upper), 8% closer, so the consistency roll 4a1211ed replaces the painting (camera PASS +4.5% focal, promoted on measured numbers; provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/closet_chamber-E/row23-4a1211ed.png",
+        "roll_id": "4a1211ed",
+        "outcome": "stood",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "exit": "measured",
+        "rule": 3,
+        "at": "2026-08-24T21:57:41"
+      },
+      "supersede_exit": "measured",
+      "supersede_room": {
+        "room": "closet_chamber",
+        "before": {
+          "score": 3.856,
+          "band": "wall_upper",
+          "verdict": "mismatched",
+          "outliers": [
+            "W"
+          ],
+          "no_majority": false
+        },
+        "after": {
+          "score": 3.538,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
+          "no_majority": false
+        }
+      }
     },
     "closet_chamber/S": {
       "attempts": 4,
@@ -1266,15 +1668,15 @@
       "candidate": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png",
       "supersede": "refused",
       "superseded_from": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png",
-      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 231.5 but only to +/-145.5 px, and the standing licence on the horizon row is +/-14.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
+      "supersede_reason": "the promotion instrument refused it: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 456.9 but only to +/-89.0 px, and the standing licence on the horizon row is +/-14.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero., and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: PASS [unfitted-horizon]; the promoted wall stands",
       "supersede_attempt": {
-        "candidate": "backdrops/source/closet_chamber-W/row23-23127bb0.png",
-        "roll_id": "23127bb0",
+        "candidate": "backdrops/source/closet_chamber-W/row23-936cd8b3.png",
+        "roll_id": "936cd8b3",
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
         "rule": 3,
-        "at": "2026-08-24T21:25:13"
+        "at": "2026-08-24T21:57:41"
       },
       "supersede_room": {
         "room": "closet_chamber",

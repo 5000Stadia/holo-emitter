@@ -1,0 +1,305 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 721,
+    "chair_rail_y_px": 567,
+    "dado_rail_above_floor_px": 154,
+    "capping_above_floor_px": 164
+  },
+  "_windows": {
+    "floor": [
+      694,
+      724
+    ],
+    "rail": [
+      550,
+      574
+    ],
+    "ceiling": [
+      240,
+      309
+    ],
+    "columns": [
+      [
+        492,
+        709
+      ],
+      [
+        943,
+        1043
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "window",
+      "asked_x0": 709.82,
+      "asked_x1": 942.55,
+      "ruled_m": 1.5,
+      "window": [
+        476,
+        1175
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 520..807 (163 px from the ask) and another admissible pair sits 807..1003 (79 px from the ask), which disagree by more than the 19 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 162.105,
+  "implied_focal_px": 1069.9,
+  "eye_height_m": 1.2023,
+  "_absent": [
+    "the window: the choice of edge pair would choose the verdict: the strongest pair sits 520..807 (163 px from the ask) and another admissible pair sits 807..1003 (79 px from the ask), which disagree by more than the 19 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 237,
+    "ceiling_candidates": [
+      {
+        "y": 238,
+        "strength": 55.99,
+        "horiz": 0.614,
+        "cv": 1.144
+      },
+      {
+        "y": 92,
+        "strength": 46.93,
+        "horiz": 1.0,
+        "cv": 0.077
+      },
+      {
+        "y": 215,
+        "strength": 42.62,
+        "horiz": 0.73,
+        "cv": 0.613
+      },
+      {
+        "y": 172,
+        "strength": 39.96,
+        "horiz": 0.947,
+        "cv": 0.28
+      },
+      {
+        "y": 197,
+        "strength": 36.5,
+        "horiz": 0.871,
+        "cv": 0.403
+      },
+      {
+        "y": 138,
+        "strength": 31.83,
+        "horiz": 1.0,
+        "cv": 0.107
+      },
+      {
+        "y": 101,
+        "strength": 22.77,
+        "horiz": 0.774,
+        "cv": 0.5
+      },
+      {
+        "y": 227,
+        "strength": 20.11,
+        "horiz": 0.608,
+        "cv": 0.977
+      },
+      {
+        "y": 303,
+        "strength": 14.49,
+        "horiz": 0.718,
+        "cv": 1.946
+      },
+      {
+        "y": 293,
+        "strength": 14.17,
+        "horiz": 0.699,
+        "cv": 1.982
+      },
+      {
+        "y": 309,
+        "strength": 14.07,
+        "horiz": 0.683,
+        "cv": 1.948
+      },
+      {
+        "y": 117,
+        "strength": 13.68,
+        "horiz": 0.987,
+        "cv": 0.272
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 237,
+        "admissible": true,
+        "sigma_y_px": 1.01,
+        "horizon_y_px": 474.7,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 91,
+        "admissible": false,
+        "sigma_y_px": 102.05,
+        "horizon_y_px": 383.0,
+        "why": "the two side-wall junctions converge at y 383.0 but only to +/-102.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 214,
+        "admissible": false,
+        "sigma_y_px": 87.7,
+        "horizon_y_px": -219.0,
+        "why": "the two side-wall junctions converge at y -219.0 but only to +/-87.7 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 171,
+        "admissible": false,
+        "sigma_y_px": 102.05,
+        "horizon_y_px": 383.0,
+        "why": "the two side-wall junctions converge at y 383.0 but only to +/-102.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 196,
+        "admissible": false,
+        "sigma_y_px": 216.05,
+        "horizon_y_px": 3.9,
+        "why": "the two side-wall junctions converge at y 3.9 but only to +/-216.1 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 137,
+        "admissible": false,
+        "sigma_y_px": 102.05,
+        "horizon_y_px": 383.0,
+        "why": "the two side-wall junctions converge at y 383.0 but only to +/-102.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 100,
+        "admissible": false,
+        "sigma_y_px": 102.05,
+        "horizon_y_px": 383.0,
+        "why": "the two side-wall junctions converge at y 383.0 but only to +/-102.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 226,
+        "admissible": true,
+        "sigma_y_px": 1.25,
+        "horizon_y_px": 473.3,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 302,
+        "admissible": false,
+        "sigma_y_px": 520.32,
+        "horizon_y_px": 678.6,
+        "why": "the two side-wall junctions converge at y 678.6 but only to +/-520.3 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 292,
+        "admissible": false,
+        "sigma_y_px": 417.25,
+        "horizon_y_px": 380.0,
+        "why": "the two side-wall junctions converge at y 380.0 but only to +/-417.2 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 308,
+        "admissible": false,
+        "sigma_y_px": 777.55,
+        "horizon_y_px": 1009.2,
+        "why": "the two side-wall junctions converge at y 1009.2 but only to +/-777.5 px, and the standing licence on the horizon row is +/-14.7 px"
+      },
+      {
+        "ceiling_y_px": 116,
+        "admissible": false,
+        "sigma_y_px": 102.05,
+        "horizon_y_px": 383.0,
+        "why": "the two side-wall junctions converge at y 383.0 but only to +/-102.0 px, and the standing licence on the horizon row is +/-14.7 px"
+      }
+    ],
+    "corner_x0_px": 134,
+    "corner_x1_px": 1398,
+    "corner_evidence": {
+      "left_fit_r2": 0.6955,
+      "right_fit_r2": 0.7501,
+      "block_px": 16,
+      "excluded": [
+        [
+          709,
+          942
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 14.68,
+    "ramp": {
+      "x": 748.1,
+      "y": 474.7,
+      "left_slope": 0.5498,
+      "right_slope": -0.5177,
+      "left_n": 61,
+      "left_resid_px": 0.29,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.01
+    },
+    "votes": {
+      "floor": {
+        "x": 1536,
+        "y": 583,
+        "edge_px": 11197
+      },
+      "ceiling": {
+        "x": 750,
+        "y": 443,
+        "edge_px": 9032
+      },
+      "side_walls": {
+        "x": 1322,
+        "y": 209,
+        "edge_px": 5157
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 744,
+      "key_dir_brightest_y": 259,
+      "key_tint": "#c89a64",
+      "key_tint_patch": [
+        544,
+        944,
+        167,
+        229
+      ],
+      "key_tint_patch_mean_rgb": [
+        72.33,
+        55.73,
+        36.09
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c88851",
+        "floor_bottom_strip": "#c8b1a0",
+        "mid_wall_right": "#c89e6d",
+        "mid_wall_left": "#c89e6c",
+        "brightest_21x21_patch": "#c7c7c8"
+      },
+      "brightest_21x21_patch_centre_px": [
+        744,
+        259
+      ],
+      "sobel_bright_side_deg_whole_frame": 102.04,
+      "sobel_bright_side_deg_wall_band": 98.0,
+      "left_third_minus_right_third_luminance_whole_frame": 2.799,
+      "left_third_minus_right_third_luminance_wall_band": 1.381
+    },
+    "storey_height_m": 2.9857,
+    "implied_wall_width_m": 7.7974,
+    "eye_height_m": 1.5194,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 4.48,
+  "delta_eye_pct": 1.63,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "4a1211ed",
+  "candidate": "backdrops/source/closet_chamber-E/row23-4a1211ed.png"
+}
