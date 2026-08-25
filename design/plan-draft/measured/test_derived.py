@@ -178,6 +178,36 @@ class Idempotence(Sandbox):
         self.assertIn("nothing records what this was last derived from",
                       rec["a"]["why"][0][1])
 
+    def test_an_edited_artifact_is_stale_though_its_inputs_have_not_moved(self):
+        """The other direction, and the one an input digest cannot see.
+
+        A digest answers "has the world moved under this file". A hand-edit — or
+        a generator run directly rather than through here — moves the FILE under
+        an unchanged world, and the artifact stops being what its own generator
+        produces. Proved by doing it: this is the case that showed the freshness
+        guard eight specs lean on could not, at first, fail.
+        """
+        self.write("in/a.txt", "one")
+        self.registry()
+        D.regenerate(verbose=False)
+        self.write("out/a.json", "typed over it by hand")
+        stale = {r["id"]: r for r in D.is_stale(D.check())}
+        self.assertEqual(list(stale), ["a"], "and only the one that was edited")
+        self.assertIn("edited since it was derived", stale["a"]["why"][0][1])
+        D.regenerate(verbose=False)
+        self.assertEqual(D.is_stale(D.check()), [], "the regen did not put it back")
+
+    def test_the_record_does_not_churn_the_entries_that_did_not_move(self):
+        """One stale artifact re-records all of them; stamping today's clock on
+        the ones that did not move would dirty a committed file every pass."""
+        self.write("in/a.txt", "one")
+        self.registry()
+        D.regenerate(verbose=False)
+        before = json.load(open(D.STATE_PATH))
+        self.write("out/a.json", "typed over it by hand")
+        D.regenerate(verbose=False)
+        self.assertEqual(json.load(open(D.STATE_PATH)), before)
+
     def test_a_missing_artifact_is_stale_whatever_the_digest_says(self):
         self.write("in/a.txt", "one")
         self.registry()

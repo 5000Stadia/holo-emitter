@@ -980,7 +980,29 @@ def check(only=None, deep=False):
             digest, n = input_digest(a["inputs"], a["paths"])
             rec["inputs"] = n
             was = (st.get(a["id"]) or {}).get("input_digest")
-            if was is None:
+            #: AND THE ARTIFACT'S OWN BYTES, WHICH THE RECORD ALSO HOLDS. An
+            #: input digest answers "has the world moved under this file"; it
+            #: cannot see the other direction — the file moving under the world.
+            #: A hand-edit, or a generator run directly rather than through here,
+            #: leaves the inputs untouched and the artifact no longer the thing
+            #: those inputs produce. Both are staleness and the fix is the same
+            #: regen, which rewrites the bytes (or writes nothing and re-records,
+            #: which is the honest answer when the edit was a correct one).
+            recorded = (st.get(a["id"]) or {}).get("artifacts") or {}
+            edited = []
+            for p in a["paths"]:
+                was_sha = recorded.get(p)
+                now_sha = sha(os.path.join(ROOT, p))
+                if was_sha and was_sha != now_sha:
+                    edited.append((p, "it has been edited since it was derived "
+                                      "(%s -> %s); nothing that produced it has "
+                                      "changed, so the file no longer answers to "
+                                      "its own generator"
+                                   % (was_sha[:12], (now_sha or "-")[:12])))
+            if edited:
+                rec["state"] = STALE
+                rec["why"] = edited
+            elif was is None:
                 rec["state"] = UNPROVEN
                 rec["why"] = [(a["paths"][0],
                                "nothing records what this was last derived from, "
@@ -1091,9 +1113,18 @@ def _record_state(only=None):
         if a.get("witness") or not a.get("inputs"):
             continue
         digest, n = input_digest(a["inputs"], a["paths"])
-        arts[a["id"]] = {"input_digest": digest, "inputs": n,
-                         "artifacts": {p: sha(os.path.join(ROOT, p)) for p in a["paths"]},
-                         "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        entry = {"input_digest": digest, "inputs": n,
+                 "artifacts": {p: sha(os.path.join(ROOT, p)) for p in a["paths"]}}
+        was = arts.get(a["id"]) or {}
+        # `at` IS WHEN THIS ENTRY LAST CHANGED, not when the tool last ran. One
+        # stale artifact makes the regen re-record all ten, and stamping today's
+        # clock on the nine that did not move would churn a committed file on
+        # every pass and put nine lies in the diff.
+        entry["at"] = (was.get("at")
+                       if all(was.get(k) == entry[k] for k in
+                              ("input_digest", "inputs", "artifacts"))
+                       else time.strftime("%Y-%m-%dT%H:%M:%S"))
+        arts[a["id"]] = entry
     _write_if_moved(STATE_PATH, (json.dumps(st, indent=2, sort_keys=True) + "\n").encode())
 
 

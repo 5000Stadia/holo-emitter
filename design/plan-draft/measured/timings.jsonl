@@ -40670,6 +40670,7 @@
 {"ts_start":1787651130.945,"ts_end":1787651147.459,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39324055,"fp":"ea4c5b99","png_bytes":155047959,"jpeg_bytes":29483845}}
 {"ts_start":1787651147.57,"ts_end":1787651147.63,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
 {"ts_start":1787651147.698,"ts_end":1787651147.834,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
+{"detail":{"action":"materials","files":1,"note":null,"refused":false,"wrote":["design/plan-draft/measured/material_provenance.json"]},"key":"material_provenance","step":"derive.regen","ts_end":1787651170.139512,"ts_start":1787651169.992078}
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787651212.334992,"ts_start":1787651192.863382}
 {"detail":{"attempts":4,"correction":"draw 1.110x larger: 93.5 px/m at the wall plane, not 84.2","why":"retry cap spent"},"key":"great_hall/E","step":"park.wall","ts_end":1787651192.866174,"ts_start":1787651192.866174}
 {"detail":{"camera_source":"measured","candidate":"backdrops/source/great_hall-W/row23-bc41649a.png","refused":true,"why":"promote refused: great_hall/W: it was painted from an ask that never named this room's ruled walls or overhead or underfoot. The `hall_state` voice rules walls = \"dark oak wall panelling in fielded ba"},"key":"great_hall/W","step":"promote.wall","ts_end":1787651193.150447,"ts_start":1787651192.867136}
@@ -40704,6 +40705,7 @@
 {"detail":{"fixture":"nav-manor","refused":false},"key":null,"step":"validate.sweep","ts_end":1787651195.205524,"ts_start":1787651195.074439}
 {"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787651212.334062,"ts_start":1787651195.205773}
 {"ts_start":1787651195.251,"ts_end":1787651211.935,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39324055,"fp":"ea4c5b99","png_bytes":155047959,"jpeg_bytes":29483845}}
+{"detail":{"action":"materials","files":1,"note":null,"refused":false,"wrote":["design/plan-draft/measured/material_provenance.json"]},"key":"material_provenance","step":"derive.regen","ts_end":1787651201.417948,"ts_start":1787651201.271016}
 {"ts_start":1787651212.033,"ts_end":1787651212.094,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
 {"ts_start":1787651212.158,"ts_end":1787651212.294,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787651276.604041,"ts_start":1787651257.345206}

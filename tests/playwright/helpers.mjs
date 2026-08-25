@@ -115,11 +115,21 @@ export function removeTree(dir) {
  * It writes nothing, and on this corpus it costs about a quarter of a second.
  */
 export function derivedFreshness(id) {
-  const out = execFileSync("python3", [
-    join(repoRoot, "design", "plan-draft", "measured", "derived.py"),
-    "--check", "--json", "--only", id
-  ], { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" },
-    stdio: ["ignore", "pipe", "pipe"] });
+  let out;
+  try {
+    out = execFileSync("python3", [
+      join(repoRoot, "design", "plan-draft", "measured", "derived.py"),
+      "--check", "--json", "--only", id
+    ], { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" },
+      stdio: ["ignore", "pipe", "pipe"] });
+  } catch (e) {
+    /* A STALE TREE EXITS NON-ZERO — that is the guard doing its job, and it is
+       the case every caller of this helper exists for. Reading the report off
+       the failing path is what turns it into the sentence the case prints;
+       letting the throw out would hand the reader a shell exit code instead. */
+    if (!e.stdout) throw e;
+    out = String(e.stdout);
+  }
   const doc = JSON.parse(out);
   const rec = doc.artifacts.find((a) => a.id === id);
   if (!rec) throw new Error(`derived.py knows no artifact called ${id}`);
