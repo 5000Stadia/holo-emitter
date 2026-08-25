@@ -21,12 +21,12 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-SCAFFOLD | the scaffold as ink on paper: light ground, outline boxes with hatched interiors — a diagram that cannot be read as a palette or as openings (Kabe's cold test; servants_hall/E's boxes painted as doorways); 2×2 harness batch to score it | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-INK | the scaffold as ink on paper (paper ground, ink junctions, outline+hatch boxes; grid-v1 kept for committed sheets); the register names it as a line drawing; harness count clause (doors/windows painted vs ruled); 2×2 trial batch at design/batches/scaffold-ink |
 | L-SEEDMASK | the own-room style image is derived: apertures and hearths filled from the wall's own fabric (mirror + cross-fade + relight, verified by the door/window instruments), so Image 1 carries materials/palette/light and no architecture; 27 seeds, flights refused |
 | L-DRIFT | `derived.py`: every derived artifact registered with its invalidator; the sweep derives → validates → bakes through one door; `--derive-check` guards the publish; the 8 store-drift suite cases read freshness through one helper (suite 2020/0) |
 | L-INGEST | the row-42 sprites ingested through the replicator (checkerboard keyed to alpha by detected tone + 22 px tile; 99.5% of the cames intact); `library/` is read by the page for the first time via bake-library + promoted.json |
