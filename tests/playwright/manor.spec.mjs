@@ -117,7 +117,18 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
         const key = `${loc.id}/${f}`;
         let n = 0;
         for (const c of facingCarriers(PLAN, loc.id, f)) {
-          const shown = c.kind === "door" && (exits.has(c.entity) || exits.has(c.id));
+          /* A WALKED OPEN EDGE IS DRAWN, AND IT IS THE NEWEST CARRIER KIND.
+             `facingCarriers` gained `open_edge` when the court's south facing
+             turned out to be scaffolded and ASKED as a blank wall — the
+             painter built a parapet across a 20.4 m mouth. Both of its sides
+             then arrived here as "what the picture does not say", which is the
+             opposite of true: the world walks `op_court_mouth` from both ends,
+             the grid draws its ground line (guards.spec's
+             `renderer.threshold_line`), and law (b) forbids the wall that
+             would make it blank. Counting it blank would have recorded the
+             very reading the carrier was added to end. */
+          const shown = (c.kind === "door" || c.kind === "open_edge") &&
+            (exits.has(c.entity) || exits.has(c.id));
           if (shown) drawn.push(`${key} ${c.kind} ${c.id ?? ""}`.trim());
           else n++;
         }
@@ -171,8 +182,13 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
       "study/N": 1,
       "study/S": 2
     });
-    expect(drawn.length, "one drawn opening per door exit of the manor").toBe(NAV.locations
-      .reduce((n, l) => n + (l.exits || []).filter((e) => e.id.startsWith("door_")).length, 0));
+    /* One drawn opening per way through the manor the plan gives a carrier:
+       its 50 doorways and the court mouth from each of its two ends. Stairs
+       are not carriers on a facing wall — a flight stands on the floor — so
+       the manor's four `stair_` exits are not counted here and are `stair.spec`'s. */
+    expect(drawn.length, "one drawn opening per door or open-edge exit of the manor")
+      .toBe(NAV.locations.reduce((n, l) => n + (l.exits || [])
+        .filter((e) => e.id.startsWith("door_") || e.id.startsWith("way_")).length, 0));
   });
 
   /* THE `+` JUNCTION GUARD, MANOR-WIDE, AND WHAT IT FINDS. It exists for
