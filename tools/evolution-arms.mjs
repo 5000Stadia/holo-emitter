@@ -30,14 +30,14 @@
  *    make generation 2. An arm defined as a paragraph could not be recombined
  *    with anything; an arm defined as a channel triple can be, mechanically.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { deriveMeta, facingCarriers } from "./plan-projection.mjs";
-import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars, rulerX, wallY }
-  from "./make-scaffold.mjs";
-import { voiceFor } from "./room-voices.mjs";
+import { deriveMeta, facingCarriers, flightsForFacing } from "./plan-projection.mjs";
+import { scaffoldRects, manorPrompt, chairRail, brackets, assertLabelChars, rulerX, wallY,
+  roomRuling, PIER_ANCHOR_SENTENCE, OPEN_SIDE_FABRIC } from "./make-scaffold.mjs";
+import { voiceFor, lightsFor } from "./room-voices.mjs";
 /* THE GEOMETRY AND THE RECOMMENDED REGISTER LIVE IN ONE HOME, shared with
  * `manorPrompt`, so the arm the recommendation rests on and the composer
  * production dispatches cannot drift apart quietly. Re-exported because the
@@ -45,9 +45,10 @@ import { voiceFor } from "./room-voices.mjs";
 import {
   frameGeometry, vanishingPoint, frameExit, edgeName, registerBlock,
   openingLines, appearanceLines as sharedAppearanceLines, coordinateLines,
-  positiveNoText, POSITIVE_NO_TEXT
+  positiveNoText, POSITIVE_NO_TEXT, g5Prompt, scaffoldImage, positionPhrase
 } from "./frame-language.mjs";
-export { frameGeometry, vanishingPoint, frameExit, edgeName, POSITIVE_NO_TEXT };
+export { frameGeometry, vanishingPoint, frameExit, edgeName, POSITIVE_NO_TEXT,
+  g5Prompt, scaffoldImage, positionPhrase };
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -1038,7 +1039,6 @@ export const REGISTER = [
     reads: "what the finished picture looks like, and no geometry figures at all" }
 ];
 
-export const ARM_IDS = Object.keys(ARMS);
 export const CONTROL_ARM = "v3";
 
 /** The arms generation 1 ran. A later generation's set is decided by the planner
@@ -1237,3 +1237,284 @@ export const PROBES = [
     why: "the nearest miss among clean walls (2.27x the licence against guest_chamber/E's 4.88x) and the opposite return geometry - the same camera to the last decimal, 492.6 px of return per side against 267.6 px",
     held_sigma_px: 33.30 }
 ];
+
+/* ------------------------------------------------------------------ */
+/* g5 — the clean register, and the arm that measures it               */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim, on the production prompt for
+ * master_bedchamber/N]: "That prompt seems like a mess too…."
+ *
+ * The register itself lives in `tools/frame-language.mjs` beside `g4`, for the
+ * reason that file exists: one home, so the arm the recommendation rests on and
+ * the composer production dispatches cannot drift apart quietly. What lives
+ * HERE is the two arms and the facts about the room that the register needs and
+ * `g4` never did.
+ *
+ * WHY g5 IS NOT A SECTION TRANSFORMATION OF `manorPrompt`, when every arm above
+ * it is. The other arms change what is SAID about the geometry; g5 changes the
+ * ORDER the whole prompt is said in and deletes the repetitions between its
+ * sections — the materials stated three times, the four junction lines stated
+ * twice, two paragraphs of image meta-commentary before the first fact about
+ * the room. There is no section-shaped edit that does that. So the fence the
+ * transformation shape bought — an arm carrying the room's voice without this
+ * file knowing what a voice is — is bought a second way instead: `g5Ctx` reads
+ * the voice, the anchor, the fabric and the flight through the SAME functions
+ * `manorPrompt` calls (`voiceFor`, `roomRuling`, `hangingsFor`,
+ * `flightsForFacing`, `lightsFor`, and the two exported sentences), so no ruled
+ * word is retyped here and a change to a voice reaches this arm for free.
+ *
+ * THE CONFOUND, DECLARED BEFORE ANYTHING IS DISPATCHED. g5 differs from `g4` in
+ * TWO channels, not one: the register AND the style image. That is not tidiness
+ * — the same Captain ruled the style image on the same day:
+ *
+ *   [HUMAN, 2026-08-24, verbatim] "So why do we give it the reference image of
+ *   the study? I think it biases it too much. I mean I know why that window
+ *   with the botched insignias is every window generated for example."
+ *   RULING: Image 1 is never a wall from another room; a room's own agreeing
+ *   majority wall when one exists, else no style image (medium in words).
+ *
+ * `design/references/style-seed-warm.png` IS the study — its own prompt file
+ * asks for "a c.1660 English study interior ... oak-paneled ... a leaded-glass
+ * window" — so under the ruling g5 may not attach it, and `g4` (the control)
+ * keeps it because that is what production sends today. An arm that attached
+ * the study wall to make the comparison purer would be measuring a prompt this
+ * project may no longer send, which is the argument row 34 already made for
+ * `v4` and the lint. So the confound is real, it is stated here, it is stated
+ * in the batch manifest and in every PACKET.md, and the read of the table must
+ * carry it: a g5 win is a win for the ORDER PLUS THE RULED IMAGE POLICY
+ * together, and the two are not separable at this n.
+ */
+
+/** The room's own agreeing majority wall, painted — or null.
+ *
+ * THE MEASURE DECIDES, NOT A TASTE. `room_consistency.py` clusters each room's
+ * promoted facings on the band they disagree about most and names the ones
+ * inside the agreeing majority; this reads that report's own `majority` list
+ * and takes the first member that is not the wall being asked for and that has
+ * a painted file on disk. A room with no majority (`master_bedchamber` splits
+ * EW against NS), a room with too few promoted facings to compare, and a room
+ * the report does not carry at all all resolve the same way: NO style image,
+ * which is the second half of the ruling.
+ *
+ * Read once and cached. The report is a committed artifact of the measure path;
+ * if it is absent — a fresh checkout that has never measured — the answer is
+ * `null`, which is the safe half of the ruling rather than a crash.
+ */
+let CONSISTENCY = undefined;
+function consistencyReport() {
+  if (CONSISTENCY !== undefined) return CONSISTENCY;
+  const p = join(ROOT, "design", "plan-draft", "measured", "room_consistency.json");
+  try {
+    CONSISTENCY = JSON.parse(readFileSync(p, "utf8"));
+  } catch { CONSISTENCY = null; }
+  return CONSISTENCY;
+}
+
+const SIDE_WORD = { N: "north", E: "east", S: "south", W: "west" };
+
+export function styleImageFor(loc, facing) {
+  const rep = consistencyReport();
+  if (!rep) return null;
+  const room = (rep.rooms || []).find((r) => r.room === loc);
+  if (!room || room.no_majority) return null;
+  for (const f of room.majority || []) {
+    if (f === facing) continue;
+    const rel = `backdrops/${loc}/${f}.png`;
+    if (!existsSync(join(ROOT, rel))) continue;
+    return {
+      key: `${loc}/${f}`, facing: f, facing_word: SIDE_WORD[f],
+      file: rel, name: `style-${loc}-${f}.png`,
+      why: `the room's own agreeing majority wall (room_consistency.json: majority ${
+        (room.majority || []).join("")}, verdict ${room.verdict})`
+    };
+  }
+  return null;
+}
+
+/**
+ * Everything `g5Prompt` needs about one facing that `makeCtx` does not already
+ * hold. Every value is READ from the function `manorPrompt` reads it from;
+ * nothing here is a second copy of a ruled sentence.
+ */
+export function g5Ctx(ctx, { reask = false } = {}) {
+  const { plan, loc, facing, meta, rects, voice, anchor } = ctx;
+  const flights = flightsForFacing(plan, loc, facing, meta, CANVAS_W);
+  const ruling = roomRuling(plan, loc, facing);
+  const openSide = rects.find((r) => r.kind === "open_edge") || null;
+  const built = rects.filter((r) => r.kind !== "open_edge");
+  /* THE FABRIC, RESOLVED EXACTLY AS `manorPrompt` RESOLVES IT: an outdoor
+   * facing that carries openings is the house's own elevation, an open side is
+   * the absence of a wall, and a bedchamber's wall is two fabrics. */
+  const fabric = voice.outdoor
+    ? ((openSide && !built.length) ? OPEN_SIDE_FABRIC
+      : ((built.length && voice.walls_with_openings) || voice.walls))
+    : ruling.walls;
+  const armorial = voice.glass === "armorial"
+    ? `Armorial glass: the ${ctx.room_name} is the one room in this house entitled to it. Set a ` +
+      "small painted armorial shield in coloured glass into the head of each window and nowhere " +
+      `else in the picture; every other pane-field on this ${ctx.surface} stays plain diamond quarrels.`
+    : voice.glass === "one_shield"
+      ? `Armorial glass: the ${ctx.room_name} carries exactly ONE small painted armorial shield in ` +
+        "coloured glass, set into the head of the first window only; every other light on this " +
+        `${ctx.surface}, and every other pane-field of that same window, is plain diamond quarrels.`
+      : null;
+  return {
+    ...ctx,
+    side: SIDE_WORD[facing],
+    flights,
+    ruling,
+    fabric,
+    /* An open facing's ruler is the piers at the mouth, not a coping running
+     * across it — [Kabe, 2026-08-24] "Entrance court s looks very weird on the
+     * edges", the parapet painted across a 20 m opening. */
+    anchor_sentence: openSide ? PIER_ANCHOR_SENTENCE : anchor.sentence,
+    /* The open side's fabric IS its carrier sentence, ruled width and all, so
+     * item 1 leaves it to item 2 rather than saying it twice. */
+    fabric_in_carriers: !!(openSide && !built.length),
+    window_lights: lightsFor,
+    armorial_line: armorial,
+    style: styleImageFor(loc, facing),
+    reask
+  };
+}
+
+/* THE CONTROL, AND WHY IT IS NOT `g4` ITSELF.
+ *
+ * `ARMS.g4` is a TRANSFORMATION of `manorPrompt`, and row 34 has since folded
+ * its own winner INTO `manorPrompt` — so `g4`'s composer now looks for a
+ * `Camera and composition:` section that production no longer writes, and
+ * throws. That is not rot; `evolution.spec.mjs` says it in as many words
+ * ("recomputing a 2026-08-24 arm from a composer that has since adopted its own
+ * winner does not check anything").
+ *
+ * What the register trial actually needs as its yardstick is THE REGISTER
+ * PRODUCTION SENDS TODAY, which is `g4`'s: the suite holds `manorPrompt`'s
+ * register against `g4`'s committed, measured prompts case by case, so if the
+ * two ever part company that case goes red rather than this arm going quietly
+ * wrong. So the control is the identity transformation — production, byte for
+ * byte, by construction rather than by a copy that has to be kept fresh — and
+ * it is `v3`'s trick under a name that says which register it carries.
+ *
+ * THE ONE HONEST FOOTNOTE: production is not byte-identical to the archived
+ * `g4` prompts. Two lines moved after generation 3 was measured — a wrap, and
+ * the no-lettering rule losing the words "panelling" and "wainscot" when row
+ * 29's veto reached it (`POSITIVE_NO_TEXT`). The REGISTER is identical; the
+ * difference is two sentences of constraint, and it is recorded here because a
+ * control described as "g4" and quietly meaning "g4 plus two later fixes" is
+ * the kind of small lie a table cannot recover from. */
+ARMS["g4-production"] = {
+  id: "g4-production",
+  name: "APPEARANCE-PLUS-FIGURES, AS PRODUCTION SENDS IT",
+  what: "the incumbent: row 34's g4 register — the finished picture described in image-frame terms with the coordinates attached — inside production's own section order, with the study style seed as Image 1, exactly as manorPrompt composes it today",
+  generation: 4,
+  channels: { ...ARMS.g4.channels },
+  images: () => ARMS.g4.images(),
+  prompt(ctx) { return manorPrompt(ctx.plan, ctx.key, ctx.meta, ctx.rects); }
+};
+
+/* THE TWO ARMS. One factor moves between them and it is the appendix; every
+ * other line is identical by construction, which is what makes the pair an
+ * ablation of the one question row 34 left open on this register. */
+const G5 = [
+  ["g5", "CLEAN-REGISTER",
+    "Kabe's order: the room and its materials first, then this wall's carriers, then the picture in words with the layout image carrying the lines, then the medium, then nothing else - with the coordinate block kept as an appendix at the end",
+    true],
+  ["g5-noappendix", "CLEAN-REGISTER, NO APPENDIX",
+    "the same register with the coordinate appendix deleted - generation 3's ablation said the figures were load-bearing, and this is the same question asked again of the new order",
+    false]
+];
+
+for (const [id, name, what, appendix] of G5) {
+  ARMS[id] = {
+    id, name, what, generation: 4, appendix,
+    channels: {
+      text_geometry: "clean_register",
+      /* NOT `scaffold_primary`: the style image is decided per room by the
+       * ruling above, so this arm's Image 1 is the room's own wall or nothing
+       * at all, and the layout image is whatever index that leaves it. */
+      image: "own_room_or_none",
+      camera_language: appendix ? "appearance_appendix" : "appearance_only"
+    },
+    ruling: "[HUMAN, 2026-08-24] \"That prompt seems like a mess too….\" + \"So why do we give it the reference image of the study? I think it biases it too much.\"",
+    /* THE ATTACH LIST IS A FUNCTION OF THE WALL, not of the arm, because the
+     * ruling makes it one: this room's own agreeing majority wall or nothing.
+     * `declared_images` is what the id map and the manifest print, where there
+     * is no wall in hand to resolve. */
+    declared_images: ["<the room's own agreeing majority wall, where room_consistency.json names one; otherwise no style image at all>",
+      "scaffold.png"],
+    images(ctx) {
+      const s = ctx ? styleImageFor(ctx.loc, ctx.facing) : null;
+      return s ? [s.name, "scaffold.png"] : ["scaffold.png"];
+    },
+    prompt(ctx) { return g5Prompt(g5Ctx(ctx), { appendix }); }
+  };
+}
+
+export const G5_ARMS = G5.map(([id]) => id);
+
+/* ------------------------------------------------------------------ */
+/* The register trial — g4 against the clean register                  */
+/* ------------------------------------------------------------------ */
+/* THE LENS, and it is not the spectrum's. The spectrum asks how much anchored
+ * precision the IMAGE carries and generation 3's register lens asks which
+ * REGISTER the figures are written in. This trial holds both of those roughly
+ * still and moves the ORDER of the whole ask — plus the ruled image policy that
+ * came with it. So it gets its own reading order, cheapest-to-read last, and
+ * the report is read as "does the clean order cost anything measurable", not as
+ * a league table. Nothing here is crowned by this trial: with six pooled rolls
+ * a side it is a screen, its `min_detectable_effect` is printed in the manifest
+ * before dispatch, and the Navigator reads the numbers. */
+export const CLEAN_REGISTER = [
+  { arm: "g4-production", order: "row 34's", figures: "attached inline", images: "study style seed + scaffold",
+    reads: "the incumbent: the finished picture described in image-frame terms with the coordinates attached, inside production's own section order" },
+  { arm: "g5", order: "Kabe's", figures: "appendix", images: "the room's own majority wall, or none, + scaffold",
+    reads: "THE CLEAN REGISTER: room and materials first, this wall's carriers, the picture in words, the medium, nothing else - coordinates last" },
+  { arm: "g5-noappendix", order: "Kabe's", figures: "none", images: "the room's own majority wall, or none, + scaffold",
+    reads: "the same order with the figures gone: generation 3's one clear loss, re-asked of the new order" }
+];
+
+/** The six walls the register trial runs on, and the fact that picked each.
+ *
+ * ROW 34's TWO PROBES ARE BOTH IN IT, so this trial can be read against the
+ * generation-3 table on the same two walls. The other four exist because `g5`
+ * changes the parts of the prompt those two probes could not exercise: neither
+ * carries a fireplace or a window, neither is outdoors, and neither has a
+ * staircase in it. A register that reorders the carrier sentences has to be
+ * measured on walls that HAVE carriers. */
+export const REGISTER_WALLS = [
+  { key: "guest_chamber/E",
+    why: "row 34's probe 1, unchanged: the only zero-fault wall in the hold family - camera PASS, nothing absent, every bracket and both corners in frame, and no carrier at all. Interior, blank." },
+  { key: "garden_room/E",
+    why: "row 34's probe 2, unchanged: the nearest miss among clean walls and the opposite return geometry. Interior, one doorway." },
+  { key: "master_bedchamber/N",
+    why: "the wall whose production prompt Kabe read - fireplace and doorway on one wall, and a room the measure says has NO agreeing majority, so the ruling leaves it no style image at all" },
+  { key: "great_hall/S",
+    why: "the most carried wall in the house: four windows and a doorway, the heraldry ration live, and the one shape where 'between the two windows' has to be derived rather than typed" },
+  { key: "great_stair_hall/W",
+    why: "a flight wall: the shortened stair paragraph and the FLIGHT_ASK handshake with promote-backdrop.mjs, on a wall that also carries a window" },
+  { key: "entrance_court/S",
+    why: "the outdoor open facing: no corners, no returns, the piers at the mouth as the ruler, and row 29's veto live - one interior word in this prompt and the lint refuses the packet" }
+];
+
+export const REGISTER_TRIAL = {
+  batch: "design/batches/g5-register",
+  tag: "register",
+  arms: ["g4-production", "g5", "g5-noappendix"],
+  control: "g4-production",
+  rolls_per_arm_per_wall: 1,
+  walls: REGISTER_WALLS,
+  _what_this_is: "Kabe's clean register, measured against the register row 34 folded into production, on the same instrument and the same walls, with the appendix ablated as its own arm.",
+  _no_privileged_arm: "[HUMAN, 2026-08-24] \"Yeah but test my direction against our tests as well.\" The clean register is the Captain's own direction and it runs on terms identical to the control's: same walls, same rolls, same opaque ids, same blind detector configuration (a function of the WALL's declared geometry, so it cannot vary by arm even in principle), same scorer.",
+  _the_confound: "g5 moves TWO channels against g4 - the order of the ask AND the style image, the second because it was ruled the same day. A g5 win is a win for both together and this n cannot separate them.",
+  _reading: CLEAN_REGISTER
+};
+
+
+/* EVERY ARM IN THIS FILE, AND IT IS THE LAST LINE FOR A REASON. `ARM_IDS` used
+ * to stand in the middle, above generation 3's loop's successors — so an arm
+ * declared below it was invisible to every check that walks this list: the
+ * scan proving the scorer names no arm, and the one proving no return path
+ * leaks its condition. A list of "all the arms" that silently means "the arms
+ * that existed on line 1042" is worse than no list, because the checks that
+ * read it keep passing. */
+export const ARM_IDS = Object.keys(ARMS);

@@ -1330,8 +1330,8 @@ asks you to judge a result: generate, save to the named paths, and report the pa
  * THE RULED SIZES ARE THE GATE'S OWN. A prompt may only declare a dimension the
  * acceptance gate can measure, at the size this project rules it — `prompt_lint`
  * refuses anything else, and it is the whole reason `Gate anchor:` exists. */
-const PIER_ANCHOR_SENTENCE = "The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.";
-const OPEN_SIDE_FABRIC = "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky";
+export const PIER_ANCHOR_SENTENCE = "The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.";
+export const OPEN_SIDE_FABRIC = "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky";
 
 const CARRIER_SENTENCE = {
   /* "…and the space beyond is unlit": row 27's lesson folded in per production

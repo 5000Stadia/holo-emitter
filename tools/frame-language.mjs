@@ -505,3 +505,445 @@ export const POSITIVE_NO_TEXT_OUTDOORS = [
 export function positiveNoText(ctx) {
   return words(ctx).out ? POSITIVE_NO_TEXT_OUTDOORS : POSITIVE_NO_TEXT;
 }
+
+/* ================================================================== */
+/* g5 — THE CLEAN REGISTER                                             */
+/* ================================================================== */
+/* [HUMAN, 2026-08-24, verbatim, reading
+ * `backdrops/source/master_bedchamber-N/row23-b2fa7b28.prompt.txt`]:
+ * "That prompt seems like a mess too…."
+ *
+ * WHAT THE MESS WAS. Not the register `g4` recommends — the ORDER around it,
+ * and the repetition. That prompt opens with two paragraphs about what the two
+ * attached images are and are not; states the room's materials three times
+ * (in the correction, in `Materials/textures`, and again inside the carrier
+ * sentences); states the same four junction lines twice, as appearance and
+ * again as figures; and puts the materials — the thing the painter gets wrong
+ * most often, and the thing every one of row 40's nine re-asks was about —
+ * forty lines of geometry below the top.
+ *
+ * SO g5 IS AN ORDER, NOT A NEW VOCABULARY. Every ruled fact `manorPrompt`
+ * states is still stated, once, in the order Kabe ruled it:
+ *
+ *   1. THE ROOM in one breath — room, wall, materials, period, the anchor.
+ *   2. WHAT IS ON THIS WALL — the carriers, ruled, positioned in words.
+ *   3. THE PICTURE — the finished frame in words, and one line handing the
+ *      lines themselves to the layout image.
+ *   4. MEDIUM — one line.
+ *   5. NOTHING ELSE — two lines.
+ *   APPENDIX — the coordinate block, last, and kept ONLY because row 34's
+ *      generation-3 ablation lost without it (`g3`, the same appearance
+ *      register with the figures stripped out: 2 of 4 against `g4`'s 3 of 4,
+ *      the worst horizon error in the generation, and one probe wall where no
+ *      horizon could be fitted at all). Kabe's own standing rule — "test my
+ *      direction against our tests as well" — is why the figures are kept AND
+ *      why `g5-noappendix` runs beside `g5` as its own arm rather than being
+ *      argued about.
+ *
+ * THE FIGURES IN THE APPENDIX ARE `g4`'s OWN, to the byte: `g5AppendixLines`
+ * calls `coordinateLines` and replaces nothing but its two lead lines. That is
+ * what makes `g5` against `g5-noappendix` a clean single-factor ablation, and
+ * `g5` against `g4` a test of the ORDER rather than of the numbers.
+ *
+ * WHAT g5 NEEDS THAT `g4` DID NOT. The register now carries the room, so the
+ * ctx it composes against carries the room's own facts as well as its geometry:
+ * `fabric` (the voice's wall paragraph, already resolved for openings and open
+ * sides), `voice.ceiling` / `voice.floor`, `anchor_sentence`, `rects`,
+ * `flights`, `side`, and `style` — the Image-1 decision below.
+ * `tools/evolution-arms.mjs`'s `makeCtx` fills every one of them, and nothing
+ * in this file reads a file or knows what a voice is.
+ *
+ * [HUMAN, 2026-08-24, verbatim]: "So why do we give it the reference image of
+ * the study? I think it biases it too much. I mean I know why that window with
+ * the botched insignias is every window generated for example." — RULING: Image
+ * 1 is never a wall from another room; a room's own agreeing majority wall when
+ * one exists, else no style image and the medium in words. So the layout image
+ * is NOT always Image 2 in this register: where the ruling leaves us no style
+ * image it is Image 1, and every sentence that names it prints the index it
+ * actually has. Saying "Image 2" beside a single attached picture would be
+ * telling the painter about one that is not there.
+ */
+
+/** The layout image's own index in the attach order — Image 2 behind a style
+ *  image, Image 1 when the ruling leaves us none. */
+export function scaffoldImage(ctx) {
+  return ctx.style ? "Image 2" : "Image 1";
+}
+
+/** Where a carrier sits across the faced surface, in the words a viewer would
+ *  use. Derived from the box centre against the corner span, so a carrier that
+ *  moves in the plan describes itself correctly without a hand.
+ *
+ *  [Kabe] "between the two windows" is his own example, and it is the one
+ *  relation worth more than a fraction: on a wall whose two windows flank a
+ *  fireplace it locates the fireplace exactly and "at the centre" does not. */
+export function positionPhrase(rect, g, rects = []) {
+  const mid = (r) => (r.x0 + r.x1) / 2;
+  const wins = rects.filter((r) => r.kind === "window");
+  if (rect.kind !== "window" && wins.length === 2) {
+    const a = mid(wins[0]), b = mid(wins[1]), m = mid(rect);
+    if (m > Math.min(a, b) && m < Math.max(a, b)) return "between the two windows";
+  }
+  if (!g.bounded || g.cR === g.cL) return "in this view";
+  const u = (mid(rect) - g.cL) / (g.cR - g.cL);
+  if (u < 0.2) return "at the far left";
+  if (u < 0.4) return "left of centre";
+  if (u <= 0.6) return "at the centre";
+  if (u <= 0.8) return "right of centre";
+  return "at the far right";
+}
+
+const N_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+const nWord = (n) => N_WORD[n] || String(n);
+
+/** Carriers of one kind, grouped by their RULED width, in order along the wall.
+ *  Two doorways of the same width are ONE clause with two places, which is what
+ *  stops the register saying an identical sentence twice — the defect row 29
+ *  named and `whichWords` was written for. */
+function widthGroups(rects, kind, g, all) {
+  const groups = [];
+  for (const r of rects.filter((x) => x.kind === kind)) {
+    const w = r.to_m - r.from_m;
+    const key = w.toFixed(2);
+    const found = groups.find((x) => x.key === key);
+    if (found) found.at.push(positionPhrase(r, g, all));
+    else groups.push({ key, width_m: w, at: [positionPhrase(r, g, all)] });
+  }
+  return groups;
+}
+
+/* ---- item 1: the room, in one breath ---- */
+
+/**
+ * A re-ask's ONE sentence, at the top of item 1.
+ *
+ * [Kabe] "corrections (re-asks) go as ONE sentence at the top of item 1,
+ * stating the ruled fact, not the measurement's prose." Production carries
+ * `consistencySentence`'s four-clause paragraph, which ends "Measured: this
+ * room's ceiling splits EW against NS with NO majority (worst pair D=4.474)" —
+ * a number about US, in front of a painter who cannot act on it, and a full
+ * restatement of the materials the very next sentence gives. So the correction
+ * is one imperative and the ruling is not repeated: the ruled fact IS item 1.
+ */
+export function g5CorrectionSentence(ctx) {
+  const { GROUND, SURFACE } = words(ctx);
+  return `This is a repaint of one ${SURFACE} of a room that must read as ONE room: paint the ` +
+    "materials named below on every surface in this view and nothing else — not a different wall " +
+    `lining, not a different surface overhead, not a different ${GROUND}.`;
+}
+
+export function g5RoomLines(ctx) {
+  const { out } = words(ctx);
+  const SURFACE = ctx.surface || "wall";
+  const L = [];
+  const paint = `Paint the ${ctx.side} ${SURFACE} of the ${ctx.room_name} of a circa-1660 ` +
+    "English manor.";
+  if (ctx.reask) {
+    L.push(`Primary request: ${g5CorrectionSentence(ctx)}`);
+    L.push(`  ${paint}`);
+  } else {
+    L.push(`Primary request: ${paint}`);
+  }
+  /* THE FABRIC IS SAID ONCE. Where the facing's own carrier sentence is the
+   * fabric — an open side is the ABSENCE of a wall, stated with its ruled width
+   * in item 2 — item 1 does not say it a second time. That repetition is half of
+   * what Kabe was reading when he called the production prompt a mess. */
+  if (out) {
+    if (!ctx.fabric_in_carriers) L.push(`  This side is ${ctx.fabric}.`);
+    L.push(`  Underfoot: ${ctx.voice.floor}. Overhead is open sky with weather in it, and daylight ` +
+      "falls from it onto everything in frame.");
+  } else {
+    L.push(`  Its walls are ${ctx.fabric}.`);
+    L.push(`  Overhead: ${ctx.voice.ceiling}. Underfoot: ${ctx.voice.floor}.`);
+  }
+  L.push(`  ${ctx.anchor_sentence}`);
+  return L;
+}
+
+/* ---- item 2: what is on this wall ---- */
+
+export function g5WallLines(ctx) {
+  const g = ctx.geometry;
+  const { out, GROUND } = words(ctx);
+  const SURFACE = ctx.surface || "wall";
+  const rects = ctx.rects || [];
+  const L = [];
+  const body = [];
+
+  const openSide = rects.find((r) => r.kind === "open_edge");
+  if (openSide) {
+    const w = openSide.to_m - openSide.from_m;
+    body.push("there is no wall here at all. It is open across its full " +
+      `${w.toFixed(2)} m width, with no wall, gate, parapet, railing or hedge across any part of ` +
+      `it, and this place's own ${GROUND} runs straight out through it and continues as the same ` +
+      `${GROUND} beyond, to the far horizon under open sky`);
+  }
+
+  for (const kind of ["fireplace", "door"]) {
+    const groups = widthGroups(rects, kind, g, rects);
+    if (!groups.length) continue;
+    const total = groups.reduce((n, x) => n + x.at.length, 0);
+    for (const grp of groups) {
+      const n = grp.at.length;
+      const where = listWords(grp.at);
+      if (kind === "fireplace") {
+        body.push(n > 1
+          ? `${nWord(n)} stone fireplaces stand ${where}, each with a firebox opening exactly ` +
+            `0.90 m wide and a stone breast exactly ${grp.width_m.toFixed(2)} m wide`
+          : `the stone fireplace stands ${where}, its firebox opening exactly 0.90 m wide and its ` +
+            `stone breast exactly ${grp.width_m.toFixed(2)} m wide`);
+      } else {
+        body.push(n > 1
+          ? `${nWord(n)} door openings stand ${where}, each exactly ${grp.width_m.toFixed(2)} m ` +
+            "wide and exactly 2.00 m high at the wall plane"
+          : `the door opening stands ${where}, exactly ${grp.width_m.toFixed(2)} m wide and ` +
+            "exactly 2.00 m high at the wall plane");
+      }
+    }
+    if (kind === "door") {
+      /* THE UNLIT RULE, SAID ONCE FOR EVERY DOORWAY ON THE WALL. The promotion
+       * instrument reads a way through as a VOID and the renderer composites
+       * the destination room into it, so painted light back there fights the
+       * through-view (row 27, library/S). `great_hall/W` carries two doorways
+       * and production says this whole clause twice. */
+      body.push(`${total > 1 ? "every one of those openings stands" : "it stands"} empty with no ` +
+        "leaf hung in it, and the space beyond it is deep unlit shadow — no lit room, no visible " +
+        "far wall and no light source behind it");
+    }
+  }
+
+  const wins = widthGroups(rects, "window", g, rects);
+  for (const grp of wins) {
+    const n = grp.at.length;
+    const lights = ctx.window_lights ? ctx.window_lights(grp.width_m) : null;
+    const mull = lights ? lights - 1 : 0;
+    body.push(`${n > 1 ? `${nWord(n)} window openings stand` : "one window opening stands"} ` +
+      `${listWords(grp.at)}, ${n > 1 ? "each " : ""}exactly ${grp.width_m.toFixed(2)} m wide, the ` +
+      `sill 0.90 m and the head 2.00 m above the ${GROUND}` +
+      (lights ? `, divided by ${nWord(mull)} stone mullion${mull === 1 ? "" : "s"} into ` +
+        `${nWord(lights)} equal upright light${lights === 1 ? "" : "s"}` : ""));
+  }
+
+  if (!rects.length) {
+    body.push(`nothing stands on it. It is ${ctx.voice.blank}, and the ` +
+      `${ctx.anchor.line.replace(/^the /, "")} is the one ruled feature in it`);
+  }
+  /* [Kabe] "No window" WHEN NONE — said, and said once, because a wall that
+   * does not say it gets one painted into it. */
+  if (!wins.length) {
+    body.push(`there is no window: this ${SURFACE} carries no glazed opening of any kind`);
+  }
+
+  /* One clause per line: the painter reads a list of the things that are there
+   * rather than a paragraph to unpick. */
+  body.forEach((s, i) => L.push(i === 0
+    ? `On this ${SURFACE}: ${s}.`
+    : `  ${s.charAt(0).toUpperCase()}${s.slice(1)}.`));
+
+  if (wins.length) {
+    /* THE HERALDRY RATION, at column zero where its voice is entitled to it,
+     * because `prompt_lint.py`'s clause reads `^armorial glass:` and a gate
+     * that cannot see the line cannot hold it. [HUMAN] "this same window
+     * everywhere? With the ensignias on it?" */
+    if (ctx.armorial_line) L.push(ctx.armorial_line);
+    else {
+      L.push("  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: " +
+        "no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or " +
+        `monogram anywhere on this ${SURFACE}.`);
+    }
+  }
+  return L;
+}
+
+/* ---- item 2b: the flight, shortened ---- */
+/**
+ * The flight, in the clean register.
+ *
+ * SHORTENED, NOT DROPPED, AND THE OPENER IS EXACT. `promote-backdrop.mjs`
+ * attaches a flight to a promoted meta only from a candidate whose own ask
+ * named one, and the question it asks of the spent prompt is `FLIGHT_ASK` —
+ * this file's own regex, a few dozen lines above. So the first line here
+ * matches it to the character. A register that read better and quietly took a
+ * live gate down would not be an improvement.
+ *
+ * What moves out is the figure block: where the flight stands in columns and
+ * rows now rides in the appendix with every other coordinate, which is what the
+ * appendix is for.
+ */
+export function g5FlightLines(ctx) {
+  const flights = ctx.flights || [];
+  if (!flights.length) return [];
+  const { GROUND } = words(ctx);
+  const many = flights.length > 1;
+  const L = [];
+  L.push(`Stairs: ${many ? `${flights.length} flights of stairs stand` : "a flight of stairs stands"} ` +
+    `in this view, and ${many ? "they are" : "it is"} part of the architecture rather than furniture.`);
+  for (const s of flights) {
+    const lead = many ? `  The ${s.direction === "up" ? "rising" : "descending"} flight is ` : "  It is ";
+    L.push(`${lead}a straight stair of ${s.treads} steps, ${s.width_m.toFixed(2)} m wide, ` +
+      (s.direction === "up"
+        ? `carrying a person ${s.rise_m.toFixed(2)} m up to the storey above.`
+        : `dropping ${s.rise_m.toFixed(2)} m to the storey below.`));
+    if (s.treads_in_view > 0) {
+      const [how] = CLIMB_WORDS[s.climb];
+      L.push(`    ${s.treads_in_view} of its steps are in the picture: the front edge of each reads ` +
+        "as a level line across the width of the flight, and those lines stack one above the next, " +
+        `${how}.`);
+      if (s.direction === "down") {
+        L.push(`    This flight goes DOWN from the ${GROUND} you stand on. Its top step is level ` +
+          `with this ${GROUND} and every other step is below it, and no staircase climbs upward ` +
+          "anywhere in this picture.");
+      }
+    } else {
+      L.push("    None of its steps are in the picture: it falls away below the bottom edge, and " +
+        `what this view shows of it is the opening in the ${GROUND} it drops through.`);
+    }
+    if (s.runs_off && s.runs_off.length) {
+      L.push(`    It runs on past the ${listWords(s.runs_off)} edge${s.runs_off.length > 1 ? "s" : ""} ` +
+        "of the picture: draw the part the frame holds, cut by the frame and not stopped short.");
+    }
+    if (s.direction === "up" && (s.well_poly || []).length) {
+      L.push("    The surface overhead is open directly over it, and nothing is drawn closing that " +
+        "stairwell.");
+    }
+    L.push(s.direction === "up"
+      ? "    The space it climbs into, beyond its topmost step, is deep unlit shadow — no lit room,"
+      : "    The space it drops into, beyond its lowest step, is deep unlit shadow — no lit room,");
+    L.push("      no visible far wall and no light source beyond the end of the stair.");
+  }
+  return L;
+}
+
+/* ---- item 3: the picture ---- */
+
+/** Which frame edges this facing's returns actually leave through, in words.
+ *  Derived rather than assumed: a wall wider than the frame sends them out
+ *  through the bottom, and telling a painter "the left and right edges" there
+ *  would be an instruction to draw a line the picture does not hold. */
+function exitEdges(g) {
+  const seen = [];
+  for (const s of [g.left, g.right]) {
+    for (const j of [s && s.ceiling, s && s.floor]) {
+      if (!j || !j.to) continue;
+      const e = edgeName(j.to).replace(/^the /, "").replace(/ edge$/, "");
+      if (!seen.includes(e)) seen.push(e);
+    }
+  }
+  return seen;
+}
+
+/** "the left and right edges" — one article and one plural noun, so a picture
+ *  whose returns leave through three edges still reads as English. */
+function edgeWords(edges) {
+  return `the ${listWords(edges)} edge${edges.length > 1 ? "s" : ""}`;
+}
+
+export function g5PictureLines(ctx) {
+  const g = ctx.geometry;
+  const { out, GROUND } = words(ctx);
+  const SURFACE = ctx.surface || "wall";
+  const edges = g.bounded ? exitEdges(g) : [];
+  const L = [];
+  L.push(`Composition/framing: a ${CANVAS_W} by ${CANVAS_H} landscape picture, seen from the eye of ` +
+    `someone standing on the ${GROUND} in this ${out ? "place" : "room"}.`);
+  if (edges.length) {
+    L.push(`  The ${SURFACE} you face is square on and fills the picture's width, and the two side ` +
+      `walls run away from you to left and right and leave the picture through ${edgeWords(edges)}.`);
+    L.push(`  The ${GROUND} is visible and reaches the bottom of the picture, and the eye line sits ` +
+      "a little above the middle of the picture's height — that is where those receding lines would " +
+      "meet if they were carried back into the distance.");
+  } else {
+    L.push(`  The view runs away from you into the distance, and the ${GROUND} is visible and ` +
+      `reaches the bottom of the picture${out ? ", with the sky overhead" : ""}.`);
+    L.push("  The eye line sits a little above the middle of the picture's height, and everything " +
+      "running away from you leans toward one place on it, at the middle of the picture's width.");
+  }
+  /* THE ONE LINE THAT HANDS THE LINES THEMSELVES TO THE PICTURE. [Kabe] */
+  L.push(`  ${scaffoldImage(ctx)} draws these lines exactly; follow it.`);
+  return L;
+}
+
+/* ---- item 4: the medium ---- */
+
+export function g5MediumLines(ctx) {
+  const L = ["Style/medium: fine oil realism with tactile brush detail, deep warm browns, cool " +
+    "ambient light and gentle natural falloff."];
+  if (ctx.style) {
+    /* THE ONLY CLAUSE IN THE REGISTER ABOUT WHAT AN IMAGE IS NOT, and it is one
+     * clause because one clause is what was ruled. */
+    L.push(`  Image 1 is the ${ctx.style.facing_word} ${ctx.surface || "wall"} of this same room, ` +
+      "already painted: match its paint handling, palette and light, and take nothing else from it.");
+  }
+  return L;
+}
+
+/* ---- item 5: nothing else ---- */
+
+export function g5NothingElseLines(ctx) {
+  const { out } = words(ctx);
+  return [
+    `Constraints: the ${ctx.room_name} is completely empty — no furniture, nobody in it, no ` +
+      `animals and no loose props of any kind${out ? ", and nothing grown crosses the wall plane" : ""}.`,
+    `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)}'s lines, boxes and ` +
+      "lettering are instructions rather than things to paint."
+  ];
+}
+
+/* ---- the appendix ---- */
+
+/**
+ * The coordinate block, last.
+ *
+ * KEPT ONLY BECAUSE THE ABLATION LOST WITHOUT IT. Generation 3's `g3` — this
+ * same appearance register with the figures stripped out — took 2 of 4 against
+ * `g4`'s 3 of 4, carried the worst horizon error in the generation, and left
+ * one probe wall on which no horizon could be fitted at all. That is the only
+ * direction three generations produced on this question, so the figures stay,
+ * and `g5-noappendix` measures the question again rather than settling it by
+ * assertion.
+ *
+ * EVERY FIGURE IS `coordinateLines`'s, unchanged — only its two lead lines are
+ * replaced. So the appendix and `g4`'s attached block are the same numbers in
+ * the same words, and what the comparison moves is WHERE they sit.
+ */
+export function g5AppendixLines(ctx) {
+  const L = [`Reference lines (from ${scaffoldImage(ctx)}): column counted from the left edge, ` +
+    "row counted from the top."];
+  for (const line of coordinateLines(ctx).slice(2)) L.push(line);
+  for (const s of ctx.flights || []) {
+    L.push(`    What is in view of the stair fills columns ${r0(s.x)} to ${r0(s.x + s.w)} and rows ` +
+      `${r0(s.y)} to ${r0(s.y + s.h)}.`);
+  }
+  return L;
+}
+
+/* ---- the whole prompt ---- */
+
+/**
+ * `g5`, whole: the three header lines `prompt_lint.py` requires of every prompt
+ * in this project, then Kabe's five items in his order, then the appendix.
+ *
+ * THE HEADER LINES ARE NOT AN ITEM AND ARE NOT DECORATION. `Gate anchor:` is
+ * what makes the picture measurable at all — hall/N and hall/S came back
+ * WITHHELD twice for the want of it — and `Use case:` is where an exterior
+ * facing declares its side of the door, which is Kabe's garden veto as a
+ * mechanical clause. Row 34's `v4` made the same call for the same reason:
+ * suspending a live gate to make an arm tidier would be measuring a prompt this
+ * project would never send.
+ */
+export function g5Prompt(ctx, { appendix = true } = {}) {
+  const { out } = words(ctx);
+  const L = [];
+  L.push(`Use case: historical-scene, ${out ? "exterior" : "interior"}`);
+  L.push(`Asset type: gameplay backdrop for the ${ctx.side} ${ctx.surface} of the ${ctx.room_name}, ` +
+    "circa-1660 English manor");
+  L.push(`Gate anchor: ${ctx.anchor.line}, 0.95 m.`);
+  for (const l of g5RoomLines(ctx)) L.push(l);
+  for (const l of g5WallLines(ctx)) L.push(l);
+  for (const l of g5FlightLines(ctx)) L.push(l);
+  for (const l of g5PictureLines(ctx)) L.push(l);
+  for (const l of g5MediumLines(ctx)) L.push(l);
+  for (const l of g5NothingElseLines(ctx)) L.push(l);
+  if (appendix) for (const l of g5AppendixLines(ctx)) L.push(l);
+  return L.join("\n") + "\n";
+}
