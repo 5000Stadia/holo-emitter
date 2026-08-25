@@ -8,6 +8,14 @@
                           # the declared camera, under the Captain's ruling —
                           # measured, decided, nothing written. Drop --dry-run
                           # to do it. See `tolerance_sweep`.
+    python3 design/plan-draft/measured/row23_run.py --supersede-only
+                          # [row 40 seam] ONLY the supersede route, as a table:
+                          # every promoted wall whose own room re-asked it and
+                          # whose consistency roll has come back. Add
+                          # `--only <loc>/<F>` for one wall, `--dry-run` to see
+                          # which walls qualify without promoting anything. The
+                          # standing sweep runs this route inside itself; this
+                          # is it alone. See `supersede_wall`.
 
 [HUMAN, 2026-08-23] "We really need to consider the most efficient way to go from
 schematic/description to full assets. To the degree we hope to one pass parallel
@@ -85,7 +93,28 @@ def _load_retries():
     return out
 
 
+def _load_retry_entries():
+    """key -> the WHOLE retry entries, not just their rolls.
+
+    `_load_retries` above flattens the file to the one thing the arrival path
+    needs — where the images are. The supersede route needs the other half of
+    each entry: WHY the packet was cut. `--emit-consistency` stamps a
+    `consistency` block on the entries it cuts (retries.json says so in its own
+    `_consistency` key) and that block is this route's provenance; without the
+    entries there is nothing to read it off. Same file, same mtime guard, one
+    extra parse a worklist change.
+    """
+    if not os.path.exists(RETRIES_FILE):
+        return {}
+    doc = json.load(open(RETRIES_FILE))
+    out = {}
+    for e in doc.get("entries", []):
+        out.setdefault(e["key"], []).append(e)
+    return out
+
+
 RETRIES = _load_retries()
+RETRY_ENTRIES = _load_retry_entries()
 REMEASURE = "--remeasure" in sys.argv
 _RETRIES_MTIME = os.path.getmtime(RETRIES_FILE) if os.path.exists(RETRIES_FILE) else 0
 
@@ -96,10 +125,11 @@ def refresh_retries():
     loaded and the sweep walked past returned work while reporting healthy —
     the second coat, the retry-5 production test, the content-gap nine. The
     watch loop calls this each pass; the mtime check keeps it free."""
-    global RETRIES, _RETRIES_MTIME
+    global RETRIES, RETRY_ENTRIES, _RETRIES_MTIME
     m = os.path.getmtime(RETRIES_FILE) if os.path.exists(RETRIES_FILE) else 0
     if m != _RETRIES_MTIME:
         RETRIES = _load_retries()
+        RETRY_ENTRIES = _load_retry_entries()
         _RETRIES_MTIME = m
         print("  retries.json moved - worklist reloaded (%d walls)" % len(RETRIES))
 OUT = os.path.join(HERE, "manor")
@@ -297,6 +327,70 @@ def ref_for(e):
 def side_for(key, e, fac):
     """Delegate. One home: `row23_lib.side_from_entry` (see ref_for)."""
     return row23_lib.side_from_entry(key, e, fac)
+
+def picks_for_instrument():
+    """The corpus's own detectors, injected into the row-23 instrument.
+
+    Lifted out of `sweep` so that the supersede route reads a roll on exactly
+    the instrument the arrivals are read on — one instrument per quantity is
+    this file's own law (see `promote_reading`), and a second `picks` dict
+    assembled somewhere else is the first step toward a second instrument.
+    """
+    from measure import (pick_floor, module_in_bands, pick_ceiling,
+                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
+                         light, EYE_RANGE)
+    return dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
+                pick_ceiling=pick_ceiling,
+                find_corners_recession=find_corners_recession,
+                ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+                light=light, EYE_RANGE=EYE_RANGE)
+
+
+def measure_roll(key, r, side, cfg, ref, picks):
+    """ONE ROLL, READ ONCE, CACHED BY ID. Returns the reading, or None.
+
+    This was the body of `sweep`'s per-arrival loop and it is unchanged; it is
+    a function now because the supersede route measures a roll too, and a
+    routed reading that took a different path to the same number would be the
+    second instrument this file has already paid to delete once.
+
+    [row 30 cut, 2026-08-24] A READING IS TAKEN ONCE. The sweep was re-measuring
+    every held wall's every candidate on every pass — 27 holds x (measure + door
+    read) — and after the host restart a single pass had not finished in two
+    hours while new returns queued behind old holds. A candidate's reading is a
+    pure function of its bytes and the instrument; it is cached by id and reused
+    until `--remeasure` says the instrument moved.
+
+    A candidate the measurement cannot read is that CANDIDATE's failure, never
+    the sweep's: logged, skipped (None), and the wall parks at its cap like any
+    other run of misses. The alternative — a per-pixel surprise anywhere in 170
+    images taking the loop down — is the crash class this run has now paid for
+    twice.
+    """
+    _t = time.time()                                              # [row 33]
+    _cached = os.path.join(OUT, "%s.json" % r["id"])
+    if os.path.exists(_cached) and not REMEASURE:
+        return json.load(open(_cached))
+    try:
+        d = row23_lib.measure_candidate(os.path.join(ROOT, r["candidate"]),
+                                        side, cfg, ref, picks)
+    except Exception as _mex:
+        # [row 33] A MEASURE-ERR is a measurement that ran and cost its time;
+        # leaving it out would make the instrument look faster than it is on
+        # exactly the frames it struggles with.
+        timings.record("measure.candidate", _t, time.time(), key,
+                       {"roll_id": r["id"], "candidate": r["candidate"],
+                        "verdict": "MEASURE-ERR", "error": str(_mex)[:200]})
+        print("  %-24s MEASURE-ERR %s: %s" % (key, r["id"], _mex))
+        return None
+    timings.record("measure.candidate", _t, time.time(), key,      # [row 33]
+                   {"roll_id": r["id"], "candidate": r["candidate"],
+                    "verdict": d.get("verdict"), "kind": d.get("kind")})
+    d["id"], d["candidate"] = r["id"], r["candidate"]
+    os.makedirs(OUT, exist_ok=True)
+    json.dump(d, open(_cached, "w"), indent=2)
+    return d
+
 
 def promote_reading(key, cand_rel, e, side, ref, reading, tolerance=False):
     """A promote-ready record, out of the reading the GATE already took.
@@ -968,21 +1062,441 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
     return EXIT_GRID, st["exit_reason"]
 
 
+# ---------------------------------------------------------------------------
+# [row 40 seam] SUPERSEDE — the one route by which a wall ALREADY IN THE STORE
+# can be repainted by this loop.
+#
+# THE SEAM, exactly. Row 40 cut nine re-ask packets for walls that are already
+# PROMOTED: their rooms do not read as one room, and `--emit-consistency` asked
+# each outlier again with the room's ruling materials named in its correction.
+# The painter returned all nine. The sweep then ignored every one of them, and
+# it was right to under the rule it had — "art already in the store; this loop
+# read it rather than remaking it" is what stops a late duplicate return
+# clobbering a promoted asset, and it is the reuse law (generate once, promote
+# once, thereafter READ). But a consistency re-ask is not a late duplicate. It
+# is a repaint the loop itself asked for, of a wall it itself promoted, for a
+# reason the pixels can be re-measured against.
+#
+# So the rule is narrow on purpose, and it is three sentences:
+#
+#   1. A promoted wall is a SUPERSEDE CANDIDATE only when retries.json carries a
+#      ROOM-CONSISTENCY roll — one whose entry has the row-40 emitter's own
+#      `consistency` block (`tools/make-scaffold.mjs --emit-consistency`; the
+#      file documents it under `_consistency`) — that is on disk and NEWER than
+#      the candidate the wall was promoted from.
+#   2. That roll is measured on the standing instrument exactly as any arrival
+#      (`measure_roll`, cached by id) and must be a camera PASS, and the
+#      ordinary promotion must admit it — no snap, no tolerance, no waiver.
+#   3. It is then promoted for real, the room is re-audited with it in place,
+#      and it STANDS only if the room's worst-band distance did not get worse
+#      AND the wall is no longer the outlier (or the room reached consistent, or
+#      a no-majority room gained a majority); otherwise the previous png and
+#      meta go back byte-for-byte and the record reads `supersede: refused`.
+#
+# WHAT IS DELIBERATELY NOT A SUPERSEDE. An ordinary retry roll landing on a
+# promoted wall — a re-ask cut for a camera miss, a door refusal, an unfitted
+# horizon — is still ignored exactly as before. That wall's correction was
+# answered by the promotion that put it in the store; a roll that arrived
+# afterwards is the late duplicate the reuse law is about, and admitting it
+# would let any stale packet in the worklist repaint a finished wall. The
+# consistency block is the whole of the difference: it is stamped by the one
+# emitter that asks an ALREADY-PROMOTED wall to be repainted.
+#
+# THE EXITS ARE NOT ON THIS ROUTE, and that is stated rather than omitted.
+# `route_exit`'s snap and tolerance doors exist to carry a wall the measurement
+# refused INTO the store; this route is about a wall already in it, where the
+# thing being tested is not "can this frame reach the store" but "does this
+# frame make the room read as one room". `_exit_tolerance` would refuse here
+# anyway — it requires `status == held` — and a snap that rectified the frame
+# would change the pixels the consistency measure is judging. Camera PASS and
+# the ordinary promotion, or nothing.
+#
+# ONCE PER ROLL, the same discipline `exit_attempt` imposes on the routing: a
+# supersede attempt is recorded against the roll it was tried on, and the wall
+# is not tried again until a newer consistency roll lands. Without it every
+# pass would re-promote and re-audit nine walls forever, which is the row-30 cut
+# being paid again on the third side of the pipeline.
+
+#: The provenance field `--emit-consistency` stamps on the entries it cuts.
+CONSISTENCY_FIELD = "consistency"
+#: The fallback, if a future emitter ever writes no block: the correction
+#: sentence `consistencySentence` composes, which names the room's ruling
+#: materials. Kept because the deliverable asked for a route that works off
+#: whatever the emitter wrote — but the block is what the row-40 emitter DID
+#: write, so this is a belt and never the braces, and `supersede_reason` says
+#: which of the two identified the packet.
+CONSISTENCY_MARK = "This room is ruled to ONE set of materials"
+#: A distance is not "worse" for a rounding tick. `audit_room` rounds its score
+#: to three places, so this is a hair below that.
+SUPERSEDE_EPS = 1e-4
+
+
+def consistency_rolls(key):
+    """Every ROOM-CONSISTENCY roll this wall has, newest entry last.
+
+    Returns [(roll, provenance)] — provenance being which field identified the
+    packet, because that sentence goes on the wall's record.
+    """
+    out = []
+    for e in RETRY_ENTRIES.get(key, []):
+        if isinstance(e.get(CONSISTENCY_FIELD), dict):
+            prov = "the row-40 emitter's `consistency` block"
+        elif CONSISTENCY_MARK in (e.get("correction") or ""):
+            prov = ("the packet's correction naming the room's ruling materials "
+                    "(the entry carries no `consistency` block)")
+        else:
+            continue
+        for r in e.get("rolls", []):
+            out.append((r, prov))
+    return out
+
+
+def _mtime(rel):
+    p = os.path.join(ROOT, rel) if not os.path.isabs(rel) else rel
+    return os.path.getmtime(p) if os.path.exists(p) else None
+
+
+def supersede_roll(key, st):
+    """The newest consistency roll on disk that post-dates the promoted one.
+
+    Returns (roll, provenance, why_not). `why_not` is filled only when there is
+    something to say about a wall that HAS a consistency packet — a wall with
+    none is silent, because ~85 walls a pass would otherwise each print a line
+    saying nothing happened.
+    """
+    rolls = [(r, prov) for r, prov in consistency_rolls(key)
+             if _mtime(r["candidate"]) is not None]
+    if not rolls:
+        return None, None, None
+    loc, f = key.split("/")
+    was = st.get("candidate")
+    # THE WALL IS ORDERED AGAINST WHAT IT WAS PROMOTED FROM, and where that
+    # source is gone the store's own png is the fallback — a promoted wall
+    # always has one, and its mtime is when this wall last changed.
+    base = _mtime(was) if was else None
+    if base is None:
+        base = _mtime(os.path.join("backdrops", loc, f + ".png"))
+    if base is None:
+        return None, None, ("neither the promoted candidate nor the store's own "
+                            "png is on disk, so nothing can be ordered against "
+                            "it; re-decided as unpromoted by the guard above")
+    newer = [(r, prov) for r, prov in rolls if _mtime(r["candidate"]) > base]
+    if not newer:
+        return None, None, ("its consistency roll is not newer than the "
+                            "candidate this wall was promoted from")
+    newer.sort(key=lambda rp: (_mtime(rp[0]["candidate"]), rp[0]["id"]))
+    return newer[-1][0], newer[-1][1], None
+
+
+def _supersede_tried(st, cand_rel):
+    """Has this wall already been superseded-or-refused on THIS roll?"""
+    return (st.get("supersede_attempt") or {}).get("candidate") == cand_rel
+
+
+def audit_for(room):
+    """The room, measured by row 40's own instrument over the store as it stands.
+
+    Imported here rather than at module scope: it pulls numpy and PIL, and a
+    sweep that never reaches this route should not pay for them.
+    """
+    import room_consistency
+    return room_consistency.audit_room(room, room_consistency.FACINGS, [])
+
+
+def supersede_stands(key, before, after):
+    """Did the repaint earn the store? (stands, sentence with both numbers).
+
+    THE TWO HALVES ARE BOTH REQUIRED, and the second has three ways to be true.
+    A repaint that leaves the room's worst pair further apart than it found it
+    has made the room worse whatever else it did, so the distance is a veto. A
+    repaint that leaves the distance alone but leaves this wall standing outside
+    its room has not done the thing it was asked for. The alternatives to
+    "no longer the outlier" are the two ways a room can come right without this
+    facing being singled out: the room drops below the cut entirely, or a room
+    that had NO majority (master_bedchamber's 2-2 split, the one Kabe named)
+    now has one.
+    """
+    f = key.split("/")[1]
+    b, a = before.get("score"), after.get("score")
+    band_b, band_a = before.get("worst_band"), after.get("worst_band")
+    if b is None or a is None:
+        return False, ("the room cannot be scored %s the repaint (%s / %s), so "
+                       "there is no number this supersede could be judged on"
+                       % ("before" if b is None else "after",
+                          before.get("verdict"), after.get("verdict")))
+    nums = ("worst-band distance %.3f (%s) -> %.3f (%s)"
+            % (b, band_b, a, band_a))
+    if a > b + SUPERSEDE_EPS:
+        return False, "the room got worse: " + nums
+    was_out = f in (before.get("outliers") or [])
+    now_out = f in (after.get("outliers") or [])
+    consistent = (before.get("verdict") == "mismatched"
+                  and after.get("verdict") in ("consistent", "consistent-incomplete"))
+    gained = bool(before.get("no_majority")) and not bool(after.get("no_majority"))
+    if consistent:
+        return True, ("the room now reads as one room; " + nums)
+    if gained:
+        return True, ("the room had no majority and now has one (%s); %s"
+                      % ("".join(after.get("majority") or []), nums))
+    if not now_out:
+        return True, ("%s no longer stands outside its room%s; %s"
+                      % (f, "" if was_out else " (and did not before either)",
+                         nums))
+    return False, ("%s still stands outside its room (%s agree) and the room is "
+                   "still %s; %s"
+                   % (f, "".join(after.get("majority") or []) or "none",
+                      after.get("verdict"), nums))
+
+
+def _supersede_files(key):
+    """Everything a promotion of this wall overwrites, so a refusal can undo it.
+
+    THE THIRD FILE IS NOT OPTIONAL AND IT IS THE ONE THAT BITES. The store's png
+    and meta are the obvious pair. The third is the §5 promotion document
+    (`promote_reading` writes it, `door_measure.patch` patches it) — and
+    `recheck_doors` re-promotes every wall in the store FROM that document,
+    against the candidate the store's meta names. Leave it describing a roll
+    that was rolled back and `promote-backdrop.mjs` refuses the wall on a
+    sha256 mismatch — "is not the image the measurement was measured off" — and
+    the next `--recheck-doors` demotes to grid a wall this route decided to
+    leave exactly as it found it.
+    """
+    loc, f = key.split("/")
+    return [os.path.join(ROOT, "backdrops", loc, f + ".png"),
+            os.path.join(ROOT, "backdrops", loc, f + ".meta.json"),
+            os.path.join(OUT, "%s-%s.json" % (loc, f))]
+
+
+def _stash(key):
+    """The bytes of everything a promotion would overwrite, held in memory."""
+    return {p: (open(p, "rb").read() if os.path.exists(p) else None)
+            for p in _supersede_files(key)}
+
+
+def _restore(key, stash):
+    """The previous files back, BYTE FOR BYTE. A refused supersede must leave
+    the store exactly as it found it — anything less and a repaint the measure
+    rejected has still moved what the page renders."""
+    for p, blob in stash.items():
+        if blob is None:
+            if os.path.exists(p):
+                os.remove(p)
+            continue
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+
+
+SUPERSEDE_STOOD, SUPERSEDE_REFUSED = "stood", "refused"
+
+
+def supersede_wall(key, e, st, promote_fn=None):
+    """One promoted wall, re-decided against its room. See the block above.
+
+    Returns (outcome, line, reading): outcome is None when this wall is not a
+    supersede candidate at all (and `line` is then either None or the one thing
+    worth saying about a wall that has a packet and did not qualify).
+
+    EVERY OUTCOME WRITES THE RECORD. `supersede` says stood or refused,
+    `superseded_from` names the candidate the new roll was measured against —
+    on a refusal that is the candidate that STAYS, and `supersede_reason` says
+    so in words — and `supersede_reason` carries both distances. The timings
+    ledger gets `supersede.wall` either way, because a refusal costs a
+    promotion, an audit and a restore, and it is the outcome nobody would think
+    to measure (row 33's own lesson about the refused bake).
+    """
+    promote_fn = promote_fn or globals()["do_promote"]
+    if key in NEVER_PROMOTE:
+        return None, None, None
+    if key.split("/")[0] in M0_ROOMS:
+        return None, None, None
+    roll, prov, why_not = supersede_roll(key, st)
+    if roll is None:
+        return None, (("%-24s SUPERSEDE skipped: %s" % (key, why_not))
+                      if why_not else None), None
+    cand_rel = roll["candidate"]
+    if _supersede_tried(st, cand_rel):
+        # Nothing happened this pass, and that is what is returned. See the
+        # ONCE PER ROLL note above.
+        return None, None, None
+
+    _t = time.time()
+    room = key.split("/")[0]
+
+    def _record(outcome, reason, reading=None, before=None, after=None):
+        st["supersede"] = outcome
+        st["superseded_from"] = st.get("candidate")
+        st["supersede_reason"] = reason
+        st["supersede_attempt"] = {"candidate": cand_rel, "roll_id": roll["id"],
+                                   "outcome": outcome, "provenance": prov,
+                                   "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        if before is not None:
+            st["supersede_room"] = {
+                "room": room,
+                "before": {"score": before.get("score"),
+                           "band": before.get("worst_band"),
+                           "verdict": before.get("verdict"),
+                           "outliers": before.get("outliers"),
+                           "no_majority": before.get("no_majority")},
+                "after": ({"score": after.get("score"),
+                           "band": after.get("worst_band"),
+                           "verdict": after.get("verdict"),
+                           "outliers": after.get("outliers"),
+                           "no_majority": after.get("no_majority")}
+                          if after is not None else None)}
+        timings.record("supersede.wall", _t, time.time(), key,
+                       {"candidate": cand_rel, "roll_id": roll["id"],
+                        "outcome": outcome, "room": room,
+                        "before": (before or {}).get("score"),
+                        "after": (after or {}).get("score"),
+                        "why": reason[:300]})
+        return (outcome, "  %-24s SUPERSEDE %s: %s"
+                % (key, outcome.upper(), reason), reading)
+
+    fac = facing_of(key)
+    ref = row23_lib.reference_from_entry(e)
+    side = row23_lib.side_from_entry(key, e, fac)
+    try:
+        cfg = row23_lib.cfg_from_sidecar(side)
+    except Exception as _ex:
+        return _record(SUPERSEDE_REFUSED,
+                       "config derivation failed for the consistency roll "
+                       "%s: %s; the promoted wall stands" % (roll["id"], _ex))
+    d = measure_roll(key, roll, side, cfg, ref, picks_for_instrument())
+    if d is None:
+        return _record(SUPERSEDE_REFUSED,
+                       "the consistency roll %s could not be measured at all; "
+                       "the promoted wall stands" % roll["id"])
+    if d.get("verdict") != "PASS":
+        return _record(SUPERSEDE_REFUSED,
+                       "the consistency roll %s is a camera %s (%s), and this "
+                       "route admits a camera PASS and nothing else — no snap, "
+                       "no tolerance; the promoted wall stands"
+                       % (roll["id"], d.get("verdict"),
+                          d.get("kind") or d.get("blocked_on") or "-"), d)
+
+    # ONE BAD ROOM REFUSES ITSELF; it does not take the sweep down. This route
+    # runs inside the standing pass, and the same crash class this file has now
+    # paid for twice (a per-pixel surprise in one image, a config that would not
+    # derive) reaches the consistency instrument through whatever is in the
+    # store — including the wall this route has just put there.
+    try:
+        before = audit_for(room)
+    except Exception as _aex:
+        return _record(SUPERSEDE_REFUSED,
+                       "the room could not be audited before the repaint (%s); "
+                       "the promoted wall stands" % str(_aex)[:200], d)
+    stash = _stash(key)
+    side = dict(side, candidate=cand_rel)
+    ok, why = promote_fn(key, cand_rel, e, side, ref, d)
+    if not ok:
+        _restore(key, stash)
+        return _record(SUPERSEDE_REFUSED,
+                       "the promotion instrument refused the consistency roll "
+                       "%s (%s); the previous painting is back byte-for-byte"
+                       % (roll["id"], why), d, before)
+    try:
+        after = audit_for(room)
+    except Exception as _aex:
+        _restore(key, stash)
+        return _record(SUPERSEDE_REFUSED,
+                       "the room could not be audited with the consistency roll "
+                       "%s in place (%s), so there is no number this supersede "
+                       "could be judged on; the previous painting is back "
+                       "byte-for-byte" % (roll["id"], str(_aex)[:200]), d, before)
+    stands, sentence = supersede_stands(key, before, after)
+    if not stands:
+        _restore(key, stash)
+        return _record(SUPERSEDE_REFUSED,
+                       "%s, so the consistency roll %s is out and the previous "
+                       "painting is back byte-for-byte (provenance: %s)"
+                       % (sentence, roll["id"], prov), d, before, after)
+    out = _record(SUPERSEDE_STOOD,
+                  "%s, so the consistency roll %s replaces the painting "
+                  "(provenance: %s)" % (sentence, roll["id"], prov),
+                  d, before, after)
+    # The record only moves on the STAND — `_record` has already stamped
+    # `superseded_from` with the candidate this wall was promoted from, and
+    # that is the one being replaced.
+    st["candidate"] = cand_rel
+    st["status"] = "promoted"
+    if st.get("correction") is not None:
+        st["answered_correction"] = st.pop("correction")
+    return out
+
+
+def supersede_sweep(manifest, state, only=None, dry_run=False):
+    """[row 40 seam] `--supersede-only`: this route and nothing else, as a table.
+
+    The standing sweep runs this route inside itself; this is the same route
+    with the arrivals half switched off, so the Navigator can point it at the
+    nine walls on main and read what happened in one screen. A dry run measures
+    and decides eligibility — which walls have a newer consistency roll and
+    whether its camera passes — and writes nothing, because the room half
+    cannot be answered without putting the painting in the store.
+    """
+    rows, notes, stood = [], [], 0
+    for e in manifest["entries"]:
+        if e.get("skipped"):
+            continue
+        key = e["key"]
+        if only and key != only:
+            continue
+        st = state["walls"].get(key)
+        if not st or st.get("status") != "promoted":
+            continue
+        loc, f = key.split("/")
+        if not os.path.exists(os.path.join(ROOT, "backdrops", loc,
+                                           f + ".meta.json")):
+            continue
+        if dry_run:
+            roll, prov, why_not = supersede_roll(key, st)
+            if roll is None:
+                if why_not:
+                    notes.append((key, why_not))
+                continue
+            fac = facing_of(key)
+            ref = row23_lib.reference_from_entry(e)
+            side = row23_lib.side_from_entry(key, e, fac)
+            try:
+                cfg = row23_lib.cfg_from_sidecar(side)
+            except Exception as _ex:
+                notes.append((key, "config derivation failed: %s" % _ex))
+                continue
+            d = measure_roll(key, roll, side, cfg, ref, picks_for_instrument())
+            rows.append({"key": key, "roll": roll["id"], "was": st.get("candidate"),
+                         "camera": (d or {}).get("verdict") or "MEASURE-ERR",
+                         "outcome": "would try" if (d or {}).get("verdict") == "PASS"
+                                    else "refused (camera)",
+                         "before": None, "after": None, "why": prov})
+            continue
+        outcome, line, d = supersede_wall(key, e, st)
+        if outcome is None:
+            if line:
+                notes.append((key, line.split(": ", 1)[-1]))
+            continue
+        r = st.get("supersede_room") or {}
+        rows.append({"key": key,
+                     "roll": (st.get("supersede_attempt") or {}).get("roll_id"),
+                     "was": st.get("superseded_from"),
+                     "camera": (d or {}).get("verdict") or "-",
+                     "outcome": outcome,
+                     "before": (r.get("before") or {}).get("score"),
+                     "after": (r.get("after") or {}).get("score"),
+                     "why": st.get("supersede_reason")})
+        if outcome == SUPERSEDE_STOOD:
+            stood += 1
+    return rows, notes, stood
+
+
 def sweep(manifest, state, do_promote=True):
     do_promote_fn = globals()["do_promote"]
     import row23_lib
     # THE CORPUS'S RULES, INJECTED — the row-23 instrument supplies the windows
     # and `measure.py` supplies how to read inside them, for the promotion half
     # exactly as for the camera half. Nothing in `row23_lib` re-derives a
-    # detector this project has already paid for.
-    from measure import (pick_floor, module_in_bands, pick_ceiling,
-                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
-                         light, EYE_RANGE)
-    picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
-                 pick_ceiling=pick_ceiling,
-                 find_corners_recession=find_corners_recession,
-                 ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
-                 light=light, EYE_RANGE=EYE_RANGE)
+    # detector this project has already paid for. See `picks_for_instrument`.
+    picks = picks_for_instrument()
     os.makedirs(OUT, exist_ok=True)
 
     promoted, failed, parked, waiting = [], [], [], []
@@ -1049,11 +1563,37 @@ def sweep(manifest, state, do_promote=True):
             # re-deciding is a wall it has nothing new to say about, so it says
             # nothing; the clearing happens where the promotion is actually
             # performed, against a correction that promotion just answered.
+            #
+            # [row 40 seam] EXCEPT WHERE ITS OWN ROOM RE-ASKED IT. This is the
+            # one thing the loop now has to say about a wall already in the
+            # store, and it is not a stamp: a room-consistency roll is measured,
+            # promoted, judged by `room_consistency.audit_room` with it in place
+            # and taken straight back out again if the room did not improve. See
+            # the SUPERSEDE block above `supersede_wall`.
+            if do_promote:
+                _out, _line, _d = supersede_wall(key, e, st)
+                if _line and _out != SUPERSEDE_STOOD:
+                    # A refusal (and a wall with a packet that did not qualify)
+                    # is printed here because nothing downstream will; a STAND
+                    # prints as the PROMOTE line it is.
+                    print(_line)
+                if _out == SUPERSEDE_STOOD:
+                    # It goes on `promoted` so the sweep's ONE bake fires for it
+                    # exactly as for any other promotion, and so the tally and
+                    # the printed lines count it where it belongs.
+                    promoted.append((key, "SUPERSEDED - %s"
+                                     % st.get("supersede_reason"), _d or {}))
             continue
         # THE STORE IS CHECKED, NOT THE STATE FILE ALONE. A wall promoted by any
         # route already has art, and a late duplicate return for it must not
         # clobber a promoted asset - the reuse rule is that art is generated
         # once, promoted once, and thereafter READ. Logged, never silent.
+        #
+        # [row 40 seam] ONE RETURN IS NOT A LATE DUPLICATE: a room-consistency
+        # re-ask, which this loop cut for a wall it had already promoted. That
+        # one is taken, on its own route and under its own gate, from the
+        # promoted branch above - see the SUPERSEDE block. Everything else that
+        # lands on a wall with art in the store is still ignored here.
         loc, fac_f = key.split("/")
         if os.path.exists(os.path.join(ROOT, "backdrops", loc, fac_f + ".png")) and \
            os.path.exists(os.path.join(ROOT, "backdrops", loc, fac_f + ".meta.json")):
@@ -1138,45 +1678,13 @@ def sweep(manifest, state, do_promote=True):
 
         best = None
         for r in arrivals:
-            p = os.path.join(ROOT, r["candidate"])
-            # A candidate the measurement cannot read is that CANDIDATE's
-            # failure, never the sweep's: logged, skipped, and the wall parks
-            # at its cap like any other run of misses. The alternative — a
-            # per-pixel surprise anywhere in 170 images taking the loop down —
-            # is the crash class this run has now paid for twice.
-            _t = time.time()                                      # [row 33]
-            # [row 30 cut, 2026-08-24] A READING IS TAKEN ONCE. The sweep was
-            # re-measuring every held wall's every candidate on every pass —
-            # 27 holds x (measure + door read) — and after the host restart a
-            # single pass had not finished in two hours while new returns
-            # queued behind old holds. A candidate's reading is a pure
-            # function of its bytes and the instrument; it is cached by id and
-            # reused until `--remeasure` says the instrument moved.
-            _cached = os.path.join(OUT, "%s.json" % r["id"])
-            if os.path.exists(_cached) and not REMEASURE:
-                d = json.load(open(_cached))
-                if d.get("verdict") == "PASS" and (best is None or
-                        abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
-                    best = (r, d)
+            # See `measure_roll` — this loop's own body, lifted out so the
+            # supersede route reads a roll on the same instrument.
+            d = measure_roll(key, r, side, cfg, ref, picks)
+            if d is None:
                 continue
-            try:
-                d = row23_lib.measure_candidate(p, side, cfg, ref, picks)
-            except Exception as _mex:
-                # [row 33] A MEASURE-ERR is a measurement that ran and cost its
-                # time; leaving it out would make the instrument look faster
-                # than it is on exactly the frames it struggles with.
-                timings.record("measure.candidate", _t, time.time(), key,
-                               {"roll_id": r["id"], "candidate": r["candidate"],
-                                "verdict": "MEASURE-ERR", "error": str(_mex)[:200]})
-                print("  %-24s MEASURE-ERR %s: %s" % (key, r["id"], _mex))
-                continue
-            timings.record("measure.candidate", _t, time.time(), key,  # [row 33]
-                           {"roll_id": r["id"], "candidate": r["candidate"],
-                            "verdict": d.get("verdict"), "kind": d.get("kind")})
-            d["id"], d["candidate"] = r["id"], r["candidate"]
-            json.dump(d, open(os.path.join(OUT, "%s.json" % r["id"]), "w"), indent=2)
-            if d["verdict"] == "PASS" and (best is None or
-                                           abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
+            if d.get("verdict") == "PASS" and (best is None or
+                    abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
                 best = (r, d)
 
         st["attempts"] = max(st["attempts"], len(arrivals))
@@ -1680,15 +2188,65 @@ def main():
                     help="row 32: promote the remaining suspect-family holds on "
                          "the declared camera, under the Captain's tolerance "
                          "ruling (design/approvals.log 2026-08-24)")
+    ap.add_argument("--supersede-only", action="store_true",
+                    help="row 40 seam: run ONLY the supersede route — every "
+                         "promoted wall whose room re-asked it and whose "
+                         "consistency roll has returned — and print the table")
+    ap.add_argument("--only", metavar="LOC/F",
+                    help="with --supersede-only: one wall, by key")
     ap.add_argument("--dry-run", action="store_true",
                     help="with --tolerance-sweep: measure and decide, write "
-                         "nothing, and print what would promote and why")
+                         "nothing, and print what would promote and why. With "
+                         "--supersede-only: which walls have a newer "
+                         "consistency roll and whether its camera passes; the "
+                         "room half cannot be answered without promoting")
     a = ap.parse_args()
 
-    if a.dry_run and not a.tolerance_sweep:
-        print("row23-run: --dry-run belongs to --tolerance-sweep; the ordinary "
-              "sweep's dry run is --no-promote, which already exists")
+    if a.dry_run and not (a.tolerance_sweep or a.supersede_only):
+        print("row23-run: --dry-run belongs to --tolerance-sweep and "
+              "--supersede-only; the ordinary sweep's dry run is --no-promote, "
+              "which already exists")
         return 2
+
+    if a.only and not a.supersede_only:
+        print("row23-run: --only belongs to --supersede-only; the ordinary "
+              "sweep decides every wall on its own and has no queue to filter")
+        return 2
+
+    if a.supersede_only:
+        if not os.path.exists(MANIFEST):
+            print("row23-run: no manifest")
+            return 1
+        manifest = json.load(open(MANIFEST))
+        refresh_retries()
+        state = load_state()
+        rows, notes, stood = supersede_sweep(manifest, state, only=a.only,
+                                             dry_run=a.dry_run)
+        print("  %-24s %-10s %-7s %-9s %-9s %s"
+              % ("WALL", "ROLL", "CAMERA", "BEFORE", "AFTER", "OUTCOME"))
+        for r in rows:
+            print("  %-24s %-10s %-7s %-9s %-9s %s"
+                  % (r["key"], r["roll"] or "-", r["camera"],
+                     "-" if r["before"] is None else "%.3f" % r["before"],
+                     "-" if r["after"] is None else "%.3f" % r["after"],
+                     r["outcome"]))
+            if r.get("why"):
+                print("  %-24s   %s" % ("", r["why"]))
+        for key, why in notes:
+            print("  %-24s SKIPPED   %s" % (key, why))
+        if a.dry_run:
+            print("%s  DRY RUN: %d wall(s) carry a newer consistency roll; "
+                  "nothing was written" % (time.strftime("%H:%M:%S"), len(rows)))
+            return 0
+        save_state(state)
+        bad = _bake_if_promoted(stood)
+        print("%s  %d superseded, %d refused, %d wall(s) skipped%s"
+              % (time.strftime("%H:%M:%S"), stood, len(rows) - stood, len(notes),
+                 ("; BAKE REFUSED: " + bad) if bad else ""))
+        if stood:
+            print("  >> %d wall(s) repainted and baked. `tools/publish-site.sh` "
+                  "is yours to run; this loop never publishes." % stood)
+        return 1 if bad else 0
 
     if a.tolerance_sweep:
         ruling = tolerance_ruling()
