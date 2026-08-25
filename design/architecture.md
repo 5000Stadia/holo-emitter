@@ -4385,22 +4385,51 @@ one room. The painter returned all nine. The sweep ignored every one of them and
 the rule it had: a return for a wall with art in the store is a late duplicate, and *art is generated
 once, promoted once, and thereafter READ*. But a consistency re-ask is not a late duplicate. It is a
 repaint **this loop itself asked for**, of a wall **it itself promoted**, for a reason the pixels can
-be re-measured against. The nine sat unmeasured until `supersede_wall` gave them a door.
+be re-measured against. The nine sat unmeasured until `supersede_pass` gave them a door.
 
 **The rule, in three sentences.**
 
 1. A promoted wall is a SUPERSEDE CANDIDATE only when `retries.json` carries a **room-consistency
    roll** — one whose entry has the row-40 emitter's own `consistency` block (`tools/make-scaffold.mjs
-   --emit-consistency`, documented in that file's own `_consistency` key) — that is on disk and
-   **newer** than the candidate the wall was promoted from.
+   --emit-consistency`, documented in that file's own `_consistency` key) — that is on disk and is
+   not already the candidate the wall is promoted from.
 2. That roll is measured on the standing instrument exactly as any arrival (`measure_roll`, cached by
-   id, the same function the arrivals loop calls) and must be a camera **PASS**, and the ordinary
-   promotion must admit it.
-3. It is then promoted **for real**, the room is re-audited by `room_consistency.audit_room` with it
-   in place, and it **stands** only if the room's worst-band distance did not get worse **and** the
-   wall is no longer the outlier (or the room reached `consistent`, or a `no_majority` room gained a
-   majority); otherwise the previous png and meta go back **byte for byte** and the record reads
-   `supersede: refused` with both distances in it.
+   id, the same function the arrivals loop calls) and must reach the store on **measured numbers** —
+   a camera PASS the ordinary promotion admits, or row 35's SNAP where either refuses it, with the
+   door-void repair as the snap's own second half.
+3. It is then promoted **for real**, the room is re-audited by `room_consistency.audit_room` with the
+   whole set in place, and it **stands** only if the room's worst-band distance did not get worse
+   **and** no wall of the set is still an outlier (or the room reached `consistent`, or a
+   `no_majority` room gained a majority); otherwise the previous png, meta and promotion documents go
+   back **byte for byte** and the record reads `supersede: refused` with both distances in it.
+
+**The unit of judgement is the ROOM, and the first production pass paid to learn it.** That pass
+superseded one wall of nine. `master_bedchamber/S` and `/W` each refused *"the room got worse: 4.474
+-> 4.716 / 6.321"* — because each was judged **alone** against a room whose other outliers were still
+their old paintings. A 2-2 split has no majority to join: move one wall to the ruling materials and it
+now disagrees with the two it used to agree with, so the worst pair gets *further* apart on the way to
+agreement. A room being transitioned wall by wall can never pass one wall at a time, and the veto that
+is right for a room with a majority is exactly wrong for a room without one. So a **no-majority room
+is superseded as a SET** — every eligible roll into the store, one audit with all of them in place,
+kept or restored whole — while a room that HAS a majority keeps the single-wall path, because there
+the majority is the thing being joined and one wall at a time is the honest question. The only
+per-wall restore inside a set is for a wall whose *own* camera or promotion refused it: that wall
+never reached the store, so it is dropped from the set rather than taking the set down with it. The
+synthetic fixture carries the same arithmetic — 8.489 for the split, 9.011 with one wall moved, 3.118
+with both — so the single verdict refusing and the joint verdict standing are the same three
+materials.
+
+**"Newer" is a fact about provenance, not about mtime** (`supersede_roll`), and this route's own dry
+run caught it. The first draft asked the filesystem — `mtime(roll) > mtime(promoted candidate)` — and
+the eight walls still outstanding came back "not newer", because a `git checkout` had rewritten every
+promoted candidate's mtime to hours *after* the returns landed. mtime does not survive a checkout, a
+clone or a rebase, so an ordering built on it reports real work as stale on one machine and stale work
+as real on another, silently in both directions. The durable ordering was in what the packet **is**:
+`--emit-consistency` reads the promoted store and cuts a packet only for a wall already in it, so a
+consistency roll can only have been asked for *after* the promotion it answers — its provenance is its
+date. What is left to check is whether the store has taken it yet, which is one comparison of the
+candidate path. mtime survives only as the tie-break among several unspent rolls, where being wrong
+costs which of two is tried first.
 
 **Why the promotion is real and the rollback is the safety.** The consistency measure reads the
 promoted store — `backdrops/<room>/<F>.png` and the meta beside it — so a scratch copy would have to
@@ -4410,12 +4439,14 @@ into the real one, is judged there, and comes straight back out if it did not ea
 exactly as it found it; anything less and a repaint the measure rejected has still moved what the
 page renders.
 
-**Three files, not two, and the third is the one that bites** (`_supersede_files`). The store's png
-and meta are the obvious pair. The third is the §5 promotion document — and `recheck_doors`
-re-promotes every wall in the store *from that document*, against the candidate the store's meta
-names. Left describing a roll that was rolled back, it makes `promote-backdrop.mjs` refuse the wall
-on a sha256 mismatch, and the next `--recheck-doors` demotes to grid a wall this route had decided to
-leave exactly as it found it.
+**The documents, not just the pair, and they are what bites** (`_supersede_files`). The store's png
+and meta are the obvious two. The rest are the §5 promotion documents, one per round this route can
+promote through — `manor`, `row35snap`, `row36doors` — and `recheck_doors` re-promotes every wall in
+the store *from the document its meta's own `measured_round` names*, against the candidate that meta
+names. Left describing a roll that was rolled back, any of them makes `promote-backdrop.mjs` refuse
+the wall on a sha256 mismatch, and the next `--recheck-doors` demotes to grid a wall this route had
+decided to leave exactly as it found it. Every round is stashed rather than the one that happens to
+get used, because which door a wall goes out of is decided after the stash is taken.
 
 **What is deliberately NOT a supersede, and why.** An ordinary retry roll landing on a promoted wall
 — a re-ask cut for a camera miss, a door refusal, an unfitted horizon — is still ignored exactly as
@@ -4427,17 +4458,32 @@ repainted. (If a future emitter ever writes no block, the packet is keyed instea
 sentence `consistencySentence` composes — `"This room is ruled to ONE set of materials"` — and
 `supersede_reason` says which of the two identified it.)
 
-**The exits are not on this route, and that is a decision rather than an omission.** `route_exit`'s
-snap and tolerance doors exist to carry a wall the measurement refused *into* the store; this route
-is about a wall already in it, where the question is not *can this frame reach the store* but *does
-this frame make the room read as one room*. `_exit_tolerance` would refuse here anyway — it requires
-`status == held` — and a snap that rectified the frame would change the very pixels the consistency
-measure is judging. Camera PASS and the ordinary promotion, or nothing.
+**The snap is on this route; the tolerance ruling is not.** The first pass refused `guest_chamber/S`,
+`guest_chamber/W` and `master_bedchamber/E` as camera FAIL, and `closet_chamber/W` on the horizon
+instrument, on the reasoning that a snap would rectify the very pixels the consistency measure is
+judging. That reasoning was wrong, ruled by the Navigator on the returns: **the snap warps geometry,
+not material**, and the consistency bands are re-cut on the snapped frame's own declared geometry —
+which is what row 40's own miss log asked for. Row 35 exists for exactly this case under the Captain's
+single-return doctrine (*"allow the single return to then be processed and roll with it"*), so a
+consistency roll that misses the camera goes through `_exit_snap` in the order `route_exit` uses it,
+with the door-void repair as its second half, and a snapped frame that re-measures clean is judged by
+the room measure like any PASS. What is **not** on this route is row 32's tolerance ruling — the
+declared camera. Stated, not omitted: that door ships a wall whose returns still disagree with its
+ruler, flagged, and it is spent on a wall with nothing else coming. This wall has something else — it
+is already in the store, painted, and the question is its ROOM. A waiver cannot answer that question,
+and `_exit_tolerance` would refuse here anyway, since it requires `status == held`. The test file
+stubs `_exit_tolerance` to raise for every case, so a draft that reached for it fails rather than
+passing quietly.
 
-**Once per roll**, the discipline `exit_attempt` already imposes on the routing: the attempt is
-recorded against the roll it was tried on (`supersede_attempt`) and the wall is not tried again until
-a newer consistency roll lands. Without it every pass would re-promote and re-audit nine walls
-forever — the row-30 cut being paid again on the third side of the pipeline.
+**Once per roll, per RULE** (`SUPERSEDE_RULE`). The attempt is recorded against the roll it was tried
+on (`supersede_attempt`) — the discipline `exit_attempt` already imposes on the routing — so a wall is
+not tried again until a newer consistency roll lands; without it every pass would re-promote and
+re-audit nine walls forever, the row-30 cut being paid again on the third side of the pipeline. But a
+refusal is a verdict *of a rule*, and rule 1 refused eight walls for reasons rule 2 exists to answer.
+Left keyed on the roll alone, those eight refusals would stand forever against rolls still on disk and
+the correction would reach nothing but a hand-edited state file. So the attempt carries the rule's
+number and is re-decided when that number moves. It is bumped when what the route ADMITS changes,
+never for a message or a field.
 
 **What every outcome writes.** `supersede` (`stood` / `refused`), `superseded_from` (the candidate
 the new roll was measured against — on a refusal, the candidate that stays, and the reason says so),
@@ -4445,9 +4491,11 @@ the new roll was measured against — on a refusal, the candidate that stays, an
 after audits in summary), and the row-33 step **`supersede.wall`** either way, because a refusal
 costs a promotion, two audits and a restore and is the outcome nobody would think to measure.
 
-**One bake per sweep, unchanged.** A stand is appended to the sweep's `promoted` list, so the single
-end-of-sweep validate-and-bake covers it exactly as it covers any other promotion, and it prints as
-the PROMOTE line it is. Publication is still nobody's but the Navigator's.
+**One bake per sweep, unchanged.** The route runs a ROOM at a time, before the arrivals loop rather
+than inside it (`supersede_pass`), because a loop that visits one wall at a time can only ever ask the
+question a no-majority room cannot answer. A stand is appended to the sweep's `promoted` list, so the
+single end-of-sweep validate-and-bake covers it exactly as it covers any other promotion, and it
+prints as the PROMOTE line it is. Publication is still nobody's but the Navigator's.
 
 **Running it alone.** `row23_run.py --supersede-only` runs this route and nothing else and prints the
 table — wall, roll, camera, before, after, outcome — with `--only <loc>/<F>` for one wall and
@@ -4457,9 +4505,12 @@ without putting the painting in the store). The fences hold here as everywhere: 
 
 `design/plan-draft/measured/test_row40_supersede.py` builds a synthetic store in a temp dir from
 `test_room_consistency`'s own material painter and shows the route going both ways: the mend stands,
-the worsening is refused with the previous bytes back, an older roll and an ordinary retry roll are
-both ignored, a camera FAIL never reaches the store, a refused promotion leaves nothing behind, and
-a second pass on the same roll spends neither a promotion nor an audit.
+the worsening is refused with the previous bytes back, a roll the store has already taken and an
+ordinary retry roll are both ignored, an old mtime does not hide a return the store never took, a
+camera FAIL and a promotion refusal both go through the snap, a frame the snap cannot correct is
+refused and restored, a no-majority room is judged as a set where one wall of it alone cannot pass, a
+wall whose own camera refuses is dropped from the set rather than taking it down, and a second pass on
+the same roll under the same rule spends neither a promotion nor an audit.
 
 ### The horizon instrument reads boarded ceilings (row 32)
 
