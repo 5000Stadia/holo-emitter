@@ -228,21 +228,46 @@ test.describe("row 38 — the sentence rides with the strip and never without it
       .toBeGreaterThan(50);
     let seeded = 0;
     for (const p of packets) {
-      const strip = SIDES.map((s) => join(p, seedFileName(s))).filter(existsSync);
+      /* IN `SIDES` ORDER, WHICH IS THE ORDER THE EMITTER NUMBERS THEM IN.
+         `attachSeeds` walks `SIDES`, hands the nth cut strip `image_index =
+         3 + n`, and `roleSentence(side, index)` writes that number into the
+         sentence — so the index a strip must be called by is its position in
+         this filtered list and nothing else. */
+      const sides = SIDES.filter((s) => existsSync(join(p, seedFileName(s))));
       const text = readFileSync(join(p, "prompt.txt"), "utf8");
       const md = readFileSync(join(p, "PACKET.md"), "utf8");
-      expect(strip.length, `${p} carries two strips; the image list is three long`)
-        .toBeLessThan(2);
-      if (!strip.length) {
+      if (!sides.length) {
         expect(text, `${p} names Image 3 with no strip beside it`).not.toContain("Image 3");
         expect(md).not.toContain("**Image 3**");
         continue;
       }
+      /* A SECOND STRIP IS A SECOND IMAGE, NOT A FORBIDDEN ONE. This case used
+         to refuse `sides.length > 1` outright — "the image list is three long"
+         — and that was true of row 38's one-neighbour seeding. The row-40
+         repair route seeds an outlier from EVERY agreeing wall the room has:
+         `attachSeeds`, `packetNoteAll` and `attachLineAll` number Image 3
+         upward, and `servants_hall/E`'s re-ask rides with both its left and
+         right neighbours. What row 38 actually rules is that a strip is never
+         handed over unexplained and a sentence never stands without its strip,
+         which is one claim per strip and holds at any count — so the count is
+         no longer the subject and every strip is checked at its own index. */
       seeded += 1;
-      const side = strip[0].endsWith("left.png") ? "left" : "right";
-      expect(text, `${p} carries a strip and does not name it`).toContain(roleSentence(side));
-      expect(md, `${p}'s attach list must put the strip third`).toContain("**Image 3**");
-      expect(md).toContain(seedFileName(side));
+      sides.forEach((side, i) => {
+        const n = 3 + i;
+        expect(text, `${p} carries a ${side} strip and does not name it as Image ${n}`)
+          .toContain(roleSentence(side, n));
+        expect(md, `${p}'s attach list must name the ${side} strip as Image ${n}`)
+          .toContain(`**Image ${n}**`);
+        expect(md).toContain(seedFileName(side));
+      });
+      /* AND NOT ONE INDEX FURTHER. A sentence for an image the packet does not
+         carry sends the painter looking for a file that is not in the
+         directory — the same failure as an unexplained strip, from the other
+         side. */
+      expect(text, `${p} names an Image ${3 + sides.length} it carries no strip for`)
+        .not.toContain(`Image ${3 + sides.length} is a reference`);
+      expect(md, `${p}'s attach list names an Image ${3 + sides.length} that is not in it`)
+        .not.toContain(`**Image ${3 + sides.length}**`);
     }
     expect(seeded, "no packet carries a seed — the pilot is not on disk").toBeGreaterThan(0);
   });
