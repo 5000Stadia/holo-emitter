@@ -53,7 +53,7 @@ os.makedirs(R.OUT, exist_ok=True)
 R._bake_if_promoted = lambda n: None
 RULING = '2026-08-24 | suspect-painting tolerance | "close enough" | (synthetic)'
 R.tolerance_ruling = lambda: RULING
-R.DOOR_VOID_TOOL = os.path.join(TMP, "paint-door-voids.mjs")   # absent on purpose
+R.DOOR_SOURCE_DIR = os.path.join(TMP, "source-doors")
 R.facing_of = lambda key: {"type": "enclosed"}
 R.arrivals_for = lambda key, e: list(e["rolls"])
 
@@ -300,12 +300,13 @@ test.describe("the sweep takes the ruled exits itself", () => {
 
   test("a clean snap the door clause refuses routes to the void repair", () => {
     const r = report();
-    /* With B-ASSEMBLY's painter not on disk, the wall falls through with a
-       NAMED refusal — which door clause, which repair, and whose it is. */
+    /* The routing REACHED the repair — the door clause is what sent it — and
+       row 36's painter refused this synthetic wall for a reason of its own
+       (no declared geometry for a facing no scaffold ever measured), which is
+       the shape of every honest refusal on this arm. */
     const why = r.reasons["epsilon/N"];
     expect(why).toContain("row27:door.unmeasured_exit");
-    expect(why).toContain("paint-door-voids");
-    expect(why).toContain("B-ASSEMBLY");
+    expect(why).toContain("the door-void repair refused this frame");
     /* And when the repair answers, the wall ships under its own exit name. */
     expect(r.zeta.exit).toBe("snapped+voided");
     expect(r.zeta.state.status).toBe("promoted");

@@ -4328,11 +4328,28 @@ wall's is WAIVED (`waived_correction`), it keeps its family, and it carries `sus
 `camera_source: declared` and the ruling's own line — which is what `--recheck-doors` reads back to
 re-decide it under the same ruling. The pass prints the tally by door.
 
-**The door-void painter is B-ASSEMBLY's** (`tools/paint-door-voids.mjs`, `row23_run.DOOR_VOID_TOOL`).
-Until it lands the call site is a NAMED refusal — which clause refused, which repair answers it, and
-whose it is — so the chain is complete in shape and no wall ships a doorway a player would click on
-paint. The contract this site calls it on is `--facing <loc>/<F> --candidate <png> --out <png>`,
-exit 0 with the repaired frame at `--out`.
+**The door-void painter is row 36's** (`row36_assemble.repair_doors`, its `--paint-doors` arm),
+called in process because it is a module in the same directory and the record it returns is what the
+promoted reading's `_doors_repair` is made of. It is minimal-touch: a way through the detector
+already reads is left alone, and a wall with nothing missing is refused rather than given a second
+doorway.
+
+**A repaired frame gets its own round, `row36doors`, and this is not bookkeeping.** The reading a
+promotion reads must be a reading of the image being promoted — `promote-backdrop.mjs` refuses a
+document whose `_what_this_is` does not name the candidate, and it is right to, because a reading
+dressed on another picture is the one failure nothing downstream can see. Promoting `doored.png`
+against `row35snap/<loc>-<F>.json` was refused by name on all five walls it was tried on. So
+`row36doors/<loc>-<F>.json` is the snapped reading RE-POINTED: the camera numbers are carried
+untouched (the repair moves pixels only inside the plan's apertures, at the geometry that document
+already states), the image path and digest name the repaired frame, `_doors_repair` names what was
+painted and what was left alone, and the openings are re-read off the repaired frame by
+`door_measure.patch` — measured, never carried.
+
+**Two kinds of hold reach the exits**, and the second was found live: the two ruled families, and a
+DOOR REFUSAL in any family. Four of the five walls the repair exists for hold under
+`promotion-refused` with nothing else wrong — camera passes, snap corrects, plan rules a way through
+the painting does not draw — so gating the doors on the families alone left exactly those four
+outside the door built for them.
 
 **Validation, per wall and per sweep.** A promotion validates its own wall's meta and nothing else
 (`validate-fixtures --only <loc>/<F>`) — that is the clause a promotion can newly break and the only

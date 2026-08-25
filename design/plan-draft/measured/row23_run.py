@@ -27,7 +27,7 @@ passes, and they are now taken inside the pass in the order the Navigator was
 applying them — snap first (with B-ASSEMBLY's door-void repair as its second
 half), tolerance second, grid last. Each wall's door is on its own run-state
 record as `exit`, with the reason it went out of that one. See `route_exit`,
-`SNAP_ROUND` and `DOOR_VOID_TOOL`.
+`SNAP_ROUND` and `DOOR_REPAIR_TOOL`.
 
 WHAT IT WILL NOT DO, and both are fences rather than omissions:
 
@@ -538,7 +538,7 @@ def _bake_if_promoted(n_promoted):
 #:   VOID REPAIR    the snap's own second half, for a corrected frame the door
 #:                  clause refuses: the plan's apertures painted in as voids,
 #:                  the doors then MEASURED off the repaired frame. Also
-#:                  deterministic, also nothing waived. See `DOOR_VOID_TOOL`.
+#:                  deterministic, also nothing waived. See `DOOR_REPAIR_TOOL`.
 #:   TOLERANCE second  the Captain's ruling, spent only where the snap could
 #:                  not correct the frame. It ships a wall whose returns still
 #:                  disagree with its ruler, flagged, on the DECLARED horizon.
@@ -562,7 +562,7 @@ SNAP_ROUND = "row35snap"
 #: BATCH's home — evidence for a row under judgement — and stays that.
 SNAP_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-snapped")
 EXIT_MEASURED, EXIT_SNAPPED = "measured", "snapped"
-#: The snap, plus B-ASSEMBLY's door-void repair — see `DOOR_VOID_TOOL`. It is
+#: The snap, plus row 36's door-void repair — see `DOOR_REPAIR_TOOL`. It is
 #: its own name rather than a flag on `snapped` because the frame that shipped
 #: is not the frame the snap produced.
 EXIT_SNAPPED_VOIDED = "snapped+voided"
@@ -670,20 +670,38 @@ def _exit_snap(key, cand_rel, reading):
                      res["candidate"], SNAP_ROUND)), res, None
 
 
-#: [B-ROUTING x B-ASSEMBLY] The door-void painter: the plan's apertures
-#: composited onto a snapped frame as unlit voids at the declared geometry, for
-#: the five walls a second snap pass found CLEAN and still refused — the camera
-#: is corrected, the instrument passes it, and the painting shows no measurable
-#: hole where the plan rules a way through.
+#: [B-ROUTING x row 36] The door-void repair: the plan's apertures composited
+#: onto a snapped frame as unlit voids at the declared geometry, for the walls a
+#: snap pass finds CLEAN and the promotion still refuses — the camera is
+#: corrected, the instrument passes it, and the painting shows no measurable
+#: hole where the plan rules a way through. Repeated re-asks under the unlit-void
+#: rule did not fix that; the generator will not reliably paint a readable dark
+#: void, and nothing about a rectangle the plan already rules needs a model.
 #:
-#: THE CALL SITE IS HERE AND THE TOOL IS B-ASSEMBLY'S. Until it lands this is a
-#: NAMED refusal rather than a silent gap: the wall goes on to the next exit
-#: with a sentence saying which repair it is waiting for and who owns it, and
-#: the chain is complete in shape today. The contract this site calls it on —
-#: `--facing <loc>/<F> --candidate <png> --out <png>`, exit 0 on a repaired
-#: frame written to `--out` — is the one to confirm against B-ASSEMBLY's branch
-#: the day it lands.
-DOOR_VOID_TOOL = os.path.join(ROOT, "tools", "paint-door-voids.mjs")
+#: THE PAINTER IS ROW 36'S (`row36_assemble.repair_doors`, its `--paint-doors`
+#: arm) and it is called in-process: it is a python module in this directory, so
+#: a subprocess would buy a second interpreter's start-up and lose the record it
+#: returns — which is what `_doors_repair` on the promoted reading is made of.
+#: It is MINIMAL-TOUCH by construction: a way through the detector already reads
+#: is left alone, and a wall with nothing missing is refused rather than given a
+#: second doorway.
+DOOR_REPAIR_TOOL = "design/plan-draft/measured/row36_assemble.py --paint-doors"
+
+#: WHERE A REPAIRED FRAME LIVES, and the round its reading is written into.
+#:
+#: THE READING MUST BE A READING OF THE IMAGE BEING PROMOTED, which is why this
+#: is its own round and not a patch of the snapped one. `promote-backdrop.mjs`
+#: refuses a document whose `_what_this_is` does not name the candidate — and it
+#: is right to: a reading dressed on another picture is the one failure nothing
+#: downstream can see. The first attempt at this exit promoted `doored.png`
+#: against `row35snap/<loc>-<F>.json` and was refused by name, in the Navigator's
+#: hands, on all five walls. So `row36doors/<loc>-<F>.json` is the snapped
+#: reading RE-POINTED: the camera numbers are untouched (the repair moves pixels
+#: only inside the plan's apertures, at the same geometry), the image path and
+#: digest name the repaired frame, the openings are re-read off it, and
+#: `_doors_repair` says which apertures were painted and which were left alone.
+DOOR_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-doors")
+DOOR_ROUND = "row36doors"
 
 #: The row-27 clauses this repair answers, by their LEDGER TOKENS. Routing on
 #: the token and not on the prose is row 35's own lesson (`_snap_once` returns
@@ -709,7 +727,7 @@ def _is_door_refusal(why):
 
 
 def _exit_void_repair(key, st, res, promo_why):
-    """The doors painted in, the doors re-read, the wall promoted. See DOOR_VOID_TOOL.
+    """Doors painted in, doors re-read, wall promoted. See DOOR_REPAIR_TOOL.
 
     AFTER THE SNAP AND BEFORE THE TOLERANCE, because it is the same kind of act
     as the snap and not the same kind as the ruling: it corrects the picture
@@ -719,93 +737,115 @@ def _exit_void_repair(key, st, res, promo_why):
     numbers.
     """
     _t = time.time()
-    if not os.path.exists(DOOR_VOID_TOOL):
-        why = ("the snapped frame re-measures clean and the door clause refuses "
-               "it (%s) — that is B-ASSEMBLY's door-void repair, and %s is not "
-               "on disk yet, so this wall waits for the painter rather than "
-               "shipping a doorway a player would click on paint"
-               % (promo_why, os.path.relpath(DOOR_VOID_TOOL, ROOT)))
+    loc, fac = key.split("/")
+    out_png = os.path.join(DOOR_SOURCE_DIR, "%s-%s" % (loc, fac), "doored.png")
+    try:
+        import row36_assemble
+        plan = json.load(open(PLAN))
+        facings = row36_assemble.read_json(row36_assemble.FACINGS)["facings"]
+        rec, why = row36_assemble.repair_doors(key, res["candidate"], out_png,
+                                               plan, facings)
+    except Exception as ex:
+        # ONE BAD WALL IS ONE ROW, here as at the snap.
         timings.record("exit.voidrepair", _t, time.time(), key,
                        {"candidate": res["candidate"], "repaired": False,
-                        "why": "tool absent"})
-        return False, why
-    out_png = os.path.join(os.path.dirname(os.path.abspath(res["out_png"])),
-                           "voided.png")
-    r = subprocess.run(["node", DOOR_VOID_TOOL, "--facing", key,
-                        "--candidate", res["candidate"],
-                        "--out", os.path.relpath(out_png, ROOT)],
-                       cwd=ROOT, capture_output=True, text=True)
-    if r.returncode != 0 or not os.path.exists(out_png):
-        why = ("the door-void repair refused this frame: %s"
-               % (r.stdout + r.stderr).strip().split("\n")[-1][:200])
+                        "error": str(ex)[:200]})
+        return False, ("the door-void repair raised on this frame: %s"
+                       % str(ex)[:200])
+    if rec is None:
         timings.record("exit.voidrepair", _t, time.time(), key,
                        {"candidate": res["candidate"], "repaired": False,
-                        "why": why[:300]})
-        return False, why
+                        "why": (why or "")[:300]})
+        return False, "the door-void repair refused this frame: %s" % why
     rel_out = os.path.relpath(out_png, ROOT)
     # THE DOORS ARE RE-READ OFF THE REPAIRED FRAME, never carried. The whole
     # refusal was that this picture had no hole to measure; a promotion that
     # took the rectangles from anywhere but the pixels it is about to ship
     # would be the row-27 defect the Captain walked into, re-authored.
-    ok, why = _redoor_document(key, res, rel_out)
-    if not ok:
+    doc_out, why = _doors_document(key, res, rel_out, rec)
+    if doc_out is None:
         timings.record("exit.voidrepair", _t, time.time(), key,
-                       {"candidate": rel_out, "repaired": True, "why": why[:300]})
+                       {"candidate": rel_out, "repaired": True,
+                        "why": (why or "")[:300]})
         return False, why
-    ok, why = promote_document(key, rel_out, SNAP_ROUND)
+    ok, why = promote_document(key, rel_out, DOOR_ROUND)
     timings.record("exit.voidrepair", _t, time.time(), key,
                    {"candidate": rel_out, "repaired": True, "promoted": ok,
+                    "voids": len(rec.get("painted") or []),
+                    "separation_luma": rec.get("separation_luma"),
                     "why": (why or "")[:300] or None})
     if not ok:
         return False, ("the repaired frame's doors read and the promotion "
                        "refused it: %s" % why)
     st["door_voids_painted"] = rel_out
-    return True, ("the snap corrected the camera and the plan's apertures were "
-                  "painted in as voids at the declared geometry (%s); the doors "
-                  "were then re-read off that frame and it promoted through the "
-                  "%s round on measured numbers" % (rel_out, SNAP_ROUND))
+    return True, ("the snap corrected the camera and row 36 then painted the "
+                  "%d way(s) through that this frame did not draw, as unlit "
+                  "voids at the plan's own geometry (%.1f luma clear of the "
+                  "wall) — the doors were re-read off %s and it promoted "
+                  "through the %s round on measured numbers"
+                  % (len(rec.get("painted") or []),
+                     rec.get("separation_luma") or 0.0, rel_out, DOOR_ROUND))
 
 
-def _redoor_document(key, res, repaired_rel):
-    """This wall's round document, its openings re-read off the repaired frame.
+def _doors_document(key, res, repaired_rel, rec):
+    """The snapped reading, RE-POINTED at the repaired frame. See DOOR_ROUND.
 
-    The document is the snapped one — every camera number in it is still true of
-    the repaired image, which differs from it only where a void was painted —
-    so what moves is the opening rectangles and the two fields that say WHICH
-    IMAGE this document describes. `promote-backdrop.mjs` refuses a document
-    whose `_what_this_is` does not name the candidate, and it is right to: a
-    reading dressed on another picture is the one failure nothing downstream
-    can see.
+    Every camera number in the snapped document is still true of this image:
+    the repair moves pixels only inside the plan's apertures, at the geometry
+    that document already states. What must move is the two fields that say
+    WHICH IMAGE it describes, the openings — re-read here, off the repaired
+    frame — and a record of what was painted and what was left alone.
+
+    It is written into its own round rather than over the snapped one because
+    `row35snap/<loc>-<F>.json` is a true reading of `snapped.png` and must stay
+    one: two images cannot share a document, and the promotion tool says so by
+    name.
     """
     import door_measure
     loc, fac = key.split("/")
-    doc_path = res["doc_out"]
-    if not os.path.exists(doc_path):
-        return False, "the snapped round document is gone from %s" % doc_path
-    plan = json.load(open(PLAN))
-    try:
-        door_measure.patch(doc_path, os.path.join(ROOT, repaired_rel), loc, plan)
-    except Exception as ex:
-        return False, ("the doors could not be read off the repaired frame: %s"
-                       % str(ex)[:200])
-    doc = json.load(open(doc_path))
-    doc["_what_this_is"] = (
-        (doc.get("_what_this_is") or "")
-        + " The plan's apertures were then painted onto that frame as unlit "
-          "voids by %s and this document's openings were re-read off the "
-          "result, %s, which is the image it now describes."
-        % (os.path.relpath(DOOR_VOID_TOOL, ROOT), repaired_rel))
+    src_doc = res["doc_out"]
+    if not os.path.exists(src_doc):
+        return None, "the snapped round document is gone from %s" % src_doc
+    doc = json.load(open(src_doc))
+    doc["_round"] = DOOR_ROUND
     doc["_source_sha256"] = sha(os.path.join(ROOT, repaired_rel))
-    doc["_door_voids"] = {
-        "tool": os.path.relpath(DOOR_VOID_TOOL, ROOT),
+    doc["_what_this_is"] = (
+        "The row-35 SNAPPED reading for %s, re-pointed at %s. The camera it "
+        "describes is the one row 35 rectified %s onto, unchanged and not "
+        "re-measured: row 36's door repair composites the ways through the plan "
+        "rules as unlit voids INSIDE that same geometry, so every scale, corner "
+        "and line in this document is as true of the repaired frame as of the "
+        "snapped one. What was re-read off the repaired frame, and off nothing "
+        "else, is the openings — see `_doors_repair` and `_measured_px."
+        "openings`. The image this document describes is %s."
+        % (key, repaired_rel, res["candidate"], repaired_rel))
+    doc["_doors_repair"] = {
+        "_what_this_is": ("the ways through this frame did not draw, painted in "
+                          "at the plan's own geometry and then MEASURED off the "
+                          "result — row 27's rule is the same whoever painted "
+                          "the hole"),
+        "tool": DOOR_REPAIR_TOOL,
         "painted_onto": res["candidate"],
         "image": repaired_rel,
-        "_what_this_is": ("the openings below were MEASURED off the repaired "
-                          "frame, not projected onto it; row 27's rule is the "
-                          "same whoever painted the hole"),
+        "painted": rec.get("painted"),
+        "left_alone": rec.get("left_alone"),
+        "doors_ruled": rec.get("doors_ruled"),
+        "doors_read_before": rec.get("doors_read_before"),
+        "wall_median_luma": rec.get("wall_median_luma"),
+        "void_luma": rec.get("void_luma"),
+        "separation_luma": rec.get("separation_luma"),
+        "min_separation_required": rec.get("min_separation_required"),
     }
-    json.dump(doc, open(doc_path, "w"), indent=2)
-    return True, None
+    doc_out = os.path.join(HERE, DOOR_ROUND, "%s-%s.json" % (loc, fac))
+    os.makedirs(os.path.dirname(doc_out), exist_ok=True)
+    json.dump(doc, open(doc_out, "w"), indent=2, default=float)
+    plan = json.load(open(PLAN))
+    try:
+        door_measure.patch(doc_out, os.path.join(ROOT, repaired_rel), loc, plan)
+    except Exception as ex:
+        return None, ("the doors could not be read off the repaired frame: %s"
+                      % str(ex)[:200])
+    return doc_out, None
 
 
 def _exit_tolerance(key, e, st, cand_rel, reading, side, ref, fam):
@@ -903,7 +943,7 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
     # THE DOOR REPAIR IS THE SNAP'S OWN SECOND HALF, not a third opinion: it is
     # reached only from a frame the snap already corrected and the instrument
     # already passed, refused for want of a painted way through. See
-    # DOOR_VOID_TOOL.
+    # DOOR_REPAIR_TOOL.
     if res is not None and _is_door_refusal(promo_why):
         ok, reason = _exit_void_repair(key, st, res, promo_why)
         if ok:
@@ -1241,11 +1281,23 @@ def sweep(manifest, state, do_promote=True):
                             "camera PASS; held for the promotion instrument "
                             "[%s]: %s" % (st["hold_family"], corr or why))
                     # [B-ROUTING] AND THE HOLD IS WHERE THE EXITS STAND. The
-                    # wall is in one of the two families the ruled exits are
-                    # for, its camera passed, and its candidate is on disk and
+                    # wall's camera passed and its candidate is on disk and
                     # readable — which is the whole precondition the Navigator
-                    # was checking by hand between passes. See SNAP_ROUND.
-                    if fam in row23_lib.TOLERANCE_FAMILIES:
+                    # was checking by hand between passes. Two kinds of hold
+                    # reach the doors, and the second was found live:
+                    #
+                    #   the two RULED FAMILIES — the snap and the ruling are
+                    #     what row 35 and row 32 were allocated for.
+                    #   a DOOR REFUSAL, whatever family the wall is in. Four of
+                    #     the five walls the door repair exists for hold under
+                    #     `promotion-refused` and nothing else is wrong with
+                    #     them: the camera passes, the snap corrects them, and
+                    #     the plan rules a way through that the painting does
+                    #     not draw. Gating the exits on the families alone left
+                    #     exactly those four outside the door they were built.
+                    #
+                    # See SNAP_ROUND and DOOR_REPAIR_TOOL.
+                    if fam in row23_lib.TOLERANCE_FAMILIES or _is_door_refusal(why):
                         ex, reason = route_exit(key, e, st, r["candidate"], d,
                                                 side, ref, fam)
                         if ex in (EXIT_SNAPPED, EXIT_TOLERATED):
