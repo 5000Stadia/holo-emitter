@@ -39393,3 +39393,5 @@
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787648615.909403,"ts_start":1787648595.625562}
 {"detail":{"ids":80,"polls":1,"served":true},"key":null,"step":"publish.verify","ts_end":1787648621.073629,"ts_start":1787648610.928927}
 {"detail":{"exit_code":0,"head":"eccdef5"},"key":null,"step":"publish.site","ts_end":1787648621.12296,"ts_start":1787648600.130389}
+{"ts_start":1787651328.934,"ts_end":1787651329.006,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787651329.072,"ts_end":1787651329.214,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}

@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, re
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire } from "node:module";
 import { askTextFor } from "../../tools/flight-evidence.mjs";
 
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
@@ -284,6 +285,59 @@ test.describe("fixtures", () => {
         .toBe(true);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 42] AND THE BAKED SPRITES ARE THE INGESTED ONES. The same hole in the
+   * same shape, one layer over: `library/baked.js` is what the page draws and
+   * `library/<id>/sprite.png` is what the replicator certified, and nothing but
+   * this compares them. It is worth more here than at the backdrops, because a
+   * sprite bake is EDITABLE prose-adjacent JSON — a record's `anchors` or
+   * `dims_m` could be moved inside the bake and every gate in the ingest report
+   * would go on describing the file the record no longer matches. */
+  test("library bake staleness: the committed baked.js byte-equals a fresh bake of the promoted records", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "holo-lib-"));
+    try {
+      const out = join(scratch, "baked.js");
+      execFileSync("node", [join(repoRoot, "tools", "bake-library.mjs"), "--out", out],
+        { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
+      expect(readFileSync(out).equals(readFileSync(join(repoRoot, "library", "baked.js"))),
+        "stale library bake — run: node tools/bake-library.mjs")
+        .toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  /* And the record the PAGE resolves is the record on disk. `src/placeholders.js`
+   * merges one thing into a promoted record — the residual `open` state image —
+   * and this is what stops that merge quietly becoming two things. */
+  test("a promoted record differs from the ingested one in exactly its declared residuals", () => {
+    const promoted = JSON.parse(
+      readFileSync(join(repoRoot, "library", "promoted.json"), "utf8")).promoted;
+    const records = createRequire(import.meta.url)(
+      join(repoRoot, "src", "placeholders.js")).records;
+    expect(promoted.length, "there are promoted records to check").toBeGreaterThan(0);
+    for (const id of promoted) {
+      const disk = JSON.parse(
+        readFileSync(join(repoRoot, "library", id, "record.json"), "utf8"));
+      const page = records[id];
+      expect(page, `${id} is staged by a shipped world and resolves`).toBeTruthy();
+      expect(page.placeholder, `${id} is not placeholder art any more`).toBeUndefined();
+      const residual = ((page.provenance || {}).residual_placeholder || {}).images || [];
+      /* Rebuild the ingested record from the resolved one by removing exactly
+         what the resolution says it added. What is left must be byte-identical
+         to the file the replicator wrote. */
+      const back = JSON.parse(JSON.stringify(page));
+      if (residual.includes("states_images.open")) {
+        delete back.states_images;
+        back.archetype = disk.archetype;
+      }
+      delete back.provenance.residual_placeholder;
+      delete back.provenance.painter_ask;
+      expect(JSON.parse(JSON.stringify(back)),
+        `${id}: the page's record is the ingested one plus ${JSON.stringify(residual)} ` +
+        `and nothing else`).toEqual(disk);
     }
   });
 
