@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-LEAD | row 42 (1)+(2): the first wall leads every room's asks (own-room seed + edge strips by default); windows detected after the fact into meta.windows | building |
 | B-REGISTER | the clean prompt register g5 (Kabe: "that prompt seems like a mess") as an evolution arm against g4, with/without the coordinate appendix | building |
 
 ## Recently landed (for "issue with…" back-reference)
