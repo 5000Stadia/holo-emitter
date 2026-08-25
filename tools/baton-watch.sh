@@ -68,7 +68,10 @@ for f in ("design/batches/row23-scaffold/manor/manifest.json",
     if not os.path.exists(f): continue
     for e in json.load(open(f)).get("entries", []):
         if e.get("skipped"): continue
-        if state.get(e.get("key", e.get("facing", "")), {}).get("status") in TERMINAL: continue
+        _k = e.get("key", e.get("facing", ""))
+        # A wall the sweep never registered (M0's fenced study/hall facings) is
+        # not owed to the loop: counting them held "loop owed 2" for a day.
+        if _k not in state or state[_k].get("status") in TERMINAL: continue
         for r in e.get("rolls", []):
             if os.path.exists(r["candidate"]) and r["id"] not in readings:
                 unmeasured += 1

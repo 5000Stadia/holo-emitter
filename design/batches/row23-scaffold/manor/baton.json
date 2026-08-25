@@ -1,8 +1,8 @@
 {
- "ts": 1787643825.2081265,
- "baton": "loop",
- "active": "yes",
+ "ts": 1787645790.4369438,
+ "baton": "none",
+ "active": "unknown",
  "nudged": "no",
- "detail": "2 candidate(s) on disk with no reading - the sweep loop is owed (last pass completed 59s ago)",
- "loop_pass_age_s": 59
+ "detail": "all quiet: nothing owed anywhere this script can see",
+ "loop_pass_age_s": 27
 }
