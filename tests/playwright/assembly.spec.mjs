@@ -21,7 +21,8 @@
  *                 which is row 27's question answered by construction
  */
 import { test, expect, repoRoot } from "./helpers.mjs";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -54,8 +55,19 @@ test.describe("row 36 — the door void", () => {
   test("a repaired wall reads back the ways through its plan rules", () => {
     /* The five walls the loop is holding on the door clause. This runs the
        committed report rather than re-deriving it, so what the test asserts and
-       what a reader can reproduce are the same command. */
-    const out = py([REPORT]);
+       what a reader can reproduce are the same command.
+       INTO A SCRATCH DIRECTORY. The report writes a repaired frame per wall,
+       and its default is the row's own batch folder — six committed files
+       rewritten on every `npm test`, so a green suite left the tree dirty and
+       the next checkout failed. The batch keeps the evidence; the suite keeps
+       its own copy and throws it away. */
+    const scratch = mkdtempSync(join(tmpdir(), "holo-door-repair-"));
+    let out;
+    try {
+      out = py([REPORT, "--out-dir", scratch]);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
     const lines = out.trim().split("\n").slice(1);
     expect(lines.length).toBeGreaterThanOrEqual(5);
     const seen = {};
@@ -66,7 +78,7 @@ test.describe("row 36 — the door void", () => {
       seen[wall] = { before: +before, ruled: +ruled, after: +after,
                      errs: errs.split(",").map(Number), sep: +sep };
     }
-    for (const wall of ["great_hall/N", "great_hall/W", "library/S", "privy_garden/W"]) {
+    for (const wall of ["great_hall/N", "great_hall/W", "library/S"]) {
       const r = seen[wall];
       expect(r, `${wall} is in the report`).toBeTruthy();
       expect(r.after, `${wall}: every ruled way through is read back`)
@@ -78,11 +90,26 @@ test.describe("row 36 — the door void", () => {
           .toBeLessThan(30);
       }
     }
-    /* Three of them read ZERO before and their plan rules more than zero —
-       which is the refusal this repair exists to answer. */
+    /* All three read ZERO before and their plan rules more than zero — which is
+       the refusal this repair exists to answer. */
     expect(seen["great_hall/N"].before).toBe(0);
     expect(seen["great_hall/W"].before).toBe(0);
     expect(seen["library/S"].before).toBe(0);
+    /* AND THE FRAME THE REPAIR CANNOT ANSWER SAYS SO. `privy_garden/W` was in
+       the list above until snap pass 2's rectified frame landed: that frame
+       carries its own 1.55 m dark run at 2.00–3.55 m, overlapping the door the
+       plan rules at 1.55–2.55 m but centred too far off it to count as already
+       drawn. Painting the void merged the two into one 1.99 m reading whose
+       right edge sat 67 px past the aperture — a repaired PNG claiming a
+       doorway it had not made readable. Adding darkness cannot separate
+       darkness, so the tool refuses by name and the wall stays held; row 27's
+       `door.painted_width` would have caught the merged reading at the
+       promotion, but a tool reporting success on a frame it has broken is the
+       silent half of this row's contract. Pinned as the refusal it is, so a
+       repair that ever does answer this frame shows up here rather than
+       passing quietly. */
+    expect(out, "privy_garden/W is refused, and the reason is the clash itself")
+      .toMatch(/privy_garden\/W[^\n]*REFUSED[^\n]*already dark where the void goes/);
   });
 
   test("a wall whose doorways are already readable is left alone", () => {
@@ -98,17 +125,25 @@ test.describe("row 36 — the door void", () => {
     expect(promoted.length, "the store holds promoted door-bearing walls").toBeGreaterThan(0);
 
     let leftAlone = 0;
-    for (const key of promoted.slice(0, 6)) {
-      const [loc, fa] = key.split("/");
-      try {
-        py([TOOL, "--paint-doors", key,
-            "--candidate", `backdrops/${loc}/${fa}.png`,
-            "--out-png", join(repoRoot, "design", "batches", "row36-assembly",
-                              "door-repair", "_probe.png")]);
-      } catch (e) {
-        const said = String(e.stdout || "") + String(e.stderr || "");
-        if (/already reads all/.test(said)) leftAlone++;
+    /* The probe frame is a by-product of asking the question, not evidence:
+       it went into the row's committed batch folder and every `npm test` left
+       it modified in the tree. It belongs in a scratch directory that dies
+       with the case. */
+    const scratch = mkdtempSync(join(tmpdir(), "holo-door-probe-"));
+    try {
+      for (const key of promoted.slice(0, 6)) {
+        const [loc, fa] = key.split("/");
+        try {
+          py([TOOL, "--paint-doors", key,
+              "--candidate", `backdrops/${loc}/${fa}.png`,
+              "--out-png", join(scratch, "_probe.png")]);
+        } catch (e) {
+          const said = String(e.stdout || "") + String(e.stderr || "");
+          if (/already reads all/.test(said)) leftAlone++;
+        }
       }
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
     }
     expect(leftAlone,
       "at least one promoted wall already shows its doorway and is not repainted")

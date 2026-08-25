@@ -1006,11 +1006,61 @@ def repair_doors(key, candidate, out_png, plan, facings):
         return None, ("the detector already reads all %d way(s) through this "
                       "wall -- there is nothing for the void painter to add"
                       % len(doors))
+
+    # AND A VOID IS NOT PAINTED INTO DARKNESS THE PAINTING ALREADY CARRIES.
+    #
+    # The match above is by CENTRE, which is the right question for "is this
+    # doorway already drawn" and the wrong one for "is it safe to draw". A dark
+    # run can miss the ruled centre by more than DOOR_MATCH_M and still OVERLAP
+    # the rectangle about to be painted, and then the two are one run to a
+    # detector that reads maximally stable dark runs: `privy_garden/W`'s snapped
+    # frame carries a 1.55 m run at 2.00-3.55 m against a door the plan rules at
+    # 1.55-2.55 m, and painting the void merged them into a single 1.99 m
+    # reading whose right edge lands 67 px past the aperture. Nothing downstream
+    # was fooled -- row 27's `door.painted_width` refuses 1.99x at the promotion
+    # -- but the repair had written a PNG claiming a doorway it had not made
+    # readable, and a tool that reports success on a frame it has broken is the
+    # silent half of this row's own contract.
+    #
+    # Adding darkness cannot separate darkness, so there is no repair here to
+    # make: the wall stays held and says why.
+    clashes = []
+    for (u0, u1) in missing:
+        wx0, wx1 = x0 + u0 * ppm, x0 + u1 * ppm
+        for g in before:
+            lo, hi = max(wx0, g["x0_px"]), min(wx1, g["x1_px"])
+            if hi > lo:
+                clashes.append("the void ruled at %.2f-%.2f m (%.0f-%.0f px) "
+                               "shares %.0f px with a dark run the painting "
+                               "already carries at %.0f-%.0f px"
+                               % (u0, u1, wx0, wx1, hi - lo,
+                                  g["x0_px"], g["x1_px"]))
+    if clashes:
+        return None, ("this candidate is already dark where the void goes, so "
+                      "painting it makes one run and not a doorway: %s -- "
+                      "adding darkness cannot separate darkness, and the wall "
+                      "is repainted rather than repaired"
+                      % "; ".join(clashes))
+
     out, rec = paint_voids(rgb, b, width_m, storey, missing)
     if rec.get("refused"):
         return None, rec["refused"]
     write_tile(out_png, out)
-    rec.update(facing=key, candidate=candidate, out=out_png,
+    # THE RECORD NAMES THE FILE, NOT THE MACHINE. `out` held whatever absolute
+    # path the caller passed, so the committed record for each repaired wall
+    # carried the checkout it happened to be generated in -- and every run from
+    # a different worktree rewrote four committed JSON files whose pixels had
+    # not moved at all. Under the repository it is written repo-relative; a
+    # scratch directory outside it keeps its own name, since nothing there is
+    # committed.
+    where = out_png
+    try:
+        rel = os.path.relpath(os.path.abspath(out_png), ROOT)
+        if not rel.startswith(os.pardir):
+            where = rel
+    except ValueError:
+        pass
+    rec.update(facing=key, candidate=candidate, out=where,
                declared_box=b, width_m=round(width_m, 3),
                doors_ruled=len(doors), doors_read_before=len(before),
                left_alone=matched, painted_because_missing=len(missing))

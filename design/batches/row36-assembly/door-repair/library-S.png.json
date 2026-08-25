@@ -21,7 +21,7 @@
   },
   "facing": "library/S",
   "candidate": "backdrops/source-snapped/library-S/snapped.png",
-  "out": "/home/k/Projects/holo-emitter/.claude/worktrees/agent-a3556e121f5697c28/design/batches/row36-assembly/door-repair/library-S.png",
+  "out": "design/batches/row36-assembly/door-repair/library-S.png",
   "declared_box": {
     "x0": 17.066666666666606,
     "x1": 1518.9333333333334,
