@@ -20,6 +20,15 @@ correction if it does not, parked when its cap is spent. Nothing waits for
 anything else, and running it again after more frames arrive costs only the new
 ones.
 
+AND EVERY WALL LEAVES BY A NAMED DOOR. A camera PASS the promotion instrument
+refuses is not the end of the wall: row 35's snap and row 32's tolerance ruling
+are two exits the Captain ruled, they used to be tools run by hand between
+passes, and they are now taken inside the pass in the order the Navigator was
+applying them — snap first (with B-ASSEMBLY's door-void repair as its second
+half), tolerance second, grid last. Each wall's door is on its own run-state
+record as `exit`, with the reason it went out of that one. See `route_exit`,
+`SNAP_ROUND` and `DOOR_VOID_TOOL`.
+
 WHAT IT WILL NOT DO, and both are fences rather than omissions:
 
   * It never promotes `study/N` or `study/W`. They are the experiment's own
@@ -434,33 +443,455 @@ def _do_promote(key, cand_rel, e, side, ref, reading, tolerance=False):
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         return False, (r.stdout + r.stderr).strip().split("\n")[-1][:200]
-    # [row 33 regression fix, 2026-08-24] THE BAKE LEFT THE PER-WALL PATH. The
-    # stopwatch flagged promote.wall 44.8x slower: every promotion re-baked the
-    # whole store (15+ MB re-encoded per wall; twelve promotions, twelve full
-    # bakes). What the per-wall bake actually bought was ATTRIBUTION — a bake
-    # refusal named its wall and rolled it back. The cheap validator buys the
-    # same attribution without the encode: it reads the source metas directly.
-    # The sweep bakes ONCE at its end (`_bake_if_promoted`), which is where the
-    # encode belongs.
+    return _validate_promoted(key)
+
+
+def _take_back(key):
+    """The two files out of the store again. A promotion the law refuses is not
+    a promotion, and half of one is a page rendering a wall nothing validated."""
+    loc, f = key.split("/")
+    for p in (os.path.join(ROOT, "backdrops", loc, f + ".png"),
+              os.path.join(ROOT, "backdrops", loc, f + ".meta.json")):
+        if os.path.exists(p):
+            os.remove(p)
+
+
+def _validate_promoted(key):
+    """THE PROMOTED WALL'S OWN META, and the whole fixture exactly once a sweep.
+    [row 33 regression fix, 2026-08-24; narrowed by B-ROUTING]
+
+    The bake left the per-wall path when the stopwatch flagged promote.wall
+    44.8x slower — every promotion re-baked the whole store, 15+ MB re-encoded
+    per wall. What the per-wall bake bought was ATTRIBUTION: a refusal named its
+    wall and rolled it back. The cheap validator bought the same attribution
+    without the encode, and the row-33 ledger then flagged what IT cost —
+    promote.wall at 121x, because checking one wall re-read the world, the plan
+    and all eighty-eight derived metas.
+
+    So the per-wall check is now the one clause a promotion can newly break:
+    `validate-fixtures --only <loc>/<F>`, this wall's meta and nothing else. The
+    fixture-wide clauses are checked ONCE per sweep — `_validate_sweep`, before
+    the single bake — because they are properties of the fixture rather than of
+    this wall, and twelve promotions cannot each make them differently false.
+    """
     v = subprocess.run(["node", os.path.join(ROOT, "tools", "validate-fixtures.mjs"),
-                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor")],
+                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor"),
+                        "--only", key],
                        cwd=ROOT, capture_output=True, text=True)
     if v.returncode != 0:
-        loc, f = key.split("/")
-        for p in (os.path.join(ROOT, "backdrops", loc, f + ".png"),
-                  os.path.join(ROOT, "backdrops", loc, f + ".meta.json")):
-            if os.path.exists(p):
-                os.remove(p)
+        _take_back(key)
         return False, ("promoted, and taken back out because the validator refused: "
                        + (v.stdout + v.stderr).strip().split("\n")[-1][:200])
     return True, None
 
 
+def _validate_sweep():
+    """The fixture, whole, ONCE — and before the encode rather than inside it.
+
+    Every promotion this pass made was checked at its own meta (`--only`), which
+    is the clause a promotion can newly break and the only one that can be
+    attributed to a wall. What that check cannot see is a claim about the
+    fixture as a whole, so it is asked here, once, over everything the pass
+    left behind. It runs BEFORE `_bake()` because the bake validates the same
+    thing after re-encoding 15+ MB, and a store the law refuses should cost the
+    sweep a validator run rather than a bake.
+    """
+    _t = time.time()
+    v = subprocess.run(["node", os.path.join(ROOT, "tools", "validate-fixtures.mjs"),
+                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor")],
+                       cwd=ROOT, capture_output=True, text=True)
+    ok = v.returncode == 0
+    timings.record("validate.sweep", _t, time.time(), None,
+                   {"fixture": "nav-manor", "refused": not ok})
+    if ok:
+        return None
+    return ("fixtures/nav-manor: "
+            + (v.stdout + v.stderr).strip().split("\n")[-1][:300])
+
+
 def _bake_if_promoted(n_promoted):
-    """One bake for the whole sweep, only when something moved."""
+    """One validation and one bake for the whole sweep, only when something moved."""
     if not n_promoted:
         return None
+    bad = _validate_sweep()
+    if bad:
+        return bad
     return _bake()
+
+
+#: [B-ROUTING] THE TWO EXITS THE CAPTAIN RULED, MADE STANDING.
+#:
+#: The sweep measured, promoted and retried, and that was all it did. The two
+#: ways a wall the measurement refuses can still reach the store were tools the
+#: Navigator ran by hand between passes — `row35_snap.py` (row 35's correction)
+#: and `--tolerance-sweep` (row 32's declared camera under the Captain's
+#: ruling). A pass could therefore measure twelve fresh returns, find every one
+#: of them a camera PASS, and leave all twelve holding for want of a command
+#: nobody was in the room to type.
+#:
+#: The order is the Navigator's own and it is not arbitrary:
+#:
+#:   SNAP first     it spends no roll and no tolerance. The correction is
+#:                  deterministic and the result is re-measured on the standing
+#:                  instrument, so a wall that comes back clean is promoted on
+#:                  its own MEASURED numbers. Nothing is waived.
+#:   VOID REPAIR    the snap's own second half, for a corrected frame the door
+#:                  clause refuses: the plan's apertures painted in as voids,
+#:                  the doors then MEASURED off the repaired frame. Also
+#:                  deterministic, also nothing waived. See `DOOR_VOID_TOOL`.
+#:   TOLERANCE second  the Captain's ruling, spent only where the snap could
+#:                  not correct the frame. It ships a wall whose returns still
+#:                  disagree with its ruler, flagged, on the DECLARED horizon.
+#:   GRID last      the honest answer. Unestablished space renders as the
+#:                  holodeck grid, in-fiction and literal, and a wall neither
+#:                  exit can carry stays there with its correction.
+#:
+#: ONCE PER CANDIDATE. Every exit attempt is recorded against the candidate it
+#: was tried on (`exit_attempt`), and a wall is not routed again until its
+#: candidate changes — otherwise every pass would re-snap the same frame to the
+#: same refusal, at ~12 s a wall, which is the row-30 cut being paid all over
+#: again on the other side of the pipeline.
+SNAP_ROUND = "row35snap"
+EXIT_MEASURED, EXIT_SNAPPED = "measured", "snapped"
+#: The snap, plus B-ASSEMBLY's door-void repair — see `DOOR_VOID_TOOL`. It is
+#: its own name rather than a flag on `snapped` because the frame that shipped
+#: is not the frame the snap produced.
+EXIT_SNAPPED_VOIDED = "snapped+voided"
+EXIT_TOLERATED, EXIT_GRID = "tolerated", "grid"
+
+
+def _record_exit(st, name, reason, cand_rel=None):
+    """What left the pipeline by which door, and why, on the wall's own record."""
+    st["exit"] = name
+    st["exit_reason"] = reason
+    if cand_rel is not None:
+        st["exit_attempt"] = {"candidate": cand_rel, "exit": name,
+                              "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
+
+
+def _exit_tried(st, cand_rel):
+    """Has this wall already been routed on THIS candidate? See SNAP_ROUND above."""
+    return (st.get("exit_attempt") or {}).get("candidate") == cand_rel
+
+
+def promote_document(key, cand_rel, round_dir):
+    """A promotion of a document some other instrument already wrote.
+
+    The ordinary promotion shapes a reading into a §5 record and then promotes
+    it (`promote_reading` + `_do_promote`). The snap has already done both
+    halves — its rewritten reading IS the document, in its own round directory —
+    so this promotes that, and nothing here measures or writes a record.
+    """
+    _t = time.time()
+    r = subprocess.run(
+        ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
+         "--facing", key, "--candidate", cand_rel, "--round", round_dir,
+         "--reference", "ruled"],
+        cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0:
+        why = (r.stdout + r.stderr).strip().split("\n")[-1][:200]
+        timings.record("promote.wall", _t, time.time(), key,
+                       {"candidate": cand_rel, "refused": True, "round": round_dir,
+                        "camera_source": "measured", "why": why})
+        return False, why
+    ok, why = _validate_promoted(key)
+    timings.record("promote.wall", _t, time.time(), key,
+                   {"candidate": cand_rel, "refused": not ok, "round": round_dir,
+                    "camera_source": "measured", "why": (why or "")[:300] or None})
+    return ok, why
+
+
+def _exit_snap(key, cand_rel, reading):
+    """Row 35's correction, tried, and promoted if the frame comes back clean.
+
+    The reading is the one the gate has already taken of this frame, handed
+    straight in: the snap's own docstring says the measurement is INPUT GEOMETRY
+    and not a gate, and re-measuring here would be a second instrument reading
+    for the same number the sweep just read.
+    """
+    import row35_snap
+    _t = time.time()
+    try:
+        res, why = row35_snap.snap_to_round(key, cand_rel, reading=reading,
+                                            round_dir=SNAP_ROUND, acceptance=True)
+    except Exception as ex:
+        # ONE BAD WALL IS ONE ROW. A snap that raises costs this wall its exit
+        # and costs the sweep nothing else.
+        timings.record("exit.snap", _t, time.time(), key,
+                       {"candidate": cand_rel, "snapped": False,
+                        "error": str(ex)[:200]})
+        return False, "the snap raised on this frame: %s" % str(ex)[:200], None, None
+    if res is None:
+        timings.record("exit.snap", _t, time.time(), key,
+                       {"candidate": cand_rel, "snapped": False,
+                        "why": (why or "")[:300]})
+        return False, "the snap refused this frame: %s" % why, None, None
+    acc = res.get("acceptance") or {}
+    clean = row35_snap.snap_is_clean(acc)
+    timings.record("exit.snap", _t, time.time(), key,
+                   {"candidate": cand_rel, "snapped": True, "clean": clean,
+                    "snapped_candidate": res["candidate"],
+                    "verdict": acc.get("verdict"),
+                    "hold_family": acc.get("hold_family")})
+    if not clean:
+        return False, ("the snap corrected this frame and the standing "
+                       "instrument still refuses it: %s [%s]"
+                       % (acc.get("verdict"), acc.get("hold_family") or "-")), res, None
+    ok, why = promote_document(key, res["candidate"], SNAP_ROUND)
+    if not ok:
+        return False, ("the snapped frame re-measures clean and the promotion "
+                       "refused it: %s" % why), res, why
+    return True, ("row 35 rectified this frame onto its own declared camera and "
+                  "the standing instrument then passed it with nothing left to "
+                  "hold (focal %+.2f%%, eye %+.2f%%); promoted from %s through "
+                  "the %s round, on measured numbers and no waiver"
+                  % (acc.get("delta_focal_pct") or 0.0,
+                     acc.get("delta_eye_pct") or 0.0,
+                     res["candidate"], SNAP_ROUND)), res, None
+
+
+#: [B-ROUTING x B-ASSEMBLY] The door-void painter: the plan's apertures
+#: composited onto a snapped frame as unlit voids at the declared geometry, for
+#: the five walls a second snap pass found CLEAN and still refused — the camera
+#: is corrected, the instrument passes it, and the painting shows no measurable
+#: hole where the plan rules a way through.
+#:
+#: THE CALL SITE IS HERE AND THE TOOL IS B-ASSEMBLY'S. Until it lands this is a
+#: NAMED refusal rather than a silent gap: the wall goes on to the next exit
+#: with a sentence saying which repair it is waiting for and who owns it, and
+#: the chain is complete in shape today. The contract this site calls it on —
+#: `--facing <loc>/<F> --candidate <png> --out <png>`, exit 0 on a repaired
+#: frame written to `--out` — is the one to confirm against B-ASSEMBLY's branch
+#: the day it lands.
+DOOR_VOID_TOOL = os.path.join(ROOT, "tools", "paint-door-voids.mjs")
+
+#: The row-27 clauses this repair answers, by their LEDGER TOKENS. Routing on
+#: the token and not on the prose is row 35's own lesson (`_snap_once` returns
+#: its clause beside its sentence): a caller that decides a route by
+#: substring-matching a message someone else formats is a second occurrence of
+#: a token whose whole discipline is one token, one emit site. The second entry
+#: has no token to cite because `promote-backdrop.mjs` exits on it before the
+#: refusal list exists; it is quoted whole rather than paraphrased.
+DOOR_CLAUSES = ("row27:door.unmeasured_exit", "carries no door reading")
+
+
+def _is_door_refusal(why):
+    """Did the promotion refuse this wall for want of a painted way through?"""
+    return any(c in (why or "") for c in DOOR_CLAUSES)
+
+
+def _exit_void_repair(key, st, res, promo_why):
+    """The doors painted in, the doors re-read, the wall promoted. See DOOR_VOID_TOOL.
+
+    AFTER THE SNAP AND BEFORE THE TOLERANCE, because it is the same kind of act
+    as the snap and not the same kind as the ruling: it corrects the picture
+    deterministically at the geometry the plan already rules, the doors are then
+    MEASURED off the repaired frame the way row 27 requires of every promotion,
+    and nothing is waived. A wall that takes this exit ships on measured
+    numbers.
+    """
+    _t = time.time()
+    if not os.path.exists(DOOR_VOID_TOOL):
+        why = ("the snapped frame re-measures clean and the door clause refuses "
+               "it (%s) — that is B-ASSEMBLY's door-void repair, and %s is not "
+               "on disk yet, so this wall waits for the painter rather than "
+               "shipping a doorway a player would click on paint"
+               % (promo_why, os.path.relpath(DOOR_VOID_TOOL, ROOT)))
+        timings.record("exit.voidrepair", _t, time.time(), key,
+                       {"candidate": res["candidate"], "repaired": False,
+                        "why": "tool absent"})
+        return False, why
+    out_png = os.path.join(os.path.dirname(os.path.abspath(res["out_png"])),
+                           "after-voided.png")
+    r = subprocess.run(["node", DOOR_VOID_TOOL, "--facing", key,
+                        "--candidate", res["candidate"],
+                        "--out", os.path.relpath(out_png, ROOT)],
+                       cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0 or not os.path.exists(out_png):
+        why = ("the door-void repair refused this frame: %s"
+               % (r.stdout + r.stderr).strip().split("\n")[-1][:200])
+        timings.record("exit.voidrepair", _t, time.time(), key,
+                       {"candidate": res["candidate"], "repaired": False,
+                        "why": why[:300]})
+        return False, why
+    rel_out = os.path.relpath(out_png, ROOT)
+    # THE DOORS ARE RE-READ OFF THE REPAIRED FRAME, never carried. The whole
+    # refusal was that this picture had no hole to measure; a promotion that
+    # took the rectangles from anywhere but the pixels it is about to ship
+    # would be the row-27 defect the Captain walked into, re-authored.
+    ok, why = _redoor_document(key, res, rel_out)
+    if not ok:
+        timings.record("exit.voidrepair", _t, time.time(), key,
+                       {"candidate": rel_out, "repaired": True, "why": why[:300]})
+        return False, why
+    ok, why = promote_document(key, rel_out, SNAP_ROUND)
+    timings.record("exit.voidrepair", _t, time.time(), key,
+                   {"candidate": rel_out, "repaired": True, "promoted": ok,
+                    "why": (why or "")[:300] or None})
+    if not ok:
+        return False, ("the repaired frame's doors read and the promotion "
+                       "refused it: %s" % why)
+    st["door_voids_painted"] = rel_out
+    return True, ("the snap corrected the camera and the plan's apertures were "
+                  "painted in as voids at the declared geometry (%s); the doors "
+                  "were then re-read off that frame and it promoted through the "
+                  "%s round on measured numbers" % (rel_out, SNAP_ROUND))
+
+
+def _redoor_document(key, res, repaired_rel):
+    """This wall's round document, its openings re-read off the repaired frame.
+
+    The document is the snapped one — every camera number in it is still true of
+    the repaired image, which differs from it only where a void was painted —
+    so what moves is the opening rectangles and the two fields that say WHICH
+    IMAGE this document describes. `promote-backdrop.mjs` refuses a document
+    whose `_what_this_is` does not name the candidate, and it is right to: a
+    reading dressed on another picture is the one failure nothing downstream
+    can see.
+    """
+    import door_measure
+    loc, fac = key.split("/")
+    doc_path = res["doc_out"]
+    if not os.path.exists(doc_path):
+        return False, "the snapped round document is gone from %s" % doc_path
+    plan = json.load(open(PLAN))
+    try:
+        door_measure.patch(doc_path, os.path.join(ROOT, repaired_rel), loc, plan)
+    except Exception as ex:
+        return False, ("the doors could not be read off the repaired frame: %s"
+                       % str(ex)[:200])
+    doc = json.load(open(doc_path))
+    doc["_what_this_is"] = (
+        (doc.get("_what_this_is") or "")
+        + " The plan's apertures were then painted onto that frame as unlit "
+          "voids by %s and this document's openings were re-read off the "
+          "result, %s, which is the image it now describes."
+        % (os.path.relpath(DOOR_VOID_TOOL, ROOT), repaired_rel))
+    doc["_source_sha256"] = sha(os.path.join(ROOT, repaired_rel))
+    doc["_door_voids"] = {
+        "tool": os.path.relpath(DOOR_VOID_TOOL, ROOT),
+        "painted_onto": res["candidate"],
+        "image": repaired_rel,
+        "_what_this_is": ("the openings below were MEASURED off the repaired "
+                          "frame, not projected onto it; row 27's rule is the "
+                          "same whoever painted the hole"),
+    }
+    json.dump(doc, open(doc_path, "w"), indent=2)
+    return True, None
+
+
+def _exit_tolerance(key, e, st, cand_rel, reading, side, ref, fam):
+    """Row 32's declared camera, under the Captain's ruling. Second, never first.
+
+    THE FENCES ARE `tolerance_sweep`'S OWN and this route may not be softer than
+    the mode it stands in for: the ruling is spent only on a wall with nothing
+    else coming (a `retry` wall has a correction going out and its cap unspent,
+    and buying it a waiver would spend the Captain's tolerance on a repaint that
+    was about to happen for free), only on the families the ruling covers, and
+    only while the ruling is on the ledger.
+    """
+    ruling = tolerance_ruling()
+    if not ruling:
+        return False, ("design/approvals.log carries no suspect-painting "
+                       "tolerance line; this route has no authority to run")
+    if fam not in row23_lib.TOLERANCE_FAMILIES:
+        return False, ("%s is not one of the families the tolerance ruling "
+                       "covers" % fam)
+    if st.get("status") != "held":
+        return False, ("this wall is still retrying: it has a correction going "
+                       "out and its cap unspent, and the ruling is not spent on "
+                       "a repaint that may happen for free")
+    _t = time.time()
+    ok, why = do_promote(key, cand_rel, e, dict(side, candidate=cand_rel), ref,
+                         reading, tolerance=True)
+    timings.record("exit.tolerance", _t, time.time(), key,
+                   {"candidate": cand_rel, "family": fam, "refused": not ok,
+                    "why": (why or "")[:300] or None})
+    if not ok:
+        return False, "the tolerance promotion was refused: %s" % why
+    # THE CORRECTION IS NOT ANSWERED AND IS NOT DELETED — the repaint this wall
+    # was asked for never happened; the Captain accepted the drift instead.
+    # `tolerance_sweep` keeps it under the same past-tense name.
+    if st.get("correction") is not None:
+        st["waived_correction"] = st.pop("correction")
+    st["suspect_perspective"] = True
+    st["camera_source"] = "declared"
+    st["tolerance_ruling"] = ruling
+    st["hold_family"] = fam
+    return True, ("the snap could not correct this frame and its camera passes, "
+                  "so it ships on the DECLARED horizon under the Captain's "
+                  "ruling, flagged suspect_perspective: %s" % ruling)
+
+
+def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
+    """SNAP FIRST, TOLERANCE SECOND, GRID LAST — for one wall, once.
+
+    Returns (exit, reason) and mutates `st` on a promotion. The caller has
+    already recorded the hold; this is what happens next, and on GRID the hold
+    it recorded stands untouched.
+    """
+    _t = time.time()
+    if _exit_tried(st, cand_rel):
+        # Not an exit and not a decision: the routing already ran on this
+        # candidate and said what it said. Nothing is re-tried, nothing is
+        # re-timed, and the wall's own record still carries the answer.
+        return st.get("exit") or EXIT_GRID, "already routed on this candidate"
+
+    def _promoted(exit_name, reason, answered=True):
+        """The state a wall carries out of an exit it took.
+
+        `answered` is the difference between the two kinds of promotion and it
+        is not cosmetic: a CORRECTED frame answers the correction it was asked
+        for, and a TOLERATED one never does — the repaint did not happen, the
+        Captain accepted the drift, and `_exit_tolerance` has already moved the
+        sentence under `waived_correction`. A tolerated wall also keeps its
+        `hold_family` and its flags, which is what `tolerance_sweep` writes and
+        what `--recheck-doors` reads back to re-decide it under the ruling; a
+        corrected one is no longer holding for anything and says so.
+        """
+        st["status"] = "promoted"
+        st["candidate"] = cand_rel
+        if answered:
+            if st.get("correction") is not None:
+                st["answered_correction"] = st.pop("correction")
+            st["snapped_from_family"] = fam
+            st.pop("hold_family", None)
+        _record_exit(st, exit_name, reason, cand_rel)
+        timings.record("exit.route", _t, time.time(), key,
+                       {"candidate": cand_rel, "exit": exit_name, "family": fam})
+        return exit_name, reason
+
+    ok, reason, res, promo_why = _exit_snap(key, cand_rel, reading)
+    if ok:
+        return _promoted(EXIT_SNAPPED, reason)
+    snap_why = reason
+
+    # THE DOOR REPAIR IS THE SNAP'S OWN SECOND HALF, not a third opinion: it is
+    # reached only from a frame the snap already corrected and the instrument
+    # already passed, refused for want of a painted way through. See
+    # DOOR_VOID_TOOL.
+    if res is not None and _is_door_refusal(promo_why):
+        ok, reason = _exit_void_repair(key, st, res, promo_why)
+        if ok:
+            return _promoted(EXIT_SNAPPED_VOIDED, reason)
+        snap_why = "%s; %s" % (snap_why, reason)
+
+    ok, reason = _exit_tolerance(key, e, st, cand_rel, reading, side, ref, fam)
+    if ok:
+        # The correction is WAIVED here and not answered — `_exit_tolerance`
+        # has already moved it under that name — so this promotion does not
+        # claim the repaint happened.
+        return _promoted(EXIT_TOLERATED,
+                         "%s (the snap first: %s)" % (reason, snap_why),
+                         answered=False)
+
+    _record_exit(st, EXIT_GRID,
+                 "neither exit could carry this wall — snap: %s; tolerance: %s"
+                 % (snap_why, reason), cand_rel)
+    timings.record("exit.route", _t, time.time(), key,
+                   {"candidate": cand_rel, "exit": EXIT_GRID, "family": fam,
+                    "snap": snap_why[:200], "tolerance": reason[:200]})
+    return EXIT_GRID, st["exit_reason"]
 
 
 def sweep(manifest, state, do_promote=True):
@@ -711,6 +1142,12 @@ def sweep(manifest, state, do_promote=True):
                     if st.get("correction") is not None:
                         st["answered_correction"] = st.pop("correction")
                     st.pop("hold_family", None)
+                    # [B-ROUTING] The door this wall left by, on its own record,
+                    # so the ledger can say how many walls each exit carried
+                    # without inferring it from what a wall is missing.
+                    _record_exit(st, EXIT_MEASURED,
+                                 "the camera this frame's own returns fix; "
+                                 "no correction and no waiver")
                     promoted.append((key, "PASS %+.1f%% focal, promoted and baked"
                                      % d["delta_focal_pct"], d))
                 else:
@@ -760,6 +1197,17 @@ def sweep(manifest, state, do_promote=True):
                         st["correction"] = (
                             "camera PASS; held for the promotion instrument "
                             "[%s]: %s" % (st["hold_family"], corr or why))
+                    # [B-ROUTING] AND THE HOLD IS WHERE THE EXITS STAND. The
+                    # wall is in one of the two families the ruled exits are
+                    # for, its camera passed, and its candidate is on disk and
+                    # readable — which is the whole precondition the Navigator
+                    # was checking by hand between passes. See SNAP_ROUND.
+                    if fam in row23_lib.TOLERANCE_FAMILIES:
+                        ex, reason = route_exit(key, e, st, r["candidate"], d,
+                                                side, ref, fam)
+                        if ex in (EXIT_SNAPPED, EXIT_TOLERATED):
+                            promoted.append((key, "%s - %s" % (ex.upper(), reason), d))
+                            continue
                     failed.append((key, d, st["correction"]))
             else:
                 st["status"] = "admitted"
@@ -1233,6 +1681,19 @@ def main():
               % (time.strftime("%H:%M:%S"), done, tally.get("retry", 0),
                  tally.get("held", 0), tally.get("parked", 0),
                  tally.get("waiting", 0)))
+        # [B-ROUTING] AND BY WHICH DOOR, because "promoted" is now four
+        # different claims about how a wall got there and one of them is a
+        # waiver the Captain signed.
+        exits = {}
+        for w in state["walls"].values():
+            if w.get("exit"):
+                exits[w["exit"]] = exits.get(w["exit"], 0) + 1
+        if exits:
+            print("  exits: " + ", ".join("%d %s" % (exits[k], k) for k in
+                                          (EXIT_MEASURED, EXIT_SNAPPED,
+                                           EXIT_SNAPPED_VOIDED, EXIT_TOLERATED,
+                                           EXIT_GRID)
+                                          if exits.get(k)))
         if done:
             print("  >> %d wall(s) promoted and baked. `tools/publish-site.sh` is yours to "
                   "run when you want them live - this loop never publishes." % done)
