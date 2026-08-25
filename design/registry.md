@@ -21,8 +21,9 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | building |
-| B-FLIGHT | flight attachment: painted staircases written into promoted metas | building (respawned after the host restart) |
+| B-STAIRS | row 25: taps travel on every drawn flight pixel, lit treads, void claims, through-view smear | continuation builder on the predecessor's 15 commits (second host restart) |
+| B-FLIGHT | flight attachment: painted staircases written into promoted metas | continuation builder on the predecessor's 8 commits (second host restart) |
+| B-ROUTING | the loop's standing exits: snap-first, tolerance-second, grid-last; once-per-sweep validation; pass-completed liveness | building |
 | B-ASSEMBLY | row 36 builder: scale contract + MATERIALS landed; harvester, lighting stub, assembler, kitchen demo next | building |
 
 ## Recently landed (for "issue with…" back-reference)
@@ -47,4 +48,4 @@ wall is itself an id the whole pipeline resolves.
 
 ## Restart discipline
 
-A host restart kills tmux and the session cron. Recovery is one command (`tools/services.sh up`) plus resuming in-flight builders by handle; merged builders' worktrees are pruned so nothing loose survives a restart unowned. 2026-08-24: 13 merged worktrees pruned, 3 in-flight kept.
+A host restart kills tmux and the session cron. Recovery is one command (`tools/services.sh up`) plus resuming in-flight builders by handle; merged builders' worktrees are pruned so nothing loose survives a restart unowned. 2026-08-24: 13 merged worktrees pruned, 3 in-flight kept. Second restart the same day: two builders' transcripts lost but their branches held 15 and 8 commits — continuation builders took the branches over; the rule is COMMIT SMALL, the branch is the memory.
