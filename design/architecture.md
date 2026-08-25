@@ -6076,6 +6076,78 @@ is exactly how row 36 shipped. Reverting a wall to a tiled crop fails all four o
 Proof batch: `design/batches/row41-bays/{kitchen,master_bedchamber}/`, captured by
 `design/plan-draft/measured/row41_batch.py`.
 
+## Vouching follows the material, not the wording (row 40, second pass) — `tools/make-scaffold.mjs`, `tools/room-voices.mjs`
+
+**The miss, 2026-08-25.** The Navigator refined ONE voice string. `servants_hall.floor` went from
+"a floor of worn red brick laid on edge" to that plus its bond — "…in straight courses running away
+from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone" — because
+[Kabe, 2026-08-25] *"Servants hall has multiple different floor types"*: the material alone had let
+one wall lay its bricks as squares beside two laid in courses.
+
+The ask audit compares SENTENCES, so it correctly marked N, S and W as asked before the ruling and
+they were sealed legacy. But `styleImageFor`'s second condition — row 40's own, *the wall's own ask
+was this room's ruling* — read that same verbatim verdict. So the room had no wall it could vouch
+for, so **no facing of it got an Image 1 at all**, including for walls painted that same day in
+exactly the floor the voice rules. The words meant to make the floor more consistent left the room
+less able to be consistent. Logged and CLOSED in `misses.jsonl` (round row40).
+
+**The rule, and it lives in one place** — `make-scaffold.mjs`, under `VOUCHING FOLLOWS THE MATERIAL,
+NOT THE WORDING`. A promoted wall is VOUCHED when the MATERIALS its ask resolved to are the materials
+its room's voice resolves to now. Four classes per facing, exclusive, in order:
+
+| class | what it is | vouched | re-asked by `--from-ask` |
+|---|---|---|---|
+| `current` | the ask states this room's ruling sentences verbatim | yes | no |
+| `refined` | every sentence it does not state verbatim resolves to the SAME material id | **yes** | only with `--refined-too` |
+| `split-ask` | a different material, and the room holds more than one set of ask materials | no | yes |
+| `stale-material` | a different material, and the whole room was commissioned that way | no | yes |
+
+`materialProvenance()` records `ask_materials` and `ruling_materials` per facing beside the class, so
+the report says what a wall was commissioned IN and not only whether it says what we say today. The
+room's `split` is now computed on those ids rather than on prose: a room asked one fabric in two
+wordings is ONE commission.
+
+**Why it is declared and not inferred.** No rule reading prose alone can tell "the same material,
+said better" from "a different material" — `MATERIAL_BINDING`'s own note says why, and this table is
+the proof: `cross_passage.walls` is a strict PREFIX of `long_gallery.walls` and they are two fabrics
+(the gallery's wall head carries a moulded cornice). The gallery's N, E and S were asked in the
+passage's words and must stay unvouched. So the tempting shortcut — old wording is a prefix of the
+new one, therefore same material — is wrong in the store as it stands, and is held as a red case.
+
+`room-voices.mjs`'s **`SAID_BEFORE`** is where a rewording declares the material it still names, with
+the commit that retired it and the reason, in the same commit that changes the voice.
+`declaredMaterialPhrases()` builds the registry — every current wording from `MATERIAL_BINDING` ×
+`VOICES`, plus every retired one — and refuses an entry that names an unknown material, a material no
+voice reaches, or a phrase some other material says today. **Forgetting is safe**: an undeclared
+rewording reads as a material change, so the wall goes unvouched and is re-asked. The failure
+direction is a wasted roll, never a wrong photograph handed to the next painter.
+
+**Reading an ask.** `materialNamedIn(text, part)` matches the registry, bucketed by material part
+(walls / overhead / underfoot / hangings, derived from the voice KEY and never from `MATERIALS.slot`,
+so a bedchamber's hangings cannot answer for its walls) and **longest phrase first** — a longer
+declared wording that is present is always the more specific reading of the same text
+(`light-toned oak wainscot to chair height below limewashed plaster` contains the great stair's
+string, and the garden parlour is not the great stair). `null` is an answer: no wording anybody has
+declared is anywhere in that text, which is what `privy_garden`'s "weathered ashlar and brick" looks
+like. Two nulls never compare equal — an illegible part falls back to the prose fingerprint, so
+`solar`'s four facings (illegible in the same words) stay one commission and `study`'s N and W
+(illegible in different words) stay two.
+
+Only the parts the verbatim test already calls `missing` are asked the material question, and a
+ruling phrase bound to no texture (`OPEN_SIDE_FABRIC` — the absence of a wall said as a fabric) falls
+back to the verbatim test. So this is nowhere weaker than what it replaces.
+
+**Measured** (production law clause 5, before → after): walls the servants' hall can vouch for 1 → 4;
+facings of the 88 resolving an Image 1 **37 → 41**; rooms that can seed their own fabric 10 → 11;
+walls wrongly vouched 0. Classes over the 61 promoted: 32 current, 3 refined, 8 split-ask, 18
+stale-material.
+
+`--audit-materials` prints the class per facing per room with a legend; the legacy ledger's
+admissions carry `class` and `vouched`, because "it predates the voice the room now speaks" was
+being said about a wall painted in another fabric AND about a wall painted in this one before the
+words were tightened, and only the second may stand as a picture of its room. Held by
+`material-origin.spec.mjs` §7, seven cases, including both red arms.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went

@@ -49975,3 +49975,15 @@
 {"ts_start":1787669001.54,"ts_end":1787669001.613,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
 {"ts_start":1787669001.672,"ts_end":1787669001.814,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"430c21c8","out_bytes":632055,"facings":88,"locations":22}}
 {"detail":{"action":"bake","files":0,"note":null,"refused":false,"wrote":[]},"key":"baked","step":"derive.regen","ts_end":1787669001.917391,"ts_start":1787668984.764251}
+{"detail":{"action":"materials","files":0,"note":null,"refused":false,"wrote":[]},"key":"material_provenance","step":"derive.regen","ts_end":1787670350.589439,"ts_start":1787670350.409091}
+{"detail":{"action":"materials","files":0,"note":null,"refused":false,"wrote":[]},"key":"material_legacy","step":"derive.regen","ts_end":1787670351.564757,"ts_start":1787670351.386267}
+{"detail":{"action":"texture_library","files":0,"note":null,"refused":false,"wrote":[]},"key":"texture_library","step":"derive.regen","ts_end":1787670370.301529,"ts_start":1787670370.050204}
+{"detail":{"prompts":503,"refused":28},"key":null,"step":"lint.prompts","ts_end":1787670520.085176,"ts_start":1787670519.673989}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787670540.229084,"ts_start":1787670540.159864}
+{"ts_start":1787670609.004,"ts_end":1787670609.425,"step":"emit.facing","key":"servants_hall/N","detail":{"carriers":1,"voice":"servants_hall","consistency":1}}
+{"ts_start":1787670609.426,"ts_end":1787670609.429,"step":"emit.packet","key":"servants_hall/N","detail":{"rolls":1,"roll_ids":["e7912869"],"prompt_chars":4286,"consistency":1}}
+{"ts_start":1787670609.434,"ts_end":1787670609.788,"step":"emit.facing","key":"servants_hall/S","detail":{"carriers":1,"voice":"servants_hall","consistency":1}}
+{"ts_start":1787670609.788,"ts_end":1787670609.79,"step":"emit.packet","key":"servants_hall/S","detail":{"rolls":1,"roll_ids":["87560c45"],"prompt_chars":4113,"consistency":1}}
+{"ts_start":1787670609.797,"ts_end":1787670609.957,"step":"emit.facing","key":"servants_hall/W","detail":{"carriers":2,"voice":"servants_hall","consistency":1}}
+{"ts_start":1787670609.957,"ts_end":1787670609.959,"step":"emit.packet","key":"servants_hall/W","detail":{"rolls":1,"roll_ids":["fdf40147"],"prompt_chars":4124,"consistency":1}}
+{"ts_start":1787670606.646,"ts_end":1787670610.055,"step":"emit.run","key":null,"detail":{"mode":"consistency","emitted":3,"refused":0}}

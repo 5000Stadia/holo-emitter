@@ -1,11 +1,10 @@
 {
   "instrument": "tools/make-scaffold.mjs materialProvenance()",
-  "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today",
+  "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today — and, where those differ, the MATERIALS each resolves to, which is what decides whether the wall is vouched (see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
   "promoted_facings": 61,
   "split_rooms": [
     "study",
     "back_stair",
-    "servants_hall",
     "entrance_court",
     "back_stair_head",
     "guest_chamber",
@@ -19,6 +18,10 @@
     "solar",
     "long_gallery"
   ],
+  "refined_rooms": [
+    "servants_hall"
+  ],
+  "vouched_facings": 35,
   "unrecoverable": [],
   "rooms": [
     {
@@ -43,7 +46,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         },
         {
           "facing": "S",
@@ -64,7 +81,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -73,6 +104,7 @@
         "N",
         "S"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -96,7 +128,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, pale carved stone Tudor fireplace surround, brick-lined firebox, and a small lively lit wood fire. Preserve restrained seventeenth-century English manor construction and the established material grain.",
-          "ask_key": "dark hand-finished oak wall paneling aged parchment-toned plaster ceiling wide worn oak floorboards pale carved stone tudor fireplace surround brick-lined firebox and small lively lit wood fire preserve restrained seventeenth-century english manor construction and established material grain"
+          "ask_key": "dark hand-finished oak wall paneling aged parchment-toned plaster ceiling wide worn oak floorboards pale carved stone tudor fireplace surround brick-lined firebox and small lively lit wood fire preserve restrained seventeenth-century english manor construction and established material grain",
+          "ask_materials": {
+            "walls": null,
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"(unreadable, asked as: dark hand-finished oak wall paneling aged parchment-toned plaster ceiling wide worn oak floorboards pale carved stone tudor fireplace surround brick-lined firebox and small lively lit wood fire preserve restrained seventeenth-century english manor construction and established material grain)\"]]"
         },
         {
           "facing": "W",
@@ -115,7 +161,21 @@
           ],
           "verdict": "stale",
           "asked": "Match Image 1 exactly: dark hand-finished oak paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, fine oil realism, tactile material grain, restrained cool ambient light with subtle warm falloff, and calm seventeenth-century atmosphere.",
-          "ask_key": "match image 1 exactly dark hand-finished oak paneling aged parchment-toned plaster ceiling wide worn oak floorboards fine oil realism tactile material grain restrained cool ambient light with subtle warm falloff and calm seventeenth-century atmosphere"
+          "ask_key": "match image 1 exactly dark hand-finished oak paneling aged parchment-toned plaster ceiling wide worn oak floorboards fine oil realism tactile material grain restrained cool ambient light with subtle warm falloff and calm seventeenth-century atmosphere",
+          "ask_materials": {
+            "walls": null,
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"(unreadable, asked as: match image 1 exactly dark hand-finished oak paneling aged parchment-toned plaster ceiling wide worn oak floorboards fine oil realism tactile material grain restrained cool ambient light with subtle warm falloff and calm seventeenth-century atmosphere)\"]]"
         }
       ],
       "distinct_asks": 2,
@@ -124,6 +184,7 @@
         "N",
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     },
@@ -149,7 +210,21 @@
           ],
           "verdict": "stale",
           "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"underfoot\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         },
         {
           "facing": "W",
@@ -166,7 +241,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery. Overhead: a plain plastered soffit. plain scrubbed oak treads and boards.",
-          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards"
+          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards",
+          "ask_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/broad-oak-treads-boards\"],[\"walls\",\"wall/boarded-oak-dado-limewash\"]]"
         }
       ],
       "distinct_asks": 2,
@@ -174,6 +263,7 @@
       "stale": [
         "N"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     },
@@ -199,7 +289,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "S",
@@ -220,7 +324,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "W",
@@ -241,7 +359,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -251,6 +383,7 @@
         "S",
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -276,7 +409,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "E",
@@ -297,7 +444,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "S",
@@ -318,7 +479,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "W",
@@ -339,7 +514,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/smoke-darkened-joists",
+            "underfoot": "floor/worn-stone-flags",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -350,6 +539,7 @@
         "S",
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -373,7 +563,21 @@
           ],
           "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
-          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
+          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge",
+          "ask_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "class": "refined",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-exposed-joists\"],[\"underfoot\",\"floor/red-brick-on-edge\"],[\"walls\",\"wall/plain-limewash-to-floor\"]]"
         },
         {
           "facing": "E",
@@ -390,7 +594,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "plain exposed oak joists with boards between them. Underfoot: a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone.",
-          "ask_key": "plain exposed oak joists with boards between them floor of worn red brick laid on edge in straight courses running away from you every brick long narrow rectangle end-on no square pavers and no herringbone"
+          "ask_key": "plain exposed oak joists with boards between them floor of worn red brick laid on edge in straight courses running away from you every brick long narrow rectangle end-on no square pavers and no herringbone",
+          "ask_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-exposed-joists\"],[\"underfoot\",\"floor/red-brick-on-edge\"],[\"walls\",\"wall/plain-limewash-to-floor\"]]"
         },
         {
           "facing": "S",
@@ -409,7 +627,21 @@
           ],
           "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
-          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
+          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge",
+          "ask_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "class": "refined",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-exposed-joists\"],[\"underfoot\",\"floor/red-brick-on-edge\"],[\"walls\",\"wall/plain-limewash-to-floor\"]]"
         },
         {
           "facing": "W",
@@ -428,18 +660,37 @@
           ],
           "verdict": "stale",
           "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
-          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge"
+          "ask_key": "plain limewashed plaster carried straight down to floor unbroken by any timber lining joinery or moulding plain exposed oak joists with boards between them floor of worn red brick laid on edge",
+          "ask_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/plain-limewash-to-floor",
+            "overhead": "ceiling/plain-exposed-joists",
+            "underfoot": "floor/red-brick-on-edge",
+            "hangings": null
+          },
+          "class": "refined",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-exposed-joists\"],[\"underfoot\",\"floor/red-brick-on-edge\"],[\"walls\",\"wall/plain-limewash-to-floor\"]]"
         }
       ],
-      "distinct_asks": 2,
-      "split": true,
+      "distinct_asks": 1,
+      "split": false,
       "stale": [
         "N",
         "S",
         "W"
       ],
+      "refined": [
+        "N",
+        "S",
+        "W"
+      ],
       "unprovable": [],
-      "verdict": "split-ask"
+      "verdict": "refined"
     },
     {
       "room": "dining_parlour",
@@ -459,7 +710,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "E",
@@ -476,7 +741,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "S",
@@ -493,7 +772,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "W",
@@ -510,12 +803,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -537,12 +845,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. broad oak treads and boards.",
-          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards"
+          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/broad-oak-treads-boards\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -564,7 +887,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling. Overhead: an aged parchment-toned plaster ceiling. wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "E",
@@ -581,7 +918,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "W",
@@ -598,12 +949,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -625,7 +991,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. a floor of square stone paviours.",
-          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours"
+          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours",
+          "ask_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/square-stone-paviours\"],[\"walls\",\"wall/light-oak-wainscot-limewash\"]]"
         },
         {
           "facing": "E",
@@ -642,7 +1022,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. a floor of square stone paviours.",
-          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours"
+          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours",
+          "ask_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/square-stone-paviours\"],[\"walls\",\"wall/light-oak-wainscot-limewash\"]]"
         },
         {
           "facing": "W",
@@ -659,12 +1053,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. a floor of square stone paviours.",
-          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours"
+          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours",
+          "ask_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/square-stone-paviours\"],[\"walls\",\"wall/light-oak-wainscot-limewash\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -686,7 +1095,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline. Underfoot: raked gravel paths between low clipped box and turf.",
-          "ask_key": "manor's own exterior elevation of weathered red brick in english bond with dressed stone quoins moulded stone window surrounds and coursed stone plinth open sky above roofline raked gravel paths between low clipped box and turf"
+          "ask_key": "manor's own exterior elevation of weathered red brick in english bond with dressed stone quoins moulded stone window surrounds and coursed stone plinth open sky above roofline raked gravel paths between low clipped box and turf",
+          "ask_materials": {
+            "walls": "wall/manor-exterior-elevation",
+            "overhead": null,
+            "underfoot": "floor/raked-gravel-box-turf",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/manor-exterior-elevation",
+            "overhead": null,
+            "underfoot": "floor/raked-gravel-box-turf",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"underfoot\",\"floor/raked-gravel-box-turf\"],[\"walls\",\"wall/manor-exterior-elevation\"]]"
         },
         {
           "facing": "S",
@@ -703,12 +1126,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.",
-          "ask_key": "no wall at all on this side open ground running out through open side and on to horizon with only low stone piers at its two ends under open sky raked gravel and worn turf running to bottom edge of frame"
+          "ask_key": "no wall at all on this side open ground running out through open side and on to horizon with only low stone piers at its two ends under open sky raked gravel and worn turf running to bottom edge of frame",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"underfoot\",\"floor/gravel-and-turf\"],[\"walls\",\"(unreadable, asked as: no wall at all on this side open ground running out through open side and on to horizon with only low stone piers at its two ends under open sky raked gravel and worn turf running to bottom edge of frame)\"]]"
         }
       ],
       "distinct_asks": 2,
       "split": true,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     },
@@ -733,7 +1171,21 @@
           ],
           "verdict": "stale",
           "asked": "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.",
-          "ask_key": "weathered ashlar and brick open sky above packed earth and stone paving underfoot"
+          "ask_key": "weathered ashlar and brick open sky above packed earth and stone paving underfoot",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/garden-brick-english-bond",
+            "overhead": null,
+            "underfoot": "floor/raked-gravel-box-turf",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"underfoot\",\"(unreadable, asked as: weathered ashlar and brick open sky above packed earth and stone paving underfoot)\"],[\"walls\",\"(unreadable, asked as: weathered ashlar and brick open sky above packed earth and stone paving underfoot)\"]]"
         },
         {
           "facing": "S",
@@ -753,7 +1205,21 @@
           ],
           "verdict": "stale",
           "asked": "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.",
-          "ask_key": "weathered ashlar and brick open sky above packed earth and stone paving underfoot"
+          "ask_key": "weathered ashlar and brick open sky above packed earth and stone paving underfoot",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/manor-exterior-elevation",
+            "overhead": null,
+            "underfoot": "floor/raked-gravel-box-turf",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"underfoot\",\"(unreadable, asked as: weathered ashlar and brick open sky above packed earth and stone paving underfoot)\"],[\"walls\",\"(unreadable, asked as: weathered ashlar and brick open sky above packed earth and stone paving underfoot)\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -762,6 +1228,7 @@
         "N",
         "S"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -783,7 +1250,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.",
-          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame"
+          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame",
+          "ask_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"underfoot\",\"floor/gravel-and-turf\"],[\"walls\",\"wall/low-boundary-wall\"]]"
         },
         {
           "facing": "S",
@@ -800,7 +1281,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.",
-          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame"
+          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame",
+          "ask_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"underfoot\",\"floor/gravel-and-turf\"],[\"walls\",\"wall/low-boundary-wall\"]]"
         },
         {
           "facing": "W",
@@ -817,12 +1312,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.",
-          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame"
+          "ask_key": "no building wall at all view runs out over open ground closed only by low coursed-stone boundary wall running across far side of it under open sky raked gravel and worn turf running to bottom edge of frame",
+          "ask_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/low-boundary-wall",
+            "overhead": null,
+            "underfoot": "floor/gravel-and-turf",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"underfoot\",\"floor/gravel-and-turf\"],[\"walls\",\"wall/low-boundary-wall\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -848,7 +1358,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         },
         {
           "facing": "E",
@@ -869,7 +1393,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         },
         {
           "facing": "S",
@@ -890,7 +1428,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         },
         {
           "facing": "W",
@@ -911,7 +1463,21 @@
           ],
           "verdict": "stale",
           "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
-          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor"
+          "ask_key": "dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor",
+          "ask_materials": {
+            "walls": null,
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-fielded-bays-frieze",
+            "overhead": "ceiling/lime-plaster-ribs",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"underfoot\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"],[\"walls\",\"(unreadable, asked as: dark oak wall panelling with carved frieze lime-plastered ceiling broad flagstone floor)\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -922,6 +1488,7 @@
         "S",
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -943,7 +1510,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "E",
@@ -960,7 +1541,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "S",
@@ -977,7 +1572,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "W",
@@ -994,12 +1603,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -1025,7 +1649,21 @@
           ],
           "verdict": "stale",
           "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"underfoot\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         },
         {
           "facing": "S",
@@ -1042,7 +1680,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery. Overhead: a plain plastered soffit. plain scrubbed oak treads and boards.",
-          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards"
+          "ask_key": "limewashed plaster above plain boarded oak dado of square-edged boards with no mouldings and no fielded joinery plain plastered soffit plain scrubbed oak treads and boards",
+          "ask_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/boarded-oak-dado-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/broad-oak-treads-boards\"],[\"walls\",\"wall/boarded-oak-dado-limewash\"]]"
         }
       ],
       "distinct_asks": 2,
@@ -1050,6 +1702,7 @@
       "stale": [
         "N"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     },
@@ -1075,7 +1728,21 @@
           ],
           "verdict": "stale",
           "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash-cornice",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"underfoot\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         },
         {
           "facing": "E",
@@ -1096,7 +1763,21 @@
           ],
           "verdict": "stale",
           "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash-cornice",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"underfoot\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         },
         {
           "facing": "S",
@@ -1117,7 +1798,21 @@
           ],
           "verdict": "stale",
           "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
-          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards"
+          "ask_key": "plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": null,
+            "underfoot": null,
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash-cornice",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "class": "stale-material",
+          "ask_material_key": "[[\"overhead\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"underfoot\",\"(unreadable, asked as: plain oak wainscot below limewashed plaster boarded ceiling worn oak floorboards)\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -1127,6 +1822,7 @@
         "E",
         "S"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "one-ask-superseded"
     },
@@ -1148,7 +1844,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-tapestry\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "E",
@@ -1165,7 +1875,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-tapestry\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "S",
@@ -1182,7 +1906,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-tapestry\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "W",
@@ -1199,12 +1937,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards full set of woven tapestry hangings in faded green umber and dull gold hung from rail just below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-tapestry"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-tapestry\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -1226,7 +1979,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. broad oak treads and boards.",
-          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards"
+          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/broad-oak-treads-boards\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         },
         {
           "facing": "E",
@@ -1243,12 +2010,27 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. broad oak treads and boards.",
-          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards"
+          "ask_key": "oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling broad oak treads and boards",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/broad-oak-treads-boards",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/broad-oak-treads-boards\"],[\"walls\",\"wall/oak-wainscot-limewash\"]]"
         }
       ],
       "distinct_asks": 1,
       "split": false,
       "stale": [],
+      "refined": [],
       "unprovable": [],
       "verdict": "current"
     },
@@ -1275,7 +2057,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-red-worsted"
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"hangings\",\"(unreadable, asked as: dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards)\"],[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "E",
@@ -1297,7 +2093,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-red-worsted"
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"hangings\",\"(unreadable, asked as: dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards)\"],[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         },
         {
           "facing": "S",
@@ -1314,7 +2124,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards hangings of dull red worsted say hung from rail below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards hangings of dull red worsted say hung from rail below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-red-worsted"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-red-worsted"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-red-worsted\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "W",
@@ -1336,7 +2160,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-red-worsted"
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"hangings\",\"(unreadable, asked as: dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards)\"],[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 2,
@@ -1346,6 +2184,7 @@
         "E",
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     },
@@ -1367,7 +2206,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-wool-serge\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "E",
@@ -1384,7 +2237,21 @@
           "missing": [],
           "verdict": "current",
           "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping.",
-          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping"
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-wool-serge\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
         },
         {
           "facing": "W",
@@ -1406,7 +2273,21 @@
           ],
           "verdict": "stale",
           "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards",
+          "ask_materials": {
+            "walls": "wall/dark-oak-panelling",
+            "overhead": "ceiling/parchment-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "class": "split-ask",
+          "ask_material_key": "[[\"hangings\",\"(unreadable, asked as: dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards)\"],[\"overhead\",\"ceiling/parchment-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/dark-oak-panelling\"]]"
         }
       ],
       "distinct_asks": 2,
@@ -1414,6 +2295,7 @@
       "stale": [
         "W"
       ],
+      "refined": [],
       "unprovable": [],
       "verdict": "split-ask"
     }

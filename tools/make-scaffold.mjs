@@ -71,6 +71,10 @@ import * as timings from "./timings.mjs";                 // [row 33] the stopwa
  * plan says it is that kind of room. */
 import { VOICES, emitMaterials, canonicalMaterial }       // [row 36] the swatch lane
   from "./room-voices.mjs";
+/* THE PROSE REGISTRY the ask audit reads an OLD ask through: every wording a
+ * material has been asked for, current and retired. See "VOUCHING FOLLOWS THE
+ * MATERIAL, NOT THE WORDING" below. */
+import { declaredMaterialPhrases } from "./room-voices.mjs";
 import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION,
   lightsFor, surroundFor, transomFor, casementSentence } from "./room-voices.mjs";
 /* [row 43] THE REGISTER, and it is shared rather than copied:
@@ -1151,14 +1155,28 @@ async function main() {
       join(ROOT, "design", "plan-draft", "measured", "material_provenance.json")));
     writeFileSync(out, JSON.stringify(rep, null, 2) + "\n");
     console.log(`promoted facings   ${rep.promoted_facings}`);
+    console.log(`vouched facings    ${rep.vouched_facings}  ` +
+      `(current or refined — the walls a room may show its own painter)`);
+    /* THE CLASS PER ROOM, per facing, because "superseded ask on NSW" was the
+     * line that hid the whole miss: it said the same thing about a wall painted
+     * in the wrong fabric and a wall painted in the right one under older
+     * words, and the two have opposite consequences. */
+    console.log(`\n  ROOM VERDICT         ROOM                 FACINGS BY CLASS`);
     for (const r of rep.rooms) {
-      const flags = [];
-      if (r.split) flags.push(`asked as ${r.distinct_asks} different rooms`);
-      if (r.stale.length) flags.push(`superseded ask on ${r.stale.join("")}`);
-      if (r.unprovable.length) flags.push(`ask unrecoverable on ${r.unprovable.join("")}`);
-      console.log(`  ${r.verdict.padEnd(20)} ${r.room.padEnd(20)} ${flags.join("; ")}`);
+      const byClass = new Map();
+      for (const f of r.facings) byClass.set(f.class, (byClass.get(f.class) || []).concat(f.facing));
+      const cols = ["current", "refined", "split-ask", "stale-material"]
+        .filter((c) => byClass.has(c))
+        .map((c) => `${byClass.get(c).join("")} ${c}`);
+      if (r.unprovable.length) cols.push(`${r.unprovable.join("")} ask unrecoverable`);
+      console.log(`  ${r.verdict.padEnd(20)} ${r.room.padEnd(20)} ${cols.join("; ")}`);
     }
-    console.log(`report             ${out.slice(ROOT.length + 1)}`);
+    console.log(`\n  current = the ask states this room's ruling sentences verbatim`);
+    console.log(`  refined = it names the same MATERIALS in wording since refined — VOUCHED,` +
+      ` re-asked only with --refined-too`);
+    console.log(`  split-ask / stale-material = a different material; re-asked by default with` +
+      ` --emit-consistency --from-ask`);
+    console.log(`\nreport             ${out.slice(ROOT.length + 1)}`);
     if (argv.includes("--seal-legacy")) {
       /* THE LEDGER OF WHAT WAS ALREADY IN THE STORE WHEN THE GATE LANDED.
        * Written once. `promote-backdrop.mjs`'s row-40 clause admits a wall
@@ -1176,13 +1194,29 @@ async function main() {
           admitted[`${r.room}/${f.facing}`] = {
             candidate: f.candidate,
             voice: f.voice,
+            /* THE CLASS RIDES ON THE ADMISSION, because the ledger's own reason
+             * used to say "it predates the voice the room now speaks" about two
+             * different things: a wall painted in another fabric, and a wall
+             * painted in this one before the words were tightened. The second is
+             * VOUCHED — `styleImageFor` may show it — and a reader of this file
+             * could not tell which they were holding. */
+            class: f.class,
+            vouched: isVouched(f.class),
             why: f.verdict === "unrecoverable"
               ? f.why
-              : `the ask this painting was made from names no ${f.missing.join(" or ")} ` +
-                `this plan rules for the room; it predates the voice the room now speaks`,
+              : f.class === "refined"
+                ? `the ask this painting was made from names this room's ruled ` +
+                  `${f.missing.join(" and ")} in WORDING that has since been refined — the same ` +
+                  `material (${f.missing.map((k) => f.ruling_materials[k]).join(", ")}), ` +
+                  `declared in room-voices.mjs SAID_BEFORE. The wall is vouched; this line stays ` +
+                  `open only because the store's bytes predate the refined words`
+                : `the ask this painting was made from names no ${f.missing.join(" or ")} ` +
+                  `this plan rules for the room; it predates the voice the room now speaks`,
             asked: f.asked || null,
             ruled: f.ruling,
-            closes_when: `node tools/make-scaffold.mjs --emit-consistency --from-ask --wall ${r.room}/${f.facing}`
+            closes_when: `node tools/make-scaffold.mjs --emit-consistency --from-ask ` +
+              (f.class === "refined" ? "--refined-too " : "") +
+              `--wall ${r.room}/${f.facing}`
           };
         }
       }
@@ -1242,6 +1276,12 @@ async function main() {
        * sweep proved must not vote (stair_landing). The ask is on disk the
        * moment a roll is made and it cannot be fooled by exposure. */
       fromAsk: argv.includes("--from-ask"),
+      /* FORCE THE WORDS. By default a wall whose ask named this room's own
+       * materials in a wording since refined is NOT re-asked — it is vouched,
+       * and a roll spent to change the words changes nothing on the wall. This
+       * is the Navigator saying the words matter this time. See "VOUCHING
+       * FOLLOWS THE MATERIAL, NOT THE WORDING". */
+      refinedToo: argv.includes("--refined-too"),
       rooms: argv.reduce((a, x, i) => (x === "--room" ? a.concat(argv[i + 1]) : a), []),
       walls: argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), [])
     });
@@ -3037,6 +3077,152 @@ export const normMaterial = (s) => String(s || "")
   .replace(/\s+/g, " ")
   .trim();
 
+/* ------------------------------------------------------------------ */
+/* VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING                       */
+/* ------------------------------------------------------------------ */
+/* THE RULE, and it lives here alone. Everything downstream — the audit's per
+ * facing `class`, `--audit-materials`' table, the default re-ask set, and the
+ * `styleImageFor` condition that decides whether a room may show a painter one
+ * of its own walls — reads this and states nothing of its own.
+ *
+ *   A promoted wall is VOUCHED when the MATERIALS its ask resolved to are the
+ *   materials this room's voice resolves to now. It stays vouched when the
+ *   words moved and the materials did not.
+ *
+ * FOUR CLASSES, per facing, exclusive and in this order:
+ *
+ *   current         the ask states this room's ruling sentences verbatim.
+ *   refined         every sentence it does not state verbatim resolves to the
+ *                   SAME material id the ruling resolves to. Same fabric,
+ *                   better words.                                  VOUCHED.
+ *   split-ask       its materials are not the ruling's, and its room holds
+ *                   more than one set of ask materials — row 40's "painted as
+ *                   two rooms".
+ *   stale-material  its materials are not the ruling's, and the whole room was
+ *                   commissioned the same wrong way.
+ *
+ * `current` and `refined` are vouched; the other two are not, and they are what
+ * `--emit-consistency --from-ask` re-asks by default.
+ *
+ * WHY, AND IT IS A MISS THIS COST US ONCE. On 2026-08-25 the Navigator refined
+ * ONE voice string — the servants' hall floor gained its bond, "…in straight
+ * courses… no square pavers", after Kabe saw one wall lay its bricks as squares
+ * — and the audit, which compares SENTENCES, called every wall of the room
+ * asked before the ruling. All three were sealed legacy, so the room had no
+ * wall it could vouch for, so `styleImageFor` attached no Image 1 to any of its
+ * re-asks — including for walls painted that same day in exactly the material
+ * the voice rules. A refinement of wording was being spent as a change of
+ * material: the room lost its own fabric as the reference for its own walls,
+ * and the words that were meant to make the floor MORE consistent made the room
+ * less able to be consistent.
+ *
+ * The cure is not a looser comparison — a looser comparison is how "plain oak
+ * wainscot below limewashed plaster" (the cross passage) would come to vouch
+ * for the long gallery, which says the same words and then adds a cornice. The
+ * cure is to compare the one thing that is not prose: the material id. Where
+ * the words moved, `room-voices.mjs`'s `SAID_BEFORE` is where the move is
+ * DECLARED, in the commit that made it, and an undeclared move reads as a
+ * material change — unvouched and re-asked, which is the safe direction.
+ *
+ * PRODUCTION LAW CLAUSE 6, which is the test this had to pass: "does the NEXT
+ * map, with none of this conversation in context, get this for free?" It does.
+ * Nothing here knows the servants' hall exists. A future map refines a phrase,
+ * declares the retired wording beside its material, and its already-painted
+ * walls go on vouching for their rooms — no per-run paragraph, no hand-edited
+ * ledger entry, no seat remembering why the brick floor is special. */
+
+const REASK_CLASSES = new Set(["split-ask", "stale-material"]);
+/** Vouched: `styleImageFor` may attach this wall, and the repair route may seed
+ *  from it. The one home for that question. */
+export const isVouched = (cls) => cls === "current" || cls === "refined";
+
+let _phraseIdx = null;
+/** The registry, normalised once and bucketed by material part, longest phrase
+ *  first — because a longer declared wording that is present is always the more
+ *  specific reading of the same text (`light-toned oak wainscot to chair height
+ *  below limewashed plaster` contains `oak wainscot to chair height below
+ *  limewashed plaster`, and the garden parlour is not the great stair). */
+function phraseIndex() {
+  if (_phraseIdx) return _phraseIdx;
+  const byPart = new Map();
+  for (const p of declaredMaterialPhrases()) {
+    const norm = normMaterial(p.phrase);
+    if (!norm) continue;
+    if (!byPart.has(p.part)) byPart.set(p.part, []);
+    byPart.get(p.part).push({ ...p, norm });
+  }
+  for (const list of byPart.values()) list.sort((a, b) => b.norm.length - a.norm.length);
+  _phraseIdx = byPart;
+  return _phraseIdx;
+}
+
+/**
+ * Which material a piece of ask text names for one material part, or null.
+ *
+ * NULL IS AN ANSWER AND NOT A FAILURE: it means no wording anybody has declared
+ * for that part is anywhere in this text, which is exactly what a wall
+ * commissioned from a vocabulary this plan no longer holds looks like
+ * (`great_hall`'s "broad flagstone floor", `privy_garden`'s "weathered ashlar
+ * and brick"). Two nulls never compare equal downstream — two unreadable asks
+ * are not evidence that a room was commissioned once.
+ */
+export function materialNamedIn(text, part) {
+  const list = phraseIndex().get(part);
+  if (!list) return null;
+  const flat = normMaterial(text);
+  if (!flat) return null;
+  for (const p of list) if (flat.includes(p.norm)) return p.id;
+  return null;
+}
+
+/**
+ * The materials an ask and a ruling each resolve to, and the class that follows.
+ *
+ * `missing` is the verbatim comparison the audit and the promotion gate already
+ * run — the parts whose ruling sentence is not in the ask. Only those parts are
+ * asked the material question, because a part the ask states word for word has
+ * already answered it. That keeps this strictly weaker than the verbatim test
+ * nowhere and strictly stronger nowhere except on the one axis it exists for.
+ */
+export function classifyAsk(askText, want, missing, askKey) {
+  const ask_materials = {}, ruling_materials = {};
+  for (const [part, v] of Object.entries(want)) {
+    ruling_materials[part] = v ? materialNamedIn(v, part) : null;
+    ask_materials[part] = v ? materialNamedIn(askText, part) : null;
+  }
+  /* A RULING SENTENCE THAT RESOLVES TO NO DECLARED MATERIAL cannot vouch for
+     anything, and it must not: `OPEN_SIDE_FABRIC` is the absence of a wall said
+     as a fabric and is bound to no texture. Such a part falls back to the
+     verbatim test, which is where it already was. */
+  const refined = missing.length > 0 && missing.every((k) =>
+    ruling_materials[k] && ask_materials[k] === ruling_materials[k]);
+  return {
+    ask_materials, ruling_materials,
+    /* `wrong` is provisional: only the room can say whether a wall that is not
+       the ruling is a split or a whole room superseded. */
+    class: missing.length === 0 ? "current" : refined ? "refined" : "wrong",
+    /* THE COMMISSION, in materials. A part the plan rules NOTHING for on this
+       facing — a bedchamber's hangings in a kitchen, a ceiling out of doors —
+       is not in the fingerprint at all: it is not a fabric this room was or was
+       not asked for, and keying it as unreadable would split every room whose
+       voice happens to leave a slot empty. */
+    ask_material_key: askMaterialKey(askKey, want, ask_materials)
+  };
+}
+
+/** The fingerprint a room's facings are compared on, in MATERIALS rather than
+ *  in prose — so a room whose facings were asked the same fabric in two
+ *  wordings is ONE commission, which is the whole of this rule.
+ *
+ *  A PART THIS CANNOT READ FALLS BACK TO THE PROSE FINGERPRINT and never to a
+ *  shared "(none)": row 40's own rule, unchanged. Two facings whose asks are
+ *  illegible in the same words were plainly commissioned together (`solar`'s
+ *  four); two illegible in DIFFERENT words are two asks until someone can show
+ *  otherwise (`study`'s N and W). */
+const askMaterialKey = (askKey, want, m) => JSON.stringify(Object.keys(m).sort()
+  .filter((k) => want[k])
+  .map((k) => [k, m[k] || `(unreadable, asked as: ${askKey})`]));
+
 export function materialProvenance(plan, opts = {}) {
   const root = opts.root || ROOT;
   const statePath = opts.runState ||
@@ -3096,6 +3282,11 @@ export function materialProvenance(plan, opts = {}) {
          * fail. A painting in the store whose ask cannot be recovered is not a
          * pass; it is a wall nobody can prove was asked for this room. */
         rec.verdict = "unrecoverable";
+        /* NOT VOUCHED, AND RE-ASKED. A wall nobody can prove was asked for this
+         * room cannot be shown to the next painter as a picture of it. */
+        rec.class = "stale-material";
+        rec.ask_materials = null;
+        rec.ruling_materials = null;
         rec.why = cand
           ? `the ask this candidate was painted from is not on disk: no ${ask.path}, and the ` +
             `measurement names no roll it was rectified from`
@@ -3144,6 +3335,16 @@ export function materialProvenance(plan, opts = {}) {
        * room of two illegible facings read as one ask and pass. */
       rec.ask_key = normMaterial(said.join(" ")) ||
         `(no material sentence this audit can read, in ${ask.path})`;
+      /* AND THE SAME ASK READ AS MATERIALS. See "VOUCHING FOLLOWS THE MATERIAL,
+       * NOT THE WORDING" above: `verdict` answers "does it say what we say
+       * today", `class` answers "was it painted in the material we rule today",
+       * and only the second decides whether this wall may stand as a picture of
+       * its own room. */
+      const cls = classifyAsk(text, want, missing, rec.ask_key);
+      rec.ask_materials = cls.ask_materials;
+      rec.ruling_materials = cls.ruling_materials;
+      rec.class = cls.class;
+      rec.ask_material_key = cls.ask_material_key;
       facings.push(rec);
     }
     if (!facings.length) continue;
@@ -3152,30 +3353,49 @@ export function materialProvenance(plan, opts = {}) {
      * wall that may be perfectly correct. It gets its own verdict and its own
      * line, because production law leaves no gate that cannot fail. */
     const known = facings.filter((x) => x.verdict !== "unrecoverable");
-    const asks = new Set(known.map((x) => x.ask_key));
+    /* COMPARED ON MATERIALS, NOT ON PROSE. The room is one room if its facings
+     * were commissioned in one set of fabrics, however the asks worded them. */
+    const asks = new Set(known.map((x) => x.ask_material_key));
     const stale = known.filter((x) => x.verdict !== "current");
     const unprovable = facings.filter((x) => x.verdict === "unrecoverable");
+    /* THE ROOM DECIDES WHICH KIND OF WRONG A WRONG FACING IS, because that is
+     * the one part of the class only the room can see: the same wrong material
+     * on every wall is a room superseded, and a wall out of step with its
+     * siblings is the room painted as two rooms. */
+    const split = asks.size > 1;
+    for (const x of facings) if (x.class === "wrong") x.class = split ? "split-ask" : "stale-material";
+    const refined = facings.filter((x) => x.class === "refined");
+    const wrong = known.filter((x) => REASK_CLASSES.has(x.class));
     rooms.push({
       room: room.id,
       facings,
       distinct_asks: asks.size,
       /* A ROOM COMMISSIONED AS TWO ROOMS. This is the finding Kabe walked into. */
-      split: asks.size > 1,
+      split,
       stale: stale.map((x) => x.facing),
+      /* THE WALLS THE WORDS MOVED UNDER AND THE MATERIAL DID NOT. Vouched, and
+       * re-asked only when the Navigator wants the words forced
+       * (`--emit-consistency --from-ask --refined-too`). */
+      refined: refined.map((x) => x.facing),
       unprovable: unprovable.map((x) => x.facing),
-      verdict: asks.size > 1 ? "split-ask"
-        : stale.length ? "one-ask-superseded"
+      verdict: split ? "split-ask"
+        : wrong.length ? "one-ask-superseded"
         : unprovable.length ? "unprovable"
+        : refined.length ? "refined"
         : "current"
     });
   }
   return {
     instrument: "tools/make-scaffold.mjs materialProvenance()",
     what: "the material sentences every promoted painting was actually asked for, " +
-      "against the sentences this composer writes today",
+      "against the sentences this composer writes today — and, where those differ, " +
+      "the MATERIALS each resolves to, which is what decides whether the wall is vouched " +
+      "(see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
     promoted_facings: rooms.reduce((n, r) => n + r.facings.length, 0),
     split_rooms: rooms.filter((r) => r.split).map((r) => r.room),
     superseded_rooms: rooms.filter((r) => r.verdict === "one-ask-superseded").map((r) => r.room),
+    refined_rooms: rooms.filter((r) => r.verdict === "refined").map((r) => r.room),
+    vouched_facings: rooms.reduce((n, r) => n + r.facings.filter((f) => isVouched(f.class)).length, 0),
     unrecoverable: rooms.flatMap((r) =>
       r.facings.filter((f) => f.verdict === "unrecoverable").map((f) => `${r.room}/${f.facing}`)),
     rooms
@@ -3330,9 +3550,20 @@ function leadAskIsRuling(plan, loc, f, root, candidateRel) {
   const missing = Object.entries(want)
     .filter(([, v]) => v && !flat.includes(normMaterial(v)))
     .map(([k]) => k);
-  return missing.length
-    ? { ok: false, why: `its own ask never named this room's ${missing.join(" or ")}` }
-    : { ok: true, ask_path: ask.path };
+  /* READ AS MATERIALS, exactly as the promoted path is — same rule, one step
+   * earlier. A lead asked for this room's fabric in the wording that was live
+   * the day it was rolled leads the room just as well as one asked in today's;
+   * a lead asked for a DIFFERENT fabric is refused, which is the whole of row
+   * 40's second condition. See "VOUCHING FOLLOWS THE MATERIAL, NOT THE
+   * WORDING". */
+  const cls = classifyAsk(ask.text, want, missing, "lead");
+  if (isVouched(cls.class)) {
+    return { ok: true, ask_path: ask.path, class: cls.class,
+      refined: cls.class === "refined" };
+  }
+  return { ok: false,
+    why: `its own ask never named this room's ${missing.join(" or ")}, and what it did name ` +
+      `is a different material` };
 }
 
 export function styleImageFor(plan, key, opts = {}) {
@@ -3376,9 +3607,11 @@ export function styleImageFor(plan, key, opts = {}) {
       if (ok.ok) {
         return say(lead, img.rel,
           `${loc}/${lead} LEADS this room [row 42] and is painted but not promoted yet; its own ` +
-          `ask named this room's ruling materials (${ok.ask_path}), which is row 40's second ` +
-          `condition read on the candidate`,
-          { lead: true, source_kind: "candidate" });
+          `ask named this room's ruling materials (${ok.ask_path})` +
+          (ok.refined ? ` in the wording that was live when it was rolled — the same materials, ` +
+            `since refined` : "") +
+          `, which is row 40's second condition read on the candidate`,
+          { lead: true, source_kind: "candidate", ask_class: ok.class });
       }
       /* A LEAD THAT FAILS ROW 40's CONDITION IS NOT IMAGE 1 — it falls through
        * to the promoted path below, which may find a proper wall or none.
@@ -3403,11 +3636,16 @@ export function styleImageFor(plan, key, opts = {}) {
    * Keyed by root so a staged tree in a test never reads the repository's. */
   const prov = opts.provenance || provenanceCache(plan, root);
   const pr = (prov.rooms || []).find((r) => r.room === loc);
-  const ruled = new Set((pr ? pr.facings : [])
-    .filter((x) => x.verdict === "current").map((x) => x.facing));
+  /* VOUCHED, NOT VERBATIM. `current` and `refined` both mean this wall was
+   * painted in the material the room is ruled to; only the wording differs.
+   * See "VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING" — this line is the
+   * gap that rule was written to close, and a sealed-legacy wall whose class
+   * is `refined` passes it. */
+  const ruled = new Map((pr ? pr.facings : [])
+    .filter((x) => isVouched(x.class)).map((x) => [x.facing, x.class]));
   const eligible = agreeing
     .filter((g) => g !== f)
-    .filter((g) => ruled.has(g))
+    .filter((g) => ruled.has(g))                                  // vouched, per above
     .filter((g) => existsSync(join(root, "backdrops", loc, `${g}.png`)))
     .sort();
   /* [row 42] THE LEAD WINS THE TIE among walls that already satisfy row 40 —
@@ -3417,9 +3655,12 @@ export function styleImageFor(plan, key, opts = {}) {
   if (!pick) return null;
   return say(pick, `backdrops/${loc}/${pick}.png`,
     `${loc}/${pick} is inside this room's agreeing walls (room_consistency.json) ` +
-    `and its own ask was this room's ruling (materialProvenance)` +
+    `and its own ask was this room's ruling ${ruled.get(pick) === "refined"
+      ? "MATERIALS, in the wording that was live when it was painted — the words have since been " +
+        "refined and the material has not (materialProvenance: refined)"
+      : "(materialProvenance)"}` +
     (pick === lead ? "; it also LEADS this room [row 42]" : ""),
-    { lead: pick === lead, source_kind: "promoted" });
+    { lead: pick === lead, source_kind: "promoted", ask_class: ruled.get(pick) });
 }
 
 /* THE ASK AUDIT, SPOKEN IN THE PIXEL MEASURE'S OWN SHAPE.
@@ -3440,20 +3681,38 @@ export function styleImageFor(plan, key, opts = {}) {
  * them: three of its four facings agree with each other in pixels and all
  * three were asked for the wrong fabric, so the pixel majority is the half
  * that is wrong while the ask majority is the one facing that is right. */
-export function provenanceAsConsistencyReport(prov) {
+export function provenanceAsConsistencyReport(prov, opts = {}) {
+  /* WHAT IS RE-ASKED, AND IT FOLLOWS THE MATERIAL. `stale-material` and
+   * `split-ask` are the two ways a wall's fabric is not the room's; both are
+   * re-asked, and that is the default. A `refined` wall is in the right
+   * material and only the words moved, so re-asking it buys a roll and a wait
+   * to change nothing on the wall — it is re-asked when the Navigator asks for
+   * the words to be FORCED (`--refined-too`), and not otherwise. */
   const rooms = [];
   for (const r of prov.rooms || []) {
     if (r.verdict === "current") continue;
     const known = r.facings.filter((x) => x.verdict !== "unrecoverable");
-    const right = known.filter((x) => x.verdict === "current").map((x) => x.facing);
+    /* THE WALLS THAT MAY SEED, which is the whole reason this distinction was
+     * drawn: vouched, not verbatim. */
+    const vouched = r.facings.filter((x) => isVouched(x.class)).map((x) => x.facing);
     /* An unrecoverable ask is re-asked too: a painting nobody can prove was
-     * asked for this room is not evidence that it was. */
+     * asked for this room is not evidence that it was — it is classed
+     * `stale-material` for exactly that reason. */
     const outliers = r.facings
-      .filter((x) => x.verdict !== "current").map((x) => x.facing);
+      .filter((x) => REASK_CLASSES.has(x.class) || (opts.refinedToo && x.class === "refined"))
+      .map((x) => x.facing);
     if (!outliers.length) continue;
+    /* A WALL BEING REPAINTED IS NOT A WALL TO SEED FROM, even where it is
+     * vouched — under `--refined-too` a refined wall is both, and the seed goes
+     * to a sibling that is standing still. */
+    const out = new Set(outliers);
+    const right = vouched.filter((g) => !out.has(g));
     const byAsk = new Map();
-    for (const x of known) byAsk.set(x.ask_key, (byAsk.get(x.ask_key) || []).concat(x.facing));
-    const stale = known.filter((x) => x.verdict !== "current").map((x) => x.facing);
+    for (const x of known) {
+      byAsk.set(x.ask_material_key, (byAsk.get(x.ask_material_key) || []).concat(x.facing));
+    }
+    const refined = r.facings.filter((x) => x.class === "refined").map((x) => x.facing);
+    const wrong = known.filter((x) => REASK_CLASSES.has(x.class)).map((x) => x.facing);
     const said = r.split
       ? `Measured, in the ASKS rather than in the pixels: this room's promoted facings were ` +
         `commissioned from ${r.distinct_asks} different sets of materials ` +
@@ -3461,12 +3720,20 @@ export function provenanceAsConsistencyReport(prov) {
         `${r.distinct_asks} rooms and not one. ` +
         (right.length
           ? `${right.join(" and ")} ${right.length > 1 ? "were" : "was"} asked for the materials ` +
-            `above and ${stale.length > 1 ? "the others were" : "this one was"} not.`
+            `above and ${wrong.length > 1 ? "the others were" : "this one was"} not.`
           : `No facing of it was asked for the materials above, so the ruling comes from the plan ` +
             `and not from another wall.`)
-      : `Measured, in the ASKS rather than in the pixels: every promoted facing of this room was ` +
-        `commissioned from ONE set of materials, and that set is not the one this plan rules for ` +
-        `the room. The materials above are the plan's ruling.`;
+      : wrong.length
+        ? `Measured, in the ASKS rather than in the pixels: every promoted facing of this room was ` +
+          `commissioned from ONE set of materials, and that set is not the one this plan rules for ` +
+          `the room. The materials above are the plan's ruling.`
+        /* THE `--refined-too` SENTENCE, and it says what is and is not wrong
+         * with the wall — a painter told its materials were wrong would repaint
+         * a floor that is already the right floor. */
+        : `Measured, in the ASKS rather than in the pixels: every promoted facing of this room was ` +
+          `commissioned in the materials this plan rules for it, and ${refined.join(", ")} ` +
+          `${refined.length > 1 ? "were" : "was"} asked in WORDING that has since been refined. ` +
+          `The fabric is not in dispute; what is being forced is the refined wording above.`;
     rooms.push({
       room: r.room,
       facings: r.facings.map((x) => x.facing),
@@ -3477,11 +3744,19 @@ export function provenanceAsConsistencyReport(prov) {
       outliers,
       majority: right,
       no_majority: right.length === 0,
+      refined,
       clusters: [...byAsk.values()],
       measured: said
     });
   }
-  return { instrument: prov.instrument, cut: "the plan's own ruling materials", rooms };
+  return {
+    instrument: prov.instrument,
+    cut: "the plan's own ruling materials",
+    reasks: opts.refinedToo
+      ? "stale-material, split-ask and refined (--refined-too)"
+      : "stale-material and split-ask",
+    rooms
+  };
 }
 
 async function emitConsistency(outDir, opts) {
@@ -3497,7 +3772,8 @@ async function emitConsistency(outDir, opts) {
   if (opts.fromAsk) {
     /* [row 40 - the ORIGIN] No file to be stale, no pixels to be fooled: the
      * audit runs here, now, off the store and this composer. */
-    report = provenanceAsConsistencyReport(materialProvenance(plan));
+    report = provenanceAsConsistencyReport(materialProvenance(plan),
+      { refinedToo: !!opts.refinedToo });
   } else {
     const reportPath = opts.report ||
       join(ROOT, "design", "plan-draft", "measured", "room_consistency.json");
@@ -3535,6 +3811,22 @@ async function emitConsistency(outDir, opts) {
       }
       want.push({ key, room: r });
     }
+  }
+  /* A WALL NAMED BY HAND AND NOT RE-ASKED SAYS SO. `--wall` narrows a pass; it
+   * does not admit one. A named wall that is not in the re-ask set used to
+   * vanish without a line, which reads exactly like a wall that was emitted —
+   * and since `refined` walls are held back by default, that silence is now the
+   * likeliest thing a seat will hit. It is a refusal with its reason instead. */
+  for (const key of opts.walls || []) {
+    if (want.some((w) => w.key === key)) continue;
+    const [loc, fc] = key.split("/");
+    const r = (report.rooms || []).find((x) => x.room === loc);
+    refused.push({ key, refused: !r
+      ? `${loc} is not in the report: every promoted facing of it was asked for this room's own materials`
+      : (r.outliers || []).includes(fc)
+        ? `${key} is in the re-ask set but was filtered out by --room`
+        : `${key} is not in the re-ask set (${report.reasks || "the report's own outliers"})` +
+          ((r.refined || []).includes(fc) ? " — it is `refined`; pass --refined-too to force the words" : "") });
   }
   if (!want.length) {
     console.log("no facing is outside its room's agreeing walls — nothing to re-ask");
