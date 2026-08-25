@@ -64,14 +64,52 @@
  * - candlestick: stem ≥ 6 px wide throughout at authoring scale.
  * - takeable thumbs: 128×128, content-centred, ≥ 500 opaque px, distinct.
  *
- * [ROW 42] Two records carry `placeholder: true` and a `provenance.painter_ask`
- * path — `door-leaf-plank-oak-v1` and `casement-leaded-v1`, the sprites the
- * renderer fits into a DETECTED door frame and a DETECTED window light. The
- * flag is on the record rather than in a comment because the page, the ask
- * register and any future gate all read records and none of them read this
- * header; the ask that replaces each is committed beside it at
- * `design/batches/row42-leaves/`. `door-plank` is NOT one of them: it is
- * authored symmetric on purpose (§11) and the row-2 world is unchanged.
+ * [ROW 42] Two records carried `placeholder: true` and a
+ * `provenance.painter_ask` path — `door-leaf-plank-oak-v1` and
+ * `casement-leaded-v1`, the sprites the renderer fits into a DETECTED door
+ * frame and a DETECTED window light. Both asks have been answered and both
+ * sprites are now REAL, ingested through the replicator; what follows is the
+ * rule by which this file yields to them. `door-plank` was never one of them:
+ * it is authored symmetric on purpose (§11) and the row-2 world is unchanged.
+ *
+ * ---------------------------------------------------------------------------
+ * [ROW 42, part 3] ONE ID, ONE RECORD, AND THE INGESTED LIBRARY WINS.
+ * ---------------------------------------------------------------------------
+ *
+ * `library/<id>/record.json` — what `python3 -m replicator.ingest` certified,
+ * baked into `library/baked.js` for a file:// page — IS the record for that id
+ * the moment the id appears in `library/promoted.json`. Every reader of
+ * `records` sees it: the page, the fixture validator, plan-projection,
+ * validate-plan and four spec files all read this one object, so a second
+ * resolution rule anywhere else would be the four-code-paths-one-document
+ * defect row 21 paid for. There is one rule and it lives here.
+ *
+ * What the procedural side still contributes to a promoted id is ONE thing,
+ * named on the merged record as `provenance.residual_placeholder`: the `open`
+ * STATE IMAGE. The replicator refuses to write a state it has no second
+ * generation for ("--archetype swap needs at least one --state: the record
+ * would declare a second state and ship no image for it"), and its
+ * registration gate is harder still — a swap sprite's origin must be DERIVED
+ * by correlating a datum present in BOTH sources, so a synthesised open state
+ * would be a typed number wearing a certificate. Each sprite's own ask says
+ * the same in words: "Second state (`door leaf swung near-flat, close to
+ * edge-on`) is a follow-up ask and NOT part of this one: the placeholder's own
+ * open state ships until then." So the open state is still painted here, and
+ * scaled to the real body's px so the two agree about what a pixel is.
+ *
+ * `placeholder: true` is DROPPED for a promoted id, because the record the page
+ * reads is no longer placeholder art — and dropping it is what makes
+ * `residual_placeholder` mean something narrower than the flag did.
+ *
+ * A promoted body carries NO key ramp. `applyKeyDirection` is the horizontal
+ * half of UL45 and the procedural hand's alone: row 37 rules every generated
+ * asset NEUTRAL [HUMAN, 2026-08-24, verbatim: "all panels meed to have no
+ * light source and there should be a light lighting shader over the top
+ * regarding light sources"], both sprites were ingested `--light neutral`, and
+ * multiplying a ramp over pixels painted under no key is exactly the light in
+ * the wrong place forever that the rule forbids. The residual open states keep
+ * the ramp, because they are still the procedural hand's work and the record
+ * says which images those are.
  */
 (function () {
   "use strict";
@@ -386,6 +424,73 @@
         "v1_apparent_size": "at V1 this draws ~1.7 CSS px across on a 390 px phone — far under any tap target, and reachable only because the page carries a pointing tolerance around a takeable's own rectangle. See dims_deviation and blueprint §5." }
     }
   };
+
+  /* ------------------------------------------------------------------ */
+  /* [ROW 42] Id resolution — see the header. One id, one record.        */
+  /* ------------------------------------------------------------------ */
+
+  /* The baked library, from whichever side of the UMD guard is standing.
+   * BOTH are needed and neither is optional: the browser reads the classic
+   * script `library/baked.js` loaded before this one, and Node reads the same
+   * file through `require`, because the fixture validator, plan-projection and
+   * four spec files all take their records from a `require` of THIS file and
+   * would otherwise measure a record the page does not draw. An absent bake is
+   * a working page on procedural art, which is what every tree looked like
+   * before row 42 — so it is caught and not thrown. */
+  var BAKED = null;
+  if (typeof window !== "undefined" && window.HOLO_LIBRARY) {
+    BAKED = window.HOLO_LIBRARY;
+  } else if (typeof module !== "undefined" && module.exports &&
+             typeof require === "function") {
+    try {
+      BAKED = require("../library/baked.js");
+    } catch (ignored) {
+      BAKED = null;
+    }
+  }
+
+  /* The procedural record for a promoted id, kept because the residual open
+   * state is painted at ITS canvas size and has to be scaled into the real
+   * body's. Nothing else reads it. */
+  var PROCEDURAL = {};
+
+  var RESIDUAL_WHY =
+    "the replicator will not declare a state it has no second generation for, " +
+    "and its registration gate derives the origin by correlating a datum present " +
+    "in both sources — so an open state built out of the closed one would be a " +
+    "typed number wearing a certificate. This image is still procedural, and the " +
+    "second roll is the follow-up ask named in provenance.painter_ask.";
+
+  function adoptLibraryRecord(id, real, proc) {
+    var out = JSON.parse(JSON.stringify(real));
+    var residual = [];
+    if (!out.states_images && proc && proc.states_images) {
+      out.states_images = JSON.parse(JSON.stringify(proc.states_images));
+      /* The archetype follows the artifacts, which is the rule the ingester
+       * enforces from the other side: this record ships two images now. */
+      out.archetype = "swap";
+      var names = Object.keys(out.states_images).sort();
+      for (var i = 0; i < names.length; i++) residual.push("states_images." + names[i]);
+    }
+    out.provenance = out.provenance || {};
+    if (proc && proc.provenance && proc.provenance.painter_ask) {
+      out.provenance.painter_ask = proc.provenance.painter_ask;
+    }
+    if (residual.length) {
+      out.provenance.residual_placeholder = { images: residual, why: RESIDUAL_WHY };
+    }
+    return out;
+  }
+
+  if (BAKED && BAKED.records) {
+    var bakedIds = Object.keys(BAKED.records).sort();
+    for (var bi = 0; bi < bakedIds.length; bi++) {
+      var bid = bakedIds[bi];
+      if (!records[bid]) continue;   // a record this world does not stage
+      PROCEDURAL[bid] = records[bid];
+      records[bid] = adoptLibraryRecord(bid, BAKED.records[bid], PROCEDURAL[bid]);
+    }
+  }
 
   /* ------------------------------------------------------------------ */
   /* Painters (browser-only; called through build).                     */
@@ -810,12 +915,12 @@
 
   /* 128×128 content-centred thumb of a body canvas (takeables). Nearest-
    * neighbour scaling keeps the render deterministic and hard-edged. */
-  function makeThumb(doc, body) {
-    var c = canvasOf(doc, 128, 128);
+  function makeThumbInto(doc, c, body) {
     var ctx = c.getContext("2d");
     var s = 112 / Math.max(body.width, body.height);
     var w = Math.round(body.width * s);
     var h = Math.round(body.height * s);
+    ctx.clearRect(0, 0, 128, 128);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(body, Math.round((128 - w) / 2), Math.round((128 - h) / 2), w, h);
     return c;
@@ -885,42 +990,143 @@
     return canvas;
   }
 
+  /* [ROW 42] A BAKED SPRITE'S PIXELS, ON A CANVAS OF THE RECORD'S OWN SIZE.
+   *
+   * The canvas comes back at `record.px` immediately and EMPTY, and the PNG
+   * paints into it when it decodes. That is deliberate rather than a
+   * compromise: `build` is synchronous and everything downstream of it —
+   * `bottomOpaqueExtent`, `makeThumb`, the renderer's layout arithmetic — asks
+   * the canvas for its dimensions and not for its pixels, and the page already
+   * holds its first frame until every image it was handed has decoded (the
+   * `pendingImages` wait at the bottom of index.html, which this list joins).
+   * So nothing is ever DRAWN from an empty one.
+   *
+   * `record.px` and not the PNG's own size, because the record is what every
+   * other reader measures against — and if the two disagree, the mechanisms
+   * case that compares them is exactly where that must surface, rather than
+   * here where it would be silently accommodated. */
+  function bakedCanvas(doc, id, uri, w, h, pending, then) {
+    var c = canvasOf(doc, w, h);
+    var ctx = c.getContext("2d");
+    var img = doc.createElement("img");
+    img.alt = "";
+    img.dataset.sprite = id;
+    var paint = function () {
+      ctx.drawImage(img, 0, 0, w, h);
+      if (then) then(c);
+    };
+    img.addEventListener("load", paint);
+    img.src = uri;
+    if (img.complete && img.naturalWidth > 0) paint();
+    else if (pending) pending.push(img);
+    return c;
+  }
+
+  /* The residual open state is painted at the PROCEDURAL body's scale (the
+   * door's 64×400 against its 180×400), so it is scaled into the real body's
+   * pixel space by the ratio of the two widths — the state image and the body
+   * it belongs to have to agree about what a pixel is, because the renderer
+   * draws both through the same `fx`/`f` and reads `origin` in body px.
+   * Nearest-neighbour, which is this file's own rule for every resample it
+   * does (see makeThumb): a smoothed one rasterises differently across
+   * engines and §12.2 hashes the frame. */
+  function scaleToBody(doc, src, record, proc) {
+    var w = Math.max(1, Math.round(src.width * record.px.w / proc.px.w));
+    var h = record.px.h;
+    if (w === src.width && h === src.height) return src;
+    var c = canvasOf(doc, w, h);
+    var ctx = c.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(src, 0, 0, w, h);
+    return c;
+  }
+
   /**
-   * Build the placeholder library. `doc` is the DOM document, used only for
-   * createElement("canvas"); Node callers use `records` and never call this.
+   * Build the sprite library. `doc` is the DOM document, used only for
+   * createElement("canvas") and createElement("img"); Node callers use
+   * `records` and never call this.
+   *
+   * `pending` is an optional array the build pushes every undecoded baked
+   * image onto, so the caller can hold its first frame until they are in. A
+   * caller that passes nothing gets canvases that fill in when they fill in.
    */
-  function build(doc) {
+  function buildOne(doc, id, record, pending) {
+    var painters = PAINTERS[id];
+    var baked = (BAKED && BAKED.images && PROCEDURAL[id]) ? BAKED.images[id] : null;
+    var images = {};
+
+    /* THE TWO THINGS THIS FILE DERIVES FROM PIXELS — a takeable's thumb and a
+     * swap state's bottom-opaque extent — are re-derived when a baked image
+     * decodes, because at build time it has none. Both are refreshed in
+     * place: `extent` is the object the renderer already holds a reference
+     * to, and the thumb is the canvas the inventory strip already draws.
+     * Neither is read before the first paint, which waits on `pending`. */
+    var refresh = function () {
+      if (images.thumb) makeThumbInto(doc, images.thumb, images.body);
+    };
+    images.body = baked
+      ? bakedCanvas(doc, id, baked.body, record.px.w, record.px.h, pending, refresh)
+      : applyKeyDirection(painters.body(doc));
+
+    if (record.parts) {
+      images.parts = {};
+      for (var p = 0; p < record.parts.length; p++) {
+        var partId = record.parts[p].id;
+        images.parts[partId] = (baked && baked.parts && baked.parts[partId])
+          ? bakedCanvas(doc, id, baked.parts[partId],
+                        images.body.width, images.body.height, pending, null)
+          : applyKeyDirection(painters.parts[partId](doc));
+      }
+    }
+
+    if (record.states_images) {
+      images.states = {};
+      var stateNames = Object.keys(record.states_images);
+      for (var s = 0; s < stateNames.length; s++) {
+        var name = stateNames[s];
+        var originX = record.states_images[name].origin.x;
+        var extent = { x0: 0, x1: 0 };
+        var img;
+        if (baked && baked.states && baked.states[name]) {
+          img = bakedCanvas(doc, id, baked.states[name],
+                            images.body.width, images.body.height, pending,
+                            (function (e, ox) {
+                              return function (c) {
+                                var m = bottomOpaqueExtent(c, ox);
+                                e.x0 = m.x0;
+                                e.x1 = m.x1;
+                              };
+                            }(extent, originX)));
+        } else {
+          /* The residual placeholder state (see the header): still painted by
+           * the procedural hand, still carrying that hand's key, scaled into
+           * the real body's pixel space. */
+          img = applyKeyDirection(painters.states[name](doc));
+          if (baked) img = scaleToBody(doc, img, record, PROCEDURAL[id]);
+          var m0 = bottomOpaqueExtent(img, originX);
+          extent.x0 = m0.x0;
+          extent.x1 = m0.x1;
+        }
+        images.states[name] = { image: img, extent: extent };
+      }
+    }
+
+    if (record.takeable) {
+      images.thumb = canvasOf(doc, 128, 128);
+      makeThumbInto(doc, images.thumb, images.body);
+    }
+    return images;
+  }
+
+  function build(doc, pending) {
     if (!doc || typeof doc.createElement !== "function") {
       throw new Error("placeholders.build requires a DOM document");
     }
     var lib = {};
     var ids = Object.keys(records);
     for (var i = 0; i < ids.length; i++) {
-      var id = ids[i];
-      var record = records[id];
-      var painters = PAINTERS[id];
-      var images = { body: applyKeyDirection(painters.body(doc)) };
-      if (record.parts) {
-        images.parts = {};
-        for (var p = 0; p < record.parts.length; p++) {
-          var partId = record.parts[p].id;
-          images.parts[partId] = applyKeyDirection(painters.parts[partId](doc));
-        }
-      }
-      if (record.states_images) {
-        images.states = {};
-        var stateNames = Object.keys(record.states_images);
-        for (var s = 0; s < stateNames.length; s++) {
-          var name = stateNames[s];
-          var img = applyKeyDirection(painters.states[name](doc));
-          images.states[name] = {
-            image: img,
-            extent: bottomOpaqueExtent(img, record.states_images[name].origin.x)
-          };
-        }
-      }
-      if (record.takeable) images.thumb = makeThumb(doc, images.body);
-      lib[id] = { record: record, images: images };
+      lib[ids[i]] = { record: records[ids[i]],
+                      images: buildOne(doc, ids[i], records[ids[i]], pending) };
     }
     return lib;
   }
