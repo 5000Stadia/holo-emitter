@@ -744,27 +744,37 @@ def _snapped_frame(key):
     return os.path.join(SNAP_SOURCE_DIR, "%s-%s" % (loc, fac), "snapped.png")
 
 
-def _stash_snapped(key):
-    """The snapped frame's bytes and its reading's, before a snap attempt.
+def _routed_frames(key):
+    """The four files a routing attempt can write, in two pairs.
 
-    See the note in `route_exit`. The pair is stashed together because they are
-    one artifact in two files — a reading and the picture it describes — and
-    putting back one without the other would author the mismatch it prevents.
+    A pair is ONE artifact in two files — a picture and the reading that
+    describes it — and both doors write one: the snap writes
+    `source-snapped/<wall>/snapped.png` beside `row35snap/<wall>.json`, and the
+    void repair writes `source-doors/<wall>/doored.png` beside
+    `row36doors/<wall>.json`. Both paths are keyed by WALL and not by candidate,
+    which is what makes an attempt on a NEWER roll able to overwrite the picture
+    an ALREADY-PROMOTED wall was measured on.
     """
     loc, fac = key.split("/")
-    out = {}
-    for p in (_snapped_frame(key),
-              os.path.join(HERE, SNAP_ROUND, "%s-%s.json" % (loc, fac))):
-        out[p] = open(p, "rb").read() if os.path.exists(p) else None
-    return out
+    return (_snapped_frame(key),
+            os.path.join(HERE, SNAP_ROUND, "%s-%s.json" % (loc, fac)),
+            os.path.join(DOOR_SOURCE_DIR, "%s-%s" % (loc, fac), "doored.png"),
+            os.path.join(HERE, DOOR_ROUND, "%s-%s.json" % (loc, fac)))
+
+
+def _stash_snapped(key):
+    """What those four files hold before a routing attempt. See `route_exit`."""
+    return {p: (open(p, "rb").read() if os.path.exists(p) else None)
+            for p in _routed_frames(key)}
 
 
 def _restore_snapped(key, stash):
-    """The stashed pair back, byte for byte, where the bytes actually moved.
+    """The stashed files back, byte for byte, where the bytes actually moved.
 
-    A frame that did not exist before the attempt is REMOVED rather than left:
-    a snapped frame nothing points at is the next reader's puzzle, and the snap
-    is deterministic, so nothing is lost that a re-run cannot make again.
+    A file that did not exist before the attempt is REMOVED rather than left: a
+    snapped frame nothing points at is the next reader's puzzle, and both the
+    snap and the void repair are deterministic, so nothing is lost that a re-run
+    cannot make again.
     """
     for p, before in (stash or {}).items():
         now = open(p, "rb").read() if os.path.exists(p) else None
@@ -1148,6 +1158,10 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
     # and this stops it happening. Same doctrine as the supersede route's
     # `_stash`/`_restore`: an attempt that does not stand leaves the store
     # exactly as it found it.
+    #
+    # BOTH PAIRS, because the void repair's `doored.png` and its `row36doors`
+    # reading are keyed by wall in exactly the same way and are written before
+    # the promotion that may refuse them. See `_routed_frames`.
     _snap_stash = _stash_snapped(key)
     ok, reason, res, promo_why = _exit_snap(key, cand_rel, reading)
     if ok:
@@ -1164,8 +1178,9 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
             return _promoted(EXIT_SNAPPED_VOIDED, reason)
         snap_why = "%s; %s" % (snap_why, reason)
 
-    # Neither snapped door carried it, so the frame this pass wrote is a frame
-    # nothing points at — and the one it replaced may be a frame the store does.
+    # Neither snapped door carried it, so whatever this pass wrote into those
+    # four files is a picture nothing points at — and what it replaced may be a
+    # picture the store does.
     _restore_snapped(key, _snap_stash)
 
     ok, reason = _exit_tolerance(key, e, st, cand_rel, reading, side, ref, fam)
