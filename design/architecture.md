@@ -3896,18 +3896,25 @@ route they stop one clause earlier at `row32:tolerance.suspect_undeclared` and r
 only under `--camera-source declared`. Both refusals are about the camera and neither is about the
 flight.
 
-**And the snapped route does not reach them today, for a reason worth writing down.** Four of these
-walls have a rectified frame on disk (`backdrops/source-snapped/<loc>-<F>/snapped.png`) whose
-acceptance re-measures clean, which is exactly the camera fix they need — but every one of those
-frames is a snap of the wall's PRE-FLIGHT roll, because the row-35 pilot ran before row 38's re-asks
-landed. `askTextFor` follows the snap back to that roll and the flight clause correctly refuses it:
-promoting it would ship a rectified picture of a room with no staircase in it, which is the harm row
-32 exists to name. Confirmed live on `back_stair/W`, whose snap resolves to
-`row23-4e3755a6.prompt.txt` and trips `row32:stair.painted_flight_lost`. **The snapped corpus tracks
-the candidate it was cut from, and nothing re-cuts it when a newer roll arrives** — so these four
-walls need their row-38 re-asks snapped, which is the production loop's act and not this clause's.
-Trial-snapped here to confirm it is available: `back_stair/W`'s re-ask rectifies with `ACCEPTANCE
-PASS (unfitted-horizon) focal +0.48 % eye −0.24 %`, magnification 1.33× against a budget of 3.00.
+**And the snapped route does not reach them today, for a reason worth writing down, because it is the
+one act that would put four flights into the store.** These walls have a rectified frame on disk
+(`backdrops/source-snapped/<loc>-<F>/snapped.png`) whose acceptance re-measures clean — that is
+exactly the camera fix they need, and the row-35 snap sweep says so. But **the snap is cut from the
+wall's run-state CANDIDATE, and for every one of these walls run-state still names the roll that was
+asked for before the flight language existed.** So the frame that re-measures clean is a rectified
+picture of a room with no staircase in it, `askTextFor` follows the snap back to that pre-flight roll,
+and the flight clause correctly refuses it — which is the harm row 32 exists to name, arriving by a
+new road. Confirmed live: `back_stair/W`'s snapped frame resolves to `row23-4e3755a6.prompt.txt` and
+trips `row32:stair.painted_flight_lost`.
+
+**The two facts have to move together, and only one of them has.** The camera fix is on the snapped
+frame; the staircase is on the re-ask roll; nothing has yet cut a snap from a re-ask. Doing it works
+— trial-snapped here to confirm the route is available before recommending it: `back_stair/W`'s
+row-38 re-ask (`row23-7d7caa79.png`) rectifies with `ACCEPTANCE PASS (unfitted-horizon) focal
++0.48 % eye −0.24 %`, magnification 1.33× against a budget of 3.00, and the resulting reading names
+that roll as its origin, so the ask names a staircase and the clause falls silent. That is the
+production loop's act — advance these walls' run-state candidate to the re-ask that has already
+landed, re-snap, then promote under `--reference ruled` — and not this clause's.
 
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 
