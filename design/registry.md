@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-SUPERSEDE | the loop's supersede route: a row-40 re-ask of a PROMOTED wall is measured, promoted, and kept only if the room's consistency improves (else the old bytes come back) | building |
 | B-ORIGIN | row 40 origin hunt: why one room's four asks painted as two rooms — prompt diffs → producing lines → fix in the composer + a same-room-same-sentences test | building |
 | B-GREEN | merged main's suite: 24 failures across 9 specs after today's four merges → green with the right fixes | building |
 
