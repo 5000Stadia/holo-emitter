@@ -19,7 +19,7 @@
 # baton.stalled with its numbers. Run standing under tmux: seat-watch.
 set -u
 cd "$(git rev-parse --show-toplevel)"
-STALE_S=${STALE_S:-900}
+STALE_S=${STALE_S:-300}
 # [B-ROUTING] THE LOOP IS ALIVE WHEN A PASS HAS COMPLETED, and this is how long
 # it may go without completing one. It has to exceed the longest HONEST pass:
 # a routing pass that takes the ruled exits snaps a wall at a time (~12 s each,
