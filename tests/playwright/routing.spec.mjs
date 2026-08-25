@@ -50,7 +50,14 @@ import row35_snap
 
 R.OUT = os.path.join(TMP, "readings")
 os.makedirs(R.OUT, exist_ok=True)
-R._bake_if_promoted = lambda n: None
+# The bake AND the derivation, which are now the same door: _bake_if_promoted
+# regenerates every artifact the pass invalidated before it validates and bakes.
+# Stubbed together because both are somebody else's spec (fixtures.spec for the
+# bake, derived.py --check --deep for the derivation) and both would put a real
+# store's minute into every case here. Star-args rather than a fixed arity: a
+# stub pinned to a signature is a test that goes red when a CALLER gains an
+# argument, which says nothing about the routing this file is about.
+R._bake_if_promoted = lambda *a, **k: None
 RULING = '2026-08-24 | suspect-painting tolerance | "close enough" | (synthetic)'
 R.tolerance_ruling = lambda: RULING
 R.DOOR_SOURCE_DIR = os.path.join(TMP, "source-doors")
@@ -442,8 +449,16 @@ function batonRepo(passAgeSeconds) {
   writeFileSync(join(dir, "backdrops", "source", "x-N", "a.png"), "not a png");
   writeFileSync(join(dir, "design", "batches", "row23-scaffold", "manor", "manifest.json"),
     JSON.stringify({ entries: [{ key: "x/N", rolls: [{ id: "deadbeef", candidate: "backdrops/source/x-N/a.png" }] }] }));
+  /* AND THE WALL IS ONE THE SWEEP HAS REGISTERED. `baton-watch.sh` counts a
+     candidate as owed to the loop only for a wall the run state knows and has
+     not finished with — the guard that stopped M0's fenced `study`/`hall`
+     facings holding "loop owed 2" for a day. This fixture wrote `walls: {}`,
+     which predates that guard: the watchdog correctly answered "nothing owed
+     anywhere" and all three cases below were red about the baton being none.
+     A run state with no walls in it is not a repository the loop has ever run
+     in, and the liveness these cases are about is a claim about one that has. */
   writeFileSync(join(dir, "design", "batches", "row23-scaffold", "manor", "run-state.json"),
-    JSON.stringify({ walls: {} }));
+    JSON.stringify({ walls: { "x/N": { status: "retry", attempts: 1 } } }));
   const now = Date.now() / 1000;
   const ledger = passAgeSeconds === null ? "" : JSON.stringify({
     ts_start: now - passAgeSeconds - 30, ts_end: now - passAgeSeconds,

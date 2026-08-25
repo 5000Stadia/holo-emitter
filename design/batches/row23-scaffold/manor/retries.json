@@ -4865,7 +4865,14 @@
           154
         ],
         "sha256": "79519eb349d985fc1450712b6f3a0c0741a17ab7d093055ee446e764a631da95",
-        "source_sha256": "4109eb470de69c7da9cc54bd142943a663f74231b63ee34375a22b92c3e151f2"
+        "source_sha256": "4109eb470de69c7da9cc54bd142943a663f74231b63ee34375a22b92c3e151f2",
+        "stale_from": {
+          "source_sha256": "4109eb470de69c7da9cc54bd142943a663f74231b63ee34375a22b92c3e151f2",
+          "now_sha256": "95509e135e6a17361eaeb6d9d0c53ecd2fb7574e6f89e547bd8ab8f2bec3cced",
+          "rolled": "backdrops/source/stair_landing-N/row23-e594b388.png",
+          "why": "the strip this packet carried was cut from backdrops/stair_landing/E.png as it stood when the ask went out; that neighbour has since been re-promoted, and the ask cannot be un-sent. The strip and its digest are what was handed to the painter and are left exactly as they were.",
+          "at": "2026-08-25T01:55:27"
+        }
       },
       "seed_policy": "opportunistic",
       "depends_on": null,

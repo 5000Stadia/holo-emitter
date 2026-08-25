@@ -21,7 +21,7 @@
  *      a planted continuity, so a green reading from it means something.
  */
 import { test, expect } from "@playwright/test";
-import { repoRoot } from "./helpers.mjs";
+import { repoRoot, expectDerived } from "./helpers.mjs";
 import { readFileSync, existsSync, mkdtempSync, rmSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -429,6 +429,14 @@ test.describe("row 38/42 — the ring is an open location's, the lead is everyon
   });
 
   test("the emitted records carry the dependency, and only where the row licenses one", () => {
+    /* [production law clause 6] THE STRIP RECORDS ARE DERIVED FROM THE STORE,
+       and the store moves under them: a strip is cut from a neighbour's promoted
+       painting, and the supersede route can repaint that neighbour afterwards.
+       `derived.py` owns what happens then — the strip is re-cut where the packet
+       has not been rolled, and marked `stale_from` where it has, because the ask
+       cannot be un-sent — so this case asks it first and is then only ever about
+       the record's own claims. */
+    expectDerived("edge_seed_records");
     const retries = JSON.parse(readFileSync(join(MANOR, "retries.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(MANOR, "manifest.json"), "utf8"));
     const rows = retries.entries.filter((e) => "depends_on" in e);
@@ -455,8 +463,34 @@ test.describe("row 38/42 — the ring is an open location's, the lead is everyon
         expect(existsSync(join(repoRoot, e.edge_seed.file))).toBe(true);
         expect(sha(join(repoRoot, e.edge_seed.file)), `${e.key}'s recorded strip`)
           .toBe(e.edge_seed.sha256);
-        expect(sha(join(repoRoot, e.edge_seed.source)), `${e.key}'s recorded source painting`)
-          .toBe(e.edge_seed.source_sha256);
+        /* THE SOURCE PAINTING, AND THE ONE LICENSED WAY IT CAN DIFFER. What the
+           record claims is that these exact bytes were handed to the painter, so
+           the digest must be the digest of what is on disk — UNLESS the store
+           has since replaced that neighbour, which the supersede route can do to
+           a wall this packet has already been rolled from. An ask cannot be
+           un-sent, so the strip and its digest stay exactly as they were and the
+           record carries `stale_from` naming both digests and the roll that
+           consumed it. That is not a softer assertion: it demands the OLD digest
+           be the recorded one, the NEW digest be the store's, and a roll to
+           exist — three facts where there was one, and none of them writable by
+           the drift itself. `derived.py --check` refuses a record that drifted
+           without one. */
+        const seedStale = e.edge_seed.stale_from;
+        if (!seedStale) {
+          expect(sha(join(repoRoot, e.edge_seed.source)), `${e.key}'s recorded source painting`)
+            .toBe(e.edge_seed.source_sha256);
+        } else {
+          expect(seedStale.source_sha256,
+            `${e.key}'s stale_from must name the digest the record still carries`)
+            .toBe(e.edge_seed.source_sha256);
+          expect(seedStale.now_sha256,
+            `${e.key}'s stale_from must name what the store holds there now`)
+            .toBe(sha(join(repoRoot, e.edge_seed.source)));
+          expect(existsSync(join(repoRoot, seedStale.rolled || "")),
+            `${e.key}'s strip is kept as sent, so the roll it was sent for must be on disk`)
+            .toBe(true);
+          expect(seedStale.why, `${e.key}'s stale_from gives no reason`).toBeTruthy();
+        }
         expect(e.edge_seed.neighbour_edge)
           .toBe(neighbourEdge(e.key.split("/")[1], e.edge_seed.side));
       }

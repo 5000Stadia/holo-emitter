@@ -1,4 +1,4 @@
-import { test, expect, repoRoot, bake, stageTree, removeTree } from "./helpers.mjs";
+import { test, expect, repoRoot, bake, stageTree, removeTree, expectDerived } from "./helpers.mjs";
 import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, readdirSync, existsSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -125,6 +125,15 @@ test.describe("fixtures", () => {
    * at once, because the tool derives all of them from the measurement and the
    * plan. A hand-edited meta cannot ship between suite runs. */
   test("promotion staleness: the committed meta byte-equals a fresh run of promote-backdrop", () => {
+    /* [production law clause 6] IS THE META EVEN COMPARABLE YET? The tool is
+       re-run against the candidate the meta names, so a candidate REPLACED
+       under a promoted wall makes every assertion below a statement about the
+       wrong picture. `promoted_metas` is that question, asked where the machine
+       keeps the answer: the store's own png must be a byte copy of the candidate
+       its meta names, and the reading it was promoted from must describe that
+       candidate. Three walls failed exactly that when this was written, because
+       a later snap rewrote a frame keyed by wall. */
+    expectDerived("promoted_metas");
     const dir = stageTree();
     try {
       /* The tool reads the measurement beside the gates; a staged tree carries

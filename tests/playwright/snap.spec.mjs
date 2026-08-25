@@ -24,7 +24,7 @@
  * and then the thing none of them can see: a real click, in a real browser, on
  * the painted door of a snapped wall promoted into a SCRATCH store.
  */
-import { test, expect, repoRoot, POINTER_VIEWPORT, stageTree, removeTree } from "./helpers.mjs";
+import { test, expect, repoRoot, POINTER_VIEWPORT, stageTree, removeTree, expectDerived } from "./helpers.mjs";
 import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, copyFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -192,6 +192,15 @@ test.describe("row 35 — the snap", () => {
        frame exists, and its digest is the one recorded. So the sentence's own
        phrase is what is read, and the path it yields is checked rather than
        assumed. */
+    /* [production law clause 6] AND WHEN IT IS NOT, WHOSE FAULT IT IS. The pair
+       is derived — the frame is a warp of a roll and the reading is that warp's
+       own measurement — and the frame's path is keyed by WALL, so a later pass
+       snapping another roll of the same wall rewrites the picture under the
+       reading that describes it. That happened to three walls and shipped in a
+       ledger tick. `derived.py` is the one place that knows the pair belongs
+       together; asking it first means this case is red for the invariant below
+       and never merely because the loop moved on. */
+    expectDerived("snap_readings");
     const dir = join(repoRoot, "design", "plan-draft", "measured", "row35snap");
     const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
     expect(files.length, "the round has readings in it").toBeGreaterThan(0);

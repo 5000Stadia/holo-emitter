@@ -924,7 +924,18 @@ async function main() {
           };
         }
       }
-      const lp = join(ROOT, "design", "plan-draft", "measured", "material_legacy.json");
+      const canonicalLegacy = join(ROOT, "design", "plan-draft", "measured", "material_legacy.json");
+      const lp = resolve(argOf("--legacy-out", canonicalLegacy));
+      /* THE SEAL DATE IS WHEN THE GATE LANDED, NOT WHEN THIS LAST RAN. The
+       * ledger is regenerated after every promotion now (`derived.py`), and a
+       * `_sealed` stamped with today's date would move the file's bytes on a
+       * day when nothing about the store had changed — which is an artifact
+       * that can never be shown fresh, and a diff nobody can read. So the date
+       * is carried from whichever copy exists: the one being written over, or
+       * the canonical one when this is writing a comparison copy elsewhere. */
+      const priorSeal = [lp, canonicalLegacy]
+        .map((p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8"))._sealed : null))
+        .find((d) => typeof d === "string" && d.length);
       writeFileSync(lp, JSON.stringify({
         _what_this_is:
           "[row 40 - the ORIGIN] The paintings that were already promoted when " +
@@ -936,7 +947,7 @@ async function main() {
           "not an exemption: an entry admits one facing from one exact candidate, a " +
           "re-ask produces a new candidate id that is not in here, and the list can " +
           "only shrink. Delete an entry in the same commit that re-asks its wall.",
-        _sealed: new Date().toISOString().slice(0, 10),
+        _sealed: priorSeal || new Date().toISOString().slice(0, 10),
         _closes_with: "node tools/make-scaffold.mjs --emit-consistency --from-ask",
         open: Object.keys(admitted).length,
         admitted

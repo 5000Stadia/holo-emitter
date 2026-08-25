@@ -1,0 +1,53 @@
+{
+  "_what_this_is": "What every derived artifact was last regenerated FROM, written by design/plan-draft/measured/derived.py. `--check` recomputes each input digest and reports an artifact whose inputs have moved. Do not hand-edit: an entry here is a claim that the artifact beside it was written from exactly these bytes.",
+  "artifacts": {
+    "baked": {
+      "artifacts": {
+        "backdrops/baked.js": "b445d7d68912df37a13a511bc97dde85ecfcff293ff8ce35b5fac84098555525"
+      },
+      "at": "2026-08-25T01:57:21",
+      "input_digest": "6d993bee3dbddcc4194417536774776ade0a375fbfe10c26f7984c7c3461d9eb",
+      "inputs": 128
+    },
+    "material_legacy": {
+      "artifacts": {
+        "design/plan-draft/measured/material_legacy.json": "e1e9917cb836aaf022ef8ae399b058b02c8bf4fe22ddd28687d27138b81abe9a"
+      },
+      "at": "2026-08-25T01:57:20",
+      "input_digest": "fbe1bce58a283a317bb9721b89f709928c89b1f0a365541ffa6fb746454c3016",
+      "inputs": 655
+    },
+    "material_provenance": {
+      "artifacts": {
+        "design/plan-draft/measured/material_provenance.json": "6950d7d3f40d43111ede409132df681da68b042ea35c56c189e75b300d94bec1"
+      },
+      "at": "2026-08-25T01:57:20",
+      "input_digest": "fbe1bce58a283a317bb9721b89f709928c89b1f0a365541ffa6fb746454c3016",
+      "inputs": 655
+    },
+    "room_consistency": {
+      "artifacts": {
+        "design/plan-draft/measured/room_consistency.json": "65bc12b639dbeeeb50acf31886bd10fbce6f6aa091a28b4b5541b32ad56e3796"
+      },
+      "at": "2026-08-25T01:57:21",
+      "input_digest": "8fd837fd949b64c2e140521f4571d8dd387417ce083adbd8af3f416e13e1ff47",
+      "inputs": 124
+    },
+    "room_consistency_readme": {
+      "artifacts": {
+        "design/batches/row40-consistency/README.md": "24463d765a2a66bc00c64c70b9d119f3359d8079f8b98dbe049d6a83893913a3"
+      },
+      "at": "2026-08-25T01:57:21",
+      "input_digest": "8fd837fd949b64c2e140521f4571d8dd387417ce083adbd8af3f416e13e1ff47",
+      "inputs": 124
+    },
+    "window_calibration": {
+      "artifacts": {
+        "design/plan-draft/measured/window_calibration.json": "f5c6f0a45822f9fc6b4d4f7602a046dd5cec88cf71da407e628d23eee786d838"
+      },
+      "at": "2026-08-25T01:57:21",
+      "input_digest": "3700c7d882dfa9482c2bc2589bfc005f0ba59991624c77394e6541a0353f076f",
+      "inputs": 125
+    }
+  }
+}

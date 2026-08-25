@@ -88,6 +88,57 @@ export function removeTree(dir) {
   rmSync(dir, { recursive: true, force: true });
 }
 
+/* ------------------------------------------------------------------ */
+/* IS THE COMMITTED ARTIFACT STILL A DESCRIPTION OF THE STORE?         */
+/* ------------------------------------------------------------------ */
+/**
+ * [production law clause 6] The one freshness question, asked one way.
+ *
+ * A dozen committed files in this repository are GENERATED FROM the promoted
+ * store — the material provenance report, the legacy ledger, the room
+ * consistency measure and its README, the window calibration, the snapped and
+ * repaired readings, the edge-strip records in `retries.json`, the bakes. Eight
+ * cases across six spec files compare one of those artifacts against something
+ * live, and every one of them was red on `main` whenever the manor loop had run
+ * and green on a frozen tree — because the loop moved the store and nothing
+ * regenerated what the store's movement invalidated.
+ *
+ * The cases were not wrong to compare. What they could not say is WHICH of the
+ * two failures they had found: the machine failed to regenerate an artifact, or
+ * the claim the artifact carries has actually stopped being true. This helper is
+ * that sentence, and it is the SAME sentence `tools/publish-site.sh` refuses on
+ * and the same one `row23_run.py --derive-check` prints, because all three read
+ * `design/plan-draft/measured/derived.py`. A case that calls this first is red
+ * for staleness only when the machine failed, and red for its own claim only
+ * when the claim is false.
+ *
+ * It writes nothing, and on this corpus it costs about a quarter of a second.
+ */
+export function derivedFreshness(id) {
+  const out = execFileSync("python3", [
+    join(repoRoot, "design", "plan-draft", "measured", "derived.py"),
+    "--check", "--json", "--only", id
+  ], { cwd: repoRoot, encoding: "utf8", env: { ...process.env, HOLO_TIMINGS: "off" },
+    stdio: ["ignore", "pipe", "pipe"] });
+  const doc = JSON.parse(out);
+  const rec = doc.artifacts.find((a) => a.id === id);
+  if (!rec) throw new Error(`derived.py knows no artifact called ${id}`);
+  return rec;
+}
+
+/** Assert it, with the reason and the command that remakes it. */
+export function expectDerived(id) {
+  const rec = derivedFreshness(id);
+  const why = (rec.why || []).map(([p, w]) => `\n    ${p}: ${w}`).join("");
+  expect(rec.state,
+    `${id} is ${rec.state} against the store, so what this case is about cannot be ` +
+    `asked yet. This is the MACHINE failing to regenerate a derived artifact, not ` +
+    `the claim below being false — the loop is meant to do it after any pass that ` +
+    `promoted, superseded, re-snapped or void-repaired anything.${why}\n` +
+    `  remake: ${rec.regen}`).toBe("fresh");
+  return rec;
+}
+
 /* In-page test utilities, injected before app scripts; the functions run at
  * call time, when window.HOLO exists. SHA-256 via WebCrypto: file:// is a
  * secure context in Chromium, and getImageData bytes make the hash

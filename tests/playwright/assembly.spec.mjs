@@ -20,7 +20,7 @@
  *   the aperture  the rect the detector reads back is the rect the plan ruled,
  *                 which is row 27's question answered by construction
  */
-import { test, expect, repoRoot } from "./helpers.mjs";
+import { test, expect, repoRoot, expectDerived } from "./helpers.mjs";
 import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -61,6 +61,15 @@ test.describe("row 36 — the door void", () => {
        rewritten on every `npm test`, so a green suite left the tree dirty and
        the next checkout failed. The batch keeps the evidence; the suite keeps
        its own copy and throws it away. */
+    /* AND IT READS THE SNAPPED FRAMES, which are derived: the report takes
+       `backdrops/source-snapped/<wall>/snapped.png` where one exists. That path
+       is keyed by WALL, so a later snap of another roll rewrites it under the
+       reading and the promoted meta that describe it — and this case then goes
+       red saying `great_hall/N is in the report`, which is true and is about the
+       wrong thing entirely (the repair refused a frame nothing promoted). The
+       freshness of the pair is asked first, in the one place that knows it, so
+       what is left below is only ever the door claim. */
+    expectDerived("snap_readings");
     const scratch = mkdtempSync(join(tmpdir(), "holo-door-repair-"));
     let out;
     try {
