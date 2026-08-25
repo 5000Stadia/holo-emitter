@@ -41936,3 +41936,5 @@
 {"ts_start":1787653783.489,"ts_end":1787653800.556,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39324055,"fp":"ea4c5b99","png_bytes":155047959,"jpeg_bytes":29483845}}
 {"ts_start":1787653800.66,"ts_end":1787653800.737,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
 {"ts_start":1787653800.815,"ts_end":1787653800.96,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
+{"detail":{"action":"texture_library","files":1,"note":null,"refused":false,"wrote":["backdrops/textures/facings.json"]},"key":"texture_library","step":"derive.regen","ts_end":1787654605.848278,"ts_start":1787654605.575171}
+{"detail":{"action":"materials","files":0,"note":null,"refused":false,"wrote":[]},"key":"material_provenance","step":"derive.regen","ts_end":1787654605.989352,"ts_start":1787654605.848476}

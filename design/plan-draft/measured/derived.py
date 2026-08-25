@@ -24,6 +24,11 @@ ARTIFACT EACH ACT INVALIDATES. This file is that knowledge, in one place.
 
     THE TABLE — artifact -> what invalidates it
 
+    textures/materials.json      an edit to the voice table or to the plan —
+      + textures/facings.json    these two are emitted from the RULING rather
+                                 than measured off the store, and they went
+                                 stale on main the day the brick-bond sentence
+                                 landed and nobody re-ran the emitter
     material_provenance.json     any promotion or supersede (the ask a painting
                                  was made from is read off the store), any edit
                                  to the voice table or the composer
@@ -469,6 +474,47 @@ def _regen_room_consistency(_findings=None):
     return [rel(p) for p, s in before.items() if sha(p) != s], None
 
 
+def _regen_texture_library(_findings=None):
+    """The typed texture library and the facing table, from the voice table.
+
+    THESE ARE NOT DERIVED FROM THE STORE, and they are here for that reason. The
+    two above answer to pixels; these answer to `tools/room-voices.mjs` — the
+    plan's own material ruling — and they went stale the same way, one commit
+    after the voice table gained a sentence about brick bond and nobody re-ran
+    the emitter. That landed on main while this file was being written, and
+    `room-voices.spec`'s own staleness case caught it a day later. A registry
+    that knows only the store's artifacts would have watched it happen.
+    """
+    paths = [os.path.join(ROOT, "backdrops", "textures", "materials.json"),
+             os.path.join(ROOT, "backdrops", "textures", "facings.json")]
+    before = {p: sha(p) for p in paths}
+    for cmd in (["node", os.path.join(ROOT, "tools", "room-voices.mjs"),
+                 "--emit-materials"],
+                ["node", os.path.join(ROOT, "tools", "make-scaffold.mjs"),
+                 "--emit-facing-materials"]):
+        ok, out = _run(cmd)
+        if not ok:
+            return [], "%s refused: %s" % (os.path.basename(cmd[1]),
+                                           out.split("\n")[-1][:200])
+    return [rel(p) for p, s in before.items() if sha(p) != s], None
+
+
+def _deep_texture_library(paths):
+    def go(tmp):
+        m, f = os.path.join(tmp, "materials.json"), os.path.join(tmp, "facings.json")
+        ok, out = _run(["node", os.path.join(ROOT, "tools", "room-voices.mjs"),
+                        "--emit-materials", "--out", m])
+        if not ok:
+            return None, "room-voices refused: " + out.split("\n")[-1][:200]
+        ok, out = _run(["node", os.path.join(ROOT, "tools", "make-scaffold.mjs"),
+                        "--emit-facing-materials", "--out", f])
+        if not ok:
+            return None, "make-scaffold refused: " + out.split("\n")[-1][:200]
+        return {"backdrops/textures/materials.json": m,
+                "backdrops/textures/facings.json": f}, None
+    return _deep_cmp(paths, go)
+
+
 def _regen_window_calibration(_findings=None):
     p = os.path.join(HERE, "window_calibration.json")
     before = sha(p)
@@ -830,6 +876,19 @@ def _deep_bake(paths):
 
 ARTIFACTS = [
     {
+        "id": "texture_library",
+        "paths": ["backdrops/textures/materials.json",
+                  "backdrops/textures/facings.json"],
+        "invalidated_by": "any edit to the voice table (tools/room-voices.mjs) "
+                          "or to the plan: these are emitted from the ruling, "
+                          "not measured off the store",
+        "inputs": ["tools/room-voices.mjs", "tools/make-scaffold.mjs",
+                   "tools/plan-projection.mjs", "fixtures/demo-study/plan.json"],
+        "action": "texture_library", "deep": _deep_texture_library,
+        "regen": "node tools/room-voices.mjs --emit-materials && "
+                 "node tools/make-scaffold.mjs --emit-facing-materials",
+    },
+    {
         "id": "snap_readings",
         "paths": ["design/plan-draft/measured/row35snap"],
         "invalidated_by": "a re-snap: the frame is keyed by WALL, so snapping "
@@ -934,6 +993,7 @@ ARTIFACTS = [
 #: id -> the callable that remakes it. Several artifacts share one action; an
 #: action runs once however many of its artifacts are stale.
 ACTIONS = {
+    "texture_library": _regen_texture_library,
     "materials": _regen_materials,
     "room_consistency": _regen_room_consistency,
     "window_calibration": _regen_window_calibration,

@@ -864,7 +864,10 @@ async function main() {
     const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
     const doc = emitMaterials(VOICES, plan);
     const fm = facingMaterials(plan, doc);
-    const out = join(ROOT, "backdrops", "textures", "facings.json");
+    /* `--out`, for the reason `--audit-materials` has one: a freshness check
+     * emits into a temp file and byte-compares rather than writing over the
+     * committed artifact to find out whether it would have changed. */
+    const out = resolve(argOf("--out", join(ROOT, "backdrops", "textures", "facings.json")));
     writeFileSync(out, JSON.stringify({
       _what_this_is:
         "Which texture each facing of the plan actually shows. Emitted from " +
