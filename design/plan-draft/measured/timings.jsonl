@@ -45309,3 +45309,6 @@
 {"ts_start":1787660047.92,"ts_end":1787660048.065,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
 {"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787660048.101927,"ts_start":1787660030.813852}
 {"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787660048.102517,"ts_start":1787660025.894907}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787665750.823651,"ts_start":1787665750.754369}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787665958.740846,"ts_start":1787665958.671466}
+{"detail":{"prompts":4,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787666141.340606,"ts_start":1787666141.337358}
