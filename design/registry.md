@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-SEEDMASK | the own-room style image carries fabric, not architecture: apertures filled from the wall's own materials before it is attached as Image 1 (servants_hall/E painted the seed wall's doorways) | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
