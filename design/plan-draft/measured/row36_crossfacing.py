@@ -141,10 +141,36 @@ def compare(room_id, plan, facings, step=8):
     return out
 
 
+def bay_check(room_id, plan, facings):
+    """ROW 41's GATE: does a bay boundary land ON each side of every corner?
+
+    The turn test above compares the assembler's COORDINATES with themselves and
+    would pass over a room built entirely from wrong pixels — it says so in its
+    own header. This is the other half, and it is about construction: for every
+    corner of the room, the bay boundary nearest that corner, on EACH of the two
+    walls meeting there, must lie at the corner within one stile width, and a
+    stile must actually cover it.
+
+    WHAT GOES RED. Revert any wall to a tiled crop and every corner on it fails
+    at once, because a tiled fabric has no boundaries to report: the layout
+    comes back neither framed nor edged and there is nothing within a stile of
+    the corner to find. That is why this asserts on the LAYOUT and not on the
+    composed pixels — the pixels of a tiled wall look like panelling too, which
+    is exactly how row 36 shipped and how the Captain came to see a wall that
+    "runs off the corner and doesnt complete".
+    """
+    import row41_bays as B                                       # noqa: E402
+    rw = B.build_room(room_id, plan, facings, A.read_json(A.MATERIALS))
+    return rw, B.corner_rows(rw)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--room", required=True)
     ap.add_argument("--json", default="")
+    ap.add_argument("--bays", action="store_true",
+                    help="also run row 41's corner-completeness gate; a failing "
+                         "corner exits non-zero")
     args = ap.parse_args()
     plan = json.load(open(A.PLAN))
     facings = json.load(open(A.FACINGS))["facings"]
@@ -163,11 +189,31 @@ def main():
                  p["return_u_m"], p["wall_u_m"], p["overlap_m"]))
     for e in r.get("errors", []):
         print("  ERROR", e)
+    bad = []
+    if args.bays:
+        rw, rows = bay_check(args.room, plan, facings)
+        r["bays"] = {"framed": rw.record["framed"],
+                     "frame_provenance": rw.record["frame_provenance"],
+                     "walls": {f: {"width_m": w["layout"]["width_m"],
+                                   "bays": w["layout"]["bays"],
+                                   "bay_width_m": w["layout"]["bay_width_m"],
+                                   "stile_m": w["layout"]["stile_m"]}
+                               for f, w in rw.walls.items()},
+                     "corners": rows}
+        bad = [x for x in rows if not x["pass"]]
+        print("  row 41 — a completed bay on each side of every corner:")
+        for x in rows:
+            print("    %-8s %-5s  %s gap %.6f m   %s gap %.6f m   bar %.3f m   %s"
+                  % (x["corner"], x["hand"], x["this_wall"],
+                     x["boundary_gap_this_m"], x["next_wall"],
+                     x["boundary_gap_next_m"], x["bar_one_stile_m"],
+                     "PASS" if x["pass"] else "FAIL"))
+        print("    %d corner(s), %d failing" % (len(rows), len(bad)))
     if args.json:
         with open(args.json, "w") as fh:
             json.dump(r, fh, indent=2, default=float)
             fh.write("\n")
-    return 0
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":

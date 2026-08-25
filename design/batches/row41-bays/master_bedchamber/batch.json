@@ -1,0 +1,1211 @@
+{
+  "room": "master_bedchamber",
+  "ppm": 155.152,
+  "storey_m": 2.8,
+  "material": "wall/oak-wainscot-with-hangings",
+  "field_material": "wall/hangings-tapestry",
+  "framed": true,
+  "frame": {
+    "kind": "dado",
+    "module_m": 0.8,
+    "stile_m": 0.11,
+    "plinth_m": 0.17,
+    "chair_rail_m": 0.95,
+    "chair_rail_h_m": 0.14,
+    "cornice_m": 0.24,
+    "architrave_m": 0.13,
+    "bevel_m": 0.035
+  },
+  "edge": null,
+  "frame_provenance": "declared",
+  "frame_evidence": null,
+  "pieces": {
+    "source_facing": "master_bedchamber/N",
+    "source_png": "backdrops/master_bedchamber/N.png",
+    "source_storey_m": 4.032,
+    "window_u_m": [
+      4.876,
+      9.151
+    ],
+    "carriers_avoided": [
+      "door",
+      "hearth"
+    ],
+    "clear_of_apertures_u_m": [
+      6.623,
+      9.149
+    ],
+    "wood_u_m": [
+      8.228,
+      8.698
+    ],
+    "wood_v_m": [
+      0.22,
+      0.83
+    ],
+    "wood_from": "the wainscot, below the chair rail",
+    "wood_clear_of_grooves": true,
+    "wood_m": 0.471,
+    "cuts": {
+      "plinth_v_m": [
+        0.0,
+        0.17
+      ],
+      "rail_v_m": [
+        0.88,
+        1.02
+      ],
+      "cornice_v_m": [
+        3.792,
+        4.032
+      ]
+    },
+    "how": "HARVESTED: the wood face and the three horizontal members (plinth, chair rail, cornice), each cut at a RULED height off this room's own promoted painting, de-lit by row 36's own `delight`. DRAWN: every member's SHAPE and position, from the bay layout \u2014 there is no stile in any painting at the metre a fitted layout puts one.",
+    "wood_median_luma": 12.3
+  },
+  "harvest_refused": [
+    {
+      "key": "master_bedchamber/E",
+      "why": "master_bedchamber/E has no carrier-free stretch"
+    }
+  ],
+  "walls": {
+    "N": {
+      "width_m": 8.8,
+      "module_m": 0.8,
+      "bays": 11,
+      "bay_width_m": 0.8,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8,
+        1.6,
+        2.4000000000000004,
+        3.2,
+        4.0,
+        4.800000000000001,
+        5.6000000000000005,
+        6.4,
+        7.2,
+        8.0,
+        8.8
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8,
+          "u0": 0.745,
+          "u1": 0.8550000000000001,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6,
+          "u0": 1.5450000000000002,
+          "u1": 1.655,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.4000000000000004,
+          "u0": 2.345,
+          "u1": 2.4550000000000005,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.2,
+          "u0": 3.145,
+          "u1": 3.2550000000000003,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.0,
+          "u0": 3.945,
+          "u1": 4.055,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.800000000000001,
+          "u0": 4.745000000000001,
+          "u1": 4.855,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.6000000000000005,
+          "u0": 5.545000000000001,
+          "u1": 5.655,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.4,
+          "u0": 6.345000000000001,
+          "u1": 6.455,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.2,
+          "u0": 7.1450000000000005,
+          "u1": 7.255,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 8.0,
+          "u0": 7.945,
+          "u1": 8.055,
+          "corner": false
+        },
+        {
+          "i": 11,
+          "at_m": 8.8,
+          "u0": 8.690000000000001,
+          "u1": 8.8,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8,
+          "field_u0": 0.11,
+          "field_u1": 0.745,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8,
+          "u1": 1.6,
+          "field_u0": 0.8550000000000001,
+          "field_u1": 1.5450000000000002,
+          "opening": "hearth"
+        },
+        {
+          "i": 2,
+          "u0": 1.6,
+          "u1": 2.4000000000000004,
+          "field_u0": 1.655,
+          "field_u1": 2.345,
+          "opening": "hearth"
+        },
+        {
+          "i": 3,
+          "u0": 2.4000000000000004,
+          "u1": 3.2,
+          "field_u0": 2.4550000000000005,
+          "field_u1": 3.145,
+          "opening": "hearth"
+        },
+        {
+          "i": 4,
+          "u0": 3.2,
+          "u1": 4.0,
+          "field_u0": 3.2550000000000003,
+          "field_u1": 3.945,
+          "opening": "door"
+        },
+        {
+          "i": 5,
+          "u0": 4.0,
+          "u1": 4.800000000000001,
+          "field_u0": 4.055,
+          "field_u1": 4.745000000000001,
+          "opening": "door"
+        },
+        {
+          "i": 6,
+          "u0": 4.800000000000001,
+          "u1": 5.6000000000000005,
+          "field_u0": 4.855,
+          "field_u1": 5.545000000000001,
+          "opening": null
+        },
+        {
+          "i": 7,
+          "u0": 5.6000000000000005,
+          "u1": 6.4,
+          "field_u0": 5.655,
+          "field_u1": 6.345000000000001,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.4,
+          "u1": 7.2,
+          "field_u0": 6.455,
+          "field_u1": 7.1450000000000005,
+          "opening": null
+        },
+        {
+          "i": 9,
+          "u0": 7.2,
+          "u1": 8.0,
+          "field_u0": 7.255,
+          "field_u1": 7.945,
+          "opening": null
+        },
+        {
+          "i": 10,
+          "u0": 8.0,
+          "u1": 8.8,
+          "field_u0": 8.055,
+          "field_u1": 8.690000000000001,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "hearth",
+          "asked_u_m": [
+            0.9,
+            2.9
+          ],
+          "bays": [
+            1,
+            3
+          ],
+          "bay_count": 3,
+          "snapped_u_m": [
+            0.8,
+            3.2
+          ],
+          "clear_u_m": [
+            0.855,
+            3.145
+          ],
+          "snap_left_m": -0.1,
+          "snap_right_m": 0.3,
+          "snap_total_m": 0.4,
+          "drawn_v_m": [
+            0.0,
+            1.75
+          ],
+          "drawn": "a framed recess; the chimneypiece itself is a row-37 sprite and is not painted into the backdrop"
+        },
+        {
+          "kind": "door",
+          "asked_u_m": [
+            3.4,
+            4.4
+          ],
+          "bays": [
+            4,
+            5
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            3.2,
+            4.8
+          ],
+          "clear_u_m": [
+            3.255,
+            4.745
+          ],
+          "snap_left_m": -0.2,
+          "snap_right_m": 0.4,
+          "snap_total_m": 0.6,
+          "drawn_v_m": [
+            0.0,
+            2.05
+          ],
+          "drawn": "an unlit void; `paint_voids` repaints it"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    },
+    "E": {
+      "width_m": 7.6,
+      "module_m": 0.8,
+      "bays": 9,
+      "bay_width_m": 0.8444444444444444,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8444444444444444,
+        1.6888888888888889,
+        2.533333333333333,
+        3.3777777777777778,
+        4.222222222222222,
+        5.066666666666666,
+        5.911111111111111,
+        6.7555555555555555,
+        7.6
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8444444444444444,
+          "u0": 0.7894444444444444,
+          "u1": 0.8994444444444445,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6888888888888889,
+          "u0": 1.633888888888889,
+          "u1": 1.7438888888888888,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.533333333333333,
+          "u0": 2.478333333333333,
+          "u1": 2.5883333333333334,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.3777777777777778,
+          "u0": 3.3227777777777776,
+          "u1": 3.432777777777778,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.222222222222222,
+          "u0": 4.167222222222223,
+          "u1": 4.277222222222222,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 5.066666666666666,
+          "u0": 5.011666666666667,
+          "u1": 5.121666666666666,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.911111111111111,
+          "u0": 5.856111111111112,
+          "u1": 5.966111111111111,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.7555555555555555,
+          "u0": 6.700555555555556,
+          "u1": 6.810555555555555,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.6,
+          "u0": 7.489999999999999,
+          "u1": 7.6,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8444444444444444,
+          "field_u0": 0.11,
+          "field_u1": 0.7894444444444444,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8444444444444444,
+          "u1": 1.6888888888888889,
+          "field_u0": 0.8994444444444445,
+          "field_u1": 1.633888888888889,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.6888888888888889,
+          "u1": 2.533333333333333,
+          "field_u0": 1.7438888888888888,
+          "field_u1": 2.478333333333333,
+          "opening": "window"
+        },
+        {
+          "i": 3,
+          "u0": 2.533333333333333,
+          "u1": 3.3777777777777778,
+          "field_u0": 2.5883333333333334,
+          "field_u1": 3.3227777777777776,
+          "opening": null
+        },
+        {
+          "i": 4,
+          "u0": 3.3777777777777778,
+          "u1": 4.222222222222222,
+          "field_u0": 3.432777777777778,
+          "field_u1": 4.167222222222223,
+          "opening": null
+        },
+        {
+          "i": 5,
+          "u0": 4.222222222222222,
+          "u1": 5.066666666666666,
+          "field_u0": 4.277222222222222,
+          "field_u1": 5.011666666666667,
+          "opening": null
+        },
+        {
+          "i": 6,
+          "u0": 5.066666666666666,
+          "u1": 5.911111111111111,
+          "field_u0": 5.121666666666666,
+          "field_u1": 5.856111111111112,
+          "opening": "window"
+        },
+        {
+          "i": 7,
+          "u0": 5.911111111111111,
+          "u1": 6.7555555555555555,
+          "field_u0": 5.966111111111111,
+          "field_u1": 6.700555555555556,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.7555555555555555,
+          "u1": 7.6,
+          "field_u0": 6.810555555555555,
+          "field_u1": 7.489999999999999,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            1.4,
+            2.6
+          ],
+          "bays": [
+            2,
+            2
+          ],
+          "bay_count": 1,
+          "snapped_u_m": [
+            1.6889,
+            2.5333
+          ],
+          "clear_u_m": [
+            1.7439,
+            2.4783
+          ],
+          "snap_left_m": 0.2889,
+          "snap_right_m": -0.0667,
+          "snap_total_m": 0.3556,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        },
+        {
+          "kind": "window",
+          "asked_u_m": [
+            4.9,
+            6.1
+          ],
+          "bays": [
+            6,
+            6
+          ],
+          "bay_count": 1,
+          "snapped_u_m": [
+            5.0667,
+            5.9111
+          ],
+          "clear_u_m": [
+            5.1217,
+            5.8561
+          ],
+          "snap_left_m": 0.1667,
+          "snap_right_m": -0.1889,
+          "snap_total_m": 0.3556,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    },
+    "S": {
+      "width_m": 8.8,
+      "module_m": 0.8,
+      "bays": 11,
+      "bay_width_m": 0.8,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8,
+        1.6,
+        2.4000000000000004,
+        3.2,
+        4.0,
+        4.800000000000001,
+        5.6000000000000005,
+        6.4,
+        7.2,
+        8.0,
+        8.8
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8,
+          "u0": 0.745,
+          "u1": 0.8550000000000001,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6,
+          "u0": 1.5450000000000002,
+          "u1": 1.655,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.4000000000000004,
+          "u0": 2.345,
+          "u1": 2.4550000000000005,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.2,
+          "u0": 3.145,
+          "u1": 3.2550000000000003,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.0,
+          "u0": 3.945,
+          "u1": 4.055,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.800000000000001,
+          "u0": 4.745000000000001,
+          "u1": 4.855,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.6000000000000005,
+          "u0": 5.545000000000001,
+          "u1": 5.655,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.4,
+          "u0": 6.345000000000001,
+          "u1": 6.455,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.2,
+          "u0": 7.1450000000000005,
+          "u1": 7.255,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 8.0,
+          "u0": 7.945,
+          "u1": 8.055,
+          "corner": false
+        },
+        {
+          "i": 11,
+          "at_m": 8.8,
+          "u0": 8.690000000000001,
+          "u1": 8.8,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8,
+          "field_u0": 0.11,
+          "field_u1": 0.745,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8,
+          "u1": 1.6,
+          "field_u0": 0.8550000000000001,
+          "field_u1": 1.5450000000000002,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.6,
+          "u1": 2.4000000000000004,
+          "field_u0": 1.655,
+          "field_u1": 2.345,
+          "opening": null
+        },
+        {
+          "i": 3,
+          "u0": 2.4000000000000004,
+          "u1": 3.2,
+          "field_u0": 2.4550000000000005,
+          "field_u1": 3.145,
+          "opening": "window"
+        },
+        {
+          "i": 4,
+          "u0": 3.2,
+          "u1": 4.0,
+          "field_u0": 3.2550000000000003,
+          "field_u1": 3.945,
+          "opening": "window"
+        },
+        {
+          "i": 5,
+          "u0": 4.0,
+          "u1": 4.800000000000001,
+          "field_u0": 4.055,
+          "field_u1": 4.745000000000001,
+          "opening": null
+        },
+        {
+          "i": 6,
+          "u0": 4.800000000000001,
+          "u1": 5.6000000000000005,
+          "field_u0": 4.855,
+          "field_u1": 5.545000000000001,
+          "opening": null
+        },
+        {
+          "i": 7,
+          "u0": 5.6000000000000005,
+          "u1": 6.4,
+          "field_u0": 5.655,
+          "field_u1": 6.345000000000001,
+          "opening": "window"
+        },
+        {
+          "i": 8,
+          "u0": 6.4,
+          "u1": 7.2,
+          "field_u0": 6.455,
+          "field_u1": 7.1450000000000005,
+          "opening": "window"
+        },
+        {
+          "i": 9,
+          "u0": 7.2,
+          "u1": 8.0,
+          "field_u0": 7.255,
+          "field_u1": 7.945,
+          "opening": null
+        },
+        {
+          "i": 10,
+          "u0": 8.0,
+          "u1": 8.8,
+          "field_u0": 8.055,
+          "field_u1": 8.690000000000001,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            2.4,
+            3.9
+          ],
+          "bays": [
+            3,
+            4
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            2.4,
+            4.0
+          ],
+          "clear_u_m": [
+            2.455,
+            3.945
+          ],
+          "snap_left_m": 0.0,
+          "snap_right_m": 0.1,
+          "snap_total_m": 0.1,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        },
+        {
+          "kind": "window",
+          "asked_u_m": [
+            5.9,
+            7.4
+          ],
+          "bays": [
+            7,
+            8
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            5.6,
+            7.2
+          ],
+          "clear_u_m": [
+            5.655,
+            7.145
+          ],
+          "snap_left_m": -0.3,
+          "snap_right_m": -0.2,
+          "snap_total_m": 0.5,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    },
+    "W": {
+      "width_m": 7.6,
+      "module_m": 0.8,
+      "bays": 9,
+      "bay_width_m": 0.8444444444444444,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8444444444444444,
+        1.6888888888888889,
+        2.533333333333333,
+        3.3777777777777778,
+        4.222222222222222,
+        5.066666666666666,
+        5.911111111111111,
+        6.7555555555555555,
+        7.6
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8444444444444444,
+          "u0": 0.7894444444444444,
+          "u1": 0.8994444444444445,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6888888888888889,
+          "u0": 1.633888888888889,
+          "u1": 1.7438888888888888,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.533333333333333,
+          "u0": 2.478333333333333,
+          "u1": 2.5883333333333334,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.3777777777777778,
+          "u0": 3.3227777777777776,
+          "u1": 3.432777777777778,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.222222222222222,
+          "u0": 4.167222222222223,
+          "u1": 4.277222222222222,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 5.066666666666666,
+          "u0": 5.011666666666667,
+          "u1": 5.121666666666666,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.911111111111111,
+          "u0": 5.856111111111112,
+          "u1": 5.966111111111111,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.7555555555555555,
+          "u0": 6.700555555555556,
+          "u1": 6.810555555555555,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.6,
+          "u0": 7.489999999999999,
+          "u1": 7.6,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8444444444444444,
+          "field_u0": 0.11,
+          "field_u1": 0.7894444444444444,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8444444444444444,
+          "u1": 1.6888888888888889,
+          "field_u0": 0.8994444444444445,
+          "field_u1": 1.633888888888889,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.6888888888888889,
+          "u1": 2.533333333333333,
+          "field_u0": 1.7438888888888888,
+          "field_u1": 2.478333333333333,
+          "opening": null
+        },
+        {
+          "i": 3,
+          "u0": 2.533333333333333,
+          "u1": 3.3777777777777778,
+          "field_u0": 2.5883333333333334,
+          "field_u1": 3.3227777777777776,
+          "opening": null
+        },
+        {
+          "i": 4,
+          "u0": 3.3777777777777778,
+          "u1": 4.222222222222222,
+          "field_u0": 3.432777777777778,
+          "field_u1": 4.167222222222223,
+          "opening": "window"
+        },
+        {
+          "i": 5,
+          "u0": 4.222222222222222,
+          "u1": 5.066666666666666,
+          "field_u0": 4.277222222222222,
+          "field_u1": 5.011666666666667,
+          "opening": "window"
+        },
+        {
+          "i": 6,
+          "u0": 5.066666666666666,
+          "u1": 5.911111111111111,
+          "field_u0": 5.121666666666666,
+          "field_u1": 5.856111111111112,
+          "opening": null
+        },
+        {
+          "i": 7,
+          "u0": 5.911111111111111,
+          "u1": 6.7555555555555555,
+          "field_u0": 5.966111111111111,
+          "field_u1": 6.700555555555556,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.7555555555555555,
+          "u1": 7.6,
+          "field_u0": 6.810555555555555,
+          "field_u1": 7.489999999999999,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            3.7,
+            5.2
+          ],
+          "bays": [
+            4,
+            5
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            3.3778,
+            5.0667
+          ],
+          "clear_u_m": [
+            3.4328,
+            5.0117
+          ],
+          "snap_left_m": -0.3222,
+          "snap_right_m": -0.1333,
+          "snap_total_m": 0.4556,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    }
+  },
+  "commit": "236c1262627a",
+  "frames": [
+    {
+      "facing": "master_bedchamber/N",
+      "albedo": "design/batches/row41-bays/master_bedchamber/N-albedo.png",
+      "lit": "design/batches/row41-bays/master_bedchamber/N-lit.png",
+      "materials": {
+        "walls": "wall/oak-wainscot-with-hangings",
+        "ceiling": "ceiling/plain-lime-plaster",
+        "floor": "floor/wide-oak-boards",
+        "field": "wall/hangings-tapestry"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "master_bedchamber/E",
+      "albedo": "design/batches/row41-bays/master_bedchamber/E-albedo.png",
+      "lit": "design/batches/row41-bays/master_bedchamber/E-lit.png",
+      "materials": {
+        "walls": "wall/oak-wainscot-with-hangings",
+        "ceiling": "ceiling/plain-lime-plaster",
+        "floor": "floor/wide-oak-boards",
+        "field": "wall/hangings-tapestry"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "master_bedchamber/S",
+      "albedo": "design/batches/row41-bays/master_bedchamber/S-albedo.png",
+      "lit": "design/batches/row41-bays/master_bedchamber/S-lit.png",
+      "materials": {
+        "walls": "wall/oak-wainscot-with-hangings",
+        "ceiling": "ceiling/plain-lime-plaster",
+        "floor": "floor/wide-oak-boards",
+        "field": "wall/hangings-tapestry"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "master_bedchamber/W",
+      "albedo": "design/batches/row41-bays/master_bedchamber/W-albedo.png",
+      "lit": "design/batches/row41-bays/master_bedchamber/W-lit.png",
+      "materials": {
+        "walls": "wall/oak-wainscot-with-hangings",
+        "ceiling": "ceiling/plain-lime-plaster",
+        "floor": "floor/wide-oak-boards",
+        "field": "wall/hangings-tapestry"
+      },
+      "placeholder_art": true
+    }
+  ],
+  "seams": [
+    {
+      "turn": "N -> E",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-N-E-albedo.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-E-S-albedo.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-S-W-albedo.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-W-N-albedo.png"
+    },
+    {
+      "turn": "N -> E",
+      "which": "lit",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-N-E-lit.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "lit",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-E-S-lit.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "lit",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-S-W-lit.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "lit",
+      "file": "design/batches/row41-bays/master_bedchamber/seam-W-N-lit.png"
+    }
+  ],
+  "seams_row36": [],
+  "corners": [
+    {
+      "corner": "E|N",
+      "hand": "left",
+      "this_wall": "E",
+      "next_wall": "N",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 9,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "E|S",
+      "hand": "right",
+      "this_wall": "E",
+      "next_wall": "S",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 9,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "N|W",
+      "hand": "left",
+      "this_wall": "N",
+      "next_wall": "W",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 9,
+      "pass": true
+    },
+    {
+      "corner": "N|E",
+      "hand": "right",
+      "this_wall": "N",
+      "next_wall": "E",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 9,
+      "pass": true
+    },
+    {
+      "corner": "S|E",
+      "hand": "left",
+      "this_wall": "S",
+      "next_wall": "E",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 9,
+      "pass": true
+    },
+    {
+      "corner": "S|W",
+      "hand": "right",
+      "this_wall": "S",
+      "next_wall": "W",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 9,
+      "pass": true
+    },
+    {
+      "corner": "W|S",
+      "hand": "left",
+      "this_wall": "W",
+      "next_wall": "S",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 9,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "W|N",
+      "hand": "right",
+      "this_wall": "W",
+      "next_wall": "N",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 9,
+      "bays_next": 11,
+      "pass": true
+    }
+  ],
+  "refused": []
+}

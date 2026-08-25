@@ -1,0 +1,1265 @@
+{
+  "room": "kitchen",
+  "ppm": 170.667,
+  "storey_m": 2.8,
+  "material": "wall/plain-limewash-to-floor",
+  "field_material": null,
+  "framed": true,
+  "frame": {
+    "kind": "full_height",
+    "module_m": 0.8,
+    "stile_m": 0.11,
+    "plinth_m": 0.17,
+    "chair_rail_m": 0.95,
+    "chair_rail_h_m": 0.14,
+    "cornice_m": 0.24,
+    "architrave_m": 0.13,
+    "bevel_m": 0.035
+  },
+  "edge": {
+    "kind": "return_stile",
+    "width_m": 0.11
+  },
+  "frame_provenance": "measured",
+  "frame_evidence": {
+    "framed": true,
+    "rail_z": 3.32,
+    "rail_min_z": 1.8,
+    "groove_clusters": 4,
+    "groove_spacing_m": 0.718,
+    "pitch_range_m": [
+      0.45,
+      1.4
+    ],
+    "why": "a chair rail at the ruled 0.95 m (3.3 sd) and 4 grooves at 0.718 m mean spacing",
+    "facing": "kitchen/W"
+  },
+  "pieces": {
+    "source_facing": "kitchen/W",
+    "source_png": "backdrops/kitchen/W.png",
+    "source_storey_m": 2.976,
+    "window_u_m": [
+      5.013,
+      7.766
+    ],
+    "carriers_avoided": [
+      "door",
+      "window"
+    ],
+    "clear_of_apertures_u_m": [
+      5.013,
+      7.767
+    ],
+    "wood_u_m": [
+      5.792,
+      6.495
+    ],
+    "wood_v_m": [
+      1.18,
+      2.6
+    ],
+    "wood_from": "the panelling, between the rail and the cornice",
+    "wood_clear_of_grooves": true,
+    "wood_m": 0.703,
+    "cuts": {
+      "plinth_v_m": [
+        0.0,
+        0.17
+      ],
+      "rail_v_m": [
+        0.88,
+        1.02
+      ],
+      "cornice_v_m": [
+        2.736,
+        2.976
+      ]
+    },
+    "how": "HARVESTED: the wood face and the three horizontal members (plinth, chair rail, cornice), each cut at a RULED height off this room's own promoted painting, de-lit by row 36's own `delight`. DRAWN: every member's SHAPE and position, from the bay layout \u2014 there is no stile in any painting at the metre a fitted layout puts one.",
+    "wood_median_luma": 16.0
+  },
+  "harvest_refused": [
+    {
+      "key": "kitchen/N",
+      "why": "kitchen/N is not promoted"
+    },
+    {
+      "key": "kitchen/S",
+      "why": "kitchen/S has no carrier-free stretch"
+    }
+  ],
+  "walls": {
+    "N": {
+      "width_m": 8,
+      "module_m": 0.8,
+      "bays": 10,
+      "bay_width_m": 0.8,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8,
+        1.6,
+        2.4000000000000004,
+        3.2,
+        4.0,
+        4.800000000000001,
+        5.6000000000000005,
+        6.4,
+        7.2,
+        8.0
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8,
+          "u0": 0.745,
+          "u1": 0.8550000000000001,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6,
+          "u0": 1.5450000000000002,
+          "u1": 1.655,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.4000000000000004,
+          "u0": 2.345,
+          "u1": 2.4550000000000005,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.2,
+          "u0": 3.145,
+          "u1": 3.2550000000000003,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.0,
+          "u0": 3.945,
+          "u1": 4.055,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.800000000000001,
+          "u0": 4.745000000000001,
+          "u1": 4.855,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.6000000000000005,
+          "u0": 5.545000000000001,
+          "u1": 5.655,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.4,
+          "u0": 6.345000000000001,
+          "u1": 6.455,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.2,
+          "u0": 7.1450000000000005,
+          "u1": 7.255,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 8.0,
+          "u0": 7.89,
+          "u1": 8,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8,
+          "field_u0": 0.11,
+          "field_u1": 0.745,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8,
+          "u1": 1.6,
+          "field_u0": 0.8550000000000001,
+          "field_u1": 1.5450000000000002,
+          "opening": "door"
+        },
+        {
+          "i": 2,
+          "u0": 1.6,
+          "u1": 2.4000000000000004,
+          "field_u0": 1.655,
+          "field_u1": 2.345,
+          "opening": "door"
+        },
+        {
+          "i": 3,
+          "u0": 2.4000000000000004,
+          "u1": 3.2,
+          "field_u0": 2.4550000000000005,
+          "field_u1": 3.145,
+          "opening": null
+        },
+        {
+          "i": 4,
+          "u0": 3.2,
+          "u1": 4.0,
+          "field_u0": 3.2550000000000003,
+          "field_u1": 3.945,
+          "opening": null
+        },
+        {
+          "i": 5,
+          "u0": 4.0,
+          "u1": 4.800000000000001,
+          "field_u0": 4.055,
+          "field_u1": 4.745000000000001,
+          "opening": null
+        },
+        {
+          "i": 6,
+          "u0": 4.800000000000001,
+          "u1": 5.6000000000000005,
+          "field_u0": 4.855,
+          "field_u1": 5.545000000000001,
+          "opening": null
+        },
+        {
+          "i": 7,
+          "u0": 5.6000000000000005,
+          "u1": 6.4,
+          "field_u0": 5.655,
+          "field_u1": 6.345000000000001,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.4,
+          "u1": 7.2,
+          "field_u0": 6.455,
+          "field_u1": 7.1450000000000005,
+          "opening": null
+        },
+        {
+          "i": 9,
+          "u0": 7.2,
+          "u1": 8.0,
+          "field_u0": 7.255,
+          "field_u1": 7.89,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "door",
+          "asked_u_m": [
+            1,
+            2
+          ],
+          "bays": [
+            1,
+            2
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            0.8,
+            2.4
+          ],
+          "clear_u_m": [
+            0.855,
+            2.345
+          ],
+          "snap_left_m": -0.2,
+          "snap_right_m": 0.4,
+          "snap_total_m": 0.6,
+          "drawn_v_m": [
+            0.0,
+            2.05
+          ],
+          "drawn": "an unlit void; `paint_voids` repaints it"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    },
+    "E": {
+      "width_m": 8.65,
+      "module_m": 0.8,
+      "bays": 11,
+      "bay_width_m": 0.7863636363636364,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.7863636363636364,
+        1.5727272727272728,
+        2.3590909090909093,
+        3.1454545454545455,
+        3.9318181818181817,
+        4.718181818181819,
+        5.504545454545455,
+        6.290909090909091,
+        7.077272727272727,
+        7.863636363636363,
+        8.65
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.7863636363636364,
+          "u0": 0.7313636363636363,
+          "u1": 0.8413636363636364,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.5727272727272728,
+          "u0": 1.5177272727272728,
+          "u1": 1.6277272727272727,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.3590909090909093,
+          "u0": 2.304090909090909,
+          "u1": 2.4140909090909095,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.1454545454545455,
+          "u0": 3.0904545454545453,
+          "u1": 3.2004545454545457,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 3.9318181818181817,
+          "u0": 3.8768181818181815,
+          "u1": 3.986818181818182,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.718181818181819,
+          "u0": 4.663181818181819,
+          "u1": 4.773181818181818,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.504545454545455,
+          "u0": 5.449545454545455,
+          "u1": 5.559545454545455,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.290909090909091,
+          "u0": 6.235909090909091,
+          "u1": 6.345909090909091,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.077272727272727,
+          "u0": 7.022272727272727,
+          "u1": 7.132272727272727,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 7.863636363636363,
+          "u0": 7.808636363636364,
+          "u1": 7.918636363636363,
+          "corner": false
+        },
+        {
+          "i": 11,
+          "at_m": 8.65,
+          "u0": 8.540000000000001,
+          "u1": 8.65,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.7863636363636364,
+          "field_u0": 0.11,
+          "field_u1": 0.7313636363636363,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.7863636363636364,
+          "u1": 1.5727272727272728,
+          "field_u0": 0.8413636363636364,
+          "field_u1": 1.5177272727272728,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.5727272727272728,
+          "u1": 2.3590909090909093,
+          "field_u0": 1.6277272727272727,
+          "field_u1": 2.304090909090909,
+          "opening": null
+        },
+        {
+          "i": 3,
+          "u0": 2.3590909090909093,
+          "u1": 3.1454545454545455,
+          "field_u0": 2.4140909090909095,
+          "field_u1": 3.0904545454545453,
+          "opening": "window"
+        },
+        {
+          "i": 4,
+          "u0": 3.1454545454545455,
+          "u1": 3.9318181818181817,
+          "field_u0": 3.2004545454545457,
+          "field_u1": 3.8768181818181815,
+          "opening": "window"
+        },
+        {
+          "i": 5,
+          "u0": 3.9318181818181817,
+          "u1": 4.718181818181819,
+          "field_u0": 3.986818181818182,
+          "field_u1": 4.663181818181819,
+          "opening": null
+        },
+        {
+          "i": 6,
+          "u0": 4.718181818181819,
+          "u1": 5.504545454545455,
+          "field_u0": 4.773181818181818,
+          "field_u1": 5.449545454545455,
+          "opening": null
+        },
+        {
+          "i": 7,
+          "u0": 5.504545454545455,
+          "u1": 6.290909090909091,
+          "field_u0": 5.559545454545455,
+          "field_u1": 6.235909090909091,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.290909090909091,
+          "u1": 7.077272727272727,
+          "field_u0": 6.345909090909091,
+          "field_u1": 7.022272727272727,
+          "opening": null
+        },
+        {
+          "i": 9,
+          "u0": 7.077272727272727,
+          "u1": 7.863636363636363,
+          "field_u0": 7.132272727272727,
+          "field_u1": 7.808636363636364,
+          "opening": "window"
+        },
+        {
+          "i": 10,
+          "u0": 7.863636363636363,
+          "u1": 8.65,
+          "field_u0": 7.918636363636363,
+          "field_u1": 8.540000000000001,
+          "opening": "window"
+        }
+      ],
+      "openings": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            2.4,
+            3.9
+          ],
+          "bays": [
+            3,
+            4
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            2.3591,
+            3.9318
+          ],
+          "clear_u_m": [
+            2.4141,
+            3.8768
+          ],
+          "snap_left_m": -0.0409,
+          "snap_right_m": 0.0318,
+          "snap_total_m": 0.0727,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        },
+        {
+          "kind": "window",
+          "asked_u_m": [
+            7.4,
+            8.65
+          ],
+          "bays": [
+            9,
+            10
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            7.0773,
+            8.65
+          ],
+          "clear_u_m": [
+            7.1323,
+            8.54
+          ],
+          "snap_left_m": -0.3227,
+          "snap_right_m": 0.0,
+          "snap_total_m": 0.3227,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        }
+      ],
+      "openings_refused": [],
+      "framed": true
+    },
+    "S": {
+      "width_m": 8,
+      "module_m": 0.8,
+      "bays": 10,
+      "bay_width_m": 0.8,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.8,
+        1.6,
+        2.4000000000000004,
+        3.2,
+        4.0,
+        4.800000000000001,
+        5.6000000000000005,
+        6.4,
+        7.2,
+        8.0
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.8,
+          "u0": 0.745,
+          "u1": 0.8550000000000001,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.6,
+          "u0": 1.5450000000000002,
+          "u1": 1.655,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.4000000000000004,
+          "u0": 2.345,
+          "u1": 2.4550000000000005,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.2,
+          "u0": 3.145,
+          "u1": 3.2550000000000003,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 4.0,
+          "u0": 3.945,
+          "u1": 4.055,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.800000000000001,
+          "u0": 4.745000000000001,
+          "u1": 4.855,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.6000000000000005,
+          "u0": 5.545000000000001,
+          "u1": 5.655,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.4,
+          "u0": 6.345000000000001,
+          "u1": 6.455,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.2,
+          "u0": 7.1450000000000005,
+          "u1": 7.255,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 8.0,
+          "u0": 7.89,
+          "u1": 8,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.8,
+          "field_u0": 0.11,
+          "field_u1": 0.745,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.8,
+          "u1": 1.6,
+          "field_u0": 0.8550000000000001,
+          "field_u1": 1.5450000000000002,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.6,
+          "u1": 2.4000000000000004,
+          "field_u0": 1.655,
+          "field_u1": 2.345,
+          "opening": null
+        },
+        {
+          "i": 3,
+          "u0": 2.4000000000000004,
+          "u1": 3.2,
+          "field_u0": 2.4550000000000005,
+          "field_u1": 3.145,
+          "opening": "hearth"
+        },
+        {
+          "i": 4,
+          "u0": 3.2,
+          "u1": 4.0,
+          "field_u0": 3.2550000000000003,
+          "field_u1": 3.945,
+          "opening": "hearth"
+        },
+        {
+          "i": 5,
+          "u0": 4.0,
+          "u1": 4.800000000000001,
+          "field_u0": 4.055,
+          "field_u1": 4.745000000000001,
+          "opening": "hearth"
+        },
+        {
+          "i": 6,
+          "u0": 4.800000000000001,
+          "u1": 5.6000000000000005,
+          "field_u0": 4.855,
+          "field_u1": 5.545000000000001,
+          "opening": "hearth"
+        },
+        {
+          "i": 7,
+          "u0": 5.6000000000000005,
+          "u1": 6.4,
+          "field_u0": 5.655,
+          "field_u1": 6.345000000000001,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.4,
+          "u1": 7.2,
+          "field_u0": 6.455,
+          "field_u1": 7.1450000000000005,
+          "opening": null
+        },
+        {
+          "i": 9,
+          "u0": 7.2,
+          "u1": 8.0,
+          "field_u0": 7.255,
+          "field_u1": 7.89,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "hearth",
+          "asked_u_m": [
+            2.5,
+            5.5
+          ],
+          "bays": [
+            3,
+            6
+          ],
+          "bay_count": 4,
+          "snapped_u_m": [
+            2.4,
+            5.6
+          ],
+          "clear_u_m": [
+            2.455,
+            5.545
+          ],
+          "snap_left_m": -0.1,
+          "snap_right_m": 0.1,
+          "snap_total_m": 0.2,
+          "drawn_v_m": [
+            0.0,
+            1.75
+          ],
+          "drawn": "a framed recess; the chimneypiece itself is a row-37 sprite and is not painted into the backdrop"
+        }
+      ],
+      "openings_refused": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            4,
+            5.5
+          ],
+          "why": "its bays are already taken -- a door outranks a hearth outranks a window, and within a kind the wider opening wins"
+        }
+      ],
+      "framed": true
+    },
+    "W": {
+      "width_m": 8.65,
+      "module_m": 0.8,
+      "bays": 11,
+      "bay_width_m": 0.7863636363636364,
+      "stile_m": 0.11,
+      "boundaries_m": [
+        0.0,
+        0.7863636363636364,
+        1.5727272727272728,
+        2.3590909090909093,
+        3.1454545454545455,
+        3.9318181818181817,
+        4.718181818181819,
+        5.504545454545455,
+        6.290909090909091,
+        7.077272727272727,
+        7.863636363636363,
+        8.65
+      ],
+      "stiles": [
+        {
+          "i": 0,
+          "at_m": 0.0,
+          "u0": 0.0,
+          "u1": 0.11,
+          "corner": true
+        },
+        {
+          "i": 1,
+          "at_m": 0.7863636363636364,
+          "u0": 0.7313636363636363,
+          "u1": 0.8413636363636364,
+          "corner": false
+        },
+        {
+          "i": 2,
+          "at_m": 1.5727272727272728,
+          "u0": 1.5177272727272728,
+          "u1": 1.6277272727272727,
+          "corner": false
+        },
+        {
+          "i": 3,
+          "at_m": 2.3590909090909093,
+          "u0": 2.304090909090909,
+          "u1": 2.4140909090909095,
+          "corner": false
+        },
+        {
+          "i": 4,
+          "at_m": 3.1454545454545455,
+          "u0": 3.0904545454545453,
+          "u1": 3.2004545454545457,
+          "corner": false
+        },
+        {
+          "i": 5,
+          "at_m": 3.9318181818181817,
+          "u0": 3.8768181818181815,
+          "u1": 3.986818181818182,
+          "corner": false
+        },
+        {
+          "i": 6,
+          "at_m": 4.718181818181819,
+          "u0": 4.663181818181819,
+          "u1": 4.773181818181818,
+          "corner": false
+        },
+        {
+          "i": 7,
+          "at_m": 5.504545454545455,
+          "u0": 5.449545454545455,
+          "u1": 5.559545454545455,
+          "corner": false
+        },
+        {
+          "i": 8,
+          "at_m": 6.290909090909091,
+          "u0": 6.235909090909091,
+          "u1": 6.345909090909091,
+          "corner": false
+        },
+        {
+          "i": 9,
+          "at_m": 7.077272727272727,
+          "u0": 7.022272727272727,
+          "u1": 7.132272727272727,
+          "corner": false
+        },
+        {
+          "i": 10,
+          "at_m": 7.863636363636363,
+          "u0": 7.808636363636364,
+          "u1": 7.918636363636363,
+          "corner": false
+        },
+        {
+          "i": 11,
+          "at_m": 8.65,
+          "u0": 8.540000000000001,
+          "u1": 8.65,
+          "corner": true
+        }
+      ],
+      "bay_rects": [
+        {
+          "i": 0,
+          "u0": 0.0,
+          "u1": 0.7863636363636364,
+          "field_u0": 0.11,
+          "field_u1": 0.7313636363636363,
+          "opening": null
+        },
+        {
+          "i": 1,
+          "u0": 0.7863636363636364,
+          "u1": 1.5727272727272728,
+          "field_u0": 0.8413636363636364,
+          "field_u1": 1.5177272727272728,
+          "opening": null
+        },
+        {
+          "i": 2,
+          "u0": 1.5727272727272728,
+          "u1": 2.3590909090909093,
+          "field_u0": 1.6277272727272727,
+          "field_u1": 2.304090909090909,
+          "opening": "window"
+        },
+        {
+          "i": 3,
+          "u0": 2.3590909090909093,
+          "u1": 3.1454545454545455,
+          "field_u0": 2.4140909090909095,
+          "field_u1": 3.0904545454545453,
+          "opening": null
+        },
+        {
+          "i": 4,
+          "u0": 3.1454545454545455,
+          "u1": 3.9318181818181817,
+          "field_u0": 3.2004545454545457,
+          "field_u1": 3.8768181818181815,
+          "opening": null
+        },
+        {
+          "i": 5,
+          "u0": 3.9318181818181817,
+          "u1": 4.718181818181819,
+          "field_u0": 3.986818181818182,
+          "field_u1": 4.663181818181819,
+          "opening": "door"
+        },
+        {
+          "i": 6,
+          "u0": 4.718181818181819,
+          "u1": 5.504545454545455,
+          "field_u0": 4.773181818181818,
+          "field_u1": 5.449545454545455,
+          "opening": "door"
+        },
+        {
+          "i": 7,
+          "u0": 5.504545454545455,
+          "u1": 6.290909090909091,
+          "field_u0": 5.559545454545455,
+          "field_u1": 6.235909090909091,
+          "opening": null
+        },
+        {
+          "i": 8,
+          "u0": 6.290909090909091,
+          "u1": 7.077272727272727,
+          "field_u0": 6.345909090909091,
+          "field_u1": 7.022272727272727,
+          "opening": null
+        },
+        {
+          "i": 9,
+          "u0": 7.077272727272727,
+          "u1": 7.863636363636363,
+          "field_u0": 7.132272727272727,
+          "field_u1": 7.808636363636364,
+          "opening": null
+        },
+        {
+          "i": 10,
+          "u0": 7.863636363636363,
+          "u1": 8.65,
+          "field_u0": 7.918636363636363,
+          "field_u1": 8.540000000000001,
+          "opening": null
+        }
+      ],
+      "openings": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            1.25,
+            2.75
+          ],
+          "bays": [
+            2,
+            2
+          ],
+          "bay_count": 1,
+          "snapped_u_m": [
+            1.5727,
+            2.3591
+          ],
+          "clear_u_m": [
+            1.6277,
+            2.3041
+          ],
+          "snap_left_m": 0.3227,
+          "snap_right_m": -0.3909,
+          "snap_total_m": 0.7136,
+          "drawn_v_m": [
+            0.95,
+            2.0
+          ],
+          "drawn": "neutral glazing ground"
+        },
+        {
+          "kind": "door",
+          "asked_u_m": [
+            4.25,
+            5.25
+          ],
+          "bays": [
+            5,
+            6
+          ],
+          "bay_count": 2,
+          "snapped_u_m": [
+            3.9318,
+            5.5045
+          ],
+          "clear_u_m": [
+            3.9868,
+            5.4495
+          ],
+          "snap_left_m": -0.3182,
+          "snap_right_m": 0.2545,
+          "snap_total_m": 0.5727,
+          "drawn_v_m": [
+            0.0,
+            2.05
+          ],
+          "drawn": "an unlit void; `paint_voids` repaints it"
+        }
+      ],
+      "openings_refused": [
+        {
+          "kind": "window",
+          "asked_u_m": [
+            3.75,
+            5.25
+          ],
+          "why": "its bays are already taken -- a door outranks a hearth outranks a window, and within a kind the wider opening wins"
+        }
+      ],
+      "framed": true
+    }
+  },
+  "commit": "236c1262627a",
+  "frames": [
+    {
+      "facing": "kitchen/N",
+      "albedo": "design/batches/row41-bays/kitchen/N-albedo.png",
+      "lit": "design/batches/row41-bays/kitchen/N-lit.png",
+      "materials": {
+        "walls": "wall/plain-limewash-to-floor",
+        "ceiling": "ceiling/smoke-darkened-joists",
+        "floor": "floor/worn-stone-flags"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "kitchen/E",
+      "albedo": "design/batches/row41-bays/kitchen/E-albedo.png",
+      "lit": "design/batches/row41-bays/kitchen/E-lit.png",
+      "materials": {
+        "walls": "wall/plain-limewash-to-floor",
+        "ceiling": "ceiling/smoke-darkened-joists",
+        "floor": "floor/worn-stone-flags"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "kitchen/S",
+      "albedo": "design/batches/row41-bays/kitchen/S-albedo.png",
+      "lit": "design/batches/row41-bays/kitchen/S-lit.png",
+      "materials": {
+        "walls": "wall/plain-limewash-to-floor",
+        "ceiling": "ceiling/smoke-darkened-joists",
+        "floor": "floor/worn-stone-flags"
+      },
+      "placeholder_art": true
+    },
+    {
+      "facing": "kitchen/W",
+      "albedo": "design/batches/row41-bays/kitchen/W-albedo.png",
+      "lit": "design/batches/row41-bays/kitchen/W-lit.png",
+      "materials": {
+        "walls": "wall/plain-limewash-to-floor",
+        "ceiling": "ceiling/smoke-darkened-joists",
+        "floor": "floor/worn-stone-flags"
+      },
+      "placeholder_art": true
+    }
+  ],
+  "seams": [
+    {
+      "turn": "N -> E",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/kitchen/seam-N-E-albedo.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/kitchen/seam-E-S-albedo.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/kitchen/seam-S-W-albedo.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "albedo",
+      "file": "design/batches/row41-bays/kitchen/seam-W-N-albedo.png"
+    },
+    {
+      "turn": "N -> E",
+      "which": "lit",
+      "file": "design/batches/row41-bays/kitchen/seam-N-E-lit.png"
+    },
+    {
+      "turn": "E -> S",
+      "which": "lit",
+      "file": "design/batches/row41-bays/kitchen/seam-E-S-lit.png"
+    },
+    {
+      "turn": "S -> W",
+      "which": "lit",
+      "file": "design/batches/row41-bays/kitchen/seam-S-W-lit.png"
+    },
+    {
+      "turn": "W -> N",
+      "which": "lit",
+      "file": "design/batches/row41-bays/kitchen/seam-W-N-lit.png"
+    }
+  ],
+  "seams_row36": [
+    {
+      "turn": "N -> E",
+      "file": "design/batches/row41-bays/kitchen/seam-N-E-row36.png"
+    },
+    {
+      "turn": "E -> S",
+      "file": "design/batches/row41-bays/kitchen/seam-E-S-row36.png"
+    },
+    {
+      "turn": "S -> W",
+      "file": "design/batches/row41-bays/kitchen/seam-S-W-row36.png"
+    },
+    {
+      "turn": "W -> N",
+      "file": "design/batches/row41-bays/kitchen/seam-W-N-row36.png"
+    }
+  ],
+  "corners": [
+    {
+      "corner": "E|N",
+      "hand": "left",
+      "this_wall": "E",
+      "next_wall": "N",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 10,
+      "pass": true
+    },
+    {
+      "corner": "E|S",
+      "hand": "right",
+      "this_wall": "E",
+      "next_wall": "S",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 10,
+      "pass": true
+    },
+    {
+      "corner": "N|W",
+      "hand": "left",
+      "this_wall": "N",
+      "next_wall": "W",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 10,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "N|E",
+      "hand": "right",
+      "this_wall": "N",
+      "next_wall": "E",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 10,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "S|E",
+      "hand": "left",
+      "this_wall": "S",
+      "next_wall": "E",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 10,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "S|W",
+      "hand": "right",
+      "this_wall": "S",
+      "next_wall": "W",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 10,
+      "bays_next": 11,
+      "pass": true
+    },
+    {
+      "corner": "W|S",
+      "hand": "left",
+      "this_wall": "W",
+      "next_wall": "S",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 10,
+      "pass": true
+    },
+    {
+      "corner": "W|N",
+      "hand": "right",
+      "this_wall": "W",
+      "next_wall": "N",
+      "boundary_gap_this_m": 0.0,
+      "boundary_gap_next_m": 0.0,
+      "bar_one_stile_m": 0.11,
+      "stile_covers_corner": true,
+      "bays_this": 11,
+      "bays_next": 10,
+      "pass": true
+    }
+  ],
+  "refused": []
+}

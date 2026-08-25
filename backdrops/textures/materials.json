@@ -89,6 +89,17 @@
         "pitch_m": 0.8,
         "feature": "fielded panel bay"
       },
+      "frame": {
+        "kind": "full_height",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
+      },
       "prose": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
       "prose_from": "hall_state.walls",
       "scale_contract": {
@@ -112,6 +123,17 @@
         "pitch_m": 0.8,
         "feature": "panel bay"
       },
+      "frame": {
+        "kind": "full_height",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
+      },
       "prose": "dark hand-finished oak wall panelling",
       "prose_from": "parlour_wainscot.walls",
       "scale_contract": {
@@ -134,6 +156,17 @@
         "scale_kind": "periodic",
         "pitch_m": 0.8,
         "feature": "wainscot bay"
+      },
+      "frame": {
+        "kind": "dado",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
       },
       "prose": "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
       "prose_from": "long_gallery.walls",
@@ -159,6 +192,17 @@
         "feature": "wainscot bay"
       },
       "note": "the DADO band only; the field band above it is one of the three `wall/hangings-*` variants, chosen per room by `hangingsFor`",
+      "frame": {
+        "kind": "dado",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
+      },
       "prose": "oak wainscot to chair height with wall hangings above it",
       "prose_from": "bedchamber.walls",
       "scale_contract": {
@@ -181,6 +225,17 @@
         "scale_kind": "periodic",
         "pitch_m": 0.8,
         "feature": "wainscot bay"
+      },
+      "frame": {
+        "kind": "dado",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
       },
       "prose": "light-toned oak wainscot to chair height below limewashed plaster",
       "prose_from": "garden_parlour.walls",
@@ -205,6 +260,17 @@
         "pitch_m": 0.8,
         "feature": "wainscot bay"
       },
+      "frame": {
+        "kind": "dado",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
+      },
       "prose": "oak wainscot to chair height below limewashed plaster",
       "prose_from": "great_stair.walls",
       "scale_contract": {
@@ -227,6 +293,17 @@
         "scale_kind": "periodic",
         "pitch_m": 0.25,
         "feature": "square-edged dado board"
+      },
+      "frame": {
+        "kind": "dado",
+        "module_m": 0.8,
+        "stile_m": 0.11,
+        "plinth_m": 0.17,
+        "chair_rail_m": 0.95,
+        "chair_rail_h_m": 0.14,
+        "cornice_m": 0.24,
+        "architrave_m": 0.13,
+        "bevel_m": 0.035
       },
       "prose": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
       "prose_from": "back_stair.walls",
@@ -251,6 +328,10 @@
         "characteristic_m": 0.04,
         "feature": "the trowelled undulation of plain limewash"
       },
+      "edge": {
+        "kind": "return_stile",
+        "width_m": 0.11
+      },
       "prose": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
       "prose_from": "servants_hall.walls",
       "scale_contract": {
@@ -272,6 +353,11 @@
         "scale_kind": "periodic",
         "pitch_m": 0.075,
         "feature": "brick course"
+      },
+      "edge": {
+        "kind": "quoin",
+        "width_m": 0.225,
+        "course_m": 0.15
       },
       "prose": "a garden wall of weathered red brick in English bond on a coursed stone plinth, open sky above it",
       "prose_from": "outdoors_walled.walls",
@@ -297,6 +383,11 @@
         "feature": "brick course"
       },
       "note": "the THIRTEENTH wall fabric, invisible to a walls/ceiling/floor census: `outdoors_walled.walls_with_openings`, selected in `make-scaffold.mjs` when the plan draws any carrier on that wall line. 7 of the 8 outdoor facings render it",
+      "edge": {
+        "kind": "quoin",
+        "width_m": 0.225,
+        "course_m": 0.15
+      },
       "prose": "the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline",
       "prose_from": "outdoors_walled.walls_with_openings",
       "scale_contract": {
@@ -319,6 +410,11 @@
         "scale_kind": "periodic",
         "pitch_m": 0.12,
         "feature": "stone course"
+      },
+      "edge": {
+        "kind": "quoin",
+        "width_m": 0.225,
+        "course_m": 0.15
       },
       "prose": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky",
       "prose_from": "outdoors_open.walls",

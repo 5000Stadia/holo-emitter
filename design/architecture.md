@@ -5592,6 +5592,90 @@ clean against 0 before**. 607 s total, **11.7 s median per wall** — and that m
 it: the row-23 measurement, the warp, the rewritten reading and the acceptance re-measurement. The
 three pilot walls cost 42.0 s between them, post-return, both marked frames included.
 
+## Walls are architecture (row 41) — `design/plan-draft/measured/row41_bays.py`
+
+[HUMAN, 2026-08-24, verbatim, on the kitchen row 36 assembled] *"that assembled version is
+dogwater. First for your example the paneling needs to frame in the wall properly. It looks like a
+chopped up repeating wallpaper thats glitched out. It runs off the corner and doesnt complete"* —
+and the ruling in `design/approvals.log`: **tiled texture crops are REJECTED as wall construction.**
+
+### What row 36 was doing, measured
+
+Row 36 harvests three horizontal BANDS off a source wall, anchors them at the floor and mirror-tiles
+them sideways to whatever width the consumer has. Three consequences, all visible in
+`design/batches/row36-assembly/demo-kitchen/E-lit.png`, and none of them fixable by a better crop:
+
+- **the pitch is the source's.** `wall/plain-limewash-to-floor` was harvested off `buttery_pantry/S`
+  and its panelling repeats at **0.831 m**; the kitchen's east wall is **8.650 m**, so 10.41 bays fit
+  and the last one is cut. That is "it runs off the corner and doesnt complete", exactly.
+- **the mirror fold lands mid-panel** — two half-stiles back to back with a smeared boss where the
+  chair rail meets itself, in the middle of that frame.
+- **the head of the wall is clipped.** The source's storey measured **3.274 m**, the kitchen's is
+  **2.800 m**, so the band carrying the cornice is cut 0.474 m short of it and the panelling dies
+  into the ceiling with nothing at its head.
+
+### The layout, which is three lines of arithmetic
+
+`bay_layout(W, frame)`: `n = max(1, floor(W/m + 0.5))`, bay width `W/n` **exactly**, boundaries at
+`i·(W/n)` — so `u = 0` and `u = W` are boundaries **by construction**, which is what puts a stile in
+each corner. Half-up rather than `round()`: Python rounds a tie to the even integer, which would make
+the bay count depend on the parity of the quotient. Corner stiles sit **inside** the wall (`[0, s]`
+and `[W-s, W]`) rather than straddling it — each wall's corner stile is a whole member butted to its
+neighbour's and the two make the internal angle.
+
+`m` and `s` come from the material's `frame` block in `tools/room-voices.mjs` MATERIALS (mirrored
+into `backdrops/textures/materials.json` by `--emit-materials`), with the period-joinery derivation
+of every number written beside it there. `full_height` bays both bands; `dado` bays only below the
+chair rail and gives the wall above it **one field** — the hangings, or the plaster — framed by the
+rail, the cornice and the two corner stiles, because a tapestry is one cloth and not a grid.
+
+An **unframed** material (limewash, brick) keeps row 36's sampler for the body of the wall and gains
+an `edge` at each corner: a return stile on plaster, a coursed quoin on masonry. `edge_layout` is
+the whole of it, and the corner gate accepts it on the same terms.
+
+### Openings take whole bays
+
+The opening snaps to the run of bays it best fits — least total movement, ties broken **outward**, so
+an opening never shrinks to fit the grid. The hole is then cut **between the stiles**, not between
+the boundaries, so a corner bay's opening does not take the corner stile with it. Contests are
+settled by what an opening is FOR — door, then hearth, then window — not by which is wider:
+`kitchen/W` rules a door at 4.25–5.25 m across a window at 3.75–5.25 m, and by width alone the door
+lost and the wall came back solid. Duplicates are dropped and losers recorded in `openings_refused`.
+`assemble_facing` paints the door void at the SNAPPED rect, so the void and its architrave agree.
+
+### Harvested versus drawn
+
+Four pieces come out of the room's **own** promoted painting, each cut at a RULED height — the wood
+face, the plinth, the chair rail at the ruled 0.95 m, the cornice — de-lit by row 36's own `delight`.
+Every member's SHAPE is DRAWN from the layout as a relief map in metres and shaded by a key fixed in
+the wall's own surface (not in the world, and not illumination: row 37 still owns light). There is no
+stile in any painting at the metre a fitted layout puts one, so the painter is asked what oak looks
+like and the plan is asked where a stile goes, and neither is asked the other's question.
+
+Two guards, both put there by defects this row hit: the harvest steers clear of columns far from the
+wall's own median in **either** direction (a painted doorway is dark, a leaded window is bright, and
+`free_windows` finds neither because it reads the PLAN — on `master_bedchamber/N` the plan's doorway
+and the painted one differ by 1.5 m, which is row 27's aperture/ruler divergence); and a source whose
+clearest wood is under `MIN_PIECE_LUMA` is refused and the next one tried.
+
+### The projection is row 36's, unchanged
+
+A composed wall is still a pure function of *(perimeter metres round the room, height above the
+floor)* — the two numbers `surface_metres` already produces — so `RoomWalls.sample` drops into
+`assemble_facing` in place of `wall_pixels` and nothing else moves. A return asks for its neighbour's
+perimeter metres and gets its neighbour's own composed wall, corner stile included.
+
+### The gate
+
+`row36_crossfacing.py --room <id> --bays`: for every corner, the bay boundary nearest that corner on
+each of the two walls must lie AT it within one stile width, and a stile must cover it. It asserts on
+the LAYOUT and not on the pixels, because the pixels of a tiled wall look like panelling too — which
+is exactly how row 36 shipped. Reverting a wall to a tiled crop fails all four of its corners at once
+(`test_row41_bays.CornerGate.test_a_wall_reverted_to_A_TILED_CROP_fails_its_corners`).
+
+Proof batch: `design/batches/row41-bays/{kitchen,master_bedchamber}/`, captured by
+`design/plan-draft/measured/row41_batch.py`.
+
 ## index.html chrome
 
 Row 1's stage contain-fit stands, with a `max(320px, …)` floor on the width — the bare calc went
