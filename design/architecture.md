@@ -3939,7 +3939,9 @@ are now carried forward keyed by wall AND attempt, and the output counts what it
 
 Three refusals keep the record honest: it never overwrites the first ask (a retry lands in `<wall>/retry-<n>/` with its own
 roll ids, because `row23_lib.py` measures a returned candidate against `<packet>/scaffold.png`), it
-never re-asks a promoted wall, and it never raises `attempts` — that is the sweep's.
+never re-asks a promoted wall, and it never raises `attempts` — that is the sweep's. (Row 40's
+`--emit-consistency` is the one mode that DOES ask a promoted wall again, for a reason about its
+room rather than about its camera; what happens to those returns is *SUPERSEDE* below.)
 
 ### The flight language — the ask learns the staircase
 
@@ -4373,6 +4375,91 @@ re-encode. The per-wall check used to be the whole validator, which the row-33 l
 `exit.snap`, `exit.voidrepair`, `exit.tolerance`, `exit.route` and `validate.sweep` are on the row-33
 clock; a promotion through an exit still writes `promote.wall`, so the analyzer's leave-step counting
 is unchanged.
+
+### SUPERSEDE — the one route by which a wall already in the store can be repainted (row 40 seam)
+
+**The seam, exactly.** Row 40 cut nine re-ask packets for walls that were **already promoted** —
+`closet_chamber/W`, `garden_room/W`, `guest_chamber/S`+`W`, all four of `master_bedchamber`, and
+`servants_hall/N` — because `room_consistency.py` measured their rooms and found them not reading as
+one room. The painter returned all nine. The sweep ignored every one of them and was right to under
+the rule it had: a return for a wall with art in the store is a late duplicate, and *art is generated
+once, promoted once, and thereafter READ*. But a consistency re-ask is not a late duplicate. It is a
+repaint **this loop itself asked for**, of a wall **it itself promoted**, for a reason the pixels can
+be re-measured against. The nine sat unmeasured until `supersede_wall` gave them a door.
+
+**The rule, in three sentences.**
+
+1. A promoted wall is a SUPERSEDE CANDIDATE only when `retries.json` carries a **room-consistency
+   roll** — one whose entry has the row-40 emitter's own `consistency` block (`tools/make-scaffold.mjs
+   --emit-consistency`, documented in that file's own `_consistency` key) — that is on disk and
+   **newer** than the candidate the wall was promoted from.
+2. That roll is measured on the standing instrument exactly as any arrival (`measure_roll`, cached by
+   id, the same function the arrivals loop calls) and must be a camera **PASS**, and the ordinary
+   promotion must admit it.
+3. It is then promoted **for real**, the room is re-audited by `room_consistency.audit_room` with it
+   in place, and it **stands** only if the room's worst-band distance did not get worse **and** the
+   wall is no longer the outlier (or the room reached `consistent`, or a `no_majority` room gained a
+   majority); otherwise the previous png and meta go back **byte for byte** and the record reads
+   `supersede: refused` with both distances in it.
+
+**Why the promotion is real and the rollback is the safety.** The consistency measure reads the
+promoted store — `backdrops/<room>/<F>.png` and the meta beside it — so a scratch copy would have to
+be a second store, and a second store is a second answer to *what is painted here*. The wall goes
+into the real one, is judged there, and comes straight back out if it did not earn it (`_stash` /
+`_restore`, the bytes held in memory across the promotion). A refused supersede leaves the store
+exactly as it found it; anything less and a repaint the measure rejected has still moved what the
+page renders.
+
+**Three files, not two, and the third is the one that bites** (`_supersede_files`). The store's png
+and meta are the obvious pair. The third is the §5 promotion document — and `recheck_doors`
+re-promotes every wall in the store *from that document*, against the candidate the store's meta
+names. Left describing a roll that was rolled back, it makes `promote-backdrop.mjs` refuse the wall
+on a sha256 mismatch, and the next `--recheck-doors` demotes to grid a wall this route had decided to
+leave exactly as it found it.
+
+**What is deliberately NOT a supersede, and why.** An ordinary retry roll landing on a promoted wall
+— a re-ask cut for a camera miss, a door refusal, an unfitted horizon — is still ignored exactly as
+before. That wall's correction was answered by the promotion that put it in the store, and a roll
+that arrived afterwards is the late duplicate the reuse law is about; admitting it would let any
+stale packet in the worklist repaint a finished wall. **The `consistency` block is the whole of the
+difference**, because it is stamped by the one emitter that asks an already-promoted wall to be
+repainted. (If a future emitter ever writes no block, the packet is keyed instead on the correction
+sentence `consistencySentence` composes — `"This room is ruled to ONE set of materials"` — and
+`supersede_reason` says which of the two identified it.)
+
+**The exits are not on this route, and that is a decision rather than an omission.** `route_exit`'s
+snap and tolerance doors exist to carry a wall the measurement refused *into* the store; this route
+is about a wall already in it, where the question is not *can this frame reach the store* but *does
+this frame make the room read as one room*. `_exit_tolerance` would refuse here anyway — it requires
+`status == held` — and a snap that rectified the frame would change the very pixels the consistency
+measure is judging. Camera PASS and the ordinary promotion, or nothing.
+
+**Once per roll**, the discipline `exit_attempt` already imposes on the routing: the attempt is
+recorded against the roll it was tried on (`supersede_attempt`) and the wall is not tried again until
+a newer consistency roll lands. Without it every pass would re-promote and re-audit nine walls
+forever — the row-30 cut being paid again on the third side of the pipeline.
+
+**What every outcome writes.** `supersede` (`stood` / `refused`), `superseded_from` (the candidate
+the new roll was measured against — on a refusal, the candidate that stays, and the reason says so),
+`supersede_reason` (both distances, the band, and the provenance), `supersede_room` (the before and
+after audits in summary), and the row-33 step **`supersede.wall`** either way, because a refusal
+costs a promotion, two audits and a restore and is the outcome nobody would think to measure.
+
+**One bake per sweep, unchanged.** A stand is appended to the sweep's `promoted` list, so the single
+end-of-sweep validate-and-bake covers it exactly as it covers any other promotion, and it prints as
+the PROMOTE line it is. Publication is still nobody's but the Navigator's.
+
+**Running it alone.** `row23_run.py --supersede-only` runs this route and nothing else and prints the
+table — wall, roll, camera, before, after, outcome — with `--only <loc>/<F>` for one wall and
+`--dry-run` for eligibility and camera without promoting anything (the room half cannot be answered
+without putting the painting in the store). The fences hold here as everywhere: `NEVER_PROMOTE` and
+`M0_ROOMS` are checked before anything is measured.
+
+`design/plan-draft/measured/test_row40_supersede.py` builds a synthetic store in a temp dir from
+`test_room_consistency`'s own material painter and shows the route going both ways: the mend stands,
+the worsening is refused with the previous bytes back, an older roll and an ordinary retry roll are
+both ignored, a camera FAIL never reaches the store, a refused promotion leaves nothing behind, and
+a second pass on the same roll spends neither a promotion nor an audit.
 
 ### The horizon instrument reads boarded ceilings (row 32)
 
