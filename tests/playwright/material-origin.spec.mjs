@@ -827,13 +827,27 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
            clause that tells the layout diagram apart from the picture, which is
            the sentence Kabe's cold-ask test earned (a flat modern render in the
            DIAGRAM's dark grey). What must never happen is the ask pointing at
-           an Image 1 that is not in the packet, and that is what is checked. */
-        expect(text, `${r.key}: the ask points at an Image 1 that is not in its packet`)
-          .not.toMatch(/Image 1 is|as Image 1|Image 1's paint|in Image 1/);
+           an Image 1 that is not in the packet, and that is what is checked.
+
+           [row 43(a)] THE CLAUSE MOVED WITH THE SHEET. It used to warn off "the
+           layout diagram's flat dark colours", which was the honest description
+           of a sheet that HAD them — and naming them is itself a way of putting
+           them in front of the painter. Production cuts the diagram as ink on
+           paper now (`make-scaffold.mjs`'s `ink-on-paper-v2`), so the clause
+           says there is nothing in it to copy. What is checked is unchanged:
+           SOMETHING in the medium paragraph tells the diagram apart from the
+           picture. */
+        /* THE FAILURE THIS GUARDS IS NAMED RATHER THAN PATTERN-MATCHED. Where
+           there is no style image the layout diagram IS Image 1 and the ask
+           says so, correctly — what must never appear is a reference to a
+           PAINTING of a wall the packet does not hold. */
+        expect(text, `${r.key}: the ask points at a painted wall as Image 1, and its packet holds none`)
+          .not.toMatch(/Image 1 is the (north|east|south|west) (wall|side)|of this same room, already painted|as Image 1|Image 1's paint|in Image 1/);
         expect(text, `${r.key}: no picture carries the medium and the words do not either`)
           .toMatch(/^Style\/medium: a high-realism oil painting/m);
         expect(text, `${r.key}: nothing tells the layout diagram apart from the picture`)
-          .toContain("The layout diagram's flat dark colours are NOT the picture's colours");
+          .toContain("The layout diagram is a black-and-white line drawing on paper and holds " +
+            "no colour of its own");
         expect(line).toContain("NO Image 1 in this packet");
         expect(line).not.toContain("style-seed-warm.png");
         expect(attachLineAll([], st)).toContain("NO Image 1 in this packet");
@@ -865,8 +879,13 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
         `the medium paragraph never says "${must}", and it is the only description of the paint ` +
         `a packet with no reference picture has`).toContain(must);
     }
+    /* [row 43(a)] AND THE DIAGRAM IS STILL TOLD APART FROM THE PICTURE — by
+       saying it has no colour of its own, now that it has none. The sheet is
+       ink on paper (`ink-on-paper-v2`); the clause it replaces named the old
+       sheet's "flat dark colours", which is a way of putting them in front of
+       the painter. */
     expect(style, "nothing tells the layout diagram's colours apart from the picture's")
-      .toContain("NOT the picture's colours");
+      .toContain("holds no colour of its own");
     expect(style).not.toContain("Image 1");
   });
 
