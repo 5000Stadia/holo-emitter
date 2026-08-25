@@ -5,7 +5,12 @@ library's shape, the composition engine, the packet types the emitter gains, the
 orphaned t4 returns produced when they were finally scored, the validation that is real versus the
 validation that is trivial, and the interfaces to rows 37, 35, 25 and B-FLIGHT — spec'd, not built.
 
-**Status: PLAN, FOURTH REVISION — BUILD LICENSED.** The plan critic returned PASS WITH CORRECTIONS
+**Status: BUILDING. The plan below is revision 4 as licensed; §12 at the end
+records what the build measured and which of these numbers it moved.** Nothing
+in the plan is quietly edited to match the outcome — where the build disagreed
+with the plan, the plan was wrong and §12 says so.
+
+**Status at licensing: PLAN, FOURTH REVISION — BUILD LICENSED.** The plan critic returned PASS WITH CORRECTIONS
 on revision 3, gated on one plan-text item: **N1, the library-wide scale contract**, now §1.4a. The
 five corrections that were licensed to land with the build are folded where they live (§2.4, §2.7,
 §5.3, §2.6), and the F16 residue is stated plainly in §1.6 rather than papered over.
@@ -1430,3 +1435,99 @@ of F10 are a look ruling nobody has taken yet, and until they are taken the swat
 bound. `back_stair.floor` names two geometries in one string and is deferred with the stair lane.
 And §5.1's status figures are a snapshot of a tree the production loop has already moved past — the
 build re-takes that census rather than trusting the table.
+
+---
+
+## 12. WHAT THE BUILD MEASURED, AND WHICH OF THIS PLAN'S NUMBERS IT MOVED
+
+Written as the build ran, so the plan does not quietly become right in
+retrospect. Every figure here is from a committed tool a reader can re-run.
+
+### 12.1 The arithmetic moved twice, both times toward more asks
+
+| | plan §8 | after the build | why |
+|---|---|---|---|
+| materials | 33 | **33** | unchanged; the census held |
+| harvested | 12 | **10** | three supply failures, one out of scope |
+| swatch asks | 21 → 12 after aliasing | **15** | the three conversions |
+
+The alias ruling took 21 asks to 12. The build then converted three materials
+back: `wall/oak-wainscot-limewash` (sources supply 161 px/m, consumers demand
+476), `wall/oak-wainscot-limewash-cornice` and `wall/light-oak-wainscot-limewash`
+(no stretch of clear wall long enough — §12.3). And `wall/low-boundary-wall` is
+**out of scope rather than failed**: it appears only on open vistas, which
+assembly excludes, so there was never a consumer to harvest for.
+
+**The alias that saved an ask did not survive the supply check.** `cross_passage`
+was merged onto `great_stair`'s wainscot, which turned the library's only wall
+swatch into a harvest — and that harvest then failed on resolution. The merge was
+right about the material and wrong about what it bought.
+
+### 12.2 The door void needs a LINTEL, which the plan did not say
+
+§2.4 specified an unlit rectangle at the plan's aperture and the contrast floor.
+That is not sufficient and the build proved it: `great_hall/N` painted 17.5 luma
+clear of its wall and the detector still reported **zero** doors. The void was
+FOUND — a stable run at stability 5 — and then **thrown away**, because
+`door_measure._head` walks up the void's columns while they stay dark and a dark
+upper wall lets it walk past the storey.
+
+So a void is bounded above by a lintel. This is also simply true — every doorway
+of this date has a head over it, and the detector's own docstring says the void
+"ends where the frame's soffit begins". The plan was specifying half a doorway.
+
+### 12.3 Two numbers the plan chose that the pictures refused
+
+**The harvest window minimum, 0.55 m → 2.00 m.** `wall/plain-limewash-to-floor`
+harvested a 0.60 m window; mirror-tiled across the kitchen's 8 m wall that is
+thirteen repeats, and the demo frame does not read as limewashed plaster — it
+reads as **panelling**, because a repeat at that pitch is a feature whether or
+not anyone painted one. §2.8 item 2 named repetition as this row's likeliest
+loss and it arrived exactly there. The new floor has its evidence: the swatch
+lane asks 3.5 m of material for the same slot.
+
+**The de-lighting field, a fraction of the patch → 0.80 m of wall.** Fitted as a
+fraction, the anchor band's field was 35 mm — which follows the chair-rail
+itself. Dividing by it erases the rail, and the instrument measures scale off
+that rail. It reported 793 % "removed", which was joinery leaving, not light.
+
+### 12.4 The turn, measured
+
+`row36_crossfacing.py --room kitchen`, all four facings: floor and ceiling
+**0.000000 m** outside the room's own rect, and all eight return/wall pairs
+overlap — each return lands flush on its neighbour's perimeter range within
+2–3 mm of the shared corner.
+
+### 12.5 The row's own disease, twice more, in the LIGHTING
+
+§2.7 specified five contract items and every one of them was about being
+readable. None of them said **where the light lives**, and that omission cost
+two bugs the corner strip caught immediately:
+
+- the key was `(1 - x/W)`, a ramp across the **frame**, so the same physical
+  wall changed brightness when the camera turned;
+- the source falloff addressed hearths in **wall-local metres**, so "3.0 m along
+  this wall" was a different point depending on which wall you looked at.
+
+Both are the disease the row exists to cure, reappearing one layer up from the
+geometry that had been cured of it. **So the stub's contract gains a sixth item,
+and it governs row 37's pass as much as the other five: EVERY LIGHTING QUANTITY
+IS ADDRESSED IN WORLD COORDINATES.** Measured after the fix: the same plan point
+sampled from two facings gets the same key to 4 × 10⁻⁴.
+
+That item is the one row 37 most needs, because a light graph that spills
+through apertures is nothing but world-addressed quantities.
+
+### 12.6 What is NOT done, plainly
+
+- **The swatches have not returned**, so floors and ceilings are V1 placeholder
+  art drawn from each material's own tiling spec. The geometry is real and the
+  material is not; every frame carries `_promotable: false`.
+- **No §12.6 page capture**, for the same reason — nothing is promotable, so
+  there is nothing to promote into a scratch store and photograph.
+- **No promotion outcome for the five repaired walls.** The door read-back is
+  measured; wiring the round between snap and tolerance is B-ROUTING's.
+- **The neutrality bar is flagged, not enforced** — 7 of 10 harvests sit above
+  the corpus's own best quartile, and enforcing it would convert three quarters
+  of the library to model calls. That trade is the Captain's.
+- **`--emit-flat` is still residue** (§1.6), untouched and unbuilt.
