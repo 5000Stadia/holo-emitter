@@ -1,8 +1,8 @@
 {
- "ts": 1787632791.467294,
- "baton": "none",
- "active": "unknown",
+ "ts": 1787633091.8226178,
+ "baton": "seat",
+ "active": "yes",
  "nudged": "no",
- "detail": "all quiet: nothing owed anywhere this script can see",
- "loop_pass_age_s": 71
+ "detail": "31 image(s) owed - the painter is owed",
+ "loop_pass_age_s": 10
 }
