@@ -1,76 +1,80 @@
 {
-  "_source_sha256": "0e57b70369d584b3c0199719ab8cf36f342d88b389967a7e3d99031f2aa83109",
-  "_what_this_is": "The manor production reading for servants_hall/N, measured off backdrops/source/servants_hall-N/row23-b8fa4f78.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
+  "_source_sha256": "382886b360fcb891e0df93b45abdcfdda36d541fa90dbd7198436595b82fb3ce",
+  "_what_this_is": "The manor production reading for servants_hall/N, measured off backdrops/source/servants_hall-N/row23-e7912869.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
   "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
   "floor_line_y": 0.706055,
-  "horizon_y": 0.506641,
-  "px_per_m_at_wall": 160.0,
-  "px_per_m_at_bottom": 395.83,
-  "implied_focal_px": 1056.0,
-  "eye_height_m": 1.2763,
-  "storey_height_m": 3.4312,
+  "horizon_y": 0.553027,
+  "px_per_m_at_wall": 157.895,
+  "px_per_m_at_bottom": 461.21,
+  "implied_focal_px": 1042.1,
+  "eye_height_m": 0.9924,
+  "storey_height_m": 3.3503,
   "drawn_standpoint_m": 6.6,
-  "delta_focal_pct": 3.12,
-  "delta_eye_pct": 4.03,
+  "delta_focal_pct": 1.77,
+  "delta_eye_pct": 5.41,
   "band_pct": 8.0,
-  "wall_width_m": 7.1375,
+  "wall_width_m": 6.5107,
   "camera_wall_m": 6.6,
-  "corner_x0_px": 188,
-  "corner_x1_px": 1330,
-  "key_tint": "#c8a376",
+  "camera_far_m": null,
+  "corner_x0_px": 241,
+  "corner_x1_px": 1269,
+  "key_tint": "#c88a48",
   "key_dir": "C-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 152,
+  "calibration_px": 150,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
     "ruled_m": 0.95,
     "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
   },
-  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero. Row 32 left that ruling where it stood and changed only what the ramps are given: corners read off where the wall stops being square to the camera rather than off a plaster step, the junction row chosen from pick_ceiling's own candidates by which one the side walls converge on most sharply, and an error bar on the intersection measured against the standing licence for the horizon row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px in _measured_px's siblings on the reading).",
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 720,
-        "y": 547,
+        "x": 766,
+        "y": 578,
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 752,
-        "y": 485,
-        "edge_px": 19142
+        "x": 724,
+        "y": 556,
+        "edge_px": 17331
       },
       "side_walls": {
-        "x": 494,
-        "y": 496,
-        "edge_px": 2021
+        "x": 266,
+        "y": 827,
+        "edge_px": 16958
       }
     },
-    "adopted_y": 518.8,
+    "adopted_y": 566.3,
+    "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
     "ceiling_ramp_intersection": {
-      "x": 752.3,
-      "y": 518.8,
-      "left_slope": 0.6318,
-      "right_slope": -0.6028,
-      "left_n": 59,
-      "left_resid_px": 0.3,
-      "right_n": 59,
-      "right_resid_px": 0.29
-    }
+      "x": 723.0,
+      "y": 566.3,
+      "left_slope": 0.7522,
+      "right_slope": -0.6697,
+      "left_n": 61,
+      "left_resid_px": 0.34,
+      "right_n": 60,
+      "right_resid_px": 0.32,
+      "sigma_y_px": 0.96
+    },
+    "far_line_ruler": null
   },
   "_measured_px": {
     "wall_floor_line_y_px": 723,
-    "chair_rail_y_px": 571,
-    "dado_rail_above_floor_px": 152,
-    "capping_above_floor_px": 152,
-    "wall_ceiling_line_y_px": 174,
-    "corner_x0_px": 188,
-    "corner_x1_px": 1330,
-    "horizon_y_px": 518.8,
+    "chair_rail_y_px": 573,
+    "dado_rail_above_floor_px": 150,
+    "capping_above_floor_px": null,
+    "wall_ceiling_line_y_px": 194,
+    "corner_x0_px": 241,
+    "corner_x1_px": 1269,
+    "horizon_y_px": 566.3,
     "openings": []
   },
   "_windows": {
@@ -110,64 +114,65 @@
       ],
       "hypothesis": null,
       "found": false,
-      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 475..666 (21 px from the ask) and another admissible pair sits 395..666 (44 px from the ask), which disagree by more than the 19 px this arm can resolve"
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 591..796 (119 px from the ask) and another admissible pair sits 606..827 (142 px from the ask), which disagree by more than the 19 px this arm can resolve"
     }
   ],
   "_light": {
     "key_dir_measured": "C",
-    "key_dir_brightest_x": 594,
-    "key_dir_brightest_y": 322,
-    "key_tint": "#c8a376",
+    "key_dir_brightest_x": 754,
+    "key_dir_brightest_y": 371,
+    "key_tint": "#c88a48",
     "key_tint_patch": [
-      394,
-      794,
-      104,
-      166
+      554,
+      954,
+      124,
+      186
     ],
     "key_tint_patch_mean_rgb": [
-      128.61,
-      104.73,
-      75.95
+      45.46,
+      31.42,
+      16.36
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c8966e",
-      "floor_bottom_strip": "#c8a385",
-      "mid_wall_right": "#c86920",
-      "mid_wall_left": "#c88651",
-      "brightest_21x21_patch": "#c8c8c7"
+      "floor_under_brightest": "#c8a27f",
+      "floor_bottom_strip": "#c89a7a",
+      "mid_wall_right": "#c89e6a",
+      "mid_wall_left": "#c8a170",
+      "brightest_21x21_patch": "#c8c8c8"
     },
     "brightest_21x21_patch_centre_px": [
-      594,
-      322
+      754,
+      371
     ],
-    "sobel_bright_side_deg_whole_frame": 134.68,
-    "sobel_bright_side_deg_wall_band": -167.5,
-    "left_third_minus_right_third_luminance_whole_frame": 12.418,
-    "left_third_minus_right_third_luminance_wall_band": 12.896
+    "sobel_bright_side_deg_whole_frame": 130.83,
+    "sobel_bright_side_deg_wall_band": -151.13,
+    "left_third_minus_right_third_luminance_whole_frame": 2.964,
+    "left_third_minus_right_third_luminance_wall_band": 2.336
   },
   "_derived": {
-    "eye_height_m": 1.2763,
-    "storey_height_m": 3.4312,
-    "implied_wall_width_m": 7.1375,
-    "px_per_m_at_bottom": 395.8317,
-    "implied_camera_wall_m": 6.4
+    "eye_height_m": 0.9924,
+    "storey_height_m": 3.3503,
+    "implied_wall_width_m": 6.5107,
+    "px_per_m_at_bottom": 461.2052,
+    "implied_camera_wall_m": 6.4853
   },
   "_withheld_because": [],
+  "_hold_family": null,
   "_round": "manor",
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      451,
-      675
+      455,
+      676
     ],
     "wall_band_px": [
-      188,
-      1330
+      241,
+      1269
     ],
-    "wall_median_luminance": 20.7,
-    "min_enumerated_px": 64,
+    "wall_median_luminance": 95.56,
+    "min_enumerated_px": 63,
     "min_head_m": 1.4,
     "storey_m": 2.8,
-    "candidates_before_head_test": 2
+    "candidates_before_head_test": 0
   }
 }

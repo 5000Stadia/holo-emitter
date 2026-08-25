@@ -221,7 +221,38 @@
     "servants_hall/N": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/servants_hall-N/row23-b8fa4f78.png"
+      "candidate": "backdrops/source/servants_hall-N/row23-e7912869.png",
+      "supersede": "stood",
+      "superseded_from": "backdrops/source/servants_hall-N/row23-b8fa4f78.png",
+      "supersede_reason": "N no longer stands outside its room; worst-band distance 3.899 (ceiling) -> 3.887 (wall_lower), so the consistency roll e7912869 replaces the painting (provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/servants_hall-N/row23-e7912869.png",
+        "roll_id": "e7912869",
+        "outcome": "stood",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:03"
+      },
+      "supersede_room": {
+        "room": "servants_hall",
+        "before": {
+          "score": 3.899,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "N"
+          ],
+          "no_majority": false
+        },
+        "after": {
+          "score": 3.887,
+          "band": "wall_lower",
+          "verdict": "mismatched",
+          "outliers": [
+            "E"
+          ],
+          "no_majority": false
+        }
+      }
     },
     "servants_hall/E": {
       "attempts": 2,
@@ -409,7 +440,17 @@
       "status": "promoted",
       "candidate": "backdrops/source/garden_room-W/row23-3c4f560c.png",
       "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 173, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
-      "why": "art already in the store; this loop read it rather than remaking it"
+      "why": "art already in the store; this loop read it rather than remaking it",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/garden_room-W/row23-3c4f560c.png",
+      "supersede_reason": "the consistency roll e0d4b50e is a camera FAIL (generation_miss), and this route admits a camera PASS and nothing else \u2014 no snap, no tolerance; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/garden_room-W/row23-e0d4b50e.png",
+        "roll_id": "e0d4b50e",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:03"
+      }
     },
     "entrance_court/N": {
       "attempts": 5,
@@ -826,24 +867,131 @@
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "camera_source": "declared",
-      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/master_bedchamber-N/row23-331b2816.png",
+      "supersede_reason": "the promotion instrument refused the consistency roll b2fa7b28 (promote refused: master_bedchamber/N: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a pl); the previous painting is back byte-for-byte",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/master_bedchamber-N/row23-b2fa7b28.png",
+        "roll_id": "b2fa7b28",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:06"
+      },
+      "supersede_room": {
+        "room": "master_bedchamber",
+        "before": {
+          "score": 4.474,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "no_majority": true
+        },
+        "after": null
+      }
     },
     "master_bedchamber/E": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/master_bedchamber-E/row23-e6cad361.png"
+      "candidate": "backdrops/source/master_bedchamber-E/row23-e6cad361.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/master_bedchamber-E/row23-e6cad361.png",
+      "supersede_reason": "the consistency roll aff7a644 is a camera FAIL (generation_miss), and this route admits a camera PASS and nothing else \u2014 no snap, no tolerance; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/master_bedchamber-E/row23-aff7a644.png",
+        "roll_id": "aff7a644",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:06"
+      }
     },
     "master_bedchamber/S": {
       "attempts": 4,
       "status": "promoted",
       "candidate": "backdrops/source/master_bedchamber-S/row23-82cacbb3.png",
       "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/master_bedchamber-S/row23-82cacbb3.png",
+      "supersede_reason": "the room got worse: worst-band distance 4.474 (ceiling) -> 4.716 (ceiling), so the consistency roll 88c52bf2 is out and the previous painting is back byte-for-byte (provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/master_bedchamber-S/row23-88c52bf2.png",
+        "roll_id": "88c52bf2",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:09"
+      },
+      "supersede_room": {
+        "room": "master_bedchamber",
+        "before": {
+          "score": 4.474,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "no_majority": true
+        },
+        "after": {
+          "score": 4.716,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "N"
+          ],
+          "no_majority": false
+        }
+      }
     },
     "master_bedchamber/W": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/master_bedchamber-W/row23-e1968455.png"
+      "candidate": "backdrops/source/master_bedchamber-W/row23-e1968455.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/master_bedchamber-W/row23-e1968455.png",
+      "supersede_reason": "the room got worse: worst-band distance 4.474 (ceiling) -> 6.321 (ceiling), so the consistency roll 13474627 is out and the previous painting is back byte-for-byte (provenance: the row-40 emitter's `consistency` block)",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/master_bedchamber-W/row23-13474627.png",
+        "roll_id": "13474627",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:13"
+      },
+      "supersede_room": {
+        "room": "master_bedchamber",
+        "before": {
+          "score": 4.474,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "no_majority": true
+        },
+        "after": {
+          "score": 6.321,
+          "band": "ceiling",
+          "verdict": "mismatched",
+          "outliers": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "no_majority": true
+        }
+      }
     },
     "stair_landing/N": {
       "attempts": 3,
@@ -964,12 +1112,32 @@
       "status": "promoted",
       "candidate": "backdrops/source/guest_chamber-S/row23-a64f40f9.png",
       "correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-      "hold_family": "unfitted-horizon"
+      "hold_family": "unfitted-horizon",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/guest_chamber-S/row23-a64f40f9.png",
+      "supersede_reason": "the consistency roll 9d794908 is a camera FAIL (generation_miss), and this route admits a camera PASS and nothing else \u2014 no snap, no tolerance; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/guest_chamber-S/row23-9d794908.png",
+        "roll_id": "9d794908",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:13"
+      }
     },
     "guest_chamber/W": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/guest_chamber-W/row23-686d6ba6.png"
+      "candidate": "backdrops/source/guest_chamber-W/row23-686d6ba6.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/guest_chamber-W/row23-686d6ba6.png",
+      "supersede_reason": "the consistency roll b22eae39 is a camera FAIL (generation_miss), and this route admits a camera PASS and nothing else \u2014 no snap, no tolerance; the promoted wall stands",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/guest_chamber-W/row23-b22eae39.png",
+        "roll_id": "b22eae39",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:13"
+      }
     },
     "closet_chamber/N": {
       "attempts": 5,
@@ -997,7 +1165,30 @@
     "closet_chamber/W": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png"
+      "candidate": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png",
+      "supersede": "refused",
+      "superseded_from": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png",
+      "supersede_reason": "the promotion instrument refused the consistency roll 23127bb0 (the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 231.5 but only to +/-145.5 px, and the standing licence on the horizon row is +/-14.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero.); the previous painting is back byte-for-byte",
+      "supersede_attempt": {
+        "candidate": "backdrops/source/closet_chamber-W/row23-23127bb0.png",
+        "roll_id": "23127bb0",
+        "outcome": "refused",
+        "provenance": "the row-40 emitter's `consistency` block",
+        "at": "2026-08-24T20:50:14"
+      },
+      "supersede_room": {
+        "room": "closet_chamber",
+        "before": {
+          "score": 3.856,
+          "band": "wall_upper",
+          "verdict": "mismatched",
+          "outliers": [
+            "W"
+          ],
+          "no_majority": false
+        },
+        "after": null
+      }
     }
   }
 }

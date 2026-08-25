@@ -1,0 +1,292 @@
+{
+  "_source_sha256": "a14fa747190c2241c026495f0de30dde9d83fd061e250de0bf7e0899d647fb59",
+  "_what_this_is": "The row-35 SNAPPED reading for back_stair_head/E, measured off backdrops/source/back_stair_head-E/row23-89ae5671.png by design/plan-draft/measured/row23_lib.py through the row-23 instrument and then rectified onto this facing's declared camera by design/plan-draft/measured/row35_snap.py. The image it describes is backdrops/source-snapped/back_stair_head-E/snapped.png. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed; every coordinate below is post-snap.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "SNAPPED",
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.803012,
+  "horizon_y": 0.51377,
+  "px_per_m_at_wall": 250.367,
+  "px_per_m_at_bottom": 420.88,
+  "implied_focal_px": 1024.0,
+  "eye_height_m": 1.183,
+  "storey_height_m": 2.7813,
+  "drawn_standpoint_m": 4.09,
+  "delta_focal_pct": 0.0,
+  "delta_eye_pct": -0.0,
+  "band_pct": 8.0,
+  "wall_width_m": 4.2528,
+  "camera_wall_m": 4.09,
+  "camera_far_m": null,
+  "corner_x0_px": 235.62,
+  "corner_x1_px": 1300.38,
+  "key_tint": "#c85d16",
+  "key_dir": "L-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 238,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "chair_rail",
+    "ruled_m": 0.95,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero. Row 32 left that ruling where it stood and changed only what the ramps are given: corners read off where the wall stops being square to the camera rather than off a plaster step, the junction row chosen from pick_ceiling's own candidates by which one the side walls converge on most sharply, and an error bar on the intersection measured against the standing licence for the horizon row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px in _measured_px's siblings on the reading).",
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 800,
+        "y": 527,
+        "edge_px": 26074
+      },
+      "ceiling": {
+        "x": 780,
+        "y": 537,
+        "edge_px": 5630
+      },
+      "side_walls": {
+        "x": 1176,
+        "y": 733,
+        "edge_px": 12393
+      }
+    },
+    "adopted_y": 526.1,
+    "adopted_instrument": "ceiling-ramp",
+    "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+    "ceiling_ramp_intersection": {
+      "x": 768.0,
+      "y": 526.1,
+      "_snap_basis": "declared-principal-point",
+      "_snapped": "ASSUMED, not achieved: this frame fixed no usable convergence of its own, so the snap took the declared principal point and re-projected the floor onto this row WITHOUT moving the painted ceiling junctions. The ground plane converges here; the painting's own returns still converge where the painter drew them (this reading's pre-snap fit put that at y None). Re-measuring the snapped frame is what says which."
+    },
+    "far_line_ruler": null
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 822,
+    "chair_rail_y_px": 584,
+    "dado_rail_above_floor_px": 238,
+    "capping_above_floor_px": 241,
+    "wall_ceiling_line_y_px": 126,
+    "corner_x0_px": 235.62,
+    "corner_x1_px": 1300.38,
+    "horizon_y_px": 526.1,
+    "openings": [
+      {
+        "x0_px": 737,
+        "x1_px": 965,
+        "y0_px": 298,
+        "y1_px": 822,
+        "width_px": 229,
+        "width_m": 0.914,
+        "centre_px": 851.0,
+        "head_m": 2.094,
+        "void_luminance": 0.0,
+        "wall_luminance": 45.64,
+        "threshold": 24,
+        "threshold_span": [
+          1,
+          46
+        ],
+        "stability": 46,
+        "_snap": "transformed through the facing wall's own map"
+      }
+    ]
+  },
+  "_windows": {
+    "floor": [
+      798,
+      845
+    ],
+    "rail": [
+      565,
+      603
+    ],
+    "ceiling": [
+      65,
+      177
+    ],
+    "columns": [
+      [
+        248,
+        724
+      ],
+      [
+        975,
+        1287
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 724.67,
+      "asked_x1": 978.07,
+      "ruled_m": 1.0,
+      "window": [
+        471,
+        1231
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 714..971 (7 px from the ask) and another admissible pair sits 971..1166 (219 px from the ask), which disagree by more than the 20 px this arm can resolve",
+      "_snap": "positions transformed; the FINDING is the pre-snap detector's \u2014 re-run --acceptance for a post-snap one"
+    }
+  ],
+  "_light": {
+    "key_dir_measured": "L",
+    "key_dir_brightest_x": 471,
+    "key_dir_brightest_y": 516,
+    "key_tint": "#c85d16",
+    "key_tint_patch": [
+      271,
+      671,
+      56,
+      118
+    ],
+    "key_tint_patch_mean_rgb": [
+      22.57,
+      10.51,
+      2.5
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8804c",
+      "floor_bottom_strip": "#c87f4b",
+      "mid_wall_right": "#c89664",
+      "mid_wall_left": "#c8a479",
+      "brightest_21x21_patch": "#c8b096"
+    },
+    "brightest_21x21_patch_centre_px": [
+      471,
+      516
+    ],
+    "sobel_bright_side_deg_whole_frame": 88.88,
+    "sobel_bright_side_deg_wall_band": 116.41,
+    "left_third_minus_right_third_luminance_whole_frame": -6.541,
+    "left_third_minus_right_third_luminance_wall_band": -8.836
+  },
+  "_derived": {
+    "eye_height_m": 1.183,
+    "storey_height_m": 2.7813,
+    "implied_wall_width_m": 4.2528,
+    "px_per_m_at_bottom": 420.8794,
+    "implied_camera_wall_m": 4.09
+  },
+  "_withheld_because": [],
+  "_hold_family": null,
+  "_round": "row35snap",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      386,
+      733
+    ],
+    "wall_band_px": [
+      236,
+      1300
+    ],
+    "wall_median_luminance": 45.64,
+    "min_enumerated_px": 99,
+    "min_head_m": 1.4,
+    "storey_m": 2.8,
+    "candidates_before_head_test": 1,
+    "_snap": "read off the pre-snap frame and carried through the warp; --acceptance re-reads it"
+  },
+  "_snap": {
+    "_what_this_is": "the row-35 snap of back_stair_head/E: a five-plane planar rectification of backdrops/source/back_stair_head-E/row23-89ae5671.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",
+    "tool": "design/plan-draft/measured/row35_snap.py",
+    "source_box": {
+      "x0": 241.0,
+      "x1": 1293.0,
+      "yc": 119.0,
+      "yf": 807.0,
+      "vx": 768.0,
+      "vy": 526.10048
+    },
+    "target_box": {
+      "x0": 235.62350208817497,
+      "x1": 1300.376497911825,
+      "yc": 125.9435007929743,
+      "yf": 822.2838630806846,
+      "vx": 768.0,
+      "vy": 526.10048
+    },
+    "source_anchors": {
+      "ceiling": "measured",
+      "corners": "measured",
+      "vanishing_point": "declared-principal-point",
+      "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+      "px_per_m_at_wall": 247.368
+    },
+    "target": {
+      "k": 1.0121226196042301,
+      "storey_m": 2.7812813298405614,
+      "target_eye_m": 1.1829980828125,
+      "ppm_source": 247.368,
+      "ppm_target": 250.36674816625919
+    },
+    "residuals": {
+      "scale_k": 1.012123,
+      "eye_source_m": 1.1356,
+      "eye_target_m": 1.183,
+      "storey_painted_m": 2.7813,
+      "wall_uniform_scale": 1.0121,
+      "floor_vertical_over_horizontal": 1.0418,
+      "ceiling_vertical_over_horizontal": 0.9712,
+      "left_return_shear": 0.0225,
+      "right_return_shear": 0.0226
+    },
+    "magnification": {
+      "per_region": {
+        "wall": {
+          "pixels": 741608,
+          "max_magnification": 1.021,
+          "max_minification": 1.001
+        },
+        "floor": {
+          "pixels": 277950,
+          "max_magnification": 1.054,
+          "max_minification": 0.994
+        },
+        "ceiling": {
+          "pixels": 155432,
+          "max_magnification": 1.023,
+          "max_minification": 1.017
+        },
+        "left": {
+          "pixels": 199891,
+          "max_magnification": 1.045,
+          "max_minification": 1.014
+        },
+        "right": {
+          "pixels": 197983,
+          "max_magnification": 1.03,
+          "max_minification": 1.0
+        }
+      },
+      "max_magnification": 1.054,
+      "max_minification": 1.017,
+      "_reading": "the largest factor any painted detail is stretched by (magnification) and squeezed by (minification), taken over every pixel of the output frame"
+    },
+    "edge_reveal": {
+      "unplaced_pixels": 0,
+      "max_overshoot_px": 10.63,
+      "extended_pixels": 14048,
+      "extended_fraction": 0.00893,
+      "region_pixels": {
+        "wall": 742305,
+        "floor": 277951,
+        "ceiling": 155426,
+        "left": 199068,
+        "right": 198114
+      }
+    },
+    "budgets": {
+      "reveal_px": 100.0,
+      "stretch": 3.0
+    },
+    "source_candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
+    "source_candidate_sha256": "90a8d9373c61a3ca8e62f9a6c03ad5adb2a37dc17d29432fec78acaa15f2ec86",
+    "opening_rect_skew_px": 0.0
+  }
+}
