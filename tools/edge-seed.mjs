@@ -604,7 +604,7 @@ export function packetNote(seed, plan_) {
  *  directory will go and find one. */
 export function attachLine(seed, style) {
   const one = style
-    ? `\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`
+    ? `\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall with its openings removed)`
     : null;
   const two = `\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`;
   const three = seed
@@ -704,6 +704,32 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
   return { seeds, plans };
 }
 
+/**
+ * The PACKET.md paragraph for Image 1, where a packet has one.
+ *
+ * [2026-08-25] IT NAMES THE DERIVED FILE, THE WALL IT WAS CUT FROM AND BOTH
+ * DIGESTS, for the reason every edge strip's note gives its own: a reference
+ * image that cannot be proved against the painting it claims to come from is a
+ * picture with a story attached. `attachStyle` is what fills these fields, and a
+ * packet with no Image 1 gets no paragraph — `attachLine` already says so.
+ */
+export function stylePacketNote(style) {
+  if (!style) return "";
+  const s12 = (h) => (h ? String(h).slice(0, 12) : "unrecorded");
+  return `**Image 1 is a DERIVED style seed, not a wall.** \`${style.file}\` is ` +
+    `\`${style.derived_from}\` — ${style.room}/${style.facing}, this room's own wall ` +
+    `(sha256 \`${s12(style.source_sha256)}\`) — with every opening and carrier on it filled in ` +
+    `from that wall's OWN adjacent fabric by \`tools/style-seed.mjs\`: ` +
+    `${style.filled_rects} rectangle(s), ${style.filled_pct_of_wall} % of the wall, the floor and ` +
+    `the ceiling untouched. The fill report rides beside it as \`${style.report_file}\` and the ` +
+    `store's copy is \`${style.derived_store}\` (sha256 \`${s12(style.sha256)}\`). ` +
+    `${style.verified || ""} So it carries this room's materials, its palette and its light and NO ` +
+    `ARCHITECTURE AT ALL: how many openings the wall being painted carries, where they stand and ` +
+    `every dimension of them come from the layout image and the words.
+
+`;
+}
+
 /** The PACKET.md paragraph for a list of strips — the plural of `packetNote`. */
 export function packetNoteAll(seeds, plans) {
   if (!seeds.length) {
@@ -730,7 +756,7 @@ export function packetNoteAll(seeds, plans) {
 /** The attach line for a list of strips — the plural of `attachLine`. */
 export function attachLineAll(seeds, style) {
   const parts = (style
-    ? [`\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall)`]
+    ? [`\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall with its openings removed)`]
     : [])
     .concat([`\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`])
     .concat(seeds.map((s) => `\`${seedFileName(s.side)}\` as **Image ${s.image_index}**`));
