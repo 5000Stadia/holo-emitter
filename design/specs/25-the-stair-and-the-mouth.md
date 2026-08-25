@@ -173,7 +173,7 @@ needs no shrinking at all, because everything it claims is drawn from the docume
       be void, which is the defect row 21's through-view was built to end, and three of these doors
       are at zero coverage — it would put a black hole in the wall of three rooms.
     - **The price is measured, not asserted** (F34). The seam between the destination's own frame
-      and the fill beside it, in summed rgb over the openings that have one: **median 19, worst 125
+      and the fill beside it, in summed rgb over the openings that have one: **median 20, worst 125
       (`hall/N`), 51 on the court's mouth**, against the 60 summed that §12.8 treats as the
       threshold of visible. `ways.spec` pins the worst at 140 so it cannot drift.
     - **The look trade is named and is Kabe's** (the Navigator's ratification, and F39's): on a

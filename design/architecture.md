@@ -2963,7 +2963,7 @@ defect row 21's through-view was built to end, and three of these doors are at z
 would put a black hole in the wall of three rooms.
 
 **The price, measured.** The seam between the destination's own frame and the fill beside it, in
-summed rgb: median 19 over the 23 openings that have one, worst 125 (`hall/N`), 51 on the court's
+summed rgb: median 20 over the 23 openings that have one, worst 125 (`hall/N`), 51 on the court's
 mouth — against the 60 summed §12.8 treats as the threshold of visible. `ways.spec` pins the worst
 at 140.
 
