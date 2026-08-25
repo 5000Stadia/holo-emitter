@@ -78,53 +78,41 @@
     "openings": [],
     "windows": [
       {
-        "x0_px": 268,
-        "x1_px": 697,
-        "y0_px": 385,
-        "y1_px": 582,
-        "head_m": 2.0,
-        "sill_m": 0.9,
-        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
-        "width_px": 429,
-        "width_m": 2.397,
-        "centre_px": 482.5,
-        "height_m": 1.1,
+        "x0_px": 210,
+        "x1_px": 273,
+        "y0_px": 352,
+        "y1_px": 652,
+        "head_m": 2.185,
+        "sill_m": 0.509,
+        "vertical": "measured",
+        "width_px": 63,
+        "width_m": 0.352,
+        "centre_px": 241.5,
+        "height_m": 1.676,
         "lights": [
           [
-            268,
-            339
-          ],
-          [
-            374,
-            446
-          ],
-          [
-            477,
-            548
-          ],
-          [
-            575,
-            697
+            210,
+            273
           ]
         ],
-        "light_luminance": 182.27,
-        "wall_luminance": 78.89,
-        "lift": 103.38,
-        "threshold": 110,
+        "light_luminance": 175.55,
+        "wall_luminance": 101.32,
+        "lift": 74.24,
+        "threshold": 144,
         "threshold_span": [
-          91,
-          187
+          138,
+          150
         ],
-        "stability": 97,
+        "stability": 13,
         "lattice": {
-          "score": 0.2405,
-          "x": 0.3282,
-          "y": 0.1529,
-          "pitch_x_m": 0.067,
+          "score": 0.21,
+          "x": 0.3102,
+          "y": 0.1099,
+          "pitch_x_m": 0.061,
           "pitch_y_m": 0.039,
-          "edge_energy": 35.37
+          "edge_energy": 6.91
         },
-        "confidence": 0.631
+        "confidence": 0.484
       }
     ]
   },
@@ -257,14 +245,60 @@
       385,
       582
     ],
-    "wall_median_luminance": 78.89,
+    "wall_median_luminance": 101.32,
     "min_enumerated_px": 36,
     "lattice_min": 0.2,
     "admit_lift": 60.0,
     "sweep_lift": 12.0,
     "mullion_max_m": 0.25,
     "lights_before_merge": 4,
-    "candidates_after_merge": 1,
-    "rejected": []
+    "candidates_after_merge": 2,
+    "rejected": [
+      {
+        "x0_px": 411,
+        "x1_px": 675,
+        "y0_px": 385,
+        "y1_px": 582,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 264,
+        "width_m": 1.475,
+        "centre_px": 543.0,
+        "height_m": 1.1,
+        "lights": [
+          [
+            411,
+            473
+          ],
+          [
+            500,
+            566
+          ],
+          [
+            588,
+            675
+          ]
+        ],
+        "light_luminance": 158.47,
+        "wall_luminance": 101.32,
+        "lift": 57.15,
+        "threshold": 115,
+        "threshold_span": [
+          113,
+          142
+        ],
+        "stability": 30,
+        "lattice": {
+          "score": 0.3208,
+          "x": 0.3711,
+          "y": 0.2705,
+          "pitch_x_m": 0.039,
+          "pitch_y_m": 0.156,
+          "edge_energy": 25.86
+        },
+        "rejected": "bright, but its light stands only 57.2 above a 101.3 wall, under the 60 a painted window lifts on this store"
+      }
+    ]
   }
 }
