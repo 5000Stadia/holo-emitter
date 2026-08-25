@@ -109,15 +109,20 @@ test.describe("row 27 — the painted door governs", () => {
 
     const WORLD = JSON.parse(readFileSync(
       join(repoRoot, "fixtures", "nav-manor", "world.json"), "utf8"));
-    const START = JSON.parse(readFileSync(
-      join(repoRoot, "fixtures", "nav-manor", "viewstate.json"), "utf8"));
     const ORDER = ["N", "E", "S", "W"];
 
-    /** Intents that stand the player in `loc` facing `facing`, walked out of
-        the world's own exits rather than typed. */
-    function intentsTo(loc, facing) {
-      const seen = new Map([[START.location, []]]);
-      const q = [START.location];
+    /** Intents that walk the player from where they are standing to `loc`
+        facing `facing`, out of the world's own exits rather than typed.
+
+        [Row 39] `from` used to be `START` and could not be anything else,
+        which forced a full page reload per wall: twenty-one promoted door
+        walls, twenty-one loads of a 36 MB baked store, and this case sat a few
+        seconds under its own 90 s timeout until the corpus gained one more
+        wall and went over it on both engines. The walk is the same walk from
+        wherever the last one left the player, so the page is booted once. */
+    function intentsTo(from, loc, facing) {
+      const seen = new Map([[from.location, []]]);
+      const q = [from.location];
       let walk = null;
       while (q.length && walk === null) {
         const at = q.shift();
@@ -130,7 +135,7 @@ test.describe("row 27 — the painted door governs", () => {
       }
       if (walk === null) throw new Error(`no route to ${loc}`);
       const out = [];
-      let f = START.facing;
+      let f = from.facing;
       for (const ex of walk) {
         while (f !== ex.facing) { out.push({ type: "turn", dir: "right" }); f = ORDER[(ORDER.indexOf(f) + 1) % 4]; }
         out.push({ type: "go", exit: ex.id });
@@ -140,14 +145,19 @@ test.describe("row 27 — the painted door governs", () => {
       return out;
     }
 
-    async function stand(page, loc, facing) {
+    /** Boot the page once; `stand` then walks from wherever it left off. */
+    async function boot(page) {
       await page.goto(navUrl());
       await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+      return page.evaluate(() => window.HOLO_APP.harness.viewstate);
+    }
+
+    async function stand(page, from, loc, facing) {
       return page.evaluate((list) => {
         const A = window.HOLO_APP;
         for (const it of list) A.dispatch(it);
         return { vs: A.harness.viewstate, apertures: A.apertureList() };
-      }, intentsTo(loc, facing));
+      }, intentsTo(from, loc, facing));
     }
 
     test("the page's go target is the measured rectangle, not the plan's", async ({ page }) => {
@@ -165,8 +175,10 @@ test.describe("row 27 — the painted door governs", () => {
       const walls = promotedDoorWalls().filter(([loc]) =>
         WORLD.locations.some((l) => l.id === loc));
       expect(walls.length).toBeGreaterThan(0);
+      let where = await boot(page);
       for (const [loc, f, meta] of walls) {
-        const { vs, apertures } = await stand(page, loc, f);
+        const { vs, apertures } = await stand(page, where, loc, f);
+        where = vs;
         expect(`${vs.location}/${vs.facing}`).toBe(`${loc}/${f}`);
         for (const o of meta.openings) {
           if (o.kind !== "door") continue;
@@ -185,7 +197,7 @@ test.describe("row 27 — the painted door governs", () => {
       /* §11 made operational, and the Captain's sentence turned into a check:
          the point a player aims at is the middle of the door they can see, and
          that click has to be travel rather than a refusal about a wall. */
-      const { vs, apertures } = await stand(page, "library", "E");
+      const { vs, apertures } = await stand(page, await boot(page), "library", "E");
       expect(`${vs.location}/${vs.facing}`).toBe("library/E");
       expect(apertures.length).toBe(1);
       const a = apertures[0];

@@ -40,7 +40,8 @@ import {
 } from "../../tools/make-scaffold.mjs";
 import { deriveMeta, stairsForFacing, flightsForFacing, stairPlanFacts }
   from "../../tools/plan-projection.mjs";
-import { flightLines } from "../../tools/frame-language.mjs";
+import { flightLines, askNamesAFlight } from "../../tools/frame-language.mjs";
+import { paintedFlightReading } from "../../tools/flight-evidence.mjs";
 import {
   REASONS, GRANTS_KEY, eligible, grant, spentPromptPath, DEFAULT_OUT
 } from "../../tools/grant-content-gap.mjs";
@@ -129,6 +130,39 @@ test.describe("the ask names the flight", () => {
     expect(checked).toBeGreaterThan(60);
   });
 
+  /* [ROW 39] THE HANDSHAKE. `tools/promote-backdrop.mjs` attaches a flight to a
+   * promoted meta only from a candidate whose spent prompt named one, and it
+   * asks that question through `askNamesAFlight` — which lives beside the
+   * sentence `flightLines` composes precisely so the two cannot drift. The
+   * drift would be silent and total: a predicate that no longer matches the
+   * emitter's own words refuses every flight wall in the manor, with the
+   * emitter, the scaffold and the plan all still agreeing with each other. So
+   * the emitter's own output is put back through the reader here, exactly as
+   * `room-voices.spec` pins `INTERIOR_FABRIC` against the voice that writes
+   * the words it hunts. */
+  test("the promotion's reader of a spent ask matches the emitter's own flight sentence", () => {
+    const stairs = stairFacings();
+    expect(stairs.length, "the plan draws no flight in any view").toBeGreaterThan(0);
+    for (const [loc, f] of stairs) {
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      expect(askNamesAFlight(manorPrompt(PLAN, `${loc}/${f}`, meta, rects)),
+        `${loc}/${f} is asked for a flight and the promotion cannot see that it was`)
+        .toBe(true);
+    }
+    /* And it is not a predicate that says yes to everything: a facing with no
+       flight in view, and a prompt that merely mentions the word. */
+    const [nl, nf] = everyFacing().find(([l, x]) =>
+      !stairs.some(([a, b]) => a === l && b === x));
+    const bare = deriveMeta(PLAN, nl, nf);
+    expect(askNamesAFlight(manorPrompt(PLAN, `${nl}/${nf}`, bare,
+      scaffoldRects(PLAN, nl, nf, bare).rects)),
+      `${nl}/${nf} draws no flight and the promotion reads its ask as naming one`).toBe(false);
+    expect(askNamesAFlight("The back stair room is panelled in oak."),
+      "the room's own NAME is not an ask for a staircase in the view").toBe(false);
+    expect(askNamesAFlight(null), "and an ask that is not there names nothing").toBe(false);
+  });
+
   test("a flight with no tread in the frame is not asked for as steps", () => {
     /* Two of the manor's views look across a stairwell whose every tread is
        below the picture. Telling a painter to draw steps there asks for a
@@ -184,6 +218,57 @@ test.describe("the ask names the flight", () => {
       said.add(line);
     }
     expect(said.size, "two climbs produce the same sentence").toBe(4);
+  });
+});
+
+/* ------------------------------------------------------------- 1(a) */
+
+/* [ROW 39] THE PIXEL READING RASTERISES A PROJECTION ONTO A PICTURE, and the
+   two have to be the same picture. A flight's polygons are frame coordinates on
+   a canvas of a stated width; `paintedFlightReading` walks them over the PNG's
+   own pixels. Let those widths differ and every number still comes out — a
+   mean, a ring, a ratio, all of them taken over the wrong part of the frame,
+   with nothing in the record saying so. The reading is not gated on, which is
+   exactly why a silent wrong number here is worse than a refusal: it would sit
+   on the meta as evidence.
+
+   The real corpus is 1536 px wide throughout, so this is stated rather than
+   discovered — the guard is checked by declaring the wrong canvas over a real
+   candidate, which is the same disagreement a 1024 px frame would create. */
+test.describe("the pixel reading and the picture it is taken from", () => {
+  const CANDIDATE = join(repoRoot, "backdrops", "source", "stair_landing-N",
+    "row23-e594b388.png");
+
+  const flightsHere = () => {
+    const meta = deriveMeta(PLAN, "stair_landing", "N");
+    const flights = stairsForFacing(PLAN, "stair_landing", "N", meta);
+    expect(flights.length, "stair_landing/N draws no flight and this case has no subject")
+      .toBeGreaterThan(0);
+    return flights;
+  };
+
+  test("reads at the canvas the flight was projected on", () => {
+    expect(existsSync(CANDIDATE), `${CANDIDATE} is missing and this case proves nothing`)
+      .toBe(true);
+    const r = paintedFlightReading(CANDIDATE, flightsHere(), CANVAS_W);
+    expect(r.read, r.why).toBe(true);
+    expect(r.ratio).toBeGreaterThan(0);
+    expect(r.body_px).toBeGreaterThan(0);
+  });
+
+  test("and refuses to read one canvas's projection off another's pixels", () => {
+    const r = paintedFlightReading(CANDIDATE, flightsHere(), 1024);
+    expect(r.read, "a 1024 px projection was read off a 1536 px painting").toBe(false);
+    expect(r.why).toContain("1024");
+    expect(r.why).toContain("1536");
+    expect(r.ratio, "an unread reading carries no number").toBeUndefined();
+    /* Verified by removing the check: without it this same call returns
+       read:true with a ratio, over pixels two thirds of the way across the
+       wrong part of the frame. Which is why the width is not defaulted — a
+       caller that does not say gets no reading rather than the 1536 one. */
+    const silent = paintedFlightReading(CANDIDATE, flightsHere(), undefined);
+    expect(silent.read, "a reading taken without a declared canvas").toBe(false);
+    expect(silent.why).toContain("without the canvas width");
   });
 });
 
@@ -575,10 +660,18 @@ test.describe("the content-gap grant", () => {
           .not.toContain(line.trim());
       }
     }
-    /* Every wall the row-32 flight clause refused is granted, and it is found by
-       reading the refusal rather than by a list of names. */
+    /* Every wall the row-32 flight clause refused AND IS STILL WAITING ON is
+       granted, and it is found by reading the refusal rather than by a list of
+       names. [Row 39] The second half of that sentence is load-bearing now that
+       a flight-bearing wall can actually be promoted: `run-state.json` keeps a
+       wall's correction verbatim after the wall is answered, so a wall whose
+       art has since reached the store still READS as flight-refused here while
+       `eligible` — rightly, and in its own words — skips it. The store is the
+       fact; the recorded sentence is a record of a past decision. */
+    const inStore = (key) =>
+      existsSync(join(repoRoot, "backdrops", ...key.split("/")) + ".meta.json");
     const flightRefused = Object.entries(state.walls)
-      .filter(([, w]) => REASONS.flight_never_named.refusal.test(w.correction || ""))
+      .filter(([k, w]) => REASONS.flight_never_named.refusal.test(w.correction || "") && !inStore(k))
       .map(([k]) => k).sort();
     expect(flightRefused.length).toBeGreaterThan(0);
     expect(take.filter((t) => t.reason === "flight_never_named").map((t) => t.key).sort())
@@ -587,7 +680,7 @@ test.describe("the content-gap grant", () => {
        horizon and a suspect painting are facts about a picture. */
     for (const s of skip) {
       const w = state.walls[s.key];
-      if (!w || w.status === "promoted") continue;
+      if (!w || w.status === "promoted" || inStore(s.key)) continue;
       if (/no content-gap reason matches/.test(s.why)) {
         expect(REASONS.flight_never_named.refusal.test(w.correction || ""),
           `${s.key} was skipped and its refusal IS the flight clause`).toBe(false);

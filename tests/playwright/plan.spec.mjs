@@ -32,8 +32,9 @@ import {
   assertCameraConsistent, assertRuledLens, wallInFrame, horizonGate,
   GRID_CAMERA, CONTRACT_CAMERA, KNOWN_DIVERGENCES, STAGING_TOLERANCE,
   facingCarriers, cameraFeetReport, WALL_MAP_11, CANVAS_W, FOCAL_PX, FOCAL_MM,
-  DRAWING_EYE_M
+  DRAWING_EYE_M, stairsForFacing
 } from "../../tools/plan-projection.mjs";
+import { askTextFor } from "../../tools/flight-evidence.mjs";
 
 const require = createRequire(import.meta.url);
 const fixtureDir = join(repoRoot, "fixtures", "demo-study");
@@ -3026,11 +3027,139 @@ test.describe("the schematic is a derived render of the plan", () => {
     }
   });
 
+  /* [ROW 39] THE FLIGHT A PROMOTED META NOW CARRIES, AND THE TWO WAYS IT DOES
+   * NOT.
+   *
+   * Row 32's clause refused a promotion whose room draws a flight the meta has
+   * none of, and nothing could give a promotion one — so the clause's only
+   * reachable branch was the refusal, and the ATTACHING act it was waiting for
+   * had no case at all because it did not exist. Three arms, each firing on
+   * its own clause and nothing else:
+   *
+   *   the attachment  — a flight-bearing facing promotes and its meta carries
+   *                     the flight in the derived meta's own shape;
+   *   the re-ask      — `row32:stair.painted_flight_lost`, an ask that never
+   *                     named a staircase;
+   *   the unreadable  — `row39:stair.ask_unreadable`, a candidate whose prompt
+   *                     is gone, so the ask cannot be shown to have named one.
+   *
+   * `stair_landing/N` is the subject because it is the manor's one wall that
+   * carries a painted flight and is in the store: `great_stair_hall/W` — the
+   * wall row 32 was written about — is refused by the third clause below, its
+   * own corner reading having taken the staircase's stringer for the wall's
+   * return.
+   */
+  test("a promoted meta carries the flight its room draws, or says which way it did not", () => {
+    const CAND = "backdrops/source/stair_landing-N/row23-e594b388.png";
+    const tree = stagePromotionTree("stair_landing/N", CAND, "manor");
+    const promote = () => {
+      try {
+        return { code: 0, out: execFileSync("node",
+          [join(tree, "tools", "promote-backdrop.mjs"), "--facing", "stair_landing/N",
+            "--candidate", CAND, "--round", "manor", "--reference", "ruled"],
+          { cwd: tree, encoding: "utf8", stdio: "pipe" }) };
+      } catch (e) {
+        return { code: e.status, out: String(e.stdout || "") + String(e.stderr || "") };
+      }
+    };
+    const prompt = join(tree, CAND.replace(/\.png$/, ".prompt.txt"));
+    const spent = readFileSync(prompt, "utf8");
+    try {
+      /* THE ATTACHMENT. */
+      const ok = promote();
+      expect(ok.code, `the manor's painted stair wall promotes:\n${ok.out}`).toBe(0);
+      const meta = JSON.parse(readFileSync(
+        join(tree, "backdrops", "stair_landing", "N.meta.json"), "utf8"));
+      expect(Array.isArray(meta.stairs) && meta.stairs.length,
+        "and its meta carries the flight the plan draws in this view").toBe(1);
+      const s = meta.stairs[0];
+      /* IN THE DERIVED META'S OWN SHAPE, field by field — the fixture
+         validator's `row15:meta.stairs_list` reads both and the renderer draws
+         from either, so a promoted flight that is a different record is a
+         second shape for one thing. */
+      const derived = deriveMeta(PLAN, "stair_landing", "N");
+      const drawn = stairsForFacing(PLAN, "stair_landing", "N", meta)[0];
+      expect(Object.keys(s).sort(),
+        "the promoted flight has the fields a derived one has")
+        .toEqual(Object.keys(derived.stairs[0]).sort());
+      for (const k of ["id", "treads", "direction", "rise_m", "raw_w", "raw_h", "x", "y", "w", "h"]) {
+        expect(s[k], `${k} is the projection at THIS meta's own geometry, not the derived meta's`)
+          .toEqual(drawn[k]);
+      }
+      expect(s.raw_w, "and it states the body it would draw before the frame cut it")
+        .toBeGreaterThan(0);
+      /* AND THE READING OF THE PAINTING IS ON THE RECORD BESIDE IT — never a
+         gate (`tools/flight-evidence.mjs` carries the calibration that says
+         why), but never invisible either. */
+      const ev = meta.measured_room.flight_evidence;
+      expect(ev && ev.asked && ev.asked.prompt,
+        "the promotion records which ask licensed the attachment")
+        .toBe(CAND.replace(/\.png$/, ".prompt.txt"));
+      expect(ev.read && typeof ev.ratio, "and what the pixels of that body read")
+        .toBe("number");
+
+      /* THE RE-ASK BRANCH. The ask loses its flight paragraph and nothing else
+         moves; the promotion refuses on that clause and writes no file. */
+      rmSync(join(tree, "backdrops", "stair_landing"), { recursive: true, force: true });
+      writeFileSync(prompt, spent.split("\n").filter((l) => !/^Stairs: /.test(l)).join("\n"));
+      let r = promote();
+      expect(r.code, "a roll whose ask never named a staircase is not promotable").not.toBe(0);
+      expect(r.out).toMatch(/row32:stair\.painted_flight_lost/);
+      expect(r.out, "and the refusal says which act closes it").toMatch(/re-ask/);
+      expect(existsSync(join(tree, "backdrops", "stair_landing", "N.meta.json")),
+        "a refused promotion writes nothing").toBe(false);
+
+      /* THE UNREADABLE BRANCH. */
+      rmSync(prompt);
+      r = promote();
+      expect(r.code, "a candidate whose ask cannot be read is not promotable").not.toBe(0);
+      expect(r.out).toMatch(/row39:stair\.ask_unreadable/);
+
+      /* AND THE ASK IS THE ONLY THING THAT MOVED: put it back and the wall
+         promotes again, so the two refusals above are this clause and not a
+         second one that happened to be standing there. */
+      writeFileSync(prompt, spent);
+      expect(promote().code, "the clause is the ask and nothing else").toBe(0);
+    } finally {
+      rmSync(tree, { recursive: true, force: true });
+    }
+  });
+
+  /* [ROW 39] A SNAPPED FRAME'S ASK IS THE ROLL IT WAS RECTIFIED FROM.
+   *
+   * `row35_snap.py` writes `backdrops/source-snapped/<loc>-<F>/snapped.png` and
+   * nothing was ever asked for at that path, so a reader that only looks beside
+   * the candidate would refuse every snapped stair wall as unreadable — which
+   * is a true sentence about the wrong file. The snapped reading names its
+   * origin in its own `_snap` block, so the origin is FOLLOWED rather than
+   * guessed. `back_stair/W` is the live case: the row-35 pilot snapped it clean
+   * and the flight clause refused it, and this is the resolution that makes
+   * that refusal say which roll it is about.
+   */
+  test("a snapped candidate's ask is resolved through the roll it was rectified from", () => {
+    const readingPath = join(draftDir, "measured", "row35snap", "back_stair-W.json");
+    const reading = readJson(readingPath);
+    const snapped = "backdrops/source-snapped/back_stair-W/snapped.png";
+    expect(existsSync(join(repoRoot, snapped.replace(/\.png$/, ".prompt.txt"))),
+      "the snapped frame has an ask beside it after all, and this case is guarding nothing")
+      .toBe(false);
+    const ask = askTextFor(repoRoot, snapped, reading, join);
+    expect(ask.path, "the ask is the original roll's, named by the snap's own record")
+      .toBe("backdrops/source/back_stair-W/row23-4e3755a6.prompt.txt");
+    expect(ask.text, "and it is read").toBeTruthy();
+    expect(ask.via).toMatch(/rectified from/);
+    /* And a reading that names no origin returns null rather than an empty ask,
+       which is the difference between "nobody asked for a staircase" and "we
+       cannot tell": the promotion refuses those under two different clauses. */
+    expect(askTextFor(repoRoot, snapped, { ...reading, _snap: undefined }, join).text,
+      "a snapped candidate whose record names no origin resolves to nothing").toBe(null);
+  });
+
   /** A tree the promotion can run in: its tools, the plan, the measurement
    *  corpus, and the one candidate under test. `stageTree` does not carry
    *  `design/` or `backdrops/source/` — the first is not the page's and the
    *  second is 20 MB of the asset seat's lane. */
-  function stagePromotionTree(facing, candidate) {
+  function stagePromotionTree(facing, candidate, round) {
     const dir = mkdtempSync(join(tmpdir(), "holo-promote-"));
     cpSync(join(repoRoot, "tools"), join(dir, "tools"), { recursive: true });
     /* `validate-plan.mjs` requires `../src/groundplane.js` through the UMD
@@ -3043,10 +3172,24 @@ test.describe("the schematic is a derived render of the plan", () => {
     for (const f of readdirSync(join(draftDir, "measured")).filter((n) => n.endsWith(".json"))) {
       cpSync(join(draftDir, "measured", f), join(dir, "design", "plan-draft", "measured", f));
     }
+    /* [row 39] A ROUND'S OWN DIRECTORY, on request. The manor's readings live
+       in `measured/manor/` and the loop promotes with `--round manor`; a tree
+       staged without it can only ever run the cand-2 corpus, which is the one
+       corpus that draws no flight anywhere. */
+    if (round) {
+      mkdirSync(join(dir, "design", "plan-draft", "measured", round), { recursive: true });
+      for (const f of readdirSync(join(draftDir, "measured", round)).filter((n) => n.endsWith(".json"))) {
+        cpSync(join(draftDir, "measured", round, f),
+          join(dir, "design", "plan-draft", "measured", round, f));
+      }
+    }
     const [loc] = facing.split("/");
     const srcDir = candidate.slice(0, candidate.lastIndexOf("/"));
     mkdirSync(join(dir, srcDir), { recursive: true });
-    for (const f of readdirSync(join(repoRoot, srcDir)).filter((n) => n.endsWith(".png"))) {
+    /* [row 39] AND THE ASKS BESIDE THE ART. `vista.indoor_ask` and the flight
+       attachment both read the prompt a candidate was painted from, so a tree
+       carrying only the pictures cannot exercise either of them. */
+    for (const f of readdirSync(join(repoRoot, srcDir)).filter((n) => n.endsWith(".png") || n.endsWith(".prompt.txt"))) {
       cpSync(join(repoRoot, srcDir, f), join(dir, srcDir, f));
     }
     void loc;

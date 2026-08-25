@@ -3947,8 +3947,10 @@ never re-asks a promoted wall, and it never raises `attempts` — that is the sw
 promotion whose room draws a flight the painting has none of (`row32:stair.painted_flight_lost`), and
 six manor walls snapped geometrically clean and were refused by it — `back_stair/W`,
 `back_stair_head/S`, `back_stair_head/W`, `great_stair_hall/W`, `stair_landing/N`,
-`stair_landing/W`. Every one of them had been painted from a prompt in which the word *stair* does
-not occur. `plan.stairs` reached the renderer, `deriveMeta`, the fixture validator and that refusal;
+`stair_landing/W`. Every one of them had been painted from a prompt that never said a staircase
+stands in the view — the word *stair* appears in two of those prompts and in both it is the room's
+own NAME, which is why the reader row 39 gates on matches the flight sentence and not the word.
+`plan.stairs` reached the renderer, `deriveMeta`, the fixture validator and that refusal;
 the emitter's carrier language covered doors, windows and fireplaces and stopped there. **A carrier
 is in a wall and a flight is on the floor**, so a staircase was in no carrier list anywhere and the
 omission was invisible from inside the carrier machinery. Production law clause 6 read backwards, and
@@ -4033,6 +4035,223 @@ already carrying a reason is refused by name: a second grant under one reason wo
 trial rather than the wall. Its only mechanical effect is moving `status` to `retry`, which is what
 `--emit-retries` reads; the cap itself stays the emitter's, and the tool prints the `--retries` value
 that lets exactly the granted walls through.
+
+### The flight attachment (row 39) — a promoted meta carries the staircase
+
+Row 32's clause refused a promotion whose room draws a flight the meta has none of, and that was the
+whole of what it could do, because **nothing in the pipeline attached a flight to a promoted meta**.
+Doors got that act at row 27, measured off the painting. Once the flight language above brought
+staircases back in the re-asks, the refusal was standing over the very paintings it existed to
+protect. `promote-backdrop.mjs` now attaches.
+
+**What is attached is `stairsForFacing` at the promoted meta's own geometry** — the same call the
+clause already made to decide whether to refuse, so the flight carried and the flight demanded are
+one projection and cannot become two. The record is the derived meta's field set exactly
+(`deriveMeta` ends with the same call; `row15:meta.stairs_list` reads both; `raw_w`/`raw_h`
+included), so a page built from a promoted stair wall and a page built from the plan's derived one
+hold the same kind of thing.
+
+**How true it is, per route.** On a DECLARED-camera wall (row 32's tolerance route) and on a SNAPPED
+one (any reading carrying its own `_snap` block — the fact, not the round's name; a route keyed on
+the string `row35snap` would write the wrong geometry onto the second snapped round this project
+opens) the meta's HORIZON, scale and eye are the drawing's own, so that half of
+the projection is exact by construction. What is never the drawing's on any route is the **u-domain**:
+`xAtScale` maps `u` across the wall through the meta's own CORNERS, and a promoted meta's corners are
+what somebody measured off this painting. That is the right space for everything else on the wall —
+the doors, the staging, the grid all live in it — and it is where the flight met its first real
+defect, below.
+
+#### The wall's corners are what put a flight in the wrong place
+
+**Found by rendering the attachment over its own painting and looking.** `great_stair_hall/W`'s
+corner detector read the staircase's own stringer against the wainscot as the wall's right-hand
+return and returned 219..944 px — a wall centre 186 px left of the frame's, on a wall the picture
+centres. The flight projected through those corners runs up the **window** instead of the stair, 1.39
+m from where the ask put it. Nothing else on that wall notices: a painted door is measured off the
+picture (row 27) and is immune, and the grid and the staging are drawn in the same displaced domain
+and so agree with each other. **A stair standing against a wainscot is exactly what a recession
+detector is built to find**, so this is a fair mistake and it is a fact about flight-bearing walls
+rather than about this one painting.
+
+**The clause, and it carries no number anybody chose** (`row39:stair.projection_disagrees`): a flight
+is carried only where **the two readings of the wall agree about more of the staircase than they
+dispute** — the meta's own projection and the drawing's, rasterised on the frame, agreed part at
+least as large as the disputed part. (That is `intersection / union ≥ ½` written out: the definition
+of *as much as*, not a tuned bound.) A displacement in metres would need a bound, and the weaker
+"does the middle of one land inside the other" is not one — on `great_stair_hall/W` both centroids
+*do* land inside, because two long triangles crossing at a shallow angle contain each other's middles
+while their treads run up two different parts of the picture. Area is what a player's aim meets. It
+is measured over the part **on the frame**, because a run climbing out of the picture diverges
+without bound at depth and that tail is not what anybody clicks.
+
+On the corpus: `great_stair_hall/W` agrees about 41 % and is refused; `stair_landing/N` agrees about
+61 %, 0.33 m apart, and is carried. **The fix for the refused wall is a re-read of its corners, not a
+repaint**, and the refusal says so.
+
+#### The permission is the ASK, and that is a measured decision
+
+The intended gate was a structure statistic over the projected flight region against the frame beside
+it. It was built, and calibrated on the corpus this project owns: **six manor walls painted twice** —
+once from the ask that never named a staircase, once from row 38's re-ask that did. Same wall, same
+room voice, same projection.
+
+**The first finding is that the labels are not what the provenance implies.** `back_stair/W` and
+`stair_landing/W` painted a full staircase from an ask that never mentioned one, so the pre-row-38
+rolls are **4 absences and 2 presences**, not six absences. Labels below are what the paintings show.
+
+| wall | roll | painting | body edge ÷ ring | treads-only ÷ ring | Bhattacharyya (luma) | on-nose ÷ off-nose |
+|---|---|---|---|---|---|---|
+| `back_stair/W` | pre-38 | **present** | 0.614 | 0.839 | 0.319 | 0.902 |
+| `back_stair/W` | re-ask | present | 1.751 | 1.406 | 0.056 | 0.855 |
+| `back_stair_head/S` | pre-38 | **absent** | 1.568 | 1.427 | 0.172 | 1.012 |
+| `back_stair_head/S` | re-ask | present | 1.331 | 0.950 | 0.044 | 0.617 |
+| `back_stair_head/W` | pre-38 | **absent** | 1.431 | — | 0.086 | — |
+| `back_stair_head/W` | re-ask | present | 0.843 | — | 0.013 | — |
+| `great_stair_hall/W` | pre-38 | **absent** | 0.791 | 0.979 | 0.033 | 1.176 |
+| `great_stair_hall/W` | re-ask | present | 1.070 | 0.715 | 0.045 | 0.867 |
+| `stair_landing/N` | pre-38 | **absent** | 0.738 | 0.727 | 0.011 | 1.199 |
+| `stair_landing/N` | re-ask | present | 1.232 | 1.501 | 0.029 | 1.110 |
+| `stair_landing/W` | pre-38 | **present** | 2.885 | 1.022 | 0.464 | 1.047 |
+| `stair_landing/W` | re-ask | present | 1.090 | 1.369 | 0.040 | 0.761 |
+
+The body ratio is the one column the shipped code still computes (`paintedFlightReading`), and it
+reproduces: re-run 2026-08-24 over the same twelve frames, at each wall's own meta, it returns the
+figures above. Re-run instead at the PLAN's derived meta for all twelve — one projection for
+everything — eight are identical and the four walls with a measured or snapped reading of their own
+move (`back_stair_head/S` 1.803/1.227, `stair_landing/N` 0.718/1.549, `stair_landing/W` 2.969/1.230),
+which changes no conclusion: the absences then sit at 1.803, 1.431, 0.791, 0.718 inside presences
+running 0.614 to 2.969, still straddled from both sides. The other three columns were exploratory,
+were not kept in the code, and live here only as the record of what was tried.
+
+**Every column interleaves the two classes completely.** The four absences sit at 1.568, 1.431, 0.791
+and 0.738 on the body ratio while the presences run 0.614 to 2.885 and straddle all of them; no
+ordering of any column separates them. That is not a threshold waiting to be tuned, and this
+project's own discipline says so in as many words — row 23's separation report, row 34's *no crown
+from noise*. A floor fitted between four negatives and eight positives that overlap is fitted to the
+corpus.
+
+**The physical reason is legible in the frames.** A painted staircase obeys the SCAFFOLD BOX, not the
+tread positions, so its noses sit tens of pixels from the projection's — which is why the statistic
+that would have been decisive (an edge exactly where a nose is predicted) reads the same on a
+painting with a stair as on one without.
+
+**The ask separates the corpus exactly**, and it is the same rule row 29(a) applies to the same class
+of question from the same direction: `vista.indoor_ask` refuses an outdoor wall promoted from an
+indoor ask because *the ask is checked, not the picture*. `askNamesAFlight` lives in
+`tools/frame-language.mjs` beside the sentence `flightLines` composes — one rule read in two
+directions, the shape `INTERIOR_FABRIC` already has — and `flight.spec` pins the handshake by putting
+the emitter's own output back through the reader.
+
+**What it costs, stated rather than discovered:** the two pre-row-38 rolls that DID paint a flight
+unasked are sent back by this clause. Both already have a row-38 re-ask on disk, so the live cost is
+nil, and on any map emitted after the flight language the clause is a no-op by construction.
+
+**And the reading has to be taken off the picture it was projected onto.** A flight's polygons are
+frame coordinates on a canvas of a stated width, and `paintedFlightReading` walks them over the PNG's
+own pixels: let those widths differ and every number still comes out — a mean, a ring, a ratio, all
+taken over the wrong part of the frame and none of them saying so. Because this reading is *recorded
+rather than gated on*, a silently wrong number here is worse than a refusal would be: it sits on the
+meta as evidence. So the canvas width is a REQUIRED argument, and a caller that does not say gets no
+reading rather than the 1536 one — the assumption cannot be moved one line down into a default.
+`flight.spec`'s "the pixel reading and the picture it is taken from" holds both halves. The corpus is
+1536 px throughout, so this is stated rather than discovered.
+
+**The pixel reading is still taken and still recorded**, on `measured_room.flight_evidence` beside
+the carrier disagreements row 21 put there for the same reason — two artifacts can disagree and the
+disagreement must never be invisible. `tools/flight-evidence.mjs` computes it and deliberately
+carries no threshold; it also holds this project's only PNG decoder (8-bit non-interlaced, colour
+types 0/2/4/6, on `zlib.inflateSync`), written because `make-scaffold.mjs`'s *"the project carries no
+PNG library"* was still true.
+
+**What the reading costs, on the row-33 clock.** A promotion that attaches a flight runs 1.3–1.9 s
+against 0.05 s for one that does not: 0.6 s of PNG decode, 0.5 s of Sobel, the rest mask and ring.
+The ring's dilation is windowed to the body's own bounding box grown by 28 px — the naive form is
+180 million reads over a 1536×1024 frame and it was the whole of the difference on the walls whose
+flight sits in a corner. It is paid once per flight-bearing wall, against ~11.7 s for a snap and
+minutes for a generation, so it is stated rather than optimised further.
+
+**The refusals, split.** `row32:stair.painted_flight_lost` now means *re-ask: this roll never named a
+staircase*. `row39:stair.ask_unreadable` is its arm — a candidate whose prompt is gone, which is a
+hole in the record rather than a fact about the ask, the same pair `vista.ask_unreadable` makes with
+`vista.indoor_ask`. A snapped frame resolves its ask through the roll its own `_snap` block names it
+was rectified from, so the origin is followed rather than guessed.
+
+**And there is deliberately no post-condition asserting the attachment happened.** The obvious next
+line — *the meta about to be written carries the flights the plan draws* — cannot be reached by
+doctoring any input, so it would be a clause with no case: a gate that cannot fail, which is the
+family this project keeps paying for. What holds the attachment is `plan.spec`'s arm, which promotes
+`great_stair_hall/W` in a staged tree and reads `meta.stairs` off the file; deleting the assignment
+turns it red, verified by doing it. The ledger's *one token, one emit site, one case* is enforced by
+the completeness scan counting emit sites, and reusing the row-32 token for a second assertion is
+exactly what it catches.
+
+**The four ledger arms** live with the promotion's others in `guards.spec.mjs`, on one shared
+construction — the great stair moved into the library in front of `library/E`'s own standpoint, so
+the door clauses stay silent and the only new thing that wall does is hold a flight. The ask is then
+the only thing that moves: the real prompt trips `stair.painted_flight_lost`, no prompt at all trips
+`stair.ask_unreadable`, and the emitter's own flight paragraph — composed by `flightLines` in the
+case rather than typed into it — trips neither. The fourth slides the reading's corner span
+sideways, keeping its width so the corner clauses stay silent, and trips
+`stair.projection_disagrees`.
+
+**Where it left the corpus** (2026-08-24, the same instrument and no band moved):
+
+| wall | camera | outcome |
+|---|---|---|
+| `stair_landing/N` | PASS, clean → measured | **promoted**, `great_stair` attached; 61 % agreed, 0.33 m apart |
+| `great_stair_hall/W` | PASS, `unfitted-horizon` → declared | refused on `stair.projection_disagrees`: 41 % agreed, 1.39 m apart, its corners read 219..944 |
+| `back_stair/W` | FAIL −11.7 % | refused on the LENS band (904.1 px against 942.1–1105.9) |
+| `back_stair_head/S` | FAIL −17.9 % | refused on the lens band (841.3 px) |
+| `back_stair_head/W` | FAIL −15.9 % | refused on the lens band (861.1 px) |
+| `stair_landing/W` | FAIL +9.9 % | refused on the lens band (1125.5 px) |
+| `back_stair/E`, `back_stair/S`, `back_stair_head/E`, `stair_landing/S` | — | refused as re-asks: their rolls were asked for before the flight language |
+
+The four lens refusals are **camera misses, not flight ones** — the flight clause no longer stands
+between them and the store, and what does is the scale their painter drew at. `great_stair_hall/W`'s
+is a third thing again, and the one worth acting on: **the manor's corner detector is unreliable on a
+flight-bearing wall**, which no gate in this project had a way to see before a flight was projected
+through one.
+
+**Re-run 2026-08-24 after the clause landed, every flight-bearing wall, same instrument**: the table
+above reproduces exactly — `stair_landing/N` re-promotes byte-identical, the four lens numbers come
+back to the tenth of a pixel, and the four walls with no re-ask at all are refused on the ask. The one thing the
+re-run adds is the ORDER the refusals arrive in, which the table above flattens: the four
+lens-refused walls are all `unfitted-horizon` or `suspect-painting`, so on the ordinary measured
+route they stop one clause earlier at `row32:tolerance.suspect_undeclared` and reach the lens band
+only under `--camera-source declared`. Both refusals are about the camera and neither is about the
+flight.
+
+**And the snapped route does not reach them today, for a reason worth writing down, because it is the
+one act that would put four flights into the store.** These walls have a rectified frame on disk
+(`backdrops/source-snapped/<loc>-<F>/snapped.png`) whose acceptance re-measures clean — that is
+exactly the camera fix they need, and the row-35 snap sweep says so. But **the snap is cut from the
+wall's run-state CANDIDATE, and for every one of these walls run-state still names the roll that was
+asked for before the flight language existed.** So the frame that re-measures clean is a rectified
+picture of a room with no staircase in it, `askTextFor` follows the snap back to that pre-flight roll,
+and the flight clause correctly refuses it — which is the harm row 32 exists to name, arriving by a
+new road. Confirmed live: `back_stair/W`'s snapped frame resolves to `row23-4e3755a6.prompt.txt` and
+trips `row32:stair.painted_flight_lost`.
+
+**And the reason run-state still names the old roll is not neglect — it is the sweep obeying its own
+rule.** The loop picks a wall's candidate as the PASSing arrival with the smallest `|delta_focal_pct|`,
+and on these four walls the row-38 re-ask FAILS the camera gate (−11.7 %, −17.9 %, −15.9 %, +9.9 %)
+while the pre-flight roll passes it. So the pre-flight roll is the only candidate the sweep can see,
+and it stays the wall's candidate — which is an honest reading of the frames and not a bug. (The
+other two flight walls prove the same rule from the other side: `stair_landing/N` and
+`great_stair_hall/W` are the two whose re-ask came back inside the camera band, and they are the two
+that reached the flight clause at all.)
+
+**The gap is that the snap is being run on the wrong roll.** The snap exists to rescue a camera miss;
+it is being cut from the roll that already passes the camera, and withheld from the roll that has the
+staircase in it and needs the camera fixed. Both facts have to move together — the camera fix is on
+the snapped frame and the staircase is on the re-ask roll — and nothing has yet cut a snap from a
+re-ask. Doing it works
+— trial-snapped here to confirm the route is available before recommending it: `back_stair/W`'s
+row-38 re-ask (`row23-7d7caa79.png`) rectifies with `ACCEPTANCE PASS (unfitted-horizon) focal
++0.48 % eye −0.24 %`, magnification 1.33× against a budget of 3.00, and the resulting reading names
+that roll as its origin, so the ask names a staircase and the clause falls silent. That is the
+production loop's act — advance these walls' run-state candidate to the re-ask that has already
+landed, re-snap, then promote under `--reference ruled` — and not this clause's.
 
 ## The manor production loop (`design/plan-draft/measured/row23_run.py`) — arrival to promotion
 
@@ -4168,12 +4387,15 @@ not say before.
   4's. `hall/E` and `hall/W` sit at `admitted-not-promoted` and row 4 deletes the fence.
 - **A painting that loses the staircase** (`promote-backdrop.mjs`, clause
   `row32:stair.painted_flight_lost`). The renderer draws a flight out of the meta's own `stairs` and
-  a promoted meta has none, so painting a facing whose room draws one deletes the staircase and the
+  a promoted meta had none, so painting a facing whose room draws one deleted the staircase and the
   polygon a click travels through. Five walls were in that state, `back_stair/W` since the first
   harvest, and `manor.spec`'s "a flight seen across its run is a body, not a line" had stopped having
   a subject at all rather than gone red. The validator's row-21 exit-via clause speaks only where an
   EXIT goes through the flight; a flight you merely LOOK at from this facing had nobody speaking for
-  it. All five are back on the grid, which draws the stair.
+  it. **Row 39 gave the promotion the act it was waiting for** — see *The flight attachment* above: a
+  promoted meta now carries the flight, the clause's meaning narrows to *this roll's ask never named
+  a staircase, re-ask it*, and it is asserted a second time as the post-condition on the attachment
+  so the mechanism cannot be deleted quietly.
 
 **And `--recheck-doors` is every promoted wall now, not the door-bearing ones.** It was cut for row
 27's painted-door rule and filtered on `openings` because that was the only clause it answered, so a
