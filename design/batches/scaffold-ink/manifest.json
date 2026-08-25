@@ -1,0 +1,235 @@
+{
+  "_what_this_is": "What the layout image IS, measured: the shipped renderer's dark grid frame against the same geometry drawn as ink on paper, on the two walls whose returns read the diagram as the picture. Production's own register on both arms, no Image 1 on either.",
+  "_dispatch": "NOT DISPATCHED. Dispatch is the Navigator's act; this tool cuts packets and stops.",
+  "_sweep_independence": "This run never opens design/batches/row23-scaffold/manor/{manifest,run-state,retries}.json, never promotes, never bakes and never publishes. The manor sweep is symmetrically blind to it: its arrival scan matches ^row23-[0-9a-f]{8}\\.png$ and it walks its own manifest's rolls.",
+  "_probe_selection": "Two walls, declared in tools/evolution-arms.mjs as SCAFFOLD_WALLS with the return that put each of them there: servants_hall/E, whose retry-4 return painted two dark doorways where the scaffold's two dashed boxes stood, and master_bedchamber/N, whose cold ask came back a flat modern render in the diagram's own dark grey. A screen for a defect is run on the walls that showed it.",
+  "row": null,
+  "trial": "scafink",
+  "generation": 1,
+  "budget": {
+    "rolls_per_arm_per_wall": 1,
+    "walls": 2,
+    "arms": 2,
+    "declared_rolls": 4,
+    "_authority": "tools/evolution-arms.mjs, the `scafink` trial's own declaration, made before anything was emitted",
+    "_one_generation": "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
+  },
+  "_reading": "What the layout image IS, measured: the shipped renderer's dark grid frame against the same geometry drawn as ink on paper, on the two walls whose returns read the diagram as the picture. Production's own register on both arms, no Image 1 on either.",
+  "_no_privileged_arm": "Both arms compose through g5Prompt with appendix:false, attach exactly one image under the same name, run on the same two walls with the same roll count, and are read by the same scorer through the same opaque ids. The control is the ask production was sending on 2026-08-25.",
+  "_the_confound": "The sheet and the register's one sentence about the sheet move together, because the sentence describes the sheet. A win is a win for the pair and this trial cannot separate them.",
+  "_what_the_count_clause_reads": "Beside the row-34 primaries (admissible horizon, camera pass), each return is read for the ways-through it PAINTS - door_measure.py's own enumeration at this wall's declared geometry - against the doors and windows the plan rules on it. That is the quantity the servants_hall/E return failed and no fitness column could see.",
+  "_min_detectable_effect": null,
+  "walls": [
+    {
+      "key": "servants_hall/E",
+      "packet": "design/batches/scaffold-ink/gen1/servants_hall-E",
+      "why_this_wall": "retry-4 went out with no Image 1 and one scaffold carrying two dashed boxes labelled WINDOW and FIREPLACE; the return (backdrops/source/servants_hall-E/row23-230bb67d.png) painted TWO DARK DOORWAYS exactly where those boxes stood. A window and a fireplace on one wall, no doorway ruled - so the door count clause reads 0 against whatever the painting shows.",
+      "px_per_m_at_wall": 173.684,
+      "camera_wall_m": 6,
+      "wall_width_m": 7.05,
+      "floor_line_y": 0.71582,
+      "horizon_y": 0.524316,
+      "declared_horizon_row": 537,
+      "corner_x0_px": 146,
+      "corner_x1_px": 1374,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1042.1,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 732.99968,
+          "half_width": 15.69,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 567.9998800000001,
+          "half_width": 13.2,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 246.68448000000006,
+          "half_width": 38.91,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 304.08,
+            "x1": 564.61,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "fireplace",
+            "id": null,
+            "x0": 651.45,
+            "x1": 998.82,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            146,
+            304
+          ],
+          [
+            565,
+            651
+          ],
+          [
+            999,
+            1374
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 304.08,
+          "x1": 564.61
+        },
+        {
+          "kind": "fireplace",
+          "x0": 651.45,
+          "x1": 998.82
+        }
+      ],
+      "chair_rail_y": 568,
+      "voice": {
+        "id": "servants_hall",
+        "anchor": "hanging_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": null,
+        "ruled_but_unused": "servants_hall/N",
+        "why": "the ruling would allow servants_hall/N as Image 1 here, and no arm in this trial names one - every arm declares no Image 1, so nothing was cut into the packet directory"
+      },
+      "sidecar_sha256": "4892f0eaf0dcfb00fb0456b95bff5f56d562e4c1339ab82ac4aa9d181b2c498c"
+    },
+    {
+      "key": "master_bedchamber/N",
+      "packet": "design/batches/scaffold-ink/gen1/master_bedchamber-N",
+      "why_this_wall": "the wall Kabe asked cold with only the scaffold attached (design/prompts/cold-guide-master_bedchamber-N.md); the return was a flat modern render in the diagram's dark grey with a lit fire. A fireplace and a doorway on one wall, and a room the measure gives no agreeing majority - so the ruling leaves it no style image and the layout picture is the whole of what it is shown.",
+      "px_per_m_at_wall": 143.217,
+      "camera_wall_m": 7.15,
+      "wall_width_m": 8.8,
+      "floor_line_y": 0.679224,
+      "horizon_y": 0.51377,
+      "declared_horizon_row": 526,
+      "corner_x0_px": 114.21,
+      "corner_x1_px": 1421.79,
+      "storey_height_m": 2.8,
+      "implied_focal_px": 1024,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 695.525376,
+          "half_width": 13.55,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 559.469226,
+          "half_width": 10.88,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 294.517776,
+          "half_width": 32.08,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "fireplace",
+            "id": null,
+            "x0": 266.74,
+            "x1": 553.17,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          },
+          {
+            "kind": "door",
+            "id": "op18",
+            "x0": 624.78,
+            "x1": 768,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            114.21,
+            266
+          ],
+          [
+            554,
+            624
+          ],
+          [
+            768,
+            1421.79
+          ]
+        ]
+      },
+      "stamped": [
+        {
+          "kind": "fireplace",
+          "x0": 266.74,
+          "x1": 553.17
+        },
+        {
+          "kind": "door",
+          "x0": 624.78,
+          "x1": 768
+        }
+      ],
+      "chair_rail_y": 559.47,
+      "voice": {
+        "id": "bedchamber",
+        "anchor": "chair_rail",
+        "outdoor": false
+      },
+      "style_image": {
+        "key": null,
+        "ruled_but_unused": "master_bedchamber/E",
+        "why": "the ruling would allow master_bedchamber/E as Image 1 here, and no arm in this trial names one - every arm declares no Image 1, so nothing was cut into the packet directory"
+      },
+      "sidecar_sha256": "dab7b7803c4f891273eeaa7a1fa45650c8825cd6ba6e20a5bc7571d4063c70db"
+    }
+  ],
+  "arms": [
+    {
+      "id": "s1-grid-sheet",
+      "name": "THE INCUMBENT SHEET",
+      "what": "production's own ask, unchanged: g5-noappendix, no Image 1, and the layout image as the shipped renderer draws it - dark ground, dark-filled carrier boxes - with the register's incumbent sentence about it",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "layout_grid_only",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "scaffold.png"
+      ]
+    },
+    {
+      "id": "s2-ink-sheet",
+      "name": "INK ON PAPER",
+      "what": "the same ask with the layout image cut as a line drawing on paper: thin ink where surfaces meet, carrier boxes as outlines with a hatched interior, no tone anywhere a painter could read as a material or an opening - and the register's one sentence saying that is what it is",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "layout_ink_only",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "scaffold.png"
+      ]
+    }
+  ],
+  "control": "s1-grid-sheet",
+  "rolls_per_arm_per_wall": 1,
+  "total_rolls": 4,
+  "_generated": "2026-08-25",
+  "git_commit": "73bdca6e28f2ccabac45c70ae9649ba1281a707c"
+}

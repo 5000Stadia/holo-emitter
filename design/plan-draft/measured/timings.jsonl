@@ -49925,3 +49925,11 @@
 {"detail":{"attempts":4,"correction":"draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2","why":"retry cap spent"},"key":"closet_chamber/S","step":"park.wall","ts_end":1787668914.417157,"ts_start":1787668914.417156}
 {"detail":{"files":0,"notes":[],"reason":"sweep","stale":[]},"key":null,"step":"derive.sweep","ts_end":1787668915.961212,"ts_start":1787668914.417254}
 {"detail":{"fixture":"nav-manor","refused":false},"key":null,"step":"validate.sweep","ts_end":1787668917.656015,"ts_start":1787668917.511513}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787665750.823651,"ts_start":1787665750.754369}
+{"detail":{"prompts":88,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787665958.740846,"ts_start":1787665958.671466}
+{"detail":{"prompts":4,"refused":0},"key":null,"step":"lint.prompts","ts_end":1787666141.340606,"ts_start":1787666141.337358}
+{"ts_start":1787668917.705,"ts_end":1787668934.435,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39391159,"fp":"82e1d82f","png_bytes":155593419,"jpeg_bytes":29534172}}
+{"ts_start":1787668934.544,"ts_end":1787668934.616,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787668934.693,"ts_end":1787668934.838,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"430c21c8","out_bytes":632055,"facings":88,"locations":22}}
+{"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787668934.881924,"ts_start":1787668917.656162}
+{"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787668934.882816,"ts_start":1787668912.27136}

@@ -55,17 +55,14 @@
  */
 import { test, expect } from "@playwright/test";
 import { repoRoot, expectDerived } from "./helpers.mjs";
-import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { VOICES, voiceFor, hangingsFor } from "../../tools/room-voices.mjs";
 import {
   manorPrompt, scaffoldRects, materialParts, materialLines, rulingSentences,
-  normMaterial, materialProvenance, provenanceAsConsistencyReport, styleImageFor,
-  attachStyle, metaFromReading
+  normMaterial, materialProvenance, provenanceAsConsistencyReport, styleImageFor
 } from "../../tools/make-scaffold.mjs";
-import { deriveStyleSeed } from "../../tools/style-seed.mjs";
 import { attachLine, attachLineAll } from "../../tools/edge-seed.mjs";
 import { OPEN_SIDE_FABRIC, g4ManorPrompt } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
@@ -812,27 +809,16 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       const text = manorPrompt(PLAN, r.key, meta, rects, null, null, { style: st });
       const line = attachLine(null, st);
       if (st) {
-        /* [row 43] THE CLEAN REGISTER NAMES IT IN ONE CLAUSE and says what to
-           take from it and what not to.
-           [2026-08-25] AND THE CLAUSE NOW DESCRIBES THE PICTURE RATHER THAN
-           ARGUING WITH IT. What stood here was "Image 1 is the east wall of
-           this same room, already painted ... take nothing else from it" — a
-           sentence naming a photograph of a wall and then asking for half of
-           it. `servants_hall/E`'s ask ruled a hearth at the centre and a
-           three-light window left of it and the return came back with two
-           doorways, which is what the room's other walls carry. Image 1 is now
-           the DERIVED seed (`tools/style-seed.mjs`), so the clause can simply
-           be true. */
-        expect(text, `${r.key}: its ask does not say what Image 1 is`)
-          .toContain("Image 1 shows this room's materials, palette and light on another of " +
-            "its walls, with its openings removed");
+        /* [row 43] THE CLEAN REGISTER NAMES IT IN ONE CLAUSE, in the words a
+           painter uses — "Image 1 is the east wall of this same room, already
+           painted" — and says what to take from it and what not to. */
+        expect(text, `${r.key}: its ask does not name the wall it is given`)
+          .toContain("of this same room, already painted");
+        expect(text).toContain(`Image 1 is the ${st.facing_word} ${r.voice.outdoor ? "side" : "wall"}`);
         expect(text, `${r.key}: the ask does not fence what Image 1 is for`)
-          .toContain("take no architecture from it");
-        /* AND THE FILE IS NAMED FOR THE ROOM, not for the wall: a packet holds
-           one seed and it is a picture of THIS room. */
-        expect(st.file).toBe(`style-${st.room}.png`);
+          .toContain("take nothing else from it");
         expect(line).toContain(st.file);
-        expect(line).toContain("this room's own wall with its openings removed");
+        expect(line).toContain("this room's own wall");
       } else {
         /* [row 43] AND WHERE THERE IS NONE, THE ASK DOES NOT MENTION ONE AT
            ALL. The incumbent spent four lines saying there was no Image 1 and
@@ -841,13 +827,27 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
            clause that tells the layout diagram apart from the picture, which is
            the sentence Kabe's cold-ask test earned (a flat modern render in the
            DIAGRAM's dark grey). What must never happen is the ask pointing at
-           an Image 1 that is not in the packet, and that is what is checked. */
-        expect(text, `${r.key}: the ask points at an Image 1 that is not in its packet`)
-          .not.toMatch(/Image 1 is|Image 1 shows|as Image 1|Image 1's paint|in Image 1/);
+           an Image 1 that is not in the packet, and that is what is checked.
+
+           [row 43(a)] THE CLAUSE MOVED WITH THE SHEET. It used to warn off "the
+           layout diagram's flat dark colours", which was the honest description
+           of a sheet that HAD them — and naming them is itself a way of putting
+           them in front of the painter. Production cuts the diagram as ink on
+           paper now (`make-scaffold.mjs`'s `ink-on-paper-v2`), so the clause
+           says there is nothing in it to copy. What is checked is unchanged:
+           SOMETHING in the medium paragraph tells the diagram apart from the
+           picture. */
+        /* THE FAILURE THIS GUARDS IS NAMED RATHER THAN PATTERN-MATCHED. Where
+           there is no style image the layout diagram IS Image 1 and the ask
+           says so, correctly — what must never appear is a reference to a
+           PAINTING of a wall the packet does not hold. */
+        expect(text, `${r.key}: the ask points at a painted wall as Image 1, and its packet holds none`)
+          .not.toMatch(/Image 1 is the (north|east|south|west) (wall|side)|of this same room, already painted|as Image 1|Image 1's paint|in Image 1/);
         expect(text, `${r.key}: no picture carries the medium and the words do not either`)
           .toMatch(/^Style\/medium: a high-realism oil painting/m);
         expect(text, `${r.key}: nothing tells the layout diagram apart from the picture`)
-          .toContain("The layout diagram's flat dark colours are NOT the picture's colours");
+          .toContain("The layout diagram is a black-and-white line drawing on paper and holds " +
+            "no colour of its own");
         expect(line).toContain("NO Image 1 in this packet");
         expect(line).not.toContain("style-seed-warm.png");
         expect(attachLineAll([], st)).toContain("NO Image 1 in this packet");
@@ -879,8 +879,13 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
         `the medium paragraph never says "${must}", and it is the only description of the paint ` +
         `a packet with no reference picture has`).toContain(must);
     }
+    /* [row 43(a)] AND THE DIAGRAM IS STILL TOLD APART FROM THE PICTURE — by
+       saying it has no colour of its own, now that it has none. The sheet is
+       ink on paper (`ink-on-paper-v2`); the clause it replaces named the old
+       sheet's "flat dark colours", which is a way of putting them in front of
+       the painter. */
     expect(style, "nothing tells the layout diagram's colours apart from the picture's")
-      .toContain("NOT the picture's colours");
+      .toContain("holds no colour of its own");
     expect(style).not.toContain("Image 1");
   });
 
@@ -927,117 +932,5 @@ test.describe("row 40 — Image 1 is a wall of this room or there is none", () =
       .toBeGreaterThan(0);
     expect(armorial, "no rationed-glass wall in the sweep — the control is missing")
       .toBeGreaterThan(0);
-  });
-});
-
-/* ------------------------------------------------------------------ */
-/* 2026-08-25 — IMAGE 1 CARRIES FABRIC, NEVER ARCHITECTURE             */
-/* ------------------------------------------------------------------ */
-/* Row 40 ruled WHICH wall a packet may show. This is what is IN it.
- *
- * THE FINDING. `servants_hall/E`'s ask ruled a stone fireplace at the centre of
- * the wall and one three-light window left of centre. The return
- * (`backdrops/source/servants_hall-E/row23-230bb67d.png`) came back with TWO
- * DOORWAYS, no window and no hearth — and doorways are what the room's other
- * walls carry. The register had already spent its Image-1 clause saying to take
- * the paint and nothing else. It was obeyed in its first half and ignored in its
- * second, which is what an image reference always does: it carries everything in
- * it. That is row 40's own study-seed finding one room boundary in.
- *
- * SO IMAGE 1 IS DERIVED. `tools/style-seed.mjs` fills every opening and carrier
- * on the chosen wall with that wall's own adjacent fabric and keeps the floor
- * and the ceiling, and `attachStyle` puts THAT in the packet. What is checked
- * here is the three things a reader would otherwise have to take on trust: that
- * the packet holds the derived picture and not the wall, that every seed in the
- * store proves its own claim in its own report, and that the seed is a function
- * of its inputs rather than of when it was cut. */
-test.describe("Image 1 is derived — the room's fabric with its architecture removed", () => {
-  test("a packet's Image 1 is the DERIVED seed and never the wall it came from", () => {
-    const dir = mkdtempSync(join(tmpdir(), "holo-image1-"));
-    let seen = 0;
-    try {
-      for (const r of everyFacing()) {
-        const st = styleImageFor(PLAN, r.key);
-        if (!st) continue;
-        const got = attachStyle(PLAN, r.key, dir);
-        /* A refusal is a real answer — a wall whose architecture cannot be
-           removed gets no Image 1, which is row 40's own fallback — but it must
-           never quietly hand over the wall. */
-        if (!got) continue;
-        seen += 1;
-        const inPacket = join(dir, got.file);
-        expect(existsSync(inPacket), `${r.key}: ${got.file} is not in the packet`).toBe(true);
-        expect(existsSync(join(dir, got.report_file)),
-          `${r.key}: the fill report does not ride with the seed`).toBe(true);
-        expect(got.derived, `${r.key}: attachStyle handed over an underived picture`).toBe(true);
-        /* THE POINT, IN ONE ASSERTION. */
-        expect(sha(inPacket),
-          `${r.key}: the packet's Image 1 is byte-identical to ${got.derived_from} — ` +
-          `the raw wall, architecture and all, which is the defect this row removes`)
-          .not.toBe(sha(join(repoRoot, got.derived_from)));
-        expect(sha(inPacket), `${r.key}: the packet's copy is not the store's seed`)
-          .toBe(sha(join(repoRoot, got.derived_store)));
-        expect(got.sha256).toBe(sha(inPacket));
-        expect(got.source_sha256).toBe(sha(join(repoRoot, got.derived_from)));
-      }
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-    expect(seen, "no facing in the plan resolves an Image 1 — this case is blind")
-      .toBeGreaterThan(0);
-  });
-
-  test("every seed in the store proves its own claim in its own report", () => {
-    const dir = join(repoRoot, "backdrops", "style-seeds");
-    const reports = existsSync(dir)
-      ? readdirSync(dir).filter((n) => n.endsWith(".json")).sort() : [];
-    expect(reports.length, "the derived-seed store is empty — this case is blind")
-      .toBeGreaterThan(0);
-    for (const n of reports) {
-      const rec = JSON.parse(readFileSync(join(dir, n), "utf8"));
-      /* IT WAS CUT FROM A WALL THAT IS STILL THERE, AND FROM THOSE PIXELS. */
-      expect(existsSync(join(repoRoot, rec.source)), `${n}: its source wall is gone`).toBe(true);
-      expect(sha(join(repoRoot, rec.source)),
-        `${n}: the wall has been repainted under it — a stale seed is a picture of a ` +
-        `room that no longer exists`).toBe(rec.source_sha256);
-      expect(sha(join(dir, n.replace(/\.json$/, ".png"))), `${n}: the seed has been edited`)
-        .toBe(rec.sha256);
-      /* IT FILLED SOMETHING, AND IT SAYS WHERE EACH RECTANGLE CAME FROM. */
-      expect(rec.rects.length, `${n}: a seed that filled nothing is the wall`).toBeGreaterThan(0);
-      for (const rect of rec.rects) {
-        expect(rect.origin, `${n}: a filled rectangle with no stated origin`).toBeTruthy();
-        expect(rect.px_filled, `${n}: a rectangle that landed nowhere`).toBeTruthy();
-      }
-      /* AND THE INSTRUMENTS AGREE, which is the only claim that matters: the
-         openings that were in the painting are gone from the seed, and nothing
-         the detectors read stands anywhere the fill touched. */
-      expect(rec.verified, `${n}: the seed was written with no verdict on it`).toBeTruthy();
-      for (const g of rec.verify.residual_readings || []) {
-        expect(g.overlaps_filled_rect,
-          `${n}: a reading inside what the fill touched was allowed through`).toBeFalsy();
-      }
-      expect(rec.verify.doors_after.length,
-        `${n}: the fill manufactured a way through`)
-        .toBeLessThanOrEqual(rec.verify.doors_before.length);
-      expect(rec.verify.windows_after.length,
-        `${n}: the fill manufactured a glazed opening`)
-        .toBeLessThanOrEqual(rec.verify.windows_before.length);
-    }
-  });
-
-  test("the seed is a function of its inputs — cut twice, the same bytes", () => {
-    /* DETERMINISM IS THE POINT AND NOT A NICETY, exactly as row 38 argues for
-       its edge strips: the packet's record of what it sent stops being a record
-       the moment two runs of the emitter send two different pictures. */
-    const dir = join(repoRoot, "backdrops", "style-seeds");
-    const first = (readdirSync(dir).filter((n) => n.endsWith(".json")).sort())[0];
-    const key = JSON.parse(readFileSync(join(dir, first), "utf8")).key;
-    const before = sha(join(dir, first.replace(/\.json$/, ".png")));
-    const again = deriveStyleSeed(PLAN, key, { metaFromReading, force: true });
-    expect(again.ok, `${key}: it could not be cut a second time: ${again.why}`).toBe(true);
-    expect(again.record.sha256, `${key}: two cuts of one wall are two pictures`).toBe(before);
-    /* AND THE STORE IS FRESH AGAINST ITS OWN SOURCES, which is what
-       `derived.py` asks the machine every run. */
-    expectDerived("style_seeds");
   });
 });

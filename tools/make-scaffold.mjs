@@ -577,6 +577,171 @@ function railColumns(meta, rects) {
 }
 
 /* ------------------------------------------------------------------ */
+/* The sheet — what the diagram is MADE OF                             */
+/* ------------------------------------------------------------------ */
+/* TWO PIECES OF EVIDENCE, both 2026-08-25, and both say the same thing: the
+ * scaffold's DARK GROUND and its DARK-FILLED BOXES are being read as the
+ * picture's own look and as holes in the wall.
+ *
+ *   (1) `design/prompts/cold-guide-master_bedchamber-N.md` went out cold with
+ *       only the scaffold attached and came back a flat modern render in the
+ *       DIAGRAM's dark grey with a lit fire — every period word in the prompt
+ *       lost to the one image in the packet.
+ *   (2) `servants_hall/E`'s retry-4 packet carried no Image 1 at all: one
+ *       scaffold, two dashed boxes labelled WINDOW and FIREPLACE. The return
+ *       (`backdrops/source/servants_hall-E/row23-230bb67d.png`) painted TWO
+ *       DARK DOORWAYS exactly where those two boxes stood. A dark rectangle in
+ *       a dark room IS a doorway; the label never had a chance.
+ *
+ * So the sheet changes and the geometry does not. `ink-on-paper-v2` is paper
+ * white with thin dark ink: every line is where two surfaces meet, every box is
+ * an OUTLINE with a hatched interior, and no region of it is filled with a tone
+ * a painter could mistake for a material, a palette or an opening. There is no
+ * colour in it to copy and no darkness in it to cut a hole out of.
+ *
+ * THE OLD SHEET STAYS SELECTABLE AND IS THE ONLY ONE THAT DRAWS THROUGH THE
+ * SHIPPED RENDERER. `grid-v1` is `window.HOLO.renderer.render` at
+ * `backdrop_only + no_through`, unchanged to the byte — which is what row 23
+ * §7.4 re-renders the committed scaffolds with, and what the harness's control
+ * arm attaches. A sidecar written before this row carries no `scaffold_style`
+ * and therefore re-renders as `grid-v1`, which is the whole of the migration.
+ *
+ * WHAT v2 GIVES UP, SAID PLAINLY. `grid-v1`'s frame carries row 23 §7.1's
+ * guarantee — the picture a painter is given is the picture a player sees — and
+ * `ink-on-paper-v2` does not, because it is not that picture and must not look
+ * like it. What it keeps instead is the number: every line below comes out of
+ * `frame-language.mjs`'s `frameGeometry`, which is `groundplane` called exactly
+ * as `drawGrid` calls it off the SAME meta the renderer draws from — computed
+ * in node before the page opens and written into the sidecar, so the drawing is
+ * re-renderable from its own record and `scaffold.spec.mjs` can hold each line
+ * against the renderer's own value for it.
+ */
+export const SCAFFOLD_STYLES = ["grid-v1", "ink-on-paper-v2"];
+export const SCAFFOLD_STYLE_DEFAULT = "ink-on-paper-v2";
+export function assertScaffoldStyle(style) {
+  if (style != null && !SCAFFOLD_STYLES.includes(style)) {
+    throw new Error(
+      `make-scaffold: unknown scaffold style ${JSON.stringify(style)}. ` +
+      `The sheet is one of: ${SCAFFOLD_STYLES.join(", ")}. A style nobody declares is a ` +
+      "diagram nobody can re-render from its sidecar.");
+  }
+  return style;
+}
+
+/* THE INK, and it is ink: one near-black for the geometry a painter must obey,
+ * one grey for the notes, one pale grey for the datum and the hatching. Nothing
+ * here is a hue. A sheet with a colour on it is a sheet with a palette on it,
+ * and a palette is exactly what the master bedchamber's return copied. */
+export const SHEET = {
+  paper: "#f4f1ea",
+  ink: "#1a1c1f",
+  mid: "#5c6066",
+  faint: "#b0aa9f",
+  hatch: "#c8c2b6"
+};
+
+/**
+ * The line drawing, in ink: WHERE SURFACES MEET, and nothing else.
+ *
+ * THE GEOMETRY IS `frame-language.mjs`'s `frameGeometry` AND NOT A SECOND COPY
+ * OF IT. That function already owns the four junctions, the two corners and the
+ * three rows, computed off `groundplane` exactly as `renderer.js`'s `drawGrid`
+ * computes them — and it is the same function the register's own sentences are
+ * written from ("its left corner stands about a fifth of the way in from the
+ * picture's left edge"). Drawing the sheet from it is what makes
+ * "Image N draws these lines exactly; follow it" true by construction rather
+ * than by two files agreeing.
+ *
+ * WHAT IS DELIBERATELY ABSENT. The renderer's metre GRID is not here. On paper
+ * a rank of dark verticals standing floor-to-ceiling across a wall is
+ * panelling — stiles, mullions, a chopped-up repeat — which is the very defect
+ * row 41 names, and a diagram that draws it is asking for it. The scale the
+ * grid carried is kept as short TICKS across the floor line, where nothing
+ * built can be read into a mark six pixels long, and as the legend's own
+ * `SCALE` line.
+ */
+export function inkGeometry(meta) {
+  const W = CANVAS_W;
+  const g = frameGeometry(meta);
+  const floorY = g.floorY, eyeY = g.horizonY, ceilY = g.ceilY;
+  /* An OPEN facing has no band, and therefore no corner, no return and no
+   * ceiling — `drawGrid`'s own `bounded` requires a full-width band and
+   * `frameGeometry`'s requires only two corners, so the band test is applied
+   * here rather than assumed away. */
+  const hasBand = meta.facing_type !== "open";
+  const bounded = g.bounded && hasBand;
+  const lines = [];
+  const push = (what, weight, x0, y0, x1, y1, dash) => {
+    lines.push({
+      what, weight, dash: dash || null,
+      x0: round(x0, 2), y0: round(y0, 2), x1: round(x1, 2), y1: round(y1, 2)
+    });
+  };
+  const junction = (side, name, part) => {
+    const s = g[side];
+    if (!s || !s[part]) return;
+    push(name, "heavy", s[part].from.x, s[part].from.y, s[part].to.x, s[part].to.y);
+  };
+  if (bounded) {
+    const wallTop = (ceilY !== null && ceilY > 0) ? ceilY : 0;
+    push("the line where the wall you face meets the floor", "heavy",
+      g.cL, floorY, g.cR, floorY);
+    junction("left", "the line where the left side wall meets the floor", "floor");
+    junction("right", "the line where the right side wall meets the floor", "floor");
+    push("the left corner, where the two walls meet", "heavy", g.cL, wallTop, g.cL, floorY);
+    push("the right corner, where the two walls meet", "heavy", g.cR, wallTop, g.cR, floorY);
+    if (ceilY !== null && ceilY > 0) {
+      push("the line where the wall you face meets the ceiling", "heavy",
+        g.cL, ceilY, g.cR, ceilY);
+      junction("left", "the line where the left side wall meets the ceiling", "ceiling");
+      junction("right", "the line where the right side wall meets the ceiling", "ceiling");
+    }
+  } else {
+    push("the far line where the ground meets what stands beyond it", "heavy",
+      0, floorY, W, floorY);
+  }
+  /* THE EYE LINE, on the renderer's own condition: drawn where there is a
+   * surface for it to cross and nowhere else. Dashed, because it is a camera
+   * fact and not an edge of anything — a solid rule at eye height across a wall
+   * is a string course, and this drawing may not invent one. */
+  if (hasBand) {
+    push("the eye line - where the receding lines meet", "light", 0, eyeY, W, eyeY, [10, 9]);
+  }
+  const sWall = meta.px_per_m_at_wall;
+  /* THE SCALE, AS TICKS ON THE FLOOR LINE. One per whole metre of the wall's
+   * own ruler, straddling the line by six pixels — short enough that no run of
+   * them can be read as anything standing on the floor. */
+  const ticks = [];
+  if (sWall > 0 && meta.wall_width_m > 0) {
+    for (let m = 0; m <= Math.round(meta.wall_width_m); m++) {
+      const x = rulerX(Math.min(m, meta.wall_width_m), meta);
+      if (x < 0 || x > W) continue;
+      ticks.push({ x: round(x, 2), m: round(Math.min(m, meta.wall_width_m), 2) });
+    }
+  }
+  return {
+    _what_this_is:
+      "The ink-on-paper sheet's whole line work, computed in node from this facing's meta " +
+      "through frame-language.mjs's frameGeometry — the same junctions, corners and rows the " +
+      "register's own sentences are written from, and the same groundplane calls renderer.js's " +
+      "drawGrid makes — and written here so the drawing is re-renderable from its own record. " +
+      "Every line is where two surfaces meet; nothing in it is a colour, a material or an opening.",
+    style: "ink-on-paper-v2",
+    /* THE PALETTE TRAVELS WITH THE LINE WORK, so the record describes the whole
+     * picture rather than most of it. `scaffold.spec.mjs` also holds this copy
+     * against the module's own `SHEET`, so a palette change is a red test
+     * naming the artifacts to re-cut and not a silently divergent re-render. */
+    sheet: { ...SHEET },
+    bounded, has_band: hasBand,
+    floor_line_y_px: round(floorY, 2),
+    ceiling_line_y_px: ceilY == null ? null : round(ceilY, 2),
+    eye_line_y_px: round(eyeY, 2),
+    tick_half_px: 6,
+    ticks, lines
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* The page                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -618,26 +783,91 @@ export const PENDING_ROWS = {};
  * painter is actually given).
  */
 export const PAGE_RENDER = function (arg) {
-  const { key, meta, mode, marks, G } = arg;
-  const A = window.HOLO_APP;
+  const { key, meta, mode, marks, G, style, ink, sheet } = arg;
   const cv = document.createElement("canvas");
   cv.width = 1536; cv.height = 1024;
-  const parts = key.split("/");
-  /* The backdrops the render sees: the page's own, with this facing's entry
-     replaced by the meta we were handed and NO image. Dropping the image is
-     what makes a promoted wall draw its grid at its own painted camera — it is
-     the page's own documented behaviour for a painting that will not decode,
-     and the meta survives it. */
-  const bd = Object.assign({}, A.backdrops);
-  bd[key] = { meta: meta || (A.backdrops[key] ? A.backdrops[key].meta : null) };
-  const opts = mode === "verify" ? {} : { backdrop_only: true, no_through: true };
-  window.HOLO.renderer.render(cv, A.harness.world, A.harness.staging, A.library,
-    bd, { location: parts[0], facing: parts[1] }, opts);
+  /* THE SHEET DECIDES WHAT THE GROUND IS. `grid-v1` — no style, or the name —
+     is the shipped renderer's frame and is unchanged to the byte, which is what
+     every committed scaffold re-renders as. `ink-on-paper-v2` is paper and the
+     declared line work, and the renderer is not called at all: its picture is
+     the picture a PLAYER sees, and the whole finding this style answers is that
+     a painter handed that picture paints the diagram. */
+  const S = style === "ink-on-paper-v2" ? sheet : null;
+  if (style === "ink-on-paper-v2" && (!S || !ink)) {
+    /* A CALLER THAT NAMES THE SHEET AND HANDS NO SHEET WOULD SILENTLY GET THE
+       OTHER ONE, which is the one failure this whole style exists to stop. */
+    throw new Error("make-scaffold PAGE_RENDER: the ink-on-paper sheet was named and " +
+      (!S ? "no palette" : "no line work") + " was handed across");
+  }
+  if (S) {
+    const g = cv.getContext("2d");
+    g.fillStyle = S.paper;
+    g.fillRect(0, 0, cv.width, cv.height);
+    const WT = { heavy: 2.4, medium: 1.6, light: 1.2 };
+    const CL = { heavy: S.ink, medium: S.mid, light: S.faint };
+    if (ink) {
+      g.lineCap = "butt";
+      for (const l of ink.lines) {
+        g.strokeStyle = CL[l.weight] || S.ink;
+        g.lineWidth = WT[l.weight] || 1.6;
+        g.setLineDash(l.dash || []);
+        g.beginPath();
+        g.moveTo(l.x0, l.y0);
+        g.lineTo(l.x1, l.y1);
+        g.stroke();
+      }
+      g.setLineDash([]);
+      g.strokeStyle = S.mid;
+      g.lineWidth = 1.2;
+      for (const t of ink.ticks) {
+        g.beginPath();
+        g.moveTo(t.x, ink.floor_line_y_px - ink.tick_half_px);
+        g.lineTo(t.x, ink.floor_line_y_px + ink.tick_half_px);
+        g.stroke();
+      }
+    }
+  } else {
+    const A = window.HOLO_APP;
+    const parts = key.split("/");
+    /* The backdrops the render sees: the page's own, with this facing's entry
+       replaced by the meta we were handed and NO image. Dropping the image is
+       what makes a promoted wall draw its grid at its own painted camera — it is
+       the page's own documented behaviour for a painting that will not decode,
+       and the meta survives it. */
+    const bd = Object.assign({}, A.backdrops);
+    bd[key] = { meta: meta || (A.backdrops[key] ? A.backdrops[key].meta : null) };
+    const opts = mode === "verify" ? {} : { backdrop_only: true, no_through: true };
+    window.HOLO.renderer.render(cv, A.harness.world, A.harness.staging, A.library,
+      bd, { location: parts[0], facing: parts[1] }, opts);
+  }
   if (!marks) return cv.toDataURL("image/png");
 
   /* ---- the label pass, over the frame just drawn ---- */
   const ctx = cv.getContext("2d");
-  const INK = "#e8f4ff", DIM = "#9fc4e0";
+  const INK = S ? S.ink : "#e8f4ff", DIM = S ? S.mid : "#9fc4e0";
+  /* A BOX IS A KEYED REGION, NEVER A FILL. On paper an outline with a light
+     diagonal hatch through it is the one mark a reader cannot take for a
+     surface: it has no tone of its own and it is plainly drawn ON the sheet
+     rather than in the room. `servants_hall/E`'s two dark boxes became two dark
+     doorways; a hatched outline has nothing to become. */
+  function hatch(x0, y0, x1, y1) {
+    if (!S) return;
+    const h = y1 - y0;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1 - x0, h);
+    ctx.clip();
+    ctx.strokeStyle = S.hatch;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    for (let d = 0; d <= (x1 - x0) + h; d += 14) {
+      ctx.beginPath();
+      ctx.moveTo(x0 + d, y0);
+      ctx.lineTo(x0 + d - h, y1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
   function glyphText(s, x, y, h, colour) {
     const w = h * 0.62, gap = h * 0.26;
     ctx.strokeStyle = colour;
@@ -662,6 +892,7 @@ export const PAGE_RENDER = function (arg) {
   const tw = (s, h) => s.length * (h * 0.62 + h * 0.26) - h * 0.26;
 
   for (const m of marks.rects) {
+    hatch(m.x0, m.y0, m.x1, m.y1);
     ctx.strokeStyle = INK;
     ctx.lineWidth = 3;
     ctx.setLineDash([14, 8]);
@@ -695,6 +926,7 @@ export const PAGE_RENDER = function (arg) {
      on the floor. `marks.flights` is absent on every scaffold cut before the
      flight language existed, and an older sidecar must still re-render. */
   for (const s of (marks.flights || [])) {
+    hatch(s.x0, s.y0, s.x1, s.y1);
     ctx.strokeStyle = INK;
     ctx.lineWidth = 3;
     ctx.setLineDash([28, 12]);
@@ -707,10 +939,16 @@ export const PAGE_RENDER = function (arg) {
   const cr = marks.chair_rail;
   ctx.strokeStyle = INK;
   ctx.lineWidth = 3;
+  /* ON PAPER THE ANCHOR IS A DATUM LINE, drawn long-dash-dot as every drawing
+     board has drawn a datum since there were drawing boards. It is the one mark
+     here that names something the painter DOES paint — the gate measures it —
+     so it must read as "this height", not as an edge of the room. */
+  if (S) ctx.setLineDash([26, 7, 3, 7]);
   ctx.beginPath();
   ctx.moveTo(cr.x0, cr.y);
   ctx.lineTo(cr.x1, cr.y);
   ctx.stroke();
+  ctx.setLineDash([]);
   glyphText(cr.label, cr.x0 + 12, cr.y + 10, 18, INK);
 
   const lg = marks.legend;
@@ -723,9 +961,20 @@ export const PAGE_RENDER = function (arg) {
   return cv.toDataURL("image/png");
 };
 
-async function renderPng(page, key, meta, mode, marks) {
+/**
+ * One render, at one sheet.
+ *
+ * `style` is `grid-v1` (or absent, which is the same thing and is what every
+ * sidecar written before this row says) or `ink-on-paper-v2`. The ink geometry
+ * is computed HERE, in node, and handed across — the page draws what it is
+ * given and derives nothing, exactly as the label pass already works.
+ */
+async function renderPng(page, key, meta, mode, marks, style) {
+  assertScaffoldStyle(style);
+  const ink = style === "ink-on-paper-v2" ? inkGeometry(meta) : null;
   return await page.evaluate(PAGE_RENDER,
-    { key, meta, mode, marks: marks || null, G });
+    { key, meta, mode, marks: marks || null, G, style: style || null, ink,
+      sheet: ink ? ink.sheet : SHEET });
 }
 
 /** The legend box, bottom-left, clear of the wall plane.
@@ -851,6 +1100,7 @@ async function main() {
   if (argv.includes("--emit-manor")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
     await emitManor(out, {
+      scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
       rolls: Number(argOf("--rolls", "2")),
       retries: Number(argOf("--retries", "2")),
@@ -861,6 +1111,7 @@ async function main() {
   if (argv.includes("--emit-retries")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
     await emitRetries(out, {
+      scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
       rolls: Number(argOf("--rolls", "2")),
       retries: Number(argOf("--retries", "3")),
@@ -981,6 +1232,7 @@ async function main() {
   if (argv.includes("--emit-consistency")) {
     const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
     await emitConsistency(out, {
+      scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
       rolls: Number(argOf("--rolls", "1")),
       report: argOf("--report", ""),
@@ -1016,7 +1268,7 @@ async function main() {
     return;
   }
   if (!key || !/^[a-z_]+\/[NESW]$/.test(key)) {
-    console.error("usage: node tools/make-scaffold.mjs <location>/<facing> --out <dir> [--camera page|derived|reading] [--round <name>]");
+    console.error("usage: node tools/make-scaffold.mjs <location>/<facing> --out <dir> [--camera page|derived|reading] [--round <name>] [--scaffold-style ink-on-paper-v2|grid-v1]");
     process.exit(2);
   }
   if (PENDING_ROWS[key]) {
@@ -1027,6 +1279,7 @@ async function main() {
     process.exit(1);
   }
   const outDir = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold")));
+  const sheetStyle = assertScaffoldStyle(argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT));
   const camera = argOf("--camera", "page");
   const roundName = argOf("--round", "cand6");
   mkdirSync(outDir, { recursive: true });
@@ -1087,8 +1340,8 @@ async function main() {
   const bk = brackets(meta, rects, tol == null ? 0 : tol);
 
   const marks = { rects, chair_rail: cr, legend, flights };
-  const framePng = await renderPng(page, key, meta, "scaffold", null);
-  const scafPng = await renderPng(page, key, meta, "scaffold", marks);
+  const framePng = await renderPng(page, key, meta, "scaffold", null, sheetStyle);
+  const scafPng = await renderPng(page, key, meta, "scaffold", marks, sheetStyle);
   await browser.close();
 
   const framePath = join(outDir, `${loc}-${facing}-frame.png`);
@@ -1097,8 +1350,15 @@ async function main() {
   writePng(scafPng, scafPath);
 
   const sidecar = {
-    _what_this_is: `The scaffold for ${key}: the shipped renderer's own grid frame for this facing with the plan's carriers stamped into it, and every number the stamping used.`,
+    _what_this_is: sheetStyle === "ink-on-paper-v2"
+      ? `The scaffold for ${key}: a line drawing in ink on paper - where this facing's surfaces meet, with the plan's carriers stamped into it as outlined boxes, and every number the drawing used.`
+      : `The scaffold for ${key}: the shipped renderer's own grid frame for this facing with the plan's carriers stamped into it, and every number the stamping used.`,
     facing: key,
+    /* [row 43(a)] THE SHEET THIS WAS DRAWN ON, so it can be drawn again. A
+     * sidecar written before this row carries no `scaffold_style` and
+     * re-renders as `grid-v1`, which is exactly what it was. */
+    scaffold_style: sheetStyle,
+    ink_geometry: sheetStyle === "ink-on-paper-v2" ? inkGeometry(meta) : null,
     camera, meta_source: metaSource,
     meta_used: meta,
     reading: readingPath ? readingPath.slice(ROOT.length + 1) : null,
@@ -2031,6 +2291,12 @@ export function g5CtxFor(plan, key, meta, rects, opts = {}) {
         u: (r.from_m + r.to_m) / 2 / meta.wall_width_m
       })), SURFACE),
     armorial_line: armorialLine(voice, room_name, SURFACE),
+    /* [row 43(a)] WHICH SHEET THE LAYOUT IMAGE IN THIS PACKET IS DRAWN ON. The
+     * register's one sentence about that image describes it, so the words and
+     * the picture cannot be cut from two different decisions: an emitter that
+     * attaches the grid frame says so, and everything else gets the sheet
+     * production now draws. */
+    scaffold_sheet: assertScaffoldStyle(opts.scaffoldStyle) || SCAFFOLD_STYLE_DEFAULT,
     style, seeds, correction,
     reask: !!opts.reask
   };
@@ -2111,6 +2377,12 @@ function tolFor(meta, rects) {
 }
 
 async function emitManor(outDir, opts) {
+  /* [row 43(a)] WHICH SHEET THIS EMISSION DRAWS ON. `ink-on-paper-v2` by
+   * default: a dark diagram is read as the picture's own look and its dark
+   * boxes as holes in the wall, twice over in the ledger. `--scaffold-style
+   * grid-v1` re-cuts a packet on the old sheet, which is what a comparison
+   * arm needs and what a committed scaffold re-renders as. */
+  const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const all = manorFacings(plan);
@@ -2204,8 +2476,8 @@ async function emitManor(outDir, opts) {
     assertLabelChars(cr.label, `${fac.key}'s gate anchor label`);
     const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
     const marks = { rects, chair_rail: cr, legend, flights };
-    const framePng = await renderPng(page, fac.key, meta, "scaffold", null);
-    const scafPng = await renderPng(page, fac.key, meta, "scaffold", marks);
+    const framePng = await renderPng(page, fac.key, meta, "scaffold", null, sheetStyle);
+    const scafPng = await renderPng(page, fac.key, meta, "scaffold", marks, sheetStyle);
     const dir = join(outDir, `${loc}-${f}`);
     mkdirSync(dir, { recursive: true });
     writePng(framePng, join(dir, "frame.png"));
@@ -2245,7 +2517,7 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style });
+    const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
@@ -2280,6 +2552,7 @@ async function emitManor(outDir, opts) {
        * documents join to this entry through the roll ids below. */
       register: PRODUCTION_REGISTER,
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      scaffold_style: sheetStyle,
       px_per_m_at_wall: meta.px_per_m_at_wall,
       /* [row 29(a)] BOTH DEPTH ANCHORS AND THE FACING'S OWN TYPE.
        *
@@ -2444,6 +2717,12 @@ export function retryWalls(state, only = null) {
 }
 
 async function emitRetries(outDir, opts) {
+  /* [row 43(a)] WHICH SHEET THIS EMISSION DRAWS ON. `ink-on-paper-v2` by
+   * default: a dark diagram is read as the picture's own look and its dark
+   * boxes as holes in the wall, twice over in the ledger. `--scaffold-style
+   * grid-v1` re-cuts a packet on the old sheet, which is what a comparison
+   * arm needs and what a committed scaffold re-renders as. */
+  const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   const statePath = join(outDir, "run-state.json");
@@ -2496,9 +2775,9 @@ async function emitRetries(outDir, opts) {
     const cr = chairRail(meta, anchor);
     assertLabelChars(cr.label, `${w.key}'s gate anchor label`);
     const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
-    const framePng = await renderPng(page, w.key, meta, "scaffold", null);
+    const framePng = await renderPng(page, w.key, meta, "scaffold", null, sheetStyle);
     const scafPng = await renderPng(page, w.key, meta, "scaffold",
-      { rects, chair_rail: cr, legend, flights });
+      { rects, chair_rail: cr, legend, flights }, sheetStyle);
 
     const attempt = w.attempts + 1;
     const dir = join(outDir, `${loc}-${f}`, `retry-${attempt}`);
@@ -2518,7 +2797,7 @@ async function emitRetries(outDir, opts) {
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
-    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style });
+    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 2); i++) {
@@ -2578,6 +2857,7 @@ async function emitRetries(outDir, opts) {
         x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
       })),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      scaffold_style: sheetStyle,
       /* [row 38] The same two fields the manifest carries, for the same two
        * readers: what strip went out and at which index, and what this ask waited for.
        * [row 42] ...and the same order block, so a re-ask entry and a first-ask
@@ -3205,6 +3485,12 @@ export function provenanceAsConsistencyReport(prov) {
 }
 
 async function emitConsistency(outDir, opts) {
+  /* [row 43(a)] WHICH SHEET THIS EMISSION DRAWS ON. `ink-on-paper-v2` by
+   * default: a dark diagram is read as the picture's own look and its dark
+   * boxes as holes in the wall, twice over in the ledger. `--scaffold-style
+   * grid-v1` re-cuts a packet on the old sheet, which is what a comparison
+   * arm needs and what a committed scaffold re-renders as. */
+  const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
   const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
   let report;
@@ -3306,9 +3592,9 @@ async function emitConsistency(outDir, opts) {
     const cr = chairRail(meta, anchor);
     assertLabelChars(cr.label, `${w.key}'s gate anchor label`);
     const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
-    const framePng = await renderPng(page, w.key, meta, "scaffold", null);
+    const framePng = await renderPng(page, w.key, meta, "scaffold", null, sheetStyle);
     const scafPng = await renderPng(page, w.key, meta, "scaffold",
-      { rects, chair_rail: cr, legend, flights });
+      { rects, chair_rail: cr, legend, flights }, sheetStyle);
 
     const attempt = (spent.get(w.key) || 0) + 1;
     const dir = join(outDir, `${loc}-${f}`, `retry-${attempt}`);
@@ -3340,7 +3626,7 @@ async function emitConsistency(outDir, opts) {
      * section, after the register had said its last word. The clean register
      * takes the whole list and names each strip in the picture paragraph where
      * the other images are introduced. */
-    const text = manorPrompt(plan, w.key, meta, rects, correction, null, { style, seeds });
+    const text = manorPrompt(plan, w.key, meta, rects, correction, null, { style, seeds, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 1); i++) {
@@ -3394,6 +3680,7 @@ async function emitConsistency(outDir, opts) {
         x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
       })),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      scaffold_style: sheetStyle,
       /* The row-38 fields, unchanged in meaning, so the seam spec and the
        * sweep read this entry exactly as they read a retry's. `edge_seeds` is
        * the row-40 addition: the full list, where two strips rode. */
@@ -3589,8 +3876,12 @@ async function emitContentScaffold(outDir) {
   legend.w = round(24 + Math.max(...legend.lines.map((l) => textBox(l, legend.text_h))), 2);
   for (const l of legend.lines) assertLabelChars(l, "the content legend");
 
+  /* ROW 23's CLOSED EXPERIMENT KEEPS ITS OWN SHEET. Technique t4 was measured
+   * against the grid frame and its four orphaned returns are still being read
+   * against that table (row 36's first evidence); re-cutting it on paper would
+   * change the arm after the rolls were spent. */
   const scafPng = await renderPng(page, "study/N", meta, "scaffold",
-    { rects, chair_rail: cr, legend });
+    { rects, chair_rail: cr, legend }, "grid-v1");
   const nbData = "data:image/png;base64," +
     readFileSync(join(ROOT, "backdrops", "study", "W.png")).toString("base64");
 

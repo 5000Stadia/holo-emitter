@@ -1,0 +1,20 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the north wall of the master bedchamber, circa-1660 English manor
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Primary request: Paint the north wall of the master bedchamber of a circa-1660 English manor.
+  Its walls are oak wainscot to chair height with wall hangings above it, those hangings being a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping.
+  Overhead: a plain lime-plastered ceiling. Underfoot: wide oak floorboards.
+  A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+On this wall: the stone fireplace stands left of centre, its firebox opening exactly 0.90 m wide and its stone breast exactly 2.00 m wide.
+  The door opening stands at the centre, exactly 1.00 m wide and exactly 2.00 m high at the wall plane.
+  It stands empty with no leaf hung in it, and the space beyond it is deep unlit shadow — no lit room, no visible far wall and no light source behind it.
+  There is no window: this wall carries no glazed opening of any kind.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and shows its whole width: its left corner stands about a tenth of the way in from the picture's left edge and its right corner about a tenth of the way in from the right edge, and from each corner a side wall runs toward you and leaves the picture through the left and right edges.
+  Seen from where you stand, the whole 8.8 m of the wall spans about four fifths of the picture's width — no closer and no larger than that; the wall does not crowd the frame.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: a high-realism oil painting in the manner of a seventeenth-century Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient daylight and gentle natural falloff; a period painting, not a modern render.
+  The layout diagram's flat dark colours are NOT the picture's colours: the picture is this painting, in the materials named above.
+Constraints: the master bedchamber is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface in it is plain and unlettered, and Image 1's lines, boxes and lettering are instructions rather than things to paint.

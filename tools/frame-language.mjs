@@ -1022,8 +1022,16 @@ export function g5MediumLines(ctx) {
     "Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient " +
     "daylight and gentle natural falloff; a period painting, not a modern render."];
   if (!ctx.style) {
-    L.push("  The layout diagram's flat dark colours are NOT the picture's colours: the picture is " +
-      "this painting, in the materials named above.");
+    /* [row 43(a)] THE DIAGRAM HAS NO COLOURS LEFT TO BORROW. This line used to
+     * warn off "the layout diagram's flat dark colours", which was the honest
+     * description of a sheet that HAD flat dark colours — and naming them is
+     * itself a way of putting them in front of the painter. The sheet is ink on
+     * paper now, and the clause says so: there is nothing in it to copy. */
+    L.push(sheetOf(ctx) === "grid-v1"
+      ? "  The layout diagram's flat dark colours are NOT the picture's colours: the picture is " +
+        "this painting, in the materials named above."
+      : "  The layout diagram is a black-and-white line drawing on paper and holds no colour " +
+        "of its own: the picture is this painting, in the materials named above.");
   }
   if (ctx.style) {
     /* THE ONLY CLAUSE IN THE REGISTER ABOUT WHAT AN IMAGE IS NOT, and it is one
@@ -1053,13 +1061,45 @@ export function g5MediumLines(ctx) {
 
 /* ---- item 5: nothing else ---- */
 
+/* [row 43(a)] THE ONE SENTENCE ABOUT WHAT THE LAYOUT IMAGE IS, and it says what
+ * the image now IS rather than only what it is for. Two returns on 2026-08-25
+ * earned the change: `master_bedchamber/N` was asked cold with only the
+ * scaffold attached and came back a flat modern render in the DIAGRAM's dark
+ * grey, and `servants_hall/E`'s retry-4 packet — one scaffold, two dashed boxes
+ * labelled WINDOW and FIREPLACE, no Image 1 — came back with TWO DARK DOORWAYS
+ * standing exactly where those two boxes stood. "Instructions rather than
+ * things to paint" was true and was not enough: it never said what the marks
+ * MEAN, so a dark rectangle went on meaning a hole and a dark ground went on
+ * meaning a palette. The scaffold is ink on paper now
+ * (`make-scaffold.mjs`'s `ink-on-paper-v2`) and this sentence is the words for
+ * that sheet — the two halves move together, or the prompt is describing a
+ * picture that is not in the packet. */
+export const SCAFFOLD_IS_A_DRAWING =
+  "is a line drawing in ink on paper: its lines are where surfaces meet and its outlined " +
+  "boxes are where the named features stand; nothing in it is a colour, a material or an " +
+  "opening to paint";
+
+/* THE INCUMBENT'S WORDING, kept live for one reason: it is what every packet
+ * dispatched before this row carried, and the `scaffold-ink` trial's control
+ * arm has to be the ask that was actually sent — a prompt describing ink on
+ * paper beside a dark grid frame is neither the incumbent nor the candidate. */
+export const SCAFFOLD_IS_INSTRUCTIONS =
+  "lines, boxes and lettering are instructions rather than things to paint";
+
+/** Which sheet the layout image in this packet is drawn on. Absent means the
+ *  sheet production now cuts; `grid-v1` is the control arm's. */
+export const sheetOf = (ctx) => ctx.scaffold_sheet || "ink-on-paper-v2";
+
 export function g5NothingElseLines(ctx) {
   const { out } = words(ctx);
   return [
     `Constraints: the ${ctx.room_name} is completely empty — no furniture, nobody in it, no ` +
       `animals and no loose props of any kind${out ? ", and nothing grown crosses the wall plane" : ""}.`,
-    `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)}'s lines, boxes and ` +
-      "lettering are instructions rather than things to paint."
+    sheetOf(ctx) === "grid-v1"
+      ? `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)}'s ` +
+        `${SCAFFOLD_IS_INSTRUCTIONS}.`
+      : `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)} ` +
+        `${SCAFFOLD_IS_A_DRAWING}.`
   ];
 }
 

@@ -18,13 +18,16 @@
  * `row34-` files sitting in the same source directories are invisible to it.
  * `evolution.spec.mjs` asserts both halves, structurally and behaviourally.
  *
- * THREE IMAGES PER WALL, AND ONLY TWO OF THEM CARRY THE SHIPPED-FRAME
- * GUARANTEE. `frame.png` and `scaffold.png` come out of
- * `window.HOLO.renderer.render` through `make-scaffold.mjs`'s own PAGE_RENDER,
- * which is what row 23 §7.1 hashes against the live `#scene` buffer. `edge.png`
- * is a line drawing composed from the same DECLARED numbers — plan §1.2 — and
- * the manifest says so on its face rather than letting a later reader assume a
- * provenance it does not have.
+ * WHICH IMAGES CARRY THE SHIPPED-FRAME GUARANTEE, AND WHICH DO NOT.
+ * `frame.png` and `scaffold.png` come out of `window.HOLO.renderer.render`
+ * through `make-scaffold.mjs`'s own PAGE_RENDER, which is what row 23 §7.1
+ * hashes against the live `#scene` buffer. `edge.png` and `scaffold-ink.png`
+ * are line drawings composed from the same DECLARED numbers — plan §1.2 — and
+ * every wall's sidecar says so on its face (`scaffold_sheets`, `ink_geometry`)
+ * rather than letting a later reader assume a provenance it does not have.
+ * `scaffold-ink.png` is the sheet row 43(a) moved production to, and it gives up
+ * that guarantee on purpose: the finding it answers is that a painter handed
+ * the picture a PLAYER sees paints the diagram.
  */
 import { chromium } from "playwright";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
@@ -32,13 +35,13 @@ import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { PAGE_RENDER, GLYPH_TABLE, sourceDirFor, chairRail, assertLabelChars }
+import { PAGE_RENDER, GLYPH_TABLE, sourceDirFor, chairRail, assertLabelChars, inkGeometry, SHEET }
   from "./make-scaffold.mjs";
 import {
   ROOT, PLAN, PROBES, ARMS, ARM_IDS, GEN1_ARMS, CONTROL_ARM, SPECTRUM, REGISTER, HEADLINE_PAIRING,
   AMPLIFICATION, STYLE_SEED, CANVAS_W, CANVAS_H,
   makeCtx, armPrompt, edgeMarks, frameGeometry, vanishingPoint,
-  REGISTER_TRIAL, CLEAN_REGISTER, styleImageFor
+  REGISTER_TRIAL, CLEAN_REGISTER, styleImageFor, SCAFFOLD_TRIAL
 } from "./evolution-arms.mjs";
 import { voiceFor } from "./room-voices.mjs";
 
@@ -99,7 +102,7 @@ function declaredBudget(trial) {
     walls: trial.walls.length,
     arms: trial.armsFor(1).length,
     declared_rolls: trial.exact_rolls,
-    _authority: "tools/evolution-arms.mjs REGISTER_TRIAL, declared before anything was emitted",
+    _authority: `tools/evolution-arms.mjs, the \`${trial.tag}\` trial's own declaration, made before anything was emitted`,
     _one_generation: "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
   };
 }
@@ -154,7 +157,7 @@ export const EDGE_PAGE_RENDER = function (arg) {
 
 /** The label marks the shipped scaffold stamps — `make-scaffold`'s own shapes,
  *  rebuilt here from the ctx so this tool never re-derives a coordinate. */
-function scaffoldMarks(ctx) {
+export function scaffoldMarks(ctx) {
   const { voice, anchor } = voiceFor(ctx.plan, ctx.loc, ctx.facing);
   const cr = chairRail(ctx.meta, anchor);
   assertLabelChars(cr.label, `${ctx.key}'s gate anchor label`);
@@ -294,6 +297,48 @@ const REGISTER_TRIAL_SPEC = {
   probe_selection: "Six walls, declared in tools/evolution-arms.mjs as REGISTER_WALLS with the fact that picked each: row 34's two probes unchanged so this trial can be read beside the generation-3 table, plus an interior wall with a fireplace and a doorway, the most carried wall in the house, a flight wall and the outdoor open facing - the four shapes the register changes that the two probes cannot exercise."
 };
 
+/* THE SCAFFOLD-SHEET TRIAL — what the layout image IS. Two walls whose returns
+ * read the diagram as the picture, two sheets, one roll each: FOUR rolls, which
+ * is a look and not a test, and `_min_detectable_effect` says so in the
+ * manifest before anything is dispatched. The wall set, the arms, the control
+ * and the reading all live in `tools/evolution-arms.mjs` and are read from
+ * there — an emitter that could choose its own arms is an emitter that could
+ * quietly keep a losing one alive (row 34 §6, and it governs here).
+ *
+ * IT CUTS TWO SHEETS AND NEITHER AN EDGE DRAWING NOR A STYLE SEED. Both arms
+ * declare no Image 1, and a style seed sitting in the wall's directory beside a
+ * packet that declares none is an image a seat can pick up by accident. */
+const SCAFFOLD_TRIAL_SPEC = {
+  tag: SCAFFOLD_TRIAL.tag,
+  row: null,
+  batch: join(ROOT, SCAFFOLD_TRIAL.batch),
+  walls: SCAFFOLD_TRIAL.walls,
+  rolls: SCAFFOLD_TRIAL.rolls_per_arm_per_wall,
+  armsFor: () => SCAFFOLD_TRIAL.arms,
+  control: SCAFFOLD_TRIAL.control,
+  genDir: () => "gen1",
+  assignName: () => "assignment.json",
+  manifestName: () => "manifest.json",
+  budget: null,
+  cuts_ink_sheet: true,
+  cuts_edge: false,
+  cuts_style_seed: false,
+  exact_rolls: SCAFFOLD_TRIAL.walls.length * SCAFFOLD_TRIAL.arms.length *
+    SCAFFOLD_TRIAL.rolls_per_arm_per_wall,
+  lens: () => ({
+    _reading: SCAFFOLD_TRIAL._what_this_is,
+    _no_privileged_arm: SCAFFOLD_TRIAL._no_privileged_arm,
+    _the_confound: SCAFFOLD_TRIAL._the_confound,
+    _what_the_count_clause_reads: SCAFFOLD_TRIAL._what_the_count_clause_reads,
+    _min_detectable_effect: minDetectableEffect(
+      SCAFFOLD_TRIAL.walls.length * SCAFFOLD_TRIAL.rolls_per_arm_per_wall,
+      SCAFFOLD_TRIAL.walls.length * SCAFFOLD_TRIAL.rolls_per_arm_per_wall,
+      SCAFFOLD_TRIAL.arms.length - 1, 0.10, 2)
+  }),
+  manifest_what: SCAFFOLD_TRIAL._what_this_is,
+  probe_selection: "Two walls, declared in tools/evolution-arms.mjs as SCAFFOLD_WALLS with the return that put each of them there: servants_hall/E, whose retry-4 return painted two dark doorways where the scaffold's two dashed boxes stood, and master_bedchamber/N, whose cold ask came back a flat modern render in the diagram's own dark grey. A screen for a defect is run on the walls that showed it."
+};
+
 /**
  * The smallest arm-versus-control result that could clear the discipline, at
  * this n and this many comparisons.
@@ -371,11 +416,32 @@ async function emit(generation, trial = ROW34_TRIAL) {
       { key, meta: pageMeta, mode: "scaffold", marks: null, G: GLYPH_TABLE });
     const scaffold = await page.evaluate(PAGE_RENDER,
       { key, meta: pageMeta, mode: "scaffold", marks, G: GLYPH_TABLE });
-    const edge = await page.evaluate(EDGE_PAGE_RENDER, { marks: edgeMarks(ctx) });
     writePng(frame, join(dir, "frame.png"));
     writePng(scaffold, join(dir, "scaffold.png"));
-    writePng(edge, join(dir, "edge.png"));
-    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    /* [row 43(a)] THE SECOND SHEET, where a trial's arms move it. Same marks,
+     * same declared rects, same meta — only the ground and the line work
+     * change, and the ink geometry is `make-scaffold.mjs`'s, computed in node
+     * so the sidecar can declare every line the page drew. */
+    let ink = null;
+    if (trial.cuts_ink_sheet) {
+      ink = inkGeometry(pageMeta);
+      const inkPng = await page.evaluate(PAGE_RENDER, {
+        key, meta: pageMeta, mode: "scaffold", marks, G: GLYPH_TABLE,
+        style: "ink-on-paper-v2", ink, sheet: ink.sheet
+      });
+      writePng(inkPng, join(dir, "scaffold-ink.png"));
+    }
+    /* `edge.png` and the style seed are cut for the trials that have an arm
+     * asking for them. A packet that declares no Image 1 does not get a style
+     * seed lying beside it: an image in the directory is an image a seat can
+     * pick up. */
+    if (trial.cuts_edge !== false) {
+      const edge = await page.evaluate(EDGE_PAGE_RENDER, { marks: edgeMarks(ctx) });
+      writePng(edge, join(dir, "edge.png"));
+    }
+    if (trial.cuts_style_seed !== false) {
+      copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    }
 
     const g = frameGeometry(pageMeta);
     const vp = vanishingPoint(pageMeta);
@@ -400,7 +466,31 @@ async function emit(generation, trial = ROW34_TRIAL) {
       images: {
         frame: sha256File(join(dir, "frame.png")),
         scaffold: sha256File(join(dir, "scaffold.png")),
-        edge: sha256File(join(dir, "edge.png"))
+        ...(ink ? { scaffold_ink: sha256File(join(dir, "scaffold-ink.png")) } : {}),
+        ...(trial.cuts_edge !== false ? { edge: sha256File(join(dir, "edge.png")) } : {})
+      },
+      /* [row 43(a)] THE SHEET, DECLARED. `scaffold.png` is the shipped renderer's
+       * frame with the labels stamped over it — `grid-v1`, and what row 23 §7.1
+       * hashes against the live `#scene`. `scaffold-ink.png` is the same
+       * declared geometry drawn as ink on paper, and every line it holds is
+       * below, so the picture is re-renderable from this file alone. */
+      scaffold_sheets: {
+        "scaffold.png": "grid-v1",
+        ...(ink ? { "scaffold-ink.png": "ink-on-paper-v2" } : {})
+      },
+      ink_geometry: ink,
+      /* WHAT THE PLAN RULES ON THIS WALL, in the shape the count clause reads.
+       * `door_measure.py` enumerates every way-through a return PAINTS; these
+       * are the ways-through and the glazed openings the drawing rules, so the
+       * comparison is a number rather than a look. */
+      plan_apertures: {
+        _what_this_is: "The apertures the plan rules on this facing, written before any candidate exists. The measure path enumerates what the painting shows and compares the counts; the servants_hall/E return that earned this trial painted two doorways on a wall the plan rules none on.",
+        doors: ctx.rects.filter((r) => r.kind === "door")
+          .map((r) => ({ id: r.id, from_m: r.from_m, to_m: r.to_m })),
+        windows: ctx.rects.filter((r) => r.kind === "window")
+          .map((r) => ({ id: r.id, from_m: r.from_m, to_m: r.to_m })),
+        door_count: ctx.rects.filter((r) => r.kind === "door").length,
+        window_count: ctx.rects.filter((r) => r.kind === "window").length
       },
       plan_drawn_digest: drawnDigest(),
       renderer_sha256: sha256File(join(ROOT, "src", "renderer.js")),
@@ -416,7 +506,15 @@ async function emit(generation, trial = ROW34_TRIAL) {
      * agreeing majority wall or nothing at all. It is cut into the wall's own
      * directory under the name the arm asks for, so the copy below stays one
      * rule for every image an arm names. */
-    const style = styleImageFor(ctx.loc, ctx.facing);
+    /* AND IT IS CUT ONLY WHERE AN ARM ACTUALLY NAMES IT. A trial whose every
+     * arm declares no Image 1 leaves no painting of a wall sitting in the
+     * directory the packets are cut into: an image on disk beside a packet is
+     * an image a seat can pick up, and "there is no Image 1 in this packet" has
+     * to be true of the directory as well as of the sentence. */
+    const styleRuled = styleImageFor(ctx.loc, ctx.facing);
+    const styleNamed = styleRuled != null &&
+      armIds.some((id) => ARMS[id].images(ctx).includes(styleRuled.name));
+    const style = styleNamed ? styleRuled : null;
     if (style) copyFileSync(join(ROOT, style.file), join(dir, style.name));
 
     /* ---- one packet per arm ---- */
@@ -446,12 +544,19 @@ async function emit(generation, trial = ROW34_TRIAL) {
       /* The images this arm attaches, copied INTO its own packet directory, so
        * a seat holding one packet never has to know which of three pictures at
        * the wall's level it was supposed to pick up. */
+      /* WHICH FILE THE PACKET'S NAMED IMAGE IS CUT FROM. An arm that moves the
+       * layout image's SHEET names the same file in its packet as every other
+       * arm — `scaffold.png` — and declares which of the wall's cut sheets goes
+       * in it, so the two packets differ in exactly the thing the arm moves and
+       * a seat holding one cannot pick up the wrong picture. */
+      const from = (arm.image_source ? arm.image_source(ctx) : null) || {};
       for (const img of arm.images(ctx)) {
-        if (img !== "style-seed-warm.png") copyFileSync(join(dir, img), join(armDir, img));
+        const src = from[img] || img;
+        if (src !== "style-seed-warm.png") copyFileSync(join(dir, src), join(armDir, img));
         else copyFileSync(join(ROOT, STYLE_SEED), join(armDir, img));
       }
       writeFileSync(join(armDir, "PACKET.md"),
-        packetMd(key, arm, ids, ctx, generation, style));
+        packetMd(key, arm, ids, ctx, generation, style, styleRuled));
     }
 
     walls.push({
@@ -472,7 +577,9 @@ async function emit(generation, trial = ROW34_TRIAL) {
       voice: { id: ctx.voice.id, anchor: ctx.anchor.id, outdoor: !!ctx.voice.outdoor },
       style_image: style
         ? { key: style.key, file: style.file, name: style.name, why: style.why }
-        : { key: null, why: "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words" },
+        : styleRuled
+          ? { key: null, ruled_but_unused: styleRuled.key, why: `the ruling would allow ${styleRuled.key} as Image 1 here, and no arm in this trial names one - every arm declares no Image 1, so nothing was cut into the packet directory` }
+          : { key: null, why: "[HUMAN, 2026-08-24] Image 1 is never a wall from another room, and room_consistency.json names no agreeing majority wall this room could lend - so the arms that follow the ruling attach no style image here and the medium is in their words" },
       sidecar_sha256: sha256File(join(dir, "sidecar.json"))
     });
     console.log(`  ${key.padEnd(20)} ${ctx.rects.length} carrier(s)  ` +
@@ -526,7 +633,7 @@ async function emit(generation, trial = ROW34_TRIAL) {
   /* ---- the id map, committed before any candidate exists ---- */
   const assignPath = join(trial.batch, trial.assignName(generation));
   writeFileSync(assignPath, JSON.stringify({
-    _what_this_is: "The row-34 evolution's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with `git log --diff-filter=A` and asserts that commit's blob equals the current one.",
+    _what_this_is: `The ${trial.tag} trial's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with \`git log --diff-filter=A\` and asserts that commit's blob equals the current one.`,
     _why_opaque: "A return path carrying its arm would tell a measuring hand which condition it is looking at. What actually carries the blinding is that the detector configuration is a function of the WALL's declared geometry, so it cannot vary by arm even in principle; the opaque id keeps the arm out of the path as well. The id is reproducible from tools/emit-evolution.mjs and is not cryptographic, which is said here rather than implied.",
     _what_it_cannot_blind: "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
     _budget: trial.budget || declaredBudget(trial),
@@ -580,7 +687,7 @@ function drawnDigest() {
   return m ? m[1] : null;
 }
 
-function packetMd(key, arm, ids, ctx, generation, style) {
+function packetMd(key, arm, ids, ctx, generation, style, styleRuled) {
   const imgs = arm.images(ctx);
   return `# Packet — ${key}, arm ${arm.id} (${arm.name})
 
@@ -595,11 +702,16 @@ costs a roll.
 ${imgs.map((f, i) => `${i + 1}. \`${f}\` — **Image ${i + 1}**${
   f === "style-seed-warm.png"
     ? " — the style reference, Kabe's approved seed (\"Warm\", `design/approvals.log`, 2026-08-21)"
-    : f === "scaffold.png" ? " — the annotated layout scaffold"
+    : f === "scaffold.png"
+      ? (arm.scaffold_sheet === "ink-on-paper-v2"
+        ? " — the annotated layout scaffold, cut as a line drawing in ink on paper"
+        : arm.scaffold_sheet === "grid-v1"
+          ? " — the annotated layout scaffold, cut on the shipped renderer's grid frame"
+          : " — the annotated layout scaffold")
       : (style && f === style.name)
         ? ` — **${style.key}**, this room's own already-painted wall: ${style.why}`
         : " — the layout as black-ink line art"}`).join("\n")}
-${imgs.length === 1 ? `\n**There is no style image, and that is not an omission.** [HUMAN, 2026-08-24] "So why do we give it the reference image of the study? I think it biases it too much." Image 1 is never a wall from another room, this room has no agreeing majority wall to lend, and the medium is in the prompt's own words. Attach the one image above as **Image 1**.\n` : ""}
+${imgs.length === 1 ? `\n**There is no style image, and that is not an omission.** [HUMAN, 2026-08-24] "So why do we give it the reference image of the study? I think it biases it too much." Image 1 is never a wall from another room, ${styleRuled ? `and although the ruling would allow **${styleRuled.key}** here, this arm declares no Image 1 — the layout picture is the whole of what this ask is shown` : "this room has no agreeing majority wall to lend"}, and the medium is in the prompt's own words. Attach the one image above as **Image 1**.\n` : ""}
 Then send the prompt text verbatim from \`prompt.txt\`.
 
 ## The rolls
@@ -633,6 +745,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const argv = process.argv.slice(2);
   const gi = argv.indexOf("--generation");
   const generation = gi >= 0 ? Number(argv[gi + 1]) : 1;
-  const trial = argv.includes("--register-trial") ? REGISTER_TRIAL_SPEC : ROW34_TRIAL;
+  const trial = argv.includes("--scaffold-trial") ? SCAFFOLD_TRIAL_SPEC
+    : argv.includes("--register-trial") ? REGISTER_TRIAL_SPEC : ROW34_TRIAL;
   emit(generation, trial).catch((e) => { console.error(e); process.exit(1); });
 }

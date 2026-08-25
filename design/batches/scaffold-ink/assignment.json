@@ -1,0 +1,87 @@
+{
+  "_what_this_is": "The scafink trial's id map: which opaque return id belongs to which arm, wall and roll. Committed BEFORE any candidate is measured and never edited afterwards - evolution.spec.mjs finds its introducing commit with `git log --diff-filter=A` and asserts that commit's blob equals the current one.",
+  "_why_opaque": "A return path carrying its arm would tell a measuring hand which condition it is looking at. What actually carries the blinding is that the detector configuration is a function of the WALL's declared geometry, so it cannot vary by arm even in principle; the opaque id keeps the arm out of the path as well. The id is reproducible from tools/emit-evolution.mjs and is not cryptographic, which is said here rather than implied.",
+  "_what_it_cannot_blind": "the generating hand, which is holding the packet and knows which arm it is running. That is inherent and is not claimed away.",
+  "_budget": {
+    "rolls_per_arm_per_wall": 1,
+    "walls": 2,
+    "arms": 2,
+    "declared_rolls": 4,
+    "_authority": "tools/evolution-arms.mjs, the `scafink` trial's own declaration, made before anything was emitted",
+    "_one_generation": "This trial has no breeding and no second generation: it is a screen with a pre-committed wall set, and over and under are the same defect."
+  },
+  "_generation": 1,
+  "_arms": [
+    {
+      "id": "s1-grid-sheet",
+      "name": "THE INCUMBENT SHEET",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "layout_grid_only",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "scaffold.png"
+      ],
+      "what": "production's own ask, unchanged: g5-noappendix, no Image 1, and the layout image as the shipped renderer draws it - dark ground, dark-filled carrier boxes - with the register's incumbent sentence about it"
+    },
+    {
+      "id": "s2-ink-sheet",
+      "name": "INK ON PAPER",
+      "channels": {
+        "text_geometry": "clean_register",
+        "image": "layout_ink_only",
+        "camera_language": "appearance_only"
+      },
+      "images": [
+        "scaffold.png"
+      ],
+      "what": "the same ask with the layout image cut as a line drawing on paper: thin ink where surfaces meet, carrier boxes as outlines with a hatched interior, no tone anywhere a painter could read as a material or an opening - and the register's one sentence saying that is what it is"
+    }
+  ],
+  "_control": "s1-grid-sheet",
+  "_reading": "What the layout image IS, measured: the shipped renderer's dark grid frame against the same geometry drawn as ink on paper, on the two walls whose returns read the diagram as the picture. Production's own register on both arms, no Image 1 on either.",
+  "_no_privileged_arm": "Both arms compose through g5Prompt with appendix:false, attach exactly one image under the same name, run on the same two walls with the same roll count, and are read by the same scorer through the same opaque ids. The control is the ask production was sending on 2026-08-25.",
+  "_the_confound": "The sheet and the register's one sentence about the sheet move together, because the sentence describes the sheet. A win is a win for the pair and this trial cannot separate them.",
+  "_what_the_count_clause_reads": "Beside the row-34 primaries (admissible horizon, camera pass), each return is read for the ways-through it PAINTS - door_measure.py's own enumeration at this wall's declared geometry - against the doors and windows the plan rules on it. That is the quantity the servants_hall/E return failed and no fitness column could see.",
+  "_min_detectable_effect": null,
+  "_generated": "2026-08-25",
+  "rolls": [
+    {
+      "id": "3d1359f8",
+      "generation": 1,
+      "wall": "servants_hall/E",
+      "arm": "s1-grid-sheet",
+      "roll": 1,
+      "candidate": "backdrops/source/servants_hall-E/scafink-3d1359f8.png",
+      "prompt": "backdrops/source/servants_hall-E/scafink-3d1359f8.prompt.txt"
+    },
+    {
+      "id": "372cda37",
+      "generation": 1,
+      "wall": "servants_hall/E",
+      "arm": "s2-ink-sheet",
+      "roll": 1,
+      "candidate": "backdrops/source/servants_hall-E/scafink-372cda37.png",
+      "prompt": "backdrops/source/servants_hall-E/scafink-372cda37.prompt.txt"
+    },
+    {
+      "id": "03396356",
+      "generation": 1,
+      "wall": "master_bedchamber/N",
+      "arm": "s1-grid-sheet",
+      "roll": 1,
+      "candidate": "backdrops/source/master_bedchamber-N/scafink-03396356.png",
+      "prompt": "backdrops/source/master_bedchamber-N/scafink-03396356.prompt.txt"
+    },
+    {
+      "id": "5c99cb38",
+      "generation": 1,
+      "wall": "master_bedchamber/N",
+      "arm": "s2-ink-sheet",
+      "roll": 1,
+      "candidate": "backdrops/source/master_bedchamber-N/scafink-5c99cb38.png",
+      "prompt": "backdrops/source/master_bedchamber-N/scafink-5c99cb38.prompt.txt"
+    }
+  ]
+}

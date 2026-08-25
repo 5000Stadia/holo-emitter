@@ -26,8 +26,12 @@ import { repoRoot, navUrl } from "./helpers.mjs";
 import {
   metaFromReading, scaffoldRects, chairRail, brackets, rulerX, apertureX,
   wallY, textBox, carrierTolerance, REFLEX, PENDING_ROWS, ROUTES, PAGE_RENDER,
-  assertLabelChars
+  assertLabelChars, SHEET, inkGeometry, SCAFFOLD_STYLES, SCAFFOLD_STYLE_DEFAULT,
+  assertScaffoldStyle, manorPrompt
 } from "../../tools/make-scaffold.mjs";
+import { frameGeometry } from "../../tools/frame-language.mjs";
+import { makeCtx, SCAFFOLD_TRIAL, ARMS } from "../../tools/evolution-arms.mjs";
+import { scaffoldMarks } from "../../tools/emit-evolution.mjs";
 import { facingCarriers, deriveMeta, openingsForFacing } from "../../tools/plan-projection.mjs";
 
 const require_ = createRequire(import.meta.url);
@@ -277,7 +281,14 @@ test.describe("row 23 — the scaffold generator", () => {
           return window.__hashBuf(window.__bufOf(a)) === window.__hashBuf(window.__bufOf(b));
         }, [committed, {
           key, meta: side.meta_used, mode: "scaffold",
-          marks: name === "frame" ? null : marks, G
+          marks: name === "frame" ? null : marks, G,
+          /* [row 43(a)] THE SHEET IS READ OUT OF THE SIDECAR, and these two
+             sidecars carry none — which IS the migration promise: a scaffold cut
+             before the sheet existed re-renders as `grid-v1`, to the byte, and
+             this case is what holds the promise. */
+          style: side.scaffold_style || null,
+          ink: side.ink_geometry || null,
+          sheet: (side.ink_geometry && side.ink_geometry.sheet) || SHEET
         }]);
         expect(same,
           `${file} is not what the generator draws today — it was edited by hand, or the generator moved`)
@@ -325,11 +336,11 @@ test.describe("row 23 — the scaffold generator", () => {
       allow.push({ x0: lb.x - pad, y0: lb.y - pad, x1: lb.x + lb.w + pad, y1: lb.y + lb.h + pad });
 
       const marks = marksOf(side);
-      const r = await page.evaluate(async ([key, meta, marks, G, allow]) => {
+      const r = await page.evaluate(async ([key, meta, marks, G, allow, sheetArg]) => {
         const a = await window.__decode(window.__renderPng(
-          { key, meta, mode: "scaffold", marks: null, G: null }));
+          { key, meta, mode: "scaffold", marks: null, G: null, ...sheetArg }));
         const b = await window.__decode(window.__renderPng(
-          { key, meta, mode: "scaffold", marks, G }));
+          { key, meta, mode: "scaffold", marks, G, ...sheetArg }));
         const A1 = window.__bufOf(a), B1 = window.__bufOf(b);
         let diff = 0, outside = 0, first = null;
         for (let i = 0; i < A1.length; i += 4) {
@@ -345,7 +356,9 @@ test.describe("row 23 — the scaffold generator", () => {
           }
         }
         return { diff, outside, first };
-      }, [key, side.meta_used, marks, GLYPH_TABLE, allow]);
+      }, [key, side.meta_used, marks, GLYPH_TABLE, allow, {
+        style: side.scaffold_style || null, ink: side.ink_geometry || null, sheet: (side.ink_geometry && side.ink_geometry.sheet) || SHEET
+      }]);
       expect(r.diff, `${key}: the label pass drew nothing at all`).toBeGreaterThan(1000);
       expect(r.outside,
         `${key}: ${r.outside} label pixels fall outside every declared rect` +
@@ -571,6 +584,263 @@ test.describe("row 23 — the scaffold generator", () => {
       } catch (e) { out = String(e.stdout || "") + String(e.stderr || ""); }
       expect(out, `${facing} was not refused, or the refusal does not name row ${PENDING_ROWS[facing]}`)
         .toMatch(new RegExp(`row ${PENDING_ROWS[facing]}`));
+    }
+  });
+});
+
+/* ==================================================================== */
+/* Row 43(a) — the sheet the scaffold is drawn on                         */
+/* ==================================================================== */
+/* WHAT THIS BLOCK GUARDS IS A FINDING, not a preference. Two returns on
+ * 2026-08-25 read the diagram as the picture: `master_bedchamber/N`, asked cold
+ * with only the scaffold attached, came back a flat modern render in the
+ * DIAGRAM's dark grey; `servants_hall/E`'s retry-4 packet — one scaffold, two
+ * dashed boxes labelled WINDOW and FIREPLACE, no Image 1 — came back with two
+ * dark doorways standing exactly where those boxes stood. The sheet answers
+ * both: paper, thin ink where surfaces meet, outlined boxes with a hatched
+ * interior, no tone anywhere. The cases below hold each half of that sentence
+ * against pixels rather than against the description. */
+const INK_BATCH = join(repoRoot, "design", "batches", "scaffold-ink", "gen1");
+const INK_WALLS = SCAFFOLD_TRIAL.walls.map((w) => w.key);
+
+test.describe("row 43(a) — the ink-on-paper sheet", () => {
+  test.skip(({ browserName }) => browserName !== "chromium",
+    "a claim about one canvas has no second engine");
+
+  /* ---------------------------------------------------------------- 43(a).1 */
+  /* THE LINES ARE THE ROOM'S OWN, recomputed here from `groundplane` and the
+   * meta rather than by calling the drawing's own function — so the sheet
+   * cannot agree with itself. A drawing whose floor line is not the floor line
+   * is a drawing that teaches a painter the wrong room, and the whole claim of
+   * this style is that only the SHEET changed. */
+  test("every ink line is a junction the renderer's own geometry puts there", () => {
+    for (const key of [...INK_WALLS, "study/N", "study/E", "hall/E", "entrance_court/S"]) {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const ink = inkGeometry(meta);
+      const g = frameGeometry(meta);
+      const floorY = meta.floor_line_y * meta.image_h_px;
+      const eyeY = meta.horizon_y * meta.image_h_px;
+      const at = (what) => ink.lines.find((l) => l.what === what);
+      expect(ink.floor_line_y_px, `${key}: the sheet's floor row is not the meta's`)
+        .toBeCloseTo(floorY, 1);
+      expect(ink.eye_line_y_px, `${key}: the sheet's eye row is not the meta's horizon`)
+        .toBeCloseTo(eyeY, 1);
+      const eye = at("the eye line - where the receding lines meet");
+      if (meta.facing_type === "open") {
+        expect(eye, `${key} is open and has no band, and the renderer draws no eye line on it`)
+          .toBeUndefined();
+      } else {
+        expect(eye, `${key}: the eye line is missing`).toBeTruthy();
+        expect(eye.y0).toBeCloseTo(eyeY, 1);
+        expect(eye.dash, `${key}: the eye line is solid, which reads as a string course`).toBeTruthy();
+      }
+      if (!(g.bounded && meta.facing_type !== "open")) {
+        expect(at("the left corner, where the two walls meet"),
+          `${key} is unbounded and the sheet drew it a corner`).toBeUndefined();
+        continue;
+      }
+      /* The corners ARE `corner_x0_px`/`corner_x1_px` — `xAtScale(0|1)` at wall
+         scale, which is where the staging's u-domain ends and where the
+         renderer strokes them. */
+      expect(at("the left corner, where the two walls meet").x0)
+        .toBeCloseTo(meta.corner_x0_px, 1);
+      expect(at("the right corner, where the two walls meet").x0)
+        .toBeCloseTo(meta.corner_x1_px, 1);
+      const wf = at("the line where the wall you face meets the floor");
+      expect(wf.x0).toBeCloseTo(meta.corner_x0_px, 1);
+      expect(wf.x1).toBeCloseTo(meta.corner_x1_px, 1);
+      expect(wf.y0).toBeCloseTo(floorY, 1);
+      /* The side walls leave the picture where `frameGeometry` says they do,
+         which is where `drawGrid`'s two majors leave it. */
+      for (const [side, name] of [["left", "the line where the left side wall meets the floor"],
+        ["right", "the line where the right side wall meets the floor"]]) {
+        const l = at(name);
+        expect(l, `${key}: the ${side} return's floor junction is missing`).toBeTruthy();
+        expect(l.x1).toBeCloseTo(g[side].floor.to.x, 1);
+        expect(l.y1).toBeCloseTo(g[side].floor.to.y, 1);
+      }
+      if (meta.storey_height_m > 0) {
+        const wc = at("the line where the wall you face meets the ceiling");
+        expect(wc, `${key}: the room has a storey height and the sheet drew no ceiling line`).toBeTruthy();
+        expect(wc.y0).toBeCloseTo(floorY - meta.storey_height_m * meta.px_per_m_at_wall, 1);
+      }
+      /* AND THE GRID IS GONE. A rank of dark verticals standing floor to ceiling
+         across a wall is panelling (row 41's own defect), so the sheet carries
+         the scale as ticks on the floor line and nothing else. */
+      const verticals = ink.lines.filter((l) => l.x0 === l.x1 && l.y0 < floorY - 1);
+      expect(verticals.length,
+        `${key}: the sheet draws ${verticals.length} verticals standing on the wall (${verticals.map((l) => l.what).join("; ")}) — only the two corners may, because a rank of them is panelling`)
+        .toBe(2);
+      expect(ink.ticks.length, `${key}: the sheet carries no metre ticks, so it states a scale nothing shows`)
+        .toBeGreaterThan(1);
+    }
+  });
+
+  /* ---------------------------------------------------------------- 43(a).2 */
+  /* THE MIGRATION PROMISE, mechanically: a sidecar that names no sheet renders
+   * exactly what `grid-v1` renders, to the byte. §7.4 above already re-renders
+   * the two committed row-23 scaffolds through the absent-style path; this is
+   * the other direction — naming the old sheet must change nothing. */
+  test("naming `grid-v1` renders exactly what naming no sheet at all renders", async ({ page }) => {
+    await boot(page);
+    await installPageHelpers(page, RENDER_SRC);
+    const { GLYPH_TABLE } = await import("../../tools/make-scaffold.mjs");
+    for (const key of ["study/N", "study/E"]) {
+      const [loc, f] = key.split("/");
+      const side = JSON.parse(readFileSync(join(BATCH, `${loc}-${f}.scaffold.json`), "utf8"));
+      const marks = marksOf(side);
+      const r = await page.evaluate(async ([key, meta, marks, G, sheet]) => {
+        const a = await window.__decode(window.__renderPng(
+          { key, meta, mode: "scaffold", marks, G }));
+        const b = await window.__decode(window.__renderPng(
+          { key, meta, mode: "scaffold", marks, G, style: "grid-v1", ink: null, sheet }));
+        return { a: window.__hashBuf(window.__bufOf(a)), b: window.__hashBuf(window.__bufOf(b)) };
+      }, [key, side.meta_used, marks, GLYPH_TABLE, SHEET]);
+      expect(r.b, `${key}: naming the old sheet is not the same as naming none — every committed scaffold's re-render depends on those being one thing`)
+        .toBe(r.a);
+    }
+    expect(SCAFFOLD_STYLES).toContain("grid-v1");
+    expect(() => assertScaffoldStyle("ink-on-paper-v3")).toThrow(/unknown scaffold style/);
+  });
+
+  /* ---------------------------------------------------------------- 43(a).3 */
+  /* THE COMMITTED INK SHEETS ARE WHAT THE GENERATOR DRAWS TODAY, re-rendered
+   * from their own sidecars — §7.4's discipline for the new sheet. The ink
+   * geometry in the sidecar is what the page is handed, and it must also BE
+   * `inkGeometry`'s own answer, so the record and the tool are pinned to one
+   * another rather than to a memory of one another. */
+  test("the committed ink scaffolds re-render from their sidecars, to the byte", async ({ page }) => {
+    await boot(page);
+    await installPageHelpers(page, RENDER_SRC);
+    const { GLYPH_TABLE } = await import("../../tools/make-scaffold.mjs");
+    for (const key of INK_WALLS) {
+      const dir = join(INK_BATCH, key.replace("/", "-"));
+      const side = JSON.parse(readFileSync(join(dir, "sidecar.json"), "utf8"));
+      expect(side.scaffold_sheets["scaffold-ink.png"],
+        `${key}: the sidecar does not declare the ink sheet`).toBe("ink-on-paper-v2");
+      expect(side.ink_geometry,
+        `${key}: the sidecar declares an ink sheet and records none of its lines`).toBeTruthy();
+      /* THE RECORD IS COMPLETE, PALETTE INCLUDED, and it is the palette the
+         tool draws with today — so a change to `SHEET` is a red case naming the
+         artifacts to re-cut rather than a re-render that quietly differs. */
+      expect(side.ink_geometry.sheet,
+        `${key}: the sidecar's palette is not the one make-scaffold draws with`).toEqual(SHEET);
+      expect(JSON.parse(JSON.stringify(inkGeometry(side.meta_used))),
+        `${key}: the sidecar's line work is not what inkGeometry produces from the same meta`)
+        .toEqual(side.ink_geometry);
+      const marks = scaffoldMarks(makeCtx(PLAN, key, side.meta_used));
+      const committed = "data:image/png;base64," +
+        readFileSync(join(dir, "scaffold-ink.png")).toString("base64");
+      const same = await page.evaluate(async ([committed, arg]) => {
+        const a = await window.__decode(committed);
+        const b = await window.__decode(window.__renderPng(arg));
+        return window.__hashBuf(window.__bufOf(a)) === window.__hashBuf(window.__bufOf(b));
+      }, [committed, {
+        key, meta: side.meta_used, mode: "scaffold", marks, G: GLYPH_TABLE,
+        style: "ink-on-paper-v2", ink: side.ink_geometry, sheet: side.ink_geometry.sheet
+      }]);
+      expect(same, `${key}: scaffold-ink.png is not what the generator draws from its own sidecar`)
+        .toBe(true);
+    }
+  });
+
+  /* ---------------------------------------------------------------- 43(a).4 */
+  /* THE CLAIM ITSELF, IN PIXELS: no dark ground, and no carrier box a painter
+   * can read as a hole. The SAME two measurements are taken on `grid-v1`, which
+   * is what makes this a measurement rather than a threshold chosen to pass —
+   * the old sheet has to fail both, and it does, by a wide margin. */
+  test("the sheet has no dark ground and no filled box, and the old sheet has both", async ({ page }) => {
+    await boot(page);
+    await installPageHelpers(page, RENDER_SRC);
+    const { GLYPH_TABLE } = await import("../../tools/make-scaffold.mjs");
+    const MEASURE = async function (arg) {
+      const cv = await window.__decode(window.__renderPng(arg.render));
+      const d = window.__bufOf(cv);
+      const lum = (i) => 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      let light = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4) { if (lum(i) >= 190) light++; n++; }
+      const boxes = arg.rects.map((r) => {
+        /* INSET PAST THE OUTLINE. The claim is about the box's INTERIOR: a
+           dashed outline is ink and is supposed to be dark. */
+        const x0 = Math.ceil(r.x0) + 8, x1 = Math.floor(r.x1) - 8;
+        const y0 = Math.ceil(r.y0) + 8, y1 = Math.floor(r.y1) - 8;
+        let sum = 0, k = 0;
+        for (let y = y0; y < y1; y++) {
+          for (let x = x0; x < x1; x++) { sum += lum((y * 1536 + x) * 4); k++; }
+        }
+        return { kind: r.kind, mean: k ? sum / k : null, px: k };
+      });
+      return { light_share: light / n, boxes };
+    };
+    for (const key of INK_WALLS) {
+      const dir = join(INK_BATCH, key.replace("/", "-"));
+      const side = JSON.parse(readFileSync(join(dir, "sidecar.json"), "utf8"));
+      const ctx = makeCtx(PLAN, key, side.meta_used);
+      const marks = scaffoldMarks(ctx);
+      const rects = ctx.rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1, y0: r.y0, y1: r.y1 }));
+      expect(rects.length, `${key} carries no carrier, so this case would prove nothing on it`)
+        .toBeGreaterThan(0);
+      const base = { key, meta: side.meta_used, mode: "scaffold", marks, G: GLYPH_TABLE };
+      const v2 = await page.evaluate(MEASURE,
+        { render: { ...base, style: "ink-on-paper-v2", ink: side.ink_geometry, sheet: side.ink_geometry.sheet }, rects });
+      const v1 = await page.evaluate(MEASURE, { render: base, rects });
+
+      expect(v2.light_share,
+        `${key}: only ${(100 * v2.light_share).toFixed(1)} % of the ink sheet is paper — a sheet with a ground has a palette on it`)
+        .toBeGreaterThan(0.9);
+      expect(v1.light_share,
+        `${key}: the grid sheet is ${(100 * v1.light_share).toFixed(1)} % light, so this measurement no longer separates the two sheets and has gone blind`)
+        .toBeLessThan(0.1);
+      for (let i = 0; i < rects.length; i++) {
+        expect(v2.boxes[i].mean,
+          `${key}: the ${rects[i].kind} box's interior reads ${v2.boxes[i].mean.toFixed(0)} on the ink sheet — a filled box is an opening, which is exactly what servants_hall/E painted`)
+          .toBeGreaterThan(190);
+        expect(v1.boxes[i].mean,
+          `${key}: the ${rects[i].kind} box on the GRID sheet reads ${v1.boxes[i].mean.toFixed(0)}, which is not dark — the finding this row answers is no longer visible and this case has gone blind`)
+          .toBeLessThan(90);
+      }
+    }
+  });
+
+  /* ---------------------------------------------------------------- 43(a).5 */
+  /* THE WORDS AND THE PICTURE MOVE TOGETHER. The register's one sentence about
+   * the layout image describes the sheet, so an emitter that cuts one sheet and
+   * a composer that describes the other is a packet whose prompt is about a
+   * picture that is not in it. Production says the drawing; the control arm,
+   * which attaches the old sheet, says what was actually sent. */
+  test("the register's sentence about the layout image names the sheet the packet carries", () => {
+    for (const key of INK_WALLS) {
+      const [loc, f] = key.split("/");
+      const meta = deriveMeta(PLAN, loc, f);
+      const { rects } = scaffoldRects(PLAN, loc, f, meta);
+      const production = manorPrompt(PLAN, key, meta, rects);
+      expect(SCAFFOLD_STYLE_DEFAULT, "production no longer cuts the sheet its words describe")
+        .toBe("ink-on-paper-v2");
+      expect(production, `${key}: the production ask does not say what the layout image IS`)
+        .toContain("is a line drawing in ink on paper: its lines are where surfaces meet and " +
+          "its outlined boxes are where the named features stand; nothing in it is a colour, " +
+          "a material or an opening to paint");
+      expect(production, `${key}: the production ask still points at the old sheet's dark colours`)
+        .not.toContain("flat dark colours");
+      /* THE CONTROL ARM IS THE ASK THAT WAS SENT, and it must still say the old
+         sentence beside the old picture — otherwise the trial's two arms differ
+         in three things and the pair is not an ablation of anything. */
+      const grid = ARMS["s1-grid-sheet"].prompt(makeCtx(PLAN, key, meta));
+      const ink = ARMS["s2-ink-sheet"].prompt(makeCtx(PLAN, key, meta));
+      expect(grid).toContain("lines, boxes and lettering are instructions rather than things to paint");
+      expect(grid).toContain("flat dark colours");
+      expect(ink).toContain("is a line drawing in ink on paper");
+      /* ONE CHANGE, AND IT IS TWO LINES. Every other line of the two arms'
+         prompts is identical, which is what makes the pair readable. */
+      const a = grid.split("\n"), b = ink.split("\n");
+      expect(a.length, `${key}: the two arms' prompts are different lengths`).toBe(b.length);
+      const moved = a.filter((l, i) => l !== b[i]);
+      expect(moved.length,
+        `${key}: ${moved.length} lines differ between the two arms, and only the two sentences about the layout image may:\n${moved.join("\n")}`)
+        .toBe(2);
+      for (const key2 of ARMS["s1-grid-sheet"].images()) expect(key2).toBe("scaffold.png");
+      expect(ARMS["s2-ink-sheet"].images()).toEqual(["scaffold.png"]);
     }
   });
 });

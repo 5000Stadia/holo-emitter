@@ -1,0 +1,526 @@
+{
+  "_what_this_is": "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
+  "row": null,
+  "trial": "scafink",
+  "generation": 1,
+  "wall": "master_bedchamber/N",
+  "why_this_wall": "the wall Kabe asked cold with only the scaffold attached (design/prompts/cold-guide-master_bedchamber-N.md); the return was a flat modern render in the diagram's dark grey with a lit fire. A fireplace and a doorway on one wall, and a room the measure gives no agreeing majority - so the ruling leaves it no style image and the layout picture is the whole of what it is shown.",
+  "held_best_sigma_px": null,
+  "voice": {
+    "id": "bedchamber",
+    "anchor": "chair_rail",
+    "outdoor": false,
+    "via": "room id"
+  },
+  "meta_used": {
+    "floor_line_y": 0.679224,
+    "px_per_m_at_wall": 143.217,
+    "px_per_m_at_bottom": 420.88,
+    "wall_width_m": 8.8,
+    "key_tint": "#c88b44",
+    "image_h_px": 1024,
+    "horizon_y": 0.51377,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 136,
+    "camera_wall_m": 7.15,
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 8.8,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": 114.21,
+    "corner_x1_px": 1421.79,
+    "storey_height_m": 2.8,
+    "camera_id": "measured:backdrops/source-doors/master_bedchamber-N/doored.png",
+    "camera_reference": "ruled",
+    "measured_round": "row36doors",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1024,
+    "nearest_floor_m": 2.433,
+    "measured_room": {
+      "storey_height_m": 3.619,
+      "wall_width_m": 9.13,
+      "ruled_storey_height_m": 2.8,
+      "ruled_wall_width_m": 8.8,
+      "carriers": [
+        {
+          "kind": "fireplace",
+          "id": null,
+          "plan_px": [
+            266.7,
+            553.2
+          ],
+          "plan_centre_px": 410,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        },
+        {
+          "kind": "door",
+          "id": "op18",
+          "plan_px": [
+            624.8,
+            768
+          ],
+          "plan_centre_px": 696.4,
+          "painted_px": [
+            627,
+            767
+          ],
+          "painted_centre_px": 697,
+          "centre_delta_px": 0.6,
+          "centre_delta_m": 0.004,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
+    "openings": [
+      {
+        "id": "op18",
+        "kind": "door",
+        "via": null,
+        "x": 627,
+        "y": 411,
+        "w": 140,
+        "h": 285,
+        "beyond_m": 6,
+        "beyond_offset_m": 0,
+        "measured": true
+      }
+    ]
+  },
+  "meta_origin": "the meta the page holds for this facing (derived: this wall is not promoted)",
+  "declared_horizon_row": 526,
+  "vanishing_point": {
+    "x": 768,
+    "y": 526.1,
+    "_derivation": "the intersection of this facing's own two side-wall junction lines as renderer.js drawGrid draws them, computed rather than assumed to be the frame centre"
+  },
+  "frame_geometry": {
+    "floorY": 695.525376,
+    "ceilY": 294.517776,
+    "horizonY": 526.10048,
+    "cL": 114.21,
+    "cR": 1421.79,
+    "bounded": true,
+    "px_per_m": 143.217,
+    "wall_width_m": 8.8,
+    "storey_height_m": 2.8,
+    "corner_span_px": 1307.58,
+    "left": {
+      "floor": {
+        "from": {
+          "x": 114.21,
+          "y": 695.525376
+        },
+        "toRaw": {
+          "x": -1153.3301158382033,
+          "y": 1024
+        },
+        "to": {
+          "x": 0,
+          "y": 725.1221408978367
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 114.21,
+          "y": 294.517776
+        },
+        "toRaw": {
+          "x": -1153.3301158382033,
+          "y": -154.46399999999994
+        },
+        "to": {
+          "x": 0,
+          "y": 254.06287599626282
+        }
+      }
+    },
+    "right": {
+      "floor": {
+        "from": {
+          "x": 1421.79,
+          "y": 695.525376
+        },
+        "toRaw": {
+          "x": 2689.3301158382033,
+          "y": 1024
+        },
+        "to": {
+          "x": 1536,
+          "y": 725.1221408978367
+        }
+      },
+      "ceiling": {
+        "from": {
+          "x": 1421.79,
+          "y": 294.517776
+        },
+        "toRaw": {
+          "x": 2689.3301158382033,
+          "y": -154.46399999999994
+        },
+        "to": {
+          "x": 1536,
+          "y": 254.0628759962628
+        }
+      }
+    }
+  },
+  "stamped": [
+    {
+      "kind": "fireplace",
+      "id": null,
+      "x0": 266.74,
+      "x1": 553.17,
+      "y0": 466.38,
+      "y1": 695.53,
+      "from_m": 0.9,
+      "to_m": 2.9
+    },
+    {
+      "kind": "door",
+      "id": "op18",
+      "x0": 624.78,
+      "x1": 768,
+      "y0": 409.09,
+      "y1": 695.53,
+      "from_m": 3.4,
+      "to_m": 4.4
+    }
+  ],
+  "chair_rail": {
+    "y": 559.47,
+    "x0": 114.21,
+    "x1": 1421.79,
+    "word": "CHAIR-RAIL"
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 695.525376,
+      "half_width": 13.55,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 559.469226,
+      "half_width": 10.88,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": {
+      "centre": 294.517776,
+      "half_width": 32.08,
+      "from": "+/-8 % of the ceiling-to-floor span"
+    },
+    "carrier_windows": [
+      {
+        "kind": "fireplace",
+        "id": null,
+        "x0": 266.74,
+        "x1": 553.17,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      },
+      {
+        "kind": "door",
+        "id": "op18",
+        "x0": 624.78,
+        "x1": 768,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 0,
+    "rail_columns": [
+      [
+        114.21,
+        266
+      ],
+      [
+        554,
+        624
+      ],
+      [
+        768,
+        1421.79
+      ]
+    ]
+  },
+  "edge_marks": {
+    "lines": [
+      {
+        "x0": 114.21,
+        "y0": 695.53,
+        "x1": 1421.79,
+        "y1": 695.53,
+        "weight": "heavy",
+        "what": "wall-floor line"
+      },
+      {
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 1421.79,
+        "y1": 294.52,
+        "weight": "heavy",
+        "what": "wall-ceiling line"
+      },
+      {
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 114.21,
+        "y1": 695.53,
+        "weight": "heavy",
+        "what": "left corner"
+      },
+      {
+        "x0": 1421.79,
+        "y0": 294.52,
+        "x1": 1421.79,
+        "y1": 695.53,
+        "weight": "heavy",
+        "what": "right corner"
+      },
+      {
+        "x0": 114.21,
+        "y0": 695.53,
+        "x1": 0,
+        "y1": 725.12,
+        "weight": "heavy",
+        "what": "left return, floor junction"
+      },
+      {
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 0,
+        "y1": 254.06,
+        "weight": "heavy",
+        "what": "left return, ceiling junction"
+      },
+      {
+        "x0": 1421.79,
+        "y0": 695.53,
+        "x1": 1536,
+        "y1": 725.12,
+        "weight": "heavy",
+        "what": "right return, floor junction"
+      },
+      {
+        "x0": 1421.79,
+        "y0": 294.52,
+        "x1": 1536,
+        "y1": 254.06,
+        "weight": "heavy",
+        "what": "right return, ceiling junction"
+      },
+      {
+        "x0": 114.21,
+        "y0": 559.47,
+        "x1": 1421.79,
+        "y1": 559.47,
+        "weight": "light",
+        "what": "gate anchor"
+      }
+    ],
+    "rects": [
+      {
+        "kind": "fireplace",
+        "x0": 266.74,
+        "y0": 466.38,
+        "x1": 553.17,
+        "y1": 695.53,
+        "weight": "medium"
+      },
+      {
+        "kind": "door",
+        "x0": 624.78,
+        "y0": 409.09,
+        "x1": 768,
+        "y1": 695.53,
+        "weight": "medium"
+      }
+    ],
+    "ink": "#000000",
+    "ground": "#ffffff"
+  },
+  "_edge_provenance": "COMPOSED FROM DECLARED GEOMETRY, NOT A SHIPPED-RENDERER CAPTURE. frame.png and scaffold.png come out of window.HOLO.renderer.render and carry row 23 §7.1's guarantee that the picture a painter is given is the picture a player sees; edge.png does not. Plan §1.2 makes re-establishing that guarantee a named condition on folding v5 into production.",
+  "images": {
+    "frame": "32b9d9399b2322d44fef842e544db583089e7931ceeea6a5c8ba3a4fb0d97658",
+    "scaffold": "24c609d624ea0d19a7b23978e95a410aa497190848f1469daa67ddd3837fb29a",
+    "scaffold_ink": "e9924377621c275f85d90229e1e21c00b7d6334a443dfe5d08ebde65c9f78778"
+  },
+  "scaffold_sheets": {
+    "scaffold.png": "grid-v1",
+    "scaffold-ink.png": "ink-on-paper-v2"
+  },
+  "ink_geometry": {
+    "_what_this_is": "The ink-on-paper sheet's whole line work, computed in node from this facing's meta through frame-language.mjs's frameGeometry — the same junctions, corners and rows the register's own sentences are written from, and the same groundplane calls renderer.js's drawGrid makes — and written here so the drawing is re-renderable from its own record. Every line is where two surfaces meet; nothing in it is a colour, a material or an opening.",
+    "style": "ink-on-paper-v2",
+    "sheet": {
+      "paper": "#f4f1ea",
+      "ink": "#1a1c1f",
+      "mid": "#5c6066",
+      "faint": "#b0aa9f",
+      "hatch": "#c8c2b6"
+    },
+    "bounded": true,
+    "has_band": true,
+    "floor_line_y_px": 695.53,
+    "ceiling_line_y_px": 294.52,
+    "eye_line_y_px": 526.1,
+    "tick_half_px": 6,
+    "ticks": [
+      {
+        "x": 137.85,
+        "m": 0
+      },
+      {
+        "x": 281.06,
+        "m": 1
+      },
+      {
+        "x": 424.28,
+        "m": 2
+      },
+      {
+        "x": 567.5,
+        "m": 3
+      },
+      {
+        "x": 710.71,
+        "m": 4
+      },
+      {
+        "x": 853.93,
+        "m": 5
+      },
+      {
+        "x": 997.15,
+        "m": 6
+      },
+      {
+        "x": 1140.36,
+        "m": 7
+      },
+      {
+        "x": 1283.58,
+        "m": 8
+      },
+      {
+        "x": 1398.15,
+        "m": 8.8
+      }
+    ],
+    "lines": [
+      {
+        "what": "the line where the wall you face meets the floor",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 114.21,
+        "y0": 695.53,
+        "x1": 1421.79,
+        "y1": 695.53
+      },
+      {
+        "what": "the line where the left side wall meets the floor",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 114.21,
+        "y0": 695.53,
+        "x1": 0,
+        "y1": 725.12
+      },
+      {
+        "what": "the line where the right side wall meets the floor",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 1421.79,
+        "y0": 695.53,
+        "x1": 1536,
+        "y1": 725.12
+      },
+      {
+        "what": "the left corner, where the two walls meet",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 114.21,
+        "y1": 695.53
+      },
+      {
+        "what": "the right corner, where the two walls meet",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 1421.79,
+        "y0": 294.52,
+        "x1": 1421.79,
+        "y1": 695.53
+      },
+      {
+        "what": "the line where the wall you face meets the ceiling",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 1421.79,
+        "y1": 294.52
+      },
+      {
+        "what": "the line where the left side wall meets the ceiling",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 114.21,
+        "y0": 294.52,
+        "x1": 0,
+        "y1": 254.06
+      },
+      {
+        "what": "the line where the right side wall meets the ceiling",
+        "weight": "heavy",
+        "dash": null,
+        "x0": 1421.79,
+        "y0": 294.52,
+        "x1": 1536,
+        "y1": 254.06
+      },
+      {
+        "what": "the eye line - where the receding lines meet",
+        "weight": "light",
+        "dash": [
+          10,
+          9
+        ],
+        "x0": 0,
+        "y0": 526.1,
+        "x1": 1536,
+        "y1": 526.1
+      }
+    ]
+  },
+  "plan_apertures": {
+    "_what_this_is": "The apertures the plan rules on this facing, written before any candidate exists. The measure path enumerates what the painting shows and compares the counts; the servants_hall/E return that earned this trial painted two doorways on a wall the plan rules none on.",
+    "doors": [
+      {
+        "id": "op18",
+        "from_m": 3.4,
+        "to_m": 4.4
+      }
+    ],
+    "windows": [],
+    "door_count": 1,
+    "window_count": 0
+  },
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "33092fd217597858767ecd6b64427e24c0f074bc5cac0429050f3e33306cc434",
+  "groundplane_sha256": "f0a5a600a91e10cc1a7a2ff2f85c520ec4234f64897e540c82aaacf85921a57a",
+  "git_commit": "73bdca6e28f2ccabac45c70ae9649ba1281a707c"
+}
