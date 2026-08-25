@@ -21,14 +21,14 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-ROUTING | the loop's standing exits: snap-first, tolerance-second, grid-last; once-per-sweep validation; pass-completed liveness | building |
-| B-ASSEMBLY | row 36 builder: scale contract + MATERIALS landed; harvester, lighting stub, assembler, kitchen demo next | building |
-| B-ROUTING | the loop's standing exits: snap-first / tolerance-second / grid-last routed inside the sweep, one validation per sweep, pass-completed liveness | building |
+| B-CONSISTENCY | per-room wall/ceiling/floor consistency measure over the legacy store + forced edge-seeded re-asks (master_bedchamber the named case) | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-ROUTING | the loop's standing exits: snap → void-repair (round row36doors) → tolerance → grid, once-per-sweep validation, pass-age liveness |
+| L-ASSEMBLY | row 36: material library, harvester, lighting stub (world-addressed), assembler, door-void painter, kitchen demo |
 | L-STAIRS | row 25: every drawn flight pixel answers a tap both directions (12 facings; 2.25M px that answered nothing now do); the sky-walks-you question on entrance_court/S sits in its batch for Kabe |
 | L-FLIGHT | row 39: painted staircases attached into promoted metas at the meta's own camera; back_stair/W and back_stair_head/S promoted through it |
 | L-SEAMS | row 38: edge-seeded generation — adjacency, 10% seed strips, seam metric |
