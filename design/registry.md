@@ -23,12 +23,12 @@ keeps it current at every board change; reports cite these handles.
 |---|---|---|
 | B-GREEN2 | 4 staleness cases after the origin merge (fixtures:126, material-origin:291/453, plan:2595) → green | building |
 | B-REGISTER | the clean prompt register g5 (Kabe: "that prompt seems like a mess") as an evolution arm against g4, with/without the coordinate appendix | building |
-| B-BAYS | row 41: walls laid out as fitted bays (stiles in the corners, frame completes, fields filled inside the frame) — replaces row 36's tiled walls after Kabe's flip | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-BAYS | row 41: walls as fitted bays — n bays dividing W exactly, a stile in every corner (16 corner gaps at 0.000 m), openings snapped to whole bays; kitchen + bedchamber proof batches |
 | L-ORIGIN | row 40 origin: rooms were ASKED from two material tables (pre/post voice table; idempotent emit never re-asked) — one home for materials, `--audit-materials` observer, `material.voice_stale` refusal, Image 1 = the room's own wall or nothing |
 | L-SUPERSEDE | the loop's supersede route: a room's consistency rolls judged as one set, snap on camera miss, stands on ≥10% improvement; bedchamber ×4, servants_hall/N, garden_room/W went through it |
 | L-GREEN | merged main back to 1896/0 after the four merges; rule adopted: `npm test` runs in a checkout SVC-LOOP does not write (a worktree), never in the loop's tree |
