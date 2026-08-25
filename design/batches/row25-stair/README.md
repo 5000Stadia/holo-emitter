@@ -52,7 +52,7 @@ only by restoring the eight blits and dropping the case that refuses them.
 | `entrance_court/S` | **69.3 %** | 74.4 % | **51.6 % is sky that walks you** |
 | `entrance_approach/N` | 40.6 % | 88.9 % | 36.1 % |
 
-**Both numbers are byte-identical on the before tree**: this row did not widen the region by a
+**Both rows measure the same on the before tree, to the pixel**: this row did not widen the region by a
 pixel and did not narrow it by one either. What it changed is what is DRAWN there. Inside the
 court's mouth, above the destination's own horizon, 31.3 % is the approach's own painted sky and
 the rest was a stretched pixel and is now the flat colour of the sky beside it.
