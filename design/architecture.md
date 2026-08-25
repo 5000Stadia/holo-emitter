@@ -3899,7 +3899,7 @@ through one.
 
 **Re-run 2026-08-24 after the clause landed, every flight-bearing wall, same instrument**: the table
 above reproduces exactly — `stair_landing/N` re-promotes byte-identical, the four lens numbers come
-back to the tenth of a pixel, and the six pre-flight rolls are refused on the ask. The one thing the
+back to the tenth of a pixel, and the four walls with no re-ask at all are refused on the ask. The one thing the
 re-run adds is the ORDER the refusals arrive in, which the table above flattens: the four
 lens-refused walls are all `unfitted-horizon` or `suspect-painting`, so on the ordinary measured
 route they stop one clause earlier at `row32:tolerance.suspect_undeclared` and reach the lens band
@@ -3919,9 +3919,12 @@ trips `row32:stair.painted_flight_lost`.
 
 **And the reason run-state still names the old roll is not neglect — it is the sweep obeying its own
 rule.** The loop picks a wall's candidate as the PASSing arrival with the smallest `|delta_focal_pct|`,
-and on all six of these walls the row-38 re-ask FAILS the camera gate (−11.7 %, −17.9 %, −15.9 %,
-+9.9 %) while the pre-flight roll passes it. So the pre-flight roll is the only candidate the sweep
-can see, and it stays the wall's candidate — which is an honest reading of the frames and not a bug.
+and on these four walls the row-38 re-ask FAILS the camera gate (−11.7 %, −17.9 %, −15.9 %, +9.9 %)
+while the pre-flight roll passes it. So the pre-flight roll is the only candidate the sweep can see,
+and it stays the wall's candidate — which is an honest reading of the frames and not a bug. (The
+other two flight walls prove the same rule from the other side: `stair_landing/N` and
+`great_stair_hall/W` are the two whose re-ask came back inside the camera band, and they are the two
+that reached the flight clause at all.)
 
 **The gap is that the snap is being run on the wrong roll.** The snap exists to rescue a camera miss;
 it is being cut from the roll that already passes the camera, and withheld from the roll that has the
