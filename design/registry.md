@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-REGISTER | the clean prompt register g5 (Kabe: "that prompt seems like a mess") as an evolution arm against g4, with/without the coordinate appendix | building |
 | B-BAYS | row 41: walls laid out as fitted bays (stiles in the corners, frame completes, fields filled inside the frame) — replaces row 36's tiled walls after Kabe's flip | building |
 | B-SUPERSEDE | the loop's supersede route: a row-40 re-ask of a PROMOTED wall is measured, promoted, and kept only if the room's consistency improves (else the old bytes come back) | building |
 | B-ORIGIN | row 40 origin hunt: why one room's four asks painted as two rooms — prompt diffs → producing lines → fix in the composer + a same-room-same-sentences test | building |
