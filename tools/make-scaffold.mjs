@@ -76,6 +76,9 @@ import { frameGeometry, registerBlock, positiveNoText, flightLines, col }
  * about a seam is decided here. */
 import { attachSeed, packetNote, attachLine, openOrder, isOpenLocation, isPainted }
   from "./edge-seed.mjs";
+/* [row 40] A consistency re-ask is shown BOTH painted neighbours, and only
+ * neighbours the measure puts inside the room's agreeing walls. */
+import { attachSeeds, packetNoteAll, attachLineAll } from "./edge-seed.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -856,6 +859,17 @@ async function main() {
       facings: fm
     }, null, 2) + "\n");
     console.log(`facings ${Object.keys(fm).length}  wrote ${out.slice(ROOT.length + 1)}`);
+    return;
+  }
+  if (argv.includes("--emit-consistency")) {
+    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    await emitConsistency(out, {
+      technique: argOf("--technique", "t2"),
+      rolls: Number(argOf("--rolls", "1")),
+      report: argOf("--report", ""),
+      rooms: argv.reduce((a, x, i) => (x === "--room" ? a.concat(argv[i + 1]) : a), []),
+      walls: argv.reduce((a, x, i) => (x === "--wall" ? a.concat(argv[i + 1]) : a), [])
+    });
     return;
   }
   if (argv.includes("--emit-swatch")) {
@@ -2054,6 +2068,272 @@ async function emitRetries(outDir, opts) {
   for (const r of refused) console.log(`            ${r.key}  ${r.refused}`);
   timings.record("emit.run", t_run, Date.now() / 1000, null,              // [row 33]
     { mode: "retries", emitted: emitted.length, refused: refused.length });
+  return { emitted, refused };
+}
+
+
+/* ------------------------------------------------------------------ */
+/* [row 40] THE CONSISTENCY RE-ASK — `--emit-consistency`               */
+/* ------------------------------------------------------------------ */
+/* [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling
+ * mismatches" — "Mismatches as in different from other walls" — and then, on
+ * the same walk: "There's still not a forced consistency with the wall types
+ * such as in the master bed chamber."
+ *
+ * FORCED is the operative word and it is what separates this path from
+ * `--emit-retries`. A retry carries the sentence the promotion instrument
+ * wrote about ONE wall. This carries the room's RULING: the materials
+ * `tools/room-voices.mjs` binds to that room's voice, named in words, for all
+ * three surfaces at once, with the instruction to paint those and nothing
+ * else. The ruling does not come from the other walls — it comes from the
+ * plan, through the voice table — because the other walls are exactly what is
+ * in dispute. In the master bedchamber the pixel vote is two against two and
+ * there is no majority to appeal to; the voice is the only authority left, and
+ * production-law clause 6 is satisfied by that being where the fix lives. The
+ * NEXT map, with none of this conversation in context, resolves the same
+ * ruling from its own plan.
+ *
+ * WHAT DECIDES WHICH WALLS ARE ASKED: `room_consistency.json`, written by
+ * `design/plan-draft/measured/room_consistency.py`, with no model in the loop.
+ * It clusters each room's facings on the band they disagree about most and
+ * names the ones outside the room's agreeing majority — or, where the room
+ * splits evenly, names them all and says there is no majority.
+ *
+ * ONE PACKET PER OUTLIER FACING, single-return doctrine: the packet is cut,
+ * the sweep handles the return, nothing here dispatches and nothing here
+ * touches `run-state.json`. The packet lands in the shape the seat and the
+ * sweep already read (`retries.json`, `<wall>/retry-<n>/`), because a second
+ * shape would be a second thing for them to learn.
+ */
+
+/** The room's ruling materials, in words, out of the voice table. */
+export function roomRuling(plan, loc, facing) {
+  const { voice, anchor, via } = voiceFor(plan, loc, facing);
+  /* A bedchamber's wall is TWO fabrics — wainscot below the rail, hangings
+   * above it — and the rank of the hangings is the room id's own business
+   * (`hangingsFor`). Naming only `voice.walls` would leave the master
+   * bedchamber's ruling silent about the very band it fails on. */
+  const hangings = voice.hangings ? hangingsFor(loc) : null;
+  return {
+    voice, anchor, via, hangings,
+    walls: hangings ? `${voice.walls}, those hangings being ${hangings}` : voice.walls,
+    ceiling: voice.ceiling, floor: voice.floor
+  };
+}
+
+/** The one-line correction the prompt carries and the packet quotes. */
+export function consistencySentence(ruling, room, band, measured) {
+  const surfaces = [`every wall is ${ruling.walls}`]
+    .concat(ruling.ceiling ? [`every ceiling is ${ruling.ceiling}`] : [])
+    .concat(ruling.floor ? [`every floor is ${ruling.floor}`] : []);
+  return `This room is ruled to ONE set of materials and this facing does not show them. ` +
+    `In ${room.name || room.id}, ${surfaces.join("; ")}. Paint exactly those materials on ` +
+    `every surface in this view and nothing else — not a different wall lining, not a ` +
+    `different ceiling, not a different floor. ${measured}`;
+}
+
+async function emitConsistency(outDir, opts) {
+  const t_run = Date.now() / 1000;                                        // [row 33]
+  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const reportPath = opts.report ||
+    join(ROOT, "design", "plan-draft", "measured", "room_consistency.json");
+  if (!existsSync(reportPath)) {
+    console.error(`make-scaffold refused: ${reportPath.slice(ROOT.length + 1)} does not exist, so ` +
+      `no room has been measured for consistency and there is nothing to correct. Run ` +
+      `\`python3 design/plan-draft/measured/room_consistency.py\` first.`);
+    process.exit(1);
+  }
+  const report = JSON.parse(readFileSync(reportPath, "utf8"));
+  const mp = join(outDir, "retries.json");
+  const prior = existsSync(mp) ? JSON.parse(readFileSync(mp, "utf8")).entries || [] : [];
+  const spent = new Map();
+  for (const e of prior) spent.set(e.key, Math.max(spent.get(e.key) || 0, e.attempt || 0));
+
+  /* WHAT IS ASKED, decided before a browser is launched so the refusals are
+   * visible even on a pass that emits nothing. */
+  const want = [], refused = [];
+  for (const r of report.rooms || []) {
+    if (opts.rooms && opts.rooms.length && !opts.rooms.includes(r.room)) continue;
+    if (!String(r.verdict || "").startsWith("mismatched")) {
+      if (opts.rooms && opts.rooms.length) {
+        refused.push({ key: r.room, refused: `the measure calls this room ${r.verdict}` });
+      }
+      continue;
+    }
+    for (const f of r.outliers || []) {
+      const key = `${r.room}/${f}`;
+      if (opts.walls && opts.walls.length && !opts.walls.includes(key)) continue;
+      if (!existsSync(join(ROOT, "backdrops", r.room, `${f}.png`))) {
+        refused.push({ key, refused: "no promoted painting to replace" });
+        continue;
+      }
+      want.push({ key, room: r });
+    }
+  }
+  if (!want.length) {
+    console.log("no facing is outside its room's agreeing walls — nothing to re-ask");
+    for (const r of refused) console.log(`  ${r.key}  ${r.refused}`);
+    return { emitted: [], refused };
+  }
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+
+  const emitted = [];
+  for (const w of want) {
+    const [loc, f] = w.key.split("/");
+    const meta = await page.evaluate((k) => {
+      const e = window.HOLO_APP.backdrops[k];
+      return e && e.meta ? e.meta : null;
+    }, w.key);
+    if (!meta) { refused.push({ ...w, room: undefined, refused: "the page holds no meta for this facing" }); continue; }
+
+    const t_facing = Date.now() / 1000;                                   // [row 33]
+    const room = (plan.rooms || []).find((x) => x.id === loc);
+    const ruling = roomRuling(plan, loc, f);
+    const { voice, anchor, via } = ruling;
+    const band = w.room.bands[w.room.worst_band] || {};
+    const worst = (band.pairwise || []).reduce((a, b) => (b.D > (a ? a.D : -1) ? b : a), null);
+    const measured = w.room.no_majority
+      ? `Measured: this room's ${w.room.worst_band} splits ` +
+        `${(w.room.clusters || []).map((c) => c.join("")).join(" against ")} with NO majority ` +
+        `(worst pair D=${w.room.score}), so the materials above are the plan's ruling and not ` +
+        `another wall's.`
+      : `Measured: this room's ${w.room.worst_band} disagrees at D=${w.room.score}` +
+        (worst ? ` (colour ${worst.dChroma}, contrast x${(2 ** worst.dT).toFixed(2)})` : "") +
+        `; ${(w.room.majority || []).join(" and ")} agree with each other and this facing does not.`;
+    const correction = consistencySentence(ruling, room || { id: loc }, w.room.worst_band, measured);
+
+    const { rects, flights } = scaffoldRects(plan, loc, f, meta);
+    const cr = chairRail(meta, anchor);
+    assertLabelChars(cr.label, `${w.key}'s gate anchor label`);
+    const legend = legendFor(meta, rects, "THE META THIS PAGE HOLDS FOR THIS FACING", anchor);
+    const framePng = await renderPng(page, w.key, meta, "scaffold", null);
+    const scafPng = await renderPng(page, w.key, meta, "scaffold",
+      { rects, chair_rail: cr, legend, flights });
+
+    const attempt = (spent.get(w.key) || 0) + 1;
+    const dir = join(outDir, `${loc}-${f}`, `retry-${attempt}`);
+    mkdirSync(dir, { recursive: true });
+    writePng(framePng, join(dir, "frame.png"));
+    writePng(scafPng, join(dir, "scaffold.png"));
+    copyFileSync(join(ROOT, STYLE_SEED), join(dir, "style-seed-warm.png"));
+    /* THE SEEDS, AND THE RULE THAT MAKES THEM SAFE: only a neighbour the
+     * measure puts in this room's agreeing majority may be cut from. Seeding
+     * an outlier off another outlier spreads the wrong material round the room
+     * instead of replacing it. A room with no majority gets no strip at all
+     * and stands on the ruling alone. */
+    const agreeing = new Set((w.room.majority || []).map((g) => `${loc}/${g}`));
+    const { seeds, plans } = attachSeeds(plan, w.key, dir,
+      { allow: (nk) => agreeing.has(nk) });
+    timings.record("emit.facing", t_facing, Date.now() / 1000, w.key,     // [row 33]
+      { carriers: rects.length, voice: voice.id, consistency: attempt });
+
+    const t_packet = Date.now() / 1000;                                   // [row 33]
+    /* `manorPrompt` names one Image 3 sentence; with two strips it must name
+     * both, so the extra role sentences are appended in the same voice the
+     * cookbook rule asks for. */
+    const text = manorPrompt(plan, w.key, meta, rects, correction, seeds[0] || null) +
+      (seeds.length > 1
+        ? seeds.slice(1).map((s) => `  ${s.role_sentence}\n`).join("")
+        : "");
+    writeFileSync(join(dir, "prompt.txt"), text);
+    const ids = [];
+    for (let i = 1; i <= (opts.rolls || 1); i++) {
+      const id = rollId(w.key, `${opts.technique || "t2"}c${attempt}`, null, i);
+      ids.push({ roll: i, id,
+        candidate: `${sourceDirFor(w.key)}/row23-${id}.png`,
+        prompt: `${sourceDirFor(w.key)}/row23-${id}.prompt.txt` });
+    }
+    mkdirSync(join(ROOT, sourceDirFor(w.key)), { recursive: true });
+    for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
+    writeFileSync(join(dir, "PACKET.md"),
+      `# ${w.key} — CONSISTENCY RE-ASK ${attempt} (technique ${opts.technique || "t2"}, labelled scaffold)\n\n` +
+      `> **Why this wall is being asked again**\n>\n> ${correction}\n\n` +
+      `This wall is already promoted. It is being asked again because the room it stands in ` +
+      `does not read as one room: \`design/plan-draft/measured/room_consistency.py\` measures ` +
+      `**${w.room.worst_band}** across ${w.room.facings.join("")} at **D = ${w.room.score}** ` +
+      `(the cut is ${report.cut}), and ` +
+      (w.room.no_majority
+        ? `the room splits ${(w.room.clusters || []).map((c) => c.join("")).join(" against ")} ` +
+          `with no majority — so every facing is being re-asked and the ruling comes from the ` +
+          `room's voice, not from another wall.\n\n`
+        : `${(w.room.majority || []).join("")} agree with each other while this one does not.\n\n`) +
+      packetNoteAll(seeds, plans) +
+      `${attachLineAll(seeds)}\n` +
+      `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} image(s) and save them to the\n` +
+      `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
+      ids.map((r) => `| roll ${r.roll} | \`${r.candidate}\` |`).join("\n") +
+      `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
+      `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
+      `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
+      `The promoted painting this replaces is still at \`backdrops/${loc}/${f}.png\` and is not ` +
+      `overwritten by this packet; promotion is the sweep's decision, not this emitter's.\n` +
+      `Write only under \`backdrops/\`. Never \`src/\`, never \`design/\`.\n`);
+    timings.record("emit.packet", t_packet, Date.now() / 1000, w.key,     // [row 33]
+      { rolls: ids.length, roll_ids: ids.map((r) => r.id),
+        prompt_chars: text.length, consistency: attempt });
+
+    emitted.push({
+      key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
+      correction,
+      voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
+      px_per_m_at_wall: meta.px_per_m_at_wall,
+      flights: flights.map((s) => ({
+        id: s.id, direction: s.direction, climb: s.climb, treads: s.treads,
+        treads_in_view: s.treads_in_view, width_m: s.width_m,
+        x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1, raw_w: s.raw_w, raw_h: s.raw_h
+      })),
+      scaffold_sha256: sha256File(join(dir, "scaffold.png")),
+      /* The row-38 fields, unchanged in meaning, so the seam spec and the
+       * sweep read this entry exactly as they read a retry's. `edge_seeds` is
+       * the row-40 addition: the full list, where two strips rode. */
+      edge_seed: seeds[0] || null,
+      edge_seeds: seeds,
+      seed_policy: isOpenLocation(plan, loc) ? "required" : "opportunistic",
+      depends_on: null,
+      /* [row 40] What the measure said, carried with the packet so a reader
+       * never has to go and re-derive why this wall was asked. */
+      consistency: {
+        band: w.room.worst_band, D: w.room.score, cut: report.cut,
+        clusters: w.room.clusters, majority: w.room.majority,
+        no_majority: !!w.room.no_majority,
+        ruling: { walls: ruling.walls, ceiling: ruling.ceiling,
+                  floor: ruling.floor, hangings: ruling.hangings }
+      },
+      rolls: ids
+    });
+    console.log(`  ${w.key.padEnd(24)} retry-${attempt}  voice ${voice.id.padEnd(18)} ` +
+      `${ids.length} roll(s)  ${seeds.length ? seeds.map((s) => `seed ${s.side} <- ${s.neighbour}`).join(", ") : "no seed (no agreeing neighbour)"}`);
+  }
+  await browser.close();
+
+  /* THE INDEX IS CUMULATIVE — see the same block in `emitRetries` for the coat
+   * that was lost by not being. Keyed by wall AND attempt, so a consistency
+   * packet can never displace a retry's entry or another pass's. */
+  const merged = new Map();
+  for (const e of prior) merged.set(`${e.key}#${e.attempt}`, e);
+  for (const e of emitted) merged.set(`${e.key}#${e.attempt}`, e);
+  const entries = [...merged.values()].sort(
+    (a, b) => a.key.localeCompare(b.key) || a.attempt - b.attempt);
+  const head = existsSync(mp) ? JSON.parse(readFileSync(mp, "utf8")) : {};
+  writeFileSync(mp, JSON.stringify({
+    ...head,
+    _consistency: "[row 40] An entry carrying a `consistency` block was cut by `--emit-consistency`, not by `--emit-retries`: the wall is already PROMOTED and is being asked again because its room does not read as one room. Its correction names the room's ruling materials out of tools/room-voices.mjs, and its edge seeds are cut only from facings the measure puts inside the room's agreeing majority.",
+    _generated: new Date().toISOString().slice(0, 10),
+    emitted: emitted.length, carried: entries.length - emitted.length,
+    refused: refused.length,
+    entries, refused_entries: refused
+  }, null, 2) + "\n");
+  console.log(`\nconsistency  ${mp.slice(ROOT.length + 1)}`);
+  console.log(`             ${emitted.length} packet(s) this pass, ` +
+    `${entries.length - emitted.length} carried forward; ${refused.length} refused`);
+  for (const r of refused) console.log(`               ${r.key}  ${r.refused}`);
+  timings.record("emit.run", t_run, Date.now() / 1000, null,              // [row 33]
+    { mode: "consistency", emitted: emitted.length, refused: refused.length });
   return { emitted, refused };
 }
 

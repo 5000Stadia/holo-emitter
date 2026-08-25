@@ -374,6 +374,121 @@ export function attachLine(seed) {
     : "Attach `style-seed-warm.png` as **Image 1** and `scaffold.png` as **Image 2**, in that";
 }
 
+/* ------------------------------------------------------------------ */
+/* [row 40] BOTH SIDES, AND ONLY FROM WALLS THAT AGREE                  */
+/* ------------------------------------------------------------------ */
+/* Row 38 attaches ONE strip, left-first, because a fresh ask only needs an
+ * anchor: any painted neighbour will do to carry material tone across a
+ * corner. A CONSISTENCY re-ask is a different job. The wall is being repainted
+ * precisely because it disagrees with the room, so the strips are not an
+ * anchor, they are the EVIDENCE of what the room already is — and a wall
+ * caught between two painted neighbours should be shown both of them, so the
+ * ask is boxed in on the left and on the right at once.
+ *
+ * The second rule matters more than the first: a seed may only be cut from a
+ * facing the measure puts in the room's MAJORITY. Seeding an outlier from
+ * another outlier is how a wrong material spreads round a room instead of
+ * being replaced, and the whole point of this path is that it cannot. Where a
+ * room has no majority at all (`room_consistency.json` says so — the master
+ * bedchamber splits two and two) NO strip is cut and the ruling comes from the
+ * room's voice alone, which is the only authority left standing.
+ *
+ * `attachSeed` is untouched: row 38's path and its spec still see exactly one
+ * strip and exactly one Image 3. */
+
+/** Every side of `key` whose neighbour is painted AND passes `allow`. */
+export function seedPlansAll(plan, key, { painted = isPainted, allow = null } = {}) {
+  const [loc, facing] = key.split("/");
+  const room = (plan.rooms || []).find((r) => r.id === loc);
+  if (!room) throw new Error(`edge-seed: no room \`${loc}\` in the plan`);
+  const open = isOpenLocation(plan, loc);
+  const out = [];
+  for (const side of SIDES) {
+    const g = neighbourAt(facing, side);
+    const nk = `${loc}/${g}`;
+    const exists = !!(room.facings || {})[g];
+    const isPaintedNow = exists && painted(nk);
+    const allowed = isPaintedNow && (!allow || allow(nk));
+    out.push({
+      key, location: loc, location_type: open ? "open" : "indoor",
+      policy: open ? "required" : "opportunistic",
+      fraction: EDGE_FRACTION, side,
+      neighbour: nk, neighbour_edge: neighbourEdge(facing, side),
+      source: paintingPath(nk),
+      exists, painted: isPaintedNow, allowed,
+      depends_on: null,
+      why: !exists ? "this facing has no neighbour on that side in the plan"
+        : !isPaintedNow ? "that neighbour is not painted"
+        : !allowed ? "that neighbour is itself outside the room's agreeing walls, "
+          + "so its pixels are not evidence of what the room is"
+        : "a painted neighbour the measure puts inside the room's agreeing walls"
+    });
+  }
+  return out;
+}
+
+/**
+ * Cut a strip for every allowed side into `packetDir`, numbering the roles
+ * from Image 3 upward in SIDES order. Returns the seeds actually cut.
+ */
+export function attachSeeds(plan, key, packetDir, opts = {}) {
+  const plans = seedPlansAll(plan, key, opts);
+  for (const sd of SIDES) {                      // never leave a stale strip
+    const stale = join(packetDir, seedFileName(sd));
+    if (existsSync(stale)) rmSync(stale);
+  }
+  const seeds = [];
+  for (const pl of plans) {
+    if (!pl.allowed) continue;
+    const cut = cutEdgeSeed({
+      source: join(ROOT, pl.source),
+      cut: pl.neighbour_edge,
+      out: join(packetDir, seedFileName(pl.side))
+    });
+    seeds.push({
+      ...pl,
+      image_index: 3 + seeds.length,
+      role_sentence: roleSentence(pl.side, 3 + seeds.length),
+      file: join(packetDir, seedFileName(pl.side)).slice(ROOT.length + 1),
+      width_px: cut.width_px, height_px: cut.height_px,
+      columns: cut.columns, sha256: cut.sha256,
+      source_sha256: cut.source_sha256
+    });
+  }
+  return { seeds, plans };
+}
+
+/** The PACKET.md paragraph for a list of strips — the plural of `packetNote`. */
+export function packetNoteAll(seeds, plans) {
+  if (!seeds.length) {
+    const why = (plans || []).map((p) => `\`${p.neighbour}\` — ${p.why}`).join("; ");
+    return `**No edge seed rides with this ask.** ${why || "no neighbour is available"}. ` +
+      `The materials are named in words in the prompt instead, and the words are the ` +
+      `room's own ruling out of \`tools/room-voices.mjs\` — not another wall's pixels.
+
+`;
+  }
+  return seeds.map((s) =>
+    `**Image ${s.image_index} is this wall's ${s.side}-edge seed.** ` +
+    `\`${seedFileName(s.side)}\` is the ${Math.round(s.fraction * 100)} % of ` +
+    `\`${s.source}\` that abuts this picture — its ${s.neighbour_edge}-hand ` +
+    `${s.width_px} columns, full frame height, cut by \`tools/crop-edge-seed.py\` ` +
+    `(sha256 \`${s.sha256.slice(0, 12)}\` from a painting at ` +
+    `\`${s.source_sha256.slice(0, 12)}\`). It is one of the walls this room AGREES ` +
+    `on, which is why it is here. The prompt names its role in words: ` +
+    `_${s.role_sentence}_
+
+`).join("");
+}
+
+/** The attach line for a list of strips — the plural of `attachLine`. */
+export function attachLineAll(seeds) {
+  const parts = ["`style-seed-warm.png` as **Image 1**", "`scaffold.png` as **Image 2**"]
+    .concat(seeds.map((s) => `\`${seedFileName(s.side)}\` as **Image ${s.image_index}**`));
+  return "Attach " + parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1] +
+    ", in that";
+}
+
 /**
  * The world point at one end of a facing's wall line — the geometry the header's
  * verification runs on, exported so the spec recomputes it rather than
