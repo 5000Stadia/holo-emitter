@@ -1210,8 +1210,19 @@ def plan_pixels(rec, x_m, y_m, room, grain_axis):
                        ppm, a, b, mirror)
 
 
-def assemble_facing(key, plan, facings, doc, out_png, paint_doors=True):
-    """One facing, composed from the library at the geometry the plan rules."""
+def assemble_facing(key, plan, facings, doc, out_png, paint_doors=True,
+                    room_walls=None):
+    """One facing, composed from the library at the geometry the plan rules.
+
+    ROW 41 ENTERS HERE AND NOWHERE ELSE. `room_walls` is a `row41_bays.RoomWalls`
+    — the room's four walls already laid out as fitted bays and composed in
+    surface metres — and when it is supplied it replaces the FABRIC LOOKUP and
+    nothing else. The box, `S.assign`, `surface_metres`, the returns and the
+    floor and ceiling are byte-for-byte the row-36 path, because the ruling was
+    about how a wall is BUILT and not about how it is projected: a composed wall
+    is still a pure function of (perimeter metres, height), which is the only
+    thing this function ever asked the fabric for.
+    """
     r = facings.get(key)
     if not r:
         return None, "no facing " + key
@@ -1267,6 +1278,10 @@ def assemble_facing(key, plan, facings, doc, out_png, paint_doors=True):
         frame, a_m, b_m, m = got[0], got[1], got[2], got[3]
         if frame == "wall":
             rec = mats["walls"]
+            if room_walls is not None:
+                out[m] = room_walls.sample(a_m, b_m)
+                used.append((name, rec["id"] + " (row-41 bays)"))
+                continue
             out[m] = wall_pixels(rec, a_m, b_m)
             if "field" in mats:
                 hi = mats["field"]
@@ -1287,7 +1302,13 @@ def assemble_facing(key, plan, facings, doc, out_png, paint_doors=True):
 
     doors_rec = None
     if paint_doors:
-        doors = door_rects_m(plan, loc, f, decl["width_m"])
+        # UNDER ROW 41 THE VOID FOLLOWS THE FRAME. An opening consumes whole
+        # bays and its architrave is drawn at the SNAPPED rect, so painting the
+        # void at the plan's unsnapped one would put the way through beside its
+        # own frame by up to half a bay. The snapped rect is the layout's, and
+        # the layout is what the wall was built to.
+        doors = (room_walls.doors_m(f) if room_walls is not None
+                 else door_rects_m(plan, loc, f, decl["width_m"]))
         if doors:
             out, doors_rec = paint_voids(out, b, decl["width_m"], storey, doors)
 

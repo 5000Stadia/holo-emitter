@@ -250,3 +250,61 @@ print("SRCKEYS " + ",".join(sorted(srcs[0].keys())) if srcs else "SRCKEYS none")
     expect(said).not.toMatch(/SRCKEYS[^\n]*u_m/);
   });
 });
+
+/* [Row 41] WALLS ARE ARCHITECTURE — the bay layout and the corner gate.
+ *
+ * [HUMAN, 2026-08-24, verbatim on the kitchen row 36 assembled] "the paneling
+ * needs to frame in the wall properly. It looks like a chopped up repeating
+ * wallpaper thats glitched out. It runs off the corner and doesnt complete"
+ *
+ * The arithmetic has its own suite beside the module it tests. What belongs
+ * HERE is the two things that are only true of the real building: that the
+ * manor's own rooms lay out at all, and that the gate reports every corner of
+ * one of them completed. A gate nobody runs on real data is a gate that passes.
+ */
+test.describe("row 41 — fitted bays", () => {
+  const SUITE = join(repoRoot, "design", "plan-draft", "measured",
+                     "test_row41_bays.py");
+
+  test("the bay arithmetic suite is green", () => {
+    /* it exits non-zero on a failure, so `py` throwing IS the assertion */
+    const said = py([SUITE], { stdio: ["pipe", "pipe", "pipe"] });
+    expect(typeof said, "the suite ran").toBe("string");
+  });
+
+  test("every corner of the kitchen has a completed bay on each side", () => {
+    const out = py([join(repoRoot, "design", "plan-draft", "measured",
+                         "row36_crossfacing.py"), "--room", "kitchen", "--bays"]);
+    const rows = [...out.matchAll(/bar [\d.]+ m\s+(PASS|FAIL)/g)].map((m) => m[1]);
+    expect(rows.length, "four walls, two corners each").toBe(8);
+    for (const v of rows) expect(v).toBe("PASS");
+    /* and the gaps are ZERO rather than merely inside the bar: a boundary at
+       u = 0 and one at u = W is what `i * (W/n)` IS at i = 0 and i = n, so a
+       non-zero gap here means the layout stopped being arithmetic */
+    const gaps = [...out.matchAll(/gap ([\d.]+) m/g)].map((m) => Number(m[1]));
+    expect(gaps.length).toBe(16);
+    for (const g of gaps) expect(g).toBe(0);
+  });
+
+  test("the kitchen's walls divide into whole bays of one width", () => {
+    const said = py(["-c", `
+import os, sys
+sys.path.insert(0, ${JSON.stringify(join(repoRoot, "design", "plan-draft", "measured"))})
+os.chdir(${JSON.stringify(repoRoot)})
+import row41_bays as B
+rw = B.build_room("kitchen")
+for f, w in sorted(rw.walls.items()):
+    l = w["layout"]
+    print("WALL %s %.6f %d %.9f %s" % (f, l["width_m"], l["bays"],
+                                       l["bay_width_m"], l["framed"]))
+`]);
+    const walls = [...said.matchAll(/WALL (\w) ([\d.]+) (\d+) ([\d.]+) (\w+)/g)];
+    expect(walls.length, "four walls").toBe(4);
+    for (const [, f, w, n, bw, framed] of walls) {
+      expect(framed, `${f} is laid out, not tiled`).toBe("True");
+      expect(Number(bw) * Number(n), `${f} divides exactly`)
+        .toBeCloseTo(Number(w), 6);
+      expect(Number(n), `${f} has bays`).toBeGreaterThan(0);
+    }
+  });
+});
