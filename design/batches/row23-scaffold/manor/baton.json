@@ -1,7 +1,7 @@
 {
- "ts": 1787622403.149813,
- "baton": "seat",
- "active": "yes",
+ "ts": 1787623184.586848,
+ "baton": "none",
+ "active": "unknown",
  "nudged": "no",
- "detail": "3 image(s) owed - the painter is owed"
+ "detail": "all quiet: nothing owed anywhere this script can see"
 }

@@ -412,10 +412,8 @@
     },
     "entrance_court/S": {
       "attempts": 4,
-      "status": "parked",
-      "correction": "draw 1.136x larger: 38.3 px/m at the far line, not 33.7",
-      "hold_family": "camera-miss",
-      "candidate": "backdrops/source/entrance_court-S/row23-f26273dd.png",
+      "status": "promoted",
+      "candidate": "backdrops/source/entrance_court-S/row23-e117db11.png",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
       "lifted": {
         "ts": 1787622262.249324,
@@ -423,7 +421,8 @@
         "why": "ask defect, not a painter miss: the plan draws this side as op_court_mouth (open_edge, 20.4 m) and the emitter knew no such carrier, so the ask said \"carries no opening... unbroken\" and the voice's coping anchor said a boundary wall runs right across the view; the painting obeyed both. Emitter fixed (open_edge is a carrier; the anchor moves to flanking piers). Kabe, 2026-08-24: \"Entrance court s looks very weird on the edges\".",
         "how": "cap_extension 3: the loop honours retry_cap + cap_extension, so the lift is a recorded field, not a hand-edited count"
       },
-      "cap_extension": 3
+      "cap_extension": 3,
+      "answered_correction": "draw 1.136x larger: 38.3 px/m at the far line, not 33.7"
     },
     "entrance_court/W": {
       "attempts": 5,
