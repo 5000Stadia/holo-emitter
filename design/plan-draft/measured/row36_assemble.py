@@ -621,15 +621,426 @@ def do_harvest(only=None, out_dir=TEXDIR, verbose=True):
             "seconds": round(time.time() - t0, 1)}
 
 
+# ==================================================================== assembly
+#
+# THE FIVE PLANES, PAINTED RATHER THAN SAMPLED FROM A PAINTING.
+#
+# `assign` puts every output pixel on exactly one of the five planes and hands
+# back that plane's own two parameters. Turning those into SURFACE METRES is the
+# whole of the assembler, and where the metres are measured FROM is the whole of
+# the row:
+#
+#   floor, ceiling   plan (x, y), anchored to the STOREY SLAB. Not to the room:
+#                    two rooms on one floor sharing a material share their grain
+#                    and their joint phase, so boards run through a doorway
+#                    instead of stopping at it.
+#   walls            metres along the room's perimeter from its (x0, y0) corner,
+#                    walked in one fixed rotational sense. A wall's fabric phase
+#                    is then a continuous function of perimeter distance, so
+#                    panelling meets correctly at every internal corner.
+#
+# NOTHING IS INDEXED IN FRAME COORDINATES. That is the cure, stated as a rule a
+# reader can check: turn ninety degrees and the same physical patch resolves to
+# the same tile coordinate, because the coordinate was never about the frame.
+
+#: Which plan axis each facing looks along, and which way its picture-left runs.
+#: North is +y (`plan.north`), so looking N the left hand is -x.
+FACING_DIR = {"N": (0.0, 1.0), "S": (0.0, -1.0), "E": (1.0, 0.0), "W": (-1.0, 0.0)}
+
+
+def wall_line_axis(facing):
+    """(along, normal) unit vectors in plan metres for a facing's wall plane."""
+    fx, fy = FACING_DIR[facing]
+    # picture-left to picture-right is the +90 degree rotation of the view dir
+    return (-fy, fx), (fx, fy)
+
+
+def perimeter_origin_m(room, facing, width_m):
+    """Where this wall's u=0 sits, as a distance walked round the room.
+
+    ONE FIXED SENSE, and it is stated rather than emergent: the walk starts at
+    the room rect's (x0, y0) corner and goes N, E, S, W. Every wall's phase is
+    then a continuous function of how far round the room you have come, so two
+    walls meeting at an internal corner meet in phase by construction instead of
+    by luck.
+    """
+    r = room["rect"]
+    w = r["x1"] - r["x0"]
+    h = r["y1"] - r["y0"]
+    order = {"N": 0.0, "E": w, "S": w + h, "W": w + h + w}
+    return order[facing]
+
+
+def surface_metres(idx, p, q, decl, room, facing):
+    """Per-pixel surface coordinates, in the frame each surface belongs to.
+
+    Returns (a, b, frame) per region where `frame` says how to read them:
+      wall     (perimeter metres, height above floor)
+      floor    (plan x, plan y)
+      ceiling  (plan x, plan y)
+      return   (perimeter metres, height above floor) -- a return IS a wall
+    """
+    width_m = decl["width_m"]
+    storey = decl["storey_m"]
+    camera = decl["camera_m"]
+    a = np.zeros(p.shape)
+    b = np.zeros(p.shape)
+    along, normal = wall_line_axis(facing)
+    fac = room["facings"][facing]
+    sp = fac["standpoint"]
+    wl = fac["wall_line"]
+    horiz = facing in ("N", "S")
+    # the wall plane's own left corner, in plan metres
+    rect = room["rect"]
+    if horiz:
+        lo, hi = rect["x0"], rect["x1"]
+    else:
+        lo, hi = rect["y0"], rect["y1"]
+    # picture-left corner in the plan's own axis
+    left = lo if facing in ("N", "E") else hi
+
+    out = {}
+    for name in ("wall", "floor", "ceiling", "left", "right"):
+        i = S.REGIONS.index(name)
+        m = idx == i
+        if not np.any(m):
+            out[name] = None
+            continue
+        if name == "wall":
+            u = p[m] * width_m
+            h = q[m] * storey
+            out[name] = ("wall", u + perimeter_origin_m(room, facing, width_m), h, m)
+        elif name in ("floor", "ceiling"):
+            u = p[m] * width_m                       # across the wall
+            d = (1.0 - q[m]) * camera                # metres out from the wall
+            # into plan coordinates
+            sgn = 1.0 if facing in ("N", "E") else -1.0
+            if horiz:
+                x = left + sgn * u
+                y = wl - normal[1] * d
+            else:
+                y = left + sgn * u
+                x = wl - normal[0] * d
+            out[name] = ("plan", x, y, m)
+        else:
+            d = (1.0 - q[m]) * camera                # metres out from the wall
+            h = p[m] * storey
+            # a return is the neighbouring wall; its own u runs from ITS corner
+            side = ("W" if facing in ("N",) else "E" if facing in ("S",)
+                    else "N" if facing in ("E",) else "S")
+            if name == "right":
+                side = {"N": "E", "S": "W", "E": "S", "W": "N"}[facing]
+            nb = room["facings"].get(side)
+            if nb is None:
+                out[name] = None
+                continue
+            nb_w = nb["wall_width_m"]
+            # distance along the neighbour wall, measured from ITS picture-left
+            # corner: the shared corner is at one end and depth runs from it
+            u_nb = (nb_w - d) if side in ("N", "E") else d
+            out[name] = ("wall", u_nb + perimeter_origin_m(room, side, nb_w), h, m,
+                         side)
+    return out
+
+
+# ------------------------------------------------------------- tile sampling
+
+def load_tile(path):
+    return np.asarray(Image.open(path).convert("RGB"), dtype=np.float64)
+
+
+def tile_lookup(tile, ppm, a_m, b_m, mirror="both"):
+    """Sample a tile at surface metres, tiling by reflection or repeat.
+
+    Mirroring is what stops a repeat reading as wallpaper, and reflecting is
+    chosen over repeating because a reflected joint still lands on a joint while
+    a repeated one lands on a seam.
+    """
+    h, w = tile.shape[:2]
+    x = a_m * ppm
+    y = b_m * ppm
+    if mirror in ("both", "across"):
+        x = _reflect(x, w)
+    else:
+        x = np.mod(x, w)
+    if mirror == "both":
+        y = _reflect(y, h)
+    else:
+        y = np.mod(y, h)
+    x0 = np.clip(np.floor(x).astype(np.int32), 0, w - 1)
+    y0 = np.clip(np.floor(y).astype(np.int32), 0, h - 1)
+    x1 = np.minimum(x0 + 1, w - 1)
+    y1 = np.minimum(y0 + 1, h - 1)
+    fx = (x - x0)[..., None]
+    fy = (y - y0)[..., None]
+    return ((tile[y0, x0] * (1 - fx) + tile[y0, x1] * fx) * (1 - fy) +
+            (tile[y1, x0] * (1 - fx) + tile[y1, x1] * fx) * fy)
+
+
+def _reflect(v, n):
+    """Mirror-tile a coordinate into [0, n): a triangle wave of period 2n."""
+    if n <= 1:
+        return np.zeros_like(v)
+    t = np.mod(v, 2 * n)
+    return np.where(t < n, t, 2 * n - 1e-6 - t)
+
+
+# =============================================================== the door void
+#
+# THE ASSEMBLER PAINTS THE WAY THROUGH, because a plain wall has none and row
+# 27's promotion clause refuses a wall whose plan rules a doorway and whose
+# painting shows nothing. It is arithmetic, not generation: the plan already
+# says where the opening is and how tall it is, and the wall region's own map
+# says where that lands in the frame.
+#
+# AND THE SAME ARITHMETIC REPAIRS A PAINTED WALL. Five snapped walls re-measure
+# geometrically clean and are still refused on the door clause after repeated
+# re-asks under the unlit-void rule -- the generator will not reliably paint a
+# measurable dark void. Nothing about that is a fact this row can prompt its way
+# around, and nothing about the void needs a model: it is a rectangle the plan
+# already rules. `--paint-doors` composites it onto an existing candidate, so
+# the detector reads by construction what the painter kept failing to draw.
+#
+# WHAT `door_measure` ACTUALLY NEEDS, since the void is built to be read:
+#   * a column-median luminance over the door's body rows that sits clearly
+#     below its neighbours -- the statistic is a MEDIAN, so a few bright pixels
+#     inside the opening do not lift it, but a textured fill would;
+#   * survival across at least MIN_STABILITY successive luminance cuts, which is
+#     what makes the run "maximally stable" rather than a threshold artefact;
+#   * so the void must be UNIFORM and it must clear the wall around it by more
+#     than the sweep's own step. Hence the contract below.
+
+#: THE CONTRAST FLOOR. `door_measure._stable_dark_runs` sweeps luminance cuts
+#: and needs at least MIN_STABILITY of them to survive; a void within 3 luma of
+#: its wall cannot produce three distinct surviving cuts however dark the frame
+#: is overall. This is the fifth item of the lighting stub's output contract and
+#: it is the same number here, because it is the same detector being fed.
+VOID_MIN_SEPARATION = 3.0
+
+#: How dark the void is drawn, as a fraction of the wall's own median. An unlit
+#: opening is not black -- a black rectangle reads as a hole punched in a
+#: picture -- but it must be far enough down that the sweep has room. 0.18 puts
+#: it well below any painted shadow in this corpus while still carrying a little
+#: of the room's own tone.
+VOID_LUMA_FRACTION = 0.18
+
+#: The feather, in metres of wall, over which the void's edge softens. A reveal
+#: has a thickness and an opening has a jamb; a one-pixel step reads as paste.
+#: Kept small enough that `_stable_dark_runs` still finds a hard edge to fix on.
+VOID_FEATHER_M = 0.02
+
+#: How near a read-back door must sit to a ruled one to count as the same
+#: doorway. Half a leaf: near enough that no two of the plan's own openings can
+#: both claim one reading, wide enough that the detector's own edge slop -- 15
+#: to 24 px on the walls repaired here -- never splits a match.
+DOOR_MATCH_M = 0.50
+
+#: THE LINTEL, AND WHY A VOID WITHOUT ONE IS UNREADABLE.
+#:
+#: `door_measure._head` finds the head by walking UP the void's own columns
+#: while they stay under the darkness cut, then takes the strongest horizontal
+#: step near where that stops. On a wall whose upper reaches are themselves dark
+#: -- which `great_hall/N` is -- the walk never stops at the opening: it runs
+#: past the storey, `head_m` exceeds it, and the candidate is thrown away AFTER
+#: being found. Measured: 2 stable runs found, 2 rejected on the head test, 0
+#: doors reported, on a frame whose void was painted 17.5 luma clear of its wall.
+#:
+#: So the void is bounded above by a lintel, which is also just true: every
+#: doorway of this date has a head over it, and the detector's own docstring
+#: says the void "ends where the frame's soffit begins". Painting the opening
+#: without one was drawing half a doorway.
+LINTEL_M = 0.14
+
+#: How much brighter than the wall's median the lintel reads. It only has to
+#: clear the darkness cut convincingly -- a soffit catches light from the room
+#: it faces, so a little brighter than the wall is honest as well as legible.
+LINTEL_GAIN = 1.15
+
+
+def door_rects_m(plan, loc, facing, width_m):
+    """Every way-through on this wall, as (u0, u1) metres from picture-left."""
+    spans, _ = carrier_spans_m(plan, loc, facing, width_m)
+    return [(a, b) for kind, a, b in spans if kind == "door"]
+
+
+def paint_voids(rgb, b, width_m, storey_m, doors, head_m=2.00,
+                feather_m=VOID_FEATHER_M):
+    """Composite unlit openings onto a frame. Returns (out, record).
+
+    The rectangle is defined on the WALL PLANE in metres and mapped through the
+    wall region's own matrix, so it lands exactly where the plan rules and
+    exactly where the aperture's click target is computed -- the two are the
+    same rectangle, which is the whole of row 27's question answered by
+    construction rather than by tolerance.
+    """
+    out = rgb.astype(np.float64).copy()
+    L = out.mean(axis=2)
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    idx, p, q = S.assign(b, xs, ys)
+    wall = idx == S.REGIONS.index("wall")
+    if not np.any(wall):
+        return rgb, {"painted": [], "refused": "this box places no wall in frame"}
+    wall_median = float(np.median(L[wall]))
+    target = wall_median * VOID_LUMA_FRACTION
+    if wall_median - target < VOID_MIN_SEPARATION:
+        target = wall_median - VOID_MIN_SEPARATION
+    if target < 0:
+        return rgb, {"painted": [], "refused":
+                     "the wall's own median is %.1f luma, so no void can sit "
+                     "%.0f luma below it and stay in range"
+                     % (wall_median, VOID_MIN_SEPARATION)}
+
+    u = p * width_m
+    h = q * storey_m
+    painted = []
+    lintel_luma = min(255.0, wall_median * LINTEL_GAIN)
+    for (u0, u1) in doors:
+        if u1 - u0 <= 0:
+            continue
+        # THE LINTEL FIRST, so the void is drawn over its lower edge and the
+        # step between them is the void's own boundary rather than a seam
+        # between two things painted in the wrong order.
+        lin = (wall & (u >= u0 - feather_m) & (u <= u1 + feather_m)
+               & (h >= head_m) & (h <= head_m + LINTEL_M))
+        if np.any(lin):
+            out[lin] = lintel_luma
+        # a smooth-step mask in SURFACE metres, so the feather is a physical
+        # width and not a pixel count that changes with the camera
+        du = np.minimum(u - u0, u1 - u) / max(feather_m, 1e-6)
+        dh = (head_m - h) / max(feather_m, 1e-6)
+        t = np.clip(np.minimum(np.minimum(du, dh), h / max(feather_m, 1e-6)), 0.0, 1.0)
+        m = wall & (t > 0)
+        if not np.any(m):
+            continue
+        a = (t * t * (3 - 2 * t))[m][..., None]        # smoothstep
+        tint = np.array([1.0, 1.0, 1.02])              # a shade cool, not black
+        out[m] = out[m] * (1 - a) + (target * tint) * a
+        painted.append({"u0_m": round(float(u0), 3), "u1_m": round(float(u1), 3),
+                        "width_m": round(float(u1 - u0), 3),
+                        "head_m": head_m, "pixels": int(m.sum()),
+                        "lintel_px": int(lin.sum()) if np.any(lin) else 0})
+    rec = {"painted": painted, "wall_median_luma": round(wall_median, 2),
+           "void_luma": round(target, 2),
+           "separation_luma": round(wall_median - target, 2),
+           "min_separation_required": VOID_MIN_SEPARATION,
+           "feather_m": feather_m,
+           "lintel": {"m": LINTEL_M, "luma": round(lintel_luma, 2),
+                      "why": "door_measure._head walks up the void's columns "
+                             "until they stop being dark; without a lintel it "
+                             "walks past the storey and the candidate is "
+                             "rejected after being found"}}
+    return np.clip(out, 0, 255), rec
+
+
+def repair_doors(key, candidate, out_png, plan, facings):
+    """`--paint-doors`: composite the plan's voids onto an existing candidate."""
+    r = facings.get(key)
+    if not r or not r.get("declared"):
+        return None, "no declared geometry for " + key
+    d = r["declared"]
+    imh = d["image_h_px"] or H
+    ppm = d["ppm"]
+    # An OPEN facing's declared meta carries no storey -- there is no building
+    # wall there -- so the plan's own ruled storey stands in, exactly as
+    # `door_measure.ruled_storey` does for the same reason.
+    storey = d["storey_height_m"]
+    if not storey:
+        import door_measure as _dm
+        storey = _dm.ruled_storey(plan, key.split("/")[0])
+    if not storey:
+        return None, "no storey height, ruled or declared, for " + key
+    yf = d["floor_line_y"] * imh
+    vy = d["horizon_y"] * imh
+    yc = yf - storey * ppm
+    x0, x1 = d["corner_x0_px"], d["corner_x1_px"]
+    if x0 is None or x1 is None:
+        half = (d["wall_width_m"] or 6.0) * ppm / 2.0
+        x0, x1 = W / 2.0 - half, W / 2.0 + half
+    b = S.box(x0, x1, yc, yf, W / 2.0, vy)
+    bad = S.box_refusal(b)
+    if bad:
+        return None, "the declared box is not a box: " + bad
+    width_m = (x1 - x0) / ppm
+    loc, f = key.split("/")
+    doors = door_rects_m(plan, loc, f, width_m)
+    if not doors:
+        return None, "the plan rules no way through this wall"
+    src = os.path.join(ROOT, candidate)
+    if not os.path.exists(src):
+        return None, "no candidate at " + candidate
+    rgb = load(src)
+
+    # ONLY PAINT WHAT THE DETECTOR CANNOT ALREADY READ. A repair that redraws a
+    # doorway the painting already shows is not a repair, it is a second
+    # doorway: on `long_gallery/W` -- which reads both its ways through
+    # correctly -- painting all of them regardless took the count from 2 to 4
+    # and would have swapped one refusal for another. The tool is minimal-touch
+    # by construction, and a wall it has nothing to add to is left alone.
+    import door_measure as _dm
+    before, _note = _dm.measure_openings(src, x0, x1, yf, ppm, storey)
+    already = []
+    for g in before:
+        already.append(0.5 * ((g["x0_px"] + g["x1_px"]) / 2.0 - x0) / ppm * 2.0)
+    missing, matched = [], []
+    for (u0, u1) in doors:
+        c = 0.5 * (u0 + u1)
+        hit = next((a for a in already if abs(a - c) <= DOOR_MATCH_M), None)
+        if hit is None:
+            missing.append((u0, u1))
+        else:
+            matched.append({"u0_m": round(u0, 3), "u1_m": round(u1, 3),
+                            "already_read_at_m": round(hit, 3)})
+    if not missing:
+        return None, ("the detector already reads all %d way(s) through this "
+                      "wall -- there is nothing for the void painter to add"
+                      % len(doors))
+    out, rec = paint_voids(rgb, b, width_m, storey, missing)
+    if rec.get("refused"):
+        return None, rec["refused"]
+    write_tile(out_png, out)
+    rec.update(facing=key, candidate=candidate, out=out_png,
+               declared_box=b, width_m=round(width_m, 3),
+               doors_ruled=len(doors), doors_read_before=len(before),
+               left_alone=matched, painted_because_missing=len(missing))
+    return rec, None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--harvest", default="", help="one material id")
     ap.add_argument("--harvest-all", action="store_true")
     ap.add_argument("--out", default=TEXDIR)
+    ap.add_argument("--paint-doors", default="",
+                    help="<loc>/<F>: composite the plan's ways through onto a "
+                         "candidate that the door detector cannot read")
+    ap.add_argument("--candidate", default="")
+    ap.add_argument("--out-png", default="")
     ap.add_argument("--json", default="")
     args = ap.parse_args()
+    if args.paint_doors:
+        plan = read_json(PLAN)
+        facings = read_json(FACINGS)["facings"]
+        out = args.out_png or os.path.join(
+            ROOT, "backdrops", "source-doors",
+            args.paint_doors.replace("/", "-"), "repaired.png")
+        rec, why = repair_doors(args.paint_doors, args.candidate, out, plan, facings)
+        if rec is None:
+            print("refused: %s" % why)
+            return 1
+        print("%s: %d void(s) painted, wall median %.1f -> void %.1f "
+              "(%.1f luma clear, needs %.0f)"
+              % (args.paint_doors, len(rec["painted"]), rec["wall_median_luma"],
+                 rec["void_luma"], rec["separation_luma"],
+                 rec["min_separation_required"]))
+        print("  -> %s" % os.path.relpath(out, ROOT))
+        if args.json:
+            with open(args.json, "w") as fh:
+                json.dump(rec, fh, indent=2, default=float)
+                fh.write("\n")
+        return 0
     if not (args.harvest or args.harvest_all):
-        ap.error("nothing to do: pass --harvest-all or --harvest <id>")
+        ap.error("nothing to do: pass --harvest-all, --harvest <id> or "
+                 "--paint-doors <loc>/<F>")
     r = do_harvest(args.harvest or None, out_dir=args.out)
     print("\nharvested %d, refused %d, %.1fs"
           % (len(r["harvested"]), len(r["refused"]), r["seconds"]))

@@ -2598,7 +2598,23 @@ export function facingMaterials(plan, doc) {
            sized to the largest demand among the facings that USE it, never to
            the building's global maximum, which would refuse every harvest to
            satisfy a wall the material never appears on. */
-        declared_ppm: meta ? meta.px_per_m_at_wall : null
+        declared_ppm: meta ? meta.px_per_m_at_wall : null,
+        /* THE DECLARED BOX, in the six numbers `row35_snap.box` takes. An
+           assembled facing is built at the geometry the PLAN rules, never at a
+           painting's own -- that is what makes cross-facing consistency a
+           construction rather than an achievement -- so these come from
+           `deriveMeta` and not from any promoted meta. */
+        declared: meta ? {
+          ppm: meta.px_per_m_at_wall,
+          image_w_px: meta.image_w_px, image_h_px: meta.image_h_px,
+          floor_line_y: meta.floor_line_y, horizon_y: meta.horizon_y,
+          corner_x0_px: meta.corner_x0_px, corner_x1_px: meta.corner_x1_px,
+          storey_height_m: (meta.measured_room && meta.measured_room.storey_height_m)
+            || meta.storey_height_m,
+          camera_wall_m: (meta.measured_room && meta.measured_room.camera_wall_m)
+            || meta.camera_wall_m || meta.camera_far_m,
+          wall_width_m: meta.wall_width_m
+        } : null
       };
     }
   }
