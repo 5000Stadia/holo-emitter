@@ -1,0 +1,28 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the south wall of the great hall, circa-1660 English manor
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Primary request: Paint the south wall of the great hall of a circa-1660 English manor.
+  Its walls are dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head.
+  Overhead: a flat lime-plastered ceiling with moulded plaster ribs. Underfoot: a broad worn stone flagstone floor.
+  A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+On this wall: the door opening stands at the centre, exactly 1.60 m wide and exactly 2.00 m high at the wall plane.
+  It stands empty with no leaf hung in it, and the space beyond it is deep unlit shadow — no lit room, no visible far wall and no light source behind it.
+  Four window openings stand at the far left, at the far left, at the far right and at the far right, each exactly 1.50 m wide, the sill 0.90 m and the head 2.00 m above the floor, divided by two stone mullions into three equal upright lights.
+Armorial glass: the great hall is the one room in this house entitled to it. Set a small painted armorial shield in coloured glass into the head of each window and nowhere else in the picture; every other pane-field on this wall stays plain diamond quarrels.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and fills the picture's width, and the two side walls run away from you to left and right and leave the picture through the left and right edges.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: fine oil realism with tactile brush detail, deep warm browns, cool ambient light and gentle natural falloff.
+Constraints: the great hall is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface in it is plain and unlettered, and Image 1's lines, boxes and lettering are instructions rather than things to paint.
+Reference lines (from Image 1): column counted from the left edge, row counted from the top.
+    The faced wall meets the floor along a level line at row 654.
+    It meets the surface overhead along a level line at row 339.
+    Its two upright edges stand at column 673 and column 1446.
+    The left side wall's upper line runs from column 673, row 339 to column 0, row 12.
+    The left side wall's lower line runs from column 673, row 654 to column 0, row 877.
+    The right side wall's upper line runs from column 1446, row 339 to column 1536, row 295.
+    The right side wall's lower line runs from column 1446, row 654 to column 1536, row 684.
+    Carried on, all four of those meet at column 1060, row 526.
+    One metre of the faced wall covers 113 columns.

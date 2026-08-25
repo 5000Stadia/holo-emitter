@@ -1,0 +1,41 @@
+Use case: historical-scene, exterior
+Asset type: gameplay backdrop for the south side of the entrance court, circa-1660 English manor
+Input images: Image 1 is the exact reference for painted MEDIUM, palette, light quality
+  and brush handling. It is NOT a reference for this place's materials, for how many
+  openings this wall has, or for what is in its glass — those are the words below, and
+  where Image 1 and these words disagree, these words win. Image 2 is a geometric layout
+  diagram of the surface to be painted: it is a technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+Primary request: Paint the south side of the empty entrance court of a circa-1660 English manor,
+  matching Image 1's paint handling and Image 2's geometry exactly.
+Gate anchor: the boundary wall coping above the ground, 0.95 m.
+Composition/framing: a 1536 by 1024 landscape picture, looking straight out
+  across the entrance court with the ground running away from you into the distance. The
+  ground is visible and reaches the bottom of the picture, and the sky is overhead.
+  Everything that runs away from you in this view — the edges underfoot, any wall or
+    hedge running back — leans toward one place as it goes: the middle of the picture's
+    width, a little above its half-height, at about the eye level of someone standing on
+    the ground you can see.
+  The same lines, as picture coordinates — column counted from the left edge,
+    row counted from the top:
+    The faced side meets the ground along a level line at row 567.
+    Lines running away from you converge at column 768, row 526 — that row is
+      the viewer's eye line.
+    One metre at the far plane covers 37 columns.
+Architecture and measurement anchors: The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.
+  This side is not a wall at all: it is open across its full 20.40 m width, with no wall, gate, parapet, railing or hedge across any part of it. This place's own ground runs straight out through the open side and continues as the same ground beyond it, under open sky, to the far horizon.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials/textures: no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.
+  Overhead is open sky with weather in it, and daylight falls from it onto everything
+  in frame. This place is out of doors and everything in it is built for weather.
+Windows: this side carries no window and no glazed opening of any kind.
+Style/medium: as Image 1 - fine oil realism with tactile brush detail, deep warm
+  browns, cool ambient light, gentle natural falloff.
+Constraints: the entrance court is completely empty. Nobody is in it and no animal is in it;
+  it holds no cart and no garden furniture, and it carries no tub and no statuary. Its
+  planting is low and kept, and nothing grown crosses the wall plane.
+  Image 2 is a layout drawing and its marks are instructions rather than things to paint.
+  Every surface here is plain and unlettered. Brick is left plain, stone is left plain, render
+  is left plain and the glazing is plain. This picture carries only the place itself. Do not
+  invent additional typography.

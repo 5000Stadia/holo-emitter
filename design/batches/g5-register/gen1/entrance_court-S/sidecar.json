@@ -1,0 +1,195 @@
+{
+  "_what_this_is": "One probe wall's declared geometry, written before any candidate exists. Every bracket here is the standing +/-8 % propagated through a geometry this wall declares; nothing in it is chosen, and the measurement reads its windows from this file.",
+  "row": null,
+  "trial": "register",
+  "generation": 1,
+  "wall": "entrance_court/S",
+  "why_this_wall": "the outdoor open facing: no corners, no returns, the piers at the mouth as the ruler, and row 29's veto live - one interior word in this prompt and the lint refuses the packet",
+  "held_best_sigma_px": null,
+  "voice": {
+    "id": "outdoors_open",
+    "anchor": "coping",
+    "outdoor": true,
+    "via": "facing type `open` — no wall stands at this wall line"
+  },
+  "meta_used": {
+    "floor_line_y": 0.553711,
+    "px_per_m_at_wall": 36.842,
+    "px_per_m_at_bottom": 448.5,
+    "wall_width_m": 20.4,
+    "key_tint": "#c8bdae",
+    "image_h_px": 1024,
+    "horizon_y": 0.51377,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the low boundary wall's stone coping above the ground at the far line, taken at 0.95 m — tools/room-voices.mjs's `outdoors_open` voice rules the coping there on a forecourt wall of this date and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 35,
+    "camera_far_m": 26.75,
+    "far_line": -20,
+    "facing_type": "open",
+    "wall_continuous": false,
+    "wall_segments": [],
+    "corner_x0_px": null,
+    "corner_x1_px": null,
+    "storey_height_m": null,
+    "camera_id": "measured:backdrops/source/entrance_court-S/row23-e117db11.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "vista",
+    "focal_px": 985.5,
+    "nearest_floor_m": 2.1974,
+    "measured_room": {
+      "storey_height_m": null,
+      "wall_width_m": null,
+      "ruled_storey_height_m": null,
+      "ruled_wall_width_m": 20.4,
+      "carriers": [
+        {
+          "kind": "open_edge",
+          "id": "op_court_mouth",
+          "plan_px": [
+            392.2,
+            1143.8
+          ],
+          "plan_centre_px": 768,
+          "painted_px": null,
+          "painted_centre_px": null,
+          "centre_delta_px": null,
+          "centre_delta_m": null,
+          "painted_feature": null
+        }
+      ]
+    },
+    "openings": [
+      {
+        "id": "op_court_mouth",
+        "kind": "threshold",
+        "via": null,
+        "x": -779.38,
+        "y": 0,
+        "w": 3094.76,
+        "h": 694.51,
+        "beyond_m": 0,
+        "beyond_offset_m": 0.4,
+        "measured": false
+      }
+    ]
+  },
+  "meta_origin": "the meta the page holds for this facing (derived: this wall is not promoted)",
+  "declared_horizon_row": 526,
+  "vanishing_point": {
+    "x": 768,
+    "y": 526.1,
+    "_derivation": "the intersection of this facing's own two side-wall junction lines as renderer.js drawGrid draws them, computed rather than assumed to be the frame centre"
+  },
+  "frame_geometry": {
+    "floorY": 567.000064,
+    "ceilY": null,
+    "horizonY": 526.10048,
+    "cL": null,
+    "cR": null,
+    "bounded": false,
+    "px_per_m": 36.842,
+    "wall_width_m": 20.4,
+    "storey_height_m": null,
+    "corner_span_px": null,
+    "left": null,
+    "right": null
+  },
+  "stamped": [
+    {
+      "kind": "open_edge",
+      "id": "op_court_mouth",
+      "x0": 392.21,
+      "x1": 1143.79,
+      "y0": 0,
+      "y1": 567,
+      "from_m": 0,
+      "to_m": 20.4
+    }
+  ],
+  "chair_rail": {
+    "y": 532,
+    "x0": 0,
+    "x1": 1536,
+    "word": "COPING"
+  },
+  "brackets": {
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+    "band": 0.08,
+    "floor_window": {
+      "centre": 567.000064,
+      "half_width": 3.27,
+      "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+    },
+    "rail_band": {
+      "centre": 532.0001639999999,
+      "half_width": 2.8,
+      "from": "+/-8 % of the anchor's own height above the floor line"
+    },
+    "ceiling_band": null,
+    "carrier_windows": [
+      {
+        "kind": "open_edge",
+        "id": "op_court_mouth",
+        "x0": 392.21,
+        "x1": 1143.79,
+        "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+      }
+    ],
+    "carrier_tolerance_px": 0,
+    "rail_columns": [
+      [
+        0,
+        392
+      ],
+      [
+        1144,
+        1536
+      ]
+    ]
+  },
+  "edge_marks": {
+    "lines": [
+      {
+        "x0": 0,
+        "y0": 567,
+        "x1": 1536,
+        "y1": 567,
+        "weight": "heavy",
+        "what": "wall-floor line"
+      },
+      {
+        "x0": 0,
+        "y0": 532,
+        "x1": 1536,
+        "y1": 532,
+        "weight": "light",
+        "what": "gate anchor"
+      }
+    ],
+    "rects": [
+      {
+        "kind": "open_edge",
+        "x0": 392.21,
+        "y0": 0,
+        "x1": 1143.79,
+        "y1": 567,
+        "weight": "medium"
+      }
+    ],
+    "ink": "#000000",
+    "ground": "#ffffff"
+  },
+  "_edge_provenance": "COMPOSED FROM DECLARED GEOMETRY, NOT A SHIPPED-RENDERER CAPTURE. frame.png and scaffold.png come out of window.HOLO.renderer.render and carry row 23 §7.1's guarantee that the picture a painter is given is the picture a player sees; edge.png does not. Plan §1.2 makes re-establishing that guarantee a named condition on folding v5 into production.",
+  "images": {
+    "frame": "bdce68b1f39a190d1a15441d342278903397fa9f182e99cec8fca1df9462b98e",
+    "scaffold": "b1bb18096a667b2fe548608f5f1eafda8161a70fe674b66676aae67c32b99b81",
+    "edge": "dba30f2544b6df1b8b2e552ac092439d63f058710d327703473b8cae185f49cb"
+  },
+  "plan_drawn_digest": "77196f36e193b0b7a435e11a5d2acc8b52a90c7c96a13c8e0d9c75d415164653",
+  "renderer_sha256": "57da3ce6039622fd2e89a19faa1439a4993d9277e84ce7ed5f40eb5b7b7fc09c",
+  "groundplane_sha256": "7e5217511b751eb0a20582e2982de9905797b984c2085dca6794896114d60957",
+  "git_commit": "6c2132b3d9e142d702546f0a2464f52be1b9579b"
+}
