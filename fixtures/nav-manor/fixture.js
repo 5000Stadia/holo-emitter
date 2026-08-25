@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "c6b4e4ca",
+  fp: "7278c708",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -13020,16 +13020,16 @@ window.HOLO_FIXTURES["nav-manor"] = {
     "stairs": []
   },
   "garden_room/W": {
-    "floor_line_y": 0.704102,
-    "px_per_m_at_wall": 155.789,
-    "px_per_m_at_bottom": 362.46,
+    "floor_line_y": 0.693012,
+    "px_per_m_at_wall": 155.152,
+    "px_per_m_at_bottom": 420.88,
     "wall_width_m": 3.55,
-    "key_tint": "#c89156",
+    "key_tint": "#c89b63",
     "image_h_px": 1024,
-    "horizon_y": 0.481055,
-    "key_dir": "C-BELOW",
+    "horizon_y": 0.51377,
+    "key_dir": "L-BELOW",
     "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 148,
+    "calibration_px": 147,
     "camera_wall_m": 6.6,
     "facing_type": "enclosed",
     "wall_continuous": true,
@@ -13040,20 +13040,20 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "kind": "wall"
       }
     ],
-    "corner_x0_px": 337,
-    "corner_x1_px": 1190,
+    "corner_x0_px": 289.42,
+    "corner_x1_px": 1246.58,
     "storey_height_m": 2.8,
-    "camera_id": "measured:backdrops/source/garden_room-W/row23-3c4f560c.png",
+    "camera_id": "measured:backdrops/source-snapped/garden_room-W/snapped.png",
     "camera_reference": "ruled",
-    "measured_round": "manor",
+    "measured_round": "row35snap",
     "provisional": false,
     "measured": true,
     "backdrop": "wall",
-    "focal_px": 1028.2,
-    "nearest_floor_m": 2.8367,
+    "focal_px": 1024,
+    "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.851,
-      "wall_width_m": 5.475,
+      "storey_height_m": 3.12,
+      "wall_width_m": 6.169,
       "ruled_storey_height_m": 2.8,
       "ruled_wall_width_m": 3.55,
       "carriers": []

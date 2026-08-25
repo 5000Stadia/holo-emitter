@@ -438,20 +438,19 @@
     "garden_room/W": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/garden_room-W/row23-3c4f560c.png",
-      "correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 173, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero.",
+      "candidate": "backdrops/source/garden_room-W/row23-e0d4b50e.png",
       "why": "art already in the store; this loop read it rather than remaking it",
-      "supersede": "refused",
+      "supersede": "stood",
       "superseded_from": "backdrops/source/garden_room-W/row23-3c4f560c.png",
-      "supersede_reason": "W still stands outside the room (EN agree) and the room is still mismatched; worst-band distance 6.208 (wall_upper) -> 3.904 (wall_lower), so the consistency roll e0d4b50e is out and the previous painting is back byte-for-byte (it went in snapped; provenance: the row-40 emitter's `consistency` block)",
+      "supersede_reason": "W still stands outside the room, and the room is that much closer to reading as one anyway; worst-band distance 6.208 (wall_upper) -> 3.904 (wall_lower), 37% closer, so the consistency roll e0d4b50e replaces the painting (camera FAIL (generation_miss), and row 35 rectified this frame onto its own declared camera and the standing instrument then passed it with nothing left to hold (focal +7.87%, eye -0.55%); promoted from backdrops/source-snapped/garden_room-W/snapped.png through the row35snap round, on measured numbers and no waiver; provenance: the row-40 emitter's `consistency` block)",
       "supersede_attempt": {
         "candidate": "backdrops/source/garden_room-W/row23-e0d4b50e.png",
         "roll_id": "e0d4b50e",
-        "outcome": "refused",
+        "outcome": "stood",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": "snapped",
-        "rule": 2,
-        "at": "2026-08-24T21:10:44"
+        "rule": 3,
+        "at": "2026-08-24T21:25:23"
       },
       "supersede_exit": "snapped",
       "supersede_room": {
@@ -474,7 +473,8 @@
           ],
           "no_majority": false
         }
-      }
+      },
+      "answered_correction": "camera PASS; held for the promotion instrument: the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions: this frame gives it only one corner at the ceiling line y 173, so it has nothing to fit. A facing with no corners has no ramp and issues no eye height, which is a WITHHELD and not a zero."
     },
     "entrance_court/N": {
       "attempts": 5,
@@ -1188,8 +1188,8 @@
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
-        "rule": 2,
-        "at": "2026-08-24T21:10:48"
+        "rule": 3,
+        "at": "2026-08-24T21:25:28"
       },
       "supersede_room": {
         "room": "guest_chamber",
@@ -1219,8 +1219,8 @@
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
-        "rule": 2,
-        "at": "2026-08-24T21:10:53"
+        "rule": 3,
+        "at": "2026-08-24T21:25:32"
       },
       "supersede_room": {
         "room": "guest_chamber",
@@ -1273,8 +1273,8 @@
         "outcome": "refused",
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
-        "rule": 2,
-        "at": "2026-08-24T21:10:33"
+        "rule": 3,
+        "at": "2026-08-24T21:25:13"
       },
       "supersede_room": {
         "room": "closet_chamber",
