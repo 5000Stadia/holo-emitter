@@ -378,23 +378,19 @@
         {
           "facing": "E",
           "voice": "servants_hall",
-          "candidate": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
+          "candidate": "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
           "ruling": {
             "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
             "overhead": "plain exposed oak joists with boards between them",
             "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
             "hangings": null
           },
-          "ask_path": "backdrops/source/servants_hall-E/row23-a1213e7d.prompt.txt",
+          "ask_path": "backdrops/source/servants_hall-E/row23-ce4ea35f.prompt.txt",
           "ask_via": "beside the candidate",
-          "missing": [
-            "walls",
-            "overhead",
-            "underfoot"
-          ],
-          "verdict": "stale",
-          "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-          "ask_key": "dark hand-finished oak wall panelling aged parchment-toned plaster ceiling wide worn oak floorboards"
+          "missing": [],
+          "verdict": "current",
+          "asked": "plain exposed oak joists with boards between them. Underfoot: a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone.",
+          "ask_key": "plain exposed oak joists with boards between them floor of worn red brick laid on edge in straight courses running away from you every brick long narrow rectangle end-on no square pavers and no herringbone"
         },
         {
           "facing": "S",
@@ -439,7 +435,6 @@
       "split": true,
       "stale": [
         "N",
-        "E",
         "S",
         "W"
       ],

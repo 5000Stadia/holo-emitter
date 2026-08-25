@@ -2,7 +2,7 @@
   "_what_this_is": "[row 40 - the ORIGIN] The paintings that were already promoted when promote-backdrop.mjs's row40:material.voice_stale clause landed. Each was made from an ask that does not name the materials this plan rules for its room, because the manor's 85 packets went out at 2026-08-23 03:54 under a composer that keyed materials on room.archetype and row 29's voice table landed at 11:03 and re-emitted only thirteen walls. This file is a LEDGER, not an exemption: an entry admits one facing from one exact candidate, a re-ask produces a new candidate id that is not in here, and the list can only shrink. Delete an entry in the same commit that re-asks its wall.",
   "_sealed": "2026-08-25",
   "_closes_with": "node tools/make-scaffold.mjs --emit-consistency --from-ask",
-  "open": 30,
+  "open": 29,
   "admitted": {
     "great_hall/N": {
       "candidate": "backdrops/source-doors/great_hall-N/doored.png",
@@ -172,19 +172,6 @@
         "hangings": null
       },
       "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall servants_hall/N"
-    },
-    "servants_hall/E": {
-      "candidate": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
-      "voice": "servants_hall",
-      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
-      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
-      "ruled": {
-        "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
-        "overhead": "plain exposed oak joists with boards between them",
-        "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
-        "hangings": null
-      },
-      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall servants_hall/E"
     },
     "servants_hall/S": {
       "candidate": "backdrops/source/servants_hall-S/row23-aa3b7fd3.png",

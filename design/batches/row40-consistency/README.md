@@ -17,12 +17,12 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | 1 | guest_chamber | ENSW | wall_upper | **8.96** | S-W | x4.33 | 1.095 | 1.000 | x3.36 | SW | mismatched |
 | 2 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
 | 3 | garden_room | ENW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
-| 4 | servants_hall | ENSW | wall_lower | **3.89** | E-W | x1.48 | 0.233 | 0.625 | x2.65 | E | mismatched |
-| 5 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
-| 6 | closet_chamber | ENW | wall_upper | **3.54** | N-W | x1.09 | 0.263 | 0.537 | x2.30 | — | consistent-incomplete |
-| 7 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
-| 8 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
-| 9 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
+| 4 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
+| 5 | closet_chamber | ENW | wall_upper | **3.54** | N-W | x1.09 | 0.263 | 0.537 | x2.30 | — | consistent-incomplete |
+| 6 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
+| 7 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
+| 8 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
+| 9 | servants_hall | NSW | wall_upper | **2.75** | N-W | x1.12 | 0.165 | 0.455 | x1.99 | — | consistent-incomplete |
 | 10 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
 | 11 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
 | 12 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
@@ -57,6 +57,7 @@ Reported, never skipped — production law leaves no gate that cannot fail.
 | muniment_room/S | enclosed | — | no band survived the frame: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe; wall_upper band gave 0 tiles of 0.30 m (needs 8) - too little material to describe; wall_lower band gave 0 tiles of 0.30 m (needs 8) - too little material to describe; floor band gave 0 tiles of 0.30 m (needs 8) - too little material to describe |
 | privy_garden/N | enclosed | storey_height_m | meta declares no storey_height_m, so the ceiling/floor lines and the facing-wall columns cannot be placed |
 | privy_garden/S | enclosed | storey_height_m | meta declares no storey_height_m, so the ceiling/floor lines and the facing-wall columns cannot be placed |
+| servants_hall/E | enclosed | — | no band survived the frame: ceiling band gave 2 tiles of 0.30 m (needs 8) - too little material to describe; wall_upper band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; wall_lower band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; floor band gave 2 tiles of 0.30 m (needs 8) - too little material to describe |
 
 ## The distribution the cut was read off
 
@@ -66,11 +67,9 @@ Every (room, band) spread in the store, worst first:
   8.96  guest_chamber        wall_upper
   4.14  master_bedchamber    ceiling
   3.90  garden_room          wall_lower
-  3.89  servants_hall        wall_lower
   3.62  long_gallery         floor
   3.56  master_bedchamber    wall_upper
   3.54  closet_chamber       wall_upper
-  3.36  servants_hall        wall_upper
   3.28  dining_parlour       ceiling
   3.01  closet_chamber       wall_lower
   2.98  long_gallery         wall_upper
@@ -79,6 +78,7 @@ Every (room, band) spread in the store, worst first:
   2.84  master_bedchamber    wall_lower
   2.75  great_hall           wall_upper
   2.75  closet_chamber       floor
+  2.75  servants_hall        wall_upper
   2.72  garden_room          ceiling
   2.69  master_bedchamber    floor
   2.68  solar                wall_lower
@@ -92,6 +92,7 @@ Every (room, band) spread in the store, worst first:
   2.04  buttery_pantry       wall_lower
   2.03  great_hall           floor
   2.00  buttery_pantry       floor
+  1.99  servants_hall        wall_lower
   1.94  library              ceiling
   1.76  long_gallery         ceiling
   1.75  dining_parlour       floor

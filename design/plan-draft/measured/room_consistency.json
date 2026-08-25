@@ -5597,14 +5597,12 @@
     {
       "room": "servants_hall",
       "facings": [
-        "E",
         "N",
         "S",
         "W"
       ],
       "notes": [
-        "servants_hall/E: ceiling band gave 4 tiles of 0.30 m (needs 8) - too little material to describe",
-        "servants_hall/E: floor band gave 4 tiles of 0.30 m (needs 8) - too little material to describe"
+        "servants_hall/E unmeasurable: no band survived the frame: ceiling band gave 2 tiles of 0.30 m (needs 8) - too little material to describe; wall_upper band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; wall_lower band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; floor band gave 2 tiles of 0.30 m (needs 8) - too little material to describe"
       ],
       "bands": {
         "ceiling": {
@@ -5718,40 +5716,12 @@
         },
         "wall_upper": {
           "facings": [
-            "E",
             "N",
             "S",
             "W"
           ],
-          "spread": 3.363,
+          "spread": 2.75,
           "pairwise": [
-            {
-              "dLum": 1.066,
-              "dChroma": 0.2347,
-              "dH": 0.75,
-              "dT": 0.034,
-              "D": 1.679,
-              "a": "E",
-              "b": "N"
-            },
-            {
-              "dLum": 1.1072,
-              "dChroma": 0.2181,
-              "dH": 0.75,
-              "dT": 0.826,
-              "D": 2.586,
-              "a": "E",
-              "b": "S"
-            },
-            {
-              "dLum": 0.957,
-              "dChroma": 0.3033,
-              "dH": 0.625,
-              "dT": 1.029,
-              "D": 3.363,
-              "a": "E",
-              "b": "W"
-            },
             {
               "dLum": 0.0412,
               "dChroma": 0.0614,
@@ -5781,60 +5751,47 @@
             }
           ],
           "deviation": {
-            "E": {
-              "dLum": 1.0115,
-              "dChroma": 0.1972,
-              "dH": 0.6684,
-              "dT": 0.377,
-              "D": 1.694
-            },
             "N": {
-              "dLum": 0.0545,
-              "dChroma": 0.0702,
-              "dH": 0.3695,
-              "dT": 0.342,
-              "D": 0.991
+              "dLum": 0.0,
+              "dChroma": 0.0614,
+              "dH": 0.3571,
+              "dT": 0.791,
+              "D": 2.026
             },
             "S": {
-              "dLum": 0.0957,
-              "dChroma": 0.0211,
-              "dH": 0.2121,
-              "dT": 0.449,
-              "D": 1.133
+              "dLum": 0.0412,
+              "dChroma": 0.0,
+              "dH": 0.091,
+              "dT": 0.0,
+              "D": 0.0
             },
             "W": {
-              "dLum": 0.0545,
-              "dChroma": 0.1278,
-              "dH": 0.1803,
-              "dT": 0.652,
-              "D": 1.869
+              "dLum": 0.109,
+              "dChroma": 0.116,
+              "dH": 0.1489,
+              "dT": 0.203,
+              "D": 0.972
             }
           },
           "median": {
-            "lum": 0.2143,
+            "lum": 0.2688,
             "chroma": [
-              0.4808,
-              -0.6461
+              0.4658,
+              -0.661
             ],
-            "tex": 1.05276
+            "tex": 0.7711
           },
           "tex": {
-            "E": 1.36669,
             "N": 1.33442,
             "S": 0.7711,
             "W": 0.66988
           },
           "lum": {
-            "E": -0.7972,
             "N": 0.2688,
             "S": 0.31,
             "W": 0.1598
           },
           "chroma": {
-            "E": [
-              0.5977,
-              -0.4873
-            ],
             "N": [
               0.4122,
               -0.6311
@@ -5849,11 +5806,6 @@
             ]
           },
           "srgb": {
-            "E": [
-              39,
-              28,
-              20
-            ],
             "N": [
               99,
               81,
@@ -5873,40 +5825,12 @@
         },
         "wall_lower": {
           "facings": [
-            "E",
             "N",
             "S",
             "W"
           ],
-          "spread": 3.887,
+          "spread": 1.991,
           "pairwise": [
-            {
-              "dLum": 0.4006,
-              "dChroma": 0.1864,
-              "dH": 0.5357,
-              "dT": 0.621,
-              "D": 2.046,
-              "a": "E",
-              "b": "N"
-            },
-            {
-              "dLum": 0.2875,
-              "dChroma": 0.2263,
-              "dH": 0.3864,
-              "dT": 1.385,
-              "D": 3.821,
-              "a": "E",
-              "b": "S"
-            },
-            {
-              "dLum": 0.3889,
-              "dChroma": 0.2327,
-              "dH": 0.625,
-              "dT": 1.405,
-              "D": 3.887,
-              "a": "E",
-              "b": "W"
-            },
             {
               "dLum": 0.1131,
               "dChroma": 0.0411,
@@ -5936,60 +5860,47 @@
             }
           ],
           "deviation": {
-            "E": {
-              "dLum": 0.3382,
-              "dChroma": 0.206,
-              "dH": 0.3774,
-              "dT": 0.953,
-              "D": 2.801
-            },
             "N": {
-              "dLum": 0.0624,
-              "dChroma": 0.0202,
-              "dH": 0.3107,
-              "dT": 0.332,
-              "D": 0.842
+              "dLum": 0.0117,
+              "dChroma": 0.0405,
+              "dH": 0.2852,
+              "dT": 0.763,
+              "D": 1.93
             },
             "S": {
-              "dLum": 0.0507,
-              "dChroma": 0.0208,
-              "dH": 0.1619,
-              "dT": 0.432,
-              "D": 1.089
+              "dLum": 0.1014,
+              "dChroma": 0.0009,
+              "dH": 0.172,
+              "dT": 0.0,
+              "D": 0.006
             },
             "W": {
-              "dLum": 0.0507,
-              "dChroma": 0.0293,
-              "dH": 0.2559,
-              "dT": 0.452,
-              "D": 1.15
+              "dLum": 0.0,
+              "dChroma": 0.0102,
+              "dH": 0.1134,
+              "dT": 0.021,
+              "D": 0.089
             }
           },
           "median": {
-            "lum": 0.4006,
+            "lum": 0.3499,
             "chroma": [
-              0.379,
-              -0.5396
+              0.3676,
+              -0.5228
             ],
-            "tex": 1.15683
+            "tex": 0.85769
           },
           "tex": {
-            "E": 2.23992,
             "N": 1.45597,
             "S": 0.85769,
             "W": 0.84555
           },
           "lum": {
-            "E": 0.7388,
             "N": 0.3382,
             "S": 0.4513,
             "W": 0.3499
           },
           "chroma": {
-            "E": [
-              0.5334,
-              -0.6759
-            ],
             "N": [
               0.3903,
               -0.5564
@@ -6004,11 +5915,6 @@
             ]
           },
           "srgb": {
-            "E": [
-              38,
-              28,
-              18
-            ],
             "N": [
               98,
               82,
@@ -6137,28 +6043,24 @@
         }
       },
       "wall_split": {
-        "E": 2.281,
         "N": 0.639,
         "S": 1.274,
         "W": 2.237
       },
       "reference_log_luma": {
-        "E": -4.3457,
         "N": -2.4143,
         "S": -2.5522,
         "W": -2.4897
       },
-      "worst_band": "wall_lower",
-      "score": 3.887,
+      "worst_band": "wall_upper",
+      "score": 2.75,
       "outlier_deviation": {
-        "E": 2.801,
-        "W": 1.15,
-        "S": 1.089,
-        "N": 0.842
+        "N": 2.026,
+        "W": 0.972,
+        "S": 0.0
       },
       "clusters": [
         [
-          "E",
           "N",
           "S",
           "W"
@@ -6169,13 +6071,11 @@
         "S",
         "W"
       ],
-      "outliers": [
-        "E"
-      ],
+      "outliers": [],
       "no_majority": false,
-      "wall_split_spread": 1.642,
-      "verdict": "mismatched",
-      "why": "wall_lower disagrees most: worst pair E/W at D=3.89 (colour 0.233, contrast x2.65; brightness x1.48 and spread 0.625 reported, not counted). NSW agree; E stands outside them."
+      "wall_split_spread": 1.598,
+      "verdict": "consistent-incomplete",
+      "why": "wall_upper disagrees most: worst pair N/W at D=2.75 (colour 0.165, contrast x1.99; brightness x1.12 and spread 0.455 reported, not counted). no facing stands outside the rest."
     },
     {
       "room": "solar",
@@ -7595,6 +7495,13 @@
       ],
       "facing_type": "enclosed",
       "reason": "meta declares no storey_height_m, so the ceiling/floor lines and the facing-wall columns cannot be placed"
+    },
+    {
+      "room": "servants_hall",
+      "facing": "E",
+      "missing": [],
+      "facing_type": "enclosed",
+      "reason": "no band survived the frame: ceiling band gave 2 tiles of 0.30 m (needs 8) - too little material to describe; wall_upper band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; wall_lower band gave 4 tiles of 0.30 m (needs 8) - too little material to describe; floor band gave 2 tiles of 0.30 m (needs 8) - too little material to describe"
     }
   ],
   "distribution": [
@@ -7614,11 +7521,6 @@
       "wall_lower"
     ],
     [
-      3.887,
-      "servants_hall",
-      "wall_lower"
-    ],
-    [
       3.623,
       "long_gallery",
       "floor"
@@ -7631,11 +7533,6 @@
     [
       3.538,
       "closet_chamber",
-      "wall_upper"
-    ],
-    [
-      3.363,
-      "servants_hall",
       "wall_upper"
     ],
     [
@@ -7677,6 +7574,11 @@
       2.755,
       "closet_chamber",
       "floor"
+    ],
+    [
+      2.75,
+      "servants_hall",
+      "wall_upper"
     ],
     [
       2.717,
@@ -7742,6 +7644,11 @@
       2.005,
       "buttery_pantry",
       "floor"
+    ],
+    [
+      1.991,
+      "servants_hall",
+      "wall_lower"
     ],
     [
       1.938,

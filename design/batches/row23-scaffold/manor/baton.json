@@ -1,8 +1,8 @@
 {
- "ts": 1787664800.48416,
- "baton": "none",
- "active": "unknown",
+ "ts": 1787667104.3572357,
+ "baton": "publish",
+ "active": "waiting-on-navigator",
  "nudged": "no",
- "detail": "all quiet: nothing owed anywhere this script can see",
- "loop_pass_age_s": 17
+ "detail": "1 promoted wall(s) newer than the last publish - Navigator's publish-site.sh is owed",
+ "loop_pass_age_s": 63
 }

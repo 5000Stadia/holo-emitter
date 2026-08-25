@@ -519,11 +519,10 @@
     "servants_hall/E": {
       "attempts": 2,
       "status": "promoted",
-      "candidate": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
-      "correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 141.0) puts the eye at 3.408 m above its own floor line at the scale its own chair-rail declares (173.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands.",
+      "candidate": "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
       "why": "art already in the store; this loop read it rather than remaking it",
       "supersede": "refused",
-      "superseded_from": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
+      "superseded_from": "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
       "supersede_reason": "the promotion instrument refused it: promote refused: servants_hall/E: the plan rules 1 window(s) on this wall and the painting shows 0 \u2014 a window the drawing puts here with no glazed opening in the picture is a casement sprite standing , and neither the snap nor the door repair could carry it \u2014 the snap corrected this frame and the standing instrument still refuses it: FAIL [-]; the promoted wall stands",
       "supersede_attempt": {
         "candidate": "backdrops/source/servants_hall-E/row23-230bb67d.png",
@@ -532,21 +531,21 @@
         "provenance": "the row-40 emitter's `consistency` block",
         "exit": null,
         "rule": 3,
-        "at": "2026-08-25T04:17:40"
+        "at": "2026-08-25T06:40:51"
       },
       "supersede_room": {
         "room": "servants_hall",
         "before": {
-          "score": 3.887,
-          "band": "wall_lower",
-          "verdict": "mismatched",
-          "outliers": [
-            "E"
-          ],
+          "score": 2.75,
+          "band": "wall_upper",
+          "verdict": "consistent-incomplete",
+          "outliers": [],
           "no_majority": false
         },
         "after": null
-      }
+      },
+      "supersede_exit": "measured",
+      "answered_correction": "camera PASS; held for the promotion instrument: the horizon this painting's own side walls converge on (y 141.0) puts the eye at 3.408 m above its own floor line at the scale its own chair-rail declares (173.7 px/m), outside 0.8-2.2 m. The two readings are of one picture and cannot both be true: the ruler and the perspective disagree, and a meta built from them would tell the renderer to stand somewhere nobody stands."
     },
     "servants_hall/S": {
       "attempts": 4,

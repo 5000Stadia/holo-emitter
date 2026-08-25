@@ -1,14 +1,14 @@
 {
-  "floor_line_y": 0.71582,
-  "px_per_m_at_wall": 173.684,
-  "px_per_m_at_bottom": 431.42,
+  "floor_line_y": 0.725586,
+  "px_per_m_at_wall": 178.947,
+  "px_per_m_at_bottom": 469.94,
   "wall_width_m": 7.05,
-  "key_tint": "#c8b08c",
+  "key_tint": "#c89658",
   "image_h_px": 1024,
-  "horizon_y": 0.524316,
+  "horizon_y": 0.556836,
   "key_dir": "L-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 165,
+  "calibration_px": 170,
   "camera_wall_m": 6,
   "facing_type": "enclosed",
   "wall_continuous": true,
@@ -19,20 +19,20 @@
       "kind": "wall"
     }
   ],
-  "corner_x0_px": 146,
-  "corner_x1_px": 1374,
+  "corner_x0_px": 95,
+  "corner_x1_px": 1394,
   "storey_height_m": 2.8,
-  "camera_id": "measured:backdrops/source/servants_hall-E/row23-a1213e7d.png",
+  "camera_id": "measured:backdrops/source/servants_hall-E/row23-ce4ea35f.png",
   "camera_reference": "ruled",
   "measured_round": "manor",
   "provisional": false,
   "measured": true,
   "backdrop": "wall",
-  "focal_px": 1042.1,
-  "nearest_floor_m": 2.4155,
+  "focal_px": 1073.7,
+  "nearest_floor_m": 2.2847,
   "measured_room": {
-    "storey_height_m": 3.443,
-    "wall_width_m": 7.07,
+    "storey_height_m": 3.141,
+    "wall_width_m": 7.259,
     "ruled_storey_height_m": 2.8,
     "ruled_wall_width_m": 7.05,
     "carriers": [
@@ -40,10 +40,10 @@
         "kind": "window",
         "id": null,
         "plan_px": [
-          312.1,
-          572.6
+          298.3,
+          566.7
         ],
-        "plan_centre_px": 442.3,
+        "plan_centre_px": 432.5,
         "painted_px": null,
         "painted_centre_px": null,
         "centre_delta_px": null,
@@ -54,10 +54,10 @@
         "kind": "fireplace",
         "id": null,
         "plan_px": [
-          659.4,
-          1006.8
+          656.2,
+          1014.1
         ],
-        "plan_centre_px": 833.1,
+        "plan_centre_px": 835.1,
         "painted_px": null,
         "painted_centre_px": null,
         "centre_delta_px": null,
@@ -66,5 +66,25 @@
       }
     ]
   },
-  "openings": []
+  "openings": [],
+  "windows": [
+    {
+      "id": "win19",
+      "kind": "window",
+      "x": 268,
+      "y": 385,
+      "w": 429,
+      "h": 197,
+      "sill_m": 0.9,
+      "head_m": 2,
+      "measured": true
+    }
+  ],
+  "window_evidence": {
+    "read_by": "design/plan-draft/measured/window_measure.py",
+    "ruled": 1,
+    "painted": 1,
+    "unruled": [],
+    "note": "every glazed opening the painting shows answers to a window the plan rules"
+  }
 }

@@ -18,7 +18,7 @@
   },
   "paired": 33,
   "median_centre_distance_m": 0.635,
-  "within_0_35_m": 14,
+  "within_0_35_m": 13,
   "of": 33,
   "count_mismatches": [
     {
@@ -222,16 +222,16 @@
       ],
       "painted_m": [
         [
-          1.102,
-          2.124
+          0.939,
+          3.267
         ]
       ],
       "pairs": [
         {
           "plan_centre_m": 1.65,
-          "painted_centre_m": 1.613,
-          "distance_m": -0.037,
-          "width_delta_m": -0.478
+          "painted_centre_m": 2.103,
+          "distance_m": 0.453,
+          "width_delta_m": 0.828
         }
       ]
     },
