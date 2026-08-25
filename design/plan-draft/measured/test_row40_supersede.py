@@ -22,13 +22,27 @@ going both ways:
 AND THE TWO THINGS THE FIRST PRODUCTION PASS SENT BACK, which are the whole
 point of the cases named `set` and `snap` below:
 
-    A NO-MAJORITY ROOM IS JUDGED AS A SET. `master_bedchamber/S` and `/W` each
-        refused "the room got worse" because each was judged alone against a
-        room whose other outliers were still their old paintings. The fixture
-        here has that exact arithmetic — moving ONE wall to the ruling material
-        puts the worst pair further apart (8.489 -> 9.011) and moving BOTH puts
-        it under the cut (-> 3.118) — so the same three materials show the
-        single verdict refusing and the joint verdict standing.
+    EVERY ROLL OF ONE ROOM IS JUDGED AS ONE ACT. `master_bedchamber/S` and `/W`
+        each refused "the room got worse" because each was judged alone against
+        a room whose other outliers were still their old paintings. The
+        `bedchamber` fixture has that exact arithmetic — moving ONE wall to the
+        ruling material puts the worst pair further apart (8.489 -> 9.011) and
+        moving BOTH puts it under the cut (-> 3.118) — so the same three
+        materials show the single verdict refusing and the joint verdict
+        standing. Pass 2 then showed the fix was scoped wrong rather than
+        thought wrong: `guest_chamber` HAS a majority and it is the half that
+        disobeys the voice, so its two rolls move away from the majority and
+        toward the plan's ruling and have to be judged together too. The
+        `guestchamber` fixture is that room, and it discriminates: under joint
+        judging both walls carry the SAME after-score, where judging them in
+        turn would leave the first with an intermediate one.
+
+    A MEASURABLE STEP TOWARD ONE ROOM IS KEPT. `garden_room/W` came back at
+        6.208 -> 3.904 — a 37 % cut — and was refused because it was still the
+        room's outlier. `SUPERSEDE_IMPROVEMENT` is the clause that keeps it, and
+        the fixtures for both sides of that floor are pairs out of the measured
+        matrix below: slate -> darkjoists against limeplaster is a 12 % cut and
+        stands, oak -> slate is 4.6 % and does not.
     A CAMERA FAIL GOES THROUGH THE SNAP. `guest_chamber/S`, `/W` and
         `master_bedchamber/E` refused as camera FAIL, and `closet_chamber/W` on
         the horizon instrument. Row 35 exists for that under the Captain's
@@ -70,19 +84,35 @@ from test_room_consistency import META, build, paint      # noqa: E402
 #   genuinely made the room worse, and "worse" has to be a measured fact rather
 #   than a label, which neither `stone` nor `oak` could carry.
 #
-#   `slate` and `warmlime` are the master_bedchamber shape, measured before
-#   they were written down (probe run 2026-08-25, four facings a room, the
-#   instrument's own `audit_room`):
+#   `slate` and `warmlime` are the master_bedchamber shape.
 #
-#       slate  vs limeplaster   8.489   the 2-2 split, mismatched, no majority
-#       slate  vs warmlime      9.011   ONE wall moved to the ruling: WORSE
-#       limeplaster vs warmlime 3.118   BOTH walls moved: under the 3.75 cut
+# EVERY FIXTURE BELOW IS CHOSEN OUT OF MEASURED NUMBERS, not guessed. The
+# pairwise band distance between each material, taken by the instrument's own
+# `audit_room` over two-facings-each rooms (probe run 2026-08-25; `CUT` is 3.75
+# and `SUPERSEDE_IMPROVEMENT` is 10 %):
+#
+#       limeplaster darkjoists   7.460      darkjoists stone       6.032
+#       limeplaster stone        2.559      darkjoists oak         4.848
+#       limeplaster oak          8.875      darkjoists slate       9.441
+#       limeplaster verdigris   18.515      darkjoists warmlime    4.620
+#       limeplaster slate        8.465      stone      slate       6.262
+#       limeplaster warmlime     3.118      oak        slate      13.760
+#                                           slate      warmlime    9.011
+#
+# The three the cases turn on:
+#   slate vs limeplaster 8.465 and slate vs warmlime 9.011 — one wall of a 2-2
+#     split moved to the ruling makes the worst pair WORSE, and limeplaster vs
+#     warmlime 3.118 puts it under the cut when both move.
+#   slate -> darkjoists against limeplaster: 8.465 -> 7.460, a 12 % cut with the
+#     wall still the outlier — the `garden_room/W` shape, kept by the margin.
+#   oak -> slate against limeplaster: 8.875 -> 8.465, 4.6 % — under the floor.
 TRC.MATERIALS["verdigris"] = ((40.0, 130.0, 95.0), 0.55)
 TRC.MATERIALS["slate"] = ((70.0, 82.0, 104.0), 0.30)
 TRC.MATERIALS["warmlime"] = ((212.0, 186.0, 150.0), 0.09)
 
 ROOM = "chamber"
 SPLIT = "bedchamber"
+GUEST = "guestchamber"
 #: The room's ruled ceiling, the outlier row 40 re-asked, and what a repaint
 #: that made the room WORSE would look like.
 RULED, OUTLIER, WORSE = "limeplaster", "darkjoists", "verdigris"
@@ -573,6 +603,61 @@ class Supersede(unittest.TestCase):
         self.assertIn("the snap refused this frame", st["supersede_reason"])
         self.assertEqual(self._store_bytes(key), was)
 
+    # --- progress, not only perfection ------------------------------------
+
+    def test_a_measurable_step_toward_one_room_is_kept(self):
+        """`garden_room/W`'s own case. Pass 2 refused it at 6.208 -> 3.904 — a
+        37 % cut toward the ruling — because it was still the room's outlier.
+        The store should keep that. Here: slate -> darkjoists against three
+        limeplaster facings, 8.465 -> 7.460, a 12 % cut with the wall STILL the
+        outlier and the room STILL mismatched."""
+        key = ROOM + "/S"
+        self._room({"N": RULED, "E": RULED, "W": RULED, "S": "slate"})
+        self._promoted_state(
+            key, "backdrops/source/%s-S/row23-old00013.png" % ROOM, 1000)
+        before = self.C.audit_room(ROOM, self.C.FACINGS, [])
+        roll = self._roll(key, "better01", "darkjoists", 2000)
+        self._reading(roll)
+        self._packet(key, roll)
+
+        out, line = self._one(key)
+        st = self.states[key]
+        self.assertEqual(out, self.R.SUPERSEDE_STOOD, line)
+        after = self.C.audit_room(ROOM, self.C.FACINGS, [])
+        self.assertEqual(after["outliers"], ["S"],
+                         "the wall must still be the outlier, or this case is "
+                         "not testing the margin clause: %s" % after["why"])
+        self.assertEqual(after["verdict"], "mismatched", after["why"])
+        self.assertGreaterEqual((before["score"] - after["score"]) / before["score"],
+                                self.R.SUPERSEDE_IMPROVEMENT)
+        self.assertIn("closer to reading as one", st["supersede_reason"])
+        self.assertEqual(st["candidate"], roll["candidate"])
+
+    def test_a_step_under_the_floor_is_refused(self):
+        """And the floor is a floor. oak -> slate against three limeplaster
+        facings is 8.875 -> 8.465 — 4.6 %, inside what the measure calls noise —
+        so the wall is left for the next roll rather than spending its one
+        supersede on a repaint that did nothing."""
+        key = ROOM + "/S"
+        self._room({"N": RULED, "E": RULED, "W": RULED, "S": "oak"})
+        self._promoted_state(
+            key, "backdrops/source/%s-S/row23-old00014.png" % ROOM, 1000)
+        was = self._store_bytes(key)
+        before = self.C.audit_room(ROOM, self.C.FACINGS, [])
+        roll = self._roll(key, "barely01", "slate", 2000)
+        self._reading(roll)
+        self._packet(key, roll)
+
+        out, line = self._one(key)
+        st = self.states[key]
+        self.assertEqual(out, self.R.SUPERSEDE_REFUSED, line)
+        cut = ((before["score"] - st["supersede_room"]["after"]["score"])
+               / before["score"])
+        self.assertGreater(cut, 0.0, "the fixture must be an improvement…")
+        self.assertLess(cut, self.R.SUPERSEDE_IMPROVEMENT, "…under the floor")
+        self.assertIn("less than the 10%", st["supersede_reason"])
+        self.assertEqual(self._store_bytes(key), was)
+
     # --- the room, judged as a set ----------------------------------------
 
     def _bedchamber(self, *eligible):
@@ -629,6 +714,47 @@ class Supersede(unittest.TestCase):
         self.assertGreater(st["supersede_room"]["after"]["score"],
                            before["score"])
         self.assertEqual(self._store_bytes(key), was)
+
+    def test_a_room_with_a_majority_is_judged_as_one_act_too(self):
+        """`guest_chamber`'s shape, and pass 2's second correction.
+
+        Its pixel majority is E+N — and E+N are the half that DISOBEYS the
+        room's voice, so both rolls move AWAY from the biggest cluster and
+        TOWARD the plan's ruling. Judged in turn, the first is a facing walking
+        away from its room. The discriminator is in the record: judged together
+        both walls carry the SAME after-score, where one at a time would leave
+        the first holding an intermediate one (7.460 against 3.118)."""
+        self._room({"E": "limeplaster", "N": "limeplaster",
+                    "S": "slate", "W": "darkjoists"}, room=GUEST)
+        before = self.C.audit_room(GUEST, self.C.FACINGS, [])
+        self.assertFalse(before["no_majority"],
+                         "this fixture is the room WITH a majority: %s"
+                         % before["why"])
+        self.assertEqual(before["majority"], ["E", "N"], before["why"])
+        self.assertEqual(sorted(before["outliers"]), ["S", "W"], before["why"])
+        for i, f in enumerate("SW"):
+            key = "%s/%s" % (GUEST, f)
+            self._promoted_state(
+                key, "backdrops/source/%s-%s/row23-gwas%d.png" % (GUEST, f, i),
+                1000)
+            roll = self._roll(key, "guest0000%d" % i, "warmlime", 2000)
+            self._reading(roll)
+            self._packet(key, roll)
+
+        r = self._pass()
+        self.assertEqual(sorted(k for k, _, _ in r["stood"]),
+                         [GUEST + "/S", GUEST + "/W"], r["lines"])
+        after = self.C.audit_room(GUEST, self.C.FACINGS, [])
+        self.assertEqual(after["verdict"], "consistent", after["why"])
+        scores = [self.states["%s/%s" % (GUEST, f)]["supersede_room"]["after"]
+                  ["score"] for f in "SW"]
+        self.assertEqual(scores[0], scores[1],
+                         "judged together, both walls answer to ONE audit taken "
+                         "with the whole set in place")
+        self.assertEqual(scores[0], after["score"])
+        for f in "SW":
+            self.assertIn("judged together",
+                          self.states["%s/%s" % (GUEST, f)]["supersede_reason"])
 
     def test_a_wall_the_camera_refuses_is_dropped_from_the_set_not_the_set(self):
         """The one per-wall restore inside a joint judgement: a roll that never
@@ -699,18 +825,46 @@ class Stands(unittest.TestCase):
 
         The `before` here still HAS a majority, because a room that had none and
         gains one stands by that clause alone and would never reach the outlier
-        question."""
+        question; and the distance moves less than `SUPERSEDE_IMPROVEMENT`, so
+        the margin clause does not answer it either."""
         b = self._r(9.0, "mismatched", ["N", "S"], majority=["E", "W"])
         ok, why = self.R.supersede_stands(
-            ["b/N", "b/S"], b, self._r(8.0, "mismatched", ["S"],
+            ["b/N", "b/S"], b, self._r(8.7, "mismatched", ["S"],
                                        majority=["E", "N", "W"]))
         self.assertFalse(ok, why)
         self.assertIn("S still stands outside", why)
         ok, why = self.R.supersede_stands(
-            ["b/N", "b/S"], b, self._r(8.0, "mismatched", ["E"],
+            ["b/N", "b/S"], b, self._r(8.7, "mismatched", ["E"],
                                        majority=["N", "S", "W"]))
         self.assertTrue(ok, why)
         self.assertIn("N+S no longer stand outside", why)
+
+    def test_the_margin_clause_keeps_a_wall_that_is_still_the_outlier(self):
+        """`garden_room/W`'s numbers exactly: 6.208 -> 3.904, a 37 % cut, and W
+        is still the facing furthest from the room's median."""
+        ok, why = self.R.supersede_stands(
+            ["garden_room/W"],
+            self._r(6.208, "mismatched", ["W"], majority=["E", "N"]),
+            self._r(3.904, "mismatched", ["W"], majority=["E", "N"]))
+        self.assertTrue(ok, why)
+        self.assertIn("37% closer", why)
+
+    def test_the_margin_is_a_floor_and_noise_does_not_clear_it(self):
+        ok, why = self.R.supersede_stands(
+            ["chamber/S"], self._r(4.000, "mismatched", ["S"]),
+            self._r(3.980, "mismatched", ["S"], majority=["E", "N", "W"]))
+        self.assertFalse(ok, why)
+        self.assertIn("less than the 10%", why)
+
+    def test_regression_is_still_the_one_veto(self):
+        """No clause buys back a room the repaint made worse — not the margin,
+        not the outlier clearing, not a majority appearing."""
+        ok, why = self.R.supersede_stands(
+            ["chamber/S"],
+            self._r(4.0, "mismatched", ["E", "N", "S", "W"], no_majority=True),
+            self._r(4.5, "consistent", [], majority=["E", "N", "S", "W"]))
+        self.assertFalse(ok, why)
+        self.assertIn("got worse", why)
 
     def test_an_unscorable_room_is_never_a_stand(self):
         """A room the instrument cannot score is not a room this route may

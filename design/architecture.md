@@ -4398,26 +4398,49 @@ be re-measured against. The nine sat unmeasured until `supersede_pass` gave them
    a camera PASS the ordinary promotion admits, or row 35's SNAP where either refuses it, with the
    door-void repair as the snap's own second half.
 3. It is then promoted **for real**, the room is re-audited by `room_consistency.audit_room` with the
-   whole set in place, and it **stands** only if the room's worst-band distance did not get worse
-   **and** no wall of the set is still an outlier (or the room reached `consistent`, or a
-   `no_majority` room gained a majority); otherwise the previous png, meta and promotion documents go
-   back **byte for byte** and the record reads `supersede: refused` with both distances in it.
+   whole set in place, and it **stands** unless the room got *worse* — past that one veto, on the
+   worst-band distance falling by `SUPERSEDE_IMPROVEMENT`, **or** no wall of the set still being an
+   outlier, **or** the room reaching `consistent`, **or** a `no_majority` room gaining a majority.
+   Otherwise the previous png, meta and promotion documents go back **byte for byte** and the record
+   reads `supersede: refused` with both distances in it.
 
-**The unit of judgement is the ROOM, and the first production pass paid to learn it.** That pass
-superseded one wall of nine. `master_bedchamber/S` and `/W` each refused *"the room got worse: 4.474
--> 4.716 / 6.321"* — because each was judged **alone** against a room whose other outliers were still
-their old paintings. A 2-2 split has no majority to join: move one wall to the ruling materials and it
-now disagrees with the two it used to agree with, so the worst pair gets *further* apart on the way to
-agreement. A room being transitioned wall by wall can never pass one wall at a time, and the veto that
-is right for a room with a majority is exactly wrong for a room without one. So a **no-majority room
-is superseded as a SET** — every eligible roll into the store, one audit with all of them in place,
-kept or restored whole — while a room that HAS a majority keeps the single-wall path, because there
-the majority is the thing being joined and one wall at a time is the honest question. The only
-per-wall restore inside a set is for a wall whose *own* camera or promotion refused it: that wall
-never reached the store, so it is dropped from the set rather than taking the set down with it. The
-synthetic fixture carries the same arithmetic — 8.489 for the split, 9.011 with one wall moved, 3.118
-with both — so the single verdict refusing and the joint verdict standing are the same three
-materials.
+**The unit of judgement is the ROOM, and two production passes paid to learn its shape.** Pass 1
+judged every wall alone and superseded one of nine. `master_bedchamber/S` and `/W` each refused *"the
+room got worse: 4.474 -> 4.716 / 6.321"* — because each was measured against a room whose other
+outliers were still their old paintings. A 2-2 split has no majority to join: move one wall to the
+ruling materials and it now disagrees with the two it used to agree with, so the worst pair gets
+*further* apart **on the way to** agreement. Judged one at a time such a room can never pass; pass 2
+superseded all four together and the room came to 4.144.
+
+That fix was scoped to no-majority rooms, and pass 2 showed the **scope** was wrong rather than the
+idea. `guest_chamber` HAS a majority — E+N — and E+N are the half that *disobeys the room's voice*.
+The ruling comes from the plan, not the pixels, so both of its rolls move **away** from the biggest
+cluster and **toward** the ruling; measured one at a time, the first is a facing walking away from its
+room, which is what the distance says and the wrong reading of what it is doing. So the rule is now
+simply that **every eligible consistency roll of one room is judged together**, majority or no
+majority — a room has two returns exactly when one measure named two facings against one ruling, and
+they answer the same sentence. A room with one roll is a set of one and the same code; there is no
+second path left to keep in step. The only per-wall restore inside a set is for a wall whose *own*
+camera or promotion refused it: that wall never reached the store, so it is dropped from the set
+rather than taking the set down with it.
+
+**And the verdict keeps progress, not only perfection** (`SUPERSEDE_IMPROVEMENT`, 10 %). Pass 2
+refused `garden_room/W` at 6.208 -> 3.904 — a 37 % cut toward the ruling — because it was still the
+room's outlier and the outlier clause was the only door past the veto. That clause exists to stop
+*regressions*; made the only door, it demanded the whole distance in one roll and threw away a store
+plainly better than the one before it. The margin is a **floor on meaning, not a bar on quality** —
+the bar is `room_consistency.CUT`, calibrated on twelve labelled rooms and unmoved by any of this. Ten
+per cent sits comfortably above what the instrument can honestly distinguish (three decimals, 34 of 36
+pairs ordered) and comfortably below every real result in the corpus (37 % for `garden_room/W`;
+negative for pass 1's refusals), which is the whole job of a floor: nothing in the corpus is decided
+*by* it. It exists at all because a repaint that moves the room 0.4 % has not answered its correction,
+and keeping it would spend the wall's one supersede (`_supersede_tried`) on a roll that did nothing —
+a wall is kept for progress or left for the next roll.
+
+The synthetic fixtures are chosen out of the measured pairwise matrix printed at the top of the test
+file, not guessed: 8.465 for the split and 9.011 with one wall moved and 3.118 with both (the set
+case); 8.465 -> 7.460, a 12 % cut with the wall still the outlier (the margin standing); 8.875 ->
+8.465, 4.6 % (the margin refusing).
 
 **"Newer" is a fact about provenance, not about mtime** (`supersede_roll`), and this route's own dry
 run caught it. The first draft asked the filesystem — `mtime(roll) > mtime(promoted candidate)` — and
@@ -4479,11 +4502,13 @@ passing quietly.
 on (`supersede_attempt`) — the discipline `exit_attempt` already imposes on the routing — so a wall is
 not tried again until a newer consistency roll lands; without it every pass would re-promote and
 re-audit nine walls forever, the row-30 cut being paid again on the third side of the pipeline. But a
-refusal is a verdict *of a rule*, and rule 1 refused eight walls for reasons rule 2 exists to answer.
-Left keyed on the roll alone, those eight refusals would stand forever against rolls still on disk and
-the correction would reach nothing but a hand-edited state file. So the attempt carries the rule's
-number and is re-decided when that number moves. It is bumped when what the route ADMITS changes,
-never for a message or a field.
+refusal is a verdict *of a rule*, and each pass has refused walls for reasons the next rule exists to
+answer — rule 1's eight for want of the set and the snap, rule 2's `garden_room/W` for want of the
+margin and `guest_chamber`'s pair for want of joint judging in a room with a majority. Left keyed on
+the roll alone, those refusals would stand forever against rolls still on disk and each correction
+would reach nothing but a hand-edited state file. So the attempt carries the rule's number and is
+re-decided when that number moves. It is bumped when what the route ADMITS changes, never for a
+message or a field. **The route is at rule 3.**
 
 **What every outcome writes.** `supersede` (`stood` / `refused`), `superseded_from` (the candidate
 the new roll was measured against — on a refusal, the candidate that stays, and the reason says so),
@@ -4493,7 +4518,7 @@ costs a promotion, two audits and a restore and is the outcome nobody would thin
 
 **One bake per sweep, unchanged.** The route runs a ROOM at a time, before the arrivals loop rather
 than inside it (`supersede_pass`), because a loop that visits one wall at a time can only ever ask the
-question a no-majority room cannot answer. A stand is appended to the sweep's `promoted` list, so the
+question a room's set answers as one act. A stand is appended to the sweep's `promoted` list, so the
 single end-of-sweep validate-and-bake covers it exactly as it covers any other promotion, and it
 prints as the PROMOTE line it is. Publication is still nobody's but the Navigator's.
 
@@ -4509,8 +4534,10 @@ the worsening is refused with the previous bytes back, a roll the store has alre
 ordinary retry roll are both ignored, an old mtime does not hide a return the store never took, a
 camera FAIL and a promotion refusal both go through the snap, a frame the snap cannot correct is
 refused and restored, a no-majority room is judged as a set where one wall of it alone cannot pass, a
-wall whose own camera refuses is dropped from the set rather than taking it down, and a second pass on
-the same roll under the same rule spends neither a promotion nor an audit.
+room *with* a majority is judged as one act too (both its walls answering to one after-score, which
+judging them in turn could not produce), a measurable step toward one room is kept while a step under
+the floor is not, a wall whose own camera refuses is dropped from the set rather than taking it down,
+and a second pass on the same roll under the same rule spends neither a promotion nor an audit.
 
 ### The horizon instrument reads boarded ceilings (row 32)
 
