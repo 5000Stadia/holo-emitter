@@ -1,8 +1,8 @@
 {
- "ts": 1787652786.4075181,
+ "ts": 1787653220.1720293,
  "baton": "seat",
- "active": "no",
- "nudged": "yes",
+ "active": "yes",
+ "nudged": "no",
  "detail": "2 image(s) owed - the painter is owed",
- "loop_pass_age_s": 53
+ "loop_pass_age_s": 33
 }
