@@ -21,6 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-VOUCH | vouching follows the material, not the wording: a voice REFINEMENT (same material ids) keeps a sealed wall vouched as an Image 1 source; only a material change unvouches | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
