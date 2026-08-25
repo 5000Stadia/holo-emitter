@@ -1,0 +1,523 @@
+{
+  "_what_this_is": "every wall the manor loop is holding, put through the row-35 snap and then back through the row-23 instrument. Nothing was promoted, nothing was written into the store and no run-state row moved.",
+  "statuses": [
+    "held",
+    "retry",
+    "parked"
+  ],
+  "walls": 31,
+  "snapped": 19,
+  "refused": 12,
+  "clean_after_snap": 10,
+  "clean_facings": [
+    "back_stair/W",
+    "back_stair_head/S",
+    "back_stair_head/W",
+    "great_hall/N",
+    "great_hall/W",
+    "library/S",
+    "long_gallery/W",
+    "privy_garden/W",
+    "stair_landing/N",
+    "stair_landing/W"
+  ],
+  "seconds_total": 414.7,
+  "seconds_per_wall_median": 11.97,
+  "rows": [
+    {
+      "facing": "back_stair/E",
+      "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
+      "snapped": false,
+      "was_holding": "unfitted-horizon",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 337.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 337.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 8.69
+    },
+    {
+      "facing": "back_stair/S",
+      "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
+      "snapped": false,
+      "was_holding": "suspect-painting",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 211.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 211.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 8.72
+    },
+    {
+      "facing": "back_stair/W",
+      "candidate": "backdrops/source/back_stair-W/row23-4e3755a6.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.3169,
+      "eye_target_m": 1.183,
+      "scale_k": 1.061825,
+      "max_magnification": 1.192,
+      "max_overshoot_px": 0.0,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": -1.2,
+        "delta_eye_pct": 0.09,
+        "ramp_eye_m": 1.1861,
+        "ramp_y": 525.6
+      },
+      "seconds": 11.25
+    },
+    {
+      "facing": "back_stair_head/E",
+      "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
+      "snapped": true,
+      "was_holding": "unfitted-horizon",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1356,
+      "eye_target_m": 1.183,
+      "scale_k": 1.012123,
+      "max_magnification": 1.054,
+      "max_overshoot_px": 10.63,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": 1.33,
+        "delta_eye_pct": -1.4,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 10.8
+    },
+    {
+      "facing": "back_stair_head/S",
+      "candidate": "backdrops/source/back_stair_head-S/row23-2fe57dfb.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 0.9805,
+      "eye_target_m": 1.183,
+      "scale_k": 1.04333,
+      "max_magnification": 1.26,
+      "max_overshoot_px": 0.0,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": 3.45,
+        "delta_eye_pct": -3.19,
+        "ramp_eye_m": 1.148,
+        "ramp_y": 525.3
+      },
+      "seconds": 8.12
+    },
+    {
+      "facing": "back_stair_head/W",
+      "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.2486,
+      "eye_target_m": 1.183,
+      "scale_k": 0.943843,
+      "max_magnification": 0.988,
+      "max_overshoot_px": 50.74,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": 3.43,
+        "delta_eye_pct": -3.08,
+        "ramp_eye_m": 1.1574,
+        "ramp_y": 523.3
+      },
+      "seconds": 10.79
+    },
+    {
+      "facing": "closet_chamber/S",
+      "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
+      "snapped": true,
+      "was_holding": "camera-miss",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1839,
+      "eye_target_m": 1.183,
+      "scale_k": 1.089605,
+      "max_magnification": 1.12,
+      "max_overshoot_px": 0.0,
+      "acceptance": {
+        "verdict": "FAIL",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -9.82,
+        "delta_eye_pct": 2.13,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 9.01
+    },
+    {
+      "facing": "entrance_approach/N",
+      "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
+      "snapped": false,
+      "was_holding": "suspect-painting",
+      "refused": "the measured convergence's snap is over budget (the correction this frame needs magnifies its left by 21.34x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]) and the declared one is too (the correction this frame needs magnifies its left by 21.34x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget])",
+      "seconds": 7.48
+    },
+    {
+      "facing": "entrance_court/E",
+      "candidate": "backdrops/source/entrance_court-E/row23-d4ef2d94.png",
+      "snapped": true,
+      "was_holding": "unfitted-horizon",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1678,
+      "eye_target_m": 1.183,
+      "scale_k": 0.978181,
+      "max_magnification": 1.026,
+      "max_overshoot_px": 57.92,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -0.91,
+        "delta_eye_pct": 0.57,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 12.52
+    },
+    {
+      "facing": "entrance_court/N",
+      "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
+      "snapped": false,
+      "was_holding": "unfitted-horizon",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 868.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 868.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 8.98
+    },
+    {
+      "facing": "entrance_court/S",
+      "candidate": "backdrops/source/entrance_court-S/row23-f26273dd.png",
+      "snapped": false,
+      "was_holding": "camera-miss",
+      "refused": "entrance_court/S is an open facing: it has no wall plane, no ceiling and no side walls, so there are no five planes to rectify. A vista's geometry is the far-line ruler's and this tool has nothing to say about it",
+      "seconds": 0.41
+    },
+    {
+      "facing": "entrance_court/W",
+      "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
+      "snapped": false,
+      "was_holding": "unfitted-horizon",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 109.1 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 109.1 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 9.48
+    },
+    {
+      "facing": "garden_room/S",
+      "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
+      "snapped": true,
+      "was_holding": "unfitted-horizon",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1253,
+      "eye_target_m": 1.183,
+      "scale_k": 1.035666,
+      "max_magnification": 1.09,
+      "max_overshoot_px": 2.32,
+      "acceptance": {
+        "verdict": "FAIL",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -9.18,
+        "delta_eye_pct": 1.97,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 8.78
+    },
+    {
+      "facing": "great_hall/E",
+      "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
+      "snapped": true,
+      "was_holding": "camera-miss",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.2694,
+      "eye_target_m": 1.183,
+      "scale_k": 1.110496,
+      "max_magnification": 1.145,
+      "max_overshoot_px": 0.0,
+      "acceptance": {
+        "verdict": "FAIL",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -12.2,
+        "delta_eye_pct": 4.91,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 10.62
+    },
+    {
+      "facing": "great_hall/N",
+      "candidate": "backdrops/source/great_hall-N/row23-eb5c307d.png",
+      "snapped": true,
+      "was_holding": "suspect-painting",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 0.4852,
+      "eye_target_m": 1.183,
+      "scale_k": 0.981434,
+      "max_magnification": 2.401,
+      "max_overshoot_px": 90.83,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": 4.62,
+        "delta_eye_pct": 2.58,
+        "ramp_eye_m": 1.221,
+        "ramp_y": 525.2
+      },
+      "seconds": 19.2
+    },
+    {
+      "facing": "great_hall/S",
+      "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
+      "snapped": false,
+      "was_holding": "suspect-painting",
+      "refused": "the measured convergence's snap is over budget (the correction this frame needs magnifies its left by 5.42x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget]) and the declared one is too (the correction this frame needs magnifies its left by 5.42x, past the 3.00x budget \u2014 the painting does not hold enough of that surface for the camera it is being snapped to, and stretching it there would invent detail rather than move it [row35:snap.stretch_budget])",
+      "seconds": 23.79
+    },
+    {
+      "facing": "great_hall/W",
+      "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.1065,
+      "eye_target_m": 1.183,
+      "scale_k": 1.009543,
+      "max_magnification": 1.114,
+      "max_overshoot_px": 44.29,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": -3.2,
+        "delta_eye_pct": 3.55,
+        "ramp_eye_m": 1.2427,
+        "ramp_y": 524.5
+      },
+      "seconds": 26.68
+    },
+    {
+      "facing": "great_stair_hall/N",
+      "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
+      "snapped": false,
+      "was_holding": "unfitted-horizon",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 108.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 108.9 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 17.19
+    },
+    {
+      "facing": "great_stair_hall/S",
+      "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
+      "snapped": true,
+      "was_holding": "unfitted-horizon",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.2022,
+      "eye_target_m": 1.183,
+      "scale_k": 0.995089,
+      "max_magnification": 1.005,
+      "max_overshoot_px": 10.54,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -0.04,
+        "delta_eye_pct": 0.02,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 11.97
+    },
+    {
+      "facing": "great_stair_hall/W",
+      "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
+      "snapped": false,
+      "was_holding": "promotion-refused",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 104.8 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 151.6 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 17.41
+    },
+    {
+      "facing": "hall/N",
+      "candidate": "backdrops/source/passage-N/row23-77c49aa1.png",
+      "snapped": false,
+      "was_holding": "standpoint-out-of-frame",
+      "refused": "the instrument could not run on this frame at all: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
+      "seconds": 0.1
+    },
+    {
+      "facing": "hall/S",
+      "candidate": "backdrops/source/passage-S/row23-5b48e9f7.png",
+      "snapped": false,
+      "was_holding": "standpoint-out-of-frame",
+      "refused": "the instrument could not run on this frame at all: the scaffold's floor bracket for this facing is y 1044..1134 of a 1024-row frame \u2014 standing 2.15 m from a 8 m wall at the ruled lens puts the wall's own foot below the picture. There is no datum in this frame for the declared anchor to be a height above, and no repainting moves it: the standpoint does.",
+      "seconds": 0.08
+    },
+    {
+      "facing": "kitchen/N",
+      "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.1953,
+      "eye_target_m": 1.183,
+      "scale_k": 0.948683,
+      "max_magnification": 0.984,
+      "max_overshoot_px": 56.38,
+      "acceptance": {
+        "verdict": "FAIL",
+        "hold_family": null,
+        "delta_focal_pct": 9.41,
+        "delta_eye_pct": -1.63,
+        "ramp_eye_m": 1.1805,
+        "ramp_y": 523.2
+      },
+      "seconds": 21.73
+    },
+    {
+      "facing": "library/S",
+      "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.0838,
+      "eye_target_m": 1.183,
+      "scale_k": 0.988615,
+      "max_magnification": 1.079,
+      "max_overshoot_px": 41.96,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": -0.08,
+        "delta_eye_pct": 4.54,
+        "ramp_eye_m": 1.2262,
+        "ramp_y": 527.9
+      },
+      "seconds": 16.9
+    },
+    {
+      "facing": "long_gallery/W",
+      "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 0.9133,
+      "eye_target_m": 1.183,
+      "scale_k": 0.976121,
+      "max_magnification": 1.267,
+      "max_overshoot_px": 61.86,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": 3.22,
+        "delta_eye_pct": 4.4,
+        "ramp_eye_m": 1.1936,
+        "ramp_y": 531.9
+      },
+      "seconds": 24.97
+    },
+    {
+      "facing": "privy_garden/E",
+      "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
+      "snapped": false,
+      "was_holding": "unfitted-horizon",
+      "refused": "the measured convergence's snap is over budget (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]) and the declared one is too (rectifying this frame reveals 137.3 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget])",
+      "seconds": 17.38
+    },
+    {
+      "facing": "privy_garden/W",
+      "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 0.8167,
+      "eye_target_m": 1.183,
+      "scale_k": 0.948985,
+      "max_magnification": 1.38,
+      "max_overshoot_px": 71.35,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": -0.91,
+        "delta_eye_pct": 0.57,
+        "ramp_eye_m": 1.1928,
+        "ramp_y": 525.9
+      },
+      "seconds": 28.26
+    },
+    {
+      "facing": "stair_landing/N",
+      "candidate": "backdrops/source/stair_landing-N/row23-e594b388.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1571,
+      "eye_target_m": 1.183,
+      "scale_k": 1.022276,
+      "max_magnification": 1.129,
+      "max_overshoot_px": 67.52,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": -0.04,
+        "delta_eye_pct": 0.02,
+        "ramp_eye_m": 1.364,
+        "ramp_y": 490.5
+      },
+      "seconds": 22.57
+    },
+    {
+      "facing": "stair_landing/S",
+      "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
+      "snapped": true,
+      "was_holding": "unfitted-horizon",
+      "vanishing_point": "declared-principal-point",
+      "eye_source_m": 1.1078,
+      "eye_target_m": 1.183,
+      "scale_k": 1.005792,
+      "max_magnification": 1.078,
+      "max_overshoot_px": 21.94,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": 3.17,
+        "delta_eye_pct": -3.09,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 14.35
+    },
+    {
+      "facing": "stair_landing/W",
+      "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
+      "snapped": true,
+      "was_holding": "promotion-refused",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.3197,
+      "eye_target_m": 1.183,
+      "scale_k": 0.995908,
+      "max_magnification": 1.076,
+      "max_overshoot_px": 43.01,
+      "acceptance": {
+        "verdict": "PASS",
+        "hold_family": null,
+        "delta_focal_pct": 0.41,
+        "delta_eye_pct": -0.22,
+        "ramp_eye_m": 1.183,
+        "ramp_y": 525.7
+      },
+      "seconds": 11.97
+    },
+    {
+      "facing": "study/S",
+      "candidate": "backdrops/source/study-S/row23-08cd55d1.png",
+      "snapped": true,
+      "was_holding": "camera-miss",
+      "vanishing_point": "measured-ramp",
+      "eye_source_m": 1.2214,
+      "eye_target_m": 1.183,
+      "scale_k": 1.133072,
+      "max_magnification": 1.15,
+      "max_overshoot_px": 0.0,
+      "acceptance": {
+        "verdict": "FAIL",
+        "hold_family": "unfitted-horizon",
+        "delta_focal_pct": -8.18,
+        "delta_eye_pct": 1.73,
+        "ramp_eye_m": null,
+        "ramp_y": null
+      },
+      "seconds": 14.45
+    }
+  ]
+}

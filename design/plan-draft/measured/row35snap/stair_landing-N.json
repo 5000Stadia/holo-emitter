@@ -1,6 +1,6 @@
 {
-  "_source_sha256": "b4a940670d746cf26763eda9b1cfddcd9166e2d4515faeac77fcda0495a2595c",
-  "_what_this_is": "The row-35 SNAPPED reading for stair_landing/N, measured off backdrops/source/stair_landing-N/row23-ec82d83f.png by design/plan-draft/measured/row23_lib.py through the row-23 instrument and then rectified onto this facing's declared camera by design/plan-draft/measured/row35_snap.py. The image it describes is backdrops/source-snapped/stair_landing-N/snapped.png. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed; every coordinate below is post-snap.",
+  "_source_sha256": "ea6cdb6835d308188f1f60776fd9474039707c0d2e55d4107975150b72c90b58",
+  "_what_this_is": "The row-35 SNAPPED reading for stair_landing/N, measured off backdrops/source/stair_landing-N/row23-e594b388.png by design/plan-draft/measured/row23_lib.py through the row-23 instrument and then rectified onto this facing's declared camera by design/plan-draft/measured/row35_snap.py. The image it describes is backdrops/source-snapped/stair_landing-N/snapped.png. Every search window is the wall's own scaffold's, declared in design/batches/row23-scaffold/manor/manifest.json before any candidate existed; every coordinate below is post-snap.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
   "verdict": "SNAPPED",
   "facing_type": "enclosed",
@@ -11,18 +11,18 @@
   "px_per_m_at_bottom": 420.88,
   "implied_focal_px": 1024.0,
   "eye_height_m": 1.183,
-  "storey_height_m": 3.2656,
+  "storey_height_m": 3.1303,
   "drawn_standpoint_m": 5.2,
   "delta_focal_pct": 0.0,
   "delta_eye_pct": -0.0,
   "band_pct": 8.0,
-  "wall_width_m": 5.7324,
+  "wall_width_m": 6.4735,
   "camera_wall_m": 5.2,
   "camera_far_m": null,
-  "corner_x0_px": 203.58,
-  "corner_x1_px": 1332.42,
-  "key_tint": "#c87d3a",
-  "key_dir": "L-ABOVE",
+  "corner_x0_px": 130.61,
+  "corner_x1_px": 1405.39,
+  "key_tint": "#c88c51",
+  "key_dir": "C-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.95 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
   "calibration_px": 187,
   "calibration_tier": 1,
@@ -35,19 +35,19 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 1162,
-        "y": 709,
-        "edge_px": 10200
+        "x": 842,
+        "y": 507,
+        "edge_px": 15629
       },
       "ceiling": {
-        "x": 780,
-        "y": 505,
-        "edge_px": 21502
+        "x": 826,
+        "y": 454,
+        "edge_px": 10306
       },
       "side_walls": {
-        "x": 1278,
-        "y": 743,
-        "edge_px": 14202
+        "x": 652,
+        "y": 808,
+        "edge_px": 7471
       }
     },
     "adopted_y": 526.1,
@@ -56,15 +56,15 @@
     "ceiling_ramp_intersection": {
       "x": 768.0,
       "y": 526.1,
-      "left_slope": 0.8763,
-      "right_slope": -0.5978,
-      "left_n": 50,
-      "left_resid_px": 0.41,
-      "right_n": 45,
-      "right_resid_px": 0.28,
-      "sigma_y_px": 1.2,
-      "_snap_basis": "measured-convergence",
-      "_snapped": "the two return junctions of this frame pass through its own measured convergence, and every straight line through that point comes out straight through this one, so the snapped picture's returns converge here by construction"
+      "left_slope": 0.6114,
+      "right_slope": -0.6261,
+      "left_n": 58,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 1.05,
+      "_snap_basis": "declared-principal-point",
+      "_snapped": "ASSUMED, not achieved: this frame fixed no usable convergence of its own, so the snap took the declared principal point and re-projected the floor onto this row WITHOUT moving the painted ceiling junctions. The ground plane converges here; the painting's own returns still converge where the painter drew them (this reading's pre-snap fit put that at y 486.9). Re-measuring the snapped frame is what says which."
     },
     "far_line_ruler": null
   },
@@ -73,28 +73,28 @@
     "chair_rail_y_px": 572,
     "dado_rail_above_floor_px": 187,
     "capping_above_floor_px": 187,
-    "wall_ceiling_line_y_px": 116,
-    "corner_x0_px": 203.58,
-    "corner_x1_px": 1332.42,
+    "wall_ceiling_line_y_px": 143,
+    "corner_x0_px": 130.61,
+    "corner_x1_px": 1405.39,
     "horizon_y_px": 526.1,
     "openings": [
       {
-        "x0_px": 584,
-        "x1_px": 674,
-        "y0_px": 295,
+        "x0_px": 690,
+        "x1_px": 894,
+        "y0_px": 279,
         "y1_px": 759,
-        "width_px": 90,
-        "width_m": 0.459,
-        "centre_px": 629.3,
-        "head_m": 2.359,
-        "void_luminance": 16.12,
-        "wall_luminance": 54.32,
-        "threshold": 46,
+        "width_px": 204,
+        "width_m": 1.038,
+        "centre_px": 792.0,
+        "head_m": 2.44,
+        "void_luminance": 2.1,
+        "wall_luminance": 26.6,
+        "threshold": 16,
         "threshold_span": [
-          42,
-          49
+          4,
+          27
         ],
-        "stability": 8,
+        "stability": 24,
         "_snap": "transformed through the facing wall's own map"
       }
     ]
@@ -127,55 +127,55 @@
   "_carriers": [
     {
       "kind": "door",
-      "asked_x0": 514.04,
-      "asked_x1": 723.36,
+      "asked_x0": 607.07,
+      "asked_x1": 808.38,
       "ruled_m": 1.0,
       "window": [
-        305,
-        933
+        406,
+        1010
       ],
       "hypothesis": null,
       "found": false,
-      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 412..615 (156 px from the ask) and another admissible pair sits 456..615 (134 px from the ask), which disagree by more than the 16 px this arm can resolve",
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 649..877 (93 px from the ask) and another admissible pair sits 633..858 (76 px from the ask), which disagree by more than the 16 px this arm can resolve",
       "_snap": "positions transformed; the FINDING is the pre-snap detector's \u2014 re-run --acceptance for a post-snap one"
     }
   ],
   "_light": {
-    "key_dir_measured": "L",
-    "key_dir_brightest_x": 440,
-    "key_dir_brightest_y": 526,
-    "key_tint": "#c87d3a",
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 557,
+    "key_dir_brightest_y": 470,
+    "key_tint": "#c88c51",
     "key_tint_patch": [
-      240,
-      640,
-      46,
-      108
+      357,
+      757,
+      73,
+      135
     ],
     "key_tint_patch_mean_rgb": [
-      31.6,
-      19.77,
-      9.19
+      48.4,
+      33.77,
+      19.58
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c88d5a",
-      "floor_bottom_strip": "#c88f61",
-      "mid_wall_right": "#c8975e",
-      "mid_wall_left": "#c8a579",
-      "brightest_21x21_patch": "#c8b295"
+      "floor_under_brightest": "#c8864c",
+      "floor_bottom_strip": "#c87f41",
+      "mid_wall_right": "#c8a87e",
+      "mid_wall_left": "#c88c43",
+      "brightest_21x21_patch": "#c8b7a2"
     },
     "brightest_21x21_patch_centre_px": [
-      440,
-      526
+      557,
+      470
     ],
-    "sobel_bright_side_deg_whole_frame": 112.42,
-    "sobel_bright_side_deg_wall_band": 131.59,
-    "left_third_minus_right_third_luminance_whole_frame": 3.657,
-    "left_third_minus_right_third_luminance_wall_band": -1.33
+    "sobel_bright_side_deg_whole_frame": 89.52,
+    "sobel_bright_side_deg_wall_band": 98.05,
+    "left_third_minus_right_third_luminance_whole_frame": -15.499,
+    "left_third_minus_right_third_luminance_wall_band": -27.489
   },
   "_derived": {
     "eye_height_m": 1.183,
-    "storey_height_m": 3.2656,
-    "implied_wall_width_m": 5.7324,
+    "storey_height_m": 3.1303,
+    "implied_wall_width_m": 6.4735,
     "px_per_m_at_bottom": 420.8796,
     "implied_camera_wall_m": 5.2
   },
@@ -185,35 +185,35 @@
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      446,
-      705
+      422,
+      691
     ],
     "wall_band_px": [
-      204,
-      1332
+      131,
+      1405
     ],
-    "wall_median_luminance": 54.32,
-    "min_enumerated_px": 74,
+    "wall_median_luminance": 26.6,
+    "min_enumerated_px": 77,
     "min_head_m": 1.4,
     "storey_m": 2.8,
-    "candidates_before_head_test": 3,
+    "candidates_before_head_test": 1,
     "_snap": "read off the pre-snap frame and carried through the warp; --acceptance re-reads it"
   },
   "_snap": {
-    "_what_this_is": "the row-35 snap of stair_landing/N: a five-plane planar rectification of backdrops/source/stair_landing-N/row23-ec82d83f.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",
+    "_what_this_is": "the row-35 snap of stair_landing/N: a five-plane planar rectification of backdrops/source/stair_landing-N/row23-e594b388.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",
     "tool": "design/plan-draft/measured/row35_snap.py",
     "source_box": {
-      "x0": 279.0,
-      "x1": 1341.0,
-      "yc": 156.0,
-      "yf": 761.0,
-      "vx": 790.4,
-      "vy": 526.9
+      "x0": 105.0,
+      "x1": 1352.0,
+      "yc": 146.0,
+      "yf": 749.0,
+      "vx": 768.0,
+      "vy": 526.10048
     },
     "target_box": {
-      "x0": 203.57993854059453,
-      "x1": 1332.4200614594056,
-      "yc": 115.98252884568683,
+      "x0": 130.61089299006164,
+      "x1": 1405.3891070099385,
+      "yc": 142.6275516808454,
       "yf": 759.06,
       "vx": 768.0,
       "vy": 526.10048
@@ -221,78 +221,79 @@
     "source_anchors": {
       "ceiling": "measured",
       "corners": "measured",
-      "vanishing_point": "measured-ramp",
-      "px_per_m_at_wall": 185.263
+      "vanishing_point": "declared-principal-point",
+      "vanishing_point_why": "the measured convergence was tried first and its snap was over budget: rectifying this frame reveals 112.7 px beyond its own edge, past the 100.0 px budget \u2014 the corners pull in far enough that the snap would be painting wall the generator never drew [row35:snap.reveal_budget]",
+      "px_per_m_at_wall": 192.632
     },
     "target": {
-      "k": 1.0629379688501044,
-      "storey_m": 3.2656277832054967,
+      "k": 1.0222760336967736,
+      "storey_m": 3.130321026620707,
       "target_eye_m": 1.1829975625,
-      "ppm_source": 185.263,
+      "ppm_source": 192.632,
       "ppm_target": 196.9230769230769
     },
     "residuals": {
-      "scale_k": 1.062938,
-      "eye_source_m": 1.2636,
+      "scale_k": 1.022276,
+      "eye_source_m": 1.1571,
       "eye_target_m": 1.183,
-      "storey_painted_m": 3.2656,
-      "wall_uniform_scale": 1.0629,
-      "floor_vertical_over_horizontal": 0.9362,
-      "ceiling_vertical_over_horizontal": 1.0403,
-      "left_return_shear": -0.031,
-      "right_return_shear": -0.0288
+      "storey_painted_m": 3.1303,
+      "wall_uniform_scale": 1.0223,
+      "floor_vertical_over_horizontal": 1.0224,
+      "ceiling_vertical_over_horizontal": 0.9869,
+      "left_return_shear": 0.0077,
+      "right_return_shear": 0.0087
     },
     "magnification": {
       "per_region": {
         "wall": {
-          "pixels": 726432,
-          "max_magnification": 1.09,
-          "max_minification": 0.98
+          "pixels": 786058,
+          "max_magnification": 1.072,
+          "max_minification": 1.012
         },
         "floor": {
-          "pixels": 388577,
-          "max_magnification": 1.086,
-          "max_minification": 1.027
+          "pixels": 399384,
+          "max_magnification": 1.129,
+          "max_minification": 1.057
         },
         "ceiling": {
-          "pixels": 149620,
-          "max_magnification": 1.12,
-          "max_minification": 0.978
+          "pixels": 209415,
+          "max_magnification": 1.091,
+          "max_minification": 1.038
         },
         "left": {
-          "pixels": 154961,
-          "max_magnification": 1.113,
-          "max_minification": 1.001
+          "pixels": 89746,
+          "max_magnification": 1.092,
+          "max_minification": 1.047
         },
         "right": {
-          "pixels": 153274,
-          "max_magnification": 1.071,
-          "max_minification": 0.994
+          "pixels": 88261,
+          "max_magnification": 1.107,
+          "max_minification": 0.985
         }
       },
-      "max_magnification": 1.12,
-      "max_minification": 1.027,
+      "max_magnification": 1.129,
+      "max_minification": 1.057,
       "_reading": "the largest factor any painted detail is stretched by (magnification) and squeezed by (minification), taken over every pixel of the output frame"
     },
     "edge_reveal": {
       "unplaced_pixels": 0,
-      "max_overshoot_px": 18.79,
-      "extended_pixels": 11684,
-      "extended_fraction": 0.00743,
+      "max_overshoot_px": 67.52,
+      "extended_pixels": 35616,
+      "extended_fraction": 0.02264,
       "region_pixels": {
-        "wall": 727076,
-        "floor": 388574,
-        "ceiling": 149620,
-        "left": 154219,
-        "right": 153375
+        "wall": 786675,
+        "floor": 399383,
+        "ceiling": 209418,
+        "left": 89065,
+        "right": 88323
       }
     },
     "budgets": {
       "reveal_px": 100.0,
       "stretch": 3.0
     },
-    "source_candidate": "backdrops/source/stair_landing-N/row23-ec82d83f.png",
-    "source_candidate_sha256": "e61e2e04492260d8badf2c96f7f14db24b1eda6c505c086cff0c4820f50c06d7",
+    "source_candidate": "backdrops/source/stair_landing-N/row23-e594b388.png",
+    "source_candidate_sha256": "d202083e70bc5a9382b5d181e466c6e19f68aca8ea48a69d046eec3217a02de3",
     "opening_rect_skew_px": 0.0
   }
 }
