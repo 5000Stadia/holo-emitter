@@ -75,7 +75,8 @@
     "corner_x0_px": 391,
     "corner_x1_px": 1143,
     "horizon_y_px": 550.4,
-    "openings": []
+    "openings": [],
+    "windows": []
   },
   "_windows": {
     "floor": [
@@ -171,5 +172,67 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 3
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+    "body_rows": [
+      479,
+      533
+    ],
+    "wall_band_px": [
+      391,
+      1143
+    ],
+    "window_band_px": [
+      467,
+      545
+    ],
+    "wall_median_luminance": 54.18,
+    "min_enumerated_px": 14,
+    "lattice_min": 0.2,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 1,
+    "candidates_after_merge": 1,
+    "rejected": [
+      {
+        "x0_px": 829,
+        "x1_px": 845,
+        "y0_px": 467,
+        "y1_px": 545,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 16,
+        "width_m": 0.227,
+        "centre_px": 837.0,
+        "height_m": 1.1,
+        "lights": [
+          [
+            829,
+            845
+          ]
+        ],
+        "light_luminance": 102.77,
+        "wall_luminance": 54.18,
+        "lift": 48.59,
+        "threshold": 71,
+        "threshold_span": [
+          67,
+          74
+        ],
+        "stability": 8,
+        "lattice": {
+          "score": 0.2666,
+          "x": 0.2883,
+          "y": 0.2449,
+          "pitch_x_m": 0.028,
+          "pitch_y_m": 0.028,
+          "edge_energy": 13.42
+        },
+        "rejected": "bright, but its light stands only 48.6 above a 54.2 wall, under the 60 a painted window lifts on this store"
+      }
+    ]
   }
 }

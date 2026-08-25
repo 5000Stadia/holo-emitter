@@ -75,7 +75,8 @@
     "corner_x0_px": 194,
     "corner_x1_px": 1322,
     "horizon_y_px": 538.5,
-    "openings": []
+    "openings": [],
+    "windows": []
   },
   "_windows": {
     "floor": [
@@ -191,5 +192,145 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 3
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+    "body_rows": [
+      471,
+      542
+    ],
+    "wall_band_px": [
+      194,
+      1322
+    ],
+    "window_band_px": [
+      456,
+      558
+    ],
+    "wall_median_luminance": 20.89,
+    "min_enumerated_px": 19,
+    "lattice_min": 0.2,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 4,
+    "candidates_after_merge": 3,
+    "rejected": [
+      {
+        "x0_px": 317,
+        "x1_px": 341,
+        "y0_px": 456,
+        "y1_px": 558,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 24,
+        "width_m": 0.259,
+        "centre_px": 329.0,
+        "height_m": 1.1,
+        "lights": [
+          [
+            317,
+            341
+          ]
+        ],
+        "light_luminance": 59.41,
+        "wall_luminance": 20.89,
+        "lift": 38.52,
+        "threshold": 44,
+        "threshold_span": [
+          36,
+          51
+        ],
+        "stability": 16,
+        "lattice": {
+          "score": 0.2397,
+          "x": 0.0083,
+          "y": 0.4711,
+          "pitch_x_m": 0.032,
+          "pitch_y_m": 0.043,
+          "edge_energy": 11.26
+        },
+        "rejected": "bright, but its light stands only 38.5 above a 20.9 wall, under the 60 a painted window lifts on this store"
+      },
+      {
+        "x0_px": 547,
+        "x1_px": 572,
+        "y0_px": 456,
+        "y1_px": 558,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 25,
+        "width_m": 0.27,
+        "centre_px": 559.5,
+        "height_m": 1.1,
+        "lights": [
+          [
+            547,
+            572
+          ]
+        ],
+        "light_luminance": 47.87,
+        "wall_luminance": 20.89,
+        "lift": 26.98,
+        "threshold": 37,
+        "threshold_span": [
+          33,
+          40
+        ],
+        "stability": 8,
+        "lattice": {
+          "score": 0.3255,
+          "x": 0.1601,
+          "y": 0.4909,
+          "pitch_x_m": 0.119,
+          "pitch_y_m": 0.043,
+          "edge_energy": 9.56
+        },
+        "rejected": "bright, but its light stands only 27.0 above a 20.9 wall, under the 60 a painted window lifts on this store"
+      },
+      {
+        "x0_px": 632,
+        "x1_px": 711,
+        "y0_px": 456,
+        "y1_px": 558,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 79,
+        "width_m": 0.853,
+        "centre_px": 671.5,
+        "height_m": 1.1,
+        "lights": [
+          [
+            632,
+            676
+          ],
+          [
+            692,
+            711
+          ]
+        ],
+        "light_luminance": 41.14,
+        "wall_luminance": 20.89,
+        "lift": 20.25,
+        "threshold": 34,
+        "threshold_span": [
+          33,
+          36
+        ],
+        "stability": 4,
+        "lattice": {
+          "score": 0.3985,
+          "x": 0.4785,
+          "y": 0.3184,
+          "pitch_x_m": 0.043,
+          "pitch_y_m": 0.043,
+          "edge_energy": 10.85
+        },
+        "rejected": "bright, but its light stands only 20.2 above a 20.9 wall, under the 60 a painted window lifts on this store"
+      }
+    ]
   }
 }

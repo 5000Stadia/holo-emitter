@@ -75,7 +75,107 @@
     "corner_x0_px": 225,
     "corner_x1_px": 1413,
     "horizon_y_px": 566.8,
-    "openings": []
+    "openings": [],
+    "windows": [
+      {
+        "x0_px": 405,
+        "x1_px": 572,
+        "y0_px": 327,
+        "y1_px": 622,
+        "head_m": 2.495,
+        "sill_m": 0.627,
+        "vertical": "measured",
+        "width_px": 167,
+        "width_m": 1.058,
+        "centre_px": 488.5,
+        "height_m": 1.868,
+        "lights": [
+          [
+            405,
+            438
+          ],
+          [
+            440,
+            473
+          ],
+          [
+            503,
+            537
+          ],
+          [
+            538,
+            572
+          ]
+        ],
+        "light_luminance": 161.61,
+        "wall_luminance": 91.23,
+        "lift": 70.39,
+        "threshold": 127,
+        "threshold_span": [
+          103,
+          157
+        ],
+        "stability": 55,
+        "lattice": {
+          "score": 0.2421,
+          "x": 0.2043,
+          "y": 0.2799,
+          "pitch_x_m": 0.051,
+          "pitch_y_m": 0.082,
+          "edge_energy": 51.7
+        },
+        "confidence": 0.495
+      },
+      {
+        "x0_px": 612,
+        "x1_px": 778,
+        "y0_px": 327,
+        "y1_px": 557,
+        "head_m": 2.495,
+        "sill_m": 1.039,
+        "vertical": "measured",
+        "width_px": 166,
+        "width_m": 1.051,
+        "centre_px": 695.0,
+        "height_m": 1.456,
+        "lights": [
+          [
+            612,
+            646
+          ],
+          [
+            647,
+            681
+          ],
+          [
+            710,
+            743
+          ],
+          [
+            745,
+            778
+          ]
+        ],
+        "light_luminance": 164.21,
+        "wall_luminance": 91.23,
+        "lift": 72.99,
+        "threshold": 127,
+        "threshold_span": [
+          103,
+          165
+        ],
+        "stability": 60,
+        "lattice": {
+          "score": 0.2123,
+          "x": 0.217,
+          "y": 0.2076,
+          "pitch_x_m": 0.209,
+          "pitch_y_m": 0.082,
+          "edge_energy": 53.34
+        },
+        "confidence": 0.481
+      }
+    ]
   },
   "_windows": {
     "floor": [
@@ -174,5 +274,67 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 3
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+    "body_rows": [
+      431,
+      553
+    ],
+    "wall_band_px": [
+      225,
+      1413
+    ],
+    "window_band_px": [
+      405,
+      579
+    ],
+    "wall_median_luminance": 91.23,
+    "min_enumerated_px": 32,
+    "lattice_min": 0.2,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 9,
+    "candidates_after_merge": 3,
+    "rejected": [
+      {
+        "x0_px": 926,
+        "x1_px": 977,
+        "y0_px": 448,
+        "y1_px": 578,
+        "head_m": 1.729,
+        "sill_m": 0.906,
+        "vertical": "measured",
+        "width_px": 51,
+        "width_m": 0.323,
+        "centre_px": 951.5,
+        "height_m": 0.823,
+        "lights": [
+          [
+            926,
+            977
+          ]
+        ],
+        "light_luminance": 108.82,
+        "wall_luminance": 91.23,
+        "lift": 17.59,
+        "threshold": 104,
+        "threshold_span": [
+          103,
+          105
+        ],
+        "stability": 3,
+        "lattice": {
+          "score": 0.1528,
+          "x": 0.2402,
+          "y": 0.0653,
+          "pitch_x_m": 0.051,
+          "pitch_y_m": 0.063,
+          "edge_energy": 8.59
+        },
+        "rejected": "bright, but its light stands only 17.6 above a 91.2 wall, under the 60 a painted window lifts on this store; and its light is not crossed by a repeating lattice in both directions: 0.153 against the 0.20 a leaded light scores"
+      }
+    ]
   }
 }

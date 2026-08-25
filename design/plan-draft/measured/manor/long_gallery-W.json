@@ -94,7 +94,8 @@
         ],
         "stability": 19
       }
-    ]
+    ],
+    "windows": []
   },
   "_windows": {
     "floor": [
@@ -305,5 +306,116 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 4
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+    "body_rows": [
+      444,
+      551
+    ],
+    "wall_band_px": [
+      62,
+      1424
+    ],
+    "window_band_px": [
+      421,
+      574
+    ],
+    "wall_median_luminance": 85.7,
+    "min_enumerated_px": 28,
+    "lattice_min": 0.2,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 5,
+    "candidates_after_merge": 2,
+    "rejected": [
+      {
+        "x0_px": 185,
+        "x1_px": 335,
+        "y0_px": 325,
+        "y1_px": 616,
+        "head_m": 2.692,
+        "sill_m": 0.597,
+        "vertical": "measured",
+        "width_px": 150,
+        "width_m": 1.08,
+        "centre_px": 260.0,
+        "height_m": 2.095,
+        "lights": [
+          [
+            185,
+            215
+          ],
+          [
+            217,
+            247
+          ],
+          [
+            272,
+            303
+          ],
+          [
+            304,
+            335
+          ]
+        ],
+        "light_luminance": 167.4,
+        "wall_luminance": 85.7,
+        "lift": 81.7,
+        "threshold": 119,
+        "threshold_span": [
+          98,
+          169
+        ],
+        "stability": 72,
+        "lattice": {
+          "score": 0.1501,
+          "x": 0.1442,
+          "y": 0.156,
+          "pitch_x_m": 0.216,
+          "pitch_y_m": 0.173,
+          "edge_energy": 56.27
+        },
+        "rejected": "bright, but its light is not crossed by a repeating lattice in both directions: 0.150 against the 0.20 a leaded light scores"
+      },
+      {
+        "x0_px": 377,
+        "x1_px": 557,
+        "y0_px": 408,
+        "y1_px": 574,
+        "head_m": 2.094,
+        "sill_m": 0.9,
+        "vertical": "measured",
+        "width_px": 180,
+        "width_m": 1.295,
+        "centre_px": 467.0,
+        "height_m": 1.194,
+        "lights": [
+          [
+            377,
+            557
+          ]
+        ],
+        "light_luminance": 137.92,
+        "wall_luminance": 85.7,
+        "lift": 52.22,
+        "threshold": 117,
+        "threshold_span": [
+          111,
+          122
+        ],
+        "stability": 12,
+        "lattice": {
+          "score": 0.2222,
+          "x": 0.1407,
+          "y": 0.3038,
+          "pitch_x_m": 0.036,
+          "pitch_y_m": 0.043,
+          "edge_energy": 8.03
+        },
+        "rejected": "bright, but its light stands only 52.2 above a 85.7 wall, under the 60 a painted window lifts on this store"
+      }
+    ]
   }
 }
