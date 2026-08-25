@@ -186,6 +186,13 @@ function stagePlanTree() {
     filter: (src) => !src.split(/[\\/]/).includes("source")
   });
   cpSync(draftDir, join(dir, "design", "plan-draft"), { recursive: true });
+  /* [Row 42] And the ingested library, because the bake's first act is to load
+     records out of `src/placeholders.js` — which resolves a promoted id to
+     `library/<id>/record.json`. A tree without it would bake against the
+     procedural record while the committed bake was made against the real one,
+     and "untouched by any of it" would fail for a reason that has nothing to
+     do with the plan. */
+  cpSync(join(repoRoot, "library"), join(dir, "library"), { recursive: true });
   /* Row 11: the bake reads blueprint §10's ruled eye height out of the
      orientation contract, so it is a bake input. */
   mkdirSync(join(dir, "replicator"), { recursive: true });

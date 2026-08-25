@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-INGEST | the two row-42 sprite returns (plank oak leaf, leaded casement — painted checkerboard keyed to real alpha) ingested through the replicator into real records replacing the placeholders | building |
+| B-INGEST | the two row-42 sprite returns (plank oak leaf, leaded casement — painted checkerboard keyed to real alpha) ingested through the replicator into real records replacing the placeholders; `tools/prep-sprite-source.py` is the keying/padding step, `library/promoted.json` + `tools/bake-library.mjs` are how the page reads a library it had never read, and the merge rule lives in `src/placeholders.js` | built, awaiting review |
 | B-DRIFT | the sweep regenerates every derived artifact it invalidates (provenance, consistency, snap/door readings, strip shas) + `--derive-check` in the publish preflight; the 8 store-drift suite cases read freshness through one helper | building |
 
 ## Recently landed (for "issue with…" back-reference)

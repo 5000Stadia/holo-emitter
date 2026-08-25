@@ -68,6 +68,45 @@
       "24": 4400
     },
     "tile_runs_measured": 99156,
+    "tolerance_plateau_object_spread_fraction": 0.03289,
+    "tolerance_plateau_object_spread_px": 19806,
+    "tolerance_sweep": [
+      {
+        "keyed_px": 507195,
+        "object_px": 1065849,
+        "tone_tolerance": 0
+      },
+      {
+        "keyed_px": 935703,
+        "object_px": 637341,
+        "tone_tolerance": 2
+      },
+      {
+        "keyed_px": 961247,
+        "object_px": 611797,
+        "tone_tolerance": 4
+      },
+      {
+        "keyed_px": 970891,
+        "object_px": 602153,
+        "tone_tolerance": 6
+      },
+      {
+        "keyed_px": 975517,
+        "object_px": 597527,
+        "tone_tolerance": 8
+      },
+      {
+        "keyed_px": 979338,
+        "object_px": 593706,
+        "tone_tolerance": 12
+      },
+      {
+        "keyed_px": 981053,
+        "object_px": 591991,
+        "tone_tolerance": 16
+      }
+    ],
     "tones": {
       "band": [
         238.0,

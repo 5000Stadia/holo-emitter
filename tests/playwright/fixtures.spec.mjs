@@ -1,5 +1,5 @@
 import { test, expect, repoRoot, bake, stageTree, removeTree } from "./helpers.mjs";
-import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, cpSync, mkdirSync, mkdtempSync, rmSync, readdirSync, existsSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -132,8 +132,15 @@ test.describe("fixtures", () => {
       mkdirSync(join(dir, "design", "plan-draft"), { recursive: true });
       cpSync(join(repoRoot, "design", "plan-draft", "measured"),
         join(dir, "design", "plan-draft", "measured"), { recursive: true });
+      /* A LOCATION IS A DIRECTORY, asked of the filesystem rather than guessed
+         from the name. This filtered by name — "not `source`, not `*.js`" — and
+         `14b7a84` put `backdrops/AGENTS.md` beside the locations, whereupon the
+         whole case died in `readdirSync` with ENOTDIR before it compared a
+         single meta. A staleness test that cannot run is a staleness test that
+         cannot fail, and the failure named a path rather than a stale file. */
       const promoted = readdirSync(join(repoRoot, "backdrops"))
-        .filter((loc) => loc !== "source" && !loc.endsWith(".js"))
+        .filter((loc) => loc !== "source" &&
+          statSync(join(repoRoot, "backdrops", loc)).isDirectory())
         .flatMap((loc) => readdirSync(join(repoRoot, "backdrops", loc))
           .filter((f) => /^[NESW]\.meta\.json$/.test(f))
           .map((f) => [loc, f[0]]));

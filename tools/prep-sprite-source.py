@@ -233,6 +233,20 @@ def key_checkerboard(rgb, chroma_max, tone_tol, tone_floor):
     # lattice, and are counted separately rather than folded in.
     real_pieces = int((obj_sizes > tile_area).sum())
 
+    # HOW MUCH OF THE CAME THE TOLERANCE IS TOUCHING, which is the one thing a
+    # keyed count cannot say on its own. The replicator asks the same question
+    # of its own matte (gate (g), `tolerance_sensitivity`): sweep the number and
+    # see how far the silhouette moves. Here the sweep is the tone tolerance,
+    # and what it measures is the antialias band between a came and the glass —
+    # the only pixels whose classification the number can change.
+    sweep = []
+    for t in (0, 2, 4, 6, 8, 12, 16):
+        m = (chroma <= chroma_max) & (g >= lo_tone - t) & (g <= hi_tone + t)
+        sweep.append({"tone_tolerance": t, "keyed_px": int(m.sum()),
+                      "object_px": int((~m).sum())})
+    plateau = [s for s in sweep if s["tone_tolerance"] >= 4]
+    spread = max(s["object_px"] for s in plateau) - min(s["object_px"] for s in plateau)
+
     report = {
         "tones": {"grey": round(lo_tone, 2), "white": round(hi_tone, 2),
                   "band": [round(band_lo, 2), round(band_hi, 2)],
@@ -250,6 +264,9 @@ def key_checkerboard(rgb, chroma_max, tone_tol, tone_floor):
         "object_components_over_one_tile": real_pieces,
         "object_largest_component_px": biggest,
         "object_largest_component_fraction": round(biggest / float(max(1, obj.sum())), 5),
+        "tolerance_sweep": sweep,
+        "tolerance_plateau_object_spread_px": int(spread),
+        "tolerance_plateau_object_spread_fraction": round(spread / float(max(1, obj.sum())), 5),
     }
     return mask, report
 
