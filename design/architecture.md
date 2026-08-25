@@ -3921,6 +3921,113 @@ names *"interior oak panelling and a chair-rail"* — so an outdoor wall carries
 when it can be said without naming interior fabric, and otherwise carries the forward half while the
 verbatim reason goes to `PACKET.md` and `retries.json`.
 
+
+#### Row 40 — the origin of the rooms that were painted as two rooms
+
+Row 29 (above) corrected the table. It did not, and could not, correct the STORE, and that is the
+whole of row 40's origin finding. `--emit-manor` is idempotent **by existence** — a promoted
+backdrop or a candidate already on disk removes a facing from the order — so when the voice table
+landed at `e0f02b6` (2026-08-23 11:03) it reached only the thirteen walls then being re-emitted. The
+manor's 85 packets had gone out seven hours earlier at `4efd69d` (03:54) under the archetype
+composer, and every facing that never needed a re-ask kept the ask it already had.
+
+From that hour on, **whether a facing spoke its room's voice was decided by whether it happened to
+need a re-ask** — a camera property deciding a room property. Four walls of one room, rolled
+independently, landed on both sides of that line, and the room stopped being one room. That is the
+disease Kabe walked into: `guest_chamber` S voiced against N/E/W generic, `master_bedchamber` N/S
+against E/W, `servants_hall` S/W against N/E, `garden_room` N/E against W, `closet_chamber` N
+against E/W — the pixel measure's five rooms, facing for facing. The full trace, the ruled-out
+suspects and the before/after are in `design/batches/row40-consistency/README.md`.
+
+Four things carry the cure, and none of them is in an artifact:
+
+- **`materialParts` / `materialLines` (`make-scaffold.mjs`) are the one home of a manor ask's
+  materials.** `manorPrompt` composed them inline in two branches; the auditor and the promotion
+  gate now ask the same function the emitter answers with, so the emitter and its own gate cannot
+  describe two different rooms and agree about it. The one licensed per-facing difference — an
+  outdoor location's open side genuinely has no wall on it — lives inside that function and is
+  exempted by NAME in the test, so a room quietly acquiring a second fabric cannot hide in it.
+- **A carrier-less facing is told no second fabric.** The blankness sentence used to name
+  `voice.blank`, a per-voice string reached only by a facing with no carrier, and in `hall_state`
+  and `great_chamber` it named wainscot where `walls` ruled fielded panelling. It now points at the
+  shared `Materials/textures` line, and those two `blank` strings were corrected to name the fabric
+  their `walls` names — which is what row 36's `MATERIAL_BINDING` already binds them to.
+- **`materialProvenance()` — the observer that did not exist.** For every promoted facing it
+  recovers the prompt its painting was actually made from (through `askTextFor`, so a row-35 snapped
+  candidate resolves through the roll it was rectified from) and compares it with what this composer
+  writes for that room TODAY. Deterministic; no pixels, no browser, no model. Because it recomputes
+  the ruling from `room-voices.mjs` on every run, editing the voice table makes every wall painted
+  under the old one visibly stale on the next `node tools/make-scaffold.mjs --audit-materials`,
+  which writes `design/plan-draft/measured/material_provenance.json` and exits non-zero on any room
+  that is not current. It is strictly stronger than the pixel measure on the pixel measure's own
+  corpus: 5 of its 5 mismatched rooms, plus `stair_landing` (the miss that report logs OPEN, because
+  its two ceilings differ almost purely in brightness), plus 8 rooms painted CONSISTENTLY to a
+  superseded voice — which look like one room in pixels because they are one room — with zero false
+  flags against the six the contact sheets labelled plainly one room.
+- **The promotion holds the door.** `promote-backdrop.mjs` refuses a candidate whose own ask never
+  named its room's ruled materials `[row40:material.voice_stale]`, or whose ask cannot be read at
+  all `[row40:material.ask_unreadable]`. Both speak with the collected refusals rather than ahead of
+  them, so row 39's more specific `stair.ask_unreadable` still answers a flight wall first. The
+  clause is a no-op by construction on any packet this emitter cuts. The 36 paintings already in the
+  store are admitted by `design/plan-draft/measured/material_legacy.json`, a **ledger and not an
+  exemption**: an entry admits one facing from one exact candidate, a re-ask produces a new
+  candidate id that is not in the file, so the list can only shrink, and each entry names the
+  command that closes it.
+
+The forced re-ask can now be sourced from the asks instead of the pixels —
+`--emit-consistency --from-ask` — which is strictly earlier (the pixel measure cannot speak until
+every facing of a room is painted and promoted) and strictly stronger on seeding: a strip may be cut
+only from a facing whose OWN ASK was the ruling, where the pixel route trusts the pixel majority.
+`guest_chamber` is the case that separates them, since its pixel majority is the three facings that
+are wrong.
+
+Guarded by `tests/playwright/material-origin.spec.mjs` and by the two clause-ledger cases in
+`guards.spec.mjs`. `playwright` is now imported lazily by `make-scaffold.mjs`, because
+`promote-backdrop.mjs` reads its material vocabulary and runs from staged trees that carry the tools
+and none of `node_modules`.
+
+#### Row 40 — Image 1 is never a wall from another room
+
+[HUMAN, 2026-08-24, verbatim] *"So why do we give it the reference image of the study? I think it
+biases it too much. I mean I know why that window with the botched insignias is every window
+generated for example."*
+
+Tested rather than assumed, and the store proves it twice. **`privy_garden/N`, roll
+`row23-1b134204`**: its ask reads, in full, *"weathered ashlar and brick, open sky above, packed
+earth and stone paving underfoot"* and names no wood at all; the painting has dark oak fielded
+wainscot round an outdoor garden under open sky, and Image 1 is the only place in that packet where
+fielded oak panelling exists. That is the picture Kabe vetoed as *"exterior garden has interior wall
+outside"*, and this names the file it came out of. **And the glass, counted**: of the 19 promoted
+facings the plan gives a window and whose voice rules PLAIN glass, seven carry saturated
+daylight-bright coloured glass nothing asked for — while `great_hall`, the one room the heraldry
+ration allows arms in quantity, scores less than nine of the rooms forbidden them.
+
+Bounded honestly: all seven predate row 29 and carry no plain-glass refusal at all, so the store
+cannot say whether words alone would have beaten the seed. That experiment was never run and now
+never will be. And it is **not** the origin of the five mismatched rooms — those split on the
+archetype/voice date facing for facing, and wherever an ask named a fabric far from the seed's the
+painting followed the ask.
+
+- **`styleImageFor(plan, key)` decides Image 1, and `manorPrompt` calls it itself** so every emit
+  path gets the rule without remembering it. Where the room has a wall the pixel measure puts inside
+  its **agreeing majority** *and* whose **own ask was the room's ruling**, that wall is Image 1, with
+  its role stated in words: this room's materials, medium, palette and light, and geometry from
+  Image 2 only. Both conditions are load-bearing and `guest_chamber` is why — its pixel majority is
+  the three facings commissioned from the wrong voice, so it gets no picture at all.
+- **Where there is none, no style image is attached.** The packet says so in its first sentence and
+  in its attach line, and the medium goes into words at a picture's resolution. `attachStyle` copies
+  the chosen wall in as `style-reference.png`; no manor packet carries `style-seed-warm.png` again.
+  As the store stands, 29 of 88 facings resolve an Image 1 and 59 get none.
+- **The glass is named positively**, because the seed can no longer supply it — *"small plain diamond
+  quarries of faintly greenish crown glass, each quarry a plain lozenge of clear glass and nothing
+  else"* — and the sentence that argues with Image 1 is spoken only where an Image 1 exists to argue
+  with. (Diamond, not rectangular: the lozenge quarry is the c.1660 leaded form the voice table's own
+  period notes rule.)
+
+The row-23 experiment packets keep the seed: that matrix is two walls of the STUDY, so the seed is
+already a wall of the room being painted, and its arms are the hall's ration being measured rather
+than leaking. Image 2 and the row-38 edge strips are untouched.
+
 ### The re-ask (`--emit-retries`)
 
 `row23_run.py`'s sweep decides a wall must be asked again and writes why into `run-state.json`.

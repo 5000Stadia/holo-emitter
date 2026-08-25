@@ -29,6 +29,7 @@ import { join, dirname } from "node:path";
 import { repoRoot, stageTree, removeTree } from "./helpers.mjs";
 import { manorPrompt, scaffoldRects } from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
+import { askTextFor } from "../../tools/flight-evidence.mjs";
 import { carryableOutdoors } from "../../tools/room-voices.mjs";
 import { MEASURED_BAND, DECLARED_CAMERA_FIELDS } from "../../tools/validate-fixtures.mjs";
 
@@ -204,6 +205,18 @@ print("|".join(row23_lib.TOLERANCE_FAMILIES))
         meta.measured_round || "", `${loc}-${fac}.json`);
       mkdirSync(dirname(join(dir, docRel)), { recursive: true });
       const doc = JSON.parse(readFileSync(join(repoRoot, docRel), "utf8"));
+      /* [row 40] AND THE ASK THE CANDIDATE WAS PAINTED FROM, which is a second
+         file the promotion reads: `row40:material.voice_stale` asks whether
+         this wall was commissioned with its own room's ruled materials, so a
+         staged tree without the ask refuses at that clause before this case
+         reaches the horizon it is about. Resolved through `askTextFor`, the
+         way the tool resolves it, so the staging cannot drift from what is
+         read. */
+      const ask = askTextFor(repoRoot, cand, doc, join);
+      if (ask.text) {
+        mkdirSync(dirname(join(dir, ask.path)), { recursive: true });
+        writeFileSync(join(dir, ask.path), ask.text);
+      }
       /* The one thing that makes this wall a member of the family. Every other
          number in the document is its own real reading. */
       doc._hold_family = "suspect-painting";

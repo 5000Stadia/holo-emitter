@@ -156,3 +156,195 @@ The cut is not a round number picked for looking sensible. Twelve rooms were ope
 
 **The known miss, logged rather than hidden** (production law clause 2): stair_landing scores 2.12 and sits well below the cut, though a human plainly sees its two ceilings differ. Its two facings differ mostly in how dark the ceiling is, which is the one axis this instrument was calibrated to ignore, and its declared ceiling line sits far enough from the painted one that the two bands are not sampling the same surface. Recorded in `design/plan-draft/measured/misses.jsonl`. Raising the brightness weight enough to catch it costs three false positives, which is a worse trade for a repair route that spends a model call per flag.
 
+
+---
+
+# The ORIGIN — what actually caused it
+
+[HUMAN, 2026-08-24, verbatim]: "Make sure we're not just fixing it. We need to hunt down the cause, determine its origin and bake in the consistent solution."
+
+Everything above measures PIXELS. This section is the hunt for the cause behind them, and it ends
+somewhere the pixels only implied: **the five rooms were not painted badly and their prompts did not
+drift. Their facings were commissioned, verbatim, from different materials.**
+
+Every candidate ever rolled has its exact prompt on disk beside it
+(`backdrops/source/<room>-<F>/<id>.prompt.txt`), and every promoted meta names the candidate it was
+promoted from. Reading the two together recovers the ask behind every painting in the store.
+
+## Three commits, seven hours apart
+
+| when | commit | what it did |
+|------|--------|-------------|
+| 2026-08-23 03:54 | `4efd69d` | the manor run emits **85 packets**. The composer keyed materials on `room.archetype` and fell through to the panelled-parlour default, so a bedchamber, a garden parlour, a kitchen and the servants' hall were each asked for *"dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards"*. |
+| 2026-08-23 11:03 | `e0f02b6` | row 29 lands the voice table — and re-emits **thirteen** walls under it (`6ad03c7`). |
+| 2026-08-23 14:16 | `d223961` | the sweep re-asks **27** held walls; those carry the voice. |
+
+`--emit-manor` is idempotent **by existence** — its own `_reuse_rule` says so: *"a promoted backdrop,
+a candidate already on disk, or a spent retry budget removes a facing from the order."* So the voice
+correction could not reach any facing that was already painted or already had rolls. From 11:03
+onward, **whether a facing spoke its room's voice was decided by whether it happened to need a
+re-ask** — a camera property deciding a room property. Four walls of one room, rolled independently,
+landed on both sides of that line.
+
+## The five rooms, facing by facing
+
+The divergent sentence is verbatim from each promoted candidate's own prompt sidecar.
+
+| room | facing | the material sentence its painting was asked from | verdict |
+|------|--------|--------------------------------------------------|---------|
+| **guest_chamber** | S | `oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. Underfoot: wide oak floorboards. Hangings: hangings of dull red worsted say…` | the voice |
+| | N, E, W | `dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.` | pre-row-29 default |
+| **master_bedchamber** | N, S | `oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. Underfoot: wide oak floorboards. Hangings: a full set of woven tapestry hangings…` | the voice |
+| | E, W | `dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.` | pre-row-29 default |
+| **servants_hall** | S, W | `plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. Underfoot: a floor of worn red brick laid on edge.` | the voice |
+| | N, E | `dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.` | pre-row-29 default |
+| **garden_room** | N, E | `light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. Underfoot: a floor of square stone paviours.` | the voice |
+| | W | `dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.` | pre-row-29 default |
+| **closet_chamber** | N | `oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. Underfoot: wide oak floorboards. Hangings: plain hangings of undyed wool serge…` | the voice |
+| | E, W | `dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.` | pre-row-29 default |
+
+It matches the pixel measure facing for facing, including the thing that looked strangest in it:
+`guest_chamber`'s pixel majority is N/E/W and it is the half that is **wrong**, because S is the one
+facing that got the bedchamber voice. That is why the repair's ruling comes from the plan and never
+from a vote — and the ask audit reaches the same answer from the other direction, since S is also
+the only facing of that room whose ASK was the ruling.
+
+## What was checked and ruled out
+
+Named here because a cause found is only as good as the causes eliminated.
+
+| suspect | verdict |
+|---------|---------|
+| **the style seed** — did the packets attach different Image 1 bytes? | **ruled out by measurement.** All 170 `style-seed-warm.png` copies under `design/batches/` are byte-identical to `design/references/style-seed-warm.png` (one sha256). Now a standing test. |
+| **`voiceFor` answering differently per facing** | **ruled out.** It returns one voice for all four facings of every interior room. The only per-facing split is outdoor, by design — an open side has no wall on it — and it is exempted by name. |
+| **a correction carried into a re-ask naming a foreign material** | **ruled out.** Exactly one correction in `run-state.json` names a material word: `privy_garden/N`'s, which is Kabe's own veto, and `REDACTED_CORRECTION` already exists to stop it being quoted back at the painter. |
+| **the row-38 edge seed seeding off a wrong neighbour** | **ruled out by date.** Row 38 postdates every painting in these five rooms; not one was seeded. |
+| **the row-34 evolution arm (`g4`) leaking into production** | **ruled out.** No promoted facing here came from an evolution packet. The only trace of `g4` is the label rename (`Materials and period detail:` → `Materials/textures:`), which is prose and not a material — `garden_room/E` and `garden_room/N` carry the two labels and the identical fabric. |
+| **the painter disobeying an identical prompt** | **ruled out, and this is the strongest single finding.** Every facing asked for the generic fabric came back panelled; every facing asked for its room's voice came back in that voice. The asks explain the split completely and leave nothing for disobedience to account for. Prompt STRENGTH is not the issue here — prompt CONTENT was. |
+| **`walls_with_openings`** | **real, and correct.** It differs per facing only outdoors, where the plan draws carriers on one side of a court and not another. Declared, not accidental. |
+| **`voice.blank`** | **REAL, live at HEAD, and fixed here.** See below. |
+
+## The second origin: `voice.blank`
+
+The same disease one level down, and it had nothing to do with row 29. A facing carrying **no
+carrier** got an extra sentence — *"it is `voice.blank`"* — composed per voice. In `hall_state` and
+`great_chamber` that string named a different fabric from `voice.walls`:
+
+```
+walls: dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head
+blank: unbroken oak wainscot under a carved frieze
+```
+
+So a blank facing of the great hall or the solar was told **panelling** in one sentence and
+**wainscot** in another, while its carrier-bearing neighbours were told only panelling — a per-FACING
+property deciding a per-ROOM one. Row 36's `MATERIAL_BINDING` already binds `blank` and `walls` here
+to one texture id, so the words were the only thing dissenting.
+
+## Where the cure lives (production law clause 6)
+
+Nothing below is in an artifact, and nothing below needs this conversation in context.
+
+1. **Emitter — one home for a material sentence.** `make-scaffold.materialParts` / `materialLines`
+   compose every material sentence a manor ask states, in both the indoor and outdoor branches, and
+   `manorPrompt` calls them. The auditor and the promotion gate ask the same function, so the
+   emitter and the gate cannot describe two different rooms and agree with each other about it.
+2. **Emitter — the blankness sentence carries no fabric of its own.** It points at the shared
+   `Materials/textures` line, and the two divergent `blank` strings were corrected to name the
+   fabric their `walls` names.
+3. **Instrument — `materialProvenance()`, and `--audit-materials`.** For every promoted facing it
+   recovers the ask its painting was actually made from (through `askTextFor`, so a row-35 snapped
+   candidate resolves through the roll it was rectified from) and compares it with the ask this
+   composer writes for that room **today**. Deterministic, no pixels, no browser, no model. Because
+   it recomputes the ruling from `room-voices.mjs` on every run, **the instant anyone corrects the
+   voice table, every wall painted under the old one goes visibly stale** — which is exactly the
+   observer that did not exist on 2026-08-23 at 11:03. It writes
+   `design/plan-draft/measured/material_provenance.json` and exits non-zero on any room that is not
+   current.
+4. **Gate — `promote-backdrop.mjs` holds the door.** `[row40:material.voice_stale]` refuses a
+   candidate whose own ask never named its room's ruled materials; `[row40:material.ask_unreadable]`
+   refuses one whose ask cannot be read at all. Both are registered in the clause ledger with a case
+   that goes red on that clause alone. It is a **no-op by construction** on any packet this emitter
+   cuts, because the sentences it looks for come from the same `rulingSentences` the emitter composes
+   with.
+5. **Repair route — `--emit-consistency --from-ask`.** The forced re-ask can now be sourced from the
+   asks instead of the pixels, which is strictly earlier (the pixel measure cannot speak until every
+   facing of a room is painted) and strictly stronger on seeding: a strip may be cut only from a
+   facing whose **own ask was the ruling**, where the pixel route trusts the pixel majority.
+   `guest_chamber` is the case that separates them.
+
+## The legacy ledger, and what stays open
+
+36 of the 61 promoted paintings were made from an ask that does not name their room's ruled
+materials. Refusing them all would refuse the corpus rather than the defect, so
+`design/plan-draft/measured/material_legacy.json` admits them — **as a ledger, not an exemption**: an
+entry admits one facing from **one exact candidate**, a re-ask produces a new candidate id that is
+not in the file, so the list can only shrink, and a wall nobody repairs stays visible with its own
+`why` instead of passing silently. Each entry names the command that closes it.
+
+## What the audit sees that the pixel measure cannot
+
+| finding | pixel measure | ask audit |
+|---------|---------------|-----------|
+| the five mismatched rooms | 5 of 5 | 5 of 5 |
+| **stair_landing** — logged OPEN above, invisible to a colour-and-contrast metric because its two ceilings differ almost purely in brightness | miss (2.12, rank 10, under the cut) | **caught**: N was asked for *"a plain lime-plastered ceiling"*, E for a *"boarded ceiling"* |
+| the rooms labelled plainly ONE room by eye | correctly consistent | **0 false flags** — kitchen, buttery_pantry, solar, muniment_room and long_gallery all come back as one ask, and so does dining_parlour |
+| **study** — the sixth room on that list | correctly consistent (its two facings look alike) | **split**, and correctly: its promoted pair predates the manor composer entirely and the two were written by hand, differently. N says `Materials and period detail: dark hand-finished oak paneling…`; W says `Style and materials: Match Image 1 exactly: dark hand-finished oak paneling…` — a different heading, a different sentence, and US-spelt "paneling" in both, where the voice rules "panelling". Two facings that happen to agree are not two facings that were asked the same thing |
+| a room painted **consistently to a superseded voice** | invisible — it looks like one room, because it is one room | **8 rooms**, including `kitchen` and `buttery_pantry`: 7 promoted facings of oak panelling in a scullery, which is [HUMAN, 2026-08-24, verbatim] *"is every room in this house parlor walls?"* still standing in the store |
+| a promoted painting whose ask cannot be recovered | invisible | **1** (`entrance_court/S`), reported rather than skipped |
+
+Guarded by `tests/playwright/material-origin.spec.mjs` (the 88-facing room-invariance sweep, the
+blankness clause, the style-seed identity, the audit against the pixel measure's own corpus, the
+seeding rule, and the ledger's honesty) and by the two clause-ledger cases in `guards.spec.mjs`.
+
+---
+
+# The SECOND origin — Image 1, and the ruling that removes it
+
+[HUMAN, 2026-08-24, verbatim]: "So why do we give it the reference image of the study? I think it biases it too much. I mean I know why that window with the botched insignias is every window generated for example."
+
+Tested rather than assumed, and he is right — though not about the five rooms.
+
+## What Image 1 was
+
+Every manor packet ever cut attached the same file as Image 1: `design/references/style-seed-warm.png`, one sha256 (`a5df7a68…`) across all **170** copies on disk. It is a painting of **the study**: dark oak fielded panelling on every surface, a leaded window carrying **four painted heraldic shields**, a lit fire, furniture, books, a rug, candles. Every one of those is a thing the words then have to argue with.
+
+## Evidence 1 — it overrode the words outright
+
+`privy_garden/N`, roll `row23-1b134204`. Its ask says, in full:
+
+> `Materials and period detail: weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.`
+
+It names **no wood at all**. The painting has **dark oak fielded wainscot running round an outdoor garden wall under open sky**. Image 1 is the only place in that packet where fielded oak panelling exists, so it is where the panelling came from. That picture is what Kabe vetoed as *"exterior garden has interior wall outside"* — and this names the file it came out of.
+
+## Evidence 2 — the shields, counted
+
+Of the **19** promoted facings the plan gives a window and whose voice rules **plain** glass, **7 (37 %)** carry saturated, daylight-bright coloured glass their ask never asked for. The control is what makes it evidence rather than an impression: `great_hall` — the one room period practice and this project's own heraldry ration allow arms in quantity — scores **71 px** and **20 px**, *less coloured glass than nine of the rooms forbidden it entirely*. The shields went everywhere except the room entitled to them.
+
+Worst offenders: `long_gallery/E` (1210 px), `master_bedchamber/E` (938), `muniment_room/S` (832), `library/W` (525), `guest_chamber/W` (509), `closet_chamber/E` (422), `master_bedchamber/W` (305).
+
+**Stated honestly, because it bounds the claim:** all seven were painted from asks that predate row 29 and carry **no plain-glass refusal at all** — the "Windows:" paragraph did not exist when they were rolled. So the store cannot tell us whether the words alone would have beaten the seed. That experiment has never been run. The ruling below removes the need to run it.
+
+*(A first cut of this measure counted saturated pixels over the whole frame and flagged `guest_chamber/S`, which has no window at all — its saturation is the dull red worsted hanging its own ask asked for. The measure is therefore restricted to facings the plan draws a window on, and to daylight-bright pixels, which is glass rather than firelit fabric.)*
+
+## What Image 1 was NOT
+
+**It is not the origin of the five mismatched rooms.** Those split exactly on the archetype/voice date, facing for facing, and wherever an ask named a fabric far from the seed's, **the painting followed the ask**: `servants_hall` S/W came back limewash over brick under exposed joists; `garden_room` N/E light wainscot over paviours; `master_bedchamber` N/S tapestry hangings; `guest_chamber/S` a deep red worsted hanging, which is as far from a panelled study as this house goes. Two diseases, two causes. The seed owns the second one.
+
+## The ruling, folded into the emitter
+
+**Image 1 is never a wall from another room.** `styleImageFor(plan, key)` decides, and `manorPrompt` calls it itself so every emit path gets the rule without remembering it:
+
+- **Where the room has a wall it can vouch for**, that wall is Image 1, with its role stated in words: *"Image 1 is a painting of ANOTHER WALL OF THIS SAME ROOM… the reference for this room's materials, its paint medium, its palette and its light, and for nothing else: how many openings this wall carries, where they stand and every dimension of them come from Image 2 and the words below."*
+- **Where it has none, no style image is attached at all.** The packet says so in its first sentence and in its attach line, and the medium goes into words at a picture's resolution — oil, alla prima on a warm ground, impasto in the lit passages, thin scumbled shadow, the palette, the falloff, and *"it is a painting, and the brush is visible in it."*
+
+**Two conditions, and the second is row 40's own.** The pixel measure must put that wall inside the room's **agreeing majority**, *and* the ask audit must say that wall's **own ask was this room's ruling**. `guest_chamber` is why the second is not redundant: its pixel majority is N/E/W, all three commissioned from the panelled-parlour default, and the one facing asked for the bedchamber voice is S — the *outlier*. A rule trusting the pixel vote alone would hand the next roll a photograph of the wrong room and call it evidence. So guest_chamber gets **no** picture, and master_bedchamber (two against two, no majority) gets none either.
+
+As the store stands: **29 of 88 facings resolve an Image 1; 59 get none.** Every one of the 29 is a wall of its own room.
+
+**The glass is now named positively**, because the seed can no longer supply it: *"Every light is glazed edge to edge with small plain diamond quarries of faintly greenish crown glass, each quarry a plain lozenge of clear glass and nothing else…"*, followed, where the ration is zero, by *"…no armorial shield, crest, badge, monogram, motto or insignia of any kind appears in any window here. This room is not entitled to arms and has none."* The sentence that argues with Image 1 is spoken **only where an Image 1 exists to argue with** — a prompt that mentions "the window in Image 1" when no Image 1 is attached has just described a window nobody asked for.
+
+*One deviation from the instruction, stated rather than taken silently:* the ruling said "plain rectangular quarries". The quarry is named **diamond** here, because the lozenge quarry is the c.1660 leaded form the voice table's own period notes rule and a rectangular quarry is a later one. The substance asked for — the glass named explicitly and positively, in words, since no picture supplies it — is done.
+
+Image 2 (the scaffold) and the row-38 edge strips are untouched.
+
+Guarded by five cases in `tests/playwright/material-origin.spec.mjs`: no facing is ever given another room's wall or its own; the wall picked is one the room agrees on *and* one whose ask was the ruling; the prompt and the attach line never disagree about what Image 1 is, and no manor ask names `style-seed-warm` again; a packet with no Image 1 still carries the medium; and a plain-glass room is told what *is* in every quarry, not only what is not.
