@@ -47857,3 +47857,8 @@
 {"detail":{"attempts":4,"correction":"draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2","why":"retry cap spent"},"key":"closet_chamber/S","step":"park.wall","ts_end":1787664898.126923,"ts_start":1787664898.126922}
 {"detail":{"files":0,"notes":[],"reason":"sweep","stale":[]},"key":null,"step":"derive.sweep","ts_end":1787664899.464847,"ts_start":1787664898.127024}
 {"detail":{"fixture":"nav-manor","refused":false},"key":null,"step":"validate.sweep","ts_end":1787664900.94346,"ts_start":1787664900.799352}
+{"ts_start":1787664900.99,"ts_end":1787664917.75,"step":"bake.backdrops","key":null,"detail":{"paintings":61,"out_bytes":39324055,"fp":"ea4c5b99","png_bytes":155047959,"jpeg_bytes":29483845}}
+{"ts_start":1787664917.853,"ts_end":1787664917.925,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"e5736853","out_bytes":16920,"facings":8,"locations":2}}
+{"ts_start":1787664917.999,"ts_end":1787664918.142,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"dd275018","out_bytes":631577,"facings":88,"locations":22}}
+{"detail":{"refused":false,"worlds":2},"key":null,"step":"bake.sweep","ts_end":1787664918.180694,"ts_start":1787664900.943722}
+{"detail":{"failed":21,"parked":3,"promote_enabled":true,"promoted":2,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1787664918.181268,"ts_start":1787664895.994252}
