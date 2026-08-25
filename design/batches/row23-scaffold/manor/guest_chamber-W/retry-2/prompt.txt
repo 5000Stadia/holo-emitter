@@ -1,0 +1,64 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the west wall of the guest chamber, circa-1660 English manor
+Correction on a previous attempt at this exact wall: This room is ruled to ONE set of materials and this facing does not show them. In GUEST CHAMBER, every wall is oak wainscot to chair height with wall hangings above it, those hangings being hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping; every ceiling is a plain lime-plastered ceiling; every floor is wide oak floorboards. Paint exactly those materials on every surface in this view and nothing else — not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: this room's promoted facings were commissioned from 2 different sets of materials (NEW against S), so it was painted as 2 rooms and not one. S was asked for the materials above and the others were not.
+  Everything else below still holds; this correction is the change being asked for.
+Input images: THERE IS NO IMAGE 1 IN THIS PACKET. No painting of any wall is given,
+  because this room has none yet that it can vouch for, and a picture of some other
+  room would be worse than none. Every quality of this picture — its medium, its
+  palette, its light and its materials — is in the words below and in nothing else.
+  Image 2 is a geometric layout diagram of the surface to be painted: it is a
+  technical drawing, not artwork to imitate.
+  Image 2's boxed labels mark where a named feature belongs: paint that feature inside its box, filling it. The labels themselves are instructions and are never painted.
+  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.
+Primary request: Paint the west wall of the empty guest chamber of a circa-1660 English manor,
+  in the medium described below and matching Image 2's geometry exactly.
+Gate anchor: the wainscot chair-rail above the floor, 0.95 m.
+Composition/framing: a 1536 by 1024 landscape picture, looking straight at one wall of
+  the room with the two side walls running away from you to left and right. The wall you
+  face shows its whole width, and the floor is visible and reaches the bottom of the
+  picture.
+  The line where the left-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the left edge.
+  The line where the left-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the left edge.
+  The line where the right-hand side wall meets the surface overhead is straight and unbroken. Coming
+    toward you from that wall's corner it climbs, and it leaves the picture through the right edge.
+  The line where the right-hand side wall meets the surface underfoot is straight and unbroken. Coming
+    toward you from that wall's corner it drops, and it leaves the picture through the right edge.
+  Carry all four of those lines the other way instead, back into the distance, and they
+    converge on a single place: the middle of the picture's width, a little above its
+    half-height, at about the eye level of someone standing on the floor you can see.
+  The same lines, as picture coordinates — column counted from the left edge,
+    row counted from the top:
+    The faced wall meets the floor along a level line at row 721.
+    It meets the surface overhead along a level line at row 273.
+    Its two upright edges stand at column 228 and column 1308.
+    The left side wall's upper line runs from column 228, row 273 to column 0, row 161.
+    The left side wall's lower line runs from column 228, row 721 to column 0, row 799.
+    The right side wall's upper line runs from column 1308, row 273 to column 1536, row 161.
+    The right side wall's lower line runs from column 1308, row 721 to column 1536, row 799.
+    Carried on, all four of those meet at column 768, row 537.
+    One metre of the faced wall covers 160 columns.
+Architecture and measurement anchors: A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.
+  Each feature stands where Image 2's box for it stands, filling that box's width.
+  Make these dimensions physically coherent and unmistakable in the architecture.
+Materials/textures: oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling.
+  Underfoot: wide oak floorboards.
+  Hangings: hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping.
+Windows: this wall carries two window openings, and every one of them is described here in words. There is no picture of a window in this packet to copy, and none is to be invented from memory.
+  Both are 1.50 m wide, set in a moulded stone surround, divided by two stone mullions into three equal upright lights, the sill 0.90 m above the floor and the head 2.00 m above it.
+  One light in each window is a casement hung on iron hinges: the left-hand light in the one opening left of the wall's centre, and the right-hand light in the one right of it.
+  Every light is glazed edge to edge with small plain diamond quarries of faintly greenish crown glass, each quarry a plain lozenge of clear glass and nothing else, set in lead cames with iron saddle-bars across them.
+  Every quarry on this wall is that plain lozenge and no other thing: no coloured glass, no painted or stained glass, no armorial shield, crest, badge, monogram, motto or insignia of any kind appears in any window here. This room is not entitled to arms and has none.
+Style/medium: fine oil realism, painted alla prima on a warm ground, with tactile
+  brush detail and visible impasto in the lit passages and thin scumbled shadow in the
+  dark ones. The palette is deep warm browns, umber and ochre, with cool grey-green
+  daylight; the light is soft, even and sourceless, with gentle natural falloff into
+  the corners and no hot spot anywhere. Photographic sharpness is wrong for this: it
+  is a painting, and the brush is visible in it.
+Constraints: the guest chamber is completely empty. No furniture stands in it and nobody is in it;
+  there are no loose props and no animals.
+  Image 2 is a layout drawing and its marks are instructions rather than things to paint.
+  Every surface here is plain and unlettered. Wood is left plain, plaster is left plain, stone
+  is left plain and the glazing is plain. This picture carries only the room itself. Do not
+  invent additional typography.
