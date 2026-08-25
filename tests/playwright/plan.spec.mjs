@@ -2600,7 +2600,18 @@ test.describe("the schematic is a derived render of the plan", () => {
           { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
         const committed = join(draftDir, "measured", dir);
         const fresh = join(out, dir);
-        const names = readdirSync(committed).filter((f) => f.endsWith(".json") && f !== "misses.jsonl");
+        /* THE CAND-2 ROUND'S HOME IS ALSO THE MEASURED ROOT, so not every
+           `.json` sitting in it is a reading this round writes. `misses.jsonl`
+           was already named; row 40 put an instrument REPORT beside it
+           (`room_consistency.json`, written by `room_consistency.py` and read
+           by the emitter and the edge seeder), and `measure.py` does not
+           produce it — so the re-run reported it as a corpus edited by hand.
+           Named one by one rather than pattern-matched: a second report
+           arriving is a line to add here, where a reader sees it, and never a
+           reading quietly falling out of the comparison. */
+        const NOT_A_READING = new Set(["misses.jsonl", "room_consistency.json"]);
+        const names = readdirSync(committed)
+          .filter((f) => f.endsWith(".json") && !NOT_A_READING.has(f));
         /* cand5ref writes ONE file — it measures the reference and nothing
            else — and cand6 writes the seven walls the reference gates. */
         const least = round === "cand5ref" ? 1 : (round === "cand6" ? 7 : 8);
@@ -2695,13 +2706,13 @@ test.describe("the schematic is a derived render of the plan", () => {
       .toEqual(["generation_miss", "measurement_withheld", "scaffold_feature_absent"]);
     expect(Object.keys(header._rounds || {}).sort(),
       "and every round it holds entries for")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40"]);
     /* AND NO ENTRY BELONGS TO A ROUND NOTHING CAN RUN. `write_misses` carries
        foreign-round lines through verbatim forever, so an appended line under
        an invented round name would ride in the file untouched and unread. */
     expect([...new Set(ledger.map((r) => r.round || "cand-2"))].sort(),
       "the ledger holds an entry for a round the header does not name")
-      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32"]);
+      .toEqual(["cand-2", "cand-3", "cand-6", "row23", "row29a", "row32", "row40"]);
     /* [Row 32] AND A ROUND WHOSE MISSES ARE NOT ABOUT ONE PAINTING STILL HAS TO
        CLOSE THEM. Row 32's entries are about the instrument, the emitter and two
        promotion gates, so they carry no facing and no delta and the per-facing
@@ -2718,11 +2729,30 @@ test.describe("the schematic is a derived render of the plan", () => {
     const facingless = ledger.filter((x) => !x.facing);
     expect([...new Set(facingless.map((x) => x.round))].sort(),
       "a round whose misses are about the machinery rather than about a painting")
-      .toEqual(["row29a", "row32"]);
+      .toEqual(["row29a", "row32", "row40"]);
+    /* [row 40] AND AN OPEN MISS IS A KIND THIS LEDGER NOW HOLDS, which is the
+       clause read straight rather than a licence. Production law clause 3 says
+       a miss closes only when its cause is baked in algorithmically, cited by
+       commit — `baked_in`, null until then. Every facingless entry before row
+       40 happened to be CLOSED, and this asserted `baked_in` non-empty AND
+       status CLOSED of all of them, which reads the accident as the rule and
+       would have refused an honest open one. Row 40's is honestly open: the
+       room it names is invisible to a colour-and-contrast metric because its
+       two facings differ only in how dark the ceiling is, and the route to
+       close it is row 35's snap applied first, not a heavier weight. So the
+       clause is stated in both directions — CLOSED must name where its cause
+       is baked in, OPEN must name what would close it — and neither can be
+       satisfied by saying nothing. */
     for (const r of facingless) {
-      expect(String(r.baked_in || ""), `${r.round} ${r.gate}: a miss with no baked-in cause is an OPEN miss and may not say CLOSED`)
-        .not.toHaveLength(0);
-      expect(r.status, `${r.round} ${r.gate}: names a status this ledger does not use`).toBe("CLOSED");
+      expect(["OPEN", "CLOSED"], `${r.round} ${r.gate}: names a status this ledger does not use`)
+        .toContain(r.status);
+      if (r.status === "CLOSED") {
+        expect(String(r.baked_in || ""), `${r.round} ${r.gate}: a CLOSED miss names where its cause is baked in`)
+          .not.toHaveLength(0);
+      } else {
+        expect(String(r.closes_when || ""), `${r.round} ${r.gate}: an OPEN miss names what would close it`)
+          .not.toHaveLength(0);
+      }
       expect(r.cause, `${r.round} ${r.gate}: a miss carries its diagnosed cause`).toBeTruthy();
     }
     /* [Row 23] AND A PASS IS NOT A MISS. The matrix puts twenty-four rolls in

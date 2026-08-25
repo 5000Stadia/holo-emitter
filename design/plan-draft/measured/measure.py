@@ -2375,7 +2375,24 @@ def write_misses(raw, round_name="cand-2", records=None):
                            "against the frame it reads. The band is +/-8 % on "
                            "the focal length AND the eye height, an [AI] "
                            "starting licence whose clock is the `clock` record "
-                           "in this file."},
+                           "in this file.",
+                 "row40": "THE LEGACY ROOM-CONSISTENCY AUDIT. [HUMAN "
+                          "2026-08-24, verbatim] \"Still getting rooms with "
+                          "wall/ceiling mismatches\" - the 57 already-promoted "
+                          "paintings were rolled independently and had never "
+                          "been measured against each other. Its miss is about "
+                          "the INSTRUMENT "
+                          "(design/plan-draft/measured/room_consistency.py) "
+                          "rather than about one painting's camera, so it "
+                          "carries no facing and no delta. It is also this "
+                          "ledger's first OPEN entry with no `baked_in`: the "
+                          "room it names is invisible to a colour-and-contrast "
+                          "metric because its two facings differ only in how "
+                          "DARK the ceiling is, and weighting brightness costs "
+                          "three false positives - so the miss carries "
+                          "`closes_when` instead of a commit, exactly as "
+                          "production law clause 3 requires of a cause that is "
+                          "not baked in yet."},
         _round_of_each_entry="every miss carries its own `round` field",
         _evidence=("design/plan-draft/measured/<loc>-<facing>.json carries every "
                    "ruler measured per facing with its own delta; "
