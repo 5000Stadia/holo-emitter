@@ -189,7 +189,13 @@ MANOR = snap.MANOR
 STATE = snap.STATE
 PLAN = snap.PLAN
 READINGS = os.path.join(HERE, "manor")
-OUTDIR = os.path.join(HERE, "meshwarp")
+#: THE SWEEP'S EVIDENCE, and it is not a round directory. `row23_run.py`'s warp
+#: exit writes the document a PROMOTION reads into `meshwarp/` — a round, whose
+#: name matches `promote-backdrop.mjs`'s `^[a-z0-9]+$` — and this sweep writes
+#: what an experiment produced. Two kinds of file with one path would give a
+#: promotion a warp record where it expects a reading; the dash is what makes
+#: that impossible to type by accident.
+OUTDIR = os.path.join(HERE, "meshwarp-sweep")
 APERTURES_MJS = os.path.join(HERE, "plan_apertures.mjs")
 
 #: THE MIRROR BAND. How deep a strip is folded back where the warp reaches past
@@ -1186,7 +1192,7 @@ def held_walls(statuses=("held", "retry", "parked")):
 
 
 def sweep_held(mode="plane", outdir=None, statuses=("held", "retry", "parked")):
-    """Every wall the manor loop is holding, warped into `meshwarp/`.
+    """Every wall the manor loop is holding, warped into `meshwarp-sweep/`.
 
     It writes nothing into the store and moves nothing in the run state. What it
     produces is the evidence: how many held walls have a readable room and a

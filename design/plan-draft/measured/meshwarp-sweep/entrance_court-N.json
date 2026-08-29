@@ -1,0 +1,15 @@
+{
+ "facing": "entrance_court/N",
+ "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
+ "sha256": "1594f72396dd8d1c6df96fe56efa41183fdbb39e8554703385d33bcfa9e61b8d",
+ "clause": "meshwarp.landmark_unreadable",
+ "status": "held",
+ "hold_family": "unfitted-horizon"
+}

@@ -1,0 +1,22 @@
+{
+ "facing": "hall/N",
+ "candidate": "backdrops/source/passage-N/row23-77c49aa1.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
+ "sha256": "5eac00497ec47f06c4a3c76bb8609e6a33eda231a53cdbd54e89faea640fbaf8",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "WITHHELD",
+  "delta_focal_pct": null,
+  "delta_eye_pct": null,
+  "hold_family": null
+ },
+ "clause": "meshwarp.landmark_unreadable",
+ "status": "held",
+ "hold_family": "standpoint-out-of-frame"
+}
