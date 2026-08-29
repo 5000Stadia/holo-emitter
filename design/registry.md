@@ -21,13 +21,14 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-FILL | the warp's reveal fill extends each surface along its own receding lines (floor toward the bottom corner, returns along their recession) instead of a mirrored band straight in from the frame edge (Kabe: back_office/S) — capped | building |
+| B-SEAM | the through-view's far floor continues along its recession down to the doorway threshold (Kabe: the grey divider on noodle_bar/E) — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-FILL | the warp's reveal fill extends each surface along its own receding line, cross-fading down the recession (no mirror, no chevron) |
 | L-WINDOW | window detector on the seat's memo: 80-frame labelled corpus + evaluator; 2-D rectangle evidence, lift demoted; paired 32→35, FP 12→9, FN 16→13; servants_hall/E still a named miss (proposal merge) |
 | L-WARP | mesh_warp.py: room + aperture corners pinned to the plan; wall plane separable piecewise-linear (no straight line bends: 0.00 px), five-plane homographies off-plane with C1 seams; margin-aware mirror fill; refusals by name (landmark_unreadable, aperture_count, aperture_order) |
 | L-PACK | row 44 step 0: the location is a pack — packs/manor + packs/_probe ("abyssal survey station"), tools/pack.mjs + measured/pack.py, engine reads the pack (voices, lint, measure, promote, loop); manor 88/88 byte-identical; remainder listed in STATUS.md | 
