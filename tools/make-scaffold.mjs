@@ -107,9 +107,24 @@ import { roomOrder, leadFacing, leadWhy } from "./edge-seed.mjs";
  * neighbours the measure puts inside the room's agreeing walls. */
 import { attachSeeds, packetNoteAll, attachLineAll } from "./edge-seed.mjs";
 
+/* [row 44] The location, as data. See `tools/pack.mjs`. */
+import { activePack } from "./pack.mjs";
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+/* [row 44] THE ACTIVE LOCATION, as data. Every constant below that used to
+ * name the manor — the ruled anchor height, the plan path, the batch
+ * directory, the viewer query, the era sentence — is read from
+ * `packs/<name>/` now. `--pack <name>`, else `HOLO_PACK`, else `manor`.
+ * Production law clause 8: the theme never bleeds into the code. */
+const PACK = activePack();
+/* THE PACK'S OWN RULED ANCHOR — what the scaffold stamps when a caller hands no
+ * voice-resolved anchor. It used to be a typed "CHAIR-RAIL ... GATE ANCHOR"
+ * string, which is one world's joinery standing as the engine's default; the
+ * pack's `world.ruler.kind` names it now and `pack.mjs` has already refused a
+ * pack whose voices do not define it. */
+const RULED_ANCHOR = PACK.voices.ANCHORS[PACK.world.ruler.kind];
 const CANVAS_W = 1536;
 const CANVAS_H = 1024;
 
@@ -120,7 +135,7 @@ import { MEASURED_BAND } from "./validate-fixtures.mjs";
 
 /* Blueprint §11's universal anchor: the wainscot chair-rail, on every panelled
  * wall in the manor. It is the one ruler the gate votes on. */
-const CHAIR_RAIL_M = 0.95;
+const CHAIR_RAIL_M = PACK.world.ruler.height_m;
 /* ONE MEASURED HEIGHT, MANY VOICED FEATURES. `row23_lib.py` reads a single
  * horizontal out of the `rail_band` this file declares and converts it with
  * `rail_above / 0.95`; that divisor is the instrument's and nothing here may
@@ -136,7 +151,7 @@ if (ANCHOR_M !== CHAIR_RAIL_M) {
     `name change with the room — because row23_lib.py divides the measured height by 0.95.`);
 }
 /* §11's ruled door opening height at the wall plane. */
-const DOOR_HEAD_M = 2.00;
+const DOOR_HEAD_M = PACK.world.conventions.door_head_m;
 /* Scaffold CONVENTIONS — declared, drawn, and scored by nothing. A plan view is
  * a horizontal section and holds no vertical dimension anywhere, so these are
  * the scaffold's own and they say so on its legend. */
@@ -501,9 +516,8 @@ export function chairRail(meta, anchor) {
     y,
     x0: has ? meta.corner_x0_px : 0,
     x1: has ? meta.corner_x1_px : CANVAS_W,
-    label: anchor ? anchor.label
-      : `CHAIR-RAIL ${CHAIR_RAIL_M.toFixed(2)} M ABOVE FLOOR - GATE ANCHOR`,
-    anchor: anchor ? anchor.id : "chair_rail"
+    label: (anchor || RULED_ANCHOR).label,
+    anchor: (anchor || RULED_ANCHOR).id
   };
 }
 
@@ -998,7 +1012,7 @@ export const LEGEND_TOP_Y = CANVAS_H - (LEGEND_LINE_H * LEGEND_LINES + 22) - 24;
 function legendFor(meta, rects, camera, anchor) {
   const lines = [
     "SCAFFOLD LEGEND - THESE MARKS ARE INSTRUCTIONS AND ARE NEVER PAINTED",
-    `RULED - ${anchor ? anchor.legend_word : "CHAIR-RAIL"} ${CHAIR_RAIL_M.toFixed(2)} M · CARRIER WIDTHS · DOOR HEAD ${DOOR_HEAD_M.toFixed(2)} M`,
+    `RULED - ${(anchor || RULED_ANCHOR).legend_word} ${CHAIR_RAIL_M.toFixed(2)} M · CARRIER WIDTHS · DOOR HEAD ${DOOR_HEAD_M.toFixed(2)} M`,
     "CONVENTION - CARRIER HEIGHTS ABOVE FLOOR · WINDOW SILL AND HEAD",
     `SCALE - ONE METRE OF WALL SPANS ${meta.px_per_m_at_wall.toFixed(0)} PIXELS AT THE WALL PLANE`,
     `CAMERA - ${camera}`
@@ -1102,7 +1116,7 @@ async function main() {
     return;
   }
   if (argv.includes("--emit-manor")) {
-    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    const out = resolve(argOf("--out", PACK.paths.batch_dir));
     await emitManor(out, {
       scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
@@ -1113,7 +1127,7 @@ async function main() {
     return;
   }
   if (argv.includes("--emit-retries")) {
-    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    const out = resolve(argOf("--out", PACK.paths.batch_dir));
     await emitRetries(out, {
       scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
@@ -1124,7 +1138,7 @@ async function main() {
     return;
   }
   if (argv.includes("--emit-facing-materials")) {
-    const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+    const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
     const doc = emitMaterials(VOICES, plan);
     const fm = facingMaterials(plan, doc);
     /* `--out`, for the reason `--audit-materials` has one: a freshness check
@@ -1149,7 +1163,7 @@ async function main() {
      * for that room today. Run it after ANY edit to `tools/room-voices.mjs` -
      * that is the moment the store goes stale, and it is the moment nothing
      * used to notice. */
-    const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+    const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
     const rep = materialProvenance(plan);
     const out = resolve(argOf("--out",
       join(ROOT, "design", "plan-draft", "measured", "material_provenance.json")));
@@ -1264,7 +1278,7 @@ async function main() {
     return;
   }
   if (argv.includes("--emit-consistency")) {
-    const out = resolve(argOf("--out", join(ROOT, "design", "batches", "row23-scaffold", "manor")));
+    const out = resolve(argOf("--out", PACK.paths.batch_dir));
     await emitConsistency(out, {
       scaffoldStyle: argOf("--scaffold-style", SCAFFOLD_STYLE_DEFAULT),
       technique: argOf("--technique", "t2"),
@@ -1325,7 +1339,7 @@ async function main() {
   mkdirSync(outDir, { recursive: true });
 
   const [loc, facing] = key.split("/");
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
 
   let meta = null, metaSource = "page", reading = null, readingPath = null;
   if (camera === "derived") {
@@ -1341,7 +1355,7 @@ async function main() {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
   if (!meta) {
@@ -2036,7 +2050,7 @@ export function g4ManorPrompt(plan, key, meta, rects, correction, seed, opts = {
    * it: an `exterior` prompt that then names interior fabric is refused before
    * an image exists. That is Kabe's veto as a clause rather than as a memory. */
   L.push(`Use case: historical-scene, ${out ? "exterior" : "interior"}`);
-  L.push(`Asset type: gameplay backdrop for the ${side} ${SURFACE} of the ${name}, circa-1660 English manor`);
+  L.push(`Asset type: gameplay backdrop for the ${side} ${SURFACE} of the ${name}, ${PACK.world.era}`);
   if (correction) {
     /* FIRST, BECAUSE IT IS THE REASON THIS ASK EXISTS. Verbatim from
      * run-state.json — the measurement's own words, never a paraphrase.
@@ -2083,7 +2097,7 @@ export function g4ManorPrompt(plan, key, meta, rects, correction, seed, opts = {
    * composer — the t1/t2 control counts lines, and a sentence wrapped across
    * two of them has changed the diff. */
   if (seed) L.push(`  ${seed.role_sentence}`);
-  L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a circa-1660 English manor,`);
+  L.push(`Primary request: Paint the ${side} ${SURFACE} of the empty ${name} of a ${PACK.world.era},`);
   L.push(style
     ? "  matching Image 1's paint handling and Image 2's geometry exactly."
     : "  in the medium described below and matching Image 2's geometry exactly.");
@@ -2424,7 +2438,7 @@ async function emitManor(outDir, opts) {
    * arm needs and what a committed scaffold re-renders as. */
   const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   const all = manorFacings(plan);
 
   /* THE WORKLIST IS DERIVED BY LOOKING, NEVER BY ASSUMING.
@@ -2490,7 +2504,7 @@ async function emitManor(outDir, opts) {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
   const entries = [];
@@ -2764,7 +2778,7 @@ async function emitRetries(outDir, opts) {
    * arm needs and what a committed scaffold re-renders as. */
   const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   const statePath = join(outDir, "run-state.json");
   if (!existsSync(statePath)) {
     console.error(`make-scaffold refused: ${statePath.slice(ROOT.length + 1)} does not exist, so there ` +
@@ -2785,7 +2799,7 @@ async function emitRetries(outDir, opts) {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
   const emitted = [], refused = [];
@@ -3226,7 +3240,7 @@ const askMaterialKey = (askKey, want, m) => JSON.stringify(Object.keys(m).sort()
 export function materialProvenance(plan, opts = {}) {
   const root = opts.root || ROOT;
   const statePath = opts.runState ||
-    join(root, "design", "batches", "row23-scaffold", "manor", "run-state.json");
+    join(root, ...PACK.world.paths.batch_dir.split("/"), "run-state.json");
   const walls = existsSync(statePath)
     ? (JSON.parse(readFileSync(statePath, "utf8")).walls || {}) : {};
 
@@ -3767,7 +3781,7 @@ async function emitConsistency(outDir, opts) {
    * arm needs and what a committed scaffold re-renders as. */
   const sheetStyle = assertScaffoldStyle(opts.scaffoldStyle || SCAFFOLD_STYLE_DEFAULT);
   const t_run = Date.now() / 1000;                                        // [row 33]
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   let report;
   if (opts.fromAsk) {
     /* [row 40 - the ORIGIN] No file to be stale, no pixels to be fooled: the
@@ -3836,7 +3850,7 @@ async function emitConsistency(outDir, opts) {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
   /* [row 42] The same resolver the other two emit paths use. On this path
@@ -4147,7 +4161,7 @@ export const CONTENT_PAGE = function (arg) {
 };
 
 async function emitContentScaffold(outDir) {
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   const side = JSON.parse(readFileSync(
     join(outDir, "study-N.scaffold.json"), "utf8"));
   const meta = side.meta_used;
@@ -4155,7 +4169,7 @@ async function emitContentScaffold(outDir) {
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
-  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + "?world=nav-manor");
+  await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
   const { rects } = scaffoldRects(plan, "study", "N", meta);
@@ -4229,7 +4243,7 @@ export function entrantTechnique(reportRows) {
 }
 
 async function emitFinal(outDir) {
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   const assign = JSON.parse(readFileSync(
     join(ROOT, "design", "plan-draft", "measured", "row23", "assignment.json"), "utf8"));
 
@@ -4539,7 +4553,7 @@ export function swatchPrompt(materialId, mat) {
 /** Emit one packet per swatch material. Writes no image and reads no plan. */
 export function emitSwatches(outDir, opts = {}) {
   const rolls = Number(opts.rolls || 2);
-  const plan = JSON.parse(readFileSync(join(ROOT, "fixtures", "demo-study", "plan.json"), "utf8"));
+  const plan = JSON.parse(readFileSync(PACK.paths.plan, "utf8"));
   const doc = emitMaterials(VOICES, plan);
   /* THE HARVEST'S OWN CONVERSIONS JOIN THE ASK. A material whose promoted
      sources cannot supply the lattice its consumers demand is not a harvest,
