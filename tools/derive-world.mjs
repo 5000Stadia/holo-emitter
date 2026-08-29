@@ -88,4 +88,5 @@ writeFileSync(join(dir, "staging.json"), JSON.stringify(staging, null, 2) + "\n"
 writeFileSync(join(dir, "viewstate.json"), JSON.stringify(viewstate, null, 2) + "\n");
 writeFileSync(join(dir, "narration.json"), JSON.stringify(narration, null, 2) + "\n");
 writeFileSync(join(dir, "plan.ref"), relative(ROOT, P.paths.plan) + "\n");
+writeFileSync(join(dir, "pack.ref"), P.name + "\n");   // the pack this fixture is a projection of
 console.log(`derive-world: ${P.name} -> ${relative(ROOT, dir)}: ${locations.length} location(s), ${locations.reduce((n, l) => n + l.exits.length, 0)} exit(s), ${Object.keys(lines).length} narration line(s)`);
