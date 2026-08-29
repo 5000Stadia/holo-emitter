@@ -247,7 +247,7 @@ def cfg_from_sidecar(side):
         # manifest carries `voice.anchor` per wall); where a caller supplies
         # nothing, the facing type decides, because an open facing's anchor is
         # the boundary wall's coping by `room-voices.mjs`'s own ruling. The
-        # ruled height is one number either way — see `CHAIR_RAIL_M`.
+        # ruled height is one number either way — see `RULER_M`.
         anchor_label=(m.get("anchor_label") or
                       ("boundary-wall coping" if m.get("facing_type") == "open"
                        else "chair-rail")),
@@ -510,7 +510,7 @@ def _promotion_half_open(rgb, L, cfg, floor_y, rail_y, ppm, picks):
             ground_row_px=round(float(floor_y), 2),
             coping_row_px=round(float(rail_y), 2),
             coping_above_ground_px=round(float(floor_y) - float(rail_y), 2),
-            ruled_coping_m=CHAIR_RAIL_M,
+            ruled_coping_m=RULER_M,
             px_per_m_at_far_line=round(ppm, 3) if ppm else None,
             eye_height_m=(None if eye is None else round(eye, 4)),
             camera_far_m=cfg["camera_m"],
@@ -925,7 +925,7 @@ def measure_candidate(path, side, cfg, ref, picks):
     # ---- the camera, off the declared anchor and nothing else ---------------
     ppm = focal = eye = None
     if floor_in_band and rail_in_band and rail_above > 4:
-        ppm = rail_above / 0.95
+        ppm = rail_above / RULER_M
         # [row 29(a)] Through the typed anchor. On an open facing this is
         # `camera_far_m` and the scale is quoted at the FAR LINE, which is the
         # only plane that frame has; the arithmetic is otherwise the same one.
@@ -991,7 +991,22 @@ def measure_candidate(path, side, cfg, ref, picks):
 #: with /taken at ([\d.]+) m/ and checks that `calibration_px` over that size IS
 #: `px_per_m_at_wall` — so the number in the prose and the number in the
 #: arithmetic have to be one number.
-CHAIR_RAIL_M = 0.95
+# ---------------------------------------------------------------------------
+# THE LOCATION, AS DATA. `design/production-law.md` clause 8: the theme never
+# bleeds into the code. The ruled height below used to be typed here as 0.95
+# with the name of one house's joinery on it; it is the ACTIVE PACK's ruler now
+# (`packs/<name>/world.json`), selected by `--pack` / `HOLO_PACK` / `manor`.
+# The DIVISOR is still this instrument's -- one horizontal, one number -- and
+# that is exactly why it must come from the pack: a second location measures by
+# its own horizontal at its own height, and an instrument that types the first
+# one's number can only ever measure the first one.
+from pack import active_pack
+
+_PACK = active_pack()
+RULER_M = _PACK.ruler_height_m          # the one divisor: px above the datum / RULER_M
+RULER_KIND = _PACK.ruler["kind"]        # what the reading is called in its record
+RULER_DATUM = _PACK.ruler_datum         # what that height is measured from
+# ---------------------------------------------------------------------------
 
 
 def promotion_doc(reading, side, ref, round_name, source_sha256):
@@ -1040,7 +1055,7 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
         "instrument — the SAME reading its camera gate admitted, shaped into "
         "the §5 record tools/promote-backdrop.mjs takes. Every search window "
         "is the wall's own scaffold's, declared in "
-        "design/batches/row23-scaffold/manor/manifest.json before any "
+        "%s/manifest.json before any " % os.path.relpath(_PACK.paths["batch_dir"]) +
         "candidate existed." % (side["facing"], side["candidate"])),
       "_role": ("manor production wall, measured against the camera its own "
                 "manifest entry declares"),
@@ -1081,12 +1096,12 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
       # to say "wainscot chair-rail" on every wall, which on an outdoor frame
       # is the Captain's finding (a) — interior fabric outside — written into
       # the ledger itself. The RULED HEIGHT is one number for both (see
-      # `CHAIR_RAIL_M`), and the `taken at <n> m` phrase is kept verbatim
+      # `RULER_M`), and the `taken at <n> m` phrase is kept verbatim
       # because `geometry.spec`'s calibration audit parses it.
       "calibration_ref": (
         "%s, taken at %.2f m — %s and this facing's own scaffold declares it "
         "as the measurement anchor"
-        % (anchor, CHAIR_RAIL_M,
+        % (anchor, RULER_M,
            "tools/room-voices.mjs's `outdoors_open` voice rules the coping "
            "there on a forecourt wall of this date" if is_open else
            "blueprint §11 rules it there on every panelled wall in the manor")),
@@ -1094,7 +1109,7 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
       "calibration_tier": 1,
       "_ruler_policy": {
         "adopted": "coping" if is_open else "chair_rail",
-        "ruled_m": CHAIR_RAIL_M,
+        "ruled_m": RULER_M,
         "rule": (
           "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera "
           "verdict, the calibration feature and this document's scale are all "

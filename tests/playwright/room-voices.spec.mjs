@@ -41,6 +41,9 @@ import { manorPrompt, scaffoldRects, chairRail, assertLabelChars, swatchPrompt, 
   from "../../tools/make-scaffold.mjs";
 import { deriveMeta } from "../../tools/plan-projection.mjs";
 
+import { activePack } from "../../tools/pack.mjs";
+const PACK = activePack();
+
 const PLAN = JSON.parse(readFileSync(join(repoRoot, "fixtures", "demo-study", "plan.json"), "utf8"));
 const LINT = join(repoRoot, "design", "plan-draft", "measured", "prompt_lint.py");
 
@@ -118,12 +121,21 @@ test.describe("row 29 — per-room material voices", () => {
      height. If that divisor ever moves, this goes red and the voice table is
      revisited rather than silently measuring the wrong length. */
   test("every voice's anchor is at the height the measurement instrument divides by", () => {
-    expect(ANCHOR_M).toBe(0.95);
+    /* The height is the PACK's (clause 8) and the divisor is the instrument's,
+     * so what is pinned here is that they are the SAME NUMBER — not that either
+     * of them is 0.95. `row23_lib.py` now divides by `RULER_M`, which it reads
+     * from the active pack's `world.json`; the voices read the same file. A
+     * second location changes both together or this test fails. */
+    expect(ANCHOR_M).toBe(PACK.ruler.height_m);
     const lib = readFileSync(join(repoRoot, "design", "plan-draft", "measured", "row23_lib.py"), "utf8");
     expect(lib,
-      "row23_lib.py no longer converts the measured anchor at 0.95 m — every room voice declares its " +
-      "anchor at that height on the strength of this line, so the voice table has to be revisited")
-      .toMatch(/rail_above\s*\/\s*0\.95/);
+      "row23_lib.py no longer converts the measured anchor by the active pack's `RULER_M` — every " +
+      "room voice declares its anchor at the pack's ruled height on the strength of this line, so " +
+      "the voice table has to be revisited")
+      .toMatch(/rail_above\s*\/\s*RULER_M/);
+    expect(lib,
+      "row23_lib.py types a ruled height of its own again — the height belongs to the pack")
+      .toMatch(/RULER_M\s*=\s*_PACK\.ruler_height_m/);
     for (const meta of [deriveMeta(PLAN, "kitchen", "N"), deriveMeta(PLAN, "privy_garden", "N")]) {
       const plain = chairRail(meta);
       for (const a of Object.values(ANCHORS)) {

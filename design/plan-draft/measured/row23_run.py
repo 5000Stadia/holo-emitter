@@ -76,10 +76,15 @@ sys.path.insert(0, HERE)
 import timings  # noqa: E402
 import row23_lib  # noqa: E402
 
-MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
-MANIFEST = os.path.join(MANOR, "manifest.json")
-STATE = os.path.join(MANOR, "run-state.json")
-RETRIES_FILE = os.path.join(MANOR, "retries.json")
+# THE LOCATION, AS DATA (clause 8). The batch, store and readings directories
+# were typed here with one house's name in them; they are the active pack's now.
+from pack import active_pack
+
+_PACK = active_pack()
+BATCH = _PACK.paths["batch_dir"]
+MANIFEST = os.path.join(BATCH, "manifest.json")
+STATE = os.path.join(BATCH, "run-state.json")
+RETRIES_FILE = os.path.join(BATCH, "retries.json")
 
 
 def _load_retries():
@@ -132,9 +137,9 @@ def refresh_retries():
         RETRY_ENTRIES = _load_retry_entries()
         _RETRIES_MTIME = m
         print("  retries.json moved - worklist reloaded (%d walls)" % len(RETRIES))
-OUT = os.path.join(HERE, "manor")
+OUT = _PACK.paths["readings_dir"]
 
-PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
+PLAN = _PACK.paths["plan"]
 _PLAN_CACHE = {}
 
 
@@ -168,7 +173,7 @@ def facing_of(key):
 #: every row-23 number is measured against.
 NEVER_PROMOTE = {"study/N", "study/W"}
 
-#: [row 32] M0'S OWN TWO ROOMS, AND THE MANOR LOOP MAY NOT PAINT THEM.
+#: [row 32] M0'S OWN TWO ROOMS, AND THE BATCH LOOP MAY NOT PAINT THEM.
 #:
 #: `study` and `hall` are the eight facings blueprint §12.5 measures and that
 #: the spec list's ROW 4 produces — probe first, `style_block` extracted, the

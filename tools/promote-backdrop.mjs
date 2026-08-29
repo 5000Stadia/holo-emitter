@@ -32,6 +32,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
+import { activePack } from "./pack.mjs";
 import { fileURLToPath } from "node:url";
 import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand,
@@ -64,7 +65,7 @@ process.on("exit", (code) => {
   timings.record("promote.backdrop", _t0, Date.now() / 1000, facingArg || null,
     { candidate: candidate || null, exit_code: code, refused: code !== 0 });
 });
-const planPath = argOf("--plan", join(root, "fixtures", "demo-study", "plan.json"));
+const planPath = argOf("--plan", activePack().paths.plan);
 /* WHICH ROUND'S MEASUREMENT. `design/plan-draft/measured/` itself is the cand-2
  * promotion round's home and stays the default, so every call written before
  * the standing-eye wave still resolves to the file it always did. The wave
@@ -734,7 +735,11 @@ if (plannedDoors.length) {
  * opening the plan draws anywhere in the manor. The SCALE of the wall is
  * already gated, at ±8 %, by the lens band above; asking this reading to carry
  * a second scale verdict would score the architrave as a camera error. */
-const RULED_DOOR_M = 1.00;
+/* The ruled door width is the ACTIVE PACK's building practice, not this
+ * file's (clause 8): a plan view holds no vertical dimension and no ruled
+ * opening size, so the world states it and every instrument reads the same
+ * number. It is the fallback for a door the plan does not dimension. */
+const RULED_DOOR_M = activePack().world.conventions.door_width_m;
 const DOORWAY_BAND = [0.50, 1.50];
 const apertureScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
                        fc.wall_width_m > 0)
