@@ -10499,6 +10499,62 @@
       ]
     },
     {
+      "key": "servants_hall/W",
+      "attempt": 9,
+      "packet": "design/batches/row23-scaffold/manor/servants_hall-W/retry-9",
+      "register": "g5-noappendix",
+      "correction": "This room is ruled to ONE set of materials and this facing does not show them. In SERVANTS' HALL, every wall is plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding; every ceiling is plain exposed oak joists with boards between them; every floor is a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone. Paint exactly those materials on every surface in this view and nothing else \u2014 not a different wall lining, not a different ceiling, not a different floor. Measured, in the ASKS rather than in the pixels: every promoted facing of this room was commissioned in the materials this plan rules for it, and N, S, W were asked in WORDING that has since been refined. The fabric is not in dispute; what is being forced is the refined wording above.",
+      "voice": {
+        "id": "servants_hall",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "hanging_rail"
+      },
+      "px_per_m_at_wall": 170.667,
+      "flights": [],
+      "scaffold_sha256": "0139cd138a07de63facd08eb3ceaa23451e7b3f3f67bb174f5cc9e9a8585c82d",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "edge_seeds": [],
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "servants_hall/E",
+      "is_lead": false,
+      "continues": "servants_hall/E",
+      "order_position": 3,
+      "consistency": {
+        "band": "materials",
+        "D": 1,
+        "cut": "the plan's own ruling materials",
+        "clusters": [
+          [
+            "N",
+            "E",
+            "S",
+            "W"
+          ]
+        ],
+        "majority": [
+          "E"
+        ],
+        "no_majority": false,
+        "ruling": {
+          "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+          "ceiling": "plain exposed oak joists with boards between them",
+          "floor": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+          "hangings": null
+        }
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b3cb691a",
+          "candidate": "backdrops/source/servants_hall-W/row23-b3cb691a.png",
+          "prompt": "backdrops/source/servants_hall-W/row23-b3cb691a.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "solar/E",
       "attempt": 1,
       "packet": "design/batches/row23-scaffold/manor/solar-E/retry-1",

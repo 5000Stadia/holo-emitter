@@ -176,6 +176,7 @@ Two things make the re-ask FORCED rather than nudged. First, the correction name
 | `servants_hall/W` | `servants_hall-W/retry-6` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/W` | `servants_hall-W/retry-7` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `servants_hall/W` | `servants_hall-W/retry-8` | materials | 2.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
+| `servants_hall/W` | `servants_hall-W/retry-9` | materials | 1.00 | _none - no majority to trust_ | plain limewashed plaster carried straight down to the floor, unbroken ... |
 | `solar/E` | `solar-E/retry-1` | materials | 1.00 | _none - no majority to trust_ | dark oak wall panelling in fielded bays with a carved frieze above it,... |
 | `solar/N` | `solar-N/retry-1` | materials | 1.00 | _none - no majority to trust_ | dark oak wall panelling in fielded bays with a carved frieze above it,... |
 | `solar/S` | `solar-S/retry-4` | materials | 1.00 | _none - no majority to trust_ | dark oak wall panelling in fielded bays with a carved frieze above it,... |
