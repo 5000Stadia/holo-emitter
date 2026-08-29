@@ -1,0 +1,182 @@
+Message-ID: <352cda53-a045-4299-a3d7-3b4a2bce587f@agentpost.local>
+Date: 2026-08-29T09:07:04.981130Z
+From: holoemitter-assets
+To: holoemitter-nav
+Audience: holoemitter-nav
+Subject: Research: reliable door/window localization and one-pass snapping
+X-Agent-Kind: letter
+X-Agent-Notify: idle
+
+# Research report: reliable door/window localization and one-pass snapping
+
+Date: 2026-08-29
+Audience: holo-emitter Navigator / Claude session
+Requested by: project owner, via the holo-emitter Codex session
+
+## Executive conclusion
+
+Keep the current monotone, separable, one-pass warp. Its geometry is the strongest part of the system. Improve the sensors and aperture matching before considering a more flexible warp.
+
+The smallest reliable architecture is a hybrid:
+
+1. Read the room shell and form a canonical wall coordinate system.
+2. Detect every door and window from the original pixels, or from a temporary high-resolution rectified view; do not detect from successively warped raster images.
+3. Generate aperture candidates cheaply from photometric evidence, but validate/refine them with two-dimensional structural evidence: paired jambs, head/sill support, rectangularity, local inside-versus-outside contrast, and floor/sill topology.
+4. Match all candidates to the plan with one order-preserving global assignment, not greedy nearest-centre matching.
+5. Treat shell corners as immutable constraints; high-confidence doors as hard constraints; windows as hard only when verified, otherwise soft/refused.
+6. Compose shell rectification and aperture correction into one target-to-source map and resample once.
+
+Do not make an LLM the pixel ruler. If semantics are needed, let a small detector or open-vocabulary model propose a rough box/mask, then let deterministic line fitting produce the actual corners.
+
+The most reliable solution of all is upstream: generate or composite apertures from known masks/HoloGrid rectangles and preserve those rectangles in sidecar JSON. Hidden pixel signatures are less reliable than an explicit sidecar and do not survive generation, resizing, compression, or later warps predictably.
+
+## What the project currently does
+
+- `door_measure.py` collapses the middle 70% of the ruled door-height band into a 1-D median-luminance profile, sweeps thresholds, and reads maximally stable dark runs. It then refines the head onto a horizontal step. This is a sensible corpus-specific instrument because the doorway is a dark void.
+- `window_measure.py` applies the inverse idea: stable bright column runs inside the ruled sill/head band. It merges nearby lights and requires both a brightness lift and a leaded-lattice autocorrelation score.
+- `mesh_warp.py` reads the shell first, measures doors and windows from the original candidate, pairs them after the shell map, creates room/aperture axis pins, and resamples once through a monotone piecewise-linear wall map. This sequencing is already substantially correct.
+- Aperture matching is presently greedy nearest-centre per kind with a 1.5 m gate (`mesh_warp.py:558-589`).
+
+## What the evidence actually establishes
+
+### Doors
+
+- One hand-labelled control is excellent: human jambs 673..860; detector 673..861.
+- The door Playwright suite is green: 8/8, including a click in the measured painted doorway.
+- The promoted corpus currently contains 29 measured door rectangles on 27 walls.
+- However, there is only one independently hand-labelled control. The shipped rectangles prove operational coverage and internal consistency, not corpus-wide precision/recall.
+
+Conclusion: the door detector is a strong specialized fast path, but it still needs a multi-wall labelled holdout before its accuracy can be stated honestly.
+
+### Windows
+
+`window_calibration.json` currently reports 33 paired detections, 13 within 0.35 m, median plan/detection centre separation 0.635 m, and eight count-mismatch walls. Those are not detector accuracy metrics: calibration compares the plan to detector output, while the project explicitly permits the painting to disagree with the plan. It conflates (a) generator content/placement misses, (b) detector misses, and (c) incorrect pairing.
+
+Direct inspection nevertheless confirms real detector failures:
+
+- `dining_parlour/W`: one visually obvious window is proposed but rejected solely because lattice score 0.143 is below the hard 0.20 gate, despite brightness lift 112.7.
+- `garden_room/N`: one visually obvious three-light window is rejected at lattice 0.142; its lift is 62.8, just above the brightness gate.
+- `great_hall/S`: four visible windows exist; only the right two are emitted. The left two disappear before the rejection report, demonstrating proposal-stage failure rather than merely a strict final threshold.
+- `long_gallery/E`: two obvious windows exist, but three candidates are accepted. One 86 px fragment at x=220..306 is structurally not a full window; the 1-D profile has no outer-frame model with which to reject it.
+
+Conclusion: the hard `brightness AND periodic lattice` rule is brittle, and 1-D runs alone cannot reliably distinguish a whole aperture from a light, reveal, bright panel, or fragment.
+
+### Warp and test health
+
+- `test_mesh_warp.py` passes all checks. Synthetic door edges land at 0 px residual and ruled horizontals/verticals remain exactly straight.
+- On 24 difficult held walls, 11 warp and 13 refuse: eight shell-landmark refusals and five aperture-count refusals. These are deliberately hard walls, not a general success-rate sample.
+- Current window tests are not fully green. The Python suite passes eight functional cases but errors in one stale cross-language constant lookup. The Playwright window suite passes 16/22; six staging cases fail because the scratch tree does not carry the `packs/` data expected by current code. These are harness defects rather than direct detector failures, but they prevent a clean regression gate.
+- OpenCV is not installed in the current Python environment. Any OpenCV-based proposal adds a dependency; the first refinement can be implemented with the NumPy/PIL stack already present.
+
+## Recommended sensor refinement
+
+### 1. Establish real ground truth first
+
+Hand-label the inner aperture rectangle—not the architrave—on:
+
+- every promoted window wall and a representative set of no-window walls;
+- at least 12 varied door walls plus negatives such as fireplaces and dark panels;
+- a room-disjoint holdout set that is never used to tune thresholds.
+
+Store `{kind, x0, y0, x1, y1, occluded, confidence}` next to the image. Report:
+
+- precision/recall at rectangle IoU thresholds;
+- mean and p95 edge error in pixels and as a fraction of wall width;
+- exact count accuracy per wall;
+- downstream warp acceptance and worst segment stretch.
+
+Plan distance should remain a content/snap metric, not a detector metric.
+
+### 2. Preserve stable runs as proposals, not final truth
+
+The existing threshold persistence is valuable and cheap. Keep it as one proposal channel. For every proposed span—and for spans proposed by edges—score a two-dimensional patch using:
+
+- local interior-versus-ring contrast rather than only the whole-wall median;
+- support for two near-vertical boundaries over most of the aperture height;
+- support for a head and sill/floor boundary;
+- rectangular closure and consistent width over height;
+- door topology: bottom meets the measured floor line and interior remains dark/connected;
+- window topology: bottom is above the floor, interior contains glass-like fine edges, and mullions/lattice are supporting evidence rather than a mandatory identity test.
+
+For doors, do not replace the void boundary with the strongest exterior edge: the existing source documents the 47 px architrave trap. Use line support to validate/refine the stable void edge in a narrow neighbourhood.
+
+For windows, replace the hard `lift >= 60 AND lattice >= .20` gate with a calibrated composite score or small decision tree. A candidate with strong four-sided frame support should survive a weak lattice score. Conversely, a periodic bright fragment without an enclosing frame should fail.
+
+### 3. Add a cheap 2-D line channel
+
+Historically, this is the natural classical-vision addition. LSD is a linear-time, subpixel line segment detector with a-contrario false-alarm control. In this bounded problem, keep only lines in the canonical wall plane that are near vertical/horizontal, long enough for an aperture, and spatially compatible with the known floor/window band. Pair them into rectangle hypotheses and score their pixel interiors.
+
+LSD paper and implementation: https://www.ipol.im/pub/art/2012/gjmr-lsd/
+
+OpenCV exposes LSD, probabilistic Hough lines, contour approximation, and subpixel corner refinement, but OpenCV is currently absent. A smaller first implementation can use existing NumPy gradients: average `|dL/dx|` over vertical bands and `|dL/dy|` over horizontal bands, find persistent peaks, then fit four boundaries locally. Add OpenCV only if the NumPy version cannot meet the labelled holdout.
+
+### 4. Improve the shell reader jointly
+
+The current corner reader can select the strongest level break in each half-frame and mistake a recession for the room corner. Fit the shell as one constrained object:
+
+- long floor/wall and ceiling/wall boundaries;
+- left/right return boundaries;
+- their four intersections;
+- Manhattan/projective consistency and plausible span against the declared camera.
+
+Joint scoring is safer than four independent extrema. Preserve an uncertainty interval per line/corner so downstream code can refuse or soften a dubious landmark.
+
+## Matching and snapping refinement
+
+Replace greedy nearest-centre pairing with an order-preserving global assignment over the wall sequence. Candidate cost should combine:
+
+- normalized centre distance after shell rectification;
+- log width/height ratio difference;
+- detector confidence;
+- kind mismatch as forbidden;
+- explicit skip penalties for a missing or extra aperture.
+
+Dynamic programming is tiny here because a wall has very few apertures. It prevents one early false candidate from shifting every later match. Match doors and windows in one left-to-right sequence while retaining kind constraints; then validate that source and target edge pins remain monotone.
+
+Constraint authority should be:
+
+1. shell corners/lines: hard;
+2. high-confidence door voids: hard;
+3. high-confidence window frames: hard;
+4. uncertain apertures: soft or refusal, never allowed to move higher-authority geometry.
+
+Keep `mesh_warp.py`'s separable monotone map and one final resampling. Do not detect windows after a shell raster warp and a door raster warp: repeated interpolation can weaken precisely the lattice/edge evidence the window detector uses. Temporary canonical rectification is fine if it is only a coordinate view or a single high-resolution analysis rendering whose results are mapped back to the original.
+
+## When to use a learned vision model
+
+If the labelled holdout shows that the classical hybrid still misses semantics under illumination/style variation, add a model only as a proposal channel:
+
+- Best long-term cost/accuracy for this fixed domain: fine-tune a tiny two-class detector or segmenter on the project labels and augmentations. Its output need only be a rough door/window box or mask; deterministic line fitting still owns the final rectangle.
+- Zero-training fallback: Grounding DINO can propose boxes from category names/referring expressions, then SAM 2, MobileSAM, or EfficientSAM can return a mask from the box. This is convenient but heavier and less deterministic than a domain-specific tiny detector.
+- Grounding DINO paper: https://arxiv.org/abs/2303.05499
+- SAM 2 supports point/box/mask-prompted segmentation and zero-shot transfer: https://ai.meta.com/research/sam2/
+- MobileSAM reports a 5M-parameter TinyViT image encoder and approximately 10–12 ms/image on a single GPU in its paper: https://arxiv.org/abs/2306.14289
+- EfficientSAM is a peer-reviewed lightweight alternative: https://openaccess.thecvf.com/content/CVPR2024/html/Xiong_EfficientSAM_Leveraged_Masked_Image_Pretraining_for_Efficient_Segment_Anything_CVPR_2024_paper.html
+
+An LLM/VLM should be the last fallback for semantic disambiguation, not the source of final pixels. Ask it for a coarse box or candidate identity, then refine against the original image.
+
+## Upstream generation: avoid detection when possible
+
+The cleanest production contract is to own the aperture layout before generation:
+
+1. Make the HoloGrid wall and aperture rectangles the source of truth.
+2. Generate with a spatial control image—edge map, segmentation layout, depth, or masks—or generate the aperture-free room and composite/inpaint doors/windows in ruled masks.
+3. Save the control rectangles/masks as sidecar JSON/PNG and carry them through every crop/warp with the same transform.
+
+ControlNet established spatial conditioning of diffusion using edges, depth, segmentation, pose, and related controls: https://openaccess.thecvf.com/content/ICCV2023/papers/Zhang_Adding_Conditional_Control_to_Text-to-Image_Diffusion_Models_ICCV_2023_paper.pdf
+
+Do not rely on invisible per-pixel tags inside generated content. They are not semantically bound to “this is a window,” and ordinary model sampling, resizing, JPEG encoding, color correction, or warping can destroy them. A PNG metadata chunk or sidecar JSON is excellent for preserving already-known geometry, but cannot recover geometry the generator never exposed.
+
+## Proposed implementation order
+
+1. Fix the two window-test harness regressions.
+2. Create and commit the human-labelled detector corpus and evaluator.
+3. Add local contrast plus 2-D boundary support to the existing NumPy detector; make lattice supporting rather than mandatory.
+4. Replace greedy pairing with order-preserving global assignment.
+5. Re-evaluate detector metrics and the 24 held walls.
+6. Only if holdout results remain inadequate, benchmark one tiny trained detector and one open-vocabulary fallback on exactly the same labels.
+7. For future generated assets, prefer controlled masks/sidecars so vision becomes an audit rather than the only source of geometry.
+
+## Decision
+
+Recommended immediate path: no LLM, no large model, no new warp. Add a labelled holdout, 2-D rectangle evidence, confidence-aware ordered matching, and keep one monotone final resample. This is the smallest change that directly addresses the observed failures while preserving the project’s strongest existing machinery.

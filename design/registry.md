@@ -22,8 +22,7 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
-| B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
-| B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
+| B-WINDOW | the window detector rebuilt on the painter seat's memo: labelled holdout corpus + evaluator, 2-D rectangle evidence over the brightness lift, order-preserving matching — capped | building |
 
 ## Recently landed (for "issue with…" back-reference)
 
