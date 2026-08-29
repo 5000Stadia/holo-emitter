@@ -52,6 +52,14 @@
  */
 import { createRequire } from "node:module";
 
+/* [row 44] THE LOCATION, AS DATA. This file composes the register every ask is
+ * written in; three of its sentences were the manor itself — the era it names,
+ * the painting tradition it asks for, and the height it rules the anchor at.
+ * Production law clause 8 puts all three in `packs/<name>/world.json`, so the
+ * register is the ENGINE and the world is the argument. */
+import { activePack } from "./pack.mjs";
+const PACK = activePack();
+
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
 
@@ -691,8 +699,8 @@ export function g5RoomLines(ctx) {
   const { out } = words(ctx);
   const SURFACE = ctx.surface || "wall";
   const L = [];
-  const paint = `Paint the ${ctx.side} ${SURFACE} of the ${ctx.room_name} of a circa-1660 ` +
-    "English manor.";
+  const paint = `Paint the ${ctx.side} ${SURFACE} of the ${ctx.room_name} of a ` +
+    `${PACK.world.era}.`;
   /* [row 43] THE MEASURED CORRECTION, ONE PHYSICAL LINE, AT THE TOP OF ITEM 1.
    *
    * A re-ask carries the sentence `run-state.json` holds about THIS wall —
@@ -1018,9 +1026,7 @@ export function g5MediumLines(ctx) {
    * the DIAGRAM's dark grey, every period word lost to the one image in the
    * packet. So the medium names the tradition, and when no style image is
    * attached the diagram is told apart from the picture in one clause. */
-  const L = ["Style/medium: a high-realism oil painting in the manner of a seventeenth-century " +
-    "Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient " +
-    "daylight and gentle natural falloff; a period painting, not a modern render."];
+  const L = [PACK.world.medium];
   if (!ctx.style) {
     /* [row 43(a)] THE DIAGRAM HAS NO COLOURS LEFT TO BORROW. This line used to
      * warn off "the layout diagram's flat dark colours", which was the honest
@@ -1157,8 +1163,8 @@ export function g5Prompt(ctx, { appendix = true } = {}) {
   const L = [];
   L.push(`Use case: historical-scene, ${out ? "exterior" : "interior"}`);
   L.push(`Asset type: gameplay backdrop for the ${ctx.side} ${ctx.surface} of the ${ctx.room_name}, ` +
-    "circa-1660 English manor");
-  L.push(`Gate anchor: ${ctx.anchor.line}, 0.95 m.`);
+    `${PACK.world.era}`);
+  L.push(`Gate anchor: ${ctx.anchor.line}, ${PACK.world.ruler.height_m.toFixed(2)} m.`);
   for (const l of g5RoomLines(ctx)) L.push(l);
   for (const l of g5WallLines(ctx)) L.push(l);
   for (const l of g5FlightLines(ctx)) L.push(l);

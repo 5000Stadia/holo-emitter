@@ -60,24 +60,48 @@
  * diamond quarrels of greenish crown glass in lead cames. That is period
  * practice and it is also the repetition breaker, so `glass` below rations it
  * to exactly those two rooms and every other voice carries the negative.
+ *
+ * ── [ROW 44] AND WHY THE TABLE IS NO LONGER IN THIS FILE ──────────────────
+ *
+ * Everything the header above argues for is still true; only its ADDRESS
+ * changed. `design/production-law.md` clause 8, adopted 2026-08-28: "the theme
+ * never bleeds into the code". A voice table declared here is the manor
+ * declared in the engine — `packs/INVENTORY.md` counts 183 of this file's own
+ * lines naming the manor's materials — and a second location could not be
+ * authored without editing this file. So the DATA moved to
+ * `packs/<name>/voices.json` and this file kept the REASONING and the
+ * resolution rules, which are the engine's: how a facing reaches a voice, how a
+ * window sentence is composed from the plan's own openings, what a material may
+ * have been called before. The table is loaded, the rules are code, and the
+ * refusals below still fire by name.
  */
 
-/* The one measured height. Imported nowhere else on purpose: `make-scaffold`
- * owns `CHAIR_RAIL_M` and this file must agree with it, which
+import { activePack } from "./pack.mjs";
+
+/* THE ACTIVE LOCATION. `--pack <name>`, else `HOLO_PACK`, else `manor`. Read at
+ * module load because every export below is a `const` this file's callers
+ * import directly, and because a run paints one location. `pack.mjs` has
+ * already refused a pack with no ruler, a room that resolves to no voice, or a
+ * voice naming an anchor the pack does not define — so by the time anything
+ * here is read, the world is known to be measurable. */
+const PACK = activePack();
+
+/* The one measured height, RULED BY THE PACK. Imported nowhere else on purpose:
+ * `make-scaffold` owns `CHAIR_RAIL_M` and this file must agree with it, which
  * `tests/playwright/room-voices.spec.mjs` asserts rather than assumes. */
-export const ANCHOR_M = 0.95;
+export const ANCHOR_M = PACK.world.ruler.height_m;
 
 /* Sill and head are the SCAFFOLD's conventions (a plan view holds no vertical
  * dimension), repeated here so a voice's window sentence and the scaffold's own
  * stamped window box cannot drift apart. */
-export const WINDOW_SILL_M = 0.90;
-export const WINDOW_HEAD_M = 2.00;
+export const WINDOW_SILL_M = PACK.world.conventions.window_sill_m;
+export const WINDOW_HEAD_M = PACK.world.conventions.window_head_m;
 
 /* A light — one glazed pane-field between mullions — is about half a metre in
  * an English mullioned window of this date; the plan's own opening widths
  * (1.00, 1.20, 1.40, 1.50, 2.50 m) divide into 2, 2, 3, 3 and 5 lights at that
  * module, which is exactly the range such windows come in. */
-export const LIGHT_MODULE_M = 0.50;
+export const LIGHT_MODULE_M = PACK.world.conventions.light_module_m;
 
 /* ------------------------------------------------------------------ */
 /* The voices                                                          */
@@ -86,204 +110,7 @@ export const LIGHT_MODULE_M = 0.50;
  * table with no justification is a preference, and the next builder has no way
  * to tell a researched choice from a typed one. */
 
-export const VOICES = {
-  hall_state: {
-    id: "hall_state",
-    why: "The great hall is THE display room: oak wainscot with a carved frieze over a flagged floor is the standard c.1660 gentry treatment, and the hall is the one room entitled to armorial glass in quantity.",
-    outdoor: false,
-    walls: "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
-    ceiling: "a flat lime-plastered ceiling with moulded plaster ribs",
-    floor: "a broad worn stone flagstone floor",
-    /* [row 40] THE SAME FABRIC AS `walls`, IN FEWER WORDS — not a second one.
-     * This read "unbroken oak wainscot under a carved frieze" while `walls`
-     * ruled fielded PANELLING with a lime-plastered wall head, and only a
-     * facing carrying no carrier ever saw it: a blank wall of the great hall
-     * or the solar was told panelling in one sentence and wainscot in another
-     * while its carrier-bearing neighbours were told only panelling. A
-     * per-FACING property deciding a per-ROOM one is row 40's whole disease.
-     * Row 36's MATERIAL_BINDING already binds `blank` and `walls` here to ONE
-     * texture id; the words were the only thing dissenting. */
-    blank: "unbroken oak panelling in fielded bays under its carved frieze, with the lime-plastered wall head above it",
-    anchor: "chair_rail",
-    glass: "armorial",
-    window_status: "state"
-  },
-  great_chamber: {
-    id: "great_chamber",
-    why: "The solar — the great chamber over the hall — is the upper display room and carries the hall's own fabric: oak wainscot and a carved frieze. What it does NOT carry is the arms. Painted heraldry belongs in the hall window, and the ration allows the hall and at most the principal parlour; the prompt lint refuses it anywhere else, which is how this voice was split off from the hall's in the first place.",
-    outdoor: false,
-    walls: "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
-    ceiling: "a flat lime-plastered ceiling with moulded plaster ribs",
-    floor: "wide oak floorboards",
-    /* [row 40] The hall's own correction, for the same reason and the same
-     * fabric — `great_chamber` carries the hall's walls by design. */
-    blank: "unbroken oak panelling in fielded bays under its carved frieze, with the lime-plastered wall head above it",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "state"
-  },
-  parlour_wainscot: {
-    id: "parlour_wainscot",
-    why: "Study, library, dining parlour and muniment room are the panelled withdrawing rooms — dark oak wainscot over boards, the voice the approved study reference already carries and the one place it belongs.",
-    outdoor: false,
-    walls: "dark hand-finished oak wall panelling",
-    ceiling: "an aged parchment-toned plaster ceiling",
-    floor: "wide worn oak floorboards",
-    blank: "unbroken oak panelling",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "principal"
-  },
-  parlour_armorial: {
-    id: "parlour_armorial",
-    why: "The dining parlour is the principal parlour: identical fabric to the other panelled rooms, but period practice allows it the single shield the great hall's window carries in quantity — and no more.",
-    outdoor: false,
-    walls: "dark hand-finished oak wall panelling",
-    ceiling: "an aged parchment-toned plaster ceiling",
-    floor: "wide worn oak floorboards",
-    blank: "unbroken oak panelling",
-    anchor: "chair_rail",
-    glass: "one_shield",
-    window_status: "principal"
-  },
-  long_gallery: {
-    id: "long_gallery",
-    why: "A long gallery is a walking room lit down one whole side: oak wainscot, a boarded floor and ranges of windows rather than single ones, which is why it gets its own voice and not the parlour's.",
-    outdoor: false,
-    walls: "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
-    ceiling: "a flat lime-plastered ceiling",
-    floor: "long wide oak floorboards running the length of the gallery",
-    blank: "unbroken oak wainscot below limewashed plaster",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "state"
-  },
-  bedchamber: {
-    id: "bedchamber",
-    why: "A c.1660 bedchamber is wainscoted to chair height and HUNG above it — worsted or tapestry hangings, not panelling to the cornice; the best chamber's hangings are the richest in the house.",
-    outdoor: false,
-    walls: "oak wainscot to chair height with wall hangings above it",
-    ceiling: "a plain lime-plastered ceiling",
-    floor: "wide oak floorboards",
-    blank: "unbroken wainscot below and hangings above",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "principal",
-    /* The rank of the hangings is derived per room, below. */
-    hangings: {
-      best: "a full set of woven tapestry hangings in faded green, umber and dull gold, hung from a rail just below the ceiling and falling to the wainscot capping",
-      good: "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping",
-      plain: "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
-    }
-  },
-  garden_parlour: {
-    id: "garden_parlour",
-    why: "There is no orangery and no sash window in 1660: a garden room of this date is a garden PARLOUR — a low-wainscoted room whose one distinction is generous leaded casement bays looking onto the privy garden. Its light comes from casement COUNT, never from a wall of glass.",
-    outdoor: false,
-    walls: "light-toned oak wainscot to chair height below limewashed plaster",
-    ceiling: "a plain lime-plastered ceiling",
-    floor: "a floor of square stone paviours",
-    blank: "unbroken light oak wainscot below limewashed plaster",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "state"
-  },
-  cross_passage: {
-    id: "cross_passage",
-    why: "The cross passage is the working spine between hall and service: plain oak wainscot under limewash over flags, worn by traffic — no fielded panelling and no frieze.",
-    outdoor: false,
-    walls: "plain oak wainscot below limewashed plaster",
-    ceiling: "a boarded ceiling of plain oak boards on exposed joists",
-    floor: "a worn stone flagstone floor",
-    blank: "unbroken plain oak wainscot below limewashed plaster",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "service"
-  },
-  great_stair: {
-    id: "great_stair",
-    why: "The great stair and its landing are shown to guests: a heavy oak newel stair with turned balusters, wainscot to chair height, and the one tall stair window the plan actually draws.",
-    outdoor: false,
-    walls: "oak wainscot to chair height below limewashed plaster",
-    ceiling: "a plain lime-plastered ceiling",
-    floor: "broad oak treads and boards",
-    blank: "unbroken oak wainscot below limewashed plaster",
-    anchor: "chair_rail",
-    glass: "plain",
-    window_status: "state"
-  },
-  back_stair: {
-    id: "back_stair",
-    why: "A back stair is service fabric: limewashed plaster over a PLAIN BOARDED DADO, plain oak treads, no mouldings and no fielded joinery anywhere.",
-    outdoor: false,
-    walls: "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
-    ceiling: "a plain plastered soffit",
-    floor: "plain scrubbed oak treads and boards",
-    blank: "unbroken limewash above a plain boarded dado",
-    anchor: "dado_capping",
-    glass: "plain",
-    window_status: "service"
-  },
-  service: {
-    id: "service",
-    why: "Kitchen and buttery in 1660: stone flags, limewashed plaster straight down to the floor, a great open hearth, scrubbed oak fittings. A room where food is dressed carries no joinery on its walls at all — the one horizontal that runs them is the plain peg-rail the gear hangs from.",
-    outdoor: false,
-    walls: "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
-    ceiling: "heavy smoke-darkened oak ceiling joists with plain boards between them",
-    floor: "large worn stone flags",
-    blank: "unbroken limewashed plaster over stone",
-    anchor: "hanging_rail",
-    glass: "plain",
-    window_status: "service"
-  },
-  servants_hall: {
-    id: "servants_hall",
-    why: "The servants' hall is the plainest inhabited room in the house: plain limewash, a brick or flag floor, scrubbed oak, and nothing else. Fielded oak joinery here would be a status error, not just a material one.",
-    outdoor: false,
-    walls: "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
-    ceiling: "plain exposed oak joists with boards between them",
-    /* [Kabe, 2026-08-25: "Servants hall has multiple different floor types"] The
-     * material alone let one wall lay its bricks as squares beside two laid in
-     * courses; the bond is named so the ask forces it. */
-    floor: "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
-    blank: "unbroken plain limewashed plaster",
-    anchor: "hanging_rail",
-    glass: "plain",
-    window_status: "service"
-  },
-  outdoors_walled: {
-    id: "outdoors_walled",
-    why: "A privy garden, an entrance court or an approach seen against a wall is OUTSIDE: the wall in frame is garden brick or coursed stone under open sky, with planting and a path underfoot. No interior fabric of any kind belongs in it — this is Kabe's veto, made mechanical.",
-    outdoor: true,
-    walls: "a garden wall of weathered red brick in English bond on a coursed stone plinth, open sky above it",
-    /* AN OUTDOOR FACING THAT CARRIES OPENINGS IS NOT A GARDEN WALL — it is the
-     * house's own elevation seen from the garden or the court, and the plan
-     * says which by whether it draws any window or door on that wall line.
-     * `entrance_court/N` carries six windows and a door; `privy_garden/N`
-     * carries nothing. Same voice, and the derivation picks. */
-    walls_with_openings: "the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline",
-    ceiling: null,
-    floor: "raked gravel paths between low clipped box and turf",
-    blank: "unbroken weathered brickwork on its stone plinth",
-    anchor: "string_course",
-    glass: "plain",
-    /* The elevation of a gentry house is dressed: moulded stone surrounds, not
-     * the plain chamfer a service room gets inside. */
-    window_status: "principal"
-  },
-  outdoors_open: {
-    id: "outdoors_open",
-    why: "A facing the plan types `open` has no wall at all: the view runs out over the forecourt or the park. What closes it and gives the gate its ruler is the low coursed-stone boundary wall that fences a forecourt of this date, its coping at the ruled height.",
-    outdoor: true,
-    walls: "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky",
-    ceiling: null,
-    floor: "raked gravel and worn turf running to the bottom edge of frame",
-    blank: "an unbroken low boundary wall under open sky",
-    anchor: "coping",
-    glass: "plain",
-    window_status: "service"
-  }
-};
+export const VOICES = PACK.voices.VOICES;
 
 /* ------------------------------------------------------------------ */
 /* The anchors                                                         */
@@ -296,53 +123,7 @@ export const VOICES = {
  * restricted to `make-scaffold.mjs`'s stroked glyph table (no apostrophe, no
  * colon, no bracket), which `room-voices.spec.mjs` asserts. */
 
-export const ANCHORS = {
-  chair_rail: {
-    id: "chair_rail",
-    line: "the wainscot chair-rail above the floor",
-    datum: "floor",
-    sentence: "A clearly legible wainscot chair-rail runs continuously corner to corner at exactly 0.95 m above the floor, on every exposed wall surface including the side-wall returns.",
-    label: "CHAIR-RAIL 0.95 M ABOVE FLOOR - GATE ANCHOR",
-    legend_word: "CHAIR-RAIL",
-    why: "blueprint §11's universal anchor, and the only one the panelled rooms need"
-  },
-  dado_capping: {
-    id: "dado_capping",
-    line: "the plain oak dado capping above the floor",
-    datum: "floor",
-    sentence: "A plain unmoulded oak capping runs continuously corner to corner at exactly 0.95 m above the floor, topping the boarded dado on every exposed wall surface including the side-wall returns. It is a plain square-edged batten with no mouldings worked on it at all.",
-    label: "DADO CAPPING 0.95 M ABOVE FLOOR - GATE ANCHOR",
-    legend_word: "DADO CAPPING",
-    why: "a boarded service dado is capped with a plain batten; same height, no mouldings, no panelling"
-  },
-  hanging_rail: {
-    id: "hanging_rail",
-    line: "the plain oak hanging rail above the floor",
-    datum: "floor",
-    sentence: "A plain scrubbed-oak hanging rail, pegged with iron hooks, runs continuously corner to corner at exactly 0.95 m above the floor, fixed straight onto the limewashed plaster on every exposed wall surface including the side-wall returns. It is a single square-edged batten on bare plaster, with no timber lining, no joinery and no moulding anywhere behind it or below it.",
-    label: "HANGING RAIL 0.95 M ABOVE FLOOR - GATE ANCHOR",
-    legend_word: "HANGING RAIL",
-    why: "the peg-rail every c.1660 kitchen, buttery and servants' hall hung its gear from — a real continuous horizontal in a room that has no wainscot"
-  },
-  string_course: {
-    id: "string_course",
-    line: "the stone string-course above the ground",
-    datum: "ground",
-    sentence: "A single projecting course of dressed stone runs continuously across the whole wall at exactly 0.95 m above the ground, capping the wall's plinth. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.",
-    label: "STRING-COURSE 0.95 M ABOVE GROUND - GATE ANCHOR",
-    legend_word: "STRING-COURSE",
-    why: "a brick garden wall of this date is built off a stone plinth capped by a string-course; it is the outdoor equivalent horizontal"
-  },
-  coping: {
-    id: "coping",
-    line: "the boundary wall coping above the ground",
-    datum: "ground",
-    sentence: "A low coursed-stone boundary wall runs right across the far side of the view, and the flat stone coping along its top sits at exactly 0.95 m above the ground at that wall. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.",
-    label: "COPING 0.95 M ABOVE GROUND - GATE ANCHOR",
-    legend_word: "COPING",
-    why: "an open facing has no building wall; a forecourt of this date is closed by a low walled boundary, and its coping is the one ruled horizontal available"
-  }
-};
+export const ANCHORS = PACK.voices.ANCHORS;
 
 /* ------------------------------------------------------------------ */
 /* Room id -> voice                                                    */
@@ -357,72 +138,13 @@ export const ANCHORS = {
  * archetype is the fallback for an id this table has never seen, and each entry
  * below records which of the two it came from. */
 
-export const ROOM_VOICE = {
-  /* id vocabulary: "great_hall" and "solar" are the two display rooms, and they
-   * are separated because only the hall is entitled to armorial glass — the
-   * archetype `hall` covers both and would have put the arms upstairs too. */
-  great_hall: "hall_state",
-  solar: "great_chamber",
-  /* id vocabulary: the panelled withdrawing rooms. `muniment_room` is the
-   * evidence room off the solar — a small panelled closet, not a service room,
-   * which its id says and its `chamber` archetype does not. */
-  study: "parlour_wainscot",
-  library: "parlour_wainscot",
-  muniment_room: "parlour_wainscot",
-  /* id vocabulary: "parlour" in the id is what licenses the single shield. */
-  dining_parlour: "parlour_armorial",
-  /* id vocabulary: "long_gallery" — archetype says `corridor`, which would have
-   * given the manor's grandest upper room the cross passage's voice. */
-  long_gallery: "long_gallery",
-  /* id vocabulary: "*_bedchamber", "guest_chamber", "closet_chamber". The
-   * archetype for all three is `chamber`, identical to the study's. */
-  master_bedchamber: "bedchamber",
-  guest_chamber: "bedchamber",
-  closet_chamber: "bedchamber",
-  /* id vocabulary: "garden_room". Archetype `chamber` again. */
-  garden_room: "garden_parlour",
-  /* id vocabulary: "hall" alone is this plan's CROSS PASSAGE (its `name` says
-   * so); the great hall is `great_hall`. Keying on the archetype `corridor`
-   * would have merged it with the long gallery. */
-  hall: "cross_passage",
-  /* id vocabulary: "great_stair_hall" and "stair_landing" are the shown stair;
-   * "back_stair" and "back_stair_head" are the service stair. Both pairs share
-   * the archetype `stair`, so only the id separates them. */
-  great_stair_hall: "great_stair",
-  stair_landing: "great_stair",
-  back_stair: "back_stair",
-  back_stair_head: "back_stair",
-  /* id vocabulary: "kitchen", "buttery_pantry", "servants_hall". All three are
-   * archetype `service`, which the old table did not carry at all — this is the
-   * exact set that fell through to the study's paragraph. The servants' hall is
-   * plainer still than the kitchen, so it is separated by id. */
-  kitchen: "service",
-  buttery_pantry: "service",
-  servants_hall: "servants_hall",
-  /* id vocabulary: "privy_garden", "entrance_court", "entrance_approach". These
-   * are also the only rooms typed `open`, so id and type agree; the type is
-   * what generalises to a future plan. */
-  privy_garden: "outdoors_walled",
-  entrance_court: "outdoors_walled",
-  entrance_approach: "outdoors_walled"
-};
+export const ROOM_VOICE = PACK.voices.ROOM_VOICE;
 
 /* The fallback for a room id this table has never seen, so a FUTURE plan still
  * resolves rather than silently taking the first voice in the file. Keyed on
  * archetype, then on type; every entry is the safest member of its family. */
-export const ARCHETYPE_FALLBACK = {
-  hall: "hall_state",
-  chamber: "parlour_wainscot",
-  corridor: "cross_passage",
-  stair: "great_stair",
-  service: "service",
-  open: "outdoors_walled"
-};
-export const TYPE_FALLBACK = {
-  enclosed: "parlour_wainscot",
-  corridor: "cross_passage",
-  open: "outdoors_walled"
-};
+export const ARCHETYPE_FALLBACK = PACK.voices.ARCHETYPE_FALLBACK;
+export const TYPE_FALLBACK = PACK.voices.TYPE_FALLBACK;
 
 /**
  * The voice for one FACING.
@@ -659,8 +381,7 @@ export function windowLines(voice, windows, roomName, surfaceWord, hasStyleImage
  * and `retries.json`, where a reader needs it and no generator reads it. The
  * lint stays the authority — if these two word lists ever drift apart, the lint
  * refuses the packet and the suite goes red, which is the handshake. */
-export const INTERIOR_FABRIC =
-  /panell?ing|panell?ed|wainscot\w*|chair[- ]?rail|\bdado\b|floorboards?|plaster ceiling|ceiling joists?|\bskirting\b|\bhearth\b|\bfireplace\b/i;
+export const INTERIOR_FABRIC = new RegExp(PACK.world.refusals.interior_fabric, "i");
 
 /** Whether a sentence may be carried into an OUTDOOR wall's prompt. */
 export function carryableOutdoors(sentence) {
@@ -670,10 +391,7 @@ export function carryableOutdoors(sentence) {
 /* What replaces a correction that cannot be carried: the forward half of it,
  * saying that the earlier attempt is superseded by what follows, in words the
  * clause permits. The reason itself is in the packet. */
-export const REDACTED_CORRECTION =
-  "the previous attempt at this wall was rejected because it did not paint this place as the " +
-  "materials and the anchor below describe it. Those words replace anything the earlier attempt " +
-  "showed; follow them exactly.";
+export const REDACTED_CORRECTION = PACK.world.refusals.redacted_correction;
 
 /* ------------------------------------------------------------------ */
 /* Self-check                                                          */
@@ -863,275 +581,12 @@ export function scaleContract(slot, tiling) {
  * actually does at a corner. `width_m` 0.11 is the same stile; the quoin's
  * 0.225 m is a 9 in brick laid header-on, and its 0.15 m course is the two
  * English-bond courses (0.075 m each) a quoin block spans. */
-const PANELLED_FRAME = {
-  kind: "full_height", module_m: 0.80, stile_m: 0.11, plinth_m: 0.17,
-  chair_rail_m: 0.95, chair_rail_h_m: 0.14, cornice_m: 0.24,
-  architrave_m: 0.13, bevel_m: 0.035
-};
-const WAINSCOT_FRAME = { ...PANELLED_FRAME, kind: "dado" };
-const PLASTER_EDGE = { kind: "return_stile", width_m: 0.11 };
-const MASONRY_EDGE = { kind: "quoin", width_m: 0.225, course_m: 0.15 };
+/* [row 44] The carrier-frame and edge literals that used to build MATERIALS above
+ * moved into the pack with it: a `dado` frame 0.11 m wide and a 0.225 m quoin are
+ * this world's joinery and this world's masonry, not the engine's. They are
+ * `packs/<name>/voices.json`'s MATERIALS entries now, spelled out per material. */
 
-export const MATERIALS = {
-  /* ---- wall fabrics: the harvest lane (anisotropy 1.000, §1.2) ---- */
-  "wall/oak-fielded-bays-frieze": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "fielded panel bay" },
-    frame: PANELLED_FRAME
-  },
-  "wall/dark-oak-panelling": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "panel bay" },
-    frame: PANELLED_FRAME
-  },
-  "wall/oak-wainscot-limewash-cornice": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
-    frame: WAINSCOT_FRAME
-  },
-  "wall/oak-wainscot-with-hangings": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
-    note: "the DADO band only; the field band above it is one of the three " +
-          "`wall/hangings-*` variants, chosen per room by `hangingsFor`",
-    frame: WAINSCOT_FRAME
-  },
-  "wall/light-oak-wainscot-limewash": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
-    frame: WAINSCOT_FRAME
-  },
-  "wall/plain-oak-wainscot-limewash": {
-    same_as: "wall/oak-wainscot-limewash",
-    alias_reason:
-      "differ only by \"plain\" and \"to chair height\" -- both are oak wainscot below limewashed plaster. THE CONSEQUENCE IS THE POINT: cross_passage had no promoted facing and was the library's only wall swatch; great_stair has one, so this alias turns an ask into a harvest.",
-    slot: "walls", lane: "swatch",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
-    note: "SWATCH because `cross_passage` has no promoted facing anywhere in " +
-          "the manor -- `hall` is unpainted -- so there is nothing to harvest from",
-    frame: WAINSCOT_FRAME
-  },
-  "wall/oak-wainscot-limewash": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.80, feature: "wainscot bay" },
-    frame: WAINSCOT_FRAME
-  },
-  "wall/boarded-oak-dado-limewash": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "v", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "square-edged dado board" },
-    frame: WAINSCOT_FRAME
-  },
-  "wall/rough-limewash-over-stone": {
-    same_as: "wall/plain-limewash-to-floor",
-    alias_reason:
-      "\"rough ... over stone\" and \"plain\" are finish adjectives over the same material: limewashed plaster carried straight to the floor with no joinery.",
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.05,
-              feature: "the trowelled undulation of limewash over rubble" },
-    edge: PLASTER_EDGE
-  },
-  "wall/plain-limewash-to-floor": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.04,
-              feature: "the trowelled undulation of plain limewash" },
-    edge: PLASTER_EDGE
-  },
-  "wall/garden-brick-english-bond": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" },
-    edge: MASONRY_EDGE
-  },
-  "wall/manor-exterior-elevation": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.075, feature: "brick course" },
-    note: "the THIRTEENTH wall fabric, invisible to a walls/ceiling/floor " +
-          "census: `outdoors_walled.walls_with_openings`, selected in " +
-          "`make-scaffold.mjs` when the plan draws any carrier on that wall " +
-          "line. 7 of the 8 outdoor facings render it",
-    edge: MASONRY_EDGE
-  },
-  "wall/low-boundary-wall": {
-    slot: "walls", lane: "harvest",
-    tiling: { grain_axis: "u", grain_frame: "surface", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.12, feature: "stone course" },
-    edge: MASONRY_EDGE
-  },
-
-  /* ---- the bedchamber's three field bands ---- */
-  "wall/hangings-tapestry": {
-    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
-    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.03,
-              feature: "the weave of woven tapestry" }
-  },
-  "wall/hangings-red-worsted": {
-    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
-    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.02,
-              feature: "the weave of worsted say" }
-  },
-  "wall/hangings-wool-serge": {
-    slot: "walls", lane: "harvest", variant_of: "wall/oak-wainscot-with-hangings",
-    tiling: { grain_axis: null, grain_frame: "surface", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.02,
-              feature: "the weave of undyed wool serge" }
-  },
-
-  /* ---- ceilings: all swatch (0 of 51 facings clear the demand, §1.2) ---- */
-  "ceiling/lime-plaster-ribs": {
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "periodic", pitch_m: 1.20, feature: "moulded plaster rib bay" }
-  },
-  "ceiling/parchment-plaster": {
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "featureless" }
-  },
-  "ceiling/flat-lime-plaster": {
-    same_as: "ceiling/plain-lime-plaster",
-    alias_reason:
-      "plain and flat are synonyms here; the material is lime plaster either way.",
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "featureless" }
-  },
-  "ceiling/plain-lime-plaster": {
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "featureless" }
-  },
-  "ceiling/boarded-oak-joists": {
-    same_as: "ceiling/plain-exposed-joists",
-    alias_reason:
-      "the same ceiling said twice -- plain oak boards on exposed joists.",
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
-  },
-  "ceiling/smoke-darkened-joists": {
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
-  },
-  "ceiling/plain-exposed-joists": {
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: "room_short", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.90, feature: "exposed joist" }
-  },
-  "ceiling/plain-plastered-soffit": {
-    same_as: "ceiling/plain-lime-plaster",
-    alias_reason:
-      "a soffit is where the plaster is, not what it is; plain plaster and plain lime plaster are one material in this period.",
-    slot: "ceiling", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "featureless" }
-  },
-
-  /* ---- floors: all swatch (0 of 51 facings clear the demand, §1.2) ---- */
-  "floor/broad-stone-flags": {
-    same_as: "floor/worn-stone-flags",
-    alias_reason:
-      "broad/large/worn are size adjectives on one material. NO voice's period justification names a different stone or a different laying pattern -- checked, all three say worn stone flags.",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.70,
-              feature: "the spread of a broad worn flag" }
-  },
-  "floor/wide-oak-boards": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
-  },
-  "floor/wide-worn-oak-boards": {
-    same_as: "floor/wide-oak-boards",
-    alias_reason:
-      "worn is a finish adjective on wide oak floorboards.",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" }
-  },
-  "floor/gallery-long-oak-boards": {
-    same_as: "floor/wide-oak-boards",
-    alias_reason:
-      "\"running the length of the gallery\" is a LAYING DIRECTION, and direction is already carried by grain_axis room_long, which all three share -- so it is not a second material.",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "floorboard" },
-    note: "the gallery's voice says the boards run its LENGTH, which is what " +
-          "`room_long` means and why grain is a plan fact and not a facing one"
-  },
-  "floor/square-stone-paviours": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "periodic", pitch_m: 0.45, feature: "square paviour" }
-  },
-  "floor/worn-stone-flags": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.55,
-              feature: "the spread of a worn flag" }
-  },
-  "floor/broad-oak-treads-boards": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "board" }
-  },
-  "floor/scrubbed-oak-treads-boards": {
-    same_as: "floor/broad-oak-treads-boards",
-    alias_reason:
-      "broad and plain scrubbed are finish adjectives on oak treads and boards. Kept separate from the floorboards: treads name a stair surface.",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.25, feature: "board" },
-    note: "NAMES TWO GEOMETRIES IN ONE STRING -- stair treads and floor " +
-          "boards are not the same surface. Recorded rather than split, " +
-          "because stair rooms are not assembly customers (36-plan.md §2.6)"
-  },
-  "floor/large-worn-stone-flags": {
-    same_as: "floor/worn-stone-flags",
-    alias_reason:
-      "as above: a size adjective, not a different stone.",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.80,
-              feature: "the spread of a large worn flag" }
-  },
-  "floor/red-brick-on-edge": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: "room_long", grain_frame: "plan", mirror: "across",
-              scale_kind: "periodic", pitch_m: 0.115, feature: "brick laid on edge" }
-  },
-  "floor/raked-gravel-box-turf": {
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.02,
-              feature: "raked gravel grain" }
-  },
-  "floor/gravel-and-turf": {
-    /* The voice says "...running to the bottom edge of frame", which is a true
-       and useful thing to tell a painter about a FACING and a meaningless one
-       to tell a flat sample -- the swatch ask refuses picture-talk, and this is
-       the same ground said without the picture. */
-    swatch_prose: "raked gravel and worn turf, the two running together",
-    slot: "floor", lane: "swatch",
-    tiling: { grain_axis: null, grain_frame: "plan", mirror: "both",
-              scale_kind: "stochastic", characteristic_m: 0.02,
-              feature: "raked gravel grain" }
-  }
-};
+export const MATERIALS = PACK.voices.MATERIALS;
 
 /** Which material each voice's each material-bearing key names.
  *
@@ -1143,47 +598,7 @@ export const MATERIALS = {
  *  panelling" is "dark hand-finished oak wall panelling" with nothing on it --
  *  the same fabric, said for a wall with no carrier. That is why 47 strings are
  *  33 materials. */
-export const MATERIAL_BINDING = {
-  hall_state:       { walls: "wall/oak-fielded-bays-frieze", blank: "wall/oak-fielded-bays-frieze",
-                      ceiling: "ceiling/lime-plaster-ribs", floor: "floor/broad-stone-flags" },
-  great_chamber:    { walls: "wall/oak-fielded-bays-frieze", blank: "wall/oak-fielded-bays-frieze",
-                      ceiling: "ceiling/lime-plaster-ribs", floor: "floor/wide-oak-boards" },
-  parlour_wainscot: { walls: "wall/dark-oak-panelling", blank: "wall/dark-oak-panelling",
-                      ceiling: "ceiling/parchment-plaster", floor: "floor/wide-worn-oak-boards" },
-  parlour_armorial: { walls: "wall/dark-oak-panelling", blank: "wall/dark-oak-panelling",
-                      ceiling: "ceiling/parchment-plaster", floor: "floor/wide-worn-oak-boards" },
-  /* THE GALLERY'S `blank` IS THE GALLERY'S OWN FABRIC, cornice included, even
-   * though its blank PROSE does not mention the cornice -- "unbroken oak
-   * wainscot below limewashed plaster" is byte-identical to `great_stair`'s
-   * blank string and they are NOT the same material. A blank gallery wall still
-   * has a moulded cornice at its head; the phrasing is just lossy about it.
-   * This is why a binding is keyed on (voice, key) and never on the string: two
-   * voices can say the same words about different fabrics. */
-  long_gallery:     { walls: "wall/oak-wainscot-limewash-cornice", blank: "wall/oak-wainscot-limewash-cornice",
-                      ceiling: "ceiling/flat-lime-plaster", floor: "floor/gallery-long-oak-boards" },
-  bedchamber:       { walls: "wall/oak-wainscot-with-hangings", blank: "wall/oak-wainscot-with-hangings",
-                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/wide-oak-boards",
-                      "hangings.best": "wall/hangings-tapestry",
-                      "hangings.good": "wall/hangings-red-worsted",
-                      "hangings.plain": "wall/hangings-wool-serge" },
-  garden_parlour:   { walls: "wall/light-oak-wainscot-limewash", blank: "wall/light-oak-wainscot-limewash",
-                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/square-stone-paviours" },
-  cross_passage:    { walls: "wall/plain-oak-wainscot-limewash", blank: "wall/plain-oak-wainscot-limewash",
-                      ceiling: "ceiling/boarded-oak-joists", floor: "floor/worn-stone-flags" },
-  great_stair:      { walls: "wall/oak-wainscot-limewash", blank: "wall/oak-wainscot-limewash",
-                      ceiling: "ceiling/plain-lime-plaster", floor: "floor/broad-oak-treads-boards" },
-  back_stair:       { walls: "wall/boarded-oak-dado-limewash", blank: "wall/boarded-oak-dado-limewash",
-                      ceiling: "ceiling/plain-plastered-soffit", floor: "floor/scrubbed-oak-treads-boards" },
-  service:          { walls: "wall/rough-limewash-over-stone", blank: "wall/rough-limewash-over-stone",
-                      ceiling: "ceiling/smoke-darkened-joists", floor: "floor/large-worn-stone-flags" },
-  servants_hall:    { walls: "wall/plain-limewash-to-floor", blank: "wall/plain-limewash-to-floor",
-                      ceiling: "ceiling/plain-exposed-joists", floor: "floor/red-brick-on-edge" },
-  outdoors_walled:  { walls: "wall/garden-brick-english-bond", blank: "wall/garden-brick-english-bond",
-                      walls_with_openings: "wall/manor-exterior-elevation",
-                      floor: "floor/raked-gravel-box-turf" },
-  outdoors_open:    { walls: "wall/low-boundary-wall", blank: "wall/low-boundary-wall",
-                      floor: "floor/gravel-and-turf" }
-};
+export const MATERIAL_BINDING = PACK.voices.MATERIAL_BINDING;
 
 /** Every material-bearing key on a voice, DERIVED FROM THE OBJECT.
  *
@@ -1268,27 +683,13 @@ export function aliasTable() {
  * reads as a material change: the audit refuses to guess, the wall goes
  * unvouched, and it is re-asked. The failure direction is a wasted roll, never
  * a wrong photograph handed to the next painter. */
-export const SAID_BEFORE = {
-  "floor/red-brick-on-edge": [{
-    said: "a floor of worn red brick laid on edge",
-    retired: "2026-08-25",
-    commit: "2c93dce",
-    why: "[Kabe, 2026-08-25: \"Servants hall has multiple different floor types\"] The " +
-      "material alone let one wall lay its bricks as squares beside two laid in courses, " +
-      "so the BOND was named in the voice. Worn red brick laid on edge is the same floor " +
-      "before and after; what the added words rule is how it is laid, which is a finish " +
-      "of the material and not a second material."
-  }]
-};
+export const SAID_BEFORE = PACK.voices.SAID_BEFORE;
 
 /** How a voice key stands in a manor ask's material sentences. `blank` is
  *  absent on purpose: it is the carrier-less phrasing of the SAME fabric and it
  *  is not one of `materialParts`' slots, so admitting it would let a wall's
  *  blank prose answer for its walls prose. */
-export const MATERIAL_PART_OF_KEY = {
-  walls: "walls", walls_with_openings: "walls",
-  ceiling: "overhead", floor: "underfoot"
-};
+export const MATERIAL_PART_OF_KEY = PACK.voices.MATERIAL_PART_OF_KEY;
 
 /**
  * Every prose a manor ask may state for a material, with the material it names
