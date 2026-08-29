@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-WIRE | the warp wired in as the one correction step (`exit: warped`, promote on the declared camera with residuals recorded; snap/void/tolerance behind --legacy-exits); run over the manor's held walls — capped | building |
+| B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 | B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
