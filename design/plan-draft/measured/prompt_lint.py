@@ -64,6 +64,8 @@ import os
 import re
 import sys
 
+from pack import active_pack, PackRefused, strip_pack_args   # the location, as data
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 SOURCE = os.path.join(REPO, "backdrops", "source")
@@ -115,41 +117,27 @@ FORBIDS_FLOOR = re.compile(
     r"no\s+ground\s+line|no\s+visible\s+ground|ground\s+is\s+not\s+visible", re.I)
 ANCHOR_ON_FLOOR = re.compile(r"above\s+(?:the\s+)?(?:floor|ground)", re.I)
 
-# THE RULERS THE GATE ACTUALLY HAS, and their ruled sizes in metres. A `Gate
-# anchor:` line that names something else, or names one of these at the wrong
-# size, is not an anchor — it is a sentence. A critic wrote
+# THE RULERS THE GATE ACTUALLY HAS, and their ruled sizes in metres, READ FROM
+# THE ACTIVE PACK (`packs/<name>/world.json`'s `rulers[]`). A `Gate anchor:`
+# line that names something else, or names one of these at the wrong size, is
+# not an anchor -- it is a sentence. A critic wrote
 # `Gate anchor: nothing whatsoever, 0 m` and satisfied both of the clauses that
 # depend on an anchor being present.
-RULERS = [
-    (re.compile(r"door[^,]*height|head[^,]*(?:soffit|threshold)", re.I), 2.00,
-     "the door opening's height at the wall plane"),
-    (re.compile(r"door[^,]*width", re.I), 1.00, "the door opening's width"),
-    (re.compile(r"fireplace|hearth", re.I), 0.90, "the fireplace opening, jamb to jamb"),
-    (re.compile(r"\bbay\b|mullion", re.I), 0.90, "a window bay between its outer mullion centres"),
-    (re.compile(r"chair[- ]?rail|wainscot|dado", re.I), 0.95,
-     "the wainscot chair-rail above the floor (blueprint §11's universal anchor)"),
-    # ROW 29's VOICED ANCHORS. [HUMAN, 2026-08-24] "is every room in this house
-    # parlor walls?" -- a c.1660 kitchen, buttery or servants' hall has no
-    # wainscot and no chair-rail, and a garden wall has neither. But
-    # `row23_lib.py` measures ONE horizontal, at `rail_above / 0.95`, and that
-    # divisor is the instrument's. So the voices do not move the ruled height:
-    # they rename the FEATURE at it, and these are the names
-    # `tools/room-voices.mjs` may use. Every one is a real continuous horizontal
-    # that kind of room really carried, and every one is 0.95 m, because a
-    # prompt naming a ruler the gate is not measuring is the same defect as a
-    # prompt naming none.
-    (re.compile(r"hanging rail|peg[- ]?rail|utensil rail", re.I), 0.95,
-     "the plain oak hanging rail above the floor (a service room's one "
-     "continuous horizontal, at the chair-rail's ruled height)"),
-    (re.compile(r"string[- ]?course|plinth course", re.I), 0.95,
-     "the stone string-course above the ground (a garden or court wall's "
-     "plinth capping, at the chair-rail's ruled height)"),
-    (re.compile(r"\bcoping\b", re.I), 0.95,
-     "the boundary wall coping above the ground (what closes an open facing, "
-     "at the chair-rail's ruled height)"),
-    (re.compile(r"end wall|corridor width|passage width", re.I), 2.60,
-     "the cross passage's end wall"),
-]
+#
+# THIS TABLE USED TO BE TYPED HERE: nine tuples of one house's own vocabulary.
+# `design/production-law.md` clause 8 -- the theme never bleeds into the code.
+# A second location could not be linted without editing this file, which is the
+# defect the clause names. The regex sources moved into `world.json` verbatim,
+# so the manor's behaviour is unchanged; `packs/_probe/` proves the same lint
+# standing over another idiom, and the ruler is a pack's first refusal.
+#
+# The row-29 reasoning that put the voiced anchors in the table is now in the
+# pack's own `rulers_note`, beside the table it justifies: a service room has
+# no wainscot and a garden wall has neither, but `row23_lib.py` measures ONE
+# horizontal at `rail_above / ruler.height_m`, so a voice renames the FEATURE
+# at the ruled height rather than moving it. That divisor is the instrument's;
+# the names are the world's.
+
 
 # ---------------------------------------------------------------- row 29
 # THE VOICE CLAUSES. `design/production-law.md` clause 6: a correction lands in
@@ -175,19 +163,68 @@ RULERS = [
 #       everywhere? With the ensignias on it?" Armorial glass in 1660 is the
 #       great hall's, and at most one shield in the principal parlour. A prompt
 #       that asks for it anywhere else is refused.
-INTERIOR_FABRIC = re.compile(
-    r"panell?ing|panell?ed|wainscot\w*|chair[- ]?rail|\bdado\b|"
-    r"floorboards?|plaster ceiling|ceiling joists?|\bskirting\b|"
-    r"\bhearth\b|\bfireplace\b", re.I)
-PANELLING = re.compile(r"panell?ing|panell?ed|wainscot\w*|chair[- ]?rail", re.I)
+# The SHAPES are the engine's -- a prompt states its side of the door on a
+# `Use case:` line and its subject on an `Asset type:` line whatever world it
+# paints. The WORD LISTS are the pack's: `refusals.interior_fabric`,
+# `refusals.panelling`, `refusals.rationed_line`, `refusals.entitled_to_rationed`.
 EXTERIOR_USE = re.compile(r"^use case:[^\n]*\bexterior\b", re.I | re.M)
-ARMORIAL_LINE = re.compile(r"^armorial glass:[^\n]*$", re.I | re.M)
 ASSET_TYPE = re.compile(r"^asset type:[^\n]*$", re.I | re.M)
-ENTITLED_TO_ARMS = re.compile(r"great hall|parlour|parlor", re.I)
 
 
-def anchor_problem(text, m):
+class Rules(object):
+    """The active pack's ruler table and refusal word lists, compiled once.
+
+    Everything on it used to be a module-level literal in this file. It is the
+    one object that knows which world is being linted; every clause below reads
+    it, and none of them names a material."""
+
+    def __init__(self, pack):
+        self.pack = pack
+        self.rulers = pack.rulers
+        self.interior_fabric = re.compile(pack.refusal("interior_fabric"), re.I)
+        self.panelling = re.compile(pack.refusal("panelling"), re.I)
+        self.rationed_line = re.compile(pack.refusal("rationed_line"), re.I | re.M)
+        self.entitled_to_rationed = re.compile(pack.refusal("entitled_to_rationed"), re.I)
+
+    def why(self, key):
+        """The pack's own justification for a clause, quoted into the finding.
+        A refusal a reader cannot act on teaches nothing (clause 11), and the
+        reason a word is forbidden belongs to the world that forbids it -- not
+        to this file."""
+        w = self.pack.why(key)
+        return (" " + w) if w else ""
+
+    @property
+    def example_anchor(self):
+        """A `Gate anchor:` line this pack would accept, for the message that
+        asks for one. Its first ruler, stated the way the parser reads it."""
+        if not self.rulers:
+            return "the ruled horizontal, %.2f m" % self.pack.ruler_height_m
+        _, size, name = self.rulers[0]
+        return "%s, %.2f m" % (name, size)
+
+
+_RULES = {}
+
+
+def rules(pack=None):
+    """The compiled rules for the active pack (or a named one). Cached."""
+    p = pack if pack is not None else active_pack()
+    if p.name not in _RULES:
+        _RULES[p.name] = Rules(p)
+    return _RULES[p.name]
+
+
+def interior_fabric():
+    """The active pack's interior-fabric word list, for the one caller outside
+    this file (`row23_run.py`'s outdoor-correction redaction). One word list,
+    read through the lint that owns it -- never a second copy."""
+    return rules().interior_fabric
+
+
+def anchor_problem(text, m, R=None):
     """Why this prompt's `Gate anchor:` line is not one, or None."""
+    R = R or rules()
     if not m:
         return ("no `Gate anchor:` line")
     what = m.group(1).strip()
@@ -200,7 +237,7 @@ def anchor_problem(text, m):
     if size <= 0:
         return ("`Gate anchor: %s` declares a size of nothing — a ruler with "
                 "no length measures nothing" % what)
-    for pat, ruled, name in RULERS:
+    for pat, ruled, name in R.rulers:
         if pat.search(what):
             if abs(size - ruled) > 0.01:
                 return ("`Gate anchor: %s` names %s at %.2f m, which this project "
@@ -209,24 +246,24 @@ def anchor_problem(text, m):
                         % (what, name, size, ruled))
             return None
     return ("`Gate anchor: %s` names no feature the gate can measure. The "
-            "rulers are: %s" % (what, "; ".join(n for _, _, n in RULERS)))
+            "rulers are: %s" % (what, "; ".join(n for _, _, n in R.rulers)))
 
 
-def lint(path):
-    """(findings, anchor) for one prompt file."""
+def lint(path, R=None):
+    """(findings, anchor) for one prompt file, against the active pack."""
+    R = R or rules()
     text = open(path, encoding="utf-8").read()
     out = []
     m = ANCHOR_LINE.search(text)
-    problem = anchor_problem(text, m)
+    problem = anchor_problem(text, m, R)
     if problem:
         out.append(
             "%s — the prompt must name the feature the acceptance gate will "
-            "measure and its ruled size in metres (`Gate anchor: the door "
-            "opening's height at the wall plane, 2.00 m`), and the gate must "
-            "have that ruler. Without it the gate is left to find a ruler in "
-            "the picture, which is how hall/N and hall/S came back "
+            "measure and its ruled size in metres (`Gate anchor: %s`), and the "
+            "gate must have that ruler. Without it the gate is left to find a "
+            "ruler in the picture, which is how hall/N and hall/S came back "
             "unmeasurable and were withheld [row21:prompt.no_gate_anchor]"
-            % problem)
+            % (problem, R.example_anchor))
     if FORBIDS_SCALE.search(text) and CORRECTION.search(text):
         out.append(
             "contradicts itself about the camera: it forbids `changing the "
@@ -251,40 +288,38 @@ def lint(path):
             % FORBIDS_FLOOR.search(text).group(0))
     # ---- row 29's voice clauses -------------------------------------------
     if EXTERIOR_USE.search(text):
-        hit = INTERIOR_FABRIC.search(text)
+        hit = R.interior_fabric.search(text)
         if hit:
             out.append(
                 "declares an EXTERIOR scene on its `Use case:` line and then "
-                "names interior fabric (%r). This is Kabe's veto as a clause: "
-                "'exterior garden has interior wall outside' -- privy_garden/N "
-                "was promoted with oak panelling and a chair-rail in an open "
-                "garden and demoted the same day. An outdoor facing's prompt "
-                "may not name interior fabric at all, not even to forbid it "
-                "[row29:prompt.interior_fabric_outdoors]" % hit.group(0))
-    elif not problem and m and not PANELLING.search(m.group(1)):
-        hit = PANELLING.search(text)
+                "names interior fabric (%r). An outdoor facing's prompt may not "
+                "name this world's interior fabric at all, not even to forbid "
+                "it, because a prompt that forbids a word has still put that "
+                "word in front of the generator.%s "
+                "[row29:prompt.interior_fabric_outdoors]"
+                % (hit.group(0), R.why("interior_fabric")))
+    elif not problem and m and not R.panelling.search(m.group(1)):
+        hit = R.panelling.search(text)
         if hit:
             out.append(
-                "declares `%s` -- an anchor that is not the wainscot chair-rail, "
-                "so this is a room with no wainscot in it -- and then names %r "
-                "anyway. That is the study's own material paragraph leaking into "
-                "a room that never had it: 'is every room in this house parlor "
-                "walls?' [row29:prompt.voice_incoherent]"
-                % (m.group(0).strip(), hit.group(0)))
-    arms = ARMORIAL_LINE.search(text)
+                "declares `%s` -- an anchor that is NOT the ruled one, so this "
+                "is a room without that fabric in it -- and then names %r "
+                "anyway. That is one room's material paragraph leaking into a "
+                "room that never had it.%s [row29:prompt.voice_incoherent]"
+                % (m.group(0).strip(), hit.group(0), R.why("panelling")))
+    arms = R.rationed_line.search(text)
     if arms:
         asset = ASSET_TYPE.search(text)
         where = asset.group(0) if asset else ""
-        if not ENTITLED_TO_ARMS.search(where):
+        if not R.entitled_to_rationed.search(where):
             out.append(
-                "asks for armorial glass (%r) on a wall whose `%s` names neither "
-                "the great hall nor a parlour. Painted arms in a c.1660 house are "
-                "the hall's display of lineage and at most one shield in the "
-                "principal parlour; everywhere else the glass is plain quarrels. "
-                "Unrationed, it is also the repetition Kabe saw: 'this same "
-                "window everywhere? With the ensignias on it?' "
+                "declares a RATIONED feature (%r) on a wall whose `%s` names "
+                "none of the places this world entitles to it. A feature that "
+                "appears everywhere is not a distinction, and unrationed it "
+                "reads as one wall copied down a corridor.%s "
                 "[row29:prompt.heraldry_unrationed]"
-                % (arms.group(0)[:60], where.strip() or "Asset type:"))
+                % (arms.group(0)[:60], where.strip() or "Asset type:",
+                   R.why("rationed")))
     return out, (m.group(0) if m else None)
 
 
@@ -292,7 +327,12 @@ def main(argv):
     import time                                                    # [row 33]
     import timings                                                 # [row 33]
     _t = time.time()                                               # [row 33]
-    files = argv[1:]
+    try:
+        R = rules()
+    except PackRefused as e:
+        print("REFUSED %s" % e)
+        return 1
+    files = strip_pack_args(argv[1:])
     if not files:
         for d in sorted(os.listdir(SOURCE)):
             p = os.path.join(SOURCE, d)
@@ -302,7 +342,7 @@ def main(argv):
                       if f.endswith(".prompt.txt")]
     bad = 0
     for f in files:
-        findings, anchor = lint(f)
+        findings, anchor = lint(f, R)
         rel = os.path.relpath(f, REPO)
         if findings:
             bad += 1
@@ -311,7 +351,7 @@ def main(argv):
                 print("    - %s" % x)
         else:
             print("ok      %s  (%s)" % (rel, anchor))
-    print("\n%d of %d prompt(s) refused." % (bad, len(files)))
+    print("\n%d of %d prompt(s) refused.  [pack: %s]" % (bad, len(files), R.pack.name))
     timings.record("lint.prompts", _t, time.time(), None,          # [row 33]
                    {"prompts": len(files), "refused": bad})
     return 1 if bad else 0

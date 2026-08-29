@@ -1,0 +1,6 @@
+{
+  "_what_this_is": "The PROBE pack — a second location in an idiom that shares no word with the first. It exists to prove `design/production-law.md` clause 8 mechanically: an engine that can only build one world will either refuse this pack or paint it in the other world's materials, and both show up as an exit code. Two rooms, eight facings, one door between them, one window each. Nothing here is meant to ship; it is the engine's second data point, and its ruler is the audit's own step-1 problem stated in another language.",
+  "name": "_probe",
+  "title": "ABYSSAL SURVEY STATION KEEL-9",
+  "files": { "plan": "plan.json", "voices": "voices.json", "world": "world.json" }
+}

@@ -2711,7 +2711,22 @@ def main_cand2():
 #   rather than issued. Without this clause a window sill and a floorboard join
 #   convert to a px/m as happily as a rail does.
 # ---------------------------------------------------------------------------
-CHAIR_RAIL_M = 0.95                  # blueprint §11's universal anchor
+# ---------------------------------------------------------------------------
+# THE LOCATION, AS DATA. `design/production-law.md` clause 8: the theme never
+# bleeds into the code. The ruled height below used to be typed here as 0.95
+# with the name of one house's joinery on it; it is the ACTIVE PACK's ruler now
+# (`packs/<name>/world.json`), selected by `--pack` / `HOLO_PACK` / `manor`.
+# The DIVISOR is still this instrument's -- one horizontal, one number -- and
+# that is exactly why it must come from the pack: a second location measures by
+# its own horizontal at its own height, and an instrument that types the first
+# one's number can only ever measure the first one.
+from pack import active_pack
+
+_PACK = active_pack()
+RULER_M = _PACK.ruler_height_m          # the one divisor: px above the datum / RULER_M
+RULER_KIND = _PACK.ruler["kind"]        # what the reading is called in its record
+RULER_DATUM = _PACK.ruler_datum         # what that height is measured from
+# ---------------------------------------------------------------------------
 STACK_M_RANGE = (0.05, 0.14)         # capping above rail; 0.082 m on study/N
 # A floor line detected within this of the frame's bottom edge is the detector
 # running out of picture, not a wall meeting a floor: the wall-floor junction of
@@ -2753,7 +2768,7 @@ def measure3(fac, src):
 
     rail_px = module["dado_rail_above_floor_px"]
     cap_px = module["capping_above_floor_px"]
-    ppm = (rail_px / CHAIR_RAIL_M) if rail_px else None
+    ppm = (rail_px / RULER_M) if rail_px else None
     dist = PLAN_NOW[fac]
     focal = ppm * dist if ppm else None
     delta = (100.0 * (focal - REFERENCE_PX) / REFERENCE_PX) if focal else None
@@ -2835,7 +2850,7 @@ def cand3_doc(r):
       "delta_pct": r["delta_pct"],
       "drawn_standpoint_m": r["drawn_standpoint_m"],
       "_ruler": {
-        "name": "chair_rail", "tier": 1, "ruled_m": CHAIR_RAIL_M,
+        "name": RULER_KIND, "tier": 1, "ruled_m": RULER_M,
         "feature_px": r["rail_above_floor_px"],
         "what": ("the wainscot chair-rail's undercut shadow above the wall's "
                  "own floor line, against the 0.95 m blueprint §11 rules on "
@@ -2913,7 +2928,7 @@ def main_cand3():
             verdict=r["verdict"],
             measured=dict(ruler="chair_rail", ruler_tier=1,
                           ruler_px=r["rail_above_floor_px"],
-                          ruled_m=CHAIR_RAIL_M, px_per_m_at_wall=r["ppm"],
+                          ruled_m=RULER_M, px_per_m_at_wall=r["ppm"],
                           implied_focal_px=r["implied_focal_px"],
                           drawn_standpoint_m=r["drawn_standpoint_m"]),
             target=dict(target_focal_px=REFERENCE_PX,
@@ -3268,7 +3283,7 @@ def measure_wave(fac, cfg, ref=None):
             "paints no floor line - the detector ran out of picture at y %d of "
             "%d. A prompt that declares an anchor and then gives it no datum "
             "has declared nothing." % (floor_y, H))
-    ppm = (rail_px / CHAIR_RAIL_M) if rail_px and rail_px > 0 else None
+    ppm = (rail_px / RULER_M) if rail_px and rail_px > 0 else None
     if ppm is None and not why:
         why.append("no chair-rail line was found above the floor line at all.")
     if ppm and cap_px is None:
@@ -3371,7 +3386,7 @@ def measure_wave(fac, cfg, ref=None):
 
 WAVE_RULER_POLICY = {
   "adopted": "chair_rail",
-  "ruled_m": CHAIR_RAIL_M,
+  "ruled_m": RULER_M,
   "rule": (
     "ONE RULER, AND IT IS THE ONE THE PROMPT DECLARES. Every cand-6 prompt and "
     "the reference's own carry a single `Measurement anchor:` line - blueprint "
@@ -3460,7 +3475,7 @@ def wave_doc(fac, r, ref, round_name):
         "the wainscot chair-rail's undercut shadow above the wall's own floor "
         "line, taken at %.2f m — blueprint §11 rules it there on every "
         "panelled wall in the manor and this facing's own prompt declares it "
-        "as the measurement anchor" % CHAIR_RAIL_M),
+        "as the measurement anchor" % RULER_M),
       "calibration_px": r["module"]["dado_rail_above_floor_px"],
       "calibration_tier": 1,
       "_ruler_policy": WAVE_RULER_POLICY,
@@ -3606,7 +3621,7 @@ def wave_marked(fac, r, round_name, ref):
     head = ["%s   %s   %s" % (fac, round_name, r["verdict"] or "REFERENCE")]
     if r["ppm"]:
         head.append("anchor: chair_rail  %s px / %.2f m = %.2f px/m"
-                    % (r["module"]["dado_rail_above_floor_px"], CHAIR_RAIL_M, r["ppm"]))
+                    % (r["module"]["dado_rail_above_floor_px"], RULER_M, r["ppm"]))
         head.append("focal %.0f px at the drawn %.2f m%s   eye %s m%s"
                     % (r["implied_focal_px"], r["drawn_standpoint_m"],
                        ("  (%+.1f %%)" % r["delta_focal_pct"]) if r["delta_focal_pct"] is not None else "",
@@ -3665,7 +3680,7 @@ def main_cand5ref():
         print("\n*** THE CONTROL HAS MOVED. THE REFERENCE SET IS VOID. ***\n")
     print("\nTHE STANDING CAMERA REFERENCE SET, off %s" % CAND5REF_SRC)
     print("   anchor          chair_rail, %s px above the floor at a ruled %.2f m"
-          % (r["module"]["dado_rail_above_floor_px"], CHAIR_RAIL_M))
+          % (r["module"]["dado_rail_above_floor_px"], RULER_M))
     print("   px_per_m_at_wall %.3f" % r["ppm"])
     print("   implied focal    %.1f px at the drawn %.2f m" % (r["implied_focal_px"], r["drawn_standpoint_m"]))
     print("   eye height       %.4f m   (ceiling-ramp horizon y %.1f, resid %.2f/%.2f px)"
@@ -3746,7 +3761,7 @@ def main_cand6():
             verdict=r["verdict"],
             measured=dict(ruler="chair_rail", ruler_tier=1,
                           ruler_px=r["module"]["dado_rail_above_floor_px"],
-                          ruled_m=CHAIR_RAIL_M,
+                          ruled_m=RULER_M,
                           px_per_m_at_wall=r["ppm"],
                           implied_focal_px=r["implied_focal_px"],
                           eye_height_m=r["eye_m"],
@@ -3868,7 +3883,7 @@ def main_cand6():
 # structural rather than careful.
 
 ROW23_WALLS = ["study/N", "study/E"]
-ROW23_BATCH = os.path.join(ROOT, "design", "batches", "row23-scaffold")
+ROW23_BATCH = os.path.dirname(_PACK.paths["batch_dir"])  # the ROW, not the location
 
 
 def row23_sidecar(fac):
