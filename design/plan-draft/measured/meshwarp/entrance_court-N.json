@@ -1,7 +1,7 @@
 {
  "facing": "entrance_court/N",
  "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024

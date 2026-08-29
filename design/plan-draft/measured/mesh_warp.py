@@ -63,8 +63,63 @@ in the raw frame is 200 px off after the shell moves too, and that gap is
 precisely what this tool closes. Plan apertures nothing in the painting answers
 to are REPORTED, never invented.
 
-THE WARP
---------
+THE WARP: A WALL PLANE THAT CANNOT BEND A STRAIGHT LINE
+-------------------------------------------------------
+[HUMAN, 2026-08-29, on `closet_chamber-S.png`] the door landed on its plan
+position and its LEFT JAMB CURVED. A thin-plate spline is free between its
+pins, so ~150 px of sideways correction was paid for partly by bending the
+moulding itself. Nothing in a manor bends. This is the answer, and it is
+structural rather than a smoothing knob:
+
+ON THE FACED WALL'S PLANE — between the corners, floor line to ceiling line —
+the remap is SEPARABLE and PIECEWISE-LINEAR.
+
+    x' = f(x)   monotone piecewise-linear through the pinned COLUMNS:
+                the left corner, each aperture's left and right edge, the
+                right corner - each measured column onto its plan column.
+    y' = g(y)   the same through the pinned ROWS: the ceiling line, each
+                aperture's head and sill, the floor line.
+
+Because the two are independent, EVERY VERTICAL STAYS VERTICAL AND EVERY
+HORIZONTAL STAYS HORIZONTAL, exactly and everywhere on the plane; only the
+SPACING between pins changes. A jamb cannot bow, a cornice cannot sag, a
+wainscot rail cannot ripple: the field has no freedom left to do it with. What
+a 150 px move costs instead is that the flat panel BESIDE the door is stretched
+or squeezed by the ratio of two segment lengths - a stretched panel, never a
+bent one. That ratio is the whole report (`stretch.x_segments`,
+`stretch.y_segments`): one number per segment, which is what a Jacobian was
+being asked to say and says less clearly.
+
+The pins must not cross. Sorted by target, the sources must strictly increase;
+if they do not, the painting's apertures are in a different ORDER along the
+wall than the plan rules them, which is a content miss of the same family as a
+missing door, and it refuses by name (`meshwarp.aperture_order`) naming the two
+pins that crossed rather than folding the picture over itself.
+
+OFF THE WALL PLANE the snap's five-plane homographies are kept unchanged - the
+floor, the ceiling and the two returns recede, and a projective map is the
+right description of a receding plane. The two are made to AGREE ALONG THEIR
+SEAM by re-parameterising each off-plane region through the same f or g:
+
+  * for the floor and the ceiling, the region's own wall-junction parameter is
+    carried through `f` before it is handed to the homography, so the junction
+    ROW lands column-for-column on the wall's bottom (or top) row;
+  * for the two returns, likewise through `g`, so the return's inner edge lands
+    row-for-row on the wall's corner COLUMN.
+
+At the seam the two fields are then EQUAL to floating point - there is no tear
+to hide. What remains is a kink in the RATE (the wall's scale on one side, the
+plane's foreshortening on the other), and that is what the 24 px band is for:
+over `SEAM_BLEND_PX` px measured perpendicular OUTWARD from the wall rectangle
+the field cross-fades by `smoothstep` from the wall's own separable map,
+linearly extended past its last pin, into the region's homography. The weight
+is 1 ON the seam and 0 at 24 px out, so the junction keeps the wall's rate for
+a quarter-inch of picture and eases into the plane's - C1 across the seam. The
+band lies ENTIRELY OUTSIDE the wall rectangle, so no blend can touch the
+straightness the wall plane was built to guarantee.
+
+THE OTHER FIELDS, KEPT FOR COMPARISON
+-------------------------------------
 A THIN-PLATE SPLINE through every pin, evaluated over the whole target frame,
 target-to-source, so the result is a plain resampling and needs no
 scattered-data inversion. The spline is the surface of least bending energy
@@ -164,9 +219,31 @@ PAIR_MAX_M = 1.5
 #: with room to spare on both sides.
 CORNER_SPAN_RATIO = 2.5
 
-#: The two named refusals. Nothing else in this file returns a refusal.
+#: THE SEAM BAND. How far outward from the wall rectangle the field eases from
+#: the wall's own separable map into an off-plane region's homography. The two
+#: agree exactly ON the seam, so this blends a RATE and never a position; 24 px
+#: is the same quarter-inch of picture the mirror band uses, and it is measured
+#: outward only, so the wall plane itself is never blended and its straightness
+#: is not a tolerance but a property.
+SEAM_BLEND_PX = 24
+
+#: Two axis pins nearer than this in BOTH target and source are saying the same
+#: thing - a door whose measured sill IS the measured floor line, which is
+#: `door_measure`'s own convention - and the second is dropped. Nearer in only
+#: one of the two is a disagreement, not a duplicate, and it is left in the list
+#: where the order check will name it.
+PIN_MIN_SEP_PX = 2.0
+
+#: The narrowest segment an axis may be asked to resample from. Two pins a
+#: fraction of a pixel apart in the SOURCE and a hundred apart in the TARGET ask
+#: for a hair of paint to be magnified into a plank, which is inventing detail
+#: rather than moving it, and is refused with the crossings.
+MIN_SEGMENT_PX = 1.0
+
+#: The three named refusals. Nothing else in this file returns a refusal.
 LANDMARK_REFUSAL = "meshwarp.landmark_unreadable"
 COUNT_REFUSAL = "meshwarp.aperture_count"
+ORDER_REFUSAL = "meshwarp.aperture_order"
 
 
 # --------------------------------------------------------------- the MLS core
@@ -705,15 +782,252 @@ def warp_with_pins(rgb, pins, mode="tps", band=MIRROR_BAND_PX):
     return out, report
 
 
+# ------------------------------------------------- THE SEPARABLE WALL PLANE
+
+def smoothstep(u):
+    """The C1 ease, clamped: 0 at 0, 1 at 1, flat at both ends."""
+    u = np.clip(np.asarray(u, float), 0.0, 1.0)
+    return u * u * (3.0 - 2.0 * u)
+
+
+def _place(kept, cand, min_sep=PIN_MIN_SEP_PX):
+    """Add each candidate axis pin unless one already kept says the same thing.
+
+    "The same thing" is BOTH coordinates within `min_sep`. A candidate that
+    agrees on the target and disagrees on the source is not a duplicate, it is
+    a contradiction, and it stays in the list so that `axis_refusal` names it.
+    """
+    kept, dropped = list(kept), []
+    for c in cand:
+        if any(abs(c["target"] - e["target"]) < min_sep
+               and abs(c["source"] - e["source"]) < min_sep for e in kept):
+            dropped.append(c["name"])
+            continue
+        kept.append(c)
+    return kept, dropped
+
+
+def wall_axis_pins(src_box, tgt_box, pairs):
+    """The pinned COLUMNS and ROWS of the faced wall's plane.
+
+    Columns: the left corner, each paired aperture's left and right edge, the
+    right corner. Rows: the ceiling line, each aperture's head and sill, the
+    floor line. Every one of them is a measured coordinate paired with the plan
+    coordinate the same instrument already produced - nothing here is a new
+    reading. The shell's four go in first so that a duplicate drops the
+    aperture's copy and never the room's own line.
+    """
+    cols = [dict(name="corner_left", kind="room_corner",
+                 target=float(tgt_box["x0"]), source=float(src_box["x0"])),
+            dict(name="corner_right", kind="room_corner",
+                 target=float(tgt_box["x1"]), source=float(src_box["x1"]))]
+    rows = [dict(name="ceiling_line", kind="room_corner",
+                 target=float(tgt_box["yc"]), source=float(src_box["yc"])),
+            dict(name="floor_line", kind="room_corner",
+                 target=float(tgt_box["yf"]), source=float(src_box["yf"]))]
+    ccand, rcand = [], []
+    for k, pr in enumerate(pairs):
+        m, pl = pr["measured"], pr["plan"]
+        ident = "%s:%s" % (pr["kind"], pl.get("id", "#%d" % k))
+        ccand.append(dict(name=ident + ":left", kind=pr["kind"],
+                          target=float(pl["x"]), source=float(m["x0_px"])))
+        ccand.append(dict(name=ident + ":right", kind=pr["kind"],
+                          target=float(pl["x"] + pl["w"]),
+                          source=float(m["x1_px"])))
+        rcand.append(dict(name=ident + ":head", kind=pr["kind"],
+                          target=float(pl["y"]), source=float(m["y0_px"])))
+        rcand.append(dict(name=ident + ":sill", kind=pr["kind"],
+                          target=float(pl["y"] + pl["h"]),
+                          source=float(m["y1_px"])))
+    cols, cdrop = _place(cols, ccand)
+    rows, rdrop = _place(rows, rcand)
+    cols.sort(key=lambda e: e["target"])
+    rows.sort(key=lambda e: e["target"])
+    for e in cols + rows:
+        e["ask_px"] = round(float(e["target"] - e["source"]), 1)
+        e["target"] = round(float(e["target"]), 3)
+        e["source"] = round(float(e["source"]), 3)
+    return cols, rows, cdrop + rdrop
+
+
+def axis_refusal(axis, entries):
+    """Why these axis pins cannot be a monotone remap, or None.
+
+    THE ONE THING A PIECEWISE-LINEAR AXIS MAP MAY NOT DO is run backwards. Two
+    pins whose targets are ordered one way and whose sources are ordered the
+    other say the painting has its apertures in a different order along the
+    wall than the plan rules them - the same content miss
+    `meshwarp.aperture_count` names when one is missing entirely, seen from the
+    side.
+    """
+    if len(entries) < 2:
+        return ("the wall's %s axis has %d pin(s) and a remap needs two"
+                % (axis, len(entries)))
+    e = sorted(entries, key=lambda z: z["target"])
+    for a, b in zip(e, e[1:]):
+        ds = b["source"] - a["source"]
+        dt = b["target"] - a["target"]
+        if ds <= 0:
+            return ("the %s pins cross: %s is at target %.1f from source %.1f "
+                    "and %s at target %.1f from source %.1f, so the painting "
+                    "puts them in the opposite order along the wall from the "
+                    "one the plan rules - an aperture-order content miss, not "
+                    "a warp this instrument can pay for"
+                    % (axis, a["name"], a["target"], a["source"],
+                       b["name"], b["target"], b["source"]))
+        if ds < MIN_SEGMENT_PX:
+            return ("the %s pins %s and %s are %.2f px apart in the painting "
+                    "and %.1f px apart on the plan, so the segment between "
+                    "them asks for a hair of paint to be magnified into a "
+                    "plank - that is inventing detail, not moving it"
+                    % (axis, a["name"], b["name"], ds, dt))
+    return None
+
+
+def axis_arrays(entries):
+    """`(targets, sources)`, sorted by target, as float arrays."""
+    e = sorted(entries, key=lambda z: z["target"])
+    return (np.array([z["target"] for z in e], float),
+            np.array([z["source"] for z in e], float))
+
+
+def piecewise(t, ts, ss):
+    """The monotone piecewise-linear map through `(ts, ss)`, target to source.
+
+    Linear beyond the end pins, at the end segments' own slopes: the wall plane
+    stops at its corners, and what lies past them is the seam band, where this
+    continuation is what the blend eases OUT of.
+    """
+    t = np.asarray(t, float)
+    out = np.interp(t, ts, ss)
+    if len(ts) >= 2:
+        k0 = (ss[1] - ss[0]) / (ts[1] - ts[0])
+        k1 = (ss[-1] - ss[-2]) / (ts[-1] - ts[-2])
+        out = np.where(t < ts[0], ss[0] + (t - ts[0]) * k0, out)
+        out = np.where(t > ts[-1], ss[-1] + (t - ts[-1]) * k1, out)
+    return out
+
+
+def axis_segments(entries):
+    """Per-segment scale: how much source each strip of target is asked to cover.
+
+    `scale = target_span / source_span`. Above 1 the strip is STRETCHED (that
+    many times fewer source pixels than output pixels); below 1 it is squeezed.
+    This is the whole of the distortion report on the wall plane, because the
+    map has no other freedom: within a segment it is a pure uniform scale.
+    """
+    e = sorted(entries, key=lambda z: z["target"])
+    segs = []
+    for a, b in zip(e, e[1:]):
+        dt = b["target"] - a["target"]
+        ds = b["source"] - a["source"]
+        segs.append(dict(name="%s..%s" % (a["name"], b["name"]),
+                         target_px=round(float(dt), 1),
+                         source_px=round(float(ds), 1),
+                         scale=round(float(dt / ds), 3) if ds else None))
+    return segs
+
+
+def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
+    """The v2 target-to-source field: separable on the wall, projective off it.
+
+    Inside the wall rectangle the answer is exactly `(f(x), g(y))` - separable,
+    so no straight line of the painting can leave the output bent. Outside it,
+    each of the four receding planes keeps the snap's own homography, with its
+    wall-junction parameter carried through the same `f` or `g` so that the two
+    descriptions agree to floating point along the seam. Between them, a
+    `band` px cross-fade OUTSIDE the rectangle only.
+    """
+    tx, sxp = axis_arrays(cols)
+    ty, syp = axis_arrays(rows)
+    wx = piecewise(gx, tx, sxp)
+    wy = piecewise(gy, ty, syp)
+    hx, hy = wx.copy(), wy.copy()
+
+    x0, x1 = tgt_box["x0"], tgt_box["x1"]
+    yc, yf = tgt_box["yc"], tgt_box["yf"]
+    sx0, sx1 = src_box["x0"], src_box["x1"]
+    syc, syf = src_box["yc"], src_box["yf"]
+
+    dx = np.maximum(np.maximum(x0 - gx, gx - x1), 0.0)
+    dy = np.maximum(np.maximum(yc - gy, gy - yf), 0.0)
+    d = np.hypot(dx, dy)
+    outside = d > 0.0
+    if np.any(outside):
+        idx, p, q = snap.assign(tgt_box, gx, gy)
+        for i, r in enumerate(snap.REGIONS):
+            if r == "wall":
+                continue
+            m = outside & (idx == i)
+            if not np.any(m):
+                continue
+            pp, qq = snap.params(tgt_box, r, gx[m], gy[m])
+            if r in ("floor", "ceiling"):
+                # The junction ROW, carried through f: the plane meets the wall
+                # column for column.
+                sw = piecewise(x0 + pp * (x1 - x0), tx, sxp)
+                p2 = (sw - sx0) / (sx1 - sx0)
+            else:
+                # The return's inner EDGE, carried through g: row for row.
+                sw = piecewise(yf + pp * (yc - yf), ty, syp)
+                p2 = (sw - syf) / (syc - syf)
+            ux, uy = snap.image(src_box, r, p2, qq)
+            ok = np.isfinite(ux) & np.isfinite(uy)
+            mm = np.zeros_like(m)
+            mm[m] = ok
+            hx[mm] = ux[ok]
+            hy[mm] = uy[ok]
+    # 1 on and inside the seam, 0 at `band` px out. The wall rectangle is all
+    # at d == 0, so nothing inside it is ever blended.
+    a = 1.0 - smoothstep(d / float(band))
+    return a * wx + (1.0 - a) * hx, a * wy + (1.0 - a) * hy
+
+
+def warp_with_axes(rgb, src_box, tgt_box, cols, rows, offset=(0.0, 0.0),
+                   band=MIRROR_BAND_PX, seam=SEAM_BLEND_PX):
+    """Resample `rgb` onto the declared frame through the separable wall field."""
+    ox, oy = offset
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    sx, sy = wall_plane_field(src_box, tgt_box, cols, rows, xs, ys, band=seam)
+    out, revealed = resample(rgb, sx + ox, sy + oy, band=band)
+
+    tx, sxp = axis_arrays(cols)
+    ty, syp = axis_arrays(rows)
+    for e in cols:
+        e["residual_px"] = round(float(abs(
+            piecewise(np.array([e["target"]]), tx, sxp)[0] - e["source"])), 4)
+    for e in rows:
+        e["residual_px"] = round(float(abs(
+            piecewise(np.array([e["target"]]), ty, syp)[0] - e["source"])), 4)
+
+    xseg, yseg = axis_segments(cols), axis_segments(rows)
+    sc_x = [s["scale"] for s in xseg if s["scale"]]
+    sc_y = [s["scale"] for s in yseg if s["scale"]]
+    report = dict(
+        stretch=dict(
+            x_scale_min=round(min(sc_x), 3), x_scale_max=round(max(sc_x), 3),
+            y_scale_min=round(min(sc_y), 3), y_scale_max=round(max(sc_y), 3),
+            x_segments=xseg, y_segments=yseg,
+            # A monotone separable map cannot fold and cannot rotate; the four
+            # numbers above are the whole of its distortion.
+            monotone=True, folded_px=0),
+        max_residual_px=round(max(e["residual_px"] for e in cols + rows), 4),
+        revealed_px=int(revealed.sum()),
+        revealed_fraction=round(float(revealed.mean()), 5),
+        warp_mode="plane", mirror_band_px=band, seam_blend_px=seam,
+        column_count=len(cols), row_count=len(rows))
+    return out, report
+
+
 def sha256(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def warp_wall(key, candidate, mode="tps", plan_path=None):
+def warp_wall(key, candidate, mode="plane", plan_path=None):
     """Warp one manor facing. Returns `(rgb_or_None, record)`.
 
-    Two refusals and no others: a landmark that cannot be read, and an aperture
-    count the painting does not answer.
+    Three refusals and no others: a landmark that cannot be read, an aperture
+    count the painting does not answer, and an aperture ORDER it contradicts.
     """
     t0 = time.time()
     e, side, cfg, ref, declared = snap.wall_context(key)
@@ -817,6 +1131,22 @@ def warp_wall(key, candidate, mode="tps", plan_path=None):
                len(wins), len(ap.get("windows") or []))))
         return None, rec
 
+    if mode == "plane":
+        cols, rows, dropped = wall_axis_pins(src_box, tgt_box, dpairs + wpairs)
+        rec["pins_dropped_as_duplicate"] = dropped
+        why = axis_refusal("column", cols) or axis_refusal("row", rows)
+        if why:
+            rec.update(verdict="refused", clause=ORDER_REFUSAL, why=why)
+            return None, rec
+        out, wr = warp_with_axes(rgb, src_box, tgt_box, cols, rows,
+                                 offset=(ox, oy))
+        rec["columns"] = cols
+        rec["rows"] = rows
+        rec.update(wr)
+        rec["verdict"] = "warped"
+        rec["seconds"] = round(time.time() - t0, 2)
+        return out, rec
+
     pins = shell_pins(src_box, tgt_box, offset=(ox, oy))
     pins += aperture_pins(dpairs + wpairs, offset=(ox, oy))
     pins, dropped = dedupe_pins(pins)
@@ -855,7 +1185,7 @@ def held_walls(statuses=("held", "retry", "parked")):
                   if v.get("status") in statuses and v.get("candidate"))
 
 
-def sweep_held(mode="tps", outdir=None, statuses=("held", "retry", "parked")):
+def sweep_held(mode="plane", outdir=None, statuses=("held", "retry", "parked")):
     """Every wall the manor loop is holding, warped into `meshwarp/`.
 
     It writes nothing into the store and moves nothing in the run state. What it
@@ -886,23 +1216,34 @@ def sweep_held(mode="tps", outdir=None, statuses=("held", "retry", "parked")):
     return rows
 
 
+def _band(lo, hi):
+    if lo is None or hi is None:
+        return None
+    return "%.2f-%.2f" % (lo, hi)
+
+
 def _row(rec):
     b = rec.get("before") or {}
     ap = rec.get("apertures") or {}
     ls = rec.get("local_stretch") or {}
+    st = rec.get("stretch") or {}
     return dict(
         facing=rec["facing"],
         status=rec.get("status"),
         hold=rec.get("hold_family") or b.get("hold_family"),
         d_focal=b.get("delta_focal_pct"),
         d_eye=b.get("delta_eye_pct"),
-        pins=rec.get("pin_count") or len(rec.get("pins") or []),
+        pins=(("%dx%d" % (rec.get("column_count"), rec.get("row_count")))
+              if rec.get("column_count") else
+              (rec.get("pin_count") or len(rec.get("pins") or []))),
         doors="%d/%d" % ((ap.get("doors") or {}).get("paired", 0),
                          (ap.get("doors") or {}).get("plan", 0)),
         windows="%d/%d" % ((ap.get("windows") or {}).get("paired", 0),
                            (ap.get("windows") or {}).get("plan", 0)),
-        max_stretch=ls.get("max_local_stretch"),
-        p999_stretch=ls.get("p999_local_stretch"),
+        x_scale=(_band(st.get("x_scale_min"), st.get("x_scale_max"))
+                 or ls.get("max_local_stretch")),
+        y_scale=(_band(st.get("y_scale_min"), st.get("y_scale_max"))
+                 or ls.get("p999_local_stretch")),
         revealed_px=rec.get("revealed_px"),
         verdict=(rec.get("verdict") if rec.get("verdict") != "refused"
                  else "refused(%s)" % (rec.get("clause") or "?")),
@@ -910,7 +1251,7 @@ def _row(rec):
 
 
 TABLE = ("facing", "status", "hold", "d_focal", "d_eye", "pins", "doors",
-         "windows", "max_stretch", "p999_stretch", "revealed_px", "verdict")
+         "windows", "x_scale", "y_scale", "revealed_px", "verdict")
 
 
 def print_table(rows, stream=sys.stdout):
@@ -942,11 +1283,12 @@ def main(argv=None):
     ap.add_argument("--candidate", help="the painted frame to warp")
     ap.add_argument("--out", help="where the warped png goes")
     ap.add_argument("--json", dest="json_out", help="where the record goes")
-    ap.add_argument("--warp", dest="mls", default="tps",
-                    choices=("tps", "similarity", "rigid", "affine"),
-                    help="tps is the minimal-bending interpolant and the default; "
-                         "the three moving-least-squares modes are kept for "
-                         "comparison and for a wall whose pins are few")
+    ap.add_argument("--warp", dest="mls", default="plane",
+                    choices=("plane", "tps", "similarity", "rigid", "affine"),
+                    help="plane is the separable piecewise-linear wall field "
+                         "and the default: it cannot bend a straight line. tps "
+                         "and the three moving-least-squares modes are the v1 "
+                         "scattered-pin interpolants, kept for comparison")
     ap.add_argument("--plan", default=None)
     ap.add_argument("--sweep-held", action="store_true")
     ap.add_argument("--statuses", default="held,retry,parked")

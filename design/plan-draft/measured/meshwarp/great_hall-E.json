@@ -1,7 +1,7 @@
 {
  "facing": "great_hall/E",
  "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024
@@ -76,358 +76,119 @@
    "unpaired_source": []
   }
  },
- "pins_dropped_as_duplicate": [],
- "pins": [
+ "pins_dropped_as_duplicate": [
+  "door:op11:sill"
+ ],
+ "columns": [
   {
-   "name": "corner_left_ceiling",
+   "name": "corner_left",
    "kind": "room_corner",
-   "target": [
-    333.15,
-    374.88
-   ],
-   "source": [
-    103.0,
-    269.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 253.3
+   "target": 333.151,
+   "source": 103.0,
+   "ask_px": 230.2,
+   "residual_px": 0.0
   },
   {
-   "name": "corner_right_ceiling",
+   "name": "door:op11:left",
+   "kind": "door",
+   "target": 510.831,
+   "source": 423.0,
+   "ask_px": 87.8,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:op11:right",
+   "kind": "door",
+   "target": 604.347,
+   "source": 553.0,
+   "ask_px": 51.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
    "kind": "room_corner",
-   "target": [
-    1202.85,
-    374.88
-   ],
-   "source": [
-    1442.0,
-    269.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 261.5
-  },
-  {
-   "name": "corner_left_floor",
-   "kind": "room_corner",
-   "target": [
-    333.15,
-    636.73
-   ],
-   "source": [
-    103.0,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 230.2
-  },
-  {
-   "name": "corner_right_floor",
-   "kind": "room_corner",
-   "target": [
-    1202.85,
-    636.73
-   ],
-   "source": [
-    1442.0,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 239.2
-  },
-  {
-   "name": "floor_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    721.49
-   ],
-   "source": [
-    -406.48,
-    714.9
-   ],
-   "residual_px": 0.0,
-   "ask_px": 406.5
-  },
-  {
-   "name": "floor_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    721.23
-   ],
-   "source": [
-    1956.82,
-    714.65
-   ],
-   "residual_px": 0.0,
-   "ask_px": 421.9
-  },
-  {
-   "name": "ceiling_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    259.03
-   ],
-   "source": [
-    -406.48,
-    72.03
-   ],
-   "residual_px": 0.0,
-   "ask_px": 447.4
-  },
-  {
-   "name": "ceiling_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    259.38
-   ],
-   "source": [
-    1956.82,
-    72.62
-   ],
-   "residual_px": 0.0,
-   "ask_px": 461.3
-  },
-  {
-   "name": "wall_edge_top",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    374.88
-   ],
-   "source": [
-    772.5,
-    269.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 106.0
-  },
-  {
-   "name": "wall_edge_bottom",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    636.73
-   ],
-   "source": [
-    772.5,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 5.8
-  },
-  {
-   "name": "wall_edge_left",
-   "kind": "wall_edge",
-   "target": [
-    333.15,
-    505.81
-   ],
-   "source": [
-    103.0,
-    451.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 236.6
-  },
-  {
-   "name": "wall_edge_right",
-   "kind": "wall_edge",
-   "target": [
-    1202.85,
-    505.81
-   ],
-   "source": [
-    1442.0,
-    451.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 245.4
-  },
-  {
-   "name": "door:op11:tl",
-   "kind": "door",
-   "target": [
-    510.83,
-    449.7
-   ],
-   "source": [
-    423.0,
-    398.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 101.9
-  },
-  {
-   "name": "door:op11:tl+1",
-   "kind": "door",
-   "target": [
-    542.0,
-    449.7
-   ],
-   "source": [
-    466.33,
-    398.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 91.6
-  },
-  {
-   "name": "door:op11:tl+2",
-   "kind": "door",
-   "target": [
-    573.18,
-    449.7
-   ],
-   "source": [
-    509.67,
-    398.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 81.9
-  },
-  {
-   "name": "door:op11:tr",
-   "kind": "door",
-   "target": [
-    604.35,
-    449.7
-   ],
-   "source": [
-    553.0,
-    398.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 72.9
-  },
-  {
-   "name": "door:op11:tr+1",
-   "kind": "door",
-   "target": [
-    604.35,
-    512.04
-   ],
-   "source": [
-    553.0,
-    476.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 62.5
-  },
-  {
-   "name": "door:op11:tr+2",
-   "kind": "door",
-   "target": [
-    604.35,
-    574.39
-   ],
-   "source": [
-    553.0,
-    554.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 55.0
-  },
-  {
-   "name": "door:op11:br",
-   "kind": "door",
-   "target": [
-    604.35,
-    636.73
-   ],
-   "source": [
-    553.0,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 51.5
-  },
-  {
-   "name": "door:op11:br+1",
-   "kind": "door",
-   "target": [
-    573.18,
-    636.73
-   ],
-   "source": [
-    509.67,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 63.6
-  },
-  {
-   "name": "door:op11:br+2",
-   "kind": "door",
-   "target": [
-    542.0,
-    636.73
-   ],
-   "source": [
-    466.33,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 75.8
-  },
-  {
-   "name": "door:op11:bl",
-   "kind": "door",
-   "target": [
-    510.83,
-    636.73
-   ],
-   "source": [
-    423.0,
-    633.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 87.9
-  },
-  {
-   "name": "door:op11:bl+1",
-   "kind": "door",
-   "target": [
-    510.83,
-    574.39
-   ],
-   "source": [
-    423.0,
-    554.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 90.0
-  },
-  {
-   "name": "door:op11:bl+2",
-   "kind": "door",
-   "target": [
-    510.83,
-    512.04
-   ],
-   "source": [
-    423.0,
-    476.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 94.8
+   "target": 1202.849,
+   "source": 1442.0,
+   "ask_px": -239.2,
+   "residual_px": 0.0
   }
  ],
- "local_stretch": {
-  "max_local_stretch": 0.811,
-  "p999_local_stretch": 0.806,
-  "median_local_stretch": 0.728,
-  "max_local_compression": 0.525,
-  "folded_px": 0,
-  "folded_fraction": 0.0
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 374.885,
+   "source": 269.0,
+   "ask_px": 105.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:op11:head",
+   "kind": "door",
+   "target": 449.697,
+   "source": 398.0,
+   "ask_px": 51.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 636.729,
+   "source": 633.0,
+   "ask_px": 3.7,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.555,
+  "x_scale_max": 0.719,
+  "y_scale_min": 0.58,
+  "y_scale_max": 0.796,
+  "x_segments": [
+   {
+    "name": "corner_left..door:op11:left",
+    "target_px": 177.7,
+    "source_px": 320.0,
+    "scale": 0.555
+   },
+   {
+    "name": "door:op11:left..door:op11:right",
+    "target_px": 93.5,
+    "source_px": 130.0,
+    "scale": 0.719
+   },
+   {
+    "name": "door:op11:right..corner_right",
+    "target_px": 598.5,
+    "source_px": 889.0,
+    "scale": 0.673
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..door:op11:head",
+    "target_px": 74.8,
+    "source_px": 129.0,
+    "scale": 0.58
+   },
+   {
+    "name": "door:op11:head..floor_line",
+    "target_px": 187.0,
+    "source_px": 235.0,
+    "scale": 0.796
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
  },
- "revealed_px": 832787,
- "revealed_fraction": 0.52947,
+ "max_residual_px": 0.0,
+ "revealed_px": 752443,
+ "revealed_fraction": 0.47839,
  "mirror_band_px": 24,
- "pin_count": 24,
- "seconds": 3.43,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 3,
+ "seconds": 1.31,
  "status": "parked",
  "hold_family": "camera-miss",
  "out_png": "design/plan-draft/measured/meshwarp/great_hall-E.png"

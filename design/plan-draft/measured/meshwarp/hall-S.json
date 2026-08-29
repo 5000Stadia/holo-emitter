@@ -1,7 +1,7 @@
 {
  "facing": "hall/S",
  "candidate": "backdrops/source/passage-S/row23-5b48e9f7.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024

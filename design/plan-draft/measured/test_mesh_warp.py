@@ -9,6 +9,13 @@ warped onto the first's landmarks and then RE-READ — the corners and the door
 are found again in the output by their own colour, not asserted from the solve —
 because a residual the solver reports about itself proves only that the solver
 is consistent.
+
+AND THE STRAIGHT LINES ARE RE-READ TOO. The v2 field's whole claim is that a
+vertical stays vertical and a horizontal stays horizontal on the wall plane, so
+a stripe is painted across the wall, warped, and its centroid measured row by
+row (or column by column) out of the output pixels. The same stripe is put
+through the v1 thin-plate spline beside it, which is what bowed
+`closet_chamber-S`'s left jamb, and the two deviations are printed together.
 """
 
 import os
@@ -26,6 +33,8 @@ FLOOR = (120, 96, 72)
 CEIL = (222, 218, 208)
 DOOR = (16, 24, 40)          # the door's own colour: nothing else is this dark
 CORNER = (255, 0, 0)         # a 3 px stud at each room corner, unique in red
+VSTRIPE = (255, 0, 255)      # a straight vertical on the wall: no green at all
+HSTRIPE = (0, 255, 255)      # a straight horizontal: no red at all
 
 FAILURES = []
 
@@ -36,8 +45,13 @@ def check(name, ok, detail=""):
         FAILURES.append(name)
 
 
-def paint(box, door=None, w=mw.W, h=mw.H):
-    """A one-point room: five flat regions, red studs at the four corners."""
+def paint(box, door=None, w=mw.W, h=mw.H, grain=True, stripes=False):
+    """A one-point room: five flat regions, red studs at the four corners.
+
+    With `stripes`, a straight vertical and a straight horizontal are ruled
+    across the wall plane and the grain is turned off, so that a per-row
+    centroid of the stripe measures the FIELD and not the noise.
+    """
     ys, xs = np.mgrid[0:h, 0:w].astype(np.float64)
     idx, _, _ = mw.snap.assign(box, xs, ys)
     rgb = np.zeros((h, w, 3), np.uint8)
@@ -46,8 +60,14 @@ def paint(box, door=None, w=mw.W, h=mw.H):
                              tuple(int(c * 0.9) for c in WALL))):
         rgb[idx == i] = col
     # A grain so a resample has something to be judged on.
-    g = ((np.sin(xs / 7.0) + np.cos(ys / 9.0)) * 5).astype(np.int16)
-    rgb = np.clip(rgb.astype(np.int16) + g[..., None], 0, 255).astype(np.uint8)
+    if grain:
+        g = ((np.sin(xs / 7.0) + np.cos(ys / 9.0)) * 5).astype(np.int16)
+        rgb = np.clip(rgb.astype(np.int16) + g[..., None], 0, 255).astype(np.uint8)
+    if stripes:
+        x0, x1 = int(box["x0"]) + 2, int(box["x1"]) - 2
+        yc, yf = int(box["yc"]) + 2, int(box["yf"]) - 2
+        rgb[HSTRIPE_Y:HSTRIPE_Y + 3, x0:x1] = HSTRIPE
+        rgb[yc:yf, VSTRIPE_X:VSTRIPE_X + 3] = VSTRIPE
     if door is not None:
         x0, y0, x1, y1 = (int(round(v)) for v in door)
         rgb[y0:y1, x0:x1] = DOOR
@@ -56,6 +76,39 @@ def paint(box, door=None, w=mw.W, h=mw.H):
         x, y = int(round(cx)), int(round(cy))
         rgb[max(0, y - 2):y + 3, max(0, x - 2):x + 3] = CORNER
     return rgb
+
+
+#: Where the two straight lines are ruled on the SOURCE wall. Both sit clear of
+#: the door in either fixture and clear of the corner studs.
+VSTRIPE_X = 900
+HSTRIPE_Y = 300
+
+
+def stripe_centres(out, axis, lo, hi, base, ch, expect, reach=22, skip=None):
+    """The stripe's centroid along `axis`, once per row (or column).
+
+    The weight is how far the channel falls BELOW the flat wall's own value,
+    which is exactly the stripe's coverage of that pixel under a bilinear
+    resample, so with a separable field every row returns the identical number
+    and the deviation below is the field's own bending and nothing else.
+
+    `skip` is where the OTHER stripe crosses this one: the four columns around
+    that crossing are painted over, so their profile is the crossing's and not
+    this stripe's. Measured on fixture B, dropping them is the difference
+    between 0.211 px of deviation at that one column and 0.043 px everywhere.
+    """
+    o = out.astype(np.float64)[..., ch]
+    got = []
+    for i in range(int(lo), int(hi)):
+        if skip is not None and abs(i - skip) <= 4:
+            continue
+        line = o[i, :] if axis == "row" else o[:, i]
+        a, b = int(expect - reach), int(expect + reach)
+        w = np.clip(base - line[a:b], 0.0, None)
+        if w.sum() < 20.0:
+            continue
+        got.append(float((w * np.arange(a, b)).sum() / w.sum()))
+    return np.array(got)
 
 
 def find_colour(rgb, col, tol=40):
@@ -85,41 +138,71 @@ def corner_studs(rgb):
 # ----------------------------------------------------------------- the fixtures
 
 def boxes():
-    """A plan box, and the painting's box: the same room drawn 15 % too large."""
-    tgt = mw.snap.box(300.0, 1240.0, 250.0, 800.0, 768.0, 520.0)
+    """A plan box, and the painting's box: the same room drawn 15 % too large.
+
+    Every coordinate is a whole pixel on both sides, so a re-read of the output
+    is comparing integers to integers and a 1 px bar means 1 px.
+    """
+    tgt = mw.snap.box(308.0, 1228.0, 240.0, 800.0, 768.0, 520.0)
     k = 1.15
     cx, cy = 768.0, 520.0
-    src = mw.snap.box(cx + (300.0 - cx) * k, cx + (1240.0 - cx) * k,
-                      cy + (250.0 - cy) * k, cy + (800.0 - cy) * k, cx, cy)
+    src = mw.snap.box(cx + (308.0 - cx) * k, cx + (1228.0 - cx) * k,
+                      cy + (240.0 - cy) * k, cy + (800.0 - cy) * k, cx, cy)
     return src, tgt
 
 
+PLAN_DOOR = (468.0, 560.0, 668.0, 800.0)
+
+
 def door_rects():
-    """The plan's door, and the painting's: 15 % too large and 60 px to the right."""
-    plan = (460.0, 560.0, 640.0, 800.0)
-    k, cx, cy, shift = 1.15, 768.0, 520.0, 60.0
+    """The plan's door, and the painting's, in fixture A: the whole room 15 % out."""
+    k, cx, cy = 1.15, 768.0, 520.0
     got = tuple(v for v in (
-        cx + (plan[0] - cx) * k + shift, cy + (plan[1] - cy) * k,
-        cx + (plan[2] - cx) * k + shift, cy + (plan[3] - cy) * k))
-    return plan, got
+        cx + (PLAN_DOOR[0] - cx) * k, cy + (PLAN_DOOR[1] - cy) * k,
+        cx + (PLAN_DOOR[2] - cx) * k, cy + (PLAN_DOOR[3] - cy) * k))
+    return PLAN_DOOR, got
+
+
+def door_b():
+    """Fixture B's door: 15 % too large and its centre 60 px to the right.
+
+    ITS SILL IS THE FLOOR LINE, in the painting as on the plan, because that is
+    what `door_measure` reports — "`y1` is the wall's measured floor line" — and
+    a fixture that put the sill anywhere else would be testing an arithmetic no
+    instrument in this corpus produces.
+    """
+    x0, y0, x1, y1 = PLAN_DOOR
+    k, shift = 1.15, 60.0
+    cx = 0.5 * (x0 + x1)
+    return (cx + (x0 - cx) * k + shift, y1 - (y1 - y0) * k,
+            cx + (x1 - cx) * k + shift, y1)
+
+
+def pairs_for(plan_door, got_door):
+    return [dict(kind="door",
+                 measured=dict(x0_px=got_door[0], y0_px=got_door[1],
+                               x1_px=got_door[2], y1_px=got_door[3]),
+                 plan=dict(id="op01", x=plan_door[0], y=plan_door[1],
+                           w=plan_door[2] - plan_door[0],
+                           h=plan_door[3] - plan_door[1]))]
 
 
 def pins_for(src, tgt, plan_door, got_door):
+    """The v1 scattered-pin list, kept so the two fields can be compared."""
     pins = mw.shell_pins(src, tgt)
-    pins += mw.aperture_pins([dict(
-        kind="door",
-        measured=dict(x0_px=got_door[0], y0_px=got_door[1],
-                      x1_px=got_door[2], y1_px=got_door[3]),
-        plan=dict(id="op01", x=plan_door[0], y=plan_door[1],
-                  w=plan_door[2] - plan_door[0], h=plan_door[3] - plan_door[1]))])
+    pins += mw.aperture_pins(pairs_for(plan_door, got_door))
     return mw.dedupe_pins(pins)[0]
 
 
 # --------------------------------------------------------------------- the tests
 
 def _run(painting, src, tgt, plan_door, got_door):
-    pins = pins_for(src, tgt, plan_door, got_door)
-    out, rep = mw.warp_with_pins(painting, pins)
+    """Fixture through the v2 separable field, then re-read out of the pixels."""
+    cols, rows, dropped = mw.wall_axis_pins(src, tgt, pairs_for(plan_door, got_door))
+    why = mw.axis_refusal("column", cols) or mw.axis_refusal("row", rows)
+    if why:
+        raise AssertionError("the fixture's own pins were refused: " + why)
+    out, rep = mw.warp_with_axes(painting, src, tgt, cols, rows)
     out = np.clip(np.round(out), 0, 255).astype(np.uint8)
     want = [(tgt["x0"], tgt["yc"]), (tgt["x1"], tgt["yc"]),
             (tgt["x0"], tgt["yf"]), (tgt["x1"], tgt["yf"])]
@@ -129,7 +212,44 @@ def _run(painting, src, tgt, plan_door, got_door):
     r = find_colour(out, DOOR)
     dd = (max(abs(r[i] - plan_door[i]) for i in range(4))
           if r else float("inf"))
-    return pins, rep, len(got), worst, r, dd
+    return cols + rows, rep, len(got), worst, r, dd
+
+
+def _straightness(src, tgt, plan_door, got_door):
+    """How far the ruled vertical and horizontal bend, v2 against v1.
+
+    Returns `(v2_vertical, v2_horizontal, v1_vertical)` in pixels of maximum
+    deviation from the stripe's own mean position.
+    """
+    painting = paint(src, door=got_door, grain=False, stripes=True)
+    cols, rows, _ = mw.wall_axis_pins(src, tgt, pairs_for(plan_door, got_door))
+    tx, sxp = mw.axis_arrays(cols)
+    ty, syp = mw.axis_arrays(rows)
+    # Where the field puts the two stripes, so the search window is not itself
+    # an assertion about the answer.
+    xt = float(np.interp(VSTRIPE_X + 1.0, sxp, tx))
+    yt = float(np.interp(HSTRIPE_Y + 1.0, syp, ty))
+
+    def dev(out, axis, lo, hi, ch, base, expect, reach=22, skip=None):
+        c = stripe_centres(out, axis, lo, hi, base, ch, expect,
+                           reach=reach, skip=skip)
+        if len(c) < 32:
+            return float("inf"), len(c)
+        return float(np.abs(c - c.mean()).max()), len(c)
+
+    v2, _ = mw.warp_with_axes(painting, src, tgt, cols, rows)
+    v2 = np.clip(np.round(v2), 0, 255).astype(np.uint8)
+    v1, _ = mw.warp_with_pins(painting, pins_for(src, tgt, plan_door, got_door))
+    v1 = np.clip(np.round(v1), 0, 255).astype(np.uint8)
+
+    r0, r1 = tgt["yc"] + 8, tgt["yf"] - 8
+    c0, c1 = tgt["x0"] + 8, tgt["x1"] - 8
+    a, na = dev(v2, "row", r0, r1, 1, WALL[1], xt, skip=int(round(yt)))
+    b, nb = dev(v2, "col", c0, c1, 0, WALL[0], yt, skip=int(round(xt)))
+    # The v1 spline is given a window three times as wide, because a bent
+    # stripe wanders out of the one the straight field needs.
+    c, _ = dev(v1, "row", r0, r1, 1, WALL[1], xt, reach=66, skip=int(round(yt)))
+    return a, b, c, na, nb
 
 
 def test_a_whole_room_15pc_too_large():
@@ -138,24 +258,31 @@ def test_a_whole_room_15pc_too_large():
     114 of the corpus's 122 camera failures are this and nothing else.
     """
     src, tgt = boxes()
-    plan_door, _ = door_rects()
-    k, cx, cy = 1.15, 768.0, 520.0
-    got_door = tuple(v for v in (
-        cx + (plan_door[0] - cx) * k, cy + (plan_door[1] - cy) * k,
-        cx + (plan_door[2] - cx) * k, cy + (plan_door[3] - cy) * k))
+    plan_door, got_door = door_rects()
     pins, rep, n, worst, r, dd = _run(paint(src, door=got_door),
                                       src, tgt, plan_door, got_door)
     check("four room corners survive the warp", n == 4, "found %d" % n)
-    check("every room corner lands within 2 px of the plan's",
-          worst <= 2.0, "worst %.2f px" % worst)
-    check("the door's four edges land within 2 px of the plan's",
-          dd <= 2.0, "worst edge %.2f px (got %s want %s)" % (dd, r, plan_door))
-    ms = rep["local_stretch"]["max_local_stretch"]
-    check("max local stretch under 1.25", ms < 1.25, "%.3f" % ms)
-    check("nothing folds", rep["local_stretch"]["folded_px"] == 0,
-          "%d px" % rep["local_stretch"]["folded_px"])
+    check("every room corner lands within 1 px of the plan's",
+          worst <= 1.0, "worst %.2f px" % worst)
+    check("the door's four edges land within 1 px of the plan's",
+          dd <= 1.0, "worst edge %.2f px (got %s want %s)" % (dd, r, plan_door))
+    st = rep["stretch"]
+    check("every x segment is the one scale the room is out by",
+          abs(st["x_scale_min"] - st["x_scale_max"]) < 0.005
+          and abs(st["x_scale_max"] - 1 / 1.15) < 0.005,
+          "%.3f..%.3f" % (st["x_scale_min"], st["x_scale_max"]))
+    check("every y segment likewise",
+          abs(st["y_scale_min"] - st["y_scale_max"]) < 0.005
+          and abs(st["y_scale_max"] - 1 / 1.15) < 0.005,
+          "%.3f..%.3f" % (st["y_scale_min"], st["y_scale_max"]))
+    check("nothing can fold", st["folded_px"] == 0 and st["monotone"])
     check("every pin's interpolation residual is under 0.01 px",
           max(p["residual_px"] for p in pins) < 0.01)
+    a, b, v1, na, nb = _straightness(src, tgt, plan_door, got_door)
+    check("a vertical ruled on the wall stays vertical (< 0.5 px)", a < 0.5,
+          "%.4f px over %d rows; the v1 spline bends it %.2f px" % (a, na, v1))
+    check("a horizontal ruled on the wall stays horizontal (< 0.5 px)", b < 0.5,
+          "%.4f px over %d columns" % (b, nb))
 
 
 def test_b_door_15pc_too_large_and_60px_off():
@@ -170,28 +297,29 @@ def test_b_door_15pc_too_large_and_60px_off():
     number is recorded so a reader can price it.
     """
     src, tgt = boxes()
-    plan_door = (460.0, 560.0, 640.0, 800.0)
-    cx = 0.5 * (plan_door[0] + plan_door[2])
-    cy = 0.5 * (plan_door[1] + plan_door[3])
-    k, shift = 1.15, 60.0
-    got_door = tuple(v for v in (
-        cx + (plan_door[0] - cx) * k + shift, cy + (plan_door[1] - cy) * k,
-        cx + (plan_door[2] - cx) * k + shift, cy + (plan_door[3] - cy) * k))
+    plan_door, got_door = PLAN_DOOR, door_b()
     # The ROOM is drawn exactly as the plan rules it; only the door is wrong.
     pins, rep, n, worst, r, dd = _run(paint(tgt, door=got_door),
                                       tgt, tgt, plan_door, got_door)
-    check("the room's four corners are not disturbed", n == 4 and worst <= 2.0,
+    check("the room's four corners are not disturbed", n == 4 and worst <= 1.0,
           "worst %.2f px" % worst)
-    check("the door's four edges land within 2 px of the plan's",
-          dd <= 2.0, "worst edge %.2f px (got %s want %s)" % (dd, r, plan_door))
-    ls = rep["local_stretch"]
-    check("the picture as a whole is left alone (median stretch within 1.25)",
-          ls["median_local_stretch"] < 1.25, "%.3f" % ls["median_local_stretch"])
-    check("nothing folds", ls["folded_px"] == 0, "%d px" % ls["folded_px"])
-    check("the worst-case stretch is under 4x", ls["max_local_stretch"] < 4.0,
-          "%.3f (recorded, not a budget)" % ls["max_local_stretch"])
+    check("the door's four edges land within 1 px of the plan's",
+          dd <= 1.0, "worst edge %.2f px (got %s want %s)" % (dd, r, plan_door))
+    st = rep["stretch"]
+    check("the panel beside the moved door is stretched, not bent",
+          st["x_scale_max"] < 2.0,
+          "the widest segment scale is %.3f (recorded, not a budget); "
+          "segments %s" % (st["x_scale_max"],
+                           [(g["name"].split("..")[-1], g["scale"])
+                            for g in st["x_segments"]]))
+    check("nothing can fold", st["folded_px"] == 0 and st["monotone"])
     check("the door asked to move at least 50 px",
-          max(p["ask_px"] for p in pins if p["kind"] == "door") > 50)
+          max(abs(p["ask_px"]) for p in pins if p["kind"] == "door") > 50)
+    a, b, v1, na, nb = _straightness(tgt, tgt, plan_door, got_door)
+    check("a vertical ruled on the wall stays vertical (< 0.5 px)", a < 0.5,
+          "%.4f px over %d rows; the v1 spline bends it %.2f px" % (a, na, v1))
+    check("a horizontal ruled on the wall stays horizontal (< 0.5 px)", b < 0.5,
+          "%.4f px over %d columns" % (b, nb))
 
 
 def test_missing_door_is_refused_by_name():
@@ -213,6 +341,54 @@ def test_missing_door_is_refused_by_name():
     check("the refusal names the door", "op01" in why)
     check("the refusal carries the count clause",
           mw.COUNT_REFUSAL == "meshwarp.aperture_count")
+
+
+def test_crossed_pins_are_refused_by_name():
+    """Two apertures the painting shows in the opposite order from the plan."""
+    src, tgt = boxes()
+    pairs = [dict(kind="door",
+                  measured=dict(x0_px=900.0, y0_px=560.0, x1_px=1020.0, y1_px=800.0),
+                  plan=dict(id="opLEFT", x=400.0, y=560.0, w=120.0, h=240.0)),
+             dict(kind="door",
+                  measured=dict(x0_px=400.0, y0_px=560.0, x1_px=520.0, y1_px=800.0),
+                  plan=dict(id="opRIGHT", x=900.0, y=560.0, w=120.0, h=240.0))]
+    cols, rows, _ = mw.wall_axis_pins(tgt, tgt, pairs)
+    why = mw.axis_refusal("column", cols)
+    check("crossed columns are refused", bool(why), str(why)[:80])
+    check("the refusal names both pins that crossed",
+          bool(why) and "opLEFT" in why and "opRIGHT" in why, str(why))
+    check("a hair-thin segment is refused too", bool(mw.axis_refusal("column", [
+        dict(name="corner_left", target=300.0, source=300.0),
+        dict(name="door:opX:left", target=700.0, source=300.4),
+        dict(name="corner_right", target=1200.0, source=1200.0)])))
+    check("the order clause has its own name",
+          mw.ORDER_REFUSAL == "meshwarp.aperture_order")
+    check("an uncrossed wall is not refused",
+          mw.axis_refusal("column", mw.wall_axis_pins(
+              src, tgt, pairs_for(*door_rects()))[0]) is None)
+
+
+def test_the_seams_are_continuous():
+    """The four junctions the five-plane map owns, sampled from both sides."""
+    src, tgt = boxes()
+    cols, rows, _ = mw.wall_axis_pins(src, tgt, pairs_for(*door_rects()))
+    eps = 0.01
+    worst = 0.0
+    for nm, gx, gy, dx, dy in (
+            ("left return", tgt["x0"], 0.5 * (tgt["yc"] + tgt["yf"]), 1.0, 0.0),
+            ("right return", tgt["x1"], 0.5 * (tgt["yc"] + tgt["yf"]), 1.0, 0.0),
+            ("floor junction", 0.5 * (tgt["x0"] + tgt["x1"]), tgt["yf"], 0.0, 1.0),
+            ("ceiling junction", 0.5 * (tgt["x0"] + tgt["x1"]), tgt["yc"], 0.0, 1.0)):
+        a = mw.wall_plane_field(src, tgt, cols, rows,
+                                np.array([gx - dx * eps]), np.array([gy - dy * eps]))
+        b = mw.wall_plane_field(src, tgt, cols, rows,
+                                np.array([gx + dx * eps]), np.array([gy + dy * eps]))
+        d = float(np.hypot(a[0][0] - b[0][0], a[1][0] - b[1][0]))
+        worst = max(worst, d)
+        check("the %s meets the wall plane without a step" % nm, d < 0.1,
+              "%.5f px across a %.2f px step" % (d, 2 * eps))
+    check("no seam moves more than the step it was sampled over",
+          worst < 0.1, "worst %.5f px" % worst)
 
 
 def test_pairing_is_nearest_centre():
@@ -266,6 +442,8 @@ def main():
     for t in (test_a_whole_room_15pc_too_large,
               test_b_door_15pc_too_large_and_60px_off,
               test_missing_door_is_refused_by_name,
+              test_crossed_pins_are_refused_by_name,
+              test_the_seams_are_continuous,
               test_pairing_is_nearest_centre, test_mirror_fold_never_hits_a_hard_edge,
               test_mls_modes_interpolate_exactly):
         print(t.__name__)

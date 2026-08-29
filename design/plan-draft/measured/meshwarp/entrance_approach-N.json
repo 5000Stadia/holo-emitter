@@ -1,7 +1,7 @@
 {
  "facing": "entrance_approach/N",
  "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024
