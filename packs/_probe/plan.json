@@ -1,0 +1,66 @@
+{
+  "schema": "holo-emitter-plan/0.1",
+  "version": 1,
+  "units": "m",
+  "north": "+y",
+  "standpoint_stand_back": 0.25,
+  "standpoint_threshold_clearance_m": 0.45,
+  "entrance": "wet_lab",
+  "wall_thickness": { "exterior": 0.6, "partition": 0.3 },
+  "outline": [[0, 0], [12, 0], [12, 7], [0, 7]],
+  "floors": [{ "id": "deck_a", "level": 0, "storey_height_m": 2.4 }],
+  "wall_bands": [
+    { "id": "H0", "kind": "exterior", "floors": ["deck_a"], "rect": { "x0": 0, "x1": 0.6, "y0": 0, "y1": 7 } },
+    { "id": "H1", "kind": "exterior", "floors": ["deck_a"], "rect": { "x0": 11.4, "x1": 12, "y0": 0, "y1": 7 } },
+    { "id": "H2", "kind": "exterior", "floors": ["deck_a"], "rect": { "x0": 0, "x1": 12, "y0": 0, "y1": 0.6 } },
+    { "id": "H3", "kind": "exterior", "floors": ["deck_a"], "rect": { "x0": 0, "x1": 12, "y0": 6.4, "y1": 7 } },
+    { "id": "P0", "kind": "partition", "floors": ["deck_a"], "rect": { "x0": 6, "x1": 6.3, "y0": 0.6, "y1": 6.4 } }
+  ],
+  "rooms": [
+    {
+      "id": "wet_lab",
+      "floor": "deck_a",
+      "name": "WET LAB",
+      "type": "enclosed",
+      "archetype": "lab",
+      "rect": { "x0": 0.6, "x1": 6, "y0": 0.6, "y1": 6.4 },
+      "facings": {
+        "N": { "type": "enclosed", "standpoint": { "x": 3.3, "y": 1.05 }, "wall_line": 6.4, "wall_width_m": 5.4, "camera_wall_m": 5.35 },
+        "E": { "type": "enclosed", "standpoint": { "x": 1.05, "y": 3.5 }, "wall_line": 6, "wall_width_m": 5.8, "camera_wall_m": 4.95 },
+        "S": { "type": "enclosed", "standpoint": { "x": 3.3, "y": 5.95 }, "wall_line": 0.6, "wall_width_m": 5.4, "camera_wall_m": 5.35 },
+        "W": { "type": "enclosed", "standpoint": { "x": 5.55, "y": 3.5 }, "wall_line": 0.6, "wall_width_m": 5.8, "camera_wall_m": 4.95 }
+      }
+    },
+    {
+      "id": "pump_gallery",
+      "floor": "deck_a",
+      "name": "PUMP GALLERY",
+      "type": "enclosed",
+      "archetype": "machinery",
+      "rect": { "x0": 6.3, "x1": 11.4, "y0": 0.6, "y1": 6.4 },
+      "facings": {
+        "N": { "type": "enclosed", "standpoint": { "x": 8.85, "y": 1.05 }, "wall_line": 6.4, "wall_width_m": 5.1, "camera_wall_m": 5.35 },
+        "E": { "type": "enclosed", "standpoint": { "x": 6.75, "y": 3.5 }, "wall_line": 11.4, "wall_width_m": 5.8, "camera_wall_m": 4.65 },
+        "S": { "type": "enclosed", "standpoint": { "x": 8.85, "y": 5.95 }, "wall_line": 0.6, "wall_width_m": 5.1, "camera_wall_m": 5.35 },
+        "W": { "type": "enclosed", "standpoint": { "x": 10.95, "y": 3.5 }, "wall_line": 6.3, "wall_width_m": 5.8, "camera_wall_m": 4.65 }
+      }
+    }
+  ],
+  "openings": [
+    {
+      "id": "hatch01",
+      "kind": "door",
+      "floor": "deck_a",
+      "axis": "EW",
+      "rect": { "x0": 6, "x1": 6.3, "y0": 3, "y1": 3.9 },
+      "joins": ["wet_lab", "pump_gallery"]
+    }
+  ],
+  "windows": [
+    { "floor": "deck_a", "rect": { "x0": 2.6, "x1": 3.4, "y0": 6.4, "y1": 7 } },
+    { "floor": "deck_a", "rect": { "x0": 11.4, "x1": 12, "y0": 3.1, "y1": 3.9 } }
+  ],
+  "fireplaces": [],
+  "stairs": [],
+  "objects": []
+}

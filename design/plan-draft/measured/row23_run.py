@@ -220,7 +220,9 @@ def _indoor_ask(cand_rel):
     p = p[:-4] + ".prompt.txt" if p.lower().endswith(".png") else p + ".prompt.txt"
     if not os.path.exists(p):
         return True
-    return bool(prompt_lint.INTERIOR_FABRIC.search(open(p, encoding="utf-8").read()))
+    # The word list is the ACTIVE PACK's now (`world.json`'s
+    # `refusals.interior_fabric`), reached through the lint that owns it.
+    return bool(prompt_lint.interior_fabric().search(open(p, encoding="utf-8").read()))
 
 
 def _correction_for(family, why, reading, entry):

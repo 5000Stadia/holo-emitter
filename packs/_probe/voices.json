@@ -1,0 +1,156 @@
+{
+  "_what_this_is": "This station's materials, in this station's own language. Two voices, one anchor, four materials. Every noun in this file is invented for the probe and appears in no other pack.",
+
+  "ANCHOR_M": 1.2,
+  "WINDOW_SILL_M": 1.05,
+  "WINDOW_HEAD_M": 1.85,
+  "LIGHT_MODULE_M": 0.6,
+
+  "ANCHORS": {
+    "gasket_band": {
+      "id": "gasket_band",
+      "line": "the welded gasket band above the deck",
+      "datum": "deck",
+      "sentence": "A clearly legible welded gasket band runs continuously corner to corner at exactly 1.20 m above the deck, on every exposed bulkhead surface including the side-wall returns.",
+      "label": "GASKET BAND 1.20 M ABOVE DECK - GATE ANCHOR",
+      "legend_word": "GASKET BAND",
+      "why": "This station's universal anchor: the one continuous horizontal every compartment of a pressure hull carries."
+    }
+  },
+
+  "VOICES": {
+    "wet_lab_lined": {
+      "id": "wet_lab_lined",
+      "why": "The wet lab is the compartment that is worked in wet: its strakes are lined with a glazed ceramic wash so they can be hosed down, and it is the one compartment entitled to the painted hull crest.",
+      "outdoor": false,
+      "walls": "riveted anodised bulkhead plate in vertical strakes, lined below the band with a pale glazed ceramic wash",
+      "ceiling": "a ribbed alloy overhead deck with recessed strip lume between the ribs",
+      "floor": "an open ribbed alloy deck grating over dark bilge water",
+      "blank": "unbroken riveted bulkhead plate in vertical strakes with its pale glazed ceramic wash below the band",
+      "anchor": "gasket_band",
+      "glass": "plain",
+      "window_status": "state"
+    },
+    "pump_gallery_bare": {
+      "id": "pump_gallery_bare",
+      "why": "The pump gallery is machinery space: bare anodised plate, no liner, no crest. It exists in this pack to prove that two compartments of one station can differ without either borrowing the other's paragraph.",
+      "outdoor": false,
+      "walls": "bare riveted anodised bulkhead plate in vertical strakes, unlined, with cable trays run above the band",
+      "ceiling": "a ribbed alloy overhead deck with a single strip lume on the centreline",
+      "floor": "an open ribbed alloy deck grating over dark bilge water",
+      "blank": "unbroken bare riveted bulkhead plate in vertical strakes, unlined, with its cable trays above the band",
+      "anchor": "gasket_band",
+      "glass": "plain",
+      "window_status": "plain"
+    }
+  },
+
+  "ROOM_VOICE": {
+    "wet_lab": "wet_lab_lined",
+    "pump_gallery": "pump_gallery_bare"
+  },
+  "ARCHETYPE_FALLBACK": {
+    "lab": "wet_lab_lined",
+    "machinery": "pump_gallery_bare"
+  },
+  "TYPE_FALLBACK": {
+    "enclosed": "pump_gallery_bare"
+  },
+
+  "MATERIALS": {
+    "wall/ceramic-washed-strakes": {
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.6,
+        "feature": "riveted strake"
+      },
+      "frame": {
+        "kind": "full_height",
+        "module_m": 0.6,
+        "stile_m": 0.05,
+        "plinth_m": 0.12,
+        "chair_rail_m": 1.2,
+        "chair_rail_h_m": 0.08,
+        "cornice_m": 0.12,
+        "architrave_m": 0.09,
+        "bevel_m": 0.02
+      }
+    },
+    "wall/bare-anodised-strakes": {
+      "slot": "walls",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "v",
+        "grain_frame": "surface",
+        "mirror": "across",
+        "scale_kind": "periodic",
+        "pitch_m": 0.6,
+        "feature": "riveted strake"
+      },
+      "frame": {
+        "kind": "full_height",
+        "module_m": 0.6,
+        "stile_m": 0.05,
+        "plinth_m": 0.12,
+        "chair_rail_m": 1.2,
+        "chair_rail_h_m": 0.08,
+        "cornice_m": 0.12,
+        "architrave_m": 0.09,
+        "bevel_m": 0.02
+      }
+    },
+    "ceiling/ribbed-alloy-lume": {
+      "slot": "ceiling",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "h",
+        "grain_frame": "surface",
+        "mirror": "none",
+        "scale_kind": "periodic",
+        "pitch_m": 0.6,
+        "feature": "overhead rib"
+      }
+    },
+    "floor/alloy-deck-grating": {
+      "slot": "floor",
+      "lane": "harvest",
+      "tiling": {
+        "grain_axis": "h",
+        "grain_frame": "surface",
+        "mirror": "none",
+        "scale_kind": "periodic",
+        "pitch_m": 1.2,
+        "feature": "grating bay"
+      }
+    }
+  },
+
+  "MATERIAL_BINDING": {
+    "wet_lab_lined": {
+      "walls": "wall/ceramic-washed-strakes",
+      "blank": "wall/ceramic-washed-strakes",
+      "ceiling": "ceiling/ribbed-alloy-lume",
+      "floor": "floor/alloy-deck-grating"
+    },
+    "pump_gallery_bare": {
+      "walls": "wall/bare-anodised-strakes",
+      "blank": "wall/bare-anodised-strakes",
+      "ceiling": "ceiling/ribbed-alloy-lume",
+      "floor": "floor/alloy-deck-grating"
+    }
+  },
+
+  "MATERIAL_PART_OF_KEY": {
+    "walls": "walls",
+    "walls_with_openings": "walls",
+    "ceiling": "overhead",
+    "floor": "underfoot"
+  },
+
+  "SAID_BEFORE": {}
+}

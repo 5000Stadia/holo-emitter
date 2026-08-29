@@ -1,0 +1,61 @@
+{
+  "_what_this_is": "Everything about this location that is not its plan and not its materials: the era and medium sentences, THE RULER every instrument measures by, the conventions a plan view cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live. Nothing in this file appears in `packs/manor/world.json`, which is the point of it.",
+
+  "era": "circa-2190 abyssal survey station",
+  "era_note": "Read into three shapes by the emitter, exactly as the first pack's is: `Asset type: ... of the <room>, <era>`, `Paint the <side> <surface> of the <room> of a <era>.` and the appendix's `<era>`. One sentence, three places.",
+
+  "medium": "Style/medium: a cold high-realism gouache rendering in the manner of a deep-submergence survey plate — matte pigment, hard specular glints on wet alloy, a narrow blue-green ambient cast from the strip lume and heavy falloff into the corners; a working record of a pressure hull, not a photograph and not a game render.",
+  "medium_note": "The era is a LOOK before it is a materials list. This one is stated as a rendering tradition (a survey plate) so that the medium sentence carries the light and the palette, not only the fittings; a cold ask that named the fittings alone came back looking like a photograph of a boiler room.",
+
+  "ruler": {
+    "kind": "gasket_band",
+    "height_m": 1.2,
+    "datum": "deck",
+    "why": "This world's universal anchor. The instruments read ONE continuous horizontal out of the scaffold's declared band and convert it with `band_above / height_m`; that divisor is the instrument's, and the feature at it is this world's. A welded gasket band at 1.20 m above the deck is a real continuous horizontal that every compartment of a pressure hull carries, on every wall surface including the returns — which is the whole requirement: a painter will draw it and an instrument can find it."
+  },
+
+  "conventions": {
+    "window_sill_m": 1.05,
+    "window_head_m": 1.85,
+    "door_head_m": 2.0,
+    "light_module_m": 0.6,
+    "why": "A plan view holds no vertical dimension, so the scaffold declares these and the voices repeat them. A pressure port sits low and small — its sill is just under the gasket band and its head well below the overhead — because it is a viewing port in a hull, not a window in a wall. These are conventions of THIS world's building practice, not of the engine."
+  },
+
+  "rulers": [
+    { "match": "gasket band|weld band|seal band", "size_m": 1.2,
+      "name": "the welded gasket band above the deck (this station's universal anchor)" },
+    { "match": "hatch[^,]*height|dog[- ]?hatch[^,]*head", "size_m": 2.0,
+      "name": "the pressure hatch opening's height at the bulkhead plane" },
+    { "match": "hatch[^,]*width", "size_m": 0.9,
+      "name": "the pressure hatch opening's width" },
+    { "match": "port glass|viewing port|pressure port", "size_m": 0.8,
+      "name": "the pressure port's glass, rim to rim" },
+    { "match": "grating pitch|deck grating", "size_m": 1.2,
+      "name": "one bay of deck grating between its bearer bars, at the band's ruled height" }
+  ],
+  "rulers_note": "The rulers this world's gate actually has. A `Gate anchor:` line naming something else, or naming one of these at the wrong size, is not an anchor — it is a sentence. Every anchor a voice may name is here, and every voiced horizontal is 1.20 m for the same reason the first pack's are all one height: the instrument measures ONE horizontal and divides by ONE number, so a voice renames the FEATURE at the ruled height and never moves it.",
+
+  "refusals": {
+    "interior_fabric": "gasket band|weld band|strake liner|ceramic wash|deck grating|bilge|strip lume|overhead deck",
+    "interior_fabric_why": "A facing outside the hull has none of this on it, and a prompt that says \"no deck grating\" has still put deck grating in front of the generator. An exterior ask may not name pressure-hull fabric at all — not even to forbid it.",
+
+    "panelling": "strake liner|ceramic wash|gasket band",
+    "panelling_why": "The lined strakes belong to the compartments that carry the gasket band. A prompt whose declared anchor is not that band is a compartment with no liner in it, and naming the liner there is one compartment's material paragraph leaking into another.",
+
+    "rationed_line": "^hull crest:[^\\n]*$",
+    "entitled_to_rationed": "wet lab|WET LAB",
+    "rationed_why": "The station's painted hull crest is the wet lab's alone — it marks the compartment that signs a survey. Repeated down the gallery it stops being a mark and becomes wallpaper, which is the same defect as the same window in every room.",
+
+    "redacted_correction": "the previous attempt at this bulkhead was rejected because it did not paint this station as the materials and the anchor below describe it. Those words replace anything the earlier attempt showed; follow them exactly.",
+    "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-hull prompt: the forward half of it, in words the interior_fabric clause permits."
+  },
+
+  "paths": {
+    "batch_dir": "design/batches/row23-scaffold/_probe",
+    "fixture_dir": "fixtures/_probe-station",
+    "store_dir": "backdrops",
+    "readings_dir": "design/plan-draft/measured/_probe",
+    "world_query": "nav-probe"
+  }
+}
