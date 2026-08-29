@@ -365,8 +365,23 @@
     });
   })();
   </script>
-  <script src="fixtures/nav-manor/fixture.js"></script>
-  <script src="fixtures/demo-study/fixture.js"></script>
+  <script>
+  /* [row 44, clause 8] THE PAGE CARRIES THE WORLD IT WAS ASKED FOR. Two fixture
+     bundles used to be script tags here, which made the set of worlds a
+     constant of the page; a pack's world is `fixtures/<name>/fixture.js` and
+     the name is the query's, read once, synchronously, so the boot below
+     finds it registered exactly as a static tag would have. An id outside
+     [A-Za-z0-9_-] loads nothing and takes the boot surface as an unknown
+     world does. */
+  (function () {
+    var m = /[?&]world=([^&]*)/.exec(window.location.search || "");
+    var w = "nav-manor";
+    try { if (m) w = decodeURIComponent(m[1]); } catch (ignored) { /* the default stands */ }
+    if (/^[A-Za-z0-9_-]+$/.test(w)) {
+      document.write('<script src="fixtures/' + w + '/fixture.js"><\/script>');
+    }
+  })();
+  </script>
   <script src="backdrops/baked.js"></script>
   <script src="library/baked.js"></script>
   <script src="src/groundplane.js"></script>
