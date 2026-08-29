@@ -1,0 +1,10 @@
+{
+  "name": "manor",
+  "title": "A circa-1660 English manor",
+  "why": "The first location, and the one the engine used to BE. Row 44 step 0 moved it out of tools/ and design/plan-draft/measured/ into these four files; `packs/INVENTORY.md` is the ledger of what moved. The proof of the move is byte-identity: the 88 facings this pack emits are the ones already committed.",
+  "files": {
+    "plan": "plan.json",
+    "voices": "voices.json",
+    "world": "world.json"
+  }
+}

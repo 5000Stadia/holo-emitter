@@ -1,0 +1,60 @@
+{
+  "_what_this_is": "Everything about this location that is not its plan and not its materials: what era and medium the picture is painted in, THE RULER every instrument measures by, the conventions a plan view cannot hold, the word lists the pre-flight lint refuses on, and where this location's files live. Row 44 step 0 moved these out of tools/make-scaffold.mjs, tools/frame-language.mjs and design/plan-draft/measured/prompt_lint.py under production law clause 8.",
+
+  "era": "circa-1660 English manor",
+  "era_note": "Read into three shapes by the emitter: `Asset type: ... of the <room>, <era>`, `Paint the <side> <surface> of the <room> of a <era>.` and the appendix's `<era>`. Changing this sentence changes all three at once, which is the point.",
+
+  "medium": "Style/medium: a high-realism oil painting in the manner of a seventeenth-century Dutch or English interior — fine tactile brush detail, deep warm browns, cool ambient daylight and gentle natural falloff; a period painting, not a modern render.",
+  "medium_note": "[Kabe, 2026-08-24] THE ERA IS A LOOK, NOT ONLY A MATERIALS LIST. His own working seed came from \"Sherlock Holmes era office, high realism oil painting\" — an era named as a painting tradition — and a cold ask with only the layout diagram attached came back a flat modern render in the diagram's grey. So the medium names the tradition.",
+
+  "ruler": {
+    "kind": "chair_rail",
+    "height_m": 0.95,
+    "datum": "floor",
+    "why": "Blueprint §11's universal anchor. `design/plan-draft/measured/row23_lib.py` reads ONE horizontal out of the scaffold's declared rail_band and converts it with `rail_above / height_m`; that divisor is the instrument's and no voice may move it. What changes per room is the anchor's FEATURE and its NAME (a hanging rail in a kitchen, a string-course on a garden wall) — never its height."
+  },
+
+  "conventions": {
+    "window_sill_m": 0.90,
+    "window_head_m": 2.00,
+    "door_head_m": 2.00,
+    "light_module_m": 0.50,
+    "why": "A plan view holds no vertical dimension, so the scaffold declares these and the voices repeat them; they are conventions of THIS world's building practice, not of the engine."
+  },
+
+  "rulers": [
+    { "match": "door[^,]*height|head[^,]*(?:soffit|threshold)", "size_m": 2.0, "name": "the door opening's height at the wall plane" },
+    { "match": "door[^,]*width", "size_m": 1.0, "name": "the door opening's width" },
+    { "match": "fireplace|hearth", "size_m": 0.9, "name": "the fireplace opening, jamb to jamb" },
+    { "match": "\\bbay\\b|mullion", "size_m": 0.9, "name": "a window bay between its outer mullion centres" },
+    { "match": "chair[- ]?rail|wainscot|dado", "size_m": 0.95, "name": "the wainscot chair-rail above the floor (blueprint §11's universal anchor)" },
+    { "match": "hanging rail|peg[- ]?rail|utensil rail", "size_m": 0.95, "name": "the plain oak hanging rail above the floor (a service room's one continuous horizontal, at the chair-rail's ruled height)" },
+    { "match": "string[- ]?course|plinth course", "size_m": 0.95, "name": "the stone string-course above the ground (a garden or court wall's plinth capping, at the chair-rail's ruled height)" },
+    { "match": "\\bcoping\\b", "size_m": 0.95, "name": "the boundary wall coping above the ground (what closes an open facing, at the chair-rail's ruled height)" },
+    { "match": "end wall|corridor width|passage width", "size_m": 2.6, "name": "the cross passage's end wall" }
+  ],
+  "rulers_note": "The rulers the gate actually has, and their ruled sizes. A `Gate anchor:` line naming something else, or naming one of these at the wrong size, is not an anchor — it is a sentence. Every voiced anchor in voices.json must match one of these patterns at its own height or the lint refuses the packet before an image exists.",
+
+  "refusals": {
+    "interior_fabric": "panell?ing|panell?ed|wainscot\\w*|chair[- ]?rail|\\bdado\\b|floorboards?|plaster ceiling|ceiling joists?|\\bskirting\\b|\\bhearth\\b|\\bfireplace\\b",
+    "interior_fabric_why": "[HUMAN, 2026-08-24, verbatim] \"exterior garden has interior wall outside\". An EXTERIOR prompt may not name interior fabric at all — not even to forbid it, because a prompt that says \"no panelling\" has still put the word in front of the generator. The emitter carries the same list (it must refuse its own sentence before it writes it) and the lint is the authority; if the two drift apart the suite goes red, which is the handshake.",
+
+    "panelling": "panell?ing|panell?ed|wainscot\\w*|chair[- ]?rail",
+    "panelling_why": "[HUMAN, same walk] \"is every room in this house parlor walls?\" A prompt whose declared anchor is NOT the wainscot chair-rail is a room with no wainscot in it, and naming panelling there is the study's paragraph leaking into the scullery again.",
+
+    "rationed_line": "^armorial glass:[^\\n]*$",
+    "entitled_to_rationed": "great hall|parlour|parlor",
+    "rationed_why": "[HUMAN, same walk] \"this same window everywhere? With the ensignias on it?\" Armorial glass in a c.1660 house is the great hall's display of lineage, and at most one shield in the principal parlour. A prompt asking for it anywhere else is refused.",
+
+    "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this place as the materials and the anchor below describe it. Those words replace anything the earlier attempt showed; follow them exactly.",
+    "redacted_correction_why": "What replaces a correction that cannot be carried into an outdoor prompt: the forward half of it, in words the interior_fabric clause permits. The verbatim reason still reaches PACKET.md and retries.json, where a reader needs it and no generator reads it."
+  },
+
+  "paths": {
+    "batch_dir": "design/batches/row23-scaffold/manor",
+    "fixture_dir": "fixtures/demo-study",
+    "store_dir": "backdrops",
+    "readings_dir": "design/plan-draft/measured/manor",
+    "world_query": "nav-manor"
+  }
+}
