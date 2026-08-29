@@ -1370,12 +1370,27 @@ test.describe("the clause ledger — renderer mechanisms", () => {
      * single pixel of it stretched, because a stretched pixel manufactures
      * structure nobody drew. The case moves to the new call sites and stays
      * what it was — delete the corners, the corner regions go void. */
+    /* [ROW 43] THE TWO PAIRS PARTED COMPANY. The upper corners still take row
+     * 25's flat reading — this transform carries no ceiling height, so there
+     * is no depth to run a row back along above the far frame. The LOWER pair
+     * moved into the floor's own loop: they are the strip's row carried on out
+     * through the side band, which is what makes a corner agree with both
+     * edges it joins. One mechanism, two call sites, so the case stages two
+     * deletions — take either away and that corner goes void. */
     const dir = stageWithout(
       "      if (lft > 0 && top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, a.y, lft, top); }\n" +
-      "      if (rgt > 0 && top > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, a.y, rgt, top); }\n" +
-      "      if (lft > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, dy + dh, lft, bot); }\n" +
-      "      if (rgt > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, dy + dh, rgt, bot); }",
-      "      void [lft, rgt, top, bot];");
+      "      if (rgt > 0 && top > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, a.y, rgt, top); }",
+      "      void [lft, rgt, top];");
+    const lower =
+      "          if (lft > 0) ctx.drawImage(off, 0, sr, EDGE_BAND, 1, a.x, yy, lft, 1);\n" +
+      "          if (rgt > 0) ctx.drawImage(off, W - EDGE_BAND, sr, EDGE_BAND, 1, dx + dw, yy, rgt, 1);";
+    const rf = join(dir, "src", "renderer.js");
+    const src0 = readFileSync(rf, "utf8");
+    if (!src0.includes(lower)) {
+      removeTree(dir);
+      throw new Error("the ledger's marker for the lower corners is gone from renderer.js");
+    }
+    writeFileSync(rf, src0.replace(lower, "          void [lft, rgt];"));
     try {
       const broken = await farApertureVoid(page, dir);
       const clean = await farApertureVoid(page, repoRoot);

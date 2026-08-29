@@ -1544,6 +1544,87 @@
     return "rgb(" + Math.round(r / n) + "," + Math.round(g / n) + "," + Math.round(b / n) + ")";
   }
 
+  /* [ROW 43] THE FAR ROOM'S FLOOR RUNS TO THE THRESHOLD.
+   *
+   * The Captain, on the live cyberpunk demo: "Noodle bar E has a gray divider
+   * between the room on the other side of the doorway, and the edge of the
+   * foreground room… we in building the room always shore up the bottom edge
+   * of the background room on the other side of the doorway with the top edge
+   * of the floor in the foreground at that doorway."
+   *
+   * WHAT THE DIVIDER IS. The far frame is placed by one scale `k` with the two
+   * horizons coincident, so its BOTTOM row lands at `dy + dh` — and on
+   * `noodle_bar/E` that is row 736 while the doorway's own foot is row 774.
+   * The 38 rows between them are floor the far camera never saw, and row 25
+   * filled them with one number: the mean of the far frame's bottom band. A
+   * flat slab of colour laid across the floor at the threshold is exactly a
+   * grey divider, and it is the more visible for being the one place in the
+   * picture where two floors are supposed to meet.
+   *
+   * THE RULE. Those rows are FLOOR, and where a floor is is something the
+   * pinhole already knows. Each composite row `y` in the strip draws a floor
+   * point at this camera's own depth `f·eye/(y − horizon)` — which is
+   * `focalPx / scaleAtY`, the same ground plane every other floor question in
+   * this file is asked of. The far camera stands `D − dDest` in front of this
+   * one (`D = dHere + beyond_m`, the same `D` the composite's `k = dDest/D`
+   * comes from), so the same point is `depth_here − (D − dDest)` from IT, and
+   * the row that depth draws at in the far frame is `yAtScale(fDest/depth_far)`.
+   * Sample the far frame's floor there; sample its columns through the same
+   * `dx`/`k` the frame itself is placed by, so a column of the strip continues
+   * the column of far floor directly above it. The strip becomes the far
+   * room's own floor arriving at the doorway.
+   *
+   * AND IT IS ALWAYS CLAMPED, which is a fact about the shape rather than a
+   * fallback. The strip exists at all only when `dy + dh < a.y + a.h`, i.e.
+   * `k·(H − horizon) < ty − horizon`; the far frame's nearest floor row is at
+   * `f/px_per_m_at_bottom` from its camera; run those two through the paragraph
+   * above and the strip's own depth is nearer than that nearest row unless
+   * `dDest < f/px_per_m_at_bottom`, which would put the far WALL closer than
+   * the far frame's bottom row. So whenever there is a strip to fill, the
+   * floor it wants is floor no camera in the document photographed, and the
+   * honest continuation is the far frame's LAST floor row carried along its
+   * recession — column by column, the way `mesh_warp.py` fills a reveal. What
+   * is claimed is the far floor's own colour AT EACH COLUMN, which is a fact
+   * the far painting holds; what is not claimed is detail nobody drew.
+   *
+   * Pure in `world + staging + meta` (§12.2): every term is read off the two
+   * metas and the measured opening, and nothing here is sampled or seeded. */
+  function throughFloorMap(meta, destMeta, a) {
+    var gp = groundplane();
+    var dDest = gp.cameraDistance(destMeta);
+    var D = gp.cameraDistance(meta) + a.beyond_m;
+    var Hd = Math.round(destMeta.image_h_px);
+    var fHere = gp.focalPx(meta);
+    var fDest = gp.focalPx(destMeta);
+    /* Where the far camera stands, measured from this one. `D − dDest` and
+     * `D·(1 − k)` are the same number; it is written the first way because
+     * that is the sentence — the far room's wall is `D` off and its camera
+     * looks at it from `dDest`. */
+    var camGap = D - dDest;
+    /* The far frame's floor: from its own floor line down to its last row. */
+    var floorRow = destMeta.floor_line_y * Hd;
+    var lastRow = Hd - 1;
+    function at(y) {
+      var sHere = gp.scaleAtY(y, meta);
+      var depthHere = sHere > 0 ? fHere / sHere : Infinity;
+      var depthFar = depthHere - camGap;
+      var yFar = depthFar > 0 ? gp.yAtScale(fDest / depthFar, destMeta) : Infinity;
+      var row;
+      if (!(yFar < lastRow)) row = lastRow;          // nearer than the far frame's last floor row
+      else if (yFar < floorRow) row = floorRow;      // behind the far room's own floor line
+      else row = yFar;
+      return {
+        depth_here: depthHere, depth_far: depthFar,
+        y_far: yFar, row: row, clamped: row !== yFar
+      };
+    }
+    return {
+      D: D, k: dDest / D, cam_gap: camGap,
+      floor_row: floorRow, last_row: lastRow, height: Hd,
+      focal_here: fHere, focal_dest: fDest, at: at
+    };
+  }
+
   function drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options) {
     /* A SHUT DOOR SHOWS NO ROOM. The leaf is a sprite with its own alpha and
      * it does not fill its placement rectangle to the pixel, so a lit room
@@ -1673,14 +1754,48 @@
       ctx.fillStyle = bandMean(oc, 0, 0, W, H);
       ctx.fillRect(a.x, a.y, a.w, a.h);
     } else {
-      if (bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, W, EDGE_BAND); ctx.fillRect(dx, dy + dh, dw, bot); }
+      /* [ROW 43] THE SIDES, ALONG THEIR RECESSION. Where the far frame is
+       * narrower than the hole, what is missing beside it is the far room's
+       * return wall and the floor at its foot — and both of those are things
+       * whose HEIGHT the far frame states row by row. So the strip is the far
+       * frame's own outer band continued outward at each row: its floor line
+       * arrives at the floor line, its ceiling junction at the ceiling
+       * junction, and the floor keeps the depth its row already has, because
+       * a row of a level ground plane is one distance all the way across. A
+       * flat slab could say none of that. */
+      if (lft > 0) ctx.drawImage(off, 0, 0, EDGE_BAND, H, a.x, dy, lft, dh);
+      if (rgt > 0) ctx.drawImage(off, W - EDGE_BAND, 0, EDGE_BAND, H, dx + dw, dy, rgt, dh);
+      /* THE TOP KEEPS ROW 25's COLOUR CLAIM. Above the far frame is ceiling,
+       * and this transform carries no ceiling height — there is no depth to
+       * run a row back along, so the extension says colour and stops. The two
+       * upper corners join a flat band and a structured one and take the flat
+       * reading, which is the weaker of the two claims and therefore the safe
+       * one. */
       if (top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, W, EDGE_BAND); ctx.fillRect(dx, a.y, dw, top); }
-      if (lft > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, H); ctx.fillRect(a.x, dy, lft, dh); }
-      if (rgt > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, H); ctx.fillRect(dx + dw, dy, rgt, dh); }
       if (lft > 0 && top > 0) { ctx.fillStyle = bandMean(oc, 0, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, a.y, lft, top); }
       if (rgt > 0 && top > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, 0, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, a.y, rgt, top); }
-      if (lft > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, 0, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(a.x, dy + dh, lft, bot); }
-      if (rgt > 0 && bot > 0) { ctx.fillStyle = bandMean(oc, W - EDGE_BAND, H - EDGE_BAND, EDGE_BAND, EDGE_BAND); ctx.fillRect(dx + dw, dy + dh, rgt, bot); }
+      /* THE BOTTOM IS THE FLOOR, and it runs to the threshold. One row of the
+       * strip at a time, because the mapping from a composite row to a far
+       * frame row is the ground plane's and not an affine scale: `throughFloorMap`
+       * turns this camera's floor depth at that row into the far camera's, and
+       * the far frame's floor row that depth draws at. The columns go through
+       * `dx` and `k` — the same placement the frame itself got — so a column of
+       * the strip continues the column of far floor directly above it, and the
+       * two BOTTOM corners are the same row carried on out through the side
+       * band, which is what makes a corner agree with both edges it joins. */
+      if (bot > 0) {
+        var fm = throughFloorMap(meta, destMeta, a);
+        var vs = H / fm.height;                        // far frame rows -> off-canvas rows
+        var y0 = Math.floor(dy + dh), y1 = Math.ceil(a.y + a.h);
+        for (var yy = y0; yy < y1; yy++) {
+          var sr = Math.floor(fm.at(yy + 0.5).row * vs);
+          if (!(sr >= 0)) sr = 0;
+          if (sr > H - 1) sr = H - 1;
+          ctx.drawImage(off, 0, sr, W, 1, dx, yy, dw, 1);
+          if (lft > 0) ctx.drawImage(off, 0, sr, EDGE_BAND, 1, a.x, yy, lft, 1);
+          if (rgt > 0) ctx.drawImage(off, W - EDGE_BAND, sr, EDGE_BAND, 1, dx + dw, yy, rgt, 1);
+        }
+      }
     }
     ctx.drawImage(off, dx, dy, dw, dh);
     /* Dimmed, because it is another room seen from outside it through a hole
@@ -2553,6 +2668,7 @@
     apertures: apertures,
     stamp: stamp,
     hitTest: hitTest,
+    throughFloorMap: throughFloorMap,
     GRID_META: GRID_META
   };
 

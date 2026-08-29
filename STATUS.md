@@ -1,77 +1,77 @@
-# The reveal fill extends each surface along its own recession
+# Row 43 — the far room's floor runs to the threshold
 
-Brief: [HUMAN, 2026-08-29, verbatim, on `backdrops/back_office/S.png`] "back
-office S has the edge effect where it stretches off the screen. Visually when
-this is used, it doesn't stretch the edge off in the continuous direction that
-the angles of the room already go. It should stretch into the direction of the
-edge for example. The bottom right edge should be stretched to the bottom right
-edge in the top right edge should be stretched to the top right edge. If this is
-skewed in this way, it will at least look better than the alternative directions
-that they are being skewed."
+## The rule
 
-## 1. The rule
+Through an opening, the far room's frame is placed by one scale
+`k = dDest / (dHere + beyond_m)` with the two horizons coincident, so its bottom
+row lands at `dy + dh` — on `noodle_bar/E` that is row 736 while the doorway's
+own foot is row 774. Row 25 filled those 38 rows with one number, the mean of
+the far frame's bottom band, and a flat slab laid exactly where two floors are
+supposed to meet is the grey divider the Captain saw. It is floor, and where a
+floor is is something the pinhole already knows: each composite row `y` in the
+strip draws a floor point `focalPx(meta) / scaleAtY(y, meta)` from THIS camera;
+the far camera stands `D − dDest` in front of this one (the same `D` that `k`
+comes from), so the same point is `depth_here − (D − dDest)` from it, and the
+row that depth draws at in the far frame is `yAtScale(fDest / depth_far,
+destMeta)`. Sample the far frame's floor there, take columns through the same
+`dx`/`k` the frame itself was placed by, and the strip becomes the far room's own
+floor arriving at the doorway. The side strips take the far frame's own outer
+band continued outward at each row — its floor line arriving at the floor line,
+its ceiling junction at the ceiling junction — and the two LOWER corners are the
+strip's row carried on out through that band, so each corner agrees with both
+edges it joins. The upper corners keep row 25's colour reading: this transform
+carries no ceiling height, so above the far frame there is no depth to run a row
+back along.
 
-A revealed pixel — one whose target-to-source coordinate lands past the painted
-extent — is not a stray coordinate. It lies on a NAMED surface, and that surface
-has two axes of its own. A receding plane's image is `V + U/q`: every point of
-it at depth `q` sits on the ray from the convergence `V` in the fixed direction
-`U` that its across-wall parameter names, and `s = 1/q` is how far out along
-that ray. So the fill keeps the pixel's plane and its ACROSS parameter untouched
-and clamps only its DEPTH, to `1/s_max`, where `s_max` is the ray-box exit of
-that plane's own receding line against the painted extent (`ray_exit`). The last
-painted texel of the surface is therefore extended along the receding line it
-already sits on: a return continues out to its own side edge, the floor's
-bottom-corner region continues toward the bottom corner, and every straight line
-of the painting that recedes stays that same straight line out to the frame. On
-the wall plane, whose axes are the frame's own, the same rule is the coordinate
-clamp. The extension cross-fades into the paint over `FILL_FADE_PX = 24` px
-measured DOWN THE RECESSION — `s` turned into picture by the length of that
-plane's own seam ray — and not perpendicular to the frame edge; a plane with
-nothing revealed on it is not faded at all. Nothing is mirrored: `warp_with_axes`
-now samples through `resample_clamped`. The v1 scattered-pin fields (`tps`, the
-three MLS modes) know of no surfaces, so they keep `mirror_fold` and say so.
+**The clamp is the geometry, not a fallback.** A strip exists at all only when
+`k·(H − horizon) < ty − horizon`. Run that condition through the depth
+conversion and it says the strip's own floor is always nearer to the far camera
+than the far frame's nearest floor row, unless the far WALL were nearer than
+that row — impossible. So whenever there is a strip to fill, the floor it wants
+is floor no camera in the document photographed, and the honest continuation is
+the far frame's LAST floor row carried along its recession, column by column, as
+`mesh_warp.py` fills a reveal. What is claimed is the far floor's colour AT EACH
+COLUMN, which the far painting holds; what is not claimed is detail nobody drew.
 
-## 2. What did not change
+Pure in world + staging + meta (§12.2): every term is read off the two metas and
+the measured opening. No randomness, no sampling of the composite.
 
-The pins, the separable wall-plane field and the seam blend are untouched — the
-new `plane_field_and_fill` is the old `wall_plane_field` with the fill computed
-alongside it, and `wall_plane_field` is now a two-value wrapper on it.
-`max_residual_px` is 0.0 on both proof frames, the four seam checks still read
-0.023 px across a 0.02 px step, and `revealed_px` on `back_office/S` is 76800
-under both fills — the same field, priced the same way, filled differently.
+## What changed
 
-## 3. The tests
+- `src/renderer.js` — `throughFloorMap(meta, destMeta, aperture)` (exported for
+  the row's case) and the fill inside `drawThroughOpening`: four of row 25's
+  eight `bandMean` rectangles replaced.
+- `tests/playwright/throughview.spec.mjs` — new, six cases.
+- `tests/playwright/guards.spec.mjs` — `renderer.through_view_corners` moved to
+  the two call sites the corners now live at.
+- `design/batches/throughview/` — `capture.mjs` and its before/after pictures.
 
-`python3 design/plan-draft/measured/test_mesh_warp.py` — all checks pass, 9
-cases. New: `test_the_reveal_continues_the_return`, a room drawn 15 % too large
-about the convergence with four stripes ruled ALONG the right return (constant
-`p`, which on a return is a straight line of the image through the convergence).
+## What I saw
 
-    the right return is revealed by at least 80 px      101 px, from x=1435
-    every column still shows exactly the four stripes   4, 4, 4, 4
-    each stripe's row at the frame edge is the row its
-      junction lines extrapolate to                     worst 0.313 px
-    the stripes run into the revealed band as straight
-      lines (fitted to the paint, read in the band)     worst 0.218 px
-    no column of the revealed band is its own mirror    []
+`?world=cyberpunk-2`, `noodle_bar` facing E. Before: 37 strip rows each holding
+**one** colour, luminance spread 0 — a flat light-grey slab with a hard
+horizontal edge across the bottom of the doorway, plainly a divider at 1x.
+After: 37 rows each holding **95** colours, spread 42.9 — the far room's own
+diamond-plate floor, tone-matched to the floor above it, running down to the
+doorway's foot. The divider is gone. Honestly: the far floor reads continuous in
+tone and column rhythm, but because the source is one row repeated, the plate's
+dots stop and the last 37 rows read as fine vertical combing on close
+inspection. That is the ceiling of what the corpus can say — no camera
+photographed that floor — and the structural cure (a destination view derived at
+the OPENING's axis) is still `design/architecture.md`'s, not this row's.
 
-## 4. The proof — `design/batches/warp-fill/`
+## Tests
 
-`back_office/S` (cyberpunk-2, `row23-7fc68c04.png`): 76800 px revealed, 122653
-px carrying some fill, 70454 px changed against the mirror (4.5 % of the frame).
-BEFORE: at the left frame edge the skirting and the dado rail hit the edge and
-break into a sharp chevron, and the foam grid doubles back on itself — the
-zigzag Kabe named. AFTER: the same rails run straight into the edge and off it,
-and the band beyond is a directional streak drawn down the recession toward the
-bottom-left corner. At the top right the return streaks up-right to the corner
-and the ceiling junction leaves the frame straight. It reads as the room
-continuing. The honest cost is that the extended band IS a streak — the foam
-grid's own texture does not survive in it, and the floor plate's dot rows are
-drawn out into lines — but it goes the way the room goes and no line kinks.
+- `throughview.spec.mjs` — 6 passed.
+- `walkthrough` + `nav-walkthrough` + `doors` — 59 passed.
+- `guards.spec.mjs` — all six `renderer.through_view*` ledger cases pass. Six
+  other guards cases fail (`door.painted_overlap`, `window.unpainted`,
+  `window.painted_width`, "a window reading that agrees with the drawing
+  promotes clean", and the two ledger-grammar cases) — **verified pre-existing**
+  by stashing this row's diff and re-running them on the untouched tree.
 
-`garden_room/S` (manor, `row23-ab42bebe.png`): `revealed_px` 0. This facing is
-wider than the lens, so the declared corners fall outside the frame, no return
-is in shot and the warp never asks for a pixel beyond the painted extent. The
-before and after frames are the same picture. An honest null: this frame had
-nothing for the fill to do, and the second proof Kabe asked for does not
-demonstrate the change.
+## Not done
+
+The bottom-strip floor fill has no ledger clause of its own; it is guarded by
+`throughview.spec.mjs`'s "not a constant" case, which goes red if the block is
+deleted. A `renderer.through_view_floor` token would be the tidier home for it.
