@@ -36,7 +36,7 @@ import { activePack } from "./pack.mjs";
 import { fileURLToPath } from "node:url";
 import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand,
-  TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, CAMERA_SOURCES
+  TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, WARPED_CAMERA_FIELDS, CAMERA_SOURCES
 } from "./validate-fixtures.mjs";
 import { openingsForFacing, windowsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC, voiceFor } from "./room-voices.mjs";
@@ -133,7 +133,12 @@ if (!String(m._what_this_is || "").includes(srcRel)) {
   }
 }
 
-const ppm = m.px_per_m_at_wall;
+/* `let`, and it moves in exactly one place: a WARPED frame's wall ruler is the
+ * declared camera's by construction, and the reassignment sits below the lens
+ * band so that everything judging THIS PAINTING (the focal check, its refusal
+ * sentence) still reads the number the instrument took off the pixels. See
+ * THE WARP EXIT's second clause, beside `declaredMeta`. */
+let ppm = m.px_per_m_at_wall;
 if (!(ppm > 0)) {
   console.error(`promote refused: ${facingArg} has no px_per_m_at_wall — a WITHHELD measurement is not a verdict, and a facing without one is not admitted`);
   process.exit(1);
@@ -318,9 +323,72 @@ const farRuler = votes.far_line_ruler;
  * here, so the declared camera and the camera the grid draws with are one
  * number. The reading's own ramp is left in the document, contradicted and
  * visible; it is simply not what the meta ships. */
-const declaredMeta = declaredCamera ? deriveMeta(plan, loc, facing) : null;
+const declaredMeta = (declaredCamera || warpRecord) ? deriveMeta(plan, loc, facing) : null;
 const horizonPx = declaredCamera ? declaredMeta.horizon_y * m.image_h_px
   : (isOpen ? (farRuler && farRuler.y) : (ramp && ramp.y));
+/* [THE WARP EXIT, 2026-08-29] AND THE WALL'S RULER AND ITS CORNERS COME OFF THE
+ * SAME CAMERA AS ITS HORIZON — ONE META, THE SCAFFOLD'S OWN. This is the clause
+ * that refused all 11 warped walls, and it refused them for a reason that was
+ * true of the document and false of the picture.
+ *
+ * `mesh_warp.py` builds its targets out of the DECLARED meta and nothing else:
+ * the floor line is `floor_line_y`, the wall's scale is `px_per_m_at_wall`, and
+ * every aperture rectangle is `metaForFacing`'s projection at that scale. On
+ * `closet_chamber/S` the plan rules op20 1.00 m wide and the target is 330.3 px
+ * at the declared 330.32 px/m; `door_measure` on the warped OUTPUT reads
+ * 330 px, 0.999 m. The warp hits its target to a pixel.
+ *
+ * What refused it was a SECOND meta, made downstream: this facing's declared
+ * corners stand at -685 and 2221 px, off both sides of a 1536 px frame, so the
+ * warped picture shows no corner at all and the re-measurement returns the two
+ * recession breaks it CAN see — 53 and 1483 px. Called the ends of an 8.80 m
+ * wall those two give a ruler of 162.4 px/m, half the declared one, and the
+ * door the warp had just placed to the pixel read 2.03x "the plan's own 1.00 m
+ * opening at this wall's corner scale". The ruler was measured on one camera
+ * and the door was drawn on another.
+ *
+ * So for a warped frame the three numbers the warp DETERMINED — the wall's
+ * scale and the two corner columns — are the declared camera's here as well,
+ * on exactly the argument the lens band already carries three screens up: the
+ * geometry is the declared camera's by construction. The re-measurement is not
+ * discarded, it is RECORDED on the warp record beside the lens delta, where a
+ * reader can see what the instrument made of the corrected picture and nothing
+ * is gated on it.
+ *
+ * AND THE FLOOR LINE GOES WITH THEM, for the same reason and against the same
+ * temptation. A first cut of this kept the painting's own wall-foot line, on
+ * the thought that the eye band below would then still be a live check that
+ * the warp had landed. It is not a check, it is the same two metas one axis
+ * over: `mesh_warp.py` pins the floor row to `floor_line_y x image_h_px` with
+ * residual 0.000 by construction of a monotone piecewise-linear axis map, and
+ * on `closet_chamber/S` the instrument re-read that row 31.9 px high (885.0
+ * against the 916.9 the warp wrote) and its ruler 5.7 % short. Divide the one
+ * camera's floor line by the other camera's ruler and an eye of 1.087 m falls
+ * out of two readings that were each 1.183 m on their own terms, and the wall
+ * is refused for a drift neither instrument measured. So the warped frame's
+ * eye is the declared camera's, exactly, and the clause below is an identity
+ * on this path rather than a gate. WHERE THE CHECK ACTUALLY LIVES: the row
+ * pin's own `residual_px`, carried onto this meta as `measured_room.warp
+ * .residuals` — that is the number that says whether the floor line landed,
+ * and it is a property of the resampling rather than of a second reading of
+ * it. */
+let cornerX0 = m.corner_x0_px;
+let cornerX1 = m.corner_x1_px;
+let wallFootY = m.floor_line_y;
+if (warpRecord) {
+  warpRecord.remeasured = {
+    px_per_m_at_wall: round(ppm, 3),
+    floor_line_y: wallFootY == null ? null : round(wallFootY, 6),
+    corner_x0_px: cornerX0 == null ? null : round(cornerX0, 2),
+    corner_x1_px: cornerX1 == null ? null : round(cornerX1, 2),
+    corner_scale_px_per_m: (cornerX0 != null && cornerX1 != null && fc.wall_width_m > 0)
+      ? round((cornerX1 - cornerX0) / fc.wall_width_m, 3) : null
+  };
+  ppm = declaredMeta.px_per_m_at_wall;
+  cornerX0 = declaredMeta.corner_x0_px;
+  cornerX1 = declaredMeta.corner_x1_px;
+  wallFootY = declaredMeta.floor_line_y;
+}
 if (declaredCamera) {
   /* Nothing to check about an instrument that was not run — the checks that
    * matter for this path are the family fence above and the eye band below. */
@@ -339,7 +407,7 @@ if (declaredCamera) {
 }
 const imageH = m.image_h_px;
 const horizonY = horizonPx / imageH;
-const floorLineY = m.floor_line_y;
+const floorLineY = wallFootY;
 const eyeM = (floorLineY - horizonY) * imageH / ppm;
 /* THE VISTA'S OWN EYE CLAUSE, and it exists because a vista has no ramp.
  *
@@ -408,8 +476,8 @@ const meta = {
   facing_type: fc.type,
   wall_continuous: null,
   wall_segments: null,
-  corner_x0_px: m.corner_x0_px,
-  corner_x1_px: m.corner_x1_px,
+  corner_x0_px: cornerX0,
+  corner_x1_px: cornerX1,
   storey_height_m: null,
   camera_id: "measured:" + srcRel,
   /* WHICH OF THE TWO LAWFUL CAMERAS THIS WALL WAS ADMITTED AGAINST, carried so
@@ -451,7 +519,7 @@ const meta = {
       suspect_perspective: true,
       tolerance_ruling: TOLERANCE_RULING
     }),
-    declared_fields: [...DECLARED_CAMERA_FIELDS]
+    declared_fields: [...(warpRecord ? WARPED_CAMERA_FIELDS : DECLARED_CAMERA_FIELDS)]
   } : {}),
   provisional: false,
   measured: true,
@@ -493,6 +561,7 @@ const meta = {
         residuals: warpRecord.residuals,
         worst_segment: warpRecord.worst_segment,
         revealed_px: warpRecord.revealed_px,
+        ...(warpRecord.remeasured ? { remeasured: warpRecord.remeasured } : {}),
         ...(warpRecord.warped_from ? { warped_from: warpRecord.warped_from } : {}),
         ...(warpRecord.tool ? { tool: warpRecord.tool } : {})
       }
