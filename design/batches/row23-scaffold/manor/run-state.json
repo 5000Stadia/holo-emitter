@@ -119,7 +119,7 @@
     "study/S": {
       "attempts": 4,
       "status": "parked",
-      "correction": "[meshwarp.aperture_count] content miss: the plan rules window win02, window win01 on study/S and the painting shows none of them (doors 2/0, windows 0/2) \u2014 no motion of pixels puts an aperture where nothing was painted",
+      "correction": "draw 1.133x larger: 266.0 px/m at the wall plane, not 234.7",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/study-S/row23-08cd55d1.png",
