@@ -1854,7 +1854,12 @@ if (import.meta.url === invokedPath) {
   const args = process.argv.slice(2);
   const i = args.indexOf("--fixture-dir");
   const fixtureDir = i !== -1 && args[i + 1] ? resolve(args[i + 1]) : join(ROOT, "fixtures", "demo-study");
-  const planPath = join(fixtureDir, "plan.json");
+  /* [row 44] A FIXTURE NAMES ITS PLAN IN `plan.ref` (a pack's plan lives in the
+   * pack; the site never carries a symlink - a dangling one fails the Pages
+   * build). `plan.json` beside the fixture is still honoured for the demos. */
+  const refPath = join(fixtureDir, "plan.ref");
+  const planPath = existsSync(join(fixtureDir, "plan.json")) ? join(fixtureDir, "plan.json")
+    : (existsSync(refPath) ? resolve(ROOT, readFileSync(refPath, "utf8").trim()) : join(fixtureDir, "plan.json"));
   const worldPath = join(fixtureDir, "world.json");
   if (!existsSync(planPath)) {
     console.error(`validate-plan: no plan.json in ${fixtureDir}`);
