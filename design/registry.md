@@ -21,13 +21,13 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-SEAM | the through-view's far floor continues along its recession down to the doorway threshold (Kabe: the grey divider on noodle_bar/E) — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-SEAM | through-view: the far room's floor is sampled at each strip row's own depth and carried along its recession to the threshold; side strips continue the far frame's own band; the grey divider is gone (noodle_bar/E) |
 | L-FILL | the warp's reveal fill extends each surface along its own receding line, cross-fading down the recession (no mirror, no chevron) |
 | L-WINDOW | window detector on the seat's memo: 80-frame labelled corpus + evaluator; 2-D rectangle evidence, lift demoted; paired 32→35, FP 12→9, FN 16→13; servants_hall/E still a named miss (proposal merge) |
 | L-WARP | mesh_warp.py: room + aperture corners pinned to the plan; wall plane separable piecewise-linear (no straight line bends: 0.00 px), five-plane homographies off-plane with C1 seams; margin-aware mirror fill; refusals by name (landmark_unreadable, aperture_count, aperture_order) |
