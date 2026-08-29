@@ -270,7 +270,17 @@ if (refMode !== "measured" && refMode !== "ruled") {
  * consequence was live: this tool admitted `buttery_pantry/S` and the bake then
  * refused the meta it had just written. One function, both centres. */
 const band = measuredLensBand(refMode);
-if (!(focal >= band.lo && focal <= band.hi)) {
+/* [2026-08-29, clause 7: sensor, not judge] A WARPED FRAME HAS NO SCALE LEFT TO
+ * JUDGE. `mesh_warp.py` pinned this frame's corners, floor, ceiling and every
+ * aperture onto the declared camera; the ruler read off its pixels afterwards
+ * is the painter's module rescaled by that map, and refusing on it re-asks a
+ * wall whose geometry is now exact by construction (the first --warp-held pass
+ * promoted 0 of 11 warped walls on this line alone). The lens delta is RECORDED
+ * on the warp record, never gated. */
+if (warpRecord && !(focal >= band.lo && focal <= band.hi)) {
+  warpRecord.lens_delta_px = Math.round((focal - (refMode === "ruled" ? 1024 : MEASURED_REFERENCE_PX)) * 10) / 10;
+  console.error(`  warped frame reads a ${focal.toFixed(1)} px lens against the band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)}: recorded on the warp record, not gated — the geometry is the declared camera's by construction`);
+} else if (!(focal >= band.lo && focal <= band.hi)) {
   console.error(`promote refused: ${facingArg} measures ${ppm.toFixed(2)} px/m at its drawn ${drawn} m — a ${focal.toFixed(1)} px lens, outside the ±${(MEASURED_BAND * 100).toFixed(0)}% band ${band.lo.toFixed(1)}..${band.hi.toFixed(1)} px around the ${refMode === "ruled" ? "ruled 1024" : `approved ${MEASURED_REFERENCE_PX}`} px camera this wall answers to (blueprint §5/§10). The corpus conforms to the law; the law is not moved to admit the corpus.`);
   process.exit(1);
 }

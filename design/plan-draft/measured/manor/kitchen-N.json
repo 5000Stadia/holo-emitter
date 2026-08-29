@@ -94,8 +94,7 @@
         ],
         "stability": 7
       }
-    ],
-    "windows": []
+    ]
   },
   "_windows": {
     "floor": [
@@ -194,71 +193,5 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 3
-  },
-  "_windows_read": {
-    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
-    "body_rows": [
-      422,
-      550
-    ],
-    "wall_band_px": [
-      123,
-      1450
-    ],
-    "window_band_px": [
-      394,
-      577
-    ],
-    "wall_median_luminance": 24.31,
-    "min_enumerated_px": 33,
-    "lattice_min": 0.2,
-    "admit_lift": 60.0,
-    "sweep_lift": 12.0,
-    "mullion_max_m": 0.25,
-    "lights_before_merge": 2,
-    "candidates_after_merge": 1,
-    "rejected": [
-      {
-        "x0_px": 477,
-        "x1_px": 687,
-        "y0_px": 394,
-        "y1_px": 577,
-        "head_m": 2.0,
-        "sill_m": 0.9,
-        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
-        "width_px": 210,
-        "width_m": 1.263,
-        "centre_px": 582.0,
-        "height_m": 1.1,
-        "lights": [
-          [
-            477,
-            585
-          ],
-          [
-            622,
-            687
-          ]
-        ],
-        "light_luminance": 65.33,
-        "wall_luminance": 24.31,
-        "lift": 41.02,
-        "threshold": 39,
-        "threshold_span": [
-          36,
-          55
-        ],
-        "stability": 20,
-        "lattice": {
-          "score": 0.1605,
-          "x": 0.2832,
-          "y": 0.0378,
-          "pitch_x_m": 0.156,
-          "pitch_y_m": 0.204,
-          "edge_energy": 15.15
-        },
-        "rejected": "bright, but its light stands only 41.0 above a 24.3 wall, under the 60 a painted window lifts on this store; and its light is not crossed by a repeating lattice in both directions: 0.161 against the 0.20 a leaded light scores"
-      }
-    ]
   }
 }
