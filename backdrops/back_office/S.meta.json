@@ -40,7 +40,7 @@
   "nearest_floor_m": 2.433,
   "measured_room": {
     "storey_height_m": 3.17,
-    "wall_width_m": 4.325,
+    "wall_width_m": 4.329,
     "ruled_storey_height_m": 3.2,
     "ruled_wall_width_m": 4.2,
     "warp": {
@@ -80,8 +80,8 @@
         "px_per_m_at_wall": 239.091,
         "floor_line_y": 0.773438,
         "corner_x0_px": 250,
-        "corner_x1_px": 1284,
-        "corner_scale_px_per_m": 246.19
+        "corner_x1_px": 1285,
+        "corner_scale_px_per_m": 246.429
       },
       "warped_from": "backdrops/source/back_office-S/row23-7fc68c04.png",
       "tool": "design/plan-draft/measured/mesh_warp.py"

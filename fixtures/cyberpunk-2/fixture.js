@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["cyberpunk-2"] = {
   id: "cyberpunk-2",
-  fp: "b48fd7e6",
+  fp: "b82c6500",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -92,7 +92,7 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "px_per_m_at_wall": 243.81,
     "px_per_m_at_bottom": 420.88,
     "wall_width_m": 6,
-    "key_tint": "#c8aa84",
+    "key_tint": "#c8a983",
     "image_h_px": 1024,
     "horizon_y": 0.51377,
     "key_dir": "C-BELOW",
@@ -128,8 +128,8 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "focal_px": 992.7,
     "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.304,
-      "wall_width_m": 4.375,
+      "storey_height_m": 3.177,
+      "wall_width_m": 5.069,
       "ruled_storey_height_m": 3.2,
       "ruled_wall_width_m": 6,
       "warp": {
@@ -169,8 +169,8 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
           "px_per_m_at_wall": 236.364,
           "floor_line_y": 0.794922,
           "corner_x0_px": 213,
-          "corner_x1_px": 1247,
-          "corner_scale_px_per_m": 172.333
+          "corner_x1_px": 1411,
+          "corner_scale_px_per_m": 199.667
         },
         "warped_from": "backdrops/source/noodle_bar-N/row23-42ca34fd.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"
@@ -465,7 +465,7 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "px_per_m_at_wall": 227.556,
     "px_per_m_at_bottom": 420.88,
     "wall_width_m": 5.6,
-    "key_tint": "#c8b290",
+    "key_tint": "#c8b18f",
     "image_h_px": 1024,
     "horizon_y": 0.51377,
     "key_dir": "C-BELOW",
@@ -832,7 +832,7 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "nearest_floor_m": 2.433,
     "measured_room": {
       "storey_height_m": 3.17,
-      "wall_width_m": 4.325,
+      "wall_width_m": 4.329,
       "ruled_storey_height_m": 3.2,
       "ruled_wall_width_m": 4.2,
       "warp": {
@@ -872,8 +872,8 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
           "px_per_m_at_wall": 239.091,
           "floor_line_y": 0.773438,
           "corner_x0_px": 250,
-          "corner_x1_px": 1284,
-          "corner_scale_px_per_m": 246.19
+          "corner_x1_px": 1285,
+          "corner_scale_px_per_m": 246.429
         },
         "warped_from": "backdrops/source/back_office-S/row23-7fc68c04.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"

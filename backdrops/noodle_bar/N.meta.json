@@ -3,7 +3,7 @@
   "px_per_m_at_wall": 243.81,
   "px_per_m_at_bottom": 420.88,
   "wall_width_m": 6,
-  "key_tint": "#c8aa84",
+  "key_tint": "#c8a983",
   "image_h_px": 1024,
   "horizon_y": 0.51377,
   "key_dir": "C-BELOW",
@@ -39,8 +39,8 @@
   "focal_px": 992.7,
   "nearest_floor_m": 2.433,
   "measured_room": {
-    "storey_height_m": 3.304,
-    "wall_width_m": 4.375,
+    "storey_height_m": 3.177,
+    "wall_width_m": 5.069,
     "ruled_storey_height_m": 3.2,
     "ruled_wall_width_m": 6,
     "warp": {
@@ -80,8 +80,8 @@
         "px_per_m_at_wall": 236.364,
         "floor_line_y": 0.794922,
         "corner_x0_px": 213,
-        "corner_x1_px": 1247,
-        "corner_scale_px_per_m": 172.333
+        "corner_x1_px": 1411,
+        "corner_scale_px_per_m": 199.667
       },
       "warped_from": "backdrops/source/noodle_bar-N/row23-42ca34fd.png",
       "tool": "design/plan-draft/measured/mesh_warp.py"

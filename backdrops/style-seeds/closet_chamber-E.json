@@ -41,6 +41,52 @@
         713,
         697
       ]
+    },
+    {
+      "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        687,
+        397,
+        801,
+        575
+      ],
+      "px": [
+        687,
+        236.95491800000002,
+        801,
+        623.737448
+      ],
+      "px_filled": [
+        614,
+        236,
+        874,
+        697
+      ]
+    },
+    {
+      "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        849,
+        397,
+        958,
+        575
+      ],
+      "px": [
+        849,
+        236.95491800000002,
+        958,
+        623.737448
+      ],
+      "px_filled": [
+        776,
+        236,
+        1031,
+        697
+      ]
     }
   ],
   "rects_dropped": [
@@ -67,12 +113,12 @@
         1166.5633802816901,
         623.737448
       ],
-      "dropped": "the instrument reads 1 window(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+      "dropped": "the instrument reads 3 window(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
     }
   ],
   "fill": {
     "rows_filled": 461,
-    "pixels_filled": 118938,
+    "pixels_filled": 265536,
     "rows_refused_as_too_thin": [],
     "feather_px": 16.21,
     "blend_px": 32.42,
@@ -85,12 +131,12 @@
       0.6,
       1.7
     ],
-    "channel_samples_clipped": 188408,
+    "channel_samples_clipped": 235313,
     "min_clear_fraction": 0.25
   },
   "wall_px": 674976,
-  "masked_px": 118938,
-  "masked_pct_of_wall": 17.62,
+  "masked_px": 265536,
+  "masked_pct_of_wall": 39.34,
   "verify": {
     "read_by": [
       "design/plan-draft/measured/door_measure.py",
@@ -105,13 +151,27 @@
         "y0_px": 397,
         "y1_px": 575,
         "width_m": 0.691
+      },
+      {
+        "x0_px": 687,
+        "x1_px": 801,
+        "y0_px": 397,
+        "y1_px": 575,
+        "width_m": 0.703
+      },
+      {
+        "x0_px": 849,
+        "x1_px": 958,
+        "y0_px": 397,
+        "y1_px": 575,
+        "width_m": 0.672
       }
     ],
     "windows_after": [],
     "residual_readings": []
   },
-  "sha256": "f37d35f0813f8fdc869475077496667f3bb8a0a007e511e6ac9b3578f8bdb924",
-  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 1 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "sha256": "539b4c5b09e8a27ecbf1ef76881c9f96f80f6f0d290dd578bfb6b8bd80734d3d",
+  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 3 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
   "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
   "meta_from": "backdrops/closet_chamber/E.meta.json"
 }

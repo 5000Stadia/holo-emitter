@@ -21,6 +21,31 @@
   "rects": [
     {
       "kind": "window",
+      "origin": "window_measure.measure_windows",
+      "why": "a glazed opening this painting shows, read off the pixels; its columns are the reading's and its height is the wall's, because this instrument's vertical is the plan's ruled band whenever it cannot walk the light's own head and sill",
+      "px_read": [
+        329,
+        286,
+        736,
+        595
+      ],
+      "px": [
+        329,
+        14.9129200000001,
+        736,
+        722.421184
+      ],
+      "px_filled": [
+        313,
+        14,
+        886,
+        873
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "window",
       "id": null,
       "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
       "u_m": [
@@ -42,36 +67,31 @@
         669.2386363636363,
         722.421184
       ],
-      "why": "the plan rules this carrier on this wall and the instruments do not account for it — a hearth has no instrument, and a painting can hide an opening",
-      "px_filled": [
-        335,
-        14,
-        819,
-        873
-      ]
+      "dropped": "the instrument reads 1 window(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
     }
   ],
-  "rects_dropped": [],
   "fill": {
     "rows_filled": 859,
-    "pixels_filled": 415756,
+    "pixels_filled": 492207,
     "rows_refused_as_too_thin": [],
     "feather_px": 33.26,
     "blend_px": 66.53,
     "light_field_radius_px": 333,
     "light_field_radii_used_px": [
-      333
+      333,
+      666,
+      1332
     ],
     "relight_ratio_clip": [
       0.6,
       1.7
     ],
-    "channel_samples_clipped": 591824,
+    "channel_samples_clipped": 981403,
     "min_clear_fraction": 0.25
   },
   "wall_px": 1089648,
-  "masked_px": 415756,
-  "masked_pct_of_wall": 38.16,
+  "masked_px": 492207,
+  "masked_pct_of_wall": 45.17,
   "verify": {
     "read_by": [
       "design/plan-draft/measured/door_measure.py",
@@ -79,12 +99,20 @@
     ],
     "doors_before": [],
     "doors_after": [],
-    "windows_before": [],
+    "windows_before": [
+      {
+        "x0_px": 329,
+        "x1_px": 736,
+        "y0_px": 286,
+        "y1_px": 595,
+        "width_m": 1.224
+      }
+    ],
     "windows_after": [],
     "residual_readings": []
   },
-  "sha256": "764bb1d030018b5206e165198eda91287e42339e8df710098115dc88a6688900",
-  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 0 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "sha256": "84588c11b155287ce1b473668aa70b39afa1ce9e86a483d8ace804db65a1d9f7",
+  "verified": "every opening that was in this painting is gone from the seed: 0 way(s) through and 1 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
   "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
   "meta_from": "backdrops/garden_room/N.meta.json"
 }
