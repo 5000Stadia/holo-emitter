@@ -1,6 +1,17 @@
 # holo-emitter
 
-**[▶ Open it in your browser](https://5000stadia.github.io/holo-emitter/)**
+**This is an experimental project — a messy, long road toward rudimentary AI-image, dynamic, live location simulation.**
+
+Expect false starts, abandoned instruments, a commit history that is a working log rather than a showcase, and design notes that are far longer than the code. It is being distilled, not polished: the goal is a system where a location is a folder of data, everything is deterministic except the one image-generation call per wall, and a new place can be built and walked in about the time it takes to paint it.
+
+**[▶ Open the current demo in your browser](https://5000stadia.github.io/holo-emitter/)** — a 1660s manor test site: generated wall paintings per facing, composited doors and windows, walkable room to room. It is a test build, not a finished thing.
+
+## What is here
+
+- `packs/` — a location as data: the plan (rooms, openings, windows, stairs), the room voices (materials, in that world's language), the world sentences and the ruler the camera is measured against.
+- `tools/` and `design/plan-draft/measured/` — the pipeline: validate → project → scaffold (an ink-on-paper line drawing of the wall) → compose the ask → paint (the model call) → correct (pin the painting's corners and openings to the plan) → promote → bake → publish.
+- `src/` and `index.html` — the page: one document, the picture as its projection.
+- `design/` — the method, the intentions row by row, the audits. Most of the words in this repository live here, and most of them are the road, not the destination.
 
 A Myst-like scene client for the browser: generated backdrops, composited sprites, and a single
 world document as the only truth — the picture is a projection of it. You turn, walk between
