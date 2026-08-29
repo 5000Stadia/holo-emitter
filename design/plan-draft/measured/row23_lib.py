@@ -1050,13 +1050,13 @@ def promotion_doc(reading, side, ref, round_name, source_sha256):
     doc = {
       "_source_sha256": source_sha256,
       "_what_this_is": (
-        "The manor production reading for %s, measured off %s by "
-        "design/plan-draft/measured/row23_run.py through the row-23 "
-        "instrument — the SAME reading its camera gate admitted, shaped into "
-        "the §5 record tools/promote-backdrop.mjs takes. Every search window "
-        "is the wall's own scaffold's, declared in "
-        "%s/manifest.json before any " % os.path.relpath(_PACK.paths["batch_dir"]) +
-        "candidate existed." % (side["facing"], side["candidate"])),
+        ("The manor production reading for %s, measured off %s by "
+         "design/plan-draft/measured/row23_run.py through the row-23 "
+         "instrument — the SAME reading its camera gate admitted, shaped into "
+         "the §5 record tools/promote-backdrop.mjs takes. Every search window "
+         "is the wall's own scaffold's, declared in %s/manifest.json before any "
+         "candidate existed.")
+        % (side["facing"], side["candidate"], os.path.relpath(_PACK.paths["batch_dir"]))),
       "_role": ("manor production wall, measured against the camera its own "
                 "manifest entry declares"),
       "verdict": reading["verdict"],
