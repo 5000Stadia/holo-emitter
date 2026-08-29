@@ -22,6 +22,7 @@ from a lit wall — measured over the store, a bright piece of wall lifts up to
 85 above its own median and a window lifts from 54 — so if the lattice test
 were deleted or inverted this case is what goes red.
 """
+import json
 import os
 import sys
 import unittest
@@ -196,16 +197,36 @@ class WindowMeasure(unittest.TestCase):
     def test_the_ruled_band_matches_the_one_the_asks_name(self):
         """ONE HOME, ASSERTED ACROSS THE LANGUAGE BOUNDARY.
 
-        `tools/room-voices.mjs` owns the sill and the head; this file restates
-        them because Python cannot import a `.mjs`. A restatement nobody checks
-        is a second home, so it is checked here.
+        The sill and the head are the PACK's — `packs/<name>/world.json`'s
+        `world.conventions` — and `tools/room-voices.mjs` reads them from there
+        rather than declaring them, which is what this case used to scrape it
+        for. Scraping a literal out of a file that no longer holds one is a
+        check that goes green on nothing and red on everything, so the value is
+        now taken from the pack the same way the `.mjs` takes it: through node,
+        so the export itself is what answers, with the pack file as the fallback
+        when there is no node to ask.
+
+        This file's constants are the MANOR pack's, which is the pack the
+        detector's corpus was painted under.
         """
         root = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-        with open(os.path.join(root, "tools", "room-voices.mjs")) as fh:
-            src = fh.read()
-        import re
-        sill = float(re.search(r"WINDOW_SILL_M\s*=\s*([\d.]+)", src).group(1))
-        head = float(re.search(r"WINDOW_HEAD_M\s*=\s*([\d.]+)", src).group(1))
+        sill = head = None
+        try:
+            import subprocess
+            out = subprocess.run(
+                ["node", "-e",
+                 "import('./tools/room-voices.mjs').then(m=>console.log("
+                 "JSON.stringify([m.WINDOW_SILL_M,m.WINDOW_HEAD_M])))"],
+                cwd=root, env=dict(os.environ, HOLO_PACK="manor"),
+                capture_output=True, text=True, timeout=60)
+            if out.returncode == 0 and out.stdout.strip():
+                sill, head = json.loads(out.stdout.strip().splitlines()[-1])
+        except (OSError, ValueError, subprocess.SubprocessError):
+            sill = head = None
+        if sill is None:
+            with open(os.path.join(root, "packs", "manor", "world.json")) as fh:
+                conv = json.load(fh)["conventions"]
+            sill, head = conv["window_sill_m"], conv["window_head_m"]
         self.assertEqual((sill, head), (W.WINDOW_SILL_M, W.WINDOW_HEAD_M))
 
 

@@ -1,0 +1,1416 @@
+{
+ "_how": "ROW 42+ \u2014 THE HUMAN LABEL, AND IT IS A LABEL AND NOT A READING. Every rectangle here was drawn by LOOKING at the picture: each frame was downscaled 3x, ruled with a 128 px grid in its own image coordinates, and read by eye; the numbers were then multiplied back to full resolution, so an edge is good to about +/-10 px (well under the 0.35 m the evaluator pairs at, which is ~60 px at this store's scale). What is labelled is the INNER GLAZED APERTURE \u2014 the glass and its cames \u2014 and not the stone surround or the architrave, because the surround is what the detector is forbidden to answer with. A wall with no glazed opening carries \"none\": true and an empty list, and those walls are the corpus's other half: without them a detector that answered \"window\" everywhere would score perfectly. Covered: every promoted wall in backdrops/ (63 manor + 8 cyberpunk-2) and all 9 servants_hall/E candidates, which is the wall the audit memo names as a plain painted window the detector loses. The candidates are labelled on their own frames but carry the promoted wall's scale and corners, which is the same geometry the promotion measured them under. THIS FILE IS GROUND TRUTH AND NOT OUTPUT: nothing in the detector may be tuned by writing here, and window_calibration.json \u2014 which compares the PLAN to the reading \u2014 is a content metric and is not this.",
+ "_labelled": "2026-08-29",
+ "_units": "full-resolution image pixels; x0<x1 left to right, y0<y1 top (head) to bottom (sill)",
+ "_scored_by": "design/plan-draft/measured/window_eval.py",
+ "walls": [
+  {
+   "key": "back_office/E",
+   "image": "backdrops/back_office/E.png",
+   "meta": "backdrops/back_office/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 273.067,
+   "floor_line_y_px": 849.14,
+   "corner_x0_px": 3.413333333333412,
+   "corner_x1_px": 1532.5866666666666,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 588,
+     "x1": 948,
+     "y0": 246,
+     "y1": 528
+    }
+   ]
+  },
+  {
+   "key": "back_office/N",
+   "image": "backdrops/back_office/N.png",
+   "meta": "backdrops/back_office/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 243.81,
+   "floor_line_y_px": 814.53,
+   "corner_x0_px": 256,
+   "corner_x1_px": 1280,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_office/S",
+   "image": "backdrops/back_office/S.png",
+   "meta": "backdrops/back_office/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 243.81,
+   "floor_line_y_px": 814.53,
+   "corner_x0_px": 256,
+   "corner_x1_px": 1280,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_office/W",
+   "image": "backdrops/back_office/W.png",
+   "meta": "backdrops/back_office/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 273.067,
+   "floor_line_y_px": 849.14,
+   "corner_x0_px": 3.413333333333412,
+   "corner_x1_px": 1532.5866666666666,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_stair/N",
+   "image": "backdrops/back_stair/N.png",
+   "meta": "backdrops/back_stair/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 337.895,
+   "floor_line_y_px": 904.0,
+   "corner_x0_px": 97,
+   "corner_x1_px": 1441,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_stair/W",
+   "image": "backdrops/back_stair/W.png",
+   "meta": "backdrops/back_stair/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 250.367,
+   "floor_line_y_px": 822.28,
+   "corner_x0_px": 55.59,
+   "corner_x1_px": 1480.41,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_stair_head/N",
+   "image": "backdrops/back_stair_head/N.png",
+   "meta": "backdrops/back_stair_head/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 315.789,
+   "floor_line_y_px": 885.0,
+   "corner_x0_px": 102,
+   "corner_x1_px": 1430,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "back_stair_head/S",
+   "image": "backdrops/back_stair_head/S.png",
+   "meta": "backdrops/back_stair_head/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 276.757,
+   "floor_line_y_px": 853.5,
+   "corner_x0_px": 125.31,
+   "corner_x1_px": 1410.69,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "buttery_pantry/E",
+   "image": "backdrops/buttery_pantry/E.png",
+   "meta": "backdrops/buttery_pantry/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 173.684,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 210,
+   "corner_x1_px": 1313,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 630,
+     "x1": 894,
+     "y0": 255,
+     "y1": 612
+    }
+   ]
+  },
+  {
+   "key": "buttery_pantry/N",
+   "image": "backdrops/buttery_pantry/N.png",
+   "meta": "backdrops/buttery_pantry/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 225.263,
+   "floor_line_y_px": 806.0,
+   "corner_x0_px": 166,
+   "corner_x1_px": 1366,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "buttery_pantry/S",
+   "image": "backdrops/buttery_pantry/S.png",
+   "meta": "backdrops/buttery_pantry/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 216.842,
+   "floor_line_y_px": 786.0,
+   "corner_x0_px": 135,
+   "corner_x1_px": 1404,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "buttery_pantry/W",
+   "image": "backdrops/buttery_pantry/W.png",
+   "meta": "backdrops/buttery_pantry/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 175.789,
+   "floor_line_y_px": 738.0,
+   "corner_x0_px": 267,
+   "corner_x1_px": 1273,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "closet_chamber/E",
+   "image": "backdrops/closet_chamber/E.png",
+   "meta": "backdrops/closet_chamber/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 162.105,
+   "floor_line_y_px": 721.0,
+   "corner_x0_px": 134,
+   "corner_x1_px": 1398,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 489,
+     "x1": 975,
+     "y0": 186,
+     "y1": 555
+    }
+   ]
+  },
+  {
+   "key": "closet_chamber/N",
+   "image": "backdrops/closet_chamber/N.png",
+   "meta": "backdrops/closet_chamber/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 324.211,
+   "floor_line_y_px": 903.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1460,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 285,
+     "x1": 744,
+     "y0": 186,
+     "y1": 555
+    }
+   ]
+  },
+  {
+   "key": "closet_chamber/S",
+   "image": "backdrops/closet_chamber/S.png",
+   "meta": "backdrops/closet_chamber/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 330.323,
+   "floor_line_y_px": 916.87,
+   "corner_x0_px": -685.4193548387098,
+   "corner_x1_px": 2221.4193548387098,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "closet_chamber/W",
+   "image": "backdrops/closet_chamber/W.png",
+   "meta": "backdrops/closet_chamber/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 156.842,
+   "floor_line_y_px": 723.0,
+   "corner_x0_px": 419,
+   "corner_x1_px": 1132,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "dining_parlour/E",
+   "image": "backdrops/dining_parlour/E.png",
+   "meta": "backdrops/dining_parlour/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 155.789,
+   "floor_line_y_px": 721.0,
+   "corner_x0_px": 162,
+   "corner_x1_px": 1376,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "dining_parlour/N",
+   "image": "backdrops/dining_parlour/N.png",
+   "meta": "backdrops/dining_parlour/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 146.316,
+   "floor_line_y_px": 709.0,
+   "corner_x0_px": 144,
+   "corner_x1_px": 1406,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "dining_parlour/S",
+   "image": "backdrops/dining_parlour/S.png",
+   "meta": "backdrops/dining_parlour/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 147.368,
+   "floor_line_y_px": 704.0,
+   "corner_x0_px": 133,
+   "corner_x1_px": 1394,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 324,
+     "x1": 555,
+     "y0": 204,
+     "y1": 570
+    },
+    {
+     "x0": 975,
+     "x1": 1200,
+     "y0": 204,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "dining_parlour/W",
+   "image": "backdrops/dining_parlour/W.png",
+   "meta": "backdrops/dining_parlour/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 160,
+   "floor_line_y_px": 719.0,
+   "corner_x0_px": 218,
+   "corner_x1_px": 1328,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 630,
+     "x1": 900,
+     "y0": 180,
+     "y1": 555
+    }
+   ]
+  },
+  {
+   "key": "entrance_approach/E",
+   "image": "backdrops/entrance_approach/E.png",
+   "meta": "backdrops/entrance_approach/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 42.105,
+   "floor_line_y_px": 579.0,
+   "corner_x0_px": null,
+   "corner_x1_px": null,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "entrance_approach/S",
+   "image": "backdrops/entrance_approach/S.png",
+   "meta": "backdrops/entrance_approach/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 67.368,
+   "floor_line_y_px": 603.0,
+   "corner_x0_px": null,
+   "corner_x1_px": null,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "entrance_approach/W",
+   "image": "backdrops/entrance_approach/W.png",
+   "meta": "backdrops/entrance_approach/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 43.158,
+   "floor_line_y_px": 579.0,
+   "corner_x0_px": null,
+   "corner_x1_px": null,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "entrance_court/E",
+   "image": "backdrops/entrance_court/E.png",
+   "meta": "backdrops/entrance_court/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 68.421,
+   "floor_line_y_px": 606.0,
+   "corner_x0_px": 98,
+   "corner_x1_px": 1425,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "entrance_court/S",
+   "image": "backdrops/entrance_court/S.png",
+   "meta": "backdrops/entrance_court/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 36.842,
+   "floor_line_y_px": 567.0,
+   "corner_x0_px": null,
+   "corner_x1_px": null,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "garden_room/E",
+   "image": "backdrops/garden_room/E.png",
+   "meta": "backdrops/garden_room/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 154.737,
+   "floor_line_y_px": 719.0,
+   "corner_x0_px": 331,
+   "corner_x1_px": 1207,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "garden_room/N",
+   "image": "backdrops/garden_room/N.png",
+   "meta": "backdrops/garden_room/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 332.632,
+   "floor_line_y_px": 922.0,
+   "corner_x0_px": 313,
+   "corner_x1_px": 1394,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 288,
+     "x1": 756,
+     "y0": 255,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "garden_room/S",
+   "image": "backdrops/garden_room/S.png",
+   "meta": "backdrops/garden_room/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 330.323,
+   "floor_line_y_px": 916.87,
+   "corner_x0_px": -685.4193548387098,
+   "corner_x1_px": 2221.4193548387098,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "garden_room/W",
+   "image": "backdrops/garden_room/W.png",
+   "meta": "backdrops/garden_room/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 155.152,
+   "floor_line_y_px": 709.64,
+   "corner_x0_px": 289.42,
+   "corner_x1_px": 1246.58,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "great_hall/N",
+   "image": "backdrops/great_hall/N.png",
+   "meta": "backdrops/great_hall/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 115.706,
+   "floor_line_y_px": 662.98,
+   "corner_x0_px": 85.9,
+   "corner_x1_px": 1450.1,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 774,
+     "x1": 936,
+     "y0": 270,
+     "y1": 600
+    }
+   ]
+  },
+  {
+   "key": "great_hall/S",
+   "image": "backdrops/great_hall/S.png",
+   "meta": "backdrops/great_hall/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 112.632,
+   "floor_line_y_px": 654.0,
+   "corner_x0_px": 673,
+   "corner_x1_px": 1446,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 216,
+     "x1": 345,
+     "y0": 354,
+     "y1": 615
+    },
+    {
+     "x0": 444,
+     "x1": 576,
+     "y0": 354,
+     "y1": 615
+    },
+    {
+     "x0": 975,
+     "x1": 1104,
+     "y0": 354,
+     "y1": 615
+    },
+    {
+     "x0": 1209,
+     "x1": 1341,
+     "y0": 354,
+     "y1": 615
+    }
+   ]
+  },
+  {
+   "key": "great_stair_hall/E",
+   "image": "backdrops/great_stair_hall/E.png",
+   "meta": "backdrops/great_stair_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 161.053,
+   "floor_line_y_px": 722.0,
+   "corner_x0_px": 215,
+   "corner_x1_px": 1316,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "guest_chamber/E",
+   "image": "backdrops/guest_chamber/E.png",
+   "meta": "backdrops/guest_chamber/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 155.152,
+   "floor_line_y_px": 709.64,
+   "corner_x0_px": 206.5,
+   "corner_x1_px": 1329.5,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "guest_chamber/N",
+   "image": "backdrops/guest_chamber/N.png",
+   "meta": "backdrops/guest_chamber/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 173.684,
+   "floor_line_y_px": 739.0,
+   "corner_x0_px": 89,
+   "corner_x1_px": 1412,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "guest_chamber/S",
+   "image": "backdrops/guest_chamber/S.png",
+   "meta": "backdrops/guest_chamber/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 174.737,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 126,
+   "corner_x1_px": 1402,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "guest_chamber/W",
+   "image": "backdrops/guest_chamber/W.png",
+   "meta": "backdrops/guest_chamber/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 160,
+   "floor_line_y_px": 721.0,
+   "corner_x0_px": 228,
+   "corner_x1_px": 1308,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 366,
+     "x1": 549,
+     "y0": 255,
+     "y1": 591
+    },
+    {
+     "x0": 966,
+     "x1": 1170,
+     "y0": 255,
+     "y1": 591
+    }
+   ]
+  },
+  {
+   "key": "kitchen/E",
+   "image": "backdrops/kitchen/E.png",
+   "meta": "backdrops/kitchen/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 174.737,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 190,
+   "corner_x1_px": 1458,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 834,
+     "x1": 1116,
+     "y0": 186,
+     "y1": 585
+    }
+   ]
+  },
+  {
+   "key": "kitchen/S",
+   "image": "backdrops/kitchen/S.png",
+   "meta": "backdrops/kitchen/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 161.053,
+   "floor_line_y_px": 727.0,
+   "corner_x0_px": 229,
+   "corner_x1_px": 1335,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 309,
+     "x1": 489,
+     "y0": 255,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "kitchen/W",
+   "image": "backdrops/kitchen/W.png",
+   "meta": "backdrops/kitchen/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 174.737,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 104,
+   "corner_x1_px": 1461,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "library/E",
+   "image": "backdrops/library/E.png",
+   "meta": "backdrops/library/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 147.368,
+   "floor_line_y_px": 698.0,
+   "corner_x0_px": 199,
+   "corner_x1_px": 1316,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "library/N",
+   "image": "backdrops/library/N.png",
+   "meta": "backdrops/library/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 173.684,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 151,
+   "corner_x1_px": 1371,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "library/W",
+   "image": "backdrops/library/W.png",
+   "meta": "backdrops/library/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 157.895,
+   "floor_line_y_px": 715.0,
+   "corner_x0_px": 246,
+   "corner_x1_px": 1303,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 438,
+     "x1": 588,
+     "y0": 255,
+     "y1": 576
+    },
+    {
+     "x0": 945,
+     "x1": 1104,
+     "y0": 255,
+     "y1": 576
+    }
+   ]
+  },
+  {
+   "key": "long_gallery/E",
+   "image": "backdrops/long_gallery/E.png",
+   "meta": "backdrops/long_gallery/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 132.632,
+   "floor_line_y_px": 679.0,
+   "corner_x0_px": 132,
+   "corner_x1_px": 1453,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 321,
+     "x1": 510,
+     "y0": 246,
+     "y1": 534
+    },
+    {
+     "x0": 1068,
+     "x1": 1242,
+     "y0": 246,
+     "y1": 534
+    }
+   ]
+  },
+  {
+   "key": "long_gallery/N",
+   "image": "backdrops/long_gallery/N.png",
+   "meta": "backdrops/long_gallery/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 56.842,
+   "floor_line_y_px": 597.0,
+   "corner_x0_px": 484,
+   "corner_x1_px": 1044,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 684,
+     "x1": 840,
+     "y0": 339,
+     "y1": 654
+    }
+   ]
+  },
+  {
+   "key": "long_gallery/S",
+   "image": "backdrops/long_gallery/S.png",
+   "meta": "backdrops/long_gallery/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 55.789,
+   "floor_line_y_px": 596.0,
+   "corner_x0_px": 559,
+   "corner_x1_px": 987,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 699,
+     "x1": 840,
+     "y0": 369,
+     "y1": 645
+    }
+   ]
+  },
+  {
+   "key": "master_bedchamber/E",
+   "image": "backdrops/master_bedchamber/E.png",
+   "meta": "backdrops/master_bedchamber/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 155.152,
+   "floor_line_y_px": 709.64,
+   "corner_x0_px": 255.35,
+   "corner_x1_px": 1280.65,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 384,
+     "x1": 576,
+     "y0": 255,
+     "y1": 570
+    },
+    {
+     "x0": 930,
+     "x1": 1116,
+     "y0": 255,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "master_bedchamber/N",
+   "image": "backdrops/master_bedchamber/N.png",
+   "meta": "backdrops/master_bedchamber/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 143.217,
+   "floor_line_y_px": 695.53,
+   "corner_x0_px": 114.21,
+   "corner_x1_px": 1421.79,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "master_bedchamber/S",
+   "image": "backdrops/master_bedchamber/S.png",
+   "meta": "backdrops/master_bedchamber/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 135.789,
+   "floor_line_y_px": 693.0,
+   "corner_x0_px": 146,
+   "corner_x1_px": 1389,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 309,
+     "x1": 534,
+     "y0": 216,
+     "y1": 516
+    },
+    {
+     "x0": 960,
+     "x1": 1194,
+     "y0": 216,
+     "y1": 516
+    }
+   ]
+  },
+  {
+   "key": "master_bedchamber/W",
+   "image": "backdrops/master_bedchamber/W.png",
+   "meta": "backdrops/master_bedchamber/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 160,
+   "floor_line_y_px": 723.0,
+   "corner_x0_px": 276,
+   "corner_x1_px": 1324,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 588,
+     "x1": 936,
+     "y0": 255,
+     "y1": 576
+    }
+   ]
+  },
+  {
+   "key": "muniment_room/E",
+   "image": "backdrops/muniment_room/E.png",
+   "meta": "backdrops/muniment_room/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 244.211,
+   "floor_line_y_px": 802.0,
+   "corner_x0_px": 170,
+   "corner_x1_px": 1384,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "muniment_room/N",
+   "image": "backdrops/muniment_room/N.png",
+   "meta": "backdrops/muniment_room/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 222.105,
+   "floor_line_y_px": 799.0,
+   "corner_x0_px": 225,
+   "corner_x1_px": 1310,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "muniment_room/S",
+   "image": "backdrops/muniment_room/S.png",
+   "meta": "backdrops/muniment_room/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 247.368,
+   "floor_line_y_px": 817.0,
+   "corner_x0_px": 174,
+   "corner_x1_px": 1367,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 390,
+     "x1": 576,
+     "y0": 186,
+     "y1": 579
+    },
+    {
+     "x0": 954,
+     "x1": 1146,
+     "y0": 186,
+     "y1": 579
+    }
+   ]
+  },
+  {
+   "key": "muniment_room/W",
+   "image": "backdrops/muniment_room/W.png",
+   "meta": "backdrops/muniment_room/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 252.632,
+   "floor_line_y_px": 809.0,
+   "corner_x0_px": 172,
+   "corner_x1_px": 1379,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "noodle_bar/E",
+   "image": "backdrops/noodle_bar/E.png",
+   "meta": "backdrops/noodle_bar/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 227.556,
+   "floor_line_y_px": 795.3,
+   "corner_x0_px": 130.84444444444455,
+   "corner_x1_px": 1405.1555555555556,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "noodle_bar/N",
+   "image": "backdrops/noodle_bar/N.png",
+   "meta": "backdrops/noodle_bar/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 243.81,
+   "floor_line_y_px": 814.53,
+   "corner_x0_px": 36.57142857142867,
+   "corner_x1_px": 1499.4285714285713,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "noodle_bar/S",
+   "image": "backdrops/noodle_bar/S.png",
+   "meta": "backdrops/noodle_bar/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 243.81,
+   "floor_line_y_px": 814.53,
+   "corner_x0_px": 36.57142857142867,
+   "corner_x1_px": 1499.4285714285713,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 525,
+     "x1": 1014,
+     "y0": 285,
+     "y1": 576
+    }
+   ]
+  },
+  {
+   "key": "noodle_bar/W",
+   "image": "backdrops/noodle_bar/W.png",
+   "meta": "backdrops/noodle_bar/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 227.556,
+   "floor_line_y_px": 795.3,
+   "corner_x0_px": 130.84444444444455,
+   "corner_x1_px": 1405.1555555555556,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "privy_garden/N",
+   "image": "backdrops/privy_garden/N.png",
+   "meta": "backdrops/privy_garden/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 198.947,
+   "floor_line_y_px": 769.0,
+   "corner_x0_px": 143,
+   "corner_x1_px": 1415,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "privy_garden/S",
+   "image": "backdrops/privy_garden/S.png",
+   "meta": "backdrops/privy_garden/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 189.474,
+   "floor_line_y_px": 755.0,
+   "corner_x0_px": 97,
+   "corner_x1_px": 1420,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 999,
+     "x1": 1170,
+     "y0": 264,
+     "y1": 516
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E",
+   "image": "backdrops/servants_hall/E.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 240,
+     "x1": 534,
+     "y0": 285,
+     "y1": 549
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/N",
+   "image": "backdrops/servants_hall/N.png",
+   "meta": "backdrops/servants_hall/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 157.895,
+   "floor_line_y_px": 723.0,
+   "corner_x0_px": 241,
+   "corner_x1_px": 1269,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 591,
+     "x1": 909,
+     "y0": 330,
+     "y1": 645
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/S",
+   "image": "backdrops/servants_hall/S.png",
+   "meta": "backdrops/servants_hall/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 161.053,
+   "floor_line_y_px": 723.0,
+   "corner_x0_px": 188,
+   "corner_x1_px": 1388,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "servants_hall/W",
+   "image": "backdrops/servants_hall/W.png",
+   "meta": "backdrops/servants_hall/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 170.667,
+   "floor_line_y_px": 728.0,
+   "corner_x0_px": 121.97,
+   "corner_x1_px": 1414.03,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "solar/E",
+   "image": "backdrops/solar/E.png",
+   "meta": "backdrops/solar/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 95.789,
+   "floor_line_y_px": 643.0,
+   "corner_x0_px": 201,
+   "corner_x1_px": 1330,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "solar/N",
+   "image": "backdrops/solar/N.png",
+   "meta": "backdrops/solar/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 117.895,
+   "floor_line_y_px": 673.0,
+   "corner_x0_px": 88,
+   "corner_x1_px": 1484,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 864,
+     "x1": 1080,
+     "y0": 264,
+     "y1": 570
+    },
+    {
+     "x0": 1224,
+     "x1": 1356,
+     "y0": 264,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "solar/S",
+   "image": "backdrops/solar/S.png",
+   "meta": "backdrops/solar/S.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 122.105,
+   "floor_line_y_px": 673.0,
+   "corner_x0_px": 541,
+   "corner_x1_px": 1455,
+   "candidate": false,
+   "windows": [
+    {
+     "x0": 216,
+     "x1": 384,
+     "y0": 270,
+     "y1": 579
+    },
+    {
+     "x0": 534,
+     "x1": 696,
+     "y0": 270,
+     "y1": 579
+    },
+    {
+     "x0": 864,
+     "x1": 1020,
+     "y0": 270,
+     "y1": 579
+    },
+    {
+     "x0": 1170,
+     "x1": 1320,
+     "y0": 270,
+     "y1": 579
+    }
+   ]
+  },
+  {
+   "key": "solar/W",
+   "image": "backdrops/solar/W.png",
+   "meta": "backdrops/solar/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 96.842,
+   "floor_line_y_px": 645.0,
+   "corner_x0_px": 241,
+   "corner_x1_px": 1305,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "stair_landing/E",
+   "image": "backdrops/stair_landing/E.png",
+   "meta": "backdrops/stair_landing/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 161.053,
+   "floor_line_y_px": 721.0,
+   "corner_x0_px": 216,
+   "corner_x1_px": 1344,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "stair_landing/N",
+   "image": "backdrops/stair_landing/N.png",
+   "meta": "backdrops/stair_landing/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 192.632,
+   "floor_line_y_px": 749.0,
+   "corner_x0_px": 105,
+   "corner_x1_px": 1352,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "study/N",
+   "image": "backdrops/study/N.png",
+   "meta": "backdrops/study/N.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 188.421,
+   "floor_line_y_px": 749.0,
+   "corner_x0_px": 188,
+   "corner_x1_px": 1351,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "study/W",
+   "image": "backdrops/study/W.png",
+   "meta": "backdrops/study/W.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 192.632,
+   "floor_line_y_px": 749.0,
+   "corner_x0_px": 186,
+   "corner_x1_px": 1351,
+   "candidate": false,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "servants_hall/E@row23-230bb67d",
+   "image": "backdrops/source/servants_hall-E/row23-230bb67d.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [],
+   "none": true
+  },
+  {
+   "key": "servants_hall/E@row23-7259cd6a",
+   "image": "backdrops/source/servants_hall-E/row23-7259cd6a.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 306,
+     "x1": 630,
+     "y0": 270,
+     "y1": 546
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@row23-a1213e7d",
+   "image": "backdrops/source/servants_hall-E/row23-a1213e7d.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 306,
+     "x1": 528,
+     "y0": 216,
+     "y1": 564
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@row23-ce4ea35f",
+   "image": "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 240,
+     "x1": 534,
+     "y0": 285,
+     "y1": 549
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@row23-ec3bc181",
+   "image": "backdrops/source/servants_hall-E/row23-ec3bc181.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 240,
+     "x1": 516,
+     "y0": 234,
+     "y1": 504
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@row23-f8c7ac49",
+   "image": "backdrops/source/servants_hall-E/row23-f8c7ac49.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 300,
+     "x1": 516,
+     "y0": 204,
+     "y1": 546
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@row23-fab34914",
+   "image": "backdrops/source/servants_hall-E/row23-fab34914.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 210,
+     "x1": 456,
+     "y0": 354,
+     "y1": 570
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@scafink-372cda37",
+   "image": "backdrops/source/servants_hall-E/scafink-372cda37.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 276,
+     "x1": 570,
+     "y0": 285,
+     "y1": 516
+    }
+   ]
+  },
+  {
+   "key": "servants_hall/E@scafink-3d1359f8",
+   "image": "backdrops/source/servants_hall-E/scafink-3d1359f8.png",
+   "meta": "backdrops/servants_hall/E.meta.json",
+   "image_w_px": 1536,
+   "image_h_px": 1024,
+   "px_per_m_at_wall": 178.947,
+   "floor_line_y_px": 743.0,
+   "corner_x0_px": 95,
+   "corner_x1_px": 1394,
+   "candidate": true,
+   "windows": [
+    {
+     "x0": 240,
+     "x1": 495,
+     "y0": 294,
+     "y1": 516
+    }
+   ]
+  }
+ ]
+}
