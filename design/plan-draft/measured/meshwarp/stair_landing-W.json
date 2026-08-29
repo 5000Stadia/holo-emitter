@@ -1,7 +1,7 @@
 {
  "facing": "stair_landing/W",
  "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024
@@ -76,357 +76,130 @@
   }
  },
  "pins_dropped_as_duplicate": [],
- "pins": [
+ "columns": [
   {
-   "name": "corner_left_ceiling",
+   "name": "corner_left",
    "kind": "room_corner",
-   "target": [
-    329.7,
-    275.22
-   ],
-   "source": [
-    345.0,
-    244.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 34.8
+   "target": 329.697,
+   "source": 345.0,
+   "ask_px": -15.3,
+   "residual_px": 0.0
   },
   {
-   "name": "corner_right_ceiling",
+   "name": "window:win32:left",
+   "kind": "window",
+   "target": 554.667,
+   "source": 638.0,
+   "ask_px": -83.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:right",
+   "kind": "window",
+   "target": 942.545,
+   "source": 857.0,
+   "ask_px": 85.5,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
    "kind": "room_corner",
-   "target": [
-    1206.3,
-    275.22
-   ],
-   "source": [
-    1181.0,
-    244.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 40.2
-  },
-  {
-   "name": "corner_left_floor",
-   "kind": "room_corner",
-   "target": [
-    329.7,
-    709.64
-   ],
-   "source": [
-    345.0,
-    715.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 16.2
-  },
-  {
-   "name": "corner_right_floor",
-   "kind": "room_corner",
-   "target": [
-    1206.3,
-    709.64
-   ],
-   "source": [
-    1181.0,
-    715.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 25.9
-  },
-  {
-   "name": "floor_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    847.71
-   ],
-   "source": [
-    28.09,
-    869.65
-   ],
-   "residual_px": 0.0,
-   "ask_px": 35.6
-  },
-  {
-   "name": "floor_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    847.29
-   ],
-   "source": [
-    1492.0,
-    869.19
-   ],
-   "residual_px": 0.0,
-   "ask_px": 48.3
-  },
-  {
-   "name": "ceiling_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    86.5
-   ],
-   "source": [
-    28.09,
-    44.36
-   ],
-   "residual_px": 0.0,
-   "ask_px": 50.6
-  },
-  {
-   "name": "ceiling_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    87.08
-   ],
-   "source": [
-    1492.0,
-    44.97
-   ],
-   "residual_px": 0.0,
-   "ask_px": 60.2
-  },
-  {
-   "name": "wall_edge_top",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    275.22
-   ],
-   "source": [
-    763.0,
-    244.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 31.6
-  },
-  {
-   "name": "wall_edge_bottom",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    709.64
-   ],
-   "source": [
-    763.0,
-    715.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 7.3
-  },
-  {
-   "name": "wall_edge_left",
-   "kind": "wall_edge",
-   "target": [
-    329.7,
-    492.43
-   ],
-   "source": [
-    345.0,
-    479.5
-   ],
-   "residual_px": 0.0,
-   "ask_px": 20.0
-  },
-  {
-   "name": "wall_edge_right",
-   "kind": "wall_edge",
-   "target": [
-    1206.3,
-    492.43
-   ],
-   "source": [
-    1181.0,
-    479.5
-   ],
-   "residual_px": 0.0,
-   "ask_px": 28.4
-  },
-  {
-   "name": "window:win32:tl",
-   "kind": "window",
-   "target": [
-    554.67,
-    399.34
-   ],
-   "source": [
-    638.0,
-    294.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 134.3
-  },
-  {
-   "name": "window:win32:tl+1",
-   "kind": "window",
-   "target": [
-    683.96,
-    399.34
-   ],
-   "source": [
-    711.0,
-    294.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 108.8
-  },
-  {
-   "name": "window:win32:tl+2",
-   "kind": "window",
-   "target": [
-    813.25,
-    399.34
-   ],
-   "source": [
-    784.0,
-    294.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 109.3
-  },
-  {
-   "name": "window:win32:tr",
-   "kind": "window",
-   "target": [
-    942.55,
-    399.34
-   ],
-   "source": [
-    857.0,
-    294.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 135.7
-  },
-  {
-   "name": "window:win32:tr+1",
-   "kind": "window",
-   "target": [
-    942.55,
-    456.23
-   ],
-   "source": [
-    857.0,
-    389.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 108.4
-  },
-  {
-   "name": "window:win32:tr+2",
-   "kind": "window",
-   "target": [
-    942.55,
-    513.12
-   ],
-   "source": [
-    857.0,
-    485.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 90.0
-  },
-  {
-   "name": "window:win32:br",
-   "kind": "window",
-   "target": [
-    942.55,
-    570.01
-   ],
-   "source": [
-    857.0,
-    581.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 86.3
-  },
-  {
-   "name": "window:win32:br+1",
-   "kind": "window",
-   "target": [
-    813.25,
-    570.01
-   ],
-   "source": [
-    784.0,
-    581.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 31.2
-  },
-  {
-   "name": "window:win32:br+2",
-   "kind": "window",
-   "target": [
-    683.96,
-    570.01
-   ],
-   "source": [
-    711.0,
-    581.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 29.2
-  },
-  {
-   "name": "window:win32:bl",
-   "kind": "window",
-   "target": [
-    554.67,
-    570.01
-   ],
-   "source": [
-    638.0,
-    581.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 84.1
-  },
-  {
-   "name": "window:win32:bl+1",
-   "kind": "window",
-   "target": [
-    554.67,
-    513.12
-   ],
-   "source": [
-    638.0,
-    485.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 87.8
-  },
-  {
-   "name": "window:win32:bl+2",
-   "kind": "window",
-   "target": [
-    554.67,
-    456.23
-   ],
-   "source": [
-    638.0,
-    389.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 106.6
+   "target": 1206.303,
+   "source": 1181.0,
+   "ask_px": 25.3,
+   "residual_px": 0.0
   }
  ],
- "local_stretch": {
-  "max_local_stretch": 4.983,
-  "p999_local_stretch": 4.315,
-  "median_local_stretch": 1.07,
-  "max_local_compression": 0.534,
-  "folded_px": 0,
-  "folded_fraction": 0.0
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 275.22,
+   "source": 244.0,
+   "ask_px": 31.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:head",
+   "kind": "window",
+   "target": 399.341,
+   "source": 294.0,
+   "ask_px": 105.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:sill",
+   "kind": "window",
+   "target": 570.008,
+   "source": 581.0,
+   "ask_px": -11.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 709.644,
+   "source": 715.0,
+   "ask_px": -5.4,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.768,
+  "x_scale_max": 1.771,
+  "y_scale_min": 0.595,
+  "y_scale_max": 2.482,
+  "x_segments": [
+   {
+    "name": "corner_left..window:win32:left",
+    "target_px": 225.0,
+    "source_px": 293.0,
+    "scale": 0.768
+   },
+   {
+    "name": "window:win32:left..window:win32:right",
+    "target_px": 387.9,
+    "source_px": 219.0,
+    "scale": 1.771
+   },
+   {
+    "name": "window:win32:right..corner_right",
+    "target_px": 263.8,
+    "source_px": 324.0,
+    "scale": 0.814
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..window:win32:head",
+    "target_px": 124.1,
+    "source_px": 50.0,
+    "scale": 2.482
+   },
+   {
+    "name": "window:win32:head..window:win32:sill",
+    "target_px": 170.7,
+    "source_px": 287.0,
+    "scale": 0.595
+   },
+   {
+    "name": "window:win32:sill..floor_line",
+    "target_px": 139.6,
+    "source_px": 134.0,
+    "scale": 1.042
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
  },
- "revealed_px": 65005,
- "revealed_fraction": 0.04133,
+ "max_residual_px": 0.0,
+ "revealed_px": 129024,
+ "revealed_fraction": 0.08203,
  "mirror_band_px": 24,
- "pin_count": 24,
- "seconds": 3.29,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 4,
+ "seconds": 1.29,
  "status": "held",
  "hold_family": "promotion-refused",
  "out_png": "design/plan-draft/measured/meshwarp/stair_landing-W.png"

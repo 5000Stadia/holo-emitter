@@ -1,7 +1,7 @@
 {
  "facing": "great_stair_hall/W",
  "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024
@@ -81,357 +81,130 @@
   }
  },
  "pins_dropped_as_duplicate": [],
- "pins": [
+ "columns": [
   {
-   "name": "corner_left_ceiling",
+   "name": "corner_left",
    "kind": "room_corner",
-   "target": [
-    329.7,
-    275.22
-   ],
-   "source": [
-    225.0,
-    250.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 107.7
+   "target": 329.697,
+   "source": 225.0,
+   "ask_px": 104.7,
+   "residual_px": 0.0
   },
   {
-   "name": "corner_right_ceiling",
+   "name": "window:win16:left",
+   "kind": "window",
+   "target": 554.667,
+   "source": 612.0,
+   "ask_px": -57.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:right",
+   "kind": "window",
+   "target": 942.545,
+   "source": 778.0,
+   "ask_px": 164.5,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
    "kind": "room_corner",
-   "target": [
-    1206.3,
-    275.22
-   ],
-   "source": [
-    1413.0,
-    250.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 208.2
-  },
-  {
-   "name": "corner_left_floor",
-   "kind": "room_corner",
-   "target": [
-    329.7,
-    709.64
-   ],
-   "source": [
-    225.0,
-    721.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 105.3
-  },
-  {
-   "name": "corner_right_floor",
-   "kind": "room_corner",
-   "target": [
-    1206.3,
-    709.64
-   ],
-   "source": [
-    1413.0,
-    721.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 207.0
-  },
-  {
-   "name": "floor_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    847.71
-   ],
-   "source": [
-    -204.06,
-    836.99
-   ],
-   "residual_px": 0.0,
-   "ask_px": 204.3
-  },
-  {
-   "name": "floor_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    847.29
-   ],
-   "source": [
-    1876.16,
-    836.64
-   ],
-   "residual_px": 0.0,
-   "ask_px": 341.3
-  },
-  {
-   "name": "ceiling_line_left_end",
-   "kind": "line_end",
-   "target": [
-    0.0,
-    86.5
-   ],
-   "source": [
-    -204.06,
-    11.7
-   ],
-   "residual_px": 0.0,
-   "ask_px": 217.3
-  },
-  {
-   "name": "ceiling_line_right_end",
-   "kind": "line_end",
-   "target": [
-    1535.0,
-    87.08
-   ],
-   "source": [
-    1876.16,
-    12.42
-   ],
-   "residual_px": 0.0,
-   "ask_px": 349.2
-  },
-  {
-   "name": "wall_edge_top",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    275.22
-   ],
-   "source": [
-    819.0,
-    250.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 56.9
-  },
-  {
-   "name": "wall_edge_bottom",
-   "kind": "wall_edge",
-   "target": [
-    768.0,
-    709.64
-   ],
-   "source": [
-    819.0,
-    721.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 52.2
-  },
-  {
-   "name": "wall_edge_left",
-   "kind": "wall_edge",
-   "target": [
-    329.7,
-    492.43
-   ],
-   "source": [
-    225.0,
-    485.5
-   ],
-   "residual_px": 0.0,
-   "ask_px": 104.9
-  },
-  {
-   "name": "wall_edge_right",
-   "kind": "wall_edge",
-   "target": [
-    1206.3,
-    492.43
-   ],
-   "source": [
-    1413.0,
-    485.5
-   ],
-   "residual_px": 0.0,
-   "ask_px": 206.8
-  },
-  {
-   "name": "window:win16:tl",
-   "kind": "window",
-   "target": [
-    554.67,
-    399.34
-   ],
-   "source": [
-    612.0,
-    327.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 92.3
-  },
-  {
-   "name": "window:win16:tl+1",
-   "kind": "window",
-   "target": [
-    683.96,
-    399.34
-   ],
-   "source": [
-    667.33,
-    327.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 74.2
-  },
-  {
-   "name": "window:win16:tl+2",
-   "kind": "window",
-   "target": [
-    813.25,
-    399.34
-   ],
-   "source": [
-    722.67,
-    327.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 115.9
-  },
-  {
-   "name": "window:win16:tr",
-   "kind": "window",
-   "target": [
-    942.55,
-    399.34
-   ],
-   "source": [
-    778.0,
-    327.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 179.7
-  },
-  {
-   "name": "window:win16:tr+1",
-   "kind": "window",
-   "target": [
-    942.55,
-    456.23
-   ],
-   "source": [
-    778.0,
-    403.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 172.7
-  },
-  {
-   "name": "window:win16:tr+2",
-   "kind": "window",
-   "target": [
-    942.55,
-    513.12
-   ],
-   "source": [
-    778.0,
-    480.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 167.8
-  },
-  {
-   "name": "window:win16:br",
-   "kind": "window",
-   "target": [
-    942.55,
-    570.01
-   ],
-   "source": [
-    778.0,
-    557.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 165.1
-  },
-  {
-   "name": "window:win16:br+1",
-   "kind": "window",
-   "target": [
-    813.25,
-    570.01
-   ],
-   "source": [
-    722.67,
-    557.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 91.5
-  },
-  {
-   "name": "window:win16:br+2",
-   "kind": "window",
-   "target": [
-    683.96,
-    570.01
-   ],
-   "source": [
-    667.33,
-    557.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 21.1
-  },
-  {
-   "name": "window:win16:bl",
-   "kind": "window",
-   "target": [
-    554.67,
-    570.01
-   ],
-   "source": [
-    612.0,
-    557.0
-   ],
-   "residual_px": 0.0,
-   "ask_px": 58.8
-  },
-  {
-   "name": "window:win16:bl+1",
-   "kind": "window",
-   "target": [
-    554.67,
-    513.12
-   ],
-   "source": [
-    612.0,
-    480.33
-   ],
-   "residual_px": 0.0,
-   "ask_px": 66.0
-  },
-  {
-   "name": "window:win16:bl+2",
-   "kind": "window",
-   "target": [
-    554.67,
-    456.23
-   ],
-   "source": [
-    612.0,
-    403.67
-   ],
-   "residual_px": 0.0,
-   "ask_px": 77.8
+   "target": 1206.303,
+   "source": 1413.0,
+   "ask_px": -206.7,
+   "residual_px": 0.0
   }
  ],
- "local_stretch": {
-  "max_local_stretch": 35933.627,
-  "p999_local_stretch": 85.456,
-  "median_local_stretch": 0.972,
-  "max_local_compression": 0.355,
-  "folded_px": 2456,
-  "folded_fraction": 0.00156
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 275.22,
+   "source": 250.0,
+   "ask_px": 25.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:head",
+   "kind": "window",
+   "target": 399.341,
+   "source": 327.0,
+   "ask_px": 72.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:sill",
+   "kind": "window",
+   "target": 570.008,
+   "source": 557.0,
+   "ask_px": 13.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 709.644,
+   "source": 721.0,
+   "ask_px": -11.4,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.415,
+  "x_scale_max": 2.337,
+  "y_scale_min": 0.742,
+  "y_scale_max": 1.612,
+  "x_segments": [
+   {
+    "name": "corner_left..window:win16:left",
+    "target_px": 225.0,
+    "source_px": 387.0,
+    "scale": 0.581
+   },
+   {
+    "name": "window:win16:left..window:win16:right",
+    "target_px": 387.9,
+    "source_px": 166.0,
+    "scale": 2.337
+   },
+   {
+    "name": "window:win16:right..corner_right",
+    "target_px": 263.8,
+    "source_px": 635.0,
+    "scale": 0.415
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..window:win16:head",
+    "target_px": 124.1,
+    "source_px": 77.0,
+    "scale": 1.612
+   },
+   {
+    "name": "window:win16:head..window:win16:sill",
+    "target_px": 170.7,
+    "source_px": 230.0,
+    "scale": 0.742
+   },
+   {
+    "name": "window:win16:sill..floor_line",
+    "target_px": 139.6,
+    "source_px": 164.0,
+    "scale": 0.851
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
  },
- "revealed_px": 513333,
- "revealed_fraction": 0.32637,
+ "max_residual_px": 0.0,
+ "revealed_px": 433553,
+ "revealed_fraction": 0.27565,
  "mirror_band_px": 24,
- "pin_count": 24,
- "seconds": 3.18,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 4,
+ "seconds": 1.25,
  "status": "held",
  "hold_family": "promotion-refused",
  "out_png": "design/plan-draft/measured/meshwarp/great_stair_hall-W.png"

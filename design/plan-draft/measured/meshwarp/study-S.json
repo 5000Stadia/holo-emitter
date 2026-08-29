@@ -1,7 +1,7 @@
 {
  "facing": "study/S",
  "candidate": "backdrops/source/study-S/row23-08cd55d1.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024

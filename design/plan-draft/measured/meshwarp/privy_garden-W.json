@@ -1,7 +1,7 @@
 {
  "facing": "privy_garden/W",
  "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024

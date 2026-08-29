@@ -1,7 +1,7 @@
 {
  "facing": "library/S",
  "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
- "warp_mode": "tps",
+ "warp_mode": "plane",
  "declared_frame": [
   1536,
   1024
