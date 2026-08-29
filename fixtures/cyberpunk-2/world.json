@@ -1,0 +1,48 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    {
+      "id": "noodle_bar",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_noodle_bar_back_office",
+          "from": "noodle_bar",
+          "facing": "E",
+          "to": "back_office",
+          "arrive_facing": "E",
+          "via": "door01"
+        }
+      ]
+    },
+    {
+      "id": "back_office",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_back_office_noodle_bar",
+          "from": "back_office",
+          "facing": "W",
+          "to": "noodle_bar",
+          "arrive_facing": "W",
+          "via": "door01"
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "relations": [],
+  "knowledge": {
+    "player": []
+  }
+}

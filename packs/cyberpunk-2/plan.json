@@ -1,0 +1,260 @@
+{
+ "schema": "holo-emitter-plan/0.1",
+ "version": 1,
+ "units": "m",
+ "north": "+y",
+ "standpoint_stand_back": 0.25,
+ "standpoint_threshold_clearance_m": 0.45,
+ "entrance": "noodle_bar",
+ "wall_thickness": {
+  "exterior": 0.4,
+  "partition": 0.2
+ },
+ "outline": [
+  [
+   0,
+   0
+  ],
+  [
+   11.2,
+   0
+  ],
+  [
+   11.2,
+   6.4
+  ],
+  [
+   0,
+   6.4
+  ]
+ ],
+ "floors": [
+  {
+   "id": "street",
+   "level": 0,
+   "storey_height_m": 3.2
+  }
+ ],
+ "wall_bands": [
+  {
+   "id": "H0",
+   "kind": "exterior",
+   "floors": [
+    "street"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 0.4,
+    "y0": 0,
+    "y1": 6.4
+   }
+  },
+  {
+   "id": "H1",
+   "kind": "exterior",
+   "floors": [
+    "street"
+   ],
+   "rect": {
+    "x0": 10.8,
+    "x1": 11.2,
+    "y0": 0,
+    "y1": 6.4
+   }
+  },
+  {
+   "id": "H2",
+   "kind": "exterior",
+   "floors": [
+    "street"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 11.2,
+    "y0": 0,
+    "y1": 0.4
+   }
+  },
+  {
+   "id": "H3",
+   "kind": "exterior",
+   "floors": [
+    "street"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 11.2,
+    "y0": 6.0,
+    "y1": 6.4
+   }
+  },
+  {
+   "id": "P0",
+   "kind": "partition",
+   "floors": [
+    "street"
+   ],
+   "rect": {
+    "x0": 6.4,
+    "x1": 6.6,
+    "y0": 0.4,
+    "y1": 6.0
+   }
+  }
+ ],
+ "rooms": [
+  {
+   "id": "noodle_bar",
+   "floor": "street",
+   "name": "NOODLE COUNTER",
+   "type": "enclosed",
+   "archetype": "trade",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.4,
+    "y0": 0.4,
+    "y1": 6.0
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.4,
+      "y": 1.8
+     },
+     "wall_line": 6.0,
+     "wall_width_m": 6.0,
+     "camera_wall_m": 4.2
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 1.9,
+      "y": 3.2
+     },
+     "wall_line": 6.4,
+     "wall_width_m": 5.6,
+     "camera_wall_m": 4.5
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.4,
+      "y": 4.6
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.0,
+     "camera_wall_m": 4.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 4.9,
+      "y": 3.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 5.6,
+     "camera_wall_m": 4.5
+    }
+   }
+  },
+  {
+   "id": "back_office",
+   "floor": "street",
+   "name": "BACK OFFICE",
+   "type": "enclosed",
+   "archetype": "office",
+   "rect": {
+    "x0": 6.6,
+    "x1": 10.8,
+    "y0": 0.4,
+    "y1": 6.0
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.7,
+      "y": 1.8
+     },
+     "wall_line": 6.0,
+     "wall_width_m": 4.2,
+     "camera_wall_m": 4.2
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 7.05,
+      "y": 3.2
+     },
+     "wall_line": 10.8,
+     "wall_width_m": 5.6,
+     "camera_wall_m": 3.75,
+     "standpoint_source": "threshold"
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.7,
+      "y": 4.6
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 4.2,
+     "camera_wall_m": 4.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.35,
+      "y": 3.2
+     },
+     "wall_line": 6.6,
+     "wall_width_m": 5.6,
+     "camera_wall_m": 3.75,
+     "standpoint_source": "threshold"
+    }
+   }
+  }
+ ],
+ "openings": [
+  {
+   "id": "door01",
+   "kind": "door",
+   "floor": "street",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.4,
+    "x1": 6.6,
+    "y0": 2.75,
+    "y1": 3.65
+   },
+   "joins": [
+    "noodle_bar",
+    "back_office"
+   ]
+  }
+ ],
+ "windows": [
+  {
+   "floor": "street",
+   "rect": {
+    "x0": 2.6,
+    "x1": 4.2,
+    "y0": 0,
+    "y1": 0.4
+   }
+  },
+  {
+   "floor": "street",
+   "rect": {
+    "x0": 10.8,
+    "x1": 11.2,
+    "y0": 2.6,
+    "y1": 3.8
+   }
+  }
+ ],
+ "fireplaces": [],
+ "stairs": [],
+ "objects": []
+}

@@ -1,0 +1,172 @@
+{
+ "_what_this_is": "Two voices for two rooms of KOWLOON-7 street level. Materials in this world's language; every horizontal anchor is the cable channel at 1.10 m.",
+ "ANCHOR_M": 1.1,
+ "WINDOW_SILL_M": 1.0,
+ "WINDOW_HEAD_M": 2.0,
+ "LIGHT_MODULE_M": 0.6,
+ "ANCHORS": {
+  "cable_channel": {
+   "id": "cable_channel",
+   "line": "the surface-mounted cable channel above the floor",
+   "datum": "floor",
+   "sentence": "A clearly legible surface-mounted steel cable channel runs continuously corner to corner at exactly 1.10 m above the floor, on every exposed wall surface including the side-wall returns.",
+   "label": "CABLE CHANNEL 1.10 M ABOVE FLOOR - GATE ANCHOR",
+   "legend_word": "CABLE CHANNEL",
+   "why": "This block's universal anchor: every room at street level carries the building's surface-run cable channel at one height, on every wall. A painter draws it and the instrument finds it."
+  }
+ },
+ "VOICES": {
+  "noodle_counter_trade": {
+   "id": "noodle_counter_trade",
+   "why": "The counter is a trade room: it is scrubbed, hosed and hammered on, so its lower wall is metal and its upper wall is what the landlord left.",
+   "outdoor": false,
+   "walls": "corrugated galvanised steel sheet below the cable channel, grease-darkened; above it, stained bare concrete block with faded stencilled lettering and a dead neon tube bracketed to the wall, unlit",
+   "ceiling": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles",
+   "floor": "cracked pale terrazzo with a steel drain channel running across it",
+   "blank": "unbroken corrugated galvanised sheet below the cable channel with stained bare concrete block above it",
+   "anchor": "cable_channel",
+   "glass": "plain",
+   "window_status": "trade"
+  },
+  "back_office_soft": {
+   "id": "back_office_soft",
+   "why": "The office is the room somebody sleeps in: it is lined to kill the street noise and it is the one room with the crew's tag on the wall.",
+   "outdoor": false,
+   "walls": "charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag",
+   "ceiling": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through",
+   "floor": "grey rubber studded tile, worn smooth along the walking line",
+   "blank": "unbroken charcoal acoustic foam panels below the cable channel with dirty off-white plasterboard above",
+   "anchor": "cable_channel",
+   "glass": "plain",
+   "window_status": "office"
+  }
+ },
+ "ROOM_VOICE": {
+  "noodle_bar": "noodle_counter_trade",
+  "back_office": "back_office_soft"
+ },
+ "ARCHETYPE_FALLBACK": {
+  "trade": "noodle_counter_trade",
+  "office": "back_office_soft"
+ },
+ "TYPE_FALLBACK": {
+  "enclosed": "noodle_counter_trade"
+ },
+ "MATERIALS": {
+  "wall/corrugated-galvanised": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 0.076,
+    "feature": "corrugation"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.9,
+    "stile_m": 0.04,
+    "plinth_m": 0.1,
+    "chair_rail_m": 1.1,
+    "chair_rail_h_m": 0.08,
+    "cornice_m": 0.0,
+    "architrave_m": 0.08,
+    "bevel_m": 0.01
+   }
+  },
+  "wall/acoustic-foam-grid": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "foam panel"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.6,
+    "stile_m": 0.02,
+    "plinth_m": 0.1,
+    "chair_rail_m": 1.1,
+    "chair_rail_h_m": 0.08,
+    "cornice_m": 0.0,
+    "architrave_m": 0.08,
+    "bevel_m": 0.0
+   }
+  },
+  "ceiling/concrete-slab-ducts": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.2,
+    "feature": "duct run"
+   }
+  },
+  "ceiling/suspended-tile-grid": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "tile"
+   }
+  },
+  "floor/cracked-terrazzo": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "crack"
+   }
+  },
+  "floor/rubber-stud-tile": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.5,
+    "feature": "tile"
+   }
+  }
+ },
+ "MATERIAL_BINDING": {
+  "noodle_counter_trade": {
+   "walls": "wall/corrugated-galvanised",
+   "blank": "wall/corrugated-galvanised",
+   "ceiling": "ceiling/concrete-slab-ducts",
+   "floor": "floor/cracked-terrazzo"
+  },
+  "back_office_soft": {
+   "walls": "wall/acoustic-foam-grid",
+   "blank": "wall/acoustic-foam-grid",
+   "ceiling": "ceiling/suspended-tile-grid",
+   "floor": "floor/rubber-stud-tile"
+  }
+ },
+ "MATERIAL_PART_OF_KEY": {
+  "walls": "walls",
+  "walls_with_openings": "walls",
+  "ceiling": "overhead",
+  "floor": "underfoot"
+ },
+ "SAID_BEFORE": {}
+}

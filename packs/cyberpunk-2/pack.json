@@ -1,0 +1,10 @@
+{
+  "_what_this_is": "The two-room cyberpunk proof (audit Part 4): a noodle counter and the back office behind it, one door between them, one window each. Nothing in these four files is in the engine; a room the plan names and the voices do not is refused by name.",
+  "name": "cyberpunk-2",
+  "title": "KOWLOON-7 STREET LEVEL",
+  "files": {
+    "plan": "plan.json",
+    "voices": "voices.json",
+    "world": "world.json"
+  }
+}

@@ -1,0 +1,64 @@
+{
+ "_what_this_is": "KOWLOON-7 street level: era and medium, THE RULER, the conventions a plan cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live.",
+ "era": "circa-2087 arcology street level",
+ "medium": "Style/medium: a high-realism digital painting in the manner of near-future street-interior concept art \u2014 worn hard surfaces, grease and damp, cool even ambient light with gentle falloff into the corners, every sign and tube DARK and unlit; a location study for a game, not a photograph and not a neon glow render.",
+ "ruler": {
+  "kind": "cable_channel",
+  "height_m": 1.1,
+  "datum": "floor",
+  "why": "This block's universal anchor: a surface-mounted steel cable channel at 1.10 m above the floor, on every wall of every street-level room including the returns. A painter draws it and the instrument finds it."
+ },
+ "conventions": {
+  "window_sill_m": 1.0,
+  "window_head_m": 2.0,
+  "door_head_m": 2.0,
+  "door_width_m": 0.9,
+  "light_module_m": 0.6,
+  "why": "Street-level rooms of this block: a service window sits above the counter line; a doorway is a standard 0.90 x 2.00 m steel-framed opening."
+ },
+ "rulers": [
+  {
+   "match": "cable channel|cable tray|conduit channel",
+   "size_m": 1.1,
+   "name": "the surface-mounted cable channel above the floor (this block's universal anchor)"
+  },
+  {
+   "match": "door[^,]*height|doorway[^,]*head",
+   "size_m": 2.0,
+   "name": "the doorway's height at the wall plane"
+  },
+  {
+   "match": "door[^,]*width|doorway[^,]*wide",
+   "size_m": 0.9,
+   "name": "the doorway's width"
+  },
+  {
+   "match": "service window|window opening|window glass",
+   "size_m": 1.6,
+   "name": "the service window's opening, frame to frame"
+  },
+  {
+   "match": "foam panel|acoustic panel",
+   "size_m": 0.6,
+   "name": "one acoustic foam panel between its neighbours, at the channel's ruled height"
+  }
+ ],
+ "refusals": {
+  "interior_fabric": "cable channel|corrugated|acoustic foam|plasterboard|terrazzo|rubber tile|ceiling tile|ductwork",
+  "interior_fabric_why": "A facing outside the block has none of this; naming it even to forbid it puts it in front of the generator.",
+  "panelling": "acoustic foam|corrugated|cable channel",
+  "panelling_why": "The foam and the corrugated sheet belong to the rooms that carry the cable channel (the ruled anchor names it, which is how the lint knows the room has that fabric); a prompt whose anchor is not that channel has no such lining.",
+  "rationed_line": "^crew tag:[^\\n]*$",
+  "entitled_to_rationed": "back office|BACK OFFICE",
+  "rationed_why": "The crew's spray-painted tag is the back office's alone; repeated in every room it becomes wallpaper.",
+  "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this block as the materials and the anchor below describe it. Those words replace anything the earlier attempt showed; follow them exactly.",
+  "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-block prompt."
+ },
+ "paths": {
+  "batch_dir": "design/batches/cyberpunk-2",
+  "fixture_dir": "fixtures/cyberpunk-2",
+  "store_dir": "backdrops",
+  "readings_dir": "design/plan-draft/measured/cyberpunk-2",
+  "world_query": "cyberpunk-2"
+ }
+}

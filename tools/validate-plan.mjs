@@ -54,6 +54,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
+import { activePack } from "./pack.mjs";
 
 /* The lens and the canvas, imported rather than restated: row 20's standpoint
  * law is about whether a wall FITS THE FRAME, which is a question about
@@ -100,7 +101,11 @@ const OBJECT_SOURCES = ["drawing", "inverse-projected", "composed"];
  * room modular consistent design so creation is snappy" [HUMAN]. This is the
  * ROOM's production recipe and is a different vocabulary from the facing
  * geometry type; §4b item 6's backdrop-template tier keys on it. */
-const ARCHETYPES = ["chamber", "hall", "corridor", "service", "stair", "open"];
+/* [row 44, clause 8] THE ARCHETYPE VOCABULARY IS THE PACK'S. It was the manor's
+ * six words in code; a room type is whatever the location's voices can voice
+ * (`ARCHETYPE_FALLBACK` keys), so an unknown archetype is still refused - by
+ * the pack, not by another world's list. */
+const ARCHETYPES = Object.keys(activePack().voices.ARCHETYPE_FALLBACK || {});
 const ATTACHMENTS = ["floor_against", "floor_free", "wall_mounted"];
 
 /* Screen-right, per facing: standing facing N your right hand points east, so
