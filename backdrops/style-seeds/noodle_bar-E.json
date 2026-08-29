@@ -1,0 +1,116 @@
+{
+  "what_this_is": "a style seed: one promoted wall of this room with every opening and carrier filled in with its own fabric, so the picture carries the room's materials, palette and light and no architecture at all",
+  "key": "noodle_bar/E",
+  "source": "backdrops/noodle_bar/E.png",
+  "source_sha256": "f11acfc73e7f69a3653eb1fa292ef3224859ba6c11fe0766a4a4743e49e7d6c5",
+  "source_kind": "promoted",
+  "out": "backdrops/style-seeds/noodle_bar-E.png",
+  "method": "every opening and carrier on the wall plane is filled with that wall's own adjacent fabric: the rectangles are the union of what door_measure and window_measure read off this painting and what the plan projects onto this wall (doors, windows, hearths and any flight in view), each grown by 0.45 m because a reveal, a splay and a stone surround are not fabric; each masked run in a row is filled by mirroring that row's own clear columns outward from both ends of the run, the two mirrors meeting in a 0.20 m cross-fade at the middle, so height above the floor never moves and the wainscot, the rail, the field and the cornice continue at their own heights; every donor is scaled per channel by the wall's own low-frequency illumination field (radius 1.00 m, taken over unmasked pixels only) at where it lands over where it came from, so the room's light survives the move; the join is feathered over 0.10 m inside the margin; the floor and the ceiling are outside the wall rectangle and are not touched, except for the 0.30 m of floor at the wall's foot where a doorway throws its threshold shadow, which is mirrored along its own depth line.",
+  "box": {
+    "x0": 130.844,
+    "x1": 1405.156,
+    "yc": 92.832,
+    "yf": 795.298,
+    "ppm": 227.556,
+    "storey_m": 3.087,
+    "width_m": 5.6
+  },
+  "margin_m": 0.45,
+  "feather_m": 0.1,
+  "threshold_m": 0.3,
+  "rects": [
+    {
+      "kind": "door",
+      "origin": "door_measure.measure_openings",
+      "why": "a way through this painting shows, read off the pixels",
+      "px_read": [
+        666,
+        340,
+        870,
+        795
+      ],
+      "px": [
+        666,
+        92.83241999999984,
+        870,
+        795.297792
+      ],
+      "px_filled": [
+        563,
+        92,
+        973,
+        864
+      ]
+    }
+  ],
+  "rects_dropped": [
+    {
+      "kind": "door",
+      "id": "door01",
+      "origin": "tools/plan-projection.mjs facingCarriers, at the scaffold's own band",
+      "u_m": [
+        2.35,
+        3.25
+      ],
+      "u_m_ruled": [
+        2.35,
+        3.25
+      ],
+      "wall_scale": 1,
+      "h_m": [
+        0,
+        2
+      ],
+      "px": [
+        665.6000000000003,
+        92.83241999999984,
+        870.4000000000002,
+        795.297792
+      ],
+      "dropped": "the instrument reads 1 door(s) on this painting against the 1 the plan rules, so the painting has accounted for them all; its own rectangle governs (blueprint §5; rows 22, 27, 42) and this one would fill plain wall"
+    }
+  ],
+  "fill": {
+    "rows_filled": 772,
+    "pixels_filled": 316520,
+    "rows_refused_as_too_thin": [],
+    "feather_px": 22.76,
+    "blend_px": 45.51,
+    "light_field_radius_px": 228,
+    "light_field_radii_used_px": [
+      228
+    ],
+    "relight_ratio_clip": [
+      0.6,
+      1.7
+    ],
+    "channel_samples_clipped": 50936,
+    "min_clear_fraction": 0.25
+  },
+  "wall_px": 985072,
+  "masked_px": 316520,
+  "masked_pct_of_wall": 32.13,
+  "verify": {
+    "read_by": [
+      "design/plan-draft/measured/door_measure.py",
+      "design/plan-draft/measured/window_measure.py"
+    ],
+    "doors_before": [
+      {
+        "x0_px": 666,
+        "x1_px": 870,
+        "y0_px": 340,
+        "y1_px": 795,
+        "width_m": 0.896
+      }
+    ],
+    "doors_after": [],
+    "windows_before": [],
+    "windows_after": [],
+    "residual_readings": []
+  },
+  "sha256": "7164a1cb4353988e66c3984872c19ae24e086209781296b98c8afeb72d112546",
+  "verified": "every opening that was in this painting is gone from the seed: 1 way(s) through and 0 glazed opening(s) went in, and NOTHING the detectors read in the result stands anywhere the fill touched; the count did not rise, so nothing was manufactured either",
+  "tool_sha256": "841151bc0b905ca756ad72bb646ca05327bf2fb146187b3f8945bb4cfedb277e",
+  "meta_from": "backdrops/noodle_bar/E.meta.json"
+}

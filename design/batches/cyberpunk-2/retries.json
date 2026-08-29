@@ -6,22 +6,169 @@
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in; an entry with no `register` key predates the 2026-08-25 ruling and is `g4`. `timings_report.py --monitor` joins each reading to its packet record through the roll id and reports the camera pass rate per register.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-08-29",
-  "emitted": 0,
+  "emitted": 2,
   "carried": 0,
-  "refused": 2,
-  "entries": [],
-  "refused_entries": [
+  "refused": 0,
+  "entries": [
     {
       "key": "back_office/E",
-      "attempts": 1,
+      "attempt": 2,
+      "packet": "design/batches/cyberpunk-2/back_office-E/retry-2",
+      "register": "g5-noappendix",
       "correction": "the glazing: this window's glass is wired safety glass in a steel frame, grimed and faintly green — flat panes with a fine wire mesh inside the glass; NO diamond quarries, NO leaded lattice, no cames, no coloured glass; the previous attempt painted seventeenth-century leaded diamond panes, which do not exist in this world",
-      "refused": "promoted since the state was written"
+      "voice": {
+        "id": "back_office_soft",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "px_per_m_at_wall": 273.067,
+      "flights": [],
+      "scaffold_sha256": "99466a0ac9f176c498dccba313d0a1aba713daacbf149907823056204843453a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "back_office/E",
+        "location": "back_office",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "back_office/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/back_office/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "back_office/S",
+            "painted": true
+          }
+        ],
+        "lead": "back_office/E",
+        "is_lead": true,
+        "continues": null,
+        "order_position": 0,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/cyberpunk-2/back_office-E/retry-2/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "5f40a6f580014c2fef0e469a32a2be9981184d5eb11a14523ed695b8d8a709bc",
+        "source_sha256": "abccd19aa0d46005649785e4274cf6df83eb1b5c33450fba8802ea6a9651c67b"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "back_office/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/back_office-E/row23-746058a5.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "style-back_office.png",
+        "rel": "backdrops/back_office/N.png",
+        "room": "back_office",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "bac80793",
+          "candidate": "backdrops/source/back_office-E/row23-bac80793.png",
+          "prompt": "backdrops/source/back_office-E/row23-bac80793.prompt.txt"
+        }
+      ]
     },
     {
       "key": "noodle_bar/S",
-      "attempts": 1,
+      "attempt": 2,
+      "packet": "design/batches/cyberpunk-2/noodle_bar-S/retry-2",
+      "register": "g5-noappendix",
       "correction": "the glazing: this window's glass is wired safety glass in a steel frame, grimed and faintly green — flat panes with a fine wire mesh inside the glass; NO diamond quarries, NO leaded lattice, no cames, no coloured glass; the previous attempt painted seventeenth-century leaded diamond panes, which do not exist in this world",
-      "refused": "promoted since the state was written"
+      "voice": {
+        "id": "noodle_counter_trade",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "px_per_m_at_wall": 243.81,
+      "flights": [],
+      "scaffold_sha256": "44bcffc9b56017a0bd2d5d464018543b4cdafceca51c72e651a732c8e70e6d37",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "noodle_bar/S",
+        "location": "noodle_bar",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "noodle_bar/E",
+        "neighbour_edge": "right",
+        "source": "backdrops/noodle_bar/E.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "noodle_bar/W",
+            "painted": true
+          }
+        ],
+        "lead": "noodle_bar/E",
+        "is_lead": false,
+        "continues": "noodle_bar/E",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/cyberpunk-2/noodle_bar-S/retry-2/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "d9df17bdcc714a252073f0626b776fa9d40afe7967aff7de9c63727c4be247ea",
+        "source_sha256": "f11acfc73e7f69a3653eb1fa292ef3224859ba6c11fe0766a4a4743e49e7d6c5"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "noodle_bar/E",
+      "is_lead": false,
+      "continues": "noodle_bar/E",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/noodle_bar/E.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-noodle_bar.png",
+        "rel": "backdrops/noodle_bar/E.png",
+        "room": "noodle_bar",
+        "facing": "E",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "4106c388",
+          "candidate": "backdrops/source/noodle_bar-S/row23-4106c388.png",
+          "prompt": "backdrops/source/noodle_bar-S/row23-4106c388.prompt.txt"
+        }
+      ]
     }
-  ]
+  ],
+  "refused_entries": []
 }
