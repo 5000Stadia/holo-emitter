@@ -14,13 +14,14 @@ keeps it current at every board change; reports cite these handles.
 | SVC-SEAT | the painter (Codex image seat) | tmux `holoemitter-assets` |
 | SVC-WATCH | the baton watchdog: who owes the next action, nudges stalls | tmux `seat-watch`, writes `baton.json` |
 | SVC-TICK | the Navigator's 2-hour performance sampler | session cron |
-| SVC-SITE | the live site + one-command publisher | `tools/publish-site.sh` |
+| SVC-SITE | the live site + one-command publisher — DOWN since the repo became PRIVATE (GitHub Pages needs a paid plan on a private repo; the API refuses to recreate the site); Kabe's call: public repo, or another host | `tools/publish-site.sh` |
 | SVC-UP | the idempotent bring-up after ANY restart: starts only what is absent, never a duplicate | `tools/services.sh up` (status/down too) |
 
 ## Live builders (change often — the Navigator updates on spawn/land)
 
 | handle | task | state |
 |---|---|---|
+| B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
 ## Recently landed (for "issue with…" back-reference)
