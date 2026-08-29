@@ -1,0 +1,83 @@
+{
+ "facing": "library/S",
+ "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
+ "warp_mode": "tps",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "content miss: the plan rules door op07 on library/S and the painting shows none of them (doors 0/1, windows 0/0) \u2014 no motion of pixels puts an aperture where nothing was painted",
+ "sha256": "74eca10007fa214ae2f5e5e5bf97e07cd4496c1de39c8efa1ead8a3b4a2b8f3e",
+ "reading_cache": "design/plan-draft/measured/manor/4a2e1e8a.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 1.15,
+  "delta_eye_pct": 3.27,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 172.632
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 172.632,
+  "ppm_target": 170.667,
+  "scale_k": 0.9886
+ },
+ "source_box": {
+  "x0": 145.0,
+  "x1": 1452.0,
+  "yc": 157.0,
+  "yf": 737.0,
+  "vx": 796.7,
+  "vy": 549.9
+ },
+ "target_box": {
+  "x0": 17.07,
+  "x1": 1518.93,
+  "yc": 250.13,
+  "yf": 728.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.36,
+  "source_ppm": 172.632
+ },
+ "apertures": {
+  "doors": {
+   "plan": 1,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [
+    "op07"
+   ],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "clause": "meshwarp.aperture_count",
+ "status": "held",
+ "hold_family": "promotion-refused"
+}

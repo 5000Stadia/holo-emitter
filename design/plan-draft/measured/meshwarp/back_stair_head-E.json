@@ -1,0 +1,434 @@
+{
+ "facing": "back_stair_head/E",
+ "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
+ "warp_mode": "tps",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "90a8d9373c61a3ca8e62f9a6c03ad5adb2a37dc17d29432fec78acaa15f2ec86",
+ "reading_cache": "design/plan-draft/measured/manor/89ae5671.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -1.2,
+  "delta_eye_pct": -4.01,
+  "hold_family": "unfitted-horizon"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+  "px_per_m_at_wall": 247.368
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 247.368,
+  "ppm_target": 250.367,
+  "scale_k": 1.0121
+ },
+ "source_box": {
+  "x0": 241.0,
+  "x1": 1293.0,
+  "yc": 119.0,
+  "yf": 807.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 248.49,
+  "x1": 1287.51,
+  "yc": 121.26,
+  "yf": 822.28,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 2.781,
+  "source_ppm": 247.368
+ },
+ "apertures": {
+  "doors": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "pins": [
+  {
+   "name": "corner_left_ceiling",
+   "kind": "room_corner",
+   "target": [
+    248.49,
+    121.26
+   ],
+   "source": [
+    241.0,
+    119.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 7.8
+  },
+  {
+   "name": "corner_right_ceiling",
+   "kind": "room_corner",
+   "target": [
+    1287.51,
+    121.26
+   ],
+   "source": [
+    1293.0,
+    119.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 5.9
+  },
+  {
+   "name": "corner_left_floor",
+   "kind": "room_corner",
+   "target": [
+    248.49,
+    822.28
+   ],
+   "source": [
+    241.0,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 17.0
+  },
+  {
+   "name": "corner_right_floor",
+   "kind": "room_corner",
+   "target": [
+    1287.51,
+    822.28
+   ],
+   "source": [
+    1293.0,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 16.2
+  },
+  {
+   "name": "floor_line_left_end",
+   "kind": "line_end",
+   "target": [
+    0.0,
+    963.95
+   ],
+   "source": [
+    -11.07,
+    941.36
+   ],
+   "residual_px": 0.0,
+   "ask_px": 25.2
+  },
+  {
+   "name": "floor_line_right_end",
+   "kind": "line_end",
+   "target": [
+    1535.0,
+    963.38
+   ],
+   "source": [
+    1543.1,
+    940.82
+   ],
+   "residual_px": 0.0,
+   "ask_px": 24.0
+  },
+  {
+   "name": "ceiling_line_left_end",
+   "kind": "line_end",
+   "target": [
+    92.89,
+    0.0
+   ],
+   "source": [
+    83.16,
+    -2.93
+   ],
+   "residual_px": 0.0,
+   "ask_px": 10.2
+  },
+  {
+   "name": "ceiling_line_right_end",
+   "kind": "line_end",
+   "target": [
+    1443.11,
+    0.0
+   ],
+   "source": [
+    1450.25,
+    -2.93
+   ],
+   "residual_px": 0.0,
+   "ask_px": 7.7
+  },
+  {
+   "name": "wall_edge_top",
+   "kind": "wall_edge",
+   "target": [
+    768.0,
+    121.26
+   ],
+   "source": [
+    767.0,
+    119.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 2.5
+  },
+  {
+   "name": "wall_edge_bottom",
+   "kind": "wall_edge",
+   "target": [
+    768.0,
+    822.28
+   ],
+   "source": [
+    767.0,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 15.3
+  },
+  {
+   "name": "wall_edge_left",
+   "kind": "wall_edge",
+   "target": [
+    248.49,
+    471.77
+   ],
+   "source": [
+    241.0,
+    463.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 11.5
+  },
+  {
+   "name": "wall_edge_right",
+   "kind": "wall_edge",
+   "target": [
+    1287.51,
+    471.77
+   ],
+   "source": [
+    1293.0,
+    463.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 10.3
+  },
+  {
+   "name": "door:op24:tl",
+   "kind": "door",
+   "target": [
+    724.19,
+    321.55
+   ],
+   "source": [
+    736.0,
+    289.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 34.6
+  },
+  {
+   "name": "door:op24:tl+1",
+   "kind": "door",
+   "target": [
+    807.64,
+    321.55
+   ],
+   "source": [
+    811.33,
+    289.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 32.8
+  },
+  {
+   "name": "door:op24:tl+2",
+   "kind": "door",
+   "target": [
+    891.1,
+    321.55
+   ],
+   "source": [
+    886.67,
+    289.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 32.9
+  },
+  {
+   "name": "door:op24:tr",
+   "kind": "door",
+   "target": [
+    974.55,
+    321.55
+   ],
+   "source": [
+    962.0,
+    289.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 34.9
+  },
+  {
+   "name": "door:op24:tr+1",
+   "kind": "door",
+   "target": [
+    974.55,
+    488.46
+   ],
+   "source": [
+    962.0,
+    461.67
+   ],
+   "residual_px": 0.0,
+   "ask_px": 29.6
+  },
+  {
+   "name": "door:op24:tr+2",
+   "kind": "door",
+   "target": [
+    974.55,
+    655.37
+   ],
+   "source": [
+    962.0,
+    634.33
+   ],
+   "residual_px": 0.0,
+   "ask_px": 24.5
+  },
+  {
+   "name": "door:op24:br",
+   "kind": "door",
+   "target": [
+    974.55,
+    822.28
+   ],
+   "source": [
+    962.0,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 19.8
+  },
+  {
+   "name": "door:op24:br+1",
+   "kind": "door",
+   "target": [
+    891.1,
+    822.28
+   ],
+   "source": [
+    886.67,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 15.9
+  },
+  {
+   "name": "door:op24:br+2",
+   "kind": "door",
+   "target": [
+    807.64,
+    822.28
+   ],
+   "source": [
+    811.33,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 15.7
+  },
+  {
+   "name": "door:op24:bl",
+   "kind": "door",
+   "target": [
+    724.19,
+    822.28
+   ],
+   "source": [
+    736.0,
+    807.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 19.3
+  },
+  {
+   "name": "door:op24:bl+1",
+   "kind": "door",
+   "target": [
+    724.19,
+    655.37
+   ],
+   "source": [
+    736.0,
+    634.33
+   ],
+   "residual_px": 0.0,
+   "ask_px": 24.1
+  },
+  {
+   "name": "door:op24:bl+2",
+   "kind": "door",
+   "target": [
+    724.19,
+    488.46
+   ],
+   "source": [
+    736.0,
+    461.67
+   ],
+   "residual_px": 0.0,
+   "ask_px": 29.3
+  }
+ ],
+ "local_stretch": {
+  "max_local_stretch": 1.534,
+  "p999_local_stretch": 1.338,
+  "median_local_stretch": 1.026,
+  "max_local_compression": 0.854,
+  "folded_px": 0,
+  "folded_fraction": 0.0
+ },
+ "revealed_px": 30211,
+ "revealed_fraction": 0.01921,
+ "mirror_band_px": 24,
+ "pin_count": 24,
+ "seconds": 3.44,
+ "status": "held",
+ "hold_family": "unfitted-horizon",
+ "out_png": "design/plan-draft/measured/meshwarp/back_stair_head-E.png"
+}
