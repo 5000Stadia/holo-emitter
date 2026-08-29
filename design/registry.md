@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary): two correct servants_hall/E frames read as "no window" on a bright limewash wall | building |
+| B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
 ## Recently landed (for "issue with…" back-reference)
 
