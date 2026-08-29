@@ -24,3 +24,8 @@ Rule for every step, from the Captain: did it succeed, and is it the cleanest, m
 3. The loop is still `--watch` polling machinery sized for the manor; a pack build should be one command (`build packs/<name>`) that runs emit → dispatch → measure → warp → promote → bake → publish and exits.
 4. Two flags still say "manor" (`--emit-manor`, the seat's standing order paths); the watchdog counts only the manor's batches.
 5. The painter is sequential; four painters would make a room ~5 minutes.
+
+## After the Captain's look (2026-08-29)
+- Two windows carried 1660 diamond quarries: the glazing sentence was engine text until mid-run. Pack fixed; both walls demoted (old paintings in `backdrops/source-demoted/`) and re-asked under the pack's wired safety glass.
+- Exposed: there is no route to re-ask a PROMOTED wall for a look reason — the emitter refuses ("promoted since the state was written") and the supersede route only accepts consistency rolls. Add a plain `--reask <wall> --because "<sentence>"` that demotes, re-asks and lets the sweep supersede.
+- back_office/S: the warp's reveal fill mirrored a band straight in from the frame edge (a zigzag of the foam grid). Ruling: extend each surface along its own receding lines toward the edge/corner it meets — B-FILL.
