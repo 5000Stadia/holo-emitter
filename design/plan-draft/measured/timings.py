@@ -87,12 +87,31 @@ def _line(rec):
     return json.dumps(small, separators=(",", ":"), sort_keys=True, default=str) + "\n"
 
 
+# [clause 12, 2026-08-28] MEASURE TRANSITIONS, NOT POLLS. The sweep re-visits
+# every wall every pass and re-records the same verdict for walls that did not
+# move: 2,138 of every 50 sampled records were `promote.wall` repeats and the
+# ledger reached 71 MB (~950 rows per image made). For the per-pass steps below
+# a record is written only when its detail CHANGES from the last one written for
+# the same (step, key) in this process; the first sighting always lands.
+_TRANSITION_ONLY = {"promote.wall", "promote.backdrop", "park.wall", "validate.sweep",
+                    "bake.sweep", "derive.sweep", "sweep.pass", "baton.stalled"}
+_last_detail = {}
+
+
 def record(step, ts_start, ts_end, key=None, detail=None, backfilled=False,
            path=None):
     """Append one step event. Never raises."""
     p = path if path is not None else ledger_path()
     if p is None:
         return None
+    if not backfilled and str(step) in _TRANSITION_ONLY:
+        try:
+            sig = json.dumps(detail or {}, sort_keys=True, default=str)
+        except Exception:
+            sig = repr(detail)
+        if _last_detail.get((str(step), key)) == sig:
+            return None
+        _last_detail[(str(step), key)] = sig
     if not backfilled and ts_end <= ts_start:
         # A live step is never a marker. See the header.
         ts_end = ts_start + 1e-6
