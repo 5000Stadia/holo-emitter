@@ -1,0 +1,206 @@
+{
+ "facing": "stair_landing/W",
+ "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "0610575c4b99d094774259f3c67704f21676251f03c8e7674243a17324165da1",
+ "reading_cache": "design/plan-draft/measured/manor/572c742a.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 0.41,
+  "delta_eye_pct": 2.5,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 155.789
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 155.789,
+  "ppm_target": 155.152,
+  "scale_k": 0.9959
+ },
+ "source_box": {
+  "x0": 345.0,
+  "x1": 1181.0,
+  "yc": 244.0,
+  "yf": 715.0,
+  "vx": 766.3,
+  "vy": 509.4
+ },
+ "target_box": {
+  "x0": 329.7,
+  "x1": 1206.3,
+  "yc": 275.22,
+  "yf": 709.64,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.023,
+  "source_ppm": 155.789
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 329.697,
+   "source": 345.0,
+   "ask_px": -15.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:left",
+   "kind": "window",
+   "target": 554.667,
+   "source": 638.0,
+   "ask_px": -83.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:right",
+   "kind": "window",
+   "target": 942.545,
+   "source": 857.0,
+   "ask_px": 85.5,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1206.303,
+   "source": 1181.0,
+   "ask_px": 25.3,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 275.22,
+   "source": 244.0,
+   "ask_px": 31.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:head",
+   "kind": "window",
+   "target": 399.341,
+   "source": 294.0,
+   "ask_px": 105.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win32:sill",
+   "kind": "window",
+   "target": 570.008,
+   "source": 581.0,
+   "ask_px": -11.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 709.644,
+   "source": 715.0,
+   "ask_px": -5.4,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.768,
+  "x_scale_max": 1.771,
+  "y_scale_min": 0.595,
+  "y_scale_max": 2.482,
+  "x_segments": [
+   {
+    "name": "corner_left..window:win32:left",
+    "target_px": 225.0,
+    "source_px": 293.0,
+    "scale": 0.768
+   },
+   {
+    "name": "window:win32:left..window:win32:right",
+    "target_px": 387.9,
+    "source_px": 219.0,
+    "scale": 1.771
+   },
+   {
+    "name": "window:win32:right..corner_right",
+    "target_px": 263.8,
+    "source_px": 324.0,
+    "scale": 0.814
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..window:win32:head",
+    "target_px": 124.1,
+    "source_px": 50.0,
+    "scale": 2.482
+   },
+   {
+    "name": "window:win32:head..window:win32:sill",
+    "target_px": 170.7,
+    "source_px": 287.0,
+    "scale": 0.595
+   },
+   {
+    "name": "window:win32:sill..floor_line",
+    "target_px": 139.6,
+    "source_px": 134.0,
+    "scale": 1.042
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 129024,
+ "revealed_fraction": 0.08203,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 4,
+ "seconds": 1.29,
+ "status": "held",
+ "hold_family": "promotion-refused",
+ "out_png": "design/plan-draft/measured/meshwarp/stair_landing-W.png"
+}

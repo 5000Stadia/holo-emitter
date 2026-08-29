@@ -802,7 +802,29 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
       findings.push(`${label}: camera_source ${JSON.stringify(src)} is not one of ${CAMERA_SOURCES.join(" | ")} — a meta's camera was either read off its painting or taken from the page's own derived camera, and there is no third place it could have come from [row32:meta.camera_source]`);
     }
     const declared = src === "declared";
-    if (declared) {
+    /* [THE WARP EXIT, 2026-08-29] A WARPED META IS DECLARED AND IS NOT SUSPECT.
+     * The two paths to a declared horizon are now different acts: the tolerance
+     * ruling ACCEPTS a drift a human signed for, and the warp CORRECTS it — the
+     * painting's own landmarks were moved onto the plan's at that very camera,
+     * so the horizon is the one the pixels answer to and there is nothing for a
+     * flag or a ruling to license. What such a meta must carry instead is the
+     * correction's own numbers, and they are checked here by name: a warped wall
+     * that records no residual is a wall claiming a correction nobody can read.
+     * The measured half of this block is untouched. */
+    const warp = (meta.measured_room && meta.measured_room.warp) || null;
+    if (declared && warp) {
+      const missing = ["pins", "residuals", "worst_segment", "revealed_px"]
+        .filter((k) => warp[k] === undefined || warp[k] === null);
+      if (missing.length) {
+        findings.push(`${label}: camera_source is "declared" on a WARPED frame and measured_room.warp is missing ${missing.join(", ")} — the warp promotes on the declared camera because the painting was moved onto it, and the record of that motion is the whole of the licence: pins, residuals, worst segment and revealed pixels, recorded and never gated. A warped meta that carries no numbers is a flag again [warp:meta.warp_record_incomplete]`);
+      }
+      if (meta.suspect_perspective !== undefined || meta.tolerance_ruling !== undefined) {
+        findings.push(`${label}: a warped meta carries ${["suspect_perspective", "tolerance_ruling"].filter((k) => meta[k] !== undefined).join(" and ")} — those belong to the tolerance path, where a human accepted a drift nothing corrected. This painting's perspective WAS corrected, and saying both is the record contradicting itself about what happened to the picture [warp:meta.warped_not_suspect]`);
+      }
+      if (JSON.stringify(meta.declared_fields) !== JSON.stringify(DECLARED_CAMERA_FIELDS)) {
+        findings.push(`${label}: declared_fields is ${JSON.stringify(meta.declared_fields)}, and the declared camera fills exactly ${JSON.stringify(DECLARED_CAMERA_FIELDS)} — omitting a field it filled claims a measured horizon this painting never fixed, and naming one it did not fill (the scale above all) claims by declaration a number the band judged off the picture [row32:meta.declared_fields_claim]`);
+      }
+    } else if (declared) {
       if (meta.suspect_perspective !== true) {
         findings.push(`${label}: camera_source is "declared" and suspect_perspective is ${JSON.stringify(meta.suspect_perspective)} — the declared camera exists only for the suspect-painting family, and a wall promoted under it that does not fly the flag is invisible to row 4's staging and to the flip test that judges it [row32:meta.declared_needs_suspect]`);
       }

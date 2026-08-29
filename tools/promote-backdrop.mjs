@@ -179,11 +179,23 @@ if (!CAMERA_SOURCES.includes(cameraSource)) {
 }
 const declaredCamera = cameraSource === "declared";
 const holdFamily = m._hold_family || null;
+/* [THE WARP EXIT, 2026-08-29] AND THE THIRD WAY A META'S HORIZON CAN BE THE
+ * DECLARED ONE, which is not a tolerance at all: the painting was MOVED onto
+ * it. `mesh_warp.py` pins this frame's own room corners, floor and ceiling
+ * lines and aperture edges onto the plan's at the declared camera, and the
+ * reading below was taken off the RESULT. So the declared horizon is not a
+ * second opinion standing in for a suspect one - it is the camera the pixels
+ * now answer to by construction, exactly as a snapped frame's is, and the
+ * family fence below has nothing to decide about it. What the correction cost
+ * rides on the meta as numbers (`measured_room.warp`) instead of as a flag:
+ * pins, residuals, the worst segment and the revealed edge, recorded and never
+ * gated - the audit's "sensor, not judge" said of the record as of the gate. */
+const warpRecord = (m._warp && typeof m._warp === "object") ? m._warp : null;
 if (declaredCamera && isOpen) {
   console.error(`promote refused: ${facingArg} is an open facing and --camera-source declared has nothing to give it — a vista's horizon is ALREADY the camera's declared eye line (row 29(a)'s far-line ruler), so its eye is judged against the ground row it draws and there is no second reading for a tolerance to stand between. An open frame the ruler and the ground row disagree about is repainted, not flagged [row32:tolerance.open_facing]`);
   process.exit(1);
 }
-if (declaredCamera && !TOLERANCE_FAMILIES.includes(holdFamily)) {
+if (declaredCamera && !warpRecord && !TOLERANCE_FAMILIES.includes(holdFamily)) {
   console.error(`promote refused: ${facingArg}'s measurement names hold family ${JSON.stringify(holdFamily)}, and the tolerance ruling covers ${TOLERANCE_FAMILIES.join(" and ")}. The declared camera is what a SUSPECT painting is promoted on; a wall whose own instrument never called it suspect is promoted on the horizon it fixed, and asking for the declared one here would be an operator choosing a camera the measurement did not [row32:tolerance.not_suspect]`);
   process.exit(1);
 }
@@ -419,8 +431,16 @@ const meta = {
    * one of those four being wrong, by name. */
   ...(declaredCamera ? {
     camera_source: cameraSource,
-    suspect_perspective: true,
-    tolerance_ruling: TOLERANCE_RULING,
+    /* A WARPED FRAME IS NOT A SUSPECT ONE and its authority is not a ruling.
+     * The flag says "this painting's perspective disagrees with its ruler and a
+     * human accepted that"; a warped painting's perspective was CORRECTED, and
+     * what a reader needs is the correction's own numbers, which are in
+     * `measured_room.warp`. So those two fields belong to the tolerance path
+     * and stay on it. */
+    ...(warpRecord ? {} : {
+      suspect_perspective: true,
+      tolerance_ruling: TOLERANCE_RULING
+    }),
     declared_fields: [...DECLARED_CAMERA_FIELDS]
   } : {}),
   provisional: false,
@@ -449,7 +469,24 @@ const meta = {
     wall_width_m: m._derived.implied_wall_width_m == null ? null
       : round(m._derived.implied_wall_width_m, 3),
     ruled_storey_height_m: meta_storey_ruled(),
-    ruled_wall_width_m: fc.wall_width_m
+    ruled_wall_width_m: fc.wall_width_m,
+    /* [THE WARP EXIT] WHAT THE CORRECTION COST, on the wall it was spent on.
+     * Four numbers and no verdict: how many landmarks were pinned, how far the
+     * field left each of them from its target, which strip of wall was
+     * stretched most, and how many pixels of frame edge the motion revealed.
+     * Nothing refuses on any of them - a picture is turned away only for what
+     * it does not SHOW (`mesh_warp.py`'s three clauses) - and they are here so
+     * that a reader of the meta alone can see what was done to the painting. */
+    ...(warpRecord ? {
+      warp: {
+        pins: warpRecord.pins,
+        residuals: warpRecord.residuals,
+        worst_segment: warpRecord.worst_segment,
+        revealed_px: warpRecord.revealed_px,
+        ...(warpRecord.warped_from ? { warped_from: warpRecord.warped_from } : {}),
+        ...(warpRecord.tool ? { tool: warpRecord.tool } : {})
+      }
+    } : {})
   },
   openings: []
 };

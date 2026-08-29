@@ -1,0 +1,29 @@
+{
+ "facing": "back_stair/S",
+ "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "the painted corners span 139 px where the declared camera draws 1508 (0.09x, outside the 2.5x a corner reading may differ by), so what was read is a recession break and not this room's corners",
+ "sha256": "7d05f695e4ded757289c198624412cfd3e6f88a2c19ff983dcd119aaafbc3fea",
+ "reading_cache": "design/plan-draft/measured/manor/0476d1f5.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 0.79,
+  "delta_eye_pct": 3.61,
+  "hold_family": "suspect-painting"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "the left junction is fitted at slope 0.0050 \u2014 a receding left return rises going left, and anything under 0.0156 has not moved one pixel across the 64 px it was fitted over, which is a horizontal edge and not a return",
+  "px_per_m_at_wall": 278.947
+ },
+ "clause": "meshwarp.landmark_unreadable",
+ "status": "held",
+ "hold_family": "suspect-painting"
+}

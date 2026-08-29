@@ -1,0 +1,195 @@
+{
+ "facing": "closet_chamber/S",
+ "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "5c34f8ea83cc8ad2d541bf009407aba4fdf7a16bf6af5a23a0b5279d5807218b",
+ "reading_cache": "design/plan-draft/measured/manor/86c991fd.json",
+ "before": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -8.22,
+  "delta_eye_pct": 0.07,
+  "hold_family": "unfitted-horizon"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+  "px_per_m_at_wall": 303.158
+ },
+ "target_notes": {
+  "horizontal": "the painted width at the declared scale (k=1.0896): the declared corners sit at -685 and 2221, outside a 1536 px frame, so this wall shows no corner to hold",
+  "corners_in_frame": false,
+  "ppm_source": 303.158,
+  "ppm_target": 330.323,
+  "scale_k": 1.0896
+ },
+ "source_box": {
+  "x0": 129.0,
+  "x1": 1441.0,
+  "yc": 11.0,
+  "yf": 885.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 53.22,
+  "x1": 1482.78,
+  "yc": -8.03,
+  "yf": 916.87,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 2.883,
+  "source_ppm": 303.158
+ },
+ "apertures": {
+  "doors": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [
+  "door:op20:sill"
+ ],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 53.219,
+   "source": 129.0,
+   "ask_px": -75.8,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:op20:left",
+   "kind": "door",
+   "target": 768.0,
+   "source": 805.0,
+   "ask_px": -37.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:op20:right",
+   "kind": "door",
+   "target": 1098.323,
+   "source": 1078.0,
+   "ask_px": 20.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1482.781,
+   "source": 1441.0,
+   "ask_px": 41.8,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": -8.032,
+   "source": 11.0,
+   "ask_px": -19.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:op20:head",
+   "kind": "door",
+   "target": 256.226,
+   "source": 248.0,
+   "ask_px": 8.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 916.872,
+   "source": 885.0,
+   "ask_px": 31.9,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.057,
+  "x_scale_max": 1.21,
+  "y_scale_min": 1.037,
+  "y_scale_max": 1.115,
+  "x_segments": [
+   {
+    "name": "corner_left..door:op20:left",
+    "target_px": 714.8,
+    "source_px": 676.0,
+    "scale": 1.057
+   },
+   {
+    "name": "door:op20:left..door:op20:right",
+    "target_px": 330.3,
+    "source_px": 273.0,
+    "scale": 1.21
+   },
+   {
+    "name": "door:op20:right..corner_right",
+    "target_px": 384.5,
+    "source_px": 363.0,
+    "scale": 1.059
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..door:op20:head",
+    "target_px": 264.3,
+    "source_px": 237.0,
+    "scale": 1.115
+   },
+   {
+    "name": "door:op20:head..floor_line",
+    "target_px": 660.6,
+    "source_px": 637.0,
+    "scale": 1.037
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 0,
+ "revealed_fraction": 0.0,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 3,
+ "seconds": 1.28,
+ "status": "parked",
+ "hold_family": "camera-miss",
+ "out_png": "design/plan-draft/measured/meshwarp/closet_chamber-S.png"
+}

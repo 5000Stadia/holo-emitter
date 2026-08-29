@@ -1,3 +1,64 @@
+# The warp exit — builder, stopped at the clause-10 cap
+
+`route_exit` now has ONE door, and it is a correction rather than a judgement:
+the audit's "sensor, not judge" and Kabe's "correct, don't re-ask", made the
+default route. The old chain (row 35's snap -> row 36's void repair -> row 32's
+tolerance ruling) is behind `--legacy-exits` for one release.
+
+## What the door does
+
+`exit: warped` — `mesh_warp.warp_wall` on the candidate, the frame to
+`backdrops/source-warped/<loc>-<F>/warped.png` with its record and its ask
+(`warp.json`, `warped.prompt.txt`) beside it; the WARPED frame re-measured into
+round `meshwarp` (a full reading, not a re-pointed one: the warp moves the
+camera numbers, so the old reading describes a picture that no longer exists);
+promotion on `--camera-source declared`, because the painting was MOVED onto that
+camera rather than excused for missing it; and the correction's own numbers on
+the meta at `measured_room.warp` = `{pins, residuals, worst_segment,
+revealed_px}` — recorded, never gated.
+
+Refusals are the warp's three and nothing else — `landmark_unreadable`,
+`aperture_count`, `aperture_order`. Those are content misses (the painting does
+not show what the plan rules), so they re-ask, carrying the clause as the
+correction. Everything the old chain refused on — reveal budget, stretch budget,
+a horizon the ruler disagrees with — is a number in the record now.
+
+`promote-backdrop.mjs`: a document carrying `_warp` licenses the declared camera
+without the suspect-painting family fence, and does NOT wear `suspect_perspective`
+or `tolerance_ruling` — a warped painting's perspective was corrected, not
+excused. `validate-fixtures.mjs` checks that pair by name
+(`[warp:meta.warp_record_incomplete]`, `[warp:meta.warped_not_suspect]`).
+
+`mesh_warp.py`'s sweep moved to `meshwarp-sweep/` so a round directory
+(`^[a-z0-9]+$`) and an experiment's evidence cannot land on one path.
+
+## The clocked run — `--warp-held`, 21 held walls, 0 promoted
+
+The route runs end to end; the store did not move, and the two reasons are
+measured, not guessed:
+
+| how many | what stopped it |
+| --- | --- |
+| 7 | `[row39:stair.ask_unreadable]` and its neighbours — the promotion could not read the ask beside the warped frame. FIXED after the run: the candidate's `.prompt.txt` is now copied beside `warped.png`. Not re-run. |
+| 6 | the SCALE band: the re-measured warped frame reads e.g. `great_hall/E` at 841.4 px against the ruled 1024 ±8%. The warp pins the shell onto the declared box, and the ruler still reads the painting's own module off the result. **This is the open clause** — either the anchor's target column is not being pinned, or the scale gate must read the warped frame through the same map. It is the next builder's first measurement. |
+| 5 | `meshwarp.aperture_count` / `landmark_unreadable` on walls with a real content miss — correct behaviour, and they re-ask with their clause. |
+| 5 | open facings (`entrance_court/N`, `/W`, `privy_garden/E`, `/W`, `entrance_approach/N`): no ceiling line, no room corners. A guard added AFTER the run skips them, so their run-state corrections still carry a landmark clause from the pre-guard pass; the next sweep re-decides them. |
+
+Nothing was published, and the bake ran once (over nothing, since nothing
+promoted).
+
+## Tests
+
+`design/plan-draft/measured/test_warp_exit.py` (7 cases, new): a held wall leaves
+through `exit: warped` and promotes on the declared camera in the warp's round;
+the record reaches both the document and the run state; a warp refusal re-asks
+with its clause and leaves no file behind; a promotion refusal does NOT buy a
+roll; `--legacy-exits` and the module flag still route through the snap; once per
+candidate, and `force` for `--warp-held`. Also green: `test_mesh_warp.py`,
+`test_row40_supersede.py` (26), and the loop's dry pass.
+
+---
+
 # Row 44 step 0 — builder 2, stopped at the clause-10 cap
 
 Builder 1's STATUS named three things remaining. All three are done or started;

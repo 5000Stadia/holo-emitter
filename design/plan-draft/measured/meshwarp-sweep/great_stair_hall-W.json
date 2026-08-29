@@ -1,0 +1,211 @@
+{
+ "facing": "great_stair_hall/W",
+ "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "d85b6dd652e8d6decc6e8d5e9dd9a30b4c5a10f828069a705abd0eefb959e174",
+ "reading_cache": "design/plan-draft/measured/manor/a58332e0.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 1.77,
+  "delta_eye_pct": 4.34,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 157.895
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 157.895,
+  "ppm_target": 155.152,
+  "scale_k": 0.9826
+ },
+ "source_box": {
+  "x0": 225.0,
+  "x1": 1413.0,
+  "yc": 250.0,
+  "yf": 721.0,
+  "vx": 795.4,
+  "vy": 566.8
+ },
+ "target_box": {
+  "x0": 329.7,
+  "x1": 1206.3,
+  "yc": 275.22,
+  "yf": 709.64,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 2.983,
+  "source_ppm": 157.895
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 1,
+   "measured": 2,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": [
+    {
+     "centre_px": 488.5,
+     "width_px": 167
+    }
+   ]
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 329.697,
+   "source": 225.0,
+   "ask_px": 104.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:left",
+   "kind": "window",
+   "target": 554.667,
+   "source": 612.0,
+   "ask_px": -57.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:right",
+   "kind": "window",
+   "target": 942.545,
+   "source": 778.0,
+   "ask_px": 164.5,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1206.303,
+   "source": 1413.0,
+   "ask_px": -206.7,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 275.22,
+   "source": 250.0,
+   "ask_px": 25.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:head",
+   "kind": "window",
+   "target": 399.341,
+   "source": 327.0,
+   "ask_px": 72.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "window:win16:sill",
+   "kind": "window",
+   "target": 570.008,
+   "source": 557.0,
+   "ask_px": 13.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 709.644,
+   "source": 721.0,
+   "ask_px": -11.4,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.415,
+  "x_scale_max": 2.337,
+  "y_scale_min": 0.742,
+  "y_scale_max": 1.612,
+  "x_segments": [
+   {
+    "name": "corner_left..window:win16:left",
+    "target_px": 225.0,
+    "source_px": 387.0,
+    "scale": 0.581
+   },
+   {
+    "name": "window:win16:left..window:win16:right",
+    "target_px": 387.9,
+    "source_px": 166.0,
+    "scale": 2.337
+   },
+   {
+    "name": "window:win16:right..corner_right",
+    "target_px": 263.8,
+    "source_px": 635.0,
+    "scale": 0.415
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..window:win16:head",
+    "target_px": 124.1,
+    "source_px": 77.0,
+    "scale": 1.612
+   },
+   {
+    "name": "window:win16:head..window:win16:sill",
+    "target_px": 170.7,
+    "source_px": 230.0,
+    "scale": 0.742
+   },
+   {
+    "name": "window:win16:sill..floor_line",
+    "target_px": 139.6,
+    "source_px": 164.0,
+    "scale": 0.851
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 433553,
+ "revealed_fraction": 0.27565,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 4,
+ "seconds": 1.25,
+ "status": "held",
+ "hold_family": "promotion-refused",
+ "out_png": "design/plan-draft/measured/meshwarp/great_stair_hall-W.png"
+}

@@ -730,6 +730,45 @@ EXIT_MEASURED, EXIT_SNAPPED = "measured", "snapped"
 EXIT_SNAPPED_VOIDED = "snapped+voided"
 EXIT_TOLERATED, EXIT_GRID = "tolerated", "grid"
 
+#: [THE WARP EXIT, 2026-08-29] ONE DOOR, AND IT IS A CORRECTION.
+#:
+#: The method audit's ruling on the gate: "sensor, not judge". Kabe's, said the
+#: same day: correct, don't re-ask. The chain above is three judges in a row —
+#: the snap refuses on its own budgets, the void repair only reaches frames the
+#: snap already passed, and the tolerance ruling ships a wall FLAGGED because
+#: nothing could correct it. `mesh_warp.py` is the instrument that makes all
+#: three unnecessary for the case they were built for: it reads the painting's
+#: own landmarks, moves them onto the plan's, and reports every cost as a
+#: number instead of turning a picture away for it.
+#:
+#: So the default route is ONE door. The candidate is warped onto the DECLARED
+#: camera, the warped frame is RE-MEASURED (row 27's rule is the same whoever
+#: moved the pixels: the document describes the image being promoted), and it is
+#: promoted with its warp record attached — recorded, never gated.
+#:
+#: THE ONLY REFUSALS ARE THE WARP'S OWN. A landmark that cannot be read, an
+#: aperture COUNT the painting does not answer, an aperture ORDER it
+#: contradicts: those three are CONTENT misses — the painting does not show what
+#: the plan rules — and no motion of pixels puts a door where none was painted.
+#: They are the re-ask cases, and each carries its clause as the correction.
+#: Everything else the old chain refused on is a number in the record.
+EXIT_WARPED = "warped"
+#: WHERE A WARPED FRAME LIVES and the round its reading is written into — the
+#: same shape as the snap's and the repair's, one home per kind of artifact.
+#: `mesh_warp.py`'s own sweep writes to `meshwarp-sweep/` (a dash, so it can
+#: never be a round directory name) precisely so the evidence of an experiment
+#: and the document a promotion reads cannot land on the same path.
+WARP_SOURCE_DIR = os.path.join(ROOT, "backdrops", "source-warped")
+WARP_ROUND = "meshwarp"
+#: The three clauses `mesh_warp.py` emits, READ here and not emitted (the same
+#: discipline as DOOR_CLAUSES: one token, one emit site, and this is not it).
+WARP_REFUSALS = ("meshwarp.landmark_unreadable", "meshwarp.aperture_count",
+                 "meshwarp.aperture_order")
+#: `--legacy-exits`: the snap → void-repair → tolerance chain, kept reachable for
+#: one release so a wall promoted through it can be re-derived and so the change
+#: can be clocked against the route it replaced (production law clause 5).
+LEGACY_EXITS = False
+
 
 def _record_exit(st, name, reason, cand_rel=None):
     """What left the pipeline by which door, and why, on the wall's own record."""
@@ -794,7 +833,33 @@ def _restore_snapped(key, stash):
                 fh.write(before)
 
 
-def promote_document(key, cand_rel, round_dir):
+def _warped_frame(key):
+    """Where this wall's warped frame lives, and the record beside it.
+
+    ONE ARTIFACT IN TWO FILES, the same pairing the snap and the repair keep:
+    the picture and the reading that describes what was done to it.
+    """
+    loc, fac = key.split("/")
+    d = os.path.join(WARP_SOURCE_DIR, "%s-%s" % (loc, fac))
+    return os.path.join(d, "warped.png"), os.path.join(d, "warp.json")
+
+
+def _warp_files(key):
+    """The four files a warp attempt writes, keyed by WALL and not by candidate
+    — so an attempt that does not stand must put them back. See `route_exit`."""
+    loc, fac = key.split("/")
+    png, rec = _warped_frame(key)
+    return (png, rec, os.path.splitext(png)[0] + ".prompt.txt",
+            os.path.join(HERE, WARP_ROUND, "%s-%s.json" % (loc, fac)))
+
+
+def _stash_warped(key):
+    """What those four files hold before a warp attempt."""
+    return {p: (open(p, "rb").read() if os.path.exists(p) else None)
+            for p in _warp_files(key)}
+
+
+def promote_document(key, cand_rel, round_dir, camera_source=None):
     """A promotion of a document some other instrument already wrote.
 
     The ordinary promotion shapes a reading into a §5 record and then promotes
@@ -806,7 +871,11 @@ def promote_document(key, cand_rel, round_dir):
     r = subprocess.run(
         ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
          "--facing", key, "--candidate", cand_rel, "--round", round_dir,
-         "--reference", "ruled"],
+         "--reference", "ruled"]
+        # THE CAMERA THE HORIZON COMES FROM, named only where the frame was
+        # MOVED onto it. A warped frame's landmarks are on the declared camera
+        # by construction — that is what the warp did — so its meta says so.
+        + (["--camera-source", camera_source] if camera_source else []),
         cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         # THE REFUSAL IS RETURNED WHOLE AND TRUNCATED ONLY FOR THE LEDGER. A
@@ -820,12 +889,13 @@ def promote_document(key, cand_rel, round_dir):
         why = (r.stdout + r.stderr).strip().split("\n")[-1]
         timings.record("promote.wall", _t, time.time(), key,
                        {"candidate": cand_rel, "refused": True, "round": round_dir,
-                        "camera_source": "measured", "why": why[:300]})
+                        "camera_source": camera_source or "measured", "why": why[:300]})
         return False, why
     ok, why = _validate_promoted(key)
     timings.record("promote.wall", _t, time.time(), key,
                    {"candidate": cand_rel, "refused": not ok, "round": round_dir,
-                    "camera_source": "measured", "why": (why or "")[:300] or None})
+                    "camera_source": camera_source or "measured",
+                    "why": (why or "")[:300] or None})
     return ok, why
 
 
@@ -1107,15 +1177,207 @@ def _exit_tolerance(key, e, st, cand_rel, reading, side, ref, fam):
                   "ruling, flagged suspect_perspective: %s" % ruling)
 
 
-def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
-    """SNAP FIRST, TOLERANCE SECOND, GRID LAST — for one wall, once.
+def _worst_segment(rec):
+    """The one strip of wall the correction asked most of, named.
+
+    A separable monotone map's whole distortion is its per-segment scale (see
+    `mesh_warp.axis_segments`), so the worst segment is the segment whose scale
+    is furthest from 1 — reported, never gated: it is what a reader looks at to
+    see where the picture was stretched, and the answer is a place, not a flag.
+    """
+    st = (rec.get("stretch") or {})
+    worst = None
+    for axis in ("x_segments", "y_segments"):
+        for s in (st.get(axis) or []):
+            if not s.get("scale"):
+                continue
+            d = abs(s["scale"] - 1.0)
+            if worst is None or d > worst[0]:
+                worst = (d, dict(axis=axis[0], name=s.get("name"),
+                                 scale=s.get("scale"),
+                                 target_px=s.get("target_px"),
+                                 source_px=s.get("source_px")))
+    return worst[1] if worst else None
+
+
+def _warp_block(rec):
+    """The four numbers the meta carries about the correction it was given.
+
+    `meta.measured_room.warp` — pins, residuals, worst segment, revealed px.
+    The tolerance ruling's flag said "this painting is suspect" and gave a
+    reader nothing to check; this says exactly how far each landmark had to
+    move, how far the field then put it off its target, where the wall was
+    stretched most, and how much frame edge the correction revealed.
+    """
+    cols = rec.get("columns") if isinstance(rec.get("columns"), list) else []
+    rws = rec.get("rows") if isinstance(rec.get("rows"), list) else []
+    return {
+        "pins": len(rec.get("pins") or []) or (len(cols) + len(rws)),
+        "columns": rec.get("column_count") or (len(cols) or None),
+        "rows": rec.get("row_count") or (len(rws) or None),
+        "residuals": {
+            # EVERY PIN'S OWN, by name, and the worst of them. This is what the
+            # tolerance ruling's bare flag never carried: how far the field puts
+            # each landmark off the target it was pinned to.
+            "max_px": rec.get("max_residual_px"),
+            "column_px": [[e.get("name"), e.get("residual_px")] for e in cols],
+            "row_px": [[e.get("name"), e.get("residual_px")] for e in rws],
+        },
+        "worst_segment": _worst_segment(rec),
+        "revealed_px": rec.get("revealed_px"),
+        "revealed_fraction": rec.get("revealed_fraction"),
+        "warp_mode": rec.get("warp_mode"),
+        "warped_from": rec.get("candidate"),
+    }
+
+
+def _warp_document(key, warped_rel, reading_after, side, ref, rec):
+    """The reading of the WARPED frame, in the warp's own round.
+
+    RE-MEASURED AND NOT RE-POINTED. The snap could carry its document through
+    its own homography and the void repair could re-point one because neither
+    moved a camera number; the warp moves the painting's landmarks onto the
+    plan's, so every scale, corner and line in the old reading is a statement
+    about a picture that no longer exists. The instrument reads the warped frame
+    from scratch, the doors and windows are read off it, and the record of what
+    the warp did rides along under `_warp` — recorded, never gated.
+    """
+    loc, fac = key.split("/")
+    doc, _refusals = row23_lib.promotion_doc(
+        reading_after, dict(side, candidate=warped_rel), ref, WARP_ROUND,
+        sha(os.path.join(ROOT, warped_rel)))
+    if doc is None:
+        return None, ("the warped frame carries no scale, so there is nothing "
+                      "for a meta to be a meta of")
+    doc["_round"] = WARP_ROUND
+    doc["_what_this_is"] = (
+        "The MESH-WARPED reading for %s. %s was warped onto this facing's "
+        "DECLARED camera by design/plan-draft/measured/mesh_warp.py — the "
+        "painting's own room corners, floor and ceiling lines and aperture "
+        "edges pinned onto the plan's, separable and piecewise-linear on the "
+        "wall plane so no straight line bends — and this document is the "
+        "row-23 instrument's reading of the RESULT, measured off %s and off "
+        "nothing else. What the correction cost is in `_warp`: it is recorded "
+        "and nothing here is gated on it."
+        % (key, rec.get("candidate"), warped_rel))
+    doc["_warp"] = _warp_block(rec)
+    doc["_warp"]["tool"] = "design/plan-draft/measured/mesh_warp.py"
+    doc_out = os.path.join(HERE, WARP_ROUND, "%s-%s.json" % (loc, fac))
+    os.makedirs(os.path.dirname(doc_out), exist_ok=True)
+    json.dump(doc, open(doc_out, "w"), indent=2, default=float)
+    plan = json.load(open(PLAN))
+    try:
+        import door_measure
+        import window_measure
+        door_measure.patch(doc_out, os.path.join(ROOT, warped_rel), loc, plan)
+        window_measure.patch(doc_out, os.path.join(ROOT, warped_rel), loc, plan)
+    except Exception as ex:
+        return None, ("the openings could not be read off the warped frame: %s"
+                      % str(ex)[:200])
+    return doc_out, None
+
+
+def _exit_warp(key, e, st, cand_rel, side, ref, fam):
+    """THE correction step. Returns `(ok, reason, record, clause)`.
+
+    `clause` is non-null only on one of the warp's own three refusals, and that
+    is the whole of the re-ask: a content miss the plan can name and a painter
+    can answer. Everything else that goes wrong here costs this wall its exit
+    and nothing else — it stays on the grid with its reason, and no roll is
+    spent asking for a repaint that would not fix it.
+    """
+    _t = time.time()
+    import mesh_warp
+    try:
+        out, rec = mesh_warp.warp_wall(key, cand_rel)
+    except Exception as ex:                        # ONE BAD WALL IS ONE ROW.
+        timings.record("exit.warp", _t, time.time(), key,
+                       {"candidate": cand_rel, "warped": False,
+                        "error": str(ex)[:200]})
+        return False, "the warp raised on this frame: %s" % str(ex)[:200], None, None
+    WARP_RECORDS[key] = rec
+    if out is None:
+        clause = rec.get("clause") if rec.get("clause") in WARP_REFUSALS else None
+        timings.record("exit.warp", _t, time.time(), key,
+                       {"candidate": cand_rel, "warped": False,
+                        "clause": rec.get("clause"), "why": (rec.get("why") or "")[:300]})
+        return False, (rec.get("why") or "the warp refused this frame"), rec, clause
+
+    png, rec_path = _warped_frame(key)
+    mesh_warp.write_png(png, out)
+    warped_rel = os.path.relpath(png, ROOT)
+    # THE ASK GOES WITH THE PICTURE. [row39:stair.ask_unreadable] attaches a
+    # flight to a promoted meta only from a candidate that can be SHOWN to have
+    # been asked for one, and it looks for `<candidate>.prompt.txt` beside the
+    # frame. A warped frame IS that candidate corrected — the same roll, the
+    # same ask, moved onto the declared camera — so the prompt it was painted
+    # from is copied beside it rather than the wall losing its staircase for
+    # having been corrected.
+    src_prompt = os.path.join(ROOT, os.path.splitext(cand_rel)[0] + ".prompt.txt")
+    if os.path.exists(src_prompt):
+        with open(src_prompt, "rb") as _fh:
+            _ask = _fh.read()
+        with open(os.path.splitext(png)[0] + ".prompt.txt", "wb") as _out:
+            _out.write(_ask)
+    rec["warped_image"] = warped_rel
+    rec["asked_from"] = os.path.relpath(src_prompt, ROOT) if os.path.exists(src_prompt) else None
+    rec["warped_sha256"] = sha(png)
+
+    # THE WARPED FRAME, PUT BACK THROUGH THE STANDING INSTRUMENT — not to judge
+    # it, but because the document a promotion reads must be a reading of the
+    # image being promoted (row 27's rule, whoever moved the pixels).
+    import row35_snap
+    _e, _side, cfg, _ref, _declared = row35_snap.wall_context(key)
+    reading_after = row35_snap.measure(png, side, cfg, ref)
+    rec["after"] = dict(camera_verdict=reading_after.get("verdict"),
+                        delta_focal_pct=reading_after.get("delta_focal_pct"),
+                        delta_eye_pct=reading_after.get("delta_eye_pct"),
+                        hold_family=(reading_after.get("_promotion") or {})
+                        .get("hold_family"))
+    mesh_warp._emit(rec_path, rec)
+
+    doc_out, why = _warp_document(key, warped_rel, reading_after, side, ref, rec)
+    if doc_out is None:
+        timings.record("exit.warp", _t, time.time(), key,
+                       {"candidate": cand_rel, "warped": True, "promoted": False,
+                        "why": (why or "")[:300]})
+        return False, why, rec, None
+
+    ok, why = promote_document(key, warped_rel, WARP_ROUND,
+                               camera_source="declared")
+    timings.record("exit.warp", _t, time.time(), key,
+                   {"candidate": cand_rel, "warped": True, "promoted": ok,
+                    "max_residual_px": rec.get("max_residual_px"),
+                    "revealed_px": rec.get("revealed_px"),
+                    "why": (why or "")[:300] or None})
+    if not ok:
+        return False, ("the warped frame re-measures and the promotion refused "
+                       "it: %s" % why), rec, None
+    ws = _worst_segment(rec) or {}
+    return True, ("the warp pinned this painting's own landmarks onto the "
+                  "plan's and it promoted from %s on the declared camera "
+                  "(%d pins, worst residual %.2f px, worst segment %s x%.3f, "
+                  "%d px revealed) — the correction is recorded, not waived"
+                  % (warped_rel, _warp_block(rec)["pins"],
+                     rec.get("max_residual_px") or 0.0,
+                     ws.get("name") or "-", ws.get("scale") or 1.0,
+                     rec.get("revealed_px") or 0)), rec, None
+
+
+def route_exit(key, e, st, cand_rel, reading, side, ref, fam,
+               legacy=None, force=False):
+    """ONE DOOR — `exit: warped` — for one wall, once. See EXIT_WARPED.
+
+    The chain this replaces (snap → void repair → tolerance) is behind
+    `--legacy-exits` for one release and is what `legacy=True` runs.
 
     Returns (exit, reason) and mutates `st` on a promotion. The caller has
     already recorded the hold; this is what happens next, and on GRID the hold
     it recorded stands untouched.
     """
     _t = time.time()
-    if _exit_tried(st, cand_rel):
+    legacy = LEGACY_EXITS if legacy is None else legacy
+    if _exit_tried(st, cand_rel) and not force:
         # NOTHING HAPPENED THIS PASS, and that is what is returned. The routing
         # already ran on this candidate and said what it said; re-running it
         # would re-snap the same frame to the same refusal at ~12 s a wall,
@@ -1150,6 +1412,47 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam):
         timings.record("exit.route", _t, time.time(), key,
                        {"candidate": cand_rel, "exit": exit_name, "family": fam})
         return exit_name, reason
+
+    if not legacy:
+        # THE WARP IS THE WHOLE ROUTE. Same doctrine as everything below it: an
+        # attempt that does not stand leaves the store exactly as it found it,
+        # because `source-warped/<wall>/warped.png` and its round document are
+        # keyed by WALL and a newer roll of an already-promoted wall would
+        # otherwise overwrite the picture the store was measured on.
+        _warp_stash = _stash_warped(key)
+        ok, reason, rec, clause = _exit_warp(key, e, st, cand_rel, side, ref, fam)
+        if ok:
+            if rec is not None:
+                st["warp"] = _warp_block(rec)
+            st["camera_source"] = "declared"
+            return _promoted(EXIT_WARPED, reason)
+        _restore_snapped(key, _warp_stash)      # the same byte-for-byte restore
+        # AN OPEN FACING HAS NO ROOM CORNERS TO PIN, so the warp's landmark
+        # refusal on one says the INSTRUMENT does not apply — not that the
+        # painting is missing something a painter could add. That is the one
+        # refusal of the three that is never a re-ask, and spending a roll on it
+        # would ask a vista to grow a ceiling.
+        open_facing = ((side or {}).get("meta_used") or {}).get("facing_type") == "open"
+        if clause and not open_facing:
+            # THE RE-ASK, AND THE ONLY ONE. A landmark that cannot be read, an
+            # aperture count or an aperture order the painting contradicts: the
+            # picture does not show what the plan rules, and the clause IS the
+            # correction — it names what to paint, which is the one thing a
+            # repaint can supply and a warp cannot.
+            st["warp_refusal"] = {"clause": clause, "why": reason,
+                                  "candidate": cand_rel}
+            st["correction"] = "[%s] %s" % (clause, reason)
+            _record_exit(st, EXIT_GRID,
+                         "the warp refused this frame and it is a content miss, "
+                         "so it re-asks: %s" % st["correction"], cand_rel)
+        else:
+            _record_exit(st, EXIT_GRID,
+                         "the warp could not carry this wall: %s" % reason,
+                         cand_rel)
+        timings.record("exit.route", _t, time.time(), key,
+                       {"candidate": cand_rel, "exit": EXIT_GRID, "family": fam,
+                        "warp": reason[:200], "clause": clause})
+        return EXIT_GRID, st["exit_reason"]
 
     # [production law clause 6, 2026-08-25] THE SNAPPED FRAME IS PUT BACK IF THE
     # WALL DOES NOT LEAVE THROUGH IT.
@@ -2239,7 +2542,8 @@ def sweep(manifest, state, do_promote=True):
                     if fam in row23_lib.TOLERANCE_FAMILIES or _is_door_refusal(why):
                         ex, reason = route_exit(key, e, st, r["candidate"], d,
                                                 side, ref, fam)
-                        if ex in (EXIT_SNAPPED, EXIT_TOLERATED):
+                        if ex in (EXIT_WARPED, EXIT_SNAPPED,
+                                  EXIT_SNAPPED_VOIDED, EXIT_TOLERATED):
                             promoted.append((key, "%s - %s" % (ex.upper(), reason), d))
                             continue
                     # [guards-that-cannot-fail] a wall routed to grid may have had its
@@ -2312,6 +2616,18 @@ def sweep(manifest, state, do_promote=True):
                 % anchor_name)
             st["candidate"] = worst.get("candidate")
             st["hold_family"] = "camera-miss"
+            # [THE WARP EXIT] A CAMERA MISS THE WARP ABSORBS IS NOT A RE-ASK.
+            # The gate is a sensor and not a judge: a frame whose lens or eye
+            # reads outside the band is exactly the scale jitter the warp
+            # corrects, so the correction is TRIED before a roll is spent
+            # asking for the picture to be painted again. Only the warp's own
+            # three refusals — the content misses — reach the re-ask below.
+            if not LEGACY_EXITS and do_promote and worst.get("candidate"):
+                ex, reason = route_exit(key, e, st, worst["candidate"], worst,
+                                        side, ref, "camera-miss")
+                if ex == EXIT_WARPED:
+                    promoted.append((key, "WARPED - %s" % reason, worst))
+                    continue
             if st["attempts"] >= (e.get("retry_cap", 3) + st.get("cap_extension", 0)):
                 st["status"] = "parked"
                 st["why"] = "the retry cap is spent; the wall stays grid and the run continues"
@@ -2611,6 +2927,104 @@ def _tolerance_line(key, fam, r, d):
                                         / d["px_per_m_at_wall"])))
 
 
+#: The last warp record this process produced for each wall, so `--warp-held`
+#: can print WHAT the correction cost without re-reading a file the route has
+#: already restored on a refusal. Nothing decides on it; it is the table's.
+WARP_RECORDS = {}
+WARP_HELD_STATUSES = ("held", "retry", "parked")
+
+
+def warp_held_pass(manifest, state, statuses=WARP_HELD_STATUSES, only=None):
+    """[--warp-held] Every held, retrying or parked wall with a candidate, put
+    through the one door. Returns `(rows, skipped)`.
+
+    THE STANDING SWEEP DOES THIS BY ITSELF for every wall it routes; this is the
+    same route run over the walls that were already holding when it became the
+    route, which is the only thing a one-time flag is for. The fences are the
+    sweep's own — nothing this loop is forbidden to promote is promoted here,
+    and a wall whose art is already in the store is left alone.
+    """
+    rows, skipped = [], []
+    for e in manifest["entries"]:
+        if e.get("skipped"):
+            continue
+        key = e["key"]
+        if only and key != only:
+            continue
+        st = state["walls"].get(key)
+        if st is None or st.get("status") not in statuses:
+            continue
+        loc, fac_f = key.split("/")
+        cand = st.get("candidate")
+        if not cand or not os.path.exists(os.path.join(ROOT, cand)):
+            skipped.append((key, st.get("status"), "no candidate on disk"))
+            continue
+        if key in NEVER_PROMOTE or loc in M0_ROOMS:
+            skipped.append((key, st.get("status"),
+                            "fenced from promotion by this loop"))
+            continue
+        if os.path.exists(os.path.join(ROOT, "backdrops", loc, fac_f + ".png")):
+            skipped.append((key, st.get("status"), "art already in the store"))
+            continue
+        fac = facing_of(key)
+        if fac.get("type") == "open":
+            skipped.append((key, st.get("status"),
+                            "an open facing: it has no ceiling line and no room "
+                            "corners for the warp to pin"))
+            continue
+        ref = ref_for(e)
+        side = side_for(key, e, fac)
+        ex, reason = route_exit(key, e, st, cand, None, side, ref,
+                                st.get("hold_family"), legacy=False, force=True)
+        state["walls"][key] = st
+        rows.append(_warp_row(key, st, ex, reason))
+    return rows, skipped
+
+
+def _warp_row(key, st, ex, reason):
+    """One line of the `--warp-held` table: what the wall read before, what the
+    warp did, what it cost, and whether it went into the store."""
+    rec = WARP_RECORDS.get(key) or {}
+    before = rec.get("before") or {}
+    ws = _worst_segment(rec) or {}
+    return dict(
+        wall=key,
+        before_focal=before.get("delta_focal_pct"),
+        before_eye=before.get("delta_eye_pct"),
+        verdict=("warped" if ex == EXIT_WARPED else
+                 ("refused(%s)" % rec.get("clause")) if rec.get("clause")
+                 else "no exit"),
+        worst_segment=("%s x%.3f" % (ws.get("name"), ws.get("scale"))
+                       if ws.get("scale") else None),
+        revealed_px=rec.get("revealed_px"),
+        promoted=(ex == EXIT_WARPED),
+        why=(reason or "")[:110])
+
+
+WARP_TABLE = ("wall", "before_focal", "before_eye", "verdict", "worst_segment",
+              "revealed_px", "promoted")
+
+
+def print_warp_table(rows, stream=sys.stdout):
+    cols = list(WARP_TABLE)
+    def cell(v):
+        if v is None:
+            return "-"
+        if isinstance(v, bool):
+            return "yes" if v else "no"
+        if isinstance(v, float):
+            return "%+.2f" % v
+        return str(v)
+    wide = {c: max([len(c)] + [len(cell(r.get(c))) for r in rows]) for c in cols}
+    stream.write("  ".join(c.ljust(wide[c]) for c in cols) + "\n")
+    stream.write("  ".join("-" * wide[c] for c in cols) + "\n")
+    for r in rows:
+        stream.write("  ".join(cell(r.get(c)).ljust(wide[c]) for c in cols) + "\n")
+    for r in rows:
+        if not r["promoted"]:
+            stream.write("  %s: %s\n" % (r["wall"], r.get("why")))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--watch", action="store_true",
@@ -2624,12 +3038,23 @@ def main():
                     help="row 32: promote the remaining suspect-family holds on "
                          "the declared camera, under the Captain's tolerance "
                          "ruling (design/approvals.log 2026-08-24)")
+    ap.add_argument("--warp-held", action="store_true",
+                    help="the warp exit, run over every held, retrying or "
+                         "parked wall that has a candidate: each is warped onto "
+                         "its declared camera, re-measured, and promoted with "
+                         "its warp record attached. Prints the table and bakes "
+                         "once; it never publishes")
+    ap.add_argument("--legacy-exits", action="store_true",
+                    help="route through the OLD chain (row 35's snap, row 36's "
+                         "void repair, row 32's tolerance ruling) instead of the "
+                         "warp. Kept for one release so the change can be "
+                         "clocked against the route it replaced")
     ap.add_argument("--supersede-only", action="store_true",
                     help="row 40 seam: run ONLY the supersede route — every "
                          "promoted wall whose room re-asked it and whose "
                          "consistency roll has returned — and print the table")
     ap.add_argument("--only", metavar="LOC/F",
-                    help="with --supersede-only: one wall, by key")
+                    help="with --supersede-only or --warp-held: one wall, by key")
     ap.add_argument("--derive-check", action="store_true",
                     help="[production law clause 6] report which committed "
                          "derived artifacts are stale against the store and "
@@ -2653,6 +3078,9 @@ def main():
                          "room half cannot be answered without promoting")
     a = ap.parse_args()
 
+    global LEGACY_EXITS
+    LEGACY_EXITS = a.legacy_exits
+
     if a.dry_run and not (a.tolerance_sweep or a.supersede_only):
         print("row23-run: --dry-run belongs to --tolerance-sweep and "
               "--supersede-only; the ordinary sweep's dry run is --no-promote, "
@@ -2675,7 +3103,7 @@ def main():
               % (len(bad), len(records)))
         return 1 if bad else 0
 
-    if a.only and not a.supersede_only:
+    if a.only and not (a.supersede_only or a.warp_held):
         print("row23-run: --only belongs to --supersede-only; the ordinary "
               "sweep decides every wall on its own and has no queue to filter")
         return 2
@@ -2750,6 +3178,29 @@ def main():
                  ("; BAKE REFUSED: " + bad) if bad else ""))
         return 1 if bad else 0
 
+    if a.warp_held:
+        if not os.path.exists(MANIFEST):
+            print("row23-run: no manifest - run "
+                  "`node tools/make-scaffold.mjs --emit-manor` first")
+            return 1
+        manifest = json.load(open(MANIFEST))
+        state = load_state()
+        rows, skipped = warp_held_pass(manifest, state, only=a.only)
+        save_state(state)
+        print_warp_table(rows)
+        for key, status, why in skipped:
+            print("  %-24s SKIPPED   %s (%s)" % (key, why, status))
+        n = sum(1 for r in rows if r["promoted"])
+        # ONE BAKE FOR THE WHOLE PASS, the sweep's own rule.
+        bad = _bake_if_promoted(n, reason="warp-held")
+        print("%s  %d of %d held wall(s) promoted through the warp, %d skipped%s"
+              % (time.strftime("%H:%M:%S"), n, len(rows), len(skipped),
+                 ("; BAKE REFUSED: " + bad) if bad else ""))
+        if n:
+            print("  >> `tools/publish-site.sh` is yours to run when you want "
+                  "them live - this loop never publishes.")
+        return 1 if bad else 0
+
     if a.recheck_doors:
         state = load_state()
         kept, demoted, bad = recheck_doors(state)
@@ -2813,9 +3264,9 @@ def main():
                 exits[w["exit"]] = exits.get(w["exit"], 0) + 1
         if exits:
             print("  exits: " + ", ".join("%d %s" % (exits[k], k) for k in
-                                          (EXIT_MEASURED, EXIT_SNAPPED,
-                                           EXIT_SNAPPED_VOIDED, EXIT_TOLERATED,
-                                           EXIT_GRID)
+                                          (EXIT_MEASURED, EXIT_WARPED,
+                                           EXIT_SNAPPED, EXIT_SNAPPED_VOIDED,
+                                           EXIT_TOLERATED, EXIT_GRID)
                                           if exits.get(k)))
         if done:
             print("  >> %d wall(s) promoted and baked. `tools/publish-site.sh` is yours to "
