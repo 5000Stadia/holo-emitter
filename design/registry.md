@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-PACK | row 44 step 0: builder 1 landed at the cap (129k tokens: packs/manor, tools/pack.mjs, 88/88 prompts byte-identical); builder 2 (capped) on the probe pack + measure/promote/loop constants | building (2 of 2) |
+| B-WARP | the pinned mesh warp (room + aperture corners → plan targets, smooth field, margin-aware, residuals recorded) replacing snap/void-repair/tolerance — capped | building |
 | B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
@@ -29,6 +29,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | what landed |
 |---|---|
+| L-PACK | row 44 step 0: the location is a pack — packs/manor + packs/_probe ("abyssal survey station"), tools/pack.mjs + measured/pack.py, engine reads the pack (voices, lint, measure, promote, loop); manor 88/88 byte-identical; remainder listed in STATUS.md | 
 | L-VOUCH | vouching follows the material: `current`/`refined`/`split-ask`/`stale-material` per facing, refinements declared in `SAID_BEFORE`; servants_hall N/S/W vouched (35 of 61 store-wide), Image 1 resolves for 41 of 88 |
 | L-INK | the scaffold as ink on paper (paper ground, ink junctions, outline+hatch boxes; grid-v1 kept for committed sheets); the register names it as a line drawing; harness count clause (doors/windows painted vs ruled); 2×2 trial batch at design/batches/scaffold-ink |
 | L-SEEDMASK | the own-room style image is derived: apertures and hearths filled from the wall's own fabric (mirror + cross-fade + relight, verified by the door/window instruments), so Image 1 carries materials/palette/light and no architecture; 27 seeds, flights refused |
