@@ -1,0 +1,851 @@
+{
+  "_what_this_is": "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
+  "_arrivals_are_unordered": "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. THE ONE ORDERING, row 38's mechanism made the default at row 42: every location paints its LEAD wall first — the most-carried one, named in `room_order` below — and the other three carry `depends_on` until that wall's picture is on disk. A packet whose `depends_on` is set is NOT PAINTED YET; its PACKET.md says so in its first line. Once the lead has landed, its three followers go out together and the parallelism inside a room is unchanged.",
+  "_seams": "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out beside the layout image (`edge_seed.image_index` is which Image number it was given - the index is derived from whether an Image 1 rode, never typed [row 43]), where it was cut from, and its sha256. Open locations REQUIRE the strip; indoor ones take it opportunistically. ORDERING is no longer scoped to open locations - see `_lead_rule` and `room_order` below - and what is still scoped to them is the RING: outdoors each facing continues the one at its left edge, indoors all three continue the lead.",
+  "_lead_rule": "[HUMAN 2026-08-24] \"Can we paint the whole scene on wall 1 for a room, use it to influence wall 2-4\" — one facing of each room is painted first and the other three take it as Image 1 (row 40's own-room rule, extended to accept the lead's CANDIDATE) plus row 38's edge strip where it abuts. The lead is the MOST-CARRIED wall: doors, windows and fireplaces counted; ties break to the wall the room's entry door faces, then to compass order.",
+  "room_order": {
+    "noodle_bar": {
+      "lead": "noodle_bar/E",
+      "lead_why": "E/S carry equally (N:0 E:1 S:1 W:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "E",
+          "key": "noodle_bar/E",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "noodle_bar/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "noodle_bar/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "noodle_bar/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "noodle_bar/E",
+          "depends_on": "noodle_bar/E"
+        },
+        {
+          "facing": "S",
+          "key": "noodle_bar/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "noodle_bar/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "noodle_bar/E",
+          "depends_on": "noodle_bar/E"
+        },
+        {
+          "facing": "W",
+          "key": "noodle_bar/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "noodle_bar/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "noodle_bar/E",
+          "depends_on": "noodle_bar/E"
+        }
+      ]
+    },
+    "back_office": {
+      "lead": "back_office/E",
+      "lead_why": "E/W carry equally (N:0 E:1 S:0 W:1), so the tie breaks to the wall the room's entry door (its W wall) faces",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "E",
+          "key": "back_office/E",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "back_office/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "back_office/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "back_office/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "back_office/E",
+          "depends_on": "back_office/E"
+        },
+        {
+          "facing": "S",
+          "key": "back_office/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "back_office/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "back_office/E",
+          "depends_on": "back_office/E"
+        },
+        {
+          "facing": "W",
+          "key": "back_office/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "back_office/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "back_office/E",
+          "depends_on": "back_office/E"
+        }
+      ]
+    }
+  },
+  "_speed_rule": "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+  "_reuse_rule": "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
+  "_technique": "t2",
+  "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
+  "_generated": "2026-08-29",
+  "facings_in_plan": 8,
+  "emitted": 8,
+  "skipped": 0,
+  "skipped_entries": [],
+  "entries": [
+    {
+      "key": "noodle_bar/N",
+      "room": "noodle_bar",
+      "facing": "N",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/cyberpunk-2/noodle_bar-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "64ad3c73bf410ec726bd7b1cafcc5c632811fe20e7d58b4b3b54286574617638",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 243.8095238095238,
+      "camera_wall_m": 4.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7954361979166666,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 36.57142857142867,
+      "corner_x1_px": 1499.4285714285713,
+      "storey_height_m": 3.2,
+      "wall_width_m": 6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 814.5266666666666,
+          "half_width": 23.07,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 546.3361904761905,
+          "half_width": 21.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 34.336190476190495,
+          "half_width": 62.42,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            36.57142857142867,
+            1499.4285714285713
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 546.34,
+      "voice": {
+        "id": "noodle_counter_trade",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "noodle_bar/E",
+      "lead": "noodle_bar/E",
+      "is_lead": false,
+      "continues": "noodle_bar/E",
+      "order_position": 1,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "42ca34fd",
+          "candidate": "backdrops/source/noodle_bar-N/row23-42ca34fd.png",
+          "prompt": "backdrops/source/noodle_bar-N/row23-42ca34fd.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "noodle_bar/E",
+      "room": "noodle_bar",
+      "facing": "E",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/cyberpunk-2/noodle_bar-E",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "df69eaa6481c9c189f8847c583b74250beb16a2500d3b6da2eaa4aa5fbfd370d",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 227.55555555555554,
+      "camera_wall_m": 4.5,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7766584201388889,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 130.84444444444455,
+      "corner_x1_px": 1405.1555555555556,
+      "storey_height_m": 3.2,
+      "wall_width_m": 5.6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 795.2982222222222,
+          "half_width": 21.54,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 544.9871111111111,
+          "half_width": 20.02,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 67.12044444444439,
+          "half_width": 58.25,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 460.6,
+            "x1": 1075.4,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 205,
+        "rail_columns": [
+          [
+            130.84444444444455,
+            665
+          ],
+          [
+            871,
+            1405.1555555555556
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 665.6,
+          "x1": 870.4
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 544.99,
+      "voice": {
+        "id": "noodle_counter_trade",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "noodle_bar/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "5fe4dd71",
+          "candidate": "backdrops/source/noodle_bar-E/row23-5fe4dd71.png",
+          "prompt": "backdrops/source/noodle_bar-E/row23-5fe4dd71.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "noodle_bar/S",
+      "room": "noodle_bar",
+      "facing": "S",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "window"
+      ],
+      "packet": "design/batches/cyberpunk-2/noodle_bar-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "44bcffc9b56017a0bd2d5d464018543b4cdafceca51c72e651a732c8e70e6d37",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 243.8095238095238,
+      "camera_wall_m": 4.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7954361979166666,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 36.57142857142867,
+      "corner_x1_px": 1499.4285714285713,
+      "storey_height_m": 3.2,
+      "wall_width_m": 6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 814.5266666666666,
+          "half_width": 23.07,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 546.3361904761905,
+          "half_width": 21.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 34.336190476190495,
+          "half_width": 62.42,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 182.95,
+            "x1": 1353.05,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 390,
+        "rail_columns": [
+          [
+            36.57142857142867,
+            572
+          ],
+          [
+            964,
+            1499.4285714285713
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 572.95,
+          "x1": 963.05
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 546.34,
+      "voice": {
+        "id": "noodle_counter_trade",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "noodle_bar/E",
+      "lead": "noodle_bar/E",
+      "is_lead": false,
+      "continues": "noodle_bar/E",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "883dcbba",
+          "candidate": "backdrops/source/noodle_bar-S/row23-883dcbba.png",
+          "prompt": "backdrops/source/noodle_bar-S/row23-883dcbba.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "noodle_bar/W",
+      "room": "noodle_bar",
+      "facing": "W",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/cyberpunk-2/noodle_bar-W",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "74c66627ebb09e105c806c66a50561aab49feeb502df2e13cb7daad32e876849",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 227.55555555555554,
+      "camera_wall_m": 4.5,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7766584201388889,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 130.84444444444455,
+      "corner_x1_px": 1405.1555555555556,
+      "storey_height_m": 3.2,
+      "wall_width_m": 5.6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 795.2982222222222,
+          "half_width": 21.54,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 544.9871111111111,
+          "half_width": 20.02,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 67.12044444444439,
+          "half_width": 58.25,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            130.84444444444455,
+            1405.1555555555556
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 544.99,
+      "voice": {
+        "id": "noodle_counter_trade",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "noodle_bar/E",
+      "lead": "noodle_bar/E",
+      "is_lead": false,
+      "continues": "noodle_bar/E",
+      "order_position": 3,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "70f45eab",
+          "candidate": "backdrops/source/noodle_bar-W/row23-70f45eab.png",
+          "prompt": "backdrops/source/noodle_bar-W/row23-70f45eab.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "back_office/N",
+      "room": "back_office",
+      "facing": "N",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/cyberpunk-2/back_office-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "ce318a71684e1e3318336eca90ba09e37d29b2b4eecde7709c2877cb7da81b25",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 243.8095238095238,
+      "camera_wall_m": 4.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7954361979166666,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 256,
+      "corner_x1_px": 1280,
+      "storey_height_m": 3.2,
+      "wall_width_m": 4.2,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 814.5266666666666,
+          "half_width": 23.07,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 546.3361904761905,
+          "half_width": 21.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 34.336190476190495,
+          "half_width": 62.42,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            256,
+            1280
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 546.34,
+      "voice": {
+        "id": "back_office_soft",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "back_office/E",
+      "lead": "back_office/E",
+      "is_lead": false,
+      "continues": "back_office/E",
+      "order_position": 1,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "7c95225a",
+          "candidate": "backdrops/source/back_office-N/row23-7c95225a.png",
+          "prompt": "backdrops/source/back_office-N/row23-7c95225a.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "back_office/E",
+      "room": "back_office",
+      "facing": "E",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "window"
+      ],
+      "packet": "design/batches/cyberpunk-2/back_office-E",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "99466a0ac9f176c498dccba313d0a1aba713daacbf149907823056204843453a",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 273.06666666666666,
+      "camera_wall_m": 3.75,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.8292361979166667,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 3.413333333333412,
+      "corner_x1_px": 1532.5866666666666,
+      "storey_height_m": 3.2,
+      "wall_width_m": 5.6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 849.1378666666667,
+          "half_width": 25.84,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 548.7645333333334,
+          "half_width": 24.03,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": -24.675466666666694,
+          "half_width": 69.91,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 276.16,
+            "x1": 1259.84,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 328,
+        "rail_columns": [
+          [
+            3.413333333333412,
+            604
+          ],
+          [
+            932,
+            1532.5866666666666
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 604.16,
+          "x1": 931.84
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 548.76,
+      "voice": {
+        "id": "back_office_soft",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "back_office/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "746058a5",
+          "candidate": "backdrops/source/back_office-E/row23-746058a5.png",
+          "prompt": "backdrops/source/back_office-E/row23-746058a5.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "back_office/S",
+      "room": "back_office",
+      "facing": "S",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/cyberpunk-2/back_office-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "ce318a71684e1e3318336eca90ba09e37d29b2b4eecde7709c2877cb7da81b25",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 243.8095238095238,
+      "camera_wall_m": 4.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7954361979166666,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 256,
+      "corner_x1_px": 1280,
+      "storey_height_m": 3.2,
+      "wall_width_m": 4.2,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 814.5266666666666,
+          "half_width": 23.07,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 546.3361904761905,
+          "half_width": 21.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 34.336190476190495,
+          "half_width": 62.42,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            256,
+            1280
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 546.34,
+      "voice": {
+        "id": "back_office_soft",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "back_office/E",
+      "lead": "back_office/E",
+      "is_lead": false,
+      "continues": "back_office/E",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "7fc68c04",
+          "candidate": "backdrops/source/back_office-S/row23-7fc68c04.png",
+          "prompt": "backdrops/source/back_office-S/row23-7fc68c04.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "back_office/W",
+      "room": "back_office",
+      "facing": "W",
+      "floor": "street",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/cyberpunk-2/back_office-W",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "640d98a63b173a6be3d4f28bb371def307be104243ff198d1b91faf8d956cb2f",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 273.06666666666666,
+      "camera_wall_m": 3.75,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.8292361979166667,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 3.413333333333412,
+      "corner_x1_px": 1532.5866666666666,
+      "storey_height_m": 3.2,
+      "wall_width_m": 5.6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 849.1378666666667,
+          "half_width": 25.84,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 548.7645333333334,
+          "half_width": 24.03,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": -24.675466666666694,
+          "half_width": 69.91,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 399.12,
+            "x1": 1136.88,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 246,
+        "rail_columns": [
+          [
+            3.413333333333412,
+            645
+          ],
+          [
+            891,
+            1532.5866666666666
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 645.12,
+          "x1": 890.88
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 548.76,
+      "voice": {
+        "id": "back_office_soft",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "cable_channel"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "back_office/E",
+      "lead": "back_office/E",
+      "is_lead": false,
+      "continues": "back_office/E",
+      "order_position": 3,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "6afb2c06",
+          "candidate": "backdrops/source/back_office-W/row23-6afb2c06.png",
+          "prompt": "backdrops/source/back_office-W/row23-6afb2c06.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    }
+  ]
+}

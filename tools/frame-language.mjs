@@ -1096,15 +1096,24 @@ export const SCAFFOLD_IS_INSTRUCTIONS =
  *  sheet production now cuts; `grid-v1` is the control arm's. */
 export const sheetOf = (ctx) => ctx.scaffold_sheet || "ink-on-paper-v2";
 
+/* [row 44, clause 8] THE SURFACES SENTENCE IS THE PACK'S. "plain and unlettered"
+ * is the manor's rule against invented typography; a world whose voices paint
+ * stencilled lettering and a spray tag would contradict itself. The pack may
+ * say what its surfaces carry; the manor's sentence is the default. */
+function surfacesSentence(ctx) {
+  const w = ctx.world || {};
+  return (w.constraints && w.constraints.surfaces) || "Every surface in it is plain and unlettered";
+}
+
 export function g5NothingElseLines(ctx) {
   const { out } = words(ctx);
   return [
     `Constraints: the ${ctx.room_name} is completely empty — no furniture, nobody in it, no ` +
       `animals and no loose props of any kind${out ? ", and nothing grown crosses the wall plane" : ""}.`,
     sheetOf(ctx) === "grid-v1"
-      ? `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)}'s ` +
+      ? `  ${surfacesSentence(ctx)}, and ${scaffoldImage(ctx)}'s ` +
         `${SCAFFOLD_IS_INSTRUCTIONS}.`
-      : `  Every surface in it is plain and unlettered, and ${scaffoldImage(ctx)} ` +
+      : `  ${surfacesSentence(ctx)}, and ${scaffoldImage(ctx)} ` +
         `${SCAFFOLD_IS_A_DRAWING}.`
   ];
 }
@@ -1161,7 +1170,7 @@ export function g5AppendixLines(ctx) {
 export function g5Prompt(ctx, { appendix = true } = {}) {
   const { out } = words(ctx);
   const L = [];
-  L.push(`Use case: historical-scene, ${out ? "exterior" : "interior"}`);
+  L.push(`Use case: ${(ctx.world && ctx.world.use_case) || "historical-scene"}, ${out ? "exterior" : "interior"}`);
   L.push(`Asset type: gameplay backdrop for the ${ctx.side} ${ctx.surface} of the ${ctx.room_name}, ` +
     `${PACK.world.era}`);
   L.push(`Gate anchor: ${ctx.anchor.line}, ${PACK.world.ruler.height_m.toFixed(2)} m.`);

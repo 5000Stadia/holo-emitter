@@ -60,5 +60,9 @@
   "store_dir": "backdrops",
   "readings_dir": "design/plan-draft/measured/cyberpunk-2",
   "world_query": "cyberpunk-2"
+ },
+ "use_case": "location-study",
+ "constraints": {
+  "surfaces": "Every surface carries only what its materials say: the stencilled lettering and the crew's tag are painted marks, never readable words \u2014 no legible text, no signage copy, no logos"
  }
 }

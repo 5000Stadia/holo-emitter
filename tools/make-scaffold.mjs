@@ -1540,7 +1540,7 @@ export function imageFor(key, opts = {}) {
   }
   const dir = join(root, sourceDirFor(key));
   if (!existsSync(dir)) return null;
-  const rolls = readdirSync(dir, { withFileTypes: true })
+  const rolls = (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : [])
     .filter((d) => d.isFile() && /^row\d+-[0-9a-f]{8}\.png$/.test(d.name))
     .map((d) => ({ name: d.name, t: statSync(join(dir, d.name)).mtimeMs }))
     .sort((a, b) => b.t - a.t || a.name.localeCompare(b.name));
@@ -2317,6 +2317,7 @@ export function g5CtxFor(plan, key, meta, rects, opts = {}) {
     : null;
   return {
     plan, key, loc, facing: f, meta, rects,
+    world: PACK.world,                                   // [row 44] the pack's sentences
     geometry: frameGeometry(meta),
     voice, anchor, ruling,
     room_name, surface: SURFACE,
@@ -2483,7 +2484,9 @@ async function emitManor(outDir, opts) {
       skipped.push({ ...x, skipped: `exists: backdrops/${x.room}/${x.facing}.png` });
       continue;
     }
-    const already = readdirSync(join(ROOT, sourceDirFor(x.key)), { withFileTypes: true })
+    /* [row 44] A FIRST LOCATION HAS NO STORE YET: an absent source dir is an
+     * empty one, not a crash. */
+    const already = (existsSync(join(ROOT, sourceDirFor(x.key))) ? readdirSync(join(ROOT, sourceDirFor(x.key)), { withFileTypes: true }) : [])
       .filter((d) => d.isFile() && /^row23-[0-9a-f]{8}\.png$/.test(d.name))
       .map((d) => `${sourceDirFor(x.key)}/${d.name}`);
     if (already.length) {
