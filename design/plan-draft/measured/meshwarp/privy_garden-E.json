@@ -1,0 +1,15 @@
+{
+ "facing": "privy_garden/E",
+ "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
+ "warp_mode": "tps",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
+ "sha256": "669116b6a84ab683aa510ed2ec4b2f1b67740c4a48e2b2c567fffa98533c8357",
+ "clause": "meshwarp.landmark_unreadable",
+ "status": "held",
+ "hold_family": "unfitted-horizon"
+}

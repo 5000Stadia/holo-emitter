@@ -1,0 +1,433 @@
+{
+ "facing": "stair_landing/W",
+ "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
+ "warp_mode": "tps",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "0610575c4b99d094774259f3c67704f21676251f03c8e7674243a17324165da1",
+ "reading_cache": "design/plan-draft/measured/manor/572c742a.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 0.41,
+  "delta_eye_pct": 2.5,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 155.789
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 155.789,
+  "ppm_target": 155.152,
+  "scale_k": 0.9959
+ },
+ "source_box": {
+  "x0": 345.0,
+  "x1": 1181.0,
+  "yc": 244.0,
+  "yf": 715.0,
+  "vx": 766.3,
+  "vy": 509.4
+ },
+ "target_box": {
+  "x0": 329.7,
+  "x1": 1206.3,
+  "yc": 275.22,
+  "yf": 709.64,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.023,
+  "source_ppm": 155.789
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "pins": [
+  {
+   "name": "corner_left_ceiling",
+   "kind": "room_corner",
+   "target": [
+    329.7,
+    275.22
+   ],
+   "source": [
+    345.0,
+    244.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 34.8
+  },
+  {
+   "name": "corner_right_ceiling",
+   "kind": "room_corner",
+   "target": [
+    1206.3,
+    275.22
+   ],
+   "source": [
+    1181.0,
+    244.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 40.2
+  },
+  {
+   "name": "corner_left_floor",
+   "kind": "room_corner",
+   "target": [
+    329.7,
+    709.64
+   ],
+   "source": [
+    345.0,
+    715.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 16.2
+  },
+  {
+   "name": "corner_right_floor",
+   "kind": "room_corner",
+   "target": [
+    1206.3,
+    709.64
+   ],
+   "source": [
+    1181.0,
+    715.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 25.9
+  },
+  {
+   "name": "floor_line_left_end",
+   "kind": "line_end",
+   "target": [
+    0.0,
+    847.71
+   ],
+   "source": [
+    28.09,
+    869.65
+   ],
+   "residual_px": 0.0,
+   "ask_px": 35.6
+  },
+  {
+   "name": "floor_line_right_end",
+   "kind": "line_end",
+   "target": [
+    1535.0,
+    847.29
+   ],
+   "source": [
+    1492.0,
+    869.19
+   ],
+   "residual_px": 0.0,
+   "ask_px": 48.3
+  },
+  {
+   "name": "ceiling_line_left_end",
+   "kind": "line_end",
+   "target": [
+    0.0,
+    86.5
+   ],
+   "source": [
+    28.09,
+    44.36
+   ],
+   "residual_px": 0.0,
+   "ask_px": 50.6
+  },
+  {
+   "name": "ceiling_line_right_end",
+   "kind": "line_end",
+   "target": [
+    1535.0,
+    87.08
+   ],
+   "source": [
+    1492.0,
+    44.97
+   ],
+   "residual_px": 0.0,
+   "ask_px": 60.2
+  },
+  {
+   "name": "wall_edge_top",
+   "kind": "wall_edge",
+   "target": [
+    768.0,
+    275.22
+   ],
+   "source": [
+    763.0,
+    244.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 31.6
+  },
+  {
+   "name": "wall_edge_bottom",
+   "kind": "wall_edge",
+   "target": [
+    768.0,
+    709.64
+   ],
+   "source": [
+    763.0,
+    715.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 7.3
+  },
+  {
+   "name": "wall_edge_left",
+   "kind": "wall_edge",
+   "target": [
+    329.7,
+    492.43
+   ],
+   "source": [
+    345.0,
+    479.5
+   ],
+   "residual_px": 0.0,
+   "ask_px": 20.0
+  },
+  {
+   "name": "wall_edge_right",
+   "kind": "wall_edge",
+   "target": [
+    1206.3,
+    492.43
+   ],
+   "source": [
+    1181.0,
+    479.5
+   ],
+   "residual_px": 0.0,
+   "ask_px": 28.4
+  },
+  {
+   "name": "window:win32:tl",
+   "kind": "window",
+   "target": [
+    554.67,
+    399.34
+   ],
+   "source": [
+    638.0,
+    294.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 134.3
+  },
+  {
+   "name": "window:win32:tl+1",
+   "kind": "window",
+   "target": [
+    683.96,
+    399.34
+   ],
+   "source": [
+    711.0,
+    294.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 108.8
+  },
+  {
+   "name": "window:win32:tl+2",
+   "kind": "window",
+   "target": [
+    813.25,
+    399.34
+   ],
+   "source": [
+    784.0,
+    294.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 109.3
+  },
+  {
+   "name": "window:win32:tr",
+   "kind": "window",
+   "target": [
+    942.55,
+    399.34
+   ],
+   "source": [
+    857.0,
+    294.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 135.7
+  },
+  {
+   "name": "window:win32:tr+1",
+   "kind": "window",
+   "target": [
+    942.55,
+    456.23
+   ],
+   "source": [
+    857.0,
+    389.67
+   ],
+   "residual_px": 0.0,
+   "ask_px": 108.4
+  },
+  {
+   "name": "window:win32:tr+2",
+   "kind": "window",
+   "target": [
+    942.55,
+    513.12
+   ],
+   "source": [
+    857.0,
+    485.33
+   ],
+   "residual_px": 0.0,
+   "ask_px": 90.0
+  },
+  {
+   "name": "window:win32:br",
+   "kind": "window",
+   "target": [
+    942.55,
+    570.01
+   ],
+   "source": [
+    857.0,
+    581.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 86.3
+  },
+  {
+   "name": "window:win32:br+1",
+   "kind": "window",
+   "target": [
+    813.25,
+    570.01
+   ],
+   "source": [
+    784.0,
+    581.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 31.2
+  },
+  {
+   "name": "window:win32:br+2",
+   "kind": "window",
+   "target": [
+    683.96,
+    570.01
+   ],
+   "source": [
+    711.0,
+    581.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 29.2
+  },
+  {
+   "name": "window:win32:bl",
+   "kind": "window",
+   "target": [
+    554.67,
+    570.01
+   ],
+   "source": [
+    638.0,
+    581.0
+   ],
+   "residual_px": 0.0,
+   "ask_px": 84.1
+  },
+  {
+   "name": "window:win32:bl+1",
+   "kind": "window",
+   "target": [
+    554.67,
+    513.12
+   ],
+   "source": [
+    638.0,
+    485.33
+   ],
+   "residual_px": 0.0,
+   "ask_px": 87.8
+  },
+  {
+   "name": "window:win32:bl+2",
+   "kind": "window",
+   "target": [
+    554.67,
+    456.23
+   ],
+   "source": [
+    638.0,
+    389.67
+   ],
+   "residual_px": 0.0,
+   "ask_px": 106.6
+  }
+ ],
+ "local_stretch": {
+  "max_local_stretch": 4.983,
+  "p999_local_stretch": 4.315,
+  "median_local_stretch": 1.07,
+  "max_local_compression": 0.534,
+  "folded_px": 0,
+  "folded_fraction": 0.0
+ },
+ "revealed_px": 65005,
+ "revealed_fraction": 0.04133,
+ "mirror_band_px": 24,
+ "pin_count": 24,
+ "seconds": 3.29,
+ "status": "held",
+ "hold_family": "promotion-refused",
+ "out_png": "design/plan-draft/measured/meshwarp/stair_landing-W.png"
+}

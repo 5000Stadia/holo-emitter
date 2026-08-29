@@ -1,0 +1,15 @@
+{
+ "facing": "entrance_approach/N",
+ "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
+ "warp_mode": "tps",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "refused",
+ "why": "this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
+ "sha256": "623cf2ee72c86d2310849238654536d47e53a543ecbf45774faee63f14fa0627",
+ "clause": "meshwarp.landmark_unreadable",
+ "status": "held",
+ "hold_family": "suspect-painting"
+}
