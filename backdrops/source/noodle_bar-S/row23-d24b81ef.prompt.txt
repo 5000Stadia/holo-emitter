@@ -1,4 +1,4 @@
-Use case: location-study, interior
+Use case: historical-scene, interior
 Asset type: gameplay backdrop for the south wall of the noodle counter, circa-2087 arcology street level
 Gate anchor: the surface-mounted cable channel above the floor, 1.10 m.
 Primary request: Paint the south wall of the noodle counter of a circa-2087 arcology street level.
@@ -7,7 +7,7 @@ Primary request: Paint the south wall of the noodle counter of a circa-2087 arco
   A clearly legible surface-mounted steel cable channel runs continuously corner to corner at exactly 1.10 m above the floor, on every exposed wall surface including the side-wall returns.
 On this wall: one window opening stands at the centre, exactly 1.60 m wide, the sill 0.90 m and the head 2.00 m above the floor, set in a plain chamfered stone surround, divided by two stone mullions into three equal upright lights.
   One light in it is a casement hung on iron hinges: the right-hand light.
-  The glass is wired safety glass in a steel frame, grimed and faintly green: no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or monogram anywhere on this wall.
+  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or monogram anywhere on this wall.
 Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
   The wall you face is square on and shows its whole width: its left corner stands just inside the picture's left edge and its right corner just inside the right edge, and from each corner a side wall runs toward you and leaves the picture through the left and right edges.
   Seen from where you stand, the whole 6.0 m of the wall spans almost the whole width of the picture — no closer and no larger than that; the wall does not crowd the frame.
@@ -16,4 +16,4 @@ Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of some
 Style/medium: a high-realism digital painting in the manner of near-future street-interior concept art — worn hard surfaces, grease and damp, cool even ambient light with gentle falloff into the corners, every sign and tube DARK and unlit; a location study for a game, not a photograph and not a neon glow render.
   The layout diagram is a black-and-white line drawing on paper and holds no colour of its own: the picture is this painting, in the materials named above.
 Constraints: the noodle counter is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
-  Every surface carries only what its materials say: the stencilled lettering and the crew's tag are painted marks, never readable words — no legible text, no signage copy, no logos, and Image 1 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.
+  Every surface in it is plain and unlettered, and Image 1 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.

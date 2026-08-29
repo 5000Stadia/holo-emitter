@@ -852,7 +852,10 @@ export function g5WallLines(ctx) {
      * everywhere? With the ensignias on it?" */
     if (ctx.armorial_line) L.push(ctx.armorial_line);
     else {
-      L.push("  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: " +
+      /* [row 44, clause 8] THE GLAZING IS THE PACK'S: crown glass in lead cames is
+       * 1660's; a world says what its glass is or takes the manor's sentence. */
+      L.push(((ctx.world && ctx.world.conventions && ctx.world.conventions.glazing) ||
+        "  The glass is plain diamond quarrels of faintly greenish crown glass in lead cames: ") +
         "no coloured glass, no painted or stained glass, and no armorial shield, crest, badge or " +
         `monogram anywhere on this ${SURFACE}.`);
     }

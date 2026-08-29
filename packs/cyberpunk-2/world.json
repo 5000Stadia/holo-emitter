@@ -14,7 +14,8 @@
   "door_head_m": 2.0,
   "door_width_m": 0.9,
   "light_module_m": 0.6,
-  "why": "Street-level rooms of this block: a service window sits above the counter line; a doorway is a standard 0.90 x 2.00 m steel-framed opening."
+  "why": "Street-level rooms of this block: a service window sits above the counter line; a doorway is a standard 0.90 x 2.00 m steel-framed opening.",
+  "glazing": "  The glass is wired safety glass in a steel frame, grimed and faintly green: "
  },
  "rulers": [
   {
