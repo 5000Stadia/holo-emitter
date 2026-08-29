@@ -322,6 +322,100 @@ def test_b_door_15pc_too_large_and_60px_off():
           "%.4f px over %d columns" % (b, nb))
 
 
+#: THE SYNTHETIC ROOM'S DECLARED META, and every number in it is the fixture's
+#: own. The plan door stands 240 px from its head to the floor line and this
+#: building rules an opening 2.00 m high (`door_measure.DOOR_OPENING_HEIGHT_M`),
+#: so the wall's scale is 120 px/m; the door is then 1.667 m wide — a double
+#: leaf, which is what the plan draws at `op01` — the corners at 308 and 1228
+#: are a 7.667 m wall, and the ceiling 560 px above the floor line is a 4.667 m
+#: storey. ONE meta: `corner_span / wall_width_m` IS `px_per_m_at_wall`, which
+#: is the identity `promote-backdrop.mjs` computes its `apertureScale` from and
+#: the identity the manor's 11 warped walls were refused for breaking.
+DECLARED_PPM = 120.0
+DECLARED_DOOR_M = (PLAN_DOOR[2] - PLAN_DOOR[0]) / DECLARED_PPM
+
+
+def declared_meta(tgt):
+    span = tgt["x1"] - tgt["x0"]
+    return dict(corner_x0_px=tgt["x0"], corner_x1_px=tgt["x1"],
+                px_per_m_at_wall=DECLARED_PPM,
+                wall_width_m=span / DECLARED_PPM,
+                storey_height_m=(tgt["yf"] - tgt["yc"]) / DECLARED_PPM,
+                floor_line_y=tgt["yf"])
+
+
+def test_the_warped_output_reads_at_one_meta():
+    """The output, re-read by the promotion's own two instruments.
+
+    THE CLAUSE THIS EXISTS FOR. `promote-backdrop.mjs` admits a painted way
+    through between 0.50x and 1.50x of `plan_width_m x apertureScale`, where
+    `apertureScale` is the meta's CORNER SPAN over the plan's wall width — not
+    its `px_per_m_at_wall`. So a warp is only finished if the picture it writes
+    answers to ONE camera in both of those readings at once: the door has to
+    measure the plan's width AT THE CORNER SCALE, and the corners have to stand
+    where that scale says they do. All 11 of the manor's warped walls warped
+    correctly and promoted none, because the door was drawn at the declared
+    330.3 px/m and the corner span was re-read off a frame that shows no corner
+    and called 162.4 px/m — two metas, and the door read 2.03x its own width.
+
+    Both halves are read out of the OUTPUT PIXELS: `door_measure` on the written
+    PNG, and the red corner studs found by colour. Nothing here is asserted from
+    the solve.
+    """
+    import tempfile
+
+    import door_measure
+
+    src, tgt = boxes()
+    meta = declared_meta(tgt)
+    plan_door, got_door = PLAN_DOOR, door_b()
+    check("the fixture's door stands the ruled %.2f m at the declared scale"
+          % door_measure.DOOR_OPENING_HEIGHT_M,
+          abs((meta["floor_line_y"] - plan_door[1]) / DECLARED_PPM
+              - door_measure.DOOR_OPENING_HEIGHT_M) < 1e-9)
+
+    cols, rows, _ = mw.wall_axis_pins(tgt, tgt, pairs_for(plan_door, got_door))
+    out, _rep = mw.warp_with_axes(paint(tgt, door=got_door), tgt, tgt, cols, rows)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        png = os.path.join(tmp, "warped.png")
+        mw.write_png(png, out)
+        got, _note = door_measure.measure_openings(
+            png, meta["corner_x0_px"], meta["corner_x1_px"],
+            meta["floor_line_y"], meta["px_per_m_at_wall"],
+            meta["storey_height_m"])
+
+    check("the output shows exactly the one door the plan rules",
+          len(got) == 1, "%d read" % len(got))
+    if len(got) == 1:
+        # The promotion's own arithmetic, restated here rather than imported:
+        # the band is taken against the CORNER span, so this is the number that
+        # refused the manor.
+        scale = ((meta["corner_x1_px"] - meta["corner_x0_px"])
+                 / meta["wall_width_m"])
+        ruled = DECLARED_DOOR_M * scale
+        ratio = got[0]["width_px"] / ruled
+        check("door_measure reads the plan's width on the OUTPUT, within 3%",
+              abs(ratio - 1.0) <= 0.03,
+              "%d px against the ruled %.1f px at the corner scale %.1f px/m "
+              "= %.3fx" % (got[0]["width_px"], ruled, scale, ratio))
+        check("and the corner scale IS the meta's ruler — one camera, not two",
+              abs(scale - meta["px_per_m_at_wall"]) < 1e-6,
+              "%.3f against %.3f px/m" % (scale, meta["px_per_m_at_wall"]))
+
+    outc = np.clip(np.round(out), 0, 255).astype(np.uint8)
+    studs = corner_studs(outc)
+    left = [s for s in studs if s[0] < mw.W / 2]
+    right = [s for s in studs if s[0] >= mw.W / 2]
+    dx0 = (max(abs(s[0] - meta["corner_x0_px"]) for s in left)
+           if len(left) == 2 else float("inf"))
+    dx1 = (max(abs(s[0] - meta["corner_x1_px"]) for s in right)
+           if len(right) == 2 else float("inf"))
+    check("the output's corner columns are the declared corner_x0/x1_px (1 px)",
+          dx0 <= 1.0 and dx1 <= 1.0,
+          "left off by %.2f px, right by %.2f px" % (dx0, dx1))
+
+
 def test_missing_door_is_refused_by_name():
     """A painting with no door at all, against a plan that rules one."""
     src, tgt = boxes()
@@ -441,6 +535,7 @@ def test_mls_modes_interpolate_exactly():
 def main():
     for t in (test_a_whole_room_15pc_too_large,
               test_b_door_15pc_too_large_and_60px_off,
+              test_the_warped_output_reads_at_one_meta,
               test_missing_door_is_refused_by_name,
               test_crossed_pins_are_refused_by_name,
               test_the_seams_are_continuous,

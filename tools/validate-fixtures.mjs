@@ -141,6 +141,20 @@ export function measuredLensBand(reference) {
  * declared meta that named `px_per_m_at_wall` here would be waiving the scale
  * gate by declaration, which the ruling does not license and this refuses. */
 export const DECLARED_CAMERA_FIELDS = ["horizon_y"];
+/* [THE WARP EXIT] AND THE WARPED FRAME'S LICENCE IS WIDER, because the painting
+ * was MOVED. The tolerance path declares one number — a horizon a suspect
+ * perspective could not be trusted for — and leaves the ruler, the wall-foot
+ * line and the corners to the picture, which is right when nothing touched the
+ * picture. `mesh_warp.py` DID touch it: it resamples the frame so that the
+ * floor row lands on `floor_line_y`, the wall's scale is `px_per_m_at_wall` and
+ * the u-domain runs corner to corner, all four off the scaffold's own meta and
+ * all four with residual 0.000. Re-reading those four off the result and
+ * shipping them is what refused 11 warped walls for a door drawn at one camera
+ * and measured at another. So a warped meta names all five, and it may name
+ * neither more nor fewer: the re-measurement rides beside them under
+ * `measured_room.warp.remeasured`, which is a reading and not a claim. */
+export const WARPED_CAMERA_FIELDS = ["horizon_y", "px_per_m_at_wall",
+  "floor_line_y", "corner_x0_px", "corner_x1_px"];
 export const CAMERA_SOURCES = ["measured", "declared"];
 /* The Captain's own words, short. A declared meta has to CITE the ruling that
  * admits it — the log line and the sentence — so that a reader of the meta
@@ -821,8 +835,8 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
       if (meta.suspect_perspective !== undefined || meta.tolerance_ruling !== undefined) {
         findings.push(`${label}: a warped meta carries ${["suspect_perspective", "tolerance_ruling"].filter((k) => meta[k] !== undefined).join(" and ")} — those belong to the tolerance path, where a human accepted a drift nothing corrected. This painting's perspective WAS corrected, and saying both is the record contradicting itself about what happened to the picture [warp:meta.warped_not_suspect]`);
       }
-      if (JSON.stringify(meta.declared_fields) !== JSON.stringify(DECLARED_CAMERA_FIELDS)) {
-        findings.push(`${label}: declared_fields is ${JSON.stringify(meta.declared_fields)}, and the declared camera fills exactly ${JSON.stringify(DECLARED_CAMERA_FIELDS)} — omitting a field it filled claims a measured horizon this painting never fixed, and naming one it did not fill (the scale above all) claims by declaration a number the band judged off the picture [row32:meta.declared_fields_claim]`);
+      if (JSON.stringify(meta.declared_fields) !== JSON.stringify(WARPED_CAMERA_FIELDS)) {
+        findings.push(`${label}: declared_fields is ${JSON.stringify(meta.declared_fields)}, and a WARPED frame's declared camera fills exactly ${JSON.stringify(WARPED_CAMERA_FIELDS)} — the warp put the floor row, the wall's scale and the two corner columns where the scaffold's meta rules them, so a record that names fewer claims to have measured off the picture a number the resampling wrote, and one that names more claims a licence the warp never took [warp:meta.declared_fields_claim]`);
       }
     } else if (declared) {
       if (meta.suspect_perspective !== true) {
