@@ -1126,7 +1126,13 @@ def warp_wall(key, candidate, mode="plane", plan_path=None):
                      paired=len(wpairs), unpaired_plan=wplan_un,
                      unpaired_source=wsrc_un))
 
-    missing = [("door", i) for i in dplan_un] + [("window", i) for i in wplan_un]
+    # [2026-08-29, audit step 7 verdict] WINDOWS ARE RECORDED, NEVER GATED: the
+    # window read has now refused three walls that plainly paint their window.
+    # A missing DOOR is a content miss (a way through the page cannot draw); a
+    # window the instrument cannot see is the instrument's note on the record.
+    missing = [("door", i) for i in dplan_un]
+    if wplan_un:
+        rec["windows_unread"] = list(wplan_un)
     if missing:
         rec.update(verdict="refused", clause=COUNT_REFUSAL, why=(
             "content miss: the plan rules %s on %s and the painting shows none "

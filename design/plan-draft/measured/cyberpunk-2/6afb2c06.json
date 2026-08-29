@@ -1,0 +1,219 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 827,
+    "chair_rail_y_px": 551,
+    "dado_rail_above_floor_px": 276,
+    "capping_above_floor_px": 284
+  },
+  "_windows": {
+    "floor": [
+      823,
+      874
+    ],
+    "rail": [
+      524,
+      572
+    ],
+    "ceiling": [
+      0,
+      45
+    ],
+    "columns": [
+      [
+        3,
+        645
+      ],
+      [
+        891,
+        1532
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 645.12,
+      "asked_x1": 890.88,
+      "ruled_m": 0.9,
+      "window": [
+        399,
+        1136
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 663..869 (20 px from the ask) and another admissible pair sits 446..663 (214 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 250.909,
+  "implied_focal_px": 940.9,
+  "eye_height_m": 1.1992,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 663..869 (20 px from the ask) and another admissible pair sits 446..663 (214 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 15,
+    "ceiling_candidates": [
+      {
+        "y": 16,
+        "strength": 27.04,
+        "horiz": 0.784,
+        "cv": 0.657
+      },
+      {
+        "y": 9,
+        "strength": 6.0,
+        "horiz": 0.733,
+        "cv": 0.893
+      },
+      {
+        "y": 22,
+        "strength": 4.15,
+        "horiz": 0.611,
+        "cv": 1.291
+      },
+      {
+        "y": 35,
+        "strength": 3.96,
+        "horiz": 0.63,
+        "cv": 1.25
+      },
+      {
+        "y": 28,
+        "strength": 3.82,
+        "horiz": 0.627,
+        "cv": 1.255
+      },
+      {
+        "y": 41,
+        "strength": 3.65,
+        "horiz": 0.682,
+        "cv": 1.278
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 15,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 15) and its own floor line (y 827)"
+      },
+      {
+        "ceiling_y_px": 8,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 8) and its own floor line (y 827)"
+      },
+      {
+        "ceiling_y_px": 21,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 21) and its own floor line (y 827)"
+      },
+      {
+        "ceiling_y_px": 34,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 34) and its own floor line (y 827)"
+      },
+      {
+        "ceiling_y_px": 27,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 27) and its own floor line (y 827)"
+      },
+      {
+        "ceiling_y_px": 40,
+        "admissible": false,
+        "sigma_y_px": 1.47,
+        "horizon_y_px": 3.8,
+        "why": "the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 40) and its own floor line (y 827)"
+      }
+    ],
+    "corner_x0_px": 127,
+    "corner_x1_px": 1395,
+    "corner_evidence": {
+      "left_fit_r2": 0.6259,
+      "right_fit_r2": 0.8021,
+      "block_px": 16,
+      "excluded": [
+        [
+          645,
+          890
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 25.84,
+    "ramp": null,
+    "votes": {
+      "floor": {
+        "x": 740,
+        "y": 694,
+        "edge_px": 17568
+      },
+      "ceiling": {
+        "x": 714,
+        "y": 528,
+        "edge_px": 906
+      },
+      "side_walls": {
+        "x": 742,
+        "y": 559,
+        "edge_px": 14842
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 496,
+      "key_dir_brightest_y": 374,
+      "key_tint": "#c8bda9",
+      "key_tint_patch": [
+        296,
+        696,
+        0,
+        7
+      ],
+      "key_tint_patch_mean_rgb": [
+        95.14,
+        89.83,
+        80.34
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8bfac",
+        "floor_bottom_strip": "#c8bda9",
+        "mid_wall_right": "#c8c0af",
+        "mid_wall_left": "#c8c0af",
+        "brightest_21x21_patch": "#c8c4ba"
+      },
+      "brightest_21x21_patch_centre_px": [
+        496,
+        374
+      ],
+      "sobel_bright_side_deg_whole_frame": 100.99,
+      "sobel_bright_side_deg_wall_band": 114.26,
+      "left_third_minus_right_third_luminance_whole_frame": 2.25,
+      "left_third_minus_right_third_luminance_wall_band": 0.98
+    },
+    "storey_height_m": 3.2362,
+    "implied_wall_width_m": 5.0536,
+    "eye_height_m": null,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": "unfitted-horizon",
+    "withheld_because": [
+      "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the convergence lands at y 3.8, which is not between this frame's own ceiling line (y 15) and its own floor line (y 827). A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+    ]
+  },
+  "delta_focal_pct": -8.11,
+  "delta_eye_pct": 1.37,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "6afb2c06",
+  "candidate": "backdrops/source/back_office-W/row23-6afb2c06.png"
+}

@@ -1,6 +1,6 @@
 {
   "instrument": "design/plan-draft/measured/room_consistency.py",
-  "promoted_facings": 63,
+  "promoted_facings": 71,
   "target_ppm": 150.0,
   "tile_m": 0.3,
   "weights": {
@@ -17,6 +17,487 @@
     "floor"
   ],
   "rooms": [
+    {
+      "room": "back_office",
+      "facings": [
+        "E",
+        "N",
+        "S",
+        "W"
+      ],
+      "notes": [
+        "back_office/N: ceiling band is 20 rows (needs 24): ceiling line y=34.3, floor line y=814.5, frame is 1024 rows",
+        "back_office/E: ceiling band is 0 rows (needs 24): ceiling line y=-24.7, floor line y=849.1, frame is 1024 rows",
+        "back_office/E: floor band gave 6 tiles of 0.30 m (needs 8) - too little material to describe",
+        "back_office/S: ceiling band is 20 rows (needs 24): ceiling line y=34.3, floor line y=814.5, frame is 1024 rows",
+        "back_office/W: ceiling band is 0 rows (needs 24): ceiling line y=-24.7, floor line y=849.1, frame is 1024 rows"
+      ],
+      "bands": {
+        "ceiling": {
+          "facings": [],
+          "spread": null,
+          "why": "fewer than two facings show this band"
+        },
+        "wall_upper": {
+          "facings": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "spread": 3.52,
+          "pairwise": [
+            {
+              "dLum": 0.2705,
+              "dChroma": 0.0256,
+              "dH": 0.0833,
+              "dT": 0.413,
+              "D": 1.049,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.5538,
+              "dChroma": 0.1614,
+              "dH": 0.1667,
+              "dT": 1.064,
+              "D": 2.899,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 1.0839,
+              "dChroma": 0.0565,
+              "dH": 0.1875,
+              "dT": 0.304,
+              "D": 0.861,
+              "a": "E",
+              "b": "W"
+            },
+            {
+              "dLum": 0.2833,
+              "dChroma": 0.1434,
+              "dH": 0.1389,
+              "dT": 0.651,
+              "D": 1.923,
+              "a": "N",
+              "b": "S"
+            },
+            {
+              "dLum": 0.8134,
+              "dChroma": 0.0543,
+              "dH": 0.2431,
+              "dT": 0.717,
+              "D": 1.835,
+              "a": "N",
+              "b": "W"
+            },
+            {
+              "dLum": 0.5301,
+              "dChroma": 0.1159,
+              "dH": 0.2118,
+              "dT": 1.368,
+              "D": 3.52,
+              "a": "S",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.4121,
+              "dChroma": 0.0366,
+              "dH": 0.0695,
+              "dT": 0.192,
+              "D": 0.546
+            },
+            "N": {
+              "dLum": 0.1416,
+              "dChroma": 0.0307,
+              "dH": 0.0886,
+              "dT": 0.221,
+              "D": 0.595
+            },
+            "S": {
+              "dLum": 0.1417,
+              "dChroma": 0.1262,
+              "dH": 0.0972,
+              "dT": 0.872,
+              "D": 2.36
+            },
+            "W": {
+              "dLum": 0.6718,
+              "dChroma": 0.0236,
+              "dH": 0.1748,
+              "dT": 0.496,
+              "D": 1.251
+            }
+          },
+          "median": {
+            "lum": 0.8711,
+            "chroma": [
+              0.1229,
+              -0.214
+            ],
+            "tex": 0.72334
+          },
+          "tex": {
+            "E": 0.82619,
+            "N": 0.62049,
+            "S": 0.39512,
+            "W": 1.02012
+          },
+          "lum": {
+            "E": 0.459,
+            "N": 0.7295,
+            "S": 1.0128,
+            "W": 1.5429
+          },
+          "chroma": {
+            "E": [
+              0.1461,
+              -0.2423
+            ],
+            "N": [
+              0.1534,
+              -0.2178
+            ],
+            "S": [
+              0.0767,
+              -0.0966
+            ],
+            "W": [
+              0.0996,
+              -0.2102
+            ]
+          },
+          "srgb": {
+            "E": [
+              50,
+              46,
+              40
+            ],
+            "N": [
+              73,
+              67,
+              60
+            ],
+            "S": [
+              85,
+              82,
+              78
+            ],
+            "W": [
+              32,
+              30,
+              27
+            ]
+          }
+        },
+        "wall_lower": {
+          "facings": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "spread": 2.91,
+          "pairwise": [
+            {
+              "dLum": 0.3497,
+              "dChroma": 0.1047,
+              "dH": 0.25,
+              "dT": 0.974,
+              "D": 2.547,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.4709,
+              "dChroma": 0.1408,
+              "dH": 0.2778,
+              "dT": 1.003,
+              "D": 2.702,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 0.661,
+              "dChroma": 0.0596,
+              "dH": 0.5,
+              "dT": 0.126,
+              "D": 0.53,
+              "a": "E",
+              "b": "W"
+            },
+            {
+              "dLum": 0.1212,
+              "dChroma": 0.0378,
+              "dH": 0.1944,
+              "dT": 0.029,
+              "D": 0.28,
+              "a": "N",
+              "b": "S"
+            },
+            {
+              "dLum": 1.0107,
+              "dChroma": 0.061,
+              "dH": 0.6076,
+              "dT": 1.1,
+              "D": 2.784,
+              "a": "N",
+              "b": "W"
+            },
+            {
+              "dLum": 1.1319,
+              "dChroma": 0.0985,
+              "dH": 0.691,
+              "dT": 1.129,
+              "D": 2.91,
+              "a": "S",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.1748,
+              "dChroma": 0.0796,
+              "dH": 0.1217,
+              "dT": 0.406,
+              "D": 1.164
+            },
+            "N": {
+              "dLum": 0.1749,
+              "dChroma": 0.0304,
+              "dH": 0.1291,
+              "dT": 0.568,
+              "D": 1.436
+            },
+            "S": {
+              "dLum": 0.2961,
+              "dChroma": 0.068,
+              "dH": 0.2054,
+              "dT": 0.597,
+              "D": 1.569
+            },
+            "W": {
+              "dLum": 0.8358,
+              "dChroma": 0.0305,
+              "dH": 0.5191,
+              "dT": 0.532,
+              "D": 1.349
+            }
+          },
+          "median": {
+            "lum": -1.2108,
+            "chroma": [
+              0.0096,
+              -0.0839
+            ],
+            "tex": 1.8751
+          },
+          "tex": {
+            "E": 2.485,
+            "N": 1.2652,
+            "S": 1.23976,
+            "W": 2.71213
+          },
+          "lum": {
+            "E": -1.036,
+            "N": -1.3857,
+            "S": -1.5069,
+            "W": -0.375
+          },
+          "chroma": {
+            "E": [
+              0.0575,
+              -0.1475
+            ],
+            "N": [
+              0.0113,
+              -0.0535
+            ],
+            "S": [
+              0.0074,
+              -0.0159
+            ],
+            "W": [
+              0.0079,
+              -0.1144
+            ]
+          },
+          "srgb": {
+            "E": [
+              48,
+              47,
+              43
+            ],
+            "N": [
+              68,
+              68,
+              66
+            ],
+            "S": [
+              83,
+              82,
+              82
+            ],
+            "W": [
+              31,
+              31,
+              29
+            ]
+          }
+        },
+        "floor": {
+          "facings": [
+            "N",
+            "S",
+            "W"
+          ],
+          "spread": 2.693,
+          "pairwise": [
+            {
+              "dLum": 1.0744,
+              "dChroma": 0.0153,
+              "dH": 0.8889,
+              "dT": 0.252,
+              "D": 0.64,
+              "a": "N",
+              "b": "S"
+            },
+            {
+              "dLum": 0.1675,
+              "dChroma": 0.0681,
+              "dH": 0.1111,
+              "dT": 0.803,
+              "D": 2.065,
+              "a": "N",
+              "b": "W"
+            },
+            {
+              "dLum": 1.2419,
+              "dChroma": 0.0761,
+              "dH": 1.0,
+              "dT": 1.055,
+              "D": 2.693,
+              "a": "S",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "N": {
+              "dLum": 0.0,
+              "dChroma": 0.0121,
+              "dH": 0.0,
+              "dT": 0.0,
+              "D": 0.086
+            },
+            "S": {
+              "dLum": 1.0744,
+              "dChroma": 0.0093,
+              "dH": 0.8889,
+              "dT": 0.252,
+              "D": 0.634
+            },
+            "W": {
+              "dLum": 0.1675,
+              "dChroma": 0.0668,
+              "dH": 0.1111,
+              "dT": 0.803,
+              "D": 2.063
+            }
+          },
+          "median": {
+            "lum": 0.8311,
+            "chroma": [
+              0.0783,
+              -0.1134
+            ],
+            "tex": 0.60514
+          },
+          "tex": {
+            "N": 0.60514,
+            "S": 0.50806,
+            "W": 1.05577
+          },
+          "lum": {
+            "N": 0.8311,
+            "S": -0.2433,
+            "W": 0.9986
+          },
+          "chroma": {
+            "N": [
+              0.0662,
+              -0.1134
+            ],
+            "S": [
+              0.0783,
+              -0.1041
+            ],
+            "W": [
+              0.0793,
+              -0.1802
+            ]
+          },
+          "srgb": {
+            "N": [
+              70,
+              68,
+              64
+            ],
+            "S": [
+              85,
+              82,
+              78
+            ],
+            "W": [
+              32,
+              30,
+              27
+            ]
+          }
+        }
+      },
+      "wall_split": {
+        "E": 4.078,
+        "N": 3.002,
+        "S": 4.194,
+        "W": 3.652
+      },
+      "reference_log_luma": {
+        "E": -3.5708,
+        "N": -2.8521,
+        "S": -2.4642,
+        "W": -4.3139
+      },
+      "worst_band": "wall_upper",
+      "score": 3.52,
+      "outlier_deviation": {
+        "S": 2.36,
+        "W": 1.251,
+        "N": 0.595,
+        "E": 0.546
+      },
+      "clusters": [
+        [
+          "E",
+          "N",
+          "S",
+          "W"
+        ]
+      ],
+      "majority": [
+        "E",
+        "N",
+        "S",
+        "W"
+      ],
+      "outliers": [],
+      "no_majority": false,
+      "wall_split_spread": 1.192,
+      "verdict": "consistent-incomplete",
+      "why": "wall_upper disagrees most: worst pair S/W at D=3.52 (colour 0.116, contrast x2.58; brightness x1.70 and spread 0.212 reported, not counted). no facing stands outside the rest."
+    },
     {
       "room": "back_stair",
       "facings": [
@@ -5780,6 +6261,487 @@
       "why": "wall_lower disagrees most: worst pair E/W at D=1.17 (colour 0.109, contrast x1.27; brightness x1.06 and spread 0.242 reported, not counted). no facing stands outside the rest."
     },
     {
+      "room": "noodle_bar",
+      "facings": [
+        "E",
+        "N",
+        "S",
+        "W"
+      ],
+      "notes": [
+        "noodle_bar/N: ceiling band is 20 rows (needs 24): ceiling line y=34.3, floor line y=814.5, frame is 1024 rows",
+        "noodle_bar/E: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe",
+        "noodle_bar/S: ceiling band is 20 rows (needs 24): ceiling line y=34.3, floor line y=814.5, frame is 1024 rows",
+        "noodle_bar/S: floor band gave 6 tiles of 0.30 m (needs 8) - too little material to describe",
+        "noodle_bar/W: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe"
+      ],
+      "bands": {
+        "ceiling": {
+          "facings": [],
+          "spread": null,
+          "why": "fewer than two facings show this band"
+        },
+        "wall_upper": {
+          "facings": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "spread": 2.126,
+          "pairwise": [
+            {
+              "dLum": 1.0742,
+              "dChroma": 0.1416,
+              "dH": 0.5625,
+              "dT": 0.548,
+              "D": 1.704,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.9388,
+              "dChroma": 0.0864,
+              "dH": 0.4271,
+              "dT": 0.24,
+              "D": 0.861,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 1.3994,
+              "dChroma": 0.1636,
+              "dH": 0.6875,
+              "dT": 0.577,
+              "D": 1.856,
+              "a": "E",
+              "b": "W"
+            },
+            {
+              "dLum": 0.1354,
+              "dChroma": 0.0665,
+              "dH": 0.3036,
+              "dT": 0.788,
+              "D": 2.027,
+              "a": "N",
+              "b": "S"
+            },
+            {
+              "dLum": 0.3252,
+              "dChroma": 0.0258,
+              "dH": 0.1511,
+              "dT": 0.028,
+              "D": 0.197,
+              "a": "N",
+              "b": "W"
+            },
+            {
+              "dLum": 0.4606,
+              "dChroma": 0.0826,
+              "dH": 0.375,
+              "dT": 0.817,
+              "D": 2.126,
+              "a": "S",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 1.0065,
+              "dChroma": 0.1126,
+              "dH": 0.4802,
+              "dT": 0.3,
+              "D": 1.1
+            },
+            "N": {
+              "dLum": 0.0677,
+              "dChroma": 0.0332,
+              "dH": 0.1284,
+              "dT": 0.248,
+              "D": 0.664
+            },
+            "S": {
+              "dLum": 0.0677,
+              "dChroma": 0.0333,
+              "dH": 0.1965,
+              "dT": 0.54,
+              "D": 1.371
+            },
+            "W": {
+              "dLum": 0.3929,
+              "dChroma": 0.0513,
+              "dH": 0.2073,
+              "dT": 0.277,
+              "D": 0.783
+            }
+          },
+          "median": {
+            "lum": -0.8741,
+            "chroma": [
+              0.1707,
+              -0.2602
+            ],
+            "tex": 1.15766
+          },
+          "tex": {
+            "E": 0.9403,
+            "N": 1.37503,
+            "S": 0.79611,
+            "W": 1.40237
+          },
+          "lum": {
+            "E": 0.1324,
+            "N": -0.9418,
+            "S": -0.8064,
+            "W": -1.267
+          },
+          "chroma": {
+            "E": [
+              0.2628,
+              -0.3249
+            ],
+            "N": [
+              0.1581,
+              -0.2295
+            ],
+            "S": [
+              0.1833,
+              -0.291
+            ],
+            "W": [
+              0.1326,
+              -0.2258
+            ]
+          },
+          "srgb": {
+            "E": [
+              62,
+              54,
+              45
+            ],
+            "N": [
+              54,
+              49,
+              43
+            ],
+            "S": [
+              54,
+              49,
+              42
+            ],
+            "W": [
+              70,
+              66,
+              59
+            ]
+          }
+        },
+        "wall_lower": {
+          "facings": [
+            "E",
+            "N",
+            "S",
+            "W"
+          ],
+          "spread": 1.372,
+          "pairwise": [
+            {
+              "dLum": 0.4908,
+              "dChroma": 0.0551,
+              "dH": 0.3795,
+              "dT": 0.526,
+              "D": 1.372,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.4168,
+              "dChroma": 0.1025,
+              "dH": 0.3125,
+              "dT": 0.371,
+              "D": 1.182,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 0.5546,
+              "dChroma": 0.1321,
+              "dH": 0.3726,
+              "dT": 0.245,
+              "D": 1.126,
+              "a": "E",
+              "b": "W"
+            },
+            {
+              "dLum": 0.074,
+              "dChroma": 0.0626,
+              "dH": 0.2619,
+              "dT": 0.155,
+              "D": 0.592,
+              "a": "N",
+              "b": "S"
+            },
+            {
+              "dLum": 0.0638,
+              "dChroma": 0.0849,
+              "dH": 0.3049,
+              "dT": 0.28,
+              "D": 0.927,
+              "a": "N",
+              "b": "W"
+            },
+            {
+              "dLum": 0.1378,
+              "dChroma": 0.0333,
+              "dH": 0.2276,
+              "dT": 0.126,
+              "D": 0.394,
+              "a": "S",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.4538,
+              "dChroma": 0.0761,
+              "dH": 0.2519,
+              "dT": 0.307,
+              "D": 0.94
+            },
+            "N": {
+              "dLum": 0.037,
+              "dChroma": 0.0314,
+              "dH": 0.1979,
+              "dT": 0.219,
+              "D": 0.592
+            },
+            "S": {
+              "dLum": 0.037,
+              "dChroma": 0.0313,
+              "dH": 0.1156,
+              "dT": 0.064,
+              "D": 0.275
+            },
+            "W": {
+              "dLum": 0.1008,
+              "dChroma": 0.0564,
+              "dH": 0.1667,
+              "dT": 0.061,
+              "D": 0.431
+            }
+          },
+          "median": {
+            "lum": 0.0954,
+            "chroma": [
+              0.1261,
+              -0.1967
+            ],
+            "tex": 2.19074
+          },
+          "tex": {
+            "E": 2.70998,
+            "N": 1.88217,
+            "S": 2.09538,
+            "W": 2.28611
+          },
+          "lum": {
+            "E": -0.3584,
+            "N": 0.1324,
+            "S": 0.0584,
+            "W": 0.1962
+          },
+          "chroma": {
+            "E": [
+              0.1749,
+              -0.2551
+            ],
+            "N": [
+              0.1568,
+              -0.2031
+            ],
+            "S": [
+              0.0955,
+              -0.1903
+            ],
+            "W": [
+              0.0843,
+              -0.1589
+            ]
+          },
+          "srgb": {
+            "E": [
+              60,
+              54,
+              48
+            ],
+            "N": [
+              53,
+              49,
+              44
+            ],
+            "S": [
+              52,
+              49,
+              45
+            ],
+            "W": [
+              69,
+              66,
+              61
+            ]
+          }
+        },
+        "floor": {
+          "facings": [
+            "E",
+            "N",
+            "W"
+          ],
+          "spread": 1.042,
+          "pairwise": [
+            {
+              "dLum": 0.5605,
+              "dChroma": 0.0647,
+              "dH": 0.25,
+              "dT": 0.047,
+              "D": 0.477,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.297,
+              "dChroma": 0.145,
+              "dH": 0.3846,
+              "dT": 0.044,
+              "D": 1.042,
+              "a": "E",
+              "b": "W"
+            },
+            {
+              "dLum": 0.8575,
+              "dChroma": 0.0872,
+              "dH": 0.3846,
+              "dT": 0.092,
+              "D": 0.664,
+              "a": "N",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.0,
+              "dChroma": 0.0647,
+              "dH": 0.25,
+              "dT": 0.0,
+              "D": 0.462
+            },
+            "N": {
+              "dLum": 0.5605,
+              "dChroma": 0.0,
+              "dH": 0.0,
+              "dT": 0.047,
+              "D": 0.118
+            },
+            "W": {
+              "dLum": 0.297,
+              "dChroma": 0.0872,
+              "dH": 0.3846,
+              "dT": 0.044,
+              "D": 0.633
+            }
+          },
+          "median": {
+            "lum": 1.0289,
+            "chroma": [
+              0.2157,
+              -0.2775
+            ],
+            "tex": 1.21858
+          },
+          "tex": {
+            "E": 1.21858,
+            "N": 1.25923,
+            "W": 1.1816
+          },
+          "lum": {
+            "E": 1.0289,
+            "N": 1.5894,
+            "W": 0.7319
+          },
+          "chroma": {
+            "E": [
+              0.2484,
+              -0.3333
+            ],
+            "N": [
+              0.2157,
+              -0.2775
+            ],
+            "W": [
+              0.1364,
+              -0.2412
+            ]
+          },
+          "srgb": {
+            "E": [
+              61,
+              54,
+              45
+            ],
+            "N": [
+              55,
+              49,
+              42
+            ],
+            "W": [
+              70,
+              66,
+              58
+            ]
+          }
+        }
+      },
+      "wall_split": {
+        "E": 3.901,
+        "N": 1.148,
+        "S": 3.619,
+        "W": 1.859
+      },
+      "reference_log_luma": {
+        "E": -3.259,
+        "N": -3.4542,
+        "S": -3.4615,
+        "W": -2.9043
+      },
+      "worst_band": "wall_upper",
+      "score": 2.126,
+      "outlier_deviation": {
+        "S": 1.371,
+        "E": 1.1,
+        "W": 0.783,
+        "N": 0.664
+      },
+      "clusters": [
+        [
+          "E",
+          "N",
+          "S",
+          "W"
+        ]
+      ],
+      "majority": [
+        "E",
+        "N",
+        "S",
+        "W"
+      ],
+      "outliers": [],
+      "no_majority": false,
+      "wall_split_spread": 2.753,
+      "verdict": "consistent-incomplete",
+      "why": "wall_upper disagrees most: worst pair S/W at D=2.13 (colour 0.083, contrast x1.76; brightness x1.59 and spread 0.375 reported, not counted). no facing stands outside the rest."
+    },
+    {
       "room": "privy_garden",
       "facings": [],
       "notes": [
@@ -7737,6 +8699,11 @@
       "wall_upper"
     ],
     [
+      3.52,
+      "back_office",
+      "wall_upper"
+    ],
+    [
       3.355,
       "closet_chamber",
       "wall_lower"
@@ -7755,6 +8722,11 @@
       2.968,
       "garden_room",
       "floor"
+    ],
+    [
+      2.91,
+      "back_office",
+      "wall_lower"
     ],
     [
       2.871,
@@ -7785,6 +8757,11 @@
       2.717,
       "garden_room",
       "ceiling"
+    ],
+    [
+      2.693,
+      "back_office",
+      "floor"
     ],
     [
       2.687,
@@ -7820,6 +8797,11 @@
       2.414,
       "great_hall",
       "ceiling"
+    ],
+    [
+      2.126,
+      "noodle_bar",
+      "wall_upper"
     ],
     [
       2.068,
@@ -7937,6 +8919,11 @@
       "wall_upper"
     ],
     [
+      1.372,
+      "noodle_bar",
+      "wall_lower"
+    ],
+    [
       1.371,
       "library",
       "wall_upper"
@@ -7960,6 +8947,11 @@
       1.066,
       "kitchen",
       "wall_lower"
+    ],
+    [
+      1.042,
+      "noodle_bar",
+      "floor"
     ],
     [
       1.025,

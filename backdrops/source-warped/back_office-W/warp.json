@@ -1,0 +1,201 @@
+{
+ "facing": "back_office/W",
+ "candidate": "backdrops/source/back_office-W/row23-6afb2c06.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "ed0a1bfc4e790c7213304f5490931d24bb88574a97f4e8bfec37c3fe2fe164d2",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -8.11,
+  "delta_eye_pct": 1.37,
+  "hold_family": "unfitted-horizon"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+  "px_per_m_at_wall": 250.909
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 250.909,
+  "ppm_target": 273.067,
+  "scale_k": 1.0883
+ },
+ "source_box": {
+  "x0": 127.0,
+  "x1": 1395.0,
+  "yc": 15.0,
+  "yf": 827.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 3.41,
+  "x1": 1532.59,
+  "yc": -24.68,
+  "yf": 849.14,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.236,
+  "source_ppm": 250.909
+ },
+ "apertures": {
+  "doors": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [
+  "door:door01:sill"
+ ],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 3.413,
+   "source": 127.0,
+   "ask_px": -123.6,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:left",
+   "kind": "door",
+   "target": 645.12,
+   "source": 671.0,
+   "ask_px": -25.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:right",
+   "kind": "door",
+   "target": 890.88,
+   "source": 861.0,
+   "ask_px": 29.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1532.587,
+   "source": 1395.0,
+   "ask_px": 137.6,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": -24.675,
+   "source": 15.0,
+   "ask_px": -39.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:head",
+   "kind": "door",
+   "target": 303.005,
+   "source": 299.0,
+   "ask_px": 4.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 849.138,
+   "source": 827.0,
+   "ask_px": 22.1,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.18,
+  "x_scale_max": 1.293,
+  "y_scale_min": 1.034,
+  "y_scale_max": 1.154,
+  "x_segments": [
+   {
+    "name": "corner_left..door:door01:left",
+    "target_px": 641.7,
+    "source_px": 544.0,
+    "scale": 1.18
+   },
+   {
+    "name": "door:door01:left..door:door01:right",
+    "target_px": 245.8,
+    "source_px": 190.0,
+    "scale": 1.293
+   },
+   {
+    "name": "door:door01:right..corner_right",
+    "target_px": 641.7,
+    "source_px": 534.0,
+    "scale": 1.202
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..door:door01:head",
+    "target_px": 327.7,
+    "source_px": 284.0,
+    "scale": 1.154
+   },
+   {
+    "name": "door:door01:head..floor_line",
+    "target_px": 546.1,
+    "source_px": 528.0,
+    "scale": 1.034
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 0,
+ "revealed_fraction": 0.0,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 3,
+ "seconds": 4.94,
+ "warped_image": "backdrops/source-warped/back_office-W/warped.png",
+ "asked_from": "backdrops/source/back_office-W/row23-6afb2c06.prompt.txt",
+ "warped_sha256": "0924a281b91c7a0f2dcf2b97303af18aac500db93994c02cdc643f2212c61f04",
+ "after": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -0.46,
+  "delta_eye_pct": -7.67,
+  "hold_family": "unfitted-horizon"
+ }
+}

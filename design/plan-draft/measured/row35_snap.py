@@ -194,10 +194,13 @@ from measure_lib import load, luma                              # noqa: E402
 
 W, H = 1536, 1024
 
-MANOR = os.path.join(ROOT, "design", "batches", "row23-scaffold", "manor")
+# [row 44, clause 8] THE BATCH AND THE PLAN ARE THE PACK'S, not the manor's.
+import pack as _pack                                            # noqa: E402
+_P = _pack.load_pack()
+MANOR = _P.paths["batch_dir"]
 MANIFEST = os.path.join(MANOR, "manifest.json")
 STATE = os.path.join(MANOR, "run-state.json")
-PLAN = os.path.join(ROOT, "fixtures", "demo-study", "plan.json")
+PLAN = _P.paths["plan"]
 
 #: The five planes, in the order a target pixel is offered to them. Only the
 #: shared edges are ever claimed twice and the order is what settles those —
@@ -657,7 +660,7 @@ def wall_context(key):
     plan = json.load(open(PLAN))
     e = next((z for z in manifest["entries"] if z.get("key") == key), None)
     if e is None:
-        raise SystemExit("snap refused: the manor manifest holds no facing " + key)
+        raise SystemExit("snap refused: the pack's manifest holds no facing " + key)
     fac = facing_of(plan, key)
     side = row23_lib.side_from_entry(key, e, fac)
     ref = row23_lib.reference_from_entry(e)

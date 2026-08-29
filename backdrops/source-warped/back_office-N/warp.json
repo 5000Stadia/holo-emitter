@@ -1,0 +1,166 @@
+{
+ "facing": "back_office/N",
+ "candidate": "backdrops/source/back_office-N/row23-7c95225a.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "fbd8ed9f08efcde73cea3e8c7a976d47997c968a7eb3cd2f97712e5560cbbc9c",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -6.41,
+  "delta_eye_pct": -1.13,
+  "hold_family": "suspect-painting"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "the right junction is fitted at slope -0.0089 \u2014 a receding right return rises going right, and anything over -0.0156 has not moved one pixel across the 64 px it was fitted over, which is a horizontal edge and not a return",
+  "px_per_m_at_wall": 228.182
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 228.182,
+  "ppm_target": 243.81,
+  "scale_k": 1.0685
+ },
+ "source_box": {
+  "x0": 275.0,
+  "x1": 1273.0,
+  "yc": 48.0,
+  "yf": 793.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 256.0,
+  "x1": 1280.0,
+  "yc": 34.34,
+  "yf": 814.53,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.265,
+  "source_ppm": 228.182
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 2,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": [
+    {
+     "centre_px": 348.0,
+     "width_px": 146
+    },
+    {
+     "centre_px": 1221.0,
+     "width_px": 104
+    }
+   ]
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 256.0,
+   "source": 275.0,
+   "ask_px": -19.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1280.0,
+   "source": 1273.0,
+   "ask_px": 7.0,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 34.336,
+   "source": 48.0,
+   "ask_px": -13.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 814.527,
+   "source": 793.0,
+   "ask_px": 21.5,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.026,
+  "x_scale_max": 1.026,
+  "y_scale_min": 1.047,
+  "y_scale_max": 1.047,
+  "x_segments": [
+   {
+    "name": "corner_left..corner_right",
+    "target_px": 1024.0,
+    "source_px": 998.0,
+    "scale": 1.026
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..floor_line",
+    "target_px": 780.2,
+    "source_px": 745.0,
+    "scale": 1.047
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 0,
+ "revealed_fraction": 0.0,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 2,
+ "row_count": 2,
+ "seconds": 6.05,
+ "warped_image": "backdrops/source-warped/back_office-N/warped.png",
+ "asked_from": "backdrops/source/back_office-N/row23-7c95225a.prompt.txt",
+ "warped_sha256": "abccd19aa0d46005649785e4274cf6df83eb1b5c33450fba8802ea6a9651c67b",
+ "after": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -10.14,
+  "delta_eye_pct": 2.98,
+  "hold_family": "suspect-painting"
+ }
+}

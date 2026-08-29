@@ -1,0 +1,18 @@
+Use case: historical-scene, interior
+Asset type: gameplay backdrop for the north wall of the back office, circa-2087 arcology street level
+Gate anchor: the surface-mounted cable channel above the floor, 1.10 m.
+Primary request: Paint the north wall of the back office of a circa-2087 arcology street level.
+  Its walls are charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag.
+  Overhead: a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through. Underfoot: grey rubber studded tile, worn smooth along the walking line.
+  A clearly legible surface-mounted steel cable channel runs continuously corner to corner at exactly 1.10 m above the floor, on every exposed wall surface including the side-wall returns.
+On this wall: nothing stands on it: this wall carries no opening and no built feature at all. The fabric named above runs across the whole of it, unbroken corner to corner, and the anchor named above is the one ruled feature in it.
+  There is no window: this wall carries no glazed opening of any kind.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and shows its whole width: its left corner stands about a seventh of the way in from the picture's left edge and its right corner about a seventh of the way in from the right edge, and from each corner a side wall runs toward you and leaves the picture through the top, left and right edges.
+  Seen from where you stand, the whole 4.2 m of the wall spans about seven tenths of the picture's width — no closer and no larger than that; the wall does not crowd the frame.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: a high-realism digital painting in the manner of near-future street-interior concept art — worn hard surfaces, grease and damp, cool even ambient light with gentle falloff into the corners, every sign and tube DARK and unlit; a location study for a game, not a photograph and not a neon glow render.
+  The layout diagram is a black-and-white line drawing on paper and holds no colour of its own: the picture is this painting, in the materials named above.
+Constraints: the back office is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface in it is plain and unlettered, and Image 1 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.

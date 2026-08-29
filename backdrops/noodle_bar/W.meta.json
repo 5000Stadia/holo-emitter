@@ -1,0 +1,101 @@
+{
+  "floor_line_y": 0.776658,
+  "px_per_m_at_wall": 227.556,
+  "px_per_m_at_bottom": 420.88,
+  "wall_width_m": 5.6,
+  "key_tint": "#c8b290",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-BELOW",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.10 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 246,
+  "camera_wall_m": 4.5,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 5.6,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 130.84444444444455,
+  "corner_x1_px": 1405.1555555555556,
+  "storey_height_m": 3.2,
+  "camera_id": "measured:backdrops/source-warped/noodle_bar-W/warped.png",
+  "camera_reference": "ruled",
+  "measured_round": "meshwarp",
+  "camera_source": "declared",
+  "declared_fields": [
+    "horizon_y",
+    "px_per_m_at_wall",
+    "floor_line_y",
+    "corner_x0_px",
+    "corner_x1_px"
+  ],
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 1006.4,
+  "nearest_floor_m": 2.433,
+  "measured_room": {
+    "storey_height_m": 3.081,
+    "wall_width_m": 5.697,
+    "ruled_storey_height_m": 3.2,
+    "ruled_wall_width_m": 5.6,
+    "warp": {
+      "pins": 4,
+      "residuals": {
+        "max_px": 0,
+        "column_px": [
+          [
+            "corner_left",
+            0
+          ],
+          [
+            "corner_right",
+            0
+          ]
+        ],
+        "row_px": [
+          [
+            "ceiling_line",
+            0
+          ],
+          [
+            "floor_line",
+            0
+          ]
+        ]
+      },
+      "worst_segment": {
+        "axis": "x",
+        "name": "corner_left..corner_right",
+        "scale": 1.047,
+        "target_px": 1274.3,
+        "source_px": 1217
+      },
+      "revealed_px": 83596,
+      "remeasured": {
+        "px_per_m_at_wall": 223.636,
+        "floor_line_y": 0.776367,
+        "corner_x0_px": 131,
+        "corner_x1_px": 1405,
+        "corner_scale_px_per_m": 227.5
+      },
+      "warped_from": "backdrops/source/noodle_bar-W/row23-70f45eab.png",
+      "tool": "design/plan-draft/measured/mesh_warp.py"
+    },
+    "carriers": []
+  },
+  "openings": [],
+  "windows": [],
+  "window_evidence": {
+    "unpainted": 0,
+    "read_by": "design/plan-draft/measured/window_measure.py",
+    "ruled": 0,
+    "painted": 0,
+    "unruled": [],
+    "note": "every glazed opening the painting shows answers to a window the plan rules"
+  }
+}

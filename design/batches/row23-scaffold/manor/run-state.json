@@ -798,11 +798,11 @@
     },
     "garden_room/S": {
       "attempts": 5,
-      "status": "held",
+      "status": "promoted",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
       "hold_family": "unfitted-horizon",
-      "why": "the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler rea",
+      "why": "art already in the store; this loop read it rather than remaking it",
       "exit": "grid",
       "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 330 px \u2014 2.06\u00d7 the 159.9 px the plan's own 1.00 m opening spans at this wall's corner scale (159.9 px/m; its ruler reads 327.4), outside 0.5\u20131.5\u00d7 \u2014 that is not a doorway, whatever else it is [row27:door.painted_width]",
       "exit_attempt": {
@@ -2081,9 +2081,9 @@
     },
     "closet_chamber/S": {
       "attempts": 4,
-      "status": "parked",
+      "status": "promoted",
       "correction": "draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2",
-      "why": "the retry cap is spent; the wall stays grid and the run continues",
+      "why": "art already in the store; this loop read it rather than remaking it",
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
       "exit": "grid",

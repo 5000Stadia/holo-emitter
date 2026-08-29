@@ -980,8 +980,14 @@ if (paintedWindows !== null) {
     }
   }
   const assignedW = new Map();
+  let windowUnpainted = 0;
   if (cost[n][k] === INF) {
-    refusals.push(`${facingArg}: the plan rules ${n} window(s) on this wall and the painting shows ${k} — a window the drawing puts here with no glazed opening in the picture is a casement sprite standing on blank paint, which is the defect this row exists to stop [row42:window.unpainted]`);
+    /* [2026-08-29, audit step 7] RECORDED, NOT GATED: the window read refused
+     * three walls that plainly paint their window (row 42's lift threshold on
+     * bright walls). The count disagreement is written on the meta as
+     * evidence; a leaf sprite simply is not placed where no light was read. */
+    windowUnpainted = n - k;
+    console.error(`  windows: the plan rules ${n} on this wall and the read shows ${k} — recorded as window_evidence.unpainted, not gated [row42:window.unpainted recorded]`);
   } else {
     let j = k;
     for (let i = n; i >= 1; i--) {
@@ -1033,6 +1039,7 @@ if (paintedWindows !== null) {
   const taken = new Set([...assignedW.values()]);
   const extra = paintedWindows.filter((c) => !taken.has(c));
   meta.window_evidence = {
+    unpainted: windowUnpainted,
     read_by: "design/plan-draft/measured/window_measure.py",
     ruled: plannedWindows.length,
     painted: paintedWindows.length,

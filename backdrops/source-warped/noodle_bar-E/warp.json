@@ -1,0 +1,201 @@
+{
+ "facing": "noodle_bar/E",
+ "candidate": "backdrops/source/noodle_bar-E/row23-5fe4dd71.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "8750974df55fcea24c0dc11c120c9934c02a1ffe5d7fdc87a215a5f7ae230d10",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -4.12,
+  "delta_eye_pct": -0.47,
+  "hold_family": "unfitted-horizon"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+  "px_per_m_at_wall": 218.182
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 218.182,
+  "ppm_target": 227.556,
+  "scale_k": 1.043
+ },
+ "source_box": {
+  "x0": 144.0,
+  "x1": 1393.0,
+  "yc": 115.0,
+  "yf": 783.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 130.84,
+  "x1": 1405.16,
+  "yc": 67.12,
+  "yf": 795.3,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+  "source_storey_m": 3.062,
+  "source_ppm": 218.182
+ },
+ "apertures": {
+  "doors": {
+   "plan": 1,
+   "measured": 1,
+   "paired": 1,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [
+  "door:door01:sill"
+ ],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 130.844,
+   "source": 144.0,
+   "ask_px": -13.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:left",
+   "kind": "door",
+   "target": 665.6,
+   "source": 663.0,
+   "ask_px": 2.6,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:right",
+   "kind": "door",
+   "target": 870.4,
+   "source": 860.0,
+   "ask_px": 10.4,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1405.156,
+   "source": 1393.0,
+   "ask_px": 12.2,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 67.12,
+   "source": 115.0,
+   "ask_px": -47.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "door:door01:head",
+   "kind": "door",
+   "target": 340.187,
+   "source": 353.0,
+   "ask_px": -12.8,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 795.298,
+   "source": 783.0,
+   "ask_px": 12.3,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.003,
+  "x_scale_max": 1.04,
+  "y_scale_min": 1.058,
+  "y_scale_max": 1.147,
+  "x_segments": [
+   {
+    "name": "corner_left..door:door01:left",
+    "target_px": 534.8,
+    "source_px": 519.0,
+    "scale": 1.03
+   },
+   {
+    "name": "door:door01:left..door:door01:right",
+    "target_px": 204.8,
+    "source_px": 197.0,
+    "scale": 1.04
+   },
+   {
+    "name": "door:door01:right..corner_right",
+    "target_px": 534.8,
+    "source_px": 533.0,
+    "scale": 1.003
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..door:door01:head",
+    "target_px": 273.1,
+    "source_px": 238.0,
+    "scale": 1.147
+   },
+   {
+    "name": "door:door01:head..floor_line",
+    "target_px": 455.1,
+    "source_px": 430.0,
+    "scale": 1.058
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 0,
+ "revealed_fraction": 0.0,
+ "mirror_band_px": 24,
+ "seam_blend_px": 24,
+ "column_count": 4,
+ "row_count": 3,
+ "seconds": 5.06,
+ "warped_image": "backdrops/source-warped/noodle_bar-E/warped.png",
+ "asked_from": "backdrops/source/noodle_bar-E/row23-5fe4dd71.prompt.txt",
+ "warped_sha256": "f11acfc73e7f69a3653eb1fa292ef3224859ba6c11fe0766a4a4743e49e7d6c5",
+ "after": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -7.32,
+  "delta_eye_pct": -0.64,
+  "hold_family": "unfitted-horizon"
+ }
+}

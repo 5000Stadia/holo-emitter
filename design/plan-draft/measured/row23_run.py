@@ -597,7 +597,7 @@ def _validate_promoted(key):
     this wall, and twelve promotions cannot each make them differently false.
     """
     v = subprocess.run(["node", os.path.join(ROOT, "tools", "validate-fixtures.mjs"),
-                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor"),
+                        "--fixture-dir", _PACK.paths["fixture_dir"],
                         "--only", key],
                        cwd=ROOT, capture_output=True, text=True)
     if v.returncode != 0:
@@ -620,14 +620,14 @@ def _validate_sweep():
     """
     _t = time.time()
     v = subprocess.run(["node", os.path.join(ROOT, "tools", "validate-fixtures.mjs"),
-                        "--fixture-dir", os.path.join(ROOT, "fixtures", "nav-manor")],
+                        "--fixture-dir", _PACK.paths["fixture_dir"]],
                        cwd=ROOT, capture_output=True, text=True)
     ok = v.returncode == 0
     timings.record("validate.sweep", _t, time.time(), None,
-                   {"fixture": "nav-manor", "refused": not ok})
+                   {"fixture": os.path.relpath(_PACK.paths["fixture_dir"]), "refused": not ok})
     if ok:
         return None
-    return ("fixtures/nav-manor: "
+    return (os.path.relpath(_PACK.paths["fixture_dir"]) + ": "
             + (v.stdout + v.stderr).strip().split("\n")[-1][:300])
 
 
@@ -1290,7 +1290,7 @@ def _exit_warp(key, e, st, cand_rel, side, ref, fam):
     import mesh_warp
     try:
         out, rec = mesh_warp.warp_wall(key, cand_rel)
-    except Exception as ex:                        # ONE BAD WALL IS ONE ROW.
+    except (Exception, SystemExit) as ex:          # ONE BAD WALL IS ONE ROW - a snap refusal raises SystemExit and must not end the sweep.
         timings.record("exit.warp", _t, time.time(), key,
                        {"candidate": cand_rel, "warped": False,
                         "error": str(ex)[:200]})
