@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-WARP | the pinned mesh warp (room + aperture corners → plan targets, smooth field, margin-aware, residuals recorded) replacing snap/void-repair/tolerance — capped | building |
+| B-WARP | pinned mesh warp: v1 landed (TPS; 11/24 held walls warp, pins within 1 px, but jambs bow); v2 (capped) makes the wall-plane remap separable piecewise-linear so no straight line bends | building (v2) |
 | B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
