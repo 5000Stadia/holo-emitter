@@ -39,11 +39,11 @@
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_hall/E draws its wall-foot line at 627.0 px, which against the declared horizon at 526.1 px and this painting's own 76.84 px/m puts the eye 1.313 m \u2014 11.0% from the 1.183 m this project draws at, outside the \u00b18% band. The tolerance ruling accepts drift in what this frame's PERSPECTIVE says; it accepts none in what its ruler says, and the floor line is the ruler's [row32:tolerance.eye_band]",
+      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_hall/E: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player would click on paint [row27:door.unmeasured_exit]",
       "exit_attempt": {
         "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:25"
+        "at": "2026-08-29T01:04:52"
       }
     },
     "great_hall/S": {
@@ -81,7 +81,7 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: great_hall/W: it was painted from an ask that never named this room's ruled walls or overhead or underfoot. The `hall_state` voice rules walls = \"dark oak wall panelling in fielded ba",
+      "correction": "[meshwarp.aperture_count] content miss: the plan rules door op04 on great_hall/W and the painting shows none of them (doors 2/2, windows 0/0) \u2014 no motion of pixels puts an aperture where nothing was painted",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "ways_never_named_apart": {
@@ -113,7 +113,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:25"
+        "at": "2026-08-29T01:04:52"
       }
     },
     "study/S": {
@@ -178,14 +178,14 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:32"
+        "at": "2026-08-29T01:04:59"
       }
     },
     "back_stair/S": {
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 67.0, which puts the viewer's eye 2.872 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "[meshwarp.landmark_unreadable] the painted corners span 139 px where the declared camera draws 1508 (0.09x, outside the 2.5x a corner reading may differ by), so what was read is a recession break and not this room's corners",
       "hold_family": "suspect-painting",
       "why": "the tolerance promotion was refused: promote refused: back_stair/S: the plan draws 1 flight(s) in this view (back_stair_flight) and a promoted meta carries none \u2014 painting this wall deletes the staircase the room holds, and a player is l",
       "exit": "grid",
@@ -193,7 +193,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:32"
+        "at": "2026-08-29T01:04:59"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -297,7 +297,7 @@
       "attempts": 2,
       "status": "held",
       "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: kitchen/N: it was painted from an ask that never named this room's ruled walls or overhead or underfoot. The `service` voice rules walls = \"rough limewashed plaster over stone, carrie",
+      "correction": "[meshwarp.aperture_count] content miss: the plan rules door op14 on kitchen/N and the painting shows none of them (doors 1/1, windows 0/0) \u2014 no motion of pixels puts an aperture where nothing was painted",
       "hold_family": "promotion-refused",
       "warp_refusal": {
         "clause": "meshwarp.aperture_count",
@@ -309,7 +309,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/kitchen-N/row23-71e8ae4a.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:32"
+        "at": "2026-08-29T01:05:00"
       }
     },
     "kitchen/E": {
@@ -668,11 +668,11 @@
       "hold_family": "unfitted-horizon",
       "why": "the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (125.3 px/m; its rule",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 197 px \u2014 1.60\u00d7 the 122.8 px the plan's own 1.00 m opening spans at this wall's corner scale (122.8 px/m; its ruler reads 183.2), outside 0.5\u20131.5\u00d7 \u2014 that is not a doorway, whatever else it is [row27:door.painted_width]",
+      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_stair_hall/N: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source-warped/great_stair_hall-N/warped.png was painted from never named a staircase (backdrops/source-warped/great_stair_hall-N/warped.prompt.txt, read beside the candidate) \u2014 this roll was asked for before the flight language existed, so the picture cannot be shown to hold the staircase the room holds, and promoting it leaves a player looking at the place a stair used to be. Its own re-ask under the flight paragraph is the candidate for this wall [row32:stair.painted_flight_lost]",
       "exit_attempt": {
         "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:39"
+        "at": "2026-08-29T01:05:06"
       }
     },
     "great_stair_hall/E": {
@@ -694,7 +694,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:45"
+        "at": "2026-08-29T01:05:13"
       }
     },
     "great_stair_hall/W": {
@@ -738,7 +738,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/great_stair_hall-W/row23-a58332e0.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:52"
+        "at": "2026-08-29T01:05:20"
       }
     },
     "library/N": {
@@ -760,7 +760,7 @@
       "attempts": 4,
       "status": "held",
       "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: library/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player would",
+      "correction": "[meshwarp.aperture_count] content miss: the plan rules door op07 on library/S and the painting shows none of them (doors 0/1, windows 0/0) \u2014 no motion of pixels puts an aperture where nothing was painted",
       "hold_family": "promotion-refused",
       "warp_refusal": {
         "clause": "meshwarp.aperture_count",
@@ -772,7 +772,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/library-S/row23-4a2e1e8a.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:52"
+        "at": "2026-08-29T01:05:20"
       }
     },
     "library/W": {
@@ -798,18 +798,70 @@
     },
     "garden_room/S": {
       "attempts": 5,
-      "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "status": "promoted",
       "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
-      "hold_family": "unfitted-horizon",
       "why": "the tolerance promotion was refused: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 286 px \u2014 1.81\u00d7 the 158.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (158.3 px/m; its ruler rea",
-      "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: garden_room/S: the way through the painting shows for \"op08\" is 330 px \u2014 2.06\u00d7 the 159.9 px the plan's own 1.00 m opening spans at this wall's corner scale (159.9 px/m; its ruler reads 327.4), outside 0.5\u20131.5\u00d7 \u2014 that is not a doorway, whatever else it is [row27:door.painted_width]",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/garden_room-S/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:op08:head x1.362, 0 px revealed) \u2014 the correction is recorded, not waived",
       "exit_attempt": {
         "candidate": "backdrops/source/garden_room-S/row23-ab42bebe.png",
-        "exit": "grid",
-        "at": "2026-08-29T00:39:57"
-      }
+        "exit": "warped",
+        "at": "2026-08-29T00:51:13"
+      },
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:op08:left",
+              0.0
+            ],
+            [
+              "door:op08:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:op08:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..door:op08:head",
+          "scale": 1.362,
+          "target_px": 264.3,
+          "source_px": 194.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/garden_room-S/row23-ab42bebe.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon"
     },
     "garden_room/W": {
       "attempts": 2,
@@ -856,7 +908,7 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "[meshwarp.landmark_unreadable] this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
       "hold_family": "unfitted-horizon",
       "why": "the tolerance promotion was refused: promote refused: entrance_court/N: the way through the painting shows for \"op01\" is 117 px \u2014 2.42\u00d7 the 48.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (48.3 px/m; its ruler re",
       "exit": "grid",
@@ -864,7 +916,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:57"
+        "at": "2026-08-29T01:05:20"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -926,7 +978,7 @@
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "[meshwarp.landmark_unreadable] this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
       "hold_family": "unfitted-horizon",
       "why": "the tolerance promotion was refused: promote refused: entrance_court/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a playe",
       "exit": "grid",
@@ -934,7 +986,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:57"
+        "at": "2026-08-29T01:05:20"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -974,7 +1026,7 @@
     "privy_garden/E": {
       "attempts": 6,
       "status": "held",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "[meshwarp.landmark_unreadable] this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
       "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
       "hold_family": "unfitted-horizon",
       "why": "content gap re-ask: the ask never carried the completed neighbour's edge",
@@ -1001,7 +1053,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:58"
+        "at": "2026-08-29T01:05:20"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -1053,7 +1105,7 @@
       "attempts": 6,
       "status": "held",
       "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: privy_garden/W: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player ",
+      "correction": "[meshwarp.landmark_unreadable] this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "edge_never_seeded": {
@@ -1084,14 +1136,14 @@
       "exit_attempt": {
         "candidate": "backdrops/source/privy_garden-W/row23-d92a997c.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:58"
+        "at": "2026-08-29T01:05:20"
       }
     },
     "entrance_approach/N": {
       "attempts": 5,
       "status": "held",
       "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
-      "correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 428.0, which puts the viewer's eye 3.160 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "correction": "[meshwarp.landmark_unreadable] this facing is enclosed and the scaffold gives it no storey height, so it has no ceiling line and no room corners to pin",
       "hold_family": "suspect-painting",
       "why": "content gap re-ask: the ask never carried the completed neighbour's edge",
       "content_gap_grants": {
@@ -1117,7 +1169,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:58"
+        "at": "2026-08-29T01:05:20"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -1329,7 +1381,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:04"
+        "at": "2026-08-29T01:05:27"
       }
     },
     "back_stair_head/S": {
@@ -1432,7 +1484,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair_head-W/row23-0f79ba13.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:11"
+        "at": "2026-08-29T01:05:33"
       }
     },
     "long_gallery/N": {
@@ -1544,7 +1596,7 @@
       "attempts": 3,
       "status": "held",
       "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
-      "correction": "camera PASS; held for the promotion instrument [promotion-refused]: promote refused: long_gallery/W: it was painted from an ask that never named this room's ruled walls or overhead or underfoot. The `long_gallery` voice rules walls = \"plain oak wainscot below limewash",
+      "correction": "[meshwarp.aperture_count] content miss: the plan rules door op24, window win42, window win43, window win44, window win45 on long_gallery/W and the painting shows none of them (doors 1/2, windows 0/4) \u2014 no motion of pixels puts an aperture where nothing was painted",
       "hold_family": "promotion-refused",
       "content_gap_grants": {
         "ways_never_named_apart": {
@@ -1576,7 +1628,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/long_gallery-W/row23-e0cd4754.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:11"
+        "at": "2026-08-29T01:05:34"
       }
     },
     "master_bedchamber/N": {
@@ -1841,7 +1893,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:17"
+        "at": "2026-08-29T01:05:40"
       }
     },
     "stair_landing/W": {
@@ -1885,7 +1937,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/stair_landing-W/row23-572c742a.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:23"
+        "at": "2026-08-29T01:05:46"
       }
     },
     "guest_chamber/N": {
@@ -2081,18 +2133,70 @@
     },
     "closet_chamber/S": {
       "attempts": 4,
-      "status": "parked",
-      "correction": "draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2",
+      "status": "promoted",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "hold_family": "camera-miss",
       "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
-      "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: closet_chamber/S: the way through the painting shows for \"op20\" is 330 px \u2014 2.03\u00d7 the 162.4 px the plan's own 1.00 m opening spans at this wall's corner scale (162.4 px/m; its ruler reads 311.6), outside 0.5\u20131.5\u00d7 \u2014 that is not a doorway, whatever else it is [row27:door.painted_width]",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/closet_chamber-S/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment door:op20:left..door:op20:right x1.210, 0 px revealed) \u2014 the correction is recorded, not waived",
       "exit_attempt": {
         "candidate": "backdrops/source/closet_chamber-S/row23-86c991fd.png",
-        "exit": "grid",
-        "at": "2026-08-29T00:40:29"
-      }
+        "exit": "warped",
+        "at": "2026-08-29T01:05:52"
+      },
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:op20:left",
+              0.0
+            ],
+            [
+              "door:op20:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:op20:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "door:op20:left..door:op20:right",
+          "scale": 1.21,
+          "target_px": 330.3,
+          "source_px": 273.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/closet_chamber-S/row23-86c991fd.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.090x larger: 330.3 px/m at the wall plane, not 303.2",
+      "snapped_from_family": "camera-miss"
     },
     "closet_chamber/W": {
       "attempts": 2,

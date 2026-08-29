@@ -1,7 +1,7 @@
 {
   "instrument": "tools/make-scaffold.mjs materialProvenance()",
   "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today — and, where those differ, the MATERIALS each resolves to, which is what decides whether the wall is vouched (see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
-  "promoted_facings": 61,
+  "promoted_facings": 63,
   "split_rooms": [
     "study",
     "back_stair",
@@ -21,7 +21,7 @@
   "refined_rooms": [
     "servants_hall"
   ],
-  "vouched_facings": 35,
+  "vouched_facings": 37,
   "unrecoverable": [],
   "rooms": [
     {
@@ -1018,6 +1018,37 @@
             "hangings": null
           },
           "ask_path": "backdrops/source/garden_room-E/row23-78bced76.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "light-toned oak wainscot to chair height below limewashed plaster. Overhead: a plain lime-plastered ceiling. a floor of square stone paviours.",
+          "ask_key": "light-toned oak wainscot to chair height below limewashed plaster plain lime-plastered ceiling floor of square stone paviours",
+          "ask_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/light-oak-wainscot-limewash",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/square-stone-paviours",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/square-stone-paviours\"],[\"walls\",\"wall/light-oak-wainscot-limewash\"]]"
+        },
+        {
+          "facing": "S",
+          "voice": "garden_parlour",
+          "candidate": "backdrops/source-warped/garden_room-S/warped.png",
+          "ruling": {
+            "walls": "light-toned oak wainscot to chair height below limewashed plaster",
+            "overhead": "a plain lime-plastered ceiling",
+            "underfoot": "a floor of square stone paviours",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source-warped/garden_room-S/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
@@ -2233,6 +2264,37 @@
             "hangings": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
           },
           "ask_path": "backdrops/source/closet_chamber-E/row23-4a1211ed.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "oak wainscot to chair height with wall hangings above it. Overhead: a plain lime-plastered ceiling. wide oak floorboards. plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping.",
+          "ask_key": "oak wainscot to chair height with wall hangings above it plain lime-plastered ceiling wide oak floorboards plain hangings of undyed wool serge hung from rail below ceiling and falling to wainscot capping",
+          "ask_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "ruling_materials": {
+            "walls": "wall/oak-wainscot-with-hangings",
+            "overhead": "ceiling/plain-lime-plaster",
+            "underfoot": "floor/wide-oak-boards",
+            "hangings": "wall/hangings-wool-serge"
+          },
+          "class": "current",
+          "ask_material_key": "[[\"hangings\",\"wall/hangings-wool-serge\"],[\"overhead\",\"ceiling/plain-lime-plaster\"],[\"underfoot\",\"floor/wide-oak-boards\"],[\"walls\",\"wall/oak-wainscot-with-hangings\"]]"
+        },
+        {
+          "facing": "S",
+          "voice": "bedchamber",
+          "candidate": "backdrops/source-warped/closet_chamber-S/warped.png",
+          "ruling": {
+            "walls": "oak wainscot to chair height with wall hangings above it",
+            "overhead": "a plain lime-plastered ceiling",
+            "underfoot": "wide oak floorboards",
+            "hangings": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
+          },
+          "ask_path": "backdrops/source-warped/closet_chamber-S/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
