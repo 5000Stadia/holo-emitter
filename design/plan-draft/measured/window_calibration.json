@@ -3,6 +3,11 @@
   "_why_it_is_committed": "promote-backdrop.mjs writes meta.windows only where the measurement carries a window reading, and no measurement taken before this row has one. This file is the list of walls that clause cannot yet see; row23_run.py runs window_reading on every reading from here on, so the list can only shrink.",
   "instrument": {
     "lattice_min": 0.2,
+    "lattice_support": 0.12,
+    "edge_min": 12.0,
+    "frame_min": 0.34,
+    "contrast_min": 0.3,
+    "light_min_l": 90.0,
     "admit_lift": 60.0,
     "sweep_lift": 12.0,
     "mullion_max_m": 0.25,
@@ -17,24 +22,19 @@
     ]
   },
   "paired": 33,
-  "median_centre_distance_m": 0.635,
+  "median_centre_distance_m": 0.571,
   "within_0_35_m": 13,
   "of": 33,
   "count_mismatches": [
     {
+      "facing": "great_hall/N",
+      "ruled": 1,
+      "painted": 0
+    },
+    {
       "facing": "great_hall/S",
       "ruled": 4,
       "painted": 2
-    },
-    {
-      "facing": "dining_parlour/W",
-      "ruled": 1,
-      "painted": 0
-    },
-    {
-      "facing": "garden_room/N",
-      "ruled": 1,
-      "painted": 0
     },
     {
       "facing": "privy_garden/S",
@@ -49,7 +49,7 @@
     {
       "facing": "long_gallery/E",
       "ruled": 4,
-      "painted": 3
+      "painted": 2
     },
     {
       "facing": "long_gallery/N",
@@ -60,6 +60,11 @@
       "facing": "long_gallery/S",
       "ruled": 1,
       "painted": 2
+    },
+    {
+      "facing": "closet_chamber/E",
+      "ruled": 1,
+      "painted": 3
     }
   ],
   "walls": [
@@ -71,18 +76,13 @@
           9
         ]
       ],
-      "painted_m": [
-        [
-          7.386,
-          8.809
-        ]
-      ],
+      "painted_m": [],
       "pairs": [
         {
           "plan_centre_m": 8.25,
-          "painted_centre_m": 8.097,
-          "distance_m": -0.153,
-          "width_delta_m": -0.077
+          "painted_centre_m": null,
+          "distance_m": null,
+          "width_delta_m": null
         }
       ]
     },
@@ -303,13 +303,18 @@
           3.9
         ]
       ],
-      "painted_m": [],
+      "painted_m": [
+        [
+          3.047,
+          4.587
+        ]
+      ],
       "pairs": [
         {
           "plan_centre_m": 3.15,
-          "painted_centre_m": null,
-          "distance_m": null,
-          "width_delta_m": null
+          "painted_centre_m": 3.817,
+          "distance_m": 0.667,
+          "width_delta_m": 0.041
         }
       ]
     },
@@ -358,13 +363,18 @@
           2.9
         ]
       ],
-      "painted_m": [],
+      "painted_m": [
+        [
+          0.13,
+          3.443
+        ]
+      ],
       "pairs": [
         {
           "plan_centre_m": 2.15,
-          "painted_centre_m": null,
-          "distance_m": null,
-          "width_delta_m": null
+          "painted_centre_m": 1.787,
+          "distance_m": -0.363,
+          "width_delta_m": 1.813
         }
       ]
     },
@@ -543,10 +553,6 @@
       ],
       "painted_m": [
         [
-          1.619,
-          3.201
-        ],
-        [
           4.268,
           6.825
         ],
@@ -558,15 +564,15 @@
       "pairs": [
         {
           "plan_centre_m": 1.65,
-          "painted_centre_m": 2.41,
-          "distance_m": 0.76,
-          "width_delta_m": 0.082
+          "painted_centre_m": 5.546,
+          "distance_m": 3.896,
+          "width_delta_m": 1.057
         },
         {
           "plan_centre_m": 10.15,
-          "painted_centre_m": 5.546,
-          "distance_m": -4.604,
-          "width_delta_m": 1.057
+          "painted_centre_m": null,
+          "distance_m": null,
+          "width_delta_m": null
         },
         {
           "plan_centre_m": 16.15,
@@ -782,14 +788,22 @@
         [
           1.107,
           1.421
+        ],
+        [
+          1.553,
+          1.873
+        ],
+        [
+          2.008,
+          2.314
         ]
       ],
       "pairs": [
         {
           "plan_centre_m": 2.15,
-          "painted_centre_m": 1.264,
-          "distance_m": -0.886,
-          "width_delta_m": -1.185
+          "painted_centre_m": 2.161,
+          "distance_m": 0.011,
+          "width_delta_m": -1.194
         }
       ]
     },

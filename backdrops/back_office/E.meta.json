@@ -1,0 +1,128 @@
+{
+  "floor_line_y": 0.829236,
+  "px_per_m_at_wall": 273.067,
+  "px_per_m_at_bottom": 420.88,
+  "wall_width_m": 5.6,
+  "key_tint": "#c8bba6",
+  "image_h_px": 1024,
+  "horizon_y": 0.51377,
+  "key_dir": "C-BELOW",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.10 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 266,
+  "camera_wall_m": 3.75,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 5.6,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 3.413333333333412,
+  "corner_x1_px": 1532.5866666666666,
+  "storey_height_m": 3.2,
+  "camera_id": "measured:backdrops/source-warped/back_office-E/warped.png",
+  "camera_reference": "ruled",
+  "measured_round": "meshwarp",
+  "camera_source": "declared",
+  "declared_fields": [
+    "horizon_y",
+    "px_per_m_at_wall",
+    "floor_line_y",
+    "corner_x0_px",
+    "corner_x1_px"
+  ],
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 906.8,
+  "nearest_floor_m": 2.433,
+  "measured_room": {
+    "storey_height_m": 3.25,
+    "wall_width_m": 4.652,
+    "ruled_storey_height_m": 3.2,
+    "ruled_wall_width_m": 5.6,
+    "warp": {
+      "pins": 4,
+      "residuals": {
+        "max_px": 0,
+        "column_px": [
+          [
+            "corner_left",
+            0
+          ],
+          [
+            "corner_right",
+            0
+          ]
+        ],
+        "row_px": [
+          [
+            "ceiling_line",
+            0
+          ],
+          [
+            "floor_line",
+            0
+          ]
+        ]
+      },
+      "worst_segment": {
+        "axis": "x",
+        "name": "corner_left..corner_right",
+        "scale": 1.567,
+        "target_px": 1529.2,
+        "source_px": 976
+      },
+      "revealed_px": 0,
+      "remeasured": {
+        "px_per_m_at_wall": 241.818,
+        "floor_line_y": 0.803711,
+        "corner_x0_px": 84,
+        "corner_x1_px": 1209,
+        "corner_scale_px_per_m": 200.893
+      },
+      "warped_from": "backdrops/source/back_office-E/row23-bac80793.png",
+      "tool": "design/plan-draft/measured/mesh_warp.py"
+    },
+    "carriers": [
+      {
+        "kind": "window",
+        "id": null,
+        "plan_px": [
+          604.2,
+          931.8
+        ],
+        "plan_centre_px": 768,
+        "painted_px": null,
+        "painted_centre_px": null,
+        "centre_delta_px": null,
+        "centre_delta_m": null,
+        "painted_feature": null
+      }
+    ]
+  },
+  "openings": [],
+  "windows": [
+    {
+      "id": "win02",
+      "kind": "window",
+      "x": 604.16,
+      "y": 303,
+      "w": 327.68,
+      "h": 273.07,
+      "sill_m": 1,
+      "head_m": 2,
+      "measured": false
+    }
+  ],
+  "window_evidence": {
+    "unpainted": 1,
+    "read_by": "design/plan-draft/measured/window_measure.py",
+    "ruled": 1,
+    "painted": 0,
+    "unruled": [],
+    "note": "every glazed opening the painting shows answers to a window the plan rules"
+  }
+}

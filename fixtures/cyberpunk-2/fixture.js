@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["cyberpunk-2"] = {
   id: "cyberpunk-2",
-  fp: "1afaed8e",
+  fp: "b48fd7e6",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -337,12 +337,12 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "px_per_m_at_wall": 243.81,
     "px_per_m_at_bottom": 420.88,
     "wall_width_m": 6,
-    "key_tint": "#c8b698",
+    "key_tint": "#c8b174",
     "image_h_px": 1024,
     "horizon_y": 0.51377,
-    "key_dir": "C-BELOW",
+    "key_dir": "L-BELOW",
     "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.10 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 267,
+    "calibration_px": 249,
     "camera_wall_m": 4.2,
     "facing_type": "enclosed",
     "wall_continuous": true,
@@ -370,11 +370,11 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "provisional": false,
     "measured": true,
     "backdrop": "wall",
-    "focal_px": 1019.5,
+    "focal_px": 950.7,
     "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.263,
-      "wall_width_m": 6.023,
+      "storey_height_m": 3.079,
+      "wall_width_m": 6.308,
       "ruled_storey_height_m": 3.2,
       "ruled_wall_width_m": 6,
       "warp": {
@@ -405,19 +405,19 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
         "worst_segment": {
           "axis": "x",
           "name": "corner_left..corner_right",
-          "scale": 1.105,
+          "scale": 1.127,
           "target_px": 1462.9,
-          "source_px": 1324
+          "source_px": 1298
         },
         "revealed_px": 0,
         "remeasured": {
-          "px_per_m_at_wall": 242.727,
-          "floor_line_y": 0.794922,
+          "px_per_m_at_wall": 226.364,
+          "floor_line_y": 0.773438,
           "corner_x0_px": 37,
-          "corner_x1_px": 1499,
-          "corner_scale_px_per_m": 243.667
+          "corner_x1_px": 1465,
+          "corner_scale_px_per_m": 238
         },
-        "warped_from": "backdrops/source/noodle_bar-S/row23-883dcbba.png",
+        "warped_from": "backdrops/source/noodle_bar-S/row23-4106c388.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"
       },
       "carriers": [
@@ -442,20 +442,20 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
       {
         "id": "win01",
         "kind": "window",
-        "x": 547,
-        "y": 290,
-        "w": 443,
-        "h": 316,
-        "sill_m": 0.857,
-        "head_m": 2.159,
-        "measured": true
+        "x": 572.95,
+        "y": 326.91,
+        "w": 390.1,
+        "h": 243.81,
+        "sill_m": 1,
+        "head_m": 2,
+        "measured": false
       }
     ],
     "window_evidence": {
-      "unpainted": 0,
+      "unpainted": 1,
       "read_by": "design/plan-draft/measured/window_measure.py",
       "ruled": 1,
-      "painted": 1,
+      "painted": 0,
       "unruled": [],
       "note": "every glazed opening the painting shows answers to a window the plan rules"
     }
@@ -667,12 +667,12 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "px_per_m_at_wall": 273.067,
     "px_per_m_at_bottom": 420.88,
     "wall_width_m": 5.6,
-    "key_tint": "#c8b69e",
+    "key_tint": "#c8bba6",
     "image_h_px": 1024,
     "horizon_y": 0.51377,
-    "key_dir": "C-ABOVE",
+    "key_dir": "C-BELOW",
     "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.10 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 276,
+    "calibration_px": 266,
     "camera_wall_m": 3.75,
     "facing_type": "enclosed",
     "wall_continuous": true,
@@ -700,11 +700,11 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
     "provisional": false,
     "measured": true,
     "backdrop": "wall",
-    "focal_px": 940.9,
+    "focal_px": 906.8,
     "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.153,
-      "wall_width_m": 5.978,
+      "storey_height_m": 3.25,
+      "wall_width_m": 4.652,
       "ruled_storey_height_m": 3.2,
       "ruled_wall_width_m": 5.6,
       "warp": {
@@ -735,19 +735,19 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
         "worst_segment": {
           "axis": "x",
           "name": "corner_left..corner_right",
-          "scale": 1.201,
+          "scale": 1.567,
           "target_px": 1529.2,
-          "source_px": 1273
+          "source_px": 976
         },
         "revealed_px": 0,
         "remeasured": {
-          "px_per_m_at_wall": 250.909,
-          "floor_line_y": 0.807617,
-          "corner_x0_px": 10,
-          "corner_x1_px": 1510,
-          "corner_scale_px_per_m": 267.857
+          "px_per_m_at_wall": 241.818,
+          "floor_line_y": 0.803711,
+          "corner_x0_px": 84,
+          "corner_x1_px": 1209,
+          "corner_scale_px_per_m": 200.893
         },
-        "warped_from": "backdrops/source/back_office-E/row23-746058a5.png",
+        "warped_from": "backdrops/source/back_office-E/row23-bac80793.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"
       },
       "carriers": [

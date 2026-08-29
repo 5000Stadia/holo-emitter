@@ -16,16 +16,16 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 |---|------|---------|-----------|---|-----------|------------|--------|--------|------------|---------|---------|
 | 1 | guest_chamber | ENSW | wall_upper | **8.96** | S-W | x4.33 | 1.095 | 1.000 | x3.36 | SW | mismatched |
 | 2 | closet_chamber | ENSW | wall_upper | **5.67** | S-W | x1.08 | 0.342 | 0.572 | x4.13 | W | mismatched |
-| 3 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
-| 4 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
-| 5 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
-| 6 | back_office | ENSW | wall_upper | **3.52** | S-W | x1.70 | 0.116 | 0.212 | x2.58 | — | consistent-incomplete |
+| 3 | back_office | ENSW | wall_upper | **4.34** | E-S | x1.40 | 0.165 | 0.111 | x3.18 | S | mismatched |
+| 4 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
+| 5 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
+| 6 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
 | 7 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
 | 8 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
 | 9 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
 | 10 | servants_hall | NSW | wall_upper | **2.75** | N-W | x1.12 | 0.165 | 0.455 | x1.99 | — | consistent-incomplete |
 | 11 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
-| 12 | noodle_bar | ENSW | wall_upper | **2.13** | S-W | x1.59 | 0.083 | 0.375 | x1.76 | — | consistent-incomplete |
+| 12 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
 | 13 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
 | 14 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
 | 15 | back_stair_head | NS | wall_upper | **1.72** | N-S | x1.20 | 0.158 | 0.678 | x1.43 | — | consistent-incomplete |
@@ -68,16 +68,16 @@ Every (room, band) spread in the store, worst first:
 ```
   8.96  guest_chamber        wall_upper
   5.67  closet_chamber       wall_upper
+  4.34  back_office          wall_upper
   4.14  master_bedchamber    ceiling
   3.90  garden_room          wall_lower
   3.62  long_gallery         floor
   3.56  master_bedchamber    wall_upper
-  3.52  back_office          wall_upper
   3.35  closet_chamber       wall_lower
   3.28  dining_parlour       ceiling
+  3.27  back_office          wall_lower
   2.98  long_gallery         wall_upper
   2.97  garden_room          floor
-  2.91  back_office          wall_lower
   2.87  kitchen              ceiling
   2.84  master_bedchamber    wall_lower
   2.75  great_hall           wall_upper
@@ -92,7 +92,7 @@ Every (room, band) spread in the store, worst first:
   2.50  garden_room          wall_upper
   2.46  solar                wall_upper
   2.41  great_hall           ceiling
-  2.13  noodle_bar           wall_upper
+  2.14  noodle_bar           wall_upper
   2.07  buttery_pantry       ceiling
   2.06  guest_chamber        ceiling
   2.04  buttery_pantry       wall_lower
