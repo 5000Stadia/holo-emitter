@@ -514,6 +514,162 @@ def test_mirror_fold_never_hits_a_hard_edge():
           out[2] != 0.0 and out[6] != 100.0)
 
 
+#: THE RETURN FIXTURE. A room drawn 15 % too large about the convergence, so
+#: the correction shrinks the wall and the two returns have to show more of
+#: themselves than were ever painted: at the right frame edge the field asks for
+#: source a hundred pixels past the picture. That band is the whole subject of
+#: this test.
+RETURN_STRIPE = (255, 0, 255)
+RETURN_PS = (0.25, 0.45, 0.65, 0.85)
+RETURN_HALF_P = 0.006
+FLATS = ((90, 90, 90), (40, 40, 40), (140, 140, 140), (70, 70, 70), (60, 60, 60))
+
+
+def return_boxes(k=1.15):
+    """A plan box whose right return is fully in frame, and the painting's."""
+    cx, cy = 768.0, 520.0
+    tgt = mw.snap.box(304.0, 1232.0, 260.0, 800.0, cx, cy)
+    src = mw.snap.box(cx + (tgt["x0"] - cx) * k, cx + (tgt["x1"] - cx) * k,
+                      cy + (tgt["yc"] - cy) * k, cy + (tgt["yf"] - cy) * k,
+                      cx, cy)
+    return src, tgt
+
+
+def paint_return_stripes(box, w=mw.W, h=mw.H):
+    """Five flat regions, and four stripes ruled ALONG the right return.
+
+    A stripe of constant `p` on a return is a straight line of the image through
+    the convergence — the return's own recession — so a fill that continues the
+    surface leaves it straight and a fill that folds a band in from the frame
+    edge breaks it into a zigzag. Nothing else in the frame is magenta.
+    """
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float64)
+    idx, p, q = mw.snap.assign(box, xs, ys)
+    rgb = np.zeros((h, w, 3), np.uint8)
+    for i, col in enumerate(FLATS):
+        rgb[idx == i] = col
+    right = idx == list(mw.snap.REGIONS).index("right")
+    for pv in RETURN_PS:
+        rgb[right & (np.abs(p - pv) < RETURN_HALF_P)] = RETURN_STRIPE
+    return rgb
+
+
+def return_junctions(box, x):
+    """The rows of the right return's floor and ceiling junction at column `x`."""
+    q = (box["x1"] - box["vx"]) / (x - box["vx"])
+    return (box["vy"] + (box["yf"] - box["vy"]) / q,
+            box["vy"] + (box["yc"] - box["vy"]) / q)
+
+
+def stripe_rows(out, x, lo, hi, thresh=20.0):
+    """The centroid row of every magenta run in column `x`, between `lo`/`hi`.
+
+    The weight is red-minus-green, which is the stripe's own coverage of the
+    pixel under a bilinear read and nothing else in this fixture.
+    """
+    col = out[:, int(x)].astype(np.float64)
+    wgt = np.clip(col[:, 0] - col[:, 1], 0.0, None)
+    wgt[:max(0, int(lo))] = 0.0
+    wgt[int(hi):] = 0.0
+    got, i, n = [], 0, len(wgt)
+    while i < n:
+        if wgt[i] <= thresh:
+            i += 1
+            continue
+        j = i
+        while j < n and wgt[j] > thresh:
+            j += 1
+        seg = wgt[i:j]
+        got.append(float((seg * np.arange(i, j)).sum() / seg.sum()))
+        i = j
+    return got
+
+
+def test_the_reveal_continues_the_return():
+    """[HUMAN] "it should stretch into the direction of the edge"."""
+    src, tgt = return_boxes()
+    painting = paint_return_stripes(src)
+    cols = [dict(name="corner_left", kind="room_corner",
+                 target=tgt["x0"], source=src["x0"]),
+            dict(name="corner_right", kind="room_corner",
+                 target=tgt["x1"], source=src["x1"])]
+    rows = [dict(name="ceiling_line", kind="room_corner",
+                 target=tgt["yc"], source=src["yc"]),
+            dict(name="floor_line", kind="room_corner",
+                 target=tgt["yf"], source=src["yf"])]
+    out, rep = mw.warp_with_axes(painting, src, tgt, cols, rows)
+    out = np.clip(np.round(out), 0, 255).astype(np.uint8)
+
+    # Where the reveal starts, read off the field itself rather than asserted.
+    mid = 0.5 * (tgt["yc"] + tgt["yf"])
+    gx = np.arange(float(tgt["x1"]), mw.W, 1.0)
+    gy = np.full_like(gx, mid)
+    sx, sy, _, _, _ = mw.plane_field_and_fill(
+        src, tgt, cols, rows, gx, gy,
+        extent=(0.0, mw.W - 1.0, 0.0, mw.H - 1.0))
+    over = np.nonzero((sx > mw.W - 1.0) | (sy > mw.H - 1.0))[0]
+    x_edge = int(gx[over[0]]) if len(over) else mw.W
+    band = mw.W - x_edge
+    check("the right return is revealed by at least 80 px",
+          band >= 80, "%d px, from x=%d, %d revealed in all"
+          % (band, x_edge, rep["revealed_px"]))
+    check("the fill is the plane's own recession, not a mirror",
+          rep.get("revealed_fill") == "plane_recession"
+          and rep.get("mirror_band_px") == 0, str(rep.get("revealed_fill")))
+
+    # EACH STRIPE'S ROW AT THE FRAME EDGE, against the row the return's own
+    # floor and ceiling junction lines put it at. On a return the two junctions
+    # bracket the plane, and a stripe at parameter p sits exactly p of the way
+    # between them at EVERY column — that is what "along the recession" means.
+    worst, seen = 0.0, []
+    for x in (mw.W - 2, mw.W - 20, mw.W - 40, x_edge + 6):
+        yf_, yc_ = return_junctions(tgt, float(x))
+        got = stripe_rows(out, x, yc_ + 6, yf_ - 6)
+        want = [yf_ + pv * (yc_ - yf_) for pv in RETURN_PS]
+        seen.append((x, len(got)))
+        if len(got) != len(want):
+            continue
+        for a, b in zip(sorted(got), sorted(want)):
+            worst = max(worst, abs(a - b))
+    check("every column still shows exactly the four stripes",
+          all(n == len(RETURN_PS) for _, n in seen), str(seen))
+    check("each stripe's row at the frame edge is the row its junction lines "
+          "extrapolate to", worst < 1.0, "worst %.3f px" % worst)
+
+    # AND IT IS STILL A STRAIGHT LINE. A ray from the convergence is straight in
+    # the image, so a line fitted to the stripe across the PAINTED part must hit
+    # its centroid in the REVEALED band.
+    xs_paint = np.arange(tgt["x1"] + 40.0, x_edge - 10.0, 8.0)
+    worst_line = 0.0
+    for k, pv in enumerate(RETURN_PS):
+        ys_paint, keep = [], []
+        for x in xs_paint:
+            yf_, yc_ = return_junctions(tgt, float(x))
+            got = sorted(stripe_rows(out, int(x), yc_ + 6, yf_ - 6))
+            if len(got) == len(RETURN_PS):
+                ys_paint.append(got[len(RETURN_PS) - 1 - k])
+                keep.append(float(x))
+        if len(keep) < 4:
+            continue
+        m, c = np.polyfit(np.array(keep), np.array(ys_paint), 1)
+        for x in range(x_edge + 4, mw.W - 1, 8):
+            yf_, yc_ = return_junctions(tgt, float(x))
+            got = sorted(stripe_rows(out, x, yc_ + 6, yf_ - 6))
+            if len(got) != len(RETURN_PS):
+                continue
+            worst_line = max(worst_line,
+                             abs(got[len(RETURN_PS) - 1 - k] - (m * x + c)))
+    check("the stripes run into the revealed band as straight lines",
+          worst_line < 1.0, "worst %.3f px off the line fitted to the paint"
+          % worst_line)
+
+    # NO REFLECTED COPY. A mirror fill answers a column d px past the boundary
+    # with the paint d px inside it; nothing in the band is that.
+    dup = [d for d in range(1, min(band, x_edge) )
+           if np.array_equal(out[:, x_edge + d], out[:, x_edge - d])]
+    check("no column of the revealed band is its own mirror", not dup, str(dup[:6]))
+
+
 def test_mls_modes_interpolate_exactly():
     p = np.array([100.0, 900.0, 900.0, 100.0])
     q = np.array([120.0, 880.0, 870.0, 90.0])
@@ -539,6 +695,7 @@ def main():
               test_missing_door_is_refused_by_name,
               test_crossed_pins_are_refused_by_name,
               test_the_seams_are_continuous,
+              test_the_reveal_continues_the_return,
               test_pairing_is_nearest_centre, test_mirror_fold_never_hits_a_hard_edge,
               test_mls_modes_interpolate_exactly):
         print(t.__name__)
