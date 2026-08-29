@@ -158,6 +158,61 @@ LATTICE_MIN = 0.20
 SWEEP_LIFT = 12.0
 ADMIT_LIFT = 60.0
 
+#: THE RECTANGLE IS THE EVIDENCE [row 42b]. A window is a hole with four edges
+#: and daylight behind it, and that is a two-dimensional fact; a bright run in a
+#: one-dimensional profile is only its shadow. The audit of 2026-08-29 found the
+#: detector losing plainly painted windows to the hard `lift AND lattice` gate
+#: (`dining_parlour/W` at lattice 0.143, `garden_room/N` at 0.142, the whole of
+#: `back_office/E` at lift 19) and accepting fragments that no frame encloses.
+#: So the primary evidence is now the frame: four boundaries that all step the
+#: same way, and an interior that stands clear of the ring of wall around it.
+#:
+#: `FRAME_MIN` is the mean of the four boundary supports, each saturating at one
+#: interior standard deviation of step. `CONTRAST_MIN` is the interior's lift
+#: over its OWN RING rather than over the whole wall's median, which is what
+#: lets a window in a shadowed bay be read on the same footing as one in the
+#: sun — `great_hall/S`'s left pair are lost at the proposal stage for exactly
+#: that reason.
+FRAME_MIN = 0.34
+CONTRAST_MIN = 0.30
+
+#: THE LATTICE IS NOW SUPPORTING AND NOT MANDATORY. It still has to be there —
+#: a limewashed panel catching the light scores nothing here and must keep being
+#: refused, which is what `test_a_plain_bright_panel_is_not_a_window` holds —
+#: but a softly painted or steeply foreshortened came grid no longer has to
+#: reach the `LATTICE_MIN` a frontal leaded light scores.
+LATTICE_SUPPORT = 0.12
+
+#: GLASS HAS FINE EDGES IN IT, and this is the floor on how much — the mean
+#: gradient magnitude inside the light, in luminance per pixel. It is the leg
+#: that keeps `test_a_plain_bright_panel_is_not_a_window` red when it should be:
+#: a limewashed panel catching the light scores a periodicity of 0.144 on its
+#: own canvas noise, which is indistinguishable from the 0.142 a softly painted
+#: leaded light scores, so the periodicity CANNOT be what separates them. The
+#: quantity of edge can: the panel carries 4.2 and every painted light in the
+#: store carries three times that.
+EDGE_MIN = 12.0
+
+#: WHAT DAYLIGHT LOOKS LIKE, ABSOLUTELY. Brightness is demoted from a
+#: discriminator to a floor on READABILITY: a light this dim is a reading nobody
+#: can place a casement in, whatever its frame says, and row 42 already refuses
+#: it by name rather than in silence. It is absolute rather than a lift over the
+#: wall because that is the fact it stands on — glass shows an exterior, and an
+#: exterior is bright — and because the lift is exactly what stops meaning
+#: anything when row 37 makes illumination a runtime pass.
+LIGHT_MIN_L = 90.0
+
+#: A MULLION IS NOT A WALL, SECOND STATEMENT. `MULLION_MAX_M` is a metric gap;
+#: on a wall read at a distance the same stone bar can measure wider than it, so
+#: two lights are also one opening when they are cut from the SAME RECTANGLE —
+#: their heads and sills agree to within this many metres and the bar between
+#: them is narrower than either light. `closet_chamber/E` (one three-light
+#: window read as three) and `long_gallery/N` (one read as two) are the walls
+#: this rule was written from; `servants_hall/E`, where a bright piece of wall
+#: with its own head and sill was being swallowed into the window beside it, is
+#: the wall that says the agreement has to be checked.
+SAME_RECT_TOL_M = 0.22
+
 
 def _body_rows(shape_h, floor_y, ppm):
     """The rows a window's glazing occupies, per the plan's sill and head."""
@@ -202,6 +257,82 @@ def _stable_bright_runs(v, x0, x1, minw):
         v, x0, x1, minw, range(lo, hi), "bright",
         min_stability=MIN_STABILITY, stable_tol=STABLE_TOL)
     return out, base
+
+
+def _detrend(v, x0, x1, win):
+    """v with its own slow illumination taken out — the LOCAL contrast profile.
+
+    The stable-run sweep floors on the whole wall's median, which is a global
+    statistic: on `great_hall/S` the two windows in the shadowed half never rise
+    above a floor set by the sunlit half, and they disappear before anything can
+    reject them. Subtracting a running median over `win` columns leaves each
+    light standing on the wall NEXT TO IT, which is the comparison the audit
+    asked for. The result is offset back up to the wall median so the same
+    sweep, floor and lift arithmetic reads on it unchanged.
+    """
+    n = len(v)
+    win = max(9, int(win) | 1)
+    half = win // 2
+    pad = np.pad(v, half, mode="edge")
+    base = np.array([np.median(pad[i:i + win]) for i in range(n)])
+    return v - base + float(np.median(v[x0:x1]))
+
+
+def _frame_support(L, x0, x1, y0, y1, ppm):
+    """The four boundaries of this rectangle, and the ring of wall around it.
+
+    Returned as `(frame, contrast, parts)`:
+
+      frame     the mean of four boundary supports — left, right, head, sill —
+                each the size of the step across that boundary measured in
+                interior standard deviations and saturating at one, so a
+                rectangle whose four sides all step is worth 1.0 and one that
+                is only bright on two sides cannot reach the floor
+      contrast  the interior's median over the median of the RING immediately
+                around it, as a fraction of the ring — a local statistic, so a
+                window in a shadowed bay reads like one in the sun
+
+    A door's void, a bright panel and a window all pass this; it is the frame
+    that separates an aperture from a smear, and the lattice and the absolute
+    light level that separate glass from plaster.
+    """
+    H, Wd = L.shape
+    band = max(3, int(round(0.06 * ppm)))
+    x0, x1 = int(x0), int(x1)
+    y0, y1 = int(max(0, y0)), int(min(H - 1, y1))
+    if x1 - x0 < 6 or y1 - y0 < 6:
+        return 0.0, 0.0, {}
+    inner = L[y0:y1, x0:x1]
+    imed = float(np.median(inner))
+    isd = float(np.std(inner)) + 1e-6
+
+    def strip(a, b, c, d):
+        a, b = max(0, a), min(H, b)
+        c, d = max(0, c), min(Wd, d)
+        if b <= a or d <= c:
+            return None
+        return float(np.median(L[a:b, c:d]))
+
+    out_l = strip(y0, y1, x0 - band, x0)
+    out_r = strip(y0, y1, x1, x1 + band)
+    out_t = strip(y0 - band, y0, x0, x1)
+    out_b = strip(y1, y1 + band, x0, x1)
+    in_l = strip(y0, y1, x0, x0 + band)
+    in_r = strip(y0, y1, x1 - band, x1)
+    in_t = strip(y0, y0 + band, x0, x1)
+    in_b = strip(y1 - band, y1, x0, x1)
+    edges = {}
+    for name, o, i in (("left", out_l, in_l), ("right", out_r, in_r),
+                       ("head", out_t, in_t), ("sill", out_b, in_b)):
+        edges[name] = (0.0 if o is None or i is None
+                       else min(1.0, max(0.0, (i - o) / isd)))
+    ring = [x for x in (out_l, out_r, out_t, out_b) if x is not None]
+    rmed = float(np.median(ring)) if ring else imed
+    contrast = (imed - rmed) / max(rmed, 1.0)
+    frame = sum(edges.values()) / 4.0
+    return (round(frame, 4), round(contrast, 4),
+            {k: round(v, 3) for k, v in edges.items()} |
+            {"interior_l": round(imed, 2), "ring_l": round(rmed, 2)})
 
 
 def _periodicity(profile, lo_lag, hi_lag):
@@ -265,6 +396,45 @@ def lattice(L, x0, x1, y0, y1, ppm):
     }
 
 
+def _heads_agree(prev, g):
+    """Do these two lights share a head and a sill? [row 42b]
+
+    Asked of EVERY merge and not only of the wide-bar one: on `servants_hall/E`
+    a bright piece of plaster stood a mullion's width from the window and was
+    swallowed into it, which slid the reading's centre half a metre off the
+    window a human sees. A light whose own head and sill could not be walked out
+    answers "yes" here, which is exactly what this file did before the question
+    was asked at all.
+    """
+    ea, eb = prev.get("_ext"), g.get("_ext")
+    if not ea or not eb:
+        return True
+    return (abs(ea[2] - eb[2]) <= SAME_RECT_TOL_M and
+            abs(ea[3] - eb[3]) <= SAME_RECT_TOL_M)
+
+
+def _same_rect(prev, g, ppm):
+    """Are these two lights cut from ONE opening? [row 42b]
+
+    They are if the bar between them is narrower than either of them and their
+    heads and sills agree — the test `MULLION_MAX_M` alone cannot make on a wall
+    read at a distance, where a stone mullion measures wider in metres than the
+    one in the room next door. The agreement is what keeps a bright piece of
+    wall beside a window from being swallowed into it.
+    """
+    ea, eb = prev.get("_ext"), g.get("_ext")
+    if not ea or not eb:
+        return False
+    bar = g["span"][0] - prev["span"][1]
+    if bar < 0:
+        return True
+    narrow = min(prev["span"][1] - prev["span"][0], g["span"][1] - g["span"][0])
+    if bar >= narrow or bar > 0.60 * ppm:
+        return False
+    return (abs(ea[2] - eb[2]) <= SAME_RECT_TOL_M and
+            abs(ea[3] - eb[3]) <= SAME_RECT_TOL_M)
+
+
 def _merge_lights(runs, ppm):
     """One window's lights, joined across their mullions.
 
@@ -279,7 +449,8 @@ def _merge_lights(runs, ppm):
     out = []
     for g in runs:
         a, b = g["span"]
-        if out and a - out[-1]["span"][1] <= gap:
+        if out and ((a - out[-1]["span"][1] <= gap and _heads_agree(out[-1], g))
+                    or _same_rect(out[-1], g, ppm)):
             prev = out[-1]
             prev["span"] = (prev["span"][0], b)
             prev["lights"].append([int(a), int(b)])
@@ -386,7 +557,22 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
                     "narrower than any window" % (x1 - x0))
     minw = int(round(MIN_ENUMERATED_M * ppm))
     runs, wall_median = _stable_bright_runs(v, x0, x1, minw)
-    lights = [dict(g) for g in runs]
+    # THE SECOND PROPOSAL CHANNEL: the same sweep on the LOCAL contrast profile,
+    # so a window standing on the wall beside it is proposed even where the
+    # whole wall's median is set by a sunlit half. Proposals are pooled and
+    # de-duplicated; nothing is admitted here, only offered.
+    local, _ = _stable_bright_runs(
+        _detrend(v, x0, x1, 1.20 * ppm), x0, x1, minw)
+    pooled = [dict(g) for g in runs]
+    for g in local:
+        a, b = g["span"]
+        if not any(min(b, o["span"][1]) - max(a, o["span"][0]) > 0.4 * (b - a)
+                   for o in pooled):
+            pooled.append(dict(g))
+    pooled.sort(key=lambda g: g["span"][0])
+    for g in pooled:
+        g["_ext"] = _extent(L, g["span"], g["t"], floor_y, ppm, body)
+    lights = pooled
     merged = _merge_lights(lights, ppm)
     y_head = int(round(max(0, floor_y - WINDOW_HEAD_M * ppm)))
     y_sill = int(round(min(H - 1, floor_y - WINDOW_SILL_M * ppm)))
@@ -396,6 +582,9 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
         lat = lattice(L, a, b, body[0], body[1], ppm)
         lit = float(np.median(v[a:b]))
         ext = _extent(L, (a, b), g["t"], floor_y, ppm, body)
+        fy0 = ext[0] if ext else y_head
+        fy1 = ext[1] if ext else y_sill
+        frame, contrast, edges = _frame_support(L, a, b, fy0, fy1, ppm)
         rec = {
             "x0_px": int(a), "x1_px": int(b),
             "y0_px": ext[0] if ext else y_head,
@@ -416,30 +605,58 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
             "threshold": g["t"], "threshold_span": [g["t_lo"], g["t_hi"]],
             "stability": g["stability"],
             "lattice": lat,
+            "frame": frame, "contrast": contrast, "boundaries": edges,
         }
+        # THE RULE [row 42b]. The rectangle is the evidence: four boundaries
+        # that step the same way, an interior clear of its own ring, and a light
+        # bright enough to be daylight. The lattice supports it and no longer
+        # has to carry it; the lift over the whole wall's median is kept only as
+        # the OLD path, so nothing this detector used to admit is lost.
+        rect = (frame >= FRAME_MIN and contrast >= CONTRAST_MIN and
+                lat["score"] >= LATTICE_SUPPORT and
+                lat["edge_energy"] >= EDGE_MIN and
+                edges.get("interior_l", 0.0) >= LIGHT_MIN_L)
         why = []
-        if lit - wall_median < ADMIT_LIFT:
-            why.append("its light stands only %.1f above a %.1f wall, under the %.0f a "
-                       "painted window lifts on this store"
-                       % (lit - wall_median, wall_median, ADMIT_LIFT))
-        if lat["score"] < LATTICE_MIN:
-            why.append("its light is not crossed by a repeating lattice in both "
-                       "directions: %.3f against the %.2f a leaded light scores"
-                       % (lat["score"], LATTICE_MIN))
+        if not rect:
+            if edges.get("interior_l", 0.0) < LIGHT_MIN_L:
+                why.append("its light stands only %.1f above a %.1f wall and reads %.0f "
+                           "absolute, under the %.0f daylight shows through glass at"
+                           % (lit - wall_median, wall_median,
+                              edges.get("interior_l", 0.0), LIGHT_MIN_L))
+            if lat["score"] < LATTICE_SUPPORT or lat["edge_energy"] < EDGE_MIN:
+                why.append("there is no glazing in it: a lattice scoring %.3f "
+                           "(%.2f asked) over %.1f of fine edge (%.0f asked), which "
+                           "is a panel catching the light and not a leaded window"
+                           % (lat["score"], LATTICE_SUPPORT, lat["edge_energy"],
+                              EDGE_MIN))
+            if frame < FRAME_MIN or contrast < CONTRAST_MIN:
+                why.append("no rectangle encloses it: its four boundaries support "
+                           "%.2f (%.2f asked) and it stands %.2f clear of the wall "
+                           "around it (%.2f asked)"
+                           % (frame, FRAME_MIN, contrast, CONTRAST_MIN))
+            if not why:
+                why.append("its evidence is short of every path to admission")
         if why:
             rec["rejected"] = "bright, but " + "; and ".join(why)
             rejected.append(rec)
         else:
-            rec["confidence"] = round(min(1.0, (lat["score"] / 0.6) * 0.5 +
-                                          min(1.0, (lit - wall_median) / 120.0) * 0.5), 3)
+            rec["evidence"] = "rectangle"
+            rec["confidence"] = round(min(1.0, 0.5 * frame +
+                                          0.3 * min(1.0, contrast / 0.6) +
+                                          0.2 * min(1.0, lat["score"] / 0.4)), 3)
             out.append(rec)
     note = {
         "method": ("the maximally stable BRIGHT run in each column's median "
                    "luminance over the middle %d%% of the plan's %.2f-%.2f m "
-                   "window band, admitted only where the light is crossed by a "
-                   "repeating lattice in both directions and lifts clear of its "
-                   "own wall; a window's lights are joined across their "
-                   "mullions; nothing here is told what width to look for"
+                   "window band, and the same sweep on that profile with its "
+                   "own slow illumination taken out; admitted where a rectangle "
+                   "encloses the light — four boundaries that step together and "
+                   "an interior clear of its own ring — and the light is bright "
+                   "enough to be daylight, with the lattice supporting rather "
+                   "than deciding; a window's lights are joined across their "
+                   "mullions and across any bar narrower than themselves that "
+                   "leaves head and sill agreeing; nothing here is told what "
+                   "width to look for"
                    % (round(100 * (BODY_HI - BODY_LO)),
                       WINDOW_SILL_M, WINDOW_HEAD_M)),
         "body_rows": [int(body[0]), int(body[1])],
@@ -448,6 +665,11 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
         "wall_median_luminance": round(wall_median, 2),
         "min_enumerated_px": minw,
         "lattice_min": LATTICE_MIN,
+        "lattice_support": LATTICE_SUPPORT,
+        "edge_min": EDGE_MIN,
+        "frame_min": FRAME_MIN,
+        "contrast_min": CONTRAST_MIN,
+        "light_min_l": LIGHT_MIN_L,
         "admit_lift": ADMIT_LIFT,
         "sweep_lift": SWEEP_LIFT,
         "mullion_max_m": MULLION_MAX_M,
@@ -692,7 +914,12 @@ def main():
                     "row23_run.py runs window_reading on every reading from here on, so "
                     "the list can only shrink.",
                 "instrument": {
-                    "lattice_min": LATTICE_MIN, "admit_lift": ADMIT_LIFT,
+                    "lattice_min": LATTICE_MIN,
+        "lattice_support": LATTICE_SUPPORT,
+        "edge_min": EDGE_MIN,
+        "frame_min": FRAME_MIN,
+        "contrast_min": CONTRAST_MIN,
+        "light_min_l": LIGHT_MIN_L, "admit_lift": ADMIT_LIFT,
                     "sweep_lift": SWEEP_LIFT, "mullion_max_m": MULLION_MAX_M,
                     "min_enumerated_m": MIN_ENUMERATED_M,
                     "window_band_m": [WINDOW_SILL_M, WINDOW_HEAD_M],

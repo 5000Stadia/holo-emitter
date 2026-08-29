@@ -106,7 +106,7 @@ function promoteMeta(key, doctor) {
   const [loc, fac] = key.split("/");
   const dir = mkdtempSync(join(tmpdir(), "holo-win-"));
   try {
-    for (const d of ["tools", "src", "fixtures", "index.html"]) {
+    for (const d of ["tools", "src", "fixtures", "packs", "index.html"]) {
       cpSync(join(repoRoot, d), join(dir, d), { recursive: true });
     }
     mkdirSync(join(dir, "design", "plan-draft"), { recursive: true });
