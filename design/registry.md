@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-PACK | row 44 step 0: the location is a pack (packs/manor: plan, voices, world; tools/pack.mjs; the engine stops knowing the manor) — capped per clause 10 | building |
+| B-PACK | row 44 step 0: builder 1 landed at the cap (129k tokens: packs/manor, tools/pack.mjs, 88/88 prompts byte-identical); builder 2 (capped) on the probe pack + measure/promote/loop constants | building (2 of 2) |
 | B-LEDGER | timings.jsonl rotation into daily gz archives behind one reader helper (the live file is 67 MB; GitHub warns at 50) | building |
 | B-WINDOWLIFT | the window detector follows the glazing (lattice primary, wall-normalised lift secondary); first builder killed by the 08-25 account limit, a takeover builder continues its branch | building (takeover) |
 
