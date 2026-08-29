@@ -42,3 +42,13 @@ measurement that decides) — never in a hand-retouched artifact, never in a per
 paragraph a future build would have to remember. The question asked of any fix at review:
 "does the NEXT map, with none of this conversation in context, get this for free?" If not,
 the miss is still open.
+
+
+## Clauses 7–12 — adopted 2026-08-28 from the method audit (design/audit/method-audit-2026-08-28.md), on Kabe's rulings
+
+7. **Deterministic by default.** A model call is licensed only where interpretation cannot be computed. In the build chain that is image generation, and nothing else. Any new model call must name the interpretive question it answers.
+8. **The theme never bleeds into the code.** The location is a PACK: `plan.json`, `voices.json` (materials in that world's language), `world.json` (era and medium sentences, the ruler and its height, refusal word lists). No room name, material, era, anchor height or vocabulary lives in `tools/`, `src/` or `design/plan-draft/measured/`. An unknown room refuses the pack; it never silently becomes another world.
+9. **Two tracks with a wall between them.** Pack track: building a location is one command chain (`build packs/<name>`), judged only by the deterministic instruments; nothing on it spawns a row, a builder or a critic. Engine track: changing the pipeline; rows and critics stay, under clause 10.
+10. **Caps.** A builder runs ≤40 assistant turns and ≤150k fresh tokens, reads a ≤10 KB slice of the corpus named in its brief, runs targeted tests in its loop and the full suite once at merge, and STOPS at the ceiling with a report. A finding spawns a clause (one named refusal or number with a before/after measurement), not a row; a row only when the same clause has failed twice.
+11. **A rule only a reader can execute is not a rule.** Every written decision rule becomes a script with an exit code, or is deleted.
+12. **Measure transitions, not polls.** The ledger records state changes; a loop that re-bakes an unchanged store is a defect.
