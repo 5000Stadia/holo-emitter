@@ -83,7 +83,15 @@ function readJson(name, path, what) {
 
 /** A path in a pack's own files, resolved against the repo root. */
 function underRoot(p) {
-  return isAbsolute(p) ? p : resolve(ROOT, p);
+  if (isAbsolute(p)) return p;
+  /* A STAGED COPY OF THE TOOLS (the suite copies index.html/src/fixtures/tools/
+   * packs into a scratch tree and runs them with cwd = the repo) has no design/
+   * or backdrops/ of its own: a pack path that does not exist under this file's
+   * root but does under the working directory is the working directory's. */
+  const here = resolve(ROOT, p);
+  if (existsSync(here)) return here;
+  const cwd = resolve(process.cwd(), p);
+  return existsSync(cwd) ? cwd : here;
 }
 
 /**

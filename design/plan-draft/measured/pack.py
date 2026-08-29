@@ -85,7 +85,13 @@ def _read_json(name, path, what):
 
 
 def _under_root(p):
-    return p if os.path.isabs(p) else os.path.normpath(os.path.join(REPO, p))
+    if os.path.isabs(p):
+        return p
+    here = os.path.normpath(os.path.join(REPO, p))
+    if os.path.exists(here):
+        return here
+    cwd = os.path.normpath(os.path.join(os.getcwd(), p))
+    return cwd if os.path.exists(cwd) else here
 
 
 _CACHE = {}

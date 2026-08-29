@@ -35,7 +35,7 @@ export const POINTER_VIEWPORT = { width: 1536, height: 1200 };
  * mutating the repo tree. */
 export function stageTree() {
   const dir = mkdtempSync(join(tmpdir(), "holo-emitter-"));
-  for (const p of ["index.html", "src", "fixtures", "tools"]) {
+  for (const p of ["index.html", "src", "fixtures", "tools", "packs"]) {
     cpSync(join(repoRoot, p), join(dir, p), { recursive: true });
   }
   /* [Row 21] The promoted paintings and their metas. Both halves are needed
