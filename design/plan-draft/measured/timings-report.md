@@ -3,37 +3,39 @@
 GENERATED FILE — the one truth is `design/plan-draft/measured/timings.jsonl`.
 Re-run: `python3 design/plan-draft/measured/timings_report.py`.
 
-41472 record(s) over 67.18 h, 2026-08-22 08:03:59 to 2026-08-25 03:14:53. 515 backfilled, 40957 measured live, 100 marker(s).
+221055 record(s) over 158.62 h, 2026-08-22 08:03:59 to 2026-08-28 22:41:17. 515 backfilled, 220540 measured live, 778 marker(s).
 
 ## Per step
 
 | step | n | p50 | p95 | min | max | total | per min | first | last |
 |---|--:|--:|--:|--:|--:|--:|--:|---|---|
 | `generate.roll` *(2 marker)* | 232 | 41.9 min | 1.83 h | 6.5 min | 1.83 h | 175.99 h | 0.4 | 08-23 01:51 | 08-23 11:23 |
-| `sweep.pass` | 575 | 27.93 s | 11.3 min | 17.18 s | 41.1 min | 22.37 h | 0.3 | 08-23 14:28 | 08-25 03:14 |
-| `measure.candidate` *(10 marker)* | 16834 | 4.20 s | 6.91 s | 1 ms | 2.2 min | 20.25 h | 6.6 | 08-23 04:14 | 08-24 22:27 |
+| `sweep.pass` | 5424 | 22.58 s | 31.41 s | 8.54 s | 41.1 min | 53.19 h | 0.7 | 08-23 14:28 | 08-28 22:41 |
+| `bake.sweep` | 5365 | 17.20 s | 23.70 s | 9.87 s | 1.6 min | 26.75 h | 0.7 | 08-23 16:22 | 08-28 22:41 |
+| `bake.backdrops` *(8 marker)* | 5385 | 16.72 s | 23.03 s | 9.44 s | 3.3 min | 26.14 h | 0.6 | 08-22 08:03 | 08-28 22:41 |
+| `measure.candidate` *(10 marker)* | 16841 | 4.20 s | 6.91 s | 1 ms | 2.2 min | 20.26 h | 5.4 | 08-23 04:14 | 08-25 08:32 |
 | `dev.round` | 19 | 23.8 min | 56.5 min | 9.4 min | 2.74 h | 10.74 h | 0.1 | 08-23 11:56 | 08-23 14:41 |
+| `promote.wall` *(2 marker)* | 105729 | 3 ms | 277 ms | 1 ms | 67.85 s | 3.60 h | 12.8 | 08-23 05:15 | 08-28 22:40 |
 | `seat.dead_air` | 1 | 3.33 h | 3.33 h | 3.33 h | 3.33 h | 3.33 h | 0.0 | 08-23 12:35 | 08-23 15:55 |
-| `bake.backdrops` *(8 marker)* | 531 | 20.42 s | 41.96 s | 9.44 s | 3.3 min | 3.33 h | 0.1 | 08-22 08:03 | 08-25 03:14 |
-| `bake.sweep` | 517 | 20.94 s | 42.04 s | 9.87 s | 1.6 min | 3.32 h | 0.2 | 08-23 16:22 | 08-25 03:14 |
-| `promote.wall` *(2 marker)* | 13568 | 4 ms | 469 ms | 1 ms | 67.85 s | 39.5 min | 4.9 | 08-23 05:15 | 08-25 03:14 |
+| `derive.sweep` | 4814 | 1.54 s | 1.63 s | 1.31 s | 36.07 s | 2.10 h | 0.9 | 08-25 03:58 | 08-28 22:40 |
 | `snap.wall` | 87 | 12.66 s | 25.94 s | 8.12 s | 47.43 s | 22.1 min | 0.1 | 08-24 06:04 | 08-24 21:46 |
-| `supersede.wall` | 50 | 11.63 s | 31.60 s | 0 ms | 40.88 s | 11.4 min | 0.5 | 08-24 20:49 | 08-24 22:27 |
-| `publish.site` *(1 marker)* | 19 | 21.97 s | 49.36 s | 18.38 s | 62.16 s | 8.5 min | 0.0 | 08-23 03:41 | 08-25 02:03 |
-| `exit.snap` | 46 | 7.92 s | 13.02 s | 3.08 s | 14.40 s | 6.2 min | 0.2 | 08-24 19:04 | 08-24 22:27 |
-| `publish.verify` | 18 | 10.30 s | 10.57 s | 10.13 s | 50.86 s | 3.8 min | 0.0 | 08-23 14:28 | 08-25 02:03 |
-| `bake.fixtures` | 1036 | 131 ms | 555 ms | 56 ms | 1.70 s | 3.1 min | 0.5 | 08-23 16:22 | 08-25 03:14 |
-| `promote.backdrop` | 5330 | 16 ms | 45 ms | 2 ms | 2.43 s | 2.2 min | 2.3 | 08-23 12:26 | 08-25 03:14 |
+| `bake.fixtures` | 10760 | 133 ms | 166 ms | 56 ms | 1.70 s | 21.3 min | 1.4 | 08-23 16:22 | 08-28 22:41 |
+| `publish.site` *(1 marker)* | 25 | 22.82 s | 62.16 s | 18.38 s | 5.2 min | 15.6 min | 0.0 | 08-23 03:41 | 08-28 17:19 |
+| `supersede.wall` | 59 | 14.55 s | 29.58 s | 0 ms | 40.88 s | 13.9 min | 0.1 | 08-24 20:49 | 08-25 08:32 |
+| `validate.sweep` | 5259 | 144 ms | 158 ms | 111 ms | 633 ms | 12.9 min | 0.9 | 08-24 19:07 | 08-28 22:40 |
+| `promote.backdrop` | 44137 | 16 ms | 21 ms | 2 ms | 2.43 s | 12.9 min | 5.6 | 08-23 12:26 | 08-28 22:40 |
+| `publish.verify` | 24 | 10.30 s | 50.86 s | 10.13 s | 5.1 min | 9.7 min | 0.0 | 08-23 14:28 | 08-28 17:19 |
+| `exit.snap` | 54 | 7.81 s | 12.21 s | 3.08 s | 14.40 s | 7.1 min | 0.1 | 08-24 19:04 | 08-25 08:32 |
+| `derive.regen` | 54 | 285 ms | 32.60 s | 15 ms | 36.06 s | 7.1 min | 0.1 | 08-25 01:48 | 08-25 08:34 |
 | `exit.route` | 13 | 9.70 s | 13.26 s | 3.36 s | 13.55 s | 2.1 min | 4.5 | 08-24 19:04 | 08-24 19:07 |
-| `emit.run` | 13 | 4.58 s | 8.82 s | 1.86 s | 18.06 s | 69.79 s | 0.0 | 08-24 07:31 | 08-25 03:12 |
-| `validate.sweep` | 411 | 132 ms | 330 ms | 111 ms | 633 ms | 69.06 s | 0.8 | 08-24 19:07 | 08-25 03:13 |
-| `emit.facing` | 192 | 104 ms | 666 ms | 16 ms | 1.62 s | 32.38 s | 0.1 | 08-23 03:55 | 08-25 03:12 |
-| `emit.packet` | 192 | 16 ms | 36 ms | 0 ms | 529 ms | 5.25 s | 0.1 | 08-23 03:55 | 08-25 03:12 |
+| `emit.run` | 18 | 3.41 s | 8.82 s | 1.86 s | 18.06 s | 1.5 min | 0.0 | 08-24 07:31 | 08-25 08:29 |
+| `emit.facing` | 201 | 109 ms | 666 ms | 16 ms | 1.62 s | 34.91 s | 0.1 | 08-23 03:55 | 08-25 08:29 |
+| `lint.prompts` | 18 | 206 ms | 1.76 s | 3 ms | 4.82 s | 10.91 s | 0.0 | 08-24 09:49 | 08-28 22:27 |
+| `emit.packet` | 201 | 14 ms | 36 ms | 0 ms | 529 ms | 5.28 s | 0.1 | 08-23 03:55 | 08-25 08:29 |
 | `exit.voidrepair` | 2 | 1.53 s | 2.65 s | 1.53 s | 2.65 s | 4.17 s | 0.0 | 08-24 19:04 | 08-24 21:11 |
-| `lint.prompts` | 8 | 453 ms | 1.76 s | 3 ms | 1.76 s | 4.16 s | 0.0 | 08-24 09:49 | 08-25 03:12 |
 | `exit.tolerance` | 12 | 274 ms | 400 ms | 220 ms | 719 ms | 3.87 s | 6.9 | 08-24 19:05 | 08-24 19:07 |
-| `park.wall` *(77 marker)* | 1760 | 0 ms | 0 ms | 0 ms | 0 ms | 2 ms | 0.9 | 08-23 19:53 | 08-25 03:14 |
-| `baton.stalled` | 6 | 0 ms | 0 ms | 0 ms | 0 ms | 0 ms | 0.0 | 08-23 20:55 | 08-25 03:13 |
+| `park.wall` *(755 marker)* | 16311 | 0 ms | 0 ms | 0 ms | 0 ms | 16 ms | 2.2 | 08-23 19:53 | 08-28 22:40 |
+| `baton.stalled` | 10 | 0 ms | 0 ms | 0 ms | 0 ms | 0 ms | 0.0 | 08-23 20:55 | 08-25 08:29 |
 
 ## The camera gate, per register
 
@@ -42,10 +44,11 @@ Re-run: `python3 design/plan-draft/measured/timings_report.py`.
 | register | camera pass | of | rate | most recent return |
 |---|--:|--:|--:|---|
 | `g4` | 14 | 20 | 70% | 2026-08-24 22:27 |
+| `g5-noappendix` | 3 | 8 | 38% | 2026-08-25 08:32 |
 
 ## The top contributor
 
-**`generate.roll` — 175.99 h of 241.02 h of measured wall-clock (73.0%), over 232 event(s), p50 41.9 min.**
+**`generate.roll` — 175.99 h of 324.22 h of measured wall-clock (54.3%), over 232 event(s), p50 41.9 min.**
 
 ## Idle gaps
 
@@ -88,27 +91,31 @@ Longest waits at `emit.packet` -> `generate.roll`: closet_chamber/W 73.2 min; cl
 
 Recent window: last 10 event(s) of a step. Baseline: everything before it, at least 5 event(s). Flag at recent p50 >= 1.50x baseline p50.
 
-- **REGRESSION `promote.wall`** — recent p50 325 ms against a baseline p50 of 4 ms over 13556 event(s): **77.21x**. p95 1.13 s against 468 ms.
-- **REGRESSION `emit.facing`** — recent p50 415 ms against a baseline p50 of 96 ms over 182 event(s): **4.32x**. p95 1.62 s against 629 ms.
-- **REGRESSION `promote.backdrop`** — recent p50 46 ms against a baseline p50 of 16 ms over 5320 event(s): **2.88x**. p95 133 ms against 45 ms.
+- **REGRESSION `emit.facing`** — recent p50 269 ms against a baseline p50 of 104 ms over 191 event(s): **2.59x**. p95 614 ms against 666 ms.
+- **REGRESSION `emit.run`** — recent p50 4.57 s against a baseline p50 of 2.60 s over 8 event(s): **1.76x**. p95 18.06 s against 8.15 s.
 
-- steady `bake.backdrops` — recent p50 25.50 s against 20.33 s (1.25x).
-- steady `bake.fixtures` — recent p50 162 ms against 131 ms (1.24x).
-- steady `bake.sweep` — recent p50 26.02 s against 20.84 s (1.25x).
+- steady `bake.backdrops` — recent p50 17.29 s against 16.72 s (1.03x).
+- steady `bake.fixtures` — recent p50 80 ms against 133 ms (0.60x).
+- steady `bake.sweep` — recent p50 17.76 s against 17.20 s (1.03x).
+- steady `derive.regen` — recent p50 251 ms against 4.96 s (0.05x).
+- steady `derive.sweep` — recent p50 1.59 s against 1.54 s (1.03x).
 - steady `dev.round` — recent p50 15.1 min against 43.2 min (0.35x).
-- steady `emit.packet` — recent p50 1 ms against 16 ms (0.06x).
-- steady `exit.snap` — recent p50 9.42 s against 7.48 s (1.26x).
+- steady `emit.packet` — recent p50 2 ms against 16 ms (0.13x).
+- steady `exit.snap` — recent p50 5.11 s against 8.14 s (0.63x).
 - steady `generate.roll` — recent p50 16.8 min against 45.0 min (0.37x).
-- steady `measure.candidate` — recent p50 4.72 s against 4.20 s (1.13x).
+- steady `lint.prompts` — recent p50 69 ms against 453 ms (0.15x).
+- steady `measure.candidate` — recent p50 4.77 s against 4.20 s (1.14x).
 - steady `park.wall` — recent p50 0 ms against 0 ms (1.00x).
-- steady `publish.site` — recent p50 22.73 s against 21.89 s (1.04x).
-- steady `publish.verify` — recent p50 10.25 s against 10.34 s (0.99x).
+- steady `promote.backdrop` — recent p50 17 ms against 16 ms (1.06x).
+- steady `promote.wall` — recent p50 3 ms against 3 ms (1.05x).
+- steady `publish.site` — recent p50 21.22 s against 22.73 s (0.93x).
+- steady `publish.verify` — recent p50 10.28 s against 10.30 s (1.00x).
 - steady `snap.wall` — recent p50 16.35 s against 12.52 s (1.31x).
-- steady `supersede.wall` — recent p50 15.17 s against 10.28 s (1.48x).
-- steady `sweep.pass` — recent p50 31.56 s against 27.84 s (1.13x).
-- steady `validate.sweep` — recent p50 150 ms against 132 ms (1.14x).
+- steady `supersede.wall` — recent p50 13.27 s against 14.55 s (0.91x).
+- steady `sweep.pass` — recent p50 23.29 s against 22.58 s (1.03x).
+- steady `validate.sweep` — recent p50 146 ms against 144 ms (1.01x).
 
-Not yet checkable (a step needs 15 event(s) before it has a baseline to regress against): `baton.stalled` (6), `emit.run` (13), `exit.route` (13), `exit.tolerance` (12), `exit.voidrepair` (2), `lint.prompts` (8), `seat.dead_air` (1).
+Not yet checkable (a step needs 15 event(s) before it has a baseline to regress against): `baton.stalled` (10), `exit.route` (13), `exit.tolerance` (12), `exit.voidrepair` (2), `seat.dead_air` (1).
 
 ## What the backfill cannot know
 
@@ -122,8 +129,4 @@ Every backfilled record above is derived from a file's mtime or a commit, and ea
 ## The question this is here to ask
 
 [HUMAN, 2026-08-24] "how can this be faster while maintaining quality" — and quality is the constraint, not the casualty: no gate is weakened for speed, and these clocks sit BESIDE the pass rates in `misses.jsonl` per production law clause 5. The numbers above answer the first half; the second half is the gates' own, and neither is allowed to move the other.
-- 2026-08-25 03:15 tick — nominal: services up, loop pass 53 s; three ratio flags all sub-second at p50 (promote.wall 4 ms, promote.backdrop 16 ms, emit.facing 104 ms — the ratio flag's absolute floor is doing its job). The seat had gone idle with the two servants'-hall packets owed for ~1 h; the watchdog nudged it and it is working again. Faster while keeping quality: the seat's idle-before-nudge is the STALE_S=900 s window — with the seat now reading only backdrops/AGENTS.md, a 300 s window costs nothing and cuts the worst idle by 10 min per stall.
-- 2026-08-25 — register scoreboard: g5-noappendix camera 0/4 on production, all four on servants_hall E/W, all +10..+17 % focal (wall drawn too large, corners right, materials right); the incumbent g4 went 2/4 on the same two walls. Production stays on g5 (no flip on one hard room); the scale fact the coordinates carried ("one metre covers N columns") is added in words (the wall's share of the picture's width). Decision rule: if g5 is under g4's trailing rate after 20 returns across ≥5 rooms, production reverts to g4 with the appendix reinstated as the harness's next question.
-- 2026-08-25 tick — services up, loop passing; flags sub-second (emit.facing) or the known one-time supersede cost. Published 97f4df3. Register scoreboard g5-noappendix 1/6 camera on production (all servants_hall) vs g4 trailing 70%; the one pass (E, third ask with scale-in-words) was then refused by row 42's `window.unpainted` gate on a frame that plainly paints its window — the detector's lift discriminator on a bright limewash wall. Faster while keeping quality: a camera-PASS frame refused by a content detector should still go into the supersede judgement with the content clause recorded, not dropped — one wasted 3-minute return per false refusal.
-- 2026-08-25 tick — nominal: services up, loop passing, one sub-second flag. Register scoreboard g5-noappendix 2/7 camera (still all servants_hall) vs g4 70%; two returns were refused by a correct content gate (scaffold boxes painted as doorways — B-SCAFFOLD). Faster while keeping quality: no new number this tick; the seat is the clock (one return per ~3 min) and the register's camera rate is the throughput lever.
-- 2026-08-28 tick — first sample after the three-day account outage (weekly limit, reset 08-28): services stayed up throughout, loop passing (56 s), ledger 210k records. Flags sub-second. Register scoreboard g5-noappendix 3/8 camera vs g4 70% — still all one hard room. One promoted wall owed a publish; published. B-WINDOWLIFT was killed mid-run by the limit; resumed.
+- 2026-08-28 — the 2-hour Navigator sampling tick is RETIRED (clause 12: measure transitions, not polls). Three duplicate ticks had been firing every two hours, each an LLM turn, for four days; the last ~20 were all "nominal". Stalls are the watchdog's (baton-watch, a script with an exit code); regressions are `timings_report.py --monitor`, run by hand or by the publish preflight. Last reading: services up, nothing owed, g5 3/8 vs g4 70%.
