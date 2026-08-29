@@ -1,56 +1,77 @@
-# Row 42b — the window detector against a human label
+# The reveal fill extends each surface along its own recession
 
-Brief: `design/audit/window-detector-memo-2026-08-29.txt`, steps 1–5.
+Brief: [HUMAN, 2026-08-29, verbatim, on `backdrops/back_office/S.png`] "back
+office S has the edge effect where it stretches off the screen. Visually when
+this is used, it doesn't stretch the edge off in the continuous direction that
+the angles of the room already go. It should stretch into the direction of the
+edge for example. The bottom right edge should be stretched to the bottom right
+edge in the top right edge should be stretched to the top right edge. If this is
+skewed in this way, it will at least look better than the alternative directions
+that they are being skewed."
 
-## 1. The two window-test harness regressions
+## 1. The rule
 
-- `test_window_measure.py::test_the_ruled_band_matches_the_one_the_asks_name`
-  scraped `WINDOW_SILL_M = <literal>` out of `tools/room-voices.mjs`, which no
-  longer declares them — it reads them from `packs/<name>/world.json`'s
-  `world.conventions`. The case now asks node for the export itself (with the
-  pack file as the fallback), so it is still an assertion across the language
-  boundary and not a regex on a file that moved.
-- `tests/playwright/windows.spec.mjs::promoteMeta` staged `tools src fixtures
-  index.html` into its scratch tree and ran the real promotion there; the
-  promotion reaches the active pack through `tools/pack.mjs`, so every staged
-  case died on a missing `packs/`. `packs` is now staged with the rest.
+A revealed pixel — one whose target-to-source coordinate lands past the painted
+extent — is not a stray coordinate. It lies on a NAMED surface, and that surface
+has two axes of its own. A receding plane's image is `V + U/q`: every point of
+it at depth `q` sits on the ray from the convergence `V` in the fixed direction
+`U` that its across-wall parameter names, and `s = 1/q` is how far out along
+that ray. So the fill keeps the pixel's plane and its ACROSS parameter untouched
+and clamps only its DEPTH, to `1/s_max`, where `s_max` is the ray-box exit of
+that plane's own receding line against the painted extent (`ray_exit`). The last
+painted texel of the surface is therefore extended along the receding line it
+already sits on: a return continues out to its own side edge, the floor's
+bottom-corner region continues toward the bottom corner, and every straight line
+of the painting that recedes stays that same straight line out to the frame. On
+the wall plane, whose axes are the frame's own, the same rule is the coordinate
+clamp. The extension cross-fades into the paint over `FILL_FADE_PX = 24` px
+measured DOWN THE RECESSION — `s` turned into picture by the length of that
+plane's own seam ray — and not perpendicular to the frame edge; a plane with
+nothing revealed on it is not faded at all. Nothing is mirrored: `warp_with_axes`
+now samples through `resample_clamped`. The v1 scattered-pin fields (`tps`, the
+three MLS modes) know of no surfaces, so they keep `mirror_fold` and say so.
 
-`python3 design/plan-draft/measured/test_window_measure.py` — 9/9 green.
+## 2. What did not change
 
-## 2. The corpus and the evaluator
+The pins, the separable wall-plane field and the seam blend are untouched — the
+new `plane_field_and_fill` is the old `wall_plane_field` with the fill computed
+alongside it, and `wall_plane_field` is now a two-value wrapper on it.
+`max_residual_px` is 0.0 on both proof frames, the four seam checks still read
+0.023 px across a 0.02 px step, and `revealed_px` on `back_office/S` is 76800
+under both fills — the same field, priced the same way, filled differently.
 
-`design/plan-draft/measured/window_labels.json` — 80 frames, 48 windows, 46
-frames with none: every promoted wall in `backdrops/` (63 manor + 8
-cyberpunk-2) and all 9 `servants_hall/E` candidates. Each rectangle is the
-INNER GLAZED APERTURE, read by eye off the picture at 1/3 scale on a 128 px
-grid and multiplied back. `_how` in the file says it in full.
+## 3. The tests
 
-`design/plan-draft/measured/window_eval.py` scores the detector against it:
-order-preserving assignment (not nearest-centre), paired within 0.35 m of
-centre, false positives, false negatives, median centre error in metres.
+`python3 design/plan-draft/measured/test_mesh_warp.py` — all checks pass, 9
+cases. New: `test_the_reveal_continues_the_return`, a room drawn 15 % too large
+about the convergence with four stripes ruled ALONG the right return (constant
+`p`, which on a return is a straight line of the image through the convergence).
 
-## 3–4. Before / after
+    the right return is revealed by at least 80 px      101 px, from x=1435
+    every column still shows exactly the four stripes   4, 4, 4, 4
+    each stripe's row at the frame edge is the row its
+      junction lines extrapolate to                     worst 0.313 px
+    the stripes run into the revealed band as straight
+      lines (fitted to the paint, read in the band)     worst 0.218 px
+    no column of the revealed band is its own mirror    []
 
-                             before         after
-    labelled windows         48             48
-    paired                   32             35
-    false positives          12             9
-    false negatives          16             13
-    median centre error m    0.059          0.056
-    p95 centre error m       0.187          0.187
-    walls with exact count   69             70
+## 4. The proof — `design/batches/warp-fill/`
 
-Acceptance: `back_office/E` and `noodle_bar/S` are now read; `dining_parlour/W`
-and `garden_room/N` (lattice 0.143 / 0.142) are read; `great_hall/S`'s left
-pair are proposed for the first time. NOT MET on `servants_hall/E`: the wall
-still reads one candidate whose centre is 0.53 m off the window, because a
-bright field of plaster beside the light is merged into it — the head/sill
-agreement now asked of every merge does not separate them there. It is a
-proposal-stage defect on that wall and is the first thing the next pass owes.
+`back_office/S` (cyberpunk-2, `row23-7fc68c04.png`): 76800 px revealed, 122653
+px carrying some fill, 70454 px changed against the mirror (4.5 % of the frame).
+BEFORE: at the left frame edge the skirting and the dado rail hit the edge and
+break into a sharp chevron, and the foam grid doubles back on itself — the
+zigzag Kabe named. AFTER: the same rails run straight into the edge and off it,
+and the band beyond is a directional streak drawn down the recession toward the
+bottom-left corner. At the top right the return streaks up-right to the corner
+and the ceiling junction leaves the frame straight. It reads as the room
+continuing. The honest cost is that the extended band IS a streak — the foam
+grid's own texture does not survive in it, and the floor plate's dot rows are
+drawn out into lines — but it goes the way the room goes and no line kinks.
 
-## 5. Untouched
-
-`tools/promote-backdrop.mjs` (windows stay recorded in `window_evidence`, never
-gated) and `mesh_warp.py`. The memo's greedy nearest-centre pairing lives in
-`mesh_warp.py:558-589` and so was out of scope here; the order-preserving
-assignment in this row is the evaluator's own.
+`garden_room/S` (manor, `row23-ab42bebe.png`): `revealed_px` 0. This facing is
+wider than the lens, so the declared corners fall outside the frame, no return
+is in shot and the warp never asks for a pixel beyond the painted extent. The
+before and after frames are the same picture. An honest null: this frame had
+nothing for the fill to do, and the second proof Kabe asked for does not
+demonstrate the change.

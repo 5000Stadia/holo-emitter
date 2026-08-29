@@ -148,11 +148,17 @@ MARGIN AND REVEAL
 -----------------
 A source with more field than the declared frame is used: the extra band is
 centred and the landmarks are offset into it. Where the warp still reaches past
-the source, the sample is folded back into the nearest 24 px band by a
-mirror-repeat rather than clamped, so an over-reach reads as an echo of the
-adjacent wall and never as a smeared hard edge. Every such pixel is counted and
-reported as `revealed_px`; NOTHING refuses on it. The reveal is the honest cost
-of a correction and the Navigator prices it, not this file.
+the source, the `plane` field EXTENDS THE SURFACE THE PIXEL LIES ON ALONG THAT
+SURFACE'S OWN RECESSION: the revealed pixel keeps its plane and its across-wall
+parameter and only its depth is clamped, to where that plane's own receding line
+leaves the painted extent. A return therefore continues out to its own side
+edge and the floor continues toward its own bottom corner - the directions the
+room's angles already go - and the extension cross-fades into the paint over
+24 px measured DOWN THE RECESSION rather than in from the frame. Nothing is
+mirrored; the v1 scattered-pin fields, which know of no surfaces, keep the fold.
+Every over-reaching pixel is counted and reported as `revealed_px`; NOTHING
+refuses on it. The reveal is the honest cost of a correction and the Navigator
+prices it, not this file.
 
 WHAT THIS DOES NOT DO
 ---------------------
@@ -232,6 +238,13 @@ CORNER_SPAN_RATIO = 2.5
 #: outward only, so the wall plane itself is never blended and its straightness
 #: is not a tolerance but a property.
 SEAM_BLEND_PX = 24
+
+#: THE FILL FADE. How deep, measured ALONG THE PLANE'S OWN RECESSION and not in
+#: from the frame edge, the extended texels cross-fade into the painted ones.
+#: Same quarter-inch of picture the seam band uses, for the same reason: it is
+#: long enough that a plaster grain dissolves into the extension instead of
+#: stopping at a line, and short enough that nothing structural is softened.
+FILL_FADE_PX = 24
 
 #: Two axis pins nearer than this in BOTH target and source are saying the same
 #: thing - a door whose measured sill IS the measured floor line, which is
@@ -414,6 +427,23 @@ def resample(rgb, sx, sy, band=MIRROR_BAND_PX):
     fx, dx = mirror_fold(sx, 0.0, w - 1.0, band)
     fy, dy = mirror_fold(sy, 0.0, h - 1.0, band)
     revealed = (dx > 0) | (dy > 0)
+    return _bilinear(rgb, fx, fy), revealed
+
+
+def resample_clamped(rgb, sx, sy):
+    """Bilinear resample of `rgb` at `(sx, sy)`, coordinates clamped, no fold.
+
+    The `plane` field's own sampler. Any clamp that MATTERS has already been
+    taken in the surface's own parameters, along its receding lines; this one is
+    the belt to that brace and never bites by more than rounding.
+    """
+    h, w = rgb.shape[:2]
+    return _bilinear(rgb, np.clip(sx, 0.0, w - 1.0), np.clip(sy, 0.0, h - 1.0))
+
+
+def _bilinear(rgb, fx, fy):
+    """Bilinear read of `rgb` at coordinates already inside the picture."""
+    h, w = rgb.shape[:2]
     x0 = np.floor(fx).astype(np.int64)
     y0 = np.floor(fy).astype(np.int64)
     tx = (fx - x0)[..., None]
@@ -428,7 +458,7 @@ def resample(rgb, sx, sy, band=MIRROR_BAND_PX):
     d = rgb[y1, x1].astype(np.float64)
     top = a + (b - a) * tx
     bot = c + (d - c) * tx
-    return top + (bot - top) * ty, revealed
+    return top + (bot - top) * ty
 
 
 def local_stretch(sx, sy):
@@ -934,8 +964,29 @@ def axis_segments(entries):
     return segs
 
 
-def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
-    """The v2 target-to-source field: separable on the wall, projective off it.
+def ray_exit(vx, vy, ux, uy, extent):
+    """The largest `s >= 0` with `(vx, vy) + s * (ux, uy)` inside `extent`.
+
+    A receding plane's image is `V + U/q`: every point of it at depth `q` sits
+    on the ray from the convergence `V` in the fixed direction `U` that its
+    ACROSS parameter names, and `s = 1/q` is how far out along that ray. So the
+    last painted texel of a receding line is a ray-box exit and nothing more,
+    and this is the whole of the geometry the fill needs.
+    """
+    shape = np.broadcast(np.asarray(ux), np.asarray(uy)).shape
+    s = np.full(shape, np.inf)
+    for u, v, lo, hi in ((np.asarray(ux, float), vx, extent[0], extent[1]),
+                         (np.asarray(uy, float), vy, extent[2], extent[3])):
+        safe = np.where(u == 0.0, 1.0, u)
+        t = np.where(u > 0.0, (hi - v) / safe,
+                     np.where(u < 0.0, (lo - v) / safe, np.inf))
+        s = np.minimum(s, t)
+    return np.maximum(s, 0.0)
+
+
+def plane_field_and_fill(src_box, tgt_box, cols, rows, gx, gy,
+                         band=SEAM_BLEND_PX, extent=None, fade=FILL_FADE_PX):
+    """The v2 target-to-source field, and the FILL each surface's own recession gives.
 
     Inside the wall rectangle the answer is exactly `(f(x), g(y))` - separable,
     so no straight line of the painting can leave the output bent. Outside it,
@@ -943,6 +994,46 @@ def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
     wall-junction parameter carried through the same `f` or `g` so that the two
     descriptions agree to floating point along the seam. Between them, a
     `band` px cross-fade OUTSIDE the rectangle only.
+
+    THE FILL: EACH SURFACE EXTENDED ALONG ITS OWN RECESSION
+    -------------------------------------------------------
+    [HUMAN, 2026-08-29, on `back_office/S.png`, verbatim] "back office S has the
+    edge effect where it stretches off the screen. Visually when this is used,
+    it doesn't stretch the edge off in the continuous direction that the angles
+    of the room already go. It should stretch into the direction of the edge for
+    example. The bottom right edge should be stretched to the bottom right edge
+    in the top right edge should be stretched to the top right edge."
+
+    A revealed pixel is one whose target-to-source coordinate lands past the
+    painted extent. It is NOT a stray coordinate: it lies on a named surface -
+    a return, the floor, the ceiling - and that surface has two axes of its own.
+    The old fill mirrored a 24 px band straight in from the FRAME edge, which
+    crosses every one of those axes at an angle and folds the return's foam grid
+    back on itself in a zigzag exactly where the eye reads the room's depth.
+
+    So: the revealed pixel keeps its plane and its ACROSS parameter, and only
+    its DEPTH is clamped - to `1/s_max`, where `s_max` is where that plane's own
+    receding line leaves the painted extent. The last painted texel of the
+    surface is therefore extended ALONG the receding line it sits on: the
+    floor's bottom-corner region continues toward the bottom corner, a return
+    continues toward its own side edge, and every straight line of the painting
+    that recedes stays that same straight line out to the frame. Nothing is
+    mirrored and nothing is filled perpendicular to the frame.
+
+    ON THE WALL PLANE, whose axes are the frame's own, the same rule IS the
+    coordinate clamp: the plane does not recede, so its last painted texel
+    extends straight along x or y.
+
+    `extent` is `(xlo, xhi, ylo, yhi)` - the painted picture in the SOURCE
+    BOX's coordinates, margin included. With `extent=None` no fill is computed
+    and the weight comes back all zero.
+
+    Returns `(sx, sy, ex, ey, w)`: the field, the fill's coordinates, and the
+    weight the fill is mixed in at. `w` is 1 wherever the field over-reaches and
+    eases to 0 over `fade` px measured ALONG THE PLANE - `s` converted to output
+    pixels by the length of that plane's own seam ray - so the extended texels
+    and the painted ones meet in a cross-fade that runs down the recession
+    rather than across the frame edge.
     """
     tx, sxp = axis_arrays(cols)
     ty, syp = axis_arrays(rows)
@@ -954,6 +1045,23 @@ def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
     yc, yf = tgt_box["yc"], tgt_box["yf"]
     sx0, sx1 = src_box["x0"], src_box["x1"]
     syc, syf = src_box["yc"], src_box["yf"]
+    svx, svy = src_box["vx"], src_box["vy"]
+
+    # The wall plane's own fill: a clamp along x and along y, which on a plane
+    # that does not recede IS its last texel extended along its own axes.
+    if extent is None:
+        ewx, ewy, ww = wx, wy, np.zeros_like(wx)
+    else:
+        xlo, xhi, ylo, yhi = extent
+        ewx = np.clip(wx, xlo, xhi)
+        ewy = np.clip(wy, ylo, yhi)
+        if np.any((wx < xlo) | (wx > xhi) | (wy < ylo) | (wy > yhi)):
+            inside = np.minimum(np.minimum(wx - xlo, xhi - wx),
+                                np.minimum(wy - ylo, yhi - wy))
+            ww = 1.0 - smoothstep(inside / float(fade))
+        else:
+            ww = np.zeros_like(wx)
+    ehx, ehy, wh = np.array(ewx, float), np.array(ewy, float), np.array(ww, float)
 
     dx = np.maximum(np.maximum(x0 - gx, gx - x1), 0.0)
     dy = np.maximum(np.maximum(yc - gy, gy - yf), 0.0)
@@ -983,19 +1091,79 @@ def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
             mm[m] = ok
             hx[mm] = ux[ok]
             hy[mm] = uy[ok]
+            if extent is None:
+                ehx[mm] = ux[ok]
+                ehy[mm] = uy[ok]
+                continue
+            # THE RECEDING LINE this pixel sits on, in the SOURCE: from the
+            # convergence through the seam point its across-parameter names.
+            one = np.ones_like(np.asarray(p2, float))
+            jx, jy = snap.image(src_box, r, p2, one)
+            rx, ry = jx - svx, jy - svy
+            smax = ray_exit(svx, svy, rx, ry, extent)
+            sreq = 1.0 / np.where(np.abs(qq) < 1e-12, 1e-12, qq)
+            suse = np.minimum(sreq, smax)
+            fx = np.clip(svx + suse * rx, xlo, xhi)
+            fy = np.clip(svy + suse * ry, ylo, yhi)
+            # How far inside the last painted texel this pixel lies, measured in
+            # OUTPUT pixels ALONG THE SAME RECEDING LINE: `s` is a ratio, and
+            # the length of the target's own seam ray is what turns it into
+            # picture. Zero at the boundary, `fade` px in is untouched paint.
+            tjx, tjy = snap.image(tgt_box, r, pp, one)
+            reach = np.hypot(tjx - tgt_box["vx"], tjy - tgt_box["vy"])
+            gap = np.maximum(smax - sreq, 0.0) * reach
+            wf = 1.0 - smoothstep(gap / float(fade))
+            # A plane with nothing revealed on it is not faded at all: the fade
+            # exists to ease INTO an extension, and where there is none it would
+            # only smear the paint at the frame edge for no picture.
+            if not np.any(sreq > smax):
+                wf = np.zeros_like(wf)
+            ehx[mm] = fx[ok]
+            ehy[mm] = fy[ok]
+            wh[mm] = wf[ok]
     # 1 on and inside the seam, 0 at `band` px out. The wall rectangle is all
     # at d == 0, so nothing inside it is ever blended.
     a = 1.0 - smoothstep(d / float(band))
-    return a * wx + (1.0 - a) * hx, a * wy + (1.0 - a) * hy
+    return (a * wx + (1.0 - a) * hx,
+            a * wy + (1.0 - a) * hy,
+            a * ewx + (1.0 - a) * ehx,
+            a * ewy + (1.0 - a) * ehy,
+            a * ww + (1.0 - a) * wh)
+
+
+def wall_plane_field(src_box, tgt_box, cols, rows, gx, gy, band=SEAM_BLEND_PX):
+    """The v2 target-to-source field alone, without the fill. See above."""
+    sx, sy, _, _, _ = plane_field_and_fill(src_box, tgt_box, cols, rows,
+                                           gx, gy, band=band, extent=None)
+    return sx, sy
 
 
 def warp_with_axes(rgb, src_box, tgt_box, cols, rows, offset=(0.0, 0.0),
-                   band=MIRROR_BAND_PX, seam=SEAM_BLEND_PX):
-    """Resample `rgb` onto the declared frame through the separable wall field."""
+                   band=MIRROR_BAND_PX, seam=SEAM_BLEND_PX, fade=FILL_FADE_PX):
+    """Resample `rgb` onto the declared frame through the separable wall field.
+
+    Where the field reaches past the painted extent the sample is not folded and
+    not smeared perpendicular to the frame: it is the SURFACE the pixel lies on,
+    extended along that surface's own receding lines. See
+    `plane_field_and_fill`. `band` is accepted and ignored — the plane field
+    owns no mirror — and is kept so a caller written against the v1 signature
+    still runs.
+    """
     ox, oy = offset
+    hs, ws = rgb.shape[:2]
+    #: The painted picture, in the SOURCE BOX's coordinates: the margin the
+    #: candidate carries beyond the declared frame is real paint and the fill
+    #: must use every pixel of it before it extends anything.
+    extent = (-ox, ws - 1.0 - ox, -oy, hs - 1.0 - oy)
     ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
-    sx, sy = wall_plane_field(src_box, tgt_box, cols, rows, xs, ys, band=seam)
-    out, revealed = resample(rgb, sx + ox, sy + oy, band=band)
+    sx, sy, ex, ey, wfill = plane_field_and_fill(
+        src_box, tgt_box, cols, rows, xs, ys, band=seam, extent=extent,
+        fade=fade)
+    revealed = ((sx < extent[0]) | (sx > extent[1])
+                | (sy < extent[2]) | (sy > extent[3]))
+    painted = resample_clamped(rgb, sx + ox, sy + oy)
+    extended = resample_clamped(rgb, ex + ox, ey + oy)
+    out = painted + (extended - painted) * np.asarray(wfill)[..., None]
 
     tx, sxp = axis_arrays(cols)
     ty, syp = axis_arrays(rows)
@@ -1020,7 +1188,10 @@ def warp_with_axes(rgb, src_box, tgt_box, cols, rows, offset=(0.0, 0.0),
         max_residual_px=round(max(e["residual_px"] for e in cols + rows), 4),
         revealed_px=int(revealed.sum()),
         revealed_fraction=round(float(revealed.mean()), 5),
-        warp_mode="plane", mirror_band_px=band, seam_blend_px=seam,
+        revealed_fill="plane_recession",
+        fill_fade_px=fade,
+        filled_px=int((np.asarray(wfill) > 0.0).sum()),
+        warp_mode="plane", mirror_band_px=0, seam_blend_px=seam,
         column_count=len(cols), row_count=len(rows))
     return out, report
 
