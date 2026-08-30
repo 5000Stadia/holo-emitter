@@ -9,23 +9,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "window",
-        "door"
-      ],
-      "declared_ppm": 115.70621468926554,
-      "declared": {
-        "ppm": 115.70621468926554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6474418476341808,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -76.65536723163837,
-        "corner_x1_px": 1612.6553672316384,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 8.85,
-        "wall_width_m": 14.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_hall/E": {
       "voice": "hall_state",
@@ -35,21 +21,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 93.51598173515983,
-      "declared": {
-        "ppm": 93.51598173515983,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6218060609303653,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 333.15068493150676,
-        "corner_x1_px": 1202.8493150684933,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 10.95,
-        "wall_width_m": 9.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_hall/S": {
       "voice": "hall_state",
@@ -59,25 +33,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window",
-        "door",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 115.70621468926554,
-      "declared": {
-        "ppm": 115.70621468926554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6474418476341808,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -76.65536723163837,
-        "corner_x1_px": 1612.6553672316384,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 8.85,
-        "wall_width_m": 14.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_hall/W": {
       "voice": "hall_state",
@@ -87,22 +45,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door",
-        "door"
-      ],
-      "declared_ppm": 93.51598173515983,
-      "declared": {
-        "ppm": 93.51598173515983,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6218060609303653,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 333.15068493150676,
-        "corner_x1_px": 1202.8493150684933,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 10.95,
-        "wall_width_m": 9.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "study/N": {
       "voice": "parlour_wainscot",
@@ -112,21 +57,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace"
-      ],
-      "declared_ppm": 235.40229885057474,
-      "declared": {
-        "ppm": 235.40229885057474,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7857235542385058,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 126.52873563218384,
-        "corner_x1_px": 1409.4712643678163,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.35,
-        "wall_width_m": 5.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "study/E": {
       "voice": "parlour_wainscot",
@@ -136,21 +69,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 167.11980440097796,
-        "corner_x1_px": 1368.880195599022,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "study/S": {
       "voice": "parlour_wainscot",
@@ -160,22 +81,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 265.97402597402595,
-      "declared": {
-        "ppm": 265.97402597402595,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8210422585227273,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 43.220779220779264,
-        "corner_x1_px": 1492.7792207792209,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.85,
-        "wall_width_m": 5.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "study/W": {
       "voice": "parlour_wainscot",
@@ -186,18 +94,8 @@
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 167.11980440097796,
-        "corner_x1_px": 1368.880195599022,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.8
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair/N": {
       "voice": "back_stair",
@@ -208,18 +106,8 @@
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 329.2604501607717,
-      "declared": {
-        "ppm": 329.2604501607717,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8941553833400322,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -129.2347266881029,
-        "corner_x1_px": 1665.234726688103,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.11,
-        "wall_width_m": 5.45
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair/E": {
       "voice": "back_stair",
@@ -229,21 +117,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 248.48899755501213,
-        "corner_x1_px": 1287.5110024449878,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.15
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair/S": {
       "voice": "back_stair",
@@ -254,18 +130,8 @@
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 276.7567567567567,
-      "declared": {
-        "ppm": 276.7567567567567,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8334992609797297,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 13.837837837837924,
-        "corner_x1_px": 1522.162162162162,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.7,
-        "wall_width_m": 5.45
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair/W": {
       "voice": "back_stair",
@@ -275,21 +141,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 248.48899755501213,
-        "corner_x1_px": 1287.5110024449878,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.15
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "hall/N": {
       "voice": "cross_passage",
@@ -299,21 +153,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 476.27906976744185,
-      "declared": {
-        "ppm": 476.27906976744185,
-        "image_h_px": 1024,
-        "floor_line_y": 1.0640020893895348,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -1580.0558139534883,
-        "corner_x1_px": 2230.1767441860466,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 2.15,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "hall/E": {
       "voice": "cross_passage",
@@ -323,21 +165,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "corridor",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 546.1333333333333,
-        "corner_x1_px": 989.8666666666667,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 2.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "hall/S": {
       "voice": "cross_passage",
@@ -347,21 +177,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 476.27906976744185,
-      "declared": {
-        "ppm": 476.27906976744185,
-        "image_h_px": 1024,
-        "floor_line_y": 1.0640020893895348,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -1818.1953488372092,
-        "corner_x1_px": 1992.0372093023257,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 2.15,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "hall/W": {
       "voice": "cross_passage",
@@ -371,21 +189,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "corridor",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 546.1333333333333,
-        "corner_x1_px": 989.8666666666667,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 2.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "kitchen/N": {
       "voice": "service",
@@ -395,21 +201,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 157.78120184899845,
-      "declared": {
-        "ppm": 157.78120184899845,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6960499626829738,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 136.8751926040062,
-        "corner_x1_px": 1399.1248073959937,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.49,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "kitchen/E": {
       "voice": "service",
@@ -419,21 +213,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 29.866666666666674,
-        "corner_x1_px": 1506.1333333333332,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "kitchen/S": {
       "voice": "service",
@@ -443,22 +225,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "window"
-      ],
-      "declared_ppm": 157.78120184899845,
-      "declared": {
-        "ppm": 157.78120184899845,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6960499626829738,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 136.8751926040062,
-        "corner_x1_px": 1399.1248073959937,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.49,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "kitchen/W": {
       "voice": "service",
@@ -468,21 +237,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 29.866666666666674,
-        "corner_x1_px": 1506.1333333333332,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "buttery_pantry/N": {
       "voice": "service",
@@ -492,21 +249,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 227.55555555555554,
-      "declared": {
-        "ppm": 227.55555555555554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7766584201388889,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -142.22222222222217,
-        "corner_x1_px": 1678.2222222222222,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.5,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "buttery_pantry/E": {
       "voice": "service",
@@ -516,21 +261,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 345.6,
-        "corner_x1_px": 1190.4,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 4.95
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "buttery_pantry/S": {
       "voice": "service",
@@ -540,21 +273,9 @@
       "ceiling": "ceiling/smoke-darkened-joists",
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 227.55555555555554,
-      "declared": {
-        "ppm": 227.55555555555554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7766584201388889,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -142.22222222222217,
-        "corner_x1_px": 1678.2222222222222,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.5,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "buttery_pantry/W": {
       "voice": "service",
@@ -565,18 +286,8 @@
       "floor": "floor/worn-stone-flags",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 345.6,
-        "corner_x1_px": 1190.4,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 4.95
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "servants_hall/N": {
       "voice": "servants_hall",
@@ -586,21 +297,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/red-brick-on-edge",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 147.39393939393938,
-        "corner_x1_px": 1388.6060606060605,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "servants_hall/E": {
       "voice": "servants_hall",
@@ -610,22 +309,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/red-brick-on-edge",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "fireplace"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 166.4000000000001,
-        "corner_x1_px": 1369.6,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 7.05
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "servants_hall/S": {
       "voice": "servants_hall",
@@ -635,21 +321,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/red-brick-on-edge",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 147.39393939393938,
-        "corner_x1_px": 1388.6060606060605,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "servants_hall/W": {
       "voice": "servants_hall",
@@ -659,22 +333,9 @@
       "ceiling": "ceiling/plain-exposed-joists",
       "floor": "floor/red-brick-on-edge",
       "facing_type": "enclosed",
-      "carriers": [
-        "door",
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 166.4000000000001,
-        "corner_x1_px": 1369.6,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 7.05
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "dining_parlour/N": {
       "voice": "parlour_armorial",
@@ -684,22 +345,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "door"
-      ],
-      "declared_ppm": 143.2167832167832,
-      "declared": {
-        "ppm": 143.2167832167832,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6792240767045454,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 137.84615384615392,
-        "corner_x1_px": 1398.1538461538462,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.15,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "dining_parlour/E": {
       "voice": "parlour_armorial",
@@ -709,21 +357,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 178.42424242424238,
-        "corner_x1_px": 1357.5757575757575,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 7.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "dining_parlour/S": {
       "voice": "parlour_armorial",
@@ -733,22 +369,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 143.2167832167832,
-      "declared": {
-        "ppm": 143.2167832167832,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6792240767045454,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 137.84615384615392,
-        "corner_x1_px": 1398.1538461538462,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.15,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "dining_parlour/W": {
       "voice": "parlour_armorial",
@@ -758,21 +381,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 178.42424242424238,
-        "corner_x1_px": 1357.5757575757575,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 7.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_stair_hall/N": {
       "voice": "great_stair",
@@ -782,21 +393,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 196.9230769230769,
-      "declared": {
-        "ppm": 196.9230769230769,
-        "image_h_px": 1024,
-        "floor_line_y": 0.74126953125,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -98.46153846153845,
-        "corner_x1_px": 1634.4615384615386,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 5.2,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_stair_hall/E": {
       "voice": "great_stair",
@@ -806,21 +405,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 329.69696969696963,
-        "corner_x1_px": 1206.3030303030305,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 5.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_stair_hall/S": {
       "voice": "great_stair",
@@ -830,21 +417,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 196.9230769230769,
-      "declared": {
-        "ppm": 196.9230769230769,
-        "image_h_px": 1024,
-        "floor_line_y": 0.74126953125,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -98.46153846153845,
-        "corner_x1_px": 1634.4615384615386,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 5.2,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "great_stair_hall/W": {
       "voice": "great_stair",
@@ -854,21 +429,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 329.69696969696963,
-        "corner_x1_px": 1206.3030303030305,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 5.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "library/N": {
       "voice": "parlour_wainscot",
@@ -878,21 +441,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 17.066666666666606,
-        "corner_x1_px": 1518.9333333333334,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "library/E": {
       "voice": "parlour_wainscot",
@@ -902,21 +453,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 267.6363636363636,
-        "corner_x1_px": 1268.3636363636365,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 6.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "library/S": {
       "voice": "parlour_wainscot",
@@ -926,22 +465,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 17.066666666666606,
-        "corner_x1_px": 1518.9333333333334,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "library/W": {
       "voice": "parlour_wainscot",
@@ -951,22 +477,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 267.6363636363636,
-        "corner_x1_px": 1268.3636363636365,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 6.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "garden_room/N": {
       "voice": "garden_parlour",
@@ -976,21 +489,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/square-stone-paviours",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 330.3225806451613,
-      "declared": {
-        "ppm": 330.3225806451613,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8953824344758065,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -685.4193548387098,
-        "corner_x1_px": 2221.4193548387098,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.1,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "garden_room/E": {
       "voice": "garden_parlour",
@@ -1000,21 +501,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/square-stone-paviours",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 492.6060606060606,
-        "corner_x1_px": 1043.3939393939395,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 3.55
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "garden_room/S": {
       "voice": "garden_parlour",
@@ -1024,21 +513,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/square-stone-paviours",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 330.3225806451613,
-      "declared": {
-        "ppm": 330.3225806451613,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8953824344758065,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -685.4193548387098,
-        "corner_x1_px": 2221.4193548387098,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.1,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "garden_room/W": {
       "voice": "garden_parlour",
@@ -1049,72 +526,32 @@
       "floor": "floor/square-stone-paviours",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 492.6060606060606,
-        "corner_x1_px": 1043.3939393939395,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 3.55
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "entrance_court/N": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window",
-        "door",
-        "window",
-        "window",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 119.76608187134502,
-      "declared": {
-        "ppm": 119.76608187134502,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6521321043494153,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -453.61403508771923,
-        "corner_x1_px": 1989.6140350877192,
-        "storey_height_m": null,
-        "camera_wall_m": 8.55,
-        "wall_width_m": 20.4
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "entrance_court/E": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 66.9281045751634,
-      "declared": {
-        "ppm": 66.9281045751634,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5910897926879085,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 466.8235294117647,
-        "corner_x1_px": 1069.1764705882354,
-        "storey_height_m": null,
-        "camera_wall_m": 15.3,
-        "wall_width_m": 9
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "entrance_court/S": {
       "voice": "outdoors_open",
@@ -1140,27 +577,15 @@
     },
     "entrance_court/W": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 66.9281045751634,
-      "declared": {
-        "ppm": 66.9281045751634,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5910897926879085,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 466.8235294117647,
-        "corner_x1_px": 1069.1764705882354,
-        "storey_height_m": null,
-        "camera_wall_m": 15.3,
-        "wall_width_m": 9
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "privy_garden/N": {
       "voice": "outdoors_walled",
@@ -1171,91 +596,44 @@
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 200.78431372549022,
-      "declared": {
-        "ppm": 200.78431372549022,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7457303155637256,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -1280,
-        "corner_x1_px": 2816,
-        "storey_height_m": null,
-        "camera_wall_m": 5.1,
-        "wall_width_m": 20.4
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "privy_garden/E": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 66.9281045751634,
-      "declared": {
-        "ppm": 66.9281045751634,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5910897926879085,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 582.2745098039215,
-        "corner_x1_px": 953.7254901960785,
-        "storey_height_m": null,
-        "camera_wall_m": 15.3,
-        "wall_width_m": 5.55
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "privy_garden/S": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "door",
-        "window"
-      ],
-      "declared_ppm": 200.78431372549022,
-      "declared": {
-        "ppm": 200.78431372549022,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7457303155637256,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -1280,
-        "corner_x1_px": 2816,
-        "storey_height_m": null,
-        "camera_wall_m": 5.1,
-        "wall_width_m": 20.4
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "privy_garden/W": {
       "voice": "outdoors_walled",
-      "walls": "wall/manor-exterior-elevation",
-      "walls_key": "walls_with_openings",
+      "walls": "wall/garden-brick-english-bond",
+      "walls_key": "walls",
       "field": null,
       "ceiling": null,
       "floor": "floor/raked-gravel-box-turf",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 66.9281045751634,
-      "declared": {
-        "ppm": 66.9281045751634,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5910897926879085,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 582.2745098039215,
-        "corner_x1_px": 953.7254901960785,
-        "storey_height_m": null,
-        "camera_wall_m": 15.3,
-        "wall_width_m": 5.55
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "entrance_approach/N": {
       "voice": "outdoors_walled",
@@ -1357,23 +735,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 115.70621468926554,
-      "declared": {
-        "ppm": 115.70621468926554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6474418476341808,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -76.65536723163837,
-        "corner_x1_px": 1612.6553672316384,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 8.85,
-        "wall_width_m": 14.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "solar/E": {
       "voice": "great_chamber",
@@ -1383,22 +747,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door",
-        "door"
-      ],
-      "declared_ppm": 93.51598173515983,
-      "declared": {
-        "ppm": 93.51598173515983,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6218060609303653,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 333.15068493150676,
-        "corner_x1_px": 1202.8493150684933,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 10.95,
-        "wall_width_m": 9.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "solar/S": {
       "voice": "great_chamber",
@@ -1408,24 +759,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 115.70621468926554,
-      "declared": {
-        "ppm": 115.70621468926554,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6474418476341808,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -76.65536723163837,
-        "corner_x1_px": 1612.6553672316384,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 8.85,
-        "wall_width_m": 14.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "solar/W": {
       "voice": "great_chamber",
@@ -1435,21 +771,9 @@
       "ceiling": "ceiling/lime-plaster-ribs",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 93.51598173515983,
-      "declared": {
-        "ppm": 93.51598173515983,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6218060609303653,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 333.15068493150676,
-        "corner_x1_px": 1202.8493150684933,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 10.95,
-        "wall_width_m": 9.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "muniment_room/N": {
       "voice": "parlour_wainscot",
@@ -1459,21 +783,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace"
-      ],
-      "declared_ppm": 235.40229885057474,
-      "declared": {
-        "ppm": 235.40229885057474,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7857235542385058,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 126.52873563218384,
-        "corner_x1_px": 1409.4712643678163,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.35,
-        "wall_width_m": 5.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "muniment_room/E": {
       "voice": "parlour_wainscot",
@@ -1483,21 +795,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 167.11980440097796,
-        "corner_x1_px": 1368.880195599022,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "muniment_room/S": {
       "voice": "parlour_wainscot",
@@ -1507,22 +807,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 265.97402597402595,
-      "declared": {
-        "ppm": 265.97402597402595,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8210422585227273,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 43.220779220779264,
-        "corner_x1_px": 1492.7792207792209,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.85,
-        "wall_width_m": 5.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "muniment_room/W": {
       "voice": "parlour_wainscot",
@@ -1532,21 +819,9 @@
       "ceiling": "ceiling/parchment-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 167.11980440097796,
-        "corner_x1_px": 1368.880195599022,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair_head/N": {
       "voice": "back_stair",
@@ -1557,18 +832,8 @@
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 329.2604501607717,
-      "declared": {
-        "ppm": 329.2604501607717,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8941553833400322,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -129.2347266881029,
-        "corner_x1_px": 1665.234726688103,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.11,
-        "wall_width_m": 5.45
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair_head/E": {
       "voice": "back_stair",
@@ -1578,21 +843,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 248.48899755501213,
-        "corner_x1_px": 1287.5110024449878,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.15
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair_head/S": {
       "voice": "back_stair",
@@ -1603,18 +856,8 @@
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 276.7567567567567,
-      "declared": {
-        "ppm": 276.7567567567567,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8334992609797297,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 13.837837837837924,
-        "corner_x1_px": 1522.162162162162,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.7,
-        "wall_width_m": 5.45
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "back_stair_head/W": {
       "voice": "back_stair",
@@ -1624,21 +867,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 250.36674816625919,
-      "declared": {
-        "ppm": 250.36674816625919,
-        "image_h_px": 1024,
-        "floor_line_y": 0.803011585039731,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 248.48899755501213,
-        "corner_x1_px": 1287.5110024449878,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 4.09,
-        "wall_width_m": 4.15
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "long_gallery/N": {
       "voice": "long_gallery",
@@ -1648,21 +879,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "corridor",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 56.2019758507135,
-      "declared": {
-        "ppm": 56.2019758507135,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5786981810853458,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 543.192096597146,
-        "corner_x1_px": 992.807903402854,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 18.22,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "long_gallery/E": {
       "voice": "long_gallery",
@@ -1672,25 +891,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "fireplace",
-        "window",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 135.6291390728477,
-      "declared": {
-        "ppm": 135.6291390728477,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6704582729718543,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -879.8940397350996,
-        "corner_x1_px": 2415.8940397351,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.55,
-        "wall_width_m": 24.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "long_gallery/S": {
       "voice": "long_gallery",
@@ -1700,21 +903,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "corridor",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 56.2019758507135,
-      "declared": {
-        "ppm": 56.2019758507135,
-        "image_h_px": 1024,
-        "floor_line_y": 0.5786981810853458,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 543.192096597146,
-        "corner_x1_px": 992.807903402854,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 18.22,
-        "wall_width_m": 8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "long_gallery/W": {
       "voice": "long_gallery",
@@ -1724,26 +915,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window",
-        "door",
-        "door",
-        "window",
-        "window"
-      ],
-      "declared_ppm": 135.6291390728477,
-      "declared": {
-        "ppm": 135.6291390728477,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6704582729718543,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -879.8940397350996,
-        "corner_x1_px": 2415.8940397351,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.55,
-        "wall_width_m": 24.3
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "master_bedchamber/N": {
       "voice": "bedchamber",
@@ -1753,22 +927,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "door"
-      ],
-      "declared_ppm": 143.2167832167832,
-      "declared": {
-        "ppm": 143.2167832167832,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6792240767045454,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 137.84615384615392,
-        "corner_x1_px": 1398.1538461538462,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.15,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "master_bedchamber/E": {
       "voice": "bedchamber",
@@ -1778,22 +939,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 178.42424242424238,
-        "corner_x1_px": 1357.5757575757575,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 7.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "master_bedchamber/S": {
       "voice": "bedchamber",
@@ -1803,22 +951,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 143.2167832167832,
-      "declared": {
-        "ppm": 143.2167832167832,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6792240767045454,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 137.84615384615392,
-        "corner_x1_px": 1398.1538461538462,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 7.15,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "master_bedchamber/W": {
       "voice": "bedchamber",
@@ -1828,21 +963,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 178.42424242424238,
-        "corner_x1_px": 1357.5757575757575,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 7.6
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "stair_landing/N": {
       "voice": "great_stair",
@@ -1852,21 +975,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 196.9230769230769,
-      "declared": {
-        "ppm": 196.9230769230769,
-        "image_h_px": 1024,
-        "floor_line_y": 0.74126953125,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -98.46153846153845,
-        "corner_x1_px": 1634.4615384615386,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 5.2,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "stair_landing/E": {
       "voice": "great_stair",
@@ -1876,21 +987,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 329.69696969696963,
-        "corner_x1_px": 1206.3030303030305,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 5.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "stair_landing/S": {
       "voice": "great_stair",
@@ -1900,21 +999,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 196.9230769230769,
-      "declared": {
-        "ppm": 196.9230769230769,
-        "image_h_px": 1024,
-        "floor_line_y": 0.74126953125,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -98.46153846153845,
-        "corner_x1_px": 1634.4615384615386,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 5.2,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "stair_landing/W": {
       "voice": "great_stair",
@@ -1924,21 +1011,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/broad-oak-treads-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 329.69696969696963,
-        "corner_x1_px": 1206.3030303030305,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 5.65
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "guest_chamber/N": {
       "voice": "bedchamber",
@@ -1948,21 +1023,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 17.066666666666606,
-        "corner_x1_px": 1518.9333333333334,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "guest_chamber/E": {
       "voice": "bedchamber",
@@ -1973,18 +1036,8 @@
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 267.6363636363636,
-        "corner_x1_px": 1268.3636363636365,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 6.45
-      }
+      "declared_ppm": null,
+      "declared": null
     },
     "guest_chamber/S": {
       "voice": "bedchamber",
@@ -1994,22 +1047,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "fireplace",
-        "door"
-      ],
-      "declared_ppm": 170.66666666666666,
-      "declared": {
-        "ppm": 170.66666666666666,
-        "image_h_px": 1024,
-        "floor_line_y": 0.7109361979166666,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 17.066666666666606,
-        "corner_x1_px": 1518.9333333333334,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "guest_chamber/W": {
       "voice": "bedchamber",
@@ -2019,22 +1059,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window",
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 267.6363636363636,
-        "corner_x1_px": 1268.3636363636365,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 6.45
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "closet_chamber/N": {
       "voice": "bedchamber",
@@ -2044,21 +1071,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 330.3225806451613,
-      "declared": {
-        "ppm": 330.3225806451613,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8953824344758065,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -685.4193548387098,
-        "corner_x1_px": 2221.4193548387098,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.1,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "closet_chamber/E": {
       "voice": "bedchamber",
@@ -2068,21 +1083,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "window"
-      ],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 492.6060606060606,
-        "corner_x1_px": 1043.3939393939395,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 3.55
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "closet_chamber/S": {
       "voice": "bedchamber",
@@ -2092,21 +1095,9 @@
       "ceiling": "ceiling/plain-lime-plaster",
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
-      "carriers": [
-        "door"
-      ],
-      "declared_ppm": 330.3225806451613,
-      "declared": {
-        "ppm": 330.3225806451613,
-        "image_h_px": 1024,
-        "floor_line_y": 0.8953824344758065,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": -685.4193548387098,
-        "corner_x1_px": 2221.4193548387098,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 3.1,
-        "wall_width_m": 8.8
-      }
+      "carriers": [],
+      "declared_ppm": null,
+      "declared": null
     },
     "closet_chamber/W": {
       "voice": "bedchamber",
@@ -2117,18 +1108,8 @@
       "floor": "floor/wide-oak-boards",
       "facing_type": "enclosed",
       "carriers": [],
-      "declared_ppm": 155.15151515151516,
-      "declared": {
-        "ppm": 155.15151515151516,
-        "image_h_px": 1024,
-        "floor_line_y": 0.6930119554924243,
-        "horizon_y": 0.51376953125,
-        "corner_x0_px": 492.6060606060606,
-        "corner_x1_px": 1043.3939393939395,
-        "storey_height_m": 2.8,
-        "camera_wall_m": 6.6,
-        "wall_width_m": 3.55
-      }
+      "declared_ppm": null,
+      "declared": null
     }
   }
 }

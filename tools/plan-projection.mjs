@@ -1547,7 +1547,7 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
        corners then stand beyond this cell — off the frame on the open side —
        and the register says the wall runs on. Off-frame float corners are a
        state every instrument already tolerates (great_hall/N). */
-    const run = runSpanOf(plan, roomId, facing);
+    const run = runSpanOf(plan, roomOf(plan, roomId), facing);
     if (run.lo < run.span.lo - EPS || run.hi > run.span.hi + EPS) {
       const [rx2, ry2] = RIGHT[facing];
       const alongRight2 = run.span.axis === "x" ? rx2 : ry2;
