@@ -194,9 +194,162 @@ def case_e_closed_loop():
           "gap %.2f px, longest step %.2f px" % (gap, step))
 
 
+def lit_threshold_door(x0, y0, x1, y1, floor_y, lit=118.0, reveal=26, seed=11):
+    """A doorway whose room BEYOND is lit — the failure the threshold rule fixes.
+
+    The void is dark from `y0` down to `floor_y - 70`, and from there to the
+    floor line it is the FAR ROOM'S FLOOR, lit at `lit`. That is what a doorway
+    looks like: you see through it onto a floor catching the same key light this
+    room's does. A void detector's dark run therefore stops 70 px short of the
+    sill, and a tracer looking for "dark inside" climbs the far floor to meet it.
+    """
+    L = np.full((H, W), WALL) + _noise((H, W), seed)
+    L[max(0, y0 - reveal):int(floor_y) + reveal, max(0, x0 - reveal):x1 + reveal] = JAMB
+    L[y0:int(floor_y), x0:x1] = VOID
+    L[int(floor_y) - 70:int(floor_y), x0:x1] = lit          # the room beyond
+    L[int(floor_y):int(floor_y) + 40, :] = 132.0            # this room's floor
+    return L + _noise((H, W), seed + 1)
+
+
+def low_contrast_door(x0, y0, x1, y1, step=15.0, moulding=80, seed=21):
+    """A dark panelled door: a 15/255 step, and a MOULDING 80 px outside it.
+
+    The moulding is a dark line on the wall, so the step at its outer arris is
+    bigger than the aperture's own AND has something as dark as the void inside
+    it — which is exactly the trap `muniment_room/E` and `closet_chamber/S` fell
+    into. Nothing about the picture in units of its own contrast can tell the
+    moulding from the jamb; only the absolute smallness of the step can.
+    """
+    wall = 135.0
+    void = wall - step
+    L = np.full((H, W), wall) + _noise((H, W), seed)
+    L[y0:y1, x0:x1] = void
+    for xs in (x0 - moulding - 6, x1 + moulding):
+        L[y0 - moulding - 6:y1 + moulding + 6, xs:xs + 6] = void - 2.0
+    L[y0 - moulding - 6:y0 - moulding, x0 - moulding - 6:x1 + moulding + 6] = void - 2.0
+    return L + _noise((H, W), seed + 1)
+
+
+def notched_door(x0, y0, x1, y1, notch=100, reveal=24, seed=31):
+    """A straight-headed door with a boxy slot 100 px tall above its middle.
+
+    The slot is genuinely part of the void, so the trace SHOULD follow it — the
+    loop is right and the head still is not an arch. Sagitta alone cannot tell
+    the two apart, which is why `closet_chamber/S` was called arched off a
+    moulding; shape can.
+    """
+    L = np.full((H, W), WALL) + _noise((H, W), seed)
+    cx = (x0 + x1) // 2
+    nx0, nx1 = cx - (x1 - x0) // 5, cx + (x1 - x0) // 5
+    L[max(0, y0 - notch - reveal):y1 + reveal, x0 - reveal:x1 + reveal] = JAMB
+    L[max(0, y0 - notch - reveal):y0, nx0 - reveal:nx1 + reveal] = JAMB
+    L[y0:y1, x0:x1] = VOID
+    L[y0 - notch:y0, nx0:nx1] = VOID
+    return L + _noise((H, W), seed + 1)
+
+
+def case_f_threshold_is_geometry():
+    print("(f) a lit room beyond -> the bottom side IS the floor line, not a trace")
+    x0, x1 = 600, 820
+    y0, floor_y = 300, 760
+    L = lit_threshold_door(x0, y0, x1, floor_y, floor_y)
+    prior = (x0, y0, x1, floor_y - 70)          # the void's dark run, 70 px short
+
+    bad = at.trace_aperture(L, prior, band=90)
+    P = np.array(bad["polygon"])
+    bot = P[np.array(bad["side"]) == 2]
+    check("without a floor line the sill is missed (this is the failure)",
+          abs(float(np.median(bot[:, 1])) - floor_y) > 20.0,
+          "traced sill y %.1f against the true %d" % (float(np.median(bot[:, 1])), floor_y))
+
+    r = at.trace_aperture(L, prior, band=90, floor_line_y=floor_y)
+    P = np.array(r["polygon"])
+    bot = P[np.array(r["side"]) == 2]
+    check("the bottom side IS the floor line",
+          float(np.max(np.abs(bot[:, 1] - floor_y))) <= 0.5,
+          "max %.2f px off y=%d over %d samples"
+          % (float(np.max(np.abs(bot[:, 1] - floor_y))), floor_y, len(bot)))
+    check("it is reported as geometry, not as a trace",
+          r["threshold"]["kind"] == "floor_line" and not r["threshold"]["clamped"],
+          "%s at y=%.1f" % (r["threshold"]["kind"], r["threshold"]["y_px"]))
+    tl, tr, br, bl = [np.array(c) for c in r["corners"]]
+    check("the jamb feet sit ON the floor line",
+          max(abs(bl[1] - floor_y), abs(br[1] - floor_y)) <= 1.0,
+          "BL y %.2f BR y %.2f" % (bl[1], br[1]))
+    check("and at the jambs' own columns, within 2 px",
+          max(abs(bl[0] - x0), abs(br[0] - x1)) <= 2.0,
+          "BL x %.2f (want %d), BR x %.2f (want %d)" % (bl[0], x0, br[0], x1))
+    check("the head and jambs are still traced to the truth",
+          max(abs(tl[0] - x0), abs(tr[0] - x1),
+              abs(tl[1] - y0), abs(tr[1] - y0)) <= 2.0,
+          "TL %.1f,%.1f TR %.1f,%.1f" % (tl[0], tl[1], tr[0], tr[1]))
+
+
+def case_g_low_contrast_trust_region():
+    print("(g) a 15/255 step with a moulding 80 px out -> the loop stays put")
+    x0, y0, x1, y1 = 600, 300, 820, 760
+    L = low_contrast_door(x0, y0, x1, y1)
+    r = at.trace_aperture(L, (x0, y0, x1, y1), band=100, floor_line_y=y1)
+    off = np.abs(np.array(r["offsets"]))[np.array(r["side"]) != 2]
+    check("the wall is read as low absolute contrast",
+          r["abs_contrast_l"] < 25.0 and r["trust"] < 0.1,
+          "A %.1f levels, trust %.3f -> band %d px of %d asked"
+          % (r["abs_contrast_l"], r["trust"], r["band_eff_px"], r["band_px"]))
+    check("the evidence alone would have gone to the moulding",
+          r["free_excursion_px"] >= 60,
+          "the free choice reaches %d px" % r["free_excursion_px"])
+    check("the loop stays within 5 px of the prior",
+          int(off.max()) <= 5, "max %d px" % int(off.max()))
+    check("and the confidence says so", r["wall_confidence"] < 0.5,
+          "%.2f (evidence %.2f x licence %.2f)"
+          % (r["wall_confidence"], r["conf_evidence"], r["conf_licence"]))
+
+
+def case_h_arched_must_be_an_arc():
+    print("(h) arched is a SHAPE: an arc reads arched, a 100 px slot does not")
+    x0, x1, y1 = 640, 780, 760
+    spring = 420
+    La, (cx, cy, rad) = arched_door(x0, spring, x1, y1)
+    ra = at.trace_aperture(La, (x0, int(round(cy - rad)), x1, y1),
+                           band=int(rad) + 20, floor_line_y=y1)
+    check("the half-round head still reads arched", ra["head_kind"] == "arched",
+          "sagitta %.1f px, circle rms %.2f px, bulk %.2f"
+          % (ra["head_sagitta_px"], ra["head_arc"]["rms_px"],
+             ra["head_arc"]["bulk_frac"]))
+
+    nx0, ny0, nx1, ny1 = 600, 400, 820, 760
+    Ln = notched_door(nx0, ny0, nx1, ny1, notch=100)
+    rn = at.trace_aperture(Ln, (nx0, ny0, nx1, ny1), band=120, floor_line_y=ny1)
+    check("the 100 px excursion is really there and really taken",
+          rn["max_offset_px"] >= 80, "max offset %d px" % rn["max_offset_px"])
+    check("a straight head with a 100 px excursion does NOT read arched",
+          rn["head_kind"] == "straight",
+          "sagitta %.1f px (%.2f of width) — %s"
+          % (rn["head_sagitta_px"], rn["head_sagitta_ratio"],
+             ", ".join("%s=%s" % (k, rn["head_arc"][k]) for k in
+                       ("convex", "monotone_curvature", "bulk_frac", "circular"))
+             if rn["head_arc"] else "no circle fitted"))
+
+
+def case_i_per_wall_time():
+    print("(i) under 100 ms a wall, which is the bar this has to keep")
+    x0, y0, x1, y1 = 600, 300, 820, 760
+    L = straight_door(x0, y0, x1, y1)
+    worst = 0.0
+    for band in (60, 90, 110):
+        t = time.time()
+        at.trace_aperture(L, (x0, y0, x1, y1), band=band, floor_line_y=y1)
+        worst = max(worst, (time.time() - t) * 1000.0)
+    check("under 100 ms per wall at every band", worst < 100.0,
+          "worst %.0f ms over bands 60/90/110" % worst)
+
+
+
 def main():
     for fn in (case_a_rectangle, case_b_arch, case_c_bad_prior,
-               case_d_determinism_and_speed, case_e_closed_loop):
+               case_d_determinism_and_speed, case_e_closed_loop,
+               case_f_threshold_is_geometry, case_g_low_contrast_trust_region,
+               case_h_arched_must_be_an_arc, case_i_per_wall_time):
         fn()
     print()
     if _fails:

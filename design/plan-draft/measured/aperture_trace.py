@@ -132,6 +132,100 @@ SIDE_STRAIGHT_RMS = 2.5
 #: curved and the grazing samples at its own springing sit worst.
 ARC_FIT_RMS = 4.0
 
+# ---------------------------------------------------- THE TRUST REGION (rule 2)
+#
+# Everything above is in units of the wall's OWN contrast, and that is exactly
+# how a dark panelled door goes wrong: divide a 20-level step by a 20-level
+# contrast and it looks as convincing as a 90-level step on a lit wall, so the
+# loop will happily abandon the jamb for a moulding eighty px away that scores a
+# hair better. The band is a TRUST REGION around the prior, and how far it may
+# be trusted is a question about ABSOLUTE luminance, which these constants are
+# in. See `_trust_region` for the function they make.
+
+#: The absolute void-to-frame step, in levels of 255, below which a wall is not
+#: to be trusted at all (the band collapses to `BAND_MIN`) and at or above which
+#: it is trusted completely (the band is whatever the caller asked for).
+A_LOW = 12.0
+A_FULL = 48.0
+
+#: The band never shrinks below this: a couple of px of paint either side of the
+#: prior is the least a trace can be allowed, or it is not a trace.
+BAND_MIN = 4.0
+
+#: How much `W_PRIOR` is multiplied by when the wall carries no absolute
+#: contrast at all. At 8 a full-band excursion on a contrastless wall costs
+#: twice what the strongest possible edge is worth, so it is never bought.
+G_LOW = 8.0
+
+#: THE PRIOR'S OWN GRIP, and this is the half of the rule the store taught.
+#: `a_i` is the absolute step the PRIOR ITSELF stands on at sample i — the
+#: strongest right-kind step within `PRIOR_NEAR` px of offset 0. Where the prior
+#: already sits on real paint, leaving it must be paid for; where it sits on
+#: nothing (the void's dark run stopping short of the jamb, which is the whole
+#: reason this file exists) it is free to go and find the edge. That single
+#: number is what separates `buttery_pantry/S`'s 50 px onto the real reveal —
+#: the prior stands on 4.6 levels there, i.e. on nothing — from
+#: `muniment_room/E`'s 33 px onto a moulding, where the prior stands on 27.
+PRIOR_NEAR = 8
+PRIOR_GRIP_LO = 8.0
+PRIOR_GRIP_HI = 25.0
+G_HOLD = 10.0
+
+#: How far the inside of a step may be from the void, IN LEVELS, before that step
+#: stops counting as evidence the prior stands on. In levels and not in units of
+#: the wall's own contrast, and that is the whole point: a prior displaced clean
+#: off the aperture sits on the wall/reveal arris, whose inside is the reveal —
+#: a step every bit as strong as the aperture's, and not the aperture's. Scored
+#: relatively, a bright reveal on a high-contrast wall slips under any ratio you
+#: pick; scored in levels it is 88 away from the void and is not grip.
+GRIP_WRONG_ABS = 18.0
+
+# -------------------------------------------------- THE THRESHOLD IS GEOMETRY
+#
+# (rule 1) At the foot of a doorway the room beyond is LIT — its floor catches
+# the same key light this room's does — so the "dark inside" cue inverts and the
+# loop follows the far floor up into the opening instead of stopping at the
+# sill. There is no paint at a threshold to trace: the bottom of an aperture in
+# a wall is where that wall meets its floor, which every promoted wall already
+# carries as `floor_line_y * image_h_px` and every candidate carries from the
+# warp. So the bottom side is not traced at all; it is SET.
+
+#: How much the smoothness term charges for the offset step at the two junctions
+#: where the traced jambs meet the set threshold. Zero, and it must be: the
+#: threshold's offset is geometry and the jamb's is evidence, and charging the
+#: jamb for the difference would drag its foot off the paint.
+LAM_AT_THRESHOLD = 0.0
+
+# ------------------------------------------- CONFIDENCE THAT SEES IT (rule 3)
+#
+# The old confidence was the chosen step in units of the wall's own contrast,
+# which is a number that cannot fall: normalise a wall's evidence by its own
+# evidence and every wall is confident. The new one is in ABSOLUTE levels and
+# is multiplied by how much of the loop's excursion the prior's own measurement
+# did not license.
+
+#: The absolute step, in levels, at which a sample's evidence is worth full
+#: marks. Around 30: below it the paint is telling you less than a tenth of the
+#: range and a moulding can outvote a jamb.
+A_GOOD = 30.0
+
+#: What a forbidden offset costs. A large finite number rather than an infinity,
+#: so that the min-convolution's arithmetic never has to subtract one from
+#: another and hand back a NaN.
+BIG = 1e9
+
+#: The unlicensed excursion, in px RMS, at which confidence has halved. Two
+#: things about what is counted. First, an excursion is unlicensed in proportion
+#: to the GRIP the prior had where the loop left it (`hold_i`), so following a
+#: bad prior onto the real reveal costs nothing and wandering off good paint onto
+#: a moulding costs everything. Second, it counts the excursion the loop MADE or
+#: the one it WANTED — whichever is larger — because the trust region of rule 2
+#: now holds the bad walls in place, and a confidence that only saw the realised
+#: offset would report the restraint as success. What the evidence alone would
+#: have chosen, over the whole requested band, is the honest measure of how
+#: nearly this wall ran away.
+EXC_REF = 14.0
+
 
 # ------------------------------------------------------- the prior's perimeter
 
@@ -264,6 +358,63 @@ def _min_conv_l1(prev, lam):
     return np.where(take_f, fwd, bwd), np.where(take_f, fi, bidx)
 
 
+def _prior_grip(step, wrong, band, contrast, near=PRIOR_NEAR):
+    """`a_i`: the absolute step, in levels, that the PRIOR itself stands on.
+
+    The strongest step within `near` px of offset 0 whose INSIDE is still the
+    void. A sample whose prior stands on real paint has to pay to leave it; a
+    sample whose prior stands on nothing does not. The void test is what keeps a
+    prior displaced clean off the aperture from reading the wall/reveal arris
+    beneath itself as a reason to stay.
+    """
+    d = np.arange(-band, band + 1)
+    sel = np.abs(d) <= near
+    ok = (wrong[:, sel] * contrast) <= GRIP_WRONG_ABS
+    a = np.where(ok, step[:, sel] * contrast, -np.inf).max(axis=1)
+    return np.clip(a, 0.0, None)
+
+
+def _trust_region(band, w_prior, a_grip, a_ring):
+    """THE FUNCTION, stated. (band_eff, per-sample w_prior, A, trust).
+
+    `A`, the wall's absolute void-to-frame step in levels of 255, is
+    `max(|frame - void|, p75 of a_i)`: the ring-and-centre medians, and the
+    upper quartile of what the prior's own perimeter measures. The quartile is
+    there because a prior can be plain wrong over a third of its perimeter
+    without the wall being dim, and the median would then report a dim wall; the
+    ring term is there because a prior displaced clean off the aperture measures
+    nothing at all and the quartile would then report a dim wall.
+
+        trust = clip((A - A_LOW) / (A_FULL - A_LOW), 0, 1) ** 2
+
+    squared so that the middle of the range is treated as the doubtful thing it
+    is. From it, two things:
+
+        band_eff  = BAND_MIN + (band - BAND_MIN) * trust
+        w_prior_i = W_PRIOR * (1 + G_LOW*(1 - trust) + G_HOLD*hold_i)
+        hold_i    = clip((a_i - PRIOR_GRIP_LO) / (PRIOR_GRIP_HI - PRIOR_GRIP_LO), 0, 1)
+
+    The first is a hard cutoff — an offset past `band_eff` is not on the menu.
+    The second is the price of every offset that is, charged per px against the
+    REQUESTED band so that the units do not move when the cutoff does.
+
+    Worked: `muniment_room/E` has A = 33, so trust = 0.33 and the band closes
+    from 60 px to 23; where it used to wander, a_i = 27, so hold = 1 and
+    w_prior_i = 4.1, and 23 px of excursion costs 1.6 against a strongest
+    possible edge worth 1.5. It cannot be bought. `buttery_pantry/S` has
+    A = 46 (its ring says 23, its own perimeter says 46), so trust = 0.91 and
+    the band stays open at 55 px; where it moves, a_i = 4.6, so hold = 0 and
+    w_prior_i = 0.42, and the 50 px onto the real reveal costs 0.35. It is.
+    """
+    A = float(max(a_ring, np.percentile(a_grip, 75)))
+    trust = float(np.clip((A - A_LOW) / (A_FULL - A_LOW), 0.0, 1.0)) ** 2
+    band_eff = int(round(BAND_MIN + (band - BAND_MIN) * trust))
+    band_eff = max(int(BAND_MIN), min(int(band), band_eff))
+    hold = np.clip((a_grip - PRIOR_GRIP_LO) / (PRIOR_GRIP_HI - PRIOR_GRIP_LO), 0.0, 1.0)
+    w = w_prior * (1.0 + G_LOW * (1.0 - trust) + G_HOLD * hold)
+    return band_eff, w, A, trust, hold
+
+
 def _cyclic_dp(data, lam, pin, n_rounds=4):
     """The closed loop: one DP round the ring, with sample 0's offset pinned.
 
@@ -273,22 +424,29 @@ def _cyclic_dp(data, lam, pin, n_rounds=4):
     the pass repeated until it stops moving (at most `n_rounds`). Every round is
     a strictly evaluated closed loop, and the cheapest of them is returned, so
     the output is a closed loop whatever the iteration does.
+
+    `lam` is per STEP, not per loop: `lam[i]` is charged between sample i-1 and
+    sample i, and `lam[0]` is charged at the closure between the last sample and
+    the first. That is what lets the two junctions where the traced jambs meet
+    the SET threshold cost nothing, so a sill 30 px below the prior's bottom
+    does not drag the jambs' feet 30 px sideways with it.
     """
     n, D = data.shape
+    lam = np.broadcast_to(np.asarray(lam, float).reshape(-1), (n,))
     best = None
     seen = set()
     for _ in range(n_rounds):
         if pin in seen:
             break
         seen.add(pin)
-        dp = np.full(D, np.inf)
+        dp = np.full(D, BIG)
         dp[pin] = data[0, pin]
         back = np.zeros((n, D), np.int64)
         for i in range(1, n):
-            m, src = _min_conv_l1(dp, lam)
+            m, src = _min_conv_l1(dp, lam[i])
             dp = m + data[i]
             back[i] = src
-        close = dp + lam * np.abs(np.arange(D) - pin)
+        close = dp + lam[0] * np.abs(np.arange(D) - pin)
         end = int(np.argmin(close))
         total = float(close[end])
         path = np.zeros(n, np.int64)
@@ -497,7 +655,30 @@ def _corners(poly, side, rect, win):
 
 
 def _head_verdict(poly, side, rect):
-    """straight or arched, off how far the head stands from its own chord."""
+    """straight or arched — and ARCHED HAS TO BE EARNED.
+
+    A sagitta is not an arch. `closet_chamber/S` stood 60 px off its own chord
+    and was called arched, and what it was standing on was a moulding: the head
+    ran flat, jumped, ran flat again. So the verdict now asks the four things
+    that separate a half-round head from an excursion, and every one of them is
+    a statement about the SHAPE of the deviation rather than its size:
+
+      convex        no head sample dips INWARD past the chord (an arch is on one
+                    side of its chord; an excursion has a shoulder that isn't).
+      monotone      the curvature is single-signed over almost the whole head —
+                    an arc bends the same way everywhere, an excursion bends one
+                    way at each shoulder and not at all between them.
+      bulk          most of the head is actually raised. A half-round has 2/3 of
+                    its samples above a quarter of its sagitta; a bump has as
+                    many as the bump is wide.
+      circular      a circle fitted through the head has a small residual, and
+                    the sagitta that circle IMPLIES for this chord is the
+                    sagitta measured. This is the one an excursion fails worst:
+                    a flat-jump-flat head has no circle at all.
+
+    Returns (kind, sagitta, ratio, arc) with `arc` carrying the fitted centre,
+    radius, residual, and the four checks as they were answered.
+    """
     idx = np.flatnonzero(side == 0)
     if len(idx) < 5:
         return "straight", 0.0, 0.0, None
@@ -508,31 +689,72 @@ def _head_verdict(poly, side, rect):
     if ln < 1e-6:
         return "straight", 0.0, 0.0, None
     nvec = np.array([-v[1], v[0]]) / ln
-    dev = (P - a) @ nvec
-    sag = float(np.max(np.abs(dev)))
+    if nvec @ np.array([0.0, -1.0]) < 0:      # point it OUT of the aperture
+        nvec = -nvec
+    dev = (P - a) @ nvec                       # positive = away from the sill
+    sag = float(np.max(dev))
+    dip = float(-np.min(dev))
     width = max(1.0, float(rect[2] - rect[0]))
-    ratio = sag / width
-    kind = "arched" if (sag >= ARCH_MIN_PX and ratio >= ARCH_RATIO) else "straight"
-    arc = None
-    if kind == "arched" and len(P) >= 8:
+    ratio = max(sag, 0.0) / width
+
+    big_enough = sag >= ARCH_MIN_PX and ratio >= ARCH_RATIO
+    convex = dip <= max(2.0, 0.20 * max(sag, 0.0))
+    k = max(3, len(dev) // 12) | 1             # a short odd box, to kill grain
+    sm = np.convolve(dev, np.ones(k) / k, mode="valid")
+    curv = np.diff(sm, 2)
+    dead = max(0.02, 0.01 * max(sag, 0.0))
+    live = np.abs(curv) > dead
+    mono = bool(live.sum() >= 3 and
+                (curv[live] < 0).mean() >= 0.85)   # bends one way, outward
+    bulk = float((dev > 0.25 * max(sag, 1e-9)).mean())
+    bulky = bulk >= 0.45
+
+    arc, circular = None, False
+    if len(P) >= 8:
         t = max(1, int(0.15 * len(P)))
         ctr, rad, rms = _fit_circle(P[t:len(P) - t])
+        # The sagitta the FITTED CIRCLE implies over this same chord: the
+        # farthest the circle reaches outward past the chord line. Taken as a
+        # perpendicular distance rather than from r and the half-chord, because
+        # near a half-round the second formula is the difference of two nearly
+        # equal numbers and the two grazing samples at the springing — which sit
+        # worst, by geometry — swing it by tens of px.
+        implied = float((ctr - a) @ nvec) + rad
+        circular = bool(rms <= max(2.0, 0.05 * rad) and
+                        abs(implied - sag) <= max(3.0, 0.30 * max(sag, 0.0)))
         arc = {"centre_px": [round(float(ctr[0]), 2), round(float(ctr[1]), 2)],
-               "radius_px": round(rad, 2), "rms_px": round(rms, 2)}
-    return kind, sag, ratio, arc
+               "radius_px": round(rad, 2), "rms_px": round(rms, 2),
+               "implied_sagitta_px": round(implied, 2),
+               "convex": bool(convex), "monotone_curvature": mono,
+               "bulk_frac": round(bulk, 3), "circular": circular}
+    kind = "arched" if (big_enough and convex and mono and bulky and circular) \
+        else "straight"
+    if kind == "straight" and arc is not None:
+        arc["rejected"] = True
+    return kind, max(sag, 0.0), ratio, arc
 
 
 # --------------------------------------------------------------------- the pass
 
 def trace_aperture(L, rect, band=BAND, n_samples=N_SAMPLES, probe=PROBE,
                    inside_dark=True, w_edge=W_EDGE, w_prior=W_PRIOR,
-                   w_dark=W_DARK, w_smooth=W_SMOOTH):
+                   w_dark=W_DARK, w_smooth=W_SMOOTH, floor_line_y=None):
     """Trace the inside edge of the aperture whose prior rectangle is `rect`.
 
     `L` is a 2-D luminance array, `rect` is `(x0, y0, x1, y1)` in image px.
+    `floor_line_y` is the wall's own floor line in image px — from a promoted
+    wall's `floor_line_y * image_h_px`, or from the warp or the plan when a
+    candidate is being traced. GIVE IT. The bottom of an aperture in a wall is
+    where the wall meets its floor and there is no paint there to trace: at the
+    foot of a doorway the room beyond is lit, and a tracer looking for dark
+    inside will climb the far floor every time. With it, only the jambs and the
+    head are traced and the loop is closed along the floor line between the two
+    jamb feet; each foot is where that jamb's own fitted line meets it.
+
     Returns a dict: the closed `polygon` (n_samples points), the per-sample
     `confidence` and `offsets`, the four named `corners`, the `head_kind`
-    verdict, and the evidence behind each of them.
+    verdict, the per-wall `wall_confidence` and what it is made of, and the
+    evidence behind each of them.
     """
     L = np.asarray(L, dtype=np.float64)
     rect = tuple(float(v) for v in rect)
@@ -542,10 +764,40 @@ def trace_aperture(L, rect, band=BAND, n_samples=N_SAMPLES, probe=PROBE,
     step, inner, wrong = _evidence(L, pts, nrm, tan, band, probe, TANGENT_TAPS,
                                    void, contrast, inside_dark)
     d_off = np.arange(-band, band + 1, dtype=np.float64)
+
+    # RULE 2. The band is a trust region, and its size and its price are set by
+    # the wall's contrast in ABSOLUTE levels and by the grip the prior itself
+    # has at each sample. `_trust_region` states the function.
+    a_grip = _prior_grip(step, wrong, band, contrast)
+    band_eff, w_prior_i, A_abs, trust, hold = _trust_region(
+        band, w_prior, a_grip, abs(frame - void))
+
     edge = np.clip(step, -1.5, 1.5)
     dark = np.clip(wrong - 0.5, 0.0, 2.0)
     prior = np.abs(d_off)[None, :] / float(band)
-    data = -w_edge * edge + w_dark * dark + w_prior * prior
+    data = -w_edge * edge + w_dark * dark + w_prior_i[:, None] * prior
+    data[:, np.abs(d_off) > band_eff] = BIG
+
+    # RULE 1. The threshold is geometry, not paint. The bottom side is SET to
+    # the wall's floor line — one offset, no choice — and the smoothness term is
+    # switched off at the two junctions so the set sill cannot drag the traced
+    # jambs' feet sideways with it.
+    lam = np.full(n_samples, float(w_smooth))
+    bottom = np.flatnonzero(side == 2)
+    thr = {"kind": "traced", "note": "no floor line given; the sill was traced,"
+           " and at the foot of a lit doorway that is the weak side"}
+    if floor_line_y is not None and len(bottom):
+        want = float(floor_line_y) - rect[3]
+        d_thr = int(round(np.clip(want, -band, band)))
+        data[bottom, :] = BIG
+        data[bottom, d_thr + band] = 0.0
+        lam[bottom[0]] = LAM_AT_THRESHOLD
+        lam[(bottom[-1] + 1) % n_samples] = LAM_AT_THRESHOLD
+        thr = {"kind": "floor_line", "y_px": round(rect[3] + d_thr, 2),
+               "offset_from_prior_px": d_thr,
+               "clamped": bool(abs(want - d_thr) > 0.5),
+               "note": "the wall's floor line at the door's columns; the jamb "
+                       "feet are where the jambs' fitted lines meet it"}
 
     bestd = np.argmin(data, axis=1)
     far = data.copy()
@@ -553,8 +805,10 @@ def trace_aperture(L, rect, band=BAND, n_samples=N_SAMPLES, probe=PROBE,
         lo, hi = max(0, bestd[i] - 8), min(data.shape[1], bestd[i] + 9)
         far[i, lo:hi] = np.inf
     margin = np.min(far, axis=1) - data[np.arange(n_samples), bestd]
+    margin[bottom] = -np.inf                   # never pin on set geometry
     pin = int(np.argmax(np.where(np.isfinite(margin), margin, -np.inf)))
-    path, cost = _cyclic_dp(np.roll(data, -pin, axis=0), w_smooth, int(bestd[pin]))
+    path, cost = _cyclic_dp(np.roll(data, -pin, axis=0), np.roll(lam, -pin),
+                            int(bestd[pin]))
     path = np.roll(path, pin)
 
     offs = d_off[path]
@@ -569,6 +823,36 @@ def trace_aperture(L, rect, band=BAND, n_samples=N_SAMPLES, probe=PROBE,
                  [rect[2], rect[3]], [rect[0], rect[3]]]
     cdev = ([float(np.linalg.norm(np.asarray(c) - np.asarray(p)))
              for c, p in zip(corner_pts, prior_ref)] if corner_pts else [])
+
+    # RULE 3. A confidence that can fall. The old one was the chosen step in
+    # units of the wall's own contrast, which is a ratio of a wall's evidence to
+    # itself and so is high on every wall, bad ones included. This one is two
+    # honest factors, both about the traced sides only — the threshold is set
+    # geometry and has no opinion to be confident about:
+    #
+    #   evidence   the ABSOLUTE step, in levels, under the loop where it
+    #              actually settled, scored against A_GOOD. Falls with the
+    #              wall's absolute contrast, by construction.
+    #   licence    how much of the loop's excursion from the prior the prior's
+    #              own measurement licensed. An excursion at a sample where the
+    #              prior stood on nothing is free; the same excursion where the
+    #              prior stood on real paint is the failure mode this whole rule
+    #              exists to catch, and it is charged at EXC_REF px RMS = half.
+    #              The excursion counted is the one the loop MADE or the one the
+    #              evidence alone WANTED over the whole requested band, whichever
+    #              is larger, because rule 2's trust region now holds the bad
+    #              walls in place and a confidence that only saw where the loop
+    #              ended up would read that restraint as a good trace.
+    #
+    #   wall_confidence = evidence * licence
+    traced = side != 2
+    a_chosen = np.clip(chosen_step * contrast, 0.0, None)
+    c_evi = float(np.mean(np.clip(a_chosen[traced] / A_GOOD, 0.0, 1.0)))
+    d_free = d_off[np.argmin(-w_edge * edge + w_dark * dark, axis=1)]
+    want = np.maximum(np.abs(offs), np.abs(d_free))
+    unlic = float(np.sqrt(np.mean(hold[traced] * want[traced] ** 2)))
+    c_lic = 1.0 / (1.0 + (unlic / EXC_REF) ** 2)
+    wall_conf = c_evi * c_lic
     return {
         "polygon": [[round(float(x), 2), round(float(y), 2)] for x, y in poly],
         "confidence": [round(float(c), 4) for c in conf],
@@ -582,18 +866,31 @@ def trace_aperture(L, rect, band=BAND, n_samples=N_SAMPLES, probe=PROBE,
         "head_sagitta_px": round(float(sag), 2),
         "head_sagitta_ratio": round(float(ratio), 4),
         "head_arc": arc,
-        "max_offset_px": int(np.max(np.abs(offs))),
-        "mean_confidence": round(float(np.mean(conf)), 4),
-        "min_confidence": round(float(np.min(conf)), 4),
+        "max_offset_px": int(np.max(np.abs(offs[traced]))) if traced.any() else 0,
+        "mean_confidence": round(float(np.mean(conf[traced])), 4),
+        "min_confidence": round(float(np.min(conf[traced])), 4),
+        "wall_confidence": round(wall_conf, 4),
+        "conf_evidence": round(c_evi, 4),
+        "conf_licence": round(c_lic, 4),
+        "unlicensed_excursion_px": round(unlic, 2),
+        "free_excursion_px": int(np.max(np.abs(d_free[traced]))) if traced.any() else 0,
+        "abs_contrast_l": round(A_abs, 2),
+        "trust": round(trust, 4),
+        "band_eff_px": band_eff,
+        "threshold": thr,
         "void_l": round(void, 2), "frame_l": round(frame, 2),
         "contrast_l": round(contrast, 2),
         "cost": round(float(cost), 3),
         "band_px": band, "n_samples": n_samples, "pinned_sample": pin,
-        "method": ("the prior's perimeter sampled into %d points, each searched "
-                   "+/-%d px along its outward normal for the strongest "
-                   "%s-inside step, chosen by one cyclic L1 dynamic-programming "
-                   "pass so the loop closes by construction"
-                   % (n_samples, band, "dark" if inside_dark else "light")),
+        "method": ("the prior's perimeter sampled into %d points; the jambs and "
+                   "head searched +/-%d px (of %d asked) along the outward "
+                   "normal for the strongest %s-inside step, the threshold %s, "
+                   "all chosen by one cyclic L1 dynamic-programming pass so the "
+                   "loop closes by construction"
+                   % (n_samples, band_eff, band,
+                      "dark" if inside_dark else "light",
+                      ("SET to the wall's floor line at y=%.1f" % thr["y_px"])
+                      if thr["kind"] == "floor_line" else "traced (no floor line given)")),
     }
 
 
@@ -651,8 +948,11 @@ def _store_walls():
                 continue
             room = os.path.basename(os.path.dirname(meta))
             facing = os.path.basename(meta).split(".")[0]
+            fl = d.get("floor_line_y")
+            ih = d.get("image_h_px")
             out.append((room, facing, png, op,
-                        (op["x"], op["y"], op["x"] + op["w"], op["y"] + op["h"])))
+                        (op["x"], op["y"], op["x"] + op["w"], op["y"] + op["h"]),
+                        (float(fl) * float(ih)) if (fl and ih) else None))
     return out
 
 
@@ -662,6 +962,10 @@ def main():
     ap.add_argument("--rect", default="", help="x0,y0,x1,y1 in image px")
     ap.add_argument("--band", type=int, default=BAND)
     ap.add_argument("--samples", type=int, default=N_SAMPLES)
+    ap.add_argument("--floor-line-y", type=float, default=None,
+                    help="the wall's floor line in image px — a promoted wall's "
+                         "floor_line_y * image_h_px, or the warp's. The bottom "
+                         "of the aperture is SET to it and not traced.")
     ap.add_argument("--bright-inside", action="store_true",
                     help="the beyond is LIGHTER than the frame (a window)")
     ap.add_argument("--overlay", default="")
@@ -673,35 +977,42 @@ def main():
 
     if a.store:
         walls = _store_walls()
-        print("%-22s %-2s %-6s %-20s %-21s %6s %6s %5s %8s %5s"
-              % ("room", "F", "id", "prior rect", "traced TL / TR",
-                 "maxdev", "meandev", "conf", "head", "ms"))
+        print("%-20s %-2s %-6s %6s %5s %5s %6s %5s %6s %5s %8s %4s"
+              % ("room", "F", "id", "absC", "trust", "band", "maxoff", "unlic",
+                 "sill", "conf", "head", "ms"))
         rows = []
-        for room, facing, png, op, rect in walls:
+        for room, facing, png, op, rect, floor_y in walls:
             L = _load_luma(png)
             t = time.time()
-            r = trace_aperture(L, rect, band=a.band, n_samples=a.samples)
+            r = trace_aperture(L, rect, band=a.band, n_samples=a.samples,
+                               floor_line_y=floor_y)
             ms = (time.time() - t) * 1000.0
-            c = r["corners"]
-            dev = r["corner_dev_from_prior_px"]
-            rows.append((room, facing, ms, r))
-            print("%-22s %-2s %-6s %-20s %-21s %6.1f %6.1f %5.2f %8s %5.0f"
-                  % (room, facing, op.get("id", "?"),
-                     "%d,%d,%d,%d" % tuple(int(v) for v in rect),
-                     ("%.0f,%.0f %.0f,%.0f" % (c[0][0], c[0][1], c[1][0], c[1][1])
-                      if c else "-"),
-                     max(dev) if dev else 0.0,
-                     sum(dev) / len(dev) if dev else 0.0,
-                     r["mean_confidence"], r["head_kind"], ms))
+            rows.append((room, facing, ms, r, op.get("id", "?")))
+            thr = r["threshold"]
+            print("%-20s %-2s %-6s %6.1f %5.2f %5d %6d %5.1f %6s %5.2f %8s %4.0f"
+                  % (room, facing, op.get("id", "?"), r["abs_contrast_l"],
+                     r["trust"], r["band_eff_px"], r["max_offset_px"],
+                     r["unlicensed_excursion_px"],
+                     ("%+d" % thr["offset_from_prior_px"])
+                     if thr["kind"] == "floor_line" else "traced",
+                     r["wall_confidence"], r["head_kind"], ms))
             if a.overlay_dir:
                 os.makedirs(a.overlay_dir, exist_ok=True)
                 overlay(png, os.path.join(a.overlay_dir,
                                           "%s-%s-%s.png" % (room, facing, op.get("id", "?"))),
                         rect, r)
         if rows:
-            print("\n%d door walls, %.0f ms median, %.0f ms worst"
+            cs = sorted(x[3]["wall_confidence"] for x in rows)
+            print("\n%d door walls, %.0f ms median, %.0f ms worst; "
+                  "confidence %.2f worst / %.2f median / %.2f best; %d below 0.5"
                   % (len(rows), float(np.median([x[2] for x in rows])),
-                     max(x[2] for x in rows)))
+                     max(x[2] for x in rows), cs[0], float(np.median(cs)), cs[-1],
+                     sum(1 for c in cs if c < 0.5)))
+        if a.json:
+            with open(a.json, "w") as fh:
+                json.dump([{"room": x[0], "facing": x[1], "id": x[4], "ms": x[2],
+                            **x[3]} for x in rows], fh, indent=1)
+                fh.write("\n")
         return
 
     if not a.image or not a.rect:
@@ -710,7 +1021,8 @@ def main():
     L = _load_luma(a.image)
     t = time.time()
     res = trace_aperture(L, rect, band=a.band, n_samples=a.samples,
-                         inside_dark=not a.bright_inside)
+                         inside_dark=not a.bright_inside,
+                         floor_line_y=a.floor_line_y)
     ms = (time.time() - t) * 1000.0
     print("%s  %s" % (a.image, res["method"]))
     print("  head %s (sagitta %.1f px, %.3f of width)"
@@ -719,8 +1031,17 @@ def main():
                              res["corner_dev_from_prior_px"], res["corner_snapped"]):
         print("  %s %8.1f,%-8.1f  %5.1f px off the prior%s"
               % (name, c[0], c[1], d, "  (snapped)" if s else ""))
-    print("  confidence mean %.2f min %.2f, max offset %d px, %.0f ms"
-          % (res["mean_confidence"], res["min_confidence"], res["max_offset_px"], ms))
+    print("  absolute contrast %.1f, trust %.2f -> band %d px of %d asked"
+          % (res["abs_contrast_l"], res["trust"], res["band_eff_px"], res["band_px"]))
+    print("  threshold %s%s"
+          % (res["threshold"]["kind"],
+             (" at y=%.1f (%+d px off the prior)"
+              % (res["threshold"]["y_px"], res["threshold"]["offset_from_prior_px"]))
+             if res["threshold"]["kind"] == "floor_line" else ""))
+    print("  wall confidence %.2f = evidence %.2f x licence %.2f "
+          "(unlicensed excursion %.1f px rms), max offset %d px, %.0f ms"
+          % (res["wall_confidence"], res["conf_evidence"], res["conf_licence"],
+             res["unlicensed_excursion_px"], res["max_offset_px"], ms))
     if a.overlay:
         os.makedirs(os.path.dirname(os.path.abspath(a.overlay)), exist_ok=True)
         overlay(a.image, a.overlay, rect, res)
