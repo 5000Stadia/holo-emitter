@@ -1,0 +1,150 @@
+{
+ "_what_this_is": "Two voices for BRUNSWICK HALT. Materials in this world's language; every horizontal anchor is the tiled dado band's top edge at 1.20 m.",
+ "ANCHOR_M": 1.2,
+ "WINDOW_SILL_M": 0.9,
+ "WINDOW_HEAD_M": 2.0,
+ "LIGHT_MODULE_M": 0.6,
+ "ANCHORS": {
+  "dado_band": {
+   "id": "dado_band",
+   "line": "the tiled dado band's top edge above the floor",
+   "datum": "floor",
+   "sentence": "A clearly legible dark bottle-green glazed tiled dado band runs corner to corner on every exposed wall surface including the side-wall returns, its top edge at exactly 1.20 m above the floor, interrupted only by the doorway.",
+   "label": "DADO BAND TOP 1.20 M ABOVE FLOOR - GATE ANCHOR",
+   "legend_word": "DADO BAND",
+   "why": "This station's universal anchor: every wall below ground carries the same glazed dado band with its top edge at one height. A painter draws it and the instrument finds it."
+  }
+ },
+ "VOICES": {
+  "booking_hall_tiled": {
+   "id": "booking_hall_tiled",
+   "why": "The booking hall is the station's public face: full-height glazed tiling laid once in 1931 and polished ever since.",
+   "outdoor": false,
+   "walls": "cream crackle-glazed rectangular wall tiles above the dado band; below the band, dark bottle-green glazed tiles with a moulded black tile capping",
+   "ceiling": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps",
+   "floor": "buff terrazzo divided by narrow brass strips into large squares",
+   "blank": "unbroken cream crackle-glazed tiling above the dado band with dark bottle-green glazed tiles below",
+   "anchor": "dado_band",
+   "glass": "plain",
+   "window_status": "hall"
+  },
+  "platform_vault": {
+   "id": "platform_vault",
+   "why": "The platform is the deep room: the same tiling running away down its whole length under a painted soffit, everything slightly sooted.",
+   "outdoor": false,
+   "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+   "ceiling": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre",
+   "floor": "smooth grey concrete, a single worn white painted guidance line running down its length",
+   "blank": "unbroken cream crackle-glazed tiling above the dado band with dark bottle-green glazed tiles below",
+   "anchor": "dado_band",
+   "glass": "plain",
+   "window_status": "platform"
+  }
+ },
+ "ROOM_VOICE": {
+  "booking_hall": "booking_hall_tiled",
+  "platform": "platform_vault",
+  "platform_far": "platform_vault"
+ },
+ "ARCHETYPE_FALLBACK": {
+  "hall": "booking_hall_tiled",
+  "platform": "platform_vault"
+ },
+ "TYPE_FALLBACK": {
+  "enclosed": "booking_hall_tiled"
+ },
+ "MATERIALS": {
+  "wall/glazed-tile-cream": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "surface",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.15,
+    "feature": "tile course"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.6,
+    "stile_m": 0.01,
+    "plinth_m": 0.15,
+    "chair_rail_m": 1.2,
+    "chair_rail_h_m": 0.05,
+    "cornice_m": 0.0,
+    "architrave_m": 0.05,
+    "bevel_m": 0.0
+   }
+  },
+  "ceiling/plaster-cornice": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "plaster sweep"
+   }
+  },
+  "ceiling/painted-soffit": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.2,
+    "feature": "paint patch"
+   }
+  },
+  "floor/terrazzo-brass": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 1.2,
+    "feature": "brass strip"
+   }
+  },
+  "floor/concrete-guideline": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "wear"
+   }
+  }
+ },
+ "MATERIAL_BINDING": {
+  "booking_hall_tiled": {
+   "walls": "wall/glazed-tile-cream",
+   "blank": "wall/glazed-tile-cream",
+   "ceiling": "ceiling/plaster-cornice",
+   "floor": "floor/terrazzo-brass"
+  },
+  "platform_vault": {
+   "walls": "wall/glazed-tile-cream",
+   "blank": "wall/glazed-tile-cream",
+   "ceiling": "ceiling/painted-soffit",
+   "floor": "floor/concrete-guideline"
+  }
+ },
+ "MATERIAL_PART_OF_KEY": {
+  "walls": "walls",
+  "walls_with_openings": "walls",
+  "ceiling": "overhead",
+  "floor": "underfoot"
+ },
+ "SAID_BEFORE": {}
+}

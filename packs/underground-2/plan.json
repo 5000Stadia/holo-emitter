@@ -1,0 +1,310 @@
+{
+ "schema": "holo-emitter-plan/0.1",
+ "version": 1,
+ "units": "m",
+ "north": "+y",
+ "standpoint_stand_back": 0.25,
+ "standpoint_threshold_clearance_m": 0.45,
+ "entrance": "booking_hall",
+ "wall_thickness": {
+  "exterior": 0.4,
+  "partition": 0.2
+ },
+ "outline": [
+  [
+   0,
+   0
+  ],
+  [
+   20.2,
+   0
+  ],
+  [
+   20.2,
+   7.2
+  ],
+  [
+   0,
+   7.2
+  ]
+ ],
+ "floors": [
+  {
+   "id": "below",
+   "level": 0,
+   "storey_height_m": 3.4
+  }
+ ],
+ "wall_bands": [
+  {
+   "id": "U0",
+   "kind": "exterior",
+   "floors": [
+    "below"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 0.4,
+    "y0": 0,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "U1",
+   "kind": "exterior",
+   "floors": [
+    "below"
+   ],
+   "rect": {
+    "x0": 19.8,
+    "x1": 20.2,
+    "y0": 0,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "U2",
+   "kind": "exterior",
+   "floors": [
+    "below"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 20.2,
+    "y0": 0,
+    "y1": 0.4
+   }
+  },
+  {
+   "id": "U3",
+   "kind": "exterior",
+   "floors": [
+    "below"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 20.2,
+    "y0": 6.8,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "P0",
+   "kind": "partition",
+   "floors": [
+    "below"
+   ],
+   "rect": {
+    "x0": 6.8,
+    "x1": 7.0,
+    "y0": 0.4,
+    "y1": 6.8
+   }
+  }
+ ],
+ "rooms": [
+  {
+   "id": "booking_hall",
+   "floor": "below",
+   "name": "BOOKING HALL",
+   "type": "enclosed",
+   "archetype": "hall",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.8,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 2.0,
+      "y": 3.6
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 5.2,
+      "y": 3.6
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "platform",
+   "floor": "below",
+   "name": "PLATFORM",
+   "type": "enclosed",
+   "archetype": "platform",
+   "rect": {
+    "x0": 7.0,
+    "x1": 13.4,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.2,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.2,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.6,
+      "y": 3.6
+     },
+     "wall_line": 19.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 11.8,
+      "y": 3.6
+     },
+     "wall_line": 7.0,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "platform_far",
+   "floor": "below",
+   "name": "PLATFORM",
+   "type": "enclosed",
+   "archetype": "platform",
+   "rect": {
+    "x0": 13.4,
+    "x1": 19.8,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 16.6,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 16.6,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 15.0,
+      "y": 3.6
+     },
+     "wall_line": 19.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 18.2,
+      "y": 3.6
+     },
+     "wall_line": 7.0,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    }
+   }
+  }
+ ],
+ "openings": [
+  {
+   "id": "door01",
+   "kind": "door",
+   "floor": "below",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.8,
+    "x1": 7.0,
+    "y0": 3.0,
+    "y1": 4.2
+   },
+   "joins": [
+    "booking_hall",
+    "platform"
+   ]
+  },
+  {
+   "id": "way01",
+   "kind": "open_edge",
+   "floor": "below",
+   "axis": "EW",
+   "rect": {
+    "x0": 13.4,
+    "x1": 13.4,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "joins": [
+    "platform",
+    "platform_far"
+   ]
+  }
+ ],
+ "windows": [],
+ "fireplaces": [],
+ "stairs": [],
+ "objects": []
+}

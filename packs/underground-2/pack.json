@@ -1,0 +1,11 @@
+{
+  "_what_this_is": "The two-room underground proof: a booking hall and a PLATFORM two room-boxes long (the plan counts every room in unit boxes; the platform is two cells sharing one name, joined by a full-width open edge a visitor walks with the up arrow). Nothing in these four files is in the engine; a location is data.",
+  "name": "underground-2",
+  "title": "BRUNSWICK HALT 1931",
+  "box_unit_m": 6.4,
+  "files": {
+    "plan": "plan.json",
+    "voices": "voices.json",
+    "world": "world.json"
+  }
+}

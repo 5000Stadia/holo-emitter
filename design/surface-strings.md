@@ -465,6 +465,14 @@ id | surface | state | verdict | observed | adjudicator | string
 215 | #whereami place | standing in solar, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | solar
 216 | #whereami place | standing in stair_landing, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | stair_landing
 217 | #whereami place | standing in study, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | study
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | back_office
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | booking_hall
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | noodle_bar
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | platform
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | platform_far
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | reception
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | treatment_room
+196 | #whereami place | standing in back_stair, in any world that holds it | PASS | yes | kabe-ask-2026-08-24 | ward
 218 | #whereami facing | standing on any facing whose aspect is N | PASS | yes | kabe-ask-2026-08-24 | N
 219 | #whereami facing | standing on any facing whose aspect is E | PASS | yes | kabe-ask-2026-08-24 | E
 220 | #whereami facing | standing on any facing whose aspect is S | PASS | yes | kabe-ask-2026-08-24 | S

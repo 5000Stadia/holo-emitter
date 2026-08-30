@@ -1,0 +1,79 @@
+{
+ "_what_this_is": "BRUNSWICK HALT 1931: era and medium, THE RULER, the conventions a plan cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live.",
+ "era": "circa-1931 London Underground station, below street level",
+ "medium": "Style/medium: a high-realism digital painting in the manner of a hand-tinted period architectural record photograph \u2014 glazed reflective tiling, warm incandescent light pooling from the lamps with gentle falloff, no visible light source beyond them, no daylight",
+ "ruler": {
+  "kind": "dado_band",
+  "height_m": 1.2,
+  "datum": "floor",
+  "why": "This station's universal anchor: the glazed dado band's top edge at 1.20 m on every wall below ground including the returns. A painter draws it and the instrument finds it."
+ },
+ "conventions": {
+  "window_sill_m": 0.9,
+  "window_head_m": 2.0,
+  "door_head_m": 2.1,
+  "door_width_m": 1.2,
+  "light_module_m": 0.6,
+  "why": "A station of this line: a doorway is a 1.20 x 2.10 m opening in a tiled architrave; there are no windows below ground.",
+  "glazing": "  There is no daylight and no window glass below ground: ",
+  "window": {
+   "surround": {
+    "default": "in a tiled architrave"
+   },
+   "mullion": "glazing bar",
+   "transom": "a single transom",
+   "opening_light": "an opening light",
+   "why": "No window exists below ground; these words exist so no other pack's ever leak."
+  },
+  "floor_licence_px": 60
+ },
+ "rulers": [
+  {
+   "match": "dado band|dado tile|tiled band",
+   "size_m": 1.2,
+   "name": "the tiled dado band's top edge above the floor (this station's universal anchor)"
+  },
+  {
+   "match": "door[^,]*height|doorway[^,]*head",
+   "size_m": 2.1,
+   "name": "the doorway's height at the wall plane"
+  },
+  {
+   "match": "door[^,]*width|doorway[^,]*wide",
+   "size_m": 1.2,
+   "name": "the doorway's width"
+  },
+  {
+   "match": "enamel disc|enamel roundel",
+   "size_m": 0.9,
+   "name": "the blank vitreous-enamel disc, rim to rim"
+  },
+  {
+   "match": "wall tile course|tile course",
+   "size_m": 0.15,
+   "name": "one course of the glazed wall tiling"
+  }
+ ],
+ "refusals": {
+  "interior_fabric": "glazed tile|crackle-glazed|dado band|terrazzo|brass strip|enamel disc|guidance line|opal-glass|cornice",
+  "interior_fabric_why": "A facing outside the station has none of this; naming it even to forbid it puts it in front of the generator.",
+  "panelling": "glazed tile|dado band|crackle-glazed",
+  "panelling_why": "The tiling belongs to the rooms that carry the dado band (the ruled anchor names it); a prompt whose room has no band must not name it.",
+  "rationed_line": "^enamel disc:[^\\n]*$",
+  "entitled_to_rationed": "platform|PLATFORM",
+  "rationed_why": "The blank enamel disc is the platform's alone; repeated in every room it becomes wallpaper.",
+  "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this station as the materials and the anchor below describe it. Those words replace anything the earlier attempt was told.",
+  "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-station prompt."
+ },
+ "paths": {
+  "batch_dir": "design/batches/underground-2",
+  "fixture_dir": "fixtures/underground-2",
+  "store_dir": "backdrops",
+  "readings_dir": "design/plan-draft/measured/underground-2",
+  "world_query": "underground-2"
+ },
+ "use_case": "location-study",
+ "constraints": {
+  "surfaces": "Every surface carries only what its materials say: the enamel disc is blank, the tiling is plain \u2014 no legible text, no signage copy, no station names, no logos, no posters, no route diagrams"
+ }
+}

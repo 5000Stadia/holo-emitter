@@ -11,5 +11,9 @@ window.HOLO_WORLDS = [
  {
   "id": "nav-manor",
   "title": "A circa-1660 English manor"
+ },
+ {
+  "id": "underground-2",
+  "title": "BRUNSWICK HALT 1931"
  }
 ];

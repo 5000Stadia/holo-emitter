@@ -205,6 +205,17 @@
     font-size: 2rem; cursor: pointer; z-index: 2;
   }
   #chevron-left { left: 0; border-left: none; }
+  /* [Kabe, 2026-08-30] "An up arrow instead of a turn arrow, indicating that
+     you can walk forward in the same room." Shown only when the facing carries
+     a threshold — a jamb-less way on (a long room's next box, the court's
+     mouth). Same chrome as the chevrons; sits low and centred, where the floor
+     ahead is. */
+  #chevron-forward {
+    position: absolute; left: 50%; bottom: 9%; top: auto;
+    transform: translateX(-50%);
+    width: 4%; min-width: 40px; height: 12%;
+  }
+  #chevron-forward[hidden] { display: none; }
   #chevron-right { right: 0; border-right: none; }
   /* Bottom chrome: narration log + inventory strip = 7.6rem.
      Bare surfaces — no labels, no empty-state text (the product's voice
@@ -294,6 +305,7 @@
     <div id="veil" class="chrome"></div>
     <button id="chevron-left" class="chevron affordance chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
+    <button id="chevron-forward" class="chevron affordance chrome" aria-label="walk forward" hidden>&uarr;</button>
     <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="icon-enter" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g><g class="icon-exit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></g></svg></button>
     <select id="world-switch" class="chrome" aria-label="which place this is" hidden></select>
     <div id="entity-controls"></div>
@@ -827,6 +839,25 @@
       var k = keyOf(vs);
       whereamiPainting.hidden =
         !(real && manifest[k] && !(backdrops[k] && backdrops[k].image));
+      /* [Kabe] THE UP ARROW: this facing carries a threshold — a way on with
+         no jamb (a long room's next box) — and walking forward is a control,
+         not a hunt for the right pixels. Hidden the moment the facing has
+         none. */
+      try {
+        var fwd = document.getElementById("chevron-forward");
+        var fex = null;
+        if (real && held && held.exits) {
+          for (var xi = 0; xi < held.exits.length; xi++) {
+            var hx = held.exits[xi];
+            /* `way_` is derive-world's name for an open_edge: a jamb-less way
+               on — the long room's next box, the court's mouth. A door stays a
+               door: you click it. */
+            if (hx && hx.facing === vs.facing && /^way_/.test(hx.id)) { fex = hx.id; break; }
+          }
+        }
+        if (fex) { fwd.dataset.exit = fex; fwd.hidden = false; }
+        else { delete fwd.dataset.exit; fwd.hidden = true; }
+      } catch (ignoredFwd) { /* chrome only; the picture stands either way */ }
     }
 
     /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
@@ -1886,6 +1917,10 @@
     document.getElementById("chevron-right").addEventListener("click", function (e) {
       turnOrGoThrough("right", e);
     });
+    document.getElementById("chevron-forward").addEventListener("click", function () {
+      var ex = document.getElementById("chevron-forward").dataset.exit;
+      if (ex) dispatch({ type: "go", exit: ex });
+    });
 
     /* Row 8: fullscreen. One state (real OS fullscreen OR the in-page
        maximize fallback) drives html.fs-active and the button's label
@@ -1965,6 +2000,10 @@
          the document, which is invisible until something makes the page wider
          than the window — and row 15's off-frame control did exactly that. Two
          effects from one press is one too many whatever the page's width. */
+      if (e.key === "ArrowUp") {
+        var fex = document.getElementById("chevron-forward").dataset.exit;
+        if (fex) { dispatch({ type: "go", exit: fex }); e.preventDefault(); return; }
+      }
       if (e.key === "ArrowLeft") { dispatch({ type: "turn", dir: "left" }); e.preventDefault(); }
       else if (e.key === "ArrowRight") { dispatch({ type: "turn", dir: "right" }); e.preventDefault(); }
     });

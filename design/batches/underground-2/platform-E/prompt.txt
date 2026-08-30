@@ -1,0 +1,18 @@
+Use case: location-study, interior
+Asset type: gameplay backdrop for the east wall of the platform, circa-1931 London Underground station, below street level
+Gate anchor: the tiled dado band's top edge above the floor, 1.20 m.
+Primary request: Paint the east wall of the platform of a circa-1931 London Underground station, below street level.
+  Its walls are cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall.
+  Overhead: a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.
+  The open side is flanked at each end, at the edge of frame, by a low coursed-stone pier where the boundary wall stops; the flat stone cap on each pier sits at exactly 0.95 m above the ground at the open side's line. Between the piers nothing stands. It is masonry standing in the open air: no timber rail, no lining and no built interior finish of any kind appears anywhere in this picture.
+On this wall: there is no wall here at all. It is open across its full 6.40 m width, with no wall, gate, parapet, railing or hedge across any part of it, and this place's own floor runs straight out through it and continues as the same floor beyond, to the far horizon under open sky.
+  There is no window: this wall carries no glazed opening of any kind.
+Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
+  The wall you face is square on and shows its whole width: its left corner stands about a third of the way in from the picture's left edge and its right corner about a third of the way in from the right edge, and from each corner a side wall runs toward you and leaves the picture through the top, left and right edges.
+  Seen from where you stand, the whole 6.4 m of the wall spans about half the picture's width — no closer and no larger than that; the wall does not crowd the frame.
+  The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
+  Image 1 draws these lines exactly; follow it.
+Style/medium: a high-realism digital painting in the manner of a hand-tinted period architectural record photograph — glazed reflective tiling, warm incandescent light pooling from the lamps with gentle falloff, no visible light source beyond them, no daylight
+  The layout diagram is a black-and-white line drawing on paper and holds no colour of its own: the picture is this painting, in the materials named above.
+Constraints: the platform is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
+  Every surface carries only what its materials say: the enamel disc is blank, the tiling is plain — no legible text, no signage copy, no station names, no logos, no posters, no route diagrams, and Image 1 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.

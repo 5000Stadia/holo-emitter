@@ -1,0 +1,11 @@
+# underground-2 — step log (2026-08-30)
+
+[Kabe]: a new two-room test, genre the Navigator's pick, unique to test genre-specific things; room two "two room squares wide", walked with an up arrow, not a turn; all rooms counted in small room boxes. Genre picked: a 1931 London Underground station, BRUNSWICK HALT — glazed tiling, a dado band ruler, no windows below ground (the first pack to stress the no-window clause everywhere), and a hand-tinted-photograph medium.
+
+| # | step | time | outcome | hang-up / cause | fix (now in the tree) |
+|---|---|---|---|---|---|
+| 0 | author packs/underground-2: booking hall (1 box) + PLATFORM (2 boxes: cells `platform` + `platform_far`, one name, joined by a full-width `open_edge`); box unit 6.4 m recorded in pack.json | ~1 turn | plan authored | — | — |
+| 1 | the long-room law | — | validator refused: "wall_line 19.8 is not the line this facing views (13.4)" — a facing had to view its own edge | the deep facings look ACROSS the open edge to the far cell's wall (two paintings of one wall at 11.2 m and 4.8 m; the up arrow cuts between them) | validate-plan: a facing may view the first RULED line across its own full-width open edges (`throughLine`, 8-hop cap); a narrower mouth still views its edge (the court) |
+| 2 | the up arrow | — | built | the page had no walk-forward control (thresholds were click-hunting) | `#chevron-forward` (chrome, bottom-centre, ↑ / ArrowUp): shown when the facing carries a `way_` exit (derive-world's name for an open_edge); dispatches the same go; keyboard.spec pins the new focusable |
+| 3 | same-name narration | — | built | "You pass from the platform into the platform." | derive-world: walking within one name reads "You walk on down / back along the platform." (directed by the exit's facing so the two ways differ — the validator refuses shared prose) |
+| 4 | derive → validate → bake → emit | ~40 s | 12/12 packets (3 leads), prompts leak-clean; the deep ask reads "the whole 6.4 m of the wall spans about half the picture's width" (11.2 m camera — the long-platform shot) | whereami.spec's surface census was missing every non-manor place (red since cyberpunk, unnoticed in the suite's standing red) | the 8 places enumerated in design/surface-strings.md; spec green |

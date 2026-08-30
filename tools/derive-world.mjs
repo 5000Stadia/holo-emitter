@@ -72,10 +72,18 @@ for (const key of domain) {
   if (lines[key] || target === "*") continue;
   const ex = locations.flatMap((l) => l.exits).find((e) => e.id === target);
   if (intent === "go" && ex) {
-    if (outcome === "arrive") lines[key] = `You pass from the ${nameOf(ex.from)} into the ${nameOf(ex.to)}.`;
+    /* [underground-2] A LONG ROOM'S BOXES SHARE ONE NAME, and "you pass from
+       the platform into the platform" is a sentence about ids, not a place.
+       Walking within a name gets its own line, directed by the exit's facing
+       so the two ways read differently (the validator refuses shared prose). */
+    if (outcome === "arrive") lines[key] = (nameOf(ex.from) === nameOf(ex.to)
+      ? `You walk ${ex.facing === "E" || ex.facing === "S" ? "on down" : "back along"} the ${nameOf(ex.to)}.`
+      : `You pass from the ${nameOf(ex.from)} into the ${nameOf(ex.to)}.`);
     /* [hospital-3 step 2b] PER-ENTITY PROSE: two doors into one room share a
        destination, so the line names the door's own side too. */
-    else if (outcome === "refused_unreachable") lines[key] = `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} is not before you from here.`;
+    else if (outcome === "refused_unreachable") lines[key] = (nameOf(ex.from) === nameOf(ex.to)
+      ? `The way ${ex.facing === "E" || ex.facing === "S" ? "on down" : "back along"} the ${nameOf(ex.to)} is not before you from here.`
+      : `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} is not before you from here.`);
     else lines[key] = `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} does not answer.`;
   } else {
     lines[key] = `Nothing comes of it.`;

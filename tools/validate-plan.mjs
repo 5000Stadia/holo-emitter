@@ -984,8 +984,39 @@ export function validatePlan(plan, world, records) {
         push(`room "${r.id}" facing ${f}: a ${fc.type} facing views a wall, so it must not carry a far_line`);
       }
       const geo = facingGeometry(r.rect, f, fc.type === "open" ? fc.far_line : undefined);
-      if (!isNum(fc.wall_line) || Math.abs(fc.wall_line - geo.wallLine) > 1e-9) {
-        push(`room "${r.id}" facing ${f}: wall_line ${fc.wall_line} is not the line this facing views (${geo.wallLine})`);
+      /* [underground-2, Kabe's long room] A FACING MAY LOOK ACROSS ITS OWN
+         OPEN EDGES. A room two boxes long is two cells joined by a full-width
+         `open_edge`; the cell's facing toward its neighbour views the first
+         RULED line beyond — the far cell's wall — and its painting is the room
+         continuing (the up arrow walks between two paintings of that same
+         wall). The walk crosses only edges that span this facing's whole
+         width; anything narrower is a mouth, and a mouth's facing still views
+         its own edge (the court). */
+      const throughLine = (() => {
+        let cell = r, line = geo.wallLine, hops = 0;
+        while (hops++ < 8) {
+          const span = f === "N" || f === "S"
+            ? { lo: cell.rect.x0, hi: cell.rect.x1 } : { lo: cell.rect.y0, hi: cell.rect.y1 };
+          const oe = (plan.openings || []).find((o) =>
+            o.kind === "open_edge" && o.floor === cell.floor && o.rect &&
+            (o.joins || []).includes(cell.id) &&
+            (f === "N" || f === "S"
+              ? Math.abs(o.rect.y0 - line) < EPS && Math.abs(o.rect.y1 - line) < EPS &&
+                o.rect.x0 - EPS <= span.lo && span.hi <= o.rect.x1 + EPS
+              : Math.abs(o.rect.x0 - line) < EPS && Math.abs(o.rect.x1 - line) < EPS &&
+                o.rect.y0 - EPS <= span.lo && span.hi <= o.rect.y1 + EPS));
+          if (!oe) return line;
+          const nextId = (oe.joins || []).find((j) => j !== cell.id);
+          const next = rooms.find((x) => x.id === nextId);
+          if (!next) return line;
+          cell = next;
+          line = facingGeometry(next.rect, f).wallLine;
+        }
+        return line;
+      })();
+      if (!isNum(fc.wall_line) ||
+          (Math.abs(fc.wall_line - geo.wallLine) > 1e-9 && Math.abs(fc.wall_line - throughLine) > 1e-9)) {
+        push(`room "${r.id}" facing ${f}: wall_line ${fc.wall_line} is neither this facing's own edge (${geo.wallLine}) nor the first ruled line across its open edges (${throughLine})`);
         continue;
       }
       if (!isObj(fc.standpoint) || !isNum(fc.standpoint.x) || !isNum(fc.standpoint.y)) {
