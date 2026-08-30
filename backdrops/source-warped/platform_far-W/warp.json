@@ -8,13 +8,13 @@
  ],
  "verdict": "warped",
  "why": null,
- "sha256": "912cf3ec78d024892e672478174ee125e24e1553e1a17afb0a8f1dae43c1e23c",
- "instrument": "ccaf6aa6df07",
+ "sha256": "d49095d1d63bbcd0d41236ddb6eab0d9ed984bc840149aa9759b3784f684dc81",
+ "instrument": "06f0bf598473",
  "reading_cache": null,
  "before": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": 0.26,
-  "delta_eye_pct": -4.19,
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -14.32,
+  "delta_eye_pct": -2.99,
   "hold_family": "unfitted-horizon"
  },
  "source_notes": {
@@ -22,20 +22,20 @@
   "corners": "measured",
   "vanishing_point": "declared-principal-point",
   "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
-  "px_per_m_at_wall": 91.667
+  "px_per_m_at_wall": 78.333
  },
  "target_notes": {
   "horizontal": "the declared corners, both inside the frame",
   "corners_in_frame": true,
-  "ppm_source": 91.667,
+  "ppm_source": 78.333,
   "ppm_target": 91.429,
-  "scale_k": 0.9974
+  "scale_k": 1.1672
  },
  "source_box": {
-  "x0": 357.0,
-  "x1": 1172.0,
-  "yc": 296.0,
-  "yf": 630.0,
+  "x0": 304.0,
+  "x1": 1226.0,
+  "yc": 261.0,
+  "yf": 616.0,
   "vx": 768.0,
   "vy": 526.1
  },
@@ -58,8 +58,8 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.644,
-  "source_ppm": 91.667
+  "source_storey_m": 4.532,
+  "source_ppm": 78.333
  },
  "apertures": {
   "doors": {
@@ -85,32 +85,32 @@
    "name": "corner_left",
    "kind": "room_corner",
    "target": 475.429,
-   "source": 357.0,
-   "ask_px": 118.4,
+   "source": 304.0,
+   "ask_px": 171.4,
    "residual_px": 0.0
   },
   {
    "name": "door:door01:left",
    "kind": "door",
    "target": 713.143,
-   "source": 677.0,
-   "ask_px": 36.1,
+   "source": 687.0,
+   "ask_px": 26.1,
    "residual_px": 0.0
   },
   {
    "name": "door:door01:right",
    "kind": "door",
    "target": 822.857,
-   "source": 858.0,
-   "ask_px": -35.1,
+   "source": 841.0,
+   "ask_px": -18.1,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1060.571,
-   "source": 1172.0,
-   "ask_px": -111.4,
+   "source": 1226.0,
+   "ask_px": -165.4,
    "residual_px": 0.0
   }
  ],
@@ -119,87 +119,87 @@
    "name": "ceiling_line",
    "kind": "room_corner",
    "target": 323.403,
-   "source": 296.0,
-   "ask_px": 27.4,
+   "source": 261.0,
+   "ask_px": 62.4,
    "residual_px": 0.0
   },
   {
    "name": "door:door01:head",
    "kind": "door",
    "target": 451.403,
-   "source": 441.0,
-   "ask_px": 10.4,
+   "source": 396.0,
+   "ask_px": 55.4,
    "residual_px": 0.0
   },
   {
    "name": "floor_line",
    "kind": "room_corner",
    "target": 634.26,
-   "source": 630.0,
-   "ask_px": 4.3,
+   "source": 616.0,
+   "ask_px": 18.3,
    "residual_px": 0.0
   }
  ],
  "stretch": {
-  "x_scale_min": 0.606,
-  "x_scale_max": 0.757,
-  "y_scale_min": 0.883,
-  "y_scale_max": 0.967,
+  "x_scale_min": 0.617,
+  "x_scale_max": 0.712,
+  "y_scale_min": 0.831,
+  "y_scale_max": 0.948,
   "x_segments": [
    {
     "name": "corner_left..door:door01:left",
     "target_px": 237.7,
-    "source_px": 320.0,
-    "scale": 0.743
+    "source_px": 383.0,
+    "scale": 0.621
    },
    {
     "name": "door:door01:left..door:door01:right",
     "target_px": 109.7,
-    "source_px": 181.0,
-    "scale": 0.606
+    "source_px": 154.0,
+    "scale": 0.712
    },
    {
     "name": "door:door01:right..corner_right",
     "target_px": 237.7,
-    "source_px": 314.0,
-    "scale": 0.757
+    "source_px": 385.0,
+    "scale": 0.617
    }
   ],
   "y_segments": [
    {
     "name": "ceiling_line..door:door01:head",
     "target_px": 128.0,
-    "source_px": 145.0,
-    "scale": 0.883
+    "source_px": 135.0,
+    "scale": 0.948
    },
    {
     "name": "door:door01:head..floor_line",
     "target_px": 182.9,
-    "source_px": 189.0,
-    "scale": 0.967
+    "source_px": 220.0,
+    "scale": 0.831
    }
   ],
   "monotone": true,
   "folded_px": 0
  },
  "max_residual_px": 0.0,
- "revealed_px": 524585,
- "revealed_fraction": 0.33352,
+ "revealed_px": 689363,
+ "revealed_fraction": 0.43829,
  "revealed_fill": "plane_recession",
  "fill_fade_px": 24,
- "filled_px": 590305,
+ "filled_px": 746303,
  "mirror_band_px": 0,
  "seam_blend_px": 24,
  "column_count": 4,
  "row_count": 3,
- "seconds": 6.82,
+ "seconds": 1.72,
  "warped_image": "backdrops/source-warped/platform_far-W/warped.png",
  "asked_from": "backdrops/source/platform_far-W/row23-a6a27b21.prompt.txt",
- "warped_sha256": "d7a5cff06aca1b1c7e77daa11fe3abc4cffc090bcdbb866d86def1f34f096120",
+ "warped_sha256": "dcdd5f19231e44dea872bd4e1145523cfa3c501729f974f6748af9ea0a45d3ef",
  "after": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": -3.39,
-  "delta_eye_pct": 3.25,
-  "hold_family": "unfitted-horizon"
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -10.68,
+  "delta_eye_pct": -7.98,
+  "hold_family": null
  }
 }
