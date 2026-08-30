@@ -1705,9 +1705,9 @@
        moved down until its bottom edge sits on the threshold; the horizons then
        differ by the gap, a smaller lie than any invented floor. When the far
        frame already reaches the foot, nothing moves. */
+    var dw = W * k, dh = H * k;
     var footHere = a.y + a.h;
     if (dy + dh < footHere) dy = footHere - dh;
-    var dw = W * k, dh = H * k;
     ctx.save();
     ctx.beginPath();
     ctx.rect(a.x, a.y, a.w, a.h);
