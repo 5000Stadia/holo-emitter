@@ -3,10 +3,10 @@
   "artifacts": {
     "baked": {
       "artifacts": {
-        "backdrops/baked.js": "b010a375120dced1f8ee2f5cb0ed2f86ee0393d8589222346c04e13b6a1d5f35"
+        "backdrops/baked.js": "6fd742ea2de852316522bb5e1e8b10918441037583255a402017c1420be69088"
       },
-      "at": "2026-08-29T09:50:08",
-      "input_digest": "efa2fbb05df004a9d3bd90496bbe474c0c76af985d62c14948791577987dbd8b",
+      "at": "2026-08-29T18:19:32",
+      "input_digest": "55bf22228d89f47392035d559a02c24c14f358904936da02230663f3a5450530",
       "inputs": 150
     },
     "material_legacy": {
