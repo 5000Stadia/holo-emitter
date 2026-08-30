@@ -697,7 +697,10 @@ export function inkGeometry(meta) {
   };
   const junction = (side, name, part) => {
     const s = g[side];
-    if (!s || !s[part]) return;
+    /* [Kabe, 2026-08-30, the run wall] A corner beyond the frame has junction
+       lines the geometry may return only half of, or none: a missing endpoint
+       is a junction the sheet does not draw, never a crash. */
+    if (!s || !s[part] || !s[part].from || !s[part].to) return;
     push(name, "heavy", s[part].from.x, s[part].from.y, s[part].to.x, s[part].to.y);
   };
   if (bounded) {
