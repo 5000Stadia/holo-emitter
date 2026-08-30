@@ -1550,11 +1550,6 @@
    * `depth_m` from this room's face: the far room is seen to that plane, this
    * room's floor runs to it. Half, by Kabe's ruling above. */
   var PASSAGE_SHARE = 0.5;
-  /* The blend must READ: at a 0.2 m partition seen from 5 m the geometric band
-   * is 8 rows, a hard cut to the eye. The ramp spans at least this many rows
-   * above the floor line — a look constant, named, and the only place the
-   * transition is allowed to be taller than the wall's thickness. */
-  var PASSAGE_BLEND_MIN_PX = 24;
   /* [Kabe, 2026-08-30] "The door frame in the background room isn't showing
    * the room two rooms back." How many rooms deep a through-view looks: 2 is
    * this room's doorway showing the next room AND that room's doorway showing
@@ -1792,7 +1787,7 @@
        floor at depth dHere + depth_m x PASSAGE_SHARE, and the near floor fills
        from there to the wall's own floor line. */
     var thresholdY = hHere + (floorHere - hHere) * dHere / (dHere + (a.depth_m || 0) * PASSAGE_SHARE);
-    var openH = Math.min(a.y + a.h, floorHere) - a.y;   // the opening ends at the wall's floor line; the blend below begins at thresholdY
+    var openH = Math.min(a.y + a.h, thresholdY) - a.y;   // the opening ends at the leaf's plane
     if (dh < openH) {
       var kFill = openH / H;
       dx = W / 2 + kFill * ((a.beyond_offset_m || 0) * sDest - W / 2);
@@ -1806,14 +1801,14 @@
        nonsensical." A far room is seen THROUGH the wall plane; the wall plane
        ends at its floor line; so the composite ends there whatever the door's
        rectangle or trace says about the threshold. */
-    var footHere = Math.min(a.y + a.h, floorHere);
+    var footHere = Math.min(a.y + a.h, thresholdY);
     if (dy + dh < footHere) dy = footHere - dh;
     ctx.save();
     ctx.beginPath();
     apertureClipPath(ctx, a);
     ctx.clip();
     ctx.beginPath();
-    ctx.rect(0, 0, W, floorHere);           // and nothing below the wall's own floor line
+    ctx.rect(0, 0, W, thresholdY);          // and nothing below the leaf's plane
     ctx.clip();
     /* The far room is smaller than the hole it is seen through, so its frame
      * does not cover the opening — and the strip left over is the floor at
@@ -1920,28 +1915,30 @@
     ctx.fillStyle = "#000000";
     ctx.fillRect(a.x, a.y, a.w, a.h);
     ctx.restore();
-    /* [Kabe, 2026-08-30] THE PASSAGE FLOOR, BLENDED. "Inside the door's base
-       the foreground floor should enter the jamb about half and the background
-       about half" and then "transparency-blur the transition of the two floors
-       instead of a line seam". So the far room's floor runs to this wall's
-       floor line (never below it), and this room's own floor — the canvas's
-       rows below the floor line, mirrored about it so the join is seamless —
-       is laid over the passage band with a ramp: invisible at the leaf's plane
-       (`thresholdY`, mid-thickness), solid at the floor line. Row by row,
-       because a ramp is one alpha per row and the band is a few dozen rows. */
-    var sillBottom = Math.min(a.y + a.h, floorHere);
-    var sillTop = Math.min(thresholdY, sillBottom - PASSAGE_BLEND_MIN_PX);
+    /* [Kabe, 2026-08-30] THE PASSAGE FLOOR, SHARED AT A SOLID SEAM. "Inside the
+       door's base the foreground floor should enter the jamb about half, and
+       the background about half" — then, after a blended version: "if one
+       room's floor looks completely different from the other, having them blur
+       looks very different from reality. There should be a solid seam in the
+       centre of the door jamb, half way between the two rooms." So the far
+       room is seen to the leaf's plane (`thresholdY`, PASSAGE_SHARE of the
+       wall's thickness) and this room's own floor — the canvas's rows below
+       the floor line, mirrored about it so the join at the floor line is
+       seamless — fills from that plane to the floor line, solid. The boundary
+       between the two floors is the seam a threshold has. */
+    var sillTop = thresholdY, sillBottom = Math.min(a.y + a.h, floorHere);
     if (sillBottom - sillTop > 0.5 && floorHere < H) {
       ctx.save();
       ctx.beginPath();
       apertureClipPath(ctx, a);
       ctx.clip();
-      var r0 = Math.ceil(sillTop), r1 = Math.floor(sillBottom);
-      for (var r = r0; r <= r1 && r < H; r++) {
-        var srcRow = Math.min(H - 1, Math.round(2 * floorHere - r));
-        ctx.globalAlpha = Math.max(0, Math.min(1, (r - sillTop) / (sillBottom - sillTop)));
-        ctx.drawImage(ctx.canvas, 0, srcRow, W, 1, 0, r, W, 1);
-      }
+      ctx.beginPath();
+      ctx.rect(a.x - 1, sillTop, a.w + 2, sillBottom - sillTop);
+      ctx.clip();
+      var sy = Math.floor(floorHere), sh = Math.min(Math.ceil(sillBottom - sillTop) + 1, H - sy);
+      ctx.translate(0, 2 * floorHere);
+      ctx.scale(1, -1);
+      ctx.drawImage(ctx.canvas, 0, sy, W, sh, 0, sy, W, sh);
       ctx.restore();
     }
     return true;
