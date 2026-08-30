@@ -1969,9 +1969,12 @@
        vs floor), so the blur could sit a row off the dither and leave its
        bottom row raw. Computed once; the blur writes one row beyond each edge
        of the dither so it always covers it whole. */
-    var seamTop = Math.max(0, Math.round(sillTop - SEAM_MIX_PX / 2));
+    /* The band's height may also be overridden per render (the comparison
+       harness sizes it); the constant is the product's. */
+    var seamMix = (options && options.seam_mix_px) || SEAM_MIX_PX;
+    var seamTop = Math.max(0, Math.round(sillTop - seamMix / 2));
     if ((seamStyle === "dither" || seamStyle === "soft") && sillBottom - sillTop > 0.5 && floorHere < H) {
-      var bandH = SEAM_MIX_PX;
+      var bandH = seamMix;
       var bandTop = seamTop;
       var bx0 = Math.max(0, Math.floor(a.x - 1));
       var bx1 = Math.min(W, Math.ceil(a.x + a.w + 1));
@@ -2024,7 +2027,7 @@
          the filter has both floors to sample, and the write cannot leave the
          band. */
       var blTop = Math.max(0, seamTop - 1);
-      var blH = SEAM_MIX_PX + 2;
+      var blH = seamMix + 2;
       var blFeed = 4;
       var blStrip = makeCanvas(doc, W, blH + 2 * blFeed);
       blStrip.getContext("2d").drawImage(ctx.canvas, 0, blTop - blFeed, W, blH + 2 * blFeed, 0, 0, W, blH + 2 * blFeed);
