@@ -91,7 +91,7 @@
           "origin": false,
           "lead_key": "platform/W",
           "carriers": 0,
-          "has_image": true,
+          "has_image": false,
           "painted": false,
           "continues": "platform/W",
           "depends_on": null
@@ -117,7 +117,7 @@
           "origin": false,
           "lead_key": "platform/W",
           "carriers": 0,
-          "has_image": true,
+          "has_image": false,
           "painted": false,
           "continues": "platform/W",
           "depends_on": null
@@ -151,7 +151,7 @@
           "origin": false,
           "lead_key": "platform_far/W",
           "carriers": 0,
-          "has_image": true,
+          "has_image": false,
           "painted": false,
           "continues": "platform_far/W",
           "depends_on": null
@@ -177,7 +177,7 @@
           "origin": false,
           "lead_key": "platform_far/W",
           "carriers": 0,
-          "has_image": true,
+          "has_image": false,
           "painted": false,
           "continues": "platform_far/W",
           "depends_on": null
@@ -191,8 +191,8 @@
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
   "_generated": "2026-08-30",
   "facings_in_plan": 12,
-  "emitted": 0,
-  "skipped": 12,
+  "emitted": 4,
+  "skipped": 8,
   "skipped_entries": [
     {
       "key": "booking_hall/N",
@@ -241,36 +241,6 @@
       "skipped": "exists: backdrops/booking_hall/W.png"
     },
     {
-      "key": "platform/N",
-      "room": "platform",
-      "facing": "N",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "skipped": "returned, unmeasured: 1 candidate(s) on disk",
-      "returns": [
-        "backdrops/source/platform-N/row23-ab082589.png"
-      ],
-      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
-    },
-    {
-      "key": "platform/S",
-      "room": "platform",
-      "facing": "S",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "skipped": "returned, unmeasured: 1 candidate(s) on disk",
-      "returns": [
-        "backdrops/source/platform-S/row23-614418d6.png"
-      ],
-      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
-    },
-    {
       "key": "platform/E",
       "room": "platform",
       "facing": "E",
@@ -293,36 +263,6 @@
         "door"
       ],
       "skipped": "exists: backdrops/platform/W.png"
-    },
-    {
-      "key": "platform_far/N",
-      "room": "platform_far",
-      "facing": "N",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "skipped": "returned, unmeasured: 1 candidate(s) on disk",
-      "returns": [
-        "backdrops/source/platform_far-N/row23-de93168c.png"
-      ],
-      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
-    },
-    {
-      "key": "platform_far/S",
-      "room": "platform_far",
-      "facing": "S",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "skipped": "returned, unmeasured: 1 candidate(s) on disk",
-      "returns": [
-        "backdrops/source/platform_far-S/row23-0fa71f22.png"
-      ],
-      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
     },
     {
       "key": "platform_far/E",
@@ -350,6 +290,502 @@
     }
   ],
   "entries": [
+    {
+      "key": "platform/N",
+      "room": "platform",
+      "facing": "N",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "e8ecc0f00395da4c89b51357d353bb1ffb67a73522e6f28c60af16beb5e37a05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333348,
+      "corner_x1_px": 2816.0000000000005,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333348,
+            2816.0000000000005
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "platform/N",
+        "location": "platform",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform/W",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform/W.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform/E",
+            "painted": true
+          }
+        ],
+        "lead": "platform/W",
+        "is_lead": false,
+        "continues": "platform/W",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform-N/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "72f25b6a1fc75e9f96f344e1a7d493fcd876f107d951886bf1742b021788bc84",
+        "source_sha256": "b8d9efefdd5bc9c2b84a4aa7ed35d430a1da8a290f19c4768b09442667f09c42"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/platform/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-platform.png",
+        "rel": "backdrops/platform/W.png",
+        "room": "platform",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ab082589",
+          "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+          "prompt": "backdrops/source/platform-N/row23-ab082589.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform/S",
+      "room": "platform",
+      "facing": "S",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "68a454611e8491f789a33b47366eb298114d3b99e2fe5ffede5756c0993b8e05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280.0000000000005,
+      "corner_x1_px": 1450.6666666666665,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1280.0000000000005,
+            1450.6666666666665
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "platform/S",
+        "location": "platform",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform/E",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform/E.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform/W",
+            "painted": true
+          }
+        ],
+        "lead": "platform/W",
+        "is_lead": false,
+        "continues": "platform/W",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform-S/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "a0cda8e600990f4a3f95fd7de47c568756437e7307ef53367ba50483655867dc",
+        "source_sha256": "efe1c97bcb52b30ce462f2d6a90229a83e08d26435da6b900896bb18ac37e9a6"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/platform/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-platform.png",
+        "rel": "backdrops/platform/W.png",
+        "room": "platform",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "614418d6",
+          "candidate": "backdrops/source/platform-S/row23-614418d6.png",
+          "prompt": "backdrops/source/platform-S/row23-614418d6.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform_far/N",
+      "room": "platform_far",
+      "facing": "N",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform_far-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "68a454611e8491f789a33b47366eb298114d3b99e2fe5ffede5756c0993b8e05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280.0000000000005,
+      "corner_x1_px": 1450.6666666666665,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1280.0000000000005,
+            1450.6666666666665
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "platform_far/N",
+        "location": "platform_far",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform_far/W",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform_far/W.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform_far/E",
+            "painted": true
+          }
+        ],
+        "lead": "platform_far/W",
+        "is_lead": false,
+        "continues": "platform_far/W",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform_far-N/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "2102c3d28673ae61ba34ee322c29b637ac15caa4d63e2220d7a191f85e91bded",
+        "source_sha256": "dcdd5f19231e44dea872bd4e1145523cfa3c501729f974f6748af9ea0a45d3ef"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform_far/W",
+      "is_lead": false,
+      "continues": "platform_far/W",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/platform_far/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-platform_far.png",
+        "rel": "backdrops/platform_far/W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "de93168c",
+          "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
+          "prompt": "backdrops/source/platform_far-N/row23-de93168c.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform_far/S",
+      "room": "platform_far",
+      "facing": "S",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform_far-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "e8ecc0f00395da4c89b51357d353bb1ffb67a73522e6f28c60af16beb5e37a05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333348,
+      "corner_x1_px": 2816.0000000000005,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333348,
+            2816.0000000000005
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "platform_far/S",
+        "location": "platform_far",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform_far/E",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform_far/E.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform_far/W",
+            "painted": true
+          }
+        ],
+        "lead": "platform_far/W",
+        "is_lead": false,
+        "continues": "platform_far/W",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform_far-S/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "60f7aa87a63a92eeb3e1a23efe2089ef2c926f09685e69f3b0efeb8231a3bd6a",
+        "source_sha256": "bf21975adf484e4061937fa0d05d561392a67b485349380ab675fa0b8732c470"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform_far/W",
+      "is_lead": false,
+      "continues": "platform_far/W",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/platform_far/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-platform_far.png",
+        "rel": "backdrops/platform_far/W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "0fa71f22",
+          "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
+          "prompt": "backdrops/source/platform_far-S/row23-0fa71f22.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
     {
       "key": "booking_hall/N",
       "room": "booking_hall",
@@ -687,254 +1123,6 @@
       "retry_cap": 2
     },
     {
-      "key": "platform/N",
-      "room": "platform",
-      "facing": "N",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform-N",
-      "register": "g5-noappendix",
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.333,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.760228,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.473472,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.473872,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.14127200000007,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": {
-        "key": "platform/N",
-        "location": "platform",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform/W",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform/W.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform/E",
-            "painted": true
-          }
-        ],
-        "lead": "platform/W",
-        "is_lead": false,
-        "continues": "platform/W",
-        "order_position": 1,
-        "depends_on": null,
-        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 3,
-        "file": "design/batches/underground-2/platform-N/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "72f25b6a1fc75e9f96f344e1a7d493fcd876f107d951886bf1742b021788bc84",
-        "source_sha256": "b8d9efefdd5bc9c2b84a4aa7ed35d430a1da8a290f19c4768b09442667f09c42"
-      },
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform/W",
-      "is_lead": false,
-      "continues": "platform/W",
-      "order_position": 1,
-      "lead_image": {
-        "rel": "backdrops/platform/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform.png",
-        "rel": "backdrops/platform/W.png",
-        "room": "platform",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "ab082589",
-          "candidate": "backdrops/source/platform-N/row23-ab082589.png",
-          "prompt": "backdrops/source/platform-N/row23-ab082589.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
-      "key": "platform/S",
-      "room": "platform",
-      "facing": "S",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform-S",
-      "register": "g5-noappendix",
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.333,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.760228,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.473472,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.473872,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.14127200000007,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": {
-        "key": "platform/S",
-        "location": "platform",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform/E",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform/E.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform/W",
-            "painted": true
-          }
-        ],
-        "lead": "platform/W",
-        "is_lead": false,
-        "continues": "platform/W",
-        "order_position": 3,
-        "depends_on": null,
-        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 3,
-        "file": "design/batches/underground-2/platform-S/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "a0cda8e600990f4a3f95fd7de47c568756437e7307ef53367ba50483655867dc",
-        "source_sha256": "efe1c97bcb52b30ce462f2d6a90229a83e08d26435da6b900896bb18ac37e9a6"
-      },
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform/W",
-      "is_lead": false,
-      "continues": "platform/W",
-      "order_position": 3,
-      "lead_image": {
-        "rel": "backdrops/platform/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform.png",
-        "rel": "backdrops/platform/W.png",
-        "room": "platform",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "614418d6",
-          "candidate": "backdrops/source/platform-S/row23-614418d6.png",
-          "prompt": "backdrops/source/platform-S/row23-614418d6.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
       "key": "platform/E",
       "room": "platform",
       "facing": "E",
@@ -1153,254 +1341,6 @@
           "id": "4c9f614b",
           "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
           "prompt": "backdrops/source/platform-W/row23-4c9f614b.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
-      "key": "platform_far/N",
-      "room": "platform_far",
-      "facing": "N",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform_far-N",
-      "register": "g5-noappendix",
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.333,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.760228,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.473472,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.473872,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.14127200000007,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": {
-        "key": "platform_far/N",
-        "location": "platform_far",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform_far/W",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform_far/W.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform_far/E",
-            "painted": true
-          }
-        ],
-        "lead": "platform_far/W",
-        "is_lead": false,
-        "continues": "platform_far/W",
-        "order_position": 1,
-        "depends_on": null,
-        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 3,
-        "file": "design/batches/underground-2/platform_far-N/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "2102c3d28673ae61ba34ee322c29b637ac15caa4d63e2220d7a191f85e91bded",
-        "source_sha256": "dcdd5f19231e44dea872bd4e1145523cfa3c501729f974f6748af9ea0a45d3ef"
-      },
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform_far/W",
-      "is_lead": false,
-      "continues": "platform_far/W",
-      "order_position": 1,
-      "lead_image": {
-        "rel": "backdrops/platform_far/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform_far.png",
-        "rel": "backdrops/platform_far/W.png",
-        "room": "platform_far",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "de93168c",
-          "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
-          "prompt": "backdrops/source/platform_far-N/row23-de93168c.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
-      "key": "platform_far/S",
-      "room": "platform_far",
-      "facing": "S",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform_far-S",
-      "register": "g5-noappendix",
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.333,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.760228,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.473472,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.473872,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.14127200000007,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": {
-        "key": "platform_far/S",
-        "location": "platform_far",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform_far/E",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform_far/E.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform_far/W",
-            "painted": true
-          }
-        ],
-        "lead": "platform_far/W",
-        "is_lead": false,
-        "continues": "platform_far/W",
-        "order_position": 3,
-        "depends_on": null,
-        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 3,
-        "file": "design/batches/underground-2/platform_far-S/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "60f7aa87a63a92eeb3e1a23efe2089ef2c926f09685e69f3b0efeb8231a3bd6a",
-        "source_sha256": "bf21975adf484e4061937fa0d05d561392a67b485349380ab675fa0b8732c470"
-      },
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform_far/W",
-      "is_lead": false,
-      "continues": "platform_far/W",
-      "order_position": 3,
-      "lead_image": {
-        "rel": "backdrops/platform_far/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform_far.png",
-        "rel": "backdrops/platform_far/W.png",
-        "room": "platform_far",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "0fa71f22",
-          "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
-          "prompt": "backdrops/source/platform_far-S/row23-0fa71f22.prompt.txt"
         }
       ],
       "retry_cap": 2
