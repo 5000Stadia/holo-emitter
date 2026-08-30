@@ -499,6 +499,7 @@ const meta = {
    * an unstated round silently reads the cand-2 corpus, which is a DIFFERENT
    * painting's numbers. Null for the default directory. */
   measured_round: roundDir || null,
+  instrument: m.instrument ?? null,          // which reader's reading this wall stands on (instrument.py)
   /* [row 32] AND WHERE ITS HORIZON CAME FROM, on the walls where that is not
    * the picture. Four fields, written only on this path so no ordinary
    * promotion's bytes move, and each one load-bearing somewhere else:

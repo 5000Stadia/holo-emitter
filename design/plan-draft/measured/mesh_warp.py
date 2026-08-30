@@ -169,6 +169,7 @@ verdict to a promotion is the Navigator's.
 
 import argparse
 import hashlib
+import instrument
 import json
 import math
 import os
@@ -874,13 +875,16 @@ def reading_for(candidate, key, side, cfg, ref):
     if os.path.exists(cached):
         try:
             d = json.load(open(cached))
-            if d.get("_measured_px") is not None:
+            # [Kabe, 2026-08-30] ...and it is THIS instrument's reading. See
+            # instrument.py: a cached reading from another reader is re-taken.
+            if d.get("_measured_px") is not None and instrument.current(d):
                 d["_cache"] = os.path.relpath(cached, ROOT)
                 return d
         except Exception:
             pass
     d = snap.measure(os.path.join(ROOT, candidate), side, cfg, ref)
     d["_cache"] = None
+    instrument.stamp(d)
     return d
 
 
@@ -1340,6 +1344,7 @@ def warp_wall(key, candidate, mode="plane", plan_path=None):
                    why="the candidate is not on disk: " + candidate)
         return None, rec
     rec["sha256"] = sha256(png)
+    instrument.stamp(rec)                      # which reader made this record
 
     ap = plan_apertures(key, plan_path)
     if not ap.get("ok"):

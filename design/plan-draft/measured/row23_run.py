@@ -138,17 +138,7 @@ def refresh_retries():
         _RETRIES_MTIME = m
         print("  retries.json moved - worklist reloaded (%d walls)" % len(RETRIES))
 OUT = _PACK.paths["readings_dir"]
-#: The instrument's identity: a digest of the two files a reading is a function
-#: of. A cached reading taken by a different instrument is not this reading.
-def _instrument_id():
-    import hashlib
-    h = hashlib.sha256()
-    for _f in ("measure.py", "row23_lib.py", "door_measure.py", "aperture_trace.py"):
-        _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), _f)
-        if os.path.exists(_p):
-            h.update(open(_p, "rb").read())
-    return h.hexdigest()[:12]
-INSTRUMENT_ID = _instrument_id()
+from instrument import INSTRUMENT_ID, stamp as _stamp_instrument, current as _instrument_current
 
 PLAN = _PACK.paths["plan"]
 _PLAN_CACHE = {}
@@ -394,7 +384,7 @@ def measure_roll(key, r, side, cfg, ref, picks):
         # re-promoted twelve walls on their cached readings — the old rows,
         # to the pixel. A reading names the instrument it was taken with, and
         # one taken by another is taken again.
-        if _old.get("instrument") == INSTRUMENT_ID:
+        if _instrument_current(_old):
             return _old
     try:
         d = row23_lib.measure_candidate(os.path.join(ROOT, r["candidate"]),
@@ -417,7 +407,7 @@ def measure_roll(key, r, side, cfg, ref, picks):
                    {"roll_id": r["id"], "candidate": r["candidate"],
                     "verdict": d.get("verdict"), "kind": d.get("kind")})
     d["id"], d["candidate"] = r["id"], r["candidate"]
-    d["instrument"] = INSTRUMENT_ID
+    _stamp_instrument(d)
     os.makedirs(OUT, exist_ok=True)
     json.dump(d, open(_cached, "w"), indent=2)
     return d
@@ -474,6 +464,7 @@ def promote_reading(key, cand_rel, e, side, ref, reading, tolerance=False):
     d = os.path.join(HERE, "manor")
     os.makedirs(d, exist_ok=True)
     path = os.path.join(d, "%s-%s.json" % (loc, f))
+    _stamp_instrument(doc)                     # which reader this promotion stands on
     json.dump(doc, open(path, "w"), indent=2)
     door_reading(path, cand_rel, loc)
     window_reading(path, cand_rel, loc)
@@ -1284,6 +1275,7 @@ def _warp_document(key, warped_rel, reading_after, side, ref, rec):
         % (key, rec.get("candidate"), warped_rel))
     doc["_warp"] = _warp_block(rec)
     doc["_warp"]["tool"] = "design/plan-draft/measured/mesh_warp.py"
+    _stamp_instrument(doc)
     doc_out = os.path.join(HERE, WARP_ROUND, "%s-%s.json" % (loc, fac))
     os.makedirs(os.path.dirname(doc_out), exist_ok=True)
     json.dump(doc, open(doc_out, "w"), indent=2, default=float)
@@ -3050,6 +3042,24 @@ def print_warp_table(rows, stream=sys.stdout):
             stream.write("  %s: %s\n" % (r["wall"], r.get("why")))
 
 
+
+def _foreign_instrument_walls():
+    """Promoted walls whose meta was measured by another reader. [instrument.py]"""
+    out = []
+    try:
+        plan = json.load(open(PLAN))
+        for room in plan.get("rooms", []):
+            for F in "NESW":
+                mp = os.path.join(ROOT, "backdrops", room["id"], F + ".meta.json")
+                if not os.path.exists(mp):
+                    continue
+                meta = json.load(open(mp))
+                if meta.get("instrument") != INSTRUMENT_ID:
+                    out.append("%s/%s" % (room["id"], F))
+    except Exception:
+        pass
+    return out
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--watch", action="store_true",
@@ -3280,6 +3290,13 @@ def main():
               % (time.strftime("%H:%M:%S"), done, tally.get("retry", 0),
                  tally.get("held", 0), tally.get("parked", 0),
                  tally.get("waiting", 0)))
+        # [instrument.py] A promoted wall that stands on another reader's
+        # reading is named every pass, so a reader change cannot hide behind
+        # "promoted" (reception/E did, once).
+        _foreign = _foreign_instrument_walls()
+        if _foreign:
+            print("  >> %d promoted wall(s) stand on another instrument's reading (%s): "
+                  "`--remeasure` re-promotes them" % (len(_foreign), ", ".join(_foreign[:6]) + (" ..." if len(_foreign) > 6 else "")))
         # [B-ROUTING] AND BY WHICH DOOR, because "promoted" is now four
         # different claims about how a wall got there and one of them is a
         # waiver the Captain signed.
